@@ -501,14 +501,6 @@ UNR (Unresolved) (455371000124106^Invalid result^SCT or 125154007^Specimen unsat
 IND (Indeterminate) (82334004^Indeterminate^SCT)
 INC (Incomplete) (373121007^Test not done^SCT)","nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT)
 anterior nasal swab (697989009^Anterior nares swab^SCT)",Influenza virus A and B and SARS-CoV-2 (COVID-19) RNA panel - Respiratory specimen by NAA with probe detection,Influenza virus B RNA [Presence] in Respiratory specimen by NAA with probe detection
-Pt,BioGX SARS-CoV-2 Reagents for BD MAX System,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 N gene,,"Becton, Dickinson and Company (BD)",,,,"BioGX SARS-CoV-2 Reagents for BD MAX System_Becton, Dickinson & Company (BD)",2.68,,,,SARS-CoV-2 Result Interpretation,444213,EUA,,20200428,94531-1,94533-7,"Positive (260373001^Detected^SCT)
-Negative (260415000^Not detected^SCT)
-UNR (unresolved) (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)","nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT)
-oropharyngeal swab (258529004^Throat swab^SCT)
-nasal swab (445297001^Swab of internal nose^SCT)
-mid-turbinate swab (871810001^Mid-turbinate nasal swab^SCT)
-nasopharyngeal wash/aspirate (258467004^Nasopharyngeal washings^SCT or 258411007^Nasopharyngeal aspirate^SCT)
-nasal aspirates (429931000124105^Nasal aspirate specimen^SCT)",SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,SARS coronavirus 2 N gene [Presence] in Respiratory specimen by NAA with probe detection
 Pt,BD MAX System,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 N gene,,"Becton, Dickinson and Company (BD)",,,,"BD SARS-CoV-2 Reagents for BD MAX System_Becton, Dickinson and Company (BD)",2.68,,,,SARS-CoV-2 Result Interpretation,445003,EUA,,20210811,94531-1,94533-7,"Positive (260373001^Detected^SCT)
 Negative (260415000^Not detected^SCT)
 UNR (unresolved) (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)","nasal swab (445297001^Swab of internal nose^SCT)
@@ -535,6 +527,14 @@ Pt,BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B,Ord,IA.rapid,Re
 Positive test for SARS-CoV-2 (SARS-CoV-2 antigen detected) (260373001^Detected^SCT)
 Result invalid. Repeat the test (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)
 Test Invalid. Repeat the test (455371000124106^Invalid result^SCT)",anterior nasal swab (697989009^Anterior nares swab^SCT),Influenza virus A and B and ?SARS-CoV-2 (COVID-19) Ag panel - Upper respiratory specimen by Rapid immunoassay,SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay
+Pt,BioGX SARS-CoV-2 Reagents for BD MAX System,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 N gene,,"Becton, Dickinson and Company (BD)",,,,"BioGX SARS-CoV-2 Reagents for BD MAX System_Becton, Dickinson & Company (BD)",2.68,,,,SARS-CoV-2 Result Interpretation,444213,EUA,,20200428,94531-1,94533-7,"Positive (260373001^Detected^SCT)
+Negative (260415000^Not detected^SCT)
+UNR (unresolved) (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)","nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT)
+oropharyngeal swab (258529004^Throat swab^SCT)
+nasal swab (445297001^Swab of internal nose^SCT)
+mid-turbinate swab (871810001^Mid-turbinate nasal swab^SCT)
+nasopharyngeal wash/aspirate (258467004^Nasopharyngeal washings^SCT or 258411007^Nasopharyngeal aspirate^SCT)
+nasal aspirates (429931000124105^Nasal aspirate specimen^SCT)",SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,SARS coronavirus 2 N gene [Presence] in Respiratory specimen by NAA with probe detection
 Pt,WANTAI SARS-CoV-2 Ab ELISA,Ord,IA,Ser/Plas,,,,PrThr,SARS coronavirus 2 Ab,,"Beijing Wantai Biological Pharmacy Enterprise Co., Ltd.",,,,"WANTAI SARS-CoV-2 Ab ELISA_Beijing Wantai Biological Pharmacy Enterprise Co., Ltd.",2.68,,,,Antibody to SARS-CoV-2 Test Result Interpretation,,EUA,,20200811,94762-2,94762-2,"Anti-SARS-CoV-2 are not detected (260385009^Negative^SCT)
 Anti-SARS-CoV-2 are detected (10828004^Positive^SCT)","serum (119364003^Serum specimen^SCT)
 plasma (119361006^Plasma specimen^SCT)",SARS-CoV-2 (COVID-19) Ab [Presence] in Serum or Plasma by Immunoassay,SARS-CoV-2 (COVID-19) Ab [Presence] in Serum or Plasma by Immunoassay
@@ -1192,15 +1192,6 @@ Pt,LDT: CentoSure SARS-CoV-2 RT-PCR Assay,Ord,Probe.amp.tar,Respiratory,,,,PrThr
 Inconclusive (419984006^Inconclusive^SCT)
 Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)
 Positive (260373001^Detected^SCT)",dry oropharyngeal swab specimens (258529004^Throat swab^SCT),SARS-CoV-2 (COVID-19) RNA panel - Respiratory specimen by NAA with probe detection,SARS-CoV-2 (COVID-19) N gene [Presence] in Respiratory specimen by NAA with probe detection
-Pt,Xpert Omni SARS-CoV-2,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 RNA,,Cepheid,GeneXpert Omni System_Cepheid,,,Xpert Omni SARS-CoV-2_Cepheid,2.68,,MNI,,SARS-CoV-2 Result,,EUA,,20210929,94500-6,94500-6,"SARS-CoV-2 POSITIVE (260373001^Detected^SCT)
-SARS-CoV-2 NEGATIVE (260415000^Not Detected^SCT)
-INVALID (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)
-ERROR (455371000124106^Invalid result^SCT)
-NO RESULT (373121007^Test not done^SCT)","nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT)
-oropharyngeal swab (258529004^Throat swab^SCT)
-anterior nasal swab (697989009^Anterior nares swab^SCT)
-mid-turbinate swab (871810001^Mid-turbinate nasal swab^SCT)
-nasal wash/aspirate (433871000124101^Nasal washings^SCT or 429931000124105^Nasal aspirate specimen^SCT)",SARS-CoV-2 (COVID-19) RNA [Presence] in Respiratory specimen by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Respiratory specimen by NAA with probe detection
 Pt,Xpert Xpress SARS-CoV-2,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 RNA,,Cepheid,GeneXpert Dx System_Cepheid,,,Xpert Xpress SARS-CoV-2 test_Cepheid,2.68,,MNI,,SARS-CoV-2 Result,,EUA,,20200818,94531-1,94500-6,"SARS-CoV-2 POSITIVE (260373001^Detected^SCT)
 SARS-CoV-2 PRESUMPTIVE POS (720735008^Presumptive positive^SCT)
 SARS-CoV-2  NEGATIVE (260415000^Not detected^SCT)
@@ -1335,6 +1326,15 @@ Flu A NEGATIVE (260415000^Not Detected^SCT)
 NO RESULT-REPEAT TEST (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)
 INSTRUMENT ERROR (373121007^Test not done^SCT)","nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT)
 nasal swab (445297001^Swab of internal nose^SCT)",Influenza virus A and B and SARS-CoV-2 (COVID-19) and Respiratory syncytial virus RNA panel - Respiratory specimen by NAA with probe detection,Influenza virus A RNA [Presence] in Respiratory specimen by NAA with probe detection
+Pt,Xpert Omni SARS-CoV-2,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 RNA,,Cepheid,GeneXpert Omni System_Cepheid,,,Xpert Omni SARS-CoV-2_Cepheid,2.68,,MNI,,SARS-CoV-2 Result,,EUA,,20210929,94500-6,94500-6,"SARS-CoV-2 POSITIVE (260373001^Detected^SCT)
+SARS-CoV-2 NEGATIVE (260415000^Not Detected^SCT)
+INVALID (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)
+ERROR (455371000124106^Invalid result^SCT)
+NO RESULT (373121007^Test not done^SCT)","nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT)
+oropharyngeal swab (258529004^Throat swab^SCT)
+anterior nasal swab (697989009^Anterior nares swab^SCT)
+mid-turbinate swab (871810001^Mid-turbinate nasal swab^SCT)
+nasal wash/aspirate (433871000124101^Nasal washings^SCT or 429931000124105^Nasal aspirate specimen^SCT)",SARS-CoV-2 (COVID-19) RNA [Presence] in Respiratory specimen by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Respiratory specimen by NAA with probe detection
 Pt,Xpert Xpress SARS-CoV-2/Flu/RSV,Ord,Probe.amp.tar,Respiratory,,,,PrThr,Influenza virus B RNA,,Cepheid,GeneXpert Xpress System_Cepheid,"As the Xpert Xpress SARS-CoV-2/Flu/RSV test does not differentiate between the N2 and E gene targets, the presence of other coronaviruses in the B lineage, Betacoronavirus genus, including SARS-CoV-1 may cause a false positive result.",,Xpert Xpress SARS-CoV-2/Flu/RSV_Cepheid,2.68,,MNI,,Flu B Result,,EUA,,20201104,95941-1,92141-1,"Flu B POSITIVE (260373001^Detected^SCT)
 Flu B NEGATIVE (260415000^Not Detected^SCT)
 NO RESULT-REPEAT TEST (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)
@@ -1896,6 +1896,14 @@ Pt,Advanta Dx SARS-CoV-2 RT-PCR Assay,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS cor
 Negative (260415000^Not Detected^SCT)
 No Template (125154007^Specimen unsatisfactory for evaluation^SCT)
 Inconclusive (419984006^Inconclusive^SCT)",saliva specimens (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) N gene [Presence] in Saliva (oral fluid) by NAA with probe detection
+Pt,Advanta Dx COVID-19 EASE Assay,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 N gene,,Fluidigm Corporation,,,,Advanta Dx COVID-19 EASE Assay_Fluidigm Corporation,2.69,,,,SARS-CoV-2 RNA,,EUA,,20220216,94531-1,94533-7,"Positive (260373001^Detected^SCT)
+Negative (260415000^Not Detected^SCT)
+No Template (125154007^Specimen unsatisfactory for evaluation^SCT)
+Inconclusive (419984006^Inconclusive^SCT)","nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT)
+oropharyngeal swab (258529004^Throat swab^SCT)
+combined NP/OP swab (433801000124107^Nasopharyngeal and oropharyngeal swab^SCT)
+mid-turbinate nasal swab (871810001^Mid-turbinate nasal swab^SCT)
+anterior nasal swab (697989009^Anterior nares swab^SCT)",SARS-CoV-2 (COVID-19) RNA panel - Respiratory specimen by NAA with probe detection,SARS-CoV-2 (COVID-19) N gene [Presence] in Respiratory specimen by NAA with probe detection
 Pt,Fosun COVID-19 RT-PCR Detection Kit,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 RNA,,Fosun Pharma USA Inc.,,,,Fosun COVID-19 RT-PCR Detection Kit_Fosun Pharma USA Inc.,2.68,,,,SARS-CoV-2 nucleic acid,,EUA,,20210929,94531-1,94500-6,"2019-nCoV (+) (260373001^Detected^SCT)
 2019-nCoV (-) (260415000^Not detected^SCT)
 Inconclusive (419984006^Inconclusive^SCT)
@@ -2255,8 +2263,8 @@ Pt,LDT: BD MAX COVID-19 ASSAY (Authorized by HHS/OASH),Ord,Probe.amp.tar,Respira
 Negative (260415000^Not Detected^SCT)
 Inconclusive (419984006^Inconclusive^SCT)","nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT)
 tracheal aspirates (445447003^Specimen from trachea obtained by aspiration^SCT)",SARS-CoV-2 (COVID-19) ORF1a region [Presence] in Respiratory specimen by NAA with probe detection,SARS-CoV-2 (COVID-19) ORF1a region [Presence] in Respiratory specimen by NAA with probe detection
-Pt,iHealth COVID-19 Antigen Rapid Test,Ord,IA.rapid,Respiratory.upper,,,,PrThr,SARS coronavirus 2 Ag,,"iHealth Labs, Inc.",(iHealth Labs COVID-19 Antigen Rapid Test),,,"iHealth COVID-19 Antigen Rapid Test_iHealth Labs, Inc.",2.70,,(NA),,SARS-CoV-2 nucleocapsid protein antigen,,EUA,,20211117,97097-0,97097-0,"Positive Result (10828004^Positive^SCT)
-Negative Result (260385009^Negative^SCT)
+Pt,iHealth COVID-19 Antigen Rapid Test,Ord,IA.rapid,Respiratory.upper,,,,PrThr,SARS coronavirus 2 Ag,,"iHealth Labs, Inc.",(iHealth Labs COVID-19 Antigen Rapid Test),,,"iHealth COVID-19 Antigen Rapid Test_iHealth Labs, Inc.",2.70,,(NA),,SARS-CoV-2 nucleocapsid protein antigen,,EUA,,20220216,97097-0,97097-0,"Positive Result (260373001^Detected^SCT)
+Negative Result (260415000^Not Detected^SCT)
 Invalid Result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",anterior nasal (nares) swab (697989009^Anterior nares swab^SCT),SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay,SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay
 Pt,iHealth COVID-19 Antigen Rapid Test Pro,Ord,IA.rapid,Respiratory.upper,,,,PrThr,SARS coronavirus 2 Ag,,"iHealth Labs, Inc.",,,,"iHealth COVID-19 Antigen Rapid Test Pro_iHealth Labs, Inc.",2.70,,,,SARS-CoV-2 nucleocapsid antigens,,EUA,,20220126,97097-0,97097-0,"Positive Result (260373001^Detected^SCT)
 Negative Result (260415000^Not Detected^SCT)
@@ -2581,6 +2589,14 @@ Pt,LDT: Life Sciences Testing Center COVID-19 Test,Ord,Probe.amp.tar,Nose,,,,PrT
 NA (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)
 SARS-CoV-2 Inconclusive (419984006^Inconclusive^SCT)
 Positive SARS- CoV-2 (260373001^Detected^SCT)",anterior nasal swab specimens (697989009^Anterior nares swab^SCT),SARS-CoV-2 (COVID-19) RNA panel - Respiratory specimen by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Nose by NAA with probe detection
+Pt,TaqPath COVID-19 Fast PCR Combo Kit 2.0,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,Life Technologies Corporation (a part of Thermo Fisher Scientific Inc.),ABI QuantStudio 5 Real-Time PCR_Thermo Fisher,,,TaqPath COVID-19 Fast PCR Combo Kit 2.0_Life Technologies Corporation (a part of Thermo Fisher Scientific Inc.),2.69,,,,SARS-CoV-2 RNA Assessment,,EUA,,20210811,95826-4,94845-5,"SARS-CoV-2 Detected (260373001^Detected^SCT)
+SARS-CoV-2 Not Detected (260415000^Not Detected^SCT)
+SARS-CoV2 Inconclusive (419984006^Inconclusive^SCT)
+Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
+Pt,TaqPath COVID-19 Fast PCR Combo Kit 2.0,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,Life Technologies Corporation (a part of Thermo Fisher Scientific Inc.),ABI QuantStudio 7 Flex_Thermo Fisher,,,TaqPath COVID-19 Fast PCR Combo Kit 2.0_Life Technologies Corporation (a part of Thermo Fisher Scientific Inc.),2.69,,,,SARS-CoV-2 RNA Assessment,,EUA,,20210811,95826-4,94845-5,"SARS-CoV-2 Detected (260373001^Detected^SCT)
+SARS-CoV-2 Not Detected (260415000^Not Detected^SCT)
+SARS-CoV2 Inconclusive (419984006^Inconclusive^SCT)
+Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
 Pt,TaqPath COVID-19 MS2 Combo Kit 2.0,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 RNA,,Life Technologies Corporation (a part of Thermo Fisher Scientific Inc.),ABI QuantStudio 5 Real-Time PCR_Thermo Fisher,,,TaqPath COVID-19 MS2 Combo Kit 2.0_Life Technologies Corporation (a part of Thermo Fisher Scientific Inc.),2.69,,MNI,,SARS-CoV-2 RNA Results Interpretation,,EUA,,20210811,94531-1,94500-6,"Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)
 SARS-CoV-2 Not Detected (260415000^Not Detected^SCT)
 SARS-CoV-2 Inconclusive (419984006^Inconclusive^SCT)
@@ -2593,14 +2609,6 @@ SARS-CoV-2 Inconclusive (419984006^Inconclusive^SCT)
 SARS-CoV-2 Detected (260373001^Detected^SCT)","nasopharyngeal swabs (258500001^Nasopharyngeal swab^SCT)
 mid-turbinate nasal swabs (871810001^Mid-turbinate nasal swab^SCT)
 anterior nasal swabs (697989009^Anterior nares swab^SCT)",SARS-CoV-2 (COVID-19) RNA panel - Respiratory specimen by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Respiratory specimen by NAA with probe detection
-Pt,TaqPath COVID-19 Fast PCR Combo Kit 2.0,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,Life Technologies Corporation (a part of Thermo Fisher Scientific Inc.),ABI QuantStudio 5 Real-Time PCR_Thermo Fisher,,,TaqPath COVID-19 Fast PCR Combo Kit 2.0_Life Technologies Corporation (a part of Thermo Fisher Scientific Inc.),2.69,,,,SARS-CoV-2 RNA Assessment,,EUA,,20210811,95826-4,94845-5,"SARS-CoV-2 Detected (260373001^Detected^SCT)
-SARS-CoV-2 Not Detected (260415000^Not Detected^SCT)
-SARS-CoV2 Inconclusive (419984006^Inconclusive^SCT)
-Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
-Pt,TaqPath COVID-19 Fast PCR Combo Kit 2.0,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,Life Technologies Corporation (a part of Thermo Fisher Scientific Inc.),ABI QuantStudio 7 Flex_Thermo Fisher,,,TaqPath COVID-19 Fast PCR Combo Kit 2.0_Life Technologies Corporation (a part of Thermo Fisher Scientific Inc.),2.69,,,,SARS-CoV-2 RNA Assessment,,EUA,,20210811,95826-4,94845-5,"SARS-CoV-2 Detected (260373001^Detected^SCT)
-SARS-CoV-2 Not Detected (260415000^Not Detected^SCT)
-SARS-CoV2 Inconclusive (419984006^Inconclusive^SCT)
-Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
 Pt,LifeHope 2019-nCoV Real-Time RT-PCR Diagnostic Panel,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 N gene,,LifeHope Labs,,,,LifeHope 2019-nCoV Real-Time RT-PCR Diagnostic Panel_LifeHope Labs,2.68,,,,SARS-CoV-2 RNA,,EUA,,20200707,94531-1,94533-7,"SARS-CoV-2 detected (260373001^Detected^SCT)
 Inconclusive Result (419984006^Inconclusive^SCT)
 SARS-CoV-2 not detected (260415000^Not Detected^SCT)
@@ -2705,8 +2713,8 @@ Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory
 Pt,NxTAG Respiratory Pathogen Panel + SARS-CoV-2,Ord,Probe.amp.tar,Nph,,,,PrThr,Mycoplasma pneumoniae DNA,,"Luminex Molecular Diagnostics, Inc.",,,,"NxTAG Respiratory Pathogen Panel + SARS-CoV-2_Luminex Molecular Diagnostics, Inc.",2.69,,,,Mycoplasma pneumoniae,,EUA,,20210317,92143-7,88720-8,"Positive (260373001^Detected^SCT)
 Negative (260415000^Not Detected^SCT)
 Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasopharyngeal swabs (258500001^Nasopharyngeal swab^SCT),Respiratory pathogens DNA and RNA panel - Respiratory specimen by NAA with probe detection,Mycoplasma pneumoniae DNA [Presence] in Nasopharynx by NAA with probe detection
-Pt,Clip COVID Rapid Antigen Test,Ord,IA.rapid,Respiratory,,,,PrThr,SARS coronavirus 2 Ag,,"Luminostics, Inc.",Clip Analyzer_Luminostics,,,"Clip COVID Rapid Antigen Test_Luminostics, Inc.",2.68,,MNI,,SARS-CoV-2 nucleocapsid antigen,,EUA,,20201209,94558-4,94558-4,"Positive (10828004^Positive^SCT)
-Negative (260385009^Negative^SCT)
+Pt,Clip COVID Rapid Antigen Test,Ord,IA.rapid,Respiratory,,,,PrThr,SARS coronavirus 2 Ag,,"Luminostics, Inc.",Clip Analyzer_Luminostics,,,"Clip COVID Rapid Antigen Test_Luminostics, Inc.",2.68,,MNI,,SARS-CoV-2 nucleocapsid antigen,,EUA,,20220216,94558-4,94558-4,"Positive (260373001^Detected^SCT)
+Negative (260415000^Not Detected^SCT)
 Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasal swabs (445297001^Swab of internal nose^SCT),SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay
 Pt,LumiraDx SARS-CoV-2 Ab Test,Ord,IA.rapid,Ser/Plas/Bld,,,,PrThr,SARS coronavirus 2 Ab,,LumiraDx UK Ltd.,,,,LumiraDx SARS-CoV-2 Ab Test_LumiraDx UK Ltd.,2.70,,,,SARS-CoV-2 total antibodies,,EUA,,20210811,95542-7,95542-7,"Negative (260385009^Negative^SCT)
 Positive (10828004^Positive^SCT)
@@ -3261,6 +3269,18 @@ Negative (895231008^Not Detected in Pooled Specimen^SCT)
 Invalid Result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)","Nasopharyngeal swab (NP) (258500001^Nasopharyngeal swab^SCT)
 Oropharyngeal swab (e.g., throat swab, OP) (258529004^Throat swab^SCT)
 Anterior nasal swab (697989009^Anterior nares swab^SCT)",SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,SARS coronavirus 2 RNA [Presence] in Respiratory specimen by NAA with probe detection
+Pt,PerkinElmer New Coronavirus Nucleic Acid Detection Kit test,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,PerkinElmer,10190302000222,,,"PerkinElmer New Coronavirus Nucleic Acid Detection Kit_PerkinElmer, Inc.",2.69,,DII,,SARS-CoV-2 Result Interpretation,,EUA,,20210811,95826-4,94845-5,"SARS-CoV-2 detected (260373001^Detected^SCT)
+SARS-CoV-2 not detected (260415000^Not detected^SCT)
+Invalid Result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
+Pt,PerkinElmer New Coronavirus Nucleic Acid Detection Kit test,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,PerkinElmer,ABI QuantStudio 3 Real-Time PCR_Thermo Fisher,,,"PerkinElmer New Coronavirus Nucleic Acid Detection Kit_PerkinElmer, Inc.",2.69,,MNI,,SARS-CoV-2 Result Interpretation,,EUA,,20210811,95826-4,94845-5,"SARS-CoV-2 detected (260373001^Detected^SCT)
+SARS-CoV-2 not detected (260415000^Not detected^SCT)
+Invalid Result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
+Pt,PerkinElmer New Coronavirus Nucleic Acid Detection Kit test,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,PerkinElmer,10190302015592,,,"PerkinElmer New Coronavirus Nucleic Acid Detection Kit_PerkinElmer, Inc.",2.69,,DII,,SARS-CoV-2 Result Interpretation,,EUA,,20210811,95826-4,94845-5,"SARS-CoV-2 detected (260373001^Detected^SCT)
+SARS-CoV-2 not detected (260415000^Not detected^SCT)
+Invalid Result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
+Pt,PerkinElmer New Coronavirus Nucleic Acid Detection Kit test,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,PerkinElmer,Analytik Jena qTower G_Analytik Jena AG,,,"PerkinElmer New Coronavirus Nucleic Acid Detection Kit_PerkinElmer, Inc.",2.69,,MNI,,SARS-CoV-2 Result Interpretation,,EUA,,20210811,95826-4,94845-5,"SARS-CoV-2 detected (260373001^Detected^SCT)
+SARS-CoV-2 not detected (260415000^Not detected^SCT)
+Invalid Result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
 Pt,PerkinElmer New Coronavirus Nucleic Acid Detection Kit test,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 RNA,,PerkinElmer,10190302015592,,,"PerkinElmer New Coronavirus Nucleic Acid Detection Kit_PerkinElmer, Inc.",2.68,,DII,,SARS-CoV-2 Result Interpretation,,EUA,,20210811,94531-1,94500-6,"SARS-CoV-2 detected (260373001^Detected^SCT)
 SARS-CoV-2 not detected (260415000^Not detected^SCT)
 Negative (895231008^Not Detected in Pooled Specimen^SCT)
@@ -3274,18 +3294,6 @@ Invalid Result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatis
 Oropharyngeal swab (e.g., throat swab, OP) (258529004^Throat swab^SCT)
 Anterior nasal swab (697989009^Anterior nares swab^SCT)",SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,SARS coronavirus 2 RNA [Presence] in Respiratory specimen by NAA with probe detection
 Pt,PerkinElmer New Coronavirus Nucleic Acid Detection Kit test,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,PerkinElmer,ABI 7500 Real-Time PCR_Thermo Fisher,,,"PerkinElmer New Coronavirus Nucleic Acid Detection Kit_PerkinElmer, Inc.",2.69,,MNI,,SARS-CoV-2 Result Interpretation,,EUA,,20210811,95826-4,94845-5,"SARS-CoV-2 detected (260373001^Detected^SCT)
-SARS-CoV-2 not detected (260415000^Not detected^SCT)
-Invalid Result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
-Pt,PerkinElmer New Coronavirus Nucleic Acid Detection Kit test,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,PerkinElmer,10190302000222,,,"PerkinElmer New Coronavirus Nucleic Acid Detection Kit_PerkinElmer, Inc.",2.69,,DII,,SARS-CoV-2 Result Interpretation,,EUA,,20210811,95826-4,94845-5,"SARS-CoV-2 detected (260373001^Detected^SCT)
-SARS-CoV-2 not detected (260415000^Not detected^SCT)
-Invalid Result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
-Pt,PerkinElmer New Coronavirus Nucleic Acid Detection Kit test,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,PerkinElmer,ABI QuantStudio 3 Real-Time PCR_Thermo Fisher,,,"PerkinElmer New Coronavirus Nucleic Acid Detection Kit_PerkinElmer, Inc.",2.69,,MNI,,SARS-CoV-2 Result Interpretation,,EUA,,20210811,95826-4,94845-5,"SARS-CoV-2 detected (260373001^Detected^SCT)
-SARS-CoV-2 not detected (260415000^Not detected^SCT)
-Invalid Result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
-Pt,PerkinElmer New Coronavirus Nucleic Acid Detection Kit test,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,PerkinElmer,10190302015592,,,"PerkinElmer New Coronavirus Nucleic Acid Detection Kit_PerkinElmer, Inc.",2.69,,DII,,SARS-CoV-2 Result Interpretation,,EUA,,20210811,95826-4,94845-5,"SARS-CoV-2 detected (260373001^Detected^SCT)
-SARS-CoV-2 not detected (260415000^Not detected^SCT)
-Invalid Result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
-Pt,PerkinElmer New Coronavirus Nucleic Acid Detection Kit test,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,PerkinElmer,Analytik Jena qTower G_Analytik Jena AG,,,"PerkinElmer New Coronavirus Nucleic Acid Detection Kit_PerkinElmer, Inc.",2.69,,MNI,,SARS-CoV-2 Result Interpretation,,EUA,,20210811,95826-4,94845-5,"SARS-CoV-2 detected (260373001^Detected^SCT)
 SARS-CoV-2 not detected (260415000^Not detected^SCT)
 Invalid Result (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
 Pt,LDT: PerkinElmer SARS-CoV-2 RT-qPCR Reagent Kit,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 RNA,,PerkinElmer Genomics,,"Testing is limited to PerkinElmer Genomics, 250 Industry Drive, Pittsburgh, PA (PKIG) which is certified under the Clinical Laboratory Improvement Amendments of 1988 (CLIA), 42 U.S.C. §263a, and meets requirements to perform high complexity tests.",,PerkinElmer SARS-CoV-2 RT-qPCR Reagent Kit_PerkinElmer Genomics,2.69,,,,SARS-CoV-2 Results Interpretation,,EUA,,20210414,94531-1,94500-6,"SARS-CoV-2 not detected (260415000^Not Detected^SCT)
@@ -3497,15 +3505,15 @@ Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory
 Pt,QIAstat-Dx Respiratory SARS-CoV-2 Panel,Ord,Probe.amp.tar,Nph,,,,PrThr,Rhinovirus+enterovirus RNA,,QIAGEN GmbH,,,,QIAstat-Dx Respiratory SARS-CoV-2 Panel_QIAGEN GmbH,2.68,,,,Rhinovirus/Enterovirus,,EUA,,20201110,78922-2,88721-6,"Positive (260373001^Detected^SCT)
 Negative (260415000^Not Detected^SCT)
 Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT),Respiratory pathogens DNA and RNA panel - Nasopharynx by NAA with probe detection,Rhinovirus+Enterovirus RNA [Presence] in Nasopharynx by NAA with probe detection
-Pt,QIAstat-Dx Respiratory SARS-CoV-2 Panel,Ord,Probe.amp.tar,Nph,,,,PrThr,Mycoplasma pneumoniae DNA,,QIAGEN GmbH,,,,QIAstat-Dx Respiratory SARS-CoV-2 Panel_QIAGEN GmbH,2.68,,,,Mycoplasma pneumoniae,,EUA,,20201110,78922-2,88720-8,"Positive (260373001^Detected^SCT)
-Negative (260415000^Not Detected^SCT)
-Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT),Respiratory pathogens DNA and RNA panel - Nasopharynx by NAA with probe detection,Mycoplasma pneumoniae DNA [Presence] in Nasopharynx by NAA with probe detection
-Pt,QIAstat-Dx Respiratory SARS-CoV-2 Panel,Ord,Probe.amp.tar,Nph,,,,PrThr,Chlamydophila pneumoniae DNA,,QIAGEN GmbH,,,,QIAstat-Dx Respiratory SARS-CoV-2 Panel_QIAGEN GmbH,2.68,,,,Chlamydophila pneumoniae,,EUA,,20201110,78922-2,88718-2,"Positive (260373001^Detected^SCT)
-Negative (260415000^Not Detected^SCT)
-Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT),Respiratory pathogens DNA and RNA panel - Nasopharynx by NAA with probe detection,Chlamydophila pneumoniae DNA [Presence] in Nasopharynx by NAA with probe detection
 Pt,QIAstat-Dx Respiratory SARS-CoV-2 Panel,Ord,Probe.amp.tar,Nph,,,,PrThr,Bordetella pertussis DNA,,QIAGEN GmbH,,,,QIAstat-Dx Respiratory SARS-CoV-2 Panel_QIAGEN GmbH,2.68,,,,Bordetella pertussis,,EUA,,20201110,78922-2,43913-3,"Positive (260373001^Detected^SCT)
 Negative (260415000^Not Detected^SCT)
 Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT),Respiratory pathogens DNA and RNA panel - Nasopharynx by NAA with probe detection,Bordetella pertussis DNA [Presence] in Nasopharynx by NAA with probe detection
+Pt,QIAstat-Dx Respiratory SARS-CoV-2 Panel,Ord,Probe.amp.tar,Nph,,,,PrThr,Chlamydophila pneumoniae DNA,,QIAGEN GmbH,,,,QIAstat-Dx Respiratory SARS-CoV-2 Panel_QIAGEN GmbH,2.68,,,,Chlamydophila pneumoniae,,EUA,,20201110,78922-2,88718-2,"Positive (260373001^Detected^SCT)
+Negative (260415000^Not Detected^SCT)
+Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT),Respiratory pathogens DNA and RNA panel - Nasopharynx by NAA with probe detection,Chlamydophila pneumoniae DNA [Presence] in Nasopharynx by NAA with probe detection
+Pt,QIAstat-Dx Respiratory SARS-CoV-2 Panel,Ord,Probe.amp.tar,Nph,,,,PrThr,Mycoplasma pneumoniae DNA,,QIAGEN GmbH,,,,QIAstat-Dx Respiratory SARS-CoV-2 Panel_QIAGEN GmbH,2.68,,,,Mycoplasma pneumoniae,,EUA,,20201110,78922-2,88720-8,"Positive (260373001^Detected^SCT)
+Negative (260415000^Not Detected^SCT)
+Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT),Respiratory pathogens DNA and RNA panel - Nasopharynx by NAA with probe detection,Mycoplasma pneumoniae DNA [Presence] in Nasopharynx by NAA with probe detection
 Pt,QIAreach Anti-SARS-CoV-2 Total Test,Ord,IA.rapid,Ser/Plas/Bld,,,,PrThr,SARS coronavirus 2 Ab,,"QIAGEN, GmbH",,,,"QIAreach Anti-SARS-CoV-2 Total Test_QIAGEN, GmbH",2.69,,,,Anti-SARS-CoV-2 Total Test result,,EUA,,20210602,95542-7,95542-7,"Positive (+) (10828004^Positive^SCT)
 Negative (-) (260385009^Negative^SCT)","serum (119364003^Serum specimen^SCT)
 plasma (119361006^Plasma specimen^SCT)","SARS-CoV-2 (COVID-19) Ab [Presence] in Serum, Plasma or Blood by Rapid immunoassay","SARS-CoV-2 (COVID-19) Ab [Presence] in Serum, Plasma or Blood by Rapid immunoassay"
@@ -3567,34 +3575,26 @@ oropharyngeal swabs (258529004^Throat swab^SCT)
 sputum (119334006^Sputum specimen^SCT)
 tracheal aspirates (445447003^Specimen from trachea obtained by aspiration^SCT)
 bronchoalveolar lavage/wash (258607008^Bronchoalveolar lavage fluid sample^SCT)).",SARS coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,SARS coronavirus 2 RNA [Presence] in Respiratory specimen by NAA with probe detection
-Pt,LDT: Quest Diagnostics RC COVID-19+Flu RT-PCR,Nom,Probe.amp.tar,Respiratory,,,,Prid,Influenza virus A & Influenza virus B & SARS coronavirus 2 identified,,"Quest Diagnostics Infectious Disease, Inc.",cobas 6800 System_Roche,You may need to report more than one OBX with the same LOINC (using OBX-4 as a differentiator) when more than one organism is detected,,"Quest Diagnostics RC COVID-19+Flu RT-PCR_Quest Diagnostics Infectious Disease, Inc.",2.68,,MNI,,Result Interpretation,,EUA,,20201209,95380-2,95423-0,"No target RNA Detected (260415000^Not Detected^SCT)
-Influenza B RNA Detected (407480007^Influenza B virus^SCT)
-Influenza A RNA Detected (407479009^Influenza A virus^SCT)
-Influenza A and Influenza B RNA Detected (407479009^Influenza A virus^SCT and 407480007^Influenza B virus^SCT)
-Presumptive Positive for SARS-CoV-2 RNA (868196001^Subgenus Sarbecovirus^SCT)
-Presumptive Positive for SARS-CoV-2 RNA and Influenza B RNA Detected (868196001^Subgenus Sarbecovirus^SCT and 407480007^Influenza B virus^SCT)
-Influenza A RNA Detected and Presumptive Positive for SARS-CoV-2 RNA (407479009^Influenza A virus^SCT and 868196001^Subgenus Sarbecovirus^SCT)
-Influenza A RNA Detected, Presumptive Positive for SARS-CoV-2 RNA, and Influenza B RNA Detected (407479009^Influenza A virus^SCT and 868196001^Subgenus Sarbecovirus^SCT and 407480007^Influenza B virus^SCT)
-SARS-CoV-2 RNA Detected (840533007^Severe acute respiratory syndrome coronavirus 2^SCT)
-SARS-CoV-2 RNA and Influenza B RNA Detected (840533007^Severe acute respiratory syndrome coronavirus 2^SCT and 407480007^Influenza B virus^SCT)
-Influenza A RNA and SARS-CoV-2 RNA Detected (407479009^Influenza A virus^SCT and 840533007^Severe acute respiratory syndrome coronavirus 2^SCT)
-Influenza A RNA and SARS-CoV-2 RNA Detected (407479009^Influenza A virus^SCT and 840533007^Severe acute respiratory syndrome coronavirus 2^SCT)
-Influenza A RNA, SARS-CoV-2 RNA, and Influenza B RNA Detected (407479009^Influenza A virus^SCT and 840533007^Severe acute respiratory syndrome coronavirus 2^SCT and 407480007^Influenza B virus^SCT)
-Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasal swab (445297001^Swab of internal nose^SCT),Influenza virus A and B and SARS-CoV-2 (COVID-19) and SARS-related CoV RNA panel - Respiratory specimen by NAA with probe detection,Influenza virus A + B and SARS-CoV-2 (COVID-19) identified in Respiratory specimen by NAA with probe detection
-Pt,LDT: Quest Diagnostics RC COVID-19+Flu RT-PCR,Nom,Probe.amp.tar,Respiratory,,,,Prid,Influenza virus A & Influenza virus B & SARS coronavirus 2 identified,,"Quest Diagnostics Infectious Disease, Inc.",cobas 8800 System_Roche,You may need to report more than one OBX with the same LOINC (using OBX-4 as a differentiator) when more than one organism is detected,,"Quest Diagnostics RC COVID-19+Flu RT-PCR_Quest Diagnostics Infectious Disease, Inc.",2.68,,MNI,,Result Interpretation,,EUA,,20201209,95380-2,95423-0,"No target RNA Detected (260415000^Not Detected^SCT)
-Influenza B RNA Detected (407480007^Influenza B virus^SCT)
-Influenza A RNA Detected (407479009^Influenza A virus^SCT)
-Influenza A and Influenza B RNA Detected (407479009^Influenza A virus^SCT and 407480007^Influenza B virus^SCT)
-Presumptive Positive for SARS-CoV-2 RNA (868196001^Subgenus Sarbecovirus^SCT)
-Presumptive Positive for SARS-CoV-2 RNA and Influenza B RNA Detected (868196001^Subgenus Sarbecovirus^SCT and 407480007^Influenza B virus^SCT)
-Influenza A RNA Detected and Presumptive Positive for SARS-CoV-2 RNA (407479009^Influenza A virus^SCT and 868196001^Subgenus Sarbecovirus^SCT)
-Influenza A RNA Detected, Presumptive Positive for SARS-CoV-2 RNA, and Influenza B RNA Detected (407479009^Influenza A virus^SCT and 868196001^Subgenus Sarbecovirus^SCT and 407480007^Influenza B virus^SCT)
-SARS-CoV-2 RNA Detected (840533007^Severe acute respiratory syndrome coronavirus 2^SCT)
-SARS-CoV-2 RNA and Influenza B RNA Detected (840533007^Severe acute respiratory syndrome coronavirus 2^SCT and 407480007^Influenza B virus^SCT)
-Influenza A RNA and SARS-CoV-2 RNA Detected (407479009^Influenza A virus^SCT and 840533007^Severe acute respiratory syndrome coronavirus 2^SCT)
-Influenza A RNA and SARS-CoV-2 RNA Detected (407479009^Influenza A virus^SCT and 840533007^Severe acute respiratory syndrome coronavirus 2^SCT)
-Influenza A RNA, SARS-CoV-2 RNA, and Influenza B RNA Detected (407479009^Influenza A virus^SCT and 840533007^Severe acute respiratory syndrome coronavirus 2^SCT and 407480007^Influenza B virus^SCT)
-Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasal swab (445297001^Swab of internal nose^SCT),Influenza virus A and B and SARS-CoV-2 (COVID-19) and SARS-related CoV RNA panel - Respiratory specimen by NAA with probe detection,Influenza virus A + B and SARS-CoV-2 (COVID-19) identified in Respiratory specimen by NAA with probe detection
+Pt,LDT: Quest Diagnostics RC COVID-19+Flu RT-PCR,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 RNA,,Quest Diagnostics Nichols Institute,cobas 6800 System_Roche,,,"Quest Diagnostics RC COVID-19+Flu RT-PCR_Quest Diagnostics Infectious Disease, Inc.",2.69,,MNI,,SARS-CoV-2 Interpretation,,EUA,,20220223,95422-2,94500-6,"SARS-CoV-2 RNA Not Detected (260415000^Not Detected^SCT)
+Presumptive Positive for SARS-CoV-2 RNA (720735008^Presumptive positive^SCT)
+SARS-CoV-2 RNA Detected (260373001^Detected^SCT)
+SARS-CoV-2 Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasal swab (445297001^Swab of internal nose^SCT),Influenza virus A and B and SARS-CoV-2 (COVID-19) RNA panel - Respiratory specimen by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Respiratory specimen by NAA with probe detection
+Pt,LDT: Quest Diagnostics RC COVID-19+Flu RT-PCR,Ord,Probe.amp.tar,Respiratory,,,,PrThr,Influenza virus A RNA,,Quest Diagnostics Nichols Institute,cobas 6800 System_Roche,,,"Quest Diagnostics RC COVID-19+Flu RT-PCR_Quest Diagnostics Infectious Disease, Inc.",2.66,,MNI,,Influenza A Interpretation,,EUA,,20220223,95422-2,92142-9,"Influenza A RNA Not Detected (260415000^Not Detected^SCT)
+Influenza A RNA Detected (260373001^Detected^SCT)
+Influenza A Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasal swab (445297001^Swab of internal nose^SCT),Influenza virus A and B and SARS-CoV-2 (COVID-19) RNA panel - Respiratory specimen by NAA with probe detection,Influenza virus A RNA [Presence] in Respiratory specimen by NAA with probe detection
+Pt,LDT: Quest Diagnostics RC COVID-19+Flu RT-PCR,Ord,Probe.amp.tar,Respiratory,,,,PrThr,Influenza virus B RNA,,Quest Diagnostics Nichols Institute,cobas 6800 System_Roche,,,"Quest Diagnostics RC COVID-19+Flu RT-PCR_Quest Diagnostics Infectious Disease, Inc.",2.66,,MNI,,Influenza B Interpretation,,EUA,,20220223,95422-2,92141-1,"Influenza B RNA Not Detected (260415000^Not Detected^SCT)
+Influenza B RNA Detected (260373001^Detected^SCT)
+Influenza B Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasal swab (445297001^Swab of internal nose^SCT),Influenza virus A and B and SARS-CoV-2 (COVID-19) RNA panel - Respiratory specimen by NAA with probe detection,Influenza virus B RNA [Presence] in Respiratory specimen by NAA with probe detection
+Pt,LDT: Quest Diagnostics RC COVID-19+Flu RT-PCR,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 RNA,,Quest Diagnostics Nichols Institute,cobas 8800 System_Roche,,,"Quest Diagnostics RC COVID-19+Flu RT-PCR_Quest Diagnostics Infectious Disease, Inc.",2.69,,MNI,,SARS-CoV-2 Interpretation,,EUA,,20220223,95422-2,94500-6,"SARS-CoV-2 RNA Not Detected (260415000^Not Detected^SCT)
+Presumptive Positive for SARS-CoV-2 RNA (720735008^Presumptive positive^SCT)
+SARS-CoV-2 RNA Detected (260373001^Detected^SCT)
+SARS-CoV-2 Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasal swab (445297001^Swab of internal nose^SCT),Influenza virus A and B and SARS-CoV-2 (COVID-19) RNA panel - Respiratory specimen by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Respiratory specimen by NAA with probe detection
+Pt,LDT: Quest Diagnostics RC COVID-19+Flu RT-PCR,Ord,Probe.amp.tar,Respiratory,,,,PrThr,Influenza virus A RNA,,Quest Diagnostics Nichols Institute,cobas 8800 System_Roche,,,"Quest Diagnostics RC COVID-19+Flu RT-PCR_Quest Diagnostics Infectious Disease, Inc.",2.66,,MNI,,Influenza A Interpretation,,EUA,,20220223,95422-2,92142-9,"Influenza A RNA Not Detected (260415000^Not Detected^SCT)
+Influenza A RNA Detected (260373001^Detected^SCT)
+Influenza A Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasal swab (445297001^Swab of internal nose^SCT),Influenza virus A and B and SARS-CoV-2 (COVID-19) RNA panel - Respiratory specimen by NAA with probe detection,Influenza virus A RNA [Presence] in Respiratory specimen by NAA with probe detection
+Pt,LDT: Quest Diagnostics RC COVID-19+Flu RT-PCR,Ord,Probe.amp.tar,Respiratory,,,,PrThr,Influenza virus B RNA,,Quest Diagnostics Nichols Institute,cobas 8800 System_Roche,,,"Quest Diagnostics RC COVID-19+Flu RT-PCR_Quest Diagnostics Infectious Disease, Inc.",2.66,,MNI,,Influenza B Interpretation,,EUA,,20220223,95422-2,92141-1,"Influenza B RNA Not Detected (260415000^Not Detected^SCT)
+Influenza B RNA Detected (260373001^Detected^SCT)
+Influenza B Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",nasal swab (445297001^Swab of internal nose^SCT),Influenza virus A and B and SARS-CoV-2 (COVID-19) RNA panel - Respiratory specimen by NAA with probe detection,Influenza virus B RNA [Presence] in Respiratory specimen by NAA with probe detection
 Pt,Lyra Direct SARS-CoV-2 Assay,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 ORF1ab region,,Quidel,10190302000222,,,Lyra Direct SARS-CoV-2 Assay_Quidel Corporation,2.68,,DII,,SARS-CoV-2 Result Interpretation,,EUA,,20200925,94559-2,94559-2,"No SARS-CoV-2 viral RNA detected; PRC Detected. (260415000^Not Detected^SCT)
 SARS-CoV-2 Virus viral RNA detected. (260373001^Detected^SCT)
 No SARS-CoV-2 viral RNA and no PRC RNA detected.(455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)","nasal swab (445297001^Swab of internal nose^SCT)
@@ -4015,12 +4015,12 @@ Plasma (119361006^Plasma specimen^SCT)",SARS-CoV-2 (COVID-19) IgG Ab [Presence] 
 Pt,ADVIA Centaur SARS-CoV-2 IgG (COV2G),Ord,IA,Ser/Plas,,,,PrThr,SARS coronavirus 2 Ab.IgG,,Siemens,ADVIA Centaur XPT system_Siemens,SARS-CoV-2 S1 RBD antigen,,ADVIA Centaur SARS-CoV-2 IgG (COV2G)_Siemens Healthcare Diagnostics Inc.,2.68,,MNI,,IgG antibodies to SARS-CoV-2,,EUA,,20200818,94563-4,94563-4,"Nonreactive (260385009^Negative^SCT)
 Reactive (10828004^Positive^SCT)","Serum (119364003^Serum specimen^SCT)
 Plasma (119361006^Plasma specimen^SCT)",SARS-CoV-2 (COVID-19) IgG Ab [Presence] in Serum or Plasma by Immunoassay,SARS-CoV-2 (COVID-19) IgG Ab [Presence] in Serum or Plasma by Immunoassay
-Pt,ADVIA Centaur SARS-CoV-2 Total (COV2T),Ord,IA,Ser/Plas,,,,PrThr,SARS coronavirus 2 Ab,,Siemens,,,,ADVIA Centaur SARS-CoV-2 Total (COV2T)_Siemens Healthcare Diagnostics Inc.,2.68,,,,SARS-CoV-2 total antibody,,EUA,,20200602,94762-2,94762-2,"Specimen is non-reactive for anti-SARS-CoV-2 (260385009^Negative^SCT)
-Specimen is reactive for anti-SARS-CoV-2 (10828004^Positive^SCT)","Serum (119364003^Serum specimen^SCT)
-Plasma (119361006^Plasma specimen^SCT)",SARS coronavirus 2 Ab [Presence] in Serum or Plasma by Immunoassay,SARS coronavirus 2 Ab [Presence] in Serum or Plasma by Immunoassay
 Pt,Atellica IM SARS-CoV-2 IgG (COV2G),Ord,IA,Ser/Plas,,,,PrThr,SARS coronavirus 2 Ab.IgG,,Siemens,Atellica IM Analyzer_Siemens,SARS-CoV-2 S1 RBD antigen,,Atellica IM SARS-CoV-2 IgG (COV2G)_Siemens Healthcare Diagnostics Inc.,2.68,,MNI,,IgG antibodies to SARS-CoV-2,,EUA,,20200818,94563-4,94563-4,"Nonreactive (260385009^Negative^SCT)
 Reactive (10828004^Positive^SCT)","Serum (119364003^Serum specimen^SCT)
 Plasma (119361006^Plasma specimen^SCT)",SARS-CoV-2 (COVID-19) IgG Ab [Presence] in Serum or Plasma by Immunoassay,SARS-CoV-2 (COVID-19) IgG Ab [Presence] in Serum or Plasma by Immunoassay
+Pt,ADVIA Centaur SARS-CoV-2 Total (COV2T),Ord,IA,Ser/Plas,,,,PrThr,SARS coronavirus 2 Ab,,Siemens,,,,ADVIA Centaur SARS-CoV-2 Total (COV2T)_Siemens Healthcare Diagnostics Inc.,2.68,,,,SARS-CoV-2 total antibody,,EUA,,20200602,94762-2,94762-2,"Specimen is non-reactive for anti-SARS-CoV-2 (260385009^Negative^SCT)
+Specimen is reactive for anti-SARS-CoV-2 (10828004^Positive^SCT)","Serum (119364003^Serum specimen^SCT)
+Plasma (119361006^Plasma specimen^SCT)",SARS coronavirus 2 Ab [Presence] in Serum or Plasma by Immunoassay,SARS coronavirus 2 Ab [Presence] in Serum or Plasma by Immunoassay
 Pt,Atellica IM SARS-CoV-2 Total (COV2T),Ord,IA,Ser/Plas,,,,PrThr,SARS coronavirus 2 Ab,,Siemens,,,,Atellica IM SARS-CoV-2 Total (COV2T)_Siemens Healthcare Diagnostics Inc.,2.68,,,,SARS-CoV-2 total antibody,,EUA,,20200602,94762-2,94762-2,"Specimen is non-reactive for anti-SARS-CoV-2 (260385009^Negative^SCT)
 Specimen is reactive for anti-SARS-CoV-2 (10828004^Positive^SCT)","Serum (119364003^Serum specimen^SCT)
 Plasma (119361006^Plasma specimen^SCT)",SARS coronavirus 2 Ab [Presence] in Serum or Plasma by Immunoassay,SARS coronavirus 2 Ab [Presence] in Serum or Plasma by Immunoassay
@@ -4226,15 +4226,6 @@ bronchoalveolar lavage (BAL) fluid (258607008^Bronchoalveolar lavage fluid sampl
 Pt,LDT: Mount Sinai SARS-CoV-2 Assay,Ord,Probe.amp.tar,Saliva,,,,PrThr,SARS coronavirus 2 RNA,,"The Mount Sinai Hospital, Center for Clinical Laboratories",,"Testing is limited to Mount Sinai COVID Laboratory, located at 281 First Avenue, 12th Floor Dazian Building, Room 1201, New York, NY 10003",,"Mount Sinai SARS-CoV-2 Assay_The Mount Sinai Hospital, Center for Clinical Laboratories",2.69,,,,SARS-CoV-2 Result Interpretation,,EUA,,20210901,95826-4,94845-5,"SARS-CoV-2 not detected (260415000^Not Detected^SCT)
 SARS-CoV-2 detected (260373001^Detected^SCT)
 Invalid result, specimen needs to be re-tested from re-extraction or re-collected from patient for test (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)",saliva specimens (258560004^Oral saliva sample^SCT),SARS-CoV-2 (COVID-19) RNA panel - Saliva (oral fluid) by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Saliva (oral fluid) by NAA with probe detection
-Pt,TaqPath COVID-19 Combo Kit,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 RNA,,Thermo Fisher,10190302000222,,,"TaqPath COVID-19 Combo Kit_Thermo Fisher Scientific, Inc.",2.68,,DII,,SARS-CoV-2 Result,,EUA,,20201028,94531-1,94500-6,"Positive SARS-COV-2 (260373001^Detected^SCT)
-SARS-CoV-2 Not Detected (260415000^Not detected^SCT)
-SARS-CoV-2 Inconclusive (419984006^Inconclusive^SCT)
-NA (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)","nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT)
-oropharyngeal swab (258529004^Throat swab^SCT)
-nasal swab (445297001^Swab of internal nose^SCT)
-mid-turbinate swab (871810001^Mid-turbinate nasal swab^SCT)
-nasopharyngeal aspirate (258411007^Nasopharyngeal aspirate^SCT)
-bronchoalveolar lavage (BAL) specimens (258607008^Bronchoalveolar lavage fluid sample^SCT)",SARS Coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,SARS coronavirus 2 RNA [Presence] in Respiratory specimen by NAA with probe detection
 Pt,TaqPath COVID-19 Combo Kit,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 RNA,,Thermo Fisher,ABI 7500 FAST Real-Time PCR_Thermo Fisher,,,"TaqPath COVID-19 Combo Kit_Thermo Fisher Scientific, Inc.",2.68,,,,SARS-CoV-2 Result,,EUA,,20201028,94531-1,94500-6,"Positive SARS-COV-2 (260373001^Detected^SCT)
 SARS-CoV-2 Not Detected (260415000^Not detected^SCT)
 SARS-CoV-2 Inconclusive (419984006^Inconclusive^SCT)
@@ -4263,6 +4254,15 @@ mid-turbinate swab (871810001^Mid-turbinate nasal swab^SCT)
 nasopharyngeal aspirate (258411007^Nasopharyngeal aspirate^SCT)
 bronchoalveolar lavage (BAL) specimens (258607008^Bronchoalveolar lavage fluid sample^SCT)",SARS Coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,SARS coronavirus 2 RNA [Presence] in Respiratory specimen by NAA with probe detection
 Pt,TaqPath COVID-19 Combo Kit,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 RNA,,Thermo Fisher,ABI QuantStudio 7 Flex_Thermo Fisher,,,"TaqPath COVID-19 Combo Kit_Thermo Fisher Scientific, Inc.",2.68,,,,SARS-CoV-2 Result,,EUA,,20201028,94531-1,94500-6,"Positive SARS-COV-2 (260373001^Detected^SCT)
+SARS-CoV-2 Not Detected (260415000^Not detected^SCT)
+SARS-CoV-2 Inconclusive (419984006^Inconclusive^SCT)
+NA (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)","nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT)
+oropharyngeal swab (258529004^Throat swab^SCT)
+nasal swab (445297001^Swab of internal nose^SCT)
+mid-turbinate swab (871810001^Mid-turbinate nasal swab^SCT)
+nasopharyngeal aspirate (258411007^Nasopharyngeal aspirate^SCT)
+bronchoalveolar lavage (BAL) specimens (258607008^Bronchoalveolar lavage fluid sample^SCT)",SARS Coronavirus 2 RNA panel - Respiratory specimen by NAA with probe detection,SARS coronavirus 2 RNA [Presence] in Respiratory specimen by NAA with probe detection
+Pt,TaqPath COVID-19 Combo Kit,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 RNA,,Thermo Fisher,10190302000222,,,"TaqPath COVID-19 Combo Kit_Thermo Fisher Scientific, Inc.",2.68,,DII,,SARS-CoV-2 Result,,EUA,,20201028,94531-1,94500-6,"Positive SARS-COV-2 (260373001^Detected^SCT)
 SARS-CoV-2 Not Detected (260415000^Not detected^SCT)
 SARS-CoV-2 Inconclusive (419984006^Inconclusive^SCT)
 NA (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)","nasopharyngeal swab (258500001^Nasopharyngeal swab^SCT)
@@ -4424,6 +4424,10 @@ mid-turbinate nasal swabs (871810001^Mid-turbinate nasal swab^SCT)
 anterior nasal swabs (697989009^Anterior nares swab^SCT)
 nasopharyngeal wash/aspirate (258467004^Nasopharyngeal washings^SCT or 258411007^Nasopharyngeal aspirate^SCT)
 nasal aspirate (429931000124105^Nasal aspirate specimen^SCT)",SARS-CoV-2 (COVID-19) N gene [Presence] in Respiratory specimen by NAA with probe detection,SARS-CoV-2 (COVID-19) N gene [Presence] in Respiratory specimen by NAA with probe detection
+Pt,UOL COVID-19 Test,Ord,Probe.amp.tar,Nose,,,,PrThr,SARS coronavirus 2 RNA,,Uh-Oh Labs Inc.,,,,UOL COVID-19 Test_Uh-Oh Labs Inc.,2.69,,,,SARS-CoV-2 RNA,,EUA,,20220216,95406-5,95406-5,"Positive (260373001^Detected^SCT)
+Negative (260415000^Not Detected^SCT)
+Invalid (455371000124106^Invalid result^SCT or 125154007^Specimen unsatisfactory for evaluation^SCT)
+Cancelled (373121007^Test not done^SCT)",anterior nasal swab (697989009^Anterior nares swab^SCT),SARS-CoV-2 (COVID-19) RNA [Presence] in Nose by NAA with probe detection,SARS-CoV-2 (COVID-19) RNA [Presence] in Nose by NAA with probe detection
 Pt,LDT: UDX SARS-CoV-2 Molecular Assay,Ord,Probe.amp.tar,Respiratory,,,,PrThr,SARS coronavirus 2 ORF1ab region,,Ultimate Dx Laboratory,,,,UDX SARS-CoV-2 Molecular Assay_Ultimate Dx Laboratory,2.68,,,,SARS-CoV-2 Result Interpretation,,EUA,,20200512,94559-2,94559-2,"Positive for SARSCoV-2 RNA (260373001^Detected^SCT)
 Negative for SARSCoV-2 RNA (260415000^Not detected^SCT)
 Invalid - repeat test (455371000124106^Invalid result^SCT)","nasal swabs (445297001^Swab of internal nose^SCT)

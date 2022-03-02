@@ -35,7 +35,7 @@ const GettingStartedDropdown = () => {
                     setIsOpen(!isOpen);
                 }}
                 isOpen={isOpen}
-                label="Getting Started"
+                label="Getting started"
                 isCurrent={isOpen}
             />
             <Menu
