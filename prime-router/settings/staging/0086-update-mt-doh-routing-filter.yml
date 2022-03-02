@@ -66,6 +66,7 @@
         action: "NONE"
         onlyOncePerDay: false
     description: ""
+    transport: null
     externalName: "Primary HL7 Feed"
   - name: "elr-csv"
     organizationName: "mt-doh"
