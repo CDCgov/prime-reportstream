@@ -225,18 +225,18 @@ resource "azurerm_storage_account_customer_managed_key" "storage_partner_key" {
   depends_on = [azurerm_key_vault_access_policy.storage_partner_policy]
 }
 
-module "storageaccountpartner_blob_private_endpoint" {
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_partner.id
-  name           = azurerm_storage_account.storage_partner.name
-  type           = "storage_account_blob"
-  resource_group = var.resource_group
-  location       = var.location
+# module "storageaccountpartner_blob_private_endpoint" {
+#   source         = "../common/private_endpoint"
+#   resource_id    = azurerm_storage_account.storage_partner.id
+#   name           = azurerm_storage_account.storage_partner.name
+#   type           = "storage_account_blob"
+#   resource_group = var.resource_group
+#   location       = var.location
 
-  endpoint_subnet_ids = var.endpoint_subnet
+#   endpoint_subnet_ids = var.endpoint_subnet
 
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
-}
+#   endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
+# }
 
 resource "azurerm_storage_container" "storage_container_hhsprotect" {
   name                 = "hhsprotect"
