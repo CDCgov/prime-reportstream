@@ -16,7 +16,7 @@ export const CsvSchemaDocumentation = () => {
             </Helmet>
             <section id="anchor-top">
                 <span className="text-base text-italic">
-                    Updated: January 2022
+                    Updated: February 18, 2022
                 </span>
                 <h2 className="margin-top-0 ">
                     CSV schema documentation{" "}
@@ -128,7 +128,7 @@ export const CsvSchemaDocumentation = () => {
                     <li>
                         <a
                             id="standard-csv"
-                            href="/assets/csv/ReportStream-StandardCSV-ExampleData-20220107.csv"
+                            href="/assets/csv/ReportStream-StandardCSV-ExampleData-20220218.csv"
                             className="usa-link"
                         >
                             ReportStream standard CSV with example data
@@ -147,7 +147,7 @@ export const CsvSchemaDocumentation = () => {
 
                 <h4 className="margin-top-4">Column headers and order</h4>
                 <ul>
-                    <li>Column headers can can be placed in any order.</li>
+                    <li>Column headers can be placed in any order.</li>
                     <li>
                         Column headers must be included as specified in this
                         documentation.{" "}

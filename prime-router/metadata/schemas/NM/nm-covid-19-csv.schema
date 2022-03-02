@@ -43,6 +43,7 @@ elements:
       - name: OrdFacPhone
 
   - name: local_file_created_date
+    type: TEXT
     mapper: timestamp(yyyyMMdd)
     csvFields:
       - name: DateTimeMessage
@@ -167,7 +168,7 @@ elements:
 
   - name: local_result_test_desc
     type: TABLE
-    table: LIVD-SARS-CoV-2-2021-01-20
+    table: LIVD-SARS-CoV-2
     tableColumn: Component
     mapper: lookup(equipment_model_name)
     csvFields:
@@ -367,6 +368,7 @@ elements:
 
   # special fields
   - name: local_symptom_onset_date
+    type: TEXT
     mapper: use(illness_onset_date)
 
   - name: equipment_model_name

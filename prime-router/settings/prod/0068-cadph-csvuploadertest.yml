@@ -1,8 +1,10 @@
-# Run this:  ./prime multiple-settings set --input ./settings/staging/0068-csvuploadertest.yml --env prod
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0068-cadph-csvuploadertest.yml --env prod
 ---
 - name: cadph-csvuploadertest
   description: CA-DPH CSV Uploader Test
-  jurisdiction: FEDERAL
+  jurisdiction: "STATE"
+  stateCode: "CA"
+  countyName: null
   senders:
     - name: default
       organizationName: cadph-csvuploadertest

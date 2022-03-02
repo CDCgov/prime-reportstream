@@ -159,24 +159,25 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
      */
     fun createTable(tableName: String, version: Int, tableData: List<JSONB>, username: String, force: Boolean) {
         val batchSize = 5000
+        val newTableChecksum = tableData.toString().toSHA256()
+        // Check for duplicate tables.  If it is up-to-date and force=true,
+        // we force to update the table regardless.
+        val versionConflict = isTableUpToDate(tableName, newTableChecksum)
+        if (versionConflict != null && !force)
+            throw DuplicateTableException(
+                "Table is identical to existing table version $versionConflict."
+            )
+
         db.transact { txn ->
             val newVersion = DSL.using(txn).newRecord(Tables.LOOKUP_TABLE_VERSION)
             newVersion.isActive = false
             newVersion.createdBy = username
             newVersion.tableName = tableName
-            newVersion.tableSha256Checksum = tableData.toString().toSHA256()
+            newVersion.tableSha256Checksum = newTableChecksum
             newVersion.tableVersion = version
             if (newVersion.store() != 1) error("Error creating new version in database.")
 
             val versionId = newVersion.lookupTableVersionId
-
-            // Check for the lookup table in database is up-to-date or not.  If it is up-to-date and force=true,
-            // we force to update the table regardless.
-            val versionConflict = isTableUpToDate(tableName, newVersion.tableSha256Checksum)
-            if (versionConflict != null && !force)
-                throw IllegalStateException(
-                    "${newVersion.tableName} is conflicting with the existing table version: $versionConflict"
-                )
 
             // Use batching to make this faster
             var batchNumber = 1
@@ -196,6 +197,8 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
                 }
             } while (dataBatch != null)
         }
+        // refresh the materialized views
+        db.refreshMaterializedViews(tableName)
     }
 
     /**
@@ -271,5 +274,7 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
                 inputData.subList(start, end)
             }
         }
+
+        class DuplicateTableException(message: String) : Exception(message)
     }
 }

@@ -5,6 +5,7 @@ import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
@@ -24,12 +25,10 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
-import gov.cdc.prime.router.serializers.RedoxSerializer
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
 import gov.cdc.prime.router.transport.FTPSTransport
 import gov.cdc.prime.router.transport.GAENTransport
-import gov.cdc.prime.router.transport.RedoxTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
@@ -52,13 +51,11 @@ class WorkflowEngine(
     val settings: SettingsProvider = settingsProviderSingleton,
     val hl7Serializer: Hl7Serializer = hl7SerializerSingleton,
     val csvSerializer: CsvSerializer = csvSerializerSingleton,
-    val redoxSerializer: RedoxSerializer = redoxSerializerSingleton,
     val db: DatabaseAccess = databaseAccessSingleton,
-    val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer, redoxSerializer),
+    val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer),
     val queue: QueueAccess = QueueAccess,
     val translator: Translator = Translator(metadata, settings),
     val sftpTransport: SftpTransport = SftpTransport(),
-    val redoxTransport: RedoxTransport = RedoxTransport(),
     val as2Transport: AS2Transport = AS2Transport(),
     val ftpsTransport: FTPSTransport = FTPSTransport(),
     val soapTransport: SoapTransport = SoapTransport(),
@@ -75,8 +72,7 @@ class WorkflowEngine(
         var blobAccess: BlobAccess? = null,
         var queueAccess: QueueAccess? = null,
         var hl7Serializer: Hl7Serializer? = null,
-        var csvSerializer: CsvSerializer? = null,
-        var redoxSerializer: RedoxSerializer? = null
+        var csvSerializer: CsvSerializer? = null
     ) {
         /**
          * Set the metadata instance.
@@ -121,12 +117,6 @@ class WorkflowEngine(
         fun csvSerializer(csvSerializer: CsvSerializer) = apply { this.csvSerializer = csvSerializer }
 
         /**
-         * Set the Redox serializer instance.
-         * @return the modified workflow engine
-         */
-        fun redoxSerializer(redoxSerializer: RedoxSerializer) = apply { this.redoxSerializer = redoxSerializer }
-
-        /**
          * Build the workflow engine instance.
          * @return the workflow engine instance
          */
@@ -135,12 +125,10 @@ class WorkflowEngine(
                 settingsProvider = settingsProvider ?: getSettingsProvider(metadata!!)
                 hl7Serializer = hl7Serializer ?: Hl7Serializer(metadata!!, settingsProvider!!)
                 csvSerializer = csvSerializer ?: CsvSerializer(metadata!!)
-                redoxSerializer = redoxSerializer ?: RedoxSerializer(metadata!!)
             } else {
                 settingsProvider = settingsProvider ?: settingsProviderSingleton
                 hl7Serializer = hl7Serializer ?: hl7SerializerSingleton
                 csvSerializer = csvSerializer ?: csvSerializerSingleton
-                redoxSerializer = redoxSerializer ?: redoxSerializerSingleton
             }
 
             return WorkflowEngine(
@@ -148,22 +136,45 @@ class WorkflowEngine(
                 settingsProvider!!,
                 hl7Serializer!!,
                 csvSerializer!!,
-                redoxSerializer!!,
                 databaseAccess ?: databaseAccessSingleton,
-                blobAccess ?: BlobAccess(csvSerializer!!, hl7Serializer!!, redoxSerializer!!),
+                blobAccess ?: BlobAccess(csvSerializer!!, hl7Serializer!!),
                 queueAccess ?: QueueAccess
             )
         }
     }
 
-    val blobStoreTransport: BlobStoreTransport = BlobStoreTransport(this)
+    val blobStoreTransport: BlobStoreTransport = BlobStoreTransport()
 
     /**
      * Check the connections to Azure Storage and DB
      */
     fun checkConnections() {
         db.checkConnection()
-        blob.checkConnection()
+        BlobAccess.checkConnection()
+    }
+
+    /**
+     * Checks if the [sender] has already sent this report by comparing the [digest] against existing records for
+     * this sender in the report_file table. If a duplicate is found an ActionError is thrown which will be picked up
+     * by ReportFunction and logged in action and action_log.
+     */
+    fun verifyNoDuplicateFile(
+        sender: Sender,
+        digest: ByteArray,
+        payloadName: String?
+    ) {
+        if (db.isDuplicateReportFile(sender.name, sender.organizationName, digest)) {
+            var msg = "Duplicate file detected."
+            if (!payloadName.isNullOrEmpty()) {
+                msg += "File: $payloadName"
+            }
+            throw ActionError(
+                ActionLog.report(
+                    msg
+                ),
+                msg
+            )
+        }
     }
 
     /**
@@ -176,17 +187,17 @@ class WorkflowEngine(
         sender: Sender,
         actionHistory: ActionHistory,
         payloadName: String? = null,
-    ): String {
+    ): BlobAccess.BlobInfo {
         // Save a copy of the original report
         val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
         val blobFilename = report.name.replace(report.bodyFormat.ext, senderReportFormat.ext)
-        val blobInfo = blob.uploadBody(
+        val blobInfo = BlobAccess.uploadBody(
             senderReportFormat, rawBody,
             blobFilename, sender.fullName, Event.EventAction.RECEIVE
         )
 
         actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
-        return blobInfo.blobUrl
+        return blobInfo
     }
 
     fun insertProcessTask(
@@ -207,12 +218,32 @@ class WorkflowEngine(
         actionHistory: ActionHistory,
         receiver: Receiver,
         txn: Configuration? = null,
-        context: ExecutionContext? = null
+        context: ExecutionContext? = null,
+        isEmptyReport: Boolean = false
     ) {
         val receiverName = "${receiver.organizationName}.${receiver.name}"
+
+        // these values come from the first item in a batched report, except for empty batches which have no items\
+        //  in the generateBodyAndUploadReport function these values are only used if it is an HL7 batch
+        // todo when generateBodyAndUploadReport is refactored, this can be changed
+        val sendingApp: String? = if (isEmptyReport) "CDC PRIME - Atlanta" else null
+        val receivingApp: String? = if (isEmptyReport && receiver.translation is Hl7Configuration)
+            receiver.translation.receivingApplicationName
+        else null
+        val receivingFacility: String? = if (isEmptyReport && receiver.translation is Hl7Configuration)
+            receiver.translation.receivingFacilityName
+        else null
+
         val blobInfo = try {
             // formatting errors can occur down in here.
-            blob.uploadBody(report, receiverName, nextAction.eventAction)
+            blob.generateBodyAndUploadReport(
+                report,
+                receiverName,
+                nextAction.eventAction,
+                sendingApp,
+                receivingApp,
+                receivingFacility
+            )
         } catch (ex: Exception) {
             context?.logger?.warning(
                 "Got exception while dispatching to schema ${report.schema.name}" +
@@ -228,10 +259,15 @@ class WorkflowEngine(
             db.insertTask(report, blobInfo.format.toString(), blobInfo.blobUrl, nextAction, txn)
             // todo remove this; its now tracked in BlobInfo
             report.bodyURL = blobInfo.blobUrl
-            actionHistory.trackCreatedReport(nextAction, report, receiver, blobInfo)
+
+            // if this is a newly generated empty report, track it as a 'new report'
+            if (isEmptyReport)
+                actionHistory.trackGeneratedEmptyReport(nextAction, report, receiver, blobInfo)
+            else
+                actionHistory.trackCreatedReport(nextAction, report, receiver, blobInfo)
         } catch (e: Exception) {
             // Clean up
-            blob.deleteBlob(blobInfo.blobUrl)
+            BlobAccess.deleteBlob(blobInfo.blobUrl)
             throw e
         }
     }
@@ -291,12 +327,11 @@ class WorkflowEngine(
     fun resendEvent(
         reportId: ReportId,
         receiver: Receiver,
-        sendFailedOnly: Boolean,
         isTest: Boolean,
         msgs: MutableList<String>,
     ) {
         // Send immediately.
-        val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null)
+        val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null, isEmptyBatch = false)
         db.transact { txn ->
             db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
             val organization = settings.findOrganization(receiver.organizationName)
@@ -319,22 +354,8 @@ class WorkflowEngine(
                         " at ${header.task.nextActionAt}"
                 )
             }
-            val retryItems: RetryItems = if (sendFailedOnly) {
-                val itemDispositions = fetchItemDispositions(reportFile)
-                // Yet another delightful feature of kotlin: groupingBy
-                val counts = itemDispositions.values.groupingBy { it }.eachCount()
-                msgs.add(
-                    "Of ${reportFile.itemCount} items, " +
-                        "${counts[RedoxTransport.ResultStatus.SUCCESS] ?: 0 } were sent successfully, " +
-                        "${counts[RedoxTransport.ResultStatus.FAILURE] ?: 0} were attempted but failed, " +
-                        "${counts[RedoxTransport.ResultStatus.NEVER_ATTEMPTED] ?: 0} were never attempted."
-                )
-                itemDispositions.filter { (_, disp) ->
-                    disp != RedoxTransport.ResultStatus.SUCCESS
-                }.map { (key, _) -> key.toString() }
-            } else {
-                RetryToken.allItems
-            }
+            val retryItems: RetryItems = RetryToken.allItems
+
             if (retryItems.isEmpty()) {
                 msgs.add("All Items in $reportId successfully sent.  Nothing to resend. DONE")
             } else {
@@ -364,44 +385,38 @@ class WorkflowEngine(
     }
 
     /**
-     * Given a batched report, look at its children 'sent' reports, and gather the disposition
-     * of every item in the batched report.   If there are no children,
-     * this will return a map with all item statuses == NEVER_ATTEMPTED
+     * Creates an empty report to send to a [receiver] that is configured to receive empty batches.
      */
-    fun fetchItemDispositions(reportFile: ReportFile): Map<Int, RedoxTransport.ResultStatus> {
-        if (reportFile.nextAction != TaskAction.send) {
-            throw Exception("Cannot send ${reportFile.reportId}. Its next action is ${reportFile.nextAction}")
+    fun generateEmptyReport(
+        context: ExecutionContext?,
+        actionHistory: ActionHistory,
+        receiver: Receiver,
+    ) {
+        // generate empty report for receiver's specified foramt
+        val toSchema = metadata.findSchema(receiver.schemaName)
+            ?: error("${receiver.schemaName} schema is missing from catalog")
+        val clientSource = ClientSource("ReportStream", "EmptyBatch")
+
+        val emptyReport = Report(
+            toSchema,
+            emptyList(),
+            listOf(clientSource),
+            destination = receiver,
+            bodyFormat = receiver.format,
+            metadata = Metadata.getInstance(),
+            itemLineage = emptyList()
+        )
+
+        // set the empty report to be sent to the receiver
+        this.db.transact { txn ->
+            val sendEvent = ReportEvent(Event.EventAction.SEND, emptyReport.id, true)
+            this.dispatchReport(sendEvent, emptyReport, actionHistory, receiver, txn, context, true)
         }
-        if (reportFile.bodyFormat != Report.Format.REDOX.name) {
-            throw Exception("SendFailed option only applies to REDOX reports.  This report is ${reportFile.bodyFormat}")
-        }
-        // Track what happened to each item.
-        val itemsDispositionMap = mutableMapOf<Int, RedoxTransport.ResultStatus>().apply {
-            // Initialize all to assume nothing was every done
-            for (i in 0 until reportFile.itemCount) this[i] = RedoxTransport.ResultStatus.NEVER_ATTEMPTED
-        }
-        val childReportIds = db.fetchChildReports(reportFile.reportId)
-        childReportIds.forEach childIdFor@{ childId ->
-            val lineages = db.fetchItemLineagesForReport(childId, reportFile.itemCount)
-            lineages?.forEach lineageFor@{ lineage ->
-                // Once a success, always a success
-                if (itemsDispositionMap[lineage.parentIndex] == RedoxTransport.ResultStatus.SUCCESS)
-                    return@lineageFor
-                itemsDispositionMap[lineage.parentIndex] = when {
-                    lineage.transportResult.startsWith(RedoxTransport.ResultStatus.FAILURE.name) ->
-                        RedoxTransport.ResultStatus.FAILURE
-                    lineage.transportResult.startsWith(RedoxTransport.ResultStatus.NOT_SENT.name) ->
-                        RedoxTransport.ResultStatus.FAILURE
-                    else -> RedoxTransport.ResultStatus.SUCCESS
-                }
-            }
-        }
-        return itemsDispositionMap
     }
 
     // routeReport does all filtering and translating per receiver, generating one file per receiver to then be batched
     fun routeReport(
-        context: ExecutionContext,
+        context: ExecutionContext?,
         report: Report,
         options: Options,
         defaults: Map<String, String>,
@@ -444,7 +459,7 @@ class WorkflowEngine(
     private fun sendToDestination(
         report: Report,
         receiver: Receiver,
-        context: ExecutionContext,
+        context: ExecutionContext?,
         options: Options,
         actionHistory: ActionHistory,
         txn: DataAccessTransaction
@@ -453,7 +468,7 @@ class WorkflowEngine(
         when {
             options == Options.SkipSend -> {
                 // Note that SkipSend should really be called SkipBothTimingAndSend  ;)
-                val event = ReportEvent(Event.EventAction.NONE, report.id)
+                val event = ReportEvent(Event.EventAction.NONE, report.id, actionHistory.generatingEmptyReport)
                 this.dispatchReport(event, report, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
@@ -461,7 +476,7 @@ class WorkflowEngine(
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
-                val event = BatchEvent(Event.EventAction.BATCH, receiver.fullName, time)
+                val event = BatchEvent(Event.EventAction.BATCH, receiver.fullName, false, time)
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
@@ -482,18 +497,18 @@ class WorkflowEngine(
                 report
                     .split()
                     .forEach {
-                        val event = ReportEvent(Event.EventAction.SEND, it.id)
+                        val event = ReportEvent(Event.EventAction.SEND, it.id, actionHistory.generatingEmptyReport)
                         this.dispatchReport(event, it, actionHistory, receiver, txn, context)
                     }
                 loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
             else -> {
-                val event = ReportEvent(Event.EventAction.SEND, report.id)
+                val event = ReportEvent(Event.EventAction.SEND, report.id, actionHistory.generatingEmptyReport)
                 this.dispatchReport(event, report, actionHistory, receiver, txn, context)
                 loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
             }
         }
-        context.logger.info(loggerMsg)
+        context?.logger?.info(loggerMsg)
     }
 
     /**
@@ -533,7 +548,7 @@ class WorkflowEngine(
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
 
-            val blobContent = blob.downloadBlob(task.bodyUrl)
+            val blobContent = BlobAccess.downloadBlob(task.bodyUrl)
             val currentAction = Event.EventAction.parseQueueMessage(task.nextAction.literal)
 
             val report = csvSerializer.readInternal(
@@ -559,7 +574,8 @@ class WorkflowEngine(
             // track response body
             val responseBody = actionHistory.createResponseBody(
                 true,
-                report
+                report,
+                this.settings
             )
             actionHistory.trackActionResponse(responseBody)
 
@@ -651,7 +667,7 @@ class WorkflowEngine(
         // todo All of this info is already populated in the Header obj.
         val schema = metadata.findSchema(header.task.schemaName)
             ?: error("Invalid schema in queue: ${header.task.schemaName}")
-        val bytes = blob.downloadBlob(header.task.bodyUrl)
+        val bytes = BlobAccess.downloadBlob(header.task.bodyUrl)
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV", "CSV_SINGLE" -> {
@@ -684,7 +700,7 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun readBody(header: Header): ByteArray {
-        return blob.downloadBlob(header.task.bodyUrl)
+        return BlobAccess.downloadBlob(header.task.bodyUrl)
     }
 
     fun recordAction(actionHistory: ActionHistory, txn: Configuration? = null) {
@@ -747,8 +763,8 @@ class WorkflowEngine(
         else null
 
         val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
-        val content = if (downloadContent && blob.exists(reportFile.bodyUrl)) {
-            blob.downloadBlob(reportFile.bodyUrl)
+        val content = if (downloadContent && BlobAccess.exists(reportFile.bodyUrl)) {
+            BlobAccess.downloadBlob(reportFile.bodyUrl)
         } else null
         return Header(task, reportFile, itemLineages, organization, receiver, schema, content, downloadContent)
     }
@@ -825,10 +841,6 @@ class WorkflowEngine(
 
         private val hl7SerializerSingleton: Hl7Serializer by lazy {
             Hl7Serializer(Metadata.getInstance(), settingsProviderSingleton)
-        }
-
-        private val redoxSerializerSingleton: RedoxSerializer by lazy {
-            RedoxSerializer(Metadata.getInstance())
         }
 
         /**

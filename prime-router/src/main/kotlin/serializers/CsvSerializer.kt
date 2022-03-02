@@ -49,8 +49,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         val warnings: List<ActionLogDetail>,
     )
 
-    fun readExternal(schemaName: String, input: InputStream, source: Source): ReadResult {
-        return readExternal(schemaName, input, listOf(source))
+    fun readExternal(schemaName: String, input: InputStream, source: Source, sender: Sender? = null): ReadResult {
+        return readExternal(schemaName, input, listOf(source), sender = sender)
     }
 
     fun readExternal(
@@ -142,20 +142,21 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         }
 
         val mappedRows = rows.mapIndexedNotNull { index, row ->
-            val result = mapRow(schema, csvMapping, row, index, sender = sender)
+            val rowIndex = index + 1
+            val result = mapRow(schema, csvMapping, row, rowIndex, sender = sender)
             val trackingColumn = schema.findElementColumn(schema.trackingElement ?: "")
             var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
             if (trackingId.isEmpty())
-                trackingId = "row$index"
+                trackingId = "row$rowIndex"
             // Add only add unique errors and warnings
             errors.addAll(
                 result.errors.map {
-                    ActionLog.item(trackingId, it, index, ActionLog.ActionLogType.error)
+                    ActionLog.item(trackingId, it, rowIndex, ActionLog.ActionLogType.error)
                 }.distinct()
             )
             warnings.addAll(
                 result.warnings.map {
-                    ActionLog.item(trackingId, it, index, ActionLog.ActionLogType.warning)
+                    ActionLog.item(trackingId, it, rowIndex, ActionLog.ActionLogType.warning)
                 }.distinct()
             )
             if (result.errors.isEmpty()) {
@@ -338,7 +339,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         schema: Schema,
         csvMapping: CsvMapping,
         inputRow: Map<String, String>,
-        index: Int,
+        rowIndex: Int,
         sender: Sender? = null,
     ): RowResult {
         // TODO Refactor this code to make the error and cardinality logic more readable and remove the use of failureValue
@@ -381,18 +382,10 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         }
 
         // Now process the data through mappers and default values
-        schema.elements.forEach { element ->
-            // Do not process any field that had an error
-            if (lookupValues[element.name] != failureValue) {
-                val mappedResult =
-                    element.processValue(lookupValues, schema, csvMapping.defaultOverrides, index, sender)
-                lookupValues[element.name] = mappedResult.value ?: ""
-                errors.addAll(mappedResult.errors)
-                warnings.addAll(mappedResult.warnings)
-            } else {
-                lookupValues[element.name] = ""
-            }
-        }
+        schema.processValues(
+            lookupValues, errors, warnings, csvMapping.defaultOverrides, rowIndex, sender,
+            failureValue
+        )
 
         // Output with value
         val outputRow = schema.elements.map { element ->

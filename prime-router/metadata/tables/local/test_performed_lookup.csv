@@ -1,0 +1,11 @@
+sender_id,exact_specimen_type,exact_test_performed,generic_test_performed,exact_test_performed_code,exact_specimen_type_source_site
+cuc-al,697989009,"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)","BD Veritor Rapid SARS-Cov-2, Flu A & B+SARS-CoV-2 nucleocapsid antigens",97097-0,53342003
+cuc-al,697989009,Sofia SARS Antigen FIA_Quidel Corporation,Sofia SARS Antigen FIA+SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,95209-3,53342003
+cuc-al,445297001,Sofia 2 Flu + SARS Antigen FIA_Quidel Corporation,Sofia 2 Flu + SARS Antigen FIA+SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay,95209-3,53342003
+cuc-al,258580003,"RightSign COVID-19 IgG/IgM Rapid Test Cassette_Hangzhou Biotest Biotech Co., Ltd.",RightSign COVID-19 IgG/IgM Rapid Test Cassette+SARS-COV-2 IgG antibodies,94507-1,29092000
+cuc-al,258580003,"RightSign COVID-19 IgG/IgM Rapid Test Cassette_Hangzhou Biotest Biotech Co., Ltd.",RightSign COVID-19 IgG/IgM Rapid Test Cassette+SARS-COV2 IgM antibodies,94508-9,29092000
+cuc-al,445297001,10811877011269,Abbott-ID NOW COVID-19 (Molecular)+SARS-CoV-2 RdRp gene NAA+probe Ql (Resp),94534-5,53342003
+cuc-al,258580003,COVID-19 IgG/IgM Rapid Test Cassette (Whole Blood/Serum/Plasma)_Healgen Scientific LLC,Healgen COVID-19 IgG IgM Rapid Test+SARS coronavirus 2 IgG Ab [Presence] in Serum  Plasma  or Blood by Rapid immunoassay,94507-1,29092000
+cuc-al,258580003,COVID-19 IgG/IgM Rapid Test Cassette (Whole Blood/Serum/Plasma)_Healgen Scientific LLC,Healgen COVID-19 IgG IgM Rapid Test+SARS coronavirus 2 IgM Ab [Presence] in Serum  Plasma  or Blood by Rapid immunoassay,94508-9,29092000
+guc-la,697989009,"CareStart COVID-19 Antigen test_Access Bio, Inc.",Coronavirus Antigen IA Rapid Test+SARS-CoV-2 nucleicapsid protein antigen,94558-4,53342003
+guc-la,445297001,10811877011269,Abbott-ID NOW COVID-19 (Molecular)+SARS-CoV-2 RdRp gene NAA+probe Ql (Resp),94534-5,53342003

@@ -15,11 +15,10 @@ import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.ElementAndValue
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidHL7Message
-import gov.cdc.prime.router.Mapper
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
@@ -27,7 +26,8 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
-import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.ElementAndValue
+import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -86,15 +86,27 @@ class Hl7Serializer(
     }
 
     /**
-     * Write a report with BHS and FHS segments and multiple items
+     * Write a report with BHS and FHS segments and multiple items. [sendingApplicationReport],
+     * [receivingApplicationReport], and [receivingFacilityReport] are used for empty batch generation and will be used
+     * if passed in (instead of pulling them from the 1st record)
      */
     fun writeBatch(
         report: Report,
         outputStream: OutputStream,
+        sendingApplicationReport: String? = null,
+        receivingApplicationReport: String? = null,
+        receivingFacilityReport: String? = null
     ) {
         // Dev Note: HAPI doesn't support a batch of messages, so this code creates
         // these segments by hand
-        outputStream.write(createHeaders(report).toByteArray())
+        outputStream.write(
+            createHeaders(
+                report,
+                sendingApplicationReport,
+                receivingApplicationReport,
+                receivingFacilityReport
+            ).toByteArray()
+        )
         report.itemIndices.map {
             val message = createMessage(report, it)
             outputStream.write(message.toByteArray())
@@ -114,18 +126,18 @@ class Hl7Serializer(
         val cleanedMessage = reg.replace(message, hl7SegmentDelimiter)
         val messageLines = cleanedMessage.split(hl7SegmentDelimiter)
         val nextMessage = StringBuilder()
-        var reportNumber = 1
+        var messageIndex = 1
 
         /**
          * Parse an HL7 [message] from a string.
          */
         fun parseStringMessage(message: String) {
-            val parsedMessage = convertMessageToMap(message, schema, sender = sender)
+            val parsedMessage = convertMessageToMap(message, messageIndex, schema, sender)
             parsedMessage.errors.forEach {
-                errors.add("Report $reportNumber: $it")
+                errors.add("Report $messageIndex: $it")
             }
             parsedMessage.warnings.forEach {
-                warnings.add("Report $reportNumber: $it")
+                warnings.add("Report $messageIndex: $it")
             }
             if (parsedMessage.row.isNotEmpty())
                 rowResults.add(parsedMessage)
@@ -150,7 +162,7 @@ class Hl7Serializer(
             if (nextMessage.isNotBlank() && it.startsWith("MSH")) {
                 parseStringMessage(nextMessage.toString())
                 nextMessage.clear()
-                reportNumber++
+                messageIndex++
             }
 
             if (it.isNotBlank()) {
@@ -167,10 +179,10 @@ class Hl7Serializer(
     }
 
     /**
-     * Convert an HL7 [message] based on the specified [schema].
+     * Convert an HL7 [message] with [messageIndex] index based on the specified [schema] and [sender].
      * @returns the resulting data
      */
-    fun convertMessageToMap(message: String, schema: Schema, sender: Sender? = null): RowResult {
+    fun convertMessageToMap(message: String, messageIndex: Int, schema: Schema, sender: Sender? = null): RowResult {
         /**
          * Query the terser and get a value.
          * @param terser the HAPI terser
@@ -184,7 +196,10 @@ class Hl7Serializer(
             errors: MutableList<String>,
         ): String {
             val parsedValue = try {
-                terser.get(terserSpec)
+                terser.get(terserSpec) ?: if (terserSpec.contains("OBX") || terserSpec.contains("SPM"))
+                    terser.get("/.SPECIMEN" + terserSpec.replace(".", ""))
+                else
+                    null
             } catch (e: HL7Exception) {
                 errors.add("Exception for $terserSpec: ${e.message}")
                 null
@@ -339,23 +354,18 @@ class Hl7Serializer(
             }
 
             // Second, we process all the element raw values through mappers and defaults.
-            schema.elements.forEach {
-                val mappedResult = it.processValue(mappedRows, schema, sender = sender)
-                mappedRows[it.name] = mappedResult.value ?: ""
-                errors.addAll(mappedResult.errors.map { it.detailMsg() })
-                warnings.addAll(mappedResult.warnings.map { it.detailMsg() })
-            }
+            val errorActionLogs = mutableListOf<ActionLogDetail>()
+            val warningActionLogs = mutableListOf<ActionLogDetail>()
+            schema.processValues(
+                mappedRows, errorActionLogs, warningActionLogs, sender = sender,
+                itemIndex = messageIndex
+            )
+            errors.addAll(errorActionLogs.map { it.detailMsg() })
+            warnings.addAll(warningActionLogs.map { it.detailMsg() })
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
             errors.add(msg)
-        }
-
-        // Check for required fields now that we are done processing all the fields
-        schema.elements.forEach { element ->
-            if (!element.isOptional && mappedRows[element.name]!!.isBlank()) {
-                errors.add("The Value for ${element.name} for field ${element.hl7Field} is required")
-            }
         }
 
         // convert sets to lists
@@ -434,6 +444,9 @@ class Hl7Serializer(
         val suppressAoe = hl7Config?.suppressAoe ?: false
         val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
             ?: Hl7Configuration.OrderingFacilityName.STANDARD
+        val stripInvalidCharactersRegex: Regex? = hl7Config?.stripInvalidCharsRegex?.let {
+            Regex(hl7Config.stripInvalidCharsRegex)
+        }
 
         // and we have some fields to suppress
         val suppressedFields = hl7Config
@@ -483,12 +496,12 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                if (it.isNullOrEmpty() || it.equals("null")) {
+                if (it.isNullOrEmpty() || it == "null") {
                     element.default ?: ""
                 } else {
-                    it
+                    stripInvalidCharactersRegex?.replace(it, "") ?: it
                 }
-            }
+            }.trim()
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
@@ -626,7 +639,7 @@ class Hl7Serializer(
         cliaForSender.forEach { (sender, clia) ->
             try {
                 // find that sender in the map
-                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isEmpty()) {
+                if (sender.equals(senderID.trim(), ignoreCase = true) && clia.isNotEmpty()) {
                     // if the sender needs should have a specific CLIA then overwrite the CLIA here
                     val pathSpecSendingFacilityID = formPathSpec("MSH-4-2")
                     terser.set(pathSpecSendingFacilityID, clia)
@@ -937,7 +950,20 @@ class Hl7Serializer(
         val maxLength = getMaxLength(hl7Field, value, hl7Config, terser)
         val hd = Element.parseHD(value, maxLength)
         if (hd.universalId != null && hd.universalIdSystem != null) {
-            terser.set("$pathSpec-1", hd.name) // already truncated
+            // if we have entered this space, there is a chance we will not have accurately calculated
+            // the max length for the HD namespace ID. Case in point, sending_application in the
+            // COVID-19 schema is coded to go into the MSH-3 segment. when getMaxLength above is invoked
+            // it doesn't accurately calculate max length because the max length for the entire field
+            // is the sum of the three subfields. thus, an HD namespace ID can slide through untruncated.
+            // we know that this could happen because the parseHD method does a split on the field, and if
+            // there's more than one field, it fills in the universalId and universalIdSystem fields.
+            // at this point now we do a final saving throw to see if maybe the subfield needs another trim.
+            if (hl7Config?.truncateHDNamespaceIds == true) {
+                val subpartMaxLength = getMaxLength("$hl7Field-1", value, hl7Config, terser)
+                terser.set("$pathSpec-1", hd.name.trimAndTruncate(subpartMaxLength))
+            } else {
+                terser.set("$pathSpec-1", hd.name)
+            }
             terser.set("$pathSpec-2", hd.universalId)
             terser.set("$pathSpec-3", hd.universalIdSystem)
         } else {
@@ -984,6 +1010,7 @@ class Hl7Serializer(
             ?: error("Schema Error: Cannot find '$valueSetName'")
         when (valueSet.system) {
             ValueSet.SetSystem.HL7,
+            ValueSet.SetSystem.ISO,
             ValueSet.SetSystem.LOINC,
             ValueSet.SetSystem.UCUM,
             ValueSet.SetSystem.SNOMED_CT -> {
@@ -1202,7 +1229,7 @@ class Hl7Serializer(
         } else {
             rawObx19Value
         }
-        terser.set(formPathSpec("OBX-11", aoeRep), "F")
+        terser.set(formPathSpec("OBX-11", aoeRep), report.getString(row, "test_result_status"))
         terser.set(formPathSpec("OBX-14", aoeRep), date)
         // some states want the observation date for the AOE questions as well
         terser.set(formPathSpec("OBX-19", aoeRep), obx19Value)
@@ -1211,15 +1238,40 @@ class Hl7Serializer(
         // we need to pass this in via the translation configuration
         if (!suppressQst) terser.set(formPathSpec("OBX-29", aoeRep), "QST")
         // all of these values must be set on the OBX AOE's for validation
-        terser.set(formPathSpec("OBX-23-1", aoeRep), report.getStringByHl7Field(row, "OBX-23-1"))
+        terser.set(
+            formPathSpec("OBX-23-1", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-23-1") as String, "OBX-23-1", hl7Config, terser
+            )
+        )
         // set to a default value, but look below
         // terser.set(formPathSpec("OBX-23-6", aoeRep), report.getStringByHl7Field(row, "OBX-23-6"))
         terser.set(formPathSpec("OBX-23-10", aoeRep), report.getString(row, "testing_lab_clia"))
         terser.set(formPathSpec("OBX-15", aoeRep), report.getString(row, "testing_lab_clia"))
-        terser.set(formPathSpec("OBX-24-1", aoeRep), report.getStringByHl7Field(row, "OBX-24-1"))
-        terser.set(formPathSpec("OBX-24-2", aoeRep), report.getStringByHl7Field(row, "OBX-24-2"))
-        terser.set(formPathSpec("OBX-24-3", aoeRep), report.getStringByHl7Field(row, "OBX-24-3"))
-        terser.set(formPathSpec("OBX-24-4", aoeRep), report.getStringByHl7Field(row, "OBX-24-4"))
+        terser.set(
+            formPathSpec("OBX-24-1", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-24-1") as String, "OBX-24-1", hl7Config, terser
+            )
+        )
+        terser.set(
+            formPathSpec("OBX-24-2", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-24-2") as String, "OBX-24-2", hl7Config, terser
+            )
+        )
+        terser.set(
+            formPathSpec("OBX-24-3", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-24-3") as String, "OBX-24-3", hl7Config, terser
+            )
+        )
+        terser.set(
+            formPathSpec("OBX-24-4", aoeRep),
+            trimAndTruncateValue(
+                report.getStringByHl7Field(row, "OBX-24-4") as String, "OBX-24-4", hl7Config, terser
+            )
+        )
         // OBX-24-5 is a postal code as well. pad this for now
         // TODO: come up with a better way to repeat these segments
         terser.set(
@@ -1378,10 +1430,24 @@ class Hl7Serializer(
         }
     }
 
-    private fun createHeaders(report: Report): String {
-        val sendingApplicationReport = report.getString(0, "sending_application") ?: ""
-        val receivingApplicationReport = report.getString(0, "receiving_application") ?: ""
-        val receivingFacilityReport = report.getString(0, "receiving_facility") ?: ""
+    /**
+     * Creates the headers for hl7 batch. Generally the [sendingApplicationReportIn], [receivingApplicationReportIn], and
+     * [receivingFacilityReportIn] will come from the first item in the file. In the case of empty batch, it
+     * must be passed in.
+     */
+    private fun createHeaders(
+        report: Report,
+        sendingApplicationReportIn: String? = null,
+        receivingApplicationReportIn: String? = null,
+        receivingFacilityReportIn: String? = null
+    ): String {
+
+        val sendingApplicationReport = sendingApplicationReportIn
+            ?: (report.getString(0, "sending_application") ?: "")
+        val receivingApplicationReport = receivingApplicationReportIn
+            ?: (report.getString(0, "receiving_application") ?: "")
+        val receivingFacilityReport = receivingFacilityReportIn
+            ?: (report.getString(0, "receiving_facility") ?: "")
 
         var sendingAppTruncationLimit: Int? = null
         var receivingAppTruncationLimit: Int? = null
@@ -1433,15 +1499,6 @@ class Hl7Serializer(
     private fun createFooters(report: Report): String {
         return "BTS|${report.itemCount}$hl7SegmentDelimiter" +
             "FTS|1$hl7SegmentDelimiter"
-    }
-
-    private fun nowTimestamp(hl7Config: Hl7Configuration? = null): String {
-        val timestamp = OffsetDateTime.now(ZoneId.systemDefault())
-        return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
-            Element.convertPositiveOffsetToNegativeOffset(Element.datetimeFormatter.format(timestamp))
-        } else {
-            Element.datetimeFormatter.format(timestamp)
-        }
     }
 
     private fun buildComponent(spec: String, component: Int = 1): String {
@@ -1749,7 +1806,28 @@ class Hl7Serializer(
 
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
-            LookupTable.read("./metadata/tables/nces_id_2021_6_28.csv")
+            Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
+        }
+
+        /**
+         * Given an hl7Configuration, this will take find the current date time and output it to a
+         * specific format depending on the configuration of the receiver
+         */
+        fun nowTimestamp(hl7Config: Hl7Configuration? = null): String {
+            // get the current time stamp
+            val timestamp = OffsetDateTime.now(ZoneId.systemDefault())
+            // if the receiver wants a higher precision date time formatter, then we get the right one
+            val formatter: DateTimeFormatter = if (hl7Config?.useHighPrecisionHeaderDateTimeFormat == true) {
+                Element.highPrecisionDateTimeFormatter
+            } else {
+                Element.datetimeFormatter
+            }
+            // use the formatter here to output the now timestamp
+            return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
+                Element.convertPositiveOffsetToNegativeOffset(formatter.format(timestamp))
+            } else {
+                formatter.format(timestamp)
+            }
         }
     }
 }

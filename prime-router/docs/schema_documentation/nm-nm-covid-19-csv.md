@@ -168,6 +168,8 @@ Is the patient in the ICU?
 
 **ReportStream Internal Name**: local_file_created_date
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -422,7 +424,7 @@ Is the patient in the ICU?
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-2021-01-20
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Component
 
@@ -1729,6 +1731,7 @@ Code | Display | System
 258529004|Throat swab|SNOMED_CT
 119334006|Sputum specimen|SNOMED_CT
 119342007|Saliva specimen|SNOMED_CT
+258560004|Oral saliva sample|SNOMED_CT
 258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
 119364003|Serum specimen|SNOMED_CT
 119361006|Plasma specimen|SNOMED_CT
@@ -1737,6 +1740,10 @@ Code | Display | System
 122555007|Venous blood specimen|SNOMED_CT
 119297000|Blood specimen|SNOMED_CT
 122554006|Capillary blood specimen|SNOMED_CT
+258467004|Nasopharyngeal washings|SNOMED_CT
+418932006|Oral swab specimen|SNOMED_CT
+433801000124107|Nasopharyngeal and oropharyngeal swab|SNOMED_CT
+309171007|Lower respiratory fluid sample|SNOMED_CT
 
 **Documentation**:
 
@@ -1854,7 +1861,7 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
@@ -1863,6 +1870,8 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **Name**: local_symptom_onset_date
 
 **ReportStream Internal Name**: local_symptom_onset_date
+
+**Type**: TEXT
 
 **PII**: No
 

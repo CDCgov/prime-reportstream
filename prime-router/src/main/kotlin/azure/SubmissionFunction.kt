@@ -8,8 +8,11 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.tokens.OktaAuthentication
+import org.apache.logging.log4j.kotlin.Logging
+import org.jooq.exception.DataAccessException
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
+import java.util.UUID
 
 /**
  * Submissions API
@@ -19,25 +22,31 @@ import java.time.format.DateTimeParseException
 class SubmissionFunction(
     submissionsFacade: SubmissionsFacade = SubmissionsFacade.common,
     oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
-) {
+) : Logging {
     private val facade = submissionsFacade
     private val oktaAuthentication = oktaAuthentication
 
     data class Parameters(
         val sort: String,
+        val sortColumn: String,
         val cursor: OffsetDateTime?,
         val pageSize: Int,
     ) {
-        constructor(query: Map<String, String>) : this(
-            extractSort(query),
+        constructor(query: Map<String, String>) : this (
+            extractSortOrder(query),
+            extractSortCol(query),
             extractCursor(query),
             extractPageSize(query),
         )
 
         companion object {
-            fun extractSort(query: Map<String, String>): String {
+            fun extractSortOrder(query: Map<String, String>): String {
                 val qSortOrder = query.getOrDefault("sort", "DESC")
                 return qSortOrder
+            }
+
+            fun extractSortCol(query: Map<String, String>): String {
+                return query.getOrDefault("sortCol", "default")
             }
 
             fun extractCursor(query: Map<String, String>): OffsetDateTime? {
@@ -65,7 +74,7 @@ class SubmissionFunction(
      * the organization in the URL path, after first confirming authorization to access that organization.
      */
     @FunctionName("getOrgSubmissions")
-    fun organizationSubmissions(
+    fun getOrgSubmissions(
         @HttpTrigger(
             name = "getOrgSubmissions",
             methods = [HttpMethod.GET],
@@ -76,9 +85,14 @@ class SubmissionFunction(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
             try {
-                val (qSortOrder, resultsAfterDate, pageSize) = Parameters(request.queryParameters)
-
-                val submissions = facade.findSubmissionsAsJson(organization, qSortOrder, resultsAfterDate, pageSize)
+                val (qSortOrder, qSortColumn, resultsAfterDate, pageSize) = Parameters(request.queryParameters)
+                val submissions = facade.findSubmissionsAsJson(
+                    organization,
+                    qSortOrder,
+                    qSortColumn,
+                    resultsAfterDate,
+                    pageSize
+                )
                 HttpUtilities.okResponse(request, submissions)
             } catch (e: IllegalArgumentException) {
                 HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")
@@ -86,51 +100,55 @@ class SubmissionFunction(
         }
     }
 
-    /**
-     * An Azure Function that is triggered at the `/api/submissions/` endpoint
-     * This endpoint is meant for use by a User.  It assumes the user belongs to a single Organization.
-     * DO NOT USE - DEPRECATED - DELETE THIS
-     *
-     * @param qSortOrder a user supplied sort order overwriting the default value.
-     * @param qResultsAfterDate a user supplied `OffsetDateTime` overwriting the default value.
-     * @param qLimit a user supplied page size limit overwriting the default value.
-     * @return a list of submission history results.
-     */
-    @FunctionName("getSubmissions")
-    fun submissions(
+    @FunctionName("getSubmissionHistory")
+    fun getSubmissionHistory(
         @HttpTrigger(
-            name = "getSubmissions",
+            name = "getSubmissionHistory",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "history/submissions"
+            route = "history/{organization}/submissions/{submissionId}"
         ) request: HttpRequestMessage<String?>,
+        @BindingName("organization") organization: String,
+        @BindingName("submissionId") submissionId: Long,
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, "") {
-
+        return oktaAuthentication.checkAccess(request, organization, true) {
             try {
-                @Suppress("UNCHECKED_CAST")
-                val orgs = it.jwtClaims["organization"] as? List<String>
-                require(orgs != null) {
-                    "Invalid organization"
-                }
+                val submission = facade.findSubmission(organization, submissionId)
+                if (submission != null) HttpUtilities.okJSONResponse(request, submission)
+                else HttpUtilities.notFoundResponse(request, "Submission $submissionId was not found.")
+            } catch (e: DataAccessException) {
+                logger.error("Unable to fetch history for submission ID $submissionId", e)
+                HttpUtilities.internalErrorResponse(request)
+            }
+        }
+    }
 
-                // a user can now be part of a sender group as well, so find the first "sender" group in their claims
-                var org = (orgs).find {
-                    org ->
-                    org.startsWith(oktaSenderGroupPrefix)
-                }
-                require(org != null) {
-                    "Invalid organization"
-                }
-
-                org = org.removePrefix(oktaSenderGroupPrefix)
-
-                val (qSortOrder, resultsAfterDate, pageSize) = Parameters(request.queryParameters)
-
-                val submissions = facade.findSubmissionsAsJson(org, qSortOrder, resultsAfterDate, pageSize)
-                HttpUtilities.okResponse(request, submissions)
+    /**
+     * Get the history for a given report ID.
+     */
+    @FunctionName("getReportHistory")
+    fun getReportHistory(
+        @HttpTrigger(
+            name = "getReportHistory",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "history/{organization}/report/{reportId}"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("organization") organization: String,
+        @BindingName("reportId") reportId: String, // Use string to be able to detect a format error
+    ): HttpResponseMessage {
+        return oktaAuthentication.checkAccess(request, organization, true) {
+            try {
+                val reportUuid = UUID.fromString(reportId)
+                val submission = facade.findReport(organization, reportUuid)
+                if (submission != null) HttpUtilities.okJSONResponse(request, submission)
+                else HttpUtilities.notFoundResponse(request, "Report $reportId was not found.")
             } catch (e: IllegalArgumentException) {
-                HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")
+                logger.debug("Invalid format for report ID.", e)
+                HttpUtilities.badRequestResponse(request, "Invalid format for report ID parameter.")
+            } catch (e: DataAccessException) {
+                logger.error("Unable to fetch history for report ID $reportId", e)
+                HttpUtilities.internalErrorResponse(request)
             }
         }
     }

@@ -9,7 +9,7 @@ import {
 export const TextInputComponent = (params: {
     fieldname: string;
     label: string;
-    defaultvalue: string;
+    defaultvalue: string | null;
     savefunc: (val: string) => void;
     disabled?: boolean;
 }): JSX.Element => {
@@ -24,7 +24,7 @@ export const TextInputComponent = (params: {
                     id={key}
                     name={key}
                     type="text"
-                    defaultValue={params.defaultvalue}
+                    defaultValue={params.defaultvalue || ""}
                     data-testid={key}
                     maxLength={255}
                     onChange={(e) => params.savefunc(e?.target?.value || "")}
@@ -40,13 +40,21 @@ export const TextAreaComponent = (params: {
     label: string;
     defaultvalue: object;
     savefunc: (val: object) => void;
+    defaultnullvalue: string | null;
 }): JSX.Element => {
     let defaultValue = JSON.stringify(params?.defaultvalue, undefined, 2);
-    if (defaultValue === "null") {
+    if (
+        defaultValue === "null" ||
+        defaultValue === "[]" ||
+        defaultValue === "{}"
+    ) {
         defaultValue = "";
     }
 
     const key = params.fieldname;
+    const defaultnullvalue = params.defaultnullvalue
+        ? params.defaultnullvalue
+        : null;
     return (
         <Grid row>
             <Grid col={3}>
@@ -58,9 +66,12 @@ export const TextAreaComponent = (params: {
                     name={key}
                     defaultValue={defaultValue}
                     data-testid={key}
-                    maxLength={255}
                     onBlur={(e) =>
-                        params.savefunc(JSON.parse(e?.target?.value || "{}"))
+                        params.savefunc(
+                            JSON.parse(
+                                e?.target?.value || (defaultnullvalue as string)
+                            )
+                        )
                     }
                 />
             </Grid>

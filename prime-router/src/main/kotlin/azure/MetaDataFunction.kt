@@ -80,7 +80,9 @@ class MetaDataFunction : Logging {
             .metadata
             .findLookupTable("LIVD-SARS-CoV-2-latest") ?: return null
         logger.info("Pulling rows")
-        return livdTable.FilterBuilder().equalsIgnoreCase(filters).filter().dataRows.map {
+        val tableFilter = livdTable.FilterBuilder()
+        filters.forEach { (t, u) -> tableFilter.equalsIgnoreCase(t, u) }
+        return tableFilter.filter().dataRows.map {
             val specimenDescriptions = it[3].split("\n")
             val resultDescriptions = it[4].split("\n")
             LivdData(

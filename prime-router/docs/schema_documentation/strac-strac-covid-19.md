@@ -24,7 +24,7 @@
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
@@ -851,7 +851,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -867,7 +867,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -1003,6 +1003,8 @@ A unique code for this specimen
 
 **ReportStream Internal Name**: specimen_received_date_time
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -1036,6 +1038,7 @@ Code | Display | System
 258529004|Throat swab|SNOMED_CT
 119334006|Sputum specimen|SNOMED_CT
 119342007|Saliva specimen|SNOMED_CT
+258560004|Oral saliva sample|SNOMED_CT
 258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
 119364003|Serum specimen|SNOMED_CT
 119361006|Plasma specimen|SNOMED_CT
@@ -1044,6 +1047,10 @@ Code | Display | System
 122555007|Venous blood specimen|SNOMED_CT
 119297000|Blood specimen|SNOMED_CT
 122554006|Capillary blood specimen|SNOMED_CT
+258467004|Nasopharyngeal washings|SNOMED_CT
+418932006|Oral swab specimen|SNOMED_CT
+433801000124107|Nasopharyngeal and oropharyngeal swab|SNOMED_CT
+309171007|Lower respiratory fluid sample|SNOMED_CT
 
 **Documentation**:
 
@@ -1067,7 +1074,7 @@ The specimen source, such as Blood or Serum
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_home
 
@@ -1093,7 +1100,7 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_otc
 
@@ -1119,7 +1126,7 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_unproctored
 
@@ -1152,19 +1159,18 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 Code | Display | System
 ---- | ------- | ------
-A|Some, but not all, results available|HL7
-C|Corrected, final|HL7
-F|Final results|HL7
-I|No results available; specimen received, procedure incomplete|HL7
-M|Corrected, not final|HL7
-N|Procedure completed, results pending|HL7
-O|Order received; specimen not yet received|HL7
-P|Preliminary|HL7
-R|Results stored; not yet verified|HL7
-S|No results available; procedure scheduled, but not done|HL7
-X|No results available; Order canceled|HL7
-Y|No order on record for this test|HL7
-Z|No record of this patient|HL7
+C|Record coming over is a correction and thus replaces a final result|HL7
+D|Deletes the OBX record|HL7
+F|Final results; Can only be changed with a corrected result|HL7
+I|Specimen in lab; results pending|HL7
+N|Not asked; used to affirmatively document that the observation identified in the OBX was not sought when the universal service ID in OBR-4 implies that it would be sought.|HL7
+O|Order detail description only (no result)|HL7
+P|Preliminary results|HL7
+R|Results entered -- not verified|HL7
+S|Partial results|HL7
+U|Results status change to final without retransmitting results already sent as ‘preliminary.’  E.g., radiology changes status from preliminary to final|HL7
+W|Post original as wrong, e.g., transmitted for wrong patient|HL7
+X|Results cannot be obtained for this observation|HL7
 
 **Documentation**:
 

@@ -146,6 +146,7 @@ elements:
       csvFields: [{name: Ordering_provider_last_name}]
 
     - name: ordering_provider_lastfirst_name
+      type: TEXT
       mapper: concat(ordering_provider_last_name, ordering_provider_first_name )
 
     - name: ordering_provider_street

@@ -86,7 +86,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Model
 
@@ -214,7 +214,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Ordered LOINC Code
 
@@ -230,7 +230,7 @@ unique id to track the usage of the message
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Ordered LOINC Long Name
 
@@ -1082,6 +1082,7 @@ Code | Display | System
 258529004|Throat swab|SNOMED_CT
 119334006|Sputum specimen|SNOMED_CT
 119342007|Saliva specimen|SNOMED_CT
+258560004|Oral saliva sample|SNOMED_CT
 258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
 119364003|Serum specimen|SNOMED_CT
 119361006|Plasma specimen|SNOMED_CT
@@ -1090,6 +1091,10 @@ Code | Display | System
 122555007|Venous blood specimen|SNOMED_CT
 119297000|Blood specimen|SNOMED_CT
 122554006|Capillary blood specimen|SNOMED_CT
+258467004|Nasopharyngeal washings|SNOMED_CT
+418932006|Oral swab specimen|SNOMED_CT
+433801000124107|Nasopharyngeal and oropharyngeal swab|SNOMED_CT
+309171007|Lower respiratory fluid sample|SNOMED_CT
 
 **Documentation**:
 
@@ -1151,7 +1156,7 @@ Override the base hl70136 valueset with a custom one, to handle slightly differe
 **Reference URL**:
 [https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Testkit Name ID
 
@@ -1355,7 +1360,7 @@ This field is generated based on the normalcy status of the result. A = abnormal
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_home
 
@@ -1381,7 +1386,7 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_otc
 
@@ -1407,7 +1412,7 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 **Reference URL**:
 [https://www.fda.gov/news-events/fda-newsroom/press-announcements](https://www.fda.gov/news-events/fda-newsroom/press-announcements) 
 
-**Table**: LIVD-Supplemental-2021-06-07
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: is_unproctored
 

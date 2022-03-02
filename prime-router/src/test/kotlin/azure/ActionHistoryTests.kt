@@ -41,7 +41,14 @@ class ActionHistoryTests {
     @Test
     fun `test constructor`() {
         val actionHistory = ActionHistory(TaskAction.batch)
+        assertThat(actionHistory.generatingEmptyReport).isEqualTo(false)
         assertThat(actionHistory.action.actionName).isEqualTo(TaskAction.batch)
+    }
+
+    @Test
+    fun `test constructor with empty`() {
+        val actionHistory = ActionHistory(TaskAction.batch, generatingEmptyReport = true)
+        assertThat(actionHistory.generatingEmptyReport).isEqualTo(true)
     }
 
     @Test
@@ -84,8 +91,42 @@ class ActionHistoryTests {
     }
 
     @Test
+    fun `test trackGeneratedEmptyReport`() {
+        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
+        val one = Schema(name = "one", topic = "test", elements = listOf())
+        val report1 = Report(
+            one, listOf(),
+            sources = listOf(ClientSource("myOrg", "myClient")),
+            metadata = UnitTestUtils.simpleMetadata
+        )
+        val org =
+            DeepOrganization(
+                name = "myOrg",
+                description = "blah blah",
+                jurisdiction = Organization.Jurisdiction.FEDERAL,
+                receivers = listOf(
+                    Receiver("myService", "myOrg", "topic", CustomerStatus.INACTIVE, "schema")
+                )
+            )
+        val orgReceiver = org.receivers[0]
+        val actionHistory1 = ActionHistory(TaskAction.send)
+        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
+        actionHistory1.trackGeneratedEmptyReport(event1, report1, orgReceiver, blobInfo1)
+        assertNotNull(actionHistory1.reportsReceived[report1.id])
+        val reportFile = actionHistory1.reportsReceived[report1.id] !!
+        assertThat(reportFile.schemaName).isEqualTo("one")
+        assertThat(reportFile.schemaTopic).isEqualTo("test")
+        assertThat(reportFile.bodyUrl).isEqualTo("myUrl")
+        assertThat(reportFile.blobDigest[1]).isEqualTo(34)
+        assertThat(reportFile.receivingOrg).isEqualTo("myOrg")
+        assertThat(reportFile.receivingOrgSvc).isEqualTo("myService")
+        assertThat(reportFile.bodyFormat).isEqualTo("CSV")
+        assertThat(reportFile.itemCount).isEqualTo(0)
+    }
+
+    @Test
     fun `test trackCreatedReport`() {
-        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), OffsetDateTime.now())
+        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
         val schema1 = Schema(name = "schema1", topic = "topic1", elements = listOf())
         val report1 = Report(
             schema1, listOf(), sources = listOf(ClientSource("myOrg", "myClient")),
@@ -149,7 +190,7 @@ class ActionHistoryTests {
                 receivers = listOf(
                     Receiver(
                         "myService", "myOrg", "topic1", CustomerStatus.INACTIVE, "schema1",
-                        format = Report.Format.REDOX
+                        format = Report.Format.CSV
                     )
                 )
             )
@@ -165,7 +206,7 @@ class ActionHistoryTests {
         assertThat(reportFile.transportParams).isEqualTo("params1")
         assertThat(reportFile.transportResult).isEqualTo("result1")
         assertThat(reportFile.receivingOrgSvc).isEqualTo("myService")
-        assertThat(reportFile.bodyFormat).isEqualTo("REDOX")
+        assertThat(reportFile.bodyFormat).isEqualTo("CSV")
         assertThat(reportFile.sendingOrg).isNull()
         assertThat(reportFile.bodyUrl).isNull()
         assertThat(reportFile.blobDigest).isNull()
@@ -263,7 +304,7 @@ class ActionHistoryTests {
                 receivers = listOf(
                     Receiver(
                         "service0", "org0", "topic", CustomerStatus.INACTIVE, "schema",
-                        format = Report.Format.REDOX
+                        format = Report.Format.CSV
                     )
                 )
             )

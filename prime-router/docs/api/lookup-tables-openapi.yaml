@@ -40,6 +40,13 @@ paths:
         are automatically activated.
       security:
         - OktaAuth: [ SYSTEM_ADMIN ]
+      parameters:
+        - name: tableName
+          in: path
+          description: Name of new lookup table
+          required: true
+          schema:
+            type: string
       requestBody:
         description: An array of objects that list the table's rows.
         required: true
@@ -66,6 +73,19 @@ paths:
       description: Fetch the contents of a specific version of a table
       security:
         - OktaAuth: [ ANONYMOUS ]
+      parameters:
+        - name: tableName
+          in: path
+          description: Name of lookup table
+          required: true
+          schema:
+            type: string
+        - name: tableVersion
+          in: path
+          description: Version of specified table
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: The table contents
@@ -91,6 +111,19 @@ paths:
       description: Fetch the version information of a specific version of a table
       security:
         - OktaAuth: [ ANONYMOUS ]
+      parameters:
+        - name: tableName
+          in: path
+          description: Name of lookup table
+          required: true
+          schema:
+            type: string
+        - name: tableVersion
+          in: path
+          description: Version of specified table
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: The table version information
@@ -116,6 +149,19 @@ paths:
       description: Activate a specific version of a table.  This endpoint does not take a request body.
       security:
         - OktaAuth: [ SYSTEM_ADMIN ]
+      parameters:
+        - name: tableName
+          in: path
+          description: Name of lookup table
+          required: true
+          schema:
+            type: string
+        - name: tableVersion
+          in: path
+          description: Version of specified table
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: The table version information

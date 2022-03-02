@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.serializers.datatests
+package gov.cdc.prime.router.datatests
 
 import assertk.assertThat
 import assertk.assertions.isTrue
@@ -203,19 +203,20 @@ class TranslationTests {
                 if (!config.shouldPass && result.passed) result.errors.add("Test was expected to fail, but passed.")
                 assertEquals(
                     config.shouldPass, result.passed,
-                    result.errors.joinToString("\n", "ERRORS:${System.lineSeparator()}\n") +
-                        result.warnings.joinToString("\n", "WARNINGS:${System.lineSeparator()}")
+                    result.errors.joinToString(System.lineSeparator(), "ERRORS:${System.lineSeparator()}") +
+                        System.lineSeparator() +
+                        result.warnings.joinToString(System.lineSeparator(), "WARNINGS:${System.lineSeparator()}")
                 )
                 // Print the errors and warnings after the test completed successfully.
                 if (result.errors.isNotEmpty()) println(
                     result.errors
-                        .joinToString("\n", "ERRORS:${System.lineSeparator()}")
+                        .joinToString(System.lineSeparator(), "ERRORS:${System.lineSeparator()}")
 
                 )
                 if (result.warnings.isNotEmpty()) println(
                     result.warnings
                         .joinToString(
-                            "\n", "WARNINGS:${System.lineSeparator()}"
+                            System.lineSeparator(), "WARNINGS:${System.lineSeparator()}"
                         )
                 )
             } else if (inputStream == null) {
@@ -235,50 +236,47 @@ class TranslationTests {
             format: Report.Format,
             result: CompareData.Result
         ): Report? {
-
-            return when (format) {
-                Report.Format.HL7 -> {
-                    try {
+            val sender = settings.senders.filter { it.schemaName == schema.name }.randomOrNull()
+            return try {
+                when (format) {
+                    // Get a random sender name that uses the provided schema, or null if no sender is found.
+                    Report.Format.HL7 -> {
                         val readResult = Hl7Serializer(metadata, settings).readExternal(
                             schema.name,
                             input,
-                            TestSource
+                            TestSource,
+                            sender
                         )
                         readResult.errors.forEach { result.errors.add(it.detail.detailMsg()) }
                         readResult.warnings.forEach { result.warnings.add(it.detail.detailMsg()) }
                         result.passed = readResult.errors.isEmpty()
                         readResult.report
-                    } catch (e: ActionError) {
-                        e.details.forEach { result.errors.add(it.detail.detailMsg()) }
-                        result.passed = false
-                        null
                     }
-                }
-                Report.Format.INTERNAL -> {
-                    CsvSerializer(metadata).readInternal(
-                        schema.name,
-                        input,
-                        listOf(TestSource),
-                        useDefaultsForMissing = true
-                    )
-                }
-                else -> {
-                    try {
+                    Report.Format.INTERNAL -> {
+                        CsvSerializer(metadata).readInternal(
+                            schema.name,
+                            input,
+                            listOf(TestSource),
+                            useDefaultsForMissing = true
+                        )
+                    }
+                    else -> {
                         val readResult = CsvSerializer(metadata).readExternal(
                             schema.name,
                             input,
-                            TestSource
+                            TestSource,
+                            sender
                         )
                         readResult.errors.forEach { result.errors.add(it.detail.detailMsg()) }
                         readResult.warnings.forEach { result.warnings.add(it.detail.detailMsg()) }
                         result.passed = readResult.errors.isEmpty()
                         readResult.report
-                    } catch (e: ActionError) {
-                        e.details.forEach { result.errors.add(it.detail.detailMsg()) }
-                        result.passed = false
-                        null
                     }
                 }
+            } catch (e: ActionError) {
+                e.details.forEach { result.errors.add(it.detail.detailMsg()) }
+                result.passed = false
+                null
             }
         }
 

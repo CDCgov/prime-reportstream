@@ -18,7 +18,6 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.util.UUID
-import java.util.logging.Level
 import kotlin.collections.ArrayList
 
 class Facility private constructor(
@@ -342,7 +341,7 @@ open class BaseHistoryFunction : Logging {
                     .body(report)
                     .build()
 
-                val actionHistory = ActionHistory(TaskAction.download, context)
+                val actionHistory = ActionHistory(TaskAction.download)
                 actionHistory.trackActionRequestResponse(request, response)
                 // Give the external report_file a new UUID, so we can track its history distinct from the
                 // internal blob.   This is going to be very confusing.
@@ -402,7 +401,7 @@ open class BaseHistoryFunction : Logging {
     /**
      * returns null if not authorized, otherwise returns a set of claims.
      */
-    fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
+    private fun checkAuthenticated(request: HttpRequestMessage<String?>, context: ExecutionContext): AuthClaims? {
         val userName: String? /* Format: email */
         val requestOrgName: String? = request.headers["organization"] /* Format: xx-phd */
         val oktaOrganizations: List<String?>
@@ -440,7 +439,8 @@ open class BaseHistoryFunction : Logging {
                 else -> null
             }
         } catch (ex: Throwable) {
-            context.logger.log(Level.WARNING, "Error in verification of token", ex)
+            logger.warn("Unable authenticate user: ${ex.message}: ${ex.cause?.message ?: ""}")
+            logger.debug(ex)
             return null
         }
 

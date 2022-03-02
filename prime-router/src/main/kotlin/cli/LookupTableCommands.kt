@@ -1,9 +1,6 @@
 package gov.cdc.prime.router.cli
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
@@ -35,6 +32,7 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.LookupTableFunctions
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.commons.io.FileUtils
 import org.apache.http.HttpStatus
 import org.jooq.JSONB
@@ -50,7 +48,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
     /**
      * Increase from the default read timeout in case of a super-duper long table.
      */
-    private val requestTimeoutMillis = 45000
+    private val requestTimeoutMillis = 130000
 
     /**
      * The Okta Access Token.
@@ -167,7 +165,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         /**
          * Mapper to convert objects to JSON.
          */
-        private val mapper: ObjectMapper = jacksonMapperBuilder().addModule(JavaTimeModule()).build()
+        private val mapper = JacksonMapperUtilities.defaultMapper
 
         /**
          * Exception thrown with a [message] if a table is not found.
@@ -375,10 +373,10 @@ class LookupTableCommands : CliktCommand(
                 .inlineDiffByWord(true)
                 .ignoreWhiteSpaces(true)
                 .oldTag { start: Boolean? ->
-                    if (true == start) "\u001B[9m" else "\u001B[0m" // Use strikethrough for deleted changes
+                    if (true == start) "\u001B[9;101m" else "\u001B[0m" // Use strikethrough and red for deleted changes
                 }
                 .newTag { start: Boolean? ->
-                    if (true == start) "\u001B[1m" else "\u001B[0m" // Use bold for additions
+                    if (true == start) "\u001B[1;42m" else "\u001B[0m" // Use bold and green for additions
                 }
                 .build()
 
@@ -615,9 +613,10 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
                 throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
             } catch (e: LookupTableEndpointUtilities.Companion.TableConflictException) {
                 val dupVersion = e.message?.substringAfterLast("version")
-                throw PrintMessage(
-                    "\tSkipping New Lookup Table $tableName since it is duplicated with version$dupVersion.", true
+                TermUi.echo(
+                    "Skipping creation of duplicate table $tableName since it is duplicated with version$dupVersion."
                 )
+                return
             }
 
             TermUi.echo(
@@ -822,7 +821,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
     /**
      * Default directory for tables.
      */
-    private val defaultDir = "./src/test/resources/metadata/tables"
+    private val defaultDir = "./metadata/tables/local"
 
     /**
      * The table name.

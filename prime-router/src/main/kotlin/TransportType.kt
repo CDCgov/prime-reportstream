@@ -17,7 +17,6 @@ enum class FtpsProtocol {
 @JsonSubTypes(
     JsonSubTypes.Type(SFTPTransportType::class, name = "SFTP"),
     JsonSubTypes.Type(EmailTransportType::class, name = "EMAIL"),
-    JsonSubTypes.Type(RedoxTransportType::class, name = "REDOX"),
     JsonSubTypes.Type(BlobStoreTransportType::class, name = "BLOBSTORE"),
     JsonSubTypes.Type(NullTransportType::class, name = "NULL"),
     JsonSubTypes.Type(AS2TransportType::class, name = "AS2"),
@@ -42,13 +41,6 @@ data class EmailTransportType
     val from: String = "qtv1@cdc.gov" // TODO: default to a better choice
 ) :
     TransportType("EMAIL")
-
-data class RedoxTransportType
-@JsonCreator constructor(
-    val apiKey: String,
-    val baseUrl: String?,
-) :
-    TransportType("REDOX")
 
 data class BlobStoreTransportType
 @JsonCreator constructor(

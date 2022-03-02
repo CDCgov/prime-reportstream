@@ -572,6 +572,10 @@ Code | Display | System
 45206002|Nasal structure (body structure)|SNOMED_CT
 53342003|Internal nose structure (body structure)|SNOMED_CT
 29092000|Venous structure (body structure)|SNOMED_CT
+123851003|Mouth region structure (body structure)|SNOMED_CT
+31389004|Oropharyngeal structure (body structure)|SNOMED_CT
+39607008|Lung structure (body structure)|SNOMED_CT
+955009|Bronchial structure (body structure)|SNOMED_CT
 71836000|Nasopharyngeal structure (body structure)|SNOMED_CT
 
 **Alt Value Sets**
@@ -611,6 +615,7 @@ Code | Display | System
 258529004|Throat swab|SNOMED_CT
 119334006|Sputum specimen|SNOMED_CT
 119342007|Saliva specimen|SNOMED_CT
+258560004|Oral saliva sample|SNOMED_CT
 258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
 119364003|Serum specimen|SNOMED_CT
 119361006|Plasma specimen|SNOMED_CT
@@ -619,6 +624,10 @@ Code | Display | System
 122555007|Venous blood specimen|SNOMED_CT
 119297000|Blood specimen|SNOMED_CT
 122554006|Capillary blood specimen|SNOMED_CT
+258467004|Nasopharyngeal washings|SNOMED_CT
+418932006|Oral swab specimen|SNOMED_CT
+433801000124107|Nasopharyngeal and oropharyngeal swab|SNOMED_CT
+309171007|Lower respiratory fluid sample|SNOMED_CT
 445297001|Swab of internal nose|SNOMED_CT
 
 **Alt Value Sets**
@@ -643,7 +652,7 @@ The specimen source, such as Blood or Serum
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Code
 
@@ -663,7 +672,7 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Cardinality**: [0..1]
 
-**Table**: LIVD-SARS-CoV-2-latest
+**Table**: LIVD-SARS-CoV-2
 
 **Table Column**: Test Performed LOINC Long Name
 
@@ -846,6 +855,8 @@ The postal code for the testing lab
 
 **ReportStream Internal Name**: equipment_model_name
 
+**Type**: TEXT
+
 **PII**: No
 
 **Default Value**: BinaxNOW COVID-19 Ag Card
@@ -858,6 +869,8 @@ The postal code for the testing lab
 
 **ReportStream Internal Name**: message_id
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -867,6 +880,8 @@ The postal code for the testing lab
 **Name**: ordering_facility_name
 
 **ReportStream Internal Name**: ordering_facility_name
+
+**Type**: TEXT
 
 **PII**: No
 

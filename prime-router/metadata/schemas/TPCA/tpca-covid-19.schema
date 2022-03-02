@@ -17,6 +17,7 @@ elements:
     csvFields: [ { name: DOB, format: "M/d/yyyy" } ]
 
   - name: patient_age_and_units
+    type: TEXT
     csvFields: [ { name: Age } ]
 
   - name: patient_age
@@ -140,6 +141,7 @@ elements:
 
   # todo: what does this map to?
   - name: resident_congregate_care_setting
+    type: TEXT
     csvFields: [{ name: "Nsg Home?" }]
 
   - name: pregnant

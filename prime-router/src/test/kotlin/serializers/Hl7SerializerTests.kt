@@ -16,12 +16,16 @@ import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -30,6 +34,7 @@ import io.mockk.mockkClass
 import io.mockk.spyk
 import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -53,6 +58,8 @@ class Hl7SerializerTests {
         truncateHl7Fields: String? = null,
         suppressNonNPI: Boolean = false,
         truncateHDNamespaceIds: Boolean = false,
+        convertPositiveDateTimeOffsetToNegative: Boolean = false,
+        useHighPrecisionHeaderDateTimeFormat: Boolean = false,
     ): Hl7Configuration {
         return Hl7Configuration(
             messageProfileId = "",
@@ -66,7 +73,9 @@ class Hl7SerializerTests {
             replaceValue = replaceValue,
             truncateHl7Fields = truncateHl7Fields,
             suppressNonNPI = suppressNonNPI,
-            truncateHDNamespaceIds = truncateHDNamespaceIds
+            truncateHDNamespaceIds = truncateHDNamespaceIds,
+            convertPositiveDateTimeOffsetToNegative = convertPositiveDateTimeOffsetToNegative,
+            useHighPrecisionHeaderDateTimeFormat = useHighPrecisionHeaderDateTimeFormat
         )
     }
 
@@ -764,5 +773,71 @@ NTE|1|L|This is a final comment|RE"""
             )
         ).isEqualTo("High Meadow")
         assertThat(output).isNotNull()
+    }
+
+    @Test
+    fun `generate empty HL7 batch`() {
+        // Setup
+        val oneOrganization = DeepOrganization(
+            "phd", "test", Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
+        )
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val serializer = Hl7Serializer(metadata, settings)
+        val report1 = Report(one, emptyList(), source = TestSource, metadata = metadata)
+        val outputStream = ByteArrayOutputStream()
+
+        // Act
+        serializer.writeBatch(
+            report1,
+            outputStream,
+            "sending_app",
+            "receiving_app",
+            "receiving_facility"
+        )
+        val result = String(outputStream.toByteArray()).split('\r')
+
+        // Assert
+
+        // should be 4 lines and a newline at the end
+        assertEquals(5, result.size)
+        // should have FHS, BHS, BTS, FTS
+        assertEquals(true, result[0].startsWith("FHS"))
+        assertEquals(true, result[1].startsWith("BHS"))
+        assertEquals(true, result[2].startsWith("BTS"))
+        assertEquals(true, result[3].startsWith("FTS"))
+        assertEquals(0, result[4].length)
+        // should have passed in sending app, receiving app, receiving facility
+        val parts = result[0].split('|')
+        assertEquals("sending_app", parts[2])
+        assertEquals("receiving_app", parts[4])
+        assertEquals("receiving_facility", parts[5])
+    }
+
+    @Test
+    fun `test now timestamp logic`() {
+        // arrange our regexes
+        // this regex checks for 12 digits, and then the offset sign, and then four more digits
+        val lowPrecisionTimeStampRegex = "^\\d{12}[-|+]\\d{4}".toRegex()
+        createConfig(
+            useHighPrecisionHeaderDateTimeFormat = false,
+            convertPositiveDateTimeOffsetToNegative = false
+        ).run {
+            val timestampValue = Hl7Serializer.nowTimestamp(this)
+            assertThat(lowPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
+        }
+
+        // this regex checks for 14 digits, then a period, three digits, and then the offset
+        val highPrecisionTimeStampRegex = "\\d{14}\\.\\d{3}[-|+]\\d{4}".toRegex()
+        createConfig(
+            useHighPrecisionHeaderDateTimeFormat = true,
+            convertPositiveDateTimeOffsetToNegative = false
+        ).run {
+            val timestampValue = Hl7Serializer.nowTimestamp(this)
+            assertThat(highPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
+        }
     }
 }

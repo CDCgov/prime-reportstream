@@ -9,6 +9,7 @@ import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.http.client.utils.URIBuilder
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
@@ -20,11 +21,16 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 class HttpUtilities {
+
     companion object : Logging {
         const val jsonMediaType = "application/json"
+        const val fhirMediaType = "application/fhir+json"
         const val oldApi = "/api/reports"
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
+
+        // Ignoring unknown properties because we don't require them. -DK
+        private val mapper = JacksonMapperUtilities.datesAsTextMapper
 
         /**
          * Last modified time header value formatter.
@@ -63,6 +69,17 @@ class HttpUtilities {
                 .createResponseBuilder(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .also { addHeaderIfModified(it, lastModified) }
+                .build()
+        }
+
+        fun <T> okJSONResponse(
+            request: HttpRequestMessage<String?>,
+            body: T
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .body(mapper.writeValueAsString(body))
                 .build()
         }
 
@@ -349,4 +366,5 @@ class HttpUtilities {
     }
 }
 
-class HttpException(message: String, val code: HttpStatus) : Error(message)
+open class HttpException(message: String, val code: HttpStatus) : Error(message)
+class HttpNotFoundException(message: String) : HttpException(message, HttpStatus.NOT_FOUND)
