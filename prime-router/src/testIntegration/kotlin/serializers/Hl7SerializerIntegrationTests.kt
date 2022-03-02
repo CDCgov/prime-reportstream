@@ -89,6 +89,7 @@ NTE|1|L|This is a final comment|RE"""
         truncateHl7Fields: String? = null,
         suppressNonNPI: Boolean = false,
         truncateHDNamespaceIds: Boolean = false,
+        stripInvalidCharsRegex: String? = null,
     ): Hl7Configuration {
         return Hl7Configuration(
             messageProfileId = "",
@@ -102,7 +103,8 @@ NTE|1|L|This is a final comment|RE"""
             replaceValue = replaceValue,
             truncateHl7Fields = truncateHl7Fields,
             suppressNonNPI = suppressNonNPI,
-            truncateHDNamespaceIds = truncateHDNamespaceIds
+            truncateHDNamespaceIds = truncateHDNamespaceIds,
+            stripInvalidCharsRegex = stripInvalidCharsRegex
         )
     }
 
@@ -146,6 +148,20 @@ NTE|1|L|This is a final comment|RE"""
         val orderingProvider = output.patienT_RESULT.ordeR_OBSERVATION.orc.getOrderingProvider(0)
         assertThat(orderingProvider.assigningAuthority.isEmpty).isTrue()
         assertThat(orderingProvider.identifierTypeCode.value).isEqualTo("U")
+    }
+
+    @Test
+    fun `test message with characters that need stripping`() {
+        val inputStream = File("./src/test/unit_test_files/bad-character-replacements.csv").inputStream()
+        val schema = "strac/strac-covid-19"
+        val hl7Config = createConfig(stripInvalidCharsRegex = "\u0019")
+        val receiver = Receiver("mock", "pa-phd", "covid-19", translation = hl7Config)
+        val stracInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
+        val testReport = translator.translateByReceiver(stracInput, receiver)
+        val output = serializer.buildMessage(testReport, 0)
+        val patientName = output.patienT_RESULT.patient.pid.patientName[0]
+        assertThat(patientName.givenName.value).isEqualTo("Marie")
+        assertThat(patientName.familyName.surname.value).isEqualTo("OConnell")
     }
 
     @Test
@@ -256,7 +272,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test converting hl7 into mapped list of values`() {
-        val mappedMessage = serializer.convertMessageToMap(sampleHl7Message, covid19Schema)
+        val mappedMessage = serializer.convertMessageToMap(sampleHl7Message, 1, covid19Schema)
         val mappedValues = mappedMessage.row
         println("\ntest converting hl7 into mapped list of values:\n")
         mappedValues.forEach {
@@ -270,7 +286,7 @@ NTE|1|L|This is a final comment|RE"""
     fun `test reading HL7 message from file`() {
         val inputFile = "$hl7TestFileDir/single_message.hl7"
         val message = File(inputFile).readText()
-        val mappedMessage = serializer.convertMessageToMap(message, covid19Schema)
+        val mappedMessage = serializer.convertMessageToMap(message, 1, covid19Schema)
         val mappedValues = mappedMessage.row
         mappedValues.forEach {
             println("${it.key}: ${it.value.joinToString()}")

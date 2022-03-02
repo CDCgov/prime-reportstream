@@ -19,12 +19,13 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
-import gov.cdc.prime.router.serializers.RedoxSerializer
 import java.io.File
 import java.io.OutputStream
 import java.net.HttpURLConnection
@@ -35,6 +36,11 @@ sealed class InputSource {
     data class FakeSource(val count: Int) : InputSource()
     data class DirSource(val dirName: String) : InputSource()
     data class ListOfFilesSource(val commaSeparatedList: String) : InputSource() // supports merge.
+}
+
+sealed class InputClientInfo {
+    data class InputSchema(val schemaName: String) : InputClientInfo()
+    data class InputClient(val clientName: String) : InputClientInfo()
 }
 
 /**
@@ -95,11 +101,19 @@ class ProcessData(
             completionCandidates = CompletionCandidates.Path
         ).convert { InputSource.DirSource(it) },
     ).single()
-    private val inputSchema by option(
-        "--input-schema",
-        metavar = "<schema_name>",
-        help = "interpret input according to this schema"
-    )
+
+    private val inputClientInfo: InputClientInfo? by mutuallyExclusiveOptions(
+        option(
+            "--input-schema",
+            metavar = "<schema_name>",
+            help = "interpret input according to this schema"
+        ).convert { InputClientInfo.InputSchema(it) },
+        option(
+            "--input-client",
+            metavar = "<client_name>",
+            help = "interpret input according to this client"
+        ).convert { InputClientInfo.InputClient(it) }
+    ).single()
 
     // Actions
     private val validate by option(
@@ -205,13 +219,15 @@ class ProcessData(
 
     private fun mergeReports(
         metadata: Metadata,
+        schema: Schema?,
+        sender: Sender?,
         settings: SettingsProvider,
         listOfFiles: String
     ): Report {
         if (listOfFiles.isEmpty()) error("No files to merge.")
         val files = listOfFiles.split(",", " ").filter { it.isNotBlank() }
         if (files.isEmpty()) error("No files to merge found in comma separated list.  Need at least one file.")
-        val reports = files.map { readReportFromFile(metadata, settings, it) }
+        val reports = files.map { readReportFromFile(metadata, schema, sender, settings, it) }
         echo("Merging ${reports.size} reports.")
         return Report.merge(reports)
     }
@@ -228,11 +244,12 @@ class ProcessData(
 
     private fun readReportFromFile(
         metadata: Metadata,
+        schema: Schema?,
+        sender: Sender?,
         settings: SettingsProvider,
         fileName: String
     ): Report {
-        val schemaName = inputSchema?.lowercase() ?: ""
-        val schema = metadata.findSchema(schemaName) ?: error("Schema $schemaName is not found")
+        val schemaName = schema?.name as String
         val file = File(fileName)
         if (!file.exists()) error("$fileName does not exist")
         echo("Opened: ${file.absolutePath}")
@@ -242,13 +259,14 @@ class ProcessData(
                 val result = hl7Serializer.readExternal(
                     schemaName,
                     file.inputStream(),
-                    FileSource(file.nameWithoutExtension)
+                    FileSource(file.nameWithoutExtension),
+                    sender = sender
                 )
                 handleReadResult(result)
             }
             else -> {
                 val csvSerializer = CsvSerializer(metadata)
-                return if (file.extension.uppercase() == "INTERNAL") {
+                return if (FileUtilities.isInternalFile(file)) {
                     csvSerializer.readInternal(
                         schema.name,
                         file.inputStream(),
@@ -260,7 +278,8 @@ class ProcessData(
                         csvSerializer.readExternal(
                             schema.name,
                             file.inputStream(),
-                            FileSource(file.nameWithoutExtension)
+                            FileSource(file.nameWithoutExtension),
+                            sender = sender
                         )
                     handleReadResult(result)
                 }
@@ -353,21 +372,49 @@ class ProcessData(
         val fileSettings = fileSettingsInstance ?: FileSettings(FileSettings.defaultSettingsDirectory)
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata, fileSettings)
-        val redoxSerializer = RedoxSerializer(metadata)
         echo("Loaded schema and receivers")
+
+        val (schema, sender) = when (inputClientInfo) {
+            is InputClientInfo.InputClient -> {
+                val clientName = (inputClientInfo as InputClientInfo.InputClient).clientName
+                val sender = fileSettings.findSender(clientName)
+                Pair(
+                    sender?.let {
+                        metadata.findSchema(it.schemaName) ?: error("Schema $clientName is not found")
+                    },
+                    sender
+                )
+            }
+            is InputClientInfo.InputSchema -> {
+                val inputSchema = (inputClientInfo as InputClientInfo.InputSchema).schemaName
+                val schName = inputSchema.lowercase()
+                metadata.findSchema(schName) ?: error("Schema $inputSchema is not found")
+                // Get a random sender name that uses the provided schema, or null if no sender is found.
+                val sender = fileSettings.senders.filter { it.schemaName == schName }.randomOrNull()
+                Pair(metadata.findSchema(schName), sender)
+            }
+            else -> {
+                error("input schema or client's name must be specified")
+            }
+        }
+
         // Gather input source
         var inputReport: Report = when (inputSource) {
             is InputSource.ListOfFilesSource ->
-                mergeReports(metadata, fileSettings, (inputSource as InputSource.ListOfFilesSource).commaSeparatedList)
+                mergeReports(
+                    metadata, schema, sender, fileSettings,
+                    (inputSource as InputSource.ListOfFilesSource).commaSeparatedList
+                )
             is InputSource.FileSource ->
-                readReportFromFile(metadata, fileSettings, (inputSource as InputSource.FileSource).fileName)
+                readReportFromFile(
+                    metadata, schema, sender, fileSettings,
+                    (inputSource as InputSource.FileSource).fileName
+                )
             is InputSource.DirSource ->
                 TODO("Dir source is not implemented")
             is InputSource.FakeSource -> {
-                val schema = metadata.findSchema(inputSchema ?: "")
-                    ?: error("$inputSchema is an invalid schema name")
                 FakeReport(metadata).build(
-                    schema,
+                    schema as Schema,
                     (inputSource as InputSource.FakeSource).count,
                     FileSource("fake"),
                     targetStates,
@@ -494,7 +541,6 @@ class ProcessData(
                     hl7Serializer.write(reportWithTranslation, stream)
                 }
                 Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
-                Report.Format.REDOX -> redoxSerializer.write(report, stream)
             }
         }
     }

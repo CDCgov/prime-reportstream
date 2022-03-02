@@ -2,7 +2,6 @@ package gov.cdc.prime.router.serializers
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
@@ -469,24 +468,6 @@ class CsvSerializerTests {
         assertThat(result4.report.itemCount).isEqualTo(1)
         assertThat(result4.report.getString(0, "b")).isEqualTo("B")
         assertThat(result4.report.getString(0, "d")).isEqualTo("D")
-    }
-
-    @Test
-    fun `test blank and default`() {
-        val one = Schema(
-            name = "one",
-            topic = "test",
-            elements = listOf(
-                Element(
-                    "a",
-                    cardinality = Element.Cardinality.ONE,
-                    type = Element.Type.TEXT_OR_BLANK,
-                    csvFields = Element.csvFields("a"),
-                    default = "y" // should be incompatible with TEXT_OR_BLANK
-                ),
-            )
-        )
-        assertThat { Metadata(one) }.isFailure()
     }
 
     @Test

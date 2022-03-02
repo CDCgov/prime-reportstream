@@ -50,7 +50,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
     /**
      * Increase from the default read timeout in case of a super-duper long table.
      */
-    private val requestTimeoutMillis = 45000
+    private val requestTimeoutMillis = 130000
 
     /**
      * The Okta Access Token.

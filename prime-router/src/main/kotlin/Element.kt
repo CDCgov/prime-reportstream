@@ -4,6 +4,8 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
 import gov.cdc.prime.router.metadata.ElementAndValue
+import gov.cdc.prime.router.metadata.LIVDLookupMapper
+import gov.cdc.prime.router.metadata.LookupMapper
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import java.lang.Exception
@@ -80,9 +82,6 @@ data class Element(
     val hl7Field: String? = null,
     val hl7OutputFields: List<String>? = null,
     val hl7AOEQuestion: String? = null,
-
-    // Redox specific information
-    val redoxOutputFields: List<String>? = null,
 
     /**
      * The header fields that correspond to an element.
@@ -203,9 +202,17 @@ data class Element(
      */
     val isTableLookup get() = mapperRef != null && type == Type.TABLE
 
-    // Creates a field mapping string showing the external CSV header name(s)
-    // and the corresponding internal field name
-    val fieldMapping get() = "'${this.csvFields?.joinToString { it -> it.name }}' ('${this.name}')"
+    /**
+     * String showing the external field name(s) if any and the element name.
+     */
+    val fieldMapping: String get() {
+        return when {
+            !csvFields.isNullOrEmpty() -> "'${csvFields.map { it -> it.name }.joinToString(",")}' ('$name')"
+            !hl7Field.isNullOrBlank() -> "'$hl7Field' ('$name')"
+            !hl7OutputFields.isNullOrEmpty() -> "'${hl7OutputFields.joinToString(",")}}' ('$name')"
+            else -> "'$name'"
+        }
+    }
 
     fun inheritFrom(baseElement: Element): Element {
         return Element(
@@ -231,11 +238,48 @@ data class Element(
             hl7Field = this.hl7Field ?: baseElement.hl7Field,
             hl7OutputFields = this.hl7OutputFields ?: baseElement.hl7OutputFields,
             hl7AOEQuestion = this.hl7AOEQuestion ?: baseElement.hl7AOEQuestion,
-            redoxOutputFields = this.redoxOutputFields ?: baseElement.redoxOutputFields,
             documentation = this.documentation ?: baseElement.documentation,
             csvFields = this.csvFields ?: baseElement.csvFields,
             delimiter = this.delimiter ?: baseElement.delimiter,
         )
+    }
+
+    /**
+     * Generate validation error messages if this element is not valid.
+     * @return a list of error messages, or an empty list if no errors
+     */
+    fun validate(): List<String> {
+        val errorList = mutableListOf<String>()
+
+        /**
+         * Add an error [message].
+         */
+        fun addError(message: String) {
+            errorList.add("Element $name - $message.")
+        }
+
+        // All elements require a type
+        if (type == null) addError("requires an element type.")
+
+        // Table lookups require a table
+        if ((mapperRef?.name == LookupMapper().name || mapperRef?.name == LIVDLookupMapper().name) &&
+            (tableRef == null || tableColumn.isNullOrBlank())
+        )
+            addError("requires a table and table column.")
+
+        // Elements of type table need a table ref
+        if ((type == Type.TABLE || type == Type.TABLE_OR_BLANK || !tableColumn.isNullOrBlank()) && tableRef == null)
+            addError("requires a table.")
+
+        // Elements with mapper parameters require a mapper
+        if ((mapperOverridesValue == true || !mapperArgs.isNullOrEmpty()) && mapperRef == null)
+            addError("has mapper related parameters, but no mapper.")
+
+        // Elements that can be blank should not have a default
+        if (canBeBlank && default != null)
+            addError("has a default specified, but can be blank")
+
+        return errorList
     }
 
     fun nameContains(substring: String): Boolean {
@@ -946,7 +990,7 @@ data class Element(
      * @param allElementValues the values for all other elements which are updated as needed
      * @param schema the schema
      * @param defaultOverrides element name and value pairs of defaults that override schema defaults
-     * @param index the index of the item from a report being processed
+     * @param itemIndex the index of the item from a report being processed
      * @param sender Sender who submitted the data.  Can be null if called at a point in code where its not known
      * @return a mutable set with the processed value or empty string
      */
@@ -954,9 +998,10 @@ data class Element(
         allElementValues: Map<String, String>,
         schema: Schema,
         defaultOverrides: Map<String, String> = emptyMap(),
-        index: Int = 0,
+        itemIndex: Int,
         sender: Sender? = null,
     ): ElementResult {
+        check(itemIndex > 0) { "Item index was $itemIndex, but must be larger than 0" }
         val retVal = ElementResult(if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!)
         if (useMapper(retVal.value) && mapperRef != null) {
             // This gets the required value names, then gets the value from mappedRows that has the data
@@ -964,7 +1009,7 @@ data class Element(
             val valueNames = mapperRef.valueNames(this, args)
             val valuesForMapper = valueNames.mapNotNull { elementName ->
                 if (elementName.contains("$")) {
-                    tokenizeMapperValue(elementName, index)
+                    tokenizeMapperValue(elementName, itemIndex)
                 } else {
                     val valueElement = schema.findElement(elementName)
                     if (valueElement != null && allElementValues.containsKey(elementName) &&

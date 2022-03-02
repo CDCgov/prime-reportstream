@@ -4,12 +4,14 @@ import assertk.Assert
 import assertk.all
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNotSameAs
 import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
 import assertk.assertions.isSameAs
+import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import assertk.assertions.prop
 import assertk.assertions.support.appendName
@@ -381,5 +383,23 @@ class MetadataTests {
         assertThat(metadata.lookupTableStore.size).isEqualTo(3)
         assertThat(metadata.lookupTableStore.containsKey(table3.tableName))
         assertThat(metadata.lookupTableStore[table3.tableName]!!.rowCount).isEqualTo(0)
+    }
+
+    @Test
+    fun `test schema validation`() {
+        var schema = Schema("name", "topic", listOf(Element("a", type = Element.Type.TEXT)))
+        assertThat { Metadata(schema).validateSchemas() }.isSuccess()
+
+        schema = Schema("name", "topic", listOf(Element("a")))
+        assertThat { Metadata(schema).validateSchemas() }.isFailure()
+
+        schema = Schema(
+            "name", "topic",
+            listOf(
+                Element("a", type = Element.Type.TEXT),
+                Element("name")
+            )
+        )
+        assertThat { Metadata(schema).validateSchemas() }.isFailure()
     }
 }

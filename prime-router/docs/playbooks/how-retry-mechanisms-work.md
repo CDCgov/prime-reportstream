@@ -65,7 +65,7 @@ Any retry mechanism is implemented at the individual transport inner try/catch l
 
 The Send step is triggered by events placed on the `send` queue either by Batch or by Process, in cases where the Receiving has no `timing` settings.   The Send step then starts a new transaction, which grabs and locks the associated row in the TASK table.
 
-Send is different because it allows for partial failures.   This is because the Redox transport required us to send one Item at a time, so there could be (and were a lot of) partial failures.
+Send is different because it allows for partial failures.   This was because the Redox transport (now removed) required us to send one Item at a time, so there could be (and were a lot of) partial failures.
 
 When a failure occurs, Send puts a new message on the `send` queue, that contains information on what Items to retry.  That message is giving a start time in the future, using a simple exponential backoff strategy.  The message also contains the number of retries so far, and a `send_warning` action is placed in the action table.
 

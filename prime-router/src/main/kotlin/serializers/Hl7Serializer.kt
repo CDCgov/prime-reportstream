@@ -27,7 +27,6 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
 import gov.cdc.prime.router.metadata.ElementAndValue
-import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
@@ -127,18 +126,18 @@ class Hl7Serializer(
         val cleanedMessage = reg.replace(message, hl7SegmentDelimiter)
         val messageLines = cleanedMessage.split(hl7SegmentDelimiter)
         val nextMessage = StringBuilder()
-        var reportNumber = 1
+        var messageIndex = 1
 
         /**
          * Parse an HL7 [message] from a string.
          */
         fun parseStringMessage(message: String) {
-            val parsedMessage = convertMessageToMap(message, schema, sender = sender)
+            val parsedMessage = convertMessageToMap(message, messageIndex, schema, sender)
             parsedMessage.errors.forEach {
-                errors.add("Report $reportNumber: $it")
+                errors.add("Report $messageIndex: $it")
             }
             parsedMessage.warnings.forEach {
-                warnings.add("Report $reportNumber: $it")
+                warnings.add("Report $messageIndex: $it")
             }
             if (parsedMessage.row.isNotEmpty())
                 rowResults.add(parsedMessage)
@@ -163,7 +162,7 @@ class Hl7Serializer(
             if (nextMessage.isNotBlank() && it.startsWith("MSH")) {
                 parseStringMessage(nextMessage.toString())
                 nextMessage.clear()
-                reportNumber++
+                messageIndex++
             }
 
             if (it.isNotBlank()) {
@@ -180,10 +179,10 @@ class Hl7Serializer(
     }
 
     /**
-     * Convert an HL7 [message] based on the specified [schema].
+     * Convert an HL7 [message] with [messageIndex] index based on the specified [schema] and [sender].
      * @returns the resulting data
      */
-    fun convertMessageToMap(message: String, schema: Schema, sender: Sender? = null): RowResult {
+    fun convertMessageToMap(message: String, messageIndex: Int, schema: Schema, sender: Sender? = null): RowResult {
         /**
          * Query the terser and get a value.
          * @param terser the HAPI terser
@@ -354,20 +353,16 @@ class Hl7Serializer(
             // Second, we process all the element raw values through mappers and defaults.
             val errorActionLogs = mutableListOf<ActionLogDetail>()
             val warningActionLogs = mutableListOf<ActionLogDetail>()
-            schema.processValues(mappedRows, errorActionLogs, warningActionLogs, sender = sender)
+            schema.processValues(
+                mappedRows, errorActionLogs, warningActionLogs, sender = sender,
+                itemIndex = messageIndex
+            )
             errors.addAll(errorActionLogs.map { it.detailMsg() })
             warnings.addAll(warningActionLogs.map { it.detailMsg() })
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
             errors.add(msg)
-        }
-
-        // Check for required fields now that we are done processing all the fields
-        schema.elements.forEach { element ->
-            if (!element.isOptional && mappedRows[element.name]!!.isBlank()) {
-                errors.add("The Value for ${element.name} for field ${element.hl7Field} is required")
-            }
         }
 
         // convert sets to lists
@@ -446,6 +441,9 @@ class Hl7Serializer(
         val suppressAoe = hl7Config?.suppressAoe ?: false
         val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
             ?: Hl7Configuration.OrderingFacilityName.STANDARD
+        val stripInvalidCharactersRegex: Regex? = hl7Config?.stripInvalidCharsRegex?.let {
+            Regex(hl7Config.stripInvalidCharsRegex)
+        }
 
         // and we have some fields to suppress
         val suppressedFields = hl7Config
@@ -495,12 +493,12 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                if (it.isNullOrEmpty() || it.equals("null")) {
+                if (it.isNullOrEmpty() || it == "null") {
                     element.default ?: ""
                 } else {
-                    it
+                    stripInvalidCharactersRegex?.replace(it, "") ?: it
                 }
-            }
+            }.trim()
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
                 return@forEach
@@ -638,7 +636,7 @@ class Hl7Serializer(
         cliaForSender.forEach { (sender, clia) ->
             try {
                 // find that sender in the map
-                if (sender.equals(senderID.trim(), ignoreCase = true) && !clia.isEmpty()) {
+                if (sender.equals(senderID.trim(), ignoreCase = true) && clia.isNotEmpty()) {
                     // if the sender needs should have a specific CLIA then overwrite the CLIA here
                     val pathSpecSendingFacilityID = formPathSpec("MSH-4-2")
                     terser.set(pathSpecSendingFacilityID, clia)
@@ -1009,6 +1007,7 @@ class Hl7Serializer(
             ?: error("Schema Error: Cannot find '$valueSetName'")
         when (valueSet.system) {
             ValueSet.SetSystem.HL7,
+            ValueSet.SetSystem.ISO,
             ValueSet.SetSystem.LOINC,
             ValueSet.SetSystem.UCUM,
             ValueSet.SetSystem.SNOMED_CT -> {
@@ -1404,8 +1403,8 @@ class Hl7Serializer(
     }
 
     /**
-     * Creates the headers for hl7 batch. Generally the [sendingApplication], [receivingApplication], and
-     * [recievingFacility] will come from the first item in the file. In the case of empty batch, it
+     * Creates the headers for hl7 batch. Generally the [sendingApplicationReportIn], [receivingApplicationReportIn], and
+     * [receivingFacilityReportIn] will come from the first item in the file. In the case of empty batch, it
      * must be passed in.
      */
     private fun createHeaders(
@@ -1788,7 +1787,7 @@ class Hl7Serializer(
 
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
-            LookupTable.read("./metadata/tables/nces_id_2021_6_28.csv")
+            Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
         }
     }
 }

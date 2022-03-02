@@ -96,6 +96,18 @@ export const FacilitiesOverview = () => {
                             organizations, test manufacturers, and facilities
                             with advanced systems.
                         </p>
+                        <p>
+                            For more information, read the
+                            <a
+                                href="https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2FCDCgov%2Fprime-reportstream%2Fmaster%2Fprime-router%2Fdocs%2FReportStream-Programmers-Guide-for-Senders.docx"
+                                className="usa-link"
+                                rel="noopener noreferrer"
+                                target="_blank"
+                            >
+                                ReportStream Programmer's Guide for Testing
+                                Facilities and Senders (.docx)
+                            </a>
+                        </p>
                     </li>
                     <li>
                         <h4>
@@ -197,7 +209,7 @@ export const FacilitiesOverview = () => {
                     >
                         {DOMPurify.sanitize(site.orgs.RS.email)}
                     </a>{" "}
-                    and we’ll follow up with next steps.
+                    and we'll follow up with next steps.
                 </p>
                 <p>
                     <a

@@ -42,7 +42,7 @@ export const TextAreaComponent = (params: {
     savefunc: (val: object) => void;
 }): JSX.Element => {
     let defaultValue = JSON.stringify(params?.defaultvalue, undefined, 2);
-    if (defaultValue === "null") {
+    if (defaultValue === "null" || defaultValue === "[]") {
         defaultValue = "";
     }
 
@@ -58,7 +58,6 @@ export const TextAreaComponent = (params: {
                     name={key}
                     defaultValue={defaultValue}
                     data-testid={key}
-                    maxLength={255}
                     onBlur={(e) =>
                         params.savefunc(JSON.parse(e?.target?.value || "{}"))
                     }

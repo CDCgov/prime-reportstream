@@ -168,7 +168,7 @@ data class Schema(
         errors: MutableList<ActionLogDetail>,
         warnings: MutableList<ActionLogDetail>,
         defaultOverrides: Map<String, String> = emptyMap(),
-        itemIndex: Int = 0,
+        itemIndex: Int,
         sender: Sender? = null,
         specialFailureValue: String? = null
     ) {
@@ -184,6 +184,18 @@ data class Schema(
                 allElementValues[element.name] = ""
             }
         }
+    }
+
+    /**
+     * Validate all the elements in the schema.
+     * @return a list of error messages, or an empty list if no errors
+     */
+    fun validate(): MutableList<String> {
+        val validationErrors = mutableListOf<String>()
+        elements.forEach { element ->
+            validationErrors.addAll(element.validate().map { "Schema $name: $it" })
+        }
+        return validationErrors
     }
 
     companion object {

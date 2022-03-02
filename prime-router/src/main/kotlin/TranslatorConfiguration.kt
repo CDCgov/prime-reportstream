@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 
 // Schemas used
 const val HL7_SCHEMA = "covid-19"
-const val REDOX_SCHEMA = "covid-19-redox"
 const val GAEN_SCHEMA = "covid-19-gaen"
 
 /**
@@ -48,7 +47,6 @@ interface TranslatorProperties {
 )
 @JsonSubTypes(
     JsonSubTypes.Type(Hl7Configuration::class, name = "HL7"),
-    JsonSubTypes.Type(RedoxConfiguration::class, name = "REDOX"),
     JsonSubTypes.Type(GAENConfiguration::class, name = "GAEN"),
     JsonSubTypes.Type(CustomConfiguration::class, name = "CUSTOM"),
 )
@@ -99,6 +97,9 @@ data class Hl7Configuration
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
     val convertPositiveDateTimeOffsetToNegative: Boolean? = false,
+    // lets us strip chars we don't want showing up in the outbound message
+    // this should really be done on the sender side, but it lives here for now
+    val stripInvalidCharsRegex: String? = null,
 ) : TranslatorConfiguration("HL7") {
     /**
      * Formatting for XTN fields
@@ -179,41 +180,6 @@ data class Hl7Configuration
             "reporting_facility" to reportingFacility
         )
     }
-}
-
-/**
- * Standard Redox report configuration
- */
-data class RedoxConfiguration
-@JsonCreator constructor(
-    val useTestProcessingMode: Boolean = false,
-    val destinationId: String,
-    val destinationName: String,
-    val sourceId: String,
-    val sourceName: String,
-) : TranslatorConfiguration("REDOX") {
-    @get:JsonIgnore
-    override val format: Report.Format get() = Report.Format.REDOX
-
-    @get:JsonIgnore
-    override val schemaName: String get() = REDOX_SCHEMA
-
-    @get:JsonIgnore
-    override val defaults: Map<String, String> get() {
-        return mapOf(
-            "processing_mode_code" to (if (useTestProcessingMode) "T" else "P"),
-            "redox_destination_id" to destinationId,
-            "redox_destination_name" to destinationName,
-            "redox_source_id" to sourceId,
-            "redox_source_name" to sourceName,
-        )
-    }
-
-    @get:JsonIgnore
-    override val nameFormat: String = "standard"
-
-    @get:JsonIgnore
-    override val receivingOrganization: String? = null
 }
 
 /**

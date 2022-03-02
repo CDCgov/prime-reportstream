@@ -16,6 +16,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.SystemExitCodes
 import kotlinx.coroutines.delay
 import org.jooq.exception.DataAccessException
 import java.io.File
@@ -44,10 +45,11 @@ class Ping : CoolTest() {
             payloadName = "$name ${status.description}",
         )
         echo("Response to POST: $responseCode")
-        echo(json)
+        echo("Response message: $json")
         if (responseCode != HttpURLConnection.HTTP_OK) {
             bad("Ping/CheckConnections Test FAILED:  response code $responseCode")
-            exitProcess(-1) // other tests won't work.
+            outputAllMsgs()
+            exitProcess(SystemExitCodes.FAILURE.exitCode) // other tests won't work.
         }
         try {
             val tree = jacksonObjectMapper().readTree(json)
@@ -68,7 +70,7 @@ class End2End : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties(environment)
+        initListOfGoodReceiversAndCounties()
         ugly("Starting $name Test: send ${simpleRepSender.fullName} data to $allGoodCounties")
 
         // run both sync and async end2end test
@@ -465,7 +467,7 @@ class Strac : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties(environment)
+        initListOfGoodReceiversAndCounties()
         ugly("Starting bigly strac Test: sending Strac data to all of these receivers: $allGoodCounties!")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
@@ -563,7 +565,7 @@ class Garbage : CoolTest() {
     override val status = TestStatus.FAILS // new quality checks now prevent any data from flowing to other checks
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties(environment)
+        initListOfGoodReceiversAndCounties()
         ugly("Starting $name Test: send ${emptySender.fullName} data to $allGoodCounties")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
@@ -678,6 +680,7 @@ class QualityFilter : CoolTest() {
         echo("Response to POST: $responseCode")
 
         var passed = true
+        var expectItemCount = fakeItemCount
         // if running in async mode, the initial response will not have destinations - the 'process' action result will
         if (options.asyncProcessMode) {
             val reportId = getReportIdFromResponse(json)
@@ -690,13 +693,14 @@ class QualityFilter : CoolTest() {
                 for (result in processResults.values)
                     passed = passed &&
                         examineProcessResponse(result) &&
-                        checkJsonItemCountForReceiver(qualityAllReceiver, fakeItemCount, result!!)
+                        checkJsonItemCountForReceiver(qualityAllReceiver, expectItemCount, result!!)
             }
         } else
-            passed = passed && checkJsonItemCountForReceiver(qualityAllReceiver, fakeItemCount, json)
+            passed = passed && checkJsonItemCountForReceiver(qualityAllReceiver, expectItemCount, json)
 
         // QUALITY_PASS
         ugly("\nTest a QualityFilter that allows some data through")
+        expectItemCount = fakeItemCount - 2 // Removed 2 items
         val file2 = FileUtilities.createFakeFile(
             metadata,
             settings,
@@ -730,13 +734,14 @@ class QualityFilter : CoolTest() {
                 for (result in processResults2.values)
                     passed = passed &&
                         examineProcessResponse(result) &&
-                        checkJsonItemCountForReceiver(qualityGoodReceiver, fakeItemCount, result!!)
+                        checkJsonItemCountForReceiver(qualityGoodReceiver, expectItemCount, result!!)
             }
         } else
-            passed = passed && checkJsonItemCountForReceiver(qualityGoodReceiver, 3, json2)
+            passed = passed && checkJsonItemCountForReceiver(qualityGoodReceiver, expectItemCount, json2)
 
         // FAIL
         ugly("\nTest a QualityFilter that allows NO data through.")
+        expectItemCount = 0 // No Item
         val file3 = FileUtilities.createFakeFile(
             metadata,
             settings,
@@ -770,13 +775,14 @@ class QualityFilter : CoolTest() {
                 for (result in processResults3.values)
                     passed = passed &&
                         examineProcessResponse(result) &&
-                        checkJsonItemCountForReceiver(qualityFailReceiver, fakeItemCount, result!!)
+                        checkJsonItemCountForReceiver(qualityFailReceiver, expectItemCount, result!!)
             }
         } else
-            passed = passed && checkJsonItemCountForReceiver(qualityFailReceiver, 0, json3)
+            passed = passed && checkJsonItemCountForReceiver(qualityFailReceiver, expectItemCount, json3)
 
         // QUALITY_REVERSED
         ugly("\nTest the REVERSE of the QualityFilter that allows some data through")
+        expectItemCount = 2
         val file4 = FileUtilities.createFakeFile(
             metadata,
             settings,
@@ -810,10 +816,10 @@ class QualityFilter : CoolTest() {
                 for (result in processResults4.values)
                     passed = passed &&
                         examineProcessResponse(result) &&
-                        checkJsonItemCountForReceiver(qualityReversedReceiver, fakeItemCount, result!!)
+                        checkJsonItemCountForReceiver(qualityReversedReceiver, expectItemCount, result!!)
             }
         } else
-            passed = passed && checkJsonItemCountForReceiver(qualityReversedReceiver, 2, json4)
+            passed = passed && checkJsonItemCountForReceiver(qualityReversedReceiver, expectItemCount, json4)
 
         return passed
     }

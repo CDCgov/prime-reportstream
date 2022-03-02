@@ -166,6 +166,8 @@ Is the patient in the ICU?
 
 **ReportStream Internal Name**: patient_age_and_units
 
+**Type**: TEXT
+
 **PII**: No
 
 **Cardinality**: [0..1]
@@ -408,6 +410,8 @@ Is the patient pregnant?
 **Name**: Nsg Home?
 
 **ReportStream Internal Name**: resident_congregate_care_setting
+
+**Type**: TEXT
 
 **PII**: No
 
