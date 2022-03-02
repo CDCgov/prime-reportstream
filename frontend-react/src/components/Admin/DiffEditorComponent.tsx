@@ -7,7 +7,6 @@ export const DiffEditorComponent: FC<{
     language: string;
     mounter: (editor: null, monaco: any) => void;
 }> = ({ modifiedCode, originalCode, language, mounter }) => {
-
     return (
         <DiffEditor
             height="50vh"

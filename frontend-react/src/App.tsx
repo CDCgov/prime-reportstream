@@ -36,7 +36,6 @@ import { EditSenderSettings } from "./components/Admin/EditSenderSettings";
 import "react-toastify/dist/ReactToastify.css";
 import SubmissionDetails from "./pages/submissions/SubmissionDetails";
 import { NewSetting } from "./components/Admin/NewSetting";
-import { CompareSenderSettings } from "./components/Admin/CompareSenderSettings";
 import { FeatureFlagUIComponent } from "./pages/misc/FeatureFlags";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
@@ -177,11 +176,6 @@ const App = () => {
                                     path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={NewSetting}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/comparesettings/org/:orgname/settingtype/sender/action/:action/settingid/:settingid/newjson/:newjson"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={CompareSenderSettings}
                                 />
                                 <SecureRoute
                                     path="/report-details"
