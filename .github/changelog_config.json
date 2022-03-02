@@ -59,7 +59,9 @@
             "title": "## 🌐 Release Notes",
             "labels": [
                 "release-notes",
-                "customer-facing"
+                "release",
+                "customer-facing",
+                "customer"
             ]
         },
         {
