@@ -37,6 +37,7 @@ plugins {
     id("com.adarshr.test-logger") version "3.1.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.6.10"
+    id("com.avast.gradle.docker-compose") version "0.15.0"
 }
 
 group = "gov.cdc.prime"
@@ -111,11 +112,12 @@ compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
     // Delete the old Maven build folder
+    dependsOn("composeDown")
     delete("target")
     // clean up all the old event files in the SOAP set up
     doLast {
         val eventsDir = File("../.environment/soap_service/soap/event/v1")
-        if (eventsDir.exists() && eventsDir.isDirectory && eventsDir.listFiles().isNotEmpty()) {
+        if (eventsDir.exists() && eventsDir.isDirectory && (eventsDir.listFiles()?.isNotEmpty() == true)) {
             // Note FileUtils does not like when the folder is empty.
             FileUtils.listFiles(eventsDir, arrayOf("event"), true).forEach {
                 it.delete()
@@ -393,6 +395,7 @@ tasks.register<Copy>("gatherAzureResources") {
     from("./")
     into(azureResourcesTmpDir)
     include("metadata/**/*.yml")
+    include("metadata/**/*.properties")
     include("metadata/**/*.schema")
     include("metadata/**/*.valuesets")
     include("metadata/**/*.csv")
@@ -404,7 +407,7 @@ tasks.register("copyAzureResources") {
     dependsOn("gatherAzureResources")
     doLast {
         // We need to use a regular copy, so Gradle does not delete the existing folder
-        org.apache.commons.io.FileUtils.copyDirectory(azureResourcesTmpDir, azureResourcesFinalDir)
+        FileUtils.copyDirectory(azureResourcesTmpDir, azureResourcesFinalDir)
     }
 }
 
@@ -423,7 +426,7 @@ tasks.register("copyAzureScripts") {
     dependsOn("gatherAzureScripts")
     doLast {
         // We need to use a regular copy, so Gradle does not delete the existing folder
-        org.apache.commons.io.FileUtils.copyDirectory(azureScriptsTmpDir, azureScriptsFinalDir)
+        FileUtils.copyDirectory(azureScriptsTmpDir, azureScriptsFinalDir)
         File(azureScriptsFinalDir.path, primeScriptName).setExecutable(true)
         File(azureScriptsFinalDir.path, startFuncScriptName).setExecutable(true)
     }
@@ -454,7 +457,19 @@ tasks.register("quickPackage") {
     tasks["dokkaHtml"].enabled = false
 }
 
+/**
+ * Docker services needed for running Dockerless
+ */
+dockerCompose {
+    projectName = "prime-router"
+    useComposeFiles.addAll("docker-compose.yml")
+    startedServices.addAll("sftp", "ftps", "soap-webservice", "vault", "azurite")
+    stopContainers.set(false)
+    waitForTcpPorts.set(false)
+}
+
 tasks.azureFunctionsRun {
+    dependsOn("composeUp")
     // This storage account key is not a secret, just a dummy value.
     val devAzureConnectString =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
@@ -663,6 +678,9 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
     implementation("com.github.javafaker:javafaker:1.0.2")
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.16")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.5.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.5.1")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.43")
@@ -685,7 +703,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:8.5.0")
-    implementation("org.commonmark:commonmark:0.18.1")
+    implementation("org.commonmark:commonmark:0.18.2")
     implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.helger.as2:as2-lib:4.10.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
