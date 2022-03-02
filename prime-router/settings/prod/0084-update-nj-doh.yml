@@ -84,7 +84,7 @@
     externalName: null
   - name: "elr-test"
     organizationName: "nj-doh"
-      opic: "covid-19"
+    topic: "covid-19"
     customerStatus: "active"
     translation: !<HL7>
       useTestProcessingMode: false
@@ -250,7 +250,7 @@
     routingFilter: []
     processingModeFilter: []
     reverseTheQualityFilter: true
-      eidentify: false
+    deidentify: false
     timing:
       operation: "MERGE"
       numberPerDay: 1

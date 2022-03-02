@@ -75,16 +75,10 @@
         action: "NONE"
         onlyOncePerDay: false
     description: ""
-    transport: !<SFTP>
-      host: "njgov.moveitcloud.com"
-      port: "22"
-      filePath: "./PROD"
-      credentialName: null
-      type: "SFTP"
     externalName: null
   - name: "elr-test"
     organizationName: "nj-doh"
-      opic: "covid-19"
+    topic: "covid-19"
     customerStatus: "active"
     translation: !<HL7>
       useTestProcessingMode: false
@@ -137,12 +131,6 @@
         action: "NONE"
         onlyOncePerDay: false
     description: ""
-    transport: !<SFTP>
-      host: "njgov.moveitcloud.com"
-      port: "22"
-      filePath: "./TEST"
-      credentialName: null
-      type: "SFTP"
     externalName: null
   - name: "elr-test-secondary"
     organizationName: "nj-doh"
@@ -199,12 +187,6 @@
         action: "NONE"
         onlyOncePerDay: false
     description: ""
-    transport: !<SFTP>
-      host: "njgov.moveitcloud.com"
-      port: "22"
-      filePath: "./TEST"
-      credentialName: "NJ-DOH--ELR"
-      type: "SFTP"
     externalName: null
   - name: "elr-secondary"
     organizationName: "nj-doh"
@@ -250,7 +232,7 @@
     routingFilter: []
     processingModeFilter: []
     reverseTheQualityFilter: true
-      eidentify: false
+    deidentify: false
     timing:
       operation: "MERGE"
       numberPerDay: 1
@@ -261,10 +243,4 @@
         action: "NONE"
         onlyOncePerDay: false
     description: ""
-    transport: !<SFTP>
-      host: "njgov.moveitcloud.com"
-      port: "22"
-      filePath: "./TEST"
-      credentialName: "NJ-DOH--ELR"
-      type: "SFTP"
     externalName: null
