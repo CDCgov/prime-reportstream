@@ -14,20 +14,22 @@ type Props = {
     settingtype: string;
     action: string;
     settingid: string;
-    newjson: string;
+    oldjson: OrgSenderSettingsResource;
+    newjson: OrgSenderSettingsResource;
 };
 
-export function CompareSenderSettings({ match }: RouteComponentProps<Props>) {
+export function CompareSenderSettings(props: Props) {
     const history = useHistory();
-    const orgname = match?.params?.orgname || "";
+    const orgname = props?.orgname || "";
     // const settingtype = match?.params?.settingtype || "";
     // const action = match?.params?.action || "";
-    const settingid = match?.params?.settingid || "";
+    const settingid = props?.settingid || "";
 
-    let newjson = decodeURI(
-        match?.params?.newjson.replaceAll("%2F", "/") || ""
-    );
-    newjson = JSON.parse(newjson);
+    // let newjson = decodeURI(
+    //     match?.params?.newjson.replaceAll("%2F", "/") || ""
+    // );
+    const oldjson = props?.oldjson || {};
+    const newjson = props?.newjson || {};
 
     const diffEditorRef = useRef(null);
 
@@ -36,10 +38,10 @@ export function CompareSenderSettings({ match }: RouteComponentProps<Props>) {
     }
 
     const FormComponent = () => {
-        const orgSenderSettingsOld = useResource(
-            OrgSenderSettingsResource.detail(),
-            { orgname, sendername: settingid }
-        );
+        // const orgSenderSettingsOld = useResource(
+        //     OrgSenderSettingsResource.detail(),
+        //     { orgname, sendername: settingid }
+        // );
 
         const { fetch: fetchController } = useController();
 
@@ -77,10 +79,10 @@ export function CompareSenderSettings({ match }: RouteComponentProps<Props>) {
                 <Grid row>
                     <Grid col="fill" className="text-bold">
                         Org name:{" "}
-                        {match?.params?.orgname || "missing param 'orgname'"}
+                        {props.orgname || "missing param 'orgname'"}
                         <br />
                         Setting Name:{" "}
-                        {match?.params?.settingid ||
+                        {props.settingid ||
                             "missing param 'settingid'"}
                         <br />
                         Setting Type: sender
@@ -92,7 +94,7 @@ export function CompareSenderSettings({ match }: RouteComponentProps<Props>) {
                     <Grid col="fill">
                         <DiffEditorComponent
                             originalCode={JSON.stringify(
-                                orgSenderSettingsOld,
+                                oldjson,
                                 undefined,
                                 2
                             )}

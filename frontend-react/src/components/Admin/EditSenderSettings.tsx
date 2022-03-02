@@ -1,13 +1,16 @@
-import React, { Suspense } from "react";
-import { Button, GridContainer, Grid } from "@trussworks/react-uswds";
+import React, {Suspense, useRef, useState} from "react";
+import {Button, GridContainer, Grid, ModalRef} from "@trussworks/react-uswds";
 import { useResource, NetworkErrorBoundary, useController } from "rest-hooks";
 import { NavLink, RouteComponentProps, useHistory } from "react-router-dom";
 
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
-// import { showAlertNotification, showError } from "../AlertNotifications";
+import { showAlertNotification, showError } from "../AlertNotifications";
 
 import { TextInputComponent } from "./AdminFormEdit";
+import {ConfirmSaveSettingModal} from "./CompareJsonModal";
+import {getStoredOktaToken, getStoredOrg} from "../GlobalContextProvider";
+import {jsonSortReplacer} from "../../utils/JsonSortReplacer";
 
 type Props = { orgname: string; sendername: string; action: string };
 
@@ -16,15 +19,66 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
     const sendername = match?.params?.sendername || "";
     const action = match?.params?.action || "";
     const history = useHistory();
+    const modalRef = useRef<ModalRef>(null);
+    const diffEditorRef = useRef(null);
+    // const stringify = require('fast-json-stable-stringify');
+
+    // function formatJson(responseBody: any) {
+    //     const sorted = stringify(responseBody,
+    //         function (a: { key: number; }, b: { key: number; }) {
+    //             return a.key < b.key ? -1 : 1;
+    //         });
+    //     const prettified = JSON.stringify(JSON.parse(sorted), null, 2);
+    //     return prettified;
+    // }
 
     const FormComponent = () => {
         const orgSenderSettings: OrgSenderSettingsResource = useResource(
             OrgSenderSettingsResource.detail(),
-            { orgname, sendername: sendername, action: action }
+            { orgname, sendername: sendername }
         );
 
-        // const { fetch: fetchController } = useController();
+        const [orgSenderSettingsOld, setOrgSenderSettingsOld] = useState("");
+
+        const { fetch: fetchController } = useController();
         const { invalidate } = useController();
+
+        function handleEditorDidMount(editor: null) {
+            diffEditorRef.current = editor;
+        }
+
+        const ShowCompareConfirm = async (itemId: string) => {
+            try{
+                debugger;
+
+                // fetch original version
+                const accessToken = getStoredOktaToken();
+                const organization = getStoredOrg();
+
+                const response = await fetch(
+                    `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                            Organization: organization!
+                        }
+
+                    }
+                );
+
+                const responseBody = await response.json();
+                setOrgSenderSettingsOld(JSON.stringify(responseBody, jsonSortReplacer, 2));
+
+                // const prettified = formatJson(responseBody);
+                // setOrgSenderSettingsOld(prettified);
+
+                // SetDeleteItemId(itemId);
+                modalRef?.current?.toggleModal(undefined, true);
+            }
+            catch (e) {
+                console.error(e);
+            }
+        };
 
         const goToCompareSettings = async () => {
             let compareUrl: string = `/admin/comparesettings/org/${orgname}/settingtype/sender/action/${action}/settingid/${
@@ -42,62 +96,62 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
             history.push(compareUrl);
         };
 
-        // const saveSenderData = async () => {
-        //     switch (action) {
-        //         case "edit":
-        //             try {
-        //                 const data = JSON.stringify(orgSenderSettings);
-        //                 await fetchController(
-        //                     OrgSenderSettingsResource.update(),
-        //                     { orgname, sendername: sendername },
-        //                     data
-        //                 );
-        //                 showAlertNotification(
-        //                     "success",
-        //                     `Item '${sendername}' has been updated`
-        //                 );
-        //                 history.goBack();
-        //             } catch (e: any) {
-        //                 console.trace(e);
-        //
-        //                 showError(
-        //                     `Updating item '${sendername}' failed. ${e.toString()}`
-        //                 );
-        //                 return false;
-        //             }
-        //             break;
-        //         case "clone":
-        //             try {
-        //                 const data = JSON.stringify(orgSenderSettings);
-        //                 await fetchController(
-        //                     // NOTE: this does not use the expected OrgSenderSettingsResource.create() method
-        //                     // due to the endpoint being an 'upsert' (PUT) instead of the expected 'insert' (POST)
-        //                     OrgSenderSettingsResource.update(),
-        //                     { orgname, sendername: orgSenderSettings.name },
-        //                     data
-        //                 );
-        //                 showAlertNotification(
-        //                     "success",
-        //                     `Item '${orgSenderSettings.name}' has been created`
-        //                 );
-        //                 history.goBack();
-        //             } catch (e: any) {
-        //                 console.trace(e);
-        //
-        //                 showError(
-        //                     `Cloning item '${
-        //                         orgSenderSettings.name
-        //                     }' failed. ${e.toString()}`
-        //                 );
-        //                 return false;
-        //             }
-        //             break;
-        //         default:
-        //             return false;
-        //     }
-        //
-        //     return true;
-        // };
+        const saveSenderData = async () => {
+            switch (action) {
+                case "edit":
+                    try {
+                        const data = JSON.stringify(orgSenderSettings);
+                        await fetchController(
+                            OrgSenderSettingsResource.update(),
+                            { orgname, sendername: sendername },
+                            data
+                        );
+                        showAlertNotification(
+                            "success",
+                            `Item '${sendername}' has been updated`
+                        );
+                        history.goBack();
+                    } catch (e: any) {
+                        console.trace(e);
+
+                        showError(
+                            `Updating item '${sendername}' failed. ${e.toString()}`
+                        );
+                        return false;
+                    }
+                    break;
+                case "clone":
+                    try {
+                        const data = JSON.stringify(orgSenderSettings);
+                        await fetchController(
+                            // NOTE: this does not use the expected OrgSenderSettingsResource.create() method
+                            // due to the endpoint being an 'upsert' (PUT) instead of the expected 'insert' (POST)
+                            OrgSenderSettingsResource.update(),
+                            { orgname, sendername: orgSenderSettings.name },
+                            data
+                        );
+                        showAlertNotification(
+                            "success",
+                            `Item '${orgSenderSettings.name}' has been created`
+                        );
+                        history.goBack();
+                    } catch (e: any) {
+                        console.trace(e);
+
+                        showError(
+                            `Cloning item '${
+                                orgSenderSettings.name
+                            }' failed. ${e.toString()}`
+                        );
+                        return false;
+                    }
+                    break;
+                default:
+                    return false;
+            }
+
+            return true;
+        };
 
         return (
             <GridContainer>
@@ -166,8 +220,28 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     >
                         Save
                     </NavLink>
+                    <Button
+                        type={"button"}
+                        onClick={() =>
+                            ShowCompareConfirm(
+                                sendername
+                            )
+                        }
+                    >
+                        Compare
+                    </Button>
                 </Grid>
+                <ConfirmSaveSettingModal
+                    uniquid={sendername}
+                    onConfirm={saveSenderData}
+                    modalRef={modalRef}
+                    oldjson={orgSenderSettingsOld}
+                    newjson={JSON.stringify(orgSenderSettings, jsonSortReplacer, 2)}
+                    // newjson={formatJson(orgSenderSettings)}
+                    handleEditorDidMount={handleEditorDidMount}
+                />
             </GridContainer>
+
         );
     };
 

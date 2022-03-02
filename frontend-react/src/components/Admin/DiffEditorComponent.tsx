@@ -7,11 +7,6 @@ export const DiffEditorComponent: FC<{
     language: string;
     mounter: (editor: null, monaco: any) => void;
 }> = ({ modifiedCode, originalCode, language, mounter }) => {
-    // const diffEditorRef = useRef(null);
-    //
-    // function handleEditorDidMount(editor: null, monaco: any) {
-    //     diffEditorRef.current = editor;
-    // }
 
     return (
         <DiffEditor
