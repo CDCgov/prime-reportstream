@@ -1,0 +1,105 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0086-update-mt-doh-routing-filter.yml
+---
+- name: "mt-doh"
+  description: "Montana Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "MT"
+  countyName: null
+  filters:
+    routingFilter:
+      - "matches(test_result_status, F, C, P)"
+  senders: []
+  receivers:
+  - name: "elr"
+    organizationName: "mt-doh"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: true
+      defaultAoeToUnknown: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+    jurisdictionalFilter:
+    - "orEquals(patient_state, MT, ordering_facility_state, MT)"
+    qualityFilter: []
+    routingFilter: []
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1
+      initialTime: "09:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<SFTP>
+      host: "prd-xfer.hhs.mt.gov"
+      port: "8222"
+      filePath: "data/ELR/interface/prod/sr/midis/in/work"
+      credentialName: null
+      type: "SFTP"
+    externalName: "Primary HL7 Feed"
+  - name: "elr-csv"
+    organizationName: "mt-doh"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<CUSTOM>
+      schemaName: "mt/mt-covid-19-csv"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "orEquals(patient_state, MT, ordering_facility_state, MT)"
+    qualityFilter: []
+    routingFilter: []
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1
+      initialTime: "09:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: null
+    externalName: "Secondary CSV Feed"

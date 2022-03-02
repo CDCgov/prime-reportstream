@@ -989,6 +989,8 @@
       customerStatus: active
       jurisdictionalFilter:
         - orEquals(patient_state, MT, ordering_facility_state, MT)
+      routingFilter:
+        - "matches(test_result_status, F, C, P)"
       translation:
         type: HL7
         useBatchHeaders: true
@@ -1009,6 +1011,8 @@
       customerStatus: active
       jurisdictionalFilter:
         - orEquals(patient_state, MT, ordering_facility_state, MT)
+      routingFilter:
+        - "matches(test_result_status, F, C, P)"
       translation:
         type: CUSTOM
         format: CSV
