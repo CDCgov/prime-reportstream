@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.JwkSet
 
@@ -18,7 +19,9 @@ open class Sender(
     val schemaName: String,
     val keys: List<JwkSet>? = null, // used to track server-to-server auths for this Sender via public keys sets
     val processingType: ProcessingType = ProcessingType.sync,
-    val allowDuplicates: Boolean = true
+    val allowDuplicates: Boolean = true,
+    val senderType: SenderType? = null,
+    val primarySubmissionMethod: PrimarySubmissionMethod? = null
 ) {
     /**
      * Enumeration representing whether a submission will be processed follow the synchronous or asynchronous
@@ -39,6 +42,34 @@ open class Sender(
                 throw IllegalArgumentException()
             }
         }
+    }
+
+    /**
+     * @property testManufacturer Sender a test manufacturer (Abbott, Roche, Quidel)
+     * @property dataAggregator Sender is a data aggregator (LifePoint, ImageMover, SimpleReport, Prescryptyve)
+     * @property facility Sender is a facility (CSV-uploader, urgent care, nursing homes, A1 Health--home health and hospice)
+     * @property hospitalSystem Sender is a hospital or large hospital system (HCA)
+     */
+    enum class SenderType {
+        @JsonProperty("testManufacturer")
+        testManufacturer,
+        @JsonProperty("dataAggregator")
+        dataAggregator,
+        @JsonProperty("facility")
+        facility,
+        @JsonProperty("hospitalSystem")
+        hospitalSystem
+    }
+
+    /**
+     * @property automated Directly sent to the API
+     * @property manual Uploaded via the UI
+     */
+    enum class PrimarySubmissionMethod {
+        @JsonProperty("automated")
+        automated,
+        @JsonProperty("manual")
+        manual
     }
 
     constructor(copy: Sender) : this(
