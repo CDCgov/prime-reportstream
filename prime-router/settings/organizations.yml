@@ -1071,6 +1071,8 @@
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, NJ, patient_state, NJ)
         - matches(processing_mode_code, P)
+      routingFilter:
+        - matches(test_result_status, F, C, P)
       translation:
         type: HL7
         useBatchHeaders: true
