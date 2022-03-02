@@ -62,8 +62,8 @@ open class Sender(
     }
 
     /**
-     * @property automated ?????????????
-     * @property manual ?????????????
+     * @property automated Directly sent to the API
+     * @property manual Uploaded via the UI
      */
     enum class PrimarySubmissionMethod {
         @JsonProperty("automated")
