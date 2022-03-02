@@ -374,6 +374,10 @@
       display: Test not done
     - code: 373121007
       display: 373121007
+    - code: 82334004
+      display: Indeterminate
+    - code: 82334004
+      display: 82334004
 
 - name: sender-automation/specimen_source_site_code
   system: SNOMED_CT
@@ -382,122 +386,106 @@
   values:
     - code: 71836000
       display: Nasopharyngeal structure (body structure)
-      version: 2020-09-01
     - code: 71836000
       display: Nasopharyngeal swab
-      version: 2020-09-01
     - code: 71836000
       display: 258500001
-      version: 2020-09-01
     - code: 71836000
       display: Nasopharyngeal aspirate
-      version: 2020-09-01
     - code: 71836000
       display: 258411007 
-      version: 2020-09-01
+    - code: 71836000
+      display: Nasopharyngeal washings
+    - code: 71836000
+      display: Nasopharyngeal wash
+    - code: 71836000
+      display: 258467004
     - code: 71836000
       display: 71836000
-      version: 2020-09-01
     - code: 45206002
       display: Nasal structure (body structure)
-      version: 2020-09-01
     - code: 45206002
       display: Nasal aspirate 
+    - code: 45206002
+      display: Nasal aspirate specimen
     - code: 45206002
       display: 429931000124105
     - code: 45206002
       display: 45206002
-      version: 2020-09-01
     - code: 53342003
       display: Internal nose structure (body structure)
-      version: 2020-09-01
     - code: 53342003
       display: Varied
-      version: 2020-09-01
     - code: 53342003
       display: Swab of internal nose
-      version: 2020-09-01
     - code: 53342003
       display: Anterior nares swab
-      version: 2020-09-01
     - code: 53342003
-      display: Mid-turbinate nasal swab
-      version: 2020-09-01
-    - code: 53342003
-      display: Nasal
-      version: 2020-09-01
-    - code: 53342003
-      display: Nasal Swab
-      version: 2020-09-01
-    - code: 53342003
-      display: 445297001
-      version: 2020-09-01
+      display: Anterior nasal swab
     - code: 53342003
       display: 697989009
-      version: 2020-09-01
+    - code: 53342003
+      display: Mid-turbinate nasal swab
+    - code: 53342003
+      display: 871810001
+    - code: 53342003
+      display: Nasal
+    - code: 53342003
+      display: Nasal Swab
+    - code: 53342003
+      display: 445297001
     - code: 53342003
       display: 53342003
-      version: 2020-09-01
     - code: 29092000
       display: Serum
-      version: 2020-09-01
     - code: 29092000
       display: Serum specimen
-      version: 2020-09-01
-    - code: 29092000
-      display: Plasma
-      version: 2020-09-01
-    - code: 29092000
-      display: Plasma specimen
-      version: 2020-09-01
-    - code: 29092000
-      display: Whole Blood
-      version: 2020-09-01
-    - code: 29092000
-      display: Whole Blood Sample
-      version: 2020-09-01
-    - code: 29092000
-      display: Blood specimen
-      version: 2020-09-01
-    - code: 29092000
-      display: Venous blood specimen
-      version: 2020-09-01
-    - code: 29092000
-      display: Capillary blood specimen
-      version: 2020-09-01
-    - code: 29092000
-      display: fingerstick whole blood
-      version: 2020-09-01
-    - code: 29092000
-      display: 122554006
-      version: 2020-09-01
-    - code: 29092000
-      display: 258580003
-      version: 2020-09-01
-    - code: 29092000
-      display: 119361006
-      version: 2020-09-01
     - code: 29092000
       display: 119364003
-      version: 2020-09-01
+    - code: 29092000
+      display: Plasma
+    - code: 29092000
+      display: Plasma specimen
+    - code: 29092000
+      display: 119361006
+    - code: 29092000
+      display: Whole Blood
+    - code: 29092000
+      display: Whole Blood Sample
+    - code: 29092000
+      display: 258580003
+    - code: 29092000
+      display: Blood specimen
     - code: 29092000
       display: 119297000
-      version: 2020-09-01
+    - code: 29092000
+      display: Venous blood specimen
+    - code: 29092000
+      display: Venous whole blood
+    - code: 29092000
+      display: 122555007
+    - code: 29092000
+      display: Capillary blood specimen
+    - code: 29092000
+      display: fingerstick whole blood
+    - code: 29092000
+      display: 122554006
+    - code: 29092000
+      display: Dried blood spot specimen
+    - code: 29092000
+      display: Dried blood spot
+    - code: 29092000
+      display: fingerstick blood dried blood spot
+    - code: 29092000
+      display: 440500007
     - code: 31389004
       display: Throat Swab
-      version: 2020-09-01
-    - code: 31389004
-      display: Oropharyngeal
-      version: 2020-09-01
     - code: 31389004
       display: Oropharyngeal Swab
-      version: 2020-09-01
     - code: 31389004
       display: 258529004
-      version: 2020-09-01
     - code: 31389004
       display: 31389004
-      version: 2020-09-01
     - code: 123851003
       display: Sputum specimen 
     - code: 123851003
@@ -505,11 +493,7 @@
     - code: 123851003
       display: 119334006
     - code: 123851003
-      display: Oral
-      version: 2020-09-01
-    - code: 123851003
       display: Oral Swab
-      version: 2020-09-01
     - code: 123851003
       display: 418932006
     - code: 123851003
@@ -519,8 +503,23 @@
     - code: 123851003
       display: 258560004
     - code: 123851003
-      display: 123851003 
-
+      display: 123851003
+    - code: 39607008
+      display: Lower respiratory fluid sample
+    - code: 39607008
+      display: lower respiratory tract aspirates
+    - code: 39607008
+      display: 309171007
+    - code: 39607008
+      display: Bronchoalveolar lavage fluid sample 
+    - code: 39607008
+      display: Bronchoalveolar lavage fluid
+    - code: 39607008
+      display: Bronchoalveolar lavage
+    - code: 39607008
+      display: 258607008
+    - code: 39607008
+      display: 39607008
 
 - name: sender-automation/specimen_type
   system: SNOMED_CT
@@ -548,27 +547,31 @@
     - code: 697989009
       display: Anterior nares swab 
     - code: 697989009
+      display: Anterior nasal swab 
+    - code: 697989009
       display: 697989009
     - code: 258411007
       display: Nasopharyngeal aspirate 
     - code: 258411007
       display: 258411007 
+    - code: 258467004
+      display: Nasopharyngeal washings
+    - code: 258467004
+      display: Nasopharyngeal wash
+    - code: 258467004
+      display: 258467004
     - code: 429931000124105
       display: Nasal aspirate 
+    - code: 429931000124105
+      display: Nasal aspirate specimen
     - code: 429931000124105
       display: 429931000124105
     - code: 258529004
       display: Throat swab 
     - code: 258529004
-      display: Throat
-    - code: 258529004
-      display: Oropharyngeal
-    - code: 258529004
       display: Oropharyngeal Swab
     - code: 258529004
       display: 258529004
-    - code: 418932006
-      display: Oral
     - code: 418932006
       display: Oral Swab
     - code: 418932006
@@ -585,10 +588,6 @@
       display: Saliva 
     - code: 258560004
       display: 258560004 
-    - code: 258607008
-      display: Bronchoalveolar lavage fluid sample 
-    - code: 258607008
-      display: 258607008
     - code: 119364003
       display: Serum specimen 
     - code: 119364003
@@ -601,10 +600,6 @@
       display: Plasma
     - code: 119361006
       display: 119361006
-    - code: 440500007
-      display: Dried blood spot specimen 
-    - code: 440500007
-      display: 440500007
     - code: 258580003
       display: Whole blood sample 
     - code: 258580003
@@ -613,6 +608,8 @@
       display: 258580003 
     - code: 122555007
       display: Venous blood specimen
+    - code: 122555007
+      display: Venous whole blood 
     - code: 122555007
       display: 122555007
     - code: 119297000
@@ -625,6 +622,36 @@
       display: fingerstick whole blood
     - code: 122554006
       display: 122554006
+    - code: 440500007
+      display: Dried blood spot specimen
+    - code: 440500007
+      display: Dried blood spot
+    - code: 440500007
+      display: fingerstick blood dried blood spot
+    - code: 440500007
+      display: 440500007
+    - code: 433801000124107
+      display: Nasopharyngeal and oropharyngeal swab
+    - code: 433801000124107
+      display: Nasal and throat swab combination
+    - code: 433801000124107
+      display: Nasal and throat swab
+    - code: 433801000124107
+      display: 433801000124107
+    - code: 309171007
+      display: Lower respiratory fluid sample
+    - code: 309171007
+      display: lower respiratory tract aspirates
+    - code: 309171007
+      display: 309171007
+    - code: 258607008
+      display: Bronchoalveolar lavage fluid sample 
+    - code: 258607008
+      display: Bronchoalveolar lavage fluid
+    - code: 258607008
+      display: Bronchoalveolar lavage
+    - code: 258607008
+      display: 258607008
 
 - name: sender-automation/patient_preferred_language
   system: ISO

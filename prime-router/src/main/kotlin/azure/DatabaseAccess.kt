@@ -138,6 +138,26 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
+     * Returns true if there is already a record in the report_file table that matches the passed in [senderName],
+     * [senderOrgName], and [digest]
+     */
+    fun isDuplicateReportFile(
+        senderName: String,
+        senderOrgName: String,
+        digest: ByteArray,
+        txn: DataAccessTransaction? = null
+    ): Boolean {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .fetchExists(
+                ctx.selectFrom(REPORT_FILE)
+                    .where(REPORT_FILE.SENDING_ORG.eq(senderOrgName))
+                    .and(REPORT_FILE.SENDING_ORG_CLIENT.eq(senderName))
+                    .and(REPORT_FILE.BLOB_DIGEST.eq(digest))
+            )
+    }
+
+    /**
      * Get the number of outstanding actions to batch for a specific receiver
      */
     fun fetchNumReportsNeedingBatch(
@@ -344,6 +364,22 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 )
         }
         return itemLineages
+    }
+
+    /**
+     * Fetch an action ID for a given [reportId].
+     * @param txn an optional database transaction
+     * @return an action ID, or null if no action ID was found
+     */
+    fun fetchActionIdForReport(
+        reportId: UUID,
+        txn: DataAccessTransaction? = null
+    ): Long? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.select(REPORT_FILE.ACTION_ID)
+            .from(REPORT_FILE)
+            .where(REPORT_FILE.REPORT_ID.eq(reportId))
+            .fetchOne(REPORT_FILE.ACTION_ID)
     }
 
     fun fetchDownloadableReportFiles(
