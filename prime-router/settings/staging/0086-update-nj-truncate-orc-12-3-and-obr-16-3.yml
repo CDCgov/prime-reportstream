@@ -75,12 +75,6 @@
           action: "NONE"
           onlyOncePerDay: false
       description: ""
-      transport: !<SFTP>
-        host: "njgov.moveitcloud.com"
-        port: "22"
-        filePath: "./PROD"
-        credentialName: null
-        type: "SFTP"
       externalName: null
     - name: "elr-test"
       organizationName: "nj-doh"
@@ -137,12 +131,6 @@
           action: "NONE"
           onlyOncePerDay: false
       description: ""
-      transport: !<SFTP>
-        host: "njgov.moveitcloud.com"
-        port: "22"
-        filePath: "./TEST"
-        credentialName: null
-        type: "SFTP"
       externalName: null
     - name: "elr-test-secondary"
       organizationName: "nj-doh"
@@ -199,12 +187,6 @@
           action: "NONE"
           onlyOncePerDay: false
       description: ""
-      transport: !<SFTP>
-        host: "njgov.moveitcloud.com"
-        port: "22"
-        filePath: "./TEST"
-        credentialName: "NJ-DOH--ELR"
-        type: "SFTP"
       externalName: null
     - name: "elr-secondary"
       organizationName: "nj-doh"
