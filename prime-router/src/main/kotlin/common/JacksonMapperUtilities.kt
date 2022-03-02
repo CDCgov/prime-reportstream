@@ -29,13 +29,13 @@ object JacksonMapperUtilities {
         /**
          * OffsetDateTime serializer that does not include fractions of seconds.
          */
-        class NoSecondFractionOffsetDateTimeSerializer : OffsetDateTimeSerializer(
+        class NoOptionalFieldsOffsetDateTimeSerializer : OffsetDateTimeSerializer(
             INSTANCE, false, false,
             timestampFormatter
         )
 
         // Serialize (object->JSON) date/times with no second fraction.
-        addSerializer(OffsetDateTime::class.java, NoSecondFractionOffsetDateTimeSerializer())
+        addSerializer(OffsetDateTime::class.java, NoOptionalFieldsOffsetDateTimeSerializer())
     }
 
     /**
