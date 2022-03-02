@@ -17,7 +17,7 @@ import java.util.TimeZone
  */
 object JacksonMapperUtilities {
     /**
-     * ISO 8601 Date/time formatter for serializing date times for API response use showing date and time to the second.
+     * ISO 8601 Date/time formatter for serializing date times for API responses.
      * Example output using the default UTC timezone: 2022-02-22T10:31:57.000Z
      */
     val timestampFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXX")
