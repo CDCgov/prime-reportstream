@@ -27,32 +27,33 @@ class SubmissionFunction(
         val sort: String,
         val sortColumn: String,
         val cursor: OffsetDateTime?,
+        val endCursor: OffsetDateTime?,
         val pageSize: Int,
     ) {
         constructor(query: Map<String, String>) : this (
             extractSortOrder(query),
             extractSortCol(query),
-            extractCursor(query),
+            extractCursor(query, "cursor"),
+            extractCursor(query, "endCursor"),
             extractPageSize(query),
         )
 
         companion object {
             fun extractSortOrder(query: Map<String, String>): String {
-                val qSortOrder = query.getOrDefault("sort", "DESC")
-                return qSortOrder
+                return query.getOrDefault("sort", "DESC")
             }
 
             fun extractSortCol(query: Map<String, String>): String {
                 return query.getOrDefault("sortCol", "default")
             }
 
-            fun extractCursor(query: Map<String, String>): OffsetDateTime? {
-                val qResultsAfterDate = query.get("cursor")
-                return if (qResultsAfterDate != null) {
+            fun extractCursor(query: Map<String, String>, name: String): OffsetDateTime? {
+                val cursor = query.get(name)
+                return if (cursor != null) {
                     try {
-                        OffsetDateTime.parse(qResultsAfterDate)
+                        OffsetDateTime.parse(cursor)
                     } catch (e: DateTimeParseException) {
-                        throw IllegalArgumentException("cursor must be a valid datetime")
+                        throw IllegalArgumentException("$name must be a valid datetime")
                     }
                 } else null
             }
@@ -82,12 +83,14 @@ class SubmissionFunction(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
             try {
-                val (qSortOrder, qSortColumn, resultsAfterDate, pageSize) = Parameters(request.queryParameters)
+                val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize) =
+                    Parameters(request.queryParameters)
                 val submissions = facade.findSubmissionsAsJson(
                     organization,
                     qSortOrder,
                     qSortColumn,
                     resultsAfterDate,
+                    resultsBeforeDate,
                     pageSize
                 )
                 HttpUtilities.okResponse(request, submissions)
