@@ -85,12 +85,6 @@
           action: "NONE"
           onlyOncePerDay: false
       description: ""
-      transport: !<SFTP>
-        host: "ecgpe.healthtechnologygroup.com"
-        port: "22"
-        filePath: "./in/simple/HL7"
-        credentialName: null
-        type: "SFTP"
       externalName: "Test Feed"
     - name: "elr"
       organizationName: "ca-dph"
@@ -170,10 +164,4 @@
           action: "NONE"
           onlyOncePerDay: false
       description: ""
-      transport: !<SFTP>
-        host: "ecgpe.healthtechnologygroup.com"
-        port: "22"
-        filePath: "./in/SimpleProd/HL7"
-        credentialName: null
-        type: "SFTP"
       externalName: "Primary Feed"
