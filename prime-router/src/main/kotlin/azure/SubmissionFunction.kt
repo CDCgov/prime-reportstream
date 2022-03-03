@@ -53,7 +53,7 @@ class SubmissionFunction(
                     try {
                         OffsetDateTime.parse(cursor)
                     } catch (e: DateTimeParseException) {
-                        throw IllegalArgumentException("$name must be a valid datetime")
+                        throw IllegalArgumentException("\"$name\" must be a valid datetime")
                     }
                 } else null
             }
