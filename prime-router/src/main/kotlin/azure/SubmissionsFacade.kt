@@ -37,9 +37,10 @@ class SubmissionsFacade(
         sortOrder: String,
         sortColumn: String,
         offset: OffsetDateTime?,
+        toEnd: OffsetDateTime?,
         pageSize: Int
     ): String {
-        val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, pageSize)
+        val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize)
         return mapper.writeValueAsString(result)
     }
 
@@ -48,6 +49,7 @@ class SubmissionsFacade(
         sortOrder: String,
         sortColumn: String,
         offset: OffsetDateTime?,
+        toEnd: OffsetDateTime?,
         pageSize: Int,
     ): List<SubmissionHistory> {
         val order = try {
@@ -61,7 +63,8 @@ class SubmissionsFacade(
         } catch (e: IllegalArgumentException) {
             SubmissionAccess.SortColumn.CREATED_AT
         }
-        return findSubmissions(organizationName, order, column, offset, pageSize)
+
+        return findSubmissions(organizationName, order, column, offset, toEnd, pageSize)
     }
 
     /**
@@ -78,6 +81,7 @@ class SubmissionsFacade(
         sortOrder: SubmissionAccess.SortOrder,
         sortColumn: SubmissionAccess.SortColumn,
         offset: OffsetDateTime?,
+        toEnd: OffsetDateTime?,
         pageSize: Int,
     ): List<SubmissionHistory> {
         require(organizationName.isNotBlank()) {
@@ -92,6 +96,7 @@ class SubmissionsFacade(
             sortOrder,
             sortColumn,
             offset,
+            toEnd,
             pageSize,
             SubmissionHistory::class.java
         )
