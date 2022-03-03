@@ -45,10 +45,10 @@ open class Sender(
     }
 
     /**
-     * @property testManufacturer Sender a test manufacturer (Abbott, Roche, Quidel)
-     * @property dataAggregator Sender is a data aggregator (LifePoint, ImageMover, SimpleReport, Prescryptyve)
-     * @property facility Sender is a facility (CSV-uploader, urgent care, nursing homes, A1 Health--home health and hospice)
-     * @property hospitalSystem Sender is a hospital or large hospital system (HCA)
+     * @property testManufacturer Sender a test manufacturer
+     * @property dataAggregator Sender is a data aggregator
+     * @property facility Sender is a facility
+     * @property hospitalSystem Sender is a hospital or large hospital system
      */
     enum class SenderType {
         @JsonProperty("testManufacturer")
