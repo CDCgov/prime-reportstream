@@ -56,7 +56,8 @@ class SubmissionFunctionTests {
             sendingOrg: String,
             order: SubmissionAccess.SortOrder,
             sortColumn: SubmissionAccess.SortColumn,
-            resultsAfterDate: OffsetDateTime?,
+            cursor: OffsetDateTime?,
+            toEnd: OffsetDateTime?,
             limit: Int,
             klass: Class<T>
         ): List<T> {
@@ -194,9 +195,22 @@ class SubmissionFunctionTests {
                 ExpectedAPIResponse(
                     HttpStatus.OK
                 ),
+                "good minimum params"
+            ),
+            SubmissionUnitTestCase(
+                mapOf("authorization" to "Bearer fdafads"),
+                mapOf(
+                    "pagesize" to "10",
+                    "cursor" to "2021-11-30T16:36:54.307109Z",
+                    "endCursor" to "2021-11-30T16:36:53.919104Z",
+                    "sortCol" to "CREATED_AT",
+                    "sort" to "ASC"
+                ),
+                ExpectedAPIResponse(
+                    HttpStatus.OK
+                ),
                 "good all params"
             )
-
         )
 
         testCases.forEach {
