@@ -678,7 +678,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
     implementation("com.github.javafaker:javafaker:1.0.2")
-    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.16")
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.17")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.5.1")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.5.1")
     implementation("ca.uhn.hapi:hapi-base:2.3")
@@ -704,7 +704,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:8.5.0")
     implementation("org.commonmark:commonmark:0.18.2")
-    implementation("com.google.guava:guava:31.0.1-jre")
+    implementation("com.google.guava:guava:31.1-jre")
     implementation("com.helger.as2:as2-lib:4.10.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
