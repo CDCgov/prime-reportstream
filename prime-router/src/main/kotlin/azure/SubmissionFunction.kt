@@ -8,8 +8,11 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.tokens.OktaAuthentication
+import org.apache.logging.log4j.kotlin.Logging
+import org.jooq.exception.DataAccessException
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
+import java.util.UUID
 
 /**
  * Submissions API
@@ -19,7 +22,7 @@ import java.time.format.DateTimeParseException
 class SubmissionFunction(
     submissionsFacade: SubmissionsFacade = SubmissionsFacade.common,
     oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
-) {
+) : Logging {
     private val facade = submissionsFacade
     private val oktaAuthentication = oktaAuthentication
 
@@ -71,8 +74,8 @@ class SubmissionFunction(
      * It does not assume the user belongs to a single Organization.  Rather, it uses
      * the organization in the URL path, after first confirming authorization to access that organization.
      */
-    @FunctionName("getSubmissions")
-    fun submissions(
+    @FunctionName("getOrgSubmissions")
+    fun getOrgSubmissions(
         @HttpTrigger(
             name = "getOrgSubmissions",
             methods = [HttpMethod.GET],
@@ -100,10 +103,10 @@ class SubmissionFunction(
         }
     }
 
-    @FunctionName("getSubmission")
-    fun submission(
+    @FunctionName("getSubmissionHistory")
+    fun getSubmissionHistory(
         @HttpTrigger(
-            name = "getSubmission",
+            name = "getSubmissionHistory",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "history/{organization}/submissions/{submissionId}"
@@ -112,15 +115,43 @@ class SubmissionFunction(
         @BindingName("submissionId") submissionId: Long,
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
-
             try {
                 val submission = facade.findSubmission(organization, submissionId)
-                    ?: throw HttpNotFoundException("No submission found")
-                HttpUtilities.okJSONResponse(request, submission)
+                if (submission != null) HttpUtilities.okJSONResponse(request, submission)
+                else HttpUtilities.notFoundResponse(request, "Submission $submissionId was not found.")
+            } catch (e: DataAccessException) {
+                logger.error("Unable to fetch history for submission ID $submissionId", e)
+                HttpUtilities.internalErrorResponse(request)
+            }
+        }
+    }
+
+    /**
+     * Get the history for a given report ID.
+     */
+    @FunctionName("getReportHistory")
+    fun getReportHistory(
+        @HttpTrigger(
+            name = "getReportHistory",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "history/{organization}/report/{reportId}"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("organization") organization: String,
+        @BindingName("reportId") reportId: String, // Use string to be able to detect a format error
+    ): HttpResponseMessage {
+        return oktaAuthentication.checkAccess(request, organization, true) {
+            try {
+                val reportUuid = UUID.fromString(reportId)
+                val submission = facade.findReport(organization, reportUuid)
+                if (submission != null) HttpUtilities.okJSONResponse(request, submission)
+                else HttpUtilities.notFoundResponse(request, "Report $reportId was not found.")
             } catch (e: IllegalArgumentException) {
-                HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")
-            } catch (e: HttpNotFoundException) {
-                HttpUtilities.notFoundResponse(request, e.message)
+                logger.debug("Invalid format for report ID.", e)
+                HttpUtilities.badRequestResponse(request, "Invalid format for report ID parameter.")
+            } catch (e: DataAccessException) {
+                logger.error("Unable to fetch history for report ID $reportId", e)
+                HttpUtilities.internalErrorResponse(request)
             }
         }
     }

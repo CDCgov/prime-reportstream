@@ -584,6 +584,46 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 
+- name: "co-routt-county-phd"
+  description: "Routt County Public Health Department"
+  jurisdiction: "COUNTY"
+  stateCode: "CO"
+  countyName: "Routt"
+  receivers:
+    - name: elr-download
+      organizationName: co-routt-county-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, CO)", "matches(ordering_facility_county, Routt)" ]
+      translation:
+        type: CUSTOM
+        schemaName: direct/direct-covid-19
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
+        timeZone: EASTERN
+
+- name: "co-san-juan-basin-phd"
+  description: "San Juan Basin Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "CO"
+  countyName: null
+  receivers:
+    - name: elr-download
+      organizationName: co-san-juan-basin-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, CO)", "matches(ordering_facility_county, Archuleta, La Plata)" ]
+      translation:
+        type: CUSTOM
+        schemaName: direct/direct-covid-19
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
+        timeZone: EASTERN
+
 - name: tx-phd
   description: Texas Department of State Health Services
   jurisdiction: STATE
@@ -1027,6 +1067,8 @@
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, NJ, patient_state, NJ)
         - matches(processing_mode_code, P)
+      routingFilter:
+        - matches(test_result_status, F, C, P)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -1035,7 +1077,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1
+        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
         suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
@@ -1065,7 +1107,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1
+        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3
         suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
       transport:
         type: SFTP
@@ -1306,7 +1348,7 @@
         receivingFacilityName: CDPH_CID
         receivingFacilityOID: 2.16.840.1.114222.4.1.214104
         suppressAoe: true
-        truncateHl7Fields: OBX-23-1, ORC-21-1
+        truncateHl7Fields: OBR-16-3, ORC-12-3, OBX-23-1, ORC-21-1
         truncateHDNamespaceIds: true
         cliaForOutOfStateTesting: CDPH000075
       transport:
@@ -2453,7 +2495,7 @@
         useBatchHeaders: true
         suppressNonNPI: true
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1
+        truncateHl7Fields: OBX-23-1, ORC-21-1
         useHighPrecisionHeaderDateTimeFormat: true
       timing:
         operation: MERGE

@@ -1,7 +1,6 @@
 package gov.cdc.prime.router
 
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
-import com.fasterxml.jackson.module.kotlin.readValue
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.jooq.BindingGetResultSetContext
 import org.jooq.BindingSQLContext
 import org.jooq.BindingSetStatementContext
@@ -18,7 +17,7 @@ import java.util.Objects
  * @param c The class of the POJO for a converter
  */
 class JsonConverter<T> (val c: Class<T>) : Converter<JSONB, T> {
-    private val mapper = jacksonMapperBuilder().build()
+    private val mapper = JacksonMapperUtilities.defaultMapper
 
     override fun from(dbObject: JSONB): T {
         return mapper.readValue(dbObject.toString(), c)
@@ -52,7 +51,7 @@ abstract class JsonBinding<T> (val klass: Class<T>) : AbstractBinding<JSONB, T>(
 
     override fun sql(ctx: BindingSQLContext<T>) {
         val convert = ctx.convert(converter())
-        var value = convert.value()
+        val value = convert.value()
 
         val param = DSL.`val`(value)
         val visit = ctx.render().visit(param)
