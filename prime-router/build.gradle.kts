@@ -34,7 +34,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
-    id("com.adarshr.test-logger") version "3.1.0"
+    id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.6.10"
     id("com.avast.gradle.docker-compose") version "0.15.0"
@@ -704,7 +704,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:8.5.0")
     implementation("org.commonmark:commonmark:0.18.2")
-    implementation("com.google.guava:guava:31.0.1-jre")
+    implementation("com.google.guava:guava:31.1-jre")
     implementation("com.helger.as2:as2-lib:4.10.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
