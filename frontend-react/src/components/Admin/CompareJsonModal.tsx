@@ -70,6 +70,7 @@ export const ConfirmSaveSettingModal: React.FC<CompareSettingsModalProps> = ({
                 id={uniquid}
                 aria-labelledby={`${uniquid}-heading`}
                 aria-describedby={`${uniquid}-description`}
+                isLarge={true}
             >
                 <ModalHeading id={`${uniquid}-heading`}>
                     Compare your changes with previous version
