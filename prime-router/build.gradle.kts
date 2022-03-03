@@ -678,7 +678,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
     implementation("com.github.javafaker:javafaker:1.0.2")
-    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.16")
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.17")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.5.1")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.5.1")
     implementation("ca.uhn.hapi:hapi-base:2.3")
