@@ -18,6 +18,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
+import gov.cdc.prime.router.tokens.JwkSet
 import org.jooq.JSONB
 import java.time.OffsetDateTime
 
@@ -326,6 +327,11 @@ class SenderAPI
     topic: String,
     customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     schemaName: String,
+    keys: List<JwkSet>? = null,
+    processingType: ProcessingType = ProcessingType.sync,
+    allowDuplicates: Boolean = true,
+    senderType: SenderType? = null,
+    primarySubmissionMethod: PrimarySubmissionMethod? = null,
     override var meta: SettingMetadata?,
 ) : Sender(
     name,
@@ -334,6 +340,11 @@ class SenderAPI
     topic,
     customerStatus,
     schemaName,
+    keys,
+    processingType,
+    allowDuplicates,
+    senderType,
+    primarySubmissionMethod,
 ),
     SettingAPI
 
