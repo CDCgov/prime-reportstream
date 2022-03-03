@@ -54,8 +54,10 @@
     "scripts": {
         "clean": "rimraf ./build",
         "start:localdev": "env-cmd -f .env.development craco start",
+        "build:test": "env-cmd -f .env.test craco build",
         "build:staging": "env-cmd -f .env.staging craco build",
         "build:production": "env-cmd -f .env.production craco build",
+        "postbuild:test": "cp build/index.html build/404.html",
         "postbuild:staging": "cp build/index.html build/404.html",
         "postbuild:production": "cp build/index.html build/404.html",
         "test": "craco test",
@@ -69,7 +71,8 @@
         "lint:prettier:write": "prettier --write \"src/**/*.{js,ts,jsx,tsx}\"",
         "cypress-open": "./node_modules/.bin/cypress open",
         "cypress-run": "./node_modules/.bin/cypress run",
-        "yarn:show-outdated-packages": "yarn outdated"
+        "yarn:show-outdated-packages": "yarn outdated",
+        "run:build-dir": "yarn global add serve && serve -s build"
     },
     "eslintConfig": {
         "extends": [
