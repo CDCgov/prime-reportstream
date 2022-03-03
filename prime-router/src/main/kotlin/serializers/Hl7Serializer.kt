@@ -667,6 +667,27 @@ class Hl7Serializer(
         report: Report,
         row: Int
     ) {
+        fun setAddress(
+            field: String,
+            address: String,
+            city: String,
+            state: String,
+            zipCode: String,
+            countyCode: String
+        ) {
+            if (address.isNotEmpty() &&
+                city.isNotEmpty() &&
+                state.isNotEmpty() &&
+                zipCode.isNotEmpty() &&
+                countyCode.isNotEmpty()
+            ) {
+                report.setString(row, field.plus("_street"), "11 Fake AtHome Test Street")
+                report.setString(row, field.plus("_city"), "Yakutat")
+                report.setString(row, field.plus("_state"), "AK")
+                report.setString(row, field.plus("_zip_code"), "99689")
+                report.setString(row, field.plus("_county_code"), "02282")
+            }
+        }
         report.setString(row, "reporting_facility_name", "PRIME OTC")
         report.setString(row, "reporting_facility_clia", "0OCDCPRIME")
 
@@ -700,22 +721,40 @@ class Hl7Serializer(
             report.setString(row, "testing_lab_name", "SA.OverTheCounter")
         }
 
-        report.setString(row, "ordering_facility_street", "11 Fake AtHome Test Street")
-        report.setString(row, "ordering_facility_city", "Yakutat")
-        report.setString(row, "ordering_facility_state", "AK")
-        report.setString(row, "ordering_facility_zip_code", "99689")
-        report.setString(row, "ordering_facility_county_code", "02282")
+        val orderingFacilityStreet = report.getString(row, "ordering_facility_street") ?: ""
+        val orderingFacilityCity = report.getString(row, "ordering_facility_city") ?: ""
+        val orderingFacilityState = report.getString(row, "ordering_facility_state") ?: ""
+        val orderingFacilityZipCode = report.getString(row, "ordering_facility_zip_code") ?: ""
+        val orderingFacilityCountyCode = report.getString(row, "ordering_facility_county_code") ?: ""
+
+        setAddress(
+            "ordering_facility",
+            orderingFacilityStreet,
+            orderingFacilityCity,
+            orderingFacilityState,
+            orderingFacilityZipCode,
+            orderingFacilityCountyCode
+        )
 
         val orderingFacilityPhoneNumber = report.getString(row, "ordering_facility_phone_number") ?: ""
         if (orderingFacilityPhoneNumber.isNullOrEmpty()) {
             report.setString(row, "ordering_facility_phone_number", "1111111111:1:")
         }
 
-        report.setString(row, "testing_lab_street", "11 Fake AtHome Test Street")
-        report.setString(row, "testing_lab_city", "Yakutat")
-        report.setString(row, "testing_lab_state", "AK")
-        report.setString(row, "testing_lab_zip_code", "99689")
-        report.setString(row, "testing_lab_county_code", "02282")
+        val testingLabStreet = report.getString(row, "testing_lab_street") ?: ""
+        val testingLabCity = report.getString(row, "testing_lab_city") ?: ""
+        val testingLabState = report.getString(row, "testing_lab_state") ?: ""
+        val testingLabZipCode = report.getString(row, "testing_lab_zip_code") ?: ""
+        val testingLabCountyCode = report.getString(row, "testing_lab_county_code") ?: ""
+
+        setAddress(
+            "ordering_facility",
+            testingLabStreet,
+            testingLabCity,
+            testingLabState,
+            testingLabZipCode,
+            testingLabCountyCode
+        )
 
         val testingLabClia = report.getString(row, "00Z0000014") ?: ""
         if (testingLabClia.isNullOrEmpty()) {
