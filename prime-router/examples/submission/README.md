@@ -4,7 +4,7 @@ This example is meant to represent a variety of warning messages and filtering m
 
 You can submit the simple_report_example.csv file, either locally or in staging.  The submission response should return a nice example json response that has a smattering of both whole-report-level and individual-item-level warnings and also some interesting filters too.
 
-This example should not return any errors, because they prevent the report from gong further.
+This example should not return any errors, because they prevent the report from going further.
 
 ### How to generate the interesting json response
 
