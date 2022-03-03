@@ -34,7 +34,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
-    id("com.adarshr.test-logger") version "3.1.0"
+    id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.6.10"
     id("com.avast.gradle.docker-compose") version "0.15.0"
@@ -722,7 +722,7 @@ dependencies {
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.2.0")
-    implementation("it.skrape:skrapeit-http-fetcher:1.2.0")
+    implementation("it.skrape:skrapeit-http-fetcher:1.2.1")
     implementation("org.apache.poi:poi:5.2.0")
     implementation("org.apache.poi:poi-ooxml:5.2.0")
     implementation("commons-io:commons-io: 2.11.0")
