@@ -1067,6 +1067,8 @@
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, NJ, patient_state, NJ)
         - matches(processing_mode_code, P)
+      routingFilter:
+        - matches(test_result_status, F, C, P)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -1075,7 +1077,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1
+        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
         suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
@@ -1105,7 +1107,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1
+        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3
         suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
       transport:
         type: SFTP
@@ -3110,6 +3112,7 @@
         receivingFacilityName: dn1fro00
         receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
         suppressQstForAoe: true
+        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
         useOrderingFacilityName: ORGANIZATION_NAME
       timing:
@@ -3144,6 +3147,7 @@
         receivingFacilityName: dn1fro00
         receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
         suppressQstForAoe: true
+        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
         useOrderingFacilityName: ORGANIZATION_NAME
       timing:

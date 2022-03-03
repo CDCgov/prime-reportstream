@@ -239,6 +239,20 @@ h3 img[src*="svg"] {
     font-weight: 900;
 }
 
+.rs-livestate-two-column {
+    list-style: unset;
+    overflow: hidden;
+    column-count: 2;
+    column-gap: 1.25em;
+}
+
+.rs-livestate-two-column>* {
+    list-style: unset;
+    display: inline-block;
+    width: 80%;
+    padding-bottom: 0.5em;
+}
+
 /* tweak toaster notifications - other variables can be found by search node_modules for `--toastify-toast-width`  */
 :root {
     --toastify-toast-width: 600px;

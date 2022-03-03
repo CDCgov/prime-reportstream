@@ -33,7 +33,12 @@ object HL7toFHIR : Logging {
      * Build a HL7MessageEngine for converting HL7 -> FHIR
      */
     fun getMessageEngine(options: ConverterOptions = ConverterOptions.SIMPLE_OPTIONS): HL7MessageEngine {
-        val context = FHIRContext(options.isPrettyPrint(), options.isValidateResource(), options.getProperties())
+        val context = FHIRContext(
+            options.isPrettyPrint(),
+            options.isValidateResource(),
+            options.getProperties(),
+            options.getZoneIdText()
+        )
 
         return HL7MessageEngine(context, options.getBundleType())
     }

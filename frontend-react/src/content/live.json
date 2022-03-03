@@ -22,6 +22,10 @@
     },
     {
       "status": "Live",
+      "state": "Delaware"
+    },
+    {
+      "status": "Live",
       "state": "Florida"
     },
     {
@@ -31,6 +35,10 @@
     {
       "status": "Live",
       "state": "Illinois"
+    },
+    {
+      "status": "Live",
+      "state": "Iowa"
     },
     {
       "status": "Live",
