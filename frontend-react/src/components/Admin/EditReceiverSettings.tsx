@@ -268,7 +268,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                         data-testid="submit"
                         onClick={() => ShowCompareConfirm()}
                     >
-                        Save
+                        Save...
                     </Button>
                 </Grid>
                 <ConfirmSaveSettingModal

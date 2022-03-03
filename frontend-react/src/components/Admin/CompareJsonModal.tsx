@@ -71,6 +71,7 @@ export const ConfirmSaveSettingModal: React.FC<CompareSettingsModalProps> = ({
                 aria-labelledby={`${uniquid}-heading`}
                 aria-describedby={`${uniquid}-description`}
                 isLarge={true}
+                className="rs-compare-modal"
             >
                 <ModalHeading id={`${uniquid}-heading`}>
                     Compare your changes with previous version
@@ -92,7 +93,7 @@ export const ConfirmSaveSettingModal: React.FC<CompareSettingsModalProps> = ({
                             uniquid={uniquid}
                             handleClose={scopedConfirm}
                         >
-                            Save
+                            Save...
                         </ModalConfirmSaveButton>
                         <ModalToggleButton
                             modalRef={modalRef}

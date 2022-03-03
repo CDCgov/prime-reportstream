@@ -175,7 +175,7 @@ export function AdminOrgEdit({
                                     data-testid="submit"
                                     onClick={() => ShowCompareConfirm()}
                                 >
-                                    Save
+                                    Save...
                                 </Button>
                             </Grid>
                             <ConfirmSaveSettingModal
