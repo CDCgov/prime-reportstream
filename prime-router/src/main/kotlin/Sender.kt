@@ -9,6 +9,18 @@ import gov.cdc.prime.router.tokens.JwkSet
  * A `Sender` represents the agent that is sending reports to
  * the data hub (minus the credentials used by that agent, of course). It
  * contains information about the specific topic and schema that the sender uses.
+ *
+ * @property name the name of this sender
+ * @property organizationName the name of the organization that this sender be
+ * @property format
+ * @property topic
+ * @property customerStatus
+ * @property schemaName
+ * @property keys used to track server-to-server auths for this sender via public keys sets
+ * @property processingType sync or async
+ * @property allowDuplicates
+ * @property senderType one of four broad sender categories
+ * @property primarySubmissionMethod Sender preference for submission - manual or automatic
  */
 open class Sender(
     val name: String,
@@ -17,7 +29,7 @@ open class Sender(
     val topic: String,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val schemaName: String,
-    val keys: List<JwkSet>? = null, // used to track server-to-server auths for this Sender via public keys sets
+    val keys: List<JwkSet>? = null,
     val processingType: ProcessingType = ProcessingType.sync,
     val allowDuplicates: Boolean = true,
     val senderType: SenderType? = null,
@@ -27,6 +39,9 @@ open class Sender(
      * Enumeration representing whether a submission will be processed follow the synchronous or asynchronous
      * message pipeline. Within the code this defaults to Sync unless the PROCESSING_TYPE_PARAMETER query
      * string value is 'async'
+     * 
+     * @property sync
+     * @property async
      */
     enum class ProcessingType {
         sync,
@@ -45,30 +60,28 @@ open class Sender(
     }
 
     /**
+     * Enumeration that divides a Sender into four subcategories or types for data management
+     *
      * @property testManufacturer Sender a test manufacturer
      * @property dataAggregator Sender is a data aggregator
      * @property facility Sender is a facility
      * @property hospitalSystem Sender is a hospital or large hospital system
      */
     enum class SenderType {
-        @JsonProperty("testManufacturer")
         testManufacturer,
-        @JsonProperty("dataAggregator")
         dataAggregator,
-        @JsonProperty("facility")
         facility,
-        @JsonProperty("hospitalSystem")
         hospitalSystem
     }
 
     /**
+     * Enumeration to describe the Primary or default method of submission for a Sender
+     *
      * @property automated Directly sent to the API
      * @property manual Uploaded via the UI
      */
     enum class PrimarySubmissionMethod {
-        @JsonProperty("automated")
         automated,
-        @JsonProperty("manual")
         manual
     }
 
