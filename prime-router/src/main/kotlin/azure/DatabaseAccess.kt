@@ -50,7 +50,7 @@ const val USER_VARIABLE = "POSTGRES_USER"
 const val PASSWORD_VARIABLE = "POSTGRES_PASSWORD"
 const val DEV_DATABASE = "jdbc:postgresql://localhost:5432/prime_data_hub"
 const val DEV_USER = "prime"
-const val DEV_PASSWORD = "changeIT!"
+const val DEV_ONLY = "changeIT!"
 
 // general max length of free from metadata strings since jooq/postgres
 // does not truncate values when persisting to the database
@@ -798,7 +798,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         private val hikariDataSource: HikariDataSource by lazy {
             DriverManager.registerDriver(Driver())
 
-            val password = System.getenv(PASSWORD_VARIABLE) ?: DEV_PASSWORD
+            val password = System.getenv(PASSWORD_VARIABLE) ?: DEV_ONLY
             val user = System.getenv(USER_VARIABLE) ?: DEV_USER
             val databaseUrl = System.getenv(DATABASE_VARIABLE) ?: DEV_DATABASE
             val config = HikariConfig()
