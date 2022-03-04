@@ -59,6 +59,7 @@ class SubmissionFunctionTests {
             cursor: OffsetDateTime?,
             toEnd: OffsetDateTime?,
             limit: Int,
+            showFailed: Boolean,
             klass: Class<T>
         ): List<T> {
             @Suppress("UNCHECKED_CAST")

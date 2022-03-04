@@ -32,13 +32,15 @@ class SubmissionFunction(
         val cursor: OffsetDateTime?,
         val endCursor: OffsetDateTime?,
         val pageSize: Int,
+        val showFailed: Boolean
     ) {
         constructor(query: Map<String, String>) : this (
             extractSortOrder(query),
             extractSortCol(query),
             extractCursor(query, "cursor"),
-            extractCursor(query, "endCursor"),
+            extractCursor(query, "endcursor"),
             extractPageSize(query),
+            extractShowFailed(query)
         )
 
         companion object {
@@ -47,7 +49,7 @@ class SubmissionFunction(
             }
 
             fun extractSortCol(query: Map<String, String>): String {
-                return query.getOrDefault("sortCol", "default")
+                return query.getOrDefault("sortcol", "default")
             }
 
             fun extractCursor(query: Map<String, String>, name: String): OffsetDateTime? {
@@ -65,6 +67,13 @@ class SubmissionFunction(
                 val size = query.getOrDefault("pagesize", "10").toIntOrNull()
                 require(size != null) { "pageSize must be a positive integer" }
                 return size
+            }
+
+            fun extractShowFailed(query: Map<String, String>): Boolean {
+                return when (query.getOrDefault("showfailed", "true")) {
+                    "false" -> false
+                    else -> true
+                }
             }
         }
     }
@@ -86,7 +95,7 @@ class SubmissionFunction(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
             try {
-                val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize) =
+                val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
                     Parameters(request.queryParameters)
                 val submissions = facade.findSubmissionsAsJson(
                     organization,
@@ -94,7 +103,8 @@ class SubmissionFunction(
                     qSortColumn,
                     resultsAfterDate,
                     resultsBeforeDate,
-                    pageSize
+                    pageSize,
+                    showFailed
                 )
                 HttpUtilities.okResponse(request, submissions)
             } catch (e: IllegalArgumentException) {

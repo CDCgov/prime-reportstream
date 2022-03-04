@@ -38,9 +38,10 @@ class SubmissionsFacade(
         sortColumn: String,
         offset: OffsetDateTime?,
         toEnd: OffsetDateTime?,
-        pageSize: Int
+        pageSize: Int,
+        showFailed: Boolean
     ): String {
-        val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize)
+        val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize, showFailed)
         return mapper.writeValueAsString(result)
     }
 
@@ -51,6 +52,7 @@ class SubmissionsFacade(
         offset: OffsetDateTime?,
         toEnd: OffsetDateTime?,
         pageSize: Int,
+        showFailed: Boolean
     ): List<SubmissionHistory> {
         val order = try {
             SubmissionAccess.SortOrder.valueOf(sortOrder)
@@ -64,7 +66,7 @@ class SubmissionsFacade(
             SubmissionAccess.SortColumn.CREATED_AT
         }
 
-        return findSubmissions(organizationName, order, column, offset, toEnd, pageSize)
+        return findSubmissions(organizationName, order, column, offset, toEnd, pageSize, showFailed)
     }
 
     /**
@@ -83,6 +85,7 @@ class SubmissionsFacade(
         offset: OffsetDateTime?,
         toEnd: OffsetDateTime?,
         pageSize: Int,
+        showFailed: Boolean
     ): List<SubmissionHistory> {
         require(organizationName.isNotBlank()) {
             "Invalid organization."
@@ -98,6 +101,7 @@ class SubmissionsFacade(
             offset,
             toEnd,
             pageSize,
+            showFailed,
             SubmissionHistory::class.java
         )
         return submissions
