@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
 import gov.cdc.prime.router.metadata.LookupMapper
@@ -17,7 +18,6 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.time.temporal.TemporalAccessor
@@ -815,8 +815,7 @@ data class Element(
         } ?: try {
             // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
             val date = LocalDate.parse(cleanedFormattedValue, dateFormatter)
-            val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
-            OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
+            OffsetDateTime.of(date, LocalTime.of(0, 0), Environment.rsTimeZone)
         } catch (e: DateTimeParseException) {
             null
         } ?: try {
@@ -824,8 +823,7 @@ data class Element(
             // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
             val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
             val date = LocalDate.parse(cleanedFormattedValue, formatter)
-            val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
-            OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
+            OffsetDateTime.of(date, LocalTime.of(0, 0), Environment.rsTimeZone)
         } catch (e: DateTimeParseException) {
             null
         } ?: try {

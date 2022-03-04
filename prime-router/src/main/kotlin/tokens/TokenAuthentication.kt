@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.KeyType
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.common.Environment
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwsHeader
 import io.jsonwebtoken.JwtException
@@ -17,7 +18,6 @@ import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 import java.security.Key
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import java.util.Date
 import java.util.UUID
 
@@ -65,7 +65,7 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
                 logErr(actionHistory, "SenderToken has null JWT ID.  Rejecting.")
                 return false
             }
-            val expiresAt = exp.toInstant().atOffset(ZoneOffset.UTC)
+            val expiresAt = exp.toInstant().atOffset(Environment.rsTimeZone)
             if (expiresAt.isBefore(OffsetDateTime.now())) {
                 logErr(actionHistory, "SenderToken $jti has expired, at $expiresAt.  Rejecting.")
                 return false
