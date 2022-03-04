@@ -28,6 +28,7 @@ import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
 private const val CLIENT_PARAMETER = "client"
+private const val PAYLOAD_NAME_HEADER = "payloadname" // Headers get normalized to lowercase
 private const val PAYLOAD_NAME_PARAMETER = "payloadName"
 private const val OPTION_PARAMETER = "option"
 private const val DEFAULT_PARAMETER = "default"
@@ -329,7 +330,7 @@ class ReportFunction(
      */
     private fun extractPayloadName(request: HttpRequestMessage<String?>): String? {
         // payloadName can be in the header or in the url parameters.  Return null if not found.
-        return request.headers[PAYLOAD_NAME_PARAMETER]
+        return request.headers[PAYLOAD_NAME_HEADER]
             ?: request.queryParameters[PAYLOAD_NAME_PARAMETER]
     }
 
