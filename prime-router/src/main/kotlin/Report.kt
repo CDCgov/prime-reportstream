@@ -62,7 +62,7 @@ enum class Options {
  * might filter many rows. ReportStreamFilterResult entries are only created when filter logging is on.  This is to
  * prevent tons of junk logging of jurisdictionalFilters - the vast majority of which typically filter out everything.
  *
- * @property receiverName Then intended reciever for the report
+ * @property receiverName Then intended receiver for the report
  * @property originalCount The original number of items in the report
  * @property filterName The name of the filter function that removed the rows
  * @property filterArgs The arguments used in the filter function
@@ -409,7 +409,7 @@ class Report : Logging {
         filterFunctions.forEach { (filterFn, fnArgs) ->
             val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doLogging)
             // NOTE: It's odd that we have to do logic after the fact
-            //       to figure out what the prvious function did
+            //       to figure out what the previous function did
             if (doLogging && filterFnSelection.size() < table.rowCount()) {
                 val before = Selection.withRange(0, table.rowCount())
                 val filteredRowList = before.andNot(filterFnSelection).toList()
@@ -488,8 +488,13 @@ class Report : Logging {
         )
     }
 
-    fun setString(row: Int, colName: String, value: String) {
-        val column = schema.findElementColumn(colName) ?: error("Internal Error: '$colName' is not found")
+    /**
+     * Writes the [value] for the [columnName] for the [row].  If a [columnName] is not in the schema,
+     * an error is thrown.
+     * Any data in the field will be overwritten.
+     */
+    fun setString(row: Int, columnName: String, value: String) {
+        val column = schema.findElementColumn(columnName) ?: error("Internal Error: '$columnName' is not found")
         table.stringColumn(column).set(row, value)
     }
 
@@ -712,10 +717,10 @@ class Report : Logging {
      *          - validate it is not null, it is valid digit number, and not lesser than zero
      *      else
      *          - the patient will be calculated using period.between patient date of birth and
-     *          the speciment collection date.
+     *          the specimen collection date.
      *  @param patient_age - input patient's age.
-     *  @param patient_dob - imput patient date of birth.
-     *  @param specimenCollectionDate - input date of when speciment was collected.
+     *  @param patient_dob - input patient date of birth.
+     *  @param specimenCollectionDate - input date of when specimen was collected.
      *  @return age - result of patient's age.
      */
     private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: LocalDate?): String? {
@@ -727,7 +732,7 @@ class Report : Logging {
         } else {
             //
             // Here, we got invalid or blank patient_age given to us.  Therefore, we will use patient date
-            // of birth and date of speciment collected to calculate the patient's age.
+            // of birth and date of specimen collected to calculate the patient's age.
             //
             try {
                 val d = LocalDate.parse(patient_dob, Element.dateFormatter)
