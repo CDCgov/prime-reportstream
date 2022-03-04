@@ -68,7 +68,7 @@ class PreviewFunction(
      * Look at the request body.
      * Check for valid values with defaults are assumed if not specified.
      */
-    internal fun checkRequest(request: HttpRequestMessage<String?>): FunctionParameters {
+    fun checkRequest(request: HttpRequestMessage<String?>): FunctionParameters {
         val body = request.body
             ?: badRequest("Missing body")
         val previewMessage = mapper.readValue(body, PreviewMessage::class.java)
@@ -84,7 +84,7 @@ class PreviewFunction(
     /**
      * Main logic of the Azure function. Useful for unit testing.
      */
-    internal fun processRequest(parameters: FunctionParameters): PreviewResponseMessage.Success {
+    fun processRequest(parameters: FunctionParameters): PreviewResponseMessage.Success {
         val warnings = mutableListOf<ActionLog>()
         return readReport(parameters, warnings)
             .translate(parameters, warnings)

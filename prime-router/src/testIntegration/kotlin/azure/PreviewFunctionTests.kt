@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.azure.PreviewFunction
 import gov.cdc.prime.router.messages.PreviewMessage
 import io.mockk.every
 import io.mockk.mockk
