@@ -9,37 +9,14 @@ not careful with them, you can really mess up the application. Spider-Man rules 
 Below are the steps for how to most safely check and merge in the dependabot PRs:
 
 ## Steps
-1. Checkout master and get latest:
-```shell
-git checkout master
-git fetch --all --prune
-git pull --ff-only
-```
-2. Create a new local branch to work with based on master. This branch is never going back up to GitHub so the name you choose is up to you:
-```shell
-git checkout -b dependabot-202108024
-```
-3. Merge in the first dependabot PR. You can find the branch name locally by running this command:
-```shell
-git branch --list --all | grep "dependabot"
-```
-or by selecting a specific dependabot PR in GitHub and clicking the little clipboard icon next to the branch information.
-
-Merge the branch in like this:
-```shell
-git merge origin/dependabot/gradle/prime-router/com.googlecode.libphonenumber-libphonenumber-8.12.31 -m "dependabot check"
-```
-
-4. Build the application: `gradle clean package`
-5. Run Docker: `docker-compose build && docker-compose up`
-6. Once Docker is running, run our `end2end` smoke test: `./prime test --run end2end`
-7. Wait for the test to complete. If the test completes without any errors, you can merge in the PR in GitHub and move on to the next one
+1. Open the dependabot's pull request to be merged in and verify the build is successful.  Note that the unit, integration and smoke tests are run as part of the build.
+2. Read the updated library's changelog and identify and communicate any risks you find.
+3. Identify what places in the code the library is used then identify if the unit, integration and/or smoke tests provide enough coverage to verify the update does not break the baseline.  If the tests do not provide proper coverage then you MUST manually test as necessary to verify the library update BEFORE merging the update.
+4. If not further testing is required then you can merge in the PR in GitHub
    1. Go to [Pull Requests](https://github.com/CDCgov/prime-reportstream/pulls) in Github and find the original branch (i.e. com.googlecode.libphonenumber-libphonenumber-8.12.31)
    2. Go to the Files changed tab click Review changes
-   3. Leave a brief comment (i.e. "tested end to end"), select Approve and click Submit review
+   3. Leave a brief comment (i.e. "tested locally"), select Approve and click Submit review
    4. At the bottom of the Conversation tab, click on Update branch, then Enable auto-merge (squash)
-8. Run `docker-compose down`
-9. Repeat until done
 
 ## Exceptions
 Sometimes you will encounter an error in the smoke test. If you think the change in the PR caused the error, then you block the PR in GitHub 
