@@ -93,7 +93,7 @@ export const ConfirmSaveSettingModal: React.FC<CompareSettingsModalProps> = ({
                             uniquid={uniquid}
                             handleClose={scopedConfirm}
                         >
-                            Save...
+                            Save
                         </ModalConfirmSaveButton>
                         <ModalToggleButton
                             modalRef={modalRef}
