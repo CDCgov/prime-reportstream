@@ -26,8 +26,10 @@ function SubmissionsTable() {
         {
             organization: globalState.state.organization,
             cursor: paginationCursor,
+            endCursor: "", // To be implemented with date-range filtering UI
             pageSize: SUBMISSION_PAGE_LENGTH,
             sort: paginationSort,
+            showFailed: false, // No plans for this to be set to true
         }
     );
 
@@ -144,28 +146,25 @@ function SubmissionsTable() {
                         </tr>
                     </thead>
                     <tbody id="tBody" className="font-mono-2xs">
-                        {getSortedSubmissions()
-                            // failed submissions will not have an id. do not display them.
-                            .filter((s) => s.isSuccessSubmitted())
-                            .map((s) => {
-                                return (
-                                    <tr key={s.pk()}>
-                                        <th scope="row">
-                                            <NavLink
-                                                to={`/submissions/${s.taskId}`}
-                                            >
-                                                {new Date(
-                                                    s.createdAt
-                                                ).toLocaleString()}
-                                            </NavLink>
-                                        </th>
-                                        {/* File name */}
-                                        <th scope="row">{s.externalName}</th>
-                                        <th scope="row">{s.reportItemCount}</th>
-                                        <th scope="row">{s.id}</th>
-                                    </tr>
-                                );
-                            })}
+                        {getSortedSubmissions().map((s) => {
+                            return (
+                                <tr key={s.pk()}>
+                                    <th scope="row">
+                                        <NavLink
+                                            to={`/submissions/${s.taskId}`}
+                                        >
+                                            {new Date(
+                                                s.createdAt
+                                            ).toLocaleString()}
+                                        </NavLink>
+                                    </th>
+                                    {/* File name */}
+                                    <th scope="row">{s.externalName}</th>
+                                    <th scope="row">{s.reportItemCount}</th>
+                                    <th scope="row">{s.id}</th>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
                 {submissions?.length === 0 && !paginationCursor && (

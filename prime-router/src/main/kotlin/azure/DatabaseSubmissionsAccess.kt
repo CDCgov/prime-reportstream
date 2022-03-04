@@ -34,6 +34,7 @@ interface SubmissionAccess {
         cursor: OffsetDateTime? = null,
         toEnd: OffsetDateTime? = null,
         limit: Int = 10,
+        showFailed: Boolean,
         klass: Class<T>
     ): List<T>
 
@@ -74,10 +75,11 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         cursor: OffsetDateTime?,
         toEnd: OffsetDateTime?,
         limit: Int,
+        showFailed: Boolean,
         klass: Class<T>
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, order)
-        val condition = createWhereCondition(sendingOrg, cursor, toEnd)
+        val condition = createWhereCondition(sendingOrg, cursor, toEnd, showFailed)
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
                 .selectFrom(ACTION)
@@ -128,9 +130,10 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
     private fun createWhereCondition(
         sendingOrg: String,
         cursor: OffsetDateTime? = null,
-        toEnd: OffsetDateTime? = null
+        toEnd: OffsetDateTime? = null,
+        showFailed: Boolean
     ): Condition {
-        val condition: Condition = when (toEnd) {
+        val dateFilter: Condition = when (toEnd) {
             null -> {
                 /* Only the end is given: all results between today and cutoff */
                 ACTION.ACTION_NAME.eq(TaskAction.receive)
@@ -144,7 +147,19 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
             }
         }
 
-        return condition
+        val failedFilter: Condition = when (showFailed) {
+            true -> {
+                ACTION.HTTP_STATUS.between(200, 600)
+            }
+            false -> {
+                ACTION.HTTP_STATUS.between(200, 299)
+            }
+        }
+
+        return ACTION.ACTION_NAME.eq(TaskAction.receive)
+            .and(ACTION.SENDING_ORG.eq(sendingOrg))
+            .and(dateFilter)
+            .and(failedFilter)
     }
 
     private fun <P, U> detailedSubmissionSelect(

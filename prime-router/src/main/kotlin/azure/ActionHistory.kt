@@ -27,6 +27,8 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.ItemLineageRecord
+import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Configuration
 import org.jooq.DSLContext
@@ -34,9 +36,7 @@ import org.jooq.JSONB
 import org.jooq.impl.DSL
 import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
-import java.time.Instant
 import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -819,7 +819,8 @@ class ActionHistory : Logging {
                     "never - skipSend specified"
                 }
                 reportFile.nextActionAt != null -> {
-                    "${reportFile.nextActionAt}"
+                    JacksonMapperUtilities.timestampFormatter
+                        .format(reportFile.nextActionAt.withOffsetSameInstant(Environment.rsTimeZone))
                 }
                 else -> {
                     sendingAt
@@ -1003,7 +1004,10 @@ class ActionHistory : Logging {
                     "Only tracked incoming reports can generate a response."
                 }
                 it.writeStringField("id", report.id.toString())
-                it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
+                it.writeStringField(
+                    "timestamp",
+                    JacksonMapperUtilities.timestampFormatter.format(OffsetDateTime.now(Environment.rsTimeZone))
+                )
                 it.writeStringField("topic", report.schema.topic)
                 it.writeNumberField("reportItemCount", report.itemCount)
                 if (action.sendingOrg != null && action.sendingOrgClient != null)
