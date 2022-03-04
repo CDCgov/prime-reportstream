@@ -582,6 +582,8 @@ X|Results cannot be obtained for this observation|HL7
 
 **Format**: use value found in the Code column
 
+**Default Value**: F
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -4328,7 +4330,6 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **HL7 Fields**
 
-- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
 - [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
 
 **Cardinality**: [0..1]

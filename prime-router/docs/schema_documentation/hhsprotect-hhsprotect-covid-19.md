@@ -2457,7 +2457,6 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 **HL7 Fields**
 
-- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
 - [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
 
 **Cardinality**: [0..1]
