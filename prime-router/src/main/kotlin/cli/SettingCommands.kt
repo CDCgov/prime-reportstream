@@ -37,10 +37,10 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.OrganizationAPI
-import gov.cdc.prime.router.azure.ReceiverAPI
-import gov.cdc.prime.router.azure.SenderAPI
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.messages.OrganizationMessage
+import gov.cdc.prime.router.messages.ReceiverMessage
+import gov.cdc.prime.router.messages.SenderMessage
 import org.apache.http.HttpStatus
 import java.io.File
 import java.time.OffsetDateTime
@@ -414,15 +414,15 @@ abstract class SettingCommand(
     private fun readStructure(input: String, settingType: SettingType, mapper: ObjectMapper): Pair<String, String> {
         return when (settingType) {
             SettingType.ORGANIZATION -> {
-                val organization = mapper.readValue(input, OrganizationAPI::class.java)
+                val organization = mapper.readValue(input, OrganizationMessage::class.java)
                 Pair(organization.name, jsonMapper.writeValueAsString(organization))
             }
             SettingType.SENDER -> {
-                val sender = mapper.readValue(input, SenderAPI::class.java)
+                val sender = mapper.readValue(input, SenderMessage::class.java)
                 Pair(sender.fullName, jsonMapper.writeValueAsString(sender))
             }
             SettingType.RECEIVER -> {
-                val receiver = mapper.readValue(input, ReceiverAPI::class.java)
+                val receiver = mapper.readValue(input, ReceiverMessage::class.java)
                 Pair(receiver.fullName, jsonMapper.writeValueAsString(receiver))
             }
         }
@@ -432,15 +432,15 @@ abstract class SettingCommand(
         // DevNote: could be handled by inherited methods, but decided that keeping all these together was maintainable
         return when (settingType) {
             SettingType.ORGANIZATION -> {
-                val organization = jsonMapper.readValue(output, OrganizationAPI::class.java)
+                val organization = jsonMapper.readValue(output, OrganizationMessage::class.java)
                 yamlMapper.writeValueAsString(organization)
             }
             SettingType.SENDER -> {
-                val sender = jsonMapper.readValue(output, SenderAPI::class.java)
+                val sender = jsonMapper.readValue(output, SenderMessage::class.java)
                 return yamlMapper.writeValueAsString(sender)
             }
             SettingType.RECEIVER -> {
-                val receiver = jsonMapper.readValue(output, ReceiverAPI::class.java)
+                val receiver = jsonMapper.readValue(output, ReceiverMessage::class.java)
                 return yamlMapper.writeValueAsString(receiver)
             }
         }
@@ -914,7 +914,7 @@ class GetMultipleSettings : SettingCommand(
     private fun getAll(environment: Environment, accessToken: String): String {
         // get organizations
         val organizationJson = getMany(environment, accessToken, SettingType.ORGANIZATION, settingName = "")
-        var organizations = jsonMapper.readValue(organizationJson, Array<OrganizationAPI>::class.java)
+        var organizations = jsonMapper.readValue(organizationJson, Array<OrganizationMessage>::class.java)
         if (filter != null) {
             organizations = organizations.filter { it.name.startsWith(filter!!, ignoreCase = true) }.toTypedArray()
         }
@@ -922,9 +922,13 @@ class GetMultipleSettings : SettingCommand(
         // get senders and receivers per org
         val deepOrganizations = organizations.map { org ->
             val sendersJson = getMany(environment, accessToken, SettingType.SENDER, org.name)
-            val orgSenders = jsonMapper.readValue(sendersJson, Array<SenderAPI>::class.java).map { Sender(it) }
+            val orgSenders = jsonMapper
+                .readValue(sendersJson, Array<SenderMessage>::class.java)
+                .map { Sender(it) }
             val receiversJson = getMany(environment, accessToken, SettingType.RECEIVER, org.name)
-            val orgReceivers = jsonMapper.readValue(receiversJson, Array<ReceiverAPI>::class.java).map { Receiver(it) }
+            val orgReceivers = jsonMapper
+                .readValue(receiversJson, Array<ReceiverMessage>::class.java)
+                .map { Receiver(it) }
             DeepOrganization(org, orgSenders, orgReceivers)
         }
         return yamlMapper.writeValueAsString(deepOrganizations)

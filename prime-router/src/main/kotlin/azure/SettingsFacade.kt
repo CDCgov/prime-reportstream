@@ -1,23 +1,20 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.ReportStreamFilter
-import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.TranslatorConfiguration
-import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
-import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
+import gov.cdc.prime.router.messages.OrganizationMessage
+import gov.cdc.prime.router.messages.ReceiverMessage
+import gov.cdc.prime.router.messages.SenderMessage
+import gov.cdc.prime.router.messages.SettingMessage
+import gov.cdc.prime.router.messages.SettingMetadata
 import org.jooq.JSONB
 import java.time.OffsetDateTime
 
@@ -45,33 +42,33 @@ class SettingsFacade(
     }
 
     override val organizations: Collection<Organization>
-        get() = findSettings(OrganizationAPI::class.java)
+        get() = findSettings(OrganizationMessage::class.java)
 
     override val senders: Collection<Sender>
-        get() = findSettings(SenderAPI::class.java)
+        get() = findSettings(SenderMessage::class.java)
 
     override val receivers: Collection<Receiver>
-        get() = findSettings(ReceiverAPI::class.java)
+        get() = findSettings(ReceiverMessage::class.java)
 
     override fun findOrganization(name: String): Organization? {
-        return findSetting(name, OrganizationAPI::class.java)
+        return findSetting(name, OrganizationMessage::class.java)
     }
 
     override fun findReceiver(fullName: String): Receiver? {
         val pair = Receiver.parseFullName(fullName)
-        return findSetting(pair.second, ReceiverAPI::class.java, pair.first)
+        return findSetting(pair.second, ReceiverMessage::class.java, pair.first)
     }
 
     override fun findSender(fullName: String): Sender? {
         val pair = Sender.parseFullName(fullName)
-        return findSetting(pair.second, SenderAPI::class.java, pair.first)
+        return findSetting(pair.second, SenderMessage::class.java, pair.first)
     }
 
     override fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>? {
         return findOrganizationAndReceiver(fullName, null)
     }
 
-    fun <T : SettingAPI> findSettingAsJson(
+    fun <T : SettingMessage> findSettingAsJson(
         name: String,
         clazz: Class<T>,
         organizationName: String? = null,
@@ -84,7 +81,7 @@ class SettingsFacade(
         return db.fetchLastModified()
     }
 
-    private fun <T : SettingAPI> findSetting(
+    private fun <T : SettingMessage> findSetting(
         name: String,
         clazz: Class<T>,
         organizationName: String? = null
@@ -101,12 +98,12 @@ class SettingsFacade(
         return result
     }
 
-    fun <T : SettingAPI> findSettingsAsJson(clazz: Class<T>): String {
+    fun <T : SettingMessage> findSettingsAsJson(clazz: Class<T>): String {
         val list = findSettings(clazz)
         return mapper.writeValueAsString(list)
     }
 
-    private fun <T : SettingAPI> findSettings(clazz: Class<T>): List<T> {
+    private fun <T : SettingMessage> findSettings(clazz: Class<T>): List<T> {
         val settingType = settingTypeFromClass(clazz.name)
         val settings = db.transactReturning { txn ->
             db.fetchSettings(settingType, txn)
@@ -118,7 +115,7 @@ class SettingsFacade(
         }
     }
 
-    fun <T : SettingAPI> findSettingsAsJson(organizationName: String, clazz: Class<T>): Pair<AccessResult, String> {
+    fun <T : SettingMessage> findSettingsAsJson(organizationName: String, clazz: Class<T>): Pair<AccessResult, String> {
         val (result, settings, errorMessage) = db.transactReturning { txn ->
             val organization = db.fetchSetting(SettingType.ORGANIZATION, organizationName, null, txn)
                 ?: return@transactReturning Triple(
@@ -146,12 +143,12 @@ class SettingsFacade(
         val (organizationSetting, receiverSetting) = db.fetchOrganizationAndSetting(
             SettingType.RECEIVER, receiverName, organizationName, txn
         ) ?: return null
-        val receiver = mapper.readValue(receiverSetting.values.data(), ReceiverAPI::class.java)
-        val organization = mapper.readValue(organizationSetting.values.data(), OrganizationAPI::class.java)
+        val receiver = mapper.readValue(receiverSetting.values.data(), ReceiverMessage::class.java)
+        val organization = mapper.readValue(organizationSetting.values.data(), OrganizationMessage::class.java)
         return Pair(organization, receiver)
     }
 
-    fun <T : SettingAPI> putSetting(
+    fun <T : SettingMessage> putSetting(
         name: String,
         json: String,
         claims: AuthenticatedClaims,
@@ -221,7 +218,7 @@ class SettingsFacade(
     /**
      * Make sure the input json is valid, consistent and normalized
      */
-    private fun <T : SettingAPI> validateAndNormalize(
+    private fun <T : SettingMessage> validateAndNormalize(
         json: String,
         clazz: Class<T>,
         name: String,
@@ -241,7 +238,7 @@ class SettingsFacade(
         return Triple(true, null, normalizedJson)
     }
 
-    fun <T : SettingAPI> deleteSetting(
+    fun <T : SettingMessage> deleteSetting(
         name: String,
         claims: AuthenticatedClaims,
         clazz: Class<T>,
@@ -272,9 +269,9 @@ class SettingsFacade(
 
         private fun settingTypeFromClass(className: String): SettingType {
             return when (className) {
-                "gov.cdc.prime.router.azure.OrganizationAPI" -> SettingType.ORGANIZATION
-                "gov.cdc.prime.router.azure.ReceiverAPI" -> SettingType.RECEIVER
-                "gov.cdc.prime.router.azure.SenderAPI" -> SettingType.SENDER
+                OrganizationMessage::class.qualifiedName -> SettingType.ORGANIZATION
+                ReceiverMessage::class.qualifiedName -> SettingType.RECEIVER
+                SenderMessage::class.qualifiedName -> SettingType.SENDER
                 else -> error("Internal Error: Unknown classname: $className")
             }
         }
@@ -284,90 +281,3 @@ class SettingsFacade(
         }
     }
 }
-
-/**
- * Classes for JSON serialization
- */
-
-data class SettingMetadata(
-    val version: Int,
-    val createdBy: String,
-    val createdAt: OffsetDateTime
-)
-
-interface SettingAPI {
-    val name: String
-    val organizationName: String?
-    var meta: SettingMetadata?
-    fun consistencyErrorMessage(metadata: Metadata): String?
-}
-
-class OrganizationAPI
-@JsonCreator constructor(
-    name: String,
-    description: String,
-    jurisdiction: Jurisdiction,
-    stateCode: String?,
-    countyName: String?,
-    filters: List<ReportStreamFilters>?,
-    override var meta: SettingMetadata?,
-) : Organization(name, description, jurisdiction, stateCode.trimToNull(), countyName.trimToNull(), filters),
-    SettingAPI {
-    @get:JsonIgnore
-    override val organizationName: String? = null
-    override fun consistencyErrorMessage(metadata: Metadata): String? { return this.consistencyErrorMessage() }
-}
-
-class SenderAPI
-@JsonCreator constructor(
-    name: String,
-    organizationName: String,
-    format: Format,
-    topic: String,
-    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
-    schemaName: String,
-    override var meta: SettingMetadata?,
-) : Sender(
-    name,
-    organizationName,
-    format,
-    topic,
-    customerStatus,
-    schemaName,
-),
-    SettingAPI
-
-class ReceiverAPI
-@JsonCreator constructor(
-    name: String,
-    organizationName: String,
-    topic: String,
-    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
-    translation: TranslatorConfiguration,
-    jurisdictionalFilter: ReportStreamFilter = emptyList(),
-    qualityFilter: ReportStreamFilter = emptyList(),
-    routingFilter: ReportStreamFilter = emptyList(),
-    processingModeFilter: ReportStreamFilter = emptyList(),
-    reverseTheQualityFilter: Boolean = false,
-    deidentify: Boolean = false,
-    timing: Timing? = null,
-    description: String = "",
-    transport: TransportType? = null,
-    override var meta: SettingMetadata?,
-) : Receiver(
-    name,
-    organizationName,
-    topic,
-    customerStatus,
-    translation,
-    jurisdictionalFilter,
-    qualityFilter,
-    routingFilter,
-    processingModeFilter,
-    reverseTheQualityFilter,
-    deidentify,
-    timing,
-    description,
-    transport
-),
-    SettingAPI

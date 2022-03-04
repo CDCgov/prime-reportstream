@@ -8,6 +8,10 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.messages.OrganizationMessage
+import gov.cdc.prime.router.messages.ReceiverMessage
+import gov.cdc.prime.router.messages.SenderMessage
+import gov.cdc.prime.router.messages.SettingMessage
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -31,7 +35,7 @@ class GetOrganizations(
     ): HttpResponseMessage {
         return when (request.httpMethod) {
             HttpMethod.HEAD -> getHead(request)
-            HttpMethod.GET -> getList(request, OrganizationAPI::class.java)
+            HttpMethod.GET -> getList(request, OrganizationMessage::class.java)
             else -> error("Unsupported method")
         }
     }
@@ -54,7 +58,7 @@ class GetOneOrganization(
     ): HttpResponseMessage {
         // Is the API user an Okta Sender?
         val oktaSender = request.headers["authentication-type"] == "okta"
-        return getOne(request, organizationName, OrganizationAPI::class.java, null, oktaSender)
+        return getOne(request, organizationName, OrganizationMessage::class.java, null, oktaSender)
     }
 }
 
@@ -76,7 +80,7 @@ class UpdateOrganization(
         return updateOne(
             request,
             organizationName,
-            OrganizationAPI::class.java
+            OrganizationMessage::class.java
         )
     }
 }
@@ -99,7 +103,7 @@ class GetSenders(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
     ): HttpResponseMessage {
-        return getList(request, organizationName, SenderAPI::class.java)
+        return getList(request, organizationName, SenderMessage::class.java)
     }
 }
 
@@ -121,7 +125,7 @@ class GetOneSender(
     ): HttpResponseMessage {
         // Is the API user an Okta Sender?
         val oktaSender = request.headers["authentication-type"] == "okta"
-        return getOne(request, senderName, SenderAPI::class.java, organizationName, oktaSender)
+        return getOne(request, senderName, SenderMessage::class.java, organizationName, oktaSender)
     }
 }
 
@@ -144,7 +148,7 @@ class UpdateSender(
         return updateOne(
             request,
             senderName,
-            SenderAPI::class.java,
+            SenderMessage::class.java,
             organizationName
         )
     }
@@ -169,7 +173,7 @@ class GetReceiver(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
     ): HttpResponseMessage {
-        return getList(request, organizationName, ReceiverAPI::class.java)
+        return getList(request, organizationName, ReceiverMessage::class.java)
     }
 }
 
@@ -189,7 +193,7 @@ class GetOneReceiver(
         @BindingName("organizationName") organizationName: String,
         @BindingName("receiverName") receiverName: String,
     ): HttpResponseMessage {
-        return getOne(request, receiverName, ReceiverAPI::class.java, organizationName)
+        return getOne(request, receiverName, ReceiverMessage::class.java, organizationName)
     }
 }
 
@@ -212,7 +216,7 @@ class UpdateReceiver(
         return updateOne(
             request,
             receiverName,
-            ReceiverAPI::class.java,
+            ReceiverMessage::class.java,
             organizationName
         )
     }
@@ -229,7 +233,7 @@ open class BaseFunction(
     private val missingAuthorizationHeader = HttpUtilities.errorJson("Missing Authorization Header")
     private val invalidClaim = HttpUtilities.errorJson("Invalid Authorization Header")
 
-    fun <T : SettingAPI> getList(
+    fun <T : SettingMessage> getList(
         request: HttpRequestMessage<String?>,
         clazz: Class<T>
     ): HttpResponseMessage {
@@ -240,7 +244,7 @@ open class BaseFunction(
         }
     }
 
-    fun <T : SettingAPI> getList(
+    fun <T : SettingMessage> getList(
         request: HttpRequestMessage<String?>,
         organizationName: String,
         clazz: Class<T>
@@ -260,7 +264,7 @@ open class BaseFunction(
         }
     }
 
-    fun <T : SettingAPI> getOne(
+    fun <T : SettingMessage> getOne(
         request: HttpRequestMessage<String?>,
         settingName: String,
         clazz: Class<T>,
@@ -278,7 +282,7 @@ open class BaseFunction(
         }
     }
 
-    fun <T : SettingAPI> updateOne(
+    fun <T : SettingMessage> updateOne(
         request: HttpRequestMessage<String?>,
         settingName: String,
         clazz: Class<T>,
