@@ -26,8 +26,10 @@ function SubmissionsTable() {
         {
             organization: globalState.state.organization,
             cursor: paginationCursor,
+            endCursor: "", // To be implemented with date-range filtering UI
             pageSize: SUBMISSION_PAGE_LENGTH,
             sort: paginationSort,
+            showFailed: false // No plans for this to be set to true
         }
     );
 
@@ -145,8 +147,6 @@ function SubmissionsTable() {
                     </thead>
                     <tbody id="tBody" className="font-mono-2xs">
                         {getSortedSubmissions()
-                            // failed submissions will not have an id. do not display them.
-                            .filter((s) => s.isSuccessSubmitted())
                             .map((s) => {
                                 return (
                                     <tr key={s.pk()}>
