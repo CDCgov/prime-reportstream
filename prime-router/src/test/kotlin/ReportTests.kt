@@ -558,7 +558,7 @@ class ReportTests {
     fun `test setString`() {
         // arrange
         val schema = Schema(
-            name = "test",
+            name = "one",
             topic = "test",
             elements = listOf(
                 Element("first_name"), // pii =  true
@@ -576,7 +576,8 @@ class ReportTests {
                 listOf("red", "null", "null", "null"),
                 listOf("black", "202110300809-0501", "!@#Fake", "asdlkj123!@#")
             ),
-            source = TestSource
+            source = TestSource,
+            metadata = metadata
         )
 
         report.setString(1, "first_name", "square")
