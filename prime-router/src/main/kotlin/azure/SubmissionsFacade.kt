@@ -18,7 +18,7 @@ class SubmissionsFacade(
 ) {
 
     // Ignoring unknown properties because we don't require them. -DK
-    private val mapper = JacksonMapperUtilities.datesAsTextMapper
+    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     /**
      * Serializes a list of Actions into a String.

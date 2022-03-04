@@ -141,18 +141,24 @@ class SubmissionFunction(
         @BindingName("reportId") reportId: String, // Use string to be able to detect a format error
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
-            try {
-                val reportUuid = UUID.fromString(reportId)
-                val submission = facade.findReport(organization, reportUuid)
-                if (submission != null) HttpUtilities.okJSONResponse(request, submission)
-                else HttpUtilities.notFoundResponse(request, "Report $reportId was not found.")
+            val reportUuid = try {
+                UUID.fromString(reportId)
             } catch (e: IllegalArgumentException) {
+                // Need to isolate this catch as this type of exception can happen for other reasons
                 logger.debug("Invalid format for report ID.", e)
-                HttpUtilities.badRequestResponse(request, "Invalid format for report ID parameter.")
-            } catch (e: DataAccessException) {
-                logger.error("Unable to fetch history for report ID $reportId", e)
-                HttpUtilities.internalErrorResponse(request)
+                null
             }
+
+            if (reportUuid != null)
+                try {
+                    val submission = facade.findReport(organization, reportUuid)
+                    if (submission != null) HttpUtilities.okJSONResponse(request, submission)
+                    else HttpUtilities.notFoundResponse(request, "Report $reportId was not found.")
+                } catch (e: DataAccessException) {
+                    logger.error("Unable to fetch history for report ID $reportId", e)
+                    HttpUtilities.internalErrorResponse(request)
+                }
+            else HttpUtilities.badRequestResponse(request, "Invalid format for report ID parameter.")
         }
     }
 }
