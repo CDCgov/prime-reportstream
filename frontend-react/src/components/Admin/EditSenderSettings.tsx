@@ -28,7 +28,10 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
             { orgname, sendername: sendername }
         );
 
-        const [orgSenderSettingsOld, setOrgSenderSettingsOld] = useState("");
+        const [orgSenderSettingsOldJson, setOrgSenderSettingsOldJson] =
+            useState("");
+        const [orgSenderSettingsNewJson, setOrgSenderSettingsNewJson] =
+            useState("");
         const { fetch: fetchController } = useController();
         const { invalidate } = useController();
 
@@ -53,8 +56,11 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                 );
 
                 const responseBody = await response.json();
-                setOrgSenderSettingsOld(
+                setOrgSenderSettingsOldJson(
                     JSON.stringify(responseBody, jsonSortReplacer, 2)
+                );
+                setOrgSenderSettingsNewJson(
+                    JSON.stringify(orgSenderSettings, jsonSortReplacer, 2)
                 );
 
                 modalRef?.current?.toggleModal(undefined, true);
@@ -209,12 +215,8 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     }
                     onConfirm={saveSenderData}
                     modalRef={modalRef}
-                    oldjson={orgSenderSettingsOld}
-                    newjson={JSON.stringify(
-                        orgSenderSettings,
-                        jsonSortReplacer,
-                        2
-                    )}
+                    oldjson={orgSenderSettingsOldJson}
+                    newjson={orgSenderSettingsNewJson}
                     handleEditorDidMount={handleEditorDidMount}
                 />
             </GridContainer>

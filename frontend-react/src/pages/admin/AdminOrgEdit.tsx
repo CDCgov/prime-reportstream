@@ -41,6 +41,7 @@ export function AdminOrgEdit({
     const diffEditorRef = useRef(null);
 
     const [orgSettingsOld, setOrgSettingsOld] = useState("");
+    const [orgSettingsNew, setOrgSettingsNew] = useState("");
     const { fetch: fetchController } = useController();
 
     function handleEditorDidMount(editor: null) {
@@ -67,6 +68,7 @@ export function AdminOrgEdit({
             setOrgSettingsOld(
                 JSON.stringify(responseBody, jsonSortReplacer, 2)
             );
+            setOrgSettingsNew(JSON.stringify(orgSettings, jsonSortReplacer, 2));
 
             modalRef?.current?.toggleModal(undefined, true);
         } catch (e) {
@@ -183,11 +185,7 @@ export function AdminOrgEdit({
                                 onConfirm={saveOrgData}
                                 modalRef={modalRef}
                                 oldjson={orgSettingsOld}
-                                newjson={JSON.stringify(
-                                    orgSettings,
-                                    jsonSortReplacer,
-                                    2
-                                )}
+                                newjson={orgSettingsNew}
                                 handleEditorDidMount={handleEditorDidMount}
                             />
                         </GridContainer>

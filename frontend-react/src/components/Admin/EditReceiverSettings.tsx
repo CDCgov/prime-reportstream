@@ -35,6 +35,8 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
         const { fetch: fetchController } = useController();
         const [orgReceiverSettingsOld, setOrgReceiverSettingsOld] =
             useState("");
+        const [orgReceiverSettingsNew, setOrgReceiverSettingsNew] =
+            useState("");
         const { invalidate } = useController();
 
         function handleEditorDidMount(editor: null) {
@@ -60,6 +62,9 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                 const responseBody = await response.json();
                 setOrgReceiverSettingsOld(
                     JSON.stringify(responseBody, jsonSortReplacer, 2)
+                );
+                setOrgReceiverSettingsNew(
+                    JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2)
                 );
 
                 modalRef?.current?.toggleModal(undefined, true);
@@ -280,11 +285,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     onConfirm={saveReceiverData}
                     modalRef={modalRef}
                     oldjson={orgReceiverSettingsOld}
-                    newjson={JSON.stringify(
-                        orgReceiverSettings,
-                        jsonSortReplacer,
-                        2
-                    )}
+                    newjson={orgReceiverSettingsNew}
                     handleEditorDidMount={handleEditorDidMount}
                 />
             </GridContainer>
