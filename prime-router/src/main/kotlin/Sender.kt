@@ -1,7 +1,6 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonProperty
 import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.JwkSet
 
@@ -10,8 +9,8 @@ import gov.cdc.prime.router.tokens.JwkSet
  * the data hub (minus the credentials used by that agent, of course). It
  * contains information about the specific topic and schema that the sender uses.
  *
- * @property name the name of this sender
- * @property organizationName the name of the organization that this sender be
+ * @property name the name of this sender - if only one send for an org, it is default
+ * @property organizationName the name of the organization that this sender belongs to
  * @property format
  * @property topic
  * @property customerStatus
@@ -39,7 +38,7 @@ open class Sender(
      * Enumeration representing whether a submission will be processed follow the synchronous or asynchronous
      * message pipeline. Within the code this defaults to Sync unless the PROCESSING_TYPE_PARAMETER query
      * string value is 'async'
-     * 
+     *
      * @property sync
      * @property async
      */
