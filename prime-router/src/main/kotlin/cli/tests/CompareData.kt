@@ -137,6 +137,7 @@ class DataCompareTest : CoolTest() {
                     // Send the input file to ReportStream
                     val (responseCode, json) =
                         HttpUtilities.postReportBytes(environment, inputFile.readBytes(), sender, options.key)
+                    inputFile.close()
                     if (responseCode != HttpURLConnection.HTTP_CREATED) {
                         bad("***$name Test FAILED***:  response code $responseCode")
                         passed = false
