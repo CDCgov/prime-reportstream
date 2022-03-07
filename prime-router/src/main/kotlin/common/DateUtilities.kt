@@ -4,6 +4,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAccessor
@@ -144,9 +145,50 @@ object DateUtilities {
             // coerce the local date to the start of the day. it's not great, but if we did not
             // get the time, then pushing it to start of day is *probably* okay. At some point
             // we should probably throw a coercion warning when we do this
-            is LocalDate -> OffsetDateTime.from(LocalDate.from(this).atStartOfDay())
-            is LocalDateTime, is OffsetDateTime, is Instant -> OffsetDateTime.from(this)
+            is LocalDate -> OffsetDateTime.from(this.atStartOfDay().atZone(ZoneId.systemDefault()))
+            is LocalDateTime -> OffsetDateTime.from(this.atZone(ZoneId.systemDefault()))
+            is OffsetDateTime, is ZonedDateTime, is Instant -> OffsetDateTime.from(this)
             else -> error("Unsupported format!")
+        }
+    }
+
+    /**
+     * Given a temporal accessor, it converts it to a local date time instant. It can cleanly convert
+     * ZonedDateTime, OffsetDateTime, Instant, and LocalDateTime. For LocalDate, it makes the assumption
+     * that we are working off the start of day. Making assumptions is *bad*, but unfortunately have to
+     * sometimes do this. In this case, if the sender did not give us a time value, then most likely the
+     * time is not important, so putting the time marker at the start of the date is maybe probably
+     * possibly okay. As an example, consider date of birth. For the patient demographic information,
+     * having the time someone was born is not as important as having the date. Therefore, setting the
+     * time value to start of day is okay. Probably. Maybe. For future work we should probably throw
+     * a coercion error when this happens and root these out of the system.
+     */
+    fun TemporalAccessor.toLocalDateTime(): LocalDateTime {
+        return when (this) {
+            is LocalDateTime -> this
+            // we are coercing local date to start of date for the local time and then casting it to
+            // local date time. This is a dicey proposition, and we should probably elicit some kind
+            // of warning when doing this. Perhaps in the future we should disable this or make this
+            // throw an error
+            is LocalDate -> LocalDateTime.from(this.atStartOfDay())
+            is ZonedDateTime, is OffsetDateTime, is Instant -> LocalDateTime.from(this)
+            else -> error("Unsupported format")
+        }
+    }
+
+    fun TemporalAccessor.toZonedDateTime(zoneId: ZoneId? = null): ZonedDateTime {
+        return when (this) {
+            is ZonedDateTime -> this
+            is OffsetDateTime, is Instant -> ZonedDateTime.from(this)
+            is LocalDateTime -> {
+                if (zoneId == null) error("Cannot determine time zone to use for conversion")
+                ZonedDateTime.from(this.atZone(zoneId))
+            }
+            is LocalDate -> {
+                if (zoneId == null) error("Cannot determine time zone to use for conversion")
+                ZonedDateTime.from(this.atStartOfDay().atZone(zoneId))
+            }
+            else -> error("Unsupported format for converting to ZonedDateTime")
         }
     }
 }

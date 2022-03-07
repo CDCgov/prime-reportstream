@@ -1,5 +1,8 @@
 package gov.cdc.prime.router
 
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import gov.cdc.prime.router.Element.Cardinality.ONE
+import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.metadata.ElementAndValue

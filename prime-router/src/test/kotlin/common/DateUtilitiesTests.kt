@@ -1,13 +1,20 @@
 package gov.cdc.prime.router.common
 
 import assertk.assertThat
+import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
+import assertk.assertions.isSameAs
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.common.DateUtilities.toLocalDateTime
+import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAccessor
 import kotlin.test.Test
 
 private const val dateFormat = "yyyy-MM-dd"
@@ -113,6 +120,53 @@ class DateUtilitiesTests {
             DateUtilities.convertPositiveOffsetToNegativeOffset("+0000 2022-01-05").run {
                 assertThat(this).isEqualTo("+0000 2022-01-05")
             }
+        }
+    }
+
+    @Test
+    fun `test offset date time extension method`() {
+        // verify that offset date time to offset date time matches
+        val offsetDateTime: TemporalAccessor = OffsetDateTime.now()
+        assertThat(offsetDateTime).isEqualTo(offsetDateTime.toOffsetDateTime())
+        // do the references match?
+        assertThat(offsetDateTime).isSameAs(offsetDateTime.toOffsetDateTime())
+        // now local date time to offset date time also matches
+        LocalDateTime.from(offsetDateTime).run {
+            assertThat(this.toOffsetDateTime()).isEqualTo(offsetDateTime)
+        }
+        // local date will coerce to "start of day". can't do a clean equals here
+        // can't even do a clean "dates match" because coercion could cross the
+        // midnight boundary which means dates could be different
+        // we could convert this to PARSE a date time instead of using "now"
+        LocalDate.from(offsetDateTime).run {
+            assertThat(this.toOffsetDateTime().hour).isEqualTo(0)
+            assertThat(this.toOffsetDateTime().minute).isEqualTo(0)
+            assertThat(this.toOffsetDateTime().second).isEqualTo(0)
+            // handles PST to EDT in this range
+            assertThat(this.toOffsetDateTime().offset.totalSeconds).isBetween(-28000, -18000)
+        }
+        // convert and check again
+        ZonedDateTime.from(offsetDateTime).run {
+            assertThat(this.toOffsetDateTime()).isEqualTo(offsetDateTime)
+        }
+    }
+
+    @Test
+    fun `test local date time extension method`() {
+        val localDateTime = LocalDateTime.now()
+        assertThat(localDateTime).isEqualTo(localDateTime.toLocalDateTime())
+        // do the references match
+        assertThat(localDateTime).isSameAs(localDateTime.toLocalDateTime())
+        OffsetDateTime.from(localDateTime.atZone(ZoneId.systemDefault())).run {
+            assertThat(this.toLocalDateTime()).isEqualTo(localDateTime)
+        }
+        ZonedDateTime.from(localDateTime.atZone(ZoneId.systemDefault())).run {
+            assertThat(this.toLocalDateTime()).isEqualTo(localDateTime)
+        }
+        LocalDate.from(localDateTime).run {
+            assertThat(this.toLocalDateTime().hour).isEqualTo(0)
+            assertThat(this.toLocalDateTime().minute).isEqualTo(0)
+            assertThat(this.toLocalDateTime().second).isEqualTo(0)
         }
     }
 }

@@ -27,6 +27,7 @@ import java.time.ZoneId
  * @param transport that the org wishes to receive
  * @param externalName an external display name for the receiver. useful for display in the website
  * @param timeZone the timezone the receiver operates under
+ * @param dateTimeFormat the format to use for date and datetime values, either Offset or Local
  */
 open class Receiver(
     val name: String,
@@ -51,8 +52,16 @@ open class Receiver(
      * so request.
      */
     val timeZone: USTimeZone? = null,
+    /**
+     * The format to output for date and date time values. This is distinct from the timeZone in this describes the
+     * shape each date time value should have when output. For example, for a receiver in ET, if their dateTimeFormat
+     * is set to OFFSET, their date would look like "uuuuMMdd HH:mm:ss ZZZ" where ZZZ would show as -05:00 or -06:00
+     * while someone set to LOCAL would have their date formatted "uuuuMMdd HH:mm:ss" without the offset. Instead,
+     * the date time would have the offset applied to it
+     */
+    val dateTimeFormat: DateTimeFormat? = DateTimeFormat.OFFSET,
 ) {
-    // Custom constructor
+    /** A custom constructor primarily used for testing */
     constructor(
         name: String,
         organizationName: String,
@@ -60,13 +69,18 @@ open class Receiver(
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
         format: Report.Format = Report.Format.CSV,
-        timing: Timing? = null
+        timing: Timing? = null,
+        timeZone: USTimeZone? = null,
+        dateTimeFormat: DateTimeFormat? = null,
     ) : this(
         name, organizationName, topic, customerStatus,
         CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null),
-        timing = timing
+        timing = timing,
+        timeZone = timeZone,
+        dateTimeFormat = dateTimeFormat,
     )
 
+    /** A copy constructor for the receiver */
     constructor(copy: Receiver) : this(
         copy.name,
         copy.organizationName,
@@ -83,6 +97,8 @@ open class Receiver(
         copy.description,
         copy.transport,
         copy.externalName,
+        copy.timeZone,
+        copy.dateTimeFormat,
     )
 
     @get:JsonIgnore
@@ -176,6 +192,22 @@ open class Receiver(
     enum class EmptyOperation {
         NONE,
         SEND,
+    }
+
+    /**
+     * The format to output the date time values as. A receiver could want date time values as an
+     * offset or as their local time. This is independent of the actual time zone their data will
+     * be presented in. For example, someone could have their date and time data written out at their
+     * local timezone (PST for example), but also as an offset value. Or they could have their date
+     * time written as a local date time at their local time zone. There are, of course, some ways
+     * this could present some complications. For example, if you choose to have the time encoded to
+     * local date time, but don't set a time zone for the receiver, we would end up setting the time
+     * to UTC in local date format, which receivers may not expect. This should probably throw a warning
+     * when saving the receiver.
+     */
+    enum class DateTimeFormat {
+        OFFSET,
+        LOCAL
     }
 
     /**
