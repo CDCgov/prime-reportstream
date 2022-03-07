@@ -1,0 +1,10 @@
+
+.filter-container {
+    display: flex;
+    margin-bottom: 1em;
+}
+
+.date-picker-container {
+    max-width: 225px;
+    margin-right: 32px;
+}

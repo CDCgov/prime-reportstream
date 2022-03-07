@@ -9,6 +9,8 @@ import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
 
 import SubmissionTable from "./SubmissionsTable";
+import SubmissionFilters from "./SubmissionFilters";
+import SubmissionContext from "./SubmissionContext";
 
 function Submissions() {
     const orgName: string = useOrgName();
@@ -27,7 +29,10 @@ function Submissions() {
                 fallbackComponent={() => <ErrorPage type="message" />}
             >
                 <Suspense fallback={<Spinner />}>
-                    <SubmissionTable />
+                    <SubmissionContext>
+                        <SubmissionFilters />
+                        <SubmissionTable />
+                    </SubmissionContext>
                 </Suspense>
             </NetworkErrorBoundary>
             <HipaaNotice />

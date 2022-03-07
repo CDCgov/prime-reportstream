@@ -131,8 +131,6 @@ function SubmissionsTable() {
     return (
         <div className="grid-container margin-bottom-10">
             <div className="grid-col-12">
-                <h2>Submissions</h2>
-                <NextPrevButtonsComponent />
                 <table
                     className="usa-table usa-table--borderless prime-table"
                     aria-label="Submission history from the last 30 days"
