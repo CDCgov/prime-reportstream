@@ -28,8 +28,8 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.CovidResultMetadataRecord
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
-import gov.cdc.prime.router.messages.SettingMetadata
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.messages.SettingMetadata
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
 import org.jooq.Configuration

@@ -12,6 +12,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
+import gov.cdc.prime.router.tokens.JwkSet
 import java.time.OffsetDateTime
 
 /**
@@ -70,6 +71,11 @@ class SenderMessage
     topic: String,
     customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     schemaName: String,
+    keys: List<JwkSet>? = null,
+    processingType: ProcessingType = ProcessingType.sync,
+    allowDuplicates: Boolean = true,
+    senderType: SenderType? = null,
+    primarySubmissionMethod: PrimarySubmissionMethod? = null,
     override var meta: SettingMetadata?,
 ) : Sender(
     name,
@@ -78,6 +84,11 @@ class SenderMessage
     topic,
     customerStatus,
     schemaName,
+    keys,
+    processingType,
+    allowDuplicates,
+    senderType,
+    primarySubmissionMethod,
 ),
     SettingMessage
 
