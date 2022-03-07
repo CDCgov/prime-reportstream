@@ -140,6 +140,7 @@ module "network" {
 #   location                    = var.location
 #   ai_instrumentation_key      = module.application_insights.instrumentation_key
 #   ai_connection_string        = module.application_insights.connection_string
+#   okta_base_url               = var.okta_base_url
 #   okta_redirect_url           = var.okta_redirect_url
 #   terraform_caller_ip_address = var.terraform_caller_ip_address
 #   use_cdc_managed_vnet        = var.use_cdc_managed_vnet
