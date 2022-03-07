@@ -186,7 +186,7 @@ data class Element(
 
     val isOptional
         get() = this.cardinality == null ||
-            this.cardinality == ZERO_OR_ONE || canBeBlank
+            this.cardinality == Cardinality.ZERO_OR_ONE || canBeBlank
 
     val canBeBlank
         get() = type == Type.TEXT_OR_BLANK ||
