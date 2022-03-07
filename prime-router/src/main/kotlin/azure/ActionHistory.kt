@@ -30,6 +30,7 @@ import gov.cdc.prime.router.azure.db.tables.records.ItemLineageRecord
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.logging.log4j.kotlin.Logging
+import org.apache.logging.log4j.kotlin.logger
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.JSONB
@@ -845,8 +846,7 @@ class ActionHistory : Logging {
         return countToPrint
     }
 
-    companion object {
-
+    companion object : Logging {
         // TODO: Deprecated. Delete.  WorkflowEngine.handleRecieverEvent pulls in each report individually.
         fun fetchReportFilesForReceiver(
             nextAction: TaskAction,
@@ -901,15 +901,10 @@ class ActionHistory : Logging {
                     }
                 }
             }
-            if (msg.isNotEmpty()) {
-                if (failOnError) {
-                    error("*** Sanity check comparing old Headers list to new ReportFile list FAILED:  $msg")
-                } else {
-                    println(
-                        "************ FAILURE: sanity check comparing old Headers " +
-                            "list to new ReportFiles list FAILED:  $msg\""
-                    )
-                }
+            if (msg.isNotEmpty() && failOnError) {
+                error("*** Sanity check comparing old Headers list to new ReportFile list FAILED:  $msg")
+            } else if (msg.isNotEmpty()) {
+                logger.warn("***** FAILURE: sanity check comparing old headers list to new ReportFiles list:\n$msg")
             }
         }
 
@@ -945,15 +940,10 @@ class ActionHistory : Logging {
                     }
                 }
             }
-            if (msg.isNotEmpty()) {
-                if (failOnError) {
-                    error("*** Sanity check comparing old Header info and new ReportFile info FAILED:  $msg")
-                } else {
-                    System.out.println(
-                        "************ FAILURE: sanity check comparing " +
-                            "old Header info and new ReportFile info FAILED:  $msg\""
-                    )
-                }
+            if (msg.isNotEmpty() && failOnError) {
+                error("*** Sanity check comparing old Header info and new ReportFile info FAILED:  $msg")
+            } else if (msg.isEmpty()) {
+                logger.warn("***** FAILURE: sanity check comparing old headers list to new ReportFiles list:\n$msg")
             }
         }
     }
