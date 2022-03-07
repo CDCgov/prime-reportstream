@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
 import gov.cdc.prime.router.metadata.LookupMapper
@@ -17,7 +18,6 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.time.temporal.TemporalAccessor
@@ -815,8 +815,7 @@ data class Element(
         } ?: try {
             // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
             val date = LocalDate.parse(cleanedFormattedValue, dateFormatter)
-            val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
-            OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
+            OffsetDateTime.of(date, LocalTime.of(0, 0), Environment.rsTimeZone)
         } catch (e: DateTimeParseException) {
             null
         } ?: try {
@@ -824,8 +823,7 @@ data class Element(
             // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
             val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
             val date = LocalDate.parse(cleanedFormattedValue, formatter)
-            val zoneOffset = ZoneOffset.UTC.rules.getOffset(Instant.now())
-            OffsetDateTime.of(date, LocalTime.of(0, 0), zoneOffset)
+            OffsetDateTime.of(date, LocalTime.of(0, 0), Environment.rsTimeZone)
         } catch (e: DateTimeParseException) {
             null
         } ?: try {
@@ -1129,6 +1127,8 @@ data class Element(
         const val datePattern = "yyyyMMdd"
         const val datePatternMMddyyyy = "MMddyyyy"
         const val datetimePattern = "yyyyMMddHHmmZZZ"
+        /** includes seconds  */
+        const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSZZZ"
         // isn't she a beauty? This allows for all kinds of possible date time variations
         const val variableDateTimePattern = "[yyyyMMddHHmmssZ]" +
             "[yyyyMMddHHmmZ]" +
@@ -1139,6 +1139,11 @@ data class Element(
             "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]"
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
         val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
+        /** a higher precision date time formatter that includes seconds, and can be used */
+        val highPrecisionDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(
+            highPrecisionDateTimePattern,
+            Locale.ENGLISH
+        )
         val manuallyEnteredDateFormats =
             arrayOf(datePattern, "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy H:mm", "yyyy/M/d H:mm")
         const val displayToken = "\$display"

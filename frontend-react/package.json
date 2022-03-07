@@ -23,6 +23,7 @@
         "@types/node": "^15.3.0",
         "@types/react": "^17.0.38",
         "@types/react-dom": "^17.0.5",
+        "axios": "^0.26.0",
         "craco-sass-resources-loader": "^1.1.0",
         "dompurify": "^2.3.4",
         "downloadjs": "^1.4.7",
@@ -52,8 +53,10 @@
     "scripts": {
         "clean": "rimraf ./build",
         "start:localdev": "env-cmd -f .env.development craco start",
+        "build:test": "env-cmd -f .env.test craco build",
         "build:staging": "env-cmd -f .env.staging craco build",
         "build:production": "env-cmd -f .env.production craco build",
+        "postbuild:test": "cp build/index.html build/404.html",
         "postbuild:staging": "cp build/index.html build/404.html",
         "postbuild:production": "cp build/index.html build/404.html",
         "test": "craco test",
@@ -67,7 +70,8 @@
         "lint:prettier:write": "prettier --write \"src/**/*.{js,ts,jsx,tsx}\"",
         "cypress-open": "./node_modules/.bin/cypress open",
         "cypress-run": "./node_modules/.bin/cypress run",
-        "yarn:show-outdated-packages": "yarn outdated"
+        "yarn:show-outdated-packages": "yarn outdated",
+        "run:build-dir": "yarn global add serve && serve -s build"
     },
     "eslintConfig": {
         "extends": [
@@ -119,6 +123,7 @@
     "devDependencies": {
         "@testing-library/jest-dom": "^5.16.1",
         "@testing-library/react": "^12.1.2",
+        "@testing-library/react-hooks": "^7.0.2",
         "@types/dompurify": "^2.3.1",
         "@types/jest": "^27.0.3",
         "@types/react-helmet": "^6.1.4",
@@ -126,7 +131,6 @@
         "@types/testing-library__jest-dom": "^5.14.2",
         "@typescript-eslint/eslint-plugin": "^4.23.0",
         "@typescript-eslint/parser": "^4.23.0",
-        "cypress": "^9.1.1",
         "eslint": "^7.26.0",
         "eslint-config-airbnb": "^19.0.0",
         "eslint-config-prettier": "^8.3.0",
@@ -136,6 +140,7 @@
         "eslint-plugin-react": "^7.28.0",
         "eslint-plugin-react-hooks": "^4.2.0",
         "jest-canvas-mock": "^2.3.1",
+        "msw": "^0.36.8",
         "npm-run-all": "^4.1.5",
         "prettier": "^2.5.0",
         "react-dropdown": "^1.9.2",
@@ -145,11 +150,12 @@
         "yaml-loader": "^0.6.0"
     },
     "peerDependencies": {
-        "postcss": "^8.4.5",
-        "follow-redirects": "^1.14.8"
+        "follow-redirects": "^1.14.8",
+        "postcss": "^8.4.5"
     },
     "resolutions": {
         "react-scripts/**/node-forge": "^1.0.0",
+        "react-scripts/**/url-parse": "^1.5.6",
         "react-scripts/**/follow-redirects": "^1.14.8"
     }
 }
