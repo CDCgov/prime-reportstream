@@ -6,7 +6,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
@@ -41,6 +40,7 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.messages.OrganizationMessage
 import gov.cdc.prime.router.messages.ReceiverMessage
 import gov.cdc.prime.router.messages.SenderMessage
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.http.HttpStatus
 import java.io.File
 import java.time.OffsetDateTime
@@ -104,7 +104,7 @@ abstract class SettingCommand(
     enum class Operation { LIST, GET, PUT, DELETE }
     enum class SettingType { ORGANIZATION, SENDER, RECEIVER }
 
-    val jsonMapper = jacksonObjectMapper()
+    val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
     val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
         KotlinModule.Builder()
             .withReflectionCacheSize(512)
@@ -116,9 +116,6 @@ abstract class SettingCommand(
     )
 
     init {
-        // Format OffsetDateTime as an ISO string
-        jsonMapper.registerModule(JavaTimeModule())
-        jsonMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         yamlMapper.registerModule(JavaTimeModule())
         yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     }

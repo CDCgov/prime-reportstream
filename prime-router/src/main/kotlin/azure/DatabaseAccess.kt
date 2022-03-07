@@ -29,6 +29,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.CovidResultMetadataRecord
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import gov.cdc.prime.router.messages.SettingMetadata
+import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 import org.flywaydb.core.Flyway
 import org.jooq.Configuration
@@ -42,7 +43,6 @@ import org.postgresql.Driver
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import java.util.UUID
 import javax.sql.DataSource
 
@@ -139,6 +139,26 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .skipLocked() // Allows the same query to run in parallel. Otherwise, the query would lock the table.
             .fetch()
             .into(Task::class.java)
+    }
+
+    /**
+     * Returns true if there is already a record in the report_file table that matches the passed in [senderName],
+     * [senderOrgName], and [digest]
+     */
+    fun isDuplicateReportFile(
+        senderName: String,
+        senderOrgName: String,
+        digest: ByteArray,
+        txn: DataAccessTransaction? = null
+    ): Boolean {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .fetchExists(
+                ctx.selectFrom(REPORT_FILE)
+                    .where(REPORT_FILE.SENDING_ORG.eq(senderOrgName))
+                    .and(REPORT_FILE.SENDING_ORG_CLIENT.eq(senderName))
+                    .and(REPORT_FILE.BLOB_DIGEST.eq(digest))
+            )
     }
 
     /**
@@ -348,6 +368,22 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 )
         }
         return itemLineages
+    }
+
+    /**
+     * Fetch an action ID for a given [reportId].
+     * @param txn an optional database transaction
+     * @return an action ID, or null if no action ID was found
+     */
+    fun fetchActionIdForReport(
+        reportId: UUID,
+        txn: DataAccessTransaction? = null
+    ): Long? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.select(REPORT_FILE.ACTION_ID)
+            .from(REPORT_FILE)
+            .where(REPORT_FILE.REPORT_ID.eq(reportId))
+            .fetchOne(REPORT_FILE.ACTION_ID)
     }
 
     fun fetchDownloadableReportFiles(
@@ -766,8 +802,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         connectionCheck: CheckFunction.RemoteConnectionCheck
     ) {
         val ctx = if (txn != null) DSL.using(txn) else create
-        val initiatedOn = connectionCheck.initiatedOn.atOffset(ZoneOffset.UTC)
-        val completedOn = connectionCheck.completedAt.atOffset(ZoneOffset.UTC)
+        val initiatedOn = connectionCheck.initiatedOn.atOffset(Environment.rsTimeZone)
+        val completedOn = connectionCheck.completedAt.atOffset(Environment.rsTimeZone)
         ctx.insertInto(RECEIVER_CONNECTION_CHECK_RESULTS)
             .set(RECEIVER_CONNECTION_CHECK_RESULTS.ORGANIZATION_ID, connectionCheck.organizationId)
             .set(RECEIVER_CONNECTION_CHECK_RESULTS.RECEIVER_ID, connectionCheck.receiverId)

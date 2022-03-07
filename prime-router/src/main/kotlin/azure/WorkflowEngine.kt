@@ -154,6 +154,30 @@ class WorkflowEngine(
     }
 
     /**
+     * Checks if the [sender] has already sent this report by comparing the [digest] against existing records for
+     * this sender in the report_file table. If a duplicate is found an ActionError is thrown which will be picked up
+     * by ReportFunction and logged in action and action_log.
+     */
+    fun verifyNoDuplicateFile(
+        sender: Sender,
+        digest: ByteArray,
+        payloadName: String?
+    ) {
+        if (db.isDuplicateReportFile(sender.name, sender.organizationName, digest)) {
+            var msg = "Duplicate file detected."
+            if (!payloadName.isNullOrEmpty()) {
+                msg += "File: $payloadName"
+            }
+            throw ActionError(
+                ActionLog.report(
+                    msg
+                ),
+                msg
+            )
+        }
+    }
+
+    /**
      * Record a received [report] from a [sender] into the action history and save the original [rawBody]
      * of the received message. Return the blobUrl string to the calling function to save as part of the report
      */
@@ -392,7 +416,7 @@ class WorkflowEngine(
 
     // routeReport does all filtering and translating per receiver, generating one file per receiver to then be batched
     fun routeReport(
-        context: ExecutionContext,
+        context: ExecutionContext?,
         report: Report,
         options: Options,
         defaults: Map<String, String>,
@@ -435,7 +459,7 @@ class WorkflowEngine(
     private fun sendToDestination(
         report: Report,
         receiver: Receiver,
-        context: ExecutionContext,
+        context: ExecutionContext?,
         options: Options,
         actionHistory: ActionHistory,
         txn: DataAccessTransaction
@@ -484,7 +508,7 @@ class WorkflowEngine(
                 loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
             }
         }
-        context.logger.info(loggerMsg)
+        context?.logger?.info(loggerMsg)
     }
 
     /**
@@ -550,7 +574,8 @@ class WorkflowEngine(
             // track response body
             val responseBody = actionHistory.createResponseBody(
                 true,
-                report
+                report,
+                this.settings
             )
             actionHistory.trackActionResponse(responseBody)
 

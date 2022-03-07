@@ -42,7 +42,17 @@ class ReportTests {
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         assertThat(report1.itemCount).isEqualTo(2)
         val filteredReport = report1.filter(
-            listOf(Pair(jurisdictionalFilter, listOf("a", "1"))), rcvr, false, one.trackingElement,
+            listOf(
+                Pair(
+                    jurisdictionalFilter,
+                    listOf("a", "1")
+                )
+            ),
+            rcvr,
+            false,
+            one.trackingElement,
+            false,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER
         )
         assertThat(filteredReport.schema).isEqualTo(one)
         assertThat(filteredReport.itemCount).isEqualTo(1)
@@ -57,19 +67,31 @@ class ReportTests {
         val jurisdictionalFilter = metadata.findReportStreamFilterDefinitions("matches") ?: fail("cannot find filter")
         // each sublist is a row.
         val report1 = Report(
-            one, listOf(listOf("row1_a", "row1_b"), listOf("row2_a", "row2_b")), source = TestSource,
+            one,
+            listOf(listOf("row1_a", "row1_b"), listOf("row2_a", "row2_b")),
+            source = TestSource,
             metadata = metadata
         )
         assertThat(2).isEqualTo(report1.itemCount)
         val filteredReportA = report1.filter(
-            listOf(Pair(jurisdictionalFilter, listOf("a", "row1.*", "row2_a"))), rcvr, false, one.trackingElement
+            listOf(Pair(jurisdictionalFilter, listOf("a", "row1.*", "row2_a"))),
+            rcvr,
+            false,
+            one.trackingElement,
+            false,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER
         )
         assertThat(filteredReportA.itemCount).isEqualTo(2)
         assertThat(filteredReportA.getString(0, "b")).isEqualTo("row1_b")
         assertThat(filteredReportA.getString(1, "b")).isEqualTo("row2_b")
 
         val filteredReportB = report1.filter(
-            listOf(Pair(jurisdictionalFilter, listOf("a", "row.*"))), rcvr, false, one.trackingElement
+            listOf(Pair(jurisdictionalFilter, listOf("a", "row.*"))),
+            rcvr,
+            false,
+            one.trackingElement,
+            false,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER
         )
         assertThat(filteredReportA.itemCount).isEqualTo(2)
         assertThat(filteredReportB.getString(0, "b")).isEqualTo("row1_b")
@@ -77,14 +99,22 @@ class ReportTests {
 
         val filteredReportC = report1.filter(
             listOf(Pair(jurisdictionalFilter, listOf("a", "row1_a", "foo", "bar", "baz"))),
-            rcvr, false, one.trackingElement
+            rcvr,
+            false,
+            one.trackingElement,
+            false,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER
         )
         assertThat(filteredReportC.itemCount).isEqualTo(1)
         assertThat(filteredReportC.getString(0, "b")).isEqualTo("row1_b")
 
         val filteredReportD = report1.filter(
             listOf(Pair(jurisdictionalFilter, listOf("a", "argle", "bargle"))),
-            rcvr, false, one.trackingElement
+            rcvr,
+            false,
+            one.trackingElement,
+            false,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER
         )
         assertThat(filteredReportD.itemCount).isEqualTo(0)
     }
@@ -330,7 +360,12 @@ class ReportTests {
         )
 
         val filteredReport = report1.filter(
-            listOf(Pair(jurisdictionalFilter, listOf("a", "rep1_row2_a"))), rcvr, false, schema.trackingElement
+            listOf(Pair(jurisdictionalFilter, listOf("a", "rep1_row2_a"))),
+            rcvr,
+            false,
+            schema.trackingElement,
+            false,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER
         )
 
         val lineage = filteredReport.itemLineages!!
@@ -396,7 +431,12 @@ class ReportTests {
         val copy1 = merge2.copy()
         val copy2 = copy1.copy()
         val filteredReport = copy2.filter(
-            listOf(Pair(jurisdictionalFilter, listOf("a", "aaa"))), rcvr, false, schema.trackingElement
+            listOf(Pair(jurisdictionalFilter, listOf("a", "aaa"))),
+            rcvr,
+            false,
+            schema.trackingElement,
+            false,
+            ReportStreamFilterType.JURISDICTIONAL_FILTER
         )
 
         val lineage = filteredReport.itemLineages!!
