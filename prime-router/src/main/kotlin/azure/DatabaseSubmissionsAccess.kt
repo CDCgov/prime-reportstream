@@ -6,7 +6,9 @@ import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import org.jooq.CommonTableExpression
+import org.jooq.Condition
 import org.jooq.SelectFieldOrAsterisk
+import org.jooq.SortField
 import org.jooq.impl.DSL
 import org.jooq.impl.SQLDataType.BIGINT
 import org.jooq.impl.SQLDataType.UUID
@@ -29,8 +31,10 @@ interface SubmissionAccess {
         sendingOrg: String,
         order: SortOrder,
         sortColumn: SortColumn,
-        resultsAfterDate: OffsetDateTime? = null,
+        cursor: OffsetDateTime? = null,
+        toEnd: OffsetDateTime? = null,
         limit: Int = 10,
+        showFailed: Boolean,
         klass: Class<T>
     ): List<T>
 
@@ -59,7 +63,8 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.
      * @param order sort the table in ASC or DESC order.
      * @param sortColumn sort the table by specific column; default created_at.
-     * @param resultsAfterDate is the Action Id of the last result in the previous list.
+     * @param cursor is the OffsetDateTime of the last result in the previous list.
+     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
      * @param limit is an Integer used for setting the number of results per page.
      * @return a list of results matching the SQL Query.
      */
@@ -67,31 +72,94 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         sendingOrg: String,
         order: SubmissionAccess.SortOrder,
         sortColumn: SubmissionAccess.SortColumn,
-        resultsAfterDate: OffsetDateTime?,
+        cursor: OffsetDateTime?,
+        toEnd: OffsetDateTime?,
         limit: Int,
+        showFailed: Boolean,
         klass: Class<T>
     ): List<T> {
-        val column = when (sortColumn) {
-            /* Here is where we can set a column based on sortColumn's enum
-            * value */
-            SubmissionAccess.SortColumn.CREATED_AT -> ACTION.CREATED_AT
-        }
-
-        val sorted = if (order == SubmissionAccess.SortOrder.ASC) {
-            column.asc()
-        } else column.desc()
-
+        val sortedColumn = createColumnSort(sortColumn, order)
+        val condition = createWhereCondition(sendingOrg, cursor, toEnd, showFailed)
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
                 .selectFrom(ACTION)
-                .where(ACTION.ACTION_NAME.eq(TaskAction.receive).and(ACTION.SENDING_ORG.eq(sendingOrg)))
-                .orderBy(sorted)
-            if (resultsAfterDate != null) {
-                query.seek(resultsAfterDate)
+                .where(condition)
+                .orderBy(sortedColumn)
+
+            /* This nullifies our selection if we're using the 'between'
+            *  where() statement returned from createWhereCondition()
+            *  For this, it's set to run only when a cursor is given
+            *  with no endCursor. */
+            if (cursor != null && toEnd == null) {
+                query.seek(cursor)
             }
             query.limit(limit)
                 .fetchInto(klass)
         }
+    }
+
+    /**
+     * @param order sort the table in ASC or DESC order.
+     * @param sortColumn sort the table by specific column; default created_at.
+     * @return a jooq Condition statement to use in where().
+     */
+    private fun createColumnSort(
+        sortColumn: SubmissionAccess.SortColumn,
+        order: SubmissionAccess.SortOrder
+    ): SortField<OffsetDateTime> {
+        val column = when (sortColumn) {
+            /* Decides sort column by enum */
+            SubmissionAccess.SortColumn.CREATED_AT -> ACTION.CREATED_AT
+        }
+
+        val sortedColumn = when (order) {
+            /* Applies sort order by enum */
+            SubmissionAccess.SortOrder.ASC -> column.asc()
+            SubmissionAccess.SortOrder.DESC -> column.desc()
+        }
+
+        return sortedColumn
+    }
+
+    /**
+     * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.
+     * @param cursor is the OffsetDateTime of the last result in the previous list.
+     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
+     * @return a jooq Condition statement to use in where().
+     */
+    private fun createWhereCondition(
+        sendingOrg: String,
+        cursor: OffsetDateTime? = null,
+        toEnd: OffsetDateTime? = null,
+        showFailed: Boolean
+    ): Condition {
+        val dateFilter: Condition = when (toEnd) {
+            null -> {
+                /* Only the end is given: all results between today and cutoff */
+                ACTION.ACTION_NAME.eq(TaskAction.receive)
+                    .and(ACTION.SENDING_ORG.eq(sendingOrg))
+            }
+            else -> {
+                /* Both given: all results between cursor and cutoff */
+                ACTION.ACTION_NAME.eq(TaskAction.receive)
+                    .and(ACTION.SENDING_ORG.eq(sendingOrg))
+                    .and(ACTION.CREATED_AT.between(toEnd, cursor))
+            }
+        }
+
+        val failedFilter: Condition = when (showFailed) {
+            true -> {
+                ACTION.HTTP_STATUS.between(200, 600)
+            }
+            false -> {
+                ACTION.HTTP_STATUS.between(200, 299)
+            }
+        }
+
+        return ACTION.ACTION_NAME.eq(TaskAction.receive)
+            .and(ACTION.SENDING_ORG.eq(sendingOrg))
+            .and(dateFilter)
+            .and(failedFilter)
     }
 
     private fun <P, U> detailedSubmissionSelect(
