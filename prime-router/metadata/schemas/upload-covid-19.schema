@@ -387,8 +387,8 @@ elements:
     - name: comment
       csvFields: [{name: comment}]
 
-#    - name: comment_source
-#      mapper: ifPresent(comment, L )
+    - name: comment_source
+      mapper: ifPresent(comment, L )
 
 
 ############### AOE fields
