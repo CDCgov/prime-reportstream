@@ -3,7 +3,30 @@
 ## General useful links:
 
 - All Schemas are documented here:  [Link to detailed schema dictionaries](./schema_documentation)
-- The Hub API is documented here: [Hub OpenApi Spec](./openapi.yml)
+- The ReportStream API is documented here: [Hub OpenApi Spec](./openapi.yml)
+
+## March 8, 2022
+### Consistent formatting of timestamps in API responses
+Updated the timestamp formats to have consistent precision and time zone in our API JSON responses.  Our API responses 
+still use the ISO 8601 standard, but we have updated all timestamps be in the UTC time zone as well as to always show
+a precision down to milliseconds.  This follows the pattern of `yyyy-MM-dd'T'HH:mm:ss.SSSXX` per 
+[Java's DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).
+
+Example updated timestamp: 2022-03-02T17:53:17.981Z
+
+### Submissions endpoint updates
+Additional cgi parameters have been added to the `/api/history/{organization}/submissions` endpoint:
+- `showfailed`: If set to `false`, will filter out failed submissions. Defaults to showing all submissions
+- `endcursor`: If set, submissions between `cursor` and `endcursor` timestamps will be returned
+
+## March 3, 2022
+### Added duplicate detection
+
+ReportStream will now reject duplicate submissions
+
+This feature is turned on by setting the allowDuplicates flag to false in the Sender's settings configuration.   By default the flag is true.  A duplicate submission will return a 400 error.
+
+A duplicate is considered identical if is byte-for-byte identical to an earlier successfully submitted payload from the same organization and sender.
 
 ## February 15, 2022
 ### Added new senders for our CSV Sending Pilot

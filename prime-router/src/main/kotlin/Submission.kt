@@ -35,8 +35,8 @@ class DetailedSubmissionHistory(
     @JsonProperty("sender")
     val sendingOrg: String?,
     val httpStatus: Int?,
-    @JsonInclude(Include.NON_NULL)
-    val externalName: String? = "",
+    val externalName: String? = null,
+    @JsonIgnore
     val actionResponse: DetailedActionResponse?,
     @JsonIgnore
     var reports: MutableList<DetailReport>?,
@@ -79,7 +79,7 @@ class DetailedSubmissionHistory(
                         logs?.filter {
                             it.type == ActionLog.ActionLogType.filter && it.reportId == report.reportId
                         }?.map { it.message },
-                        report.nextActionAt?.toString() ?: "",
+                        report.nextActionAt,
                         report.itemCount,
                     )
                 )
@@ -145,7 +145,7 @@ class DetailedSubmissionHistory(
                                 report.receivingOrg,
                                 report.receivingOrgSvc,
                                 listOf(),
-                                "",
+                                null,
                                 report.itemCount,
                             )
                         )
@@ -197,7 +197,8 @@ data class Destination(
     val service: String,
     val filteredReportRows: List<String>?,
     @JsonProperty("sending_at")
-    val sendingAt: String,
+    @JsonInclude(Include.NON_NULL)
+    val sendingAt: OffsetDateTime?,
     val itemCount: Int,
     var sentReports: MutableList<DetailReport> = mutableListOf(),
 ) {
@@ -216,7 +217,8 @@ class SubmissionHistory(
     val createdAt: OffsetDateTime,
     val sendingOrg: String,
     val httpStatus: Int,
-    @JsonInclude(Include.NON_NULL) val externalName: String? = "",
+    @JsonInclude(Include.NON_NULL)
+    val externalName: String? = "",
     actionResponse: ActionResponse,
 ) {
     @JsonUnwrapped

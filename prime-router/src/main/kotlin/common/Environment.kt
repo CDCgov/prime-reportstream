@@ -3,6 +3,7 @@ package gov.cdc.prime.router.common
 import gov.cdc.prime.router.cli.OktaCommand
 import java.lang.IllegalArgumentException
 import java.net.URL
+import java.time.ZoneOffset
 
 /**
  * Environment related information.
@@ -101,6 +102,11 @@ enum class Environment(
         fun isLocal(): Boolean {
             return get() == LOCAL
         }
+
+        /**
+         * Time zone to use for ReportStream. Note that Azure runs on UTC, so this forces our local runs to also be UTC.
+         */
+        val rsTimeZone: ZoneOffset = ZoneOffset.UTC
     }
 }
 

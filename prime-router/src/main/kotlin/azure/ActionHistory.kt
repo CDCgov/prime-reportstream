@@ -27,6 +27,8 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.ItemLineageRecord
+import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Configuration
 import org.jooq.DSLContext
@@ -34,9 +36,7 @@ import org.jooq.JSONB
 import org.jooq.impl.DSL
 import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
-import java.time.Instant
 import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -266,11 +266,12 @@ class ActionHistory : Logging {
     /**
      * Set the http status and verbose JSON response in the action table.
      * @param response the response created while processing the submitted report
-     * @param verboseResponse the generated verbose response with all details
+     * @param report the report that the action response is for
+     * @param settingsProvider settings provider, so it can be mocked for testing
      */
-    fun trackActionResponse(response: HttpResponseMessage, report: Report?) {
+    fun trackActionResponse(response: HttpResponseMessage, report: Report?, settingsProvider: SettingsProvider) {
         action.httpStatus = response.status.value()
-        val verboseResponse = createResponseBody(true, report)
+        val verboseResponse = createResponseBody(true, report, settingsProvider)
         this.trackActionResponse(verboseResponse)
     }
 
@@ -590,7 +591,7 @@ class ActionHistory : Logging {
         logger.debug("Queued event: ${event.toQueueMessage()}")
     }
 
-    private fun insertAll(txn: Configuration) {
+    internal fun insertAll(txn: Configuration) {
         action.actionId = insertAction(txn)
         reportsReceived.values.forEach { it.actionId = action.actionId }
         reportsOut.values.forEach { it.actionId = action.actionId }
@@ -628,7 +629,7 @@ class ActionHistory : Logging {
     /**
      * Returns the action_id PK of the newly inserted ACTION.
      */
-    private fun insertAction(txn: Configuration): Long {
+    internal fun insertAction(txn: Configuration): Long {
         val actionRecord = DSL.using(txn).newRecord(ACTION, action)
         actionRecord.store()
         val actionId = actionRecord.actionId
@@ -818,7 +819,8 @@ class ActionHistory : Logging {
                     "never - skipSend specified"
                 }
                 reportFile.nextActionAt != null -> {
-                    "${reportFile.nextActionAt}"
+                    JacksonMapperUtilities.timestampFormatter
+                        .format(reportFile.nextActionAt.withOffsetSameInstant(Environment.rsTimeZone))
                 }
                 else -> {
                     sendingAt
@@ -986,6 +988,7 @@ class ActionHistory : Logging {
     fun createResponseBody(
         verbose: Boolean,
         report: Report?,
+        settingsProvider: SettingsProvider
     ): String {
         val warnings = actionLogs.filter { it.type == ActionLog.ActionLogType.warning }
         val errors = actionLogs.filter { it.type == ActionLog.ActionLogType.error }
@@ -1001,7 +1004,10 @@ class ActionHistory : Logging {
                     "Only tracked incoming reports can generate a response."
                 }
                 it.writeStringField("id", report.id.toString())
-                it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
+                it.writeStringField(
+                    "timestamp",
+                    JacksonMapperUtilities.timestampFormatter.format(OffsetDateTime.now(Environment.rsTimeZone))
+                )
                 it.writeStringField("topic", report.schema.topic)
                 it.writeNumberField("reportItemCount", report.itemCount)
                 if (action.sendingOrg != null && action.sendingOrgClient != null)
@@ -1031,7 +1037,7 @@ class ActionHistory : Logging {
             } else
                 it.writeNullField("id")
 
-            this.prettyPrintDestinationsJson(it, WorkflowEngine.settingsProviderSingleton)
+            this.prettyPrintDestinationsJson(it, settingsProvider)
 
             it.writeNumberField("warningCount", warnings.size)
             it.writeNumberField("errorCount", errors.size)
