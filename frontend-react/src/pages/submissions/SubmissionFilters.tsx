@@ -1,12 +1,13 @@
 import React, { useContext } from "react";
-import { DatePicker, Label } from "@trussworks/react-uswds";
+import { DatePicker, Label, Button } from "@trussworks/react-uswds";
 
-import "./Submissions.css";
+import "./SubmissionPages.css";
 import { SubmissionFilterContext } from "./SubmissionContext";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
     DATE_CONTAINER = "date-picker-container",
+    APPLY_BUTTON = "apply-button",
 }
 
 export enum FieldNames {
@@ -21,7 +22,7 @@ const valueError = (field: FieldNames) =>
 /*
  * This component contains the UI for selecting query parameters.
  * When the `Apply` button is clicked, these should be updated in
- * a context wrapping this and the SubmissionsTable component. The
+ * a context wrapping this and the SubmissionTable component. The
  * table component contains the call and param passing to the API,
  * and will use the context to get these values.
  */
@@ -29,7 +30,10 @@ function SubmissionFilters() {
     const { filters, updateStartRange, updateEndRange } = useContext(
         SubmissionFilterContext
     );
-    const handleChange = (val: string | undefined, property: FieldNames) => {
+    const handleValueStateChange = (
+        val: string | undefined,
+        property: FieldNames
+    ) => {
         /* Catch null values */
         if (!val) {
             valueError(property);
@@ -67,7 +71,7 @@ function SubmissionFilters() {
                     placeholder="Start Date"
                     value={filters.startRange}
                     onChange={(val) => {
-                        handleChange(val, FieldNames.START_RANGE);
+                        handleValueStateChange(val, FieldNames.START_RANGE);
                     }}
                 />
             </div>
@@ -81,9 +85,19 @@ function SubmissionFilters() {
                     placeholder="End Date"
                     value={filters.endRange}
                     onChange={(val) => {
-                        handleChange(val, FieldNames.END_RANGE);
+                        handleValueStateChange(val, FieldNames.END_RANGE);
                     }}
                 />
+            </div>
+            <div className={StyleClass.DATE_CONTAINER}>
+                <button
+                    className={StyleClass.APPLY_BUTTON}
+                    onClick={() => {
+                        /* Callback function to trigger list refresh? */
+                    }}
+                >
+                    <span className="usa-link">Apply</span>
+                </button>
             </div>
         </div>
     );

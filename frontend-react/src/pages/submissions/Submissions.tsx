@@ -8,7 +8,7 @@ import { ErrorPage } from "../error/ErrorPage";
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
 
-import SubmissionTable from "./SubmissionsTable";
+import SubmissionTable from "./SubmissionTable";
 import SubmissionFilters from "./SubmissionFilters";
 import SubmissionContext from "./SubmissionContext";
 

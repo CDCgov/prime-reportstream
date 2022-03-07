@@ -1,7 +1,13 @@
 
 .filter-container {
     display: flex;
+    align-items: end;
     margin-bottom: 1em;
+}
+
+.apply-button {
+    background: none;
+    border: none;
 }
 
 .date-picker-container {
