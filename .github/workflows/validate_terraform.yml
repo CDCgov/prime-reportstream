@@ -35,7 +35,7 @@ jobs:
         working-directory: operations
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Verify Terraform Formatting
         run: |
@@ -53,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Login to Azure CLI
         uses: azure/login@v1

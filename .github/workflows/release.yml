@@ -23,7 +23,7 @@ jobs:
       has_react_change: ${{ steps.build_vars.outputs.has_react_change }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build vars
         id: build_vars
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build backend
         uses: ./.github/actions/build-backend
@@ -55,7 +55,7 @@ jobs:
         working-directory: frontend-react
     steps:
       - name: Check out changes
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build frontend
         uses: ./.github/actions/build-frontend
@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure

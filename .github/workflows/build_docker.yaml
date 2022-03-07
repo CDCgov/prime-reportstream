@@ -36,7 +36,7 @@ jobs:
         working-directory: operations
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build Docker Terraform CLI
         run: |
@@ -55,7 +55,7 @@ jobs:
         AZ_ENV: [ rkh5012, test, staging, prod ]
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build Docker Terraform CLI
         run: |
