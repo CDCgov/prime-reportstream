@@ -10,14 +10,12 @@ import { NavLink } from "react-router-dom";
 
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { GlobalContext } from "../../components/GlobalContextProvider";
-import { SubmissionFilterContext } from "./SubmissionContext";
 
 const SUBMISSION_PAGE_LENGTH = 10;
 
 function SubmissionTable() {
     // this component will refresh when global context changes (e.g. organization changes)
     const globalState = useContext(GlobalContext);
-    const { filters } = useContext(SubmissionFilterContext);
 
     // state of pagination
     const [paginationCursor, setPaginationCursor] = useState("");

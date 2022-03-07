@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { DatePicker, Label, Button } from "@trussworks/react-uswds";
+import { DatePicker, Label } from "@trussworks/react-uswds";
 
 import "./SubmissionPages.css";
 import { SubmissionFilterContext } from "./SubmissionContext";
