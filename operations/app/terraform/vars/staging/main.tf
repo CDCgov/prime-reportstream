@@ -106,6 +106,9 @@ module "network" {
 #   endpoint_subnet = module.network.endpoint_subnet_ids
 #   db_replica =  var.db_replica
 #   application_key_vault_id = module.key_vault.application_key_vault_id
+#   west_vnet_subnets        = module.vnet.west_vnet_subnets
+#   east_vnet_subnets        = module.vnet.east_vnet_subnets
+#   vnet_subnets             = module.vnet.vnet_subnets
 # }
 
 # module "storage" {

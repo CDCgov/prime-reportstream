@@ -50,3 +50,18 @@ variable "db_threat_detection" {}
 variable "endpoint_subnet" {}
 variable "db_replica" {}
 variable "application_key_vault_id" {}
+
+variable "west_vnet_subnets" {
+  type        = list(string)
+  description = "West Vnet subnets"
+}
+
+variable "east_vnet_subnets" {
+  type        = list(string)
+  description = "East Vnet subnets"
+}
+
+variable "vnet_subnets" {
+  type        = list(string)
+  description = "Vnet subnets"
+}

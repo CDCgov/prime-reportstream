@@ -50,6 +50,7 @@ module "postgres_private_endpoint" {
   location       = var.location
 
   endpoint_subnet_ids = var.endpoint_subnet
+  exclude_subnets     = concat(var.west_vnet_subnets)
 
   endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
 }
@@ -111,6 +112,7 @@ module "postgres_private_endpoint_replica" {
   location       = azurerm_postgresql_server.postgres_server_replica[0].location
 
   endpoint_subnet_ids = var.endpoint_subnet
+  exclude_subnets     = concat(var.east_vnet_subnets, var.vnet_subnets)
 
   endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
 }

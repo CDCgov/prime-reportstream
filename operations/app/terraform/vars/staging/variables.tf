@@ -144,5 +144,5 @@ variable "db_threat_detection" {
 }
 
 variable "db_replica" {
-  default = false
+  default = true
 }
