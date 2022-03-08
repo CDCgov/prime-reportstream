@@ -180,13 +180,32 @@ object DateUtilities {
     }
 
     /**
+     * Given a temporal accessor and a report object, this will attempt to format the date for a
+     * receiver, by doing some checking on what is set for the receiver of the report.
+     */
+    fun formatDateForReceiver(dateTimeValue: TemporalAccessor, report: Report? = null): String {
+        val hl7Config = report?.destination?.translation as? Hl7Configuration
+        // get the formatter based on the high precision header date time format
+        val formatter: DateTimeFormatter = getFormatter(
+            report?.destination?.dateTimeFormat,
+            hl7Config?.useHighPrecisionHeaderDateTimeFormat
+        )
+        // return the actual date
+        return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
+            convertPositiveOffsetToNegativeOffset(formatter.format(dateTimeValue))
+        } else {
+            formatter.format(dateTimeValue)
+        }
+    }
+
+    /**
      * Given a report object, looks at varying configuration options, and outputs the correctly formatted
      * timestamp for our needs. This is primarily used by the HL7 serializer, but could be generalized out
      * further to allow for the CSV serializer and others to use it too
      */
     fun nowTimestamp(report: Report? = null): String {
         val hl7Config = report?.destination?.translation as? Hl7Configuration
-        // check to see if the timezone for the receiver is not null and if want to convert to the local
+        // check to see if the timezone for the receiver is not null and if we want to convert to the local
         // timezone for the receiver
         val timezone = if (
             hl7Config?.convertDateTimesToReceiverLocalTime == true && report.destination.timeZone != null
@@ -196,17 +215,8 @@ object DateUtilities {
             ZoneId.systemDefault()
         }
         val timestamp = ZonedDateTime.now(timezone)
-        // get the formatter based on the high precision header date time format
-        val formatter: DateTimeFormatter = getFormatter(
-            report?.destination?.dateTimeFormat,
-            hl7Config?.useHighPrecisionHeaderDateTimeFormat
-        )
-        // return the actual date
-        return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
-            DateUtilities.convertPositiveOffsetToNegativeOffset(formatter.format(timestamp))
-        } else {
-            formatter.format(timestamp)
-        }
+        // now format the date to what the receiver wants
+        return formatDateForReceiver(timestamp, report)
     }
 
     /**

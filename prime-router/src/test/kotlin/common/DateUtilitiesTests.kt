@@ -280,10 +280,43 @@ class DateUtilitiesTests {
         assertThat(duration.toHours()).isBetween(3, 4)
     }
 
+    @Test
+    fun `test format date for receiver`() {
+        // arrange
+        val report = mockkClass(Report::class)
+        val receiver = mockkClass(Receiver::class)
+        every { receiver.timeZone }.returns(USTimeZone.EASTERN)
+        every { receiver.translation }.returns(
+            createConfig(convertDateTimesToReceiverLocalTime = true)
+        )
+        every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.LOCAL)
+        every { report.destination }.returns(receiver)
+        // act
+        val dateTimeValue = ZonedDateTime.parse(zonedDateTimeValue)
+        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+            // assert
+            assertThat(this).isEqualTo("20220104110000")
+        }
+        // again
+        every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.OFFSET)
+        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+            // assert
+            assertThat(this).isEqualTo("202201041100-0500")
+        }
+        // once more
+        every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.HIGHPRECISIONOFFSET)
+        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+            // assert
+            assertThat(this).isEqualTo("20220104110000.000-0500")
+        }
+    }
+
     companion object {
         // this regex checks for 14 digits, then a period, three digits, and then the offset
         val highPrecisionTimeStampRegex = "\\d{14}\\.\\d{3}[-|+]\\d{4}".toRegex()
         // this regex checks for 12 digits, and then the offset sign, and then four more digits
         val lowPrecisionTimeStampRegex = "^\\d{12}[-|+]\\d{4}".toRegex()
+        // a const value for the zoned date time type
+        const val zonedDateTimeValue = "2022-01-04T11:00:00-05:00[US/Eastern]"
     }
 }
