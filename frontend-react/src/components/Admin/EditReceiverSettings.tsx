@@ -8,6 +8,7 @@ import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsReso
 import { showAlertNotification, showError } from "../AlertNotifications";
 import { getStoredOktaToken, getStoredOrg } from "../GlobalContextProvider";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
+import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 
 import { ConfirmSaveSettingModal } from "./CompareJsonModal";
 import {
@@ -33,9 +34,9 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
         );
 
         const { fetch: fetchController } = useController();
-        const [orgReceiverSettingsOld, setOrgReceiverSettingsOld] =
+        const [orgReceiverSettingsOldJson, setOrgReceiverSettingsOldJson] =
             useState("");
-        const [orgReceiverSettingsNew, setOrgReceiverSettingsNew] =
+        const [orgReceiverSettingsNewJson, setOrgReceiverSettingsNewJson] =
             useState("");
         const { invalidate } = useController();
 
@@ -60,10 +61,10 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                 );
 
                 const responseBody = await response.json();
-                setOrgReceiverSettingsOld(
+                setOrgReceiverSettingsOldJson(
                     JSON.stringify(responseBody, jsonSortReplacer, 2)
                 );
-                setOrgReceiverSettingsNew(
+                setOrgReceiverSettingsNewJson(
                     JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2)
                 );
 
@@ -86,10 +87,12 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
             switch (action) {
                 case "edit":
                     try {
-                        // @ts-ignore
-                        const data = diffEditorRef.current
-                            .getModifiedEditor()
-                            .getValue();
+                        const data = CheckFeatureFlag("showDiffEditor")
+                            ? // @ts-ignore
+                              diffEditorRef.current
+                                  .getModifiedEditor()
+                                  .getValue()
+                            : orgReceiverSettingsNewJson;
 
                         await fetchController(
                             OrgReceiverSettingsResource.update(),
@@ -284,8 +287,8 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     }
                     onConfirm={saveReceiverData}
                     modalRef={modalRef}
-                    oldjson={orgReceiverSettingsOld}
-                    newjson={orgReceiverSettingsNew}
+                    oldjson={orgReceiverSettingsOldJson}
+                    newjson={orgReceiverSettingsNewJson}
                     handleEditorDidMount={handleEditorDidMount}
                 />
             </GridContainer>
