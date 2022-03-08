@@ -1,6 +1,8 @@
+import { stringify } from "querystring";
 import React from "react";
 
 interface TestObj {
+    [key:string]: any;
     fieldA: string;
     fieldB: number;
     transform?: Map<string, Function>
@@ -13,25 +15,13 @@ interface PaginatedTableProps<T> {
 const PaginatedTable: React.FC<PaginatedTableProps<TestObj>> = (props) => {
 
     function transformData() {
-        // TODO: Instructions for transformData()
-        // 1. Iterate through Map.
-        //
-        // 2. For each item in the transform ma[, use the key to
-        //    access the value in the TestObj.
-        //
-        // 3. Perform transformation function on the value and
-        //    overwrite the old value with the transformed value
-        //    at the TestObj layer
-        //
         // ex: { a: 1, b: 2, transform: Map([['b', addOne]])} ->
         //     { a: 1, b: 3, transform: Map([['b', addOne]])}
         props.objects.forEach((obj) => {
-            console.log(obj.fieldA);
             if (obj.transform) {
-                for (let entry of obj.transform.entries())
-                {
-                    console.log(entry)
-                }
+                obj.transform.forEach((transform, key)=>{
+                    obj[key] = transform(obj[key])
+                })                
             }
         });
     }
