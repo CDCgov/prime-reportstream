@@ -6,7 +6,7 @@ export default class OrgSenderSettingsResource extends OrgSettingsBaseResource {
     topic: string = "";
     customerStatus: string = "";
     schemaName: string = "";
-    keys: string[] = [];
+    keys: object = [];
     processingType: string = "";
 
     pk() {
