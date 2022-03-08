@@ -11,32 +11,31 @@ import { NavLink } from "react-router-dom";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { GlobalContext } from "../../components/GlobalContextProvider";
 
-const SUBMISSION_PAGE_LENGTH = 10;
+import { SubmissionFilterContext } from "./SubmissionContext";
 
 function SubmissionTable() {
     // this component will refresh when global context changes (e.g. organization changes)
     const globalState = useContext(GlobalContext);
-
-    // state of pagination
-    const [paginationCursor, setPaginationCursor] = useState("");
-    const [paginationSort, setPaginationSort] = useState("DESC");
-
-    const submissions: SubmissionsResource[] = useResource(
-        SubmissionsResource.list(),
-        {
-            organization: globalState.state.organization,
-            cursor: paginationCursor,
-            endCursor: "", // To be implemented with date-range filtering UI
-            pageSize: SUBMISSION_PAGE_LENGTH,
-            sort: paginationSort,
-            showFailed: false, // No plans for this to be set to true
-        }
+    const { filters, updateStartRange, updateSortOrder } = useContext(
+        SubmissionFilterContext
     );
 
     // we can tell if we're on the first page by saving the first result and then checking against it later
     const [firstPaginationCursor, setFirstPaginationCursor] = useState("");
     const [atLeastOneEntry, setAtLeastOneEntry] = useState(false);
     const [moreThanOnePage, setMoreThanOnePage] = useState(false);
+
+    const submissions: SubmissionsResource[] = useResource(
+        SubmissionsResource.list(),
+        {
+            organization: globalState.state.organization,
+            cursor: filters.startRange,
+            endCursor: filters.endRange,
+            pageSize: filters.pageSize,
+            sort: filters.sortOrder,
+            showFailed: false, // No plans for this to be set to true
+        }
+    );
 
     // after the first page loads, set up some state info about the data.
     useEffect(() => {
@@ -49,8 +48,8 @@ function SubmissionTable() {
         }
         setAtLeastOneEntry(true); // otherwise !submissions?.length would have returned
         setFirstPaginationCursor(submissions[0].createdAt || "");
-        setMoreThanOnePage(submissions.length >= SUBMISSION_PAGE_LENGTH);
-    }, [atLeastOneEntry, submissions]);
+        setMoreThanOnePage(submissions.length >= filters.pageSize);
+    }, [atLeastOneEntry, filters.pageSize, submissions]);
 
     const getSortedSubmissions = (): SubmissionsResource[] => {
         submissions?.sort((a, b) => SubmissionsResource.sortByCreatedAt(a, b));
@@ -79,8 +78,8 @@ function SubmissionTable() {
         }
         const cursor = next ? getCursorEnd() : getCursorStart();
         const sort = next ? "DESC" : "ASC";
-        setPaginationCursor(cursor);
-        setPaginationSort(sort);
+        updateStartRange!!(cursor);
+        updateSortOrder!!(sort);
     };
 
     const onFirstPage = () => {
@@ -92,7 +91,7 @@ function SubmissionTable() {
     // the requested page size to tell if it is the last page,
     // and then leave a message if there are no results on the next page
     const onLastPage = () => {
-        return submissions?.length !== SUBMISSION_PAGE_LENGTH;
+        return submissions?.length !== filters.pageSize;
     };
 
     const NextPrevButtonsComponent = () => {
@@ -137,10 +136,11 @@ function SubmissionTable() {
                 >
                     <thead>
                         <tr>
+                            <th scope="col">Report ID</th>
                             <th scope="col">Date/time submitted</th>
                             <th scope="col">File</th>
                             <th scope="col">Records</th>
-                            <th scope="col">Report ID</th>
+                            <th scope="col">Status</th>
                         </tr>
                     </thead>
                     <tbody id="tBody" className="font-mono-2xs">
@@ -151,24 +151,25 @@ function SubmissionTable() {
                                         <NavLink
                                             to={`/submissions/${s.taskId}`}
                                         >
-                                            {new Date(
-                                                s.createdAt
-                                            ).toLocaleString()}
+                                            {s.id}
                                         </NavLink>
                                     </th>
                                     {/* File name */}
+                                    <th scope="row">
+                                        {new Date(s.createdAt).toLocaleString()}
+                                    </th>
                                     <th scope="row">{s.externalName}</th>
                                     <th scope="row">{s.reportItemCount}</th>
-                                    <th scope="row">{s.id}</th>
+                                    <th scope="row">{"Success"}</th>
                                 </tr>
                             );
                         })}
                     </tbody>
                 </table>
-                {submissions?.length === 0 && !paginationCursor && (
+                {submissions?.length === 0 && !atLeastOneEntry && (
                     <p>There were no results found.</p>
                 )}
-                {submissions?.length === 0 && paginationCursor && (
+                {submissions?.length === 0 && atLeastOneEntry && (
                     <p>No more results found.</p>
                 )}
                 <NextPrevButtonsComponent />

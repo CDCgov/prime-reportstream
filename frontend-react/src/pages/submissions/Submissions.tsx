@@ -25,16 +25,16 @@ function Submissions() {
             <section className="grid-container margin-top-5">
                 <Title title="COVID-19" preTitle={orgName} />
             </section>
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="message" />}
-            >
-                <Suspense fallback={<Spinner />}>
-                    <SubmissionContext>
+            <SubmissionContext>
+                <NetworkErrorBoundary
+                    fallbackComponent={() => <ErrorPage type="message" />}
+                >
+                    <Suspense fallback={<Spinner />}>
                         <SubmissionFilters />
                         <SubmissionTable />
-                    </SubmissionContext>
-                </Suspense>
-            </NetworkErrorBoundary>
+                    </Suspense>
+                </NetworkErrorBoundary>
+            </SubmissionContext>
             <HipaaNotice />
         </NetworkErrorBoundary>
     );

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { DatePicker, Label } from "@trussworks/react-uswds";
 
 import "./SubmissionPages.css";
@@ -30,6 +30,15 @@ function SubmissionFilters() {
     const { filters, updateStartRange, updateEndRange } = useContext(
         SubmissionFilterContext
     );
+    const [startRange, setStartRange] = useState<string>();
+    const [endRange, setEndRange] = useState<string>();
+
+    const applyToContext = () => {
+        handleValueStateChange(startRange, FieldNames.START_RANGE);
+        handleValueStateChange(endRange, FieldNames.END_RANGE);
+    };
+
+    /* This workhorse function handles all Context changes with null checking */
     const handleValueStateChange = (
         val: string | undefined,
         property: FieldNames
@@ -46,7 +55,7 @@ function SubmissionFilters() {
                     fieldError(FieldNames.START_RANGE);
                     return;
                 }
-                updateStartRange(val);
+                updateStartRange(new Date(val).toISOString());
                 break;
             case FieldNames.END_RANGE:
                 /* Catches null updater */
@@ -54,7 +63,7 @@ function SubmissionFilters() {
                     fieldError(FieldNames.END_RANGE);
                     return;
                 }
-                updateEndRange(val);
+                updateEndRange(new Date(val).toISOString());
                 break;
         }
     };
@@ -70,9 +79,7 @@ function SubmissionFilters() {
                     name="start-date-picker"
                     placeholder="Start Date"
                     value={filters.startRange}
-                    onChange={(val) => {
-                        handleValueStateChange(val, FieldNames.START_RANGE);
-                    }}
+                    onChange={(val) => setStartRange(val)}
                 />
             </div>
             <div className={StyleClass.DATE_CONTAINER}>
@@ -84,17 +91,13 @@ function SubmissionFilters() {
                     name="end-date-picker"
                     placeholder="End Date"
                     value={filters.endRange}
-                    onChange={(val) => {
-                        handleValueStateChange(val, FieldNames.END_RANGE);
-                    }}
+                    onChange={(val) => setEndRange(val)}
                 />
             </div>
             <div className={StyleClass.DATE_CONTAINER}>
                 <button
                     className={StyleClass.APPLY_BUTTON}
-                    onClick={() => {
-                        /* Callback function to trigger list refresh? */
-                    }}
+                    onClick={() => applyToContext()}
                 >
                     <span className="usa-link">Apply</span>
                 </button>
