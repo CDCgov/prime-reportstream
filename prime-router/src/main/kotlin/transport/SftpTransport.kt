@@ -82,7 +82,7 @@ class SftpTransport : ITransport, Logging {
         }
     }
 
-    companion object {
+    companion object : Logging {
 
         /**
          * Connect to a [receiver].  If the [credential] is not specified then it is fetched from the vault.
@@ -200,7 +200,7 @@ class SftpTransport : ITransport, Logging {
                 // and we need to check the root cause
                 if (ce.cause is java.util.concurrent.TimeoutException) {
                     // do nothing. some servers just take a long time to disconnect
-                    logger().warn("Connection exception during ls: ${ce.localizedMessage}")
+                    logger.warn("Connection exception during ls: ${ce.localizedMessage}")
                 } else {
                     throw ce
                 }
@@ -228,7 +228,7 @@ class SftpTransport : ITransport, Logging {
                 // and we need to check the root cause
                 if (ce.cause is java.util.concurrent.TimeoutException) {
                     // do nothing. some servers just take a long time to disconnect
-                    logger().warn("Connection exception during ls: ${ce.localizedMessage}")
+                    logger.warn("Connection exception during ls: ${ce.localizedMessage}")
                 } else {
                     throw ce
                 }
@@ -253,7 +253,7 @@ class SftpTransport : ITransport, Logging {
                 // and we need to check the root cause
                 if (ce.cause is java.util.concurrent.TimeoutException) {
                     // do nothing. some servers just take a long time to disconnect
-                    logger().warn("Connection exception during ls: ${ce.localizedMessage}")
+                    logger.warn("Connection exception during ls: ${ce.localizedMessage}")
                 } else {
                     throw ce
                 }

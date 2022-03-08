@@ -112,7 +112,7 @@ compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
     // Delete the old Maven build folder
-    dependsOn("composeDown")
+    dependsOn("composeDownForced")
     delete("target")
     // clean up all the old event files in the SOAP set up
     doLast {
