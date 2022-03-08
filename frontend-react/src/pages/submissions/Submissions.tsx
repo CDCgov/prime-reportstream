@@ -11,6 +11,22 @@ import Title from "../../components/Title";
 import SubmissionTable from "./SubmissionTable";
 import SubmissionFilters from "./SubmissionFilters";
 import SubmissionContext from "./SubmissionContext";
+import PaginatedTable from "../../components/PaginatedTable";
+
+
+// TEST CODE WOOHOO!
+function addOne(val: number) {
+    return val + 1
+}
+
+const obj = {
+    fieldA: "hello",
+    fieldB: 122,
+    instructions: new Map<string, Function>([
+        ["fieldB", addOne]
+    ])
+}
+
 
 function Submissions() {
     const orgName: string = useOrgName();
@@ -31,7 +47,8 @@ function Submissions() {
                 >
                     <Suspense fallback={<Spinner />}>
                         <SubmissionFilters />
-                        <SubmissionTable />
+                        {/*<SubmissionTable />*/}
+                        <PaginatedTable objects={[obj]}/>
                     </Suspense>
                 </NetworkErrorBoundary>
             </SubmissionContext>
