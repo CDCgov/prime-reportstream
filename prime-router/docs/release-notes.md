@@ -14,11 +14,6 @@ a precision down to milliseconds.  This follows the pattern of `yyyy-MM-dd'T'HH:
 
 Example updated timestamp: 2022-03-02T17:53:17.981Z
 
-### Submissions endpoint updates
-Additional cgi parameters have been added to the `/api/history/{organization}/submissions` endpoint:
-- `showfailed`: If set to `false`, will filter out failed submissions. Defaults to showing all submissions
-- `endcursor`: If set, submissions between `cursor` and `endcursor` timestamps will be returned
-
 ## March 3, 2022
 ### Added duplicate detection
 
