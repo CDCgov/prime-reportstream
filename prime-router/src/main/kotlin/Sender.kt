@@ -11,13 +11,13 @@ import gov.cdc.prime.router.tokens.JwkSet
  *
  * @property name the name of this sender - if only one send for an org, it is default
  * @property organizationName the name of the organization that this sender belongs to
- * @property format
- * @property topic
- * @property customerStatus
- * @property schemaName
+ * @property format the primary format of the reports from the sender
+ * @property topic the topic of the reports from the sender currently always covid 19
+ * @property customerStatus the status of the sender active inactive
+ * @property schemaName the name of the schema used by the sender
  * @property keys used to track server-to-server auths for this sender via public keys sets
  * @property processingType sync or async
- * @property allowDuplicates
+ * @property allowDuplicates if false a duplicate submission will be rejected
  * @property senderType one of four broad sender categories
  * @property primarySubmissionMethod Sender preference for submission - manual or automatic
  */
