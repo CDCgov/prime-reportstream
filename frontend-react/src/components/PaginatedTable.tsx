@@ -1,11 +1,10 @@
-import { stringify } from "querystring";
 import React from "react";
 
 interface TestObj {
-    [key:string]: any;
+    [key: string]: any;
     fieldA: string;
     fieldB: number;
-    transform?: Map<string, Function>
+    transform?: Map<string, Function>;
 }
 
 interface PaginatedTableProps<T> {
@@ -26,10 +25,17 @@ const PaginatedTable: React.FC<PaginatedTableProps<TestObj>> = (props) => {
         });
     }
 
-    const extractHeaders = () => {
+    const transformHeaders = (): string[] => {
         // TODO: Instructions for extractHeaders()
         // I'll add these in later
         // Return transformed (capitalized first letter) headers
+        const newHeaders: Array<string> = []
+        props.objects.forEach(obj => {
+            Object.entries(obj).forEach(key =>
+                newHeaders.push(key[0].toUpperCase() + key.slice(1))
+            )
+        })
+        return newHeaders
     }
 
     // Pull field names and stylize them
