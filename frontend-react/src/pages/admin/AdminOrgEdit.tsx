@@ -24,6 +24,7 @@ import {
 } from "../../components/GlobalContextProvider";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import { ConfirmSaveSettingModal } from "../../components/Admin/CompareJsonModal";
+import { CheckFeatureFlag } from "../misc/FeatureFlags";
 
 type AdminOrgEditProps = {
     orgname: string;
@@ -40,8 +41,8 @@ export function AdminOrgEdit({
     const modalRef = useRef<ModalRef>(null);
     const diffEditorRef = useRef(null);
 
-    const [orgSettingsOld, setOrgSettingsOld] = useState("");
-    const [orgSettingsNew, setOrgSettingsNew] = useState("");
+    const [orgSettingsOldJson, setOrgSettingsOldJson] = useState("");
+    const [orgSettingsNewJson, setOrgSettingsNewJson] = useState("");
     const { fetch: fetchController } = useController();
 
     function handleEditorDidMount(editor: null) {
@@ -65,10 +66,12 @@ export function AdminOrgEdit({
             );
 
             const responseBody = await response.json();
-            setOrgSettingsOld(
+            setOrgSettingsOldJson(
                 JSON.stringify(responseBody, jsonSortReplacer, 2)
             );
-            setOrgSettingsNew(JSON.stringify(orgSettings, jsonSortReplacer, 2));
+            setOrgSettingsNewJson(
+                JSON.stringify(orgSettings, jsonSortReplacer, 2)
+            );
 
             modalRef?.current?.toggleModal(undefined, true);
         } catch (e) {
@@ -78,8 +81,10 @@ export function AdminOrgEdit({
 
     const saveOrgData = async () => {
         try {
-            // @ts-ignore
-            const data = diffEditorRef.current.getModifiedEditor().getValue();
+            const data = CheckFeatureFlag("showDiffEditor")
+                ? // @ts-ignore
+                  diffEditorRef.current.getModifiedEditor().getValue()
+                : orgSettingsNewJson;
 
             await fetchController(
                 OrgSettingsResource.update(),
@@ -184,8 +189,8 @@ export function AdminOrgEdit({
                                 uniquid={orgname}
                                 onConfirm={saveOrgData}
                                 modalRef={modalRef}
-                                oldjson={orgSettingsOld}
-                                newjson={orgSettingsNew}
+                                oldjson={orgSettingsOldJson}
+                                newjson={orgSettingsNewJson}
                                 handleEditorDidMount={handleEditorDidMount}
                             />
                         </GridContainer>
