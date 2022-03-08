@@ -135,9 +135,10 @@ export const SystemsAndSettings = () => {
 
                 <p>
                     ReportStream uses a Secure File Transfer Protocol (SFTP)
-                    standard ELR connection. Public health departments using the
-                    ReportStream ELR can request data be sent in real time, or
-                    batched according to your needs.
+                    standard Electronic Laboratory Reporting (ELR) connection.
+                    Public health departments using the ReportStream ELR can
+                    request data be sent in real time, or batched according to
+                    your needs.
                 </p>
 
                 <p>
