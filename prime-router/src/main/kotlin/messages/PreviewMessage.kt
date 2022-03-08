@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.messages
 
-import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.DeepOrganization
 
 /**
@@ -27,7 +26,7 @@ sealed interface PreviewResponseMessage {
         val receiverName: String,
         val externalFileName: String,
         val content: String,
-        val warnings: List<ActionLog> = emptyList()
+        val warnings: List<String> = emptyList()
     ) : PreviewResponseMessage
 
     /**
@@ -35,7 +34,7 @@ sealed interface PreviewResponseMessage {
      */
     data class Error(
         val message: String,
-        val errors: List<ActionLog> = emptyList(),
-        val warnings: List<ActionLog> = emptyList()
+        val errors: List<String> = emptyList(),
+        val warnings: List<String> = emptyList()
     ) : PreviewResponseMessage
 }

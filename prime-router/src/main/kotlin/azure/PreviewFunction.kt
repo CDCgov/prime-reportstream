@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -22,7 +24,7 @@ class PreviewFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine()
 ) : Logging {
     /**
-     * The preview end-point does a translation of the input message to the output payload
+     * The preview end-point does a translation of the input message to the output payload.
      */
     @FunctionName("preview")
     fun preview(
@@ -48,21 +50,31 @@ class PreviewFunction(
         }
     }
 
-    private fun badRequest(
-        message: String,
-        errors: List<ActionLog> = emptyList(),
-        warnings: List<ActionLog> = emptyList()
-    ): Nothing {
-        val previewErrorMessage = PreviewResponseMessage.Error(message, errors, warnings)
-        val response = mapper.writeValueAsString(previewErrorMessage)
-        throw IllegalArgumentException(response)
-    }
-
+    /**
+     * Encapsulate the parameters of the functions.
+     */
     data class FunctionParameters(
         val previewMessage: PreviewMessage,
         val receiver: Receiver,
         val sender: Sender,
     )
+
+    /**
+     * Throw an [IllegalArgumentException] with a message based on [message], [errors] and [warnings].
+     */
+    private fun badRequest(
+        message: String,
+        errors: List<ActionLog> = emptyList(),
+        warnings: List<ActionLog> = emptyList()
+    ): Nothing {
+        val previewErrorMessage = PreviewResponseMessage.Error(
+            message,
+            errors.map { it.toSummary() },
+            warnings.map { it.toSummary() }
+        )
+        val response = mapper.writeValueAsString(previewErrorMessage)
+        throw IllegalArgumentException(response)
+    }
 
     /**
      * Look at the request body.
@@ -104,7 +116,7 @@ class PreviewFunction(
             warnings.addAll(parseWarnings)
             report
         } catch (ae: ActionError) {
-            badRequest("Unable to deserialize report", errors = ae.details)
+            badRequest("Unable to parse input report", errors = ae.details)
         }
     }
 
@@ -141,11 +153,21 @@ class PreviewFunction(
             receiverName = parameters.receiver.fullName,
             externalFileName = externalName,
             content = content,
-            warnings = warnings
+            warnings = warnings.map { it.toSummary() }
         )
     }
 
+    /**
+     * Summarize the [ActionLog]
+     */
+    private fun ActionLog.toSummary(): String {
+        return "$detail"
+    }
+
     companion object {
-        private val mapper = jacksonMapperBuilder().build()
+        private val mapper = jacksonMapperBuilder()
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .build()
+            .registerModule(JavaTimeModule())
     }
 }

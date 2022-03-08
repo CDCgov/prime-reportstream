@@ -19,8 +19,6 @@ import com.github.ajalt.clikt.parameters.types.file
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.result.getOrElse
-import com.github.kittinunf.result.map
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
@@ -28,6 +26,7 @@ import gov.cdc.prime.router.messages.PreviewMessage
 import gov.cdc.prime.router.messages.PreviewResponseMessage
 import gov.cdc.prime.router.messages.ReceiverMessage
 import gov.cdc.prime.router.messages.SenderMessage
+import org.apache.http.HttpStatus
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -65,7 +64,7 @@ class PreviewCommand : CliktCommand(
     private val senderNameOption by option(
         "--sender-name",
         metavar = "<org-name>.<sender-name>",
-        help = "Instead of a settings file, use the environment's settings"
+        help = "Instead of a settings file, use the environment's existing settings"
     )
 
     private val senderFile by option(
@@ -77,7 +76,7 @@ class PreviewCommand : CliktCommand(
     private val receiverNameOption by option(
         "--receiver-name",
         metavar = "<org-name>.<receiver.name>",
-        help = "Instead of a settings file, use the environment's settings"
+        help = "Instead of a settings file, use the environment's existing settings"
     )
 
     private val receiverFile by option(
@@ -129,27 +128,28 @@ class PreviewCommand : CliktCommand(
     override fun run() {
         try {
             getPreview()
-                .echoWarnings()
+                .echoWarningsAndErrors()
                 .saveReportFiles()
         } catch (e: PrintMessage) {
             // PrintMessage is the standard way to exit a command
             throw e
         } catch (e: Exception) {
+            // Unexpected internal error
             abort("CLI Internal Error: ${e.message}")
         }
     }
 
     /**
-     * Call the sender-files api and retrieve a list of sender files.
+     * Call the preview api and return the result, either a result or errors
      */
-    private fun getPreview(): PreviewResponseMessage.Success {
+    private fun getPreview(): PreviewResponseMessage {
         // Setup
         val path = environment.value.formUrl("api/preview")
         val previewMessage = formPreviewBody()
 
         // Call the API
         verbose("POST $path with: \n$previewMessage")
-        val (_, response, result) = Fuel
+        val (_, response, _) = Fuel
             .post(path.toString())
             .body(previewMessage)
             .authentication()
@@ -158,22 +158,29 @@ class PreviewCommand : CliktCommand(
             .timeoutRead(CommandUtilities.API_TIMEOUT_MSECS * 10)
             .responseString()
 
-        return result.map {
-            jsonMapper.readValue(it, PreviewResponseMessage.Success::class.java)
-        }.getOrElse {
-            abort(
-                """
-                Error calling the preview API
-                Status Code: ${response.statusCode}
-                Message: ${response.responseMessage}
-                Details: ${String(response.body().toByteArray())}
-                """.trimIndent()
-            )
+        val body = String(response.body().toByteArray())
+        return when (response.statusCode) {
+            HttpStatus.SC_OK -> {
+                jsonMapper.readValue(body, PreviewResponseMessage.Success::class.java)
+            }
+            HttpStatus.SC_BAD_REQUEST -> {
+                jsonMapper.readValue(body, PreviewResponseMessage.Error::class.java)
+            }
+            else -> {
+                abort(
+                    """
+                    Error calling the preview API
+                    Status Code: ${response.statusCode}
+                    Message: ${response.responseMessage}
+                    Details: $body
+                    """.trimIndent()
+                )
+            }
         }
     }
 
     /**
-     * Build a preview request body from the command lines arguments
+     * Build a preview request body from the command line's arguments
      */
     private fun formPreviewBody(): String {
         val sender = senderFile?.let {
@@ -214,21 +221,41 @@ class PreviewCommand : CliktCommand(
     }
 
     /**
-     * Echo the warnings in the [PreviewResponseMessage]
+     * Echo the warnings and errors in the [PreviewResponseMessage]
      */
-    private fun PreviewResponseMessage.Success.echoWarnings(): PreviewResponseMessage.Success {
-        warnings.forEach {
-            echo("Warning: $it")
+    private fun PreviewResponseMessage.echoWarningsAndErrors(): PreviewResponseMessage {
+        when (this) {
+            is PreviewResponseMessage.Success -> {
+                warnings.forEach {
+                    echo("Warning: $it")
+                }
+            }
+            is PreviewResponseMessage.Error -> {
+                echo(message)
+                errors.forEach {
+                    echo("Error: $it")
+                }
+                warnings.forEach {
+                    echo("Warning: $it")
+                }
+            }
         }
         return this
     }
 
     /**
-     * Save a report file message
+     * Save a report file in the response if present
      */
-    private fun PreviewResponseMessage.Success.saveReportFiles(): PreviewResponseMessage.Success {
-        createDirectory(Path(outDirectory))
-        saveFile(Path(outDirectory, this.externalFileName), this.content)
+    private fun PreviewResponseMessage.saveReportFiles(): PreviewResponseMessage {
+        when (this) {
+            is PreviewResponseMessage.Success -> {
+                createDirectory(Path(outDirectory))
+                saveFile(Path(outDirectory, externalFileName), content)
+            }
+            is PreviewResponseMessage.Error -> {
+                // No file
+            }
+        }
         return this
     }
 
