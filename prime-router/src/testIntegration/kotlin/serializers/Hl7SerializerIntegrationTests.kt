@@ -109,7 +109,7 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
-    fun `Test write batch`() {
+    fun `test write batch`() {
         val outputStream = ByteArrayOutputStream()
         serializer.writeBatch(testReport, outputStream)
         val output = outputStream.toString(StandardCharsets.UTF_8)
@@ -666,5 +666,23 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(msh42).isEqualTo("correctText-YES!")
         assertThat(msh43).isEqualTo("correctText-YES!")
         assertThat(msh10).isEqualTo("yeah/success")
+    }
+
+    @Test
+    fun `test NTE Source`() {
+        val parser = context.pipeParser
+
+        val inputStream = File("./src/test/unit_test_files/csv-upload-test.csv").inputStream()
+        val schema = "upload-covid-19"
+        val hl7Config = createConfig()
+        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
+        val testReport = translator.translateByReceiver(pdiInput, receiver)
+        val output = serializer.buildMessage(testReport, 0)
+        val hapiMsg = parser.parse(output.toString())
+        val terser = Terser(hapiMsg)
+        val nte22 = terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE(0)-2-2")
+
+        assertThat(nte22).isEqualTo("")
     }
 }
