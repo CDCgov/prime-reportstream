@@ -670,10 +670,11 @@ NTE|1|L|This is a final comment|RE"""
         val output = serializer.buildMessage(testReport, 0)
         val hapiMsg = parser.parse(output.toString())
         val terser = Terser(hapiMsg)
-        val nte21 = terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE(0)-2-1")
+        val nte21 = terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE(0)-2-1") ?: ""
         val nte22 = terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE(0)-2-2")
 
-        assertThat(nte21).isNotNull()
-        assertThat(nte22).isEqualTo(null)
+        if (nte21.isNotEmpty()) {
+            assertThat(nte22).isEqualTo(null)
+        }
     }
 }
