@@ -199,6 +199,7 @@ class TranslationTests {
                         )
                     )
                 }
+                expectedStream.close()
 
                 if (!config.shouldPass && result.passed) result.errors.add("Test was expected to fail, but passed.")
                 assertEquals(

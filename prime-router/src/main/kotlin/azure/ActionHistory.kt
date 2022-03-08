@@ -27,16 +27,17 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.ItemLineageRecord
+import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.logging.log4j.kotlin.Logging
+import org.apache.logging.log4j.kotlin.logger
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.JSONB
 import org.jooq.impl.DSL
 import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
-import java.time.Instant
 import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -819,7 +820,8 @@ class ActionHistory : Logging {
                     "never - skipSend specified"
                 }
                 reportFile.nextActionAt != null -> {
-                    "${reportFile.nextActionAt}"
+                    JacksonMapperUtilities.timestampFormatter
+                        .format(reportFile.nextActionAt.withOffsetSameInstant(Environment.rsTimeZone))
                 }
                 else -> {
                     sendingAt
@@ -844,8 +846,7 @@ class ActionHistory : Logging {
         return countToPrint
     }
 
-    companion object {
-
+    companion object : Logging {
         // TODO: Deprecated. Delete.  WorkflowEngine.handleRecieverEvent pulls in each report individually.
         fun fetchReportFilesForReceiver(
             nextAction: TaskAction,
@@ -900,15 +901,10 @@ class ActionHistory : Logging {
                     }
                 }
             }
-            if (msg.isNotEmpty()) {
-                if (failOnError) {
-                    error("*** Sanity check comparing old Headers list to new ReportFile list FAILED:  $msg")
-                } else {
-                    println(
-                        "************ FAILURE: sanity check comparing old Headers " +
-                            "list to new ReportFiles list FAILED:  $msg\""
-                    )
-                }
+            if (msg.isNotEmpty() && failOnError) {
+                error("*** Sanity check comparing old Headers list to new ReportFile list FAILED:  $msg")
+            } else if (msg.isNotEmpty()) {
+                logger.warn("***** FAILURE: sanity check comparing old headers list to new ReportFiles list:\n$msg")
             }
         }
 
@@ -944,15 +940,10 @@ class ActionHistory : Logging {
                     }
                 }
             }
-            if (msg.isNotEmpty()) {
-                if (failOnError) {
-                    error("*** Sanity check comparing old Header info and new ReportFile info FAILED:  $msg")
-                } else {
-                    System.out.println(
-                        "************ FAILURE: sanity check comparing " +
-                            "old Header info and new ReportFile info FAILED:  $msg\""
-                    )
-                }
+            if (msg.isNotEmpty() && failOnError) {
+                error("*** Sanity check comparing old Header info and new ReportFile info FAILED:  $msg")
+            } else if (msg.isEmpty()) {
+                logger.warn("***** FAILURE: sanity check comparing old headers list to new ReportFiles list:\n$msg")
             }
         }
     }
@@ -1001,7 +992,10 @@ class ActionHistory : Logging {
                     "Only tracked incoming reports can generate a response."
                 }
                 it.writeStringField("id", report.id.toString())
-                it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
+                it.writeStringField(
+                    "timestamp",
+                    JacksonMapperUtilities.timestampFormatter.format(OffsetDateTime.now(Environment.rsTimeZone))
+                )
                 it.writeStringField("topic", report.schema.topic)
                 it.writeNumberField("reportItemCount", report.itemCount)
                 if (action.sendingOrg != null && action.sendingOrgClient != null)
