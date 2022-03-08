@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.serializers
 
 import assertk.assertThat
-import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isLessThanOrEqualTo
 import assertk.assertions.isNotNull
@@ -28,9 +27,8 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
-import gov.cdc.prime.router.USTimeZone
-import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.unittest.UnitTestUtils.createConfig
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -39,11 +37,8 @@ import io.mockk.verify
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.time.Duration
-import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -56,36 +51,6 @@ import kotlin.test.assertEquals
 class Hl7SerializerTests {
     private val context = DefaultHapiContext()
     private val emptyTerser = Terser(ORU_R01())
-
-    private fun createConfig(
-        replaceValue: Map<String, String> = emptyMap(),
-        cliaForSender: Map<String, String> = emptyMap(),
-        cliaForOutOfStateTesting: String? = null,
-        truncateHl7Fields: String? = null,
-        suppressNonNPI: Boolean = false,
-        truncateHDNamespaceIds: Boolean = false,
-        convertPositiveDateTimeOffsetToNegative: Boolean = false,
-        useHighPrecisionHeaderDateTimeFormat: Boolean = false,
-        convertDateTimesToReceiverLocalTime: Boolean = false,
-    ): Hl7Configuration {
-        return Hl7Configuration(
-            messageProfileId = "",
-            receivingApplicationOID = "",
-            receivingApplicationName = "",
-            receivingFacilityName = "",
-            receivingFacilityOID = "",
-            receivingOrganization = "",
-            cliaForOutOfStateTesting = cliaForOutOfStateTesting,
-            cliaForSender = cliaForSender,
-            replaceValue = replaceValue,
-            truncateHl7Fields = truncateHl7Fields,
-            suppressNonNPI = suppressNonNPI,
-            truncateHDNamespaceIds = truncateHDNamespaceIds,
-            convertPositiveDateTimeOffsetToNegative = convertPositiveDateTimeOffsetToNegative,
-            useHighPrecisionHeaderDateTimeFormat = useHighPrecisionHeaderDateTimeFormat,
-            convertDateTimesToReceiverLocalTime = convertDateTimesToReceiverLocalTime,
-        )
-    }
 
     @Test
     fun `test XTN phone decoding`() {
@@ -823,74 +788,5 @@ NTE|1|L|This is a final comment|RE"""
         assertEquals("sending_app", parts[2])
         assertEquals("receiving_app", parts[4])
         assertEquals("receiving_facility", parts[5])
-    }
-
-    @Test
-    fun `check temporal accessor coercion`() {
-        // set up our variables and mock
-        // arrange
-        val rightNow = Instant.now()
-        val hl7Configuration = mockk<Hl7Configuration>()
-        every { hl7Configuration.convertDateTimesToReceiverLocalTime } returns true
-        val destination = mockk<Receiver>()
-        every { destination.timeZone } returns USTimeZone.EASTERN
-        every { destination.translation } returns hl7Configuration
-        val report = mockk<Report>()
-        every { report.destination } returns destination
-        // act & assert
-        rightNow.atZone(ZoneId.of("US/Eastern")).let {
-            assertThat(it.toLocalDateTime()).isEqualTo(rightNow.toLocalDateTime(report))
-        }
-        OffsetDateTime.from(rightNow.atZone(ZoneId.of("US/Eastern"))).let {
-            assertThat(it.toLocalDateTime()).isEqualTo(rightNow.toLocalDateTime(report))
-        }
-    }
-
-    @Test
-    fun `test now timestamp logic`() {
-        // arrange our regexes
-        // this regex checks for 12 digits, and then the offset sign, and then four more digits
-        val lowPrecisionTimeStampRegex = "^\\d{12}[-|+]\\d{4}".toRegex()
-        val report = mockkClass(Report::class)
-        val receiver = mockkClass(Receiver::class)
-        every { receiver.translation }.returns(
-            createConfig(
-                useHighPrecisionHeaderDateTimeFormat = false,
-                convertPositiveDateTimeOffsetToNegative = false
-            )
-        )
-        every { report.destination }.returns(receiver)
-        var timestampValue = Hl7Serializer.nowTimestamp(report)
-        assertThat(lowPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
-
-        // this regex checks for 14 digits, then a period, three digits, and then the offset
-        val highPrecisionTimeStampRegex = "\\d{14}\\.\\d{3}[-|+]\\d{4}".toRegex()
-        every { receiver.translation }.returns(
-            createConfig(
-                useHighPrecisionHeaderDateTimeFormat = true,
-                convertPositiveDateTimeOffsetToNegative = false
-            )
-        )
-        every { report.destination }.returns(receiver)
-        timestampValue = Hl7Serializer.nowTimestamp(report)
-        assertThat(highPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
-    }
-
-    @Test
-    fun `test now timestamp logic to local time zone`() {
-        val report = mockkClass(Report::class)
-        val receiver = mockkClass(Receiver::class)
-        every { receiver.timeZone }.returns(USTimeZone.EASTERN)
-        every { receiver.translation }.returns(
-            createConfig(convertDateTimesToReceiverLocalTime = true)
-        )
-        every { report.destination }.returns(receiver)
-        val easternTimeStampValue = Hl7Serializer.nowTimestamp(report)
-        every { receiver.timeZone }.returns(USTimeZone.PACIFIC)
-        val pacificTimeStampValue = Hl7Serializer.nowTimestamp(report)
-        val easternParsedDate = DateUtilities.parseDate(easternTimeStampValue) as OffsetDateTime
-        val pacificParsedDate = DateUtilities.parseDate(pacificTimeStampValue) as OffsetDateTime
-        val duration = Duration.between(pacificParsedDate.toLocalDateTime(), easternParsedDate.toLocalDateTime())
-        assertThat(duration.toHours()).isBetween(3, 4)
     }
 }

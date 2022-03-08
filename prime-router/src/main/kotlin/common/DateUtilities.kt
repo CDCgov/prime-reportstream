@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.common
 
+import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.Report
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -17,8 +19,11 @@ import java.util.Locale
 object DateUtilities {
     const val datePattern = "yyyyMMdd"
     const val datePatternMMddyyyy = "MMddyyyy"
+    /** a local date time pattern to use when formatting in local date time instead */
+    const val localDateTimePattern = "uuuuMMddHHmmss"
+    /** our standard offset date time pattern */
     const val datetimePattern = "yyyyMMddHHmmZZZ"
-    /** includes seconds  */
+    /** includes seconds and milliseconds in the offset for higher precision  */
     const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSZZZ"
     /** wraps around all the possible variations of a date for finding something that matches */
     const val variableDateTimePattern = "[yyyyMMdd]" +
@@ -40,6 +45,46 @@ object DateUtilities {
         highPrecisionDateTimePattern,
         Locale.ENGLISH
     )
+    /** A formatter for local date times */
+    val localDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(localDateTimePattern, Locale.ENGLISH)
+
+    /**
+     * The format to output the date time values as. A receiver could want date time values as an
+     * offset or as their local time. This is independent of the actual time zone their data will
+     * be presented in. For example, someone could have their date and time data written out at their
+     * local timezone (PST for example), but also as an offset value. Or they could have their date
+     * time written as a local date time at their local time zone. There are, of course, some ways
+     * this could present some complications. For example, if you choose to have the time encoded to
+     * local date time, but don't set a time zone for the receiver, we would end up setting the time
+     * to UTC in local date format, which receivers may not expect. This should probably throw a warning
+     * when saving the receiver.
+     */
+    enum class DateTimeFormat(val formatString: String) {
+        OFFSET(datetimePattern),
+        LOCAL(localDateTimePattern),
+        HIGHPRECISIONOFFSET(highPrecisionDateTimePattern)
+    }
+
+    /**
+     * Returns our correct date time formatter for the params provided
+     */
+    fun getFormatter(
+        dateTimeFormat: DateTimeFormat? = null,
+        useHighPrecisionOffset: Boolean? = null
+    ): DateTimeFormatter {
+        return when (dateTimeFormat) {
+            DateTimeFormat.OFFSET -> datetimeFormatter
+            DateTimeFormat.HIGHPRECISIONOFFSET -> highPrecisionDateTimeFormatter
+            DateTimeFormat.LOCAL -> localDateTimeFormatter
+            else -> {
+                if (useHighPrecisionOffset == true) {
+                    highPrecisionDateTimeFormatter
+                } else {
+                    datetimeFormatter
+                }
+            }
+        }
+    }
 
     /**
      * This method takes a date value as a string and returns a
@@ -50,10 +95,10 @@ object DateUtilities {
             .parseBest(
                 dateValue,
                 OffsetDateTime::from,
+                ZonedDateTime::from,
                 LocalDateTime::from,
                 Instant::from,
-                LocalDate::from,
-                ZonedDateTime::from
+                LocalDate::from
             )
     }
 
@@ -73,10 +118,9 @@ object DateUtilities {
             is LocalDate -> LocalDate.from(temporalAccessor)
                 .atStartOfDay()
                 .format(outputFormatter)
-            is LocalDateTime -> LocalDateTime.from(temporalAccessor)
-                .format(outputFormatter)
-            is OffsetDateTime -> OffsetDateTime.from(temporalAccessor)
-                .format(outputFormatter)
+            is LocalDateTime -> LocalDateTime.from(temporalAccessor).format(outputFormatter)
+            is OffsetDateTime -> OffsetDateTime.from(temporalAccessor).format(outputFormatter)
+            is ZonedDateTime -> ZonedDateTime.from(temporalAccessor).format(outputFormatter)
             is Instant -> Instant.from(temporalAccessor).toString()
             else -> error("Unsupported format!")
         }
@@ -136,6 +180,36 @@ object DateUtilities {
     }
 
     /**
+     * Given a report object, looks at varying configuration options, and outputs the correctly formatted
+     * timestamp for our needs. This is primarily used by the HL7 serializer, but could be generalized out
+     * further to allow for the CSV serializer and others to use it too
+     */
+    fun nowTimestamp(report: Report? = null): String {
+        val hl7Config = report?.destination?.translation as? Hl7Configuration
+        // check to see if the timezone for the receiver is not null and if want to convert to the local
+        // timezone for the receiver
+        val timezone = if (
+            hl7Config?.convertDateTimesToReceiverLocalTime == true && report.destination.timeZone != null
+        ) {
+            ZoneId.of(report.destination.timeZone.zoneId)
+        } else {
+            ZoneId.systemDefault()
+        }
+        val timestamp = ZonedDateTime.now(timezone)
+        // get the formatter based on the high precision header date time format
+        val formatter: DateTimeFormatter = getFormatter(
+            report?.destination?.dateTimeFormat,
+            hl7Config?.useHighPrecisionHeaderDateTimeFormat
+        )
+        // return the actual date
+        return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
+            DateUtilities.convertPositiveOffsetToNegativeOffset(formatter.format(timestamp))
+        } else {
+            formatter.format(timestamp)
+        }
+    }
+
+    /**
      * Given a temporal accessor of some sort, coerce it to an offset date time value.
      * If the temporal accessor is of type LocalDate, then we don't have a time, and we coerce it
      * to use the local "start of day", and then convert to the date time offset.
@@ -176,6 +250,13 @@ object DateUtilities {
         }
     }
 
+    /**
+     * Given a Temporal Accessor, this attempts to convert to other date time types available. Some
+     * conversions require a ZoneId. Having just a date and time, for example, is not enough. Even
+     * having the offset is sometimes not good enough, but it is better than nothing. Therefore, if you
+     * try to convert a LocalDate to a ZonedDateTime without telling it what time zone "local" is, it's
+     * going to fail.
+     */
     fun TemporalAccessor.toZonedDateTime(zoneId: ZoneId? = null): ZonedDateTime {
         return when (this) {
             is ZonedDateTime -> this

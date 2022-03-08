@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import gov.cdc.prime.router.common.DateUtilities
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -59,7 +60,7 @@ open class Receiver(
      * while someone set to LOCAL would have their date formatted "uuuuMMdd HH:mm:ss" without the offset. Instead,
      * the date time would have the offset applied to it
      */
-    val dateTimeFormat: DateTimeFormat? = DateTimeFormat.OFFSET,
+    val dateTimeFormat: DateUtilities.DateTimeFormat? = DateUtilities.DateTimeFormat.OFFSET,
 ) {
     /** A custom constructor primarily used for testing */
     constructor(
@@ -71,7 +72,7 @@ open class Receiver(
         format: Report.Format = Report.Format.CSV,
         timing: Timing? = null,
         timeZone: USTimeZone? = null,
-        dateTimeFormat: DateTimeFormat? = null,
+        dateTimeFormat: DateUtilities.DateTimeFormat? = null,
     ) : this(
         name, organizationName, topic, customerStatus,
         CustomConfiguration(schemaName = schemaName, format = format, emptyMap(), "standard", null),
@@ -192,22 +193,6 @@ open class Receiver(
     enum class EmptyOperation {
         NONE,
         SEND,
-    }
-
-    /**
-     * The format to output the date time values as. A receiver could want date time values as an
-     * offset or as their local time. This is independent of the actual time zone their data will
-     * be presented in. For example, someone could have their date and time data written out at their
-     * local timezone (PST for example), but also as an offset value. Or they could have their date
-     * time written as a local date time at their local time zone. There are, of course, some ways
-     * this could present some complications. For example, if you choose to have the time encoded to
-     * local date time, but don't set a time zone for the receiver, we would end up setting the time
-     * to UTC in local date format, which receivers may not expect. This should probably throw a warning
-     * when saving the receiver.
-     */
-    enum class DateTimeFormat {
-        OFFSET,
-        LOCAL
     }
 
     /**

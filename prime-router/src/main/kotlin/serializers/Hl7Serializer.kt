@@ -27,6 +27,7 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
 import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
@@ -898,31 +899,43 @@ class Hl7Serializer(
         val pathSpec = formPathSpec(hl7Field, repeat)
 
         // All components should be trimmed and not blank.
-        val trimmedValue = value.trim()
-        if (trimmedValue.isBlank()) return
+        val trimmedValue = value.trimToNull() ?: return
 
         when (element.type) {
-            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field, hl7Config)
-            Element.Type.HD -> setHDComponent(terser, value, pathSpec, hl7Field, hl7Config)
-            Element.Type.EI -> setEIComponent(terser, value, pathSpec, hl7Field, hl7Config)
-            Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet, element.valueSetRef)
-            Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element, phoneNumberFormatting)
-            Element.Type.EMAIL -> setEmailComponent(terser, value, element, hl7Config)
-            Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
+            Element.Type.ID_CLIA -> setCliaComponent(terser, trimmedValue, hl7Field, hl7Config)
+            Element.Type.HD -> setHDComponent(terser, trimmedValue, pathSpec, hl7Field, hl7Config)
+            Element.Type.EI -> setEIComponent(terser, trimmedValue, pathSpec, hl7Field, hl7Config)
+            Element.Type.CODE -> setCodeComponent(
+                terser,
+                trimmedValue,
+                pathSpec,
+                element.valueSet,
+                element.valueSetRef
+            )
+            Element.Type.TELEPHONE -> setTelephoneComponent(
+                terser,
+                trimmedValue,
+                pathSpec,
+                element,
+                phoneNumberFormatting
+            )
+            Element.Type.EMAIL -> setEmailComponent(terser, trimmedValue, element, hl7Config)
+            Element.Type.POSTAL_CODE -> setPostalComponent(terser, trimmedValue, pathSpec, element)
             Element.Type.DATE, Element.Type.DATETIME -> setDateTimeComponent(
                 terser,
-                value,
+                trimmedValue,
                 pathSpec,
                 hl7Field,
                 report
             )
             else -> {
-                val truncatedValue = trimAndTruncateValue(value, hl7Field, hl7Config, terser)
+                val truncatedValue = trimAndTruncateValue(trimmedValue, hl7Field, hl7Config, terser)
                 terser.set(pathSpec, truncatedValue)
             }
         }
     }
 
+    /** takes a value and does date time conversions on it in order to display it */
     internal fun setDateTimeComponent(
         terser: Terser,
         value: String,
@@ -1493,14 +1506,14 @@ class Hl7Serializer(
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
-            nowTimestamp(report) +
+            DateUtilities.nowTimestamp(report) +
             hl7SegmentDelimiter +
             "BHS|$encodingCharacters|" +
             "$sendingApp|" +
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
-            nowTimestamp(report) +
+            DateUtilities.nowTimestamp(report) +
             hl7SegmentDelimiter
     }
 
@@ -1814,36 +1827,6 @@ class Hl7Serializer(
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
             Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
-        }
-
-        /**
-         * Given an hl7Configuration, this will take find the current date time and output it to a
-         * specific format depending on the configuration of the receiver
-         */
-        fun nowTimestamp(report: Report? = null): String {
-            val hl7Config = report?.destination?.translation as? Hl7Configuration
-            // check to see if the timezone for the receiver is not null and if want to convert to the local
-            // timezone for the receiver
-            val timezone = if (
-                hl7Config?.convertDateTimesToReceiverLocalTime == true && report.destination.timeZone != null
-            ) {
-                ZoneId.of(report.destination.timeZone.zoneId)
-            } else {
-                ZoneId.systemDefault()
-            }
-            val timestamp = OffsetDateTime.now(timezone)
-            // get the formatter based on the high precision header date time format
-            val formatter: DateTimeFormatter = if (hl7Config?.useHighPrecisionHeaderDateTimeFormat == true) {
-                DateUtilities.highPrecisionDateTimeFormatter
-            } else {
-                DateUtilities.datetimeFormatter
-            }
-            // return the actual date
-            return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
-                DateUtilities.convertPositiveOffsetToNegativeOffset(formatter.format(timestamp))
-            } else {
-                formatter.format(timestamp)
-            }
         }
     }
 }
