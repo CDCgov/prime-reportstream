@@ -7,7 +7,7 @@ import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
 
-import { TextInputComponent } from "./AdminFormEdit";
+import { TextAreaComponent, TextInputComponent } from "./AdminFormEdit";
 
 type Props = { orgname: string; sendername: string; action: string };
 
@@ -127,6 +127,19 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     label={"Schema Name"}
                     defaultvalue={orgSenderSettings.schemaName}
                     savefunc={(v) => (orgSenderSettings.schemaName = v)}
+                />
+                <TextAreaComponent
+                    fieldname={"keys"}
+                    label={"Keys"}
+                    defaultvalue={orgSenderSettings.keys}
+                    defaultnullvalue={""}
+                    savefunc={(v) => (orgSenderSettings.keys = v)}
+                />
+                <TextInputComponent
+                    fieldname={"processingType"}
+                    label={"Processing Type"}
+                    defaultvalue={orgSenderSettings.processingType}
+                    savefunc={(v) => (orgSenderSettings.processingType = v)}
                 />
                 <Grid row>
                     <Button type="button" onClick={() => history.goBack()}>
