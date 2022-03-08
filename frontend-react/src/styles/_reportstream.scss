@@ -257,3 +257,12 @@ h3 img[src*="svg"] {
 :root {
     --toastify-toast-width: 600px;
 }
+
+.rs-compare-modal {
+    max-width:87.5rem;
+    .usa-modal__main {
+        width:100%;
+        max-width:80rem;
+        padding-left:10px;
+    }
+}
