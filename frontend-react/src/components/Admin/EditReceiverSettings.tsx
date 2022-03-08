@@ -115,10 +115,13 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     break;
                 case "clone":
                     try {
-                        // @ts-ignore
-                        const data = diffEditorRef.current
-                            .getModifiedEditor()
-                            .getValue();
+                        const data = CheckFeatureFlag("showDiffEditor")
+                            ? // @ts-ignore
+                              diffEditorRef.current
+                                  .getModifiedEditor()
+                                  .getValue()
+                            : orgReceiverSettingsNewJson;
+
                         await fetchController(
                             OrgReceiverSettingsResource.update(),
                             { orgname, receivername: orgReceiverSettings.name },
