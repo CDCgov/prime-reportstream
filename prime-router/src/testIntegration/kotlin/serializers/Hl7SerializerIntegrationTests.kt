@@ -12,16 +12,7 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.ActionError
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.FileSource
-import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.TestSource
-import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.*
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -672,17 +663,17 @@ NTE|1|L|This is a final comment|RE"""
     fun `test NTE Source`() {
         val parser = context.pipeParser
 
-        val inputStream = File("./src/test/unit_test_files/csv-upload-test.csv").inputStream()
-        val schema = "upload-covid-19"
-        val hl7Config = createConfig()
-        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
-        val pdiInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
-        val testReport = translator.translateByReceiver(pdiInput, receiver)
+        val uploadStream = File("./src/test/unit_test_files/csv-upload-test.csv").inputStream()
+        val uploadSchema = "upload-covid-19"
+        val sender = Sender("default", "upload", Sender.Format.CSV, "covid-19", CustomerStatus.TESTING, uploadSchema)
+        val testReport = csvSerializer.readExternal(uploadSchema, uploadStream, TestSource, sender).report
         val output = serializer.buildMessage(testReport, 0)
         val hapiMsg = parser.parse(output.toString())
         val terser = Terser(hapiMsg)
+        val nte21 = terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE(0)-2-1")
         val nte22 = terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE(0)-2-2")
 
-        assertThat(nte22).isEqualTo("")
+        assertThat(nte21).isNotNull()
+        assertThat(nte22).isEqualTo(null)
     }
 }
