@@ -2937,6 +2937,26 @@ The postal code for the testing lab
 
 ---
 
+**Name**: comment_source
+
+**ReportStream Internal Name**: comment_source
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+L|Ancillary (filler) department is source of comment|HL7
+O|Other system is source of comment|HL7
+P|Orderer (placer) is source of comment|HL7
+
+---
+
 **Name**: message_id
 
 **ReportStream Internal Name**: message_id
