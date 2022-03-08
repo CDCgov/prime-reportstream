@@ -76,7 +76,7 @@ class SenderFilesCommand : CliktCommand(
         help = "Do not echo progress or prompt for confirmation"
     ).flag(default = false)
 
-    private val jsonMapper = JacksonMapperUtilities.datesAsTextMapper
+    private val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
 
     private val environment = lazy { Environment.get(env) }
     private val accessToken = lazy {
