@@ -402,11 +402,30 @@ elements:
       mapperOverridesValue: true
       mapper: ifNotPresent($mode:lookup, testing_lab_city, ordering_facility_name_temp,ordering_facility_street_temp)
 
+    - name: ordering_facility_state_fromCSV
+      type: TEXT
+      csvFields: [{ name: ordering_facility_state}]
+
+    - name: ordering_facility_state_fromValueSet
+      type: CODE
+      valueSet: sender-automation/state
+      documentation: Translate multiple inbound State values to RS values
+      csvFields: [{ name: ordering_facility_state, format: $display}]
+
+    - name: ordering_facility_state_temp
+      type: TEXT
+      mapper: use(ordering_facility_state_fromValueSet, ordering_facility_state_fromCSV)
+
     - name: ordering_facility_state
       cardinality: ONE 
-      csvFields: [{name: ordering_facility_state}]
-      mapperOverridesValue: true
-      mapper: ifNotPresent($mode:lookup, testing_lab_state, ordering_facility_name_temp, ordering_facility_street_temp)
+      mapper: use(ordering_facility_state_temp, testing_lab_state)
+
+
+#    - name: ordering_facility_state
+#      cardinality: ONE 
+#      csvFields: [{name: ordering_facility_state}]
+#      mapperOverridesValue: true
+#      mapper: ifNotPresent($mode:lookup, testing_lab_state, ordering_facility_name_temp, ordering_facility_street_temp)
 
     - name: ordering_facility_zip_code
       cardinality: ONE 
