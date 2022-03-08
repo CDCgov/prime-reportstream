@@ -112,10 +112,13 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     break;
                 case "clone":
                     try {
-                        // @ts-ignore
-                        const data = diffEditorRef.current
-                            .getModifiedEditor()
-                            .getValue();
+                        const data = CheckFeatureFlag("showDiffEditor")
+                            ? // @ts-ignore
+                              diffEditorRef.current
+                                  .getModifiedEditor()
+                                  .getValue()
+                            : orgSenderSettingsNewJson;
+
                         await fetchController(
                             // NOTE: this does not use the expected OrgSenderSettingsResource.create() method
                             // due to the endpoint being an 'upsert' (PUT) instead of the expected 'insert' (POST)
