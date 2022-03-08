@@ -1,7 +1,7 @@
 # Returns the sender files for a given report
 openapi: "3.0.2"
 info:
-  title: ReportStream Sources API
+  title: ReportStream Sender-Files API
   version: "1.0"
   contact:
     name: USDS at Centers for Disease Control and Prevention

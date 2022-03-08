@@ -5,6 +5,8 @@ import gov.cdc.prime.router.DeepOrganization
 /**
  * The [PreviewMessage] is the payload for the `preview` API end-point.
  * It contains an input report and settings.
+ *
+ * TODO: generate this message from OpenAPI
  */
 data class PreviewMessage(
     val senderName: String,
@@ -17,10 +19,12 @@ data class PreviewMessage(
 
 /**
  * The response message returned by the `preview` API end-point
+ *
+ * TODO: generate this message from OpenAPI
  */
 sealed interface PreviewResponseMessage {
     /**
-     * The [Success] is the OK status payload
+     * The [Success] is the OK status payload.
      */
     data class Success(
         val receiverName: String,
