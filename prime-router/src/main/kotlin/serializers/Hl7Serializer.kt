@@ -138,7 +138,9 @@ class Hl7Serializer(
          */
         fun parseStringMessage(message: String) {
             val parsedMessage = convertMessageToMap(message, messageIndex, schema, sender)
-            if (parsedMessage.item.isNotEmpty())
+            if (parsedMessage.item.isNotEmpty() || parsedMessage.errors.isNotEmpty() ||
+                parsedMessage.warnings.isNotEmpty()
+            )
                 rowResults.add(parsedMessage)
             parsedMessage.item.forEach { (k, v) ->
                 if (!mappedRows.containsKey(k))
