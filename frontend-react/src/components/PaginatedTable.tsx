@@ -1,19 +1,35 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-interface TestObj {
+/* 
+    This is the base interface that all object arrays passed to
+    PaginatedTable must extend. You can add n-many fields with
+    an optional transform Map that'll let you tell the table
+    how to transform data before displaying.
+*/
+interface TableRow {
     [key: string]: any;
     fieldA: string;
     fieldB: number;
     transform?: Map<string, Function>;
 }
 
-interface PaginatedTableProps<T> {
-    objects: T[]
+interface PaginatedTableProps<T extends TableRow> {
+    objects: Array<T>;
+    headers: Array<string>;
 }
 
-const PaginatedTable: React.FC<PaginatedTableProps<TestObj>> = (props) => {
+/*
+    Provided an array of objects of typeof TestObj, this table will
+    render capitalized headers and optionally-transformed data.
+*/
+const PaginatedTable = (props: PaginatedTableProps<TableRow>) => {
 
-    function transformData() {
+    useEffect(() => {
+        transformData()
+    }, [props.objects])
+    
+
+    const transformData = (): void => {
         // ex: { a: 1, b: 2, transform: Map([['b', addOne]])} ->
         //     { a: 1, b: 3, transform: Map([['b', addOne]])}
         props.objects.forEach((obj) => {
@@ -26,9 +42,6 @@ const PaginatedTable: React.FC<PaginatedTableProps<TestObj>> = (props) => {
     }
 
     const transformHeaders = (): string[] => {
-        // TODO: Instructions for extractHeaders()
-        // I'll add these in later
-        // Return transformed (capitalized first letter) headers
         const newHeaders: Array<string> = []
         props.objects.forEach(obj => {
             Object.entries(obj).forEach(key =>
