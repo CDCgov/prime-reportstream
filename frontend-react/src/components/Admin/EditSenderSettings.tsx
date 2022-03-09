@@ -8,6 +8,7 @@ import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource
 import { showAlertNotification, showError } from "../AlertNotifications";
 import { getStoredOktaToken, getStoredOrg } from "../GlobalContextProvider";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
+import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 
 import { TextInputComponent, TextAreaComponent } from "./AdminFormEdit";
 import { ConfirmSaveSettingModal } from "./CompareJsonModal";
@@ -82,10 +83,12 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
             switch (action) {
                 case "edit":
                     try {
-                        // @ts-ignore
-                        const data = diffEditorRef.current
-                            .getModifiedEditor()
-                            .getValue();
+                        const data = CheckFeatureFlag("showDiffEditor")
+                            ? // @ts-ignore
+                              diffEditorRef.current
+                                  .getModifiedEditor()
+                                  .getValue()
+                            : orgSenderSettingsNewJson;
 
                         await fetchController(
                             OrgSenderSettingsResource.update(),
@@ -109,10 +112,13 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     break;
                 case "clone":
                     try {
-                        // @ts-ignore
-                        const data = diffEditorRef.current
-                            .getModifiedEditor()
-                            .getValue();
+                        const data = CheckFeatureFlag("showDiffEditor")
+                            ? // @ts-ignore
+                              diffEditorRef.current
+                                  .getModifiedEditor()
+                                  .getValue()
+                            : orgSenderSettingsNewJson;
+
                         await fetchController(
                             // NOTE: this does not use the expected OrgSenderSettingsResource.create() method
                             // due to the endpoint being an 'upsert' (PUT) instead of the expected 'insert' (POST)
