@@ -309,6 +309,26 @@ class DateUtilitiesTests {
             // assert
             assertThat(this).isEqualTo("20220104110000.000-0500")
         }
+        // now let's change the receiver to be PST and see what happens
+        every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.LOCAL)
+        every { receiver.timeZone }.returns(USTimeZone.PACIFIC)
+        // act
+        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+            // assert
+            assertThat(this).isEqualTo("20220104080000")
+        }
+        // again
+        every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.OFFSET)
+        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+            // assert
+            assertThat(this).isEqualTo("202201040800-0800")
+        }
+        // once more
+        every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.HIGHPRECISIONOFFSET)
+        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+            // assert
+            assertThat(this).isEqualTo("20220104080000.000-0800")
+        }
     }
 
     companion object {

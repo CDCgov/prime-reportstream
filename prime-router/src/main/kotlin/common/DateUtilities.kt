@@ -185,6 +185,15 @@ object DateUtilities {
      */
     fun formatDateForReceiver(dateTimeValue: TemporalAccessor, report: Report? = null): String {
         val hl7Config = report?.destination?.translation as? Hl7Configuration
+        val timezone = if (
+            hl7Config?.convertDateTimesToReceiverLocalTime == true && report.destination.timeZone != null
+        ) {
+            ZoneId.of(report.destination.timeZone.zoneId)
+        } else {
+            ZoneId.systemDefault()
+        }
+        // move the time zone
+        val shiftedTimeZone = dateTimeValue.toZonedDateTime(timezone)
         // get the formatter based on the high precision header date time format
         val formatter: DateTimeFormatter = getFormatter(
             report?.destination?.dateTimeFormat,
@@ -192,9 +201,9 @@ object DateUtilities {
         )
         // return the actual date
         return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
-            convertPositiveOffsetToNegativeOffset(formatter.format(dateTimeValue))
+            convertPositiveOffsetToNegativeOffset(formatter.format(shiftedTimeZone))
         } else {
-            formatter.format(dateTimeValue)
+            formatter.format(shiftedTimeZone)
         }
     }
 
@@ -269,8 +278,20 @@ object DateUtilities {
      */
     fun TemporalAccessor.toZonedDateTime(zoneId: ZoneId? = null): ZonedDateTime {
         return when (this) {
-            is ZonedDateTime -> this
-            is OffsetDateTime, is Instant -> ZonedDateTime.from(this)
+            is ZonedDateTime -> {
+                if (zoneId != null && this.zone != zoneId) {
+                    this.withZoneSameInstant(zoneId)
+                } else {
+                    this
+                }
+            }
+            is OffsetDateTime, is Instant -> {
+                if (zoneId != null) {
+                    ZonedDateTime.from(this).withZoneSameInstant(zoneId)
+                } else {
+                    ZonedDateTime.from(this)
+                }
+            }
             is LocalDateTime -> {
                 if (zoneId == null) error("Cannot determine time zone to use for conversion")
                 ZonedDateTime.from(this.atZone(zoneId))
