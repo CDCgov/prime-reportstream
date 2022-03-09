@@ -4,7 +4,6 @@ export default class OrgReceiverSettingsResource extends OrgSettingsBaseResource
     organizationName: string = "";
     topic: string = "";
     customerStatus: string = "";
-    schemaName: string = "";
     translation: object = {};
     description: string = "";
     jurisdictionalFilter: object = [];
