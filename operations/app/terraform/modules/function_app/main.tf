@@ -25,6 +25,7 @@ locals {
     # Use the CDC DNS for everything; they have mappings for all our internal
     # resources, so if we add a new resource we'll have to contact them (see
     # prime-router/docs/dns.md)
+    "WEBSITE_DNS_SERVER" = "${var.dns_ip}"
 
 
     "DOCKER_REGISTRY_SERVER_URL"      = var.container_registry_login_server

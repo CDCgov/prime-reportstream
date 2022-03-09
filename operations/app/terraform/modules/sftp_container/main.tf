@@ -31,7 +31,7 @@ resource "azurerm_container_group" "sftp_container" {
   location            = var.location
   resource_group_name = var.resource_group
   ip_address_type     = "Private"
-  network_profile_id  = var.use_cdc_managed_vnet ? azurerm_network_profile.sftp_vnet_network_profile.id : azurerm_network_profile.sftp_network_profile.id
+  network_profile_id  = azurerm_network_profile.sftp_vnet_network_profile.id
   os_type             = "Linux"
   restart_policy      = "Always"
 

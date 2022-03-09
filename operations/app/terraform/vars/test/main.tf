@@ -110,10 +110,10 @@ module "storage" {
   rsa_key_4096                = var.rsa_key_4096
   terraform_caller_ip_address = var.terraform_caller_ip_address
   use_cdc_managed_vnet        = var.use_cdc_managed_vnet
-  endpoint_subnet = module.network.endpoint_subnet_ids
-  public_subnet = module.network.public_subnet_ids
-  container_subnet = module.network.container_subnet_ids
-  application_key_vault_id = module.key_vault.application_key_vault_id
+  endpoint_subnet             = module.network.endpoint_subnet_ids
+  public_subnet               = module.network.public_subnet_ids
+  container_subnet            = module.network.container_subnet_ids
+  application_key_vault_id    = module.key_vault.application_key_vault_id
 }
 
 
@@ -123,54 +123,55 @@ module "storage" {
 # # ##########
 
 module "function_app" {
-  source                      = "../../modules/function_app"
+  source                            = "../../modules/function_app"
+  environment                       = var.environment
+  resource_group                    = var.resource_group
+  resource_prefix                   = var.resource_prefix
+  location                          = var.location
+  ai_instrumentation_key            = module.application_insights.instrumentation_key
+  ai_connection_string              = module.application_insights.connection_string
+  okta_redirect_url                 = var.okta_redirect_url
+  terraform_caller_ip_address       = var.terraform_caller_ip_address
+  use_cdc_managed_vnet              = var.use_cdc_managed_vnet
+  primary_access_key                = module.storage.sa_primary_access_key
+  container_registry_login_server   = module.container_registry.container_registry_login_server
+  primary_connection_string         = module.storage.sa_primary_connection_string
+  app_service_plan                  = module.app_service_plan.service_plan_id
+  pagerduty_url                     = data.azurerm_key_vault_secret.pagerduty_url.value
+  postgres_user                     = data.azurerm_key_vault_secret.postgres_user.value
+  postgres_pass                     = data.azurerm_key_vault_secret.postgres_pass.value
+  container_registry_admin_username = module.container_registry.container_registry_admin_username
+  container_registry_admin_password = module.container_registry.container_registry_admin_password
+  public_subnet                     = module.network.public_subnet_ids
+  application_key_vault_id          = module.key_vault.application_key_vault_id
+  sa_partner_connection_string      = module.storage.sa_partner_connection_string
+  client_config_key_vault_id        = module.key_vault.client_config_key_vault_id
+  app_config_key_vault_id           = module.key_vault.app_config_key_vault_id
+  dns_ip                            = var.dns_ip
+}
+
+module "front_door" {
+  source                      = "../../modules/front_door"
   environment                 = var.environment
   resource_group              = var.resource_group
   resource_prefix             = var.resource_prefix
   location                    = var.location
-  ai_instrumentation_key      = module.application_insights.instrumentation_key
-  ai_connection_string        = module.application_insights.connection_string
-  okta_redirect_url           = var.okta_redirect_url
-  terraform_caller_ip_address = var.terraform_caller_ip_address
-  use_cdc_managed_vnet        = var.use_cdc_managed_vnet
-  primary_access_key          = module.storage.sa_primary_access_key
-  container_registry_login_server = module.container_registry.container_registry_login_server
-  primary_connection_string  = module.storage.sa_primary_connection_string
-  app_service_plan = module.app_service_plan.service_plan_id
-  pagerduty_url = data.azurerm_key_vault_secret.pagerduty_url.value
-  postgres_user            = data.azurerm_key_vault_secret.postgres_user.value
-  postgres_pass = data.azurerm_key_vault_secret.postgres_pass.value
-  container_registry_admin_username = module.container_registry.container_registry_admin_username
-  container_registry_admin_password = module.container_registry.container_registry_admin_password
-  public_subnet = module.network.public_subnet_ids
-  application_key_vault_id = module.key_vault.application_key_vault_id
-  sa_partner_connection_string = module.storage.sa_partner_connection_string
-  client_config_key_vault_id = module.key_vault.client_config_key_vault_id
-  app_config_key_vault_id = module.key_vault.app_config_key_vault_id
-}
-
-module "front_door" {
-  source           = "../../modules/front_door"
-  environment      = var.environment
-  resource_group   = var.resource_group
-  resource_prefix  = var.resource_prefix
-  location         = var.location
-  https_cert_names = var.https_cert_names
-  is_metabase_env  = var.is_metabase_env
+  https_cert_names            = var.https_cert_names
+  is_metabase_env             = var.is_metabase_env
   public_primary_web_endpoint = module.storage.sa_public_primary_web_endpoint
-  application_key_vault_id = module.key_vault.application_key_vault_id
+  application_key_vault_id    = module.key_vault.application_key_vault_id
 }
 
-# module "sftp_container" {
-#   count = var.environment != "prod" ? 1 : 0
+module "sftp_container" {
+  count = var.environment != "prod" ? 1 : 0
 
-#   source               = "../../modules/sftp_container"
-#   environment          = var.environment
-#   resource_group       = var.resource_group
-#   resource_prefix      = var.resource_prefix
-#   location             = var.location
-#   use_cdc_managed_vnet = var.use_cdc_managed_vnet
-# }
+  source               = "../../modules/sftp_container"
+  environment          = var.environment
+  resource_group       = var.resource_group
+  resource_prefix      = var.resource_prefix
+  location             = var.location
+  use_cdc_managed_vnet = var.use_cdc_managed_vnet
+}
 
 module "metabase" {
   count = var.is_metabase_env ? 1 : 0

@@ -60,3 +60,4 @@ variable "application_key_vault_id" {}
 variable "sa_partner_connection_string" {}
 variable "client_config_key_vault_id" {}
 variable "app_config_key_vault_id" {}
+variable "dns_ip" {}
