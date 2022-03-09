@@ -663,18 +663,15 @@ NTE|1|L|This is a final comment|RE"""
     fun `test NTE Source`() {
         val parser = context.pipeParser
 
-        val uploadStream = File("./src/test/unit_test_files/csv-upload-test.csv").inputStream()
+        val uploadStream = File("./src/testIntegration/resources/datatests/csv-upload-test.csv").inputStream()
         val uploadSchema = "upload-covid-19"
         val sender = Sender("default", "upload", Sender.Format.CSV, "covid-19", CustomerStatus.TESTING, uploadSchema)
         val testReport = csvSerializer.readExternal(uploadSchema, uploadStream, TestSource, sender).report
         val output = serializer.buildMessage(testReport, 0)
         val hapiMsg = parser.parse(output.toString())
         val terser = Terser(hapiMsg)
-        val nte21 = terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE(0)-2-1") ?: ""
         val nte22 = terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE(0)-2-2")
 
-        if (nte21.isNotEmpty()) {
-            assertThat(nte22).isEqualTo(null)
-        }
+        assertThat(nte22).isNull()
     }
 }
