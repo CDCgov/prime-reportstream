@@ -29,7 +29,7 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.6.10"
-    id("org.flywaydb.flyway") version "8.5.0"
+    id("org.flywaydb.flyway") version "8.5.2"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
@@ -37,7 +37,7 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.6.10"
-    id("com.avast.gradle.docker-compose") version "0.15.0"
+    id("com.avast.gradle.docker-compose") version "0.15.1"
 }
 
 group = "gov.cdc.prime"
