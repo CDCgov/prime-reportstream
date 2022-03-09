@@ -304,7 +304,7 @@ class DateUtilitiesTests {
             assertThat(this).isEqualTo("202201041100-0500")
         }
         // once more
-        every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.HIGHPRECISIONOFFSET)
+        every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.HIGH_PRECISION_OFFSET)
         DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
             // assert
             assertThat(this).isEqualTo("20220104110000.000-0500")
@@ -324,10 +324,24 @@ class DateUtilitiesTests {
             assertThat(this).isEqualTo("202201040800-0800")
         }
         // once more
-        every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.HIGHPRECISIONOFFSET)
+        every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.HIGH_PRECISION_OFFSET)
         DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
             // assert
             assertThat(this).isEqualTo("20220104080000.000-0800")
+        }
+        // and now let's check that both methods return the same values
+        every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.OFFSET)
+        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+            // get comparison
+            val compareValue = DateUtilities.formatDateForReceiver(
+                dateTimeValue,
+                ZoneId.of(USTimeZone.PACIFIC.zoneId),
+                DateUtilities.DateTimeFormat.OFFSET,
+                convertPositiveDateTimeOffsetToNegative = false,
+                useHighPrecisionHeaderDateTimeFormat = false,
+            )
+            // assert
+            assertThat(this).isEqualTo(compareValue)
         }
     }
 
