@@ -34,6 +34,10 @@ git merge origin/dependabot/gradle/prime-router/com.googlecode.libphonenumber-li
 5. Run Docker: `docker-compose build && docker-compose up`
 6. Once Docker is running, run our `end2end` smoke test: `./prime test --run end2end`
 7. Wait for the test to complete. If the test completes without any errors, you can merge in the PR in GitHub and move on to the next one
+   1. Go to [Pull Requests](https://github.com/CDCgov/prime-reportstream/pulls) in Github and find the original branch (i.e. com.googlecode.libphonenumber-libphonenumber-8.12.31)
+   2. Go to the Files changed tab click Review changes
+   3. Leave a brief comment (i.e. "tested end to end"), select Approve and click Submit review
+   4. At the bottom of the Conversation tab, click on Update branch, then Enable auto-merge (squash)
 8. Run `docker-compose down`
 9. Repeat until done
 
