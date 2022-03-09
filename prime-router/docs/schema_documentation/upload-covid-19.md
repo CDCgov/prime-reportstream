@@ -3840,28 +3840,6 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 ---
 
-**Name**: sender_id_all
-
-**ReportStream Internal Name**: sender_id_all
-
-**Type**: TABLE
-
-**PII**: No
-
-**Default Value**: all
-
-**Cardinality**: [0..1]
-
-**Table**: sender_valuesets
-
-**Table Column**: sender_id
-
-**Documentation**:
-
-This is the sender_id value used in "all" sender_valuesets lookups
-
----
-
 **Name**: testing_lab_specimen_id
 
 **ReportStream Internal Name**: testing_lab_specimen_id
