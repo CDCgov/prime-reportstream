@@ -680,7 +680,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.17")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.5.1")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.5.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.44")
