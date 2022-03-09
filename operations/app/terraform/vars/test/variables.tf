@@ -34,6 +34,10 @@ variable "is_metabase_env" {
 variable "https_cert_names" {
   default = []
 }
+
+variable "okta_base_url" {
+  default = "hhs-prime.oktapreview.com"
+}
 variable "okta_redirect_url" {
   default = "https://prime-data-hub-rkh5012.azurefd.net/download"
 }
@@ -137,6 +141,49 @@ variable "network" {
   }
 }
 
+
+
+
+
+
+##############################################
+
+
+variable "environment" {
+  default = "test"
+}
+variable "resource_group" {
+  default = "prime-data-hub-test"
+}
+
+variable "resource_prefix" {
+  default = "pdhtest"
+}
+variable "location" {
+  default = "eastus"
+}
+variable "rsa_key_2048" {
+  default = null
+}
+variable "rsa_key_4096" {
+  default = null
+}
+variable "is_metabase_env" {
+  default = false
+}
+variable "https_cert_names" {
+  default = []
+}
+variable "okta_base_url" {
+  default = "hhs-prime.oktapreview.com"
+}
+variable "okta_redirect_url" {
+  default = "https://prime-data-hub-rkh5012.azurefd.net/download"
+}
+variable "aad_object_keyvault_admin" {
+  default = "3c17896c-ff94-4298-a719-aaac248aa2c8"
+} # Group or individual user id
+
 ##################
 ## App Service Plan Vars
 ##################
@@ -159,7 +206,7 @@ variable "use_cdc_managed_vnet" {
 
 variable "terraform_caller_ip_address" {
   type    = list(string)
-  default = ["162.224.209.174","24.163.118.70","75.191.122.59"]
+  default = ["162.224.209.174", "24.163.118.70", "75.191.122.59"]
 }
 
 
@@ -168,9 +215,9 @@ variable "terraform_caller_ip_address" {
 ##########
 
 variable "dns_ip" {
-  type = string
+  type        = string
   description = "IP address for function app dns"
-  default = "168.63.129.16"
+  default     = "168.63.129.16"
 }
 
 
@@ -199,7 +246,7 @@ variable "db_threat_detection" {
 }
 
 variable "db_replica" {
-  default = false
+  default = true
 }
 
 variable "aad_group_postgres_admin" {

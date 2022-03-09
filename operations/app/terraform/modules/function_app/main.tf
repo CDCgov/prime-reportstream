@@ -5,7 +5,7 @@ locals {
 
     "PRIME_ENVIRONMENT" = (var.environment == "prod" ? "prod" : "test")
 
-    "OKTA_baseUrl"  = "hhs-prime.okta.com"
+    "OKTA_baseUrl"  = var.okta_base_url
     "OKTA_redirect" = var.okta_redirect_url
 
     # Manage client secrets via a Key Vault

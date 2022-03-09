@@ -34,6 +34,6 @@ resource "azurerm_monitor_action_group" "action_group" {
 
 // Prevent TF changes where Microsoft.Insights is forced lowercase
 locals {
-  action_group_id = try(replace(azurerm_monitor_action_group.action_group[0].id,"Microsoft.Insights","microsoft.insights"), "")
-  app_insights_id = replace(azurerm_application_insights.app_insights.id,"Microsoft.Insights","microsoft.insights")
+  action_group_id = try(replace(azurerm_monitor_action_group.action_group[0].id, "Microsoft.Insights", "microsoft.insights"), "")
+  app_insights_id = replace(azurerm_application_insights.app_insights.id, "Microsoft.Insights", "microsoft.insights")
 }

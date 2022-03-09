@@ -106,6 +106,9 @@ module "network" {
 #   endpoint_subnet = module.network.endpoint_subnet_ids
 #   db_replica =  var.db_replica
 #   application_key_vault_id = module.key_vault.application_key_vault_id
+#   west_vnet_subnets        = module.vnet.west_vnet_subnets
+#   east_vnet_subnets        = module.vnet.east_vnet_subnets
+#   vnet_subnets             = module.vnet.vnet_subnets
 # }
 
 # module "storage" {
@@ -137,6 +140,7 @@ module "network" {
 #   location                    = var.location
 #   ai_instrumentation_key      = module.application_insights.instrumentation_key
 #   ai_connection_string        = module.application_insights.connection_string
+#   okta_base_url               = var.okta_base_url
 #   okta_redirect_url           = var.okta_redirect_url
 #   terraform_caller_ip_address = var.terraform_caller_ip_address
 #   use_cdc_managed_vnet        = var.use_cdc_managed_vnet

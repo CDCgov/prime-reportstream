@@ -46,17 +46,21 @@ locals {
   option = local.options[var.type]
 }
 
-resource "azurerm_private_endpoint" "endpoint" {
-  count = length(var.endpoint_subnet_ids)
+locals {
+  suitable_subnets = length(var.exclude_subnets) == 0 ? var.endpoint_subnet_ids : setsubtract(var.endpoint_subnet_ids, var.exclude_subnets)
+}
 
-  name                = "${var.name}-${var.type}-${substr(sha1(var.endpoint_subnet_ids[count.index]), 0, 9)}"
+resource "azurerm_private_endpoint" "endpoint" {
+  count = length(local.suitable_subnets)
+
+  name                = "${var.name}-${var.type}-${substr(sha1(local.suitable_subnets[count.index]), 0, 9)}"
   location            = var.location
   resource_group_name = var.resource_group
-  subnet_id           = var.endpoint_subnet_ids[count.index]
+  subnet_id           = local.suitable_subnets[count.index]
 
   # Associate the endpoint with the service
   private_service_connection {
-    name                           = "${var.name}-${var.type}-${substr(sha1(var.endpoint_subnet_ids[count.index]), 0, 9)}"
+    name                           = "${var.name}-${var.type}-${substr(sha1(local.suitable_subnets[count.index]), 0, 9)}"
     private_connection_resource_id = var.resource_id
     is_manual_connection           = false
     subresource_names              = local.option.subresource_names

@@ -32,3 +32,9 @@ variable "endpoint_subnet_id_for_dns" {
   type        = string
   description = "The endpoint the DNS record should point to"
 }
+
+variable "exclude_subnets" {
+  type        = list(string)
+  description = "subnets to exclude from private endpoint"
+  default = []
+}

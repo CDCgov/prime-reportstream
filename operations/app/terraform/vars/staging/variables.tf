@@ -77,6 +77,9 @@ variable "is_metabase_env"{
 variable "https_cert_names"{
     default = []
 }         
+variable "okta_base_url" {
+  default = "hhs-prime.oktapreview.com"
+}
 variable "okta_redirect_url"{
     default = "https://prime-data-hub-rkh5012.azurefd.net/download"
 }         
@@ -144,5 +147,5 @@ variable "db_threat_detection" {
 }
 
 variable "db_replica" {
-  default = false
+  default = true
 }
