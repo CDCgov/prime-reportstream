@@ -237,7 +237,7 @@ data class InvalidHL7Message(
 }
 
 /**
- * An message to denote that an equipment was not found in the LIVD table.
+ * A message to denote that an equipment was not found in the LIVD table.
  */
 data class InvalidEquipmentMessage(
     override val type: ActionLogDetailType = ActionLogDetailType.INVALID_EQUIPMENT,
@@ -255,6 +255,28 @@ data class InvalidEquipmentMessage(
     companion object {
         fun new(element: Element): InvalidEquipmentMessage {
             return InvalidEquipmentMessage(elementName = element.fieldMapping)
+        }
+    }
+}
+
+/**
+ * A message to denote a field precision issue.
+ */
+data class FieldPrecisionMessage(
+    override val type: ActionLogDetailType = ActionLogDetailType.FIELD_PRECISION,
+    val message: String
+) : ActionLogDetail {
+    override fun detailMsg(): String {
+        return message
+    }
+
+    override fun groupingId(): String {
+        return detailMsg()
+    }
+
+    companion object {
+        fun new(message: String): FieldPrecisionMessage {
+            return FieldPrecisionMessage(message = message)
         }
     }
 }
