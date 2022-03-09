@@ -675,11 +675,11 @@ class Hl7Serializer(
             zipCode: String,
             countyCode: String
         ) {
-            if (address.isNotEmpty() &&
-                city.isNotEmpty() &&
-                state.isNotEmpty() &&
-                zipCode.isNotEmpty() &&
-                countyCode.isNotEmpty()
+            if (address.isNullOrEmpty() &&
+                city.isNullOrEmpty() &&
+                state.isNullOrEmpty() &&
+                zipCode.isNullOrEmpty() &&
+                countyCode.isNullOrEmpty()
             ) {
                 report.setString(row, field.plus("_street"), "11 Fake AtHome Test Street")
                 report.setString(row, field.plus("_city"), "Yakutat")
@@ -696,15 +696,15 @@ class Hl7Serializer(
             report.setString(row, "test_result_status", "F")
         }
 
-        val organizationName = report.getString(row, "organizationName") ?: ""
-        if (!organizationName.isNullOrEmpty()) {
+        val senderId = report.getString(row, "sender_id") ?: ""
+        if (!senderId.isNullOrEmpty()) {
             val comment = report.getString(row, "comment")
             report.setString(
                 row,
                 "comment",
                 comment
-                    .plus(" / Organization name: ")
-                    .plus(organizationName)
+                    .plus(" Original sending organization name: ")
+                    .plus(senderId)
             )
         }
 
@@ -748,7 +748,7 @@ class Hl7Serializer(
         val testingLabCountyCode = report.getString(row, "testing_lab_county_code") ?: ""
 
         setAddress(
-            "ordering_facility",
+            "testing_lab",
             testingLabStreet,
             testingLabCity,
             testingLabState,
@@ -756,9 +756,9 @@ class Hl7Serializer(
             testingLabCountyCode
         )
 
-        val testingLabClia = report.getString(row, "00Z0000014") ?: ""
+        val testingLabClia = report.getString(row, "testing_lab_clia") ?: ""
         if (testingLabClia.isNullOrEmpty()) {
-            report.setString(row, "testing_lab_clia", "1111111111:1:")
+            report.setString(row, "testing_lab_clia", "00Z0000014")
         }
         val testingLabIdAssigner = report.getString(row, "testing_lab_id_assigner") ?: ""
         if (testingLabIdAssigner.isNullOrEmpty()) {
