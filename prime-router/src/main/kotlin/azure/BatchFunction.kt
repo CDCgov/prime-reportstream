@@ -69,7 +69,6 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
                     )
                 } else {
                     workflowEngine.generateEmptyReport(
-                        context,
                         actionHistory,
                         receiver
                     )
@@ -120,7 +119,7 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
                             outReport.id,
                             actionHistory.generatingEmptyReport
                         )
-                        workflowEngine.dispatchReport(outEvent, outReport, actionHistory, receiver, txn, null)
+                        workflowEngine.dispatchReport(outEvent, outReport, actionHistory, receiver, txn)
                     }
                     val msg = if (inReports.size == 1 && outReports.size == 1) "Success: No merging needed - batch of 1"
                     else "Success: merged ${inReports.size} reports into ${outReports.size} reports"
