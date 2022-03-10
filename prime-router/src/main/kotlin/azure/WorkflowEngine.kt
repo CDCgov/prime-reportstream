@@ -6,6 +6,7 @@ import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
@@ -168,12 +169,7 @@ class WorkflowEngine(
             if (!payloadName.isNullOrEmpty()) {
                 msg += "File: $payloadName"
             }
-            throw ActionError(
-                ActionLog.report(
-                    msg
-                ),
-                msg
-            )
+            throw ActionError(ActionLog(InvalidReportMessage(msg)), msg)
         }
     }
 
@@ -677,7 +673,7 @@ class WorkflowEngine(
                     emptyList(),
                     header.receiver
                 )
-                if (result.errors.isNotEmpty()) {
+                if (result.actionLogs.hasErrors()) {
                     error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
                 }
                 result.report
@@ -913,9 +909,11 @@ class WorkflowEngine(
                     )
                 } catch (e: Exception) {
                     throw ActionError(
-                        ActionLog.report(
-                            "An unexpected error occurred requiring additional help. Contact the ReportStream " +
-                                "team at reportstream@cdc.gov."
+                        ActionLog(
+                            InvalidReportMessage(
+                                "An unexpected error occurred requiring additional help. Contact the ReportStream " +
+                                    "team at reportstream@cdc.gov."
+                            )
                         ),
                         e.message,
                     )
@@ -931,9 +929,11 @@ class WorkflowEngine(
                     )
                 } catch (e: Exception) {
                     throw ActionError(
-                        ActionLog.report(
-                            "An unexpected error occurred requiring additional help. Contact the ReportStream " +
-                                "team at reportstream@cdc.gov."
+                        ActionLog(
+                            InvalidReportMessage(
+                                "An unexpected error occurred requiring additional help. Contact the ReportStream " +
+                                    "team at reportstream@cdc.gov."
+                            )
                         ),
                         e.message,
                     )

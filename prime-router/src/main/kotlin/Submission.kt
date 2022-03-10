@@ -46,8 +46,8 @@ class DetailedSubmissionHistory(
     val id: String? = actionResponse?.id
     val destinations = mutableListOf<Destination>()
 
-    val errors = mutableListOf<DetailActionLog>()
-    val warnings = mutableListOf<DetailActionLog>()
+    val errors = mutableListOf<ConsolidatedActionLog>()
+    val warnings = mutableListOf<ConsolidatedActionLog>()
 
     val topic: String? = actionResponse?.topic
 
@@ -77,7 +77,7 @@ class DetailedSubmissionHistory(
                         report.receivingOrg,
                         report.receivingOrgSvc!!,
                         logs?.filter {
-                            it.type == ActionLog.ActionLogType.filter && it.reportId == report.reportId
+                            it.type == ActionLogLevel.filter && it.reportId == report.reportId
                         }?.map { it.message },
                         report.nextActionAt,
                         report.itemCount,
@@ -85,8 +85,36 @@ class DetailedSubmissionHistory(
                 )
             }
         }
-        errors.addAll(logs?.filter { it.type == ActionLog.ActionLogType.error } ?: emptyList())
-        warnings.addAll(logs?.filter { it.type == ActionLog.ActionLogType.warning } ?: emptyList())
+        errors.addAll(consolidateLogs(logs, ActionLogLevel.error))
+        warnings.addAll(consolidateLogs(logs, ActionLogLevel.warning))
+    }
+
+    internal fun consolidateLogs(logs: List<DetailActionLog>?, filterBy: ActionLogLevel?): List<ConsolidatedActionLog> {
+        val consolidatedList = mutableListOf<ConsolidatedActionLog>()
+        if (logs != null) {
+            val filteredList = when (filterBy) {
+                null -> logs
+                else -> logs.filter { it.type == filterBy }
+            }.sortedBy { it.message }
+            val orderedList = (
+                filteredList.filter { it.scope != ActionLogScope.item }.sortedBy { it.scope } +
+                    filteredList.filter { it.scope == ActionLogScope.item }.sortedBy { it.index }
+                ).toMutableList()
+            while (orderedList.isNotEmpty()) {
+                val consolidatedLog = ConsolidatedActionLog(orderedList.first())
+                orderedList.removeFirst()
+                with(orderedList.iterator()) {
+                    forEach { log ->
+                        if (log.detail.groupingId == consolidatedLog.groupingId) {
+                            consolidatedLog.add(log)
+                            remove()
+                        }
+                    }
+                }
+                consolidatedList.add(consolidatedLog)
+            }
+        }
+        return consolidatedList
     }
 
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
@@ -156,17 +184,46 @@ class DetailedSubmissionHistory(
     }
 }
 
+@JsonInclude(Include.NON_NULL)
+class ConsolidatedActionLog {
+    var scope: ActionLogScope
+    val indices = mutableListOf<Int?>()
+    val trackingIds = mutableListOf<String?>()
+    var type: ActionLogLevel
+    var field: String?
+    var message: String
+    @JsonIgnore
+    var groupingId: String
+
+    constructor(log: DetailActionLog) {
+        scope = log.scope
+        type = log.type
+        message = log.message
+        groupingId = log.detail.groupingId
+        field = log.field
+        add(log)
+    }
+
+    fun add(log: DetailActionLog) {
+        check(message == log.message)
+        indices.add(log.index)
+        trackingIds.add(log.trackingId)
+    }
+}
+
+@JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DetailActionLog(
-    val scope: ActionLog.ActionLogScope,
+    val scope: ActionLogScope,
     @JsonIgnore
     val reportId: UUID?,
     val index: Int?,
     val trackingId: String?,
-    val type: ActionLog.ActionLogType,
-    detail: ActionLogDetail,
+    val type: ActionLogLevel,
+    val detail: ActionLogDetail,
 ) {
-    val message: String = detail.detailMsg()
+    val field = if (detail is ItemActionLogDetail) detail.fieldMapping else null
+    val message: String = detail.message
 }
 
 @JsonInclude(Include.NON_NULL)

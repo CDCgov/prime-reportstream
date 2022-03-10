@@ -76,12 +76,12 @@ data class ReportStreamFilterResult(
     val filterArgs: List<String>,
     val filteredTrackingElement: String,
     val filteredIndex: Int,
-    val filterType: ReportStreamFilterType?,
-    override val type: ActionLogDetailType = ActionLogDetailType.TRANSLATION
+    val filterType: ReportStreamFilterType?
 ) : ActionLogDetail {
+    override val scope = ActionLogScope.item
     companion object {
         // Use this value in logs and user-facing messages if the trackingElement is missing.
-        val DEFAULT_TRACKING_VALUE = "MissingID"
+        const val DEFAULT_TRACKING_VALUE = "MissingID"
     }
 
     override fun toString(): String {
@@ -89,13 +89,8 @@ data class ReportStreamFilterResult(
             " filtered out item $filteredTrackingElement at index $filteredIndex"
     }
 
-    override fun detailMsg(): String {
-        return toString()
-    }
-
-    override fun groupingId(): String {
-        return receiverName
-    }
+    override val message = toString()
+    override val groupingId = receiverName
 }
 
 /**
