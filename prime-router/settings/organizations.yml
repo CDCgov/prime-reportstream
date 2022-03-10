@@ -1884,6 +1884,13 @@
       customerStatus: inactive
       schemaName: primedatainput/pdi-covid-19
       format: CSV
+    - name: no-duplicates      # Use this to test sending simple_report with a dup check
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: active
+      schemaName: primedatainput/pdi-covid-19
+      allowDuplicates: false    # Duplicate data causes errors!!
+      format: CSV
     - name: ignore-waters      # Use this to test sending waters data
       organizationName: ignore
       topic: covid-19
