@@ -1357,7 +1357,9 @@ class Hl7Serializer(
         // todo: update this in case we convert a message to ASCII
         terser.set("MSH-18", "UNICODE UTF-8")
         // our primary message language is English
-        terser.set("MSH-19", "ENG^English^ISO")
+        terser.set("MSH-19-1", "ENG")
+        terser.set("MSH-19-2", "English")
+        terser.set("MSH-19-3", "ISO")
         terser.set("MSH-20", "")
         terser.set("SFT-1", SOFTWARE_VENDOR_ORGANIZATION)
         terser.set("SFT-2", buildVersion)

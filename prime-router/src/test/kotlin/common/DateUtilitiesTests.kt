@@ -301,13 +301,13 @@ class DateUtilitiesTests {
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.OFFSET)
         DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
             // assert
-            assertThat(this).isEqualTo("202201041100-0500")
+            assertThat(this).isEqualTo("20220104110000-0500")
         }
         // once more
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.HIGH_PRECISION_OFFSET)
         DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
             // assert
-            assertThat(this).isEqualTo("20220104110000.000-0500")
+            assertThat(this).isEqualTo("20220104110000.0000-0500")
         }
         // now let's change the receiver to be PST and see what happens
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.LOCAL)
@@ -321,13 +321,13 @@ class DateUtilitiesTests {
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.OFFSET)
         DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
             // assert
-            assertThat(this).isEqualTo("202201040800-0800")
+            assertThat(this).isEqualTo("20220104080000-0800")
         }
         // once more
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.HIGH_PRECISION_OFFSET)
         DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
             // assert
-            assertThat(this).isEqualTo("20220104080000.000-0800")
+            assertThat(this).isEqualTo("20220104080000.0000-0800")
         }
         // and now let's check that both methods return the same values
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.OFFSET)
@@ -347,9 +347,9 @@ class DateUtilitiesTests {
 
     companion object {
         // this regex checks for 14 digits, then a period, three digits, and then the offset
-        val highPrecisionTimeStampRegex = "\\d{14}\\.\\d{3}[-|+]\\d{4}".toRegex()
+        val highPrecisionTimeStampRegex = "\\d{14}\\.\\d{4}[-|+]\\d{4}".toRegex()
         // this regex checks for 12 digits, and then the offset sign, and then four more digits
-        val lowPrecisionTimeStampRegex = "^\\d{12}[-|+]\\d{4}".toRegex()
+        val lowPrecisionTimeStampRegex = "^\\d{14}[-|+]\\d{4}".toRegex()
         // a const value for the zoned date time type
         const val zonedDateTimeValue = "2022-01-04T11:00:00-05:00[US/Eastern]"
     }

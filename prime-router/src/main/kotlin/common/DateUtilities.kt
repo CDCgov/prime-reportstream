@@ -22,9 +22,9 @@ object DateUtilities {
     /** a local date time pattern to use when formatting in local date time instead */
     const val localDateTimePattern = "uuuuMMddHHmmss"
     /** our standard offset date time pattern */
-    const val datetimePattern = "yyyyMMddHHmmZZZ"
+    const val datetimePattern = "yyyyMMddHHmmssZZZ"
     /** includes seconds and milliseconds in the offset for higher precision  */
-    const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSZZZ"
+    const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSSZZZ"
     /** wraps around all the possible variations of a date for finding something that matches */
     const val variableDateTimePattern = "[yyyyMMdd]" +
         "[yyyyMMdd[HHmm][ss][.S][Z]]" +
