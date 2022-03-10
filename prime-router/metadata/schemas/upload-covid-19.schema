@@ -30,12 +30,12 @@ elements:
         - code: "P"
           display: "P"
 
-    - name: sender_id_all
-      default: "all"
-      documentation: This is the sender_id value used in "all" sender_valuesets lookups
-      type: TABLE
-      table: sender_valuesets
-      tableColumn: sender_id
+#    - name: sender_id_all
+#      default: "all"
+#      documentation: This is the sender_id value used in "all" sender_valuesets lookups
+#      type: TABLE
+#      table: sender_valuesets
+#      tableColumn: sender_id
 
 
 ############### Set the major ID fields
