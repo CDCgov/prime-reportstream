@@ -730,6 +730,7 @@ class ActionHistory : Logging {
                         record.childReportId = il.childReportId
                         record.childIndex = il.childIndex
                         record.trackingId = il.trackingId
+                        record.itemHash = il.itemHash
                     }
                 }
             )

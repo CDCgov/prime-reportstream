@@ -10,6 +10,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
+import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
 import gov.cdc.prime.router.azure.db.Tables.RECEIVER_CONNECTION_CHECK_RESULTS
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
@@ -154,6 +155,21 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                     .where(REPORT_FILE.SENDING_ORG.eq(senderOrgName))
                     .and(REPORT_FILE.SENDING_ORG_CLIENT.eq(senderName))
                     .and(REPORT_FILE.BLOB_DIGEST.eq(digest))
+            )
+    }
+
+    /**
+     * Returns true if there is already a record in the item_lineage table that matches the passed in [itemHash]
+     */
+    fun isDuplicateItem(
+        itemHash: ByteArray,
+        txn: DataAccessTransaction? = null
+    ): Boolean {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .fetchExists(
+                ctx.selectFrom(ITEM_LINEAGE)
+                    .where(ITEM_LINEAGE.ITEM_HASH.eq(itemHash))
             )
     }
 

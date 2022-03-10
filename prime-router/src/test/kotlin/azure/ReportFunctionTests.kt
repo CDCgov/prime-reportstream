@@ -231,7 +231,7 @@ class ReportFunctionTests {
         )
 
         val req = MockHttpRequestMessage("test")
-        req.parameters += mapOf("option" to Options.ValidatePayload.toString())
+//        req.parameters += mapOf("option" to Options.ValidatePayload.toString())
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
         every { actionHistory.insertAction(any()) } returns 0

@@ -14,6 +14,7 @@ import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
 import tech.tablesaw.selection.Selection
+import java.security.MessageDigest
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.Period
@@ -825,6 +826,35 @@ class Report : Logging {
         )
     }
 
+    /**
+     * Gets the item hash for a the [rowNum] of the report. Returns the ByteArray hash.
+     */
+    fun getItemHashForRow(rowNum: Int): ByteArray {
+        // calculate and store item hash for deduplication purposes for the generated item
+        val row = this.table.row(rowNum)
+        var rawStr = ""
+        for (colNum in 0 until row.columnCount()) {
+            rawStr += row.getString(colNum)
+        }
+
+        return MessageDigest
+            .getInstance("SHA-256")
+            .digest(rawStr.toByteArray())
+    }
+
+    /**
+     * Clears existing table and re-adds the rows that are not being removed
+     */
+    fun removeRowsFromTable(removeRows: List<Int>) {
+        var existingTable = this.table.copy()
+        this.table.clear()
+        for (rowNum in 0 until existingTable.rowCount()) {
+            if (!removeRows.contains(rowNum)) {
+                this.table.append(existingTable.row(rowNum))
+            }
+        }
+    }
+
     companion object {
         fun merge(inputs: List<Report>): Report {
             if (inputs.isEmpty())
@@ -907,6 +937,9 @@ class Report : Logging {
             childReport: Report,
             childRowNum: Int
         ): ItemLineage {
+            // get the item hash to store for deduplication purposes
+            val itemHash = parentReport.getItemHashForRow(parentRowNum)
+
             // Row numbers start at 0, but index need to start at 1
             val childIndex = childRowNum + 1
             val parentIndex = parentRowNum + 1
@@ -926,7 +959,8 @@ class Report : Logging {
                     childIndex,
                     grandParentTrackingValue,
                     null,
-                    null
+                    null,
+                    itemHash
                 )
             } else {
                 val trackingElementValue =
@@ -939,7 +973,8 @@ class Report : Logging {
                     childIndex,
                     trackingElementValue,
                     null,
-                    null
+                    null,
+                    itemHash
                 )
             }
         }
@@ -969,7 +1004,8 @@ class Report : Logging {
                         it.childIndex, // one-to-one mapping
                         it.trackingId,
                         it.transportResult,
-                        null
+                        null,
+                        it.itemHash
                     )
             }
             val retval = mutableListOf<ItemLineage>()

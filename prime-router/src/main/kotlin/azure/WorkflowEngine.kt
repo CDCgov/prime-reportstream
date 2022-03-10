@@ -178,6 +178,13 @@ class WorkflowEngine(
     }
 
     /**
+     * Returns true if the [itemHash] passed in is already present in the database
+     */
+    fun verifyNoDuplicateItem(itemHash: ByteArray): Boolean {
+        return db.isDuplicateItem(itemHash)
+    }
+
+    /**
      * Record a received [report] from a [sender] into the action history and save the original [rawBody]
      * of the received message. Return the blobUrl string to the calling function to save as part of the report
      */
