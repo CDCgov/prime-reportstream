@@ -11,27 +11,57 @@ import { NavLink } from "react-router-dom";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { GlobalContext } from "../../components/GlobalContextProvider";
 
-import { SubmissionFilterContext } from "./SubmissionContext";
+import {FilterState, SubmissionFilterContext} from "./FilterContext";
+
+
 
 function SubmissionTable() {
     // this component will refresh when global context changes (e.g. organization changes)
     const globalState = useContext(GlobalContext);
-    const { filters, updateStartRange, updateSortOrder } = useContext(
+    const { filters, updateStartRange, updateEndRange, updateSortOrder } = useContext(
         SubmissionFilterContext
     );
 
-    // we can tell if we're on the first page by saving the first result and then checking against it later
-    const [firstPaginationCursor, setFirstPaginationCursor] = useState("");
-    const [atLeastOneEntry, setAtLeastOneEntry] = useState(false);
-    const [moreThanOnePage, setMoreThanOnePage] = useState(false);
+    /*    Pagination behavior
+     * 1. Load page. Start range filter is used to dictate first cursor
+     * 2. On response, store cursor + nextCursor in Map<number, string> with 1-indexing to mimic page numbers
+     * 3. When updateStartRange is called, conditionally update Map with new cursor at new index
+     * 4. When paging back, use the Map to retrieve the previous cursor and set it
+     * 5. When paging forward, use the Map to retrieve the next cursor and set it
+     * 6. When calling a page, the cursor should be set to currentIndex cursor and endCursor should be set
+     *    to currentIndex + 1 cursor
+     */
+    const [cursors, updateCursors] = useState<Map<number, string>>(new Map([[1, ""]]))
+    const [currentIndex, updateCurrentIndex] = useState<number>(0)
+    const [hasNext, setHasNext] = useState(false)
+    const [hasPrev, setHasPrev] = useState(false)
 
+    /* NOT meant to show total page count, only page count "so far" */
+    const pageCount = () => { return cursors.size }
+    const changeCursor = (cursorIndex: number) => {
+        let cursor = cursors.get(cursorIndex) || cursors.get(currentIndex) || null
+        // let endCursor = cursors.get(cursors?.size) || null
+        if (cursor === cursors.get(cursorIndex)) {
+            updateCurrentIndex(cursorIndex)
+        } else if (cursor === cursors.get(currentIndex)) {
+            console.error(`No cursor at index ${cursorIndex}, instead used ${currentIndex}.`)
+        } else {
+            console.error(`No cursor at index ${cursorIndex}, defaulted to ""`)
+            cursor =  ""
+        }
+
+        updateStartRange!!(cursor)
+        // if (updateEndRange && endCursor) updateEndRange(endCursor)
+    }
+
+    // we can tell if we're on the first page by saving the first result and then checking against it later
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
         {
             organization: globalState.state.organization,
             cursor: filters.startRange,
             endCursor: filters.endRange,
-            pageSize: filters.pageSize,
+            pageSize: filters.pageSize + 1,
             sort: filters.sortOrder,
             showFailed: false, // No plans for this to be set to true
         }
@@ -39,72 +69,47 @@ function SubmissionTable() {
 
     // after the first page loads, set up some state info about the data.
     useEffect(() => {
-        if (
-            !submissions?.length || // no data
-            atLeastOneEntry
-        ) {
-            // already ran
-            return; // use defaults or data determined from the first page.
+        if (!submissions?.length) return;
+        const cursorExists = (c: string) => {
+            Object.entries(cursors).forEach(([key, value]) => {
+                console.log(value)
+                if (value === c) return true;
+            })
+            return false
         }
-        setAtLeastOneEntry(true); // otherwise !submissions?.length would have returned
-        setFirstPaginationCursor(submissions[0].createdAt || "");
-        setMoreThanOnePage(submissions.length >= filters.pageSize);
-    }, [atLeastOneEntry, filters.pageSize, submissions]);
+        const addCursors = () => {
+            const start = submissions[0]?.createdAt || null
+            const end = submissions[submissions.length - 2]?.createdAt || null
+
+            setHasNext(submissions[submissions.length - 1]?.createdAt !== undefined)
+            setHasPrev(currentIndex > 1)
+
+            if (start && !cursorExists(start)) {
+                if (currentIndex > 1) updateCursors(cursors.set(cursors.size + 1, start))
+                if (currentIndex === 0) updateCurrentIndex(cursors.size)
+            }
+            if (end && !cursorExists(end)) updateCursors(cursors.set(cursors.size + 1, end))
+
+        }
+
+        addCursors();
+        debugger
+    }, [currentIndex, updateCurrentIndex, cursors, submissions]);
 
     const getSortedSubmissions = (): SubmissionsResource[] => {
         submissions?.sort((a, b) => SubmissionsResource.sortByCreatedAt(a, b));
         return submissions || [];
     };
 
-    // this treats the FIRST entry in the list as the starting point. Used when doing a Prev
-    const getCursorStart = (): string => {
-        if (!submissions || !submissions.length) {
-            return "";
-        }
-        return submissions[0]?.createdAt || "";
-    };
-
-    // this treats the last entry on the page as the starting point. Used when doing Next
-    const getCursorEnd = (): string => {
-        if (!submissions || !submissions.length) {
-            return "";
-        }
-        return submissions[submissions.length - 1]?.createdAt || "";
-    };
-
-    const updatePaginationCursor = (next: boolean) => {
-        if (!submissions) {
-            return;
-        }
-        const cursor = next ? getCursorEnd() : getCursorStart();
-        const sort = next ? "DESC" : "ASC";
-        updateStartRange!!(cursor);
-        updateSortOrder!!(sort);
-    };
-
-    const onFirstPage = () => {
-        // do any elements match the current cursor?
-        return submissions?.find((s) => s.createdAt === firstPaginationCursor);
-    };
-
-    // 2022-01-07: the team suggested to see if the number of items matches
-    // the requested page size to tell if it is the last page,
-    // and then leave a message if there are no results on the next page
-    const onLastPage = () => {
-        return submissions?.length !== filters.pageSize;
-    };
-
     const NextPrevButtonsComponent = () => {
         // on both the first and last page if there's only one page of data
-        if (!moreThanOnePage) {
-            return <></>;
-        }
+        if (pageCount() <= 1) return <></>;
         return (
             <ButtonGroup type="segmented" className="float-right margin-top-5">
-                {!onFirstPage() && (
+                {hasPrev && (
                     <Button
                         type="button"
-                        onClick={() => updatePaginationCursor(false)}
+                        onClick={() => changeCursor(currentIndex - 1)}
                     >
                         <span>
                             <IconNavigateBefore className="text-middle" />
@@ -112,10 +117,10 @@ function SubmissionTable() {
                         </span>
                     </Button>
                 )}
-                {!onLastPage() && (
+                {hasNext && (
                     <Button
                         type="button"
-                        onClick={() => updatePaginationCursor(true)}
+                        onClick={() => changeCursor(currentIndex + 1)}
                     >
                         <span>
                             Next
@@ -166,12 +171,11 @@ function SubmissionTable() {
                         })}
                     </tbody>
                 </table>
-                {submissions?.length === 0 && !atLeastOneEntry && (
+                {submissions?.length === 0 ?
                     <p>There were no results found.</p>
-                )}
-                {submissions?.length === 0 && atLeastOneEntry && (
-                    <p>No more results found.</p>
-                )}
+                    :
+                    null
+                }
                 <NextPrevButtonsComponent />
             </div>
         </div>

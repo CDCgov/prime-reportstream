@@ -3,7 +3,7 @@ import React, { createContext, PropsWithChildren, useState } from "react";
 type SortOrder = "ASC" | "DESC";
 type PageSize = 10 | 25 | 50 | 100;
 
-interface FilterState {
+export interface FilterState {
     startRange: string;
     endRange: string;
     sortOrder: SortOrder;
@@ -34,7 +34,7 @@ export const SubmissionFilterContext = createContext<ISubmissionFilterContext>({
  * SubmissionFilters. This is much friendlier than callback functions
  * and piping props!
  */
-const SubmissionContext: React.FC<any> = (props: PropsWithChildren<any>) => {
+const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
     const [startRange, setStartRange] = useState<string>("");
     const [endRange, setEndRange] = useState<string>("");
     const [sortOrder, setSortOrder] = useState<SortOrder>("DESC");
@@ -66,4 +66,4 @@ const SubmissionContext: React.FC<any> = (props: PropsWithChildren<any>) => {
     );
 };
 
-export default SubmissionContext;
+export default FilterContext;

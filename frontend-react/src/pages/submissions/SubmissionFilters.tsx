@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { DatePicker, Label } from "@trussworks/react-uswds";
 
 import "./SubmissionPages.css";
-import { SubmissionFilterContext } from "./SubmissionContext";
+import { SubmissionFilterContext } from "./FilterContext";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",

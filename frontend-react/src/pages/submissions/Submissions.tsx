@@ -10,7 +10,7 @@ import Title from "../../components/Title";
 
 import SubmissionTable from "./SubmissionTable";
 import SubmissionFilters from "./SubmissionFilters";
-import SubmissionContext from "./SubmissionContext";
+import FilterContext from "./FilterContext";
 import PaginatedTable from "../../components/PaginatedTable";
 
 
@@ -41,17 +41,16 @@ function Submissions() {
             <section className="grid-container margin-top-5">
                 <Title title="COVID-19" preTitle={orgName} />
             </section>
-            <SubmissionContext>
+            <FilterContext>
                 <NetworkErrorBoundary
                     fallbackComponent={() => <ErrorPage type="message" />}
                 >
                     <Suspense fallback={<Spinner />}>
                         <SubmissionFilters />
-                        {/*<SubmissionTable />*/}
-                        <PaginatedTable objects={[obj]}/>
+                        <SubmissionTable />
                     </Suspense>
                 </NetworkErrorBoundary>
-            </SubmissionContext>
+            </FilterContext>
             <HipaaNotice />
         </NetworkErrorBoundary>
     );
