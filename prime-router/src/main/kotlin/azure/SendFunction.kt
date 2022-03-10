@@ -31,7 +31,6 @@ const val dataRetentionDays = 7L
 const val send = "send"
 const val maxRetryCount = 4
 const val maxDurationValue = 120L
-const val ALERT_TRIGGER = "AlertTheHumans"
 
 // index is retryCount, value is in minutes
 // We often send every 2 hours.   Idea here is that the 4th retry occurs *before* the next round of sends, in 111 mins.
@@ -100,7 +99,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             }
         } catch (t: Throwable) {
             // For debugging and auditing purposes
-            val msg = "Send function unrecoverable exception for event. Manual intervention required: $message"
+            val msg = "Send function unrecoverable exception for event. Mo intervention required: $message"
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
             logger.error("$ALERT_TRIGGER: ${actionHistory.action.actionResult}", t)

@@ -39,6 +39,11 @@ import java.io.ByteArrayInputStream
 import java.time.OffsetDateTime
 
 /**
+ * Keyword used to trigger alarms when an Exception cannot easily be thrown.
+ */
+const val ALERT_TRIGGER = "AlertTheHumans"
+
+/**
  * A top-level object that contains all the helpers and accessors to power the workflow.
  * Workflow objects are heavy-weight and should only be created once per function lifetime.
  *
