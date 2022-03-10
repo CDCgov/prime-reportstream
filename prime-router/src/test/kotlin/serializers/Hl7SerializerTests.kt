@@ -16,6 +16,7 @@ import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
@@ -201,7 +202,7 @@ class Hl7SerializerTests {
         val now = OffsetDateTime.now()
         val nowAsDate = Date.from(now.toInstant())
         val dateTimeElement = Element("field", hl7Field = "OBX-14", type = Element.Type.DATETIME)
-        val warnings = mutableListOf<String>()
+        val warnings = mutableListOf<ActionLogDetail>()
         val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(Element.datetimePattern)
         val dateFormatterNoTimeZone = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
 
@@ -305,7 +306,7 @@ class Hl7SerializerTests {
         val mockDT = mockk<DT>()
         val dateElement = Element("field", hl7Field = "OBX-14", type = Element.Type.DATE)
         val dateFormatterDate = DateTimeFormatter.ofPattern(Element.datePattern)
-        val warnings = mutableListOf<String>()
+        val warnings = mutableListOf<ActionLogDetail>()
 
         every { mockTerser.getSegment(any()) } returns mockSegment
 
