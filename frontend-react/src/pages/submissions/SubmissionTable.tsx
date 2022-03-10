@@ -11,16 +11,13 @@ import { NavLink } from "react-router-dom";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { GlobalContext } from "../../components/GlobalContextProvider";
 
-import {FilterState, SubmissionFilterContext} from "./FilterContext";
-
-
+import { FilterState, SubmissionFilterContext } from "./FilterContext";
 
 function SubmissionTable() {
     // this component will refresh when global context changes (e.g. organization changes)
     const globalState = useContext(GlobalContext);
-    const { filters, updateStartRange, updateEndRange, updateSortOrder } = useContext(
-        SubmissionFilterContext
-    );
+    const { filters, updateStartRange, updateEndRange, updateSortOrder } =
+        useContext(SubmissionFilterContext);
 
     /*    Pagination behavior
      * 1. Load page. Start range filter is used to dictate first cursor
@@ -34,28 +31,40 @@ function SubmissionTable() {
 
     // Initialized cursors with first cursor as blank so page 1 always has the newest items
     // displayed.
-    const [cursors, updateCursors] = useState<Map<number, string>>(new Map([[1, ""]]))
-    const [currentIndex, updateCurrentIndex] = useState<number>(1)
-    const [hasNext, setHasNext] = useState(false)
-    const [hasPrev, setHasPrev] = useState(false)
+    const [cursors, updateCursors] = useState<Map<number, string>>(
+        new Map([[1, ""]])
+    );
+    const [currentIndex, updateCurrentIndex] = useState<number>(1);
+    const [hasNext, setHasNext] = useState(false);
+    const [hasPrev, setHasPrev] = useState(false);
 
     /* NOT meant to show total page count, only page count "so far" */
-    const pageCount = () => { return cursors.size }
+    const pageCount = () => {
+        return cursors.size;
+    };
     const changeCursor = (cursorIndex: number) => {
-        let cursor = cursors.get(cursorIndex) || cursors.get(currentIndex) || null
-        // let endCursor = cursors.get(cursors?.size) || null
-        if (cursor === cursors.get(cursorIndex)) {
-            updateCurrentIndex(cursorIndex)
-        } else if (cursor === cursors.get(currentIndex)) {
-            console.error(`No cursor at index ${cursorIndex}, instead used ${currentIndex}.`)
+        let cursor =
+            cursors.get(cursorIndex) || cursors.get(currentIndex) || null;
+        if (cursorIndex === 1 || !cursor) {
+            /* Cursor 1 will always have the value of "" so that page 1 always has
+             * the absolute latest results pulled. However, this will return null
+             * if called cursors.get(1), so this check manually sets the cursor to
+             * an empty string.
+             *
+             * For this, we also must reset the Map so previously tracked
+             * cursors are lost and new cursors can be stored.
+             */
+            cursor = "";
+            updateCursors(new Map([[1, cursor]]));
+            updateCurrentIndex(cursorIndex);
         } else {
-            console.error(`No cursor at index ${cursorIndex}, defaulted to ""`)
-            cursor =  ""
+            if (cursor === cursors.get(cursorIndex))
+                updateCurrentIndex(cursorIndex);
         }
 
-        updateStartRange!!(cursor)
+        updateStartRange!!(cursor);
         // updateEndRange!!(endCursor)
-    }
+    };
 
     // we can tell if we're on the first page by saving the first result and then checking against it later
     const submissions: SubmissionsResource[] = useResource(
@@ -73,22 +82,30 @@ function SubmissionTable() {
     // after the first page loads, set up some state info about the data.
     useEffect(() => {
         const cursorExists = (c: string) => {
-            return Array.from(cursors.values()).includes(c)
-        }
+            return Array.from(cursors.values()).includes(c);
+        };
         const addCursors = (nextCursor: string) => {
-            updateCursors(cursors.set(currentIndex + 1, nextCursor))
-        }
+            updateCursors(cursors.set(currentIndex + 1, nextCursor));
+        };
         const updatePrevNextBools = () => {
-            setHasNext(currentIndex < cursors.size)
-            setHasPrev(currentIndex > 1)
-        }
+            setHasNext(currentIndex < cursors.size);
+            setHasPrev(currentIndex > 1);
+        };
 
-        const lastTimestamp = submissions[filters.pageSize - 1]?.createdAt || null
-        if (lastTimestamp && !cursorExists(lastTimestamp)) addCursors(lastTimestamp);
-        updatePrevNextBools()
+        const lastTimestamp =
+            submissions[filters.pageSize - 1]?.createdAt || null;
+        if (lastTimestamp && !cursorExists(lastTimestamp))
+            addCursors(lastTimestamp);
+        updatePrevNextBools();
 
-        debugger
-    }, [currentIndex, updateCurrentIndex, cursors, submissions, filters.pageSize]);
+        debugger;
+    }, [
+        currentIndex,
+        updateCurrentIndex,
+        cursors,
+        submissions,
+        filters.pageSize,
+    ]);
 
     const getSortedSubmissions = (): SubmissionsResource[] => {
         submissions?.sort((a, b) => SubmissionsResource.sortByCreatedAt(a, b));
@@ -165,11 +182,9 @@ function SubmissionTable() {
                         })}
                     </tbody>
                 </table>
-                {submissions?.length === 0 ?
+                {submissions?.length === 0 ? (
                     <p>There were no results found.</p>
-                    :
-                    null
-                }
+                ) : null}
                 <NextPrevButtonsComponent />
             </div>
         </div>

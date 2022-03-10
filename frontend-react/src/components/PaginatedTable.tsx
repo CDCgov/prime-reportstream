@@ -23,33 +23,31 @@ interface PaginatedTableProps<T extends TableRow> {
     render capitalized headers and optionally-transformed data.
 */
 const PaginatedTable = (props: PaginatedTableProps<TableRow>) => {
-
     useEffect(() => {
-        transformData()
-    }, [props.objects])
-    
+        transformData();
+    }, [props.objects]);
 
     const transformData = (): void => {
         // ex: { a: 1, b: 2, transform: Map([['b', addOne]])} ->
         //     { a: 1, b: 3, transform: Map([['b', addOne]])}
         props.objects.forEach((obj) => {
             if (obj.transform) {
-                obj.transform.forEach((transform, key)=>{
-                    obj[key] = transform(obj[key])
-                })                
+                obj.transform.forEach((transform, key) => {
+                    obj[key] = transform(obj[key]);
+                });
             }
         });
-    }
+    };
 
     const transformHeaders = (): string[] => {
-        const newHeaders: Array<string> = []
-        props.objects.forEach(obj => {
-            Object.entries(obj).forEach(key =>
+        const newHeaders: Array<string> = [];
+        props.objects.forEach((obj) => {
+            Object.entries(obj).forEach((key) =>
                 newHeaders.push(key[0].toUpperCase() + key.slice(1))
-            )
-        })
-        return newHeaders
-    }
+            );
+        });
+        return newHeaders;
+    };
 
     // Pull field names and stylize them
     // FIRST... translate field B with += 1
@@ -62,9 +60,7 @@ const PaginatedTable = (props: PaginatedTableProps<TableRow>) => {
                     aria-label="Submission history from the last 30 days"
                 >
                     <thead>
-                    <tr>
-                        {/* Render headers in <th/> */}
-                    </tr>
+                        <tr>{/* Render headers in <th/> */}</tr>
                     </thead>
                     <tbody id="tBody" className="font-mono-2xs">
                         {/* Render transformed objects in <tr/> */}
@@ -72,7 +68,7 @@ const PaginatedTable = (props: PaginatedTableProps<TableRow>) => {
                 </table>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default PaginatedTable
+export default PaginatedTable;

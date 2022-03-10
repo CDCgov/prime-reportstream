@@ -13,20 +13,16 @@ import SubmissionFilters from "./SubmissionFilters";
 import FilterContext from "./FilterContext";
 import PaginatedTable from "../../components/PaginatedTable";
 
-
 // TEST CODE WOOHOO!
 function addOne(val: number) {
-    return val + 1
+    return val + 1;
 }
 
 const obj = {
     fieldA: "hello",
     fieldB: 122,
-    instructions: new Map<string, Function>([
-        ["fieldB", addOne]
-    ])
-}
-
+    instructions: new Map<string, Function>([["fieldB", addOne]]),
+};
 
 function Submissions() {
     const orgName: string = useOrgName();
