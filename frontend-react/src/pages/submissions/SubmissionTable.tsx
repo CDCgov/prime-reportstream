@@ -31,8 +31,11 @@ function SubmissionTable() {
      * 6. When calling a page, the cursor should be set to currentIndex cursor and endCursor should be set
      *    to currentIndex + 1 cursor
      */
+
+    // Initialized cursors with first cursor as blank so page 1 always has the newest items
+    // displayed.
     const [cursors, updateCursors] = useState<Map<number, string>>(new Map([[1, ""]]))
-    const [currentIndex, updateCurrentIndex] = useState<number>(0)
+    const [currentIndex, updateCurrentIndex] = useState<number>(1)
     const [hasNext, setHasNext] = useState(false)
     const [hasPrev, setHasPrev] = useState(false)
 
@@ -51,7 +54,7 @@ function SubmissionTable() {
         }
 
         updateStartRange!!(cursor)
-        // if (updateEndRange && endCursor) updateEndRange(endCursor)
+        // updateEndRange!!(endCursor)
     }
 
     // we can tell if we're on the first page by saving the first result and then checking against it later
@@ -61,7 +64,7 @@ function SubmissionTable() {
             organization: globalState.state.organization,
             cursor: filters.startRange,
             endCursor: filters.endRange,
-            pageSize: filters.pageSize + 1,
+            pageSize: filters.pageSize + 1, // Pulls +1 to check for next page
             sort: filters.sortOrder,
             showFailed: false, // No plans for this to be set to true
         }
@@ -69,32 +72,23 @@ function SubmissionTable() {
 
     // after the first page loads, set up some state info about the data.
     useEffect(() => {
-        if (!submissions?.length) return;
         const cursorExists = (c: string) => {
-            Object.entries(cursors).forEach(([key, value]) => {
-                console.log(value)
-                if (value === c) return true;
-            })
-            return false
+            return Array.from(cursors.values()).includes(c)
         }
-        const addCursors = () => {
-            const start = submissions[0]?.createdAt || null
-            const end = submissions[submissions.length - 2]?.createdAt || null
-
-            setHasNext(submissions[submissions.length - 1]?.createdAt !== undefined)
+        const addCursors = (nextCursor: string) => {
+            updateCursors(cursors.set(currentIndex + 1, nextCursor))
+        }
+        const updatePrevNextBools = () => {
+            setHasNext(currentIndex < cursors.size)
             setHasPrev(currentIndex > 1)
-
-            if (start && !cursorExists(start)) {
-                if (currentIndex > 1) updateCursors(cursors.set(cursors.size + 1, start))
-                if (currentIndex === 0) updateCurrentIndex(cursors.size)
-            }
-            if (end && !cursorExists(end)) updateCursors(cursors.set(cursors.size + 1, end))
-
         }
 
-        addCursors();
+        const lastTimestamp = submissions[filters.pageSize - 1]?.createdAt || null
+        if (lastTimestamp && !cursorExists(lastTimestamp)) addCursors(lastTimestamp);
+        updatePrevNextBools()
+
         debugger
-    }, [currentIndex, updateCurrentIndex, cursors, submissions]);
+    }, [currentIndex, updateCurrentIndex, cursors, submissions, filters.pageSize]);
 
     const getSortedSubmissions = (): SubmissionsResource[] => {
         submissions?.sort((a, b) => SubmissionsResource.sortByCreatedAt(a, b));
