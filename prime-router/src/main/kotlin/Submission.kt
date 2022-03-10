@@ -156,7 +156,9 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * todo
+     * Enrich a parent detailed history with details from the download action
+     *
+     * Add download report information to each destination present in the parent's historical details.
      */
     private fun enrichWithDownloadAction(descendant: DetailedSubmissionHistory) {
         require(descendant.actionName == TaskAction.download) { "Must be a download action" }
