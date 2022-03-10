@@ -40,12 +40,7 @@ function SubmissionTable() {
      * - pageCount: function(), returns the current size of your cursor Map
      */
     const { hasPrev, hasNext, currentIndex, changeCursor, pageCount } =
-        usePaginator(submissions, filters, updateStartRange!!);
-
-    const getSortedSubmissions = (): SubmissionsResource[] => {
-        submissions?.sort((a, b) => SubmissionsResource.sortByCreatedAt(a, b));
-        return submissions || [];
-    };
+        usePaginator(submissions, filters.pageSize, updateStartRange!!);
 
     const NextPrevButtonsComponent = () => {
         // on both the first and last page if there's only one page of data
@@ -95,7 +90,8 @@ function SubmissionTable() {
                         </tr>
                     </thead>
                     <tbody id="tBody" className="font-mono-2xs">
-                        {getSortedSubmissions().map((s) => {
+                        {submissions.map((s, i) => {
+                            if (i === filters.pageSize) return null
                             return (
                                 <tr key={s.pk()}>
                                     <th scope="row">

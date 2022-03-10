@@ -1,7 +1,7 @@
 import React, { createContext, PropsWithChildren, useState } from "react";
 
 type SortOrder = "ASC" | "DESC";
-type PageSize = 10 | 25 | 50 | 100;
+export type PageSize = 10 | 25 | 50 | 100;
 
 export interface FilterState {
     startRange: string;

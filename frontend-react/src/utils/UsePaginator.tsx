@@ -1,24 +1,32 @@
-/*    Pagination behavior
- * 1. Load page. Start range filter is used to dictate first cursor
- * 2. On response, store cursor + nextCursor in Map<number, string> with 1-indexing to mimic page numbers
- * 3. When updateStartRange is called, conditionally update Map with new cursor at new index
- * 4. When paging back, use the Map to retrieve the previous cursor and set it
- * 5. When paging forward, use the Map to retrieve the next cursor and set it
- * 6. When calling a page, the cursor should be set to currentIndex cursor and endCursor should be set
- *    to currentIndex + 1 cursor
+/* Pagination behavior:
+ * 1. Initial cursor set to "", which loads all results.
+ * 2. On response, stores next cursor in Map<number, string>
+ * 3. Calling changeCursor(index) from the consumer will update the cursor using
+ *    the provided updateCursor function.
+ *
+ * Notes:
+ * - When paging back and forth, the map will not add any new cursors
+ *   it detects are already present.
+ * - Going back to Page 1 wipes the map and starts over as new elements might be
+ *   present in the response, making old cursors irrelevant.
  */
 import { useEffect, useState } from "react";
 
 import SubmissionsResource from "../resources/SubmissionsResource";
-import { FilterState } from "../pages/submissions/FilterContext";
+import {PageSize} from "../pages/submissions/FilterContext";
 
 /* TODO: Refactor to include generics so this can be used universally */
+/* Pagination hook inputs
+ * @param responseArray: an array of items sent back from the API
+ * @param filters: your FilterState
+ */
 function usePaginator(
-    submissions: SubmissionsResource[],
-    filters: FilterState,
+    responseArray: SubmissionsResource[],
+    pageSize: PageSize,
     updateCursor: Function
 ) {
     /* Cursor 1 is given the value of "" so that page 1 always shows
+     * the latest values.
      */
     const [cursors, updateCursors] = useState<Map<number, string>>(
         new Map([[1, ""]])
@@ -70,23 +78,22 @@ function usePaginator(
         };
 
         const lastTimestamp =
-            submissions[filters.pageSize - 1]?.createdAt || null;
+            responseArray[pageSize - 1]?.createdAt || null;
         if (lastTimestamp && !cursorExists(lastTimestamp))
             addCursors(lastTimestamp);
         updateNextPrevBooleans();
-
-        debugger;
     }, [
         currentIndex,
         updateCurrentIndex,
         cursors,
-        submissions,
-        filters.pageSize,
+        responseArray,
+        pageSize,
     ]);
 
     /* Gives handlers for all pagination needs!
      *
      * - hasPrev/hasNext: boolean, indicating previous and next pages exist.
+     * ---> Used for conditionally showing Next/Prev buttons
      * - currentIndex: number, the page number you're currently on.
      * - changeCursor: function(desiredCursorIndex), handles cursor navigation and updating.
      * - pageCount: function(), returns the current size of your cursor Map
