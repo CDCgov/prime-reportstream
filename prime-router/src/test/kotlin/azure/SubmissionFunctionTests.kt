@@ -48,7 +48,7 @@ data class DetailSubmissionHistoryResponse(
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SubmissionFunctionTests {
-    private val mapper = JacksonMapperUtilities.datesAsTextMapper
+    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : SubmissionAccess {
 
@@ -56,8 +56,10 @@ class SubmissionFunctionTests {
             sendingOrg: String,
             order: SubmissionAccess.SortOrder,
             sortColumn: SubmissionAccess.SortColumn,
-            resultsAfterDate: OffsetDateTime?,
+            cursor: OffsetDateTime?,
+            toEnd: OffsetDateTime?,
             limit: Int,
+            showFailed: Boolean,
             klass: Class<T>
         ): List<T> {
             @Suppress("UNCHECKED_CAST")
@@ -135,7 +137,7 @@ class SubmissionFunctionTests {
                     listOf(
                         ExpectedSubmissionHistory(
                             taskId = 8,
-                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
+                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919Z"),
                             sendingOrg = "simple_report",
                             httpStatus = 201,
                             externalName = "testname.csv",
@@ -147,7 +149,7 @@ class SubmissionFunctionTests {
                         ),
                         ExpectedSubmissionHistory(
                             taskId = 7,
-                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
+                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307Z"),
                             sendingOrg = "simple_report",
                             httpStatus = 400,
                             id = null,
@@ -188,7 +190,21 @@ class SubmissionFunctionTests {
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf(
                     "pagesize" to "10",
-                    "cursor" to "2021-11-30T16:36:48.307109Z",
+                    "cursor" to "2021-11-30T16:36:48.307Z",
+                    "sort" to "ASC"
+                ),
+                ExpectedAPIResponse(
+                    HttpStatus.OK
+                ),
+                "good minimum params"
+            ),
+            SubmissionUnitTestCase(
+                mapOf("authorization" to "Bearer fdafads"),
+                mapOf(
+                    "pagesize" to "10",
+                    "cursor" to "2021-11-30T16:36:54.307109Z",
+                    "endCursor" to "2021-11-30T16:36:53.919104Z",
+                    "sortCol" to "CREATED_AT",
                     "sort" to "ASC"
                 ),
                 ExpectedAPIResponse(
@@ -196,7 +212,6 @@ class SubmissionFunctionTests {
                 ),
                 "good all params"
             )
-
         )
 
         testCases.forEach {
@@ -213,8 +228,8 @@ class SubmissionFunctionTests {
                 "simple_report",
             )
             // Verify
-            assertThat(response.getStatus()).isEqualTo(it.expectedResponse.status)
-            if (response.getStatus() == HttpStatus.OK) {
+            assertThat(response.status).isEqualTo(it.expectedResponse.status)
+            if (response.status == HttpStatus.OK) {
                 val submissions: List<ExpectedSubmissionHistory> = mapper.readValue(response.body.toString())
                 if (it.expectedResponse.body != null) {
                     assertThat(submissions.size).isEqualTo(it.expectedResponse.body.size)

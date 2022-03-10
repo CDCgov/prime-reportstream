@@ -18,7 +18,7 @@ class SubmissionsFacade(
 ) {
 
     // Ignoring unknown properties because we don't require them. -DK
-    private val mapper = JacksonMapperUtilities.datesAsTextMapper
+    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     /**
      * Serializes a list of Actions into a String.
@@ -37,9 +37,11 @@ class SubmissionsFacade(
         sortOrder: String,
         sortColumn: String,
         offset: OffsetDateTime?,
-        pageSize: Int
+        toEnd: OffsetDateTime?,
+        pageSize: Int,
+        showFailed: Boolean
     ): String {
-        val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, pageSize)
+        val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize, showFailed)
         return mapper.writeValueAsString(result)
     }
 
@@ -48,7 +50,9 @@ class SubmissionsFacade(
         sortOrder: String,
         sortColumn: String,
         offset: OffsetDateTime?,
+        toEnd: OffsetDateTime?,
         pageSize: Int,
+        showFailed: Boolean
     ): List<SubmissionHistory> {
         val order = try {
             SubmissionAccess.SortOrder.valueOf(sortOrder)
@@ -61,7 +65,8 @@ class SubmissionsFacade(
         } catch (e: IllegalArgumentException) {
             SubmissionAccess.SortColumn.CREATED_AT
         }
-        return findSubmissions(organizationName, order, column, offset, pageSize)
+
+        return findSubmissions(organizationName, order, column, offset, toEnd, pageSize, showFailed)
     }
 
     /**
@@ -78,7 +83,9 @@ class SubmissionsFacade(
         sortOrder: SubmissionAccess.SortOrder,
         sortColumn: SubmissionAccess.SortColumn,
         offset: OffsetDateTime?,
+        toEnd: OffsetDateTime?,
         pageSize: Int,
+        showFailed: Boolean
     ): List<SubmissionHistory> {
         require(organizationName.isNotBlank()) {
             "Invalid organization."
@@ -92,7 +99,9 @@ class SubmissionsFacade(
             sortOrder,
             sortColumn,
             offset,
+            toEnd,
             pageSize,
+            showFailed,
             SubmissionHistory::class.java
         )
         return submissions
