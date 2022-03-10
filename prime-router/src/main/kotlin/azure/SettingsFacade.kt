@@ -319,6 +319,25 @@ class OrganizationAPI
     override fun consistencyErrorMessage(metadata: Metadata): String? { return this.consistencyErrorMessage() }
 }
 
+/**
+ * A `SenderAPI` is a facade a class that combines two or more classes into a more-simple interface
+ * for property details, see the following classes:
+ * s = class Sender in src main kotlin Sender.kt
+ * m = class SettingMetadata above
+ * @property name s
+ * @property organizationName s
+ * @property format s
+ * @property topic s
+ * @property customerStatus s
+ * @property schemaName s
+ * @property keys  s
+ * @property processingType s
+ * @property allowDuplicates s
+ * @property senderType s
+ * @property primarySubmissionMethod s
+ * @property meta m
+ */
+
 class SenderAPI
 @JsonCreator constructor(
     name: String,
