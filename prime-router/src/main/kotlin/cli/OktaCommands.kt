@@ -213,7 +213,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             OktaApp.DH_DEV to oktaPreviewBaseUrl,
         )
 
-        private val jsonMapper = JacksonMapperUtilities.datesAsTextMapper
+        private val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
 
         /**
          * Returns the access token saved from the last login if valid given [app].

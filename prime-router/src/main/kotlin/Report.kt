@@ -77,6 +77,7 @@ data class ReportStreamFilterResult(
     val filterArgs: List<String>,
     val filteredTrackingElement: String,
     val filteredIndex: Int,
+    val filterType: ReportStreamFilterType?,
     override val type: ActionLogDetailType = ActionLogDetailType.TRANSLATION
 ) : ActionLogDetail {
     companion object {
@@ -403,7 +404,8 @@ class Report : Logging {
         receiver: Receiver,
         doLogging: Boolean,
         trackingElement: String?,
-        reverseTheFilter: Boolean = false
+        reverseTheFilter: Boolean = false,
+        reportStreamFilterType: ReportStreamFilterType
     ): Report {
         val filteredRows = mutableListOf<ReportStreamFilterResult>()
         val combinedSelection = Selection.withRange(0, table.rowCount())
@@ -425,7 +427,8 @@ class Report : Logging {
                             filterFn.name,
                             fnArgs,
                             trackingId,
-                            rowNum + 1
+                            rowNum + 1,
+                            reportStreamFilterType
                         )
                     )
                 }
