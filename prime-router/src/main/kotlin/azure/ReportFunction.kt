@@ -13,7 +13,7 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
-import gov.cdc.prime.router.ActionLogs
+import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.InvalidParamMessage
@@ -374,7 +374,7 @@ class ReportFunction(
     }
 
     internal fun validateRequest(request: HttpRequestMessage<String?>): ValidatedRequest {
-        val actionLogs = ActionLogs()
+        val actionLogs = ActionLogger()
         HttpUtilities.payloadSizeCheck(request)
 
         val receiverNamesText = request.queryParameters.getOrDefault(ROUTE_TO_PARAMETER, "")

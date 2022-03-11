@@ -15,7 +15,7 @@ import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogDetail
-import gov.cdc.prime.router.ActionLogs
+import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FieldPrecisionMessage
 import gov.cdc.prime.router.Hl7Configuration
@@ -391,7 +391,7 @@ class Hl7Serializer(
         }
 
         // Generate the action log
-        val actionLogs = ActionLogs()
+        val actionLogs = ActionLogger()
         mapping.items.forEachIndexed { index, messageResult ->
             val messageIndex = index + 1
             var trackingId = if (schema.trackingElement != null && messageResult.item.contains(schema.trackingElement))

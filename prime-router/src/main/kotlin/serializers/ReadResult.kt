@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.serializers
 
-import gov.cdc.prime.router.ActionLogs
+import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Report
 
 /**
@@ -14,7 +14,7 @@ data class ReadResult(
     /**
      * The list of errors that caused a item to not be reported
      */
-    val actionLogs: ActionLogs
+    val actionLogs: ActionLogger
 ) {
     init {
         actionLogs.setReportId(report.id)

@@ -6,7 +6,7 @@ import com.github.doyaaaaaken.kotlincsv.util.CSVFieldNumDifferentException
 import com.github.doyaaaaaken.kotlincsv.util.CSVParseFormatException
 import com.github.doyaaaaaken.kotlincsv.util.MalformedCSVException
 import gov.cdc.prime.router.ActionLogDetail
-import gov.cdc.prime.router.ActionLogs
+import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.AltValueNotDefinedException
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.InvalidReportMessage
@@ -58,7 +58,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         defaultValues: Map<String, String> = emptyMap(),
         sender: Sender? = null,
     ): ReadResult {
-        val actionLogs = ActionLogs()
+        val actionLogs = ActionLogger()
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
         val rows = mutableListOf<Map<String, String>>()
         csvReader {
@@ -255,7 +255,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         schema: Schema,
         defaultValues: Map<String, String>,
         row: Map<String, String>,
-        actionLogs: ActionLogs
+        actionLogs: ActionLogger
     ): CsvMapping {
         fun rowContainsAll(fields: List<Element.CsvField>): Boolean {
             return fields.find { !row.containsKey(it.name) } == null

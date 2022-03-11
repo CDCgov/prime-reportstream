@@ -5,13 +5,17 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * The scope of an action log.
+ */
 enum class ActionLogScope {
-    // TODO Need a way to change these to uppercase, but keep the values in the DB in lowercase for compatibility
     parameter, report, item, translation
 }
 
+/**
+ * The log level of an action log.
+ */
 enum class ActionLogLevel {
-    // TODO Need a way to change these to uppercase, but keep the values in the DB in lowercase for compatibility
     info, warning, error, filter
 }
 
@@ -70,71 +74,147 @@ class ActionError(val details: List<ActionLog>, message: String? = null) : Error
         }
 }
 
+/**
+ * Details for a given action log.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 @JsonIgnoreProperties(ignoreUnknown = true)
 interface ActionLogDetail {
+    /**
+     * The scopt of the log.
+     */
     val scope: ActionLogScope
+
+    /**
+     * The log message.
+     */
     val message: String
+
+    /**
+     * A unique ID for the given message used to group similar messages.
+     */
     val groupingId: String
 }
 
-class ActionLogs() {
-    private val rawLogs = mutableListOf<ActionLog>()
+/**
+ * A logger for action logs.
+ */
+class ActionLogger() {
+    /**
+     * The raw logs.
+     */
+    val logs = mutableListOf<ActionLog>()
+
+    /**
+     * The current item index being tracked, or null if no index is tracked.
+     */
     private var itemIndex: Int? = null
+
+    /**
+     * The current item tracking ID being tracked, or null if no tracking ID is tracked.
+     */
     private var trackingId: String? = null
+
+    /**
+     * The report ID of the logs if available.
+     */
     private var reportId: UUID? = null
 
+    /**
+     * Start item logging for a given [itemIndex] and optional [trackingId].
+     * @return the logger instance
+     */
     fun startItemLogging(itemIndex: Int, trackingId: String? = null) = apply {
         check(itemIndex > 0) { "Item index must be a positive number" }
         this.itemIndex = itemIndex
         this.trackingId = trackingId
     }
 
+    /**
+     * Stop item logging.
+     * @return the logger instance
+     */
     fun stopItemLogging() = apply {
         this.itemIndex = null
         this.trackingId = null
     }
 
+    /**
+     * Set the [reportId] for the logs.  All previously logged messages are associated with this report ID.
+     * @return the logger instance
+     */
     fun setReportId(reportId: UUID?) = apply {
         this.reportId = reportId
         // Apply the report ID to all the exiting logs.
-        rawLogs.forEach { it.reportId = reportId }
+        logs.forEach { it.reportId = reportId }
     }
 
+    /**
+     * Check if the logger has logged any errors.
+     * @return true if there are errors logged, false otherwise
+     */
     fun hasErrors(): Boolean {
-        return rawLogs.any { it.type == ActionLogLevel.error }
+        return logs.any { it.type == ActionLogLevel.error }
     }
 
+    /**
+     * Check if any logs have been logged.
+     * @return true if any log has been logged, false otherwise.
+     */
     fun isEmpty(): Boolean {
-        return rawLogs.isEmpty()
+        return logs.isEmpty()
     }
 
-    fun log(
+    /**
+     * Log a given [actionDetail] and a [level] log level.
+     */
+    private fun log(
         actionDetail: ActionLogDetail,
-        type: ActionLogLevel
+        level: ActionLogLevel
     ) {
-        rawLogs.add(ActionLog(actionDetail, trackingId, itemIndex, reportId, type = type))
+        logs.add(ActionLog(actionDetail, trackingId, itemIndex, reportId, type = level))
     }
 
+    /**
+     * Log an [actionDetail] as a warning log.
+     */
     fun warn(actionDetail: ActionLogDetail) {
         log(actionDetail, ActionLogLevel.warning)
     }
 
+    /**
+     * Log a list of [actionDetails] as warning logs.
+     */
     fun warn(actionDetails: List<ActionLogDetail>) {
         actionDetails.forEach { warn(it) }
     }
 
+    /**
+     * Log an [actionDetail] as an error log.
+     */
     fun error(actionDetail: ActionLogDetail) {
         log(actionDetail, ActionLogLevel.error)
     }
 
+    /**
+     * Log a list of [actionDetails] as error logs.
+     */
     fun error(actionDetails: List<ActionLogDetail>) {
         actionDetails.forEach { error(it) }
     }
 
-    val exception get() = ActionError(rawLogs)
+    /**
+     * Get an exception to be thrown that includes all the logs.
+     */
+    val exception get() = ActionError(logs)
 
-    val errors get() = rawLogs.filter { it.type == ActionLogLevel.error }
-    val warnings get() = rawLogs.filter { it.type == ActionLogLevel.warning }
-    val logs get() = rawLogs
+    /**
+     * The logged errors.
+     */
+    val errors get() = logs.filter { it.type == ActionLogLevel.error }
+
+    /**
+     * The logged warnings.
+     */
+    val warnings get() = logs.filter { it.type == ActionLogLevel.warning }
 }

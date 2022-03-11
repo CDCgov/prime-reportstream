@@ -1,18 +1,30 @@
 package gov.cdc.prime.router
 
+/**
+ * Action details for item logs for specific [fieldMapping].
+ */
 abstract class ItemActionLogDetail(val fieldMapping: String = "") : ActionLogDetail {
     override val scope = ActionLogScope.item
     override val groupingId = "${this.javaClass.simpleName}-$fieldMapping"
 }
 
+/**
+ * Generic detail log that uses a given [message] and [scope].
+ */
 abstract class GenericActionLogDetail(message: String, override val scope: ActionLogScope) : ActionLogDetail {
     override val groupingId = message
 }
 
+/**
+ * Message for a missing field of [fieldMapping].
+ */
 class MissingFieldMessage(fieldMapping: String) : ItemActionLogDetail(fieldMapping) {
     override val message = "Blank value for element $fieldMapping"
 }
 
+/**
+ * Message for an invalid date for a given [fieldMapping], [formattedValue] and [format].
+ */
 class InvalidDateMessage(
     private val formattedValue: String,
     fieldMapping: String,
@@ -28,6 +40,9 @@ class InvalidDateMessage(
     }
 }
 
+/**
+ * Message for an invalid CODE for a given [fieldMapping], [formattedValue] and [format].
+ */
 class InvalidCodeMessage(
     private val formattedValue: String,
     fieldMapping: String,
@@ -42,6 +57,9 @@ class InvalidCodeMessage(
     }
 }
 
+/**
+ * Message for an invalid phone number for a given [fieldMapping] and [formattedValue].
+ */
 class InvalidPhoneMessage(
     formattedValue: String,
     fieldMapping: String
@@ -51,6 +69,9 @@ class InvalidPhoneMessage(
     override val groupingId = fieldMapping + formattedValue
 }
 
+/**
+ * Message for an invalid postal code for a given [fieldMapping], [formattedValue] and [format].
+ */
 class InvalidPostalMessage(
     private val formattedValue: String,
     fieldMapping: String,
@@ -65,6 +86,9 @@ class InvalidPostalMessage(
     }
 }
 
+/**
+ * Message for an invalid HD for a given [fieldMapping] and [formattedValue].
+ */
 class UnsupportedHDMessage(
     formattedValue: String,
     fieldMapping: String
@@ -72,6 +96,9 @@ class UnsupportedHDMessage(
     override val message = "Unsupported HD format for input: '$formattedValue' in $fieldMapping"
 }
 
+/**
+ * Message for an invalid EI for a given [fieldMapping] and [formattedValue].
+ */
 class UnsupportedEIMessage(
     formattedValue: String,
     fieldMapping: String
@@ -80,7 +107,7 @@ class UnsupportedEIMessage(
 }
 
 /**
- * A message to denote that an equipment was not found in the LIVD table.
+ * A message to denote that equipment was not found in the LIVD table for a given [fieldMapping].
  */
 class InvalidEquipmentMessage(
     fieldMapping: String
@@ -90,7 +117,7 @@ class InvalidEquipmentMessage(
 }
 
 /**
- * A message to denote a field precision issue.
+ * A [message] to denote a field precision issue for a given [fieldMapping].
  */
 class FieldPrecisionMessage(
     fieldMapping: String = "", // Default to empty for backwards compatibility
@@ -100,11 +127,23 @@ class FieldPrecisionMessage(
     override val groupingId = "${this.javaClass.simpleName}-${fieldMapping.ifBlank { message }}"
 }
 
+/**
+ * A [message] for invalid request parameter.
+ */
 class InvalidParamMessage(override val message: String) : GenericActionLogDetail(message, ActionLogScope.parameter)
 
+/**
+ * A [message] for an invalid report.
+ */
 class InvalidReportMessage(override val message: String) : GenericActionLogDetail(message, ActionLogScope.report)
 
+/**
+ * A [message] for invalid HL7 message.
+ */
 class InvalidHL7Message(override val message: String) : GenericActionLogDetail(message, ActionLogScope.report)
 
+/**
+ * A [message] for invalid translation operation.
+ */
 class InvalidTranslationMessage(override val message: String) :
     GenericActionLogDetail(message, ActionLogScope.translation)
