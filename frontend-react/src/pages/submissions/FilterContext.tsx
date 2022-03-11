@@ -2,18 +2,21 @@ import React, {
     createContext,
     PropsWithChildren,
     useContext,
+    useEffect,
     useState,
 } from "react";
 import { useResource } from "rest-hooks";
 
-import usePaginator from "../../utils/UsePaginator";
+import usePaginator, { PaginationController } from "../../utils/UsePaginator";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { GlobalContext } from "../../components/GlobalContextProvider";
 
+/* Convenient type aliases */
 type SortOrder = "ASC" | "DESC";
 type PageSize = 10 | 25 | 50 | 100;
 type StateUpdate<T> = (val: T) => void;
 
+/* Object containing state from a FilterContext */
 export interface FilterState {
     startRange: string;
     endRange: string;
@@ -22,18 +25,11 @@ export interface FilterState {
     pageSize: PageSize;
 }
 
-interface PaginationController {
-    hasPrev: boolean;
-    hasNext: boolean;
-    currentIndex: number;
-    changeCursor?: (cursorIndex: number) => void;
-    pageCount?: () => number;
-}
-
+/* Shape of the object provided to Submissions pages */
 interface ISubmissionFilterContext {
     filters: FilterState;
-    paginator: PaginationController;
     contents: SubmissionsResource[];
+    paginator?: PaginationController;
     updateStartRange?: StateUpdate<string>;
     updateEndRange?: StateUpdate<string>;
     updateCursor?: StateUpdate<string>;
@@ -50,19 +46,12 @@ export const SubmissionFilterContext = createContext<ISubmissionFilterContext>({
         sortOrder: "DESC",
         pageSize: 10,
     },
-    paginator: {
-        hasPrev: false,
-        hasNext: false,
-        currentIndex: 0,
-    },
     contents: [],
 });
 
-/*
- * This component handles a pseudo-global state for the Submission
- * components; primarily linking SubmissionTable and
- * SubmissionFilters. This is much friendlier than callback functions
- * and piping props!
+/* This component handles filter state and API call refreshing for
+ * tables that wish to use filtering. Additionally, this integrates
+ * the Paginator hook.
  */
 const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
     const globalState = useContext(GlobalContext);
@@ -79,6 +68,25 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
     const updateSortOrder = (val: SortOrder) => setSortOrder(val);
     const updatePageSize = (val: PageSize) => setPageSize(val);
 
+    /* Just packaging it up while keeping it React-ive */
+    const [filterState, setFilterState] = useState<FilterState>({
+        startRange: startRange,
+        endRange: endRange,
+        cursor: cursor,
+        sortOrder: sortOrder,
+        pageSize: pageSize,
+    });
+    useEffect(() => {
+        setFilterState({
+            startRange: startRange,
+            endRange: endRange,
+            cursor: cursor,
+            sortOrder: sortOrder,
+            pageSize: pageSize,
+        });
+    }, [cursor, endRange, pageSize, sortOrder, startRange]);
+
+    /* Our API call! Updates when any of the given state variables update */
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
         {
@@ -91,21 +99,26 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
         }
     );
 
-    const filters: FilterState = {
-        startRange: startRange,
-        endRange: endRange,
-        cursor: cursor,
-        sortOrder: sortOrder,
-        pageSize: pageSize,
-    };
+    /* Pagination, baby! */
+    const paginator = usePaginator(submissions, filterState);
 
-    const paginator = usePaginator(submissions, filters, updateCursor);
+    /* This triggers the API call to update using the new cursor */
+    useEffect(() => {
+        // When current index is changed update the context cursor
+        if (paginator.currentIndex === 1) {
+            setCursor(startRange); // (should be "" by default, or a user set value)
+        } else {
+            setCursor(
+                paginator.cursors.get(paginator.currentIndex) || startRange
+            );
+        }
+    }, [paginator.currentIndex, paginator.cursors, startRange]);
 
     /* This is the payload we deliver through our context provider */
     const contextPayload: ISubmissionFilterContext = {
-        filters: filters,
-        paginator: paginator,
+        filters: filterState,
         contents: submissions,
+        paginator: paginator,
         updateStartRange: updateStartRange,
         updateEndRange: updateEndRange,
         updateCursor: updateCursor,

@@ -43,11 +43,6 @@ function SubmissionFilters() {
         val: string | undefined,
         property: FieldNames
     ) => {
-        /* Catch null values */
-        // if (!val) {
-        //     valueError(property);
-        //     return;
-        // }
         switch (property) {
             case FieldNames.START_RANGE:
                 /* Catches null updater */

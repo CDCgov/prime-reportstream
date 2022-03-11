@@ -15,14 +15,16 @@ function SubmissionTable() {
     );
 
     const NextPrevButtonsComponent = () => {
-        if (paginator.pageCount!!() <= 1) return <></>;
+        if (paginator!!.pageCount!!() <= 1) return <></>;
         return (
             <ButtonGroup type="segmented" className="float-right margin-top-5">
-                {paginator.hasPrev && (
+                {paginator!!.hasPrev && (
                     <Button
                         type="button"
                         onClick={() =>
-                            paginator.changeCursor!!(paginator.currentIndex - 1)
+                            paginator!!.changeCursor!!(
+                                paginator!!.currentIndex - 1
+                            )
                         }
                     >
                         <span>
@@ -31,11 +33,13 @@ function SubmissionTable() {
                         </span>
                     </Button>
                 )}
-                {paginator.hasNext && (
+                {paginator!!.hasNext && (
                     <Button
                         type="button"
                         onClick={() =>
-                            paginator.changeCursor!!(paginator.currentIndex + 1)
+                            paginator!!.changeCursor!!(
+                                paginator!!.currentIndex + 1
+                            )
                         }
                     >
                         <span>
