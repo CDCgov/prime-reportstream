@@ -813,7 +813,7 @@ class ActionHistory : Logging {
                 }
                 jsonGen.writeEndArray()
 
-                jsonGen.writeArrayFieldStart("filteredReportRowObjects")
+                jsonGen.writeArrayFieldStart("filteredReports")
                 filterDetails.forEach {
                     val detail = it.detail
                     if (detail is ReportStreamFilterResult) {
