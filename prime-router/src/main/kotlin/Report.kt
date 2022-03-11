@@ -86,8 +86,6 @@ data class ReportStreamFilterResult(
 
     override val message = "For $receiverName, filter $filterName$filterArgs" +
         " filtered out item $filteredTrackingElement at index $filteredIndex"
-
-    override val groupingId = receiverName
 }
 
 /**

@@ -5,15 +5,13 @@ package gov.cdc.prime.router
  */
 abstract class ItemActionLogDetail(val fieldMapping: String = "") : ActionLogDetail {
     override val scope = ActionLogScope.item
-    override val groupingId = "${this.javaClass.simpleName}-$fieldMapping"
 }
 
 /**
  * Generic detail log that uses a given [message] and [scope].
  */
-abstract class GenericActionLogDetail(message: String, override val scope: ActionLogScope) : ActionLogDetail {
-    override val groupingId = message
-}
+abstract class GenericActionLogDetail(override val message: String, override val scope: ActionLogScope) :
+    ActionLogDetail
 
 /**
  * Message for a missing field of [fieldMapping].
@@ -66,7 +64,6 @@ class InvalidPhoneMessage(
 ) : ItemActionLogDetail(fieldMapping) {
     override val message = "Invalid phone number '$formattedValue' for $fieldMapping. Reformat to a 10-digit phone " +
         "number (e.g. (555) - 555-5555)."
-    override val groupingId = fieldMapping + formattedValue
 }
 
 /**
@@ -122,10 +119,7 @@ class InvalidEquipmentMessage(
 class FieldPrecisionMessage(
     fieldMapping: String = "", // Default to empty for backwards compatibility
     override val message: String
-) : ItemActionLogDetail(fieldMapping) {
-    // Handle if field is empty for backwards compatibility
-    override val groupingId = "${this.javaClass.simpleName}-${fieldMapping.ifBlank { message }}"
-}
+) : ItemActionLogDetail(fieldMapping)
 
 /**
  * A [message] for invalid request parameter.

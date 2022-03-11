@@ -1069,7 +1069,7 @@ class ActionHistory : Logging {
                 val messageByGroupingId = mutableMapOf<String, String>()
                 val scopesByGroupingId = mutableMapOf<String, ActionLogScope>()
                 actionLogs.forEach { actionDetail ->
-                    val groupingId = actionDetail.detail.groupingId
+                    val groupingId = actionDetail.detail.message
                     if (!itemsByGroupingId.containsKey(groupingId)) {
                         itemsByGroupingId[groupingId] = mutableListOf()
                         messageByGroupingId[groupingId] = actionDetail.detail.message

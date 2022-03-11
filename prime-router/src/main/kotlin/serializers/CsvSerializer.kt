@@ -134,8 +134,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                 trackingId = "row$rowIndex"
 
             actionLogs.startItemLogging(rowIndex, trackingId)
-            result.errors.forEach { actionLogs.error(it) }
-            result.warnings.forEach { actionLogs.warn(it) }
+            actionLogs.error(result.errors)
+            actionLogs.warn(result.warnings)
             actionLogs.stopItemLogging()
             if (!actionLogs.hasErrors()) {
                 result.row

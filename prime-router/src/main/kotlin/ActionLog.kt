@@ -89,11 +89,6 @@ interface ActionLogDetail {
      * The log message.
      */
     val message: String
-
-    /**
-     * A unique ID for the given message used to group similar messages.
-     */
-    val groupingId: String
 }
 
 /**
