@@ -272,8 +272,8 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test converting hl7 into mapped list of values`() {
-        val mappedMessage = serializer.convertMessageToMap(sampleHl7Message, covid19Schema)
-        val mappedValues = mappedMessage.row
+        val mappedMessage = serializer.convertMessageToMap(sampleHl7Message, 1, covid19Schema)
+        val mappedValues = mappedMessage.item
         println("\ntest converting hl7 into mapped list of values:\n")
         mappedValues.forEach {
             println("${it.key}: ${it.value.joinToString()}")
@@ -286,8 +286,8 @@ NTE|1|L|This is a final comment|RE"""
     fun `test reading HL7 message from file`() {
         val inputFile = "$hl7TestFileDir/single_message.hl7"
         val message = File(inputFile).readText()
-        val mappedMessage = serializer.convertMessageToMap(message, covid19Schema)
-        val mappedValues = mappedMessage.row
+        val mappedMessage = serializer.convertMessageToMap(message, 1, covid19Schema)
+        val mappedValues = mappedMessage.item
         mappedValues.forEach {
             println("${it.key}: ${it.value.joinToString()}")
         }
@@ -309,12 +309,16 @@ NTE|1|L|This is a final comment|RE"""
         val cities = mappedValues["patient_city"]?.toSet()
         assertThat(cities).isEqualTo(setOf("North Taylor", "South Rodneychester"))
         println("Errors:")
-        mappedMessage.errors.forEach {
-            println(it)
+        mappedMessage.items.forEach {
+            it.errors.forEach {
+                println(it)
+            }
         }
         println("Warnings:")
-        mappedMessage.warnings.forEach {
-            println(it)
+        mappedMessage.items.forEach {
+            it.warnings.forEach {
+                println(it)
+            }
         }
     }
 

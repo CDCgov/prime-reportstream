@@ -6,16 +6,17 @@ import assertk.assertions.isFailure
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.messages.ReportFileMessage
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.verify
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -25,7 +26,7 @@ import java.util.UUID
 import kotlin.test.Test
 
 class SenderFilesFunctionTests {
-    private val mapper = jacksonMapperBuilder().build()
+    private val mapper = JacksonMapperUtilities.defaultMapper
 
     private fun buildSenderFilesFunction(
         mockDbAccess: DatabaseAccess? = null,
@@ -100,6 +101,7 @@ class SenderFilesFunctionTests {
 
     @Test
     fun `test processRequest`() {
+        mockkObject(BlobAccess.Companion)
         // Happy path
         val receiverReportId: ReportId = UUID.randomUUID()
         val senderReportId: ReportId = UUID.randomUUID()
@@ -113,7 +115,7 @@ class SenderFilesFunctionTests {
         every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns listOf(
             SenderItems(senderReportId, 0, receiverReportId, 0)
         )
-        every { mockBlobAccess.downloadBlob(any()) } returns body.toByteArray()
+        every { BlobAccess.Companion.downloadBlob(any()) } returns body.toByteArray()
         every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
         val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
         val result = senderFileFunctions.processRequest(functionParams)
@@ -126,6 +128,7 @@ class SenderFilesFunctionTests {
 
     @Test
     fun `test processRequest with No Blob`() {
+        mockkObject(BlobAccess.Companion)
         // Test that the case where the blob is deleted is handled as expected
         val receiverReportId: ReportId = UUID.randomUUID()
         val senderReportId: ReportId = UUID.randomUUID()
@@ -136,7 +139,7 @@ class SenderFilesFunctionTests {
             SenderItems(senderReportId, 0, receiverReportId, 0)
         )
         every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
-        every { mockBlobAccess.downloadBlob(any()) } throws IOException("File not found")
+        every { BlobAccess.Companion.downloadBlob(any()) } throws IOException("File not found")
         val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
         assertThat { senderFileFunctions.processRequest(functionParams) }
             .isFailure()
@@ -145,6 +148,7 @@ class SenderFilesFunctionTests {
 
     @Test
     fun `test the case with no ancestors`() {
+        mockkObject(BlobAccess.Companion)
         val receiverReportId: ReportId = UUID.randomUUID()
         val senderReportId: ReportId = UUID.randomUUID()
         val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, false, 0, 1)
@@ -152,7 +156,7 @@ class SenderFilesFunctionTests {
         val mockBlobAccess = mockk<BlobAccess>()
         every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns emptyList()
         every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
-        every { mockBlobAccess.downloadBlob(any()) } throws IOException("File not found")
+        every { BlobAccess.Companion.downloadBlob(any()) } throws IOException("File not found")
         val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
         assertThat { senderFileFunctions.processRequest(functionParams) }
             .isFailure()

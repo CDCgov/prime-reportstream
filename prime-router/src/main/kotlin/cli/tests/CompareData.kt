@@ -137,6 +137,7 @@ class DataCompareTest : CoolTest() {
                     // Send the input file to ReportStream
                     val (responseCode, json) =
                         HttpUtilities.postReportBytes(environment, inputFile.readBytes(), sender, options.key)
+                    inputFile.close()
                     if (responseCode != HttpURLConnection.HTTP_CREATED) {
                         bad("***$name Test FAILED***:  response code $responseCode")
                         passed = false
@@ -304,6 +305,13 @@ class CompareData {
             passed = passed and anotherResult.passed
             errors.addAll(anotherResult.errors)
             warnings.addAll(anotherResult.warnings)
+        }
+
+        override fun toString(): String {
+            return """passed: $passed
+errors: ${errors.joinToString()}
+warnings: ${warnings.joinToString()}
+"""
         }
     }
 
@@ -499,7 +507,7 @@ class CompareHl7Data(val result: CompareData.Result = CompareData.Result()) {
                     )
                 }
                 // For dynamic values we expect them to be have something
-                else if (actualFieldContents[repetitionIndex].isEmpty) {
+                else if ((actualFieldContents.getOrNull(repetitionIndex)?.isEmpty ?: false)) {
                     result.errors.add(
                         "No date/time of message for record $recordNum in field $fieldSpec"
                     )
@@ -614,6 +622,7 @@ class CompareCsvData {
 
             // Loop through all the actual rows ignoring the header row
             for (i in actualRows.indices) {
+                val rowIndex = i + 1
                 val actualRow = actualRows[i]
                 val actualMsgId = if (schemaMsgIdIndex != null) actualRow[schemaMsgIdIndex].trim() else null
                 val actualLastName = if (schemaPatLastNameIndex != null)
@@ -637,12 +646,12 @@ class CompareCsvData {
                             )
                 }
                 if (matchingExpectedRow.size == 1) {
-                    if (!compareCsvRow(actualRow, matchingExpectedRow[0], expectedRows[0], schema, i, result)) {
-                        result.errors.add("Comparison for row #$i FAILED")
+                    if (!compareCsvRow(actualRow, matchingExpectedRow[0], expectedRows[0], schema, rowIndex, result)) {
+                        result.errors.add("Comparison for row #$rowIndex FAILED")
                     }
                 } else {
                     result.errors.add(
-                        "Could not find row in expected data for message $i. " +
+                        "Could not find row in expected data for message $rowIndex. " +
                             "Was looking for ID='$actualMsgId', or patient last name='$actualLastName' " +
                             "and state='$actualPatState'"
                     )

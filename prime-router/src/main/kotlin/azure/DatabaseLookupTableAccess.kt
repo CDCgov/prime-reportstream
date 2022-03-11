@@ -197,6 +197,8 @@ class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess(
                 }
             } while (dataBatch != null)
         }
+        // refresh the materialized views
+        db.refreshMaterializedViews(tableName)
     }
 
     /**

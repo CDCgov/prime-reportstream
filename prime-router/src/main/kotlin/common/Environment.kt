@@ -3,6 +3,7 @@ package gov.cdc.prime.router.common
 import gov.cdc.prime.router.cli.OktaCommand
 import java.lang.IllegalArgumentException
 import java.net.URL
+import java.time.ZoneOffset
 
 /**
  * Environment related information.
@@ -23,7 +24,7 @@ enum class Environment(
         ),
     ),
     TEST("test", URL("https://test.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_TEST),
-    STAGING("staging", URL("https://staging.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_TEST),
+    STAGING("staging", URL("https://staging.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_STAGE),
     PROD("prod", URL("https://prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_PROD);
 
     /**
@@ -42,6 +43,19 @@ enum class Environment(
      * The baseUrl for the environment that contains only the host and port.
      */
     val baseUrl: String get() = getBaseUrl(url)
+
+    /**
+     * Available feature flags for enabling different features
+     */
+    enum class FeatureFlags(
+        val enabledByDefault: Boolean = false
+    ) {
+        FHIR_ENGINE_TEST_PIPELINE();
+
+        fun enabled(): Boolean {
+            return enabledByDefault || System.getenv(this.toString()) == "enabled"
+        }
+    }
 
     companion object {
         /**
@@ -88,5 +102,15 @@ enum class Environment(
         fun isLocal(): Boolean {
             return get() == LOCAL
         }
+
+        /**
+         * Time zone to use for ReportStream. Note that Azure runs on UTC, so this forces our local runs to also be UTC.
+         */
+        val rsTimeZone: ZoneOffset = ZoneOffset.UTC
     }
+}
+
+enum class SystemExitCodes(val exitCode: Int) {
+    SUCCESS(0),
+    FAILURE(1)
 }

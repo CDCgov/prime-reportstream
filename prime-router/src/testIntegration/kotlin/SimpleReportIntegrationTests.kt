@@ -242,7 +242,6 @@ class SimpleReportIntegrationTests {
                         val message = "Patient_ID $expectedKey differed at $header. " +
                             "Expected '$v' but found '${actualLines[i]}'."
                         linesInError.add(message)
-                        println(message)
                     }
                 }
             }

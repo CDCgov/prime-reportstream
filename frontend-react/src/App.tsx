@@ -33,8 +33,10 @@ import { AdminMain } from "./pages/admin/AdminMain";
 import { AdminOrgEdit } from "./pages/admin/AdminOrgEdit";
 import { EditReceiverSettings } from "./components/Admin/EditReceiverSettings";
 import { EditSenderSettings } from "./components/Admin/EditSenderSettings";
-
 import "react-toastify/dist/ReactToastify.css";
+import SubmissionDetails from "./pages/submissions/SubmissionDetails";
+import { NewSetting } from "./components/Admin/NewSetting";
+import { FeatureFlagUIComponent } from "./pages/misc/FeatureFlags";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -141,8 +143,13 @@ const App = () => {
                                  *  We should fix this when we refactor our permissions layer.
                                  */}
                                 <AuthorizedRoute
+                                    path="/submissions/:actionId"
+                                    authorize={PERMISSIONS.SENDER}
+                                    component={SubmissionDetails}
+                                />
+                                <AuthorizedRoute
                                     path="/submissions"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    authorize={PERMISSIONS.SENDER}
                                     component={Submissions}
                                 />
                                 <AuthorizedRoute
@@ -165,9 +172,18 @@ const App = () => {
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={EditSenderSettings}
                                 />
+                                <AuthorizedRoute
+                                    path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={NewSetting}
+                                />
                                 <SecureRoute
                                     path="/report-details"
                                     component={Details}
+                                />
+                                <SecureRoute
+                                    path="/features"
+                                    component={FeatureFlagUIComponent}
                                 />
                                 {/* Handles any undefined route */}
                                 <Route

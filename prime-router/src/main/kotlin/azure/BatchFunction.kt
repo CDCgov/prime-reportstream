@@ -45,7 +45,6 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
             val maxBatchSize = receiver.timing?.maxReportCount ?: defaultBatchSize
             val actionHistory = ActionHistory(
                 event.eventAction.toTaskAction(),
-                context,
                 event.isEmptyBatch
             )
             actionHistory.trackActionParams(message)
@@ -133,8 +132,7 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
             logger.trace("BatchFunction succeeded for message: $message")
         } catch (e: Exception) {
             logger.fatal(
-                "BatchFunction Exception (msg=$message, backstopTime=$backstopTime) : ",
-                e
+                "BatchFunction Exception (msg=$message, backstopTime=$backstopTime) : " + e.stackTraceToString()
             )
         }
     }
