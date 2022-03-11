@@ -3365,7 +3365,7 @@
       processingType: "sync"
 
 - name: "pcl-ca"
-  description: "Precision Clinical Labs - CSV Uploader"
+  description: "Pacific Clinical Laboratory - CSV Uploader"
   jurisdiction: "FEDERAL"
   stateCode: null
   countyName: null
@@ -3373,6 +3373,22 @@
   senders:
     - name: "default"
       organizationName: "pcl-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "jrslab-ca"
+  description: "JRS Laboratory - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "jrslab-ca"
       format: "CSV"
       topic: "covid-19"
       customerStatus: "testing"
