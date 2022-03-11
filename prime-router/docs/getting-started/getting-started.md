@@ -11,7 +11,7 @@ This document will walk you through the setup instructions to get a functioning 
 - [Building the Baseline](#building-the-baseline)
 - [Committing to this repository](#committing-to-this-repository)
     * [Git Hooks](#git-hooks)
-        + [pre-commit: Gitleaks](#pre-commit--gitleaks)
+        + [pre-commit: Gitleaks](#pre-commit-gitleaks)
     * [Updating schema documentation](#updating-schema-documentation)
 - [Running ReportStream](#running-reportstream)
     * [Restarting After a Code Update](#restarting-after-a-code-update)
@@ -109,7 +109,7 @@ The most useful gradle tasks are:
 
 # Committing to this repository
 
-* Commits _must_ be signed or will not be mergeable into `master` or `production` without Repository Administrator intervention. You can find detailed instructions on how to set this up in the [Signing Commits](signing-commits.md) document.
+* Commits _must_ be signed or will not be mergeable into `master` or `production` without Repository Administrator intervention. You can find detailed instructions on how to set this up in the [Signing Commits](../signing-commits.md) document.
 * Make your changes in topic/feature branches and file a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch.
 
 ## Git Hooks
@@ -133,7 +133,7 @@ When gitleaks reports leaks/violations, the right course of action is typically 
 
 This tool can also be manually invoked through `.environment/gitleaks/run-gitleaks.sh` which may be useful to validate the lack of leaks without the need of risking a commit. Invoke the tool with `--help` to find out more about its different run modes.
 
-See [Allow-listing Gitleaks False Positives](allowlist-gitleaks-false-positives.md) for more details on how to prevent False Positives!
+See [Allow-listing Gitleaks False Positives](../allowlist-gitleaks-false-positives.md) for more details on how to prevent False Positives!
 
 ### pre-commit: Terraform formatting
 
@@ -157,7 +157,7 @@ schema documentation and the build will fail if the schema documentation updates
 # Running ReportStream
 
 You can bring up the entire ReportStream environment by running the `devenv-infrastructure.sh` script after building
-the baseline (see "[Building in the course of development](#building-in-the-course-of-development)" and/or "[First Build](#first-build)")
+the baseline (see "[First Build](#first-build)")
 
 ```bash
 cd ./prime-router
@@ -244,7 +244,7 @@ If your agency's network intercepts SSL requests, you might have to disable SSL 
 
 ## Running ReportStream locally
 
-The project's [README](../README.md) file contains some steps on how to use the PRIME router in a CLI. However, most uses of the PRIME router will be in the Microsoft Azure cloud. The router runs as a container in Azure. The [`DockerFile`](../Dockerfile) describes what goes in this container.
+The project's [README](../../README.md) file contains some steps on how to use the PRIME router in a CLI. However, most uses of the PRIME router will be in the Microsoft Azure cloud. The router runs as a container in Azure. The [`DockerFile`](../../Dockerfile) describes what goes in this container.
 
 Developers can also run the router locally with the same Azure runtime and libraries to help develop and debug in an environment that mimics the Azure environment as closely as we can on your local machine. In this case, a developer can use a local Azure storage emulator, called Azurite.
 
