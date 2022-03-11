@@ -27,16 +27,17 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.ItemLineageRecord
+import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.logging.log4j.kotlin.Logging
+import org.apache.logging.log4j.kotlin.logger
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.JSONB
 import org.jooq.impl.DSL
 import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
-import java.time.Instant
 import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -277,7 +278,7 @@ class ActionHistory : Logging {
 
     /**
      * Set the action response. This is primarily used by backend functions that do not have an associated HttpRequest
-     * @param jsonResponse the generated stringified json representing the response
+     * @param response the generated stringified json representing the response
      */
     fun trackActionResponse(response: String) {
         val jsonResponse = runCatching { jacksonObjectMapper().readTree(response) }.getOrNull()
@@ -687,7 +688,7 @@ class ActionHistory : Logging {
         // compare the set of reportIds from the item lineage vs the set from report lineage.  Should be identical.
         val parentReports = parentChildReports.map { it.first }.toSet()
         val childReports = parentChildReports.map { it.second }.toSet()
-        var parentReports2 = mutableSetOf<ReportId>()
+        val parentReports2 = mutableSetOf<ReportId>()
         parentReports2.addAll(reportsReceived.keys)
         parentReports2.addAll(reportsIn.keys)
         val childReports2 = reportsOut.keys
@@ -820,7 +821,8 @@ class ActionHistory : Logging {
                     "never - skipSend specified"
                 }
                 reportFile.nextActionAt != null -> {
-                    "${reportFile.nextActionAt}"
+                    JacksonMapperUtilities.timestampFormatter
+                        .format(reportFile.nextActionAt.withOffsetSameInstant(Environment.rsTimeZone))
                 }
                 else -> {
                     sendingAt
@@ -845,8 +847,7 @@ class ActionHistory : Logging {
         return countToPrint
     }
 
-    companion object {
-
+    companion object : Logging {
         // TODO: Deprecated. Delete.  WorkflowEngine.handleRecieverEvent pulls in each report individually.
         fun fetchReportFilesForReceiver(
             nextAction: TaskAction,
@@ -901,15 +902,10 @@ class ActionHistory : Logging {
                     }
                 }
             }
-            if (msg.isNotEmpty()) {
-                if (failOnError) {
-                    error("*** Sanity check comparing old Headers list to new ReportFile list FAILED:  $msg")
-                } else {
-                    println(
-                        "************ FAILURE: sanity check comparing old Headers " +
-                            "list to new ReportFiles list FAILED:  $msg\""
-                    )
-                }
+            if (msg.isNotEmpty() && failOnError) {
+                error("*** Sanity check comparing old Headers list to new ReportFile list FAILED:  $msg")
+            } else if (msg.isNotEmpty()) {
+                logger.warn("***** FAILURE: sanity check comparing old headers list to new ReportFiles list:\n$msg")
             }
         }
 
@@ -945,15 +941,10 @@ class ActionHistory : Logging {
                     }
                 }
             }
-            if (msg.isNotEmpty()) {
-                if (failOnError) {
-                    error("*** Sanity check comparing old Header info and new ReportFile info FAILED:  $msg")
-                } else {
-                    System.out.println(
-                        "************ FAILURE: sanity check comparing " +
-                            "old Header info and new ReportFile info FAILED:  $msg\""
-                    )
-                }
+            if (msg.isNotEmpty() && failOnError) {
+                error("*** Sanity check comparing old Header info and new ReportFile info FAILED:  $msg")
+            } else if (msg.isEmpty()) {
+                logger.warn("***** FAILURE: sanity check comparing old headers list to new ReportFiles list:\n$msg")
             }
         }
     }
@@ -978,11 +969,9 @@ class ActionHistory : Logging {
     /**
      * Creates a string that will be used to populate the action_response column of an action
      * after that action has been completed
-     * @param options Message options passed in
-     * @param warnings Store of warnings generated during the pipeline
-     * @param errors Store of errors generated during the pipeline
      * @param verbose If true, all item routing details will be included in the response
      * @param report The report this response body is for
+     * @param settingsProvider the settings provider
      * @return A json representation of the result of whatever action called this
      */
     fun createResponseBody(
@@ -1004,7 +993,10 @@ class ActionHistory : Logging {
                     "Only tracked incoming reports can generate a response."
                 }
                 it.writeStringField("id", report.id.toString())
-                it.writeStringField("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
+                it.writeStringField(
+                    "timestamp",
+                    JacksonMapperUtilities.timestampFormatter.format(OffsetDateTime.now(Environment.rsTimeZone))
+                )
                 it.writeStringField("topic", report.schema.topic)
                 it.writeNumberField("reportItemCount", report.itemCount)
                 if (action.sendingOrg != null && action.sendingOrgClient != null)
@@ -1042,7 +1034,7 @@ class ActionHistory : Logging {
             fun createRowsDescription(rows: List<Int>?): String {
                 // Consolidate row ranges, e.g. 1,2,3,5,7,8,9 -> 1-3,5,7-9
                 if (rows == null || rows.isEmpty()) return ""
-                val sb = StringBuilder().append("Rows: ")
+                val sb = StringBuilder()
                 var isListing = false
                 rows.sorted().forEachIndexed { i, row ->
                     if (i == 0) {
@@ -1083,7 +1075,7 @@ class ActionHistory : Logging {
                         scopesByGroupingId[groupingId] = actionDetail.scope
                     }
                     actionDetail.index?.let {
-                        itemsByGroupingId[groupingId]?.add(actionDetail.index + 1)
+                        itemsByGroupingId[groupingId]?.add(actionDetail.index)
                     }
                 }
                 return GroupedProperties(
@@ -1098,7 +1090,7 @@ class ActionHistory : Logging {
              * groupingId and returns them as a GroupedProperties data class instance
              *
              * @param field defines the name of the array in the JSON result
-             * @param ActionDetailList the list of items to write to the JSON
+             * @param actionDetailList the list of items to write to the JSON
              */
             fun writeConsolidatedArray(field: String, actionDetailList: List<ActionLog>) {
                 val (

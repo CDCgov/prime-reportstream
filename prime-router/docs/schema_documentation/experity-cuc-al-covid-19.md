@@ -1660,7 +1660,9 @@ H|Mex. Amer./Hispanic|LOCAL
 H|2135-2|LOCAL
 H|H|LOCAL
 N|Non Hispanic or Latino|LOCAL
+N|Non-Hispanic or Latino|LOCAL
 N|Non Hispanic|LOCAL
+N|Non-Hispanic|LOCAL
 N|Not Hispanic or Latino|LOCAL
 N|Not Hispanic|LOCAL
 N|2186-5|LOCAL
@@ -1715,8 +1717,10 @@ The patient's first name
 Code | Display | System
 ---- | ------- | ------
 F|Female|LOCAL
+F|Woman|LOCAL
 F|F|LOCAL
 M|Male|LOCAL
+M|Man|LOCAL
 M|M|LOCAL
 U|U|LOCAL
 U|UNK|LOCAL

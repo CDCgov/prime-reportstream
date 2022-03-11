@@ -28,7 +28,7 @@ import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
 private const val CLIENT_PARAMETER = "client"
-private const val PAYLOAD_NAME_PARAMETER = "payloadName"
+private const val PAYLOAD_NAME_PARAMETER = "payloadname"
 private const val OPTION_PARAMETER = "option"
 private const val DEFAULT_PARAMETER = "default"
 private const val ROUTE_TO_PARAMETER = "routeTo"

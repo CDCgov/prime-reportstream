@@ -1,7 +1,9 @@
 import ActionDetailsResource from "./ActionDetailsResource";
+import OrgSenderSettingsResource from "./OrgSenderSettingsResource";
 
 export enum ResponseType {
     ACTION_DETAIL = "actionDetail",
+    SENDER_SETTINGS = "senderSettings",
 }
 
 export class TestResponse {
@@ -17,6 +19,9 @@ export class TestResponse {
             case ResponseType.ACTION_DETAIL:
                 this.data = this.actionDetails;
                 break;
+            case ResponseType.SENDER_SETTINGS:
+                this.data = this.senderSettingsPutResponse;
+                break;
             default:
                 this.data = null;
                 break;
@@ -25,7 +30,7 @@ export class TestResponse {
 
     actionDetails: ActionDetailsResource = {
         submissionId: 12345,
-        timestamp: "1970-04-07T16:26:14.34593Z",
+        timestamp: "1970-04-07T16:26:14.345Z",
         sender: "Jest",
         httpStatus: 201,
         externalName: "SubmissionDetails Unit Test",
@@ -39,7 +44,7 @@ export class TestResponse {
                     "For ignore.QUALITY_PASS, filter matches[ordering_facility_county, QUALITY_PASS] filtered out item 682740 at index 1",
                     "For ignore.QUALITY_PASS, filter matches[ordering_facility_county, QUALITY_PASS] filtered out item 496898 at index 3",
                 ],
-                sending_at: "1970-04-07T16:26:14.34593Z",
+                sending_at: "1970-04-07T16:26:14.345Z",
                 itemCount: 3,
                 sentReports: [],
             },
@@ -68,6 +73,41 @@ export class TestResponse {
         pk: function (): string {
             throw new Error("Function not implemented.");
         },
+        url: "",
+    };
+
+    senderSettingsPutResponse: OrgSenderSettingsResource = {
+        keys: [
+            {
+                keys: [
+                    {
+                        x: "asdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdf",
+                        y: "asdfasdfasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdfasdfasdasdf",
+                        crv: "P-384",
+                        kid: "hca.default",
+                        kty: "EC",
+                    },
+                    {
+                        e: "AQAB",
+                        n: "asdfaasdfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffasdfasdfasdfasdf",
+                        kid: "hca.default",
+                        kty: "RSA",
+                    },
+                ],
+                scope: "hca.default.report",
+            },
+        ],
+        topic: "covid-19",
+        format: "HL7",
+        schemaName: "direct/hca-covid-19",
+        customerStatus: "active",
+        processingType: "sync",
+        organizationName: "hca",
+        pk: function (): string {
+            throw new Error("Function not implemented.");
+        },
+        name: "",
+        meta: [],
         url: "",
     };
 }
