@@ -17,8 +17,8 @@ export enum FieldNames {
 
 const fieldError = (field: FieldNames) =>
     console.error(`'${field}' has no update function.`);
-const valueError = (field: FieldNames) =>
-    console.error(`'${field}' cannot update; given no value.`);
+// const valueError = (field: FieldNames) =>
+//     console.error(`'${field}' was given no value.`);
 /*
  * This component contains the UI for selecting query parameters.
  * When the `Apply` button is clicked, these should be updated in
@@ -44,10 +44,10 @@ function SubmissionFilters() {
         property: FieldNames
     ) => {
         /* Catch null values */
-        if (!val) {
-            valueError(property);
-            return;
-        }
+        // if (!val) {
+        //     valueError(property);
+        //     return;
+        // }
         switch (property) {
             case FieldNames.START_RANGE:
                 /* Catches null updater */
@@ -55,7 +55,7 @@ function SubmissionFilters() {
                     fieldError(FieldNames.START_RANGE);
                     return;
                 }
-                updateStartRange(new Date(val).toISOString());
+                if (val) updateStartRange(new Date(val).toISOString());
                 break;
             case FieldNames.END_RANGE:
                 /* Catches null updater */
@@ -63,7 +63,7 @@ function SubmissionFilters() {
                     fieldError(FieldNames.END_RANGE);
                     return;
                 }
-                updateEndRange(new Date(val).toISOString());
+                if (val) updateEndRange(new Date(val).toISOString());
                 break;
         }
     };

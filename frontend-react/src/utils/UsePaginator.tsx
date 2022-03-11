@@ -10,26 +10,33 @@
  * - Going back to Page 1 wipes the map and starts over as new elements might be
  *   present in the response, making old cursors irrelevant.
  */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import SubmissionsResource from "../resources/SubmissionsResource";
-import {PageSize} from "../pages/submissions/FilterContext";
+import { FilterState } from "../pages/submissions/FilterContext";
+
+interface PaginationController {
+    hasPrev: boolean;
+    hasNext: boolean;
+    currentIndex: number;
+    changeCursor?: (cursorIndex: number) => void;
+    pageCount?: () => number;
+}
 
 /* TODO: Refactor to include generics so this can be used universally */
 /* Pagination hook inputs
  * @param responseArray: an array of items sent back from the API
- * @param filters: your FilterState
+ * @param filters: your FilterState including a startRange and endRange property
+ * @param updateCursor: a function that will update your startRange when called
  */
 function usePaginator(
     responseArray: SubmissionsResource[],
-    pageSize: PageSize,
+    filterState: FilterState,
     updateCursor: Function
 ) {
-    /* Cursor 1 is given the value of "" so that page 1 always shows
-     * the latest values.
-     */
+    const today = new Date().toISOString();
     const [cursors, updateCursors] = useState<Map<number, string>>(
-        new Map([[1, ""]])
+        new Map([[1, today]])
     );
     const [currentIndex, updateCurrentIndex] = useState<number>(1);
     const [hasNext, setHasNext] = useState(false);
@@ -39,21 +46,31 @@ function usePaginator(
         return cursors.size;
     };
 
-    const changeCursor = (cursorIndex: number) => {
+    const cursorExists = useCallback(
+        (c: string) => {
+            return Array.from(cursors.values()).includes(c);
+        },
+        [cursors]
+    );
+
+    const resetCursors = (c: string) => {
+        const cursor = c;
+        updateCursors(new Map([[1, cursor]]));
+        updateCurrentIndex(1);
+        updateCursor(cursor);
+    };
+
+    const changeCursor = (
+        cursorIndex: number,
+        firstCursorOverride?: string
+    ) => {
         let cursor =
             cursors.get(cursorIndex) || cursors.get(currentIndex) || null;
         if (cursorIndex === 1 || !cursor) {
-            /* Cursor 1 will always have the value of "" so that page 1 always has
-             * the absolute latest results pulled. However, this will return null
-             * if called cursors.get(1), so this check manually sets the cursor to
-             * an empty string.
-             *
-             * For this, we also must reset the Map so previously tracked
-             * cursors are lost and new cursors can be stored.
+            /* Page 1's cursor is defaulted to an empty string to ensure
+             * it always loads the most recent results.
              */
-            cursor = "";
-            updateCursors(new Map([[1, cursor]]));
-            updateCurrentIndex(cursorIndex);
+            resetCursors(firstCursorOverride || today);
         } else {
             if (cursor === cursors.get(cursorIndex))
                 /* If it's able to retrieve your cursor, your current index
@@ -65,29 +82,21 @@ function usePaginator(
         updateCursor(cursor);
     };
 
+    /* Adds new cursors to end of map */
     useEffect(() => {
-        const cursorExists = (c: string) => {
-            return Array.from(cursors.values()).includes(c);
-        };
-        const addCursors = (nextCursor: string) => {
-            updateCursors(cursors.set(currentIndex + 1, nextCursor));
-        };
-        const updateNextPrevBooleans = () => {
-            setHasNext(currentIndex < cursors.size);
-            setHasPrev(currentIndex > 1);
-        };
-
         const lastTimestamp =
-            responseArray[pageSize - 1]?.createdAt || null;
+            responseArray[filterState.pageSize - 1]?.createdAt || null;
         if (lastTimestamp && !cursorExists(lastTimestamp))
-            addCursors(lastTimestamp);
-        updateNextPrevBooleans();
+            updateCursors(cursors.set(currentIndex + 1, lastTimestamp));
+        setHasNext(currentIndex < cursors.size);
+        setHasPrev(currentIndex > 1);
     }, [
+        cursorExists,
         currentIndex,
         updateCurrentIndex,
         cursors,
         responseArray,
-        pageSize,
+        filterState.pageSize,
     ]);
 
     /* Gives handlers for all pagination needs!
@@ -98,7 +107,16 @@ function usePaginator(
      * - changeCursor: function(desiredCursorIndex), handles cursor navigation and updating.
      * - pageCount: function(), returns the current size of your cursor Map
      */
-    return { hasPrev, hasNext, currentIndex, changeCursor, pageCount };
+
+    const paginator: PaginationController = {
+        hasPrev: hasPrev,
+        hasNext: hasNext,
+        currentIndex: currentIndex,
+        changeCursor: changeCursor,
+        pageCount: pageCount,
+    };
+
+    return paginator;
 }
 
 export default usePaginator;

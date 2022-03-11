@@ -5,52 +5,25 @@ import {
     IconNavigateBefore,
     IconNavigateNext,
 } from "@trussworks/react-uswds";
-import { useResource } from "rest-hooks";
 import { NavLink } from "react-router-dom";
-
-import SubmissionsResource from "../../resources/SubmissionsResource";
-import { GlobalContext } from "../../components/GlobalContextProvider";
-import usePaginator from "../../utils/UsePaginator";
 
 import { SubmissionFilterContext } from "./FilterContext";
 
 function SubmissionTable() {
-    // this component will refresh when global context changes (e.g. organization changes)
-    const globalState = useContext(GlobalContext);
-    const { filters, updateStartRange, updateEndRange, updateSortOrder } =
-        useContext(SubmissionFilterContext);
-
-    const submissions: SubmissionsResource[] = useResource(
-        SubmissionsResource.list(),
-        {
-            organization: globalState.state.organization,
-            cursor: filters.startRange,
-            endCursor: filters.endRange,
-            pageSize: filters.pageSize + 1, // Pulls +1 to check for next page
-            sort: filters.sortOrder,
-            showFailed: false, // No plans for this to be set to true
-        }
+    const { filters, paginator, contents } = useContext(
+        SubmissionFilterContext
     );
 
-    /* Gives handlers for all pagination needs!
-     *
-     * - hasPrev/hasNext: boolean, indicating previous and next pages exist.
-     * - currentIndex: number, the page number you're currently on.
-     * - changeCursor: function(desiredCursorIndex), handles cursor navigation and updating.
-     * - pageCount: function(), returns the current size of your cursor Map
-     */
-    const { hasPrev, hasNext, currentIndex, changeCursor, pageCount } =
-        usePaginator(submissions, filters.pageSize, updateStartRange!!);
-
     const NextPrevButtonsComponent = () => {
-        // on both the first and last page if there's only one page of data
-        if (pageCount() <= 1) return <></>;
+        if (paginator.pageCount!!() <= 1) return <></>;
         return (
             <ButtonGroup type="segmented" className="float-right margin-top-5">
-                {hasPrev && (
+                {paginator.hasPrev && (
                     <Button
                         type="button"
-                        onClick={() => changeCursor(currentIndex - 1)}
+                        onClick={() =>
+                            paginator.changeCursor!!(paginator.currentIndex - 1)
+                        }
                     >
                         <span>
                             <IconNavigateBefore className="text-middle" />
@@ -58,10 +31,12 @@ function SubmissionTable() {
                         </span>
                     </Button>
                 )}
-                {hasNext && (
+                {paginator.hasNext && (
                     <Button
                         type="button"
-                        onClick={() => changeCursor(currentIndex + 1)}
+                        onClick={() =>
+                            paginator.changeCursor!!(paginator.currentIndex + 1)
+                        }
                     >
                         <span>
                             Next
@@ -90,8 +65,10 @@ function SubmissionTable() {
                         </tr>
                     </thead>
                     <tbody id="tBody" className="font-mono-2xs">
-                        {submissions.map((s, i) => {
-                            if (i === filters.pageSize) return null
+                        {contents.map((s, i) => {
+                            // Do not render the additional item pulled for measuring
+                            // whether the next page exists.
+                            if (i === filters.pageSize) return null;
                             return (
                                 <tr key={s.pk()}>
                                     <th scope="row">
@@ -113,7 +90,7 @@ function SubmissionTable() {
                         })}
                     </tbody>
                 </table>
-                {submissions?.length === 0 ? (
+                {contents?.length === 0 ? (
                     <p>There were no results found.</p>
                 ) : null}
                 <NextPrevButtonsComponent />
