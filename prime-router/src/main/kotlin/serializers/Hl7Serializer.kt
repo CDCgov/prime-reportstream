@@ -29,7 +29,6 @@ import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.formatDateTimeForReceiver
-import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.commons.lang3.StringUtils
@@ -911,7 +910,7 @@ class Hl7Serializer(
         val pathSpec = formPathSpec(hl7Field, repeat)
 
         // All components should be trimmed and not blank.
-        val trimmedValue = value.trimToNull() ?: return
+        val trimmedValue = StringUtils.trimToNull(value) ?: return
 
         when (element.type) {
             Element.Type.ID_CLIA -> setCliaComponent(terser, trimmedValue, hl7Field, hl7Config)

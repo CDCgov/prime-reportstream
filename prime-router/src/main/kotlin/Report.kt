@@ -5,9 +5,10 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
-import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
+import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 import tech.tablesaw.api.Row
 import tech.tablesaw.api.StringColumn
@@ -622,56 +623,64 @@ class Report : Logging {
         return try {
             table.mapIndexed { idx, row ->
                 CovidResultMetadata().also {
-                    it.messageId = row.getStringOrNull("message_id")
-                    it.orderingProviderName = row.getStringOrNull("ordering_provider_first_name") +
-                        " " + row.getStringOrNull("ordering_provider_last_name")
-                    it.orderingProviderId = row.getStringOrNull("ordering_provider_id").trimToNull()
-                    it.orderingProviderState = row.getStringOrNull("ordering_provider_state").trimToNull()
-                    it.orderingProviderPostalCode = row.getStringOrNull("ordering_provider_zip_code").trimToNull()
-                    it.orderingProviderCounty = row.getStringOrNull("ordering_provider_county").trimToNull()
-                    it.orderingFacilityCity = row.getStringOrNull("ordering_facility_city").trimToNull()
-                    it.orderingFacilityCounty = row.getStringOrNull("ordering_facility_county").trimToNull()
-                    it.orderingFacilityName = row.getStringOrNull("ordering_facility_name").trimToNull()
-                    it.orderingFacilityPostalCode = row.getStringOrNull("ordering_facility_zip_code").trimToNull()
-                    it.orderingFacilityState = row.getStringOrNull("ordering_facility_state")
-                    it.testingLabCity = row.getStringOrNull("testing_lab_city").trimToNull()
-                    it.testingLabClia = row.getStringOrNull("testing_lab_clia").trimToNull()
-                    it.testingLabCounty = row.getStringOrNull("testing_lab_county").trimToNull()
-                    it.testingLabName = row.getStringOrNull("testing_lab_name").trimToNull()
-                    it.testingLabPostalCode = row.getStringOrNull("testing_lab_zip_code").trimToNull()
-                    it.testingLabState = row.getStringOrNull("testing_lab_state").trimToNull()
-                    it.patientCounty = row.getStringOrNull("patient_county").trimToNull()
-                    it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
+                    it.messageId = StringUtils.trimToNull(row.getStringOrNull("message_id"))
+                    it.orderingProviderName = StringUtils.trimToNull(
+                        row.getStringOrNull(
+                            "ordering_provider_first_name"
+                        )
+                    ) +
+                        " " + StringUtils.trimToNull(row.getStringOrNull("ordering_provider_last_name"))
+                    it.orderingProviderId = StringUtils.trimToNull(row.getStringOrNull("ordering_provider_id"))
+                    it.orderingProviderState = StringUtils.trimToNull(row.getStringOrNull("ordering_provider_state"))
+                    it.orderingProviderPostalCode = StringUtils.trimToNull(
+                        row.getStringOrNull("ordering_provider_zip_code")
+                    )
+                    it.orderingProviderCounty = StringUtils.trimToNull(row.getStringOrNull("ordering_provider_county"))
+                    it.orderingFacilityCity = StringUtils.trimToNull(row.getStringOrNull("ordering_facility_city"))
+                    it.orderingFacilityCounty = StringUtils.trimToNull(row.getStringOrNull("ordering_facility_county"))
+                    it.orderingFacilityName = StringUtils.trimToNull(row.getStringOrNull("ordering_facility_name"))
+                    it.orderingFacilityPostalCode = StringUtils.trimToNull(
+                        row.getStringOrNull("ordering_facility_zip_code")
+                    )
+                    it.orderingFacilityState = StringUtils.trimToNull(row.getStringOrNull("ordering_facility_state"))
+                    it.testingLabCity = StringUtils.trimToNull(row.getStringOrNull("testing_lab_city"))
+                    it.testingLabClia = StringUtils.trimToNull(row.getStringOrNull("testing_lab_clia"))
+                    it.testingLabCounty = StringUtils.trimToNull(row.getStringOrNull("testing_lab_county"))
+                    it.testingLabName = StringUtils.trimToNull(row.getStringOrNull("testing_lab_name"))
+                    it.testingLabPostalCode = StringUtils.trimToNull(row.getStringOrNull("testing_lab_zip_code"))
+                    it.testingLabState = StringUtils.trimToNull(row.getStringOrNull("testing_lab_state"))
+                    it.patientCounty = StringUtils.trimToNull(row.getStringOrNull("patient_county"))
+                    it.patientEthnicityCode = StringUtils.trimToNull(row.getStringOrNull("patient_ethnicity"))
                     it.patientEthnicity = if (it.patientEthnicityCode != null) {
                         metadata.findValueSet("hl70189") ?.toDisplayFromCode(it.patientEthnicityCode)
                     } else {
                         null
                     }
-                    it.patientGenderCode = row.getStringOrNull("patient_gender")
+                    it.patientGenderCode = StringUtils.trimToNull(row.getStringOrNull("patient_gender"))
                     it.patientGender = if (it.patientGenderCode != null) {
                         metadata.findValueSet("hl70001")?.toDisplayFromCode(it.patientGenderCode)
                     } else {
                         null
                     }
-                    it.patientPostalCode = row.getStringOrNull("patient_zip_code").trimToNull()
-                    it.patientRaceCode = row.getStringOrNull("patient_race")
+                    it.patientPostalCode = StringUtils.trimToNull(row.getStringOrNull("patient_zip_code"))
+                    it.patientRaceCode = StringUtils.trimToNull(row.getStringOrNull("patient_race"))
                     it.patientRace = if (it.patientRaceCode != null) {
                         metadata.findValueSet("hl70005")?.toDisplayFromCode(it.patientRaceCode)
                     } else {
                         null
                     }
-                    it.patientState = row.getStringOrNull("patient_state")
-                    it.testResultCode = row.getStringOrNull("test_result")
+                    it.patientState = StringUtils.trimToNull(row.getStringOrNull("patient_state"))
+                    it.testResultCode = StringUtils.trimToNull(row.getStringOrNull("test_result"))
                     it.testResult = if (it.testResultCode != null) {
                         metadata.findValueSet("covid-19/test_result")?.toDisplayFromCode(it.testResultCode)
                     } else {
                         null
                     }
-                    it.equipmentModel = row.getStringOrNull("equipment_model_name")
+                    it.equipmentModel = StringUtils.trimToNull(row.getStringOrNull("equipment_model_name"))
                     it.specimenCollectionDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
                         if (!dt.isNullOrEmpty()) {
                             try {
-                                LocalDate.parse(dt, Element.datetimeFormatter)
+                                LocalDate.from(DateUtilities.parseDate(dt))
                             } catch (_: Exception) {
                                 null
                             }
@@ -680,22 +689,22 @@ class Report : Logging {
                         }
                     }
                     it.patientAge = getAge(
-                        row.getStringOrNull("patient_age"),
-                        row.getStringOrNull("patient_dob"),
+                        StringUtils.trimToNull(row.getStringOrNull("patient_age")),
+                        StringUtils.trimToNull(row.getStringOrNull("patient_dob")),
                         it.specimenCollectionDateTime
                     )
-                    it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
+                    it.siteOfCare = StringUtils.trimToNull(row.getStringOrNull("site_of_care"))
                     it.reportId = this.id
                     it.reportIndex = idx
                     // For sender ID, use first the provided ID and if not use the client ID.
-                    it.senderId = row.getStringOrNull("sender_id").trimToNull()
+                    it.senderId = StringUtils.trimToNull(row.getStringOrNull("sender_id"))
                     if (it.senderId.isNullOrBlank()) {
                         val clientSource = sources.firstOrNull { source -> source is ClientSource } as ClientSource?
-                        if (clientSource != null) it.senderId = clientSource.name
+                        if (clientSource != null) it.senderId = StringUtils.trimToNull(clientSource.name)
                     }
-                    it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
-                    it.testPerformedLoincCode = row.getStringOrNull("test_performed_code").trimToNull()
-                    it.organizationName = row.getStringOrNull("organization_name").trimToNull()
+                    it.testKitNameId = StringUtils.trimToNull(row.getStringOrNull("test_kit_name_id"))
+                    it.testPerformedLoincCode = StringUtils.trimToNull(row.getStringOrNull("test_performed_code"))
+                    it.organizationName = StringUtils.trimToNull(row.getStringOrNull("organization_name"))
                 }
             }
         } catch (e: Exception) {

@@ -18,7 +18,10 @@ import java.util.Locale
  * in different directions.
  */
 object DateUtilities {
+    /** the default date pattern yyyyMMdd */
     const val datePattern = "yyyyMMdd"
+    /** an alternate date pattern MMddyyyy */
+    const val alternateDatePattern = "[yyyy-MM-dd][yyyy-dd-MM][MMdduuuu][uuuuMMdd]"
     /** a local date time pattern to use when formatting in local date time instead */
     const val localDateTimePattern = "uuuuMMddHHmmss"
     /** our standard offset date time pattern */
@@ -33,11 +36,24 @@ object DateUtilities {
         "[uuuuMMddHHmmss[.nnnn]Z][uuuuMMddHHmm[.nnnn]Z]" +
         // fractional seconds
         "[uuuuMMddHHmmss[.SSS]Z][uuuuMMddHHmm[.SSS]Z]" +
+        // ISO-ish date time format, optional seconds, optional 'Z', and optional offset
+        "[uuuu-MM-dd'T'HH:mm[:ss]['Z'][xxx]]" +
         "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]" +
         "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]" +
         "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]" +
-        "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]" +
-        "[MMddyyyy]"
+        "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]"
+
+    val allowedDateFormats = listOf(
+        "[yyyyMMdd[HHmm][ss][.S][Z]]", "[yyyy-MM-dd HH:mm:ss.ZZZ]",
+        "[uuuuMMddHHmmss[.nnnn]Z][uuuuMMddHHmm[.nnnn]Z]",
+        "[uuuuMMddHHmmss[.SSS]Z][uuuuMMddHHmm[.SSS]Z]",
+        "[uuuu-MM-dd'T'HH:mm[:ss]['Z'][xxx]]",
+        "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]",
+        "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]",
+        "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]",
+        "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]",
+        "yyyy-MM-dd", "yyyy-dd-MM", "MMdduuuu", "uuuuMMdd"
+    )
 
     /** A simple date formatter */
     val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
@@ -98,7 +114,8 @@ object DateUtilities {
         ) {
             ZoneId.of(report.destination.timeZone.zoneId)
         } else {
-            ZoneId.systemDefault()
+            // default to UTC
+            ZoneId.of("UTC")
         }
     }
 
@@ -111,15 +128,41 @@ object DateUtilities {
         if (StringUtils.trimToNull(dateValue) == null)
             error("Invalid value passed in for date value. Received $dateValue")
         // parse out the date
-        return DateTimeFormatter.ofPattern(variableDateTimePattern)
-            .parseBest(
-                dateValue,
-                OffsetDateTime::from,
-                ZonedDateTime::from,
-                LocalDateTime::from,
-                Instant::from,
-                LocalDate::from
-            )
+        return try {
+            DateTimeFormatter.ofPattern(variableDateTimePattern)
+                .parseBest(
+                    dateValue,
+                    OffsetDateTime::from,
+                    ZonedDateTime::from,
+                    LocalDateTime::from,
+                    Instant::from,
+                    LocalDate::from
+                )
+        } catch (t: Throwable) {
+            // our variable pattern has failed. let's try each one-by-one
+            allowedDateFormats.forEach { format ->
+                val parsedDate = parseDate(dateValue, format)
+                if (parsedDate != null) return parsedDate
+            }
+            error("Unable to parse $dateValue.")
+        }
+    }
+
+    /** Parse the date according to the single pattern passed in, or return null */
+    fun parseDate(dateValue: String, formatString: String): TemporalAccessor? {
+        return try {
+            DateTimeFormatter.ofPattern(formatString)
+                .parseBest(
+                    dateValue,
+                    OffsetDateTime::from,
+                    ZonedDateTime::from,
+                    LocalDateTime::from,
+                    LocalDate::from,
+                    Instant::from,
+                )
+        } catch (_: Throwable) {
+            null
+        }
     }
 
     /**
@@ -130,7 +173,7 @@ object DateUtilities {
      */
     fun getDateAsFormattedString(
         temporalAccessor: TemporalAccessor,
-        outputFormat: String,
+        outputFormat: String = datetimePattern,
         convertPositiveOffsetToNegative: Boolean = false
     ): String {
         val outputFormatter = DateTimeFormatter.ofPattern(outputFormat)
@@ -359,6 +402,17 @@ object DateUtilities {
             this,
             report,
             dateTimeFormat
+        )
+    }
+
+    fun TemporalAccessor.asFormattedString(
+        dateTimeFormat: String? = null,
+        convertPositiveDateTimeOffsetToNegative: Boolean = false
+    ): String {
+        return getDateAsFormattedString(
+            this,
+            dateTimeFormat ?: DateUtilities.datetimePattern,
+            convertPositiveDateTimeOffsetToNegative
         )
     }
 }

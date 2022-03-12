@@ -4,13 +4,15 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
 import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.DateUtilities.asFormattedString
+import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.Environment
-import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
 import gov.cdc.prime.router.metadata.LookupMapper
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
+import org.apache.commons.lang3.StringUtils
 import java.lang.Exception
 import java.text.DecimalFormat
 import java.time.DateTimeException
@@ -309,7 +311,7 @@ data class Element(
         format: String? = null,
     ): String {
         // trim the normalized value down to null and if it is null return empty string
-        val cleanedNormalizedValue = normalizedValue.trimToNull() ?: return ""
+        val cleanedNormalizedValue = StringUtils.trimToNull(normalizedValue) ?: return ""
         val formattedValue = when (type) {
             // sometimes you just need to send through an empty column
             Type.BLANK -> ""
@@ -612,68 +614,30 @@ data class Element(
         return when (type) {
             Type.BLANK -> ""
             Type.DATE -> {
-                val normalDate = try {
-                    LocalDate.parse(cleanedFormattedValue)
-                } catch (e: DateTimeParseException) {
-                    null
-                } ?: try {
-                    val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
-                    LocalDate.parse(cleanedFormattedValue, formatter)
-                } catch (e: DateTimeParseException) {
-                    null
-                }
-                    // the next six date validation patterns are valid date patterns that we have seen be
-                    // manually entered into EMR systems, but are not consistent, so we cannot use the "format" param
-                    ?: try {
-                        validateManualDates(cleanedFormattedValue, false)
-                    } catch (e: DateTimeParseException) {
-                        null
-                    } ?: try {
-                    val optionalDateTime = variableDateTimePattern
-                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
-                    val ta = df.parseBest(
-                        cleanedFormattedValue,
-                        OffsetDateTime::from,
-                        LocalDateTime::from,
-                        Instant::from,
-                        LocalDate::from
-                    )
-                    LocalDate.from(ta)
-                } catch (e: DateTimeParseException) {
-                    // if this value can be nullified because it is badly formatted and optional, simply return a blank string
+                try {
+                    DateUtilities
+                        .parseDate(cleanedFormattedValue)
+                        .asFormattedString(format ?: DateUtilities.datePattern)
+                } catch (t: Throwable) {
                     if (nullifyValue) {
-                        return ""
+                        ""
                     } else {
                         error("Invalid date: '$cleanedFormattedValue' for element $fieldMapping")
                     }
-                } catch (e: DateTimeException) {
-                    // this shouldn't ever really happen because we can always extract local date from a date time
-                    // but it's better to be more secure and transparent
-                    error(
-                        "Unable to parse '$cleanedFormattedValue' for " +
-                            "element $fieldMapping because it was the wrong type."
-                    )
                 }
-                normalDate.format(dateFormatter)
             }
             Type.DATETIME -> {
                 try {
-                    val normalDateTime = getDateTime(cleanedFormattedValue, format)
-                    normalDateTime.format(datetimeFormatter)
-                } catch (e: DateTimeParseException) {
-                    // if this value can be nullified because it is badly formatted, simply return a blank string
+                    DateUtilities
+                        .parseDate(cleanedFormattedValue)
+                        .toOffsetDateTime()
+                        .asFormattedString(format ?: DateUtilities.datetimePattern)
+                } catch (_: Throwable) {
                     if (nullifyValue) {
-                        return ""
+                        ""
                     } else {
                         error("Invalid date: '$cleanedFormattedValue' for element $fieldMapping")
                     }
-                } catch (e: DateTimeException) {
-                    // this shouldn't ever really happen because we can always extract local date from a date time
-                    // but it's better to be more secure and transparent
-                    error(
-                        "Unable to parse '$cleanedFormattedValue' for " +
-                            "element $fieldMapping because it was the wrong type."
-                    )
                 }
             }
             Type.CODE -> {
