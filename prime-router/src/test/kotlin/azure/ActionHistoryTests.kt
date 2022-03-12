@@ -458,7 +458,7 @@ class ActionHistoryTests {
         val filteredTree: JsonNode? = jacksonObjectMapper().readTree(filteredJson)
         assertNotNull(filteredTree)
         val filteredReportRows = filteredTree["destinations"][0]["filteredReportRows"]
-        val filteredReportRowObjects = filteredTree["destinations"][0]["filteredReports"]
+        val filteredReportRowObjects = filteredTree["destinations"][0]["filteredReportItems"]
 
         // filteredReportRows assertions
         assertThat(filteredReportRows.size()).isEqualTo(1)
