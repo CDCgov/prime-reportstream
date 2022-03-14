@@ -11,7 +11,7 @@ This document will walk you through the setup instructions to get a functioning 
 - [Building the Baseline](#building-the-baseline)
 - [Committing to this repository](#committing-to-this-repository)
     * [Git Hooks](#git-hooks)
-        + [pre-commit: Gitleaks](#pre-commit--gitleaks)
+        + [pre-commit: Gitleaks](#pre-commit-gitleaks)
     * [Updating schema documentation](#updating-schema-documentation)
 - [Running ReportStream](#running-reportstream)
     * [Restarting After a Code Update](#restarting-after-a-code-update)
@@ -41,17 +41,17 @@ This document will walk you through the setup instructions to get a functioning 
 
 You will need to have at least the following pieces of software installed _locally_ in order to be able to build and/or debug this baseline:
 
-* [git](getting-started/install-git.md) including git-bash if you're on Windows
-* [Docker or Docker Desktop](getting-started/install-docker.md)
-* [OpenJDK](getting-started/install-openjdk.md) (currently targetting 11 through 15)
-* [Azure Functions Core Tools](getting-started/install-afct.md) (currently targetting 3)
+* [git](install-git.md) including git-bash if you're on Windows
+* [Docker or Docker Desktop](install-docker.md)
+* [OpenJDK](install-openjdk.md) (currently targetting 11 through 15)
+* [Azure Functions Core Tools](install-afct.md) (currently targetting 3)
 
 The following are optional tools that can aid you during development or debugging:
 
 * [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
-* [AzureCLI](getting-started/install-azurecli.md)
-* [Gradle](getting-started/install-gradle.md)
-* One or more [PostgreSQL Clients](getting-started/psql-clients.md)
+* [AzureCLI](install-azurecli.md)
+* [Gradle](install-gradle.md)
+* One or more [PostgreSQL Clients](psql-clients.md)
 
 # Bulding the Baseline
 
@@ -73,7 +73,7 @@ cd ./prime-router
 ```
 
 > Note: If you are working on an Apple Silicon Mac, stop here at this step and 
-> continue on with the instructions in [Using an Apple Silicon Mac](getting-started/Using-an-apple-silicon-mac.md).
+> continue on with the instructions in [Using an Apple Silicon Mac](Using-an-apple-silicon-mac.md).
 
 ## Build Dependencies
 1. If you are using Docker Desktop, verify that it is running prior to building or running ReportStream locally.
@@ -109,7 +109,7 @@ The most useful gradle tasks are:
 
 # Committing to this repository
 
-* Commits _must_ be signed or will not be mergeable into `master` or `production` without Repository Administrator intervention. You can find detailed instructions on how to set this up in the [Signing Commits](signing-commits.md) document.
+* Commits _must_ be signed or will not be mergeable into `master` or `production` without Repository Administrator intervention. You can find detailed instructions on how to set this up in the [Signing Commits](../signing-commits.md) document.
 * Make your changes in topic/feature branches and file a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch.
 
 ## Git Hooks
@@ -133,7 +133,7 @@ When gitleaks reports leaks/violations, the right course of action is typically 
 
 This tool can also be manually invoked through `.environment/gitleaks/run-gitleaks.sh` which may be useful to validate the lack of leaks without the need of risking a commit. Invoke the tool with `--help` to find out more about its different run modes.
 
-See [Allow-listing Gitleaks False Positives](allowlist-gitleaks-false-positives.md) for more details on how to prevent False Positives!
+See [Allow-listing Gitleaks False Positives](../allowlist-gitleaks-false-positives.md) for more details on how to prevent False Positives!
 
 ### pre-commit: Terraform formatting
 
@@ -157,7 +157,7 @@ schema documentation and the build will fail if the schema documentation updates
 # Running ReportStream
 
 You can bring up the entire ReportStream environment by running the `devenv-infrastructure.sh` script after building
-the baseline (see "[Building in the course of development](#building-in-the-course-of-development)" and/or "[First Build](#first-build)")
+the baseline (see "[First Build](#first-build)")
 
 ```bash
 cd ./prime-router
@@ -185,6 +185,7 @@ $ docker ps --format '{{.Names}}' | grep ^prime-router
 prime-router_web_receiver_1
 prime-router_prime_dev_1
 prime-router_sftp_1
+prime-router_redox_1
 prime-router_azurite_1
 prime-router_vault_1
 prime-router_postgresql_1
@@ -192,6 +193,26 @@ prime-router_postgresql_1
 docker logs prime-router_postgresql_1
 # Show the log output of (e.g.) prime-router-prime_dev_1 and stay on it
 docker logs prime-router_prime_dev_1 --follow
+```
+
+### How to change Logging Levels
+
+To change the level of logging in our kotlin code, edit the src/main/resources/log4j2.xml file.  For example, to get very verbose logging across all classes:
+```
+        <Logger name="gov.cdc.prime.router" level="trace"/>
+```
+To increase the level of Azure Function logging (Microsoft's logging), edit the 'logging' section of the host.json file and add a logLevel section, like this:
+```
+  "logging": {
+    "logLevel": {
+      "default": "Trace"
+    },
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true
+      }
+    }
+  }
 ```
 
 ### Debugging ReportStream
@@ -223,7 +244,7 @@ If your agency's network intercepts SSL requests, you might have to disable SSL 
 
 ## Running ReportStream locally
 
-The project's [README](../README.md) file contains some steps on how to use the PRIME router in a CLI. However, most uses of the PRIME router will be in the Microsoft Azure cloud. The router runs as a container in Azure. The [`DockerFile`](../Dockerfile) describes what goes in this container.
+The project's [README](../../README.md) file contains some steps on how to use the PRIME router in a CLI. However, most uses of the PRIME router will be in the Microsoft Azure cloud. The router runs as a container in Azure. The [`DockerFile`](../../Dockerfile) describes what goes in this container.
 
 Developers can also run the router locally with the same Azure runtime and libraries to help develop and debug in an environment that mimics the Azure environment as closely as we can on your local machine. In this case, a developer can use a local Azure storage emulator, called Azurite.
 
@@ -434,8 +455,8 @@ Some useful tools for Kotlin/Java development include:
 * [KTLint](https://ktlint.github.io/): the Kotlin linter that we use to format our KT code
     * Install the [IntelliJ KLint plugin](https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-) or configure it to follow standard Kotlin conventions as follows on a mac: `cd ./prime-router && brew install ktlint && ktlint applyToIDEAProject`
 * [Microsoft VSCode](https://code.visualstudio.com/Download) with the available Kotlin extension
-* [Java Profiling in ReportStream](./getting-started/java-profiling.md)
-* [Tips for faster development](./getting-started/faster-development.md)
+* [Java Profiling in ReportStream](./java-profiling.md)
+* [Tips for faster development](./faster-development.md)
 
 # Miscellaneous subjects
 
