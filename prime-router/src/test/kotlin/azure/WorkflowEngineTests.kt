@@ -74,7 +74,7 @@ class WorkflowEngineTests {
         every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
-        engine.dispatchReport(event, report1, actionHistory, receiver, context = null)
+        engine.dispatchReport(event, report1, actionHistory, receiver)
 
         verify(exactly = 1) {
             accessSpy.insertTask(
@@ -107,7 +107,7 @@ class WorkflowEngineTests {
         every { actionHistory.trackGeneratedEmptyReport(any(), any(), any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
-        engine.dispatchReport(event, report1, actionHistory, receiver, context = null, isEmptyReport = true)
+        engine.dispatchReport(event, report1, actionHistory, receiver, isEmptyReport = true)
 
         verify(exactly = 1) {
             accessSpy.insertTask(
@@ -145,7 +145,7 @@ class WorkflowEngineTests {
         every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
-        engine.dispatchReport(event, report1, actionHistory, receiver, context = null)
+        engine.dispatchReport(event, report1, actionHistory, receiver)
 
         verify(exactly = 1) {
             accessSpy.insertTask(
@@ -263,7 +263,7 @@ class WorkflowEngineTests {
         every { actionHistoryMock.trackActionResult(any() as String) }.returns(Unit)
         every { ActionHistory.Companion.sanityCheckReport(any(), any(), any()) }.returns(Unit)
 
-        engine.handleReportEvent(event, null) { header, _, _ ->
+        engine.handleReportEvent(event) { header, _, _ ->
             assertEquals(task, header.task)
             nextAction
         }
