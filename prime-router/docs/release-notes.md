@@ -2,8 +2,9 @@
 
 ## General useful links:
 
-- All Schemas are documented here:  [Link to detailed schema dictionaries](./schema_documentation)
+- All Schemas are documented here: [Link to detailed schema dictionaries](./schema_documentation)
 - The ReportStream API is documented here: [Hub OpenApi Spec](./openapi.yml)
+- More detailed changelog for individual releases: [Recent releases](https://github.com/CDCgov/prime-reportstream/releases)
 
 ## March 8, 2022
 ### Consistent formatting of timestamps in API responses
