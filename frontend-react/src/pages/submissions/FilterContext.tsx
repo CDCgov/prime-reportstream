@@ -1,7 +1,6 @@
 import React, {
     createContext,
     PropsWithChildren,
-    useCallback,
     useContext,
     useEffect,
     useState,
@@ -15,8 +14,10 @@ import { GlobalContext } from "../../components/GlobalContextProvider";
 /* Convenient type aliases */
 type SortOrder = "ASC" | "DESC";
 type PageSize = 10 | 25 | 50 | 100;
-type StateUpdate<T> = (val: T) => void;
-export type FilterTypes = string | SortOrder | PageSize;
+type FilterTypes = string | SortOrder | PageSize;
+
+type StateUpdater = (filter: FilterName, val?: FilterTypes) => void;
+type StateClearer = () => void;
 
 export enum FilterName {
     START_RANGE = "start-range",
@@ -39,8 +40,8 @@ export interface FilterState {
 interface ISubmissionFilterContext {
     filters: FilterState;
     contents: SubmissionsResource[];
-    updateFilter: (filter: FilterName, val?: FilterTypes) => void;
-    clear: () => void;
+    updateFilter: StateUpdater;
+    clear: StateClearer;
     paginator?: PaginationController;
 }
 
