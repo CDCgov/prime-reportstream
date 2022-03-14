@@ -1,11 +1,11 @@
 package gov.cdc.prime.router.translation
 
 import ca.uhn.hl7v2.model.Message
-import gov.cdc.prime.router.encoding.messageType
 import io.github.linuxforhealth.fhir.FHIRContext
 import io.github.linuxforhealth.hl7.ConverterOptions
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
 import io.github.linuxforhealth.hl7.message.HL7MessageModel
+import io.github.linuxforhealth.hl7.parsing.HL7DataExtractor
 import io.github.linuxforhealth.hl7.resource.ResourceReader
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
@@ -70,8 +70,10 @@ object HL7toFHIR : Logging {
         // extracted from
         // https://github.com/LinuxForHealth/hl7v2-fhir-converter/blob/d5e43fffa96654e7c5bc896e020ff2fa8aac4ff2/src/main/java/io/github/linuxforhealth/hl7/HL7ToFHIRConverter.java#L135-L159
         // If timezone specification is needed it can be provided via a custom HL7MessageEngine with a custom FHIRContext that has the time zone ID set
+        // return HL7ToFHIRConverter().convertToBundle(hl7Message.encode(), ConverterOptions.SIMPLE_OPTIONS, defaultEngine)
 
-        val messageModel = getHL7MessageModel(hl7Message.messageType(), defaultMessageTemplates)
+        val messageType = HL7DataExtractor.getMessageType(hl7Message)
+        val messageModel = getHL7MessageModel(messageType, defaultMessageTemplates)
         return translate(hl7Message, messageModel, defaultEngine)
     }
 

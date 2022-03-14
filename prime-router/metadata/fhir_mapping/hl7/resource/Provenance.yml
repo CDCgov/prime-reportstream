@@ -1,0 +1,22 @@
+resourceType: Provenance
+id:
+  type: STRING
+  valueOf: "UUID.randomUUID()"
+  expressionType: JEXL
+
+target:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $DiagnosticReport
+
+recorded:
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: MSH.7
+
+agent:
+  valueOf: secondary/Agent
+  generateList: true
+  expressionType: resource

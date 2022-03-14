@@ -48,22 +48,22 @@ class FHIRFlowFunctions : Logging {
         val body = try {
             val contentType = request.headers.get(HttpHeaders.CONTENT_TYPE.lowercase())
             when (contentType) {
-                HttpUtilities.fhirMediaType, null -> {
-                    val hl7messages = HL7.decode(request.body)
+                HttpUtilities.hl7MediaType, "application/hl7-v2", null -> {
                     responseBuilder.contentType(HttpUtilities.fhirMediaType)
+                    val hl7messages = HL7.decode(request.body)
+                    require(hl7messages.size > 0) { "No messages were found" }
                     buildString {
-                        hl7messages.forEach { message ->
+                        hl7messages.filterNotNull().forEach { message ->
                             val fhir: Bundle = HL7toFHIR.translate(message)
                             appendLine(fhir.encode())
                         }
                     }
                 }
-                HttpUtilities.hl7MediaType, "application/hl7-v2" -> {
+                HttpUtilities.fhirMediaType -> {
                     responseBuilder.contentType(HttpUtilities.hl7MediaType)
                     val requestBody = request.body
                     requireNotNull(requestBody)
                     val bundle = FHIR.decode(requestBody)
-                    // FHIRtoHL7.templateHL7(bundle)
                     val message = FHIRtoHL7.toORU_R01(bundle)
                     message.encode()
                 }
@@ -72,6 +72,9 @@ class FHIRFlowFunctions : Logging {
                 }
             }
         } catch (e: IllegalArgumentException) {
+            responseBuilder.status(HttpStatus.BAD_REQUEST)
+            e.message
+        } catch (e: IllegalStateException) {
             responseBuilder.status(HttpStatus.BAD_REQUEST)
             e.message
         } catch (e: HttpException) {

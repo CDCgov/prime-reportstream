@@ -1,26 +1,26 @@
 package gov.cdc.prime.router.encoding
 
+import ca.uhn.hl7v2.DefaultHapiContext
+import ca.uhn.hl7v2.HapiContext
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v251.segment.MSH
+import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
- * Obtain the message type from an HL7 Message
- */
-fun Message.messageType(): String {
-    val header = this.get("MSH")
-    check(header is MSH)
-    return header.getMessageType().getMsg1_MessageCode().getValue() +
-        "_" +
-        header.getMessageType().getMsg2_TriggerEvent().getValue()
-}
-
-/**
  * Object containing the behaviors required for decoding a HL7 message
  */
 object HL7 : Logging {
+    val defaultContext = DefaultHapiContext()
+
+    init {
+        // This matches the required version in the linux4health library
+        val mcf = CanonicalModelClassFactory("2.6")
+        defaultContext.setModelClassFactory(mcf)
+        defaultContext.getParserConfiguration().setValidating(false)
+    }
+
     /**
      * Decode the provided *message* into a list of one or more HL7 *Message*s
      *
@@ -28,11 +28,11 @@ object HL7 : Logging {
      *
      * @param message The encoded HL7 String for decoding
      */
-    fun decode(message: String?): List<Message> {
+    fun decode(message: String?, context: HapiContext = defaultContext): List<Message> {
         requireNotNull(message)
         try {
             val messages: MutableList<Message> = mutableListOf()
-            val iterator = Hl7InputStreamMessageIterator(message.byteInputStream())
+            val iterator = Hl7InputStreamMessageIterator(message.byteInputStream(), context)
             while (iterator.hasNext()) {
                 messages.add(iterator.next())
             }

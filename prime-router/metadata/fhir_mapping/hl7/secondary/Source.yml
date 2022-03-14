@@ -9,7 +9,27 @@ name:
   valueOf: MSH.3
   expressionType: HL7Spec
 
+version:
+  type: STRING
+  valueOf: MSH.3.2
+  expressionType: HL7Spec
+
 endpoint:
   type: URL
   valueOf: MSH.24.2
   expressionType: HL7Spec
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: "http://prime.cdc.gov/stuff_and_things"
+        valueString:
+          type: STRING
+          valueOf: MSH.3.3
+          expressionType: HL7Spec

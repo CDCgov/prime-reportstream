@@ -14,9 +14,12 @@ import com.soywiz.korte.Template
 import com.soywiz.korte.TemplateConfig
 import gov.cdc.prime.router.encoding.getValue
 import kotlinx.coroutines.runBlocking
-import org.hl7.fhir.instance.model.api.IBase
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.InstantType
 import java.io.File
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 fun Terser.translate(mappings: List<FHIRtoHL7.Mapping>): Terser {
     mappings.forEach { mapping ->
@@ -29,7 +32,7 @@ fun Terser.translate(mapping: FHIRtoHL7.Mapping): Terser {
     try {
         this.set(mapping.hl7Path, mapping.value)
     } catch (e: HL7Exception) {
-        throw IllegalStateException(mapping.hl7Path, e)
+        throw IllegalStateException("${mapping.hl7Path}: ${e.message}", e)
     }
     return this
 }
@@ -57,8 +60,36 @@ object FHIRtoHL7 {
                 require(bundle is Bundle)
                 val path = args[0]
                 require(path is String)
-                bundle.getValue<IBase>(path)
-            }
+                bundle.getValue(path)
+            },
+            Filter("datetime") {
+                val date = subject
+                requireNotNull(date)
+                require(date is InstantType) {
+                    "In filter function datetime: Incorrect date type ${date.javaClass.kotlin.qualifiedName}"
+                }
+                date.value.toInstant().atOffset(ZoneOffset.ofHours(date.getTimeZone().getOffset(date.value.getTime())))
+            },
+            Filter("formatDate") {
+                val instant = subject
+                requireNotNull(instant)
+                require(instant is OffsetDateTime) {
+                    "In filter function formatDate: Incorrect date type ${instant.javaClass.kotlin.qualifiedName}"
+                }
+                val pattern = args[0]
+                require(pattern is String)
+                val formatter = DateTimeFormatter.ofPattern(pattern)
+                formatter.format(instant)
+            },
+            Filter("hl7CodingSystem") {
+                val system = subject
+                requireNotNull(system)
+                require(system is String) {
+                    "In filter function hl7odingSystem: Incorrect date type ${system.javaClass.kotlin.qualifiedName}"
+                }
+                val systemMap = mapOf("http://loinc.org" to "LN")
+                systemMap.get(system)
+            },
         )
     }
 
@@ -91,9 +122,10 @@ object FHIRtoHL7 {
     fun processMapping(mapping: MappingTemplate, bundle: Bundle): List<Mapping> {
         val mappings: MutableList<Mapping> = mutableListOf()
         runBlocking {
-            val hl7PathTemplate = Template(mapping.hl7Path)
-            val valueTemplate = Template(mapping.value)
-            val values = bundle.getValue<IBase>(mapping.fhirPath)
+            val hl7PathTemplate = Template(mapping.hl7Path, config)
+            val valueTemplate = Template(mapping.value, config)
+            val values = bundle.getValue(mapping.fhirPath)
+            require(values.size > 0) { "Failed to find elements for ${mapping.fhirPath}" }
             values.forEachIndexed { index, resource ->
                 val path = hl7PathTemplate(mapOf("index" to index))
                 val value = valueTemplate(
