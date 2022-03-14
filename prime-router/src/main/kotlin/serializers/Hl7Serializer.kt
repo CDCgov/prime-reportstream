@@ -495,10 +495,6 @@ class Hl7Serializer(
         }
         // serialize the rest of the elements
         reportElements.forEach { element ->
-
-            if (element.name == "ordering_provider_last_name")
-                print("Ott")
-
             val value = report.getString(row, element.name).let {
                 replaceValueAwithB(
                     element, replaceValueAwithB,
@@ -677,8 +673,17 @@ class Hl7Serializer(
             @Suppress("UNCHECKED_CAST")
             (element.value as ArrayList<Map<String, String>>).forEach { pairs ->
                 if (elementArg.hl7Field == element.key) {
-                    if (pairs.keys.first().trim() == valueArg)
+                    if (pairs.keys.first().trim() == valueArg) {
                         return pairs.values.first().trim()
+                    }
+                } else {
+                    elementArg.hl7OutputFields?.forEach { outField ->
+                        if (outField.trim() == element.key) {
+                            if (pairs.keys.first().trim() == valueArg) {
+                                return pairs.values.first().trim()
+                            }
+                        }
+                    }
                 }
             }
         }
