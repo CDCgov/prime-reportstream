@@ -55,36 +55,27 @@ docker ps
 
 ### Step 4 - Run support services
 
-ReportStream depends on set of services to be up before running main Azure service. These services include:
+ReportStream depends on set of services to be up before running main Azure service. These services include the following
+and are run automatically when starting ReportStream Dockerless:
 
 * Azurite - a simulator of Azure storage
 * Vault - a secret store
-* SFTP - A SFTP server
-* MockServer - A web server mocking tool for Redox 
+* SFTP - an SFTP server
+* FTPS - an FTPS server
+* soap-webservice - SOAP web service emulator* MockServer - A web server mocking tool for Redox 
 
-You can run these services using the `docker-compose` tool. 
-
-```bash
-docker-compose up sftp redox azurite ftps vault 
-```
-
-Look over the log in your terminal session and check for any errors. 
-If you find any, read the [Things that might go wrong](#things-that-might-go-wrong) section. 
-
-You can take down these services using a "ctrl-c" keyboard combination or the `docker-compose down` command. 
-For now, leave these services running and open up a new terminal session. 
-
-> Note: If you do not want to devote a whole terminal session the logs of these services. 
-> You can run them in detached mode `docker-compose up --detach sftp redox azurite ftps vault` and then
-> attach to the containers when you want to examine the logs. 
+You can take down these services by running `./gradlew composeDown` or `docker-compose down` command.
+For now, leave these services running and open up a new terminal session.
 
 ### Step 5 - Run ReportStream locally
-With the dependent services running and a freshly built JAR created by `cleanslate.sh`, we can run ReportStream locally. 
-We use Gradle to launch ReportStream, because Gradle will set up the environment variables that ReportStream needs. 
+Use Gradle to launch ReportStream, as it will set up the environment variables that ReportStream needs.
 
 ```bash
-gradle quickrun
+./gradlew run
 ```
+
+*Note:* for quicker development you can use `./gradlew quickrun` which skips some long running tasks, but use with
+caution as it will not build the FatJar, run database related tasks, or run the tests.  
 
 ReportStream should continue to run after launching. A `ctrl-c` will kill the running ReportStream instance. 
 For now, keep ReportStream running, open a new terminal session.
@@ -95,8 +86,9 @@ We will need to have ReportStream running for these steps to work (see previous 
 Again, we will use a Gradle task to do these steps.
 
 ```bash
-gradle primeCLI --args "create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass"
-gradle reloadSettings
+./gradlew primeCLI --args "create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass"
+./gradlew reloadTables
+./gradlew reloadSettings
 ```
 
 ### Step 7 - Run tests
@@ -104,11 +96,7 @@ You should be able to run tests now to confirm that everything is working.
 
 ```bash
 # Smoke test checks that most of the system is working
-gradle testSmoke
-```
-Another test that is run is the integration test. 
-```bash
-gradle testIntegration
+./gradlew testSmoke
 ```
 
 ### Step 6 - Build Front-end
