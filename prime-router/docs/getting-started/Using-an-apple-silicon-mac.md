@@ -20,8 +20,8 @@ This approach has the benefit of reducing your build-debug cycle time and is det
 
 ### Step 1 - Read the getting started instructions
 
-Read the [Getting Started](./getting_started.md) instructions as background information about various components 
-needed to work in ReportStream. This document may have new information not found in this document. 
+Read the [Getting Started](./getting-started.md) instructions as background information about various components 
+needed to work in ReportStream. The [Getting Started](./getting-started.md) document may have new information not found in this document. 
 
 ### Step 2 - Install dev tools
 
@@ -55,27 +55,36 @@ docker ps
 
 ### Step 4 - Run support services
 
-ReportStream depends on set of services to be up before running main Azure service. These services include the following 
-and are run automatically when starting ReportStream Dockerless:
+ReportStream depends on set of services to be up before running main Azure service. These services include:
 
 * Azurite - a simulator of Azure storage
 * Vault - a secret store
-* SFTP - an SFTP server
-* FTPS - an FTPS server
-* soap-webservice - SOAP web service emulator
+* SFTP - A SFTP server
+* MockServer - A web server mocking tool for Redox 
 
-You can take down these services by running `./gradlew composeDown` or `docker-compose down` command. 
-For now, leave these services running and open up a new terminal session.
-
-### Step 5 - Run ReportStream locally
-Use Gradle to launch ReportStream, as it will set up the environment variables that ReportStream needs. 
+You can run these services using the `docker-compose` tool. 
 
 ```bash
-./gradlew run
+docker-compose up sftp redox azurite ftps vault 
 ```
 
-*Note:* for quicker development you can use `./gradlew quickrun` which skips some long running tasks, but use with 
-caution as it will not build the FatJar, run database related tasks, or run the tests.  
+Look over the log in your terminal session and check for any errors. 
+If you find any, read the [Things that might go wrong](#things-that-might-go-wrong) section. 
+
+You can take down these services using a "ctrl-c" keyboard combination or the `docker-compose down` command. 
+For now, leave these services running and open up a new terminal session. 
+
+> Note: If you do not want to devote a whole terminal session the logs of these services. 
+> You can run them in detached mode `docker-compose up --detach sftp redox azurite ftps vault` and then
+> attach to the containers when you want to examine the logs. 
+
+### Step 5 - Run ReportStream locally
+With the dependent services running and a freshly built JAR created by `cleanslate.sh`, we can run ReportStream locally. 
+We use Gradle to launch ReportStream, because Gradle will set up the environment variables that ReportStream needs. 
+
+```bash
+gradle quickrun
+```
 
 ReportStream should continue to run after launching. A `ctrl-c` will kill the running ReportStream instance. 
 For now, keep ReportStream running, open a new terminal session.
@@ -86,9 +95,8 @@ We will need to have ReportStream running for these steps to work (see previous 
 Again, we will use a Gradle task to do these steps.
 
 ```bash
-./gradlew primeCLI --args "create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass"
-./gradlew reloadTables
-./gradlew reloadSettings
+gradle primeCLI --args "create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass"
+gradle reloadSettings
 ```
 
 ### Step 7 - Run tests
@@ -96,7 +104,11 @@ You should be able to run tests now to confirm that everything is working.
 
 ```bash
 # Smoke test checks that most of the system is working
-./gradlew testSmoke
+gradle testSmoke
+```
+Another test that is run is the integration test. 
+```bash
+gradle testIntegration
 ```
 
 ### Step 6 - Build Front-end
@@ -164,7 +176,7 @@ For profiling use the JMX port 9090.
 
 ### Start and stop dependent services
 
-Instead of using a `docker-compose up sftp azurite ftps vault` to bring up dependent services, you can use a script.
+Instead of using a `docker-compose up sftp redox azurite ftps vault` to bring up dependent services, you can use a script.
 ```bash
 ./devenv-infrastructure.sh up
 ```
@@ -210,8 +222,8 @@ POSTGRES_USER=prime
 POSTGRES_PASSWORD=changeIT!
 POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
 PRIME_ENVIRONMENT=local
-OKTA_baseUrl=hhs-prime.oktapreview.com
-OKTA_clientId=0oa2fs6vp3W5MTzjh1d7
+OKTA_baseUrl=hhs-prime.okta.com
+OKTA_clientId=0oa6fm8j4G1xfrthd4h6
 OKTA_redirect=http://localhost:7071/api/download
 JAVA_HOME=$(/usr/libexec/java_home)
 ```
@@ -222,7 +234,7 @@ You may run into problems. Here are few of the common ones.
 
 ### FTPS container
 
-If you get an error running `docker-compose up sftp azurite ftps vault` like *bind source path does not exist: .../build/ftps*.
+If you get an error running `docker-compose up sftp redox azurite ftps vault` like *bind source path does not exist: .../build/ftps*.
 This is likely because a `clean` command has removed the build `build/ftps` directory. You can add the directory by hand using `mkdir build/ftps` and the `docker-compose` will run.
 
 ### Azurite
