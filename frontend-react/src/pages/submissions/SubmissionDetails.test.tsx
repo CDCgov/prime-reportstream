@@ -118,7 +118,7 @@ describe("DestinationItem", () => {
         expect(screen.getByText(/transmission date/i)).toBeInTheDocument();
         expect(screen.getByText(/transmission time/i)).toBeInTheDocument();
         expect(screen.getByText(/records/i)).toBeInTheDocument();
-        expect(screen.getByText(/primary data feed/i)).toBeInTheDocument();
+        expect(screen.getByText(/primary/i)).toBeInTheDocument();
         /*
             These must change if we ever change the sending_at property of
             our test ActionDetailResource in TestResponse.ts
