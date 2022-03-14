@@ -223,7 +223,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             filterType
         )
         if (doLogging && filteredReport.itemCount != input.itemCount) {
-            logger.warn(
+            logger.info(
                 "Filtering occurred in report ${input.id}, receiver ${receiver.fullName}: " +
                     "There were ${input.itemCount} rows prior to ${filterType.name}, and " +
                     "${filteredReport.itemCount} rows after ${filterType.name}."
