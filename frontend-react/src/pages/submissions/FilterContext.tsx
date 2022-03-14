@@ -1,6 +1,7 @@
 import React, {
     createContext,
     PropsWithChildren,
+    useCallback,
     useContext,
     useEffect,
     useState,
@@ -35,6 +36,7 @@ interface ISubmissionFilterContext {
     updateCursor?: StateUpdate<string>;
     updateSortOrder?: StateUpdate<SortOrder>;
     updatePageSize?: StateUpdate<PageSize>;
+    clear?: () => void;
 }
 
 /* This is a definition of the context shape, NOT the payload delivered */
@@ -99,10 +101,19 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
         });
     }, [cursor, endRange, pageSize, sortOrder, startRange]);
 
+    const clear = useCallback(() => {
+        setStartRange("");
+        setEndRange("");
+        setCursor("");
+        setSortOrder("DESC");
+        setPageSize(10);
+    }, []);
+
     /* Pagination, baby! */
     const paginator = usePaginator(submissions, filterState);
 
-    /* This triggers the API call to update using the new cursor */
+    /* This sets the cursor to the currentIndex when currentIndex, cursors, or
+     * startRange change. */
     useEffect(() => {
         // When current index is changed update the context cursor
         if (paginator.currentIndex === 1) {
@@ -111,7 +122,6 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
             const cursor = paginator.cursors.get(paginator.currentIndex);
             if (cursor) setCursor(cursor);
         }
-        // debugger
     }, [paginator.currentIndex, paginator.cursors, startRange]);
 
     /* This is the payload we deliver through our context provider */
@@ -124,6 +134,7 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
         updateCursor: updateCursor,
         updateSortOrder: updateSortOrder,
         updatePageSize: updatePageSize,
+        clear: clear,
     };
 
     return (

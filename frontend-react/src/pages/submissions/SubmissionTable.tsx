@@ -7,50 +7,52 @@ import {
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 
+import { PaginationController } from "../../utils/UsePaginator";
+
 import { SubmissionFilterContext } from "./FilterContext";
 
+/* Handles pagination button logic and display */
+function PaginationButtons({ paginator }: { paginator: PaginationController }) {
+    if (paginator!!.pageCount!!() <= 1) return <></>;
+    return (
+        <ButtonGroup type="segmented" className="float-right margin-top-5">
+            {paginator!!.hasPrev && (
+                <Button
+                    type="button"
+                    onClick={() =>
+                        paginator!!.changeCursor!!(paginator!!.currentIndex - 1)
+                    }
+                >
+                    <span>
+                        <IconNavigateBefore className="text-middle" />
+                        Previous
+                    </span>
+                </Button>
+            )}
+            {paginator!!.hasNext && (
+                <Button
+                    type="button"
+                    onClick={() =>
+                        paginator!!.changeCursor!!(paginator!!.currentIndex + 1)
+                    }
+                >
+                    <span>
+                        Next
+                        <IconNavigateNext className="text-middle" />
+                    </span>
+                </Button>
+            )}
+        </ButtonGroup>
+    );
+}
+
 function SubmissionTable() {
+    /* The one-stop-shop for all things filters, pagination, and API responses! */
     const { filters, paginator, contents } = useContext(
         SubmissionFilterContext
     );
 
-    const NextPrevButtonsComponent = () => {
-        if (paginator!!.pageCount!!() <= 1) return <></>;
-        return (
-            <ButtonGroup type="segmented" className="float-right margin-top-5">
-                {paginator!!.hasPrev && (
-                    <Button
-                        type="button"
-                        onClick={() =>
-                            paginator!!.changeCursor!!(
-                                paginator!!.currentIndex - 1
-                            )
-                        }
-                    >
-                        <span>
-                            <IconNavigateBefore className="text-middle" />
-                            Previous
-                        </span>
-                    </Button>
-                )}
-                {paginator!!.hasNext && (
-                    <Button
-                        type="button"
-                        onClick={() =>
-                            paginator!!.changeCursor!!(
-                                paginator!!.currentIndex + 1
-                            )
-                        }
-                    >
-                        <span>
-                            Next
-                            <IconNavigateNext className="text-middle" />
-                        </span>
-                    </Button>
-                )}
-            </ButtonGroup>
-        );
-    };
+    /* Handles pagination button logic and display */
 
     return (
         <div className="grid-container margin-bottom-10">
@@ -97,7 +99,7 @@ function SubmissionTable() {
                 {contents?.length === 0 ? (
                     <p>There were no results found.</p>
                 ) : null}
-                <NextPrevButtonsComponent />
+                <PaginationButtons paginator={paginator!!} />
             </div>
         </div>
     );
