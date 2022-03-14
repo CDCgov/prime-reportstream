@@ -58,8 +58,8 @@ describe("SubmissionDetails", () => {
         const idElement = await screen.findByText(mockData.id);
 
         /* DestinationItem contents*/
-        const receiverOrgName = await screen.findByText(
-            mockData.destinations[0].organization
+        const receiverOrgNameAndService = await screen.findByText(
+            `${mockData.destinations[0].organization} (${mockData.destinations[0].service})`
         );
         const transmissionDate = await screen.findByText("7 Apr 1970");
         const transmissionTime = screen.getByText(findTimeWithoutDate);
@@ -73,7 +73,7 @@ describe("SubmissionDetails", () => {
         */
         const testElements = [
             idElement,
-            receiverOrgName,
+            receiverOrgNameAndService,
             transmissionDate,
             transmissionTime,
             recordsTransmitted,
@@ -118,6 +118,7 @@ describe("DestinationItem", () => {
         expect(screen.getByText(/transmission date/i)).toBeInTheDocument();
         expect(screen.getByText(/transmission time/i)).toBeInTheDocument();
         expect(screen.getByText(/records/i)).toBeInTheDocument();
+        expect(screen.getByText(/primary/i)).toBeInTheDocument();
         /*
             These must change if we ever change the sending_at property of
             our test ActionDetailResource in TestResponse.ts
