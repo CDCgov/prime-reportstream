@@ -1,14 +1,14 @@
-# Run this:  ./prime multiple-settings set --input ./settings/prod/0090-pcl-ca.yml --env prod
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0091-jrslab-ca.yml --env staging
 ---
-- name: "pcl-ca"
-  description: "Pacific Clinical Laboratory - CSV Uploader"
+- name: "jrslab-ca"
+  description: "JRS Laboratory - CSV Uploader"
   jurisdiction: "FEDERAL"
   stateCode: null
   countyName: null
   filters: []
   senders:
     - name: "default"
-      organizationName: "pcl-ca"
+      organizationName: "jrslab-ca"
       format: "CSV"
       topic: "covid-19"
       customerStatus: "testing"
