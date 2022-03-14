@@ -1,4 +1,4 @@
-## Example Submission with Interesting Response
+## Example 1:  Submission with Interesting Response
 
 This example is meant to represent a variety of warning messages and filtering messages.
 
@@ -18,7 +18,7 @@ curl -X POST -H "client:simple_report" -H "Content-Type: text/csv"  --data-binar
 Then you can grab the "id" from the json response, and submit it to the Histor API.  Here's an example History API request
 
 ```
-curl -H "client:simple_report" -H "authorization:bearer 123" "http://localhost:7071/api/history/simple_report/report/d44b1d7c-2974-4663-a929-0ef83004b32f" | python -mjson.tool
+curl -H "authorization:bearer 123" "http://localhost:7071/api/history/simple_report/report/d44b1d7c-2974-4663-a929-0ef83004b32f" | python -mjson.tool
 ```
 
 ### Structure of the simple_report_example.csv 
@@ -32,6 +32,26 @@ My initial basic design of this file:
 - I'm using the 2 rows of OH to show a case where ALL the rows get filtered out.
 - Since I think Maryland is a happy state, and has the coolest flag, I'm using the 2 rows of MD to show a happy path case with no warnings, and no filtering.
 - Totally feel free to mess with this file to make it generate other interesting example json.  
+
+## Example 2:  Example of a duplicate submission
+
+This example is meant to show the errors you get when you submit duplicate rows.
+
+### How to generate the json response
+
+```
+curl -X POST -H "client:ignore.no-duplicates" -H "Content-Type: text/csv"  --data-binary "@./examples/submission/duplicate.csv" "http://localhost:7071/api/reports" | python -mjson.tool
+```
+
+Then you can grab the "id" from the json response, and submit it to the Histor API.  Here's an example History API request
+
+```
+curl -H "authorization:bearer 123" "http://localhost:7071/api/history/ignore/report/d44b1d7c-2974-4663-a929-0ef83004b32f" | python -mjson.tool
+```
+
+### Structure of the duplicate.csv 
+
+There are two identical rows.
 
 
 
