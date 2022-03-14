@@ -812,6 +812,27 @@ class ActionHistory : Logging {
                     }
                 }
                 jsonGen.writeEndArray()
+
+                jsonGen.writeArrayFieldStart("filteredReportItems")
+                filterDetails.forEach {
+                    val detail = it.detail
+                    if (detail is ReportStreamFilterResult) {
+                        jsonGen.writeStartObject()
+                        jsonGen.writeNumberField("filteredIndex", detail.filteredIndex)
+                        jsonGen.writeNumberField("originalCount", detail.originalCount)
+                        jsonGen.writeStringField("receiverName", detail.receiverName)
+                        jsonGen.writeStringField("filterName", detail.filterName)
+                        jsonGen.writeStringField("filterType", detail.filterType.toString())
+                        jsonGen.writeStringField("filteredTrackingElement", detail.filteredTrackingElement)
+                        jsonGen.writeArrayFieldStart("filteredArgs")
+                        detail.filterArgs.forEach { arg ->
+                            jsonGen.writeString(arg)
+                        }
+                        jsonGen.writeEndArray()
+                        jsonGen.writeEndObject()
+                    }
+                }
+                jsonGen.writeEndArray()
             }
 
             sendingAt = when {
