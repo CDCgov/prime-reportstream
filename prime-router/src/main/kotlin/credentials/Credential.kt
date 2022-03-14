@@ -95,7 +95,13 @@ data class UserApiKeyCredential(
 )
 sealed class Credential {
     /** Converts the [Credential] class to JSON */
-    fun toJSON(): String = mapper.writeValueAsString(this)
+    fun toJSON(): String {
+        try {
+            return mapper.writeValueAsString(this)
+        } catch (e: Exception) {
+            throw Exception("Exception in jackson writeValueAsString: " + passwordectomy(e.message))
+        }
+    }
 
     companion object {
         private val mapper = ObjectMapper().registerModule(
@@ -111,7 +117,51 @@ sealed class Credential {
         /** Turns a JSON object into a [Credential] object */
         fun fromJSON(json: String?): Credential? {
             if (json == null || json.isBlank()) return null
-            return mapper.readValue(json, Credential::class.java)
+            try {
+                return mapper.readValue(json, Credential::class.java)
+            } catch (e: Exception) {
+                throw Exception("Exception in jackson readValue: " + passwordectomy(e.message))
+            }
+        }
+
+        /**
+         * Since this is to be called on exceptions, this is written assuming there may be garbled data
+         * in the [str] that prevent using the power of json to examine it.
+         * Hence the brute force removal of string data following certain words.
+         * When this thing is done, it certainly will not be valid json any more.
+         */
+        fun passwordectomy(str: String?): String? {
+            if (str == null || str.isNullOrBlank()) return str
+            // Remove data after the string "pass, including the initial quote.
+            // This strangeness will catch "pass": but not "UserPass", which is helpful to keep.
+            val passRemoved = replacePrefixAndFollowingChars(str, "\"pass", 20, "XXXX")
+            // Remove data after the string key   This will catch "key" and "keyPass".
+            return replacePrefixAndFollowingChars(passRemoved, "key", 20, "XXXX")
+        }
+
+        /**
+         * Remove all occurrences of [prefix] from [input] string, and an additional [addlCharsToRemove] beyond that,
+         * and replace with the string [replaceWith].
+         * Useful in attempting to removing passwords and other secrets from the [input] string.
+         * Search for [prefix] is case insensitive.
+         */
+        fun replacePrefixAndFollowingChars(
+            input: String,
+            prefix: String,
+            addlCharsToRemove: Int,
+            replaceWith: String
+        ): String {
+            if (input.isEmpty() || prefix.isEmpty()) return input
+            if (replaceWith.contains(prefix)) error("Infinite loop")
+            val tmp = StringBuilder(input)
+            while (true) {
+                // Work from the back to the front, to avoid erasing the prefix but not the secret.
+                val index = tmp.lastIndexOf(prefix, ignoreCase = true)
+                if (index < 0)
+                    break
+                tmp.replace(index, index + prefix.length + addlCharsToRemove, replaceWith)
+            }
+            return tmp.toString()
         }
     }
 }

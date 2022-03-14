@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure
 
 import com.google.common.net.HttpHeaders
-import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -66,7 +65,6 @@ class ReportFunction(
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.FUNCTION
         ) request: HttpRequestMessage<String?>,
-        context: ExecutionContext?
     ): HttpResponseMessage {
         val senderName = extractClient(request)
         if (senderName.isNullOrBlank())
@@ -78,7 +76,7 @@ class ReportFunction(
         actionHistory.trackActionParams(request)
 
         return try {
-            processRequest(request, sender, context)
+            processRequest(request, sender)
         } catch (ex: Exception) {
             if (ex.message != null)
                 logger.error(ex.message!!, ex)
@@ -101,7 +99,6 @@ class ReportFunction(
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS
         ) request: HttpRequestMessage<String?>,
-        context: ExecutionContext,
     ): HttpResponseMessage {
         val senderName = extractClient(request)
         if (senderName.isNullOrBlank())
@@ -123,7 +120,7 @@ class ReportFunction(
             if (authenticationStrategy is OktaAuthentication) {
                 // The report is coming from a sender that is using Okta, so set "oktaSender" to true
                 return authenticationStrategy.checkAccess(request, senderName, true, actionHistory) {
-                    return@checkAccess processRequest(request, sender, context)
+                    return@checkAccess processRequest(request, sender)
                 }
             }
 
@@ -131,7 +128,7 @@ class ReportFunction(
                 val claims = authenticationStrategy.checkAccessToken(request, "${sender.fullName}.report")
                     ?: return HttpUtilities.unauthorizedResponse(request)
                 logger.info("Claims for ${claims["sub"]} validated.  Beginning ingestReport.")
-                return processRequest(request, sender, context)
+                return processRequest(request, sender)
             }
         } catch (ex: Exception) {
             if (ex.message != null)
@@ -155,7 +152,6 @@ class ReportFunction(
     internal fun processRequest(
         request: HttpRequestMessage<String?>,
         sender: Sender,
-        context: ExecutionContext?
     ): HttpResponseMessage {
         // determine if we should be following the sync or async workflow
         val isAsync = processingType(request, sender) == ProcessingType.async
@@ -231,7 +227,6 @@ class ReportFunction(
                         )
                     } else {
                         val routingWarnings = workflowEngine.routeReport(
-                            context,
                             report,
                             options,
                             validatedRequest.defaults,
