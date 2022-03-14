@@ -6,6 +6,7 @@ id:
 
 target:
   valueOf: datatype/Reference
+  generateList: true
   expressionType: resource
   specs: $DiagnosticReport
 
@@ -18,5 +19,10 @@ recorded:
 
 agent:
   valueOf: secondary/Agent
+  generateList: true
+  expressionType: resource
+
+entity:
+  valueOf: secondary/Entity
   generateList: true
   expressionType: resource

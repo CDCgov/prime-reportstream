@@ -6,12 +6,17 @@
 ---
 name:
   type: STRING
-  valueOf: MSH.3
+  valueOf: SFT.1
   expressionType: HL7Spec
 
 version:
   type: STRING
-  valueOf: MSH.3.2
+  valueOf: SFT.2
+  expressionType: HL7Spec
+
+software:
+  type: STRING
+  valueOf: SFT.3
   expressionType: HL7Spec
 
 endpoint:
@@ -28,8 +33,28 @@ extension:
       expressionsMap:
         url:
           type: STRING
-          value: "http://prime.cdc.gov/stuff_and_things"
-        valueString:
+          value: "http://reportstream.cdc.gov/binaryIdentifier"
+        valueCode:
           type: STRING
-          valueOf: MSH.3.3
+          valueOf: SFT.4
+          expressionType: HL7Spec
+    - expressionType: nested
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: "http://reportstream.cdc.gov/description"
+        valueCode:
+          type: STRING
+          valueOf: SFT.5
+          expressionType: HL7Spec
+    - expressionType: nested
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: "http://reportstream.cdc.gov/installDate"
+        valueCode:
+          type: STRING
+          valueOf: SFT.6
           expressionType: HL7Spec

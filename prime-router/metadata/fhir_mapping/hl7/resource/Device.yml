@@ -1,0 +1,39 @@
+resourceType: Device
+id:
+  type: STRING
+  valueOf: 'UUID.randomUUID()'
+  expressionType: JEXL
+
+# The FHIR Device resource doesn't have any required fields.
+# However we do not want empty Device resources.
+# Thefore wherever Device is referenced make sure to verify the value is NOT_NULL.
+identifier:
+  valueOf: datatype/Identifier_var
+  generateList: true
+  expressionType: resource
+  specs: EI
+  vars:
+    valueIn: EI.1
+    systemCX:  EI.2
+
+identifier_2:
+  valueOf: datatype/Identifier_var
+  generateList: true
+  expressionType: resource
+  specs: MSH.3
+  vars:
+    valueIn: MSH.3.2
+    systemId:  MSH.3.3
+
+deviceName:
+  expressionType: nested
+  generateList: true
+  specs: MSH.3
+  expressionsMap:
+    name:
+      type: STRING
+      valueOf: MSH.3.1
+      expressionType: HL7Spec
+    type:
+      type: STRING
+      value: other

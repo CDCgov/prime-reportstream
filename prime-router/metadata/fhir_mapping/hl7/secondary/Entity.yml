@@ -1,0 +1,9 @@
+
+role:
+  type: STRING
+  value: source
+
+what:
+  valueOf: resource/Device
+  expressionType: reference
+  specs: MSH.3
