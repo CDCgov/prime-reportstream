@@ -320,13 +320,19 @@ object DateUtilities {
      * If the temporal accessor is of type LocalDate, then we don't have a time, and we coerce it
      * to use the local "start of day", and then convert to the date time offset.
      */
-    fun TemporalAccessor.toOffsetDateTime(): OffsetDateTime {
+    fun TemporalAccessor.toOffsetDateTime(zoneId: ZoneId? = null): OffsetDateTime {
         return when (this) {
             // coerce the local date to the start of the day. it's not great, but if we did not
             // get the time, then pushing it to start of day is *probably* okay. At some point
             // we should probably throw a coercion warning when we do this
-            is LocalDate -> OffsetDateTime.from(this.atStartOfDay().atZone(utcZone))
-            is LocalDateTime -> OffsetDateTime.from(this.atZone(utcZone))
+            is LocalDate ->
+                OffsetDateTime
+                    .from(this.atStartOfDay().atZone(zoneId ?: utcZone))
+                    .atZoneSameInstant(utcZone)
+                    .toOffsetDateTime()
+            is LocalDateTime -> OffsetDateTime.from(this.atZone(zoneId ?: utcZone))
+                .atZoneSameInstant(utcZone)
+                .toOffsetDateTime()
             is OffsetDateTime, is ZonedDateTime, is Instant -> OffsetDateTime.from(this)
             else -> error("Unsupported format!")
         }

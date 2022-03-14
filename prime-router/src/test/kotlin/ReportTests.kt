@@ -226,7 +226,7 @@ class ReportTests {
                 listOf("0", "100", "202110300809", "30300102"), // Good age, ... don't care -> patient_age=100
                 // Bad age, good collect date, BAD DOB -> patient_age=null
                 listOf("1", ")@*", "202110300809-0501", "30300101"),
-                // Bad age, bad collect date, good dob -> patient_age=null
+                // Bad age, bad collect date, good dob -> patient_age=2
                 listOf("2", "_", "202110300809", "20190101"),
                 // Good age, bad collect date, bad dob -> patient_age=20
                 listOf("3", "20", "adfadf", "!@!*@(7"),
