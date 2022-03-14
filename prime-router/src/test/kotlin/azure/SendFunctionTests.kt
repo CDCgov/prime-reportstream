@@ -99,8 +99,8 @@ class SendFunctionTests {
         var nextEvent: ReportEvent? = null
         setupLogger()
         setupWorkflow()
-        every { workflowEngine.handleReportEvent(any(), context, any()) }.answers {
-            val block = thirdArg() as
+        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+            val block = secondArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
             nextEvent = block(header, null, null)
@@ -124,8 +124,8 @@ class SendFunctionTests {
         setupLogger()
         mockkConstructor(ActionHistory::class)
         every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) } returns Unit
-        every { workflowEngine.handleReportEvent(any(), context, any()) }.answers {
-            val block = thirdArg() as
+        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+            val block = secondArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
             nextEvent = block(header, null, null)
@@ -152,8 +152,8 @@ class SendFunctionTests {
         setupLogger()
         mockkConstructor(ActionHistory::class)
         every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) } returns Unit
-        every { workflowEngine.handleReportEvent(any(), context, any()) }.answers {
-            val block = thirdArg() as
+        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+            val block = secondArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
 
             val header = makeHeader()
@@ -187,8 +187,8 @@ class SendFunctionTests {
         mockkConstructor(ActionHistory::class)
         every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) } returns Unit
         val reportId = UUID.randomUUID()
-        every { workflowEngine.handleReportEvent(any(), context, any()) }.answers {
-            val block = thirdArg() as
+        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+            val block = secondArg() as
                 (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeHeader()
             // Should be high enough retry count that the next action should have an error
