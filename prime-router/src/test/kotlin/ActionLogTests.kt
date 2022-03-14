@@ -37,6 +37,8 @@ class ActionLogTests {
         assertThat(logger.errors[0].detail is InvalidTranslationMessage).isTrue()
 
         // Item logs
+        assertThat { logger.startItemLogging(0) }.isFailure()
+        assertThat { logger.startItemLogging(-100) }.isFailure()
         val index = 1
         val trackingId = "tracking"
         assertThat { logger.error(InvalidEquipmentMessage("some mapping")) }.isFailure()
