@@ -5,6 +5,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
+import assertk.assertions.isNotEmpty
 import assertk.assertions.isNull
 import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
@@ -56,5 +57,9 @@ class ActionLogTests {
         // Also make sure any new logs has a report ID.
         logger.error(InvalidReportMessage("some other message"))
         logger.logs.forEach { assertThat(it.reportId).isEqualTo(reportId) }
+
+        // Exception creation
+        val exception: ActionError = logger.exception
+        assertThat(exception.message).isNotEmpty()
     }
 }

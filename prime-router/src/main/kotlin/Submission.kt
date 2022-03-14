@@ -165,6 +165,7 @@ class DetailedSubmissionHistory(
     /**
      * Consolidate the [logs] filtered by an optional [filterBy] action level, so to list similar messages once
      * with a list of items they relate to.
+     * @return the consolidated list of logs
      */
     internal fun consolidateLogs(filterBy: ActionLogLevel? = null):
         List<ConsolidatedActionLog> {
