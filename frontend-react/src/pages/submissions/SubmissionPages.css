@@ -1,7 +1,7 @@
 
 .filter-container {
     display: flex;
-    align-items: end;
+    align-items: flex-end;
     margin-bottom: 1em;
 }
 

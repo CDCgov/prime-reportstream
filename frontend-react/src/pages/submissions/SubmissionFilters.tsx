@@ -27,7 +27,7 @@ const fieldError = (field: FieldNames) =>
  * and will use the context to get these values.
  */
 function SubmissionFilters() {
-    const { filters, updateStartRange, updateEndRange } = useContext(
+    const { filters, updateStartRange, updateEndRange, paginator } = useContext(
         SubmissionFilterContext
     );
     const [startRange, setStartRange] = useState<string>();
@@ -36,6 +36,8 @@ function SubmissionFilters() {
     const applyToContext = () => {
         handleValueStateChange(startRange, FieldNames.START_RANGE);
         handleValueStateChange(endRange, FieldNames.END_RANGE);
+        if (paginator?.resetCursors) paginator.resetCursors();
+        if (paginator?.changeCursor) paginator.changeCursor(1);
     };
 
     /* This workhorse function handles all Context changes with null checking */

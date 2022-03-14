@@ -54,8 +54,6 @@ export const SubmissionFilterContext = createContext<ISubmissionFilterContext>({
  * the Paginator hook.
  */
 const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
-    const globalState = useContext(GlobalContext);
-
     /* Filter State */
     const [startRange, setStartRange] = useState<string>("");
     const [endRange, setEndRange] = useState<string>("");
@@ -67,6 +65,21 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
     const updateCursor = (val: string) => setCursor(val);
     const updateSortOrder = (val: SortOrder) => setSortOrder(val);
     const updatePageSize = (val: PageSize) => setPageSize(val);
+
+    const globalState = useContext(GlobalContext);
+
+    /* Our API call! Updates when any of the given state variables update */
+    const submissions: SubmissionsResource[] = useResource(
+        SubmissionsResource.list(),
+        {
+            organization: globalState.state.organization,
+            cursor: cursor,
+            endCursor: endRange,
+            pageSize: pageSize + 1, // Pulls +1 to check for next page
+            sort: sortOrder,
+            showFailed: false, // No plans for this to be set to true
+        }
+    );
 
     /* Just packaging it up while keeping it React-ive */
     const [filterState, setFilterState] = useState<FilterState>({
@@ -86,19 +99,6 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
         });
     }, [cursor, endRange, pageSize, sortOrder, startRange]);
 
-    /* Our API call! Updates when any of the given state variables update */
-    const submissions: SubmissionsResource[] = useResource(
-        SubmissionsResource.list(),
-        {
-            organization: globalState.state.organization,
-            cursor: cursor,
-            endCursor: endRange,
-            pageSize: pageSize + 1, // Pulls +1 to check for next page
-            sort: sortOrder,
-            showFailed: false, // No plans for this to be set to true
-        }
-    );
-
     /* Pagination, baby! */
     const paginator = usePaginator(submissions, filterState);
 
@@ -108,10 +108,10 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
         if (paginator.currentIndex === 1) {
             setCursor(startRange); // (should be "" by default, or a user set value)
         } else {
-            setCursor(
-                paginator.cursors.get(paginator.currentIndex) || startRange
-            );
+            const cursor = paginator.cursors.get(paginator.currentIndex);
+            if (cursor) setCursor(cursor);
         }
+        // debugger
     }, [paginator.currentIndex, paginator.cursors, startRange]);
 
     /* This is the payload we deliver through our context provider */

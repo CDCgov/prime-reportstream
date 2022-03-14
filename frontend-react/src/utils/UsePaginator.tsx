@@ -24,6 +24,7 @@ export interface PaginationController {
     currentIndex: number;
     changeCursor?: (cursorIndex: number) => void;
     pageCount?: () => number;
+    resetCursors?: () => void;
 }
 
 /* TODO: Refactor to include generics so this can be used universally */
@@ -52,10 +53,13 @@ function usePaginator(
         [cursors]
     );
 
-    /* Updates the current index to trigger the effect in FilterContext */
-    const changeCursor = (cursorIndex: number) => {
-        updateCurrentIndex(cursorIndex);
-    };
+    const resetCursors = useCallback(() => {
+        return updateCursors(new Map<number, string>());
+    }, []);
+
+    const changeCursor = useCallback((index: number) => {
+        updateCurrentIndex(index);
+    }, []);
 
     /* Handles adding cursors in the Map when responseArray changes */
     useEffect(() => {
@@ -96,6 +100,7 @@ function usePaginator(
         currentIndex: currentIndex,
         changeCursor: changeCursor,
         pageCount: pageCount,
+        resetCursors: resetCursors,
     };
 
     return paginator;

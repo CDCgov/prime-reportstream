@@ -26,11 +26,11 @@ function Submissions() {
                 <Title title="COVID-19" preTitle={orgName} />
             </section>
             <FilterContext>
+                <SubmissionFilters />
                 <NetworkErrorBoundary
                     fallbackComponent={() => <ErrorPage type="message" />}
                 >
                     <Suspense fallback={<Spinner />}>
-                        <SubmissionFilters />
                         <SubmissionTable />
                     </Suspense>
                 </NetworkErrorBoundary>
@@ -39,5 +39,11 @@ function Submissions() {
         </NetworkErrorBoundary>
     );
 }
+
+// function Submissions() {
+//      return (
+//
+//      )
+// }
 
 export default Submissions;
