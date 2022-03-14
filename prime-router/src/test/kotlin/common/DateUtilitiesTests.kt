@@ -155,7 +155,7 @@ class DateUtilitiesTests {
             assertThat(this.toOffsetDateTime().minute).isEqualTo(0)
             assertThat(this.toOffsetDateTime().second).isEqualTo(0)
             // handles PST to EDT in this range
-            assertThat(this.toOffsetDateTime().offset.totalSeconds).isBetween(-28000, -18000)
+            assertThat(this.toOffsetDateTime().offset.totalSeconds).isBetween(-28000, -14000)
         }
         // convert and check again
         ZonedDateTime.from(offsetDateTime).run {

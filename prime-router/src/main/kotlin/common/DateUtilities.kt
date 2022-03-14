@@ -25,9 +25,9 @@ object DateUtilities {
     /** a local date time pattern to use when formatting in local date time instead */
     const val localDateTimePattern = "uuuuMMddHHmmss"
     /** our standard offset date time pattern */
-    const val datetimePattern = "yyyyMMddHHmmssZZZ"
+    const val datetimePattern = "yyyyMMddHHmmssxx"
     /** includes seconds and milliseconds in the offset for higher precision  */
-    const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSSZZZ"
+    const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSSxx"
     /** wraps around all the possible variations of a date for finding something that matches */
     const val variableDateTimePattern = "[yyyyMMdd]" +
         "[yyyyMMdd[HHmm][ss][.S][Z]]" +
@@ -45,8 +45,8 @@ object DateUtilities {
 
     val allowedDateFormats = listOf(
         "[yyyyMMdd[HHmm][ss][.S][Z]]", "[yyyy-MM-dd HH:mm:ss.ZZZ]",
-        "[uuuuMMddHHmmss[.nnnn]Z][uuuuMMddHHmm[.nnnn]Z]",
-        "[uuuuMMddHHmmss[.SSS]Z][uuuuMMddHHmm[.SSS]Z]",
+        "[uuuuMMddHHmmss[.nnnn][Z]][uuuuMMddHHmm[.nnnn][Z]]",
+        "[uuuuMMddHHmmss[.SSS][Z]][uuuuMMddHHmm[.SSS][Z]]",
         "[uuuu-MM-dd'T'HH:mm[:ss]['Z'][xxx]]",
         "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]",
         "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]",
@@ -66,6 +66,8 @@ object DateUtilities {
     )
     /** A formatter for local date times */
     val localDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(localDateTimePattern, Locale.ENGLISH)
+    /** The zone ID for UTC */
+    val utcZone = ZoneId.of("UTC")
 
     /**
      * The format to output the date time values as. A receiver could want date time values as an
@@ -323,8 +325,8 @@ object DateUtilities {
             // coerce the local date to the start of the day. it's not great, but if we did not
             // get the time, then pushing it to start of day is *probably* okay. At some point
             // we should probably throw a coercion warning when we do this
-            is LocalDate -> OffsetDateTime.from(this.atStartOfDay().atZone(ZoneId.systemDefault()))
-            is LocalDateTime -> OffsetDateTime.from(this.atZone(ZoneId.systemDefault()))
+            is LocalDate -> OffsetDateTime.from(this.atStartOfDay().atZone(utcZone))
+            is LocalDateTime -> OffsetDateTime.from(this.atZone(utcZone))
             is OffsetDateTime, is ZonedDateTime, is Instant -> OffsetDateTime.from(this)
             else -> error("Unsupported format!")
         }
@@ -350,6 +352,15 @@ object DateUtilities {
             // throw an error
             is LocalDate -> LocalDateTime.from(this.atStartOfDay())
             is ZonedDateTime, is OffsetDateTime, is Instant -> LocalDateTime.from(this)
+            else -> error("Unsupported format")
+        }
+    }
+
+    /** Convert to a local date */
+    fun TemporalAccessor.toLocalDate(): LocalDate {
+        return when (this) {
+            is LocalDate -> this
+            is ZonedDateTime, is OffsetDateTime, is LocalDateTime, is Instant -> LocalDate.from(this)
             else -> error("Unsupported format")
         }
     }

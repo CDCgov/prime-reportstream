@@ -617,7 +617,7 @@ data class Element(
                 try {
                     DateUtilities
                         .parseDate(cleanedFormattedValue)
-                        .asFormattedString(format ?: DateUtilities.datePattern)
+                        .asFormattedString(DateUtilities.datePattern)
                 } catch (t: Throwable) {
                     if (nullifyValue) {
                         ""
@@ -631,7 +631,7 @@ data class Element(
                     DateUtilities
                         .parseDate(cleanedFormattedValue)
                         .toOffsetDateTime()
-                        .asFormattedString(format ?: DateUtilities.datetimePattern)
+                        .asFormattedString(DateUtilities.datetimePattern)
                 } catch (_: Throwable) {
                     if (nullifyValue) {
                         ""

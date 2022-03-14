@@ -6,6 +6,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.DateUtilities.toLocalDate
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
 import org.apache.commons.lang3.StringUtils
@@ -719,28 +720,28 @@ class Report : Logging {
      *          - validate it is not null, it is valid digit number, and not lesser than zero
      *      else
      *          - the patient will be calculated using period.between patient date of birth and
-     *          the speciment collection date.
+     *          the specimen collection date.
      *  @param patient_age - input patient's age.
-     *  @param patient_dob - imput patient date of birth.
-     *  @param specimenCollectionDate - input date of when speciment was collected.
+     *  @param patient_dob - input patient date of birth.
+     *  @param specimenCollectionDate - input date of when specimen was collected.
      *  @return age - result of patient's age.
      */
     private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: LocalDate?): String? {
-
-        return if ((!patient_age.isNullOrBlank()) && patient_age.all { Character.isDigit(it) } &&
+        return if (
+            (!patient_age.isNullOrBlank()) &&
+            patient_age.all { Character.isDigit(it) } &&
             (patient_age.toInt() > 0)
         ) {
             patient_age
         } else {
             //
             // Here, we got invalid or blank patient_age given to us.  Therefore, we will use patient date
-            // of birth and date of speciment collected to calculate the patient's age.
+            // of birth and date of specimen collected to calculate the patient's age.
             //
             try {
-                val d = LocalDate.parse(patient_dob, Element.dateFormatter)
-                if (d != null && specimenCollectionDate != null &&
-                    (d.isBefore(specimenCollectionDate))
-                ) {
+                if (patient_dob == null || specimenCollectionDate == null) return null
+                val d = DateUtilities.parseDate(patient_dob).toLocalDate()
+                if (d.isBefore(specimenCollectionDate)) {
                     Period.between(d, specimenCollectionDate).years.toString()
                 } else {
                     null

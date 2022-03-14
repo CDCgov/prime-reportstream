@@ -25,8 +25,6 @@ import gov.cdc.prime.router.metadata.NullMapper
 import gov.cdc.prime.router.metadata.TrimBlanksMapper
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.test.Test
@@ -124,13 +122,13 @@ internal class ElementTests {
         )
         // Iso formatted should work
         one.toNormalized("1998-03-30T12:00Z").run {
-            assertThat(this).isEqualTo("199803301200+0000")
+            assertThat(this).isEqualTo("19980330120000+0000")
         }
         one.toNormalized("199803300000+0000").run {
-            assertThat(this).isEqualTo("199803300000+0000")
+            assertThat(this).isEqualTo("19980330000000+0000")
         }
         one.toNormalized("20210908105903").run {
-            assertThat(this).startsWith("202109081059")
+            assertThat(this).startsWith("20210908105903+0000")
         }
         val two = Element(
             "a",
@@ -143,34 +141,24 @@ internal class ElementTests {
             o.replace(":", "")
         }
         two.toNormalized("19980330", "yyyyMMdd").run {
-            assertThat(this).isEqualTo("199803300000$offset")
+            assertThat(this).isEqualTo("19980330000000$offset")
         }
         val three = Element(
             "a",
             type = Element.Type.DATETIME,
         )
         three.toNormalized("2020-12-09", dateFormat).run {
-            assertThat(this).isEqualTo("202012090000$offset")
-        }
-        mapOf(
-            "20210908105903" to "20210908105903",
-            "199803300000+0000" to "19980330000000"
-        ).forEach {
-            val optionalDateTime = "[yyyyMMddHHmmssZ][yyyyMMddHHmmZ][yyyyMMddHHmmss]"
-            val df = DateTimeFormatter.ofPattern(optionalDateTime)
-            val ta = df.parseBest(it.key, OffsetDateTime::from, LocalDateTime::from, Instant::from)
-            val dt = LocalDateTime.from(ta)
-            assertThat(df.format(dt)).isEqualTo(it.value)
+            assertThat(this).isEqualTo("20201209000000$offset")
         }
         // edge cases
         one.toNormalized("1998-03-30T12:00Z ").run {
-            assertThat(this).isEqualTo("199803301200+0000")
+            assertThat(this).isEqualTo("19980330120000+0000")
         }
         one.toNormalized(" 1998-03-30T12:00Z").run {
-            assertThat(this).isEqualTo("199803301200+0000")
+            assertThat(this).isEqualTo("19980330120000+0000")
         }
         one.toNormalized(" 1998-03-30T12:00Z ").run {
-            assertThat(this).isEqualTo("199803301200+0000")
+            assertThat(this).isEqualTo("19980330120000+0000")
         }
         one.toNormalized("").run {
             assertThat(this).isEqualTo("")
@@ -185,11 +173,11 @@ internal class ElementTests {
             "19980330 09:35:00", "1998-03-30 9:35:00", "1998-03-30 09:35:00"
         )
         testTimes.forEach {
-            assertThat(one.toNormalized(it)).isEqualTo("199803300935-0600")
+            assertThat(one.toNormalized(it)).isEqualTo("19980330093500+0000")
         }
         testTimes = listOf("11/30/1998 16:35", "1998/11/30 16:35", "19981130 16:35:00", "1998-11-30 16:35:00")
         testTimes.forEach {
-            assertThat(one.toNormalized(it)).isEqualTo("199811301635-0600")
+            assertThat(one.toNormalized(it)).isEqualTo("19981130163500+0000")
         }
     }
 
@@ -306,23 +294,23 @@ internal class ElementTests {
 
         // Test MMddyyyy, 12012021 format
         one.toNormalized("12012021").run {
-            assertThat(this).isEqualTo("202112010000-0600")
+            assertThat(this).isEqualTo("20211201000000+0000")
         }
         // Test M/d/yyyy,12/2/2021 format
         one.toNormalized("12/2/2021").run {
-            assertThat(this).isEqualTo("202112020000-0600")
+            assertThat(this).isEqualTo("20211202000000+0000")
         }
         // Test yyyy/M/d,2021/12/3
         one.toNormalized("2021/12/3").run {
-            assertThat(this).isEqualTo("202112030000-0600")
+            assertThat(this).isEqualTo("20211203000000+0000")
         }
         // Test M/d/yyyy HH:mm,12/4/2021 09:00
         one.toNormalized("12/4/2021 09:00").run {
-            assertThat(this).isEqualTo("202112040900-0600")
+            assertThat(this).isEqualTo("20211204090000+0000")
         }
         // Test yyyy/M/d HH:mm,2021/12/05 10:00
         one.toNormalized("2021/12/05 10:00").run {
-            assertThat(this).isEqualTo("202112051000-0600")
+            assertThat(this).isEqualTo("20211205100000+0000")
         }
     }
 
@@ -668,12 +656,12 @@ internal class ElementTests {
         assertThat(
             datetime.toFormatted(datetime.toNormalized("202012200000+0000"))
         ).isEqualTo(
-            "202012200000+0000"
+            "20201220000000+0000"
         )
         assertThat(
             datetime.toFormatted(datetime.toNormalized("2020-12-20T00:00Z"))
         ).isEqualTo(
-            "202012200000+0000"
+            "20201220000000+0000"
         )
 
         val hd = Element(
