@@ -22,11 +22,10 @@ class SubmissionTests {
         val messageM = "message 1"
         val messageA = "A message 2"
         val messageZ = "zz message"
-        var rawLogs = emptyList<DetailActionLog>()
-        assertThat(createLogs(rawLogs).consolidateLogs()).isEmpty()
-
-        // Test sorting by message
-        rawLogs = mutableListOf(
+        val itemLog1 = InvalidEquipmentMessage("mapping")
+        val itemLog2 = FieldPrecisionMessage("mapping", messageZ)
+        val itemLog3 = MissingFieldMessage("mapping")
+        val logMessages = listOf(
             DetailActionLog(
                 ActionLogScope.report, null, null, null,
                 ActionLogLevel.warning, InvalidReportMessage(messageM)
@@ -34,8 +33,46 @@ class SubmissionTests {
             DetailActionLog(
                 ActionLogScope.report, null, null, null,
                 ActionLogLevel.error, InvalidReportMessage(messageA)
+            ),
+            DetailActionLog(
+                ActionLogScope.item, null, 1, null,
+                ActionLogLevel.error, itemLog1
+            ),
+            DetailActionLog(
+                ActionLogScope.item, null, 3, null,
+                ActionLogLevel.error, itemLog2
+            ),
+            DetailActionLog(
+                ActionLogScope.item, null, 2, null,
+                ActionLogLevel.error, itemLog3
+            ),
+            DetailActionLog(
+                ActionLogScope.item, null, 2, "id2",
+                ActionLogLevel.error, itemLog1
+            ),
+            DetailActionLog(
+                ActionLogScope.item, null, 3, "id3",
+                ActionLogLevel.error, itemLog1
+            ),
+            DetailActionLog(
+                ActionLogScope.item, null, 4, null,
+                ActionLogLevel.warning, itemLog1
+            ),
+            DetailActionLog(
+                ActionLogScope.item, null, 5, null,
+                ActionLogLevel.warning, itemLog2
+            ),
+            DetailActionLog(
+                ActionLogScope.item, null, 9, "id9",
+                ActionLogLevel.warning, itemLog3
             )
         )
+
+        var rawLogs = emptyList<DetailActionLog>()
+        assertThat(createLogs(rawLogs).consolidateLogs()).isEmpty()
+
+        // Test sorting by message
+        rawLogs = mutableListOf(logMessages[0], logMessages[1])
         var result = createLogs(rawLogs).consolidateLogs()
         assertThat(result.size).isEqualTo(2)
         assertThat(result[0].message).isEqualTo(rawLogs[1].detail.message)
@@ -45,18 +82,8 @@ class SubmissionTests {
             assertThat(it.trackingIds).isNull()
         }
 
-        val itemLog1 = InvalidEquipmentMessage("mapping")
-        val itemLog2 = FieldPrecisionMessage("mapping", messageZ)
-        val itemLog3 = MissingFieldMessage("mapping")
-
         // Test that item logs are at the end
-        rawLogs.add(
-            0,
-            DetailActionLog(
-                ActionLogScope.item, null, 1, null,
-                ActionLogLevel.error, itemLog1
-            )
-        )
+        rawLogs.add(0, logMessages[2])
         result = createLogs(rawLogs).consolidateLogs()
         assertThat(result.size).isEqualTo(3)
         assertThat(result[2].indices).isNotNull()
@@ -67,18 +94,8 @@ class SubmissionTests {
         assertThat(result[2].trackingIds!![0]).isNull()
 
         // Now test multiple item logs
-        rawLogs.add(
-            DetailActionLog(
-                ActionLogScope.item, null, 3, null,
-                ActionLogLevel.error, itemLog2
-            )
-        )
-        rawLogs.add(
-            DetailActionLog(
-                ActionLogScope.item, null, 2, null,
-                ActionLogLevel.error, itemLog3
-            )
-        )
+        rawLogs.add(logMessages[3])
+        rawLogs.add(logMessages[4])
         result = createLogs(rawLogs).consolidateLogs()
         assertThat(result.size).isEqualTo(5)
         // Check the ordering of the item messages by index.  Note this is very specific to the data in this test
@@ -93,18 +110,8 @@ class SubmissionTests {
         assertThat(result[4].indices!![0]).isEqualTo(3) // Index number
 
         // Now test consolidation of indices and tracking IDs
-        rawLogs.add(
-            DetailActionLog(
-                ActionLogScope.item, null, 2, "id2",
-                ActionLogLevel.error, itemLog1
-            )
-        )
-        rawLogs.add(
-            DetailActionLog(
-                ActionLogScope.item, null, 3, "id3",
-                ActionLogLevel.error, itemLog1
-            )
-        )
+        rawLogs.add(logMessages[5])
+        rawLogs.add(logMessages[6])
         assertThat(result[2].message).isEqualTo(itemLog1.message)
         assertThat(result[2].indices).isNotNull()
         assertThat(result[2].indices!!.size).isEqualTo(1)
@@ -113,20 +120,13 @@ class SubmissionTests {
         assertThat(result[2].indices!!.size).isEqualTo(3)
 
         // Errors vs warnings
-        rawLogs.add(
-            DetailActionLog(
-                ActionLogScope.item, null, 4, null,
-                ActionLogLevel.warning, itemLog1
-            )
-        )
-        rawLogs.add(
-            DetailActionLog(
-                ActionLogScope.item, null, 5, null,
-                ActionLogLevel.warning, itemLog2
-            )
-        )
+        rawLogs.add(logMessages[7])
+        rawLogs.add(logMessages[8])
         val logs = createLogs(rawLogs)
         assertThat(logs.errors.size).isEqualTo(4)
         assertThat(logs.warnings.size).isEqualTo(3)
+        // And add an item warning that looks the same as a previous error
+        rawLogs.add(logMessages[9])
+        assertThat(createLogs(rawLogs).warnings.size).isEqualTo(4)
     }
 }

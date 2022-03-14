@@ -191,7 +191,7 @@ class DetailedSubmissionHistory(
                 // Now find similar logs and consolidate it.  Note by using the iterator we can delete on the fly.
                 with(orderedList.iterator()) {
                     forEach { log ->
-                        if (log.detail.message == consolidatedLog.message) {
+                        if (consolidatedLog.canBeConsolidatedWith(log)) {
                             consolidatedLog.add(log)
                             remove()
                         }
@@ -261,6 +261,10 @@ class ConsolidatedActionLog(log: DetailActionLog) {
             indices!!.add(log.index)
             trackingIds!!.add(log.trackingId)
         }
+    }
+
+    fun canBeConsolidatedWith(other: DetailActionLog): Boolean {
+        return this.message == other.detail.message && this.scope == other.scope && this.type == other.type
     }
 }
 
