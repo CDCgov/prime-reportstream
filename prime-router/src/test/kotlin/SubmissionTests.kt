@@ -3,8 +3,10 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
 import kotlin.test.Test
@@ -128,5 +130,98 @@ class SubmissionTests {
         // And add an item warning that looks the same as a previous error
         rawLogs.add(logMessages[9])
         assertThat(createLogs(rawLogs).warnings.size).isEqualTo(4)
+    }
+
+    @Test
+    fun `test check for if log can be consolidated`() {
+        // Same
+        assertThat(
+            ConsolidatedActionLog(
+                DetailActionLog(
+                    ActionLogScope.item, null, 1, null,
+                    ActionLogLevel.error, InvalidEquipmentMessage("mapping")
+                )
+            ).canBeConsolidatedWith(
+                DetailActionLog(
+                    ActionLogScope.item, null, 2, null,
+                    ActionLogLevel.error, InvalidEquipmentMessage("mapping")
+                )
+            )
+        ).isTrue()
+
+        // Different log level
+        assertThat(
+            ConsolidatedActionLog(
+                DetailActionLog(
+                    ActionLogScope.item, null, 1, null,
+                    ActionLogLevel.error, InvalidEquipmentMessage("mapping")
+                )
+            ).canBeConsolidatedWith(
+                DetailActionLog(
+                    ActionLogScope.item, null, 2, null,
+                    ActionLogLevel.warning, InvalidEquipmentMessage("mapping")
+                )
+            )
+        ).isFalse()
+
+        // Different message
+        assertThat(
+            ConsolidatedActionLog(
+                DetailActionLog(
+                    ActionLogScope.item, null, 1, null,
+                    ActionLogLevel.error, InvalidEquipmentMessage("mapping")
+                )
+            ).canBeConsolidatedWith(
+                DetailActionLog(
+                    ActionLogScope.item, null, 1, null,
+                    ActionLogLevel.error, MissingFieldMessage("mapping")
+                )
+            )
+        ).isFalse()
+
+        // Different message and log level
+        assertThat(
+            ConsolidatedActionLog(
+                DetailActionLog(
+                    ActionLogScope.item, null, 1, null,
+                    ActionLogLevel.error, InvalidEquipmentMessage("mapping")
+                )
+            ).canBeConsolidatedWith(
+                DetailActionLog(
+                    ActionLogScope.item, null, 1, null,
+                    ActionLogLevel.warning, MissingFieldMessage("mapping")
+                )
+            )
+        ).isFalse()
+
+        // Different scope
+        assertThat(
+            ConsolidatedActionLog(
+                DetailActionLog(
+                    ActionLogScope.item, null, 1, null,
+                    ActionLogLevel.error, InvalidEquipmentMessage("mapping")
+                )
+            ).canBeConsolidatedWith(
+                DetailActionLog(
+                    ActionLogScope.report, null, null, null,
+                    ActionLogLevel.error, InvalidReportMessage("mapping")
+                )
+            )
+        ).isFalse()
+
+        // Different scope, log level and message
+        assertThat(
+            ConsolidatedActionLog(
+                DetailActionLog(
+                    ActionLogScope.translation, null, null, null,
+                    ActionLogLevel.error, InvalidTranslationMessage("some other message")
+                )
+            ).canBeConsolidatedWith(
+                DetailActionLog(
+                    ActionLogScope.report, null, null, null,
+                    ActionLogLevel.warning, InvalidReportMessage("mapping")
+                )
+            )
+        ).isFalse()
     }
 }
