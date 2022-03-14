@@ -16,6 +16,15 @@ import { GlobalContext } from "../../components/GlobalContextProvider";
 type SortOrder = "ASC" | "DESC";
 type PageSize = 10 | 25 | 50 | 100;
 type StateUpdate<T> = (val: T) => void;
+export type FilterTypes = string | SortOrder | PageSize;
+
+export enum FilterName {
+    START_RANGE = "start-range",
+    END_RANGE = "end-range",
+    CURSOR = "cursor",
+    SORT_ORDER = "sort-order",
+    PAGE_SIZE = "page-size",
+}
 
 /* Object containing state from a FilterContext */
 export interface FilterState {
@@ -30,13 +39,9 @@ export interface FilterState {
 interface ISubmissionFilterContext {
     filters: FilterState;
     contents: SubmissionsResource[];
+    updateFilter: (filter: FilterName, val?: FilterTypes) => void;
+    clear: () => void;
     paginator?: PaginationController;
-    updateStartRange?: StateUpdate<string>;
-    updateEndRange?: StateUpdate<string>;
-    updateCursor?: StateUpdate<string>;
-    updateSortOrder?: StateUpdate<SortOrder>;
-    updatePageSize?: StateUpdate<PageSize>;
-    clear?: () => void;
 }
 
 /* This is a definition of the context shape, NOT the payload delivered */
@@ -49,6 +54,10 @@ export const SubmissionFilterContext = createContext<ISubmissionFilterContext>({
         pageSize: 10,
     },
     contents: [],
+
+    /* Placeholders */
+    updateFilter: (filter: FilterName, val?: FilterTypes) => {},
+    clear: () => {},
 });
 
 /* This component handles filter state and API call refreshing for
@@ -62,11 +71,26 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
     const [cursor, setCursor] = useState<string>("");
     const [sortOrder, setSortOrder] = useState<SortOrder>("DESC");
     const [pageSize, setPageSize] = useState<PageSize>(10);
-    const updateStartRange = (val: string) => setStartRange(val);
-    const updateEndRange = (val: string) => setEndRange(val);
-    const updateCursor = (val: string) => setCursor(val);
-    const updateSortOrder = (val: SortOrder) => setSortOrder(val);
-    const updatePageSize = (val: PageSize) => setPageSize(val);
+
+    const updateFilter = (filter: FilterName, val?: any) => {
+        switch (filter) {
+            case FilterName.START_RANGE:
+                setStartRange(val || "");
+                break;
+            case FilterName.END_RANGE:
+                setEndRange(val || "");
+                break;
+            case FilterName.CURSOR:
+                setCursor(val || "");
+                break;
+            case FilterName.SORT_ORDER:
+                setSortOrder(val || "DESC");
+                break;
+            case FilterName.PAGE_SIZE:
+                setPageSize(val || 10);
+                break;
+        }
+    };
 
     const globalState = useContext(GlobalContext);
 
@@ -101,13 +125,13 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
         });
     }, [cursor, endRange, pageSize, sortOrder, startRange]);
 
-    const clear = useCallback(() => {
+    const clear = () => {
         setStartRange("");
         setEndRange("");
         setCursor("");
         setSortOrder("DESC");
         setPageSize(10);
-    }, []);
+    };
 
     /* Pagination, baby! */
     const paginator = usePaginator(submissions, filterState);
@@ -129,11 +153,7 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
         filters: filterState,
         contents: submissions,
         paginator: paginator,
-        updateStartRange: updateStartRange,
-        updateEndRange: updateEndRange,
-        updateCursor: updateCursor,
-        updateSortOrder: updateSortOrder,
-        updatePageSize: updatePageSize,
+        updateFilter: updateFilter,
         clear: clear,
     };
 

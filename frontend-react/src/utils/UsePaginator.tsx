@@ -22,9 +22,9 @@ export interface PaginationController {
     hasPrev: boolean;
     hasNext: boolean;
     currentIndex: number;
-    changeCursor?: (cursorIndex: number) => void;
-    pageCount?: () => number;
-    resetCursors?: () => void;
+    changeCursor: (cursorIndex: number) => void;
+    pageCount: () => number;
+    resetCursors: () => void;
 }
 
 /* TODO: Refactor to include generics so this can be used universally */

@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
-import { DatePicker, Label, Button } from "@trussworks/react-uswds";
+import { Button, DatePicker, Label } from "@trussworks/react-uswds";
 
 import "./SubmissionPages.css";
-import { SubmissionFilterContext } from "./FilterContext";
+import { FilterName, SubmissionFilterContext } from "./FilterContext";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
@@ -16,7 +16,7 @@ export enum StyleClass {
  * and will use the context to get these values.
  */
 function SubmissionFilters() {
-    const { updateStartRange, updateEndRange, clear, paginator } = useContext(
+    const { updateFilter, clear, paginator } = useContext(
         SubmissionFilterContext
     );
 
@@ -28,9 +28,16 @@ function SubmissionFilters() {
 
     /* This workhorse function handles all Context changes with null checking */
     const pushToContext = () => {
-        if (updateStartRange && localStartRange)
-            updateStartRange(localStartRange);
-        if (updateEndRange && localEndRange) updateEndRange(localEndRange);
+        if (localStartRange)
+            updateFilter(
+                FilterName.START_RANGE,
+                new Date(localStartRange).toISOString()
+            );
+        if (localEndRange)
+            updateFilter(
+                FilterName.END_RANGE,
+                new Date(localEndRange).toISOString()
+            );
     };
 
     /* Pushes local state to context and resets cursor to page 1 */
