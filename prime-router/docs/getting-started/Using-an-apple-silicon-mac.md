@@ -62,7 +62,7 @@ and are run automatically when starting ReportStream Dockerless:
 * Vault - a secret store
 * SFTP - an SFTP server
 * FTPS - an FTPS server
-* soap-webservice - SOAP web service emulator* MockServer - A web server mocking tool for Redox 
+* soap-webservice - SOAP web service emulator
 
 You can take down these services by running `./gradlew composeDown` or `docker-compose down` command.
 For now, leave these services running and open up a new terminal session.
@@ -164,7 +164,7 @@ For profiling use the JMX port 9090.
 
 ### Start and stop dependent services
 
-Instead of using a `docker-compose up sftp redox azurite ftps vault` to bring up dependent services, you can use a script.
+Instead of using a `docker-compose up sftp azurite ftps vault` to bring up dependent services, you can use a script.
 ```bash
 ./devenv-infrastructure.sh up
 ```
@@ -210,8 +210,8 @@ POSTGRES_USER=prime
 POSTGRES_PASSWORD=changeIT!
 POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
 PRIME_ENVIRONMENT=local
-OKTA_baseUrl=hhs-prime.okta.com
-OKTA_clientId=0oa6fm8j4G1xfrthd4h6
+OKTA_baseUrl=hhs-prime.oktapreview.com
+OKTA_clientId=0oa2fs6vp3W5MTzjh1d7
 OKTA_redirect=http://localhost:7071/api/download
 JAVA_HOME=$(/usr/libexec/java_home)
 ```
@@ -222,7 +222,7 @@ You may run into problems. Here are few of the common ones.
 
 ### FTPS container
 
-If you get an error running `docker-compose up sftp redox azurite ftps vault` like *bind source path does not exist: .../build/ftps*.
+If you get an error running `docker-compose up sftp azurite ftps vault` like *bind source path does not exist: .../build/ftps*.
 This is likely because a `clean` command has removed the build `build/ftps` directory. You can add the directory by hand using `mkdir build/ftps` and the `docker-compose` will run.
 
 ### Azurite
