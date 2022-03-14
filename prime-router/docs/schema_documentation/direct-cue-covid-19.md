@@ -1545,7 +1545,8 @@ The patient's second address line
 
 Code | Display | System
 ---- | ------- | ------
-OpET – CEI|OpET – CEI|NULLFL
+OpET - CEI|OpET – CEI|NULLFL
+OpET - CEI|OpET - CEI|NULLFL
 
 ---
 
