@@ -24,7 +24,7 @@ class MissingFieldMessage(fieldMapping: String) : ItemActionLogDetail(fieldMappi
  * Message for an invalid date for a given [fieldMapping], [formattedValue] and [format].
  */
 class InvalidDateMessage(
-    private val formattedValue: String,
+    private val formattedValue: String = "",
     fieldMapping: String,
     private val format: String? = null
 ) : ItemActionLogDetail(fieldMapping) {
@@ -42,7 +42,7 @@ class InvalidDateMessage(
  * Message for an invalid CODE for a given [fieldMapping], [formattedValue] and [format].
  */
 class InvalidCodeMessage(
-    private val formattedValue: String,
+    private val formattedValue: String = "",
     fieldMapping: String,
     private val format: String? = null
 ) : ItemActionLogDetail(fieldMapping) {
@@ -59,7 +59,7 @@ class InvalidCodeMessage(
  * Message for an invalid phone number for a given [fieldMapping] and [formattedValue].
  */
 class InvalidPhoneMessage(
-    formattedValue: String,
+    formattedValue: String = "",
     fieldMapping: String
 ) : ItemActionLogDetail(fieldMapping) {
     override val message = "Invalid phone number '$formattedValue' for $fieldMapping. Reformat to a 10-digit phone " +
@@ -70,7 +70,7 @@ class InvalidPhoneMessage(
  * Message for an invalid postal code for a given [fieldMapping], [formattedValue] and [format].
  */
 class InvalidPostalMessage(
-    private val formattedValue: String,
+    private val formattedValue: String = "",
     fieldMapping: String,
     private val format: String? = null
 ) : ItemActionLogDetail(fieldMapping) {
@@ -87,7 +87,7 @@ class InvalidPostalMessage(
  * Message for an invalid HD for a given [fieldMapping] and [formattedValue].
  */
 class UnsupportedHDMessage(
-    formattedValue: String,
+    formattedValue: String = "",
     fieldMapping: String
 ) : ItemActionLogDetail(fieldMapping) {
     override val message = "Unsupported HD format for input: '$formattedValue' in $fieldMapping"
@@ -97,7 +97,7 @@ class UnsupportedHDMessage(
  * Message for an invalid EI for a given [fieldMapping] and [formattedValue].
  */
 class UnsupportedEIMessage(
-    formattedValue: String,
+    formattedValue: String = "",
     fieldMapping: String
 ) : ItemActionLogDetail(fieldMapping) {
     override val message = "Unsupported EI format for input: '$formattedValue' in $fieldMapping"
