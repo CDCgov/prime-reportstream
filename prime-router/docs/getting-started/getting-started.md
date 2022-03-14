@@ -185,7 +185,6 @@ $ docker ps --format '{{.Names}}' | grep ^prime-router
 prime-router_web_receiver_1
 prime-router_prime_dev_1
 prime-router_sftp_1
-prime-router_redox_1
 prime-router_azurite_1
 prime-router_vault_1
 prime-router_postgresql_1
