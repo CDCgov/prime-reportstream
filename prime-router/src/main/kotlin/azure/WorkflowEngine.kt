@@ -39,11 +39,6 @@ import java.io.ByteArrayInputStream
 import java.time.OffsetDateTime
 
 /**
- * Keyword used to trigger alarms when an Exception cannot easily be thrown.
- */
-const val ALERT_TRIGGER = "AlertTheHumans"
-
-/**
  * A top-level object that contains all the helpers and accessors to power the workflow.
  * Workflow objects are heavy-weight and should only be created once per function lifetime.
  *
@@ -522,7 +517,7 @@ class WorkflowEngine(
                 "Failed to process $message $numAttempts times, setting status to process_error." +
                     " Mo intervention required."
             )
-            logger.fatal("$ALERT_TRIGGER: ${actionHistory.action.actionResult}")
+            logger.fatal("${actionHistory.action.actionResult}")
         } else {
             actionHistory.setActionType(TaskAction.process_warning)
             actionHistory.trackActionResult(

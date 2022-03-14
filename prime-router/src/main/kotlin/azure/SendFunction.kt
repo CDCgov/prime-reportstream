@@ -102,7 +102,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             val msg = "Send function unrecoverable exception for event. Mo intervention required: $message"
             actionHistory.setActionType(TaskAction.send_error)
             actionHistory.trackActionResult(msg)
-            logger.error("$ALERT_TRIGGER: ${actionHistory.action.actionResult}", t)
+            logger.fatal("${actionHistory.action.actionResult}", t)
         } finally {
             // Note this is operating in a different transaction than the one that did the fetch/lock of the repor
             logger.debug("About to save ActionHistory for $message")
@@ -144,7 +144,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                     "Send Error report for: $reportId to $serviceName"
                 actionHistory.setActionType(TaskAction.send_error)
                 actionHistory.trackActionResult(msg)
-                logger.error("$ALERT_TRIGGER: ${actionHistory.action.actionResult}")
+                logger.fatal("${actionHistory.action.actionResult}")
                 ReportEvent(Event.EventAction.SEND_ERROR, reportId, isEmptyBatch)
             } else {
                 // retry using a back-off strategy

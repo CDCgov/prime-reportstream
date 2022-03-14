@@ -130,7 +130,7 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
             actionHistory.queueMessages(workflowEngine) // Must be done after txn, to avoid race condition
             logger.trace("BatchFunction succeeded for message: $message")
         } catch (e: Exception) {
-            logger.fatal(
+            logger.error(
                 "BatchFunction Exception (msg=$message, backstopTime=$backstopTime) : " + e.stackTraceToString()
             )
         }
