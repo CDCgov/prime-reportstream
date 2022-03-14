@@ -46,7 +46,14 @@ class DetailedSubmissionHistory(
     val id: String? = actionResponse?.id
     val destinations = mutableListOf<Destination>()
 
+    /**
+     * Error log for the submission.
+     */
     val errors = mutableListOf<ConsolidatedActionLog>()
+
+    /**
+     * Warning log for the submission.
+     */
     val warnings = mutableListOf<ConsolidatedActionLog>()
 
     val topic: String? = actionResponse?.topic
@@ -85,47 +92,8 @@ class DetailedSubmissionHistory(
                 )
             }
         }
-        errors.addAll(consolidateLogs(logs, ActionLogLevel.error))
-        warnings.addAll(consolidateLogs(logs, ActionLogLevel.warning))
-    }
-
-    /**
-     * Consolidate the [logs] filtered by an optional [filterBy] action level, so to list similar messages once
-     * with a list of items they relate to.
-     */
-    internal fun consolidateLogs(logs: List<DetailActionLog>?, filterBy: ActionLogLevel?): List<ConsolidatedActionLog> {
-        val consolidatedList = mutableListOf<ConsolidatedActionLog>()
-        if (logs != null) {
-            // First filter the logs and sort by the message.  This first sorting can take care of sorting old messages
-            // that contain index numbers like "Report 3: xxxx"
-            val filteredList = when (filterBy) {
-                null -> logs
-                else -> logs.filter { it.type == filterBy }
-            }.sortedBy { it.detail.message }
-            // Now order the list so that logs contain first non-item messages, then item messages, and item messages
-            // are sorted by index.
-            val orderedList = (
-                filteredList.filter { it.scope != ActionLogScope.item }.sortedBy { it.scope } +
-                    filteredList.filter { it.scope == ActionLogScope.item }.sortedBy { it.index }
-                ).toMutableList()
-            // Now consolidate the list
-            while (orderedList.isNotEmpty()) {
-                // Grab the first log.
-                val consolidatedLog = ConsolidatedActionLog(orderedList.first())
-                orderedList.removeFirst()
-                // Now find similar logs and consolidate it.  Note by using the iterator we can delete on the fly.
-                with(orderedList.iterator()) {
-                    forEach { log ->
-                        if (log.detail.message == consolidatedLog.message) {
-                            consolidatedLog.add(log)
-                            remove()
-                        }
-                    }
-                }
-                consolidatedList.add(consolidatedLog)
-            }
-        }
-        return consolidatedList
+        errors.addAll(consolidateLogs(ActionLogLevel.error))
+        warnings.addAll(consolidateLogs(ActionLogLevel.warning))
     }
 
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
@@ -193,10 +161,51 @@ class DetailedSubmissionHistory(
             }
         }
     }
+
+    /**
+     * Consolidate the [logs] filtered by an optional [filterBy] action level, so to list similar messages once
+     * with a list of items they relate to.
+     */
+    internal fun consolidateLogs(filterBy: ActionLogLevel? = null):
+        List<ConsolidatedActionLog> {
+        val consolidatedList = mutableListOf<ConsolidatedActionLog>()
+        if (logs != null) {
+            // First filter the logs and sort by the message.  This first sorting can take care of sorting old messages
+            // that contain index numbers like "Report 3: xxxx"
+            val filteredList = when (filterBy) {
+                null -> logs
+                else -> logs.filter { it.type == filterBy }
+            }.sortedBy { it.detail.message }
+            // Now order the list so that logs contain first non-item messages, then item messages, and item messages
+            // are sorted by index.
+            val orderedList = (
+                filteredList.filter { it.scope != ActionLogScope.item }.sortedBy { it.scope } +
+                    filteredList.filter { it.scope == ActionLogScope.item }.sortedBy { it.index }
+                ).toMutableList()
+            // Now consolidate the list
+            while (orderedList.isNotEmpty()) {
+                // Grab the first log.
+                val consolidatedLog = ConsolidatedActionLog(orderedList.first())
+                orderedList.removeFirst()
+                // Now find similar logs and consolidate it.  Note by using the iterator we can delete on the fly.
+                with(orderedList.iterator()) {
+                    forEach { log ->
+                        if (log.detail.message == consolidatedLog.message) {
+                            consolidatedLog.add(log)
+                            remove()
+                        }
+                    }
+                }
+                consolidatedList.add(consolidatedLog)
+            }
+        }
+        return consolidatedList
+    }
 }
 
 /**
- * Consolidated action log class to be output to the API JSON response generated from a given [log].
+ * Consolidated action log class to be output to the API JSON response.
+ * @param log the base log message to be consolidated
  */
 @JsonInclude(Include.NON_NULL)
 class ConsolidatedActionLog(log: DetailActionLog) {

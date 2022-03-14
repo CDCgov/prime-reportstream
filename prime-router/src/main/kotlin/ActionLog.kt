@@ -167,6 +167,7 @@ class ActionLogger() {
         actionDetail: ActionLogDetail,
         level: ActionLogLevel
     ) {
+        if (actionDetail is ItemActionLogDetail) check(itemIndex != null) { "Index is required for item logs." }
         logs.add(ActionLog(actionDetail, trackingId, itemIndex, reportId, type = level))
     }
 
