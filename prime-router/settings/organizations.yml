@@ -2768,8 +2768,8 @@
         useBatchHeaders: true
         suppressHl7Fields: PID-5-7, ORC-12-1, ORC-16-1
         replaceValueAwithB:
-          ORC-12-2: " , Unknow ; Crona, Joe ; Bode,John"
-          ORC-12-3: " , Unknow ; Lashay, Smith; Waldo, Doe"
+          ORC-12-2: ["":"Unknow", "Crona":"Joe","Bode":"John;@:,"]
+          ORC-12-3: ["":"Unknow", "Lashay":"Smith","Waldo":"Doe"]
         valueSetOverrides:
           hl70189:
             name: hl70189

@@ -496,18 +496,15 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
 
-            if (element.name == "ordering_provider_last_name")
+           if (element.name == "ordering_provider_last_name")
                 print("Ott")
 
             val value = report.getString(row, element.name).let {
-                replaceValueAwithB(
-                    element, replaceValueAwithB,
-                    if (it.isNullOrEmpty() || it == "null") {
+                replaceValueAwithB(element, replaceValueAwithB, if (it.isNullOrEmpty() || it == "null") {
                         element.default ?: ""
                     } else {
                         stripInvalidCharactersRegex?.replace(it, "") ?: it
-                    }
-                )
+                    })
             }.trim()
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
@@ -669,17 +666,16 @@ class Hl7Serializer(
      */
     private fun replaceValueAwithB(
         elementArg: Element,
-        replaceValueAwithBMap: Map<String, String>,
+        replaceValueAwithBMap: Map<String, Any>,
         valueArg: String
-    ): String {
+    ) : String {
 
         replaceValueAwithBMap.forEach { element ->
-            val valueList = element.value.split(";").map { it.trim() }
-            valueList.forEach { pairs ->
-                val values = pairs.split(",").map { it.trim() }
-                if (elementArg.hl7Field == element.key) {
-                    if (values[0] == valueArg)
-                        return values[1]
+            @Suppress("UNCHECKED_CAST")
+            (element.value as ArrayList<Map<String, String>>).forEach { pairs ->
+                if(elementArg.hl7Field == element.key) {
+                    if(pairs.keys.first().trim() == valueArg)
+                       return pairs.values.first().trim()
                 }
             }
         }
