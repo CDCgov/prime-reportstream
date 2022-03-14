@@ -101,7 +101,7 @@ class DetailedSubmissionHistory(
             TaskAction.process -> enrichWithProcessAction(descendant)
             // TaskAction.batch -> enrichWithBatchAction(descendant)
             TaskAction.send -> enrichWithSendAction(descendant)
-            // TaskAction.download -> enrichWithDownloadAction(descendant)
+            TaskAction.download -> enrichWithDownloadAction(descendant)
             else -> {}
         }
     }
@@ -154,6 +154,38 @@ class DetailedSubmissionHistory(
             }
         }
     }
+
+    /**
+     * Enrich a parent detailed history with details from the download action
+     *
+     * Add download report information to each destination present in the parent's historical details.
+     */
+    private fun enrichWithDownloadAction(descendant: DetailedSubmissionHistory) {
+        require(descendant.actionName == TaskAction.download) { "Must be a download action" }
+
+        descendant.reports?.let { it ->
+            it.forEach { report ->
+                destinations.find {
+                    it.organizationId == report.receivingOrg && it.service == report.receivingOrgSvc
+                }?.let {
+                    it.downloadedReports.add(report)
+                } ?: run {
+                    if (report.receivingOrg != null && report.receivingOrgSvc != null) {
+                        val dest = Destination(
+                            report.receivingOrg,
+                            report.receivingOrgSvc,
+                            listOf(),
+                            null,
+                            report.itemCount,
+                        )
+
+                        destinations.add(dest)
+                        dest.downloadedReports.add(report)
+                    }
+                }
+            }
+        }
+    }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -201,6 +233,7 @@ data class Destination(
     val sendingAt: OffsetDateTime?,
     val itemCount: Int,
     var sentReports: MutableList<DetailReport> = mutableListOf(),
+    var downloadedReports: MutableList<DetailReport> = mutableListOf(),
 ) {
     val organization: String?
         get() = WorkflowEngine.settingsProviderSingleton.findOrganizationAndReceiver(
