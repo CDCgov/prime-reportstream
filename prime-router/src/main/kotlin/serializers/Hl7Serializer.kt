@@ -438,6 +438,7 @@ class Hl7Serializer(
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
+        val replaceValueAwithB = hl7Config?.replaceValueAwithB ?: emptyMap()
         val cliaForSender = hl7Config?.cliaForSender ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
@@ -494,12 +495,19 @@ class Hl7Serializer(
         }
         // serialize the rest of the elements
         reportElements.forEach { element ->
+
+            if (element.name == "ordering_provider_last_name")
+                print("Ott")
+
             val value = report.getString(row, element.name).let {
-                if (it.isNullOrEmpty() || it == "null") {
-                    element.default ?: ""
-                } else {
-                    stripInvalidCharactersRegex?.replace(it, "") ?: it
-                }
+                replaceValueAwithB(
+                    element, replaceValueAwithB,
+                    if (it.isNullOrEmpty() || it == "null") {
+                        element.default ?: ""
+                    } else {
+                        stripInvalidCharactersRegex?.replace(it, "") ?: it
+                    }
+                )
             }.trim()
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
@@ -651,6 +659,32 @@ class Hl7Serializer(
 
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
         return message
+    }
+
+    /**
+     * Loop through all [replaceValueMap] key value pairs to find the hl7Field
+     * if found, we check the value A is equal to the value need to replace.
+     * if so, we replace with value B.
+     * if all obove is not met, we return the same valueArg.
+     */
+    private fun replaceValueAwithB(
+        elementArg: Element,
+        replaceValueAwithBMap: Map<String, String>,
+        valueArg: String
+    ): String {
+
+        replaceValueAwithBMap.forEach { element ->
+            val valueList = element.value.split(";").map { it.trim() }
+            valueList.forEach { pairs ->
+                val values = pairs.split(",").map { it.trim() }
+                if (elementArg.hl7Field == element.key) {
+                    if (values[0] == valueArg)
+                        return values[1]
+                }
+            }
+        }
+
+        return valueArg
     }
 
     /**
