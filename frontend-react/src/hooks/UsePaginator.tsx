@@ -15,7 +15,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import SubmissionsResource from "../resources/SubmissionsResource";
-import { FilterState } from "../pages/submissions/FilterContext";
+import { FilterState } from "../contexts/FilterContext";
 
 export interface PaginationController {
     cursors: Map<number, string>;

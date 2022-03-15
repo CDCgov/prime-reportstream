@@ -7,9 +7,9 @@ import React, {
 } from "react";
 import { useResource } from "rest-hooks";
 
-import usePaginator, { PaginationController } from "../../utils/UsePaginator";
-import SubmissionsResource from "../../resources/SubmissionsResource";
-import { GlobalContext } from "../../components/GlobalContextProvider";
+import usePaginator, { PaginationController } from "../hooks/UsePaginator";
+import SubmissionsResource from "../resources/SubmissionsResource";
+import { GlobalContext } from "../components/GlobalContextProvider";
 
 /* Convenient type aliases */
 type SortOrder = "ASC" | "DESC";

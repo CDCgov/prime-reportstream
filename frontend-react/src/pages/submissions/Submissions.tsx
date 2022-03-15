@@ -7,10 +7,10 @@ import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
+import FilterContext from "../../contexts/FilterContext";
 
 import SubmissionTable from "./SubmissionTable";
 import SubmissionFilters from "./SubmissionFilters";
-import FilterContext from "./FilterContext";
 
 function Submissions() {
     const orgName: string = useOrgName();
@@ -39,11 +39,5 @@ function Submissions() {
         </NetworkErrorBoundary>
     );
 }
-
-// function Submissions() {
-//      return (
-//
-//      )
-// }
 
 export default Submissions;

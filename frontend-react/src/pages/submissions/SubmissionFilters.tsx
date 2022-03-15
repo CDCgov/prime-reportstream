@@ -2,7 +2,10 @@ import React, { useContext, useState } from "react";
 import { Button, DatePicker, Label } from "@trussworks/react-uswds";
 
 import "./SubmissionPages.css";
-import { FilterName, SubmissionFilterContext } from "./FilterContext";
+import {
+    FilterName,
+    SubmissionFilterContext,
+} from "../../contexts/FilterContext";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",

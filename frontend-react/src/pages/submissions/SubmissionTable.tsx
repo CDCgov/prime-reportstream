@@ -7,9 +7,8 @@ import {
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 
-import { PaginationController } from "../../utils/UsePaginator";
-
-import { SubmissionFilterContext } from "./FilterContext";
+import { PaginationController } from "../../hooks/UsePaginator";
+import { SubmissionFilterContext } from "../../contexts/FilterContext";
 
 /* Handles pagination button logic and display */
 function PaginationButtons({ paginator }: { paginator: PaginationController }) {
