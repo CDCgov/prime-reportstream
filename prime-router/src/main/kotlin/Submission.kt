@@ -58,11 +58,9 @@ class DetailedSubmissionHistory(
 
     val topic: String? = actionResponse?.topic
 
-    val warningCount: Int
-        get() = warnings.size
+    val warningCount = logs?.count { it.type == ActionLogLevel.warning } ?: 0
 
-    val errorCount: Int
-        get() = errors.size
+    val errorCount = logs?.count { it.type == ActionLogLevel.error } ?: 0
 
     /**
      * Number of destinations that actually had/will have data sent to.
@@ -261,6 +259,7 @@ class ConsolidatedActionLog(log: DetailActionLog) {
     /**
      * The log level.
      */
+    @JsonIgnore
     var type: ActionLogLevel
 
     /**
