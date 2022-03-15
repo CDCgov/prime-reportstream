@@ -9,6 +9,7 @@ import { showAlertNotification, showError } from "../AlertNotifications";
 import { getStoredOktaToken, getStoredOrg } from "../GlobalContextProvider";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
+import Spinner from "../Spinner";
 
 import { ConfirmSaveSettingModal } from "./CompareJsonModal";
 import {
@@ -306,7 +307,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                 <Suspense
                     fallback={
                         <span className="text-normal text-base">
-                            Loading Receiver Info...
+                            <Spinner />
                         </span>
                     }
                 >

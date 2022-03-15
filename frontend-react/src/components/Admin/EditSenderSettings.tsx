@@ -9,6 +9,7 @@ import { showAlertNotification, showError } from "../AlertNotifications";
 import { getStoredOktaToken, getStoredOrg } from "../GlobalContextProvider";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
+import Spinner from "../Spinner";
 
 import { TextInputComponent, TextAreaComponent } from "./AdminFormEdit";
 import { ConfirmSaveSettingModal } from "./CompareJsonModal";
@@ -250,7 +251,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                 <Suspense
                     fallback={
                         <span className="text-normal text-base">
-                            Loading Sender Settings Info...
+                            <Spinner />
                         </span>
                     }
                 >

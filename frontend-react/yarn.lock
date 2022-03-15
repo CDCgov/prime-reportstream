@@ -2033,6 +2033,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/lodash@^4.14.180":
+  version "4.14.180"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.180.tgz#4ab7c9ddfc92ec4a887886483bc14c79fb380670"
+  integrity sha512-XOKXa1KIxtNXgASAnwj7cnttJxS4fksBRywK/9LzRV5YxrF80BXZIGeQSuoESQ/VkUj30Ae0+YcuHc15wJCB2g==
+
 "@types/minimatch@*":
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.5.tgz#1001cc5e6a3704b83c236027e77f2f58ea010f40"
@@ -2107,6 +2112,13 @@
   integrity sha512-YYknwy0D0iOwKQgz9v8nOzt2J6l4gouBmDnWqUUznltOTaon+r8US8ky8HvN0tXvc38U9m6z/t2RsVsnd1zM0g==
   dependencies:
     "@types/history" "^4.7.11"
+    "@types/react" "*"
+
+"@types/react-scroll-sync@^0.8.3":
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/@types/react-scroll-sync/-/react-scroll-sync-0.8.3.tgz#d293537ea4d21e00d62af0454bfa3ceba73749b1"
+  integrity sha512-WHOMd34f7DM5DeTriQ3qIaHAOOf7WmQrZP92UIM9e/2Lzj80G262aibSqx3xqBGcV6VgnlTVr0fabpKrj+HYcA==
+  dependencies:
     "@types/react" "*"
 
 "@types/react-test-renderer@>=16.9.0":
@@ -9998,7 +10010,7 @@ prompts@^2.0.1:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
+prop-types@^15.5.7, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -10395,6 +10407,13 @@ react-scripts@^4.0.3:
     workbox-webpack-plugin "5.1.4"
   optionalDependencies:
     fsevents "^2.1.3"
+
+react-scroll-sync@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/react-scroll-sync/-/react-scroll-sync-0.9.0.tgz#81ddea7a667092807c0150924a201eceed5979fe"
+  integrity sha512-IaMUSTbarj9mhjVtBl9I45Er8gQqV8rdb9A0eK77JJ8MvnLcFIlnoiXVx1NS9ACy9QELq7xCTxdIVEdhDV9R0Q==
+  dependencies:
+    prop-types "^15.5.7"
 
 react-side-effect@^2.1.0:
   version "2.1.1"

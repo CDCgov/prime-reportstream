@@ -1,7 +1,8 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { DiffEditor } from "@monaco-editor/react";
 
 import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
+import { EditableCompare } from "../EditableCompare";
 
 export const DiffEditorComponent: FC<{
     originalCode: string;
@@ -10,6 +11,8 @@ export const DiffEditorComponent: FC<{
     mounter: (editor: null, monaco: any) => void;
 }> = ({ modifiedCode, originalCode, language, mounter }) => {
     const showDiffEditor = CheckFeatureFlag("showDiffEditor");
+    const showNewDiffEditor = CheckFeatureFlag("showNewDiffEditor");
+    const [modifiedCodeStr, setModifiedCodeStr] = useState(modifiedCode);
     if (showDiffEditor) {
         return (
             <DiffEditor
@@ -21,6 +24,14 @@ export const DiffEditorComponent: FC<{
                 original={originalCode}
                 modified={modifiedCode}
                 onMount={mounter}
+            />
+        );
+    } else if (showNewDiffEditor) {
+        return (
+            <EditableCompare
+                original={originalCode}
+                modified={modifiedCode}
+                onUpdateFunc={setModifiedCodeStr}
             />
         );
     } else {
