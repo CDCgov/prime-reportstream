@@ -29,21 +29,26 @@ elements:
       default: "PI"
 
     - name: patient_last_name
+      cardinality: ONE
       csvFields: [{name: Last Name}]
 
     - name: patient_middle_name
       csvFields: [{name: Middle Name}]
 
     - name: patient_first_name
+      cardinality: ONE
       csvFields: [{name: First Name}]
 
     - name: patient_street
+      cardinality: ONE
       csvFields: [{name: Patient Address}]
 
     - name: patient_city
+      cardinality: ONE
       csvFields: [{name: Patient City}]
 
     - name: patient_state
+      cardinality: ONE
       csvFields: [{name: Patient State}]
 
     - name: patient_zip_code
@@ -60,6 +65,7 @@ elements:
       csvFields: [{name: Patient phone}]
 
     - name: patient_dob
+      cardinality: ONE
       csvFields: [{name: Birth Date, format: "M/d/yyyy H:nn"}]
 
     - name: patient_gender
@@ -85,22 +91,32 @@ elements:
 
 # Specimen/Order Info
     - name: specimen_collection_date_time
+      cardinality: ONE
+      nullifyValue: true
       csvFields: [{name: DateColl, format: "M/d/yyyy"}]
       documentation: DateColl populates multiple fields.  This instance populates specimen_collection_date_time.
 
     - name: order_test_date
+      cardinality: ONE
+      nullifyValue: true
       csvFields: [{name: DateColl, format: "M/d/yyyy"}]
       documentation: DateColl populates multiple fields.  This instance populates order_test_date.
 
     - name: testing_lab_specimen_received_datetime
+      cardinality: ONE
+      nullifyValue: true
       csvFields: [{name: DateColl, format: "M/d/yyyy"}]
       documentation: DateColl populates multiple fields.  This instance populates testing_lab_specimen_received_datetime.
 
     - name: test_result_date
+      cardinality: ONE
+      nullifyValue: true
       csvFields: [{name: ResultDate, format: "M/d/yyyy"}]
       documentation: ResultDate populates multiple fields.  This instance populates test_result_date.
 
     - name: date_result_released
+      cardinality: ONE
+      nullifyValue: true
       csvFields: [{name: ResultDate, format: "M/d/yyyy"}]
       documentation: ResultDate populates multiple fields.  This instance populates date_result_released.
 
@@ -113,6 +129,7 @@ elements:
       documentation: TestName populates multiple fields.  This instance populates ordered_test_name.
 
     - name: test_result
+      cardinality: ONE
       type: CODE
       valueSet: sender-automation/test_result
       documentation: Translate multiple inbound Test Result values to RS values
@@ -122,24 +139,28 @@ elements:
       default: F
 
     - name: result_format
-      default: CE
+      default: CWE
 
 
 
 # Ordering provider
     - name: ordering_provider_street
+      cardinality: ONE
       csvFields: [{name: Fac_Addr1}]
       documentation: Fac_Addr1 populates multiple fields.  This instance populates ordering_provider_street.
       
     - name: ordering_provider_city
+      cardinality: ONE
       csvFields: [{name: Fac_City}]
       documentation: Fac_City populates multiple fields.  This instance populates ordering_provider_city.
 
     - name: ordering_provider_state
+      cardinality: ONE
       csvFields: [{name: Fac_State}]
       documentation: Fac_State populates multiple fields.  This instance populates ordering_provider_state.
 
     - name: ordering_provider_zip_code
+      cardinality: ONE
       csvFields: [{name: Fac_Zip}]
       documentation: Fac_Zip populates multiple fields.  This instance populates ordering_provider_zip_code.
 
@@ -149,22 +170,27 @@ elements:
 
 #ordering facility
     - name: ordering_facility_name
+      cardinality: ONE
       csvFields: [{name: Facility}]
       documentation: Facility populates multiple fields.  This instance populates ordering_facility_name.
 
     - name: ordering_facility_street
+      cardinality: ONE
       csvFields: [{name: Fac_Addr1}]
       documentation: Fac_Addr1 populates multiple fields.  This instance populates ordering_facility_street.
 
     - name: ordering_facility_city
+      cardinality: ONE
       csvFields: [{name: Fac_City}]
       documentation: Fac_City populates multiple fields.  This instance populates ordering_facility_city.
 
     - name: ordering_facility_state
+      cardinality: ONE
       csvFields: [{name: Fac_State}]
       documentation: Fac_State populates multiple fields.  This instance populates ordering_facility_state.
 
     - name: ordering_facility_zip_code
+      cardinality: ONE
       csvFields: [{name: Fac_Zip}]
       documentation: Fac_Zip populates multiple fields.  This instance populates ordering_facility_zip_code.
 
@@ -174,22 +200,27 @@ elements:
 
 #testing lab
     - name: testing_lab_name
+      cardinality: ONE
       csvFields: [{name: Facility}]
       documentation: Facility populates multiple fields.  This instance populates testing_lab_name.
 
     - name: testing_lab_street
+      cardinality: ONE
       csvFields: [{name: Fac_Addr1}]
       documentation: Fac_Addr1 populates multiple fields.  This instance populates testing_lab_street.
 
     - name: testing_lab_city
+      cardinality: ONE
       csvFields: [{name: Fac_City}]
       documentation: Fac_City populates multiple fields.  This instance populates testing_lab_city.
 
     - name: testing_lab_state
+      cardinality: ONE
       csvFields: [{name: Fac_State}]
       documentation: Fac_State populates multiple fields.  This instance populates testing_lab_state.
 
     - name: testing_lab_zip_code
+      cardinality: ONE
       csvFields: [{name: Fac_Zip}]
       documentation: Fac_Zip populates multiple fields.  This instance populates testing_lab_zip_code.
 
@@ -200,15 +231,17 @@ elements:
 
 #misc
     - name: reporting_facility_name
+      cardinality: ONE
       csvFields: [{name: Facility}]
       documentation: Facility populates multiple fields.  This instance populates reporting_facility_name.
 
     - name: filler_name
-      csvFields: [{name: Facility}]
+      cardinality: ONE
+      mapper: use(reporting_facility_name)
       documentation: Facility populates multiple fields.  This instance populates filler_name.
 
     - name: patient_id_assigner
-      csvFields: [{name: Facility}]
+      mapper: use(reporting_facility_name)
       documentation: Facility populates multiple fields.  This instance populates patient_id_assigner.
 
 
@@ -217,22 +250,22 @@ elements:
       csvFields: [{name: CLIA No}]
 
     - name: testing_lab_id
-      csvFields: [{name: CLIA No}]
+      mapper: use(testing_lab_clia)
 
     - name: reporting_facility_clia
-      csvFields: [{name: CLIA No}]
+      mapper: use(testing_lab_clia)
 
     - name: filler_clia
-      csvFields: [{name: CLIA No}]
+      mapper: use(testing_lab_clia)
 
 
 
 #specimen/accession fields
     - name: filler_order_id
-      csvFields: [{name: Accession_no}]
+      mapper: use(message_id)
 
     - name: placer_order_id
-      csvFields: [{name: Accession_no}]
+      mapper: use(message_id)
 
 
 #AOE fields
@@ -253,10 +286,10 @@ elements:
 
 
 #this lookup is in the covid-19 schema, but doesn't appear to execute??
-    - name: equipment_model_name
-      table: LIVD-SARS-CoV-2
-      tableColumn: Model
-      mapper: livdLookup()
+#    - name: equipment_model_name
+#      table: LIVD-SARS-CoV-2
+#      tableColumn: Model
+#      mapper: livdLookup()
 
 
 #unused fields - these are added here to suppress warnings.

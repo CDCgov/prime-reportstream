@@ -65,7 +65,7 @@ class BatchFunctionTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
 
-        every { engine.generateEmptyReport(any(), any(), any()) } returns Unit
+        every { engine.generateEmptyReport(any(), any()) } returns Unit
 
         // the message that will be passed to batchFunction
         val message = "receiver&BATCH&phd.elr&true"
@@ -74,7 +74,7 @@ class BatchFunctionTests {
         BatchFunction(engine).run(message, context = null)
 
         // empty pathway should be called
-        verify(exactly = 1) { engine.generateEmptyReport(any(), any(), any()) }
+        verify(exactly = 1) { engine.generateEmptyReport(any(), any()) }
         // standard batch handling should not be called
         verify(exactly = 0) { engine.handleBatchEvent(any(), any(), any(), any()) }
     }

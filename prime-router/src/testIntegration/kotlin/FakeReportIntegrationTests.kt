@@ -26,10 +26,6 @@ class FakeReportIntegrationTests {
             null,
             county
         )
-        println(matchingCityRows.joinToString())
-        println(matchingZipRows.joinToString())
-        println("${context.city} - ${context.zipCode}")
-        // assert
         assertThat(matchingCityRows).contains(context.city)
         assertThat(matchingZipRows).contains(context.zipCode)
     }
