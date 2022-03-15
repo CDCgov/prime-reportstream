@@ -546,7 +546,14 @@ class Hl7Serializer(
                     }
                 }
             } else if (element.hl7Field == "ORC-21-1") {
-                setOrderingFacilityComponent(terser, rawFacilityName = value, useOrderingFacilityName, report, row)
+                val truncatedValueForORC21 = if (hl7Config?.truncateHl7Fields?.contains(element.hl7Field) == true) {
+                    trimAndTruncateValue(value, element.hl7Field, hl7Config, terser)
+                } else {
+                    value
+                }
+                setOrderingFacilityComponent(
+                    terser, rawFacilityName = truncatedValueForORC21, useOrderingFacilityName, report, row
+                )
             } else if (element.hl7Field == "NTE-3" && value.isNotBlank()) {
                 setNote(terser, nteSequence++, value)
             } else if (element.hl7Field == "MSH-7") {
@@ -718,6 +725,7 @@ class Hl7Serializer(
         report: Report,
         row: Int,
     ) {
+
         when (useOrderingFacilityName) {
             // No overrides
             Hl7Configuration.OrderingFacilityName.STANDARD -> {
