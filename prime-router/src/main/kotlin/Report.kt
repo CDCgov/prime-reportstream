@@ -85,7 +85,7 @@ data class ReportStreamFilterResult(
     }
 
     override val message = "For $receiverName, filter $filterName$filterArgs" +
-        " filtered out item $filteredTrackingElement at index $filteredIndex"
+        " filtered out item $filteredTrackingElement"
 
     // Used for deserializing to a JSON response
     override fun toString(): String {

@@ -65,10 +65,11 @@ class DetailedSubmissionHistory(
         get() = errors.size
 
     /**
-     * Number of destinations.
+     * Number of destinations that actually had/will have data sent to.
      */
-    val destinationCount: Int
-        get() = destinations.size
+    val destinationCount: Int get() {
+        return destinations.filter { it.itemCount != 0 }.size
+    }
 
     /**
      * Number of report items.
