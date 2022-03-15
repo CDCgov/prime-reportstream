@@ -844,8 +844,13 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test organization yml replaceValueAwithB setting field`() {
-        val settings = FileSettings("./settings")
-        val metadata = Metadata.getInstance()
+        val oneOrganization = DeepOrganization(
+            "phd", "test", Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
+        )
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
         val serializer = Hl7Serializer(metadata, settings)
         val arrayistValues = arrayListOf(
             mapOf("" to "Unknow"),
