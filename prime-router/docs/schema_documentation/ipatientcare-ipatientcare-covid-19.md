@@ -194,66 +194,11 @@ This field is ignored.
 
 **Format**: M/d/yyyy
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
 ResultDate populates multiple fields.  This instance populates date_result_released.
-
----
-
-**Name**: CLIA No
-
-**ReportStream Internal Name**: filler_clia
-
-**Type**: ID_CLIA
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: Facility
-
-**ReportStream Internal Name**: filler_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
-- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Facility populates multiple fields.  This instance populates filler_name.
-
----
-
-**Name**: Accession_no
-
-**ReportStream Internal Name**: filler_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
-- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
-- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Accension number
 
 ---
 
@@ -283,7 +228,7 @@ unique id to track the usage of the message
 
 **Format**: M/d/yyyy
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -319,7 +264,7 @@ TestName populates multiple fields.  This instance populates ordered_test_name.
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -335,7 +280,7 @@ Fac_City populates multiple fields.  This instance populates ordering_facility_c
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -387,7 +332,7 @@ Fac_State populates multiple fields.  This instance populates ordering_facility_
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -403,7 +348,7 @@ Fac_Addr1 populates multiple fields.  This instance populates ordering_facility_
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -419,7 +364,7 @@ Fac_Zip populates multiple fields.  This instance populates ordering_facility_zi
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -456,7 +401,7 @@ Fac_Phone populates multiple fields.  This instance populates ordering_provider_
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -476,7 +421,7 @@ Fac_State populates multiple fields.  This instance populates ordering_provider_
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -492,7 +437,7 @@ Fac_Addr1 populates multiple fields.  This instance populates ordering_provider_
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -508,7 +453,7 @@ Fac_Zip populates multiple fields.  This instance populates ordering_provider_zi
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -526,7 +471,7 @@ The patient's city
 
 **Format**: M/d/yyyy H:nn
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -562,7 +507,9 @@ H|Mex. Amer./Hispanic|LOCAL
 H|2135-2|LOCAL
 H|H|LOCAL
 N|Non Hispanic or Latino|LOCAL
+N|Non-Hispanic or Latino|LOCAL
 N|Non Hispanic|LOCAL
+N|Non-Hispanic|LOCAL
 N|Not Hispanic or Latino|LOCAL
 N|Not Hispanic|LOCAL
 N|2186-5|LOCAL
@@ -590,7 +537,7 @@ Translate multiple inbound ethnicity values to RS / OMB values
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -617,8 +564,10 @@ The patient's first name
 Code | Display | System
 ---- | ------- | ------
 F|Female|LOCAL
+F|Woman|LOCAL
 F|F|LOCAL
 M|Male|LOCAL
+M|Man|LOCAL
 M|M|LOCAL
 U|U|LOCAL
 U|UNK|LOCAL
@@ -650,27 +599,6 @@ Translate multiple inbound Gender values to RS values
 The ID for the patient within one of the reporting entities for this lab result. It could be the
 the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
 
-
----
-
-**Name**: Facility
-
-**ReportStream Internal Name**: patient_id_assigner
-
-**Type**: HD
-
-**PII**: No
-
-**HL7 Fields**
-
-- [PID-3-4](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4)
-- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Facility populates multiple fields.  This instance populates patient_id_assigner.
 
 ---
 
@@ -810,7 +738,7 @@ The patient's state
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -831,27 +759,6 @@ The patient's street address
 **Documentation**:
 
 The patient's zip code
-
----
-
-**Name**: Accession_no
-
-**ReportStream Internal Name**: placer_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
-- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The ID number of the lab order from the placer
 
 ---
 
@@ -929,30 +836,6 @@ P, D, or T for Production, Debugging, or Training
 
 ---
 
-**Name**: CLIA No
-
-**ReportStream Internal Name**: reporting_facility_clia
-
-**Type**: ID_CLIA
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
-- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
-- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
-- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
-- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's CLIA
-
----
-
 **Name**: Facility
 
 **ReportStream Internal Name**: reporting_facility_name
@@ -969,7 +852,7 @@ The reporting facility's CLIA
 - [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
 - [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1010,7 +893,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 - [OBX-14](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.14)
 - [SPM-17-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.17.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1048,7 +931,7 @@ TestName populates multiple fields.  This instance populates test_performed_name
 
 **Format**: use value found in the Display column
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -1106,6 +989,8 @@ Code | Display | System
 840534001|840534001|SNOMED_CT
 373121007|Test not done|SNOMED_CT
 373121007|373121007|SNOMED_CT
+82334004|Indeterminate|SNOMED_CT
+82334004|82334004|SNOMED_CT
 
 **Documentation**:
 
@@ -1123,7 +1008,7 @@ Translate multiple inbound Test Result values to RS values
 
 **Format**: M/d/yyyy
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1139,7 +1024,7 @@ ResultDate populates multiple fields.  This instance populates test_result_date.
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1175,22 +1060,6 @@ An example of the ID is 03D2159846
 
 ---
 
-**Name**: CLIA No
-
-**ReportStream Internal Name**: testing_lab_id
-
-**Type**: ID
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
-
----
-
 **Name**: Facility
 
 **ReportStream Internal Name**: testing_lab_name
@@ -1209,7 +1078,7 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
 - [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1243,7 +1112,7 @@ Fac_Phone populates multiple fields.  This instance populates testing_lab_phone_
 
 **Format**: M/d/yyyy
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1259,7 +1128,7 @@ DateColl populates multiple fields.  This instance populates testing_lab_specime
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -1279,7 +1148,7 @@ Fac_State populates multiple fields.  This instance populates testing_lab_state.
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1295,7 +1164,7 @@ Fac_Addr1 populates multiple fields.  This instance populates testing_lab_street
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1303,23 +1172,58 @@ Fac_Zip populates multiple fields.  This instance populates testing_lab_zip_code
 
 ---
 
-**Name**: equipment_model_name
+**Name**: filler_clia
 
-**ReportStream Internal Name**: equipment_model_name
+**ReportStream Internal Name**: filler_clia
 
-**Type**: TABLE
+**Type**: ID_CLIA
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
+---
 
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+**Name**: filler_name
 
-**Table**: LIVD-SARS-CoV-2
+**ReportStream Internal Name**: filler_name
 
-**Table Column**: Model
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+Facility populates multiple fields.  This instance populates filler_name.
+
+---
+
+**Name**: filler_order_id
+
+**ReportStream Internal Name**: filler_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
+- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
+- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Accension number
 
 ---
 
@@ -1399,6 +1303,27 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 ---
 
+**Name**: patient_id_assigner
+
+**ReportStream Internal Name**: patient_id_assigner
+
+**Type**: HD
+
+**PII**: No
+
+**HL7 Fields**
+
+- [PID-3-4](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Facility populates multiple fields.  This instance populates patient_id_assigner.
+
+---
+
 **Name**: patient_id_type
 
 **ReportStream Internal Name**: patient_id_type
@@ -1413,6 +1338,51 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 ---
 
+**Name**: placer_order_id
+
+**ReportStream Internal Name**: placer_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID number of the lab order from the placer
+
+---
+
+**Name**: reporting_facility_clia
+
+**ReportStream Internal Name**: reporting_facility_clia
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
+- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
+- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
+
+---
+
 **Name**: result_format
 
 **ReportStream Internal Name**: result_format
@@ -1421,7 +1391,7 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 **PII**: No
 
-**Default Value**: CE
+**Default Value**: CWE
 
 **Cardinality**: [0..1]
 
@@ -1468,5 +1438,21 @@ X|Results cannot be obtained for this observation|HL7
 The test result status, which is different from the test result itself. Per the valueset, this indicates if
 the test result is in some intermediate status, is a correction, or is the final result.
 
+
+---
+
+**Name**: testing_lab_id
+
+**ReportStream Internal Name**: testing_lab_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
 
 ---

@@ -15,22 +15,21 @@ elements:
       default: P
       
     - name: sender_id
-      default: reddyfmc
-      
-    - name: message_id
-      csvFields: [{name: Accession_no}]
+      default: reddyfmc-la
 
-    - name: test_kit_name_id
+    - name: equipment_model_name
+      cardinality: ONE
       type: CODE
       csvFields: [{name: TestName, format: $alt}]
       altValues:
-        - code: 10811877011290
+        - code: "BinaxNOW COVID-19 Ag Card"
           display: "SARS-CoV-2 (COVID-19) Ag"
-        - code: 10811877011290
+        - code: "BinaxNOW COVID-19 Ag Card"
           display: "     SARS-CoV-2 (COVID-19) Ag"
           
 # Ordering provider
     - name: ordering_provider_id
+      cardinality: ONE
       type: CODE
       csvFields: [{name: PhyName, format: $alt}]
       altValues:
@@ -56,6 +55,7 @@ elements:
           display: Raveen Coon FNP-C
 
     - name: ordering_provider_last_name
+      cardinality: ONE
       type: CODE
       csvFields: [{name: PhyName, format: $alt}]
       altValues:
@@ -81,6 +81,7 @@ elements:
           display: Raveen Coon FNP-C
 
     - name: ordering_provider_first_name
+      cardinality: ONE
       type: CODE
       csvFields: [{name: PhyName, format: $alt}]
       altValues:

@@ -1529,6 +1529,27 @@ The patient's second address line
 
 ---
 
+**Name**: patientHomeAddress2
+
+**ReportStream Internal Name**: patient_street2_CEI
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Cardinality**: [0..1]
+
+**Alt Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+OpET - CEI|OpET – CEI|NULLFL
+OpET - CEI|OpET - CEI|NULLFL
+
+---
+
 **Name**: patientZip
 
 **ReportStream Internal Name**: patient_zip_code
@@ -1893,6 +1914,10 @@ Code | Display | System
 122555007|Venous blood specimen|SNOMED_CT
 119297000|Blood specimen|SNOMED_CT
 122554006|Capillary blood specimen|SNOMED_CT
+258467004|Nasopharyngeal washings|SNOMED_CT
+418932006|Oral swab specimen|SNOMED_CT
+433801000124107|Nasopharyngeal and oropharyngeal swab|SNOMED_CT
+309171007|Lower respiratory fluid sample|SNOMED_CT
 
 **Documentation**:
 
@@ -2133,6 +2158,18 @@ The city of the testing lab
 **Documentation**:
 
 Expecting a CLIA number (eg, "10D2218834"), or empty string.
+
+---
+
+**Name**: performingFacility
+
+**ReportStream Internal Name**: testing_lab_clia_temp
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 

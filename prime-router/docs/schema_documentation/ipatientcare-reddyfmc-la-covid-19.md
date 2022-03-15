@@ -194,7 +194,7 @@ This field is ignored.
 
 **Format**: M/d/yyyy
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -202,58 +202,24 @@ ResultDate populates multiple fields.  This instance populates date_result_relea
 
 ---
 
-**Name**: CLIA No
+**Name**: TestName
 
-**ReportStream Internal Name**: filler_clia
+**ReportStream Internal Name**: equipment_model_name
 
-**Type**: ID_CLIA
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: Facility
-
-**ReportStream Internal Name**: filler_name
-
-**Type**: TEXT
+**Type**: CODE
 
 **PII**: No
 
-**HL7 Fields**
+**Format**: use value found in the Display column
 
-- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
-- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+**Cardinality**: [1..1]
 
-**Cardinality**: [0..1]
+**Alt Value Sets**
 
-**Documentation**:
-
-Facility populates multiple fields.  This instance populates filler_name.
-
----
-
-**Name**: Accession_no
-
-**ReportStream Internal Name**: filler_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
-- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
-- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Accension number
+Code | Display | System
+---- | ------- | ------
+BinaxNOW COVID-19 Ag Card|SARS-CoV-2 (COVID-19) Ag|NULLFL
+BinaxNOW COVID-19 Ag Card|     SARS-CoV-2 (COVID-19) Ag|NULLFL
 
 ---
 
@@ -283,7 +249,7 @@ unique id to track the usage of the message
 
 **Format**: M/d/yyyy
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -319,7 +285,7 @@ TestName populates multiple fields.  This instance populates ordered_test_name.
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -335,7 +301,7 @@ Fac_City populates multiple fields.  This instance populates ordering_facility_c
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -387,7 +353,7 @@ Fac_State populates multiple fields.  This instance populates ordering_facility_
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -403,7 +369,7 @@ Fac_Addr1 populates multiple fields.  This instance populates ordering_facility_
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -419,7 +385,7 @@ Fac_Zip populates multiple fields.  This instance populates ordering_facility_zi
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -437,7 +403,7 @@ Fac_City populates multiple fields.  This instance populates ordering_provider_c
 
 **Format**: use value found in the Display column
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Alt Value Sets**
 
@@ -466,7 +432,7 @@ Raveen|Raveen Coon FNP-C|NULLFL
 
 **Format**: use value found in the Display column
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Alt Value Sets**
 
@@ -495,7 +461,7 @@ Code | Display | System
 
 **Format**: use value found in the Display column
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Alt Value Sets**
 
@@ -543,7 +509,7 @@ Fac_Phone populates multiple fields.  This instance populates ordering_provider_
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -563,7 +529,7 @@ Fac_State populates multiple fields.  This instance populates ordering_provider_
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -579,7 +545,7 @@ Fac_Addr1 populates multiple fields.  This instance populates ordering_provider_
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -595,7 +561,7 @@ Fac_Zip populates multiple fields.  This instance populates ordering_provider_zi
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -613,7 +579,7 @@ The patient's city
 
 **Format**: M/d/yyyy H:nn
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -649,7 +615,9 @@ H|Mex. Amer./Hispanic|LOCAL
 H|2135-2|LOCAL
 H|H|LOCAL
 N|Non Hispanic or Latino|LOCAL
+N|Non-Hispanic or Latino|LOCAL
 N|Non Hispanic|LOCAL
+N|Non-Hispanic|LOCAL
 N|Not Hispanic or Latino|LOCAL
 N|Not Hispanic|LOCAL
 N|2186-5|LOCAL
@@ -677,7 +645,7 @@ Translate multiple inbound ethnicity values to RS / OMB values
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -704,8 +672,10 @@ The patient's first name
 Code | Display | System
 ---- | ------- | ------
 F|Female|LOCAL
+F|Woman|LOCAL
 F|F|LOCAL
 M|Male|LOCAL
+M|Man|LOCAL
 M|M|LOCAL
 U|U|LOCAL
 U|UNK|LOCAL
@@ -737,27 +707,6 @@ Translate multiple inbound Gender values to RS values
 The ID for the patient within one of the reporting entities for this lab result. It could be the
 the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
 
-
----
-
-**Name**: Facility
-
-**ReportStream Internal Name**: patient_id_assigner
-
-**Type**: HD
-
-**PII**: No
-
-**HL7 Fields**
-
-- [PID-3-4](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4)
-- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Facility populates multiple fields.  This instance populates patient_id_assigner.
 
 ---
 
@@ -897,7 +846,7 @@ The patient's state
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -918,27 +867,6 @@ The patient's street address
 **Documentation**:
 
 The patient's zip code
-
----
-
-**Name**: Accession_no
-
-**ReportStream Internal Name**: placer_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
-- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The ID number of the lab order from the placer
 
 ---
 
@@ -1016,30 +944,6 @@ P, D, or T for Production, Debugging, or Training
 
 ---
 
-**Name**: CLIA No
-
-**ReportStream Internal Name**: reporting_facility_clia
-
-**Type**: ID_CLIA
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
-- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
-- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
-- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
-- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's CLIA
-
----
-
 **Name**: Facility
 
 **ReportStream Internal Name**: reporting_facility_name
@@ -1056,7 +960,7 @@ The reporting facility's CLIA
 - [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
 - [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1072,7 +976,7 @@ Facility populates multiple fields.  This instance populates reporting_facility_
 
 **PII**: No
 
-**Default Value**: reddyfmc
+**Default Value**: reddyfmc-la
 
 **Cardinality**: [1..1]
 
@@ -1099,7 +1003,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 - [OBX-14](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.14)
 - [SPM-17-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.17.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1130,51 +1034,69 @@ Code | Display | System
 71836000|258500001|SNOMED_CT
 71836000|Nasopharyngeal aspirate|SNOMED_CT
 71836000|258411007|SNOMED_CT
+71836000|Nasopharyngeal washings|SNOMED_CT
+71836000|Nasopharyngeal wash|SNOMED_CT
+71836000|258467004|SNOMED_CT
 71836000|71836000|SNOMED_CT
 45206002|Nasal structure (body structure)|SNOMED_CT
 45206002|Nasal aspirate|SNOMED_CT
+45206002|Nasal aspirate specimen|SNOMED_CT
 45206002|429931000124105|SNOMED_CT
 45206002|45206002|SNOMED_CT
 53342003|Internal nose structure (body structure)|SNOMED_CT
 53342003|Varied|SNOMED_CT
 53342003|Swab of internal nose|SNOMED_CT
 53342003|Anterior nares swab|SNOMED_CT
+53342003|Anterior nasal swab|SNOMED_CT
+53342003|697989009|SNOMED_CT
 53342003|Mid-turbinate nasal swab|SNOMED_CT
+53342003|871810001|SNOMED_CT
 53342003|Nasal|SNOMED_CT
 53342003|Nasal Swab|SNOMED_CT
 53342003|445297001|SNOMED_CT
-53342003|697989009|SNOMED_CT
 53342003|53342003|SNOMED_CT
 29092000|Serum|SNOMED_CT
 29092000|Serum specimen|SNOMED_CT
+29092000|119364003|SNOMED_CT
 29092000|Plasma|SNOMED_CT
 29092000|Plasma specimen|SNOMED_CT
+29092000|119361006|SNOMED_CT
 29092000|Whole Blood|SNOMED_CT
 29092000|Whole Blood Sample|SNOMED_CT
+29092000|258580003|SNOMED_CT
 29092000|Blood specimen|SNOMED_CT
+29092000|119297000|SNOMED_CT
 29092000|Venous blood specimen|SNOMED_CT
+29092000|Venous whole blood|SNOMED_CT
+29092000|122555007|SNOMED_CT
 29092000|Capillary blood specimen|SNOMED_CT
 29092000|fingerstick whole blood|SNOMED_CT
 29092000|122554006|SNOMED_CT
-29092000|258580003|SNOMED_CT
-29092000|119361006|SNOMED_CT
-29092000|119364003|SNOMED_CT
-29092000|119297000|SNOMED_CT
+29092000|Dried blood spot specimen|SNOMED_CT
+29092000|Dried blood spot|SNOMED_CT
+29092000|fingerstick blood dried blood spot|SNOMED_CT
+29092000|440500007|SNOMED_CT
 31389004|Throat Swab|SNOMED_CT
-31389004|Oropharyngeal|SNOMED_CT
 31389004|Oropharyngeal Swab|SNOMED_CT
 31389004|258529004|SNOMED_CT
 31389004|31389004|SNOMED_CT
 123851003|Sputum specimen|SNOMED_CT
 123851003|Sputum|SNOMED_CT
 123851003|119334006|SNOMED_CT
-123851003|Oral|SNOMED_CT
 123851003|Oral Swab|SNOMED_CT
 123851003|418932006|SNOMED_CT
 123851003|Saliva specimen|SNOMED_CT
 123851003|Saliva|SNOMED_CT
 123851003|258560004|SNOMED_CT
 123851003|123851003|SNOMED_CT
+39607008|Lower respiratory fluid sample|SNOMED_CT
+39607008|lower respiratory tract aspirates|SNOMED_CT
+39607008|309171007|SNOMED_CT
+39607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
+39607008|Bronchoalveolar lavage fluid|SNOMED_CT
+39607008|Bronchoalveolar lavage|SNOMED_CT
+39607008|258607008|SNOMED_CT
+39607008|39607008|SNOMED_CT
 
 **Documentation**:
 
@@ -1210,17 +1132,19 @@ Code | Display | System
 871810001|Mid-turbinate nasal swab|SNOMED_CT
 871810001|871810001|SNOMED_CT
 697989009|Anterior nares swab|SNOMED_CT
+697989009|Anterior nasal swab|SNOMED_CT
 697989009|697989009|SNOMED_CT
 258411007|Nasopharyngeal aspirate|SNOMED_CT
 258411007|258411007|SNOMED_CT
+258467004|Nasopharyngeal washings|SNOMED_CT
+258467004|Nasopharyngeal wash|SNOMED_CT
+258467004|258467004|SNOMED_CT
 429931000124105|Nasal aspirate|SNOMED_CT
+429931000124105|Nasal aspirate specimen|SNOMED_CT
 429931000124105|429931000124105|SNOMED_CT
 258529004|Throat swab|SNOMED_CT
-258529004|Throat|SNOMED_CT
-258529004|Oropharyngeal|SNOMED_CT
 258529004|Oropharyngeal Swab|SNOMED_CT
 258529004|258529004|SNOMED_CT
-418932006|Oral|SNOMED_CT
 418932006|Oral Swab|SNOMED_CT
 418932006|418932006|SNOMED_CT
 119334006|Sputum specimen|SNOMED_CT
@@ -1229,51 +1153,42 @@ Code | Display | System
 258560004|Saliva specimen|SNOMED_CT
 258560004|Saliva|SNOMED_CT
 258560004|258560004|SNOMED_CT
-258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
-258607008|258607008|SNOMED_CT
 119364003|Serum specimen|SNOMED_CT
 119364003|Serum|SNOMED_CT
 119364003|119364003|SNOMED_CT
 119361006|Plasma specimen|SNOMED_CT
 119361006|Plasma|SNOMED_CT
 119361006|119361006|SNOMED_CT
-440500007|Dried blood spot specimen|SNOMED_CT
-440500007|440500007|SNOMED_CT
 258580003|Whole blood sample|SNOMED_CT
 258580003|Whole blood|SNOMED_CT
 258580003|258580003|SNOMED_CT
 122555007|Venous blood specimen|SNOMED_CT
+122555007|Venous whole blood|SNOMED_CT
 122555007|122555007|SNOMED_CT
 119297000|Blood specimen|SNOMED_CT
 119297000|119297000|SNOMED_CT
 122554006|Capillary blood specimen|SNOMED_CT
 122554006|fingerstick whole blood|SNOMED_CT
 122554006|122554006|SNOMED_CT
+440500007|Dried blood spot specimen|SNOMED_CT
+440500007|Dried blood spot|SNOMED_CT
+440500007|fingerstick blood dried blood spot|SNOMED_CT
+440500007|440500007|SNOMED_CT
+433801000124107|Nasopharyngeal and oropharyngeal swab|SNOMED_CT
+433801000124107|Nasal and throat swab combination|SNOMED_CT
+433801000124107|Nasal and throat swab|SNOMED_CT
+433801000124107|433801000124107|SNOMED_CT
+309171007|Lower respiratory fluid sample|SNOMED_CT
+309171007|lower respiratory tract aspirates|SNOMED_CT
+309171007|309171007|SNOMED_CT
+258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
+258607008|Bronchoalveolar lavage fluid|SNOMED_CT
+258607008|Bronchoalveolar lavage|SNOMED_CT
+258607008|258607008|SNOMED_CT
 
 **Documentation**:
 
 Translate inbound text to outbound SNOMED Codes
-
----
-
-**Name**: TestName
-
-**ReportStream Internal Name**: test_kit_name_id
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Display column
-
-**Cardinality**: [0..1]
-
-**Alt Value Sets**
-
-Code | Display | System
----- | ------- | ------
-10811877011290|SARS-CoV-2 (COVID-19) Ag|NULLFL
-10811877011290|     SARS-CoV-2 (COVID-19) Ag|NULLFL
 
 ---
 
@@ -1307,7 +1222,7 @@ TestName populates multiple fields.  This instance populates test_performed_name
 
 **Format**: use value found in the Display column
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -1365,6 +1280,8 @@ Code | Display | System
 840534001|840534001|SNOMED_CT
 373121007|Test not done|SNOMED_CT
 373121007|373121007|SNOMED_CT
+82334004|Indeterminate|SNOMED_CT
+82334004|82334004|SNOMED_CT
 
 **Documentation**:
 
@@ -1382,7 +1299,7 @@ Translate multiple inbound Test Result values to RS values
 
 **Format**: M/d/yyyy
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1398,7 +1315,7 @@ ResultDate populates multiple fields.  This instance populates test_result_date.
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1434,22 +1351,6 @@ An example of the ID is 03D2159846
 
 ---
 
-**Name**: CLIA No
-
-**ReportStream Internal Name**: testing_lab_id
-
-**Type**: ID
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
-
----
-
 **Name**: Facility
 
 **ReportStream Internal Name**: testing_lab_name
@@ -1468,7 +1369,7 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
 - [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1502,7 +1403,7 @@ Fac_Phone populates multiple fields.  This instance populates testing_lab_phone_
 
 **Format**: M/d/yyyy
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1518,7 +1419,7 @@ DateColl populates multiple fields.  This instance populates testing_lab_specime
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -1538,7 +1439,7 @@ Fac_State populates multiple fields.  This instance populates testing_lab_state.
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1554,7 +1455,7 @@ Fac_Addr1 populates multiple fields.  This instance populates testing_lab_street
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1562,23 +1463,58 @@ Fac_Zip populates multiple fields.  This instance populates testing_lab_zip_code
 
 ---
 
-**Name**: equipment_model_name
+**Name**: filler_clia
 
-**ReportStream Internal Name**: equipment_model_name
+**ReportStream Internal Name**: filler_clia
 
-**Type**: TABLE
+**Type**: ID_CLIA
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
+---
 
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+**Name**: filler_name
 
-**Table**: LIVD-SARS-CoV-2
+**ReportStream Internal Name**: filler_name
 
-**Table Column**: Model
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
+- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+Facility populates multiple fields.  This instance populates filler_name.
+
+---
+
+**Name**: filler_order_id
+
+**ReportStream Internal Name**: filler_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
+- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
+- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Accension number
 
 ---
 
@@ -1658,6 +1594,27 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 ---
 
+**Name**: patient_id_assigner
+
+**ReportStream Internal Name**: patient_id_assigner
+
+**Type**: HD
+
+**PII**: No
+
+**HL7 Fields**
+
+- [PID-3-4](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Facility populates multiple fields.  This instance populates patient_id_assigner.
+
+---
+
 **Name**: patient_id_type
 
 **ReportStream Internal Name**: patient_id_type
@@ -1672,6 +1629,51 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 ---
 
+**Name**: placer_order_id
+
+**ReportStream Internal Name**: placer_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID number of the lab order from the placer
+
+---
+
+**Name**: reporting_facility_clia
+
+**ReportStream Internal Name**: reporting_facility_clia
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
+- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
+- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
+
+---
+
 **Name**: result_format
 
 **ReportStream Internal Name**: result_format
@@ -1680,7 +1682,7 @@ iPatientCare is an ambulatory EMR, so this field is defaulted to 'N'.
 
 **PII**: No
 
-**Default Value**: CE
+**Default Value**: CWE
 
 **Cardinality**: [0..1]
 
@@ -1727,5 +1729,21 @@ X|Results cannot be obtained for this observation|HL7
 The test result status, which is different from the test result itself. Per the valueset, this indicates if
 the test result is in some intermediate status, is a correction, or is the final result.
 
+
+---
+
+**Name**: testing_lab_id
+
+**ReportStream Internal Name**: testing_lab_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
 
 ---

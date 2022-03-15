@@ -9,6 +9,7 @@
         "@fortawesome/fontawesome-svg-core": "^1.2.36",
         "@fortawesome/free-solid-svg-icons": "^6.0.0",
         "@fortawesome/react-fontawesome": "^0.1.16",
+        "@monaco-editor/react": "^4.3.1",
         "@okta/okta-auth-js": "^6.1.0",
         "@okta/okta-react": "^6.4.1",
         "@okta/okta-signin-widget": "^6.0.1",
@@ -53,8 +54,10 @@
     "scripts": {
         "clean": "rimraf ./build",
         "start:localdev": "env-cmd -f .env.development craco start",
+        "build:test": "env-cmd -f .env.test craco build",
         "build:staging": "env-cmd -f .env.staging craco build",
         "build:production": "env-cmd -f .env.production craco build",
+        "postbuild:test": "cp build/index.html build/404.html",
         "postbuild:staging": "cp build/index.html build/404.html",
         "postbuild:production": "cp build/index.html build/404.html",
         "test": "craco test",
@@ -68,7 +71,8 @@
         "lint:prettier:write": "prettier --write \"src/**/*.{js,ts,jsx,tsx}\"",
         "cypress-open": "./node_modules/.bin/cypress open",
         "cypress-run": "./node_modules/.bin/cypress run",
-        "yarn:show-outdated-packages": "yarn outdated"
+        "yarn:show-outdated-packages": "yarn outdated",
+        "run:build-dir": "yarn global add serve && serve -s build"
     },
     "eslintConfig": {
         "extends": [
@@ -128,7 +132,6 @@
         "@types/testing-library__jest-dom": "^5.14.2",
         "@typescript-eslint/eslint-plugin": "^4.23.0",
         "@typescript-eslint/parser": "^4.23.0",
-        "cypress": "^9.1.1",
         "eslint": "^7.26.0",
         "eslint-config-airbnb": "^19.0.0",
         "eslint-config-prettier": "^8.3.0",
@@ -153,6 +156,7 @@
     },
     "resolutions": {
         "react-scripts/**/node-forge": "^1.0.0",
+        "react-scripts/**/url-parse": "^1.5.6",
         "react-scripts/**/follow-redirects": "^1.14.8"
     }
 }
