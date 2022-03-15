@@ -328,11 +328,11 @@ object DateUtilities {
             is LocalDate ->
                 OffsetDateTime
                     .from(this.atStartOfDay().atZone(zoneId ?: utcZone))
-                    .atZoneSameInstant(utcZone)
                     .toOffsetDateTime()
-            is LocalDateTime -> OffsetDateTime.from(this.atZone(zoneId ?: utcZone))
-                .atZoneSameInstant(utcZone)
-                .toOffsetDateTime()
+            is LocalDateTime ->
+                OffsetDateTime
+                    .from(this.atZone(zoneId ?: utcZone))
+                    .toOffsetDateTime()
             is OffsetDateTime, is ZonedDateTime, is Instant -> OffsetDateTime.from(this)
             else -> error("Unsupported format!")
         }

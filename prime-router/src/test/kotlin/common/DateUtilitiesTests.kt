@@ -144,22 +144,23 @@ class DateUtilitiesTests {
         assertThat(offsetDateTime).isSameAs(offsetDateTime.toOffsetDateTime())
         // now local date time to offset date time also matches
         LocalDateTime.from(offsetDateTime).run {
-            assertThat(this.toOffsetDateTime()).isEqualTo(offsetDateTime)
+            assertThat(this.toOffsetDateTime(ZoneId.systemDefault())).isEqualTo(offsetDateTime)
         }
         // local date will coerce to "start of day". can't do a clean equals here
         // can't even do a clean "dates match" because coercion could cross the
         // midnight boundary which means dates could be different
         // we could convert this to PARSE a date time instead of using "now"
         LocalDate.from(offsetDateTime).run {
-            assertThat(this.toOffsetDateTime().hour).isEqualTo(0)
-            assertThat(this.toOffsetDateTime().minute).isEqualTo(0)
-            assertThat(this.toOffsetDateTime().second).isEqualTo(0)
+            val ofd = this.toOffsetDateTime(ZoneId.systemDefault())
+            assertThat(ofd.hour).isEqualTo(0)
+            assertThat(ofd.minute).isEqualTo(0)
+            assertThat(ofd.second).isEqualTo(0)
             // handles PST to EDT in this range
-            assertThat(this.toOffsetDateTime().offset.totalSeconds).isBetween(-28000, -14000)
+            assertThat(ofd.offset.totalSeconds).isBetween(-28000, -14000)
         }
         // convert and check again
         ZonedDateTime.from(offsetDateTime).run {
-            assertThat(this.toOffsetDateTime()).isEqualTo(offsetDateTime)
+            assertThat(this.toOffsetDateTime(ZoneId.systemDefault())).isEqualTo(offsetDateTime)
         }
     }
 
