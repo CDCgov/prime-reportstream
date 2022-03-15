@@ -55,6 +55,7 @@ enum class Options {
     SkipSend,
     SkipInvalidItems,
     SendImmediately,
+    TreatQualityFiltersAsErrors,
 }
 
 /**
@@ -62,7 +63,7 @@ enum class Options {
  * might filter many rows. ReportStreamFilterResult entries are only created when filter logging is on.  This is to
  * prevent tons of junk logging of jurisdictionalFilters - the vast majority of which typically filter out everything.
  *
- * @property receiverName Then intended reciever for the report
+ * @property receiverName Then intended receiver for the report
  * @property originalCount The original number of items in the report
  * @property filterName The name of the filter function that removed the rows
  * @property filterArgs The arguments used in the filter function

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -146,7 +147,6 @@ class ReportFunction(
      * of the incoming PROCESSING_TYPE_PARAMETER query string value
      * @param request The incoming request
      * @param sender The sender record, pulled from the database based on sender name on the request
-     * @param context Execution context
      * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
      */
     internal fun processRequest(
@@ -162,10 +162,11 @@ class ReportFunction(
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
         val verbose = verboseParam.equals(VERBOSE_TRUE, true)
-        val report = try {
-            val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
-            val options = Options.valueOf(optionsText)
 
+        val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
+        val options = Options.valueOf(optionsText)
+
+        val report = try {
             // track the sending organization and client based on the header
             val validatedRequest = validateRequest(request)
             val rawBody = validatedRequest.content.toByteArray()
@@ -271,8 +272,31 @@ class ReportFunction(
         actionHistory.trackActionResponse(response, report, workflowEngine.settings)
         workflowEngine.recordAction(actionHistory)
 
+        var bypassMessageQueue = false
+        if (options == Options.TreatQualityFiltersAsErrors) {
+            // (response.body as CharSequence).contains("QUALITY_FILTER")
+            var hasQualityFilters = false
+            val tree = jacksonObjectMapper().readTree(response.body.toString())
+            val destinations = tree.path("destinations")
+            destinations.apply {
+                forEach { it ->
+                    val filteredReportItems = it.path("filteredReportItems")
+                    filteredReportItems.forEach {
+                        if (it.path("filterType").textValue() == "QUALITY_FILTER") {
+                            hasQualityFilters = true
+                            return@apply
+                        }
+                    }
+                }
+            }
+
+            if (hasQualityFilters) bypassMessageQueue = true
+        }
+
         // queue messages here after all task / action records are in
-        actionHistory.queueMessages(workflowEngine)
+        if (!bypassMessageQueue)
+            actionHistory.queueMessages(workflowEngine)
+
         val uri = request.getUri()
         responseBuilder.header(
             HttpHeaders.LOCATION,
