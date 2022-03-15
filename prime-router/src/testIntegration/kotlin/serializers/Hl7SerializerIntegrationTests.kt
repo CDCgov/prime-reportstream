@@ -678,7 +678,7 @@ NTE|1|L|This is a final comment|RE"""
     fun `test NTE Source`() {
         val parser = context.pipeParser
 
-        val uploadStream = File("./src/testIntegration/resources/datatests/csv-upload-test.csv").inputStream()
+        val uploadStream = File("./src/testIntegration/resources/serializers/csv-upload-test.csv").inputStream()
         val uploadSchema = "upload-covid-19"
         val sender = Sender("default", "upload", Sender.Format.CSV, "covid-19", CustomerStatus.TESTING, uploadSchema)
         val testReport = csvSerializer.readExternal(uploadSchema, uploadStream, TestSource, sender).report
