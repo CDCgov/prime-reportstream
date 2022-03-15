@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogDetailType
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -17,6 +19,8 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilterResult
+import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -317,8 +321,24 @@ class ActionHistoryTests {
                     Receiver("service1", "org1", "topic", CustomerStatus.INACTIVE, "schema", format = Report.Format.HL7)
                 )
             )
-        val settings = FileSettings().loadOrganizationList(listOf(org0, org1))
+
+        val org2 =
+            DeepOrganization(
+                name = "filtered",
+                description = "filtered rows test",
+                jurisdiction = Organization.Jurisdiction.FEDERAL,
+                receivers = listOf(
+                    Receiver(
+                        "service2", "filtered", "topic", CustomerStatus.ACTIVE,
+                        "schema", format = Report.Format.CSV
+                    )
+                )
+            )
+        val settings = FileSettings().loadOrganizationList(listOf(org0, org1, org2))
         val actionHistory = ActionHistory(TaskAction.batch)
+        val factory = JsonFactory()
+        var outStream = ByteArrayOutputStream()
+
         val r0 = ReportFile()
         r0.reportId = UUID.randomUUID()
         r0.receivingOrg = org0.name
@@ -334,8 +354,6 @@ class ActionHistoryTests {
         r1.itemCount = 1
         actionHistory.reportsOut[r1.reportId] = r1
 
-        val factory = JsonFactory()
-        var outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
             it.writeStartObject()
             // Finally, we're ready to run the test:
@@ -400,5 +418,68 @@ class ActionHistoryTests {
         assertThat(arr3?.get(1)?.get("sending_at")?.textValue() ?: "").isEqualTo(
             "never - skipSend specified"
         )
+
+        // Test for Filtered row objects pretty print
+        val filteredActionHistory = ActionHistory(TaskAction.batch)
+        val r3 = ReportFile()
+        r3.reportId = UUID.randomUUID()
+        r3.receivingOrg = org2.name
+        r3.receivingOrgSvc = org2.receivers[0].name
+        r3.nextActionAt = OffsetDateTime.now()
+        r3.itemCount = 1
+
+        filteredActionHistory.reportsOut[r3.reportId] = r3
+
+        filteredActionHistory.actionLogs.add(
+            ActionLog(
+                reportId = r3.reportId,
+                detail = ReportStreamFilterResult(
+                    type = ActionLogDetailType.TRANSLATION,
+                    filteredIndex = 1,
+                    filterName = "isValidCLIA",
+                    filterType = ReportStreamFilterType.QUALITY_FILTER,
+                    filteredTrackingElement = "FilterTest1",
+                    filterArgs = listOf("testing_lab_clia", "reporting_facility_clia"),
+                    originalCount = 2,
+                    receiverName = org2.name
+                ),
+                scope = ActionLog.ActionLogScope.report,
+                type = ActionLog.ActionLogType.filter,
+            )
+        )
+
+        outStream = ByteArrayOutputStream()
+        factory.createGenerator(outStream).use {
+            it.writeStartObject()
+            filteredActionHistory.prettyPrintDestinationsJson(it, settings)
+            it.writeEndObject()
+        }
+        val filteredJson = outStream.toString()
+        val filteredTree: JsonNode? = jacksonObjectMapper().readTree(filteredJson)
+        assertNotNull(filteredTree)
+        val filteredReportRows = filteredTree["destinations"][0]["filteredReportRows"]
+        val filteredReportRowObjects = filteredTree["destinations"][0]["filteredReportItems"]
+
+        // filteredReportRows assertions
+        assertThat(filteredReportRows.size()).isEqualTo(1)
+        val filteredRowString = "For filtered, filter isValidCLIA[testing_lab_clia, reporting_facility_clia]" +
+            " filtered out item FilterTest1 at index 1"
+        assertThat(filteredReportRows.get(0).textValue()).isEqualTo(filteredRowString)
+
+        // filteredReportRowObjects assertions
+        assertThat(filteredReportRowObjects.size()).isEqualTo(1)
+
+        val firstFilteredObject = filteredReportRowObjects.get(0)
+
+        assertThat(firstFilteredObject.get("type").textValue()).isEqualTo(ActionLogDetailType.TRANSLATION.toString())
+        assertThat(firstFilteredObject.get("filteredIndex").asInt()).isEqualTo(1)
+        assertThat(firstFilteredObject.get("filterName").textValue()).isEqualTo("isValidCLIA")
+        assertThat(firstFilteredObject.get("filterType").textValue())
+            .isEqualTo(ReportStreamFilterType.QUALITY_FILTER.toString())
+        assertThat(firstFilteredObject.get("filteredTrackingElement").textValue()).isEqualTo("FilterTest1")
+        assertThat(firstFilteredObject.get("filteredArgs").get(0).textValue()).isEqualTo("testing_lab_clia")
+        assertThat(firstFilteredObject.get("filteredArgs").get(1).textValue()).isEqualTo("reporting_facility_clia")
+        assertThat(firstFilteredObject.get("originalCount").asInt()).isEqualTo(2)
+        assertThat(firstFilteredObject.get("receiverName").textValue()).isEqualTo(org2.name)
     }
 }
