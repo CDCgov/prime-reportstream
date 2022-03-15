@@ -28,16 +28,28 @@ function SubmissionFilters() {
 
     /* This workhorse function handles all Context changes with null checking */
     const pushToContext = () => {
-        if (localStartRange)
+        if (localStartRange && localEndRange) {
+            const srDate = new Date(localStartRange);
+            const erDate = new Date(localEndRange);
+
+            if (srDate < erDate) {
+                updateFilter(FilterName.START_RANGE, erDate.toISOString());
+                updateFilter(FilterName.END_RANGE, srDate.toISOString());
+            } else {
+                updateFilter(FilterName.START_RANGE, srDate.toISOString());
+                updateFilter(FilterName.END_RANGE, erDate.toISOString());
+            }
+        } else if (localStartRange && !localEndRange) {
             updateFilter(
                 FilterName.START_RANGE,
                 new Date(localStartRange).toISOString()
             );
-        if (localEndRange)
+        } else if (localEndRange && !localStartRange) {
             updateFilter(
-                FilterName.END_RANGE,
+                FilterName.START_RANGE,
                 new Date(localEndRange).toISOString()
             );
+        }
     };
 
     /* Pushes local state to context and resets cursor to page 1 */

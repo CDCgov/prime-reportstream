@@ -85,14 +85,6 @@ function usePaginator(
         responseArray,
     ]);
 
-    /* Gives handlers for all pagination needs!
-     *
-     * - hasPrev/hasNext: boolean, indicating previous and next pages exist.
-     * - currentIndex: where you currently are in the page map.
-     * - changeCursor: function(desiredCursorIndex), handles cursor navigation and updating.
-     * - pageCount: function(), returns the current size of your cursor Map.
-     */
-
     const paginator: PaginationController = {
         cursors: cursors,
         hasPrev: hasPrev,

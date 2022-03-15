@@ -69,11 +69,7 @@ class SubmissionsFacade(
         /* This will swap the order of the date-time offsets IF both are present
          * and the given cursor is a date prior to the end-date.
          */
-        return if (toEnd !== null && offset != null && offset < toEnd) {
-            findSubmissions(organizationName, order, column, toEnd, offset, pageSize, showFailed)
-        } else {
-            findSubmissions(organizationName, order, column, offset, toEnd, pageSize, showFailed)
-        }
+        return findSubmissions(organizationName, order, column, offset, toEnd, pageSize, showFailed)
     }
 
     /**

@@ -13,7 +13,6 @@ import { SubmissionFilterContext } from "./FilterContext";
 
 /* Handles pagination button logic and display */
 function PaginationButtons({ paginator }: { paginator: PaginationController }) {
-    if (paginator.pageCount() <= 1) return <></>;
     return (
         <ButtonGroup type="segmented" className="float-right margin-top-5">
             {paginator.hasPrev && (

@@ -101,19 +101,6 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
 
     const globalState = useContext(GlobalContext);
 
-    /* Our API call! Updates when any of the given state variables update */
-    const submissions: SubmissionsResource[] = useResource(
-        SubmissionsResource.list(),
-        {
-            organization: globalState.state.organization,
-            cursor: cursor,
-            endCursor: endRange,
-            pageSize: pageSize + 1, // Pulls +1 to check for next page
-            sort: sortOrder,
-            showFailed: false, // No plans for this to be set to true
-        }
-    );
-
     /* Just packaging it up while keeping it React-ive */
     const [filterState, setFilterState] = useState<FilterState>({
         startRange: startRange,
@@ -139,6 +126,19 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
         setSortOrder("DESC");
         setPageSize(10);
     };
+
+    /* Our API call! Updates when any of the given state variables update */
+    const submissions: SubmissionsResource[] = useResource(
+        SubmissionsResource.list(),
+        {
+            organization: globalState.state.organization,
+            cursor: filterState.cursor,
+            endCursor: filterState.endRange,
+            pageSize: filterState.pageSize + 1, // Pulls +1 to check for next page
+            sort: filterState.sortOrder,
+            showFailed: false, // No plans for this to be set to true
+        }
+    );
 
     /* Pagination, baby! */
     const paginator = usePaginator(submissions, filterState);
