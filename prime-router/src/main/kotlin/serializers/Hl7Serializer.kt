@@ -663,7 +663,7 @@ class Hl7Serializer(
      * if so, we replace with value B.
      * if all obove is not met, we return the same valueArg.
      */
-    private fun replaceValueAwithB(
+    fun replaceValueAwithB(
         elementArg: Element,
         replaceValueAwithBMap: Map<String, Any>,
         valueArg: String

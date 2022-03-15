@@ -841,4 +841,39 @@ NTE|1|L|This is a final comment|RE"""
             assertThat(highPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
         }
     }
+
+    @Test
+    fun `test organization yml replaceValueAwithB setting field`() {
+        val settings = FileSettings("./settings")
+        val metadata = Metadata.getInstance()
+        val serializer = Hl7Serializer(metadata, settings)
+        val arrayistValues = arrayListOf(
+            mapOf("" to "Unknow"),
+            mapOf("Crona" to "Joe"),
+            mapOf("Bode" to "John;@:,")
+        )
+        val replaceValueAwithB: Map<String, Any>? = mapOf("ORC-12-2" to arrayistValues)
+        val orderingProviderLastName = Element(
+            "ordering_provider_last_name",
+            type = Element.Type.PERSON_NAME,
+            hl7Field = "ORC-12-2",
+            hl7OutputFields = listOf("ORC-12-2", "OBR-16-2")
+        )
+
+        assertThat(
+            replaceValueAwithB?.let {
+                serializer.replaceValueAwithB(orderingProviderLastName, it, "")
+            }
+        ).isEqualTo("Unknow")
+        assertThat(
+            replaceValueAwithB?.let {
+                serializer.replaceValueAwithB(orderingProviderLastName, it, "Crona")
+            }
+        ).isEqualTo("Joe")
+        assertThat(
+            replaceValueAwithB?.let {
+                serializer.replaceValueAwithB(orderingProviderLastName, it, "Bode")
+            }
+        ).isEqualTo("John;@:,")
+    }
 }
