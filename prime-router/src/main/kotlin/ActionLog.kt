@@ -93,13 +93,17 @@ interface ActionLogDetail {
 
 /**
  * A logger for action logs.
+ * @property logs the logs
  */
-class ActionLogger() {
-    /**
-     * The raw logs.
-     */
-    val logs = mutableListOf<ActionLog>()
+class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
 
+    /**
+     * Create an item logger to add logs to [logs] for the given [itemIndex] and [trackingId].
+     */
+    private constructor(logs: MutableList<ActionLog>, itemIndex: Int, trackingId: String? = null) : this(logs) {
+        this.itemIndex = itemIndex
+        this.trackingId = trackingId
+    }
     /**
      * The current item index being tracked, or null if no index is tracked.
      */
@@ -116,22 +120,12 @@ class ActionLogger() {
     private var reportId: UUID? = null
 
     /**
-     * Start item logging for a given [itemIndex] and optional [trackingId].
-     * @return the logger instance
+     * Get a logger used to log item scoped logs for the given [itemIndex] and [trackingId].
+     * @return the item action logger
      */
-    fun startItemLogging(itemIndex: Int, trackingId: String? = null) = apply {
+    fun getItemLogger(itemIndex: Int, trackingId: String? = null): ActionLogger {
         check(itemIndex > 0) { "Item index must be a positive number" }
-        this.itemIndex = itemIndex
-        this.trackingId = trackingId
-    }
-
-    /**
-     * Stop item logging.
-     * @return the logger instance
-     */
-    fun stopItemLogging() = apply {
-        this.itemIndex = null
-        this.trackingId = null
+        return ActionLogger(this.logs, itemIndex, trackingId)
     }
 
     /**
@@ -167,7 +161,9 @@ class ActionLogger() {
         actionDetail: ActionLogDetail,
         level: ActionLogLevel
     ) {
-        if (actionDetail is ItemActionLogDetail) check(itemIndex != null) { "Index is required for item logs." }
+        if (actionDetail is ItemActionLogDetail) check(itemIndex != null) {
+            "Index is required for item logs.  Use the item action logger"
+        }
         logs.add(ActionLog(actionDetail, trackingId, itemIndex, reportId, type = level))
     }
 

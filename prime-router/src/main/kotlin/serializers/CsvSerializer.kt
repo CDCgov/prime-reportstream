@@ -133,10 +133,9 @@ class CsvSerializer(val metadata: Metadata) : Logging {
             if (trackingId.isEmpty())
                 trackingId = "row$rowIndex"
 
-            actionLogs.startItemLogging(rowIndex, trackingId)
-            actionLogs.error(result.errors)
-            actionLogs.warn(result.warnings)
-            actionLogs.stopItemLogging()
+            val itemLogger = actionLogs.getItemLogger(rowIndex, trackingId)
+            itemLogger.error(result.errors)
+            itemLogger.warn(result.warnings)
             if (!actionLogs.hasErrors()) {
                 result.row
             } else {

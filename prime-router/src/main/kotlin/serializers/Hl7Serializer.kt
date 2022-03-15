@@ -399,10 +399,9 @@ class Hl7Serializer(
             else ""
             if (trackingId.isEmpty())
                 trackingId = "message$messageIndex"
-            actionLogs.startItemLogging(messageIndex, trackingId)
-            actionLogs.error(messageResult.errors)
-            actionLogs.warn(messageResult.warnings)
-            actionLogs.stopItemLogging()
+            val itemLogger = actionLogs.getItemLogger(messageIndex, trackingId)
+            itemLogger.error(messageResult.errors)
+            itemLogger.warn(messageResult.warnings)
         }
 
         if (actionLogs.hasErrors()) {

@@ -244,33 +244,33 @@ class ConsolidatedActionLog(log: DetailActionLog) {
     /**
      * The scope of the log.
      */
-    var scope: ActionLogScope
+    val scope: ActionLogScope
 
     /**
      * The list of indices for item logs. An index can be null if there was no index provided with the log.
      */
-    var indices: MutableList<Int?>? = null
+    val indices: MutableList<Int?>?
 
     /**
      * The list of tracking IDs for item logs. A tracking ID can be null if there was no ID provided with the log.
      */
-    var trackingIds: MutableList<String?>? = null
+    val trackingIds: MutableList<String?>?
 
     /**
      * The log level.
      */
     @JsonIgnore
-    var type: ActionLogLevel
+    val type: ActionLogLevel
 
     /**
      * The field mapping for item logs.
      */
-    var field: String? = null
+    val field: String?
 
     /**
      * The log message.
      */
-    var message: String
+    val message: String
 
     init {
         scope = log.scope
@@ -280,6 +280,10 @@ class ConsolidatedActionLog(log: DetailActionLog) {
             field = log.detail.fieldMapping
             indices = mutableListOf()
             trackingIds = mutableListOf()
+        } else {
+            indices = null
+            trackingIds = null
+            field = null
         }
         add(log)
     }
@@ -290,8 +294,8 @@ class ConsolidatedActionLog(log: DetailActionLog) {
     fun add(log: DetailActionLog) {
         check(message == log.detail.message)
         if (indices != null && trackingIds != null) {
-            indices!!.add(log.index)
-            trackingIds!!.add(log.trackingId)
+            indices.add(log.index)
+            trackingIds.add(log.trackingId)
         }
     }
 

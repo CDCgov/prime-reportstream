@@ -37,18 +37,16 @@ class ActionLogTests {
         assertThat(logger.errors[0].detail is InvalidTranslationMessage).isTrue()
 
         // Item logs
-        assertThat { logger.startItemLogging(0) }.isFailure()
-        assertThat { logger.startItemLogging(-100) }.isFailure()
+        assertThat { logger.getItemLogger(0) }.isFailure()
+        assertThat { logger.getItemLogger(-100) }.isFailure()
         val index = 1
         val trackingId = "tracking"
         assertThat { logger.error(InvalidEquipmentMessage("some mapping")) }.isFailure()
-        logger.startItemLogging(index, trackingId)
-        assertThat { logger.error(InvalidEquipmentMessage("some mapping")) }.isSuccess()
+        val itemLogger = logger.getItemLogger(index, trackingId)
+        assertThat { itemLogger.error(InvalidEquipmentMessage("some mapping")) }.isSuccess()
         assertThat(logger.errors.size).isEqualTo(2)
         assertThat(logger.errors[1].index).isEqualTo(index)
         assertThat(logger.errors[1].trackingId).isEqualTo(trackingId)
-        logger.stopItemLogging()
-        assertThat { logger.error(InvalidEquipmentMessage("some mapping")) }.isFailure()
 
         // Set the report ID
         logger.logs.forEach { assertThat(it.reportId).isNull() }
