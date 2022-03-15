@@ -29,8 +29,8 @@ variable "ai_connection_string" {
   description = "Application Insights Connection String"
   sensitive   = true
 }
-
 variable "use_cdc_managed_vnet" {
   type        = bool
   description = "If the environment should be deployed to the CDC managed VNET"
 }
+variable "service_plan_id" {}

@@ -29,7 +29,7 @@ variable "rsa_key_4096" {
   default = null
 }
 variable "is_metabase_env" {
-  default = false
+  default = true
 }
 variable "https_cert_names" {
   default = []
@@ -46,7 +46,7 @@ variable "aad_object_keyvault_admin" {
 } # Group or individual user id
 
 ###################
-## Netowrk Variables
+## Network Variables
 ###################
 
 variable "network" {
@@ -141,49 +141,6 @@ variable "network" {
   }
 }
 
-
-
-
-
-
-##############################################
-
-
-variable "environment" {
-  default = "test"
-}
-variable "resource_group" {
-  default = "prime-data-hub-test"
-}
-
-variable "resource_prefix" {
-  default = "pdhtest"
-}
-variable "location" {
-  default = "eastus"
-}
-variable "rsa_key_2048" {
-  default = null
-}
-variable "rsa_key_4096" {
-  default = null
-}
-variable "is_metabase_env" {
-  default = false
-}
-variable "https_cert_names" {
-  default = []
-}
-variable "okta_base_url" {
-  default = "hhs-prime.oktapreview.com"
-}
-variable "okta_redirect_url" {
-  default = "https://prime-data-hub-rkh5012.azurefd.net/download"
-}
-variable "aad_object_keyvault_admin" {
-  default = "3c17896c-ff94-4298-a719-aaac248aa2c8"
-} # Group or individual user id
-
 ##################
 ## App Service Plan Vars
 ##################
@@ -202,6 +159,16 @@ variable "app_size" {
 
 variable "use_cdc_managed_vnet" {
   default = false
+}
+
+variable "app_config_kv_name" {
+  default     = "pdhtest-app-config"
+  description = "The keyvault used for application specific secrets."
+}
+
+variable "application_kv_name" {
+  default     = "pdhtest-keyvault"
+  description = "The keyvault used for the entire application as a whole."
 }
 
 variable "terraform_caller_ip_address" {

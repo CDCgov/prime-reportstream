@@ -284,3 +284,16 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" 
     azure_key_vault_certificate_vault_id    = var.application_key_vault_id
   }
 }
+
+# resource "azurerm_key_vault_access_policy" "frontdoor_access_policy" {
+#   key_vault_id = azurerm_key_vault.application.id
+#   tenant_id    = data.azurerm_client_config.current.tenant_id
+#   object_id    = azurerm_frontdoor.front_door.id
+
+#   secret_permissions = [
+#     "Get",
+#   ]
+#   certificate_permissions = [
+#     "Get",
+#   ]
+# }

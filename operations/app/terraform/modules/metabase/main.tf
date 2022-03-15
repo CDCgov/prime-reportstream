@@ -2,7 +2,7 @@ resource "azurerm_app_service" "metabase" {
   name                = "${var.resource_prefix}-metabase"
   location            = var.location
   resource_group_name = var.resource_group
-  app_service_plan_id = data.azurerm_app_service_plan.service_plan.id
+  app_service_plan_id = var.service_plan_id
   https_only          = true
 
   site_config {

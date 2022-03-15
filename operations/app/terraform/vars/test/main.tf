@@ -60,6 +60,8 @@ module "key_vault" {
   endpoint_subnet             = module.network.endpoint_subnet_ids
   cyberark_ip_ingress         = ""
   terraform_object_id         = var.terraform_object_id
+  application_kv_name         = var.application_kv_name
+  app_config_kv_name          = var.app_config_kv_name
 }
 
 module "container_registry" {
@@ -169,26 +171,31 @@ module "front_door" {
 module "sftp_container" {
   count = var.environment != "prod" ? 1 : 0
 
-  source               = "../../modules/sftp_container"
-  environment          = var.environment
-  resource_group       = var.resource_group
-  resource_prefix      = var.resource_prefix
-  location             = var.location
-  use_cdc_managed_vnet = var.use_cdc_managed_vnet
+  source                = "../../modules/sftp_container"
+  environment           = var.environment
+  resource_group        = var.resource_group
+  resource_prefix       = var.resource_prefix
+  location              = var.location
+  use_cdc_managed_vnet  = var.use_cdc_managed_vnet
+  sa_primary_access_key = module.storage.sa_primary_access_key
+
 }
 
-module "metabase" {
-  count = var.is_metabase_env ? 1 : 0
+# module "metabase" {
+#   count = var.is_metabase_env ? 1 : 0
 
-  source                 = "../../modules/metabase"
-  environment            = var.environment
-  resource_group         = var.resource_group
-  resource_prefix        = var.resource_prefix
-  location               = var.location
-  ai_instrumentation_key = module.application_insights.metabase_instrumentation_key
-  ai_connection_string   = module.application_insights.metabase_connection_string
-  use_cdc_managed_vnet   = var.use_cdc_managed_vnet
-}
+#   source                 = "../../modules/metabase"
+#   environment            = var.environment
+#   resource_group         = var.resource_group
+#   resource_prefix        = var.resource_prefix
+#   location               = var.location
+#   ai_instrumentation_key = module.application_insights.metabase_instrumentation_key
+#   ai_connection_string   = module.application_insights.metabase_connection_string
+#   use_cdc_managed_vnet   = var.use_cdc_managed_vnet
+#   service_plan_id        = module.app_service_plan.service_plan_id
+
+
+# }
 
 ##########
 ## 05-Monitor

@@ -19,8 +19,6 @@ resource "azurerm_storage_account" "storage_account" {
     #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
     # ))
 
-    ip_rules = var.terraform_caller_ip_address
-
     virtual_network_subnet_ids = concat(var.public_subnet, var.container_subnet, var.endpoint_subnet)
   }
 
@@ -208,7 +206,7 @@ resource "azurerm_storage_account" "storage_partner" {
 
 # Grant the storage account Key Vault access, to access encryption keys
 resource "azurerm_key_vault_access_policy" "storage_partner_policy" {
-  key_vault_id       = var.application_key_vault_id
+  key_vault_id = var.application_key_vault_id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = azurerm_storage_account.storage_partner.identity.0.principal_id
 

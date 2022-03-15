@@ -61,3 +61,4 @@ variable "sa_partner_connection_string" {}
 variable "client_config_key_vault_id" {}
 variable "app_config_key_vault_id" {}
 variable "dns_ip" {}
+variable "okta_base_url" {}

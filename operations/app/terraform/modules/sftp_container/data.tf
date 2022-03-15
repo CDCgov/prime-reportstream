@@ -16,11 +16,3 @@ data "azurerm_private_dns_zone" "prime_local" {
   name                = "prime.local"
   resource_group_name = var.resource_group
 }
-
-
-// Storage Account
-
-data "azurerm_storage_account" "storage_account" {
-  name                = "${var.resource_prefix}storageaccount"
-  resource_group_name = var.resource_group
-}
