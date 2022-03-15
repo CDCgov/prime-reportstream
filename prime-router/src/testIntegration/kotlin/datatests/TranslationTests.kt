@@ -248,9 +248,9 @@ class TranslationTests {
                             TestSource,
                             sender
                         )
-                        readResult.errors.forEach { result.errors.add(it.detail.detailMsg()) }
-                        readResult.warnings.forEach { result.warnings.add(it.detail.detailMsg()) }
-                        result.passed = readResult.errors.isEmpty()
+                        readResult.actionLogs.errors.forEach { result.errors.add(it.detail.message) }
+                        readResult.actionLogs.warnings.forEach { result.warnings.add(it.detail.message) }
+                        result.passed = !readResult.actionLogs.hasErrors()
                         readResult.report
                     }
                     Report.Format.INTERNAL -> {
@@ -268,14 +268,14 @@ class TranslationTests {
                             TestSource,
                             sender
                         )
-                        readResult.errors.forEach { result.errors.add(it.detail.detailMsg()) }
-                        readResult.warnings.forEach { result.warnings.add(it.detail.detailMsg()) }
-                        result.passed = readResult.errors.isEmpty()
+                        readResult.actionLogs.errors.forEach { result.errors.add(it.detail.message) }
+                        readResult.actionLogs.warnings.forEach { result.warnings.add(it.detail.message) }
+                        result.passed = !readResult.actionLogs.hasErrors()
                         readResult.report
                     }
                 }
             } catch (e: ActionError) {
-                e.details.forEach { result.errors.add(it.detail.detailMsg()) }
+                e.details.forEach { result.errors.add(it.detail.message) }
                 result.passed = false
                 null
             }

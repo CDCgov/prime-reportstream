@@ -1,7 +1,23 @@
 package gov.cdc.prime.router
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import java.time.Instant
 import java.util.UUID
+
+/**
+ * The scope of an action log.
+ */
+enum class ActionLogScope {
+    parameter, report, item, translation
+}
+
+/**
+ * The log level of an action log.
+ */
+enum class ActionLogLevel {
+    info, warning, error, filter
+}
 
 /**
  * ActionLog models events that happen over the
@@ -20,112 +36,18 @@ import java.util.UUID
  * @property created_at The time the event happened durring execution
  */
 data class ActionLog(
-    val scope: ActionLogScope,
     val detail: ActionLogDetail,
     val trackingId: String? = null,
     val index: Int? = null,
     var reportId: UUID? = null,
     var action: Action? = null,
-    val type: ActionLogType = ActionLogType.info,
+    val type: ActionLogLevel = ActionLogLevel.info,
     val created_at: Instant = Instant.now(),
 ) {
+    val scope = detail.scope
 
     fun getActionId(): Long {
         return action!!.actionId
-    }
-
-    enum class ActionLogScope { parameter, report, item, translation }
-
-    enum class ActionLogType { info, warning, error, filter }
-
-    companion object {
-        /**
-         * Record events that occure at the report level
-         *
-         * These can either relate directly to a report, or not if a report failed to be created.
-         *
-         * @param message The detailed information about the event
-         * @param type Usually error
-         * @param reportId The identifier for the report this event happened to
-         * @return The created event with report scope
-         */
-        fun report(message: ActionLogDetail, type: ActionLogType, reportId: UUID? = null): ActionLog {
-            return ActionLog(ActionLogScope.report, message, type = type, reportId = reportId)
-        }
-
-        /**
-         * Record events that occur at the report level
-         *
-         * These can either relate directly to a report, or not if a report failed to be created.
-         *
-         * @param message The detailed information about the event
-         * @param type Usually error
-         * @return The created event with report scope and InvalidReportMessage detail
-         */
-        fun report(message: String, type: ActionLogType = ActionLogType.error): ActionLog {
-            val reportMessage = InvalidReportMessage(message)
-            return ActionLog(ActionLogScope.report, reportMessage, type = type)
-        }
-
-        /**
-         * Record events that occur at the item level
-         *
-         * @param trackingId The tracking ID for the item
-         * @param message The detailed information about the event
-         * @param index The index of the item within the report
-         * @param type The type of the event
-         * @return The created event with item scope
-         */
-        fun item(trackingId: String, message: ActionLogDetail, index: Int, type: ActionLogType): ActionLog {
-            return ActionLog(ActionLogScope.item, message, trackingId, index, type = type)
-        }
-
-        /**
-         * Record events that occur at the request parameter level
-         *
-         * @param httpParameter the http parameter that caused the event
-         * @param detail The detailed information about the event
-         * @param type The type of the event
-         * @return The created event with InvalidParamMessage detail
-         */
-        fun param(
-            httpParameter: String,
-            detail: ActionLogDetail,
-            type: ActionLogType = ActionLogType.error
-        ): ActionLog {
-            return ActionLog(
-                ActionLogScope.parameter,
-                InvalidParamMessage(
-                    httpParameter,
-                    "",
-                    detail,
-                ),
-                type = type
-            )
-        }
-
-        /**
-         * Record events that occur at the request parameter level
-         *
-         * @param httpParameter the http parameter that caused the event
-         * @param message A detailed message about the event
-         * @param type The type of the event
-         * @return The created event with InvalidParamMessage detail
-         */
-        fun param(
-            httpParameter: String,
-            message: String,
-            type: ActionLogType = ActionLogType.error
-        ): ActionLog {
-            return ActionLog(
-                ActionLogScope.parameter,
-                InvalidParamMessage(
-                    httpParameter,
-                    message,
-                ),
-                type = type
-            )
-        }
     }
 }
 
@@ -146,8 +68,145 @@ class ActionError(val details: List<ActionLog>, message: String? = null) : Error
             var message = super.message ?: ""
             if (details.isNotEmpty()) {
                 message += System.lineSeparator() +
-                    details.joinToString(System.lineSeparator()) { it.detail.detailMsg() }
+                    details.joinToString(System.lineSeparator()) { it.detail.message }
             }
             return message
         }
+}
+
+/**
+ * Details for a given action log.
+ */
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@JsonIgnoreProperties(ignoreUnknown = true)
+interface ActionLogDetail {
+    /**
+     * The scopt of the log.
+     */
+    val scope: ActionLogScope
+
+    /**
+     * The log message.
+     */
+    val message: String
+}
+
+/**
+ * A logger for action logs.
+ * @property logs the logs
+ */
+class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
+
+    /**
+     * Create an item logger to add logs to [logs] for the given [itemIndex] and [trackingId].
+     */
+    private constructor(logs: MutableList<ActionLog>, itemIndex: Int, trackingId: String? = null) : this(logs) {
+        this.itemIndex = itemIndex
+        this.trackingId = trackingId
+    }
+    /**
+     * The current item index being tracked, or null if no index is tracked.
+     */
+    private var itemIndex: Int? = null
+
+    /**
+     * The current item tracking ID being tracked, or null if no tracking ID is tracked.
+     */
+    private var trackingId: String? = null
+
+    /**
+     * The report ID of the logs if available.
+     */
+    private var reportId: UUID? = null
+
+    /**
+     * Get a logger used to log item scoped logs for the given [itemIndex] and [trackingId].
+     * @return the item action logger
+     */
+    fun getItemLogger(itemIndex: Int, trackingId: String? = null): ActionLogger {
+        check(itemIndex > 0) { "Item index must be a positive number" }
+        return ActionLogger(this.logs, itemIndex, trackingId)
+    }
+
+    /**
+     * Set the [reportId] for the logs.  All previously logged messages are associated with this report ID.
+     * @return the logger instance
+     */
+    fun setReportId(reportId: UUID?) = apply {
+        this.reportId = reportId
+        // Apply the report ID to all the exiting logs.
+        logs.forEach { it.reportId = reportId }
+    }
+
+    /**
+     * Check if the logger has logged any errors.
+     * @return true if there are errors logged, false otherwise
+     */
+    fun hasErrors(): Boolean {
+        return logs.any { it.type == ActionLogLevel.error }
+    }
+
+    /**
+     * Check if any logs have been logged.
+     * @return true if any log has been logged, false otherwise.
+     */
+    fun isEmpty(): Boolean {
+        return logs.isEmpty()
+    }
+
+    /**
+     * Log a given [actionDetail] and a [level] log level.
+     */
+    private fun log(
+        actionDetail: ActionLogDetail,
+        level: ActionLogLevel
+    ) {
+        if (actionDetail is ItemActionLogDetail) check(itemIndex != null) {
+            "Index is required for item logs.  Use the item action logger"
+        }
+        logs.add(ActionLog(actionDetail, trackingId, itemIndex, reportId, type = level))
+    }
+
+    /**
+     * Log an [actionDetail] as a warning log.
+     */
+    fun warn(actionDetail: ActionLogDetail) {
+        log(actionDetail, ActionLogLevel.warning)
+    }
+
+    /**
+     * Log a list of [actionDetails] as warning logs.
+     */
+    fun warn(actionDetails: List<ActionLogDetail>) {
+        actionDetails.forEach { warn(it) }
+    }
+
+    /**
+     * Log an [actionDetail] as an error log.
+     */
+    fun error(actionDetail: ActionLogDetail) {
+        log(actionDetail, ActionLogLevel.error)
+    }
+
+    /**
+     * Log a list of [actionDetails] as error logs.
+     */
+    fun error(actionDetails: List<ActionLogDetail>) {
+        actionDetails.forEach { error(it) }
+    }
+
+    /**
+     * Get an exception to be thrown that includes all the logs.
+     */
+    val exception get() = ActionError(logs)
+
+    /**
+     * The logged errors.
+     */
+    val errors get() = logs.filter { it.type == ActionLogLevel.error }
+
+    /**
+     * The logged warnings.
+     */
+    val warnings get() = logs.filter { it.type == ActionLogLevel.warning }
 }
