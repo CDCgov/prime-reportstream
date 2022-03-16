@@ -1,5 +1,4 @@
 // Was index.css
-
 .prime-user-account {
   font-size: .88rem;
   vertical-align: u-text("vertical-align");
@@ -348,7 +347,6 @@ h3 img[src*="svg"] {
     }
 }
 
-
 /* just the left side */
 .rs-editable-compare-static {
     grid-area: inner-div;
@@ -362,4 +360,8 @@ h3 img[src*="svg"] {
     border: 2px #0087ff solid;
     width: 100%;
     z-index: 3;
+}
+
+.rs-alert-toast {
+    z-index: 100;
 }

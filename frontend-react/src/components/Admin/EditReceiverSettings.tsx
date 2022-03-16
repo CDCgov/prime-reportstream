@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useRef, useState } from "react";
+import React, { Suspense, useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { RouteComponentProps, useHistory } from "react-router-dom";
@@ -20,7 +20,11 @@ import {
     TextInputComponent,
 } from "./AdminFormEdit";
 
-type Props = { orgname: string; receivername: string; action: string };
+type Props = {
+    orgname: string;
+    receivername: string;
+    action: "edit" | "clone";
+};
 
 export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
     const orgname = match?.params?.orgname || "";
@@ -44,7 +48,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
             useState("");
         const { invalidate } = useController();
 
-        const showCompareConfirm = useCallback(async () => {
+        const showCompareConfirm = async () => {
             try {
                 // fetch original version
                 setLoading(true);
@@ -74,82 +78,54 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                 setLoading(false);
                 console.error(e);
             }
-        }, [orgReceiverSettings]);
+        };
 
-        const resetReceiverList = useCallback(async () => {
+        const resetReceiverList = async () => {
             await invalidate(OrgReceiverSettingsResource.list(), {
                 orgname,
-                receivername: match?.params?.receivername,
+                receivername: receivername,
             });
 
             return true;
-        }, [invalidate]);
+        };
 
-        const saveReceiverData = useCallback(async () => {
-            switch (action) {
-                case "edit":
-                    try {
-                        const data =
-                            confirmModalRef?.current?.editedText ||
-                            orgReceiverSettingsNewJson;
-                        await fetchController(
-                            OrgReceiverSettingsResource.update(),
-                            { orgname, receivername: receivername },
-                            data
-                        );
-                        await resetReceiverList();
-                        showAlertNotification(
-                            "success",
-                            `Item '${receivername}' has been updated`
-                        );
-                        history.goBack();
-                    } catch (e: any) {
-                        console.trace(e);
-                        showError(
-                            `Updating item '${receivername}' failed. ${e.toString()}`
-                        );
-                        return false;
-                    }
-                    break;
-                case "clone":
-                    try {
-                        const data =
-                            confirmModalRef?.current?.editedText ||
-                            orgReceiverSettingsNewJson;
+        const saveReceiverData = async () => {
+            try {
+                const data =
+                    confirmModalRef?.current?.editedText ||
+                    orgReceiverSettingsNewJson;
 
-                        await fetchController(
-                            OrgReceiverSettingsResource.update(),
-                            { orgname, receivername: orgReceiverSettings.name },
-                            data
-                        );
-                        showAlertNotification(
-                            "success",
-                            `Item '${orgReceiverSettings.name}' has been created`
-                        );
-                        await resetReceiverList();
-                        history.goBack();
-                    } catch (e: any) {
-                        console.trace(e);
-                        showError(
-                            `Cloning item '${
-                                orgReceiverSettings.name
-                            }' failed. ${e.toString()}`
-                        );
-                        return false;
-                    }
-                    break;
-                default:
-                    return false;
+                const receivernamelocal =
+                    action === "clone"
+                        ? orgReceiverSettings.name
+                        : receivername;
+
+                setLoading(true);
+
+                await fetchController(
+                    OrgReceiverSettingsResource.update(),
+                    { orgname, receivername: receivernamelocal },
+                    data
+                );
+
+                await resetReceiverList();
+                showAlertNotification(
+                    "success",
+                    `Item '${receivername}' has been updated`
+                );
+                setLoading(false);
+                confirmModalRef?.current?.toggleModal(undefined, false);
+                history.goBack();
+            } catch (e: any) {
+                console.trace(e);
+                showError(
+                    `Updating item '${receivername}' failed. ${e.toString()}`
+                );
+                return false;
             }
 
             return true;
-        }, [
-            fetchController,
-            history,
-            orgReceiverSettings,
-            orgReceiverSettingsNewJson,
-            resetReceiverList,
-        ]);
+        };
 
         return (
             <GridContainer containerSize={"desktop"}>
@@ -281,7 +257,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                         disabled={loading}
                         onClick={showCompareConfirm}
                     >
-                        Save...
+                        Preview...
                     </Button>
                 </Grid>
                 <ConfirmSaveSettingModal

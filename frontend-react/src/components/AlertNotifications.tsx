@@ -31,7 +31,7 @@ export const showAlertNotification = (
     // basically the USWDS Alert UI
     showNotification(
         <div
-            className={`usa-alert usa-alert--slim usa-alert--no-icon usa-alert--${type}`}
+            className={`usa-alert usa-alert--slim usa-alert--no-icon usa-alert--${type} rs-alert-toast`}
             data-testid="alerttoast"
         >
             <div className="usa-alert__body">
@@ -49,7 +49,7 @@ export const showError = (
     const err_msg = message.substring(0, 512);
     showNotification(
         <div
-            className={`usa-alert usa-alert--slim usa-alert--no-icon usa-alert--error`}
+            className={`usa-alert usa-alert--slim usa-alert--no-icon usa-alert--error rs-alert-toast`}
             data-testid="alerttoast"
         >
             <div className="usa-alert__body">

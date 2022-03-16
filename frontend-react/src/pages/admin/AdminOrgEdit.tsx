@@ -2,7 +2,7 @@ import React, { Suspense, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { RouteComponentProps } from "react-router-dom";
-import { GridContainer, Grid, Button } from "@trussworks/react-uswds";
+import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
@@ -11,8 +11,8 @@ import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
 import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
 import {
-    TextInputComponent,
     TextAreaComponent,
+    TextInputComponent,
 } from "../../components/Admin/AdminFormEdit";
 import {
     showAlertNotification,
@@ -83,6 +83,7 @@ export function AdminOrgEdit({
         try {
             const data =
                 confirmModalRef?.current?.editedText || orgSettingsNewJson;
+            showAlertNotification("success", `Saving...`);
             await fetchController(
                 OrgSettingsResource.update(),
                 { orgname },
@@ -92,6 +93,7 @@ export function AdminOrgEdit({
                 "success",
                 `Item '${orgname}' has been updated`
             );
+            confirmModalRef?.current?.toggleModal(undefined, true);
         } catch (e: any) {
             console.trace(e);
             showError(`Updating item '${orgname}' failed. ${e.toString()}`);
@@ -174,7 +176,7 @@ export function AdminOrgEdit({
                                     disabled={loading}
                                     onClick={() => ShowCompareConfirm()}
                                 >
-                                    Save...
+                                    Preview save...
                                 </Button>
                             </Grid>
                             <ConfirmSaveSettingModal

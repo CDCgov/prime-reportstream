@@ -30,7 +30,6 @@ export const ModalConfirmSaveButton = ({
             {...buttonProps}
             aria-label="Confirm saving this item"
             onClick={handleClose}
-            data-close-modal
             key={`${uniquid}-confirm-button`}
             data-uniqueid={uniquid}
             type="button"
@@ -65,7 +64,6 @@ export const ConfirmSaveSettingModal = forwardRef(
         const showNewDiffEditor = CheckFeatureFlag("showNewDiffEditor");
 
         const scopedConfirm = () => {
-            modalRef?.current?.toggleModal(undefined, false);
             onConfirm();
         };
 
@@ -107,9 +105,19 @@ export const ConfirmSaveSettingModal = forwardRef(
                                 modified={newjson}
                             />
                         ) : (
-                            <div>
-                                The diff editor is currently under maintenance.
-                                Please click Save below to save your changes
+                            <div className="grid-container">
+                                <p>
+                                    The diff editor is currently under
+                                    maintenance.
+                                </p>
+                                <p>
+                                    Please click Save below to save your
+                                    changes.
+                                </p>
+                                <p>
+                                    Add "showNewDiffEditor" to feature flags to
+                                    try out!
+                                </p>
                             </div>
                         )}
                     </div>
@@ -125,7 +133,7 @@ export const ConfirmSaveSettingModal = forwardRef(
                             </ModalToggleButton>
                             <ModalConfirmSaveButton
                                 uniquid={uniquid}
-                                handleClose={() => scopedConfirm()}
+                                handleClose={scopedConfirm}
                             >
                                 Save
                             </ModalConfirmSaveButton>
