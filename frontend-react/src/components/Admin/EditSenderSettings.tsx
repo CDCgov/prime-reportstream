@@ -22,10 +22,11 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
     const orgname = match?.params?.orgname || "";
     const sendername = match?.params?.sendername || "";
     const action = match?.params?.action || "";
-    const history = useHistory();
-    const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
     const FormComponent = () => {
+        const history = useHistory();
+        const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
+
         const orgSenderSettings: OrgSenderSettingsResource = useResource(
             OrgSenderSettingsResource.detail(),
             { orgname, sendername: sendername }
@@ -67,6 +68,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                 confirmModalRef?.current?.toggleModal(undefined, true);
                 setLoading(false);
             } catch (e) {
+                setLoading(false);
                 console.error(e);
             }
         };
@@ -219,11 +221,10 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                         form="edit-setting"
                         type="submit"
                         data-testid="submit"
+                        disabled={loading}
                         onClick={() => ShowCompareConfirm()}
                     >
-                        {" "}
-                        Save...{" "}
-                        <Spinner display={loading} size="insidebutton" />
+                        Save...
                     </Button>
                 </Grid>
                 <ConfirmSaveSettingModal

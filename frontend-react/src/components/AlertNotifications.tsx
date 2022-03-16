@@ -11,7 +11,6 @@ export const showNotification = (children: JSX.Element) => {
             toastId,
             autoClose: 5000,
             closeButton: false,
-            // limit: 2,
             position: "bottom-center",
             hideProgressBar: true,
         });

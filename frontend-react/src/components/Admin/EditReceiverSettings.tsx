@@ -1,4 +1,4 @@
-import React, { Suspense, useRef, useState } from "react";
+import React, { Suspense, useCallback, useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { RouteComponentProps, useHistory } from "react-router-dom";
@@ -26,10 +26,12 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
     const orgname = match?.params?.orgname || "";
     const receivername = match?.params?.receivername || "";
     const action = match?.params?.action || "";
-    const history = useHistory();
-    const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
     const FormComponent = () => {
+        const [loading, setLoading] = useState(false);
+        const history = useHistory();
+        const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
+
         const orgReceiverSettings: OrgReceiverSettingsResource = useResource(
             OrgReceiverSettingsResource.detail(),
             { orgname, receivername, action }
@@ -42,9 +44,10 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
             useState("");
         const { invalidate } = useController();
 
-        const showCompareConfirm = async () => {
+        const showCompareConfirm = useCallback(async () => {
             try {
                 // fetch original version
+                setLoading(true);
                 const accessToken = getStoredOktaToken();
                 const organization = getStoredOrg();
 
@@ -66,21 +69,23 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                 );
 
                 confirmModalRef?.current?.toggleModal(undefined, true);
+                setLoading(false);
             } catch (e) {
+                setLoading(false);
                 console.error(e);
             }
-        };
+        }, [orgReceiverSettings]);
 
-        async function resetReceiverList() {
+        const resetReceiverList = useCallback(async () => {
             await invalidate(OrgReceiverSettingsResource.list(), {
                 orgname,
                 receivername: match?.params?.receivername,
             });
 
             return true;
-        }
+        }, [invalidate]);
 
-        const saveReceiverData = async () => {
+        const saveReceiverData = useCallback(async () => {
             switch (action) {
                 case "edit":
                     try {
@@ -138,7 +143,13 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
             }
 
             return true;
-        };
+        }, [
+            fetchController,
+            history,
+            orgReceiverSettings,
+            orgReceiverSettingsNewJson,
+            resetReceiverList,
+        ]);
 
         return (
             <GridContainer containerSize={"desktop"}>
@@ -267,6 +278,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                         form="edit-setting"
                         type="submit"
                         data-testid="submit"
+                        disabled={loading}
                         onClick={showCompareConfirm}
                     >
                         Save...

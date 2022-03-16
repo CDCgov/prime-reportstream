@@ -171,13 +171,10 @@ export function AdminOrgEdit({
                                     form="edit-setting"
                                     type="submit"
                                     data-testid="submit"
+                                    disabled={loading}
                                     onClick={() => ShowCompareConfirm()}
                                 >
-                                    Save...{" "}
-                                    <Spinner
-                                        display={loading}
-                                        size="insidebutton"
-                                    />
+                                    Save...
                                 </Button>
                             </Grid>
                             <ConfirmSaveSettingModal
