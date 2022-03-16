@@ -273,20 +273,7 @@ class ReportFunction(
 
         var bypassMessageQueue = false
         if (options == Options.BypassQueueForQualityFilters) {
-            var hasQualityFilters = false
-            val tree = jacksonObjectMapper().readTree(response.body.toString())
-            val destinations = tree.path("destinations")
-            destinations.apply {
-                forEach { it ->
-                    val filteredReportItems = it.path("filteredReportItems")
-                    filteredReportItems.forEach {
-                        if (it.path("filterType").textValue() == "QUALITY_FILTER") {
-                            hasQualityFilters = true
-                            return@apply
-                        }
-                    }
-                }
-            }
+            val hasQualityFilters = responseContainsQualityFilter(response.body.toString())
 
             if (hasQualityFilters) bypassMessageQueue = true
         }
@@ -304,6 +291,24 @@ class ReportFunction(
         )
         // TODO: having to build response twice in order to save it and then include a response with the resulting actionID
         return responseBuilder.build()
+    }
+
+    fun responseContainsQualityFilter(response: String): Boolean {
+        var hasQualityFilters = false
+        val tree = jacksonObjectMapper().readTree(response)
+        val destinations = tree.path("destinations")
+        destinations.apply {
+            forEach { it ->
+                val filteredReportItems = it.path("filteredReportItems")
+                filteredReportItems.forEach {
+                    if (it.path("filterType").textValue() == "QUALITY_FILTER") {
+                        hasQualityFilters = true
+                        return@apply
+                    }
+                }
+            }
+        }
+        return hasQualityFilters
     }
 
     /**

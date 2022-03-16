@@ -45,6 +45,45 @@ class ReportFunctionTests {
         ),
     )
 
+    var messageWithQualityFilter = """{
+    "destinations": [
+        {
+            "filteredReportItems": [
+                {
+                    "filteredIndex": 1,
+                    "originalCount": 5,
+                    "receiverName": "ak-phd.elr",
+                    "filterName": "hasValidDataFor",
+                    "filterType": "QUALITY_FILTER",
+                    "filteredTrackingElement": "Alaska1",
+                    "filteredArgs": [
+                        "patient_dob"
+                    ]
+                }
+            ]
+        }
+    ]
+}"""
+
+    var messageWithoutQualityFilter = """{
+    "destinations": [
+        {
+            "filteredReportItems": [
+                {
+                    "filteredIndex": 1,
+                    "originalCount": 5,
+                    "receiverName": "ak-phd.elr",
+                    "filterName": "hasValidDataFor",
+                    "filteredTrackingElement": "Alaska1",
+                    "filteredArgs": [
+                        "patient_dob"
+                    ]
+                }
+            ]
+        }
+    ]
+}"""
+
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
             WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
@@ -122,7 +161,7 @@ class ReportFunctionTests {
         )
 
         // Invoke function run
-        var res = reportFunc.run(req)
+        val res = reportFunc.run(req)
 
         // verify
         assert(res.statusCode == 400)
@@ -338,5 +377,27 @@ class ReportFunctionTests {
         // assert
         verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any(), any()) }
         verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+    }
+
+    @Test
+    fun `test responseContainsQualityFilter function`() {
+        // Setup
+        every { timing1.isValid() } returns true
+        every { timing1.numberPerDay } returns 1
+        every { timing1.maxReportCount } returns 1
+        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val reportFunc = spyk(ReportFunction(engine, actionHistory))
+
+        val containsQualityFilter = reportFunc.responseContainsQualityFilter(messageWithQualityFilter)
+        val containsNoQualityFilter = reportFunc.responseContainsQualityFilter(messageWithoutQualityFilter)
+        assert(containsQualityFilter)
+        assert(!containsNoQualityFilter)
     }
 }
