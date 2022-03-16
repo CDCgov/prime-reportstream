@@ -76,24 +76,20 @@ data class ReportStreamFilterResult(
     val filterArgs: List<String>,
     val filteredTrackingElement: String,
     val filteredIndex: Int,
-    override val type: ActionLogDetailType = ActionLogDetailType.TRANSLATION
+    val filterType: ReportStreamFilterType?
 ) : ActionLogDetail {
+    override val scope = ActionLogScope.translation
     companion object {
         // Use this value in logs and user-facing messages if the trackingElement is missing.
-        val DEFAULT_TRACKING_VALUE = "MissingID"
+        const val DEFAULT_TRACKING_VALUE = "MissingID"
     }
 
+    override val message = "For $receiverName, filter $filterName$filterArgs" +
+        " filtered out item $filteredTrackingElement"
+
+    // Used for deserializing to a JSON response
     override fun toString(): String {
-        return "For $receiverName, filter $filterName$filterArgs" +
-            " filtered out item $filteredTrackingElement at index $filteredIndex"
-    }
-
-    override fun detailMsg(): String {
-        return toString()
-    }
-
-    override fun groupingId(): String {
-        return receiverName
+        return message
     }
 }
 
@@ -402,7 +398,8 @@ class Report : Logging {
         receiver: Receiver,
         doLogging: Boolean,
         trackingElement: String?,
-        reverseTheFilter: Boolean = false
+        reverseTheFilter: Boolean = false,
+        reportStreamFilterType: ReportStreamFilterType
     ): Report {
         val filteredRows = mutableListOf<ReportStreamFilterResult>()
         val combinedSelection = Selection.withRange(0, table.rowCount())
@@ -424,7 +421,8 @@ class Report : Logging {
                             filterFn.name,
                             fnArgs,
                             trackingId,
-                            rowNum + 1
+                            rowNum + 1,
+                            reportStreamFilterType
                         )
                     )
                 }

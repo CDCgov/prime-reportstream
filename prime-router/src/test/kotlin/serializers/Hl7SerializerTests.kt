@@ -16,6 +16,7 @@ import ca.uhn.hl7v2.model.v251.datatype.XTN
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
@@ -228,7 +229,7 @@ class Hl7SerializerTests {
         val now = OffsetDateTime.now()
         val nowAsDate = Date.from(now.toInstant())
         val dateTimeElement = Element("field", hl7Field = "OBX-14", type = Element.Type.DATETIME)
-        val warnings = mutableListOf<String>()
+        val warnings = mutableListOf<ActionLogDetail>()
         val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(Element.datetimePattern)
         val dateFormatterNoTimeZone = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
 
@@ -332,7 +333,7 @@ class Hl7SerializerTests {
         val mockDT = mockk<DT>()
         val dateElement = Element("field", hl7Field = "OBX-14", type = Element.Type.DATE)
         val dateFormatterDate = DateTimeFormatter.ofPattern(Element.datePattern)
-        val warnings = mutableListOf<String>()
+        val warnings = mutableListOf<ActionLogDetail>()
 
         every { mockTerser.getSegment(any()) } returns mockSegment
 
@@ -839,5 +840,45 @@ NTE|1|L|This is a final comment|RE"""
             val timestampValue = Hl7Serializer.nowTimestamp(this)
             assertThat(highPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
         }
+    }
+
+    @Test
+    fun `test organization yml replaceValueAwithB setting field`() {
+        val oneOrganization = DeepOrganization(
+            "phd", "test", Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
+        )
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val serializer = Hl7Serializer(metadata, settings)
+        val arrayistValues = arrayListOf(
+            mapOf("" to "Unknow"),
+            mapOf("Crona" to "Joe"),
+            mapOf("Bode" to "John;@:,")
+        )
+        val replaceValueAwithB: Map<String, Any>? = mapOf("ORC-12-2" to arrayistValues)
+        val orderingProviderLastName = Element(
+            "ordering_provider_last_name",
+            type = Element.Type.PERSON_NAME,
+            hl7Field = "ORC-12-2",
+            hl7OutputFields = listOf("ORC-12-2", "OBR-16-2")
+        )
+
+        assertThat(
+            replaceValueAwithB?.let {
+                serializer.replaceValueAwithB(orderingProviderLastName, it, "")
+            }
+        ).isEqualTo("Unknow")
+        assertThat(
+            replaceValueAwithB?.let {
+                serializer.replaceValueAwithB(orderingProviderLastName, it, "Crona")
+            }
+        ).isEqualTo("Joe")
+        assertThat(
+            replaceValueAwithB?.let {
+                serializer.replaceValueAwithB(orderingProviderLastName, it, "Bode")
+            }
+        ).isEqualTo("John;@:,")
     }
 }

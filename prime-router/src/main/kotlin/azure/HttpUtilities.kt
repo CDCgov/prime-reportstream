@@ -17,18 +17,19 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 class HttpUtilities {
+
     companion object : Logging {
         const val jsonMediaType = "application/json"
+        const val fhirMediaType = "application/fhir+json"
         const val oldApi = "/api/reports"
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
 
         // Ignoring unknown properties because we don't require them. -DK
-        private val mapper = JacksonMapperUtilities.datesAsTextMapper
+        private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
         /**
          * Last modified time header value formatter.
@@ -187,7 +188,7 @@ class HttpUtilities {
             // https://datatracker.ietf.org/doc/html/rfc7232#section-2.2 defines this header format
 
             // Convert to UTC timezone
-            val lastModifiedGMT = OffsetDateTime.ofInstant(lastModified.toInstant(), ZoneOffset.UTC)
+            val lastModifiedGMT = OffsetDateTime.ofInstant(lastModified.toInstant(), Environment.rsTimeZone)
             val lastModifiedFormatted = lastModifiedGMT.format(lastModifiedFormatter)
             builder.header(HttpHeaders.LAST_MODIFIED, lastModifiedFormatted)
         }
