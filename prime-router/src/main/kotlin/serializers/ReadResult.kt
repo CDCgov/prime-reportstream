@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.serializers
 
-import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Report
 
 /**
@@ -14,26 +14,9 @@ data class ReadResult(
     /**
      * The list of errors that caused a item to not be reported
      */
-    val errors: List<ActionLog> = emptyList(),
-    /**
-     * An list of warnings that could be a data error
-     */
-    val warnings: List<ActionLog> = emptyList(),
+    val actionLogs: ActionLogger
 ) {
     init {
-        errors.forEach {
-            it.reportId = report.id
-        }
-        warnings.forEach {
-            it.reportId = report.id
-        }
-    }
-
-    fun errorsToString(): String {
-        return errors.joinToString("\n") { "Error in $it" }
-    }
-
-    fun warningsToString(): String {
-        return warnings.joinToString("\n") { "Warning in $it" }
+        actionLogs.setReportId(report.id)
     }
 }
