@@ -28,7 +28,8 @@ data class ValueSet(
         FHIR,
         UCUM,
         NULLFL,
-        ISO
+        ISO,
+        CDCREC
     }
 
     @get:JsonIgnore
@@ -42,6 +43,7 @@ data class ValueSet(
             SetSystem.FHIR -> "FHIR"
             SetSystem.NULLFL -> "NULLFL"
             SetSystem.ISO -> "ISO"
+            SetSystem.CDCREC -> "CDCREC"
         }
 
     data class Value(

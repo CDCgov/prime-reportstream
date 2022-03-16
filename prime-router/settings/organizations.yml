@@ -2773,6 +2773,29 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        suppressHl7Fields: PID-5-7, ORC-12-1, ORC-16-1
+        replaceValueAwithB:
+          ORC-12-2: ["":"Unknow", "Crona":"Joe","Bode":"John;@:,"]
+          ORC-12-3: ["":"Unknow", "Lashay":"Smith","Waldo":"Doe"]
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for NV standards
+            values:
+              - code: 2135-2
+                replaces: H
+                display: Hispanic or Latino
+                system: CDCREC
+              - code: 2186-5
+                replaces: N
+                display: Non Hispanic or Latino
+                system: CDCREC
+              - code: UNK
+                replaces: U
+                display: Unknown
+                system: NULLFL
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

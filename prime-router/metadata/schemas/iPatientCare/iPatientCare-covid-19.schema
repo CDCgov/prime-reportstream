@@ -139,7 +139,7 @@ elements:
       default: F
 
     - name: result_format
-      default: CE
+      default: CWE
 
 
 
