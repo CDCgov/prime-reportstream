@@ -1732,7 +1732,8 @@ class Hl7Serializer(
                                 warnings.add(
                                     FieldPrecisionMessage.new(
                                         "Timestamp for $hl7Field - ${element.name} should provide more " +
-                                            "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
+                                            "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ. " +
+                                            "Received '$rawValue'"
                                     )
                                 )
                             }

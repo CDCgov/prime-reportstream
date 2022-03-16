@@ -6,7 +6,6 @@ import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
-import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
 import gov.cdc.prime.router.metadata.LookupMapper
@@ -15,15 +14,8 @@ import gov.cdc.prime.router.metadata.Mapper
 import org.apache.commons.lang3.StringUtils
 import java.lang.Exception
 import java.text.DecimalFormat
-import java.time.DateTimeException
-import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.OffsetDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 import java.util.Locale
 
 class AltValueNotDefinedException(message: String) : IllegalStateException(message)
@@ -461,72 +453,18 @@ data class Element(
      */
     fun checkForError(formattedValue: String, format: String? = null): ActionLogDetail? {
         // remove trailing spaces
-        val cleanedValue = formattedValue.trim()
-        if (cleanedValue.isBlank() && !isOptional && !canBeBlank) return MissingFieldMessage.new(fieldMapping)
+        val cleanedValue = StringUtils.trimToNull(formattedValue)
+        if (cleanedValue == null && !isOptional && !canBeBlank) return MissingFieldMessage.new(fieldMapping)
         return when (type) {
-            Type.DATE -> {
+            Type.DATE, Type.DATETIME -> {
                 try {
-                    LocalDate.parse(cleanedValue)
-                    return null
-                } catch (e: DateTimeParseException) {
-                    // continue to the next try
-                }
-                try {
-                    val formatter = DateTimeFormatter.ofPattern(format ?: datePattern, Locale.ENGLISH)
-                    LocalDate.parse(cleanedValue, formatter)
-                    return null
-                } catch (e: DateTimeParseException) {
-                    // continue to the next try
-                }
-
-                // the next six date validation patterns are valid date patterns that we have seen be
-                // manually entered into EMR systems, but are not consistent, so we cannot use the "format" param
-                try {
-                    validateManualDates(cleanedValue, true)
-                    return null
-                } catch (e: DateTimeParseException) {
-                    // continue to the next try
-                }
-                try {
-                    val optionalDateTime = variableDateTimePattern
-                    val df = DateTimeFormatter.ofPattern(optionalDateTime)
-                    val ta = df.parseBest(
-                        cleanedValue,
-                        OffsetDateTime::from,
-                        LocalDateTime::from,
-                        Instant::from,
-                        LocalDate::from
-                    )
-                    LocalDate.from(ta)
-                    return null
-                } catch (e: DateTimeParseException) {
-                    if (nullifyValue) {
-                        return null
-                    } else {
-                        InvalidDateMessage.new(cleanedValue, fieldMapping, format)
-                    }
-                }
-            }
-            Type.DATETIME -> {
-                try {
-                    // getDateTime will throw exception it there is any error.
-                    getDateTime(cleanedValue, format)
-                    return null
-                } catch (e: DateTimeParseException) {
-                    // continue to the next try
-                } catch (e: DateTimeException) {
-                    // this could also happen
-                }
-
-                return try {
-                    // Try to parse using a LocalDate pattern, assuming it follows a non-canonical format value.
-                    // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
-                    val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
-                    LocalDate.parse(cleanedValue, formatter)
+                    DateUtilities.parseDate(cleanedValue)
                     null
-                } catch (e: DateTimeParseException) {
+                } catch (e: Throwable) {
+                    println(e.localizedMessage)
+                    println(e.stackTraceToString())
                     if (nullifyValue) {
-                        return null
+                        null
                     } else {
                         InvalidDateMessage.new(cleanedValue, fieldMapping, format)
                     }
@@ -622,7 +560,9 @@ data class Element(
                     if (nullifyValue) {
                         ""
                     } else {
-                        error("Invalid date: '$cleanedFormattedValue' for element $fieldMapping")
+                        println(t.localizedMessage)
+                        println(t.stackTraceToString())
+                        error("Invalid date: '$cleanedFormattedValue' for format '$format' for element $fieldMapping")
                     }
                 }
             }
@@ -632,11 +572,15 @@ data class Element(
                         .parseDate(cleanedFormattedValue)
                         .toOffsetDateTime()
                         .asFormattedString(DateUtilities.datetimePattern)
-                } catch (_: Throwable) {
+                } catch (t: Throwable) {
                     if (nullifyValue) {
                         ""
                     } else {
-                        error("Invalid date: '$cleanedFormattedValue' for element $fieldMapping")
+                        println(t.localizedMessage)
+                        println(t.stackTraceToString())
+                        error(
+                            "Invalid date time: '$cleanedFormattedValue' for format '$format' for element $fieldMapping"
+                        )
                     }
                 }
             }
@@ -712,84 +656,6 @@ data class Element(
             }
             else -> cleanedFormattedValue
         }
-    }
-
-    /**
-     * The getDateTime function return the OffsetDatetime.  If it can't parse, it will throw either
-     * DateTimeParseException or DateTimeException.  Which allows the caller to catch the exception.
-     * @param [cleanedFormattedValue] datetime value to be parsed.
-     * @param [format] format to parse
-     * @return [OffsetDateTime] the best parsed datetime value
-     */
-    fun getDateTime(cleanedFormattedValue: String, format: String?): OffsetDateTime {
-        val dateTime = try {
-            // Try an ISO pattern
-            OffsetDateTime.parse(cleanedFormattedValue)
-        } catch (e: DateTimeParseException) {
-            null
-        } ?: try {
-            // Try a HL7 pattern
-            val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
-            OffsetDateTime.parse(cleanedFormattedValue, formatter)
-        } catch (e: DateTimeParseException) {
-            null
-        } ?: try {
-            // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
-            val date = LocalDate.parse(cleanedFormattedValue, dateFormatter)
-            OffsetDateTime.of(date, LocalTime.of(0, 0), Environment.rsTimeZone)
-        } catch (e: DateTimeParseException) {
-            null
-        } ?: try {
-            // Try to parse using a LocalDate pattern, assuming it follows a non-canonical format value.
-            // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
-            val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
-            val date = LocalDate.parse(cleanedFormattedValue, formatter)
-            OffsetDateTime.of(date, LocalTime.of(0, 0), Environment.rsTimeZone)
-        } catch (e: DateTimeParseException) {
-            null
-        } ?: try {
-            getBestDateTime(cleanedFormattedValue, datePatternMMddyyyy)
-        } catch (e: DateTimeParseException) {
-            null
-        } catch (e: DateTimeException) {
-            null
-        } ?: try {
-            getBestDateTime(cleanedFormattedValue, variableDateTimePattern)
-        } catch (e: DateTimeParseException) {
-            throw DateTimeParseException(e.message, e.parsedString, e.errorIndex)
-        } catch (e: DateTimeException) {
-            throw DateTimeException(e.message)
-        }
-
-        return dateTime
-    }
-
-    /**
-     * The getBestDateTime function parse to get the best match and return OffsetDatetime.
-     * If it can't parse, it will throw either DateTimeParseException or DateTimeException.
-     * Which allows the caller to catch the exception.
-     * @param [value] datetime value to be parsed.
-     * @param [optionalDateTime] format to parse
-     * @return [OffsetDateTime] the best parsed datetime value
-     */
-    private fun getBestDateTime(value: String, optionalDateTime: String): OffsetDateTime {
-        val df = DateTimeFormatter.ofPattern(optionalDateTime)
-        val ta = df.parseBest(
-            value,
-            OffsetDateTime::from,
-            LocalDateTime::from,
-            Instant::from,
-            LocalDate::from
-        )
-        // Using CENTRAL timezone here is inconsistent with other conversions, but changing to UTC
-        // will cause issues to STLTs.
-        val parsedValue = if (ta is LocalDateTime) {
-            LocalDateTime.from(ta).atZone(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
-        } else {
-            LocalDate.from(ta).atStartOfDay(ZoneId.of(USTimeZone.CENTRAL.zoneId)).toOffsetDateTime()
-        }
-
-        return parsedValue
     }
 
     fun toNormalized(subValues: List<SubValue>): String {
@@ -1009,54 +875,12 @@ data class Element(
         return retVal
     }
 
-    /**
-     * For checkForError and toNormalized methods
-     * validates a date string based on known manually entered formats into EMRs
-     * @param formattedValue the date string that needs to be parsed/checked
-     * @param returnNull is used for the checkForError method - this is expecting a null value if the date is valid
-     * @return the formattedDate for methods like toNormalized
-     */
-    private fun validateManualDates(formattedValue: String, returnNull: Boolean = false): LocalDate? {
-        // Cleanup the Date in variable values
-        val cleanedDate = formattedValue.replace("-", "/")
-        var formattedDate: LocalDate? = null
-
-        manuallyEnteredDateFormats.forEach { dateFormat ->
-            try {
-                val formatter = DateTimeFormatter.ofPattern(dateFormat, Locale.ENGLISH)
-                formattedDate = LocalDate.parse(cleanedDate, formatter)
-                // break out of the loop!
-                return@forEach
-            } catch (e: DateTimeParseException) {
-                // continue to  the next try
-            }
-        }
-        return if (returnNull && formattedDate != null) {
-            null
-        } else (
-            if (returnNull && formattedDate == null) {
-                // let it error out to bubble up to the next function
-                LocalDate.parse(cleanedDate)
-            } else {
-                formattedDate
-            }
-            )
-    }
-
     companion object {
         const val datePattern = "yyyyMMdd"
         const val datePatternMMddyyyy = "MMddyyyy"
         const val datetimePattern = "yyyyMMddHHmmZZZ"
         /** includes seconds  */
         const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSZZZ"
-        // isn't she a beauty? This allows for all kinds of possible date time variations
-        const val variableDateTimePattern = "[yyyyMMddHHmmssZ]" +
-            "[yyyyMMddHHmmZ]" +
-            "[yyyyMMddHHmmss][yyyy-MM-dd HH:mm:ss.ZZZ]" +
-            "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]" +
-            "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]" +
-            "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]" +
-            "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]"
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
         val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
         /** a higher precision date time formatter that includes seconds, and can be used */

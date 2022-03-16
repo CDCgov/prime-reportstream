@@ -163,7 +163,7 @@ class SimpleReportIntegrationTests {
     fun `test fake simplereport data`() {
         val schemaName = "primedatainput/pdi-covid-19"
         val fakeReportFile = createFakeFile(schemaName, 100)
-        // Run the data thru its own schema and back out again
+        // Run the data through its own schema and back out again
         val fakeReportFile2 = readAndWrite(fakeReportFile.absolutePath, schemaName)
         compareTestResultsToExpectedResults(fakeReportFile, fakeReportFile2)
     }

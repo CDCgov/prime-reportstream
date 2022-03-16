@@ -326,19 +326,22 @@ internal class ElementTests {
         try {
             one.toNormalized("12502021")
         } catch (e: IllegalStateException) {
-            assertThat(e.message).isEqualTo("Invalid date: '12502021' for element 'datetime' ('a')")
+            assertThat(e.message)
+                .isEqualTo("Invalid date time: '12502021' for format 'null' for element 'datetime' ('a')")
         }
         // Test wrong month = 13
         try {
             one.toNormalized("13/2/2021")
         } catch (e: IllegalStateException) {
-            assertThat(e.message).isEqualTo("Invalid date: '13/2/2021' for element 'datetime' ('a')")
+            assertThat(e.message)
+                .isEqualTo("Invalid date time: '13/2/2021' for format 'null' for element 'datetime' ('a')")
         }
         // Test wrong year = abcd
         try {
             one.toNormalized("abcd/12/3")
         } catch (e: IllegalStateException) {
-            assertThat(e.message).isEqualTo("Invalid date: 'abcd/12/3' for element 'datetime' ('a')")
+            assertThat(e.message)
+                .isEqualTo("Invalid date time: 'abcd/12/3' for format 'null' for element 'datetime' ('a')")
         }
     }
 
@@ -598,16 +601,15 @@ internal class ElementTests {
             type = Element.Type.DATE,
             csvFields = Element.csvFields("date")
         )
-        assertThat(
-            date.toFormatted(date.toNormalized("20201220"))
-        ).isEqualTo(
-            "20201220"
-        )
-        assertThat(
-            date.toFormatted(date.toNormalized("2020-12-20"))
-        ).isEqualTo(
-            "20201220"
-        )
+        // loop some values and test them
+        mapOf(
+            "20201215073100-0800" to "20201215",
+            "20210604072500-0400" to "20210604",
+            "20201220" to "20201220",
+            "2020-12-20" to "20201220"
+        ).forEach {
+            assertThat(date.toFormatted(date.toNormalized(it.key))).isEqualTo(it.value)
+        }
 
         // normalize manually entered date use cases
         // "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy HH:mm", "yyyy/M/d HH:mm"
@@ -653,16 +655,13 @@ internal class ElementTests {
             type = Element.Type.DATETIME,
             csvFields = Element.csvFields("datetime")
         )
-        assertThat(
-            datetime.toFormatted(datetime.toNormalized("202012200000+0000"))
-        ).isEqualTo(
-            "20201220000000+0000"
-        )
-        assertThat(
-            datetime.toFormatted(datetime.toNormalized("2020-12-20T00:00Z"))
-        ).isEqualTo(
-            "20201220000000+0000"
-        )
+        mapOf(
+            "20201215073100-0800" to "20201215073100-0800",
+            "202012200000+0000" to "20201220000000+0000",
+            "2020-12-20T00:00Z" to "20201220000000+0000"
+        ).forEach {
+            assertThat(datetime.toFormatted(datetime.toNormalized(it.key))).isEqualTo(it.value)
+        }
 
         val hd = Element(
             "a",
