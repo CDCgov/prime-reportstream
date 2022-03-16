@@ -57,6 +57,7 @@ export function DetailItem({ item, content, subItem }: DetailItemProps) {
 */
 export function DestinationItem({ destinationObj }: DestinationItemProps) {
     const submissionDate = generateDateTitles(destinationObj.sending_at);
+    const dataStream = `(${destinationObj.service})`;
     return (
         <div
             style={{
@@ -64,7 +65,9 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
                 flexDirection: "column",
             }}
         >
-            <h2>{destinationObj.organization}</h2>
+            <h2>
+                {destinationObj.organization} {dataStream}
+            </h2>
             <DetailItem
                 item={"Transmission Date"}
                 content={

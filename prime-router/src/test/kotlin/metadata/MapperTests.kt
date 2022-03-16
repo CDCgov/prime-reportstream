@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.metadata
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import gov.cdc.prime.router.ActionLogDetailType
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Metadata
@@ -169,8 +169,7 @@ class MapperTests {
         val response = mapper.apply(elementA, args, emptyList(), sender)
         assertThat(response.value).isNull()
         assertThat(response.errors.size).isEqualTo(1)
-        assertThat(response.errors[0].type).isEqualTo(ActionLogDetailType.REPORT)
-        assertThat(response.errors[0].detailMsg().contains("not a valid value")).isEqualTo(true)
+        assertThat(response.errors[0].message).contains("not a valid value")
     }
 
     @Test

@@ -117,7 +117,7 @@ class LIVDLookupMapper : Mapper {
             if (!element.csvFields.isNullOrEmpty() || !element.hl7Field.isNullOrBlank() ||
                 !element.hl7OutputFields.isNullOrEmpty()
             )
-                it.warning(InvalidEquipmentMessage.new(element))
+                it.warning(InvalidEquipmentMessage(element.fieldMapping))
         }
     }
 

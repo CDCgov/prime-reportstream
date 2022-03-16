@@ -61,8 +61,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
                 // catching individual translation exceptions enables overall work to continue
                 warnings.add(
                     ActionLog(
-                        ActionLog.ActionLogScope.translation,
-                        InvalidTranslationMessage.new(e.localizedMessage),
+                        InvalidTranslationMessage(e.localizedMessage),
                         "TO:${receiver.fullName}:${receiver.schemaName}",
                         reportId = input.id,
                     )
@@ -224,7 +223,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             filterType
         )
         if (doLogging && filteredReport.itemCount != input.itemCount) {
-            logger.warn(
+            logger.info(
                 "Filtering occurred in report ${input.id}, receiver ${receiver.fullName}: " +
                     "There were ${input.itemCount} rows prior to ${filterType.name}, and " +
                     "${filteredReport.itemCount} rows after ${filterType.name}."
