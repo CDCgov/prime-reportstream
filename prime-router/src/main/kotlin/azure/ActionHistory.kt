@@ -6,6 +6,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -277,7 +279,7 @@ class ActionHistory : Logging {
 
     /**
      * Set the action response. This is primarily used by backend functions that do not have an associated HttpRequest
-     * @param jsonResponse the generated stringified json representing the response
+     * @param response the generated stringified json representing the response
      */
     fun trackActionResponse(response: String) {
         val jsonResponse = runCatching { jacksonObjectMapper().readTree(response) }.getOrNull()
@@ -544,13 +546,12 @@ class ActionHistory : Logging {
         report.filteringResults.forEach {
             trackLogs(
                 ActionLog(
-                    ActionLog.ActionLogScope.item,
                     it,
                     it.filteredTrackingElement,
                     it.filteredIndex,
                     reportId = report.id,
                     action = action,
-                    type = ActionLog.ActionLogType.filter,
+                    type = ActionLogLevel.filter,
                 )
             )
         }
@@ -687,7 +688,7 @@ class ActionHistory : Logging {
         // compare the set of reportIds from the item lineage vs the set from report lineage.  Should be identical.
         val parentReports = parentChildReports.map { it.first }.toSet()
         val childReports = parentChildReports.map { it.second }.toSet()
-        var parentReports2 = mutableSetOf<ReportId>()
+        val parentReports2 = mutableSetOf<ReportId>()
         parentReports2.addAll(reportsReceived.keys)
         parentReports2.addAll(reportsIn.keys)
         val childReports2 = reportsOut.keys
@@ -799,7 +800,7 @@ class ActionHistory : Logging {
             val filterDetails = actionLogs.filter {
                 it.reportId == reportFile.reportId
             }.filter {
-                it.type == ActionLog.ActionLogType.filter
+                it.type == ActionLogLevel.filter
             }
 
             if (filterDetails.isNotEmpty()) {
@@ -808,6 +809,27 @@ class ActionHistory : Logging {
                     val detail = it.detail
                     if (detail is ReportStreamFilterResult) {
                         jsonGen.writeString(detail.toString())
+                    }
+                }
+                jsonGen.writeEndArray()
+
+                jsonGen.writeArrayFieldStart("filteredReportItems")
+                filterDetails.forEach {
+                    val detail = it.detail
+                    if (detail is ReportStreamFilterResult) {
+                        jsonGen.writeStartObject()
+                        jsonGen.writeNumberField("filteredIndex", detail.filteredIndex)
+                        jsonGen.writeNumberField("originalCount", detail.originalCount)
+                        jsonGen.writeStringField("receiverName", detail.receiverName)
+                        jsonGen.writeStringField("filterName", detail.filterName)
+                        jsonGen.writeStringField("filterType", detail.filterType.toString())
+                        jsonGen.writeStringField("filteredTrackingElement", detail.filteredTrackingElement)
+                        jsonGen.writeArrayFieldStart("filteredArgs")
+                        detail.filterArgs.forEach { arg ->
+                            jsonGen.writeString(arg)
+                        }
+                        jsonGen.writeEndArray()
+                        jsonGen.writeEndObject()
                     }
                 }
                 jsonGen.writeEndArray()
@@ -845,8 +867,7 @@ class ActionHistory : Logging {
         return countToPrint
     }
 
-    companion object {
-
+    companion object : Logging {
         // TODO: Deprecated. Delete.  WorkflowEngine.handleRecieverEvent pulls in each report individually.
         fun fetchReportFilesForReceiver(
             nextAction: TaskAction,
@@ -902,14 +923,10 @@ class ActionHistory : Logging {
                 }
             }
             if (msg.isNotEmpty()) {
-                if (failOnError) {
+                if (failOnError)
                     error("*** Sanity check comparing old Headers list to new ReportFile list FAILED:  $msg")
-                } else {
-                    println(
-                        "************ FAILURE: sanity check comparing old Headers " +
-                            "list to new ReportFiles list FAILED:  $msg\""
-                    )
-                }
+                else
+                    logger.warn("***** FAILURE: sanity check comparing old headers list to new ReportFiles list:\n$msg")
             }
         }
 
@@ -946,14 +963,10 @@ class ActionHistory : Logging {
                 }
             }
             if (msg.isNotEmpty()) {
-                if (failOnError) {
+                if (failOnError)
                     error("*** Sanity check comparing old Header info and new ReportFile info FAILED:  $msg")
-                } else {
-                    System.out.println(
-                        "************ FAILURE: sanity check comparing " +
-                            "old Header info and new ReportFile info FAILED:  $msg\""
-                    )
-                }
+                else
+                    logger.warn("***** FAILURE: sanity check comparing old headers list to new ReportFiles list:\n$msg")
             }
         }
     }
@@ -972,17 +985,15 @@ class ActionHistory : Logging {
     data class GroupedProperties(
         val itemsByGroupingId: MutableMap<String, MutableList<Int>>,
         val messageByGroupingId: MutableMap<String, String>,
-        val scopesByGroupingId: MutableMap<String, ActionLog.ActionLogScope>
+        val scopesByGroupingId: MutableMap<String, ActionLogScope>
     )
 
     /**
      * Creates a string that will be used to populate the action_response column of an action
      * after that action has been completed
-     * @param options Message options passed in
-     * @param warnings Store of warnings generated during the pipeline
-     * @param errors Store of errors generated during the pipeline
      * @param verbose If true, all item routing details will be included in the response
      * @param report The report this response body is for
+     * @param settingsProvider the settings provider
      * @return A json representation of the result of whatever action called this
      */
     fun createResponseBody(
@@ -990,8 +1001,8 @@ class ActionHistory : Logging {
         report: Report?,
         settingsProvider: SettingsProvider
     ): String {
-        val warnings = actionLogs.filter { it.type == ActionLog.ActionLogType.warning }
-        val errors = actionLogs.filter { it.type == ActionLog.ActionLogType.error }
+        val warnings = actionLogs.filter { it.type == ActionLogLevel.warning }
+        val errors = actionLogs.filter { it.type == ActionLogLevel.error }
         val factory = JsonFactory()
         val outStream = ByteArrayOutputStream()
         factory.createGenerator(outStream).use {
@@ -1045,7 +1056,7 @@ class ActionHistory : Logging {
             fun createRowsDescription(rows: List<Int>?): String {
                 // Consolidate row ranges, e.g. 1,2,3,5,7,8,9 -> 1-3,5,7-9
                 if (rows == null || rows.isEmpty()) return ""
-                val sb = StringBuilder().append("Rows: ")
+                val sb = StringBuilder()
                 var isListing = false
                 rows.sorted().forEachIndexed { i, row ->
                     if (i == 0) {
@@ -1077,16 +1088,16 @@ class ActionHistory : Logging {
             fun createPropertiesByGroupingId(actionLogs: List<ActionLog>): GroupedProperties {
                 val itemsByGroupingId = mutableMapOf<String, MutableList<Int>>()
                 val messageByGroupingId = mutableMapOf<String, String>()
-                val scopesByGroupingId = mutableMapOf<String, ActionLog.ActionLogScope>()
+                val scopesByGroupingId = mutableMapOf<String, ActionLogScope>()
                 actionLogs.forEach { actionDetail ->
-                    val groupingId = actionDetail.detail.groupingId()
+                    val groupingId = actionDetail.detail.message
                     if (!itemsByGroupingId.containsKey(groupingId)) {
                         itemsByGroupingId[groupingId] = mutableListOf()
-                        messageByGroupingId[groupingId] = actionDetail.detail.detailMsg()
+                        messageByGroupingId[groupingId] = actionDetail.detail.message
                         scopesByGroupingId[groupingId] = actionDetail.scope
                     }
                     actionDetail.index?.let {
-                        itemsByGroupingId[groupingId]?.add(actionDetail.index + 1)
+                        itemsByGroupingId[groupingId]?.add(actionDetail.index)
                     }
                 }
                 return GroupedProperties(
@@ -1101,7 +1112,7 @@ class ActionHistory : Logging {
              * groupingId and returns them as a GroupedProperties data class instance
              *
              * @param field defines the name of the array in the JSON result
-             * @param ActionDetailList the list of items to write to the JSON
+             * @param actionDetailList the list of items to write to the JSON
              */
             fun writeConsolidatedArray(field: String, actionDetailList: List<ActionLog>) {
                 val (
@@ -1114,7 +1125,7 @@ class ActionHistory : Logging {
                     it.writeStartObject()
                     it.writeStringField("scope", scopesByGroupId[groupingId].toString())
                     it.writeStringField("message", messageByGroupingId[groupingId])
-                    if (scopesByGroupId[groupingId] == ActionLog.ActionLogScope.item) {
+                    if (scopesByGroupId[groupingId] == ActionLogScope.item) {
                         it.writeStringField(
                             "itemNums",
                             createRowsDescription(itemsByGroupingId[groupingId])

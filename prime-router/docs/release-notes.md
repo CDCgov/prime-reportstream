@@ -2,8 +2,9 @@
 
 ## General useful links:
 
-- All Schemas are documented here:  [Link to detailed schema dictionaries](./schema_documentation)
+- All Schemas are documented here: [Link to detailed schema dictionaries](./schema_documentation)
 - The ReportStream API is documented here: [Hub OpenApi Spec](./openapi.yml)
+- More detailed changelog for individual releases: [Recent releases](https://github.com/CDCgov/prime-reportstream/releases)
 
 ## March 8, 2022
 ### Consistent formatting of timestamps in API responses
@@ -13,11 +14,6 @@ a precision down to milliseconds.  This follows the pattern of `yyyy-MM-dd'T'HH:
 [Java's DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).
 
 Example updated timestamp: 2022-03-02T17:53:17.981Z
-
-### Submissions endpoint updates
-Additional cgi parameters have been added to the `/api/history/{organization}/submissions` endpoint:
-- `showfailed`: If set to `false`, will filter out failed submissions. Defaults to showing all submissions
-- `endcursor`: If set, submissions between `cursor` and `endcursor` timestamps will be returned
 
 ## March 3, 2022
 ### Added duplicate detection

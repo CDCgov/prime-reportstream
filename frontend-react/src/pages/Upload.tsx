@@ -329,7 +329,7 @@ export const Upload = () => {
                                 return (
                                     <tr key={"error_" + i}>
                                         <td>{e["message"]}</td>
-                                        <td>{e["itemNums"]}</td>
+                                        <td>Row(s): {e["itemNums"]}</td>
                                     </tr>
                                 );
                             })}
