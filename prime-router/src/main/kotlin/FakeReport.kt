@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import com.github.javafaker.Faker
 import com.github.javafaker.Name
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.ConcatenateMapper
 import gov.cdc.prime.router.metadata.ElementAndValue
@@ -85,14 +86,15 @@ class FakeDataService : Logging {
                 element.nameContains("DOB") -> faker.date().birthday(0, 100)
                 else -> faker.date().past(10, TimeUnit.DAYS)
             }
-            val formatter = SimpleDateFormat(Element.datePattern)
+            val formatter = SimpleDateFormat(DateUtilities.datePattern)
             return formatter.format(date)
         }
 
         // creates a fake date time and then formats it
         fun createFakeDateTime(): String {
             val date = faker.date().past(10, TimeUnit.DAYS)
-            val formatter = SimpleDateFormat(Element.datetimePattern)
+            // local date time pattern does not include the offset
+            val formatter = SimpleDateFormat(DateUtilities.localDateTimePattern)
             return formatter.format(date)
         }
 

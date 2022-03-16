@@ -15,11 +15,12 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.Environment
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
-import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
 
 /**
@@ -730,9 +731,9 @@ class CompareCsvData {
                     ) {
                         try {
                             val expectedTime =
-                                OffsetDateTime.parse(expectedValue, Element.datetimeFormatter).toEpochSecond()
+                                DateUtilities.parseDate(expectedValue).toOffsetDateTime().toEpochSecond()
                             val actualTime =
-                                OffsetDateTime.parse(actualValue, Element.datetimeFormatter).toEpochSecond()
+                                DateUtilities.parseDate(actualValue).toOffsetDateTime().toEpochSecond()
                             if (expectedTime != actualTime) {
                                 result.errors.add(
                                     "Date time value does not match in report $actualRowNum " +

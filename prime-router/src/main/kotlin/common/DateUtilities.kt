@@ -23,7 +23,7 @@ object DateUtilities {
     /** an alternate date pattern MMddyyyy */
     const val alternateDatePattern = "[yyyy-MM-dd][yyyy-dd-MM][MMdduuuu][uuuuMMdd]"
     /** a local date time pattern to use when formatting in local date time instead */
-    const val localDateTimePattern = "uuuuMMddHHmmss"
+    const val localDateTimePattern = "yyyyMMddHHmmss"
     /** our standard offset date time pattern */
     const val datetimePattern = "yyyyMMddHHmmssxx"
     /** includes seconds and milliseconds in the offset for higher precision  */
@@ -42,7 +42,7 @@ object DateUtilities {
         "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]" +
         "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]" +
         "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]"
-
+    /** A list of accepted date formats to try and parse to */
     val allowedDateFormats = listOf(
         "[yyyyMMdd[HHmm][ss][.S][Z]]", "[yyyy-MM-dd HH:mm:ss.ZZZ]",
         "[uuuuMMddHHmmss[.nnnn][Z]][uuuuMMddHHmm[.nnnn][Z]]",

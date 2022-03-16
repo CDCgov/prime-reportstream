@@ -5,11 +5,11 @@ import gov.cdc.prime.router.ElementResult
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import java.security.MessageDigest
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import javax.xml.bind.DatatypeConverter
@@ -131,7 +131,7 @@ class UseMapper : Mapper {
                 when {
                     element.type == fromElement.type -> fromValue
                     element.type == Element.Type.DATE && fromElement.type == Element.Type.DATETIME -> {
-                        LocalDateTime.parse(fromValue, Element.datetimeFormatter).format(Element.dateFormatter)
+                        DateUtilities.parseDate(fromValue).asFormattedString(DateUtilities.datePattern)
                     }
                     element.type == Element.Type.TEXT -> fromValue
                     // TODO: Unchecked conversions should probably be removed, but the PIMA schema relies on this, right now.

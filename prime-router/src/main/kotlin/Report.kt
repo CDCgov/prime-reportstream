@@ -532,10 +532,10 @@ class Report : Logging {
                                 val parsedDate = LocalDate.parse(
                                     dob.ifEmpty {
                                         LocalDate.now().format(
-                                            DateTimeFormatter.ofPattern(Element.datePattern)
+                                            DateTimeFormatter.ofPattern(DateUtilities.datePattern)
                                         )
                                     },
-                                    DateTimeFormatter.ofPattern(Element.datePattern)
+                                    DateTimeFormatter.ofPattern(DateUtilities.datePattern)
                                 )
                                 // get the year and date
                                 val year = parsedDate.year
@@ -543,7 +543,7 @@ class Report : Logging {
                                 val month = Random.nextInt(1, 12)
                                 val day = Random.nextInt(1, 28)
                                 // return with a different month and day
-                                Element.dateFormatter.format(LocalDate.of(year, month, day))
+                                DateUtilities.dateFormatter.format(LocalDate.of(year, month, day))
                             }
                             // return our list of days
                             dobs

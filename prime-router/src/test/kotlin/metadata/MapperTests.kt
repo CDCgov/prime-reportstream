@@ -294,7 +294,7 @@ class MapperTests {
             ElementAndValue(element, "202103020000-0600")
         )
         // act
-        val expected = "20210302000006.0000-0600"
+        val expected = "20210302000006-0600"
         val actual = mapper.apply(element, args, values)
         // assert
         assertThat(actual.value).isEqualTo(expected)
@@ -314,7 +314,7 @@ class MapperTests {
             ElementAndValue(element, "20210302000006.0000-0600")
         )
         // act
-        val expected = "20210302000000.0000-0600"
+        val expected = "20210302000000-0600"
         val actual = mapper.apply(element, args, values)
         // assert
         assertThat(actual.value).isEqualTo(expected)
@@ -334,7 +334,7 @@ class MapperTests {
             ElementAndValue(element, "202103020000-0600")
         )
         // act
-        val expected = "20210302000100.0000-0600"
+        val expected = "20210302000100-0600"
         val actual = mapper.apply(element, args, values)
         // assert
         assertThat(actual.value).isEqualTo(expected)
@@ -354,7 +354,7 @@ class MapperTests {
             ElementAndValue(element, "20210302000100.0000-0600")
         )
         // act
-        val expected = "20210302000000.0000-0600"
+        val expected = "20210302000000-0600"
         val actual = mapper.apply(element, args, values)
         // assert
         assertThat(actual.value).isEqualTo(expected)

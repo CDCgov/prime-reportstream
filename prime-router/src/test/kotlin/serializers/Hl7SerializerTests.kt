@@ -28,6 +28,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import gov.cdc.prime.router.unittest.UnitTestUtils.createConfig
 import io.mockk.every
@@ -203,7 +204,7 @@ class Hl7SerializerTests {
         val nowAsDate = Date.from(now.toInstant())
         val dateTimeElement = Element("field", hl7Field = "OBX-14", type = Element.Type.DATETIME)
         val warnings = mutableListOf<ActionLogDetail>()
-        val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(Element.datetimePattern)
+        val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(DateUtilities.datetimePattern)
         val dateFormatterNoTimeZone = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
 
         // Segment not found
@@ -305,7 +306,7 @@ class Hl7SerializerTests {
         val mockSegment = mockk<Segment>()
         val mockDT = mockk<DT>()
         val dateElement = Element("field", hl7Field = "OBX-14", type = Element.Type.DATE)
-        val dateFormatterDate = DateTimeFormatter.ofPattern(Element.datePattern)
+        val dateFormatterDate = DateTimeFormatter.ofPattern(DateUtilities.datePattern)
         val warnings = mutableListOf<ActionLogDetail>()
 
         every { mockTerser.getSegment(any()) } returns mockSegment

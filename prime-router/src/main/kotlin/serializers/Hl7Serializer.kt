@@ -1725,7 +1725,7 @@ class Hl7Serializer(
                     // Now check to see if we have all the precision we want
                     when (element.type) {
                         Element.Type.DATETIME -> {
-                            valueString = DateTimeFormatter.ofPattern(Element.datetimePattern)
+                            valueString = DateTimeFormatter.ofPattern(DateUtilities.datetimePattern)
                                 .format(OffsetDateTime.ofInstant(dtm, ZoneId.of("Z")))
                             val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.?[0-9]{0,4}[+-][0-9]{4}]\$")
                             if (!r.matches(rawValue)) {
@@ -1739,7 +1739,7 @@ class Hl7Serializer(
                             }
                         }
                         Element.Type.DATE -> {
-                            valueString = DateTimeFormatter.ofPattern(Element.datePattern)
+                            valueString = DateTimeFormatter.ofPattern(DateUtilities.datePattern)
                                 .format(OffsetDateTime.ofInstant(dtm, ZoneId.of("Z")))
                             // Note that some schema fields of type date could be derived from HL7 date time fields
                             val r = Regex("^[A-Z]+\\[[0-9]{8,}.*")

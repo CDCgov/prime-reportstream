@@ -15,6 +15,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.size
 import assertk.assertions.startsWith
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.metadata.ConcatenateMapper
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
@@ -845,7 +846,7 @@ internal class ElementTests {
             Element("j", Element.Type.TEXT, defaultOverridesValue = true), // 9   (null default)
         )
         val schema = Schema("one", "covid-19", elements)
-        val currentDate = LocalDate.now().format(Element.dateFormatter)
+        val currentDate = LocalDate.now().format(DateUtilities.dateFormatter)
         val mappedValues = mutableMapOf(
             elements[0].name to "TEST",
             elements[1].name to "",

@@ -15,8 +15,6 @@ import org.apache.commons.lang3.StringUtils
 import java.lang.Exception
 import java.text.DecimalFormat
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 class AltValueNotDefinedException(message: String) : IllegalStateException(message)
 
@@ -861,7 +859,7 @@ data class Element(
                 retVal = ElementAndValue(tokenElement, index.toString())
             }
             elementName == "\$currentDate" -> {
-                val currentDate = LocalDate.now().format(dateFormatter)
+                val currentDate = LocalDate.now().format(DateUtilities.dateFormatter)
                 retVal = ElementAndValue(tokenElement, currentDate)
             }
             elementName.contains("\$mode:") -> {
@@ -876,20 +874,6 @@ data class Element(
     }
 
     companion object {
-        const val datePattern = "yyyyMMdd"
-        const val datePatternMMddyyyy = "MMddyyyy"
-        const val datetimePattern = "yyyyMMddHHmmZZZ"
-        /** includes seconds  */
-        const val highPrecisionDateTimePattern = "yyyyMMddHHmmss.SSSZZZ"
-        val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
-        val datetimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(datetimePattern, Locale.ENGLISH)
-        /** a higher precision date time formatter that includes seconds, and can be used */
-        val highPrecisionDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(
-            highPrecisionDateTimePattern,
-            Locale.ENGLISH
-        )
-        val manuallyEnteredDateFormats =
-            arrayOf(datePattern, "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy H:mm", "yyyy/M/d H:mm")
         const val displayToken = "\$display"
         const val caretToken = "\$code^\$display^\$system"
         const val codeToken = "\$code"
