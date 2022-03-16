@@ -145,10 +145,9 @@ export const Diff = (a_: string, b_: string) => {
             }
 
             let p = -1;
-            let k;
             do {
                 ++p;
-                for (k = -p; k <= delta - 1; ++k) {
+                for (let k = -p; k <= delta - 1; ++k) {
                     fp[k + offset] = snake(
                         k,
                         (fp[k - 1 + offset] || -1) + 1,
