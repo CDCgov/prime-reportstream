@@ -137,6 +137,7 @@ class DataCompareTest : CoolTest() {
                     // Send the input file to ReportStream
                     val (responseCode, json) =
                         HttpUtilities.postReportBytes(environment, inputFile.readBytes(), sender, options.key)
+                    inputFile.close()
                     if (responseCode != HttpURLConnection.HTTP_CREATED) {
                         bad("***$name Test FAILED***:  response code $responseCode")
                         passed = false
@@ -506,7 +507,7 @@ class CompareHl7Data(val result: CompareData.Result = CompareData.Result()) {
                     )
                 }
                 // For dynamic values we expect them to be have something
-                else if (actualFieldContents[repetitionIndex].isEmpty) {
+                else if ((actualFieldContents.getOrNull(repetitionIndex)?.isEmpty ?: false)) {
                     result.errors.add(
                         "No date/time of message for record $recordNum in field $fieldSpec"
                     )

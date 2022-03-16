@@ -7,8 +7,10 @@ import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
+import FilterContext from "../../contexts/FilterContext";
 
-import SubmissionTable from "./SubmissionsTable";
+import SubmissionTable from "./SubmissionTable";
+import SubmissionFilters from "./SubmissionFilters";
 
 function Submissions() {
     const orgName: string = useOrgName();
@@ -23,13 +25,16 @@ function Submissions() {
             <section className="grid-container margin-top-5">
                 <Title title="COVID-19" preTitle={orgName} />
             </section>
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="message" />}
-            >
-                <Suspense fallback={<Spinner />}>
-                    <SubmissionTable />
-                </Suspense>
-            </NetworkErrorBoundary>
+            <FilterContext>
+                <SubmissionFilters />
+                <NetworkErrorBoundary
+                    fallbackComponent={() => <ErrorPage type="message" />}
+                >
+                    <Suspense fallback={<Spinner />}>
+                        <SubmissionTable />
+                    </Suspense>
+                </NetworkErrorBoundary>
+            </FilterContext>
             <HipaaNotice />
         </NetworkErrorBoundary>
     );

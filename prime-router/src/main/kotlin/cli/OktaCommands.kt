@@ -1,8 +1,5 @@
 package gov.cdc.prime.router.cli
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.default
@@ -15,6 +12,7 @@ import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import com.sun.net.httpserver.HttpServer
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.commons.codec.binary.Base64
 import org.json.JSONObject
 import java.awt.Desktop
@@ -215,11 +213,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             OktaApp.DH_DEV to oktaPreviewBaseUrl,
         )
 
-        private val jsonMapper = jacksonObjectMapper()
-        init {
-            jsonMapper.registerModule(JavaTimeModule())
-            jsonMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        }
+        private val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
 
         /**
          * Returns the access token saved from the last login if valid given [app].

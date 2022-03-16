@@ -97,15 +97,15 @@ export const FacilitiesOverview = () => {
                             with advanced systems.
                         </p>
                         <p>
-                            For more information, read the
+                            For more information, read the&nbsp;
                             <a
                                 href="https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2FCDCgov%2Fprime-reportstream%2Fmaster%2Fprime-router%2Fdocs%2FReportStream-Programmers-Guide-for-Senders.docx"
                                 className="usa-link"
                                 rel="noopener noreferrer"
                                 target="_blank"
                             >
-                                ReportStream Programmer's Guide for Testing
-                                Facilities and Senders (.docx)
+                                ReportStream programmer's guide for testing
+                                facilities and senders (.docx)
                             </a>
                         </p>
                     </li>

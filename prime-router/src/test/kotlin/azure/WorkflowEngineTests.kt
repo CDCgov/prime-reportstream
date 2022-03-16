@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
@@ -31,6 +32,7 @@ import org.junit.jupiter.api.TestInstance
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class WorkflowEngineTests {
@@ -72,7 +74,7 @@ class WorkflowEngineTests {
         every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
-        engine.dispatchReport(event, report1, actionHistory, receiver, context = null)
+        engine.dispatchReport(event, report1, actionHistory, receiver)
 
         verify(exactly = 1) {
             accessSpy.insertTask(
@@ -105,7 +107,7 @@ class WorkflowEngineTests {
         every { actionHistory.trackGeneratedEmptyReport(any(), any(), any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
-        engine.dispatchReport(event, report1, actionHistory, receiver, context = null, isEmptyReport = true)
+        engine.dispatchReport(event, report1, actionHistory, receiver, isEmptyReport = true)
 
         verify(exactly = 1) {
             accessSpy.insertTask(
@@ -143,7 +145,7 @@ class WorkflowEngineTests {
         every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
 
         val engine = makeEngine(metadata, settings)
-        engine.dispatchReport(event, report1, actionHistory, receiver, context = null)
+        engine.dispatchReport(event, report1, actionHistory, receiver)
 
         verify(exactly = 1) {
             accessSpy.insertTask(
@@ -158,6 +160,36 @@ class WorkflowEngineTests {
 // todo           blobMock.deleteBlob(blobUrl = any())
         }
         confirmVerified(accessSpy, blobMock, queueMock) // todo
+    }
+
+    /* Test duplicate detection error return message */
+    @Test
+    fun `test verifyNoDuplicateFile`() {
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings()
+        val sender = Sender("senderName", "org", Sender.Format.CSV, "covid-19", CustomerStatus.INACTIVE, one.name)
+
+        every {
+            accessSpy.isDuplicateReportFile(any(), any(), any())
+        }.returns(true)
+
+        val digest = "fakeDigest".toByteArray()
+        val engine = makeEngine(metadata, settings)
+        val payload = "test_file.fk"
+
+        val err = assertFailsWith<ActionError> {
+            engine.verifyNoDuplicateFile(sender, digest, payload)
+        }
+        val err2 = assertFailsWith<ActionError> {
+            engine.verifyNoDuplicateFile(sender, digest, null)
+        }
+
+        assertThat { err.message == "Duplicate file detected. Filename: test_file.fk" }
+        assertThat { err2.message == "Duplicate file detected." }
+        verify(exactly = 2) {
+            accessSpy.isDuplicateReportFile(any(), any(), any())
+        }
     }
 
     @Test
@@ -231,7 +263,7 @@ class WorkflowEngineTests {
         every { actionHistoryMock.trackActionResult(any() as String) }.returns(Unit)
         every { ActionHistory.Companion.sanityCheckReport(any(), any(), any()) }.returns(Unit)
 
-        engine.handleReportEvent(event, null) { header, _, _ ->
+        engine.handleReportEvent(event) { header, _, _ ->
             assertEquals(task, header.task)
             nextAction
         }

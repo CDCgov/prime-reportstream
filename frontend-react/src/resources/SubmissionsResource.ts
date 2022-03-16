@@ -4,7 +4,9 @@ type SubmissionsResourceParams = {
     organization: string;
     pageSize: number;
     cursor: string;
+    endCursor: string;
     sort: string;
+    showFailed: boolean;
 };
 
 const FALLBACKDATE = "2020-01-01T00:00:00.000Z";
@@ -32,7 +34,8 @@ export default class SubmissionsResource extends AuthResource {
     }
 
     static listUrl(searchParams: SubmissionsResourceParams): string {
-        return `${process.env.REACT_APP_BACKEND_URL}/api/history/${searchParams.organization}/submissions?pagesize=${searchParams.pageSize}&cursor=${searchParams.cursor}&sort=${searchParams.sort}`;
+        return `
+        ${process.env.REACT_APP_BACKEND_URL}/api/history/${searchParams.organization}/submissions?pagesize=${searchParams.pageSize}&cursor=${searchParams.cursor}&endcursor=${searchParams.endCursor}&sort=${searchParams.sort}&showfailed=${searchParams.showFailed}`;
     }
 
     isSuccessSubmitted(): boolean {

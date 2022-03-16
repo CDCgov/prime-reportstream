@@ -1,8 +1,8 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { RouteComponentProps } from "react-router-dom";
-import { GridContainer, Grid, Button } from "@trussworks/react-uswds";
+import { GridContainer, Grid, Button, ModalRef } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
@@ -18,6 +18,13 @@ import {
     showAlertNotification,
     showError,
 } from "../../components/AlertNotifications";
+import {
+    getStoredOktaToken,
+    getStoredOrg,
+} from "../../components/GlobalContextProvider";
+import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
+import { ConfirmSaveSettingModal } from "../../components/Admin/CompareJsonModal";
+import { CheckFeatureFlag } from "../misc/FeatureFlags";
 
 type AdminOrgEditProps = {
     orgname: string;
@@ -31,11 +38,54 @@ export function AdminOrgEdit({
         OrgSettingsResource.detail(),
         { orgname: orgname }
     );
+    const modalRef = useRef<ModalRef>(null);
+    const diffEditorRef = useRef(null);
 
+    const [orgSettingsOldJson, setOrgSettingsOldJson] = useState("");
+    const [orgSettingsNewJson, setOrgSettingsNewJson] = useState("");
     const { fetch: fetchController } = useController();
+
+    function handleEditorDidMount(editor: null) {
+        diffEditorRef.current = editor;
+    }
+
+    const ShowCompareConfirm = async () => {
+        try {
+            // fetch original version
+            const accessToken = getStoredOktaToken();
+            const organization = getStoredOrg();
+
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        Organization: organization!,
+                    },
+                }
+            );
+
+            const responseBody = await response.json();
+            setOrgSettingsOldJson(
+                JSON.stringify(responseBody, jsonSortReplacer, 2)
+            );
+            setOrgSettingsNewJson(
+                JSON.stringify(orgSettings, jsonSortReplacer, 2)
+            );
+
+            modalRef?.current?.toggleModal(undefined, true);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
     const saveOrgData = async () => {
         try {
-            const data = JSON.stringify(orgSettings);
+            const data = CheckFeatureFlag("showDiffEditor")
+                ? // @ts-ignore
+                  diffEditorRef.current.getModifiedEditor().getValue()
+                : orgSettingsNewJson;
+
             await fetchController(
                 OrgSettingsResource.update(),
                 { orgname },
@@ -122,6 +172,7 @@ export function AdminOrgEdit({
                                 fieldname={"filters"}
                                 label={"Filters"}
                                 defaultvalue={orgSettings.filters}
+                                defaultnullvalue="[]"
                                 savefunc={(v) => (orgSettings.filters = v)}
                             />
                             <Grid row>
@@ -129,11 +180,19 @@ export function AdminOrgEdit({
                                     form="edit-setting"
                                     type="submit"
                                     data-testid="submit"
-                                    onClick={() => saveOrgData()}
+                                    onClick={() => ShowCompareConfirm()}
                                 >
-                                    Save
+                                    Save...
                                 </Button>
                             </Grid>
+                            <ConfirmSaveSettingModal
+                                uniquid={orgname}
+                                onConfirm={saveOrgData}
+                                modalRef={modalRef}
+                                oldjson={orgSettingsOldJson}
+                                newjson={orgSettingsNewJson}
+                                handleEditorDidMount={handleEditorDidMount}
+                            />
                         </GridContainer>
 
                         <br />

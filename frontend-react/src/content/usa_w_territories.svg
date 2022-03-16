@@ -20,13 +20,13 @@
     .co, /* Colorado */
     /* .ct, Connecticut */
     /* .dc, District of Columbia */
-    /* .de, Delaware */
+    .de, /* Delaware */
     .fl, /* Florida */
     /* .ga, Georgia */
     .gu, /* Guam */
     /* .hi, Hawaii */
-    /* .ia, Iowa */
-    /* .id, Idaho */
+    .ia, /* Iowa */
+    .id, /* Idaho */
     .il, /* Illinois */
     /* .in, Indiana */
     /* .ks, Kansas */

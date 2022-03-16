@@ -1,7 +1,5 @@
 package gov.cdc.prime.router.cli
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.output.TermUi
@@ -18,6 +16,7 @@ import com.github.kittinunf.result.onError
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.SenderFilesFunction
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.messages.ReportFileMessage
 import java.nio.file.Files
 import java.nio.file.Path
@@ -77,9 +76,7 @@ class SenderFilesCommand : CliktCommand(
         help = "Do not echo progress or prompt for confirmation"
     ).flag(default = false)
 
-    private val jsonMapper = jacksonMapperBuilder()
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .build()
+    private val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
 
     private val environment = lazy { Environment.get(env) }
     private val accessToken = lazy {

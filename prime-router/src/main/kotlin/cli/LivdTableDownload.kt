@@ -186,13 +186,15 @@ class LivdTableDownload : CliktCommand(
         }
 
         val data = StringBuffer() // Buffer and output file for CSV data
-        val fileInputStream = FileInputStream(inputfile)
         val ext: String = FilenameUtils.getExtension(inputfile.name)
         if (!ext.equals("xlsx", ignoreCase = true)) {
             error("$inputfile is unsupported since it is not Excel xlsx format file.")
         }
 
+        val fileInputStream = FileInputStream(inputfile)
         val workbook: Workbook = XSSFWorkbook(fileInputStream)
+        fileInputStream.close()
+
         val outputfile = File.createTempFile(
             livdSARSCov2FilenamePrefix, "_orig.csv",
             File(defaultOutputDir)
@@ -258,6 +260,7 @@ class LivdTableDownload : CliktCommand(
         // Write to CSV file.
         fileOutputStream.write(data.toString().toByteArray())
         fileOutputStream.close()
+
         return outputfile
     }
 

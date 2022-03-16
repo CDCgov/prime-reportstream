@@ -1,0 +1,246 @@
+# ./prime multiple-settings set --env staging --input ./settings/staging/0086-update-nj-truncate-orc-12-3-and-obr-16-3.yml
+---
+- name: "nj-doh"
+  description: "New Jersey Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "NJ"
+  countyName: null
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, NJ, patient_state, NJ)"
+        - "matches(processing_mode_code, P)"
+      qualityFilter:
+        - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+        - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+        - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob,ordering_provider_id,ordering_facility_name)"
+        - "isValidCLIA(testing_lab_clia)"
+      routingFilter:
+        - "matches(test_result_status, F, C, P)"
+      processingModeFilter: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "nj-doh"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "ELRS"
+        receivingApplicationOID: "2.16.840.1.113883.3.1299.5.1.6.1"
+        receivingFacilityName: "NJDOH"
+        receivingFacilityOID: "2.16.840.1.113883.3.1299"
+        messageProfileId: null
+        replaceValue: {}
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "OBX-23-1,ORC-12-3,OBR-16-3"
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter: []
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1
+        initialTime: "09:15"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      externalName: null
+    - name: "elr-test"
+      organizationName: "nj-doh"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "ELRS"
+        receivingApplicationOID: "2.16.840.1.113883.3.1299.5.1.6.1"
+        receivingFacilityName: "NJDOH"
+        receivingFacilityOID: "2.16.840.1.113883.3.1299"
+        messageProfileId: null
+        replaceValue: {}
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "OBX-23-1,ORC-12-3,OBR-16-3"
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter: []
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1
+        initialTime: "09:15"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      externalName: null
+    - name: "elr-test-secondary"
+      organizationName: "nj-doh"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "ELRS"
+        receivingApplicationOID: "2.16.840.1.113883.3.1299.5.1.6.1"
+        receivingFacilityName: "NJDOH"
+        receivingFacilityOID: "2.16.840.1.113883.3.1299"
+        messageProfileId: null
+        replaceValue: {}
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "OBX-23-1,ORC-12-3,OBR-16-3"
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD_SECONDARY"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter: []
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: true
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1
+        initialTime: "09:15"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      externalName: null
+    - name: "elr-secondary"
+      organizationName: "nj-doh"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "ELRS"
+        receivingApplicationOID: "2.16.840.1.113883.3.1299.5.1.6.1"
+        receivingFacilityName: "NJDOH"
+        receivingFacilityOID: "2.16.840.1.113883.3.1299"
+        messageProfileId: null
+        replaceValue: {}
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "OBX-23-1,ORC-12-3,OBR-16-3"
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD_SECONDARY"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter: []
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: true
+      deidentify: false
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1
+        initialTime: "09:15"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      externalName: null
