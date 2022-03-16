@@ -835,8 +835,13 @@ class Report : Logging {
             rawStr += row.getString(colNum)
         }
 
-        // get and add the specimen collection time to reduce hash collision
-        val collectionTime = row.getString("specimen_collection_date_time").toByteArray()
+        // TODO: find out if not having this column is just an automated test thing, or if this is
+        //  common in production
+        // get and add the specimen collection time to reduce hash collision if we can find it
+        val collectionTime = (
+            if (row.columnNames().contains("specimen_collection_date_time"))
+                row.getString("specimen_collection_date_time") else ""
+            ).toByteArray()
 
         // generate digest of entire row
         val digest = MessageDigest

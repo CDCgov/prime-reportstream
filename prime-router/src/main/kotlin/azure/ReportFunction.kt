@@ -15,6 +15,8 @@ import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
+import gov.cdc.prime.router.DuplicateFileMessage
+import gov.cdc.prime.router.DuplicateItemMessage
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Options
@@ -215,9 +217,8 @@ class ReportFunction(
                             val isDuplicate = generatedHashes.contains(itemHash) ||
                                 workflowEngine.verifyNoDuplicateItem(itemHash)
                             if (isDuplicate) {
-                                errors += ActionLog.report(
-                                    "Item ${rowNum + 1} is a duplicate."
-                                )
+                                actionLogs.error(DuplicateItemMessage("Item ${rowNum + 1} is a duplicate."))
+
                                 // todo: do this somewhere else?
                                 // kick out the duplicate rows if we are skipping invalid items
                                 if (options == Options.SkipInvalidItems) {
@@ -234,12 +235,7 @@ class ReportFunction(
                             if (!payloadName.isNullOrEmpty()) {
                                 msg += "File: $payloadName"
                             }
-                            throw ActionError(
-                                ActionLog.report(
-                                    msg
-                                ),
-                                msg
-                            )
+                            actionLogs.error(DuplicateFileMessage(msg))
                         }
                         // remove just duplicate rows from the report so we can still process the valid ones
                         else if (removeList.any()) {

@@ -141,3 +141,13 @@ class InvalidHL7Message(override val message: String) : GenericActionLogDetail(m
  */
 class InvalidTranslationMessage(override val message: String) :
     GenericActionLogDetail(message, ActionLogScope.translation)
+
+/**
+ * A [message] for entire duplicate report submission
+ */
+class DuplicateFileMessage(override val message: String) : GenericActionLogDetail(message, ActionLogScope.report)
+
+/**
+ * A [message] for a duplicate item within a report
+ */
+class DuplicateItemMessage(override val message: String) : GenericActionLogDetail(message, ActionLogScope.item)

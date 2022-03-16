@@ -613,7 +613,7 @@ class ReportFunctionTests {
             actionHistory.trackActionSenderInfo(any(), any())
         }
         verify(exactly = 2) { engine.verifyNoDuplicateItem(any()) }
-        assert(resp.status.equals(HttpStatus.BAD_REQUEST))
+        assert(resp.status.equals(HttpStatus.CREATED))
         val respStr = resp.body.toString()
         assert(respStr.contains("Duplicate file detected"))
     }
