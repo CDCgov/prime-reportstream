@@ -547,13 +547,13 @@ class Hl7Serializer(
                     }
                 }
             } else if (element.hl7Field == "ORC-21-1") {
-                val truncatedValueForORC21 = if (hl7Config?.truncateHl7Fields?.contains(element.hl7Field) == true) {
+                val truncatedValue = if (hl7Config?.truncateHl7Fields?.contains(element.hl7Field) == true) {
                     trimAndTruncateValue(value, element.hl7Field, hl7Config, terser)
                 } else {
                     value
                 }
                 setOrderingFacilityComponent(
-                    terser, rawFacilityName = truncatedValueForORC21, useOrderingFacilityName, report, row
+                    terser, rawFacilityName = truncatedValue, useOrderingFacilityName, report, row
                 )
             } else if (element.hl7Field == "NTE-3" && value.isNotBlank()) {
                 setNote(terser, nteSequence++, value)
