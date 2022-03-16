@@ -43,12 +43,10 @@ As a sender, get lineage/history of a singleton submission; As a receiver, get a
 
 `GET api/waters/<org>/submissions/<id>`
 `GET api/waters/<org>/submissions/<submissionId>`
-
-The <id> is the report_id UUID primary key to the report_file table in the database.  Example:  `GET api/waters/<org>/submissions/1fcce643-5b5e-4408-9755-153754f9f779"
-
-The <submissionId> is the action_id integer in the action table in the database.  Example: `GET api/waters/<org>/submissions/4687281`
-
 `GET api/waters/<org>/deliveries/<id>`
+
+The `<id>` is the report_id UUID primary key to the report_file table in the database.  Example:  `GET api/waters/<org>/submissions/1fcce643-5b5e-4408-9755-153754f9f779`.
+The `<submissionId>` is the action_id integer in the action table in the database.  Example: `GET api/waters/<org>/submissions/4687281`
 
 All These queries only get metadata, not actual data
 
