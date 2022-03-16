@@ -94,12 +94,12 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                             { orgname, sendername: sendername },
                             data
                         );
-                        setTimeout(() => {
-                            showAlertNotification(
-                                "success",
-                                `Item '${sendername}' has been updated`
-                            );
-                        }, 100);
+
+                        showAlertNotification(
+                            "success",
+                            `Item '${sendername}' has been updated`
+                        );
+
                         await resetSenderList();
                         history.goBack();
                     } catch (e: any) {
