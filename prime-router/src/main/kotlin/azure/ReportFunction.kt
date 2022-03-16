@@ -273,9 +273,7 @@ class ReportFunction(
 
         var bypassMessageQueue = false
         if (options == Options.BypassQueueForQualityFilters) {
-            val hasQualityFilters = responseContainsQualityFilter(response.body.toString())
-
-            if (hasQualityFilters) bypassMessageQueue = true
+            bypassMessageQueue = responseContainsQualityFilter(response.body.toString())
         }
 
         // queue messages here after all task / action records are in
