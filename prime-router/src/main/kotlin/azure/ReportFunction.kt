@@ -273,8 +273,7 @@ class ReportFunction(
         workflowEngine.recordAction(actionHistory)
 
         var bypassMessageQueue = false
-        if (options == Options.TreatQualityFiltersAsErrors) {
-            // (response.body as CharSequence).contains("QUALITY_FILTER")
+        if (options == Options.BypassQueueForQualityFilters) {
             var hasQualityFilters = false
             val tree = jacksonObjectMapper().readTree(response.body.toString())
             val destinations = tree.path("destinations")

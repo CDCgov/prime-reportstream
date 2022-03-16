@@ -55,7 +55,7 @@ enum class Options {
     SkipSend,
     SkipInvalidItems,
     SendImmediately,
-    TreatQualityFiltersAsErrors,
+    BypassQueueForQualityFilters,
 }
 
 /**
