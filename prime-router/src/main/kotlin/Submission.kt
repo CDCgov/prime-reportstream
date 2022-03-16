@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.fasterxml.jackson.annotation.JsonUnwrapped
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -78,13 +79,19 @@ class DetailedSubmissionHistory(
     init {
         reports?.forEach { report ->
             report.receivingOrg?.let {
+                val filterLogs = logs?.filter {
+                    it.type == ActionLogLevel.filter && it.reportId == report.reportId
+                }
+                val filteredReportRows = filterLogs?.map { it.detail.message }
+                val filteredReportItems = filterLogs?.map {
+                    ReportStreamFilterResultForResponse(it.detail as ReportStreamFilterResult)
+                }
                 destinations.add(
                     Destination(
                         report.receivingOrg,
                         report.receivingOrgSvc!!,
-                        logs?.filter {
-                            it.type == ActionLogLevel.filter && it.reportId == report.reportId
-                        }?.map { it.detail.message },
+                        filteredReportRows,
+                        filteredReportItems,
                         report.nextActionAt,
                         report.itemCount,
                     )
@@ -150,7 +157,8 @@ class DetailedSubmissionHistory(
                             Destination(
                                 report.receivingOrg,
                                 report.receivingOrgSvc,
-                                listOf(),
+                                null,
+                                null,
                                 null,
                                 report.itemCount,
                             )
@@ -180,7 +188,8 @@ class DetailedSubmissionHistory(
                         val dest = Destination(
                             report.receivingOrg,
                             report.receivingOrgSvc,
-                            listOf(),
+                            null,
+                            null,
                             null,
                             report.itemCount,
                         )
@@ -344,12 +353,29 @@ data class DetailedActionResponse(
     val reportItemCount: Int?
 )
 
+/**
+ * Response use for the API for the filtered report items. This removes unneeded properties that exist in
+ * ReportStreamFilterResult. ReportStreamFilterResult is used to serialize and deserialize to/from the database.
+ * @param filterResult the filter result to use
+ */
+data class ReportStreamFilterResultForResponse(@JsonIgnore private val filterResult: ReportStreamFilterResult) {
+    val filterType = filterResult.filterType
+    val filterName = filterResult.filterName
+    val originalCount = filterResult.originalCount
+    val filteredIndex = filterResult.filteredIndex
+    val filteredTrackingElement = filterResult.filteredTrackingElement
+    val filterArgs = filterResult.filterArgs
+    val message = filterResult.message
+}
+
+@JsonPropertyOrder(value = ["organization", "organizationId", "service", "itemCount", "sendingAt"])
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Destination(
     @JsonProperty("organization_id")
     val organizationId: String,
     val service: String,
     val filteredReportRows: List<String>?,
+    val filteredReportItems: List<ReportStreamFilterResultForResponse>?,
     @JsonProperty("sending_at")
     @JsonInclude(Include.NON_NULL)
     val sendingAt: OffsetDateTime?,
