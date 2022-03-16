@@ -840,9 +840,16 @@ class Report : Logging {
             rawStr += row.getString(colNum)
         }
 
-        return MessageDigest
+        // get and add the specimen collection time to reduce hash collision
+        val collectionTime = row.getString("specimen_collection_date_time").toByteArray()
+
+        // generate digest of entire row
+        val digest = MessageDigest
             .getInstance("SHA-256")
             .digest(rawStr.toByteArray())
+
+        // combine collectionTime and digest for lower chance of collision
+        return digest + collectionTime
     }
 
     /**
