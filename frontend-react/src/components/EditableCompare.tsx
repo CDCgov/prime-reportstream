@@ -1,6 +1,7 @@
 import {
     forwardRef,
     ReactElement,
+    Ref,
     useCallback,
     useEffect,
     useImperativeHandle,
@@ -12,10 +13,14 @@ import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 import { Diff, SES_TYPE } from "../utils/diff";
 import { splitOn } from "../utils/misc";
 
+// interface on Component that is callable
+export type EditableCompareRef = {
+    getEditedText: () => string;
+};
+
 interface EditableCompareProps {
     original: string;
     modified: string;
-    onUpdateFunc: (val: string) => void;
 }
 
 /**
@@ -33,7 +38,11 @@ interface EditableCompareProps {
  * **/
 
 export const EditableCompare = forwardRef(
-    (props: EditableCompareProps, ref): ReactElement => {
+    // allows for functions on components (useImperativeHandle)
+    (
+        props: EditableCompareProps,
+        ref: Ref<EditableCompareRef>
+    ): ReactElement => {
         // useRefs are used to access html elements directly (instead of document.getElementById)
         const staticDiffRef = useRef<HTMLDivElement>(null);
         const editDiffRef = useRef<HTMLTextAreaElement>(null);
@@ -46,11 +55,15 @@ export const EditableCompare = forwardRef(
         const [rightHandSideHighlightHtml, setRightHandSideHighlightHtml] =
             useState("");
 
-        useImperativeHandle(ref, () => ({
-            getUpdatedModifed() {
-                return textAreaContent;
-            },
-        }));
+        useImperativeHandle(
+            ref,
+            () => ({
+                getEditedText() {
+                    return textAreaContent;
+                },
+            }),
+            [textAreaContent]
+        );
 
         const turnOffSpellCheckSwigglies = () => {
             if (editDiffRef?.current?.spellcheck) {

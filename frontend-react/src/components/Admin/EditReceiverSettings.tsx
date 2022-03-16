@@ -1,6 +1,6 @@
 import React, { Suspense, useRef, useState } from "react";
-import { Button, GridContainer, Grid, ModalRef } from "@trussworks/react-uswds";
-import { useResource, NetworkErrorBoundary, useController } from "rest-hooks";
+import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
+import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { RouteComponentProps, useHistory } from "react-router-dom";
 
 import { ErrorPage } from "../../pages/error/ErrorPage";
@@ -8,10 +8,12 @@ import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsReso
 import { showAlertNotification, showError } from "../AlertNotifications";
 import { getStoredOktaToken, getStoredOrg } from "../GlobalContextProvider";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
-import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 import Spinner from "../Spinner";
 
-import { ConfirmSaveSettingModal } from "./CompareJsonModal";
+import {
+    ConfirmSaveSettingModal,
+    ConfirmSaveSettingModalRef,
+} from "./CompareJsonModal";
 import {
     CheckboxComponent,
     TextAreaComponent,
@@ -25,8 +27,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
     const receivername = match?.params?.receivername || "";
     const action = match?.params?.action || "";
     const history = useHistory();
-    const modalRef = useRef<ModalRef>(null);
-    const diffEditorRef = useRef(null);
+    const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
     const FormComponent = () => {
         const orgReceiverSettings: OrgReceiverSettingsResource = useResource(
@@ -41,11 +42,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
             useState("");
         const { invalidate } = useController();
 
-        function handleEditorDidMount(editor: null) {
-            diffEditorRef.current = editor;
-        }
-
-        const ShowCompareConfirm = async () => {
+        const showCompareConfirm = async () => {
             try {
                 // fetch original version
                 const accessToken = getStoredOktaToken();
@@ -60,7 +57,6 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                         },
                     }
                 );
-
                 const responseBody = await response.json();
                 setOrgReceiverSettingsOldJson(
                     JSON.stringify(responseBody, jsonSortReplacer, 2)
@@ -69,7 +65,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2)
                 );
 
-                modalRef?.current?.toggleModal(undefined, true);
+                confirmModalRef?.current?.toggleModal(undefined, true);
             } catch (e) {
                 console.error(e);
             }
@@ -88,23 +84,19 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
             switch (action) {
                 case "edit":
                     try {
-                        const data = CheckFeatureFlag("showDiffEditor")
-                            ? // @ts-ignore
-                              diffEditorRef.current
-                                  .getModifiedEditor()
-                                  .getValue()
-                            : orgReceiverSettingsNewJson;
-
+                        const data =
+                            confirmModalRef?.current?.editedText ||
+                            orgReceiverSettingsNewJson;
                         await fetchController(
                             OrgReceiverSettingsResource.update(),
                             { orgname, receivername: receivername },
                             data
                         );
+                        await resetReceiverList();
                         showAlertNotification(
                             "success",
                             `Item '${receivername}' has been updated`
                         );
-                        await resetReceiverList();
                         history.goBack();
                     } catch (e: any) {
                         console.trace(e);
@@ -116,12 +108,9 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     break;
                 case "clone":
                     try {
-                        const data = CheckFeatureFlag("showDiffEditor")
-                            ? // @ts-ignore
-                              diffEditorRef.current
-                                  .getModifiedEditor()
-                                  .getValue()
-                            : orgReceiverSettingsNewJson;
+                        const data =
+                            confirmModalRef?.current?.editedText ||
+                            orgReceiverSettingsNewJson;
 
                         await fetchController(
                             OrgReceiverSettingsResource.update(),
@@ -278,7 +267,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                         form="edit-setting"
                         type="submit"
                         data-testid="submit"
-                        onClick={() => ShowCompareConfirm()}
+                        onClick={showCompareConfirm}
                     >
                         Save...
                     </Button>
@@ -289,11 +278,10 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             ? receivername
                             : orgReceiverSettings.name
                     }
+                    ref={confirmModalRef}
                     onConfirm={saveReceiverData}
-                    modalRef={modalRef}
                     oldjson={orgReceiverSettingsOldJson}
                     newjson={orgReceiverSettingsNewJson}
-                    handleEditorDidMount={handleEditorDidMount}
                 />
             </GridContainer>
         );

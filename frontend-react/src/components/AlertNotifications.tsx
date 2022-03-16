@@ -7,7 +7,14 @@ export const showNotification = (children: JSX.Element) => {
     try {
         // id will de-dup. just use whole message as id
         const toastId = JSON.stringify(children.props).substr(0, 512);
-        toast(children, { toastId });
+        toast(children, {
+            toastId,
+            autoClose: 5000,
+            closeButton: false,
+            // limit: 2,
+            position: "bottom-center",
+            hideProgressBar: true,
+        });
         toast.clearWaitingQueue(); // don't pile up messages
     } catch (err: any) {
         console.error(err, err.stack);
@@ -27,5 +34,5 @@ export const showError = (
     title = "Problems saving data to server"
 ) => {
     const err_msg = message.substr(0, 512);
-    showNotification(<Alert type="error" title={title} children={err_msg} />);
+    showNotification(<Alert type="error" heading={title} children={err_msg} />);
 };

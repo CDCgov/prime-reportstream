@@ -7,10 +7,11 @@ import {
     ModalRef,
     ModalToggleButton,
 } from "@trussworks/react-uswds";
-import React, { RefObject } from "react";
+import React, { forwardRef, Ref, useImperativeHandle, useRef } from "react";
 import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 
-import { DiffEditorComponent } from "./DiffEditorComponent";
+import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
+import { EditableCompare, EditableCompareRef } from "../EditableCompare";
 
 interface ModalConfirmButtonProps {
     uniquid: string;
@@ -41,71 +42,97 @@ export const ModalConfirmSaveButton = ({
 
 ModalConfirmSaveButton.displayName = "ModalConfirmSaveButton";
 
+// interface on Component that is callable
+export interface ConfirmSaveSettingModalRef extends ModalRef {
+    editedText: string;
+}
+
 interface CompareSettingsModalProps {
     uniquid: string;
     onConfirm: () => void;
-    modalRef: RefObject<ModalRef>;
     oldjson: string;
     newjson: string;
-    handleEditorDidMount: (editor: null) => void;
 }
 
-export const ConfirmSaveSettingModal: React.FC<CompareSettingsModalProps> = ({
-    uniquid,
-    onConfirm,
-    modalRef,
-    oldjson,
-    newjson,
-    handleEditorDidMount,
-}) => {
-    const scopedConfirm = () => {
-        modalRef?.current?.toggleModal(undefined, false);
-        onConfirm();
-    };
+export const ConfirmSaveSettingModal = forwardRef(
+    (
+        { uniquid, onConfirm, oldjson, newjson }: CompareSettingsModalProps,
+        ref: Ref<ConfirmSaveSettingModalRef>
+    ) => {
+        const modalRef = useRef<ModalRef>(null);
+        const diffEditorRef = useRef<EditableCompareRef>(null);
 
-    return (
-        <>
-            <Modal
-                ref={modalRef}
-                id={uniquid}
-                aria-labelledby={`${uniquid}-heading`}
-                aria-describedby={`${uniquid}-description`}
-                isLarge={true}
-                className="rs-compare-modal"
-            >
-                <ModalHeading id={`${uniquid}-heading`}>
-                    Compare your changes with previous version
-                </ModalHeading>
-                <div className="usa-prose">
-                    <p id={`${uniquid}-description`}>
-                        You are about to change this setting: {uniquid}
-                    </p>
-                    <DiffEditorComponent
-                        originalCode={oldjson}
-                        modifiedCode={newjson}
-                        language={"JSON"}
-                        mounter={handleEditorDidMount}
-                    />
-                </div>
-                <ModalFooter>
-                    <ButtonGroup>
-                        <ModalConfirmSaveButton
-                            uniquid={uniquid}
-                            handleClose={scopedConfirm}
-                        >
-                            Save
-                        </ModalConfirmSaveButton>
-                        <ModalToggleButton
-                            modalRef={modalRef}
-                            closer
-                            unstyled
-                            className="padding-105 text-center"
-                        >
-                            Go back
-                        </ModalToggleButton>
-                    </ButtonGroup>
-                </ModalFooter>
-            </Modal>
-        </>
-    );
-};
+        const showNewDiffEditor = CheckFeatureFlag("showNewDiffEditor");
+
+        const scopedConfirm = () => {
+            modalRef?.current?.toggleModal(undefined, false);
+            onConfirm();
+        };
+
+        useImperativeHandle(
+            ref,
+            () => ({
+                // route this down the diffEditor
+                editedText: diffEditorRef?.current?.getEditedText() || newjson,
+                // route these down to modal ref
+                modalId: modalRef?.current?.modalId || "",
+                modalIsOpen: modalRef?.current?.modalIsOpen || false,
+                toggleModal:
+                    modalRef?.current?.toggleModal || ((e, o) => false),
+            }),
+            [diffEditorRef, newjson, modalRef]
+        );
+
+        return (
+            <>
+                <Modal
+                    ref={modalRef}
+                    id={uniquid}
+                    aria-labelledby={`${uniquid}-heading`}
+                    aria-describedby={`${uniquid}-description`}
+                    isLarge={true}
+                    className="rs-compare-modal"
+                >
+                    <ModalHeading id={`${uniquid}-heading`}>
+                        Compare your changes with previous version
+                    </ModalHeading>
+                    <div className="usa-prose">
+                        <p id={`${uniquid}-description`}>
+                            You are about to change this setting: {uniquid}
+                        </p>
+                        {showNewDiffEditor ? (
+                            <EditableCompare
+                                ref={diffEditorRef}
+                                original={oldjson}
+                                modified={newjson}
+                            />
+                        ) : (
+                            <div>
+                                The diff editor is currently under maintenance.
+                                Please click Save below to save your changes
+                            </div>
+                        )}
+                    </div>
+                    <ModalFooter>
+                        <ButtonGroup>
+                            <ModalToggleButton
+                                modalRef={modalRef}
+                                closer
+                                unstyled
+                                className="padding-105 text-center"
+                            >
+                                Go back
+                            </ModalToggleButton>
+                            <ModalConfirmSaveButton
+                                uniquid={uniquid}
+                                handleClose={() => scopedConfirm()}
+                            >
+                                Save
+                            </ModalConfirmSaveButton>
+                        </ButtonGroup>
+                    </ModalFooter>
+                </Modal>
+            </>
+        );
+    }
+);

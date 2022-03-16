@@ -1,10 +1,10 @@
 import { GovBanner } from "@trussworks/react-uswds";
-import { Route, useHistory, Switch } from "react-router-dom";
+import { Route, Switch, useHistory } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
-import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
+import { LoginCallback, SecureRoute, Security } from "@okta/okta-react";
 import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import { ToastContainer } from "react-toastify";
 
@@ -88,11 +88,9 @@ const App = () => {
             onAuthRequired={customAuthHandler}
             restoreOriginalUri={restoreOriginalUri}
         >
-            <Suspense fallback={<Spinner fullPage />}>
+            <Suspense fallback={<Spinner size={"fullpage"} />}>
                 <NetworkErrorBoundary
-                    fallbackComponent={() => {
-                        return <div></div>;
-                    }}
+                    fallbackComponent={() => <ErrorPage type="page" />}
                 >
                     <GlobalContextProvider>
                         <GovBanner aria-label="Official government website" />
@@ -193,13 +191,7 @@ const App = () => {
                                 />
                             </Switch>
                         </main>
-                        <ToastContainer
-                            autoClose={5000}
-                            closeButton={false}
-                            limit={2}
-                            position="bottom-center"
-                            hideProgressBar={true}
-                        />
+                        <ToastContainer />
                     </GlobalContextProvider>
                     <footer className="usa-identifier footer">
                         <ReportStreamFooter />

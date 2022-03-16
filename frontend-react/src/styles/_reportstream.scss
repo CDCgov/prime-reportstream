@@ -260,6 +260,24 @@ h3 img[src*="svg"] {
     --rs-compare-modal-height: 45em;
 }
 
+.rs-spinner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: left;
+
+    .rs-spinner-fullpage {
+        justify-content: center;
+        height: calc(100vh - 230px);
+    };
+
+    .rs-spinner-tiny {
+        zoom: 0.2;
+        display:inline-flex;
+        align-content: center;
+    }
+};
+
+
 .rs-compare-modal {
     max-width: calc(var(--rs-compare-modal-width));
     height: var(--rs-compare-modal-height);

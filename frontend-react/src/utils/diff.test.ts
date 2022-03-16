@@ -7,7 +7,6 @@ test("Diff test 1 char swap", () => {
     const differ = Diff(a, b);
     differ.compose();
     const ses = differ.getses();
-    debugger;
     expect(ses.length).toBe(4); // #1 matching text, #2 a diff, #3, b diff, #4 matching remaining
 
     expect(ses[0]?.sestype).toBe(SES_TYPE.COMMON);
@@ -35,7 +34,6 @@ test("Diff test 1 char removed", () => {
     differ.compose();
     const ses = differ.getses();
 
-    debugger;
     expect(ses.length).toBe(3); // #1 matching text, #2 a diff, #3, b diff, #4 matching remaining
     expect(ses[0]?.sestype).toBe(SES_TYPE.COMMON);
     expect(ses[0]?.index).toBe(0);

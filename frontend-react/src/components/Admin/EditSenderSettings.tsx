@@ -1,5 +1,5 @@
 import React, { Suspense, useRef, useState } from "react";
-import { Button, GridContainer, Grid, ModalRef } from "@trussworks/react-uswds";
+import { Button, GridContainer, Grid } from "@trussworks/react-uswds";
 import { useResource, NetworkErrorBoundary, useController } from "rest-hooks";
 import { RouteComponentProps, useHistory } from "react-router-dom";
 
@@ -8,11 +8,13 @@ import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource
 import { showAlertNotification, showError } from "../AlertNotifications";
 import { getStoredOktaToken, getStoredOrg } from "../GlobalContextProvider";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
-import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 import Spinner from "../Spinner";
 
 import { TextInputComponent, TextAreaComponent } from "./AdminFormEdit";
-import { ConfirmSaveSettingModal } from "./CompareJsonModal";
+import {
+    ConfirmSaveSettingModal,
+    ConfirmSaveSettingModalRef,
+} from "./CompareJsonModal";
 
 type Props = { orgname: string; sendername: string; action: string };
 
@@ -21,8 +23,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
     const sendername = match?.params?.sendername || "";
     const action = match?.params?.action || "";
     const history = useHistory();
-    const modalRef = useRef<ModalRef>(null);
-    const diffEditorRef = useRef(null);
+    const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
     const FormComponent = () => {
         const orgSenderSettings: OrgSenderSettingsResource = useResource(
@@ -36,14 +37,12 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
             useState("");
         const { fetch: fetchController } = useController();
         const { invalidate } = useController();
-
-        function handleEditorDidMount(editor: null) {
-            diffEditorRef.current = editor;
-        }
+        const [loading, setLoading] = useState(false);
 
         const ShowCompareConfirm = async () => {
             try {
                 // fetch original version
+                setLoading(true);
                 const accessToken = getStoredOktaToken();
                 const organization = getStoredOrg();
 
@@ -65,7 +64,8 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     JSON.stringify(orgSenderSettings, jsonSortReplacer, 2)
                 );
 
-                modalRef?.current?.toggleModal(undefined, true);
+                confirmModalRef?.current?.toggleModal(undefined, true);
+                setLoading(false);
             } catch (e) {
                 console.error(e);
             }
@@ -84,22 +84,20 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
             switch (action) {
                 case "edit":
                     try {
-                        const data = CheckFeatureFlag("showDiffEditor")
-                            ? // @ts-ignore
-                              diffEditorRef.current
-                                  .getModifiedEditor()
-                                  .getValue()
-                            : orgSenderSettingsNewJson;
-
+                        const data =
+                            confirmModalRef?.current?.editedText ||
+                            orgSenderSettingsNewJson;
                         await fetchController(
                             OrgSenderSettingsResource.update(),
                             { orgname, sendername: sendername },
                             data
                         );
-                        showAlertNotification(
-                            "success",
-                            `Item '${sendername}' has been updated`
-                        );
+                        setTimeout(() => {
+                            showAlertNotification(
+                                "success",
+                                `Item '${sendername}' has been updated`
+                            );
+                        }, 100);
                         await resetSenderList();
                         history.goBack();
                     } catch (e: any) {
@@ -113,12 +111,9 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     break;
                 case "clone":
                     try {
-                        const data = CheckFeatureFlag("showDiffEditor")
-                            ? // @ts-ignore
-                              diffEditorRef.current
-                                  .getModifiedEditor()
-                                  .getValue()
-                            : orgSenderSettingsNewJson;
+                        const data =
+                            confirmModalRef?.current?.editedText ||
+                            orgSenderSettingsNewJson;
 
                         await fetchController(
                             // NOTE: this does not use the expected OrgSenderSettingsResource.create() method
@@ -226,7 +221,9 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                         data-testid="submit"
                         onClick={() => ShowCompareConfirm()}
                     >
-                        Save...
+                        {" "}
+                        Save...{" "}
+                        <Spinner display={loading} size="insidebutton" />
                     </Button>
                 </Grid>
                 <ConfirmSaveSettingModal
@@ -234,10 +231,9 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                         action === "edit" ? sendername : orgSenderSettings.name
                     }
                     onConfirm={saveSenderData}
-                    modalRef={modalRef}
+                    ref={confirmModalRef}
                     oldjson={orgSenderSettingsOldJson}
                     newjson={orgSenderSettingsNewJson}
-                    handleEditorDidMount={handleEditorDidMount}
                 />
             </GridContainer>
         );
