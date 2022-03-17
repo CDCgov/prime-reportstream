@@ -201,7 +201,7 @@ jobs:
     # Restore only if backup age is less than limit, backup age is ignored, and the restore destination is either staging or test
     if: |
       (needs.pre_job.outputs.restore_ignore_backup_age == 'true' || needs.backup_source.outputs.backup_age_valid == 'true') &&
-      (needs.pre_job.outputs.sink_env_name == 'staging' || needs.pre_job.outputs.sink_env_name == 'test')
+      (needs.pre_job.outputs.sink_env_name != 'prod')
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
@@ -260,6 +260,48 @@ jobs:
           file-path: ${{ steps.mount_share.outputs.mount-path }}/${{ needs.pre_job.outputs.env_name }}_${{ matrix.db }}.dump
           resource-group: ${{ env.sink_resource_group }}
           options: -Fc -j 16
+
+      - name: Clean sink db
+        if: |
+          needs.pre_job.outputs.sink_env_name != 'prod' &&
+          (${{ matrix.db }} == 'prime_data_hub' || ${{ matrix.db }} == 'prime_data_hub_candidate')
+        uses: ./.github/actions/db-query
+        with:
+          pass: ${{ secrets[format('POSTGRESQL_{0}_PWD', env.sink_env_name)] }}
+          host: ${{ env.sink_db_server }}
+          port: 5432
+          user: prime
+          database: ${{ matrix.db }}
+          output-file: clean_output_${{ matrix.db }}.html
+          options: -H
+          query: |
+            \echo <h1>${{ matrix.db }} data cleanup</h1>
+            \echo <h2><code>setting</code> table changes:</h2>
+            \echo
+            UPDATE
+              setting    
+            SET               
+              values = values || '{"transport": {"host": "10.0.1.100", "port": "22", "type": "SFTP", "filePath": "./staging", "credentialName": null}}'::jsonb
+            WHERE                                     
+              type = 'RECEIVER'
+              AND values -> 'transport' ->> 'type' = 'SFTP';
+            \echo <hr/>
+            SELECT 
+              relname, n_tup_ins - n_tup_del as rowcount 
+            FROM pg_stat_all_tables
+            WHERE schemaname NOT IN ('pg_catalog', 'information_schema') AND
+              schemaname !~ '^pg_toast'
+            ORDER BY relname;
+
+      - name: Upload clean db result
+        if: |
+          needs.pre_job.outputs.sink_env_name != 'prod' &&
+          (${{ matrix.db }} == 'prime_data_hub' || ${{ matrix.db }} == 'prime_data_hub_candidate')
+        uses: actions/upload-artifact@v2
+        with:
+          name: clean_output_${{ matrix.db }}
+          path: clean_output_${{ matrix.db }}.html
+          retention-days: 7
 
       # Remove runner db access
       - name: Remove db access
