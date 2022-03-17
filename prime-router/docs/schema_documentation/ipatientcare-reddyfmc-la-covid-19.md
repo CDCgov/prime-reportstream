@@ -1682,7 +1682,7 @@ The reporting facility's CLIA
 
 **PII**: No
 
-**Default Value**: CE
+**Default Value**: CWE
 
 **Cardinality**: [0..1]
 

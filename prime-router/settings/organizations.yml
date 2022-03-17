@@ -2766,6 +2766,29 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        suppressHl7Fields: PID-5-7, ORC-12-1, ORC-16-1
+        replaceValueAwithB:
+          ORC-12-2: ["":"Unknow", "Crona":"Joe","Bode":"John;@:,"]
+          ORC-12-3: ["":"Unknow", "Lashay":"Smith","Waldo":"Doe"]
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for NV standards
+            values:
+              - code: 2135-2
+                replaces: H
+                display: Hispanic or Latino
+                system: CDCREC
+              - code: 2186-5
+                replaces: N
+                display: Non Hispanic or Latino
+                system: CDCREC
+              - code: UNK
+                replaces: U
+                display: Unknown
+                system: NULLFL
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -3412,22 +3435,6 @@
       keys: null
       processingType: "sync"
 
-- name: "rollinghillsclinic-ca"
-  description: "Rolling Hills Clinic in CA - CSV Uploader"
-  jurisdiction: "FEDERAL"
-  stateCode: null
-  countyName: null
-  filters: []
-  senders:
-    - name: "default"
-      organizationName: "rollinghillsclinic-ca"
-      format: "CSV"
-      topic: "covid-19"
-      customerStatus: "testing"
-      schemaName: "upload-covid-19"
-      keys: null
-      processingType: "sync"
-
 - name: "quantgene-ca"
   description: "Quantgene in CA - CSV Uploader"
   jurisdiction: "FEDERAL"
@@ -3437,6 +3444,22 @@
   senders:
     - name: "default"
       organizationName: "quantgene-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "uhg-mn"
+  description: "UHG in MN - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "uhg-mn"
       format: "CSV"
       topic: "covid-19"
       customerStatus: "testing"

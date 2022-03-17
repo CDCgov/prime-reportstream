@@ -14,8 +14,8 @@ import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionError
-import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogDetail
+import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FieldPrecisionMessage
 import gov.cdc.prime.router.Hl7Configuration
@@ -203,7 +203,7 @@ class Hl7Serializer(
                 else
                     null
             } catch (e: HL7Exception) {
-                errors.add(InvalidHL7Message.new("Unexpected error while parsing $terserSpec: ${e.message}"))
+                errors.add(InvalidHL7Message("Unexpected error while parsing $terserSpec: ${e.message}"))
                 null
             }
 
@@ -229,7 +229,7 @@ class Hl7Serializer(
                 val questionCode = try {
                     terser.get(spec)
                 } catch (e: HL7Exception) {
-                    errors.add(InvalidHL7Message.new("Error while decoding $spec: ${e.message}"))
+                    errors.add(InvalidHL7Message("Error while decoding $spec: ${e.message}"))
                     null
                 }
                 if (questionCode?.startsWith(question) == true) {
@@ -249,7 +249,7 @@ class Hl7Serializer(
         // if the message is empty, return a row result that warns of empty data
         if (cleanedMessage.isEmpty()) {
             logger.debug("Skipping empty message during parsing")
-            warnings.add(InvalidHL7Message.new("Cannot parse empty HL7 message"))
+            warnings.add(InvalidHL7Message("Cannot parse empty HL7 message"))
             return MessageResult(emptyMap(), errors, warnings)
         }
 
@@ -259,14 +259,14 @@ class Hl7Serializer(
             val msgType = PreParser.getFields(cleanedMessage, "MSH-9-1", "MSH-9-2")
             when {
                 msgType.isNullOrEmpty() || msgType[0] == null -> {
-                    errors.add(InvalidHL7Message.new("Missing required HL7 message type field MSH-9"))
+                    errors.add(InvalidHL7Message("Missing required HL7 message type field MSH-9"))
                     return MessageResult(emptyMap(), errors, warnings)
                 }
                 arrayOf("ORU", "R01") contentEquals msgType -> parser.parse(cleanedMessage)
                 else -> {
                     warnings.add(
                         InvalidHL7Message
-                            .new("Ignoring unsupported HL7 message type ${msgType.joinToString(",")}")
+                        ("Ignoring unsupported HL7 message type ${msgType.joinToString(",")}")
                     )
                     return MessageResult(emptyMap(), errors, warnings)
                 }
@@ -275,9 +275,9 @@ class Hl7Serializer(
             logger.error("${e.localizedMessage} ${e.stackTraceToString()}")
             if (e is EncodingNotSupportedException) {
                 // This exception error message is a bit cryptic, so let's provide a better one.
-                errors.add(InvalidHL7Message.new("Error parsing HL7 message: Invalid HL7 message format"))
+                errors.add(InvalidHL7Message("Error parsing HL7 message: Invalid HL7 message format"))
             } else {
-                errors.add(InvalidHL7Message.new("Error parsing HL7 message: ${e.localizedMessage}"))
+                errors.add(InvalidHL7Message("Error parsing HL7 message: ${e.localizedMessage}"))
             }
             return MessageResult(emptyMap(), errors, warnings)
         }
@@ -336,7 +336,7 @@ class Hl7Serializer(
                                 }
                             } catch (e: IllegalStateException) {
                                 warnings.add(
-                                    InvalidHL7Message.new("The code $rawValue for field $hl7Field is invalid.")
+                                    InvalidHL7Message("The code $rawValue for field $hl7Field is invalid.")
                                 )
                                 ""
                             }
@@ -364,7 +364,7 @@ class Hl7Serializer(
         } catch (e: Exception) {
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
-            errors.add(InvalidHL7Message.new(msg))
+            errors.add(InvalidHL7Message(msg))
         }
 
         // convert sets to lists
@@ -385,13 +385,13 @@ class Hl7Serializer(
         val schema = metadata.findSchema(schemaName) ?: error("Schema name $schemaName not found")
         val mapping = convertBatchMessagesToMap(messageBody, schema, sender = sender)
         val mappedRows = mapping.mappedRows
-        val errors = mutableListOf<ActionLog>()
-        val warnings = mutableListOf<ActionLog>()
+
         mapping.mappedRows.forEach {
             logger.debug("${it.key} -> ${it.value.joinToString()}")
         }
 
         // Generate the action log
+        val actionLogs = ActionLogger()
         mapping.items.forEachIndexed { index, messageResult ->
             val messageIndex = index + 1
             var trackingId = if (schema.trackingElement != null && messageResult.item.contains(schema.trackingElement))
@@ -399,19 +399,16 @@ class Hl7Serializer(
             else ""
             if (trackingId.isEmpty())
                 trackingId = "message$messageIndex"
-            messageResult.errors.forEach {
-                errors.add(ActionLog.item(trackingId, it, messageIndex, ActionLog.ActionLogType.error))
-            }
-            messageResult.warnings.forEach {
-                warnings.add(ActionLog.item(trackingId, it, messageIndex, ActionLog.ActionLogType.warning))
-            }
+            val itemLogger = actionLogs.getItemLogger(messageIndex, trackingId)
+            itemLogger.error(messageResult.errors)
+            itemLogger.warn(messageResult.warnings)
         }
 
-        if (errors.isNotEmpty()) {
-            throw ActionError(errors)
+        if (actionLogs.hasErrors()) {
+            throw ActionError(actionLogs.errors)
         } else {
             val report = Report(schema, mappedRows, source, metadata = metadata)
-            return ReadResult(report, errors, warnings)
+            return ReadResult(report, actionLogs)
         }
     }
 
@@ -438,6 +435,7 @@ class Hl7Serializer(
         // set up our configuration
         val hl7Config = report.destination?.translation as? Hl7Configuration
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
+        val replaceValueAwithB = hl7Config?.replaceValueAwithB ?: emptyMap()
         val cliaForSender = hl7Config?.cliaForSender ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
@@ -495,11 +493,14 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                if (it.isNullOrEmpty() || it == "null") {
-                    element.default ?: ""
-                } else {
-                    stripInvalidCharactersRegex?.replace(it, "") ?: it
-                }
+                replaceValueAwithB(
+                    element, replaceValueAwithB,
+                    if (it.isNullOrEmpty() || it == "null") {
+                        element.default ?: ""
+                    } else {
+                        stripInvalidCharactersRegex?.replace(it, "") ?: it
+                    }
+                )
             }.trim()
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
@@ -546,7 +547,14 @@ class Hl7Serializer(
                     }
                 }
             } else if (element.hl7Field == "ORC-21-1") {
-                setOrderingFacilityComponent(terser, rawFacilityName = value, useOrderingFacilityName, report, row)
+                val truncatedValue = if (hl7Config?.truncateHl7Fields?.contains(element.hl7Field) == true) {
+                    trimAndTruncateValue(value, element.hl7Field, hl7Config, terser)
+                } else {
+                    value
+                }
+                setOrderingFacilityComponent(
+                    terser, rawFacilityName = truncatedValue, useOrderingFacilityName, report, row
+                )
             } else if (element.hl7Field == "NTE-3" && value.isNotBlank()) {
                 setNote(terser, nteSequence++, value)
             } else if (element.hl7Field == "MSH-7") {
@@ -654,6 +662,40 @@ class Hl7Serializer(
     }
 
     /**
+     * Loop through all [replaceValueMap] key value pairs to find the hl7Field
+     * if found, we check the value A is equal to the value need to replace.
+     * if so, we replace with value B.
+     * if all obove is not met, we return the same valueArg.
+     */
+    fun replaceValueAwithB(
+        elementArg: Element,
+        replaceValueAwithBMap: Map<String, Any>,
+        valueArg: String
+    ): String {
+
+        replaceValueAwithBMap.forEach { element ->
+            @Suppress("UNCHECKED_CAST")
+            (element.value as ArrayList<Map<String, String>>).forEach { pairs ->
+                if (elementArg.hl7Field == element.key) {
+                    if (pairs.keys.first().trim() == valueArg) {
+                        return pairs.values.first().trim()
+                    }
+                } else {
+                    elementArg.hl7OutputFields?.forEach { outField ->
+                        if (outField.trim() == element.key) {
+                            if (pairs.keys.first().trim() == valueArg) {
+                                return pairs.values.first().trim()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return valueArg
+    }
+
+    /**
      * Loop through all [replaceValueMap] key value pairs to fill all non-empty
      * values in the [terser] message. Loop through the number OBX segments sent in
      * [observationRepeats]. Other segments should not repeat.
@@ -718,6 +760,7 @@ class Hl7Serializer(
         report: Report,
         row: Int,
     ) {
+
         when (useOrderingFacilityName) {
             // No overrides
             Hl7Configuration.OrderingFacilityName.STANDARD -> {
@@ -1685,7 +1728,8 @@ class Hl7Serializer(
                             val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.?[0-9]{0,4}[+-][0-9]{4}]\$")
                             if (!r.matches(rawValue)) {
                                 warnings.add(
-                                    FieldPrecisionMessage.new(
+                                    FieldPrecisionMessage(
+                                        element.fieldMapping,
                                         "Timestamp for $hl7Field - ${element.name} should provide more " +
                                             "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
                                     )
@@ -1699,7 +1743,8 @@ class Hl7Serializer(
                             val r = Regex("^[A-Z]+\\[[0-9]{8,}.*")
                             if (!r.matches(rawValue)) {
                                 warnings.add(
-                                    FieldPrecisionMessage.new(
+                                    FieldPrecisionMessage(
+                                        element.fieldMapping,
                                         "Date for $hl7Field - ${element.name} should provide more " +
                                             "precision. Should be formatted as YYYYMMDD"
                                     )
