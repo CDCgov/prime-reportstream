@@ -21,7 +21,6 @@ import gov.cdc.prime.router.common.Environment
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
-import java.time.format.DateTimeParseException
 
 /**
  * Uses test data provided via a configuration file, sends the data to the API, then checks the response,
@@ -723,11 +722,11 @@ class CompareCsvData {
 
                 // If there is an expected value then compare it.
                 if (expectedValue.isNotBlank()) {
-
                     // For date/time values, the string has timezone offsets that can differ per environment, so
                     // compare the numeric value instead of just the string
                     if (schema.elements[j].type != null &&
-                        schema.elements[j].type == Element.Type.DATETIME && actualValue.isNotBlank()
+                        schema.elements[j].type == Element.Type.DATETIME &&
+                        actualValue.isNotBlank()
                     ) {
                         try {
                             val expectedTime =
@@ -742,7 +741,7 @@ class CompareCsvData {
                                 )
                                 passed = false
                             }
-                        } catch (e: DateTimeParseException) {
+                        } catch (e: Throwable) {
                             // This is not a true date/time since it was not parse, probably a date.  Compare as strings.
                             if (actualValue != expectedValue) {
                                 result.errors.add(

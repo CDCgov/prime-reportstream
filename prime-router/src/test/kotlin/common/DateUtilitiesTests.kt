@@ -13,7 +13,6 @@ import gov.cdc.prime.router.USTimeZone
 import gov.cdc.prime.router.common.DateUtilities.toLocalDateTime
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.DateUtilities.toZonedDateTime
-import gov.cdc.prime.router.serializers.toLocalDateTime
 import gov.cdc.prime.router.unittest.UnitTestUtils.createConfig
 import io.mockk.every
 import io.mockk.mockk
@@ -255,10 +254,10 @@ class DateUtilitiesTests {
         every { report.destination } returns destination
         // act & assert
         rightNow.atZone(ZoneId.of("US/Eastern")).let {
-            assertThat(it.toLocalDateTime()).isEqualTo(rightNow.toLocalDateTime(report))
+            assertThat(it.toLocalDateTime()).isEqualTo(rightNow.toLocalDateTime())
         }
         OffsetDateTime.from(rightNow.atZone(ZoneId.of("US/Eastern"))).let {
-            assertThat(it.toLocalDateTime()).isEqualTo(rightNow.toLocalDateTime(report))
+            assertThat(it.toLocalDateTime()).isEqualTo(rightNow.toLocalDateTime())
         }
     }
 

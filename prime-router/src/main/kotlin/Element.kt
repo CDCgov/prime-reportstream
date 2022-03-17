@@ -305,12 +305,19 @@ data class Element(
         val formattedValue = when (type) {
             // sometimes you just need to send through an empty column
             Type.BLANK -> ""
-            Type.DATETIME,
-            Type.DATE -> {
-                if (format != null) {
+            Type.DATETIME -> {
+                try {
                     val ta = DateUtilities.parseDate(cleanedNormalizedValue)
-                    DateUtilities.getDateAsFormattedString(ta, format)
-                } else {
+                    DateUtilities.getDateAsFormattedString(ta, format ?: DateUtilities.datetimePattern)
+                } catch (_: Throwable) {
+                    cleanedNormalizedValue
+                }
+            }
+            Type.DATE -> {
+                try {
+                    val ta = DateUtilities.parseDate(cleanedNormalizedValue)
+                    DateUtilities.getDateAsFormattedString(ta, format ?: DateUtilities.datePattern)
+                } catch (_: Throwable) {
                     cleanedNormalizedValue
                 }
             }

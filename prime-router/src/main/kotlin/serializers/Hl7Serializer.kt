@@ -39,9 +39,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAccessor
 import java.util.Properties
 import java.util.TimeZone
 import kotlin.math.min
@@ -1870,19 +1868,4 @@ fun String.trimAndTruncate(maxLength: Int?): String {
     else
         startTrimmed
     return truncated.trimEnd()
-}
-
-fun TemporalAccessor.toLocalDateTime(report: Report): TemporalAccessor {
-    val hl7Config = report.destination?.translation as? Hl7Configuration
-    return if (hl7Config?.convertDateTimesToReceiverLocalTime == true && report.destination.timeZone != null) {
-        val zone = ZoneId.of(report.destination.timeZone.zoneId)
-        when (this) {
-            is Instant -> this.atZone(zone).toLocalDateTime()
-            is OffsetDateTime -> this.atZoneSameInstant(zone).toLocalDateTime()
-            is ZonedDateTime -> Instant.from(this).atZone(zone).toLocalDateTime()
-            else -> this
-        }
-    } else {
-        this
-    }
 }
