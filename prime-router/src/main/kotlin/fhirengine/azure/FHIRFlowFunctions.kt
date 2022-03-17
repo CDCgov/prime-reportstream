@@ -10,6 +10,11 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.InvalidTranslationMessage
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.http.extensions.contentType
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.cli.tests.CompareHl7Data
@@ -41,6 +46,8 @@ class FHIRFlowFunctions : Logging {
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         val responseBuilder = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+        val actionHistory = ActionHistory(TaskAction.translate)
+
         try {
             val hl7messages = HL7.decode(request.body)
             val body = buildString {
@@ -54,8 +61,20 @@ class FHIRFlowFunctions : Logging {
             responseBuilder.body(body)
         } catch (e: IllegalArgumentException) {
             responseBuilder.body(e.message)
+            actionHistory.trackLogs(
+                ActionLog(InvalidTranslationMessage(e.message ?: "Translation failure."), type = ActionLogLevel.error)
+            )
         }
-        return responseBuilder.build()
+
+        val workflowEngine = WorkflowEngine.Builder().metadata(Metadata.getInstance()).build()
+        val response = responseBuilder.build()
+
+        // despite similar names, these fns save different data
+        actionHistory.trackActionRequestResponse(request, response)
+        actionHistory.trackActionResponse(response, null, workflowEngine.settings)
+        workflowEngine.recordAction(actionHistory)
+
+        return response
     }
 
     /**
