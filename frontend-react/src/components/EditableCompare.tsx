@@ -148,7 +148,7 @@ export const EditableCompare = forwardRef(
                 // initialization only
                 onChangeHandler(props.modified);
             }
-        }, [textAreaContent, setTextAreaContent, props, onChangeHandler]);
+        }, [textAreaContent, props, onChangeHandler]);
 
         return (
             <ScrollSync>
