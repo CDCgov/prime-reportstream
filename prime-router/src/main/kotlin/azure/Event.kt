@@ -23,7 +23,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         PROCESS_WARNING, // when an attempt at a process action fails, but will be retried
         PROCESS_ERROR, // when an attempt at a process action fails permanently
         RECEIVE,
-        TRANSLATE, // Deprecated
+        TRANSLATE, // for HL7/FHIR conversions
         BATCH,
         SEND,
         WIPE, // Deprecated
