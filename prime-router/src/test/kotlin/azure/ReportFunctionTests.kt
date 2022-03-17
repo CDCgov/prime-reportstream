@@ -99,11 +99,7 @@ class ReportFunctionTests {
     // Hits processRequest, tracks 'receive' action in actionHistory
     @Test
     fun `test reportFunction 'report' endpoint`() {
-        // Setup
-        every { timing1.isValid() } returns true
-        every { timing1.numberPerDay } returns 1
-        every { timing1.maxReportCount } returns 1
-        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+        setup()
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -135,11 +131,7 @@ class ReportFunctionTests {
     // Returns 400 bad request
     @Test
     fun `test reportFunction 'report' endpoint with no sender name`() {
-        // Setup
-        every { timing1.isValid() } returns true
-        every { timing1.numberPerDay } returns 1
-        every { timing1.maxReportCount } returns 1
-        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+        setup()
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -170,11 +162,7 @@ class ReportFunctionTests {
     // Returns a 400 bad request
     @Test
     fun `test reportFunction 'report' endpoint with unknown sender`() {
-// Setup
-        every { timing1.isValid() } returns true
-        every { timing1.numberPerDay } returns 1
-        every { timing1.maxReportCount } returns 1
-        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+        setup()
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -205,11 +193,7 @@ class ReportFunctionTests {
     // duplicate file can run more than once
     @Test
     fun `test processFunction duplicate when allowed`() {
-        // setup
-        every { timing1.isValid() } returns true
-        every { timing1.numberPerDay } returns 1
-        every { timing1.maxReportCount } returns 1
-        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+        setup()
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -246,11 +230,7 @@ class ReportFunctionTests {
     // request is rejected when duplicate
     @Test
     fun `test processFunction duplicate when not allowed`() {
-        // setup
-        every { timing1.isValid() } returns true
-        every { timing1.numberPerDay } returns 1
-        every { timing1.maxReportCount } returns 1
-        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+        setup()
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -290,11 +270,7 @@ class ReportFunctionTests {
     // test duplicate override = true
     @Test
     fun `test processFunction duplicate when allowed via override`() {
-        // setup
-        every { timing1.isValid() } returns true
-        every { timing1.numberPerDay } returns 1
-        every { timing1.maxReportCount } returns 1
-        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+        setup()
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -335,11 +311,7 @@ class ReportFunctionTests {
     // test duplicate override = false
     @Test
     fun `test processFunction duplicate when not allowed via override`() {
-        // setup
-        every { timing1.isValid() } returns true
-        every { timing1.numberPerDay } returns 1
-        every { timing1.maxReportCount } returns 1
-        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+        setup()
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -380,12 +352,8 @@ class ReportFunctionTests {
     }
 
     @Test
-    fun `test responseContainsQualityFilter function`() {
-        // Setup
-        every { timing1.isValid() } returns true
-        every { timing1.numberPerDay } returns 1
-        every { timing1.maxReportCount } returns 1
-        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+    fun testResponseContainsQualityFilterFunction() {
+        setup()
 
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -399,5 +367,12 @@ class ReportFunctionTests {
         val containsNoQualityFilter = reportFunc.responseContainsQualityFilter(messageWithoutQualityFilter)
         assert(containsQualityFilter)
         assert(!containsNoQualityFilter)
+    }
+
+    private fun setup() {
+        every { timing1.isValid() } returns true
+        every { timing1.numberPerDay } returns 1
+        every { timing1.maxReportCount } returns 1
+        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
     }
 }
