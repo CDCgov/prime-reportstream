@@ -214,7 +214,7 @@ class FakeDataService : Logging {
             Element.Type.TABLE, Element.Type.TABLE_OR_BLANK -> createFakeTableValue(element)
             Element.Type.HD -> element.default ?: "0.0.0.0.1"
             Element.Type.EI -> element.default ?: "SomeEntityID"
-            Element.Type.ID -> createFakeValueFromValueSet(element).ifEmpty { faker.numerify("##D#######") }
+            Element.Type.ID -> createFakeValueFromValueSet(element).ifBlank { faker.numerify("######") }
             Element.Type.ID_CLIA -> faker.numerify("##D#######") // Ex, 03D1021379
             Element.Type.ID_DLN -> faker.idNumber().valid()
             Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()
