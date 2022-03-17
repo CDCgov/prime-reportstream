@@ -87,6 +87,7 @@ data class Hl7Configuration
     // pass this around as a property now
     val processingModeCode: String? = null,
     val replaceDiiWithOid: Boolean? = null,
+    val applyOTCDefault: Boolean = false,
     // Specify how
     val useOrderingFacilityName: OrderingFacilityName = OrderingFacilityName.STANDARD,
     // we will now play that funky music that will drive us til the dawn
