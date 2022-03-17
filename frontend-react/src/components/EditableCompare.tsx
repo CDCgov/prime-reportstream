@@ -74,10 +74,8 @@ export const EditableCompare = forwardRef(
         const refreshDiffCallback = useCallback(
             (originalText: string, modifiedText: string) => {
                 if (originalText.length === 0 || modifiedText.length === 0) {
-                    console.log("refreshDiff skipped");
                     return;
                 }
-                console.log("refreshDiff running");
                 const insertHighlight = (
                     s1: string,
                     offset: number,
