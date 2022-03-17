@@ -156,27 +156,19 @@ class WorkflowEngine(
 
     /**
      * Checks if the [sender] has already sent this report by comparing the [digest] against existing records for
-     * this sender in the report_file table. If a duplicate is found an ActionError is thrown which will be picked up
-     * by ReportFunction and logged in action and action_log.
+     * this sender in the report_file table. Return true if a duplicate is found
      */
-    fun verifyNoDuplicateFile(
+    fun isDuplicateFile(
         sender: Sender,
-        digest: ByteArray,
-        payloadName: String?
-    ) {
-        if (db.isDuplicateReportFile(sender.name, sender.organizationName, digest)) {
-            var msg = "Duplicate file detected."
-            if (!payloadName.isNullOrEmpty()) {
-                msg += "File: $payloadName"
-            }
-            throw ActionError(ActionLog(InvalidReportMessage(msg)), msg)
-        }
+        digest: ByteArray
+    ): Boolean {
+        return db.isDuplicateReportFile(sender.name, sender.organizationName, digest)
     }
 
     /**
      * Returns true if the [itemHash] passed in is already present in the database
      */
-    fun verifyNoDuplicateItem(itemHash: ByteArray): Boolean {
+    fun isDuplicateItem(itemHash: ByteArray): Boolean {
         return db.isDuplicateItem(itemHash)
     }
 
