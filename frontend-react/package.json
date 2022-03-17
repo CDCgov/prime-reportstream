@@ -17,7 +17,7 @@
         "@rest-hooks/rest": "^3.0.3",
         "@rest-hooks/test": "^7.1.0",
         "@testing-library/user-event": "^13.5.0",
-        "@trussworks/react-uswds": "^2.6.0",
+        "@trussworks/react-uswds": "^2.8.0",
         "@types/downloadjs": "^1.4.2",
         "@types/hookrouter": "^2.2.5",
         "@types/jsonwebtoken": "^8.5.5",
