@@ -91,16 +91,22 @@ class ReportFunctionTests {
         )
     }
 
+    fun setup() {
+        every { timing1.isValid() } returns true
+        every { timing1.numberPerDay } returns 1
+        every { timing1.maxReportCount } returns 1
+        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+    }
+
     @BeforeEach
     fun reset() {
         clearAllMocks()
+        setup()
     }
 
     // Hits processRequest, tracks 'receive' action in actionHistory
     @Test
     fun `test reportFunction 'report' endpoint`() {
-        setup()
-
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -131,8 +137,6 @@ class ReportFunctionTests {
     // Returns 400 bad request
     @Test
     fun `test reportFunction 'report' endpoint with no sender name`() {
-        setup()
-
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -162,8 +166,6 @@ class ReportFunctionTests {
     // Returns a 400 bad request
     @Test
     fun `test reportFunction 'report' endpoint with unknown sender`() {
-        setup()
-
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -193,8 +195,6 @@ class ReportFunctionTests {
     // duplicate file can run more than once
     @Test
     fun `test processFunction duplicate when allowed`() {
-        setup()
-
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -230,8 +230,6 @@ class ReportFunctionTests {
     // request is rejected when duplicate
     @Test
     fun `test processFunction duplicate when not allowed`() {
-        setup()
-
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -270,8 +268,6 @@ class ReportFunctionTests {
     // test duplicate override = true
     @Test
     fun `test processFunction duplicate when allowed via override`() {
-        setup()
-
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -311,8 +307,6 @@ class ReportFunctionTests {
     // test duplicate override = false
     @Test
     fun `test processFunction duplicate when not allowed via override`() {
-        setup()
-
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -353,8 +347,6 @@ class ReportFunctionTests {
 
     @Test
     fun testResponseContainsQualityFilterFunction() {
-        setup()
-
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -367,12 +359,5 @@ class ReportFunctionTests {
         val containsNoQualityFilter = reportFunc.responseContainsQualityFilter(messageWithoutQualityFilter)
         assert(containsQualityFilter)
         assert(!containsNoQualityFilter)
-    }
-
-    private fun setup() {
-        every { timing1.isValid() } returns true
-        every { timing1.numberPerDay } returns 1
-        every { timing1.maxReportCount } returns 1
-        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
     }
 }
