@@ -22,11 +22,11 @@ The waters endpoint will support these resources:
 
 **Organization Resource**
 
-| Endpoint                           | Brief Description                                | Old Endpoint                             | P   |
-|------------------------------------|--------------------------------------------------|------------------------------------------|-----|
-| GET api/waters/org/{o}/submissions | to get a list of submissions by one sending org  | GET api/history/{o}/submissions          | NOW |
-| GET api/waters/org/{o}/deliveries  | to get a list of deliveries to one receiving org | GET /api/history/report                  | 3   |
-| GET api/waters/org/{o}/settings    | _Future_:  migrate settings queries              | GET api/settings/organizations/{orgName} | 4   |
+| Endpoint                           | Brief Description                             | Old Endpoint                             | P   |
+|------------------------------------|-----------------------------------------------|------------------------------------------|-----|
+| GET api/waters/org/{o}/submissions | get a list of submissions by one sending org  | GET api/history/{o}/submissions          | NOW |
+| GET api/waters/org/{o}/deliveries  | get a list of deliveries to one receiving org | GET /api/history/report                  | 3   |
+| GET api/waters/org/{o}/settings    | _Future_:  migrate settings queries           | GET api/settings/organizations/{orgName} | 4   |
 
 **Report Resource**
 
