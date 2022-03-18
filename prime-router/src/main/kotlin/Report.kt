@@ -64,7 +64,7 @@ enum class Options {
  * might filter many rows. ReportStreamFilterResult entries are only created when filter logging is on.  This is to
  * prevent tons of junk logging of jurisdictionalFilters - the vast majority of which typically filter out everything.
  *
- * @property receiverName Then intended reciever for the report
+ * @property receiverName Then intended receiver for the report
  * @property originalCount The original number of items in the report
  * @property filterName The name of the filter function that removed the rows
  * @property filterArgs The arguments used in the filter function
@@ -78,25 +78,20 @@ data class ReportStreamFilterResult(
     val filterArgs: List<String>,
     val filteredTrackingElement: String,
     val filteredIndex: Int,
-    val filterType: ReportStreamFilterType?,
-    override val type: ActionLogDetailType = ActionLogDetailType.TRANSLATION
+    val filterType: ReportStreamFilterType?
 ) : ActionLogDetail {
+    override val scope = ActionLogScope.translation
     companion object {
         // Use this value in logs and user-facing messages if the trackingElement is missing.
-        val DEFAULT_TRACKING_VALUE = "MissingID"
+        const val DEFAULT_TRACKING_VALUE = "MissingID"
     }
 
+    override val message = "For $receiverName, filter $filterName$filterArgs" +
+        " filtered out item $filteredTrackingElement"
+
+    // Used for deserializing to a JSON response
     override fun toString(): String {
-        return "For $receiverName, filter $filterName$filterArgs" +
-            " filtered out item $filteredTrackingElement at index $filteredIndex"
-    }
-
-    override fun detailMsg(): String {
-        return toString()
-    }
-
-    override fun groupingId(): String {
-        return receiverName
+        return message
     }
 }
 
@@ -413,7 +408,7 @@ class Report : Logging {
         filterFunctions.forEach { (filterFn, fnArgs) ->
             val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doLogging)
             // NOTE: It's odd that we have to do logic after the fact
-            //       to figure out what the prvious function did
+            //       to figure out what the previous function did
             if (doLogging && filterFnSelection.size() < table.rowCount()) {
                 val before = Selection.withRange(0, table.rowCount())
                 val filteredRowList = before.andNot(filterFnSelection).toList()
@@ -491,6 +486,16 @@ class Report : Logging {
             itemLineage = this.itemLineages,
             metadata = this.metadata
         )
+    }
+
+    /**
+     * Writes the [value] for the [columnName] for the [row].  If a [columnName] is not in the schema,
+     * an error is thrown.
+     * Any data in the field will be overwritten.
+     */
+    fun setString(row: Int, columnName: String, value: String) {
+        val column = schema.findElementColumn(columnName) ?: error("Internal Error: '$columnName' is not found")
+        table.stringColumn(column).set(row, value)
     }
 
     // takes the data in the existing report and synthesizes different data from it

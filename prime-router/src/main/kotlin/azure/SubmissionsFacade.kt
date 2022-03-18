@@ -66,6 +66,9 @@ class SubmissionsFacade(
             SubmissionAccess.SortColumn.CREATED_AT
         }
 
+        /* This will swap the order of the date-time offsets IF both are present
+         * and the given cursor is a date prior to the end-date.
+         */
         return findSubmissions(organizationName, order, column, offset, toEnd, pageSize, showFailed)
     }
 

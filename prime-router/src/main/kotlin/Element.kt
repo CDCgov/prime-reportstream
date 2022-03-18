@@ -200,10 +200,10 @@ data class Element(
      */
     val fieldMapping: String get() {
         return when {
-            !csvFields.isNullOrEmpty() -> "'${csvFields.map { it -> it.name }.joinToString(",")}' ('$name')"
-            !hl7Field.isNullOrBlank() -> "'$hl7Field' ('$name')"
-            !hl7OutputFields.isNullOrEmpty() -> "'${hl7OutputFields.joinToString(",")}}' ('$name')"
-            else -> "'$name'"
+            !csvFields.isNullOrEmpty() -> "${csvFields.map { it.name }.joinToString(",")} ($name)"
+            !hl7Field.isNullOrBlank() -> "$hl7Field ($name)"
+            !hl7OutputFields.isNullOrEmpty() -> "${hl7OutputFields.joinToString(",")}} ($name)"
+            else -> "($name)"
         }
     }
 
@@ -459,7 +459,8 @@ data class Element(
     fun checkForError(formattedValue: String, format: String? = null): ActionLogDetail? {
         // remove trailing spaces
         val cleanedValue = StringUtils.trimToNull(formattedValue)
-        if (cleanedValue == null && !isOptional && !canBeBlank) return MissingFieldMessage.new(fieldMapping)
+        if (cleanedValue == null && !isOptional && !canBeBlank) return MissingFieldMessage(fieldMapping)
+
         return when (type) {
             Type.DATE, Type.DATETIME -> {
                 try {
@@ -471,7 +472,7 @@ data class Element(
                     if (nullifyValue) {
                         null
                     } else {
-                        InvalidDateMessage.new(cleanedValue, fieldMapping, format)
+                        InvalidDateMessage(cleanedValue, fieldMapping, format)
                     }
                 }
             }
@@ -479,21 +480,21 @@ data class Element(
                 // First, prioritize use of a local $alt format, even if no value set exists.
                 return if (format == altDisplayToken) {
                     if (toAltCode(cleanedValue) != null) null else
-                        InvalidCodeMessage.new(cleanedValue, fieldMapping, format)
+                        InvalidCodeMessage(cleanedValue, fieldMapping, format)
                 } else {
                     if (valueSetRef == null) error("Schema Error: missing value set for $fieldMapping")
                     when (format) {
                         displayToken ->
                             if (valueSetRef.toCodeFromDisplay(cleanedValue) != null) null else
-                                InvalidCodeMessage.new(cleanedValue, fieldMapping, format)
+                                InvalidCodeMessage(cleanedValue, fieldMapping, format)
                         codeToken -> {
                             val values = altValues ?: valueSetRef.values
                             if (values.find { it.code == cleanedValue } != null) null else
-                                InvalidCodeMessage.new(cleanedValue, fieldMapping, format)
+                                InvalidCodeMessage(cleanedValue, fieldMapping, format)
                         }
                         else ->
                             if (valueSetRef.toNormalizedCode(cleanedValue) != null) null else
-                                InvalidCodeMessage.new(cleanedValue, fieldMapping, format)
+                                InvalidCodeMessage(cleanedValue, fieldMapping, format)
                     }
                 }
             }
@@ -503,17 +504,17 @@ data class Element(
                     // this then causes a report level failure, not an element level failure
                     val number = phoneNumberUtil.parse(cleanedValue, "US")
                     if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
-                        InvalidPhoneMessage.new(cleanedValue, fieldMapping)
+                        InvalidPhoneMessage(cleanedValue, fieldMapping)
                     else
                         null
                 } catch (ex: Exception) {
-                    InvalidPhoneMessage.new(cleanedValue, fieldMapping)
+                    InvalidPhoneMessage(cleanedValue, fieldMapping)
                 }
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
                 return if (!Regex("^[A-Za-z\\d\\- ]{3,12}\$").matches(cleanedValue))
-                    InvalidPostalMessage.new(cleanedValue, fieldMapping, format)
+                    InvalidPostalMessage(cleanedValue, fieldMapping, format)
                 else
                     null
             }
@@ -525,9 +526,9 @@ data class Element(
                     hdSystemToken -> null
                     hdCompleteFormat -> {
                         val parts = cleanedValue.split(hdDelimiter)
-                        if (parts.size == 1 || parts.size == 3) null else UnsupportedHDMessage.new()
+                        if (parts.size == 1 || parts.size == 3) null else UnsupportedHDMessage(format, fieldMapping)
                     }
-                    else -> UnsupportedHDMessage.new(format, fieldMapping)
+                    else -> UnsupportedHDMessage(format, fieldMapping)
                 }
             }
             Type.EI -> {
@@ -538,9 +539,9 @@ data class Element(
                     eiSystemToken -> null
                     eiCompleteFormat -> {
                         val parts = cleanedValue.split(eiDelimiter)
-                        if (parts.size == 1 || parts.size == 4) null else UnsupportedEIMessage.new()
+                        if (parts.size == 1 || parts.size == 4) null else UnsupportedEIMessage(format, fieldMapping)
                     }
-                    else -> UnsupportedEIMessage.new(format, fieldMapping)
+                    else -> UnsupportedEIMessage(format, fieldMapping)
                 }
             }
 
@@ -844,7 +845,7 @@ data class Element(
             } else {
                 // Check for cardinality and force the value to be empty/blank.
                 if (retVal.value.isNullOrBlank() && !isOptional) {
-                    retVal.errors += MissingFieldMessage.new(fieldMapping)
+                    retVal.errors += MissingFieldMessage(fieldMapping)
                 }
                 ""
             }
@@ -909,7 +910,6 @@ data class Element(
         const val zipFiveToken = "\$zipFive"
         const val zipFivePlusFourToken = "\$zipFivePlusFour"
         const val usZipFormat = """^(\d{5})[- ]?(\d{4})?$"""
-        const val zipDefaultFormat = zipFiveToken
 
         fun csvFields(name: String, format: String? = null): List<CsvField> {
             return listOf(CsvField(name, format))

@@ -477,9 +477,8 @@ internal class ElementTests {
         }
 
         // return an InvalidDateMessage
-        val expected = InvalidDateMessage.new("a week ago", "'date' ('a')", null)
         val actual = checkForErrorDateElement.checkForError("a week ago", null)
-        assertThat(actual?.detailMsg()).isEqualTo(expected.detailMsg())
+        assertThat(actual is InvalidDateMessage).isTrue()
     }
 
     @Test
@@ -492,11 +491,7 @@ internal class ElementTests {
         )
 
         // nullify an invalid date if nullifyValue is true
-        assertThat(
-            checkForErrorDateTimeElementNullify.checkForError("a week ago")
-        ).isEqualTo(
-            null
-        )
+        assertThat(checkForErrorDateTimeElementNullify.checkForError("a week ago")).isNull()
 
         val checkForErrorDateTimeElement = Element(
             "a",
@@ -511,17 +506,12 @@ internal class ElementTests {
         )
 
         dateTimeStrings.forEach { dateTimeString ->
-            assertThat(
-                checkForErrorDateTimeElement.checkForError(dateTimeString)
-            ).isEqualTo(
-                null
-            )
+            assertThat(checkForErrorDateTimeElement.checkForError(dateTimeString)).isNull()
         }
 
         // return an InvalidDateMessage
-        val expected = InvalidDateMessage.new("a week ago", "'datetime' ('a')", null)
         val actual = checkForErrorDateTimeElement.checkForError("a week ago", null)
-        assertThat(actual?.detailMsg()).isEqualTo(expected.detailMsg())
+        assertThat(actual is InvalidDateMessage).isTrue()
     }
 
     @Test
@@ -540,11 +530,7 @@ internal class ElementTests {
         )
 
         dateTimeStrings.forEach { dateTimeString ->
-            assertThat(
-                checkForErrorDateTimeElement.checkForError(dateTimeString)?.type
-            ).isEqualTo(
-                ActionLogDetailType.INVALID_DATE
-            )
+            assertThat(checkForErrorDateTimeElement.checkForError(dateTimeString) is InvalidDateMessage).isTrue()
         }
     }
 
@@ -972,24 +958,28 @@ internal class ElementTests {
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings).isEmpty()
 
-        result.warning(InvalidEquipmentMessage.new(element))
+        result.warning(InvalidEquipmentMessage(element.fieldMapping))
         assertThat(result.warnings.size).isEqualTo(1)
         assertThat(result.errors).isEmpty()
 
-        result.error(InvalidEquipmentMessage.new(element))
+        result.error(InvalidEquipmentMessage(element.fieldMapping))
         assertThat(result.errors.size).isEqualTo(1)
 
         result = ElementResult(
-            "value", mutableListOf(InvalidEquipmentMessage.new(element), InvalidEquipmentMessage.new(element)),
+            "value",
             mutableListOf(
-                InvalidEquipmentMessage.new(element), InvalidEquipmentMessage.new(element),
-                InvalidEquipmentMessage.new(element)
+                InvalidEquipmentMessage(element.fieldMapping),
+                InvalidEquipmentMessage(element.fieldMapping)
+            ),
+            mutableListOf(
+                InvalidEquipmentMessage(element.fieldMapping), InvalidEquipmentMessage(element.fieldMapping),
+                InvalidEquipmentMessage(element.fieldMapping)
             )
         )
-        result.warning(InvalidEquipmentMessage.new(element))
+        result.warning(InvalidEquipmentMessage(element.fieldMapping))
         assertThat(result.warnings.size).isEqualTo(4)
         assertThat(result.errors.size).isEqualTo(2)
-        result.error(InvalidEquipmentMessage.new(element))
+        result.error(InvalidEquipmentMessage(element.fieldMapping))
         assertThat(result.errors.size).isEqualTo(3)
     }
 
@@ -1053,14 +1043,14 @@ internal class ElementTests {
             ): ElementResult {
                 return if (args.isEmpty()) ElementResult(null)
                 else when (args[0]) {
-                    "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage.new(element))
-                    "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage.new(element))
-                        .warning(InvalidEquipmentMessage.new(element))
-                    "1error" -> ElementResult(null).error(InvalidEquipmentMessage.new(element))
-                    "2errors" -> ElementResult(null).error(InvalidEquipmentMessage.new(element))
-                        .error(InvalidEquipmentMessage.new(element))
-                    "mixed" -> ElementResult(null).error(InvalidEquipmentMessage.new(element))
-                        .warning(InvalidEquipmentMessage.new(element))
+                    "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
+                    "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
+                        .warning(InvalidEquipmentMessage(element.fieldMapping))
+                    "1error" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                    "2errors" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                        .error(InvalidEquipmentMessage(element.fieldMapping))
+                    "mixed" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                        .warning(InvalidEquipmentMessage(element.fieldMapping))
                     else -> throw UnsupportedOperationException()
                 }
             }

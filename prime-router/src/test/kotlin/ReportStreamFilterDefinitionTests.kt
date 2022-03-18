@@ -337,6 +337,53 @@ class ReportStreamFilterDefinitionTests {
     }
 
     @Test
+    fun `test AtLeastOneHasValue`() {
+        val filter = AtLeastOneHasValue()
+        val table = Table.create(
+            StringColumn.create("colA", listOf("Y", "N", "", null)),
+            StringColumn.create("colB", listOf("N", "N", "N", "Y")),
+            StringColumn.create("colC", listOf("Y", "N", "", "N"))
+        )
+
+        val emptyArgs = listOf<String>()
+        assertThat { filter.getSelection(emptyArgs, table, rcvr) }.isFailure()
+
+        val junkColNames = listOf("Y", "foo", "bar", "baz")
+        var selection = filter.getSelection(junkColNames, table, rcvr)
+        var filteredTable = table.where(selection)
+        assertThat(filteredTable).hasRowCount(0)
+
+        val oneGoodColName = listOf("Y", "bar", "colB")
+        selection = filter.getSelection(oneGoodColName, table, rcvr)
+        filteredTable = table.where(selection)
+        assertThat(filteredTable).hasRowCount(1)
+
+        val colWithEmptyString = listOf("Y", "colC")
+        selection = filter.getSelection(colWithEmptyString, table, rcvr)
+        filteredTable = table.where(selection)
+        assertThat(filteredTable).hasRowCount(1)
+
+        val colWithNull = listOf("N", "colA")
+        selection = filter.getSelection(colWithNull, table, rcvr)
+        filteredTable = table.where(selection)
+        assertThat(filteredTable).hasRowCount(1)
+
+        val allCols = listOf("Y", "colA", "colB", "colC")
+        selection = filter.getSelection(allCols, table, rcvr)
+        filteredTable = table.where(selection)
+        assertThat(filteredTable).hasRowCount(2)
+
+        // First row does not exist for colA nor colB. No colC at all.
+        val table2 = Table.create(
+            StringColumn.create("colA", listOf("", "N")),
+            StringColumn.create("colB", listOf(null, "Y")),
+        )
+        selection = filter.getSelection(allCols, table2, rcvr)
+        filteredTable = table2.where(selection)
+        assertThat(filteredTable).hasRowCount(1)
+    }
+
+    @Test
     fun `test allowAll`() {
         val filter = AllowAll()
         val table = Table.create(
