@@ -191,7 +191,7 @@ const App = () => {
                                 />
                             </Switch>
                         </main>
-                        <ToastContainer limit={2} />
+                        <ToastContainer limit={4} />
                     </GlobalContextProvider>
                     <footer className="usa-identifier footer">
                         <ReportStreamFooter />

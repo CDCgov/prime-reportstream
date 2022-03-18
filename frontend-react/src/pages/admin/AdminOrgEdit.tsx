@@ -94,8 +94,8 @@ export function AdminOrgEdit({
                 `Item '${orgname}' has been updated`
             );
             confirmModalRef?.current?.toggleModal(undefined, true);
+            showAlertNotification("success", `Saved '${orgname}' setting.`);
         } catch (e: any) {
-            console.trace(e);
             showError(`Updating item '${orgname}' failed. ${e.toString()}`);
             return false;
         }

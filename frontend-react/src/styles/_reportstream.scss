@@ -257,7 +257,9 @@ h3 img[src*="svg"] {
     --toastify-toast-width: 600px;
     --rs-compare-modal-width: 87em;
     --rs-compare-modal-height: 45em;
+    --rs-zindex-top: 999;
 }
+
 
 .rs-spinner {
     display: inline-flex;
@@ -276,6 +278,11 @@ h3 img[src*="svg"] {
     }
 }
 
+.usa-modal-wrapper {
+    &.is-visible {
+        z-index: var(--rs-zindex-top);  // default is 99999, want toast over top.
+    }
+}
 
 .rs-compare-modal {
     max-width: calc(var(--rs-compare-modal-width));
@@ -363,5 +370,5 @@ h3 img[src*="svg"] {
 }
 
 .rs-alert-toast {
-    z-index: 100;
+    z-index: var(--rs-zindex-top+1);
 }
