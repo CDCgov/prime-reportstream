@@ -41,7 +41,7 @@ The waters endpoint will support these resources:
 
 | Endpoint                        | Brief Description                  | Old Endpoint |
 |---------------------------------|------------------------------------|--------------|
-| GET api/waters/item/{i}/history | to retrieve lineage about one item | n/a          | 
+| GET api/waters/item/{i}/history | to retrieve the history of one item | n/a          | 
 
 ## The Details
 
