@@ -1041,14 +1041,7 @@
     core-js-pure "^3.20.2"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.12.1", "@babel/runtime@^7.12.13", "@babel/runtime@^7.16.3", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4":
-  version "7.16.7"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.16.7.tgz#03ff99f64106588c9c403c6ecb8c3bafbbdff1fa"
-  integrity sha512-9E9FJowqAsytyOY6LG+1KuueckRL+aQW+mKvXRXnuFGyRAyepJPmEo9vgMfXUA6O9u3IeEdv9MAkppFcaQwogQ==
-  dependencies:
-    regenerator-runtime "^0.13.4"
-
-"@babel/runtime@^7.11.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.1", "@babel/runtime@^7.12.13", "@babel/runtime@^7.12.5", "@babel/runtime@^7.16.3", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
   version "7.17.2"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.17.2.tgz#66f68591605e59da47523c631416b18508779941"
   integrity sha512-hzeyJyMA1YGdJTuWU0e/j4wKXrU4OMFvY2MSlaI9B7VQb0r5cxTE3EAIS2Q7Tn2RIcDkRvTA/v2JsAEhxe99uw==
@@ -1414,21 +1407,6 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@monaco-editor/loader@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@monaco-editor/loader/-/loader-1.2.0.tgz#373fad69973384624e3d9b60eefd786461a76acd"
-  integrity sha512-cJVCG/T/KxXgzYnjKqyAgsKDbH9mGLjcXxN6AmwumBwa2rVFkwvGcUj1RJtD0ko4XqLqJxwqsN/Z/KURB5f1OQ==
-  dependencies:
-    state-local "^1.0.6"
-
-"@monaco-editor/react@^4.3.1":
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/@monaco-editor/react/-/react-4.3.1.tgz#d65bcbf174c39b6d4e7fec43d0cddda82b70a12a"
-  integrity sha512-f+0BK1PP/W5I50hHHmwf11+Ea92E5H1VZXs+wvKplWUWOfyMa1VVwqkJrXjRvbcqHL+XdIGYWhWNdi4McEvnZg==
-  dependencies:
-    "@monaco-editor/loader" "^1.2.0"
-    prop-types "^15.7.2"
-
 "@mswjs/cookies@^0.1.7":
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/@mswjs/cookies/-/cookies-0.1.7.tgz#d334081b2c51057a61c1dd7b76ca3cac02251651"
@@ -1608,10 +1586,10 @@
   dependencies:
     "@babel/runtime" "^7.7.2"
 
-"@rest-hooks/rest@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/rest/-/rest-2.2.0.tgz#dcac60733850c37de201f69a26b3c8d4e43aea7e"
-  integrity sha512-dGZr7s50b9hCf0hPJ3eR6oNmyhBIkMMFXV6QHaJ+EIb/E3IqTqATmc958djJcr5ZNf1LJI3nGXEaEdWrUGIFhw==
+"@rest-hooks/rest@^3.0.3":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/rest/-/rest-3.0.3.tgz#d8a43248bcfe3b0340e8031c295206e7643f0c94"
+  integrity sha512-pmEBkPJy3OuF5WXg7w0l1j48GfL4WEXzMyVPf8fw/BZdv3Rxz6eJldNPj3l+G8XduphwF0zCe/o+GOpb45IS9Q==
   dependencies:
     "@babel/runtime" "^7.7.2"
 
@@ -2033,6 +2011,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/lodash@^4.14.180":
+  version "4.14.180"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.180.tgz#4ab7c9ddfc92ec4a887886483bc14c79fb380670"
+  integrity sha512-XOKXa1KIxtNXgASAnwj7cnttJxS4fksBRywK/9LzRV5YxrF80BXZIGeQSuoESQ/VkUj30Ae0+YcuHc15wJCB2g==
+
 "@types/minimatch@*":
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.5.tgz#1001cc5e6a3704b83c236027e77f2f58ea010f40"
@@ -2107,6 +2090,13 @@
   integrity sha512-YYknwy0D0iOwKQgz9v8nOzt2J6l4gouBmDnWqUUznltOTaon+r8US8ky8HvN0tXvc38U9m6z/t2RsVsnd1zM0g==
   dependencies:
     "@types/history" "^4.7.11"
+    "@types/react" "*"
+
+"@types/react-scroll-sync@^0.8.3":
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/@types/react-scroll-sync/-/react-scroll-sync-0.8.3.tgz#d293537ea4d21e00d62af0454bfa3ceba73749b1"
+  integrity sha512-WHOMd34f7DM5DeTriQ3qIaHAOOf7WmQrZP92UIM9e/2Lzj80G262aibSqx3xqBGcV6VgnlTVr0fabpKrj+HYcA==
+  dependencies:
     "@types/react" "*"
 
 "@types/react-test-renderer@>=16.9.0":
@@ -9998,7 +9988,7 @@ prompts@^2.0.1:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
+prop-types@^15.5.7, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -10396,12 +10386,19 @@ react-scripts@^4.0.3:
   optionalDependencies:
     fsevents "^2.1.3"
 
+react-scroll-sync@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/react-scroll-sync/-/react-scroll-sync-0.9.0.tgz#81ddea7a667092807c0150924a201eceed5979fe"
+  integrity sha512-IaMUSTbarj9mhjVtBl9I45Er8gQqV8rdb9A0eK77JJ8MvnLcFIlnoiXVx1NS9ACy9QELq7xCTxdIVEdhDV9R0Q==
+  dependencies:
+    prop-types "^15.5.7"
+
 react-side-effect@^2.1.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/react-side-effect/-/react-side-effect-2.1.1.tgz#66c5701c3e7560ab4822a4ee2742dee215d72eb3"
   integrity sha512-2FoTQzRNTncBVtnzxFOk2mCpcfxQpenBMbk5kSVBg5UcPqV9fRbgY2zhb7GTWWOlpFmAxhClBDlIq8Rsubz1yQ==
 
-react-toastify@^8.1.0:
+react-toastify@^8.2.0:
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/react-toastify/-/react-toastify-8.2.0.tgz#ef7d56bdfdc6272ca6b228368ab564721c3a3244"
   integrity sha512-Pg2Ju7NngAamarFvLwqrFomJ57u/Ay6i6zfLurt/qPynWkAkOthu6vxfqYpJCyNhHRhR4hu7+bySSeWWJu6PAg==
@@ -11430,11 +11427,6 @@ stackframe@^1.1.1:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/stackframe/-/stackframe-1.2.0.tgz#52429492d63c62eb989804c11552e3d22e779303"
   integrity sha512-GrdeshiRmS1YLMYgzF16olf2jJ/IzxXY9lhKOskuVziubpTYcYqyOwYeJKzQkwy7uN0fYSsbsC4RQaXf9LCrYA==
-
-state-local@^1.0.6:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/state-local/-/state-local-1.0.7.tgz#da50211d07f05748d53009bee46307a37db386d5"
-  integrity sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==
 
 static-extend@^0.1.1:
   version "0.1.2"
