@@ -30,32 +30,35 @@ class SubmissionFunction(
         val sort: String,
         val sortColumn: String,
         val cursor: OffsetDateTime?,
+        val endCursor: OffsetDateTime?,
         val pageSize: Int,
+        val showFailed: Boolean
     ) {
         constructor(query: Map<String, String>) : this (
             extractSortOrder(query),
             extractSortCol(query),
-            extractCursor(query),
+            extractCursor(query, "cursor"),
+            extractCursor(query, "endcursor"),
             extractPageSize(query),
+            extractShowFailed(query)
         )
 
         companion object {
             fun extractSortOrder(query: Map<String, String>): String {
-                val qSortOrder = query.getOrDefault("sort", "DESC")
-                return qSortOrder
+                return query.getOrDefault("sort", "DESC")
             }
 
             fun extractSortCol(query: Map<String, String>): String {
-                return query.getOrDefault("sortCol", "default")
+                return query.getOrDefault("sortcol", "default")
             }
 
-            fun extractCursor(query: Map<String, String>): OffsetDateTime? {
-                val qResultsAfterDate = query.get("cursor")
-                return if (qResultsAfterDate != null) {
+            fun extractCursor(query: Map<String, String>, name: String): OffsetDateTime? {
+                val cursor = query.get(name)
+                return if (cursor != null) {
                     try {
-                        OffsetDateTime.parse(qResultsAfterDate)
+                        OffsetDateTime.parse(cursor)
                     } catch (e: DateTimeParseException) {
-                        throw IllegalArgumentException("cursor must be a valid datetime")
+                        throw IllegalArgumentException("\"$name\" must be a valid datetime")
                     }
                 } else null
             }
@@ -64,6 +67,13 @@ class SubmissionFunction(
                 val size = query.getOrDefault("pagesize", "10").toIntOrNull()
                 require(size != null) { "pageSize must be a positive integer" }
                 return size
+            }
+
+            fun extractShowFailed(query: Map<String, String>): Boolean {
+                return when (query.getOrDefault("showfailed", "true")) {
+                    "false" -> false
+                    else -> true
+                }
             }
         }
     }
@@ -85,13 +95,16 @@ class SubmissionFunction(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
             try {
-                val (qSortOrder, qSortColumn, resultsAfterDate, pageSize) = Parameters(request.queryParameters)
+                val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
+                    Parameters(request.queryParameters)
                 val submissions = facade.findSubmissionsAsJson(
                     organization,
                     qSortOrder,
                     qSortColumn,
                     resultsAfterDate,
-                    pageSize
+                    resultsBeforeDate,
+                    pageSize,
+                    showFailed
                 )
                 HttpUtilities.okResponse(request, submissions)
             } catch (e: IllegalArgumentException) {
@@ -138,18 +151,24 @@ class SubmissionFunction(
         @BindingName("reportId") reportId: String, // Use string to be able to detect a format error
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
-            try {
-                val reportUuid = UUID.fromString(reportId)
-                val submission = facade.findReport(organization, reportUuid)
-                if (submission != null) HttpUtilities.okJSONResponse(request, submission)
-                else HttpUtilities.notFoundResponse(request, "Report $reportId was not found.")
+            val reportUuid = try {
+                UUID.fromString(reportId)
             } catch (e: IllegalArgumentException) {
+                // Need to isolate this catch as this type of exception can happen for other reasons
                 logger.debug("Invalid format for report ID.", e)
-                HttpUtilities.badRequestResponse(request, "Invalid format for report ID parameter.")
-            } catch (e: DataAccessException) {
-                logger.error("Unable to fetch history for report ID $reportId", e)
-                HttpUtilities.internalErrorResponse(request)
+                null
             }
+
+            if (reportUuid != null)
+                try {
+                    val submission = facade.findReport(organization, reportUuid)
+                    if (submission != null) HttpUtilities.okJSONResponse(request, submission)
+                    else HttpUtilities.notFoundResponse(request, "Report $reportId was not found.")
+                } catch (e: DataAccessException) {
+                    logger.error("Unable to fetch history for report ID $reportId", e)
+                    HttpUtilities.internalErrorResponse(request)
+                }
+            else HttpUtilities.badRequestResponse(request, "Invalid format for report ID parameter.")
         }
     }
 }

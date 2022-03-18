@@ -4,7 +4,7 @@
 ### Tracking Element: none
 ### Base On: none
 ### Extends: [covid-19](./covid-19.md)
-#### Description: A standard file for ELR HL7 messags
+#### Description: A standard file for ELR HL7 messages
 
 ---
 
@@ -77,11 +77,9 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **ReportStream Internal Name**: comment_source
 
-**Type**: CODE
+**Type**: ID
 
 **PII**: No
-
-**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 

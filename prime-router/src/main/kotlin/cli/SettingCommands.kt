@@ -104,7 +104,7 @@ abstract class SettingCommand(
     enum class Operation { LIST, GET, PUT, DELETE }
     enum class SettingType { ORGANIZATION, SENDER, RECEIVER }
 
-    val jsonMapper = JacksonMapperUtilities.datesAsTextMapper
+    val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
     val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
         KotlinModule.Builder()
             .withReflectionCacheSize(512)

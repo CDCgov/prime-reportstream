@@ -2,7 +2,7 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.exists
-import assertk.assertions.isEmpty
+import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.serializers.CsvSerializer
 import org.apache.commons.io.FileUtils
@@ -49,7 +49,7 @@ class SimpleReportIntegrationTests {
         // 1) Ingest the file
         val fileSource = FileSource(filePath)
         val readResult = csvSerializer.readExternal(schema.name, file.inputStream(), fileSource)
-        assertThat(readResult.errors).isEmpty()
+        assertThat(readResult.actionLogs.hasErrors()).isFalse()
         // I removed this test- at this time, the SimpleReport parsing does return an empty column warning.
         //        assertTrue(readResult.warnings.isEmpty())
         val inputReport = readResult.report
@@ -109,7 +109,7 @@ class SimpleReportIntegrationTests {
         // 1) Ingest the file
         val inputFileSource = FileSource(inputFilePath)
         val readResult = csvSerializer.readExternal(schema.name, inputFile.inputStream(), inputFileSource)
-        assertThat(readResult.errors).isEmpty()
+        assertThat(readResult.actionLogs.hasErrors()).isFalse()
         val inputReport = readResult.report
 
         // 2) Write the input report back out to a new file
@@ -242,7 +242,6 @@ class SimpleReportIntegrationTests {
                         val message = "Patient_ID $expectedKey differed at $header. " +
                             "Expected '$v' but found '${actualLines[i]}'."
                         linesInError.add(message)
-                        println(message)
                     }
                 }
             }

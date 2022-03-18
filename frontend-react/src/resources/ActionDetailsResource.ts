@@ -23,7 +23,7 @@ export interface ReportError extends ReportWarning {
 
 export default class ActionDetailsResource extends AuthResource {
     readonly submissionId: number = -1;
-    readonly timestamp: string = ""; //comes in format yyyy-mm-ddThh:mm:ss.ssszzzz
+    readonly timestamp: string = ""; //comes in format yyyy-mm-ddThh:mm:ss.sssZ
     readonly sender: string | undefined = undefined;
     readonly httpStatus: number = -1;
     readonly externalName: string = "";
