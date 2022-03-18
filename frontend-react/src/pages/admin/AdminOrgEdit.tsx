@@ -92,7 +92,7 @@ export function AdminOrgEdit({
                 "success",
                 `Item '${orgname}' has been updated`
             );
-            confirmModalRef?.current?.toggleModal(undefined, true);
+            confirmModalRef?.current?.toggleModal(undefined, false);
             showAlertNotification("success", `Saved '${orgname}' setting.`);
         } catch (e: any) {
             showError(`Updating item '${orgname}' failed. ${e.toString()}`);
