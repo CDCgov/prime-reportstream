@@ -27,9 +27,9 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
-import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
+import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -890,7 +890,9 @@ class Hl7Serializer(
 
             // Override with organization name if available
             Hl7Configuration.OrderingFacilityName.ORGANIZATION_NAME -> {
-                val organizationName = report.getString(row, "organization_name").trimToNull() ?: rawFacilityName
+                val organizationName = StringUtils.trimToNull(
+                    report.getString(row, "organization_name")
+                ) ?: rawFacilityName
                 setPlainOrderingFacility(terser, organizationName)
             }
         }
