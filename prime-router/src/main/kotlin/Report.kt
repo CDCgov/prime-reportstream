@@ -20,6 +20,7 @@ import java.time.OffsetDateTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import javax.xml.bind.DatatypeConverter
 import kotlin.random.Random
 
 /**
@@ -837,7 +838,7 @@ class Report : Logging {
     /**
      * Gets the item hash for a the [rowNum] of the report. Returns the ByteArray hash.
      */
-    fun getItemHashForRow(rowNum: Int): ByteArray {
+    fun getItemHashForRow(rowNum: Int): String {
         // calculate and store item hash for deduplication purposes for the generated item
         val row = this.table.row(rowNum)
         var rawStr = ""
@@ -853,13 +854,12 @@ class Report : Logging {
                 row.getString("specimen_collection_date_time") else ""
             ).toByteArray()
 
-        // generate digest of entire row
+        // combine collectionTime and digest for lower chance of collision
         val digest = MessageDigest
             .getInstance("SHA-256")
-            .digest(rawStr.toByteArray())
+            .digest(rawStr.toByteArray()) + collectionTime
 
-        // combine collectionTime and digest for lower chance of collision
-        return digest + collectionTime
+        return DatatypeConverter.printHexBinary(digest).uppercase()
     }
 
     /**
@@ -980,7 +980,7 @@ class Report : Logging {
                     grandParentTrackingValue,
                     null,
                     null,
-                    itemHash
+                    itemHash.toByteArray()
                 )
             } else {
                 val trackingElementValue =
@@ -994,7 +994,7 @@ class Report : Logging {
                     trackingElementValue,
                     null,
                     null,
-                    itemHash
+                    itemHash.toByteArray()
                 )
             }
         }
