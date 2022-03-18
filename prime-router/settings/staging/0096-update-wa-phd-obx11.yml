@@ -68,14 +68,7 @@
         action: "NONE"
         onlyOncePerDay: false
     description: ""
-    transport: !<AS2>
-      receiverUrl: "https://onehealthport-as2.axwaycloud.com/exchange/ZZOHP"
-      receiverId: "ZZOHP"
-      senderId: "7uycso49"
-      senderEmail: "reportstream@cdc.gov"
-      mimeType: "application/hl7-v2"
-      contentDescription: "SARS-CoV-2 Electronic Lab Results"
-      type: "AS2"
+    transport: null
     externalName: null
   - name: "elr-neg"
     organizationName: "wa-phd"
@@ -137,13 +130,6 @@
         action: "NONE"
         onlyOncePerDay: false
     description: ""
-    transport: !<AS2>
-      receiverUrl: "https://onehealthport-as2.axwaycloud.com/exchange/ZZOHP"
-      receiverId: "ZZOHP"
-      senderId: "7uycso49"
-      senderEmail: "reportstream@cdc.gov"
-      mimeType: "application/hl7-v2"
-      contentDescription: "SARS-CoV-2 Electronic Lab Results"
-      type: "AS2"
+    transport: null
     externalName: null
 
