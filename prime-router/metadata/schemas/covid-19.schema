@@ -27,7 +27,7 @@ elements:
     hl7Field: NTE-3
 
   - name: comment_source
-    type: CODE
+    type: ID
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: NTE-2
