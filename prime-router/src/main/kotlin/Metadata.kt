@@ -84,6 +84,7 @@ class Metadata : Logging {
         OrEquals(),
         HasValidDataFor(),
         HasAtLeastOneOf(),
+        AtLeastOneHasValue(),
         AllowAll(),
         AllowNone(),
         IsValidCLIA(),

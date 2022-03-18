@@ -5,6 +5,9 @@ import {
     Textarea,
     TextInput,
 } from "@trussworks/react-uswds";
+import { useRef } from "react";
+
+import { showError } from "../AlertNotifications";
 
 export const TextInputComponent = (params: {
     fieldname: string;
@@ -42,6 +45,8 @@ export const TextAreaComponent = (params: {
     savefunc: (val: object) => void;
     defaultnullvalue: string | null;
 }): JSX.Element => {
+    const inputRef = useRef<HTMLTextAreaElement>(null);
+
     let defaultValue = JSON.stringify(params?.defaultvalue, undefined, 2);
     if (
         defaultValue === "null" ||
@@ -62,17 +67,47 @@ export const TextAreaComponent = (params: {
             </Grid>
             <Grid col={9}>
                 <Textarea
+                    inputRef={inputRef}
                     id={key}
                     name={key}
                     defaultValue={defaultValue}
                     data-testid={key}
-                    onBlur={(e) =>
-                        params.savefunc(
-                            JSON.parse(
-                                e?.target?.value || (defaultnullvalue as string)
-                            )
-                        )
-                    }
+                    onBlur={(e) => {
+                        const inputvalue =
+                            e?.target?.value || (defaultnullvalue as string);
+                        try {
+                            const textJson = JSON.parse(inputvalue);
+                            params.savefunc(textJson);
+                        } catch (err: any) {
+                            // message like `'Unexpected token _ in JSON at position 164'`
+                            showError(
+                                `Element "${key}" generated an error "${err?.message}"`
+                            );
+                            // now we parse out the position and try to select it for them.
+                            const findPositionMatch = err?.message
+                                ?.matchAll(/position (\d+)/gi)
+                                ?.next();
+                            if (findPositionMatch?.value?.length === 2) {
+                                let offset = parseInt(
+                                    findPositionMatch.value[1] || -1
+                                );
+                                if (!isNaN(offset) && offset !== -1) {
+                                    if (offset > 4) {
+                                        offset -= 4;
+                                    }
+                                    const end = Math.min(
+                                        offset + 8,
+                                        inputvalue.length - 1
+                                    );
+                                    inputRef?.current?.focus();
+                                    inputRef?.current?.setSelectionRange(
+                                        offset,
+                                        end
+                                    );
+                                }
+                            }
+                        }
+                    }}
                 />
             </Grid>
         </Grid>

@@ -29,15 +29,15 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.6.10"
-    id("org.flywaydb.flyway") version "8.5.0"
+    id("org.flywaydb.flyway") version "8.5.4"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
-    id("com.adarshr.test-logger") version "3.1.0"
+    id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.6.10"
-    id("com.avast.gradle.docker-compose") version "0.15.0"
+    id("com.avast.gradle.docker-compose") version "0.15.1"
 }
 
 group = "gov.cdc.prime"
@@ -112,7 +112,7 @@ compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
     // Delete the old Maven build folder
-    dependsOn("composeDown")
+    dependsOn("composeDownForced")
     delete("target")
     // clean up all the old event files in the SOAP set up
     doLast {
@@ -678,12 +678,12 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
     implementation("com.github.javafaker:javafaker:1.0.2")
-    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.16")
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.17")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.5.1")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.5.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.43")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.44")
     implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.8.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
@@ -702,9 +702,9 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("org.flywaydb:flyway-core:8.5.0")
+    implementation("org.flywaydb:flyway-core:8.5.2")
     implementation("org.commonmark:commonmark:0.18.2")
-    implementation("com.google.guava:guava:31.0.1-jre")
+    implementation("com.google.guava:guava:31.1-jre")
     implementation("com.helger.as2:as2-lib:4.10.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
@@ -722,8 +722,8 @@ dependencies {
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.2.0")
-    implementation("it.skrape:skrapeit-http-fetcher:1.2.0")
-    implementation("org.apache.poi:poi:5.2.0")
+    implementation("it.skrape:skrapeit-http-fetcher:1.2.1")
+    implementation("org.apache.poi:poi:5.2.1")
     implementation("org.apache.poi:poi-ooxml:5.2.0")
     implementation("commons-io:commons-io: 2.11.0")
 
