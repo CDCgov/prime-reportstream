@@ -3230,7 +3230,7 @@
         receiverUrl: http://host.docker.internal:8000/pyas2/as2receive
         receiverId: p1as2
         senderId: CDCPRIMETEST
-    - name: gaen # Note: I don't see this feed in prod
+    - name: gaen # Note: I don't see this feed in prod, might need routing filter for OBX-11-1 (test_result_status)
       description: Google/Apple Exposure Notification
       organizationName: wa-phd
       topic: covid-19
@@ -3238,8 +3238,6 @@
       jurisdictionalFilter:
         - matches(abnormal_flag, A)
         - orEquals(ordering_facility_state, WA, patient_state, WA)
-      routingFilter:
-        - matches(test_result_status, F, S, P, C, X, I)
       timing: null
       translation:
         type: GAEN
