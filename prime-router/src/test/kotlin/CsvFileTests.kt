@@ -1,17 +1,14 @@
 package gov.cdc.prime.router
 
-import assertk.Assert
-import assertk.all
 import assertk.assertThat
 import assertk.assertions.exists
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNotEmpty
+import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
-import assertk.assertions.prop
+import assertk.assertions.isTrue
 import assertk.assertions.support.expected
-import assertk.assertions.support.show
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.ReadResult
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -19,7 +16,6 @@ import org.junit.jupiter.api.TestInstance
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 //
 // Using JUnit here, but this is not a unit test.  This tests end-to-end:  ingesting a csv file,
@@ -53,12 +49,7 @@ class CsvFileTests {
         val file = File(inputPath + "happy-path.csv")
         val baseName = file.name
         val result = ingestFile(file)
-        assertTrue(result.warnings.isEmpty() && result.errors.isEmpty())
-        assertThat(result).all {
-            prop("warnings") { ReadResult::warnings.call(it) }.isEmpty()
-            prop("errors") { ReadResult::errors.call(it) }.isEmpty()
-        }
-        assertThat(result).hasNoWarnings().hasNoErrors()
+        assertThat(result.actionLogs.isEmpty()).isTrue()
         val inputReport = result.report
         translateReport(inputReport, baseName, listOf("federal-test-receiver-"))
     }
@@ -68,12 +59,8 @@ class CsvFileTests {
         val file = File(inputPath + "column-headers-only.csv")
         val baseName = file.name
         val result = ingestFile(file)
-        assertTrue(result.warnings.isNotEmpty() && result.errors.isEmpty())
-        assertThat(result).all {
-            prop("warnings") { ReadResult::warnings.call(it) }.isNotEmpty()
-            prop("errors") { ReadResult::errors.call(it) }.isEmpty()
-        }
-        assertThat(result).hasNoErrors()
+        assertThat(result.actionLogs.isEmpty()).isFalse()
+        assertThat(result.actionLogs.hasErrors()).isFalse()
         val inputReport = result.report
         translateReport(inputReport, baseName, emptyList<String>())
     }
@@ -130,23 +117,5 @@ class CsvFileTests {
         assertThat(schema).isNotNull()
         assertThat(schema!!.elements).hasSize(7)
         assertThat(schema.elements[0].name).isEqualTo("lab")
-    }
-
-    companion object {
-        private fun Assert<ReadResult>.hasNoWarnings(): Assert<ReadResult> = transform { actual ->
-            if (actual.warnings.count() == 0) {
-                actual
-            } else {
-                expected("expected: ReadResult to have no warnings, but it had ${show(actual.warnings.count())}")
-            }
-        }
-
-        private fun Assert<ReadResult>.hasNoErrors(): Assert<ReadResult> = transform { actual ->
-            if (actual.errors.count() == 0) {
-                actual
-            } else {
-                expected("expected: ReadResult to have no errors, but it had ${show(actual.errors.count())}")
-            }
-        }
     }
 }

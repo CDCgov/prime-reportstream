@@ -137,7 +137,7 @@ data class Schema(
         // Try to order any last mappers by the order the LIVD lookup mapper looks at elements
         val livdElementNames = LIVDLookupMapper().valueNames(Element("dummy"), emptyList())
         livdElementNames.forEach { livdElementName ->
-            unorderedElements.firstOrNull() { it.name == livdElementName }?.also {
+            unorderedElements.firstOrNull { it.name == livdElementName }?.also {
                 orderedElements.add(it)
                 unorderedElements.remove(it)
             }
