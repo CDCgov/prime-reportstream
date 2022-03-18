@@ -12,9 +12,9 @@ locals {
     "postgres_server" = {
       resource_id = var.postgres_server_id
     },
-    "front_door" = {
-      resource_id = var.front_door_id
-    },
+    # "front_door" = {
+    #   resource_id = var.front_door_id
+    # },
     "application_key_vault" = {
       resource_id = var.application_key_vault_id
     },

@@ -82,9 +82,9 @@ variable "network" {
       "address_space"           = "172.17.5.128/25"
       "dns_servers"             = ["172.17.0.135"]
       "location"                = "West Us"
-      "subnets"                 = ["public", "private", "container", "endpoint"]
+      "subnets"                 = ["public", "private", "container"]
       "nsg_prefix"              = "westus-"
-      "network_security_groups" = ["private", "public", "container", "endpoint"]
+      "network_security_groups" = ["private", "public", "container"]
       "subnet_cidrs" = [
         {
           name     = "public"

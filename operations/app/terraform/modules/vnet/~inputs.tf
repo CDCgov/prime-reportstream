@@ -8,7 +8,7 @@ variable "environment" {
 }
 
 variable "resource_prefix" {
-  type = string
+  type        = string
   description = "Resourec Prefix"
 }
 
@@ -42,5 +42,5 @@ variable "resource_prefix" {
 #   description = "VNET Address Space CIDR"
 # }
 
-variable "azure_vns" {
-}
+# variable "azure_vns" {
+# }

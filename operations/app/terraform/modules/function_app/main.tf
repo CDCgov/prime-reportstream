@@ -98,7 +98,7 @@ resource "azurerm_function_app" "function_app" {
   version                    = "~3"
   enable_builtin_logging     = false
 
-site_config {
+  site_config {
     ip_restriction {
       action                    = "Allow"
       name                      = "AllowVNetTraffic"
@@ -156,26 +156,26 @@ site_config {
 }
 
 
-# resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy" {
-#   key_vault_id = var.app_config_key_vault_id
-#   tenant_id    = azurerm_function_app.function_app.identity[0].tenant_id
-#   object_id    = azurerm_function_app.function_app.identity[0].principal_id
+resource "azurerm_key_vault_access_policy" "functionapp_app_config_access_policy" {
+  key_vault_id = var.app_config_key_vault_id
+  tenant_id    = azurerm_function_app.function_app.identity[0].tenant_id
+  object_id    = azurerm_function_app.function_app.identity[0].principal_id
 
-#   secret_permissions = [
-#     "Get",
-#   ]
-# }
+  secret_permissions = [
+    "Get",
+  ]
+}
 
-# resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_policy" {
-#   key_vault_id = var.client_config_key_vault_id
-#   tenant_id    = azurerm_function_app.function_app.identity.0.tenant_id
-#   object_id    = azurerm_function_app.function_app.identity.0.principal_id
+resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_policy" {
+  key_vault_id = var.client_config_key_vault_id
+  tenant_id    = azurerm_function_app.function_app.identity.0.tenant_id
+  object_id    = azurerm_function_app.function_app.identity.0.principal_id
 
-#   secret_permissions = [
-#     "Get",
-#   ]
+  secret_permissions = [
+    "Get",
+  ]
 
-# }
+}
 
 resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {
   app_service_id = azurerm_function_app.function_app.id

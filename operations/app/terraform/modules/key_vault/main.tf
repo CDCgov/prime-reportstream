@@ -118,7 +118,7 @@ module "app_config_private_endpoint" {
 
 resource "azurerm_key_vault" "client_config" {
   # Does not include "-keyvault" due to char limits (24)
-  name = "${var.resource_prefix}-clientconfig"
+  name = "${var.resource_prefix}-clientconfig2"
 
   location                        = var.location
   resource_group_name             = var.resource_group

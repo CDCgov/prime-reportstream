@@ -5,7 +5,7 @@ module "vnet" {
   resource_group  = var.resource_group
   environment     = var.environment
   resource_prefix = var.resource_prefix
-  azure_vns       = var.network
+  # azure_vns       = var.network
 }
 
 ##########
