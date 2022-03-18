@@ -10,7 +10,6 @@ import {
 import React, { forwardRef, Ref, useImperativeHandle, useRef } from "react";
 import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 
-import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 import { EditableCompare, EditableCompareRef } from "../EditableCompare";
 
 interface ModalConfirmButtonProps {
@@ -61,8 +60,6 @@ export const ConfirmSaveSettingModal = forwardRef(
         const modalRef = useRef<ModalRef>(null);
         const diffEditorRef = useRef<EditableCompareRef>(null);
 
-        const showNewDiffEditor = CheckFeatureFlag("showNewDiffEditor");
-
         const scopedConfirm = () => {
             onConfirm();
         };
@@ -100,28 +97,11 @@ export const ConfirmSaveSettingModal = forwardRef(
                         <p id={`${uniquid}-description`}>
                             You are about to change this setting: {uniquid}
                         </p>
-                        {showNewDiffEditor ? (
-                            <EditableCompare
-                                ref={diffEditorRef}
-                                original={oldjson}
-                                modified={newjson}
-                            />
-                        ) : (
-                            <div className="grid-container">
-                                <p>
-                                    The diff editor is currently under
-                                    maintenance.
-                                </p>
-                                <p>
-                                    Please click Save below to save your
-                                    changes.
-                                </p>
-                                <p>
-                                    Add "showNewDiffEditor" to feature flags to
-                                    try out!
-                                </p>
-                            </div>
-                        )}
+                        <EditableCompare
+                            ref={diffEditorRef}
+                            original={oldjson}
+                            modified={newjson}
+                        />
                     </div>
                     <ModalFooter>
                         <ButtonGroup>
