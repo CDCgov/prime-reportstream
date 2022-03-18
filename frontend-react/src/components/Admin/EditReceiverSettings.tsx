@@ -91,9 +91,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
 
         const saveReceiverData = async () => {
             try {
-                const data =
-                    confirmModalRef?.current?.editedText ||
-                    orgReceiverSettingsNewJson;
+                const data = confirmModalRef?.current?.getEditedText();
 
                 const receivernamelocal =
                     action === "clone"

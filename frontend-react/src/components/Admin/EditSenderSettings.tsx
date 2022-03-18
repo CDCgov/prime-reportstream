@@ -84,9 +84,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
 
         const saveSenderData = async () => {
             try {
-                const data =
-                    confirmModalRef?.current?.editedText ||
-                    orgSenderSettingsNewJson;
+                const data = confirmModalRef?.current?.getEditedText();
 
                 const sendernamelocal =
                     action === "clone" ? orgSenderSettings.name : sendername;

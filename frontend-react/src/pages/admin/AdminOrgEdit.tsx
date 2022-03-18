@@ -81,8 +81,7 @@ export function AdminOrgEdit({
 
     const saveOrgData = async () => {
         try {
-            const data =
-                confirmModalRef?.current?.editedText || orgSettingsNewJson;
+            const data = confirmModalRef?.current?.getEditedText();
             showAlertNotification("success", `Saving...`);
             await fetchController(
                 OrgSettingsResource.update(),
