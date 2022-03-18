@@ -35,6 +35,7 @@ The waters endpoint will support these resources:
 | POST api/waters/report            | to submit a payload                | POST api/waters                | 2        |
 | GET api/waters/report/{r}/file    | to retrieve a data file.           | GET /api/history/report/{r}    | 3        |
 | GET api/waters/report/{r}/history | to retrieve history about one file | GET api/history/{o}/report/{r} | NOW      |
+| GET api/waters/report/{actionId}/history | (same!)                            | GET api/history/{o}/submissions/{actionId} | NOW      |
 
 **Item Resource**
 
