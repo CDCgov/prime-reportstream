@@ -18,18 +18,18 @@ export const splitOn: {
 
 /**
  *
- * @param textValue string to be json.parsed
+ * @param jsonTextValue string to be json.parsed
  * @param elemLabel used when displaying error in case there are multiple textarea's on the page
  * @param textInputRef used to select the range of text where the error happened.
  * @return false if fails to parse or the object of the successfully parsed json
  */
 export const checkTextAreaJson = (
-    textValue: string,
+    jsonTextValue: string,
     elemLabel: string,
     textInputRef: React.RefObject<HTMLTextAreaElement>
 ): false | Object => {
     try {
-        return JSON.parse(textValue);
+        return JSON.parse(jsonTextValue);
     } catch (err: any) {
         // message like `'Unexpected token _ in JSON at position 164'`
         // or           `Unexpected end of JSON input`
@@ -38,7 +38,7 @@ export const checkTextAreaJson = (
 
         // now we parse out the position and try to select it for them.
         // NOTE: if "at position N" string not found, then assume mistake is at the end
-        let errStartOffset = errMsg.length;
+        let errStartOffset = jsonTextValue.length;
         const findPositionMatch = errMsg?.matchAll(/position (\d+)/gi)?.next();
         if (findPositionMatch?.value?.length === 2) {
             const offset = parseInt(findPositionMatch.value[1] || -1);
@@ -48,8 +48,8 @@ export const checkTextAreaJson = (
         }
 
         // now select the problem area inside the TextArea
+        const errEndOffset = Math.min(errStartOffset + 4, jsonTextValue.length); // don't let go past len
         errStartOffset = Math.max(errStartOffset - 4, 0); // don't let go negative
-        const errEndOffset = Math.min(errStartOffset + 8, textValue.length); // don't let go past len
         textInputRef?.current?.focus();
         textInputRef?.current?.setSelectionRange(errStartOffset, errEndOffset);
         return false;
