@@ -37,7 +37,7 @@ export const checkTextAreaJson = (
         showError(`Element "${elemLabel}" generated an error "${errMsg}"`);
 
         // now we parse out the position and try to select it for them.
-        // NOTE: if position string not found, then assume mistake is at the end
+        // NOTE: if "at position N" string not found, then assume mistake is at the end
         let errStartOffset = errMsg.length;
         const findPositionMatch = errMsg?.matchAll(/position (\d+)/gi)?.next();
         if (findPositionMatch?.value?.length === 2) {
