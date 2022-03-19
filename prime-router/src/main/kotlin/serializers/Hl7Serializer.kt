@@ -1342,7 +1342,7 @@ class Hl7Serializer(
 
     private fun setAOE(
         terser: Terser,
-        element: Element,
+        elementOrg: Element,
         aoeRep: Int,
         date: String,
         value: String,
@@ -1352,6 +1352,13 @@ class Hl7Serializer(
         suppressQst: Boolean = false,
     ) {
         val hl7Config = report.destination?.translation as? Hl7Configuration
+        // if the value is UNK then we need to set data type to CODE and valueet = hl70136 (UNK)
+        val element = when {
+            value == "UNK" && elementOrg.name == "pregnant" ->
+                elementOrg.copy(type = Element.Type.CODE, valueSet = "covid-19/pregnant_aoe")
+            value == "UNK" -> elementOrg.copy(type = Element.Type.CODE, valueSet = "hl70136")
+            else -> elementOrg
+        }
         // if the value type is a date, we need to specify that for the AOE questions
         val valueType = when (element.type) {
             Element.Type.DATE -> "DT"
@@ -1366,7 +1373,11 @@ class Hl7Serializer(
         setCodeComponent(terser, aoeQuestion, formPathSpec("OBX-3", aoeRep), "covid-19/aoe")
 
         when (element.type) {
-            Element.Type.CODE -> setCodeComponent(terser, value, formPathSpec("OBX-5", aoeRep), element.valueSet)
+            Element.Type.CODE -> if (value == "UNK" && elementOrg.name == "pregnant")
+            // 261665006 is unknow code valueSet
+                setCodeComponent(terser, "261665006", formPathSpec("OBX-5", aoeRep), element.valueSet)
+            else
+                setCodeComponent(terser, value, formPathSpec("OBX-5", aoeRep), element.valueSet)
             Element.Type.NUMBER -> {
                 if (element.name != "patient_age") TODO("support other types of AOE numbers")
                 if (units == null) error("Schema Error: expected age units")
