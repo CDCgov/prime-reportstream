@@ -38,22 +38,20 @@ export const checkTextAreaJson = (
 
         // now we parse out the position and try to select it for them.
         // NOTE: if position string not found, then assume mistake is at the end
-        let errOffset = errMsg.length;
+        let errStartOffset = errMsg.length;
         const findPositionMatch = errMsg?.matchAll(/position (\d+)/gi)?.next();
         if (findPositionMatch?.value?.length === 2) {
             const offset = parseInt(findPositionMatch.value[1] || -1);
             if (!isNaN(offset) && offset !== -1) {
-                errOffset = offset;
+                errStartOffset = offset;
             }
         }
 
         // now select the problem area inside the TextArea
-        if (errOffset > 4) {
-            errOffset -= 4;
-        }
-        const end = Math.min(errOffset + 8, textValue.length);
+        errStartOffset = Math.max(errStartOffset - 4, 0); // don't let go negative
+        const errEndOffset = Math.min(errStartOffset + 8, textValue.length); // don't let go past len
         textInputRef?.current?.focus();
-        textInputRef?.current?.setSelectionRange(errOffset, end);
+        textInputRef?.current?.setSelectionRange(errStartOffset, errEndOffset);
         return false;
     }
 };
