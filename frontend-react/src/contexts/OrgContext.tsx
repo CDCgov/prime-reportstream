@@ -1,7 +1,12 @@
-import React, { createContext, PropsWithChildren, useState } from "react";
+import React, {
+    createContext,
+    PropsWithChildren,
+    useEffect,
+    useState,
+} from "react";
 
-import { useNetwork } from "../network/hooks/UseEndpoint";
-import { Organization, OrgApi } from "../network/api/OrgApi";
+import { useEndpoint } from "../network/hooks/UseEndpoint";
+import { Organization, orgApi } from "../network/api/OrgApi";
 
 interface IOrgValues {
     org?: Organization;
@@ -28,15 +33,23 @@ export const OrgContext = createContext<IOrgContext>({
 
 const OrgProvider: React.FC<any> = (props: PropsWithChildren<any>) => {
     const [oktaGroup, setOktaGroup] = useState<string>("ignore");
-    const orgResponse = useNetwork<Organization>(OrgApi.detail(oktaGroup));
+    const { call, response } = useEndpoint<Organization>(
+        orgApi.getOrgDetail(oktaGroup)
+    );
 
     const updateOktaOrg = (val: string) => {
         setOktaGroup(val);
     };
 
+    /* If the endpoint parameter changes in any way, call() changes, and
+     * triggers it through this effect. This will keep `response` up-to-date. */
+    useEffect(() => {
+        call();
+    }, [call]);
+
     const providerPayload: IOrgContext = {
         values: {
-            org: orgResponse.data,
+            org: response.data,
             oktaGroup: oktaGroup,
         },
         controller: {

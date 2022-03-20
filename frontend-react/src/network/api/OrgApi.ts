@@ -26,18 +26,26 @@ export class Organization {
         filters: Array<OrgFilters>,
         meta: OrgMeta
     ) {
-        name = "";
-        description = "";
-        jurisdiction = "";
-        stateCode = "";
-        countyName = "";
-        filters = [];
-        meta = {
-            version: -1,
-            createdBy: "",
-            createdAt: "",
-        };
+        this.name = name;
+        this.description = description;
+        this.jurisdiction = jurisdiction;
+        this.stateCode = stateCode;
+        this.countyName = countyName;
+        this.filters = filters;
+        this.meta = meta;
     }
+
+    name: string = "";
+    description: string = "";
+    jurisdiction: string = "";
+    stateCode: string = "";
+    countyName: string = "";
+    filters: Array<OrgFilters> = [];
+    meta: OrgMeta = {
+        version: -1,
+        createdBy: "",
+        createdAt: "",
+    };
 }
 
 class OrgApi extends Api {

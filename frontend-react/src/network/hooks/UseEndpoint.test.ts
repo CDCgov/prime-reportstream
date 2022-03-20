@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import { sampleServer } from "../../__mocks__/TestServer";
+import { sampleServer } from "../../__mocks__/SampleServer";
 import { sampleApi, SampleObject } from "../_sample/SampleApi";
 
 import { useEndpoint } from "./UseEndpoint";
