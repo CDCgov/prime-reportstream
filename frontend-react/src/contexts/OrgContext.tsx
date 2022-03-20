@@ -1,12 +1,8 @@
-import React, {
-    createContext,
-    PropsWithChildren,
-    useState,
-} from "react";
+import React, { createContext, PropsWithChildren, useState } from "react";
 
 import { useNetwork } from "../network/hooks/useNetwork";
 import { Organization, OrgApi } from "../network/api/OrgApi";
-import {dummyOrg, dummyPayload} from "./OrgContext.test";
+
 
 interface IOrgValues {
     org?: Organization;
@@ -23,7 +19,7 @@ export interface IOrgContext {
 }
 
 export const OrgContext = createContext<IOrgContext>({
-    values: { },
+    values: {},
     controller: {
         updateOktaOrg: (val: string) => {
             console.log("to please SonarCloud");
