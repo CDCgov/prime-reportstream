@@ -1,8 +1,7 @@
 import React, { createContext, PropsWithChildren, useState } from "react";
 
-import { useNetwork } from "../network/hooks/useNetwork";
+import { useNetwork } from "../network/hooks/UseEndpoint";
 import { Organization, OrgApi } from "../network/api/OrgApi";
-
 
 interface IOrgValues {
     org?: Organization;

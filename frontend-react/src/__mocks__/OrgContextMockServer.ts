@@ -5,7 +5,6 @@ import { Endpoint } from "../network/api/Api";
 import { OrgApi } from "../network/api/OrgApi";
 import { dummyOrg } from "../contexts/OrgContext.test";
 
-
 const detailEndpoint: Endpoint = OrgApi.detail("ignore");
 
 const handlers = [

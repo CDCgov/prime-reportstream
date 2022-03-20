@@ -1,17 +1,42 @@
-import { Api, Endpoint } from "./Api";
-import { OrgApi } from "./OrgApi";
+import { orgApi } from "./OrgApi";
 
-describe("OrgApi.ts", () => {
-    test("implements static members from API", () => {
-        expect(OrgApi.accessToken).toBe(Api.accessToken);
-        expect(OrgApi.organization).toBe(Api.organization);
-        expect(OrgApi.config).toBe(Api.config);
+describe("Organization API", () => {
+    test("getOrgList", () => {
+        const endpoint = orgApi.getOrgList();
+        expect(endpoint).toEqual({
+            method: "GET",
+            url: `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations`,
+            headers: {
+                Authorization: "Bearer ",
+                Organization: "",
+            },
+            responseType: "json",
+        });
     });
 
-    test("detail endpoint integrity check", () => {
-        const testId: string = "123";
-        const detailEndpoint: Endpoint = OrgApi.detail(testId);
+    test("getOrgDetail", () => {
+        const endpoint = orgApi.getOrgDetail("test");
+        expect(endpoint).toEqual({
+            method: "GET",
+            url: `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/test`,
+            headers: {
+                Authorization: "Bearer ",
+                Organization: "",
+            },
+            responseType: "json",
+        });
+    });
 
-        expect(detailEndpoint.url).toBe(`${OrgApi.baseUrl}/${testId}`);
+    test("getSenderDetail", () => {
+        const endpoint = orgApi.getSenderDetail("test", "testSender");
+        expect(endpoint).toEqual({
+            method: "GET",
+            url: `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/test/senders/testSender`,
+            headers: {
+                Authorization: "Bearer ",
+                Organization: "",
+            },
+            responseType: "json",
+        });
     });
 });
