@@ -1,8 +1,9 @@
 package gov.cdc.prime.router.messages
 
 /**
- * The report content message contains the content of a report that is kept in the service. This message
- * is closely aligned with the report_file table.
+ * This is the response to the sender-file API.
+ * The message contains the content of a report that is kept in the service.
+ * This message largely comes from the report_file DB table.
  *
  *  [reportId] is the UUID of the report.
  *  [schemaTopic] is the topic of the pipeline
