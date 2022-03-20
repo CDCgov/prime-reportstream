@@ -1,12 +1,12 @@
 import React, {
     createContext,
     PropsWithChildren,
-    useEffect,
     useState,
 } from "react";
 
 import { useNetwork } from "../network/hooks/useNetwork";
 import { Organization, OrgApi } from "../network/api/OrgApi";
+import {dummyOrg, dummyPayload} from "./OrgContext.test";
 
 interface IOrgValues {
     org?: Organization;
@@ -23,7 +23,7 @@ export interface IOrgContext {
 }
 
 export const OrgContext = createContext<IOrgContext>({
-    values: {},
+    values: { },
     controller: {
         updateOktaOrg: (val: string) => {
             console.log("to please SonarCloud");
@@ -32,13 +32,8 @@ export const OrgContext = createContext<IOrgContext>({
 });
 
 const OrgProvider: React.FC<any> = (props: PropsWithChildren<any>) => {
-    const [org, setOrg] = useState<Organization>();
     const [oktaGroup, setOktaGroup] = useState<string>("ignore");
     const orgResponse = useNetwork<Organization>(OrgApi.detail(oktaGroup));
-
-    useEffect(() => {
-        setOrg(orgResponse.data);
-    }, [orgResponse.data]);
 
     const updateOktaOrg = (val: string) => {
         setOktaGroup(val);
@@ -46,7 +41,7 @@ const OrgProvider: React.FC<any> = (props: PropsWithChildren<any>) => {
 
     const providerPayload: IOrgContext = {
         values: {
-            org: org,
+            org: orgResponse.data,
             oktaGroup: oktaGroup,
         },
         controller: {

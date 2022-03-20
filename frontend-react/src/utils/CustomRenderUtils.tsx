@@ -3,7 +3,6 @@ import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 
 import OrgProvider from "../contexts/OrgContext";
-import { dummyPayload } from "../contexts/OrgContext.test";
 
 /* 
     To create a custom renderer, you must create a functional
@@ -22,7 +21,7 @@ const RouterWrapper: FC = ({ children }) => {
 };
 
 const OrgContextWrapper: FC = ({ children }) => {
-    return <OrgProvider value={dummyPayload}>{children}</OrgProvider>;
+    return <OrgProvider>{children}</OrgProvider>;
 };
 
 const renderWithRouter = (

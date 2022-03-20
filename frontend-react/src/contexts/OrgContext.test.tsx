@@ -1,12 +1,27 @@
 import { screen } from "@testing-library/react";
 import { useContext } from "react";
-
+import {orgServer} from "../__mocks__/OrgContextMockServer";
 import { renderWithOrgContext } from "../utils/CustomRenderUtils";
 
 import { IOrgContext, OrgContext } from "./OrgContext";
+import {Organization} from "../network/api/OrgApi";
+import {server} from "../__mocks__/HistoryMockServer";
+
+export const dummyOrg: Organization = {
+    name: "ignore",
+    description: "FOR TESTING ONLY",
+    jurisdiction: "FEDERAL",
+    filters: [],
+    meta: {
+        version: 0,
+        createdBy: "local@test.com",
+        createdAt: "2022-01-28T13:55:15.428445-05:00"
+    }
+}
 
 export const dummyPayload: IOrgContext = {
     values: {
+        org: dummyOrg,
         oktaGroup: "ignore",
     },
     controller: {
@@ -21,18 +36,32 @@ const OrgConsumer = () => {
 
     return (
         <>
-            w<span>{values.oktaGroup || "failed"}</span>
+            <span>{values.org?.name || "failed"}</span>
+            <span>{values.org?.description || "failed"}</span>
+            <span>{values.org?.jurisdiction || "failed"}</span>
         </>
     );
 };
 
 describe("OrgContext", () => {
+    beforeAll(() => server.listen());
+    afterEach(() => server.resetHandlers());
+    afterAll(() => server.close());
     beforeEach(() => {
         renderWithOrgContext(<OrgConsumer />);
     });
 
     test("Values are provided", async () => {
-        const name = await screen.findByText("ignore");
+        const name = screen.getByText(dummyOrg.name);
+        const desc = await screen.findByText(dummyOrg.description);
+        const jurisdiction = await screen.findByText(dummyOrg.jurisdiction);
+        const stateCode = await screen.findByText(dummyOrg?.stateCode || "");
+        const countyName = await screen.findByText(dummyOrg?.countyName || "")
+
         expect(name).toBeInTheDocument();
+        expect(desc).toBeInTheDocument();
+        expect(jurisdiction).toBeInTheDocument();
+        expect(stateCode).toBeInTheDocument();
+        expect(countyName).toBeInTheDocument();
     });
 });
