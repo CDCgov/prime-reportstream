@@ -14,6 +14,10 @@ export function clearGlobalContext(): void {
     }
 }
 
+export function parseOrgs() {
+    // TODO: Parse orgs into objects with { org: string, sender?: string }
+}
+
 export function getStoredOktaToken(): string {
     return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN) || "";
 }

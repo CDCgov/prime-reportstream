@@ -1,50 +1,30 @@
-import React, {
-    createContext,
-    PropsWithChildren,
-    useMemo,
-    useState,
-} from "react";
-
-import { useEndpoint } from "../network/hooks/UseEndpoint";
-import { orgApi, Sender } from "../network/api/OrgApi";
-
-import { getStoredOrg } from "./SessionStorageTools";
+import React, { createContext, PropsWithChildren, useState } from "react";
 
 interface ISenderContext {
-    sender?: Sender;
+    sender: string;
+    mode: string;
     update: (val: string) => void;
 }
 
 export const SenderContext = createContext<ISenderContext>({
-    sender: {
-        name: "",
-        organizationName: "",
-        format: "CSV",
-        topic: "",
-        customerStatus: "",
-        schemaName: "",
-    },
+    sender: "test",
+    mode: "mode",
     update: (val: string) => {
         console.log("to please SonarCloud");
     },
 });
 
 const SenderProvider: React.FC<any> = (props: PropsWithChildren<any>) => {
-    const [sender, setSender] = useState<string>("ignore");
-    const response = useEndpoint<Sender>(
-        orgApi.getSenderDetail(getStoredOrg(), sender)
-    );
+    const [sender, setSender] = useState<string>("");
+    const [mode, setMode] = useState<string>("");
 
-    const updateOktaOrg = (val: string) => {
-        setSender(val);
+    const payload: ISenderContext = {
+        sender: sender,
+        mode: mode,
+        update(val: string): void {
+            setSender(val);
+        },
     };
-
-    const payload = useMemo((): ISenderContext => {
-        return {
-            sender: response.data,
-            update: updateOktaOrg,
-        };
-    }, [response.data]);
 
     return (
         <SenderContext.Provider value={payload}>

@@ -20,6 +20,7 @@ export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
 
     const onSuccess = (tokens: Tokens | undefined) => {
+        // TODO: Implement parseOrgs() to handle all this stuff
         let oktaGroups =
             getOrganizationFromAccessToken(tokens?.accessToken).filter(
                 (group: string) => group !== PERMISSIONS.PRIME_ADMIN
