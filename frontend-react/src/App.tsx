@@ -22,7 +22,6 @@ import { PERMISSIONS } from "./resources/PermissionsResource";
 import { permissionCheck, reportReceiver } from "./webreceiver-utils";
 import { Upload } from "./pages/Upload";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
-import { GlobalContextProvider } from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
@@ -94,113 +93,111 @@ const App = () => {
                         return <div></div>;
                     }}
                 >
-                    <GlobalContextProvider>
-                        <GovBanner aria-label="Official government website" />
-                        <ReportStreamHeader />
-                        {/* Changed from main to div to fix weird padding issue at the top
+                    <GovBanner aria-label="Official government website" />
+                    <ReportStreamHeader />
+                    {/* Changed from main to div to fix weird padding issue at the top
                         caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
-                        <main id="main-content">
-                            <Switch>
-                                <Route path="/" exact={true} component={Home} />
-                                <Route
-                                    path="/how-it-works"
-                                    component={HowItWorks}
-                                />
-                                <Route
-                                    path="/terms-of-service"
-                                    component={TermsOfService}
-                                />
-                                <Route path="/login" render={() => <Login />} />
-                                <Route
-                                    path="/login/callback"
-                                    component={LoginCallback}
-                                />
-                                <Route
-                                    path="/sign-tos"
-                                    component={TermsOfServiceForm}
-                                />
-                                <Route
-                                    path="/getting-started/public-health-departments"
-                                    component={
-                                        GettingStartedPublicHealthDepartments
-                                    }
-                                />
-                                <Route
-                                    path="/getting-started/testing-facilities"
-                                    component={GettingStartedTestingFacilities}
-                                />
-                                <AuthorizedRoute
-                                    path="/daily-data"
-                                    authorize={PERMISSIONS.RECEIVER}
-                                    component={Daily}
-                                />
-                                <AuthorizedRoute
-                                    path="/upload"
-                                    authorize={PERMISSIONS.SENDER}
-                                    component={Upload}
-                                />
-                                {/* TODO: AuthorizedRoute needs to take many potential auth groups.
-                                 *  We should fix this when we refactor our permissions layer.
-                                 */}
-                                <AuthorizedRoute
-                                    path="/submissions/:actionId"
-                                    authorize={PERMISSIONS.SENDER}
-                                    component={SubmissionDetails}
-                                />
-                                <AuthorizedRoute
-                                    path="/submissions"
-                                    authorize={PERMISSIONS.SENDER}
-                                    component={Submissions}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/settings"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={AdminMain}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/orgsettings/org/:orgname"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={AdminOrgEdit}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={EditReceiverSettings}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={EditSenderSettings}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={NewSetting}
-                                />
-                                <SecureRoute
-                                    path="/report-details"
-                                    component={Details}
-                                />
-                                <SecureRoute
-                                    path="/features"
-                                    component={FeatureFlagUIComponent}
-                                />
-                                {/* Handles any undefined route */}
-                                <Route
-                                    render={() => (
-                                        <ErrorPage code={CODES.NOT_FOUND_404} />
-                                    )}
-                                />
-                            </Switch>
-                        </main>
-                        <ToastContainer
-                            autoClose={5000}
-                            closeButton={false}
-                            limit={2}
-                            position="bottom-center"
-                            hideProgressBar={true}
-                        />
-                    </GlobalContextProvider>
+                    <main id="main-content">
+                        <Switch>
+                            <Route path="/" exact={true} component={Home} />
+                            <Route
+                                path="/how-it-works"
+                                component={HowItWorks}
+                            />
+                            <Route
+                                path="/terms-of-service"
+                                component={TermsOfService}
+                            />
+                            <Route path="/login" render={() => <Login />} />
+                            <Route
+                                path="/login/callback"
+                                component={LoginCallback}
+                            />
+                            <Route
+                                path="/sign-tos"
+                                component={TermsOfServiceForm}
+                            />
+                            <Route
+                                path="/getting-started/public-health-departments"
+                                component={
+                                    GettingStartedPublicHealthDepartments
+                                }
+                            />
+                            <Route
+                                path="/getting-started/testing-facilities"
+                                component={GettingStartedTestingFacilities}
+                            />
+                            <AuthorizedRoute
+                                path="/daily-data"
+                                authorize={PERMISSIONS.RECEIVER}
+                                component={Daily}
+                            />
+                            <AuthorizedRoute
+                                path="/upload"
+                                authorize={PERMISSIONS.SENDER}
+                                component={Upload}
+                            />
+                            {/* TODO: AuthorizedRoute needs to take many potential auth groups.
+                             *  We should fix this when we refactor our permissions layer.
+                             */}
+                            <AuthorizedRoute
+                                path="/submissions/:actionId"
+                                authorize={PERMISSIONS.SENDER}
+                                component={SubmissionDetails}
+                            />
+                            <AuthorizedRoute
+                                path="/submissions"
+                                authorize={PERMISSIONS.SENDER}
+                                component={Submissions}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/settings"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={AdminMain}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/orgsettings/org/:orgname"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={AdminOrgEdit}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={EditReceiverSettings}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={EditSenderSettings}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={NewSetting}
+                            />
+                            <SecureRoute
+                                path="/report-details"
+                                component={Details}
+                            />
+                            <SecureRoute
+                                path="/features"
+                                component={FeatureFlagUIComponent}
+                            />
+                            {/* Handles any undefined route */}
+                            <Route
+                                render={() => (
+                                    <ErrorPage code={CODES.NOT_FOUND_404} />
+                                )}
+                            />
+                        </Switch>
+                    </main>
+                    <ToastContainer
+                        autoClose={5000}
+                        closeButton={false}
+                        limit={2}
+                        position="bottom-center"
+                        hideProgressBar={true}
+                    />
                     <footer className="usa-identifier footer">
                         <ReportStreamFooter />
                     </footer>

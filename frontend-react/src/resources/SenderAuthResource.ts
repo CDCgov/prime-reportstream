@@ -1,7 +1,7 @@
 import {
     getStoredOktaToken,
     getStoredOrg,
-} from "../components/GlobalContextProvider";
+} from "../contexts/SessionStorageTools";
 
 import AuthResource from "./AuthResource";
 

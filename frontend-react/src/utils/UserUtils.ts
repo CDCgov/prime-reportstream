@@ -1,6 +1,6 @@
 import { OktaAuth } from "@okta/okta-auth-js";
 
-import { clearGlobalContext } from "../components/GlobalContextProvider";
+import { clearGlobalContext } from "../contexts/SessionStorageTools";
 
 function logout(oktaAuth: OktaAuth): void {
     if (oktaAuth?.signOut) {

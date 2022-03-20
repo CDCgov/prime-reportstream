@@ -1,7 +1,6 @@
 import React, {
     createContext,
     PropsWithChildren,
-    useContext,
     useEffect,
     useState,
 } from "react";
@@ -9,7 +8,8 @@ import { useResource } from "rest-hooks";
 
 import usePaginator, { PaginationController } from "../hooks/UsePaginator";
 import SubmissionsResource from "../resources/SubmissionsResource";
-import { GlobalContext } from "../components/GlobalContextProvider";
+
+import { getStoredOrg } from "./SessionStorageTools";
 
 /* Convenient type aliases */
 type SortOrder = "ASC" | "DESC";
@@ -99,8 +99,6 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
         }
     };
 
-    const globalState = useContext(GlobalContext);
-
     /* Just packaging it up while keeping it React-ive */
     const [filterState, setFilterState] = useState<FilterState>({
         startRange: startRange,
@@ -131,7 +129,7 @@ const FilterContext: React.FC<any> = (props: PropsWithChildren<any>) => {
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
         {
-            organization: globalState.state.organization,
+            organization: getStoredOrg(),
             cursor: filterState.cursor,
             endCursor: filterState.endRange,
             pageSize: filterState.pageSize + 1, // Pulls +1 to check for next page

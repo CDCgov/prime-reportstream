@@ -1,10 +1,16 @@
 /* I put this in the `/contexts` directory because it felt
  * right, but by no means is it a context. Feel free to move
  * it if you can think of a better spot. */
-enum GLOBAL_STORAGE_KEYS {
+export enum GLOBAL_STORAGE_KEYS {
     GLOBAL_BASE = "global-context-",
     GLOBAL_ORG = "global-context-org",
     OKTA_ACCESS_TOKEN = "global-okta-token",
+}
+
+export function clearGlobalContext(): void {
+    for (let key in sessionStorage) {
+        sessionStorage.removeItem(key);
+    }
 }
 
 export function getStoredOktaToken(): string {
@@ -13,4 +19,12 @@ export function getStoredOktaToken(): string {
 
 export function setStoredOktaToken(value: string) {
     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN, value);
+}
+
+export function getStoredOrg(): string {
+    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "";
+}
+
+export function setStoredOrg(val: string) {
+    sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, val);
 }

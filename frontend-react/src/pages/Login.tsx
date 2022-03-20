@@ -11,14 +11,13 @@ import {
 } from "../webreceiver-utils";
 import {
     setStoredOktaToken,
-    useGlobalContext,
-} from "../components/GlobalContextProvider";
+    setStoredOrg,
+} from "../contexts/SessionStorageTools";
 import { PERMISSIONS } from "../resources/PermissionsResource";
 import { oktaSignInConfig } from "../oktaConfig";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
-    const { updateOrganization } = useGlobalContext();
 
     const onSuccess = (tokens: Tokens | undefined) => {
         let oktaGroups =
@@ -27,7 +26,7 @@ export const Login = () => {
             ) || [];
         setStoredOktaToken(tokens?.accessToken?.accessToken || "");
         /* Setting az-phd as default when PrimeAdmin has no sender/receiver orgs */
-        updateOrganization(groupToOrg(oktaGroups[0]) || "az-phd");
+        setStoredOrg(groupToOrg(oktaGroups[0]) || "az-phd");
         oktaAuth.handleLoginRedirect(tokens);
     };
 

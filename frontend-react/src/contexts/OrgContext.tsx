@@ -8,6 +8,8 @@ import React, {
 import { useEndpoint } from "../network/hooks/UseEndpoint";
 import { Organization, orgApi } from "../network/api/OrgApi";
 
+import { GLOBAL_STORAGE_KEYS } from "./SessionStorageTools";
+
 interface IOrgValues {
     org?: Organization;
     oktaGroup?: string;
@@ -46,6 +48,10 @@ const OrgProvider: React.FC<any> = (props: PropsWithChildren<any>) => {
     useEffect(() => {
         call();
     }, [call]);
+
+    useEffect(() => {
+        sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, oktaGroup);
+    }, [oktaGroup]);
 
     const providerPayload: IOrgContext = {
         values: {

@@ -14,7 +14,7 @@ import { faRightLeft } from "@fortawesome/free-solid-svg-icons";
 
 import { permissionCheck } from "../../webreceiver-utils";
 import { PERMISSIONS } from "../../resources/PermissionsResource";
-import { getStoredOrg } from "../GlobalContextProvider";
+import { getStoredOrg } from "../../contexts/SessionStorageTools";
 
 import { SignInOrUser } from "./SignInOrUser";
 import { HowItWorksDropdown } from "./HowItWorksDropdown";

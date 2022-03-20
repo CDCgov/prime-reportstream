@@ -15,7 +15,7 @@ import { faSync } from "@fortawesome/free-solid-svg-icons";
 
 import { senderClient } from "../webreceiver-utils";
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
-import { getStoredOrg } from "../components/GlobalContextProvider";
+import { getStoredOrg } from "../contexts/SessionStorageTools";
 import { showError } from "../components/AlertNotifications";
 
 // values taken from Report.kt

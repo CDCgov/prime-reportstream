@@ -21,7 +21,7 @@ import {
 import {
     getStoredOktaToken,
     getStoredOrg,
-} from "../../components/GlobalContextProvider";
+} from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import { ConfirmSaveSettingModal } from "../../components/Admin/CompareJsonModal";
 import { CheckFeatureFlag } from "../misc/FeatureFlags";
