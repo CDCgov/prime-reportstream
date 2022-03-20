@@ -4,6 +4,7 @@
 export enum GLOBAL_STORAGE_KEYS {
     GLOBAL_BASE = "global-context-",
     GLOBAL_ORG = "global-context-org",
+    SENDER_MODE = "global-sender-mode",
     OKTA_ACCESS_TOKEN = "global-okta-token",
 }
 
@@ -27,4 +28,12 @@ export function getStoredOrg(): string {
 
 export function setStoredOrg(val: string) {
     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, val);
+}
+
+export function getStoredSenderMode(): string {
+    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.SENDER_MODE) || "";
+}
+
+export function setSenderMode(val: "P" | "T") {
+    sessionStorage.setItem(GLOBAL_STORAGE_KEYS.SENDER_MODE, val);
 }

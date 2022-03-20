@@ -2,7 +2,7 @@ import { FC, ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 
-import OrgProvider from "../contexts/OrgContext";
+import SenderProvider from "../contexts/SenderContext";
 
 /* 
     To create a custom renderer, you must create a functional
@@ -21,7 +21,7 @@ const RouterWrapper: FC = ({ children }) => {
 };
 
 const OrgContextWrapper: FC = ({ children }) => {
-    return <OrgProvider>{children}</OrgProvider>;
+    return <SenderProvider>{children}</SenderProvider>;
 };
 
 const renderWithRouter = (

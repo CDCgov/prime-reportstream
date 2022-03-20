@@ -2,6 +2,15 @@ import { primeApiConfig } from "../config";
 
 import { Api } from "./Api";
 
+export interface Sender {
+    name: string;
+    organizationName: string;
+    format: "CSV" | "HL7";
+    topic: string;
+    customerStatus: string; // Narrow this down to it's possible values
+    schemaName: string;
+}
+
 interface OrgFilters {
     topic: string;
     jurisdictionalFilter: Array<string>;
@@ -64,7 +73,7 @@ class OrgApi extends Api {
     };
 
     getSenderDetail = (oktaGroup: string, sender: string) => {
-        return this.configure<Organization>({
+        return this.configure<Sender>({
             method: "GET",
             url: `${this.basePath}/${oktaGroup}/senders/${sender}`,
         });

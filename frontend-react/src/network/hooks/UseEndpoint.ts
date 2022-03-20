@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import axios, { AxiosResponse } from "axios";
 
 import { EndpointConfig } from "../api/Api";
@@ -16,7 +16,7 @@ export interface EndpointController<T> {
 
 export function useEndpoint<T>(
     endpoint: EndpointConfig<T>
-): EndpointController<T> {
+): EndpointResponse<T> {
     const [response, setResponse] = useState<EndpointResponse<T>>({
         loading: true,
         data: undefined,
@@ -42,7 +42,7 @@ export function useEndpoint<T>(
         });
     };
 
-    const call = useCallback(() => {
+    useEffect(() => {
         switch (endpoint.method) {
             case "GET": {
                 axios
@@ -91,5 +91,5 @@ export function useEndpoint<T>(
         }
     }, [endpoint]);
 
-    return { call, response };
+    return response;
 }
