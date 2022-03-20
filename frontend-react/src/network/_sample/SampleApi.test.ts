@@ -5,7 +5,7 @@ describe("Sample API", () => {
         const endpoint = sampleApi.getSampleList();
         expect(endpoint).toEqual({
             method: "GET",
-            url: "http://testhost:0000/api/sample",
+            url: "http://testhost:9999/api/sample",
             headers: {
                 Authorization: "Bearer [token]",
             },
@@ -18,7 +18,7 @@ describe("Sample API", () => {
         const endpoint = sampleApi.postSampleItem(obj);
         expect(endpoint).toEqual({
             method: "POST",
-            url: "http://testhost:0000/api/sample",
+            url: "http://testhost:9999/api/sample",
             headers: {
                 Authorization: "Bearer [token]",
             },
@@ -34,7 +34,7 @@ describe("Sample API", () => {
         const endpoint = sampleApi.patchSampleItem(123, update);
         expect(endpoint).toEqual({
             method: "PATCH",
-            url: "http://testhost:0000/api/sample/123",
+            url: "http://testhost:9999/api/sample/123",
             headers: {
                 Authorization: "Bearer [token]",
             },
@@ -49,7 +49,7 @@ describe("Sample API", () => {
         const endpoint = sampleApi.deleteSampleItem(123);
         expect(endpoint).toEqual({
             method: "DELETE",
-            url: "http://testhost:0000/api/sample/123",
+            url: "http://testhost:9999/api/sample/123",
             headers: {
                 Authorization: "Bearer [token]",
             },

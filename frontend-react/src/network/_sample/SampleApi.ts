@@ -44,7 +44,7 @@ class SampleApi extends Api {
 }
 
 const config = new ApiConfig({
-    root: "http://testhost:0000/api",
+    root: "http://testhost:9999/api",
     headers: {
         Authorization: "Bearer [token]",
     },
