@@ -17,13 +17,7 @@ export function AdminMain() {
             </Helmet>
             <section className="grid-container margin-bottom-5">
                 <h3 className="margin-bottom-0">
-                    <Suspense
-                        fallback={
-                            <span className="text-normal text-base">
-                                Loading Info...
-                            </span>
-                        }
-                    />
+                    <Suspense fallback={<Spinner />} />
                 </h3>
             </section>
             <NetworkErrorBoundary
