@@ -12,7 +12,7 @@ terraform {
   # See configurations directory
   backend "azurerm" {
     resource_group_name  = "prime-data-hub-staging"
-    storage_account_name = "pdhstagingterraform"
+    storage_account_name = "pdhstagingnewterraform"
     container_name       = "terraformstate"
     key                  = "stage.terraform.tfstate"
   }
