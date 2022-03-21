@@ -1275,8 +1275,15 @@ class Hl7Serializer(
             // it's a phone
             terser.set(buildComponent(pathSpec, 3), "PH")
             terser.set(buildComponent(pathSpec, 5), country)
-            terser.set(buildComponent(pathSpec, 6), areaCode)
-            terser.set(buildComponent(pathSpec, 7), local)
+
+            if (country == "1") {
+                // North America phone number with country code = "+1"
+                terser.set(buildComponent(pathSpec, 6), areaCode)
+                terser.set(buildComponent(pathSpec, 7), local)
+            } else {
+                // International phone number
+                terser.set(buildComponent(pathSpec, 12), "+$country$areaCode$local")
+            }
             if (extension.isNotEmpty()) terser.set(buildComponent(pathSpec, 8), extension)
         }
 
