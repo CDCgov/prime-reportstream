@@ -29,10 +29,10 @@ const useSenderMode = (
      * Because of how react-hooks-testing-library renders and acts on hooks, the hook
      * needs to both have a default behavior (found in useEffect), and let me act on it
      * to trigger the call in a test suite to ensure values return as intended. */
-    const update = useCallback((newOrg: string, newSender: string) => {
+    const update = (newOrg: string, newSender?: string) => {
         setOrg(newOrg);
-        setSender(newSender);
-    }, []);
+        setSender(newSender || "");
+    };
 
     useEffect(() => {
         if (org !== "" && sender !== "") {
