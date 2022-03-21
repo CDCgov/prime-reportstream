@@ -108,13 +108,13 @@ class PreviewFunction(
      */
     private fun readReport(parameters: FunctionParameters, warnings: MutableList<ActionLog>): Report {
         return try {
-            val (report, parseWarnings, _) = workflowEngine.parseReport(
+            val readResult = workflowEngine.parseReport(
                 parameters.sender,
                 parameters.previewMessage.inputContent,
                 emptyMap()
             )
-            warnings.addAll(parseWarnings)
-            report
+            warnings.addAll(readResult.actionLogs.warnings)
+            readResult.report
         } catch (ae: ActionError) {
             badRequest("Unable to parse input report", errors = ae.details)
         }

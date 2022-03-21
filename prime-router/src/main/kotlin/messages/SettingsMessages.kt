@@ -16,27 +16,12 @@ import gov.cdc.prime.router.tokens.JwkSet
 import java.time.OffsetDateTime
 
 /**
- * Classes for JSON serialization of payloads to Settings API end-points.
- * These classes should match the ./docs/openapi.yml file
+ * Classes for JSON serialization
  */
 
-/**
- * Version information for a particular setting. Used in all settings.
- */
 data class SettingMetadata(
-    /**
-     * Version number, 0-based and increasing
-     */
     val version: Int,
-
-    /**
-     * User id (email name) for the actor
-     */
     val createdBy: String,
-
-    /**
-     * Time of creation. Note: settings are immutable, so modification time is not applicable.
-     */
     val createdAt: OffsetDateTime
 )
 
@@ -62,6 +47,25 @@ class OrganizationMessage
     override val organizationName: String? = null
     override fun consistencyErrorMessage(metadata: Metadata): String? { return this.consistencyErrorMessage() }
 }
+
+/**
+ * A `SenderAPI` is a facade a class that combines two or more classes into a more-simple interface
+ * for property details, see the following classes:
+ * s = class Sender in src main kotlin Sender.kt
+ * m = class SettingMetadata above
+ * @property name s
+ * @property organizationName s
+ * @property format s
+ * @property topic s
+ * @property customerStatus s
+ * @property schemaName s
+ * @property keys  s
+ * @property processingType s
+ * @property allowDuplicates s
+ * @property senderType s
+ * @property primarySubmissionMethod s
+ * @property meta m
+ */
 
 class SenderMessage
 @JsonCreator constructor(
