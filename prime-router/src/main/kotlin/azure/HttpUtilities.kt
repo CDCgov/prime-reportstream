@@ -18,6 +18,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 class HttpUtilities {
 
@@ -360,6 +361,19 @@ class HttpUtilities {
                         ?: this.responseMessage
                 }
                 return responseCode to response
+            }
+        }
+
+        /**
+         * Mimic String.toLongOrNull()
+         * @return a valid UUID, or null if this [str] cannot be parsed into a valid UUID.
+         */
+        fun toUuidOrNull(str: String): UUID? {
+            return try {
+                UUID.fromString(str)
+            } catch (e: IllegalArgumentException) {
+                logger.debug("Invalid format for report ID: $str", e)
+                null
             }
         }
     }

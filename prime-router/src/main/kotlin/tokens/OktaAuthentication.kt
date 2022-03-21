@@ -33,7 +33,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             httpRequestMessage = request
         }
 
-        fun authenticationVerifier(): AuthenticationVerifier {
+        fun authenticationVerifier(accessToken: String): AuthenticationVerifier {
             // If we are running this locally, use the TestAuthenticationVerifier
             // To test locally _with_ auth, add a 'localauth=true' header to your POST.
             val localAuth = httpRequestMessage?.headers?.get("localauth")
@@ -41,6 +41,12 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             return if (!Environment.isLocal()) {
                 OktaAuthenticationVerifier()
             } else if (localAuth != null && localAuth == "true") {
+                OktaAuthenticationVerifier()
+            } else if (accessToken.split(".").size == 3) {
+                // Running local, but test using the real production parser.
+                // The above test is purposefully lame so that we can test all kinds of error conditions
+                // further downstream.
+                logger.info("Running locally, but will use the OktaAuthenticationVerifier")
                 OktaAuthenticationVerifier()
             } else {
                 logger.info("No auth needed - running locally")
@@ -64,7 +70,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             }
             val host = request.uri.toURL().host
             setRequest(request)
-            val claimVerifier = authenticationVerifier()
+            val claimVerifier = authenticationVerifier(accessToken)
             if (claimVerifier.requiredHosts.isNotEmpty() && !claimVerifier.requiredHosts.contains(host)) {
                 logger.error("Wrong Authentication Verifier being used: ${claimVerifier::class} for $host")
                 return HttpUtilities.unauthorizedResponse(request)

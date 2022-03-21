@@ -12,7 +12,6 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
-import java.util.UUID
 
 /**
  * Submissions API
@@ -89,7 +88,7 @@ class SubmissionFunction(
             name = "getOrgSubmissions",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "history/{organization}/submissions"
+            route = "waters/org/{organization}/submissions"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organization") organization: String,
     ): HttpResponseMessage {
@@ -113,31 +112,9 @@ class SubmissionFunction(
         }
     }
 
-    @FunctionName("getSubmissionHistory")
-    fun getSubmissionHistory(
-        @HttpTrigger(
-            name = "getSubmissionHistory",
-            methods = [HttpMethod.GET],
-            authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "history/{organization}/submissions/{submissionId}"
-        ) request: HttpRequestMessage<String?>,
-        @BindingName("organization") organization: String,
-        @BindingName("submissionId") submissionId: Long,
-    ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, organization, true) {
-            try {
-                val submission = facade.findSubmission(organization, submissionId)
-                if (submission != null) HttpUtilities.okJSONResponse(request, submission)
-                else HttpUtilities.notFoundResponse(request, "Submission $submissionId was not found.")
-            } catch (e: DataAccessException) {
-                logger.error("Unable to fetch history for submission ID $submissionId", e)
-                HttpUtilities.internalErrorResponse(request)
-            }
-        }
-    }
-
     /**
-     * Get the history for a given report ID.
+     * API endpoint to return history of a single report.
+     * The [id] can be a valid UUID or a valid actionId (aka submissionId, to our users)
      */
     @FunctionName("getReportHistory")
     fun getReportHistory(
@@ -145,30 +122,35 @@ class SubmissionFunction(
             name = "getReportHistory",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "history/{organization}/report/{reportId}"
+            route = "waters/report/{id}/history"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organization") organization: String,
-        @BindingName("reportId") reportId: String, // Use string to be able to detect a format error
+        @BindingName("id") id: String,
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, organization, true) {
-            val reportUuid = try {
-                UUID.fromString(reportId)
-            } catch (e: IllegalArgumentException) {
-                // Need to isolate this catch as this type of exception can happen for other reasons
-                logger.debug("Invalid format for report ID.", e)
-                null
-            }
-
-            if (reportUuid != null)
-                try {
-                    val submission = facade.findReport(organization, reportUuid)
-                    if (submission != null) HttpUtilities.okJSONResponse(request, submission)
-                    else HttpUtilities.notFoundResponse(request, "Report $reportId was not found.")
-                } catch (e: DataAccessException) {
-                    logger.error("Unable to fetch history for report ID $reportId", e)
-                    HttpUtilities.internalErrorResponse(request)
+        return oktaAuthentication.checkAccess(request, oktaSender = true) { claims ->
+            try {
+                var submissionId = id.toLongOrNull() // toLong a sacrifice can make a Null of the heart
+                val action = if (submissionId == null) {
+                    val reportId = HttpUtilities.toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
+                    facade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
+                } else {
+                    facade.fetchAction(submissionId) ?: error("No such submissionId $submissionId")
                 }
-            else HttpUtilities.badRequestResponse(request, "Invalid format for report ID parameter.")
+
+                // Confirm these claims allow access to this Action
+                if (!facade.checkActionAccessAuthorization(action, claims)) {
+                    error("Access to $id denied")
+                }
+                // TODO remove the sendingOrg arg.  Not needed since this is checked in [checkActionAccessAuthorization]
+                val submission = facade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)
+                if (submission != null) HttpUtilities.okJSONResponse(request, submission)
+                else HttpUtilities.notFoundResponse(request, "Submission $submissionId was not found.")
+            } catch (e: DataAccessException) {
+                logger.error("Unable to fetch history for submission ID $id", e)
+                HttpUtilities.internalErrorResponse(request)
+            } catch (ex: IllegalStateException) {
+                logger.error(ex.message ?: "IllegalStateException", ex)
+                HttpUtilities.notFoundResponse(request, ex.message)
+            }
         }
     }
 }

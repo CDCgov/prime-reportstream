@@ -19,6 +19,7 @@ import gov.cdc.prime.router.azure.db.Tables.TASK
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.JtiCache
@@ -367,19 +368,38 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * Fetch an action ID for a given [reportId].
+     * Fetch an action for a given [reportId].
      * @param txn an optional database transaction
-     * @return an action ID, or null if no action ID was found
+     * @return an Action ID, or null if no such reportId exists.
      */
-    fun fetchActionIdForReport(
+    fun fetchActionForReportId(
         reportId: UUID,
         txn: DataAccessTransaction? = null
-    ): Long? {
+    ): Action? {
         val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.select(REPORT_FILE.ACTION_ID)
-            .from(REPORT_FILE)
+        return ctx.select(ACTION.asterisk())
+            .from(ACTION)
+            .join(REPORT_FILE)
+            .on(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
             .where(REPORT_FILE.REPORT_ID.eq(reportId))
-            .fetchOne(REPORT_FILE.ACTION_ID)
+            .fetchOne()
+            ?.into(Action::class.java)
+    }
+
+    /**
+     * Fetch a single action obj for a given [actionId].
+     * @param txn an optional database transaction
+     * @return an Action.  Returns null if no such action exists.
+     */
+    fun fetchAction(
+        actionId: Long,
+        txn: DataAccessTransaction? = null
+    ): Action? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.selectFrom(ACTION)
+            .where(ACTION.ACTION_ID.eq(actionId))
+            .fetchOne()
+            ?.into(Action::class.java)
     }
 
     fun fetchDownloadableReportFiles(

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.okta.jwt.Jwt
 import com.okta.jwt.JwtVerifiers
 
 // These constants match how PRIME Okta subscription is configured
@@ -54,8 +55,13 @@ class TestAuthenticationVerifier : AuthenticationVerifier {
         organizationName: String?,
         oktaSender: Boolean
     ): AuthenticatedClaims {
-        val claims: Map<String, Any> = mapOf("organization" to listOf("${oktaSenderGroupPrefix}simple_report"))
-        return AuthenticatedClaims("local@test.com", minimumLevel, organizationName, claims)
+        val claims: Map<String, Any> = mapOf("organization" to listOf("${oktaSenderGroupPrefix}ignore"))
+        return AuthenticatedClaims(
+            "local@test.com",
+            PrincipalLevel.USER, // minimumLevel,
+            if (organizationName.isNullOrEmpty()) "ignore" else organizationName,
+            claims
+        )
     }
 }
 
@@ -70,10 +76,7 @@ class OktaAuthenticationVerifier : AuthenticationVerifier {
         organizationName: String?,
         oktaSender: Boolean
     ): AuthenticatedClaims? {
-        val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
-            .setIssuer("https://$issuerBaseUrl/oauth2/default")
-            .build()
-        val jwt = jwtVerifier.decode(accessToken)
+        val jwt = parseToken(accessToken)
 
         val userName = jwt.claims[oktaSubjectClaim]?.toString() ?: return null
         @Suppress("UNCHECKED_CAST")
@@ -81,6 +84,17 @@ class OktaAuthenticationVerifier : AuthenticationVerifier {
 
         if (!checkMembership(memberships, minimumLevel, organizationName, oktaSender)) return null
         return AuthenticatedClaims(userName, minimumLevel, organizationName, jwt.getClaims())
+    }
+
+    /**
+     * Turn a string (eg "xxxx.yyyy.zzzz") [accessToken] into a Jwt object.
+     * @throws com.okta.jwt.JwtVerificationException on parse or validation errors.
+     */
+    private fun parseToken(accessToken: String): Jwt {
+        val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
+            .setIssuer("https://$issuerBaseUrl/oauth2/default")
+            .build()
+        return jwtVerifier.decode(accessToken)
     }
 
     internal fun checkMembership(

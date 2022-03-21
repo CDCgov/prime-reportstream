@@ -12,6 +12,7 @@ import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SubmissionHistory
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.tests.ExpectedSubmissionHistory
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.mockk.every
@@ -248,31 +249,60 @@ class SubmissionFunctionTests {
 
         val function = SubmissionFunction(mockSubmissionFacade)
 
-        // Invalid UUID
-        var response = function.getReportHistory(mockRequest, "org", "badUUID")
-        assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
-        response = function.getReportHistory(mockRequest, "org", "550")
-        assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
+        // Invalid id:  not a UUID nor a Long
+        var response = function.getReportHistory(mockRequest, "bad")
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
         // Database error
-        every { mockSubmissionFacade.findReport(any(), any()) }.throws(DataAccessException("dummy"))
-        response = function.getReportHistory(mockRequest, "org", goodUuid)
+        every { mockSubmissionFacade.fetchActionForReportId(any()) }.throws(DataAccessException("dummy"))
+        response = function.getReportHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
 
-        // Not found
-        every { mockSubmissionFacade.findReport(any(), any()) } returns null
-        response = function.getReportHistory(mockRequest, "org", goodUuid)
+        // Good UUID, but Not found
+        every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null
+        response = function.getReportHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
         // Good return
         val returnBody = DetailedSubmissionHistory(
-            100, TaskAction.receive, OffsetDateTime.now(), "org",
+            550, TaskAction.receive, OffsetDateTime.now(), "org",
             null, null, null, null, null
         )
-        every { mockSubmissionFacade.findReport(any(), any()) } returns returnBody
-        response = function.getReportHistory(mockRequest, "org", goodUuid)
+
+        // Happy path with a good UUID
+        val action = Action()
+        action.actionId = 550
+        action.sendingOrg = "org"
+        every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
+        every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any()) } returns returnBody
+        every { mockSubmissionFacade.checkActionAccessAuthorization(any(), any()) } returns true
+        response = function.getReportHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
-        val responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
+        var responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
+        assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
+        assertThat(responseBody.sender).isEqualTo(returnBody.sendingOrg)
+
+        // Good actionId, but Not found
+        val goodActionId = "550"
+        every { mockSubmissionFacade.fetchAction(any()) } returns null
+        response = function.getReportHistory(mockRequest, goodActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Good actionId, but Not authorized
+        every { mockSubmissionFacade.fetchAction(any()) } returns action
+        every { mockSubmissionFacade.checkActionAccessAuthorization(any(), any()) } returns false // not authorized
+        response = function.getReportHistory(mockRequest, goodActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Happy path with a good actionId
+        every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
+        every { mockSubmissionFacade.fetchAction(any()) } returns action
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any()) } returns returnBody
+        every { mockSubmissionFacade.checkActionAccessAuthorization(any(), any()) } returns true
+        response = function.getReportHistory(mockRequest, goodActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        responseBody = mapper.readValue(response.body.toString())
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
         assertThat(responseBody.sender).isEqualTo(returnBody.sendingOrg)
     }

@@ -50,10 +50,10 @@ export function DetailItem({ item, content, subItem }: DetailItemProps) {
 
 /* 
     A component displaying information about a single destination
-    returned from the history/submissions details API
+    returned from the waters/report/{submissionId}/history details API
 
     @param destinationObj - a single object from the destinations array
-    in the history/submissions details API
+    in the report history details API
 */
 export function DestinationItem({ destinationObj }: DestinationItemProps) {
     const submissionDate = generateDateTitles(destinationObj.sending_at);
