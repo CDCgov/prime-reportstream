@@ -13,7 +13,8 @@ Below are the steps for how to most safely check and merge in the dependabot PRs
 `@dependabot rebase` to let dependabot rebase the branch for you.  If you use any other method then dependabot will not be able to keep track of the PR.
 1. Verify that the build for the PR is successful.  Note that the unit, integration and smoke tests are run as part of the build.
 1. Read the updated library's changelog and identify and communicate any risks you find.  When in doubt ask! Library changes can affect many parts of the system.
-1. Identify any library version conflicts for the updated library by running the command `./gradlew dependencies | grep <library name>` and verifying that no other versions of the library are present. This may happen when other libraries are dependent on a different version of the same library.  See 
+1. Identify any library version conflicts for the updated library by running the command `./gradlew dependencies | grep <library name>` and verifying that 
+no other versions of the library are present. This may happen when other libraries are dependent on a different version of the same library.  See 
 [Identifying Library Version Conflicts](#identifying-library-version-conflicts)
 3. Identify what places in the code the library is used then identify if the unit, integration and/or smoke tests provide enough coverage to verify the update does 
 not break the baseline.  If the tests do not provide proper coverage then you MUST manually test as necessary to verify the library update BEFORE merging the update.
