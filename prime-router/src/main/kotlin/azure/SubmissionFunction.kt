@@ -21,7 +21,7 @@ import java.util.UUID
 
 class SubmissionFunction(
     submissionsFacade: SubmissionsFacade = SubmissionsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
+    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.USER)
 ) : Logging {
     private val facade = submissionsFacade
     private val oktaAuthentication = oktaAuthentication

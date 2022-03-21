@@ -459,6 +459,17 @@
       schemaName: hl7/mns-covid-19
       format: HL7
 
+- name: xtrava
+  description: Xtrava Health
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: xtrava
+      topic: covid-19
+      customerStatus: active
+      schemaName: direct/xtrava-covid-19
+      format: CSV
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
