@@ -61,6 +61,9 @@ prime-router/.project
 **/.vscode/**
 workspace.code-workspace
 
+# Vim
+*.swp
+
 # Eclipse
 **/.settings/**
 

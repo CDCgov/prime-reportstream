@@ -183,7 +183,7 @@ variable "terraform_caller_ip_address" {
 
 variable "dns_ip" {
   type        = string
-  description = "IP address for function app dns"
+  description = "IP address for function app WEBSITE_DNS_SERVER setting"
   default     = "168.63.129.16"
 }
 
