@@ -30,9 +30,9 @@ Updates to library versions can create conflicts when another library is depende
 1. Run the command `./gradlew dependencies | grep <library name>`.
 1. Look for different versions of the library.  If only one version is present then there are no issues with this update.  If more than one version is present then
 proceed to the next step.
-1. Identify what libraries have the dependency to the older version by running `./gradlew dependencies > project_dependencies.txt` and inspecting the 
-`project_dependencies.txt` file to trace the library dependency.
-1. Once identified, you need to look at what dependencies the libraries have an identify if other libraries need to be updated, if we cannot update the library, 
+1. Identify what libraries have the dependency to the older version by running `./gradlew dependencies > project_dependencies.txt` and inspecting 
+the `project_dependencies.txt` file to trace the library dependency.
+1. Once identified, you need to look at what dependencies the libraries have and identify if other libraries need to be updated, if we cannot update the library, 
 or if other specific steps need to be taken.  Each library is different and hence we cannot list all possible steps in this document.  Do your research and find
 a solution.
 
