@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
 import { orgApi, Sender } from "../network/api/OrgApi";
@@ -16,7 +16,7 @@ const useSenderMode = (
     defaultOrg?: string,
     defaultSender?: string
 ): SenderStatus => {
-    const [status, setStatus] = useState<string>("active");
+    const [status, setStatus] = useState<string>("inactive");
     const [org, setOrg] = useState<string>(defaultOrg || getStoredOrg());
     const [sender, setSender] = useState<string>(
         defaultSender || getStoredSenderName()

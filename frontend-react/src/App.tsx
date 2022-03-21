@@ -36,6 +36,7 @@ import "react-toastify/dist/ReactToastify.css";
 import SubmissionDetails from "./pages/submissions/SubmissionDetails";
 import { NewSetting } from "./components/Admin/NewSetting";
 import { FeatureFlagUIComponent } from "./pages/misc/FeatureFlags";
+import SenderModeBanner from "./components/SenderModeBanner";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -92,7 +93,7 @@ const App = () => {
                         return <div></div>;
                     }}
                 >
-                    {/*<SenderModeBanner />*/}
+                    <SenderModeBanner />
                     <GovBanner aria-label="Official government website" />
                     <ReportStreamHeader />
                     {/* Changed from main to div to fix weird padding issue at the top

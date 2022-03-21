@@ -14,6 +14,10 @@ export const dummySender: Sender = {
     schemaName: "test/covid-19-test",
 };
 
+/* This gets mocked for some component unit tests, so this line will
+ * ensure it's not mocked for its own unit tests. */
+jest.unmock("./UseSenderMode");
+
 describe("useSenderMode", () => {
     beforeAll(() => orgServer.listen());
     afterEach(() => orgServer.resetHandlers());
@@ -23,7 +27,7 @@ describe("useSenderMode", () => {
         const { result } = renderHook<undefined, SenderStatus>(() => {
             return useSenderMode();
         });
-        expect(result.current.status).toEqual("active");
+        expect(result.current.status).toEqual("inactive");
     });
 
     test("update() gets values from server", async () => {

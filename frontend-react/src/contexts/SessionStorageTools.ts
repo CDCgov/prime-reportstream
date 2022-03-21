@@ -45,7 +45,7 @@ export function storeParsedOrg(parsedVal: {
         setStoredOrg("az-phd");
     } else {
         setStoredOrg(parsedVal.org);
-        setSenderName(parsedVal.sender || "");
+        setStoredSenderName(parsedVal.sender || "");
     }
 }
 
@@ -77,6 +77,6 @@ export function getStoredSenderName(): string {
     return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.SENDER_NAME) || "";
 }
 
-export function setSenderName(val: string) {
+export function setStoredSenderName(val: string) {
     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.SENDER_NAME, val);
 }
