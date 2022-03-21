@@ -36,8 +36,6 @@ import "react-toastify/dist/ReactToastify.css";
 import SubmissionDetails from "./pages/submissions/SubmissionDetails";
 import { NewSetting } from "./components/Admin/NewSetting";
 import { FeatureFlagUIComponent } from "./pages/misc/FeatureFlags";
-import SenderProvider from "./contexts/SenderContext";
-import SenderModeBanner from "./components/SenderModeBanner";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 

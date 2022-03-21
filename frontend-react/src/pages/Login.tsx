@@ -5,29 +5,23 @@ import { SiteAlert } from "@trussworks/react-uswds";
 import { Tokens } from "@okta/okta-auth-js";
 
 import OktaSignInWidget from "../components/OktaSignInWidget";
+import { getOrganizationFromAccessToken } from "../webreceiver-utils";
 import {
-    getOrganizationFromAccessToken,
-    groupToOrg,
-} from "../webreceiver-utils";
-import {
+    parseOrgs,
     setStoredOktaToken,
-    setStoredOrg,
+    storeParsedOrg,
 } from "../contexts/SessionStorageTools";
-import { PERMISSIONS } from "../resources/PermissionsResource";
 import { oktaSignInConfig } from "../oktaConfig";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
 
     const onSuccess = (tokens: Tokens | undefined) => {
-        // TODO: Implement parseOrgs() to handle all this stuff
-        let oktaGroups =
-            getOrganizationFromAccessToken(tokens?.accessToken).filter(
-                (group: string) => group !== PERMISSIONS.PRIME_ADMIN
-            ) || [];
+        const parsed = parseOrgs(
+            getOrganizationFromAccessToken(tokens?.accessToken)
+        );
+        storeParsedOrg(parsed[0]);
         setStoredOktaToken(tokens?.accessToken?.accessToken || "");
-        /* Setting az-phd as default when PrimeAdmin has no sender/receiver orgs */
-        setStoredOrg(groupToOrg(oktaGroups[0]) || "az-phd");
         oktaAuth.handleLoginRedirect(tokens);
     };
 
