@@ -846,18 +846,10 @@ class Report : Logging {
             rawStr += row.getString(colNum)
         }
 
-        // TODO: find out if not having this column is just an automated test thing, or if this is
-        //  common in production
-        // get and add the specimen collection time to reduce hash collision if we can find it
-        val collectionTime = (
-            if (row.columnNames().contains("specimen_collection_date_time"))
-                row.getString("specimen_collection_date_time") else ""
-            ).toByteArray()
-
         // combine collectionTime and digest for lower chance of collision
         val digest = MessageDigest
             .getInstance("SHA-256")
-            .digest(rawStr.toByteArray()) + collectionTime
+            .digest(rawStr.toByteArray())
 
         return DatatypeConverter.printHexBinary(digest).uppercase()
     }
@@ -957,8 +949,13 @@ class Report : Logging {
             childReport: Report,
             childRowNum: Int
         ): ItemLineage {
-            // get the item hash to store for deduplication purposes
-            val itemHash = parentReport.getItemHashForRow(parentRowNum)
+            // get the item hash to store for deduplication purposes. If a hash has already been generated
+            //  for a row, use that hash to represent the row itself, since translations will result in different
+            //  hash values
+            val itemHash = if (parentReport.itemLineages != null && parentReport.itemLineages!!.isNotEmpty())
+                parentReport.itemLineages!![parentRowNum].itemHash
+            else
+                parentReport.getItemHashForRow(parentRowNum)
 
             // Row numbers start at 0, but index need to start at 1
             val childIndex = childRowNum + 1
@@ -980,7 +977,7 @@ class Report : Logging {
                     grandParentTrackingValue,
                     null,
                     null,
-                    itemHash.toByteArray()
+                    itemHash
                 )
             } else {
                 val trackingElementValue =
@@ -994,7 +991,7 @@ class Report : Logging {
                     trackingElementValue,
                     null,
                     null,
-                    itemHash.toByteArray()
+                    itemHash
                 )
             }
         }

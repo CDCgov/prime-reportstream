@@ -159,17 +159,20 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * Returns true if there is already a record in the item_lineage table that matches the passed in [itemHash]
+     * Returns true if there is already a record from the last 7 days
+     * in the item_lineage table that matches the passed in [itemHash]
      */
     fun isDuplicateItem(
-        itemHash: ByteArray,
+        itemHash: String,
         txn: DataAccessTransaction? = null
     ): Boolean {
         val ctx = if (txn != null) DSL.using(txn) else create
+        val weekAgo = OffsetDateTime.now().minusDays(7)
         return ctx
             .fetchExists(
                 ctx.selectFrom(ITEM_LINEAGE)
                     .where(ITEM_LINEAGE.ITEM_HASH.eq(itemHash))
+                    .and(ITEM_LINEAGE.CREATED_AT.greaterOrEqual(weekAgo))
             )
     }
 

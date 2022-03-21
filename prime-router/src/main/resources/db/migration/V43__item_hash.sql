@@ -8,5 +8,5 @@
  *
  */
 
-ALTER TABLE item_lineage
-add item_hash bytea not null default decode('00', 'hex');
+alter table item_lineage
+add item_hash varchar not null default ''

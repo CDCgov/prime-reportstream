@@ -302,10 +302,10 @@ class ReportFunction(
         actionLogs: ActionLogger
     ) {
         // file level duplicate checking
-        val digest = BlobAccess.sha256Digest(rawBody)
+        val fileDigest = BlobAccess.sha256Digest(rawBody)
 
         // throws ActionError if there is a duplicate detected
-        if (workflowEngine.isDuplicateFile(sender, digest)) {
+        if (workflowEngine.isDuplicateFile(sender, fileDigest)) {
             var msg = "Duplicate file detected."
             if (!payloadName.isNullOrEmpty()) {
                 msg += "File: $payloadName"
@@ -320,7 +320,7 @@ class ReportFunction(
                 var itemHash = report.getItemHashForRow(rowNum)
                 // check for duplicate item
                 val isDuplicate = generatedHashes.contains(itemHash) ||
-                    workflowEngine.isDuplicateItem(itemHash.toByteArray())
+                    workflowEngine.isDuplicateItem(itemHash)
                 if (isDuplicate) {
                     val msg = "Item is a duplicate."
                     addDuplicateLogs(options, actionLogs, msg, rowNum + 1)

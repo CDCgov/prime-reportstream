@@ -634,7 +634,7 @@ class ReportFunctionTests {
         assert(resp.status.equals(HttpStatus.BAD_REQUEST))
     }
 
-    //  test processFunction when an error is added to ActionLogs
+    //  test processFunction when no error is added to ActionLogs
     @Test
     fun `test processFunction when ActionLogs has no error`() {
         // setup
@@ -686,7 +686,8 @@ class ReportFunctionTests {
 
         // assert
         verify(exactly = 1) { engine.isDuplicateFile(any(), any()) }
-        verify(exactly = 2) { engine.isDuplicateItem(any()) }
+        // there are two records, since identical will be caught by ghecking generated hashes
+        verify(exactly = 1) { engine.isDuplicateItem(any()) }
         verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
         assert(resp.status.equals(HttpStatus.CREATED))
     }
