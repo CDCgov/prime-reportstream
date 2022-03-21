@@ -1,83 +1,119 @@
-import React, { Suspense } from "react";
-import { Button, GridContainer, Grid } from "@trussworks/react-uswds";
-import { useResource, NetworkErrorBoundary, useController } from "rest-hooks";
+import React, { Suspense, useRef, useState } from "react";
+import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
+import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { RouteComponentProps, useHistory } from "react-router-dom";
 
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
+import { getStoredOktaToken, getStoredOrg } from "../GlobalContextProvider";
+import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
+import Spinner from "../Spinner";
 
 import { TextAreaComponent, TextInputComponent } from "./AdminFormEdit";
+import {
+    ConfirmSaveSettingModal,
+    ConfirmSaveSettingModalRef,
+} from "./CompareJsonModal";
 
-type Props = { orgname: string; sendername: string; action: string };
+type Props = { orgname: string; sendername: string; action: "edit" | "clone" };
 
 export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
     const orgname = match?.params?.orgname || "";
     const sendername = match?.params?.sendername || "";
     const action = match?.params?.action || "";
-    const history = useHistory();
 
     const FormComponent = () => {
+        const history = useHistory();
+        const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
+
         const orgSenderSettings: OrgSenderSettingsResource = useResource(
             OrgSenderSettingsResource.detail(),
-            { orgname, sendername: sendername, action: action }
+            { orgname, sendername: sendername }
         );
 
+        const [orgSenderSettingsOldJson, setOrgSenderSettingsOldJson] =
+            useState("");
+        const [orgSenderSettingsNewJson, setOrgSenderSettingsNewJson] =
+            useState("");
         const { fetch: fetchController } = useController();
-        const saveSenderData = async () => {
-            switch (action) {
-                case "edit":
-                    try {
-                        const data = JSON.stringify(orgSenderSettings);
-                        await fetchController(
-                            OrgSenderSettingsResource.update(),
-                            { orgname, sendername: sendername },
-                            data
-                        );
-                        showAlertNotification(
-                            "success",
-                            `Item '${sendername}' has been updated`
-                        );
-                        history.goBack();
-                    } catch (e: any) {
-                        console.trace(e);
+        const { invalidate } = useController();
+        const [loading, setLoading] = useState(false);
 
-                        showError(
-                            `Updating item '${sendername}' failed. ${e.toString()}`
-                        );
-                        return false;
-                    }
-                    break;
-                case "clone":
-                    try {
-                        const data = JSON.stringify(orgSenderSettings);
-                        await fetchController(
-                            // NOTE: this does not use the expected OrgSenderSettingsResource.create() method
-                            // due to the endpoint being an 'upsert' (PUT) instead of the expected 'insert' (POST)
-                            OrgSenderSettingsResource.update(),
-                            { orgname, sendername: orgSenderSettings.name },
-                            data
-                        );
-                        showAlertNotification(
-                            "success",
-                            `Item '${orgSenderSettings.name}' has been created`
-                        );
-                        history.goBack();
-                    } catch (e: any) {
-                        console.trace(e);
+        const ShowCompareConfirm = async () => {
+            try {
+                // fetch original version
+                setLoading(true);
+                const accessToken = getStoredOktaToken();
+                const organization = getStoredOrg();
 
-                        showError(
-                            `Cloning item '${
-                                orgSenderSettings.name
-                            }' failed. ${e.toString()}`
-                        );
-                        return false;
+                const response = await fetch(
+                    `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                            Organization: organization!,
+                        },
                     }
-                    break;
-                default:
-                    return false;
+                );
+
+                const responseBody = await response.json();
+                setOrgSenderSettingsOldJson(
+                    JSON.stringify(responseBody, jsonSortReplacer, 2)
+                );
+                setOrgSenderSettingsNewJson(
+                    JSON.stringify(orgSenderSettings, jsonSortReplacer, 2)
+                );
+
+                confirmModalRef?.current?.toggleModal(undefined, true);
+                setLoading(false);
+            } catch (e) {
+                setLoading(false);
+                console.error(e);
             }
+        };
 
+        async function resetSenderList() {
+            await invalidate(OrgSenderSettingsResource.list(), {
+                orgname,
+                sendername: sendername,
+            });
+
+            return true;
+        }
+
+        const saveSenderData = async () => {
+            try {
+                const data = confirmModalRef?.current?.getEditedText();
+
+                const sendernamelocal =
+                    action === "clone" ? orgSenderSettings.name : sendername;
+
+                setLoading(true);
+                // saving can be slow, so let them know it's happening (this is kind of lame, but it works for now)
+
+                await fetchController(
+                    // NOTE: For 'clone' does not use the expected OrgSenderSettingsResource.create() method
+                    // due to the endpoint being an 'upsert' (PUT) instead of the expected 'insert' (POST)
+                    OrgSenderSettingsResource.update(),
+                    { orgname, sendername: sendernamelocal },
+                    data
+                );
+
+                showAlertNotification(
+                    "success",
+                    `Item '${sendernamelocal}' has been saved`
+                );
+                confirmModalRef?.current?.toggleModal(undefined, false);
+                setLoading(false);
+                history.goBack();
+            } catch (e: any) {
+                console.trace(e);
+                showError(
+                    `Updating item '${sendername}' failed. ${e.toString()}`
+                );
+                return false;
+            }
             return true;
         };
 
@@ -142,18 +178,33 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     savefunc={(v) => (orgSenderSettings.processingType = v)}
                 />
                 <Grid row>
-                    <Button type="button" onClick={() => history.goBack()}>
+                    <Button
+                        type="button"
+                        onClick={async () =>
+                            (await resetSenderList()) && history.goBack()
+                        }
+                    >
                         Cancel
                     </Button>
                     <Button
                         form="edit-setting"
                         type="submit"
                         data-testid="submit"
-                        onClick={() => saveSenderData()}
+                        disabled={loading}
+                        onClick={() => ShowCompareConfirm()}
                     >
-                        Save
+                        Preview...
                     </Button>
                 </Grid>
+                <ConfirmSaveSettingModal
+                    uniquid={
+                        action === "edit" ? sendername : orgSenderSettings.name
+                    }
+                    onConfirm={saveSenderData}
+                    ref={confirmModalRef}
+                    oldjson={orgSenderSettingsOldJson}
+                    newjson={orgSenderSettingsNewJson}
+                />
             </GridContainer>
         );
     };
@@ -166,7 +217,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                 <Suspense
                     fallback={
                         <span className="text-normal text-base">
-                            Loading Sender Settings Info...
+                            <Spinner />
                         </span>
                     }
                 >

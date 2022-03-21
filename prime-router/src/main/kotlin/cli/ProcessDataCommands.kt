@@ -233,12 +233,8 @@ class ProcessData(
     }
 
     private fun handleReadResult(result: ReadResult): Report {
-        if (result.errors.isNotEmpty()) {
-            echo(result.errorsToString())
-        }
-        if (result.warnings.isNotEmpty()) {
-            echo(result.warningsToString())
-        }
+        result.actionLogs.errors.forEach { echo(it.detail) }
+        result.actionLogs.warnings.forEach { echo(it.detail) }
         return result.report
     }
 
@@ -500,7 +496,7 @@ class ProcessData(
         if (warnings.size > 0) {
             echo("Problems occurred during translation to output schema:")
             warnings.forEach {
-                echo("${it.scope} ${it.trackingId}: ${it.detail.detailMsg()}")
+                echo("${it.scope} ${it.trackingId}: ${it.detail.message}")
             }
             echo()
         }

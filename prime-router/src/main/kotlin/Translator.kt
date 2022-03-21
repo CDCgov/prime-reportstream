@@ -49,41 +49,27 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             receiver.topic == input.schema.topic &&
                 (limitReceiversTo.isEmpty() || limitReceiversTo.contains(receiver.fullName))
         }.mapNotNull { receiver ->
-            filterAndTranslateForReceiver(input, defaultValues, receiver, warnings)
+            try {
+                // Filter the report
+                val filteredReport = filterByAllFilterTypes(settings, input, receiver) ?: return@mapNotNull null
+                if (filteredReport.isEmpty()) return@mapNotNull RoutedReport(filteredReport, receiver)
+
+                // Translate the filteredReport
+                val translatedReport = translateByReceiver(filteredReport, receiver, defaultValues)
+                RoutedReport(translatedReport, receiver)
+            } catch (e: IllegalStateException) {
+                // catching individual translation exceptions enables overall work to continue
+                warnings.add(
+                    ActionLog(
+                        InvalidTranslationMessage(e.localizedMessage),
+                        "TO:${receiver.fullName}:${receiver.schemaName}",
+                        reportId = input.id,
+                    )
+                )
+                return@mapNotNull null
+            }
         }
         return RoutedReportsResult(routedReports, warnings)
-    }
-
-    /**
-     * Filter and translate for an [input] report for a single [receiver]. Use [defaultValues] and
-     * fill in [warnings].
-     */
-    fun filterAndTranslateForReceiver(
-        input: Report,
-        defaultValues: Map<String, String>,
-        receiver: Receiver,
-        warnings: MutableList<ActionLog>
-    ): RoutedReport? {
-        return try {
-            // Filter the report
-            val filteredReport = filterByAllFilterTypes(settings, input, receiver) ?: return null
-            if (filteredReport.isEmpty()) return RoutedReport(filteredReport, receiver)
-
-            // Translate the filteredReport
-            val translatedReport = translateByReceiver(filteredReport, receiver, defaultValues)
-            RoutedReport(translatedReport, receiver)
-        } catch (e: IllegalStateException) {
-            // catching individual translation exceptions enables overall work to continue
-            warnings.add(
-                ActionLog(
-                    ActionLog.ActionLogScope.translation,
-                    InvalidTranslationMessage.new(e.localizedMessage),
-                    "TO:${receiver.fullName}:${receiver.schemaName}",
-                    reportId = input.id,
-                )
-            )
-            return null
-        }
     }
 
     /**
@@ -237,7 +223,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             filterType
         )
         if (doLogging && filteredReport.itemCount != input.itemCount) {
-            logger.warn(
+            logger.info(
                 "Filtering occurred in report ${input.id}, receiver ${receiver.fullName}: " +
                     "There were ${input.itemCount} rows prior to ${filterType.name}, and " +
                     "${filteredReport.itemCount} rows after ${filterType.name}."
