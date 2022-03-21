@@ -1704,7 +1704,7 @@ T|Training|HL7
 
 **Documentation**:
 
-P, D, or T for Production, Debugging, or Training
+default processing mode for testing
 
 ---
 
