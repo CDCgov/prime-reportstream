@@ -13,6 +13,7 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
@@ -20,6 +21,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
 import io.mockk.every
@@ -109,7 +111,7 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
-    fun `Test write batch`() {
+    fun `test write batch`() {
         val outputStream = ByteArrayOutputStream()
         serializer.writeBatch(testReport, outputStream)
         val output = outputStream.toString(StandardCharsets.UTF_8)
@@ -670,5 +672,21 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(msh42).isEqualTo("correctText-YES!")
         assertThat(msh43).isEqualTo("correctText-YES!")
         assertThat(msh10).isEqualTo("yeah/success")
+    }
+
+    @Test
+    fun `test NTE Source`() {
+        val parser = context.pipeParser
+
+        val uploadStream = File("./src/testIntegration/resources/serializers/csv-upload-test.csv").inputStream()
+        val uploadSchema = "upload-covid-19"
+        val sender = Sender("default", "upload", Sender.Format.CSV, "covid-19", CustomerStatus.TESTING, uploadSchema)
+        val testReport = csvSerializer.readExternal(uploadSchema, uploadStream, TestSource, sender).report
+        val output = serializer.buildMessage(testReport, 0)
+        val hapiMsg = parser.parse(output.toString())
+        val terser = Terser(hapiMsg)
+        val nte22 = terser.get("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE(0)-2-2")
+
+        assertThat(nte22).isNull()
     }
 }
