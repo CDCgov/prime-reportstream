@@ -23,9 +23,13 @@
     - code: F
       display: Female
     - code: F
+      display: Woman
+    - code: F
       display: F
     - code: M
       display: Male
+    - code: M
+      display: Man
     - code: M
       display: M
     - code: U
@@ -149,7 +153,11 @@
     - code: N
       display: Non Hispanic or Latino
     - code: N
+      display: Non-Hispanic or Latino
+    - code: N
       display: Non Hispanic
+    - code: N
+      display: Non-Hispanic
     - code: N
       display: Not Hispanic or Latino
     - code: N
@@ -374,6 +382,10 @@
       display: Test not done
     - code: 373121007
       display: 373121007
+    - code: 82334004
+      display: Indeterminate
+    - code: 82334004
+      display: 82334004
 
 - name: sender-automation/specimen_source_site_code
   system: SNOMED_CT
@@ -382,122 +394,106 @@
   values:
     - code: 71836000
       display: Nasopharyngeal structure (body structure)
-      version: 2020-09-01
     - code: 71836000
       display: Nasopharyngeal swab
-      version: 2020-09-01
     - code: 71836000
       display: 258500001
-      version: 2020-09-01
     - code: 71836000
       display: Nasopharyngeal aspirate
-      version: 2020-09-01
     - code: 71836000
       display: 258411007 
-      version: 2020-09-01
+    - code: 71836000
+      display: Nasopharyngeal washings
+    - code: 71836000
+      display: Nasopharyngeal wash
+    - code: 71836000
+      display: 258467004
     - code: 71836000
       display: 71836000
-      version: 2020-09-01
     - code: 45206002
       display: Nasal structure (body structure)
-      version: 2020-09-01
     - code: 45206002
       display: Nasal aspirate 
+    - code: 45206002
+      display: Nasal aspirate specimen
     - code: 45206002
       display: 429931000124105
     - code: 45206002
       display: 45206002
-      version: 2020-09-01
     - code: 53342003
       display: Internal nose structure (body structure)
-      version: 2020-09-01
     - code: 53342003
       display: Varied
-      version: 2020-09-01
     - code: 53342003
       display: Swab of internal nose
-      version: 2020-09-01
     - code: 53342003
       display: Anterior nares swab
-      version: 2020-09-01
     - code: 53342003
-      display: Mid-turbinate nasal swab
-      version: 2020-09-01
-    - code: 53342003
-      display: Nasal
-      version: 2020-09-01
-    - code: 53342003
-      display: Nasal Swab
-      version: 2020-09-01
-    - code: 53342003
-      display: 445297001
-      version: 2020-09-01
+      display: Anterior nasal swab
     - code: 53342003
       display: 697989009
-      version: 2020-09-01
+    - code: 53342003
+      display: Mid-turbinate nasal swab
+    - code: 53342003
+      display: 871810001
+    - code: 53342003
+      display: Nasal
+    - code: 53342003
+      display: Nasal Swab
+    - code: 53342003
+      display: 445297001
     - code: 53342003
       display: 53342003
-      version: 2020-09-01
     - code: 29092000
       display: Serum
-      version: 2020-09-01
     - code: 29092000
       display: Serum specimen
-      version: 2020-09-01
-    - code: 29092000
-      display: Plasma
-      version: 2020-09-01
-    - code: 29092000
-      display: Plasma specimen
-      version: 2020-09-01
-    - code: 29092000
-      display: Whole Blood
-      version: 2020-09-01
-    - code: 29092000
-      display: Whole Blood Sample
-      version: 2020-09-01
-    - code: 29092000
-      display: Blood specimen
-      version: 2020-09-01
-    - code: 29092000
-      display: Venous blood specimen
-      version: 2020-09-01
-    - code: 29092000
-      display: Capillary blood specimen
-      version: 2020-09-01
-    - code: 29092000
-      display: fingerstick whole blood
-      version: 2020-09-01
-    - code: 29092000
-      display: 122554006
-      version: 2020-09-01
-    - code: 29092000
-      display: 258580003
-      version: 2020-09-01
-    - code: 29092000
-      display: 119361006
-      version: 2020-09-01
     - code: 29092000
       display: 119364003
-      version: 2020-09-01
+    - code: 29092000
+      display: Plasma
+    - code: 29092000
+      display: Plasma specimen
+    - code: 29092000
+      display: 119361006
+    - code: 29092000
+      display: Whole Blood
+    - code: 29092000
+      display: Whole Blood Sample
+    - code: 29092000
+      display: 258580003
+    - code: 29092000
+      display: Blood specimen
     - code: 29092000
       display: 119297000
-      version: 2020-09-01
+    - code: 29092000
+      display: Venous blood specimen
+    - code: 29092000
+      display: Venous whole blood
+    - code: 29092000
+      display: 122555007
+    - code: 29092000
+      display: Capillary blood specimen
+    - code: 29092000
+      display: fingerstick whole blood
+    - code: 29092000
+      display: 122554006
+    - code: 29092000
+      display: Dried blood spot specimen
+    - code: 29092000
+      display: Dried blood spot
+    - code: 29092000
+      display: fingerstick blood dried blood spot
+    - code: 29092000
+      display: 440500007
     - code: 31389004
       display: Throat Swab
-      version: 2020-09-01
-    - code: 31389004
-      display: Oropharyngeal
-      version: 2020-09-01
     - code: 31389004
       display: Oropharyngeal Swab
-      version: 2020-09-01
     - code: 31389004
       display: 258529004
-      version: 2020-09-01
     - code: 31389004
       display: 31389004
-      version: 2020-09-01
     - code: 123851003
       display: Sputum specimen 
     - code: 123851003
@@ -505,11 +501,7 @@
     - code: 123851003
       display: 119334006
     - code: 123851003
-      display: Oral
-      version: 2020-09-01
-    - code: 123851003
       display: Oral Swab
-      version: 2020-09-01
     - code: 123851003
       display: 418932006
     - code: 123851003
@@ -519,8 +511,23 @@
     - code: 123851003
       display: 258560004
     - code: 123851003
-      display: 123851003 
-
+      display: 123851003
+    - code: 39607008
+      display: Lower respiratory fluid sample
+    - code: 39607008
+      display: lower respiratory tract aspirates
+    - code: 39607008
+      display: 309171007
+    - code: 39607008
+      display: Bronchoalveolar lavage fluid sample 
+    - code: 39607008
+      display: Bronchoalveolar lavage fluid
+    - code: 39607008
+      display: Bronchoalveolar lavage
+    - code: 39607008
+      display: 258607008
+    - code: 39607008
+      display: 39607008
 
 - name: sender-automation/specimen_type
   system: SNOMED_CT
@@ -548,27 +555,31 @@
     - code: 697989009
       display: Anterior nares swab 
     - code: 697989009
+      display: Anterior nasal swab 
+    - code: 697989009
       display: 697989009
     - code: 258411007
       display: Nasopharyngeal aspirate 
     - code: 258411007
       display: 258411007 
+    - code: 258467004
+      display: Nasopharyngeal washings
+    - code: 258467004
+      display: Nasopharyngeal wash
+    - code: 258467004
+      display: 258467004
     - code: 429931000124105
       display: Nasal aspirate 
+    - code: 429931000124105
+      display: Nasal aspirate specimen
     - code: 429931000124105
       display: 429931000124105
     - code: 258529004
       display: Throat swab 
     - code: 258529004
-      display: Throat
-    - code: 258529004
-      display: Oropharyngeal
-    - code: 258529004
       display: Oropharyngeal Swab
     - code: 258529004
       display: 258529004
-    - code: 418932006
-      display: Oral
     - code: 418932006
       display: Oral Swab
     - code: 418932006
@@ -585,10 +596,6 @@
       display: Saliva 
     - code: 258560004
       display: 258560004 
-    - code: 258607008
-      display: Bronchoalveolar lavage fluid sample 
-    - code: 258607008
-      display: 258607008
     - code: 119364003
       display: Serum specimen 
     - code: 119364003
@@ -601,10 +608,6 @@
       display: Plasma
     - code: 119361006
       display: 119361006
-    - code: 440500007
-      display: Dried blood spot specimen 
-    - code: 440500007
-      display: 440500007
     - code: 258580003
       display: Whole blood sample 
     - code: 258580003
@@ -613,6 +616,8 @@
       display: 258580003 
     - code: 122555007
       display: Venous blood specimen
+    - code: 122555007
+      display: Venous whole blood 
     - code: 122555007
       display: 122555007
     - code: 119297000
@@ -625,6 +630,376 @@
       display: fingerstick whole blood
     - code: 122554006
       display: 122554006
+    - code: 440500007
+      display: Dried blood spot specimen
+    - code: 440500007
+      display: Dried blood spot
+    - code: 440500007
+      display: fingerstick blood dried blood spot
+    - code: 440500007
+      display: 440500007
+    - code: 433801000124107
+      display: Nasopharyngeal and oropharyngeal swab
+    - code: 433801000124107
+      display: Nasal and throat swab combination
+    - code: 433801000124107
+      display: Nasal and throat swab
+    - code: 433801000124107
+      display: 433801000124107
+    - code: 309171007
+      display: Lower respiratory fluid sample
+    - code: 309171007
+      display: lower respiratory tract aspirates
+    - code: 309171007
+      display: 309171007
+    - code: 258607008
+      display: Bronchoalveolar lavage fluid sample 
+    - code: 258607008
+      display: Bronchoalveolar lavage fluid
+    - code: 258607008
+      display: Bronchoalveolar lavage
+    - code: 258607008
+      display: 258607008
+
+- name: sender-automation/state
+  system: LOCAL
+  version: 2.67
+  referenceUrl: https://pe.usps.com/text/pub28/28apb.htm
+  values:
+    - code: "AA"
+      display: "Armed Americas"
+    - code: "AA"
+      display: "Armed Americas (except Canada)"
+    - code: "AA"
+      display: "AA"
+    - code: "AB"
+      display: "ALBERTA"
+    - code: "AB"
+      display: "AB"
+    - code: "AE"
+      display: "Armed Forces Europe, the Middle East, and Canada"
+    - code: "AE"
+      display: "AE"
+    - code: "AL"
+      display: "ALABAMA"
+    - code: "AL"
+      display: "AL"
+    - code: "AK"
+      display: "ALASKA"
+    - code: "AK"
+      display: "AK"
+    - code: "AP"
+      display: "Armed Forces Pacific"
+    - code: "AP"
+      display: "AP"
+    - code: "AS"
+      display: "AMERICAN SAMOA"
+    - code: "AS"
+      display: "AS"
+    - code: "AZ"
+      display: "ARIZONA"
+    - code: "AZ"
+      display: "AZ"
+    - code: "AR"
+      display: "ARKANSAS"
+    - code: "AR"
+      display: "AR"
+    - code: "BC"
+      display: "BRITISH COLUMBIA"
+    - code: "BC"
+      display: "BC"
+    - code: "CA"
+      display: "CALIFORNIA"
+    - code: "CA"
+      display: "CA"
+    - code: "CO"
+      display: "COLORADO"
+    - code: "CO"
+      display: "CO"
+    - code: "CT"
+      display: "CONNECTICUT"
+    - code: "CT"
+      display: "CT"
+    - code: "DE"
+      display: "DELAWARE"
+    - code: "DE"
+      display: "DE"
+    - code: "FL"
+      display: "FLORIDA"
+    - code: "FL"
+      display: "FL"
+    - code: "FM"
+      display: "FEDERAED STATES OF MICRONESIA"
+    - code: "FM"
+      display: "FM"
+    - code: "GA"
+      display: "GEORGIA"
+    - code: "GA"
+      display: "GA"
+    - code: "GU"
+      display: "GUAM"
+    - code: "GU"
+      display: "GU"
+    - code: "HI"
+      display: "HAWAII"
+    - code: "HI"
+      display: "HI"
+    - code: "ID"
+      display: "IDAHO"
+    - code: "ID"
+      display: "ID"
+    - code: "IL"
+      display: "ILLINOIS"
+    - code: "IL"
+      display: "ILLINIOS"
+    - code: "IL"
+      display: "IL"
+    - code: "IN"
+      display: "INDIANA"
+    - code: "IN"
+      display: "INDANIA"
+    - code: "IN"
+      display: "IN"
+    - code: "IA"
+      display: "IOWA"
+    - code: "IA"
+      display: "IA"
+    - code: "KS"
+      display: "KANSAS"
+    - code: "KS"
+      display: "KS"
+    - code: "KY"
+      display: "KENTUCKY"
+    - code: "KY"
+      display: "KY"
+    - code: "LA"
+      display: "LOUISIANA"
+    - code: "LA"
+      display: "LA"
+    - code: "MB"
+      display: "MANITOBA"
+    - code: "MB"
+      display: "MB"
+    - code: "ME"
+      display: "MAINE"
+    - code: "ME"
+      display: "ME"
+    - code: "MD"
+      display: "MARYLAND"
+    - code: "MD"
+      display: "MD"
+    - code: "MA"
+      display: "MASSACHUSETTS"
+    - code: "MA"
+      display: "MA"
+    - code: "MH"
+      display: "MARSHALL ISLANDS"
+    - code: "MH"
+      display: "MH"
+    - code: "MI"
+      display: "MICHIGAN"
+    - code: "MI"
+      display: "MI"
+    - code: "MN"
+      display: "MINNESOTA"
+    - code: "MN"
+      display: "MN"
+    - code: "MP"
+      display: "NORTHERN MARIANA ISLANDS"
+    - code: "MP"
+      display: "NORTH MARIANA ISLANDS"
+    - code: "MP"
+      display: "N MARIANA ISLANDS"
+    - code: "MP"
+      display: "N. MARIANA ISLANDS"
+    - code: "MP"
+      display: "MP"
+    - code: "MS"
+      display: "MISSISSIPPI"
+    - code: "MS"
+      display: "MS"
+    - code: "MO"
+      display: "MISSOURI"
+    - code: "MO"
+      display: "MO"
+    - code: "MT"
+      display: "MONTANA"
+    - code: "MT"
+      display: "MT"
+    - code: "NC"
+      display: "NORTH CAROLINA"
+    - code: "NC"
+      display: "N. CAROLINA"
+    - code: "NC"
+      display: "N CAROLINA"
+    - code: "NC"
+      display: "NC"
+    - code: "NE"
+      display: "NEBRASKA"
+    - code: "NE"
+      display: "NE"
+    - code: "NF"
+      display: "NEWFOUNDLAND"
+    - code: "NF"
+      display: "TERRE NEUVE"
+    - code: "NF"
+      display: "NF"
+    - code: "NV"
+      display: "NEVADA"
+    - code: "NV"
+      display: "NV"
+    - code: "NH"
+      display: "NEW HAMPSHIRE"
+    - code: "NH"
+      display: "NH"
+    - code: "NJ"
+      display: "NEW JERSEY"
+    - code: "NJ"
+      display: "NJ"
+    - code: "NM"
+      display: "NEW MEXICO"
+    - code: "NM"
+      display: "NM"
+    - code: "ND"
+      display: "NORTH DAKOTA"
+    - code: "ND"
+      display: "N. DAKOTA"
+    - code: "ND"
+      display: "N DAKOTA"
+    - code: "ND"
+      display: "ND"
+    - code: "NT"
+      display: "NORTHWEST TERRITORIES"
+    - code: "NT"
+      display: "TERRITOIRES DU NORD-QUEST"
+    - code: "NT"
+      display: "NT"
+    - code: "NS"
+      display: "NOVA SCOTIA"
+    - code: "NS"
+      display: "NOUVELLE ECOSSE"
+    - code: "NS"
+      display: "NS"
+    - code: "NU"
+      display: "NUNAVUT"
+    - code: "NU"
+      display: "NU"
+    - code: "NY"
+      display: "NEW YORK"
+    - code: "NY"
+      display: "NY"
+    - code: "OH"
+      display: "OHIO"
+    - code: "OH"
+      display: "OH"
+    - code: "OK"
+      display: "OKLAHOMA"
+    - code: "OK"
+      display: "OK"
+    - code: "ON"
+      display: "ONTARIO"
+    - code: "ON"
+      display: "ON"
+    - code: "OR"
+      display: "OREGON"
+    - code: "OR"
+      display: "OR"
+    - code: "PA"
+      display: "PENNSYLVANIA"
+    - code: "PA"
+      display: "PA"
+    - code: "PE"
+      display: "PRINCE EDWARD ISLAND"
+    - code: "PE"
+      display: "LLE DU PRINCE EDWARD"
+    - code: "PE"
+      display: "PE"
+    - code: "PR"
+      display: "PUERTO RICO"
+    - code: "PR"
+      display: "PR"
+    - code: "PW"
+      display: "PALAU"
+    - code: "PW"
+      display: "PW"
+    - code: "RI"
+      display: "RHODE ISLAND"
+    - code: "RI"
+      display: "RI"
+    - code: "QC"
+      display: "QUEBEC"
+    - code: "QC"
+      display: "QC"
+    - code: "SC"
+      display: "SOUTH CAROLINA"
+    - code: "SC"
+      display: "S. CAROLINA"
+    - code: "SC"
+      display: "S CAROLINA"
+    - code: "SC"
+      display: "SC"
+    - code: "SD"
+      display: "SOUTH DAKOTA"
+    - code: "SD"
+      display: "S. DAKOTA"
+    - code: "SD"
+      display: "S DAKOTA"
+    - code: "SD"
+      display: "SD"
+    - code: "SK"
+      display: "SASKATCHEWAN"
+    - code: "SK"
+      display: "SK"
+    - code: "TN"
+      display: "TENNESSEE"
+    - code: "TN"
+      display: "TN"
+    - code: "TX"
+      display: "TEXAS"
+    - code: "TX"
+      display: "TX"
+    - code: "UT"
+      display: "UTAH"
+    - code: "UT"
+      display: "UT"
+    - code: "VT"
+      display: "VERMONT"
+    - code: "VT"
+      display: "VT"
+    - code: "VI"
+      display: "VIRGIN ISLANDS"
+    - code: "VI"
+      display: "VI"
+    - code: "VA"
+      display: "VIRGINIA"
+    - code: "VA"
+      display: "VA"
+    - code: "WA"
+      display: "WASHINGTON"
+    - code: "WA"
+      display: "WA"
+    - code: "WV"
+      display: "WEST VIRGINIA"
+    - code: "WV"
+      display: "W VIRGINIA"
+    - code: "WV"
+      display: "W. VIRGINIA"
+    - code: "WV"
+      display: "WV"
+    - code: "WI"
+      display: "WISCONSIN"
+    - code: "WI"
+      display: "WI"
+    - code: "WY"
+      display: "WYOMING"
+    - code: "WY"
+      display: "WY"
+    - code: "YT"
+      display: "YUKON TERRITORY"
+    - code: "YT"
+      display: "TERRITOIRES DU YUKON"
+    - code: "YT"
+      display: "YT"
 
 - name: sender-automation/patient_preferred_language
   system: ISO

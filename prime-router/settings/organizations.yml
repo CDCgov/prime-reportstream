@@ -584,6 +584,46 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 
+- name: "co-routt-county-phd"
+  description: "Routt County Public Health Department"
+  jurisdiction: "COUNTY"
+  stateCode: "CO"
+  countyName: "Routt"
+  receivers:
+    - name: elr-download
+      organizationName: co-routt-county-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, CO)", "matches(ordering_facility_county, Routt)" ]
+      translation:
+        type: CUSTOM
+        schemaName: direct/direct-covid-19
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
+        timeZone: EASTERN
+
+- name: "co-san-juan-basin-phd"
+  description: "San Juan Basin Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "CO"
+  countyName: null
+  receivers:
+    - name: elr-download
+      organizationName: co-san-juan-basin-phd
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, CO)", "matches(ordering_facility_county, Archuleta, La Plata)" ]
+      translation:
+        type: CUSTOM
+        schemaName: direct/direct-covid-19
+        format: CSV
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
+        timeZone: EASTERN
+
 - name: tx-phd
   description: Texas Department of State Health Services
   jurisdiction: STATE
@@ -761,6 +801,44 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: elr-otc
+      organizationName: vt-doh
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, VT, patient_state, VT)"
+      qualityFilter:
+        - "AtLeastOneHasValue(Y, test_authorized_for_otc, test_authorized_for_home, test_authorized_for_unproctored)"
+      reverseTheQualityFilter: false
+      deidentify: false
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: NBS
+        receivingApplicationOID: 2.16.840.1.114222.4.1.185.1
+        receivingFacilityName: VDH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.185
+        applyOTCDefault: true
+        suppressAoe: true
+        truncateHl7Fields: OBX-23-1
+        truncateHDNamespaceIds: true
+        usePid14ForPatientEmail: true
+        suppressNonNPI: true
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
+        replaceValue:
+          MSH-3-1: CDC PRIME - Atlanta,
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
 
 - name: nd-doh
   description: North Dakota Department of Health
@@ -1027,6 +1105,8 @@
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, NJ, patient_state, NJ)
         - matches(processing_mode_code, P)
+      routingFilter:
+        - matches(test_result_status, F, C, P)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -1035,7 +1115,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1
+        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
         suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
@@ -1065,7 +1145,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1
+        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3
         suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
       transport:
         type: SFTP
@@ -1306,7 +1386,7 @@
         receivingFacilityName: CDPH_CID
         receivingFacilityOID: 2.16.840.1.114222.4.1.214104
         suppressAoe: true
-        truncateHl7Fields: OBX-23-1, ORC-21-1
+        truncateHl7Fields: OBR-16-3, ORC-12-3, OBX-23-1, ORC-21-1
         truncateHDNamespaceIds: true
         cliaForOutOfStateTesting: CDPH000075
       transport:
@@ -2448,12 +2528,14 @@
       customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, IL, patient_state, IL)
+      routingFilter:
+        - matches(test_result_status, F, C, P)
       translation:
         type: HL7
         useBatchHeaders: true
         suppressNonNPI: true
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1
+        truncateHl7Fields: OBX-23-1, ORC-21-1
         useHighPrecisionHeaderDateTimeFormat: true
       timing:
         operation: MERGE
@@ -2722,6 +2804,29 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        suppressHl7Fields: PID-5-7, ORC-12-1, ORC-16-1
+        replaceValueAwithB:
+          ORC-12-2: ["":"Unknow", "Crona":"Joe","Bode":"John;@:,"]
+          ORC-12-3: ["":"Unknow", "Lashay":"Smith","Waldo":"Doe"]
+        valueSetOverrides:
+          hl70189:
+            name: hl70189
+            system: HL7
+            version: 2.9
+            reference: HL7 guidance for ethnicity, modified for NV standards
+            values:
+              - code: 2135-2
+                replaces: H
+                display: Hispanic or Latino
+                system: CDCREC
+              - code: 2186-5
+                replaces: N
+                display: Non Hispanic or Latino
+                system: CDCREC
+              - code: UNK
+                replaces: U
+                display: Unknown
+                system: NULLFL
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -3058,6 +3163,8 @@
       jurisdictionalFilter:
         - matches(abnormal_flag, A)
         - orEquals(ordering_facility_state, WA, patient_state, WA)
+      routingFilter:
+        - matches(test_result_status, F, S, P, C, X, I)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -3070,6 +3177,7 @@
         receivingFacilityName: dn1fro00
         receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
         suppressQstForAoe: true
+        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
         useOrderingFacilityName: ORGANIZATION_NAME
       timing:
@@ -3092,6 +3200,8 @@
       jurisdictionalFilter:
         - doesNotMatch(abnormal_flag, A)
         - orEquals(ordering_facility_state, WA, patient_state, WA)
+      routingFilter:
+        - matches(test_result_status, F, S, P, C, X, I)
       translation:
         type: HL7
         useBatchHeaders: true
@@ -3104,6 +3214,7 @@
         receivingFacilityName: dn1fro00
         receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
         suppressQstForAoe: true
+        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
         useOrderingFacilityName: ORGANIZATION_NAME
       timing:
@@ -3119,7 +3230,7 @@
         receiverUrl: http://host.docker.internal:8000/pyas2/as2receive
         receiverId: p1as2
         senderId: CDCPRIMETEST
-    - name: gaen
+    - name: gaen # Note: I don't see this feed in prod, might need routing filter for OBX-11-1 (test_result_status)
       description: Google/Apple Exposure Notification
       organizationName: wa-phd
       topic: covid-19
@@ -3311,6 +3422,86 @@
   senders:
     - name: "default"
       organizationName: "youthclinic-co"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "pcl-ca"
+  description: "Pacific Clinical Laboratory - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "pcl-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "jrslab-ca"
+  description: "JRS Laboratory - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "jrslab-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "touroedu-ca"
+  description: "Touro University in CA - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "touroedu-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "quantgene-ca"
+  description: "Quantgene in CA - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "quantgene-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "uhg-mn"
+  description: "UHG in MN - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "uhg-mn"
       format: "CSV"
       topic: "covid-19"
       customerStatus: "testing"

@@ -54,7 +54,7 @@ const DetailsContent = () => {
 */
 export const Details = () => {
     return (
-        <Suspense fallback={<Spinner fullPage />}>
+        <Suspense fallback={<Spinner size="fullpage" />}>
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="page" />}
             >

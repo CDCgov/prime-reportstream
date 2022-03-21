@@ -16,5 +16,18 @@ elements:
   - name: testing_lab_clia
     cardinality: ZERO_OR_ONE
     documentation: Expecting a CLIA number (eg, "10D2218834"), or empty string.
+    mapper: use(patient_street2_CEI, testing_lab_clia_temp)
+
+  - name: testing_lab_clia_temp
+    type: TEXT
     csvFields: [{ name: performingFacility}]
 
+#custom field to store value indicating a Eurofins test ("OpET - CEI")  
+  - name: patient_street2_CEI 
+    csvFields: [{ name: patientHomeAddress2, format: $alt}]
+    type: CODE
+    altValues:
+      - code: "OpET - CEI" 
+        display: "OpET – CEI" #this code contains an en-dash (unicode 8211).  convert to a basic dash (ascii 45)
+      - code: "OpET - CEI"
+        display: "OpET - CEI"
