@@ -196,7 +196,7 @@ const App = () => {
                         <footer className="usa-identifier footer">
                             <ReportStreamFooter />
                         </footer>
-                  </SessionProvider>
+                    </SessionProvider>
                 </NetworkErrorBoundary>
             </Suspense>
         </Security>
