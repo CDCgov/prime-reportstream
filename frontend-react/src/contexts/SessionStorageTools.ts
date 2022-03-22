@@ -68,14 +68,6 @@ export function setStoredOrg(val: string) {
     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, val);
 }
 
-export function getStoredSenderMode(): string | undefined {
-    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.SENDER_MODE) || undefined;
-}
-
-export function setSenderMode(val: string) {
-    sessionStorage.setItem(GLOBAL_STORAGE_KEYS.SENDER_MODE, val);
-}
-
 export function getStoredSenderName(): string | undefined {
     return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.SENDER_NAME) || undefined;
 }
