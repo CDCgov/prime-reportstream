@@ -5,12 +5,6 @@ module "vnet" {
   resource_group          = var.resource_group
   environment             = var.environment
   resource_prefix         = var.resource_prefix
-  east_address_space      = var.east_address_space
-  east_dns_servers        = var.east_dns_servers
-  west_address_space      = var.west_address_space
-  west_dns_servers        = var.west_dns_servers
-  vnet_address_space      = var.vnet_address_space
-  vnet_peer_address_space = var.vnet_peer_address_space
 }
 
 ##########
@@ -19,14 +13,11 @@ module "vnet" {
 
 module "network" {
   source             = "../../modules/network"
-  vnet_address_space = module.vnet.vnet_address_spaces
-  vnet_ids           = module.vnet.ids
-  vnets              = module.vnet.vnets
-  vnet_names         = module.vnet.names
   environment        = var.environment
   resource_group     = var.resource_group
   resource_prefix    = var.resource_prefix
   location           = var.location
+  azure_vns          = var.network
 }
 
 module "nat_gateway" {
@@ -67,6 +58,8 @@ module "key_vault" {
   endpoint_subnet             = module.network.endpoint_subnet_ids
   cyberark_ip_ingress         = ""
   terraform_object_id         = var.terraform_object_id
+  application_kv_name         = var.application_kv_name
+  app_config_kv_name          = var.app_config_kv_name
 }
 
 module "container_registry" {
@@ -155,6 +148,10 @@ module "function_app" {
   container_registry_admin_password = module.container_registry.container_registry_admin_password
   public_subnet                     = module.network.public_subnet_ids
   application_key_vault_id          = module.key_vault.application_key_vault_id
+  sa_partner_connection_string      = module.storage.sa_partner_connection_string
+  client_config_key_vault_id        = module.key_vault.client_config_key_vault_id
+  app_config_key_vault_id           = module.key_vault.app_config_key_vault_id
+  dns_ip                            = var.dns_ip
 }
 
 module "front_door" {
@@ -198,13 +195,28 @@ module "front_door" {
 ## 05-Monitor
 ##########
 
-#module "log_analytics_workspace" {
-#  source          = "../../modules/log_analytics_workspace"
-#  environment     = var.environment
-#  resource_group  = var.resource_group
-#  resource_prefix = var.resource_prefix
-#  location        = var.location
-#}
+
+module "log_analytics_workspace" {
+  source                     = "../../modules/log_analytics_workspace"
+  environment                = var.environment
+  resource_group             = var.resource_group
+  resource_prefix            = var.resource_prefix
+  location                   = var.location
+  service_plan_id            = module.app_service_plan.service_plan_id
+  container_registry_id      = module.container_registry.container_registry_id
+  postgres_server_id         = module.database.postgres_server_id
+  application_key_vault_id   = module.key_vault.application_key_vault_id
+  app_config_key_vault_id    = module.key_vault.app_config_key_vault_id
+  client_config_key_vault_id = module.key_vault.client_config_key_vault_id
+  function_app_id            = module.function_app.function_app_id
+  front_door_id              = module.front_door.front_door_id
+  nat_gateway_id             = module.nat_gateway.nat_gateway_id
+  east_vnet_id               = module.vnet.east_vnet_id
+  west_vnet_id               = module.vnet.west_vnet_id
+  storage_account_id         = module.storage.storage_account_id
+  storage_public_id          = module.storage.storage_public_id
+  storage_partner_id         = module.storage.storage_partner_id
+}
 
 module "application_insights" {
   source             = "../../modules/application_insights"
@@ -214,7 +226,7 @@ module "application_insights" {
   location           = var.location
   is_metabase_env    = var.is_metabase_env
   pagerduty_url      = data.azurerm_key_vault_secret.pagerduty_url.value
-  postgres_server_id = [module.log_analytics_workspace.postgres_server_id]
-  service_plan_id    = [module.log_analytics_workspace.service_plan_id]
+  postgres_server_id = module.database.postgres_server_id
+  service_plan_id    = module.app_service_plan.service_plan_id
   workspace_id       = module.log_analytics_workspace.law_id
 }
