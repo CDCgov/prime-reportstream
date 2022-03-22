@@ -86,7 +86,7 @@ class PreviewCommand : CliktCommand(
     ).file(mustExist = true, mustBeReadable = true, canBeSymlink = true, canBeDir = false)
 
     private val organizationsFile by option(
-        "--deep-organizations-file",
+        "--organizations-file",
         metavar = "<file>",
         help = "A deep organizations.yml file for organizations, receivers and senders"
     ).file(mustExist = true, mustBeReadable = true, canBeSymlink = true, canBeDir = false)

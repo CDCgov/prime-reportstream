@@ -11,6 +11,8 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
@@ -81,13 +83,29 @@ class PreviewFunction(
      * Check for valid values with defaults are assumed if not specified.
      */
     fun checkRequest(request: HttpRequestMessage<String?>): FunctionParameters {
+        fun lookupReceiver(organizations: List<DeepOrganization>?, receiverName: String): Receiver? {
+            if (organizations == null) return null
+            return FileSettings()
+                .loadOrganizationList(organizations)
+                .findReceiver(receiverName)
+        }
+
+        fun lookupSender(organizations: List<DeepOrganization>?, senderName: String): Sender? {
+            if (organizations == null) return null
+            return FileSettings()
+                .loadOrganizationList(organizations)
+                .findSender(senderName)
+        }
+
         val body = request.body
             ?: badRequest("Missing body")
         val previewMessage = mapper.readValue(body, PreviewMessage::class.java)
         val receiver = previewMessage.receiver
+            ?: lookupReceiver(previewMessage.deepOrganizations, previewMessage.receiverName)
             ?: workflowEngine.settings.findReceiver(previewMessage.receiverName)
             ?: badRequest("Missing receiver")
         val sender = previewMessage.sender
+            ?: lookupSender(previewMessage.deepOrganizations, previewMessage.senderName)
             ?: workflowEngine.settings.findSender(previewMessage.senderName)
             ?: badRequest("Missing sender")
         return FunctionParameters(previewMessage, receiver, sender)
@@ -161,7 +179,7 @@ class PreviewFunction(
      * Summarize the [ActionLog]
      */
     private fun ActionLog.toSummary(): String {
-        return "$detail"
+        return "${detail.message}"
     }
 
     companion object {
