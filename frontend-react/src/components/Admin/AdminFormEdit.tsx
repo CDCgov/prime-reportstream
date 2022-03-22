@@ -1,10 +1,13 @@
 import {
-    Checkbox,
     Grid,
+    Checkbox,
     Label,
     Textarea,
     TextInput,
 } from "@trussworks/react-uswds";
+import { useRef } from "react";
+
+import { checkTextAreaJson } from "../../utils/misc";
 
 export const TextInputComponent = (params: {
     fieldname: string;
@@ -42,6 +45,8 @@ export const TextAreaComponent = (params: {
     savefunc: (val: object) => void;
     defaultnullvalue: string | null;
 }): JSX.Element => {
+    const inputRef = useRef<HTMLTextAreaElement>(null);
+
     let defaultValue = JSON.stringify(params?.defaultvalue, undefined, 2);
     if (
         defaultValue === "null" ||
@@ -62,17 +67,20 @@ export const TextAreaComponent = (params: {
             </Grid>
             <Grid col={9}>
                 <Textarea
+                    inputRef={inputRef}
                     id={key}
                     name={key}
                     defaultValue={defaultValue}
                     data-testid={key}
-                    onBlur={(e) =>
-                        params.savefunc(
-                            JSON.parse(
-                                e?.target?.value || (defaultnullvalue as string)
-                            )
-                        )
-                    }
+                    onBlur={(e) => {
+                        const text =
+                            e?.target?.value || (defaultnullvalue as string);
+                        const result = checkTextAreaJson(text, key, inputRef);
+                        if (result !== false) {
+                            // checkTextAreaJson made sure the following call won't throw.
+                            params.savefunc(result);
+                        }
+                    }}
                 />
             </Grid>
         </Grid>
