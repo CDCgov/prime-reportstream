@@ -7,18 +7,7 @@
     <meta name="theme-color" content="#000000" />
     <meta name="description" content="%REACT_APP_DESCRIPTION%"/>
     <% if (process.env.REACT_APP_ENV === 'dev.csp') { %>
-    <!--
-        this meta CSP is only needed for development. In production, it's in the http header
-        To use it:
-        1. open the .env.development and change
-           REACT_APP_BACKEND_URL=http://localhost:7071
-           TEST_CONTENT_SECURITY_POLICY=true
-        2. Build using yarn command `build:dev:csp`
-        3. Local server-side env must be running locally on port 7071
-        4. Run using yarn command `run:build-dir`
-
-        This only works `run:build-dir` because webpack's dynamic runtime updating does injection that violates CSP
-    -->
+    <!-- See CSP notes in README.md -->
     <meta
       http-equiv="Content-Security-Policy"
       content="
