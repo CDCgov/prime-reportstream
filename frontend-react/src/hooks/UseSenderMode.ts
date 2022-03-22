@@ -6,7 +6,6 @@ import { orgApi, Sender } from "../network/api/OrgApi";
 const useSenderMode = (defaultOrg?: string, defaultSender?: string): string => {
     const [status, setStatus] = useState<string>("active");
     const endpoint = useMemo(() => {
-        debugger;
         if (defaultOrg && defaultSender) {
             return orgApi.getSenderDetail(defaultOrg, defaultSender);
         }

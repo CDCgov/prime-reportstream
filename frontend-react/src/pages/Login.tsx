@@ -9,6 +9,7 @@ import { getOrganizationFromAccessToken } from "../webreceiver-utils";
 import { parseOrgs, setStoredOktaToken } from "../contexts/SessionStorageTools";
 import { oktaSignInConfig } from "../oktaConfig";
 import { SessionStorageContext } from "../contexts/SessionStorageContext";
+import { PERMISSIONS } from "../resources/PermissionsResource";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
@@ -21,12 +22,11 @@ export const Login = () => {
         // updateSessionStorage(values)
         const newOrg = parsedOrgs[0].org || "";
         const newSender = parsedOrgs[0].senderName || undefined;
-        debugger;
         updateSessionStorage({
-            org: newOrg,
+            // Sets admins to `ignore` org
+            org: newOrg.includes(PERMISSIONS.PRIME_ADMIN) ? newOrg : "ignore",
             senderName: newSender,
         });
-        debugger;
         setStoredOktaToken(tokens?.accessToken?.accessToken || "");
         oktaAuth.handleLoginRedirect(tokens);
     };

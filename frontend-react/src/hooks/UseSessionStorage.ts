@@ -27,7 +27,6 @@ const useSessionStorage = (): SessionController => {
     });
 
     const updateSessionStorage = (values: Partial<SessionStore>) => {
-        debugger;
         setValues({
             org: values.org,
             senderName: values.senderName,
