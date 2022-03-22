@@ -26,9 +26,9 @@ type SubmissionDetailsProps = {
     actionId: string | undefined;
 };
 
-/* 
+/*
     A component displaying a soft gray title and content in
-    standard black text. 
+    standard black text.
 
     @param item - the title of a property; e.g. Report ID
     @param content - the content of a property; e.g. 000000-0000-0000-000000
@@ -48,7 +48,7 @@ export function DetailItem({ item, content, subItem }: DetailItemProps) {
     );
 }
 
-/* 
+/*
     A component displaying information about a single destination
     returned from the waters/report/{submissionId}/history details API
 
@@ -91,7 +91,7 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
     );
 }
 
-/* 
+/*
     The page component showcasing details about a submission to the
     sender
 
@@ -149,7 +149,7 @@ function SubmissionDetailsContent() {
     }
 }
 
-/* 
+/*
     For a component to use the Suspense and NEB fallbacks, it must be nested within
     the according tags, hence this wrapper.
 */
@@ -158,7 +158,7 @@ function SubmissionDetails() {
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}
         >
-            <Suspense fallback={<Spinner fullPage />}>
+            <Suspense fallback={<Spinner size="fullpage" />}>
                 <SubmissionDetailsContent />
             </Suspense>
         </NetworkErrorBoundary>
