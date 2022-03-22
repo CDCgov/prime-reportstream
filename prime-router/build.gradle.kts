@@ -679,7 +679,7 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.17")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.5.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.7.1")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
@@ -724,7 +724,7 @@ dependencies {
     implementation("it.skrape:skrapeit-html-parser:1.2.0")
     implementation("it.skrape:skrapeit-http-fetcher:1.2.1")
     implementation("org.apache.poi:poi:5.2.1")
-    implementation("org.apache.poi:poi-ooxml:5.2.0")
+    implementation("org.apache.poi:poi-ooxml:5.2.2")
     implementation("commons-io:commons-io: 2.11.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
