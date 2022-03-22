@@ -372,3 +372,10 @@ h3 img[src*="svg"] {
 .rs-alert-toast {
     z-index: var(--rs-zindex-top+1);
 }
+
+// combined from parts from /node_modules/@fortawesome/fontawesome-svg-core/styles.css
+.rs-fa-right-left-icon {
+    color: #005ea2;
+    overflow: visible !important;
+    zoom: 0.5;
+}
