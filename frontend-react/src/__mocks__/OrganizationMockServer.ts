@@ -14,6 +14,12 @@ const handlers = [
             return res(ctx.json(dummySender), ctx.status(200));
         }
     ),
+    rest.get(
+        `https://test.prime.cdc.gov/api/settings/organizations/firstOrg/senders/firstSender`,
+        (req, res, ctx) => {
+            return res(ctx.status(200));
+        }
+    ),
 ];
 
 export const orgServer = setupServer(...handlers);

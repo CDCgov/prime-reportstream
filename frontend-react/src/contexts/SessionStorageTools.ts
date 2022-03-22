@@ -3,6 +3,7 @@
  * it if you can think of a better spot. */
 import { PERMISSIONS } from "../resources/PermissionsResource";
 import { groupToOrg } from "../webreceiver-utils";
+import { SessionStore } from "../hooks/UseSessionStorage";
 
 export enum GLOBAL_STORAGE_KEYS {
     GLOBAL_BASE = "global-context-",
@@ -18,19 +19,19 @@ export function clearGlobalContext(): void {
     }
 }
 
-export function parseOrgs(orgs: Array<string>) {
+export function parseOrgs(orgs: Array<string>): Array<Partial<SessionStore>> {
     // TODO: Parse orgs into objects with { org: string, sender?: string }
     return orgs.map((org) => {
         if (org.includes(PERMISSIONS.SENDER)) {
             const sender = org.split(".");
             return {
                 org: groupToOrg(sender[0]),
-                sender: sender[1] || "default",
+                senderName: sender[1] || "default",
             };
         } else {
             return {
                 org: groupToOrg(org),
-                sender: undefined,
+                senderName: undefined,
             };
         }
     });
@@ -49,32 +50,35 @@ export function storeParsedOrg(parsedVal: {
     }
 }
 
-export function getStoredOktaToken(): string {
-    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN) || "";
+export function getStoredOktaToken(): string | undefined {
+    return (
+        sessionStorage.getItem(GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN) ||
+        undefined
+    );
 }
 
 export function setStoredOktaToken(value: string) {
     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN, value);
 }
 
-export function getStoredOrg(): string {
-    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || "";
+export function getStoredOrg(): string | undefined {
+    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || undefined;
 }
 
 export function setStoredOrg(val: string) {
     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, val);
 }
 
-export function getStoredSenderMode(): string {
-    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.SENDER_MODE) || "";
+export function getStoredSenderMode(): string | undefined {
+    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.SENDER_MODE) || undefined;
 }
 
 export function setSenderMode(val: string) {
     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.SENDER_MODE, val);
 }
 
-export function getStoredSenderName(): string {
-    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.SENDER_NAME) || "";
+export function getStoredSenderName(): string | undefined {
+    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.SENDER_NAME) || undefined;
 }
 
 export function setStoredSenderName(val: string) {

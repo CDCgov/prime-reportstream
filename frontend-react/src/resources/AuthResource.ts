@@ -19,7 +19,7 @@ export default class AuthResource extends Resource {
             headers: {
                 ...init.headers,
                 Authorization: `Bearer ${accessToken}`,
-                Organization: organization,
+                Organization: organization || "",
             },
         };
     };

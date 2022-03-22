@@ -1,17 +1,17 @@
-import { ReactElement } from "react";
-import { useOktaAuth } from "@okta/okta-react";
+import { ReactElement, useContext } from "react";
 
 import useSenderMode from "../hooks/UseSenderMode";
+import { SessionStorageContext } from "../contexts/SessionStorageContext";
 
 const isNotActive = (val: string): boolean => {
     return val === "testing" || val === "inactive";
 };
 
 const SenderModeBanner = (): ReactElement | null => {
-    const auth = useOktaAuth();
-    const { status } = useSenderMode();
+    const session = useContext(SessionStorageContext);
+    const status = useSenderMode(session.values.org, session.values.senderName);
 
-    if (auth.authState?.isAuthenticated && isNotActive(status)) {
+    if (isNotActive(status)) {
         return <div>User is in testing mode</div>;
     }
 

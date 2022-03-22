@@ -5,7 +5,7 @@ import {
     setStoredSenderName,
     setStoredOrg,
 } from "../contexts/SessionStorageTools";
-import { renderWithRouter } from "../utils/CustomRenderUtils";
+import { renderWithSession } from "../utils/CustomRenderUtils";
 
 import SenderModeBanner from "./SenderModeBanner";
 
@@ -27,13 +27,9 @@ describe("SenderModeBanner", () => {
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
 
-    /* Test passes, but throws the ol' "wrap it with act()" warning
-     * in the console despite, you know, it being wrapped with act().
-     * This is related to the hook's effect that fetches data when
-     * state changes. */
     test("renders when sender is testing", async () => {
         act(() => {
-            renderWithRouter(<SenderModeBanner />);
+            renderWithSession(<SenderModeBanner />);
         });
         await waitFor(() => {
             expect(

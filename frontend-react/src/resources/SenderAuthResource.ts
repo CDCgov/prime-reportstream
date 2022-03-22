@@ -19,7 +19,7 @@ export default class SenderAuthResource extends AuthResource {
             headers: {
                 ...init.headers,
                 Authorization: `Bearer ${accessToken}`,
-                Organization: organization,
+                Organization: organization || "",
                 "authentication-type": "okta",
             },
         };

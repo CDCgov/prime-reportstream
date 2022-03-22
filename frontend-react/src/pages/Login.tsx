@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link, Redirect } from "react-router-dom";
 import { useOktaAuth } from "@okta/okta-react";
 import { SiteAlert } from "@trussworks/react-uswds";
@@ -6,21 +6,27 @@ import { Tokens } from "@okta/okta-auth-js";
 
 import OktaSignInWidget from "../components/OktaSignInWidget";
 import { getOrganizationFromAccessToken } from "../webreceiver-utils";
-import {
-    parseOrgs,
-    setStoredOktaToken,
-    storeParsedOrg,
-} from "../contexts/SessionStorageTools";
+import { parseOrgs, setStoredOktaToken } from "../contexts/SessionStorageTools";
 import { oktaSignInConfig } from "../oktaConfig";
+import { SessionStorageContext } from "../contexts/SessionStorageContext";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
+    const { updateSessionStorage } = useContext(SessionStorageContext);
 
     const onSuccess = (tokens: Tokens | undefined) => {
-        const parsed = parseOrgs(
+        const parsedOrgs = parseOrgs(
             getOrganizationFromAccessToken(tokens?.accessToken)
         );
-        storeParsedOrg(parsed[0]);
+        // updateSessionStorage(values)
+        const newOrg = parsedOrgs[0].org || "";
+        const newSender = parsedOrgs[0].senderName || undefined;
+        debugger;
+        updateSessionStorage({
+            org: newOrg,
+            senderName: newSender,
+        });
+        debugger;
         setStoredOktaToken(tokens?.accessToken?.accessToken || "");
         oktaAuth.handleLoginRedirect(tokens);
     };

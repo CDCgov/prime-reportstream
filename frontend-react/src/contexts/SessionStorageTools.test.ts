@@ -8,9 +8,9 @@ test("parseOrgs", () => {
         "DHSender_ignore",
     ]);
     expect(parsed).toEqual([
-        { org: "az-phd", sender: undefined },
-        { org: "PrimeAdmin", sender: undefined },
-        { org: "ignore", sender: "ignore-waters" },
-        { org: "ignore", sender: "default" },
+        { org: "az-phd", senderName: undefined },
+        { org: "PrimeAdmin", senderName: undefined },
+        { org: "ignore", senderName: "ignore-waters" },
+        { org: "ignore", senderName: "default" },
     ]);
 });

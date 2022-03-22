@@ -11,8 +11,8 @@ describe("useSessionStorage", () => {
     test("default values", () => {
         const { result } = renderHook(() => useSessionStorage());
 
-        expect(result.current.values.org).toBe("testOrg");
-        expect(result.current.values.senderName).toBe("testSender");
+        expect(result.current.values.org).toBe(undefined);
+        expect(result.current.values.senderName).toBe(undefined);
     });
 
     test("updates values in state and sessionStorage", async () => {

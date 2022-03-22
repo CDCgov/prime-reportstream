@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
+    getStoredOrg,
+    getStoredSenderName,
     setStoredOrg,
     setStoredSenderName,
 } from "../contexts/SessionStorageTools";
 
-interface SessionStore {
-    org: string;
-    senderName: string;
+export interface SessionStore {
+    org?: string;
+    senderName?: string;
 }
 
 export interface SessionController {
@@ -15,31 +17,37 @@ export interface SessionController {
     updateSessionStorage: (p: Partial<SessionStore>) => void;
 }
 
+/* TODO: this isn't reactively updating  */
 const useSessionStorage = (): SessionController => {
-    const [org, setOrg] = useState<string>("testOrg");
-    const [senderName, setSenderName] = useState<string>("testSender");
-    const state = useMemo(() => {
-        return {
-            org: org,
-            senderName: senderName,
-        };
-    }, [org, senderName]);
+    // const [org, setOrg] = useState<string | undefined>(getStoredOrg());
+    // const [senderName, setSenderName] = useState<string | undefined>(getStoredSenderName());
+    const [values, setValues] = useState<SessionStore>({
+        org: getStoredOrg(),
+        senderName: getStoredSenderName(),
+    });
 
     const updateSessionStorage = (values: Partial<SessionStore>) => {
-        if (values.org) setOrg(values.org);
-        if (values.senderName) setSenderName(values.senderName);
+        debugger;
+        setValues({
+            org: values.org,
+            senderName: values.senderName,
+        });
     };
 
     useEffect(() => {
-        setStoredOrg(org);
-    }, [org]);
+        if (values.org) {
+            setStoredOrg(values.org);
+        }
+    }, [values.org]);
 
     useEffect(() => {
-        setStoredSenderName(senderName);
-    }, [senderName]);
+        if (values.senderName) {
+            setStoredSenderName(values.senderName);
+        }
+    }, [values.senderName]);
 
     return {
-        values: state,
+        values: values,
         updateSessionStorage: updateSessionStorage,
     };
 };
