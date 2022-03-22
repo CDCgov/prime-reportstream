@@ -16,7 +16,7 @@ class SubmissionTests {
     fun `tests consolidation of logs`() {
         fun createLogs(logs: List<DetailActionLog>?): DetailedSubmissionHistory {
             return DetailedSubmissionHistory(
-                1, TaskAction.receive, OffsetDateTime.now(), null,
+                1, TaskAction.receive, OffsetDateTime.now(),
                 null, null, null, null, logs
             )
         }
