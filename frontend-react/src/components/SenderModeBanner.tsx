@@ -1,5 +1,5 @@
 import { ReactElement, useContext } from "react";
-import { Alert } from "@trussworks/react-uswds";
+import { IconWarning } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 
 import useSenderMode from "../hooks/UseSenderMode";
@@ -16,11 +16,22 @@ const SenderModeBanner = (): ReactElement | null => {
 
     if (isNotActive(status)) {
         return (
-            <Alert type="warning" slim>
-                <b>Onboarding: </b> Your account is not yet sending data to your
-                public health authority.{" "}
-                <NavLink to={ref}>Learn more about onboarding.</NavLink>
-            </Alert>
+            <section>
+                <header className="usa-banner__header bg-yellow">
+                    <div className="usa-banner__inner">
+                        <div className="grid-col-auto margin-right-1">
+                            <IconWarning />
+                        </div>
+                        <div className="grid-col-fill tablet:grid-col-auto">
+                            <b>Onboarding: </b> Your account is not yet sending
+                            data to your public health authority.{" "}
+                            <NavLink to={ref}>
+                                Learn more about onboarding.
+                            </NavLink>
+                        </div>
+                    </div>
+                </header>
+            </section>
         );
     }
 
