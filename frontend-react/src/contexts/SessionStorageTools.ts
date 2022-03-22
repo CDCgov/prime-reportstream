@@ -20,7 +20,6 @@ export function clearGlobalContext(): void {
 }
 
 export function parseOrgs(orgs: Array<string>): Array<Partial<SessionStore>> {
-    // TODO: Parse orgs into objects with { org: string, sender?: string }
     return orgs.map((org) => {
         if (org.includes(PERMISSIONS.SENDER)) {
             const sender = org.split(".");

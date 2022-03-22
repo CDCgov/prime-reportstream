@@ -1,7 +1,7 @@
 import { Api, ApiConfig, EndpointConfig } from "./Api";
 
 const config = new ApiConfig({
-    root: "http://testhost:420/api",
+    root: `${process.env.REACT_APP_BACKEND_URL}/api`,
     headers: {
         Authorization: "Bearer [token]",
     },
@@ -21,7 +21,7 @@ const testApi = new TestApi(config, "test");
 
 describe("ApiConfig", () => {
     test("Constructor assigns properties", () => {
-        expect(config.root).toEqual("http://testhost:420/api");
+        expect(config.root).toEqual(`${process.env.REACT_APP_BACKEND_URL}/api`);
         expect(config.headers).toEqual({
             Authorization: "Bearer [token]",
         });
@@ -37,7 +37,7 @@ describe("Api", () => {
     test("Endpoints generate correctly", () => {
         expect(testApi.getTestList()).toEqual({
             method: "GET",
-            url: "http://testhost:420/api/test",
+            url: `${process.env.REACT_APP_BACKEND_URL}/api/test`,
             headers: {
                 Authorization: "Bearer [token]",
             },

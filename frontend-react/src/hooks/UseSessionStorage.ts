@@ -17,19 +17,16 @@ export interface SessionController {
     updateSessionStorage: (p: Partial<SessionStore>) => void;
 }
 
-/* TODO: this isn't reactively updating  */
 const useSessionStorage = (): SessionController => {
-    // const [org, setOrg] = useState<string | undefined>(getStoredOrg());
-    // const [senderName, setSenderName] = useState<string | undefined>(getStoredSenderName());
     const [values, setValues] = useState<SessionStore>({
         org: getStoredOrg(),
         senderName: getStoredSenderName(),
     });
 
-    const updateSessionStorage = (values: Partial<SessionStore>) => {
+    const updateSessionStorage = (newValues: Partial<SessionStore>) => {
         setValues({
-            org: values.org,
-            senderName: values.senderName,
+            org: newValues.org,
+            senderName: newValues.senderName,
         });
     };
 
