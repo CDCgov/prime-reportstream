@@ -46,22 +46,28 @@ class DetailedSubmissionHistory(
     val id: String? = actionResponse?.id
     val destinations = mutableListOf<Destination>()
 
-    val errors = mutableListOf<DetailActionLog>()
-    val warnings = mutableListOf<DetailActionLog>()
+    /**
+     * Error log for the submission.
+     */
+    val errors = mutableListOf<ConsolidatedActionLog>()
+
+    /**
+     * Warning log for the submission.
+     */
+    val warnings = mutableListOf<ConsolidatedActionLog>()
 
     val topic: String? = actionResponse?.topic
 
-    val warningCount: Int
-        get() = warnings.size
+    val warningCount = logs?.count { it.type == ActionLogLevel.warning } ?: 0
 
-    val errorCount: Int
-        get() = errors.size
+    val errorCount = logs?.count { it.type == ActionLogLevel.error } ?: 0
 
     /**
-     * Number of destinations.
+     * Number of destinations that actually had/will have data sent to.
      */
-    val destinationCount: Int
-        get() = destinations.size
+    val destinationCount: Int get() {
+        return destinations.filter { it.itemCount != 0 }.size
+    }
 
     /**
      * Number of report items.
@@ -77,16 +83,16 @@ class DetailedSubmissionHistory(
                         report.receivingOrg,
                         report.receivingOrgSvc!!,
                         logs?.filter {
-                            it.type == ActionLog.ActionLogType.filter && it.reportId == report.reportId
-                        }?.map { it.message },
+                            it.type == ActionLogLevel.filter && it.reportId == report.reportId
+                        }?.map { it.detail.message },
                         report.nextActionAt,
                         report.itemCount,
                     )
                 )
             }
         }
-        errors.addAll(logs?.filter { it.type == ActionLog.ActionLogType.error } ?: emptyList())
-        warnings.addAll(logs?.filter { it.type == ActionLog.ActionLogType.warning } ?: emptyList())
+        errors.addAll(consolidateLogs(ActionLogLevel.error))
+        warnings.addAll(consolidateLogs(ActionLogLevel.warning))
     }
 
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
@@ -186,20 +192,136 @@ class DetailedSubmissionHistory(
             }
         }
     }
+
+    /**
+     * Consolidate the [logs] filtered by an optional [filterBy] action level, so to list similar messages once
+     * with a list of items they relate to.
+     * @return the consolidated list of logs
+     */
+    internal fun consolidateLogs(filterBy: ActionLogLevel? = null):
+        List<ConsolidatedActionLog> {
+        val consolidatedList = mutableListOf<ConsolidatedActionLog>()
+        if (logs != null) {
+            // First filter the logs and sort by the message.  This first sorting can take care of sorting old messages
+            // that contain index numbers like "Report 3: xxxx"
+            val filteredList = when (filterBy) {
+                null -> logs
+                else -> logs.filter { it.type == filterBy }
+            }.sortedBy { it.detail.message }
+            // Now order the list so that logs contain first non-item messages, then item messages, and item messages
+            // are sorted by index.
+            val orderedList = (
+                filteredList.filter { it.scope != ActionLogScope.item }.sortedBy { it.scope } +
+                    filteredList.filter { it.scope == ActionLogScope.item }.sortedBy { it.index }
+                ).toMutableList()
+            // Now consolidate the list
+            while (orderedList.isNotEmpty()) {
+                // Grab the first log.
+                val consolidatedLog = ConsolidatedActionLog(orderedList.first())
+                orderedList.removeFirst()
+                // Now find similar logs and consolidate it.  Note by using the iterator we can delete on the fly.
+                with(orderedList.iterator()) {
+                    forEach { log ->
+                        if (consolidatedLog.canBeConsolidatedWith(log)) {
+                            consolidatedLog.add(log)
+                            remove()
+                        }
+                    }
+                }
+                consolidatedList.add(consolidatedLog)
+            }
+        }
+        return consolidatedList
+    }
 }
 
+/**
+ * Consolidated action log class to be output to the API JSON response.
+ * @param log the base log message to be consolidated
+ */
+@JsonInclude(Include.NON_NULL)
+class ConsolidatedActionLog(log: DetailActionLog) {
+    /**
+     * The scope of the log.
+     */
+    val scope: ActionLogScope
+
+    /**
+     * The list of indices for item logs. An index can be null if there was no index provided with the log.
+     */
+    val indices: MutableList<Int?>?
+
+    /**
+     * The list of tracking IDs for item logs. A tracking ID can be null if there was no ID provided with the log.
+     */
+    val trackingIds: MutableList<String?>?
+
+    /**
+     * The log level.
+     */
+    @JsonIgnore
+    val type: ActionLogLevel
+
+    /**
+     * The field mapping for item logs.
+     */
+    val field: String?
+
+    /**
+     * The log message.
+     */
+    val message: String
+
+    init {
+        scope = log.scope
+        type = log.type
+        message = log.detail.message
+        if (log.detail is ItemActionLogDetail) {
+            field = log.detail.fieldMapping
+            indices = mutableListOf()
+            trackingIds = mutableListOf()
+        } else {
+            indices = null
+            trackingIds = null
+            field = null
+        }
+        add(log)
+    }
+
+    /**
+     * Add an action detail [log] to this consolidated log.
+     */
+    fun add(log: DetailActionLog) {
+        check(message == log.detail.message)
+        if (indices != null && trackingIds != null) {
+            indices.add(log.index)
+            trackingIds.add(log.trackingId)
+        }
+    }
+
+    /**
+     * Tests if a detail action log [other] can be consolidated into this existing consolidated log.
+     * @return true if the log can be consolidated, false otherwise
+     */
+    fun canBeConsolidatedWith(other: DetailActionLog): Boolean {
+        return this.message == other.detail.message && this.scope == other.scope && this.type == other.type
+    }
+}
+
+/**
+ * Detail action log class used to read the data from the database.
+ */
+@JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DetailActionLog(
-    val scope: ActionLog.ActionLogScope,
+    val scope: ActionLogScope,
     @JsonIgnore
     val reportId: UUID?,
     val index: Int?,
     val trackingId: String?,
-    val type: ActionLog.ActionLogType,
-    detail: ActionLogDetail,
-) {
-    val message: String = detail.detailMsg()
-}
+    val type: ActionLogLevel,
+    val detail: ActionLogDetail,
+)
 
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)

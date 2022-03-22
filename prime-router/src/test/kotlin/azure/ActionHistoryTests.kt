@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.ActionLog
-import gov.cdc.prime.router.ActionLogDetailType
+import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -434,7 +434,6 @@ class ActionHistoryTests {
             ActionLog(
                 reportId = r3.reportId,
                 detail = ReportStreamFilterResult(
-                    type = ActionLogDetailType.TRANSLATION,
                     filteredIndex = 1,
                     filterName = "isValidCLIA",
                     filterType = ReportStreamFilterType.QUALITY_FILTER,
@@ -443,8 +442,7 @@ class ActionHistoryTests {
                     originalCount = 2,
                     receiverName = org2.name
                 ),
-                scope = ActionLog.ActionLogScope.report,
-                type = ActionLog.ActionLogType.filter,
+                type = ActionLogLevel.filter,
             )
         )
 
@@ -462,16 +460,12 @@ class ActionHistoryTests {
 
         // filteredReportRows assertions
         assertThat(filteredReportRows.size()).isEqualTo(1)
-        val filteredRowString = "For filtered, filter isValidCLIA[testing_lab_clia, reporting_facility_clia]" +
-            " filtered out item FilterTest1 at index 1"
-        assertThat(filteredReportRows.get(0).textValue()).isEqualTo(filteredRowString)
 
         // filteredReportRowObjects assertions
         assertThat(filteredReportRowObjects.size()).isEqualTo(1)
 
         val firstFilteredObject = filteredReportRowObjects.get(0)
 
-        assertThat(firstFilteredObject.get("type").textValue()).isEqualTo(ActionLogDetailType.TRANSLATION.toString())
         assertThat(firstFilteredObject.get("filteredIndex").asInt()).isEqualTo(1)
         assertThat(firstFilteredObject.get("filterName").textValue()).isEqualTo("isValidCLIA")
         assertThat(firstFilteredObject.get("filterType").textValue())

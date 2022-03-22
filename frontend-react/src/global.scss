@@ -16,9 +16,6 @@
 
 @import "~@trussworks/react-uswds/lib/index.css";
 
-// Vendor Styles
-@import '~font-awesome/css/font-awesome.min.css';
-
 // Custom USWDS
 @import 'styles/uswds_overrides'; // _uswds_overrides.scss
 @import 'styles/reportstream';  // _reportstream.scss

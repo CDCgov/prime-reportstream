@@ -16,6 +16,7 @@ For example, as of this writing these filter functions are defined in our librar
 - orEquals
 - hasValidDataFor
 - hasAtLeastOneOf
+- atLeastOneHasValue  
 - allowAll
 - allowNone
 - isValidCLIA
