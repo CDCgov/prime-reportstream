@@ -95,8 +95,8 @@ const App = () => {
                     }}
                 >
                     <SessionProvider>
-                        <SenderModeBanner />
                         <GovBanner aria-label="Official government website" />
+                        <SenderModeBanner />
                         <ReportStreamHeader />
                         {/* Changed from main to div to fix weird padding issue at the top
                             caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
