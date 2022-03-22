@@ -24,7 +24,7 @@ export const Login = () => {
         const newSender = parsedOrgs[0].senderName || undefined;
         updateSessionStorage({
             // Sets admins to `ignore` org
-            org: newOrg.includes(PERMISSIONS.PRIME_ADMIN) ? newOrg : "ignore",
+            org: newOrg.includes(PERMISSIONS.PRIME_ADMIN) ? "ignore" : newOrg,
             senderName: newSender,
         });
         setStoredOktaToken(tokens?.accessToken?.accessToken || "");

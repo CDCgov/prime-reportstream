@@ -21,7 +21,11 @@ const RouterWrapper: FC = ({ children }) => {
 };
 
 const SessionWrapper: FC = ({ children }) => {
-    return <SessionProvider>{children}</SessionProvider>;
+    return (
+        <RouterWrapper>
+            <SessionProvider>{children}</SessionProvider>
+        </RouterWrapper>
+    );
 };
 
 const renderWithRouter = (
