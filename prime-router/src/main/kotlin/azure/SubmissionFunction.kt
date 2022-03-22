@@ -20,12 +20,9 @@ import java.util.UUID
  */
 
 class SubmissionFunction(
-    submissionsFacade: SubmissionsFacade = SubmissionsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
+    private val submissionsFacade: SubmissionsFacade = SubmissionsFacade.instance,
+    private val oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
 ) : Logging {
-    private val facade = submissionsFacade
-    private val oktaAuthentication = oktaAuthentication
-
     data class Parameters(
         val sort: String,
         val sortColumn: String,
@@ -97,10 +94,21 @@ class SubmissionFunction(
             try {
                 val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
                     Parameters(request.queryParameters)
-                val submissions = facade.findSubmissionsAsJson(
+                val sortOrder = try {
+                    SubmissionAccess.SortOrder.valueOf(qSortOrder)
+                } catch (e: IllegalArgumentException) {
+                    SubmissionAccess.SortOrder.DESC
+                }
+
+                val sortColumn = try {
+                    SubmissionAccess.SortColumn.valueOf(qSortColumn)
+                } catch (e: IllegalArgumentException) {
+                    SubmissionAccess.SortColumn.CREATED_AT
+                }
+                val submissions = submissionsFacade.findSubmissionsAsJson(
                     organization,
-                    qSortOrder,
-                    qSortColumn,
+                    sortOrder,
+                    sortColumn,
                     resultsAfterDate,
                     resultsBeforeDate,
                     pageSize,
@@ -126,7 +134,7 @@ class SubmissionFunction(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
             try {
-                val submission = facade.findSubmission(organization, submissionId)
+                val submission = submissionsFacade.findSubmission(organization, submissionId)
                 if (submission != null) HttpUtilities.okJSONResponse(request, submission)
                 else HttpUtilities.notFoundResponse(request, "Submission $submissionId was not found.")
             } catch (e: DataAccessException) {
@@ -161,7 +169,7 @@ class SubmissionFunction(
 
             if (reportUuid != null)
                 try {
-                    val submission = facade.findReport(organization, reportUuid)
+                    val submission = submissionsFacade.findReport(organization, reportUuid)
                     if (submission != null) HttpUtilities.okJSONResponse(request, submission)
                     else HttpUtilities.notFoundResponse(request, "Report $reportId was not found.")
                 } catch (e: DataAccessException) {

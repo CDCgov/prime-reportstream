@@ -24,6 +24,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -35,9 +36,7 @@ private const val PAYLOAD_NAME_PARAMETER = "payloadname"
 private const val OPTION_PARAMETER = "option"
 private const val DEFAULT_PARAMETER = "default"
 private const val ROUTE_TO_PARAMETER = "routeTo"
-private const val VERBOSE_PARAMETER = "verbose"
 private const val ALLOW_DUPLICATES_PARAMETER = "allowDuplicate"
-private const val VERBOSE_TRUE = "true"
 private const val PROCESSING_TYPE_PARAMETER = "processing"
 
 /**
@@ -150,7 +149,6 @@ class ReportFunction(
      * of the incoming PROCESSING_TYPE_PARAMETER query string value
      * @param request The incoming request
      * @param sender The sender record, pulled from the database based on sender name on the request
-     * @param context Execution context
      * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
      */
     internal fun processRequest(
@@ -159,14 +157,10 @@ class ReportFunction(
     ): HttpResponseMessage {
         // determine if we should be following the sync or async workflow
         val isAsync = processingType(request, sender) == ProcessingType.async
-        val responseBuilder = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .header(HttpHeaders.CONTENT_TYPE, "application/json")
-        // extract the verbose param and default to empty if not present
-        val verboseParam = request.queryParameters.getOrDefault(VERBOSE_PARAMETER, "")
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
-        val verbose = verboseParam.equals(VERBOSE_TRUE, true)
-        val report = try {
+        var httpStatus = HttpStatus.OK
+        try {
             val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
             val options = Options.valueOf(optionsText)
 
@@ -193,94 +187,88 @@ class ReportFunction(
             }
 
             actionHistory.trackActionSenderInfo(validatedRequest.sender.fullName, payloadName)
-            when (options) {
-                Options.CheckConnections, Options.ValidatePayload -> {
-                    responseBuilder.status(HttpStatus.OK)
-                    null
+            // Only process the report if we are not checking for connection or validation.
+            if (options != Options.CheckConnections && options != Options.ValidatePayload) {
+                val (report, actionLogs) = workflowEngine.parseReport(
+                    sender,
+                    validatedRequest.content,
+                    validatedRequest.defaults,
+                )
+
+                val receivedBlobInfo = workflowEngine.recordReceivedReport(
+                    report, rawBody, sender, actionHistory, payloadName
+                )
+
+                // Places a message on a queue for async testing of the fhir engine
+                // Only triggers if a feature flag is enabled
+                routeToFHIREngine(receivedBlobInfo, sender, workflowEngine.queue)
+
+                // checks for errors from parseReport
+                if (options != Options.SkipInvalidItems && actionLogs.hasErrors()) {
+                    throw actionLogs.exception
                 }
-                else -> {
-                    val (report, actionLogs) = workflowEngine.parseReport(
-                        sender,
-                        validatedRequest.content,
+
+                actionHistory.trackLogs(actionLogs.logs)
+
+                // call the correct processing function based on processing type
+                if (isAsync) {
+                    processAsync(
+                        report,
+                        options,
                         validatedRequest.defaults,
+                        validatedRequest.routeTo
                     )
-
-                    val receivedBlobInfo = workflowEngine.recordReceivedReport(
-                        report, rawBody, sender, actionHistory, payloadName
+                } else {
+                    val routingWarnings = workflowEngine.routeReport(
+                        report,
+                        options,
+                        validatedRequest.defaults,
+                        validatedRequest.routeTo,
+                        actionHistory
                     )
-
-                    // Places a message on a queue for async testing of the fhir engine
-                    // Only triggers if a feature flag is enabled
-                    routeToFHIREngine(receivedBlobInfo, sender, workflowEngine.queue)
-
-                    // checks for errors from parseReport
-                    if (options != Options.SkipInvalidItems && actionLogs.hasErrors()) {
-                        throw actionLogs.exception
-                    }
-
-                    actionHistory.trackLogs(actionLogs.logs)
-
-                    // call the correct processing function based on processing type
-                    if (isAsync) {
-                        processAsync(
-                            report,
-                            options,
-                            validatedRequest.defaults,
-                            validatedRequest.routeTo
-                        )
-                    } else {
-                        val routingWarnings = workflowEngine.routeReport(
-                            report,
-                            options,
-                            validatedRequest.defaults,
-                            validatedRequest.routeTo,
-                            actionHistory
-                        )
-                        actionHistory.trackLogs(routingWarnings)
-                    }
-
-                    responseBuilder.status(HttpStatus.CREATED)
-                    report
+                    actionHistory.trackLogs(routingWarnings)
                 }
+
+                httpStatus = HttpStatus.CREATED
             }
         } catch (e: ActionError) {
             actionHistory.trackLogs(e.details)
-            null
         } catch (e: IllegalArgumentException) {
             actionHistory.trackLogs(
                 ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
             )
-            null
+            httpStatus = HttpStatus.BAD_REQUEST
         } catch (e: IllegalStateException) {
             actionHistory.trackLogs(
                 ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
             )
-            null
+            httpStatus = HttpStatus.BAD_REQUEST
         }
 
-        responseBuilder.body(
-            actionHistory.createResponseBody(
-                verbose,
-                report,
-                workflowEngine.settings
-            )
-        )
-        val response = responseBuilder.build()
-        actionHistory.trackActionResult(response)
-        actionHistory.trackActionResponse(response, report, workflowEngine.settings)
+        actionHistory.trackActionResult(httpStatus)
         workflowEngine.recordAction(actionHistory)
+
+        check(actionHistory.action.actionId > 0)
+        val submission = SubmissionsFacade.instance.findSubmission(
+            actionHistory.action.sendingOrg,
+            actionHistory.action.actionId
+        )
+        val response = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+            .header(HttpHeaders.CONTENT_TYPE, "application/json")
+            .body(JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(submission))
+            .header(
+                HttpHeaders.LOCATION,
+                request.uri.resolve(
+                    "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
+                ).toString()
+            )
+            .build()
 
         // queue messages here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)
-        val uri = request.getUri()
-        responseBuilder.header(
-            HttpHeaders.LOCATION,
-            uri.resolve(
-                "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
-            ).toString()
-        )
+
         // TODO: having to build response twice in order to save it and then include a response with the resulting actionID
-        return responseBuilder.build()
+        return response
     }
 
     /**
@@ -303,7 +291,7 @@ class ReportFunction(
                     else -> {}
                 }
         } catch (t: Throwable) {
-            logger.error("Failed to queue message for FHIR Engine: No action required durring testing phase\n$t")
+            logger.error("Failed to queue message for FHIR Engine: No action required during testing phase\n$t")
         }
     }
 
@@ -328,7 +316,7 @@ class ReportFunction(
     }
 
     private fun processingType(request: HttpRequestMessage<String?>, sender: Sender): ProcessingType {
-        val processingTypeString = request.queryParameters.get(PROCESSING_TYPE_PARAMETER)
+        val processingTypeString = request.queryParameters[PROCESSING_TYPE_PARAMETER]
         return if (processingTypeString == null) {
             sender.processingType
         } else {

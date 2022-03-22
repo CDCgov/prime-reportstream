@@ -18,10 +18,9 @@ import java.util.UUID
  * @param actionId of the Submission is `action_id` from the `action` table
  * @param actionName of the Submission is `action_name` from the `action` table
  * @param createdAt of the Submission is `created_at` from the the `action` table
- * @param sendingOrg of the Submission is `sending_org` from the the `action` table
+ * @param sender of the Submission which includes the org and client name
  * @param httpStatus of the Submission is `http_status` from the the `action` table
  * @param externalName of the Submission is `external_name` from the the `action` table
- * @param actionResponse of the Submission is the structured JSON from the `action` table
  * @param reports of the Submission are the Reports related to the action from the `report_file` table
  * @param logs of the Submission are the Logs produced by the submission from the `action_log` table
  */
@@ -33,18 +32,23 @@ class DetailedSubmissionHistory(
     val actionName: TaskAction,
     @JsonProperty("timestamp")
     val createdAt: OffsetDateTime,
-    @JsonProperty("sender")
-    val sendingOrg: String?,
-    val httpStatus: Int?,
-    val externalName: String? = null,
-    @JsonIgnore
-    val actionResponse: DetailedActionResponse?,
+    var sender: String? = null,
+    val httpStatus: Int? = null,
+    var externalName: String? = null,
     @JsonIgnore
     var reports: MutableList<DetailReport>?,
     @JsonIgnore
     val logs: List<DetailActionLog>?
 ) {
-    val id: String? = actionResponse?.id
+    /**
+     * The report ID.
+     */
+    var id: String? = null
+        private set
+
+    /**
+     * The destinations.
+     */
     val destinations = mutableListOf<Destination>()
 
     /**
@@ -57,10 +61,20 @@ class DetailedSubmissionHistory(
      */
     val warnings = mutableListOf<ConsolidatedActionLog>()
 
-    val topic: String? = actionResponse?.topic
+    /**
+     * The schema topic.
+     */
+    var topic: String? = null
+        private set
 
+    /**
+     * The number of warnings.  Note this is not the number of consolidated warnings.
+     */
     val warningCount = logs?.count { it.type == ActionLogLevel.warning } ?: 0
 
+    /**
+     * The number of errors.  Note this is not the number of consolidated errors.
+     */
     val errorCount = logs?.count { it.type == ActionLogLevel.error } ?: 0
 
     /**
@@ -73,11 +87,11 @@ class DetailedSubmissionHistory(
     /**
      * Number of report items.
      */
-    val reportItemCount: Int?
-        get() = actionResponse?.reportItemCount
+    var reportItemCount: Int? = null
 
     init {
         reports?.forEach { report ->
+            // For reports sent to a destination
             report.receivingOrg?.let {
                 val filterLogs = logs?.filter {
                     it.type == ActionLogLevel.filter && it.reportId == report.reportId
@@ -96,6 +110,17 @@ class DetailedSubmissionHistory(
                         report.itemCount,
                     )
                 )
+            }
+
+            // For the report received from a sender
+            if (report.sendingOrg != null) {
+                // There can only be one!
+                check(id == null)
+                id = report.reportId.toString()
+                externalName = report.externalName
+                reportItemCount = report.itemCount
+                sender = ClientSource(report.sendingOrg, report.sendingOrgClient ?: "").name
+                topic = report.schemaTopic
             }
         }
         errors.addAll(consolidateLogs(ActionLogLevel.error))
@@ -340,17 +365,16 @@ data class DetailReport(
     val receivingOrg: String?,
     @JsonIgnore
     val receivingOrgSvc: String?,
+    @JsonIgnore
+    val sendingOrg: String?,
+    @JsonIgnore
+    val sendingOrgClient: String?,
+    @JsonIgnore
+    val schemaTopic: String?,
     val externalName: String?,
     val createdAt: OffsetDateTime?,
     val nextActionAt: OffsetDateTime?,
     val itemCount: Int
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class DetailedActionResponse(
-    val id: String?,
-    val topic: String?,
-    val reportItemCount: Int?
 )
 
 /**

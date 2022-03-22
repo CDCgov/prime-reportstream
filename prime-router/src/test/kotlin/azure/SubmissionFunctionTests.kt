@@ -7,7 +7,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionResponse
-import gov.cdc.prime.router.DetailedActionResponse
 import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SubmissionHistory
@@ -43,7 +42,6 @@ data class DetailSubmissionHistoryResponse(
     val sender: String?,
     val httpStatus: Int?,
     val externalName: String? = "",
-    val actionResponse: DetailedActionResponse? = null
 )
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -266,14 +264,15 @@ class SubmissionFunctionTests {
 
         // Good return
         val returnBody = DetailedSubmissionHistory(
-            100, TaskAction.receive, OffsetDateTime.now(), "org",
+            100, TaskAction.receive, OffsetDateTime.now(),
             null, null, null, null, null
         )
+        returnBody.sender = "org.client"
         every { mockSubmissionFacade.findReport(any(), any()) } returns returnBody
         response = function.getReportHistory(mockRequest, "org", goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         val responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
-        assertThat(responseBody.sender).isEqualTo(returnBody.sendingOrg)
+        assertThat(responseBody.sender).isEqualTo(returnBody.sender)
     }
 }
