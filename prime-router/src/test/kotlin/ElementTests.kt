@@ -328,21 +328,21 @@ internal class ElementTests {
             one.toNormalized("12502021")
         } catch (e: IllegalStateException) {
             assertThat(e.message)
-                .isEqualTo("Invalid date time: '12502021' for format 'null' for element 'datetime' ('a')")
+                .isEqualTo("Invalid date time: '12502021' for format 'null' for element datetime (a)")
         }
         // Test wrong month = 13
         try {
             one.toNormalized("13/2/2021")
         } catch (e: IllegalStateException) {
             assertThat(e.message)
-                .isEqualTo("Invalid date time: '13/2/2021' for format 'null' for element 'datetime' ('a')")
+                .isEqualTo("Invalid date time: '13/2/2021' for format 'null' for element datetime (a)")
         }
         // Test wrong year = abcd
         try {
             one.toNormalized("abcd/12/3")
         } catch (e: IllegalStateException) {
             assertThat(e.message)
-                .isEqualTo("Invalid date time: 'abcd/12/3' for format 'null' for element 'datetime' ('a')")
+                .isEqualTo("Invalid date time: 'abcd/12/3' for format 'null' for element datetime (a)")
         }
     }
 

@@ -244,7 +244,7 @@ class DateUtilitiesTests {
     fun `check temporal accessor coercion`() {
         // set up our variables and mock
         // arrange
-        val rightNow = Instant.now()
+        val rightNow = Instant.now().atZone(ZoneId.of("US/Eastern"))
         val hl7Configuration = mockk<Hl7Configuration>()
         every { hl7Configuration.convertDateTimesToReceiverLocalTime } returns true
         val destination = mockk<Receiver>()
@@ -253,10 +253,10 @@ class DateUtilitiesTests {
         val report = mockk<Report>()
         every { report.destination } returns destination
         // act & assert
-        rightNow.atZone(ZoneId.of("US/Eastern")).let {
+        rightNow.let {
             assertThat(it.toLocalDateTime()).isEqualTo(rightNow.toLocalDateTime())
         }
-        OffsetDateTime.from(rightNow.atZone(ZoneId.of("US/Eastern"))).let {
+        OffsetDateTime.from(rightNow).let {
             assertThat(it.toLocalDateTime()).isEqualTo(rightNow.toLocalDateTime())
         }
     }
