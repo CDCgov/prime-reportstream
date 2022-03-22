@@ -5,8 +5,7 @@ on:
     branches:
       - master
       - production
-      - dev-rheft
-      - ronheft/test-investigation
+      - test
 
 defaults:
   run:

@@ -29,6 +29,7 @@ import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
+import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -432,13 +433,16 @@ class Hl7Serializer(
     ): ORU_R01 {
         val message = ORU_R01()
         message.initQuickstart(MESSAGE_CODE, MESSAGE_TRIGGER_EVENT, processingId)
+
+        val hl7Report = report.copy()
         // set up our configuration
-        val hl7Config = report.destination?.translation as? Hl7Configuration
+        val hl7Config = hl7Report.destination?.translation as? Hl7Configuration
         val replaceValue = hl7Config?.replaceValue ?: emptyMap()
         val replaceValueAwithB = hl7Config?.replaceValueAwithB ?: emptyMap()
         val cliaForSender = hl7Config?.cliaForSender ?: emptyMap()
         val suppressQst = hl7Config?.suppressQstForAoe ?: false
         val suppressAoe = hl7Config?.suppressAoe ?: false
+        val applyOTCDefault = hl7Config?.applyOTCDefault ?: false
         val useOrderingFacilityName = hl7Config?.useOrderingFacilityName
             ?: Hl7Configuration.OrderingFacilityName.STANDARD
         val stripInvalidCharactersRegex: Regex? = hl7Config?.stripInvalidCharsRegex?.let {
@@ -459,6 +463,7 @@ class Hl7Serializer(
             ?.convertTimestampToDateTime
             ?.split(",")
             ?.map { it.trim() } ?: emptyList()
+
         // start processing
         var aoeSequence = 1
         var nteSequence = 0
@@ -469,10 +474,10 @@ class Hl7Serializer(
         val reportElements = if (hl7Config?.valueSetOverrides.isNullOrEmpty()) {
             // there are no value set overrides, so we are going to just pass back out the
             // existing collection of schema elements
-            report.schema.elements
+            hl7Report.schema.elements
         } else {
             // we do have valueset overrides, so we need to replace any elements in place
-            report.schema.elements.map { elem ->
+            hl7Report.schema.elements.map { elem ->
                 // if we're dealing with a code type (which uses a valueset), check if we need to replace
                 if (elem.isCodeType) {
                     // is there a replacement valueset in our collection?
@@ -490,6 +495,11 @@ class Hl7Serializer(
                 }
             }
         }
+
+        if (applyOTCDefault) {
+            applyOTCDefault(hl7Report, row)
+        }
+
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
@@ -515,7 +525,7 @@ class Hl7Serializer(
                 element.hl7Field != null &&
                 (value.equals("ASKU", true) || value.equals("UNK", true))
             ) {
-                setComponent(terser, element, element.hl7Field, repeat = null, value = "", report)
+                setComponent(terser, element, element.hl7Field, repeat = null, value = "", hl7Report)
                 return@forEach
             }
 
@@ -524,26 +534,26 @@ class Hl7Serializer(
                     if (suppressedFields.contains(hl7Field))
                         return@outputFields
                     if (element.hl7Field != null && element.isTableLookup) {
-                        setComponentForTable(terser, element, hl7Field, report, row, hl7Config)
+                        setComponentForTable(terser, element, hl7Field, hl7Report, row, hl7Config)
                     } else {
-                        setComponent(terser, element, hl7Field, repeat = null, value, report)
+                        setComponent(terser, element, hl7Field, repeat = null, value, hl7Report)
                     }
                 }
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER && !suppressAoe) {
                 if (value.isNotBlank()) {
-                    val units = report.getString(row, "${element.name}_units")
-                    val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                    setAOE(terser, element, aoeSequence++, date, value, report, row, units, suppressQst)
+                    val units = hl7Report.getString(row, "${element.name}_units")
+                    val date = hl7Report.getString(row, "specimen_collection_date_time") ?: ""
+                    setAOE(terser, element, aoeSequence++, date, value, hl7Report, row, units, suppressQst)
                 }
             } else if (element.hl7Field == "AOE" && !suppressAoe) {
                 if (value.isNotBlank()) {
-                    val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                    setAOE(terser, element, aoeSequence++, date, value, report, row, suppressQst = suppressQst)
+                    val date = hl7Report.getString(row, "specimen_collection_date_time") ?: ""
+                    setAOE(terser, element, aoeSequence++, date, value, hl7Report, row, suppressQst = suppressQst)
                 } else {
                     // if the value is null but we're defaulting
                     if (hl7Config?.defaultAoeToUnknown == true) {
-                        val date = report.getString(row, "specimen_collection_date_time") ?: ""
-                        setAOE(terser, element, aoeSequence++, date, "UNK", report, row, suppressQst = suppressQst)
+                        val date = hl7Report.getString(row, "specimen_collection_date_time") ?: ""
+                        setAOE(terser, element, aoeSequence++, date, "UNK", hl7Report, row, suppressQst = suppressQst)
                     }
                 }
             } else if (element.hl7Field == "ORC-21-1") {
@@ -553,7 +563,7 @@ class Hl7Serializer(
                     value
                 }
                 setOrderingFacilityComponent(
-                    terser, rawFacilityName = truncatedValue, useOrderingFacilityName, report, row
+                    terser, rawFacilityName = truncatedValue, useOrderingFacilityName, hl7Report, row
                 )
             } else if (element.hl7Field == "NTE-3" && value.isNotBlank()) {
                 setNote(terser, nteSequence++, value)
@@ -563,15 +573,15 @@ class Hl7Serializer(
                     element,
                     "MSH-7",
                     repeat = null,
-                    value = formatter.format(report.createdDateTime),
-                    report
+                    value = formatter.format(hl7Report.createdDateTime),
+                    hl7Report
                 )
             } else if (element.hl7Field == "MSH-11") {
-                setComponent(terser, element, "MSH-11", repeat = null, processingId, report)
+                setComponent(terser, element, "MSH-11", repeat = null, processingId, hl7Report)
             } else if (element.hl7Field != null && element.isTableLookup) {
-                setComponentForTable(terser, element, report, row, hl7Config)
+                setComponentForTable(terser, element, hl7Report, row, hl7Config)
             } else if (!element.hl7Field.isNullOrEmpty()) {
-                setComponent(terser, element, element.hl7Field, repeat = null, value, report)
+                setComponent(terser, element, element.hl7Field, repeat = null, value, hl7Report)
             }
         }
         // make sure all fields we're suppressing are empty
@@ -581,7 +591,7 @@ class Hl7Serializer(
         }
 
         if (hl7Config?.suppressNonNPI == true &&
-            report.getString(row, "ordering_provider_id_authority_type") != "NPI"
+            hl7Report.getString(row, "ordering_provider_id_authority_type") != "NPI"
         ) {
             // Suppress the ordering_provider_id if not an NPI
             for (hl7Field in listOf("ORC-12-1", "OBR-16-1", "ORC-12-9", "OBR-16-9", "ORC-12-13", "OBR-16-13")) {
@@ -629,7 +639,7 @@ class Hl7Serializer(
             }
 
             if (!originState.isNullOrEmpty()) {
-                val stateCode = report.destination?.let { settings.findOrganization(it.organizationName)?.stateCode }
+                val stateCode = hl7Report.destination?.let { settings.findOrganization(it.organizationName)?.stateCode }
 
                 if (!originState.equals(stateCode)) {
                     val sendingFacility = "MSH-4-2"
@@ -640,7 +650,7 @@ class Hl7Serializer(
         }
 
         // get sender id for the record
-        val senderID = report.getString(row, "sender_id") ?: ""
+        val senderID = hl7Report.getString(row, "sender_id") ?: ""
 
         // loop through CLIA resets
         cliaForSender.forEach { (sender, clia) ->
@@ -659,6 +669,109 @@ class Hl7Serializer(
 
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
         return message
+    }
+
+    private fun applyOTCDefault(
+        report: Report,
+        row: Int
+    ) {
+        fun setAddress(
+            field: String,
+            address: String,
+            city: String,
+            state: String,
+            zipCode: String,
+            countyCode: String
+        ) {
+            if (address.isNullOrEmpty() &&
+                city.isNullOrEmpty() &&
+                state.isNullOrEmpty() &&
+                zipCode.isNullOrEmpty() &&
+                countyCode.isNullOrEmpty()
+            ) {
+                report.setString(row, field.plus("_street"), "11 Fake AtHome Test Street")
+                report.setString(row, field.plus("_city"), "Yakutat")
+                report.setString(row, field.plus("_state"), "AK")
+                report.setString(row, field.plus("_zip_code"), "99689")
+                report.setString(row, field.plus("_county_code"), "02282")
+            }
+        }
+        report.setString(row, "reporting_facility_name", "PRIME OTC")
+        report.setString(row, "reporting_facility_clia", "0OCDCPRIME")
+
+        val testResultStatus = report.getString(row, "test_result_status") ?: ""
+        if (testResultStatus.isNullOrEmpty()) {
+            report.setString(row, "test_result_status", "F")
+        }
+
+        val senderId = report.getString(row, "sender_id") ?: ""
+        if (!senderId.isNullOrEmpty()) {
+            val comment = report.getString(row, "comment")
+            report.setString(
+                row,
+                "comment",
+                comment
+                    .plus(" Original sending organization name: ")
+                    .plus(senderId)
+            )
+        }
+
+        val orderingProviderFirstName = report.getString(row, "ordering_provider_first_name") ?: ""
+        if (orderingProviderFirstName.isNullOrEmpty()) {
+            report.setString(row, "ordering_provider_first_name", "SA.OverTheCounter")
+        }
+        val orderingFacilityName = report.getString(row, "ordering_facility_name") ?: ""
+        if (orderingFacilityName.isNullOrEmpty()) {
+            report.setString(row, "ordering_facility_name", "SA.OverTheCounter")
+        }
+        val testingLabName = report.getString(row, "testing_lab_name") ?: ""
+        if (testingLabName.isNullOrEmpty()) {
+            report.setString(row, "testing_lab_name", "SA.OverTheCounter")
+        }
+
+        val orderingFacilityStreet = report.getString(row, "ordering_facility_street") ?: ""
+        val orderingFacilityCity = report.getString(row, "ordering_facility_city") ?: ""
+        val orderingFacilityState = report.getString(row, "ordering_facility_state") ?: ""
+        val orderingFacilityZipCode = report.getString(row, "ordering_facility_zip_code") ?: ""
+        val orderingFacilityCountyCode = report.getString(row, "ordering_facility_county_code") ?: ""
+
+        setAddress(
+            "ordering_facility",
+            orderingFacilityStreet,
+            orderingFacilityCity,
+            orderingFacilityState,
+            orderingFacilityZipCode,
+            orderingFacilityCountyCode
+        )
+
+        val orderingFacilityPhoneNumber = report.getString(row, "ordering_facility_phone_number") ?: ""
+        if (orderingFacilityPhoneNumber.isNullOrEmpty()) {
+            report.setString(row, "ordering_facility_phone_number", "1111111111:1:")
+        }
+
+        val testingLabStreet = report.getString(row, "testing_lab_street") ?: ""
+        val testingLabCity = report.getString(row, "testing_lab_city") ?: ""
+        val testingLabState = report.getString(row, "testing_lab_state") ?: ""
+        val testingLabZipCode = report.getString(row, "testing_lab_zip_code") ?: ""
+        val testingLabCountyCode = report.getString(row, "testing_lab_county_code") ?: ""
+
+        setAddress(
+            "testing_lab",
+            testingLabStreet,
+            testingLabCity,
+            testingLabState,
+            testingLabZipCode,
+            testingLabCountyCode
+        )
+
+        val testingLabClia = report.getString(row, "testing_lab_clia") ?: ""
+        if (testingLabClia.isNullOrEmpty()) {
+            report.setString(row, "testing_lab_clia", "00Z0000014")
+        }
+        val testingLabIdAssigner = report.getString(row, "testing_lab_id_assigner") ?: ""
+        if (testingLabIdAssigner.isNullOrEmpty()) {
+            report.setString(row, "testing_lab_id_assigner", "CLIA^2.16.840.1.113883.4.7^ISO")
+        }
     }
 
     /**
@@ -760,7 +873,6 @@ class Hl7Serializer(
         report: Report,
         row: Int,
     ) {
-
         when (useOrderingFacilityName) {
             // No overrides
             Hl7Configuration.OrderingFacilityName.STANDARD -> {
@@ -778,7 +890,9 @@ class Hl7Serializer(
 
             // Override with organization name if available
             Hl7Configuration.OrderingFacilityName.ORGANIZATION_NAME -> {
-                val organizationName = report.getString(row, "organization_name") ?: rawFacilityName
+                val organizationName = StringUtils.trimToNull(
+                    report.getString(row, "organization_name")
+                ) ?: rawFacilityName
                 setPlainOrderingFacility(terser, organizationName)
             }
         }
@@ -1231,7 +1345,7 @@ class Hl7Serializer(
 
     private fun setAOE(
         terser: Terser,
-        element: Element,
+        elementOrg: Element,
         aoeRep: Int,
         date: String,
         value: String,
@@ -1241,6 +1355,13 @@ class Hl7Serializer(
         suppressQst: Boolean = false,
     ) {
         val hl7Config = report.destination?.translation as? Hl7Configuration
+        // if the value is UNK then we need to set data type to CODE and valueet = hl70136 (UNK)
+        val element = when {
+            value == "UNK" && elementOrg.name == "pregnant" ->
+                elementOrg.copy(type = Element.Type.CODE, valueSet = "covid-19/pregnant_aoe")
+            value == "UNK" -> elementOrg.copy(type = Element.Type.CODE, valueSet = "hl70136")
+            else -> elementOrg
+        }
         // if the value type is a date, we need to specify that for the AOE questions
         val valueType = when (element.type) {
             Element.Type.DATE -> "DT"
@@ -1255,7 +1376,11 @@ class Hl7Serializer(
         setCodeComponent(terser, aoeQuestion, formPathSpec("OBX-3", aoeRep), "covid-19/aoe")
 
         when (element.type) {
-            Element.Type.CODE -> setCodeComponent(terser, value, formPathSpec("OBX-5", aoeRep), element.valueSet)
+            Element.Type.CODE -> if (value == "UNK" && elementOrg.name == "pregnant")
+            // 261665006 is unknow code valueSet
+                setCodeComponent(terser, "261665006", formPathSpec("OBX-5", aoeRep), element.valueSet)
+            else
+                setCodeComponent(terser, value, formPathSpec("OBX-5", aoeRep), element.valueSet)
             Element.Type.NUMBER -> {
                 if (element.name != "patient_age") TODO("support other types of AOE numbers")
                 if (units == null) error("Schema Error: expected age units")
