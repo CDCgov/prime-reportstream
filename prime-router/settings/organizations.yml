@@ -2817,8 +2817,8 @@
         useBatchHeaders: true
         suppressHl7Fields: PID-5-7, ORC-12-1, ORC-16-1
         replaceValueAwithB:
-          ORC-12-2: ["":"Unknow", "Crona":"Joe","Bode":"John;@:,"]
-          ORC-12-3: ["":"Unknow", "Lashay":"Smith","Waldo":"Doe"]
+          ORC-12-2: ["":"Unknown"]
+          ORC-12-3: ["":"Unknown"]
         valueSetOverrides:
           hl70189:
             name: hl70189
@@ -3188,7 +3188,13 @@
         receivingFacilityName: dn1fro00
         receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
         suppressQstForAoe: true
-        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
+        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3, OBR-25-2, OBR-25-3, OBX-2-2, OBX-2-3, OBX-11-2, OBX-11-3
+        replaceValueAwithB:
+          MSH-3: ["PHX.ProviderReportingService":
+                     "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO",
+                  "Medasource^OID^ISO":
+                      "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+                ]
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
         useOrderingFacilityName: ORGANIZATION_NAME
       timing:
@@ -3225,7 +3231,13 @@
         receivingFacilityName: dn1fro00
         receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
         suppressQstForAoe: true
-        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
+        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3, OBR-25-2, OBR-25-3, OBX-2-2, OBX-2-3, OBX-11-2, OBX-11-3
+        replaceValueAwithB:
+          MSH-3: ["PHX.ProviderReportingService":
+                    "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO",
+                  "Medasource^OID^ISO":
+                    "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+                ]
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
         useOrderingFacilityName: ORGANIZATION_NAME
       timing:
