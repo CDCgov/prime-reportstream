@@ -211,8 +211,8 @@ export const Upload = () => {
             response.errors.map((errorMsg: any) =>
                 errorMsg.rowList = (errorMsg.indices && errorMsg.indices.length > 0) ? errorMsg.indices.join(", ") : ""
             );
+            setErrors(response.errors);
         }
-        setErrors(response.errors);
         setButtonText("Upload another file");
         // Changing the key to force the FileInput to reset. Otherwise it won't recognize changes to the file's content unless the file name changes
         setFileInputResetValue(fileInputResetValue + 1);
