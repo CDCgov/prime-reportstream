@@ -143,8 +143,8 @@ class FakeDataService : Logging {
         fun createFakeCodeValue(element: Element): String {
             return when (element.name) {
                 "specimen_source_site_code" -> "71836000"
-                "test_result_status" -> randomChoice("F", "C", "")
-                "processing_mode_code" -> randomChoice("P", "")
+                "test_result_status" -> randomChoice("F", "C")
+                "processing_mode_code" -> "P"
                 "value_type" -> "CWE"
                 "test_result" ->
                     // Reduce the choice to between detected, not detected, and uncertain for more typical results
