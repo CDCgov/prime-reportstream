@@ -248,7 +248,7 @@ class ReportFunctionTests {
 
         // assert
         verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any(), any()) }
-        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+        verify(exactly = 2) { actionHistory.trackActionSenderInfo(any(), any()) }
     }
 
     // test duplicate override = true
@@ -346,6 +346,6 @@ class ReportFunctionTests {
 
         // assert
         verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any(), any()) }
-        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+        verify(exactly = 2) { actionHistory.trackActionSenderInfo(any(), any()) }
     }
 }
