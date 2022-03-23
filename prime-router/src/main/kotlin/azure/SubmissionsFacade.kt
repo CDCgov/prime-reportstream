@@ -31,7 +31,6 @@ class SubmissionsFacade(
      *
      * @return a String representation of an array of actions.
      */
-    // Leaving separate from FindSubmissions to encapsulate json serialization
     fun findSubmissionsAsJson(
         organizationName: String,
         sortOrder: SubmissionAccess.SortOrder,
