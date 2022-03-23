@@ -102,6 +102,7 @@ class DetailedSubmissionHistory(
      * Number of report items.
      */
     var reportItemCount: Int? = null
+        internal set
 
     init {
         reports?.forEach { report ->
