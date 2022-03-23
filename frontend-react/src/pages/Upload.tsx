@@ -9,22 +9,18 @@ import {
 import { useResource } from "rest-hooks";
 import { useOktaAuth } from "@okta/okta-react";
 import moment from "moment";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSync } from "@fortawesome/free-solid-svg-icons";
 
 import { senderClient } from "../webreceiver-utils";
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
 import { getStoredOrg } from "../components/GlobalContextProvider";
 import { showError } from "../components/AlertNotifications";
+import Spinner from "../components/Spinner";
 
 // values taken from Report.kt
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
 const REPORT_MAX_ITEMS = 10000;
 const REPORT_MAX_ITEM_COLUMNS = 2000;
 // const REPORT_MAX_ERRORS = 100;
-
-library.add(faSync);
 
 export const Upload = () => {
     const { authState } = useOktaAuth();
@@ -363,11 +359,7 @@ export const Upload = () => {
                 >
                     {isSubmitting && (
                         <span>
-                            <FontAwesomeIcon
-                                icon="sync"
-                                spin
-                                className="margin-right-05"
-                            />
+                            <Spinner />
                             <span>Processing file...</span>
                         </span>
                     )}
