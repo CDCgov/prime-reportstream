@@ -163,11 +163,12 @@ class ReportFunction(
         try {
             val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
             val options = Options.valueOf(optionsText)
+            val payloadName = extractPayloadName(request)
+            actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
 
             // track the sending organization and client based on the header
             val validatedRequest = validateRequest(request)
             val rawBody = validatedRequest.content.toByteArray()
-            val payloadName = extractPayloadName(request)
 
             // if the override parameter is populated, use that, otherwise use the sender value
             val allowDuplicates = if
@@ -186,7 +187,6 @@ class ReportFunction(
                 workflowEngine.verifyNoDuplicateFile(sender, digest, payloadName)
             }
 
-            actionHistory.trackActionSenderInfo(validatedRequest.sender.fullName, payloadName)
             // Only process the report if we are not checking for connection or validation.
             if (options != Options.CheckConnections && options != Options.ValidatePayload) {
                 val (report, actionLogs) = workflowEngine.parseReport(
@@ -233,6 +233,7 @@ class ReportFunction(
             }
         } catch (e: ActionError) {
             actionHistory.trackLogs(e.details)
+            httpStatus = HttpStatus.BAD_REQUEST
         } catch (e: IllegalArgumentException) {
             actionHistory.trackLogs(
                 ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)

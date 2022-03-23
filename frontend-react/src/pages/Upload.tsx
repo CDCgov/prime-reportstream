@@ -205,11 +205,14 @@ export const Upload = () => {
             // Noop.  Errors are collected below
         }
 
+        // Process the error messages
         if (response?.errors && response.errors.length > 0) {
-            // Add a string to properly display the indices.
-            response.errors.map((errorMsg: any) => errorMsg.rowList = errorMsg.indices.join(", "))
-            setErrors(response.errors);
+            // Add a string to properly display the indices if available.
+            response.errors.map((errorMsg: any) =>
+                errorMsg.rowList = (errorMsg.indices && errorMsg.indices.length > 0) ? errorMsg.indices.join(", ") : ""
+            );
         }
+        setErrors(response.errors);
         setButtonText("Upload another file");
         // Changing the key to force the FileInput to reset. Otherwise it won't recognize changes to the file's content unless the file name changes
         setFileInputResetValue(fileInputResetValue + 1);

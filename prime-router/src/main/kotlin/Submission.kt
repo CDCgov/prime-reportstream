@@ -131,7 +131,8 @@ class DetailedSubmissionHistory(
             if (report.sendingOrg != null) {
                 // There can only be one!
                 check(id == null)
-                id = report.reportId.toString()
+                // Reports with errors do not show an ID
+                id = if (errorCount == 0) report.reportId.toString() else null
                 externalName = report.externalName
                 reportItemCount = report.itemCount
                 sender = ClientSource(report.sendingOrg, report.sendingOrgClient ?: "").name

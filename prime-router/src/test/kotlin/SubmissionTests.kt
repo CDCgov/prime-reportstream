@@ -263,6 +263,23 @@ class SubmissionTests {
             assertThat(externalName).isEqualTo(inputReport.externalName)
         }
 
+        DetailedSubmissionHistory(
+            1, TaskAction.receive, OffsetDateTime.now(), null, reports,
+            listOf(
+                DetailActionLog(
+                    ActionLogScope.item, UUID.randomUUID(), 1, null, ActionLogLevel.error,
+                    InvalidEquipmentMessage("")
+                )
+            )
+        ).run {
+            assertThat(actionId).isEqualTo(1)
+            assertThat(id).isEqualTo(null)
+            assertThat(sender).isEqualTo(ClientSource(inputReport.sendingOrg!!, inputReport.sendingOrgClient!!).name)
+            assertThat(topic).isEqualTo(inputReport.schemaTopic)
+            assertThat(reportItemCount).isEqualTo(inputReport.itemCount)
+            assertThat(externalName).isEqualTo(inputReport.externalName)
+        }
+
         reports = listOf(inputReport, inputReport).toMutableList()
         assertThat {
             DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, reports, null)
