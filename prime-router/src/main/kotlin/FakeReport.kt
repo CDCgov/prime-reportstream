@@ -122,7 +122,14 @@ class FakeDataService : Logging {
             val possibleValues = if (altValues?.isNotEmpty() == true) {
                 altValues.map { it.code }.toTypedArray()
             } else {
-                valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
+                if (element.cardinality?.name == "ZERO_OR_ONE" && element.type == Element.Type.CODE) {
+                    // Pick random code from the ValueSet.Value and add ""
+                    val code = valueSet?.values?.asSequence()?.shuffled()?.take(1)?.map { it.code }
+                        ?.toList()?.toTypedArray() ?: arrayOf("")
+                    code.plus("")
+                } else {
+                    valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
+                }
             }
 
             return randomChoice(*possibleValues)
@@ -136,8 +143,8 @@ class FakeDataService : Logging {
         fun createFakeCodeValue(element: Element): String {
             return when (element.name) {
                 "specimen_source_site_code" -> "71836000"
-                "test_result_status" -> randomChoice("F", "C")
-                "processing_mode_code" -> "P"
+                "test_result_status" -> randomChoice("F", "", "C", "")
+                "processing_mode_code" -> randomChoice("P", "")
                 "value_type" -> "CWE"
                 "test_result" ->
                     // Reduce the choice to between detected, not detected, and uncertain for more typical results
