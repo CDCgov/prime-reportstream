@@ -69,7 +69,7 @@ enum class Options {
  * @property filteredTrackingElement The trackingElement value of the rows removed.
  * Note that we can't guarantee the Sender is sending good unique trackingElement values.
  */
-open class ReportStreamFilterResult(
+data class ReportStreamFilterResult(
     val receiverName: String,
     val originalCount: Int,
     val filterName: String,
