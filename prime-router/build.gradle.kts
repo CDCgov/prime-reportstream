@@ -37,7 +37,7 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.6.10"
-    id("com.avast.gradle.docker-compose") version "0.15.1"
+    id("com.avast.gradle.docker-compose") version "0.15.2"
 }
 
 group = "gov.cdc.prime"
@@ -721,7 +721,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
-    implementation("it.skrape:skrapeit-html-parser:1.2.0")
+    implementation("it.skrape:skrapeit-html-parser:1.2.1")
     implementation("it.skrape:skrapeit-http-fetcher:1.2.1")
     implementation("org.apache.poi:poi:5.2.1")
     implementation("org.apache.poi:poi-ooxml:5.2.2")
