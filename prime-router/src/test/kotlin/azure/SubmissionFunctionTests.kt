@@ -17,6 +17,7 @@ import gov.cdc.prime.router.cli.tests.ExpectedSubmissionHistory
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.mockk.every
 import io.mockk.mockk
+import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import org.junit.jupiter.api.TestInstance
 import java.time.OffsetDateTime
@@ -48,7 +49,7 @@ data class DetailSubmissionHistoryResponse(
 )
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SubmissionFunctionTests {
+class SubmissionFunctionTests : Logging {
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : SubmissionAccess {
@@ -123,7 +124,7 @@ class SubmissionFunctionTests {
     fun `test list submissions`() {
         val testCases = listOf(
             SubmissionUnitTestCase(
-                emptyMap(),
+                mapOf("authorization" to "Bearer 111.222.333"),
                 emptyMap(),
                 ExpectedAPIResponse(
                     HttpStatus.UNAUTHORIZED
@@ -216,6 +217,7 @@ class SubmissionFunctionTests {
         )
 
         testCases.forEach {
+            logger.info("Executing list submissions unit test ${it.name}")
             val httpRequestMessage = MockHttpRequestMessage()
             httpRequestMessage.httpHeaders += it.headers
             httpRequestMessage.parameters += it.parameters
