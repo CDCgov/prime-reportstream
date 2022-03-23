@@ -11,7 +11,7 @@ import gov.cdc.prime.router.metadata.Mapper
 import gov.cdc.prime.router.metadata.Mappers
 import gov.cdc.prime.router.metadata.UseMapper
 import org.apache.logging.log4j.kotlin.Logging
-import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.util.Locale
 import java.util.Random
 import java.util.concurrent.TimeUnit
@@ -86,16 +86,19 @@ class FakeDataService : Logging {
                 element.nameContains("DOB") -> faker.date().birthday(0, 100)
                 else -> faker.date().past(10, TimeUnit.DAYS)
             }
-            val formatter = SimpleDateFormat(DateUtilities.datePattern)
-            return formatter.format(date)
+            return date.toInstant().atZone(ZoneId.of("UTC")).let {
+                DateUtilities.getDateAsFormattedString(
+                    it,
+                    DateUtilities.datePattern
+                )
+            }
         }
 
         // creates a fake date time and then formats it
         fun createFakeDateTime(): String {
             val date = faker.date().past(10, TimeUnit.DAYS)
-            // local date time pattern does not include the offset
-            val formatter = SimpleDateFormat(DateUtilities.localDateTimePattern)
-            return formatter.format(date)
+                .toInstant().atZone(ZoneId.of("UTC"))
+            return DateUtilities.getDateAsFormattedString(date, DateUtilities.datetimePattern)
         }
 
         // creates a fake phone number for the element
