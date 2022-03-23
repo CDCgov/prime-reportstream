@@ -12,7 +12,7 @@ const isNotActive = (val: string): boolean => {
 const SenderModeBanner = (): ReactElement | null => {
     const session = useContext(SessionStorageContext);
     const status = useSenderMode(session.values.org, session.values.senderName);
-    const ref = "/getting-started/testing-facilities/overview";
+    const path = "/getting-started/testing-facilities/overview";
 
     if (isNotActive(status)) {
         return (
@@ -25,7 +25,7 @@ const SenderModeBanner = (): ReactElement | null => {
                         <div className="grid-col-fill tablet:grid-col-auto">
                             <b>Onboarding: </b> Your account is not yet sending
                             data to your public health authority.{" "}
-                            <NavLink to={ref}>
+                            <NavLink to={path}>
                                 Learn more about onboarding.
                             </NavLink>
                         </div>

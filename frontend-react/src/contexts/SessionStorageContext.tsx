@@ -1,13 +1,11 @@
-import { createContext, FC, useMemo } from "react";
+import { createContext, FC } from "react";
 
-import useSessionStorage, { SessionStore } from "../hooks/UseSessionStorage";
+import useSessionStorage, {
+    SessionController,
+    SessionStore,
+} from "../hooks/UseSessionStorage";
 
-interface ISessionContext {
-    values: SessionStore;
-    updateSessionStorage: (store: Partial<SessionStore>) => void;
-}
-
-export const SessionStorageContext = createContext<ISessionContext>({
+export const SessionStorageContext = createContext<SessionController>({
     values: {},
     updateSessionStorage: (store: Partial<SessionStore>) => {
         console.log("to please SonarCloud");
@@ -15,14 +13,7 @@ export const SessionStorageContext = createContext<ISessionContext>({
 });
 
 const SessionProvider: FC = ({ children }) => {
-    const { values, updateSessionStorage } = useSessionStorage();
-
-    const payload = useMemo(() => {
-        return {
-            values: values,
-            updateSessionStorage: updateSessionStorage,
-        };
-    }, [values, updateSessionStorage]);
+    const payload = useSessionStorage();
 
     return (
         <SessionStorageContext.Provider value={payload}>

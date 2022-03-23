@@ -10,7 +10,7 @@ export const dummySender: Sender = {
     organizationName: "testOrg",
     format: "CSV",
     topic: "covid-19",
-    customerStatus: "testing", // Narrow this down to it's possible values
+    customerStatus: "testing",
     schemaName: "test/covid-19-test",
 };
 

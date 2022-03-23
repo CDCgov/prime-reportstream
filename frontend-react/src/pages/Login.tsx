@@ -19,7 +19,6 @@ export const Login = () => {
         const parsedOrgs = parseOrgs(
             getOrganizationFromAccessToken(tokens?.accessToken)
         );
-        // updateSessionStorage(values)
         const newOrg = parsedOrgs[0].org || "";
         const newSender = parsedOrgs[0].senderName || undefined;
         updateSessionStorage({

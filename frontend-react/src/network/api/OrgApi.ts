@@ -7,7 +7,7 @@ export interface Sender {
     organizationName: string;
     format: "CSV" | "HL7";
     topic: string;
-    customerStatus: string; // Narrow this down to it's possible values
+    customerStatus: "inactive" | "testing" | "active";
     schemaName: string;
 }
 
@@ -25,36 +25,14 @@ interface OrgMeta {
     createdAt: string;
 }
 
-export class Organization {
-    constructor(
-        name: string,
-        description: string,
-        jurisdiction: string,
-        stateCode: string,
-        countyName: string,
-        filters: Array<OrgFilters>,
-        meta: OrgMeta
-    ) {
-        this.name = name;
-        this.description = description;
-        this.jurisdiction = jurisdiction;
-        this.stateCode = stateCode;
-        this.countyName = countyName;
-        this.filters = filters;
-        this.meta = meta;
-    }
-
-    name: string = "";
-    description: string = "";
-    jurisdiction: string = "";
-    stateCode: string = "";
-    countyName: string = "";
-    filters: Array<OrgFilters> = [];
-    meta: OrgMeta = {
-        version: -1,
-        createdBy: "",
-        createdAt: "",
-    };
+export interface Organization {
+    name: string;
+    description: string;
+    jurisdiction: string;
+    stateCode: string;
+    countyName: string;
+    filters: Array<OrgFilters>;
+    meta: OrgMeta;
 }
 
 class OrgApi extends Api {

@@ -8,19 +8,14 @@ import { SessionStore } from "../hooks/UseSessionStorage";
 export enum GLOBAL_STORAGE_KEYS {
     GLOBAL_BASE = "global-context-",
     GLOBAL_ORG = "global-context-org",
-    SENDER_MODE = "global-sender-mode",
     SENDER_NAME = "global-sender-name",
     OKTA_ACCESS_TOKEN = "global-okta-token",
 }
 
-export function clearGlobalContext(): void {
-    for (let key in sessionStorage) {
-        sessionStorage.removeItem(key);
-    }
-}
-
 export function parseOrgs(orgs: Array<string>): Array<Partial<SessionStore>> {
     return orgs.map((org) => {
+        // Org names are case sensitive. This condition will fail if the okta
+        // group name is not cased properly: DHSender_xyz, DHxy_phd, DHPrimeAdmin
         if (org.includes(PERMISSIONS.SENDER)) {
             const sender = org.split(".");
             return {
@@ -34,19 +29,6 @@ export function parseOrgs(orgs: Array<string>): Array<Partial<SessionStore>> {
             };
         }
     });
-}
-
-export function storeParsedOrg(parsedVal: {
-    org: string;
-    sender: string | undefined;
-}) {
-    // Sets az-phd as default when Admins have no state or sender orgs
-    if (parsedVal.org.includes("PrimeAdmin")) {
-        setStoredOrg("az-phd");
-    } else {
-        setStoredOrg(parsedVal.org);
-        setStoredSenderName(parsedVal.sender || "");
-    }
 }
 
 export function getStoredOktaToken(): string | undefined {
