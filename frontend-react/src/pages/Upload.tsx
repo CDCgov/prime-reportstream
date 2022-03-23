@@ -208,8 +208,12 @@ export const Upload = () => {
         // Process the error messages
         if (response?.errors && response.errors.length > 0) {
             // Add a string to properly display the indices if available.
-            response.errors.map((errorMsg: any) =>
-                errorMsg.rowList = (errorMsg.indices && errorMsg.indices.length > 0) ? errorMsg.indices.join(", ") : ""
+            response.errors.map(
+                (errorMsg: any) =>
+                    (errorMsg.rowList =
+                        errorMsg.indices && errorMsg.indices.length > 0
+                            ? errorMsg.indices.join(", ")
+                            : "")
             );
             setErrors(response.errors);
         }
