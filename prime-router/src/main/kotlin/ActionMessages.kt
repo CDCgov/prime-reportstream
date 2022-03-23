@@ -141,3 +141,10 @@ class InvalidReportMessage(override val message: String) : GenericActionLogDetai
  */
 class InvalidTranslationMessage(override val message: String) :
     GenericActionLogDetail(message, ActionLogScope.translation)
+
+/**
+ * A [message] for non-error details.
+ */
+class FhirActionLogDetail(
+    override val message: String
+) : GenericActionLogDetail(message, ActionLogScope.fhir_processing)
