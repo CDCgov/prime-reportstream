@@ -7,7 +7,9 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.PrincipalLevel
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.time.OffsetDateTime
@@ -136,11 +138,15 @@ class SubmissionFunction(
                     facade.fetchAction(submissionId) ?: error("No such submissionId $submissionId")
                 }
 
+                // Confirm this is actually a submission.
+                if (action.sendingOrg == null || action.actionName != TaskAction.receive) {
+                    HttpUtilities.notFoundResponse(request, "$id is not a submitted report")
+                }
+
                 // Confirm these claims allow access to this Action
                 if (!facade.checkActionAccessAuthorization(action, claims)) {
                     error("Access to $id denied")
                 }
-                // TODO remove the sendingOrg arg.  Not needed since this is checked in [checkActionAccessAuthorization]
                 val submission = facade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)
                 if (submission != null) HttpUtilities.okJSONResponse(request, submission)
                 else HttpUtilities.notFoundResponse(request, "Submission $submissionId was not found.")

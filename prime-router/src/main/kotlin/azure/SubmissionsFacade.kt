@@ -4,9 +4,9 @@ import gov.cdc.prime.router.DetailActionLog
 import gov.cdc.prime.router.DetailReport
 import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.SubmissionHistory
-import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -162,15 +162,14 @@ class SubmissionsFacade(
         claims: AuthenticatedClaims,
     ): Boolean {
         return when {
-            claims.principalLevel == PrincipalLevel.SYSTEM_ADMIN -> true
-            action.actionName != TaskAction.receive -> {
-                logger.warn("Requested submissionId ${action.actionId} is not a 'receive' action")
-                false
-            }
-            action.sendingOrg == claims.organizationName -> true
+            // Admins always get access
+            claims.isPrimeAdmin -> true
+            // User has a sending organization claim, and that sendingOrg matches the action's sendingOrg
+            (claims.isSenderOrgClaim ?: false) && (action.sendingOrg == claims.organizationNameClaim) -> true
             else -> {
                 logger.error(
-                    "User from org ${claims.organizationName} denied access to action_id ${action.actionId}" +
+                    "User from org '${claims.organizationNameClaim}'" +
+                        " denied access to action_id ${action.actionId}" +
                         " submitted by ${action.sendingOrg}"
                 )
                 false

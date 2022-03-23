@@ -27,6 +27,7 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.PrincipalLevel
 import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 

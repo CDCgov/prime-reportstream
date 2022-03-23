@@ -9,6 +9,7 @@ import gov.cdc.prime.router.DetailReport
 import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import io.mockk.every
 import io.mockk.mockk
 import java.time.OffsetDateTime
@@ -58,22 +59,33 @@ class SubmissionsFacadeTests {
 
         // Regular user Happy path test.
         var action = resetAction()
-        var claims = AuthenticatedClaims("Mary", PrincipalLevel.USER, "myOrg", emptyMap())
+        val userClaims: Map<String, Any> = mapOf(
+            "organization" to listOf("DHSender_myOrg"),
+            "sub" to "bob@bob.com"
+        )
+        var claims = AuthenticatedClaims(userClaims)
         assertThat(facade.checkActionAccessAuthorization(action, claims)).isTrue()
 
         // Sysadmin happy path:   Sysadmin user ok to be in a different org.
-        claims = AuthenticatedClaims("Mo", PrincipalLevel.SYSTEM_ADMIN, "different", emptyMap())
+        val adminClaims: Map<String, Any> = mapOf(
+            "organization" to listOf("DHfoobar", "DHPrimeAdmins"),
+            "sub" to "bob@bob.com"
+        )
+        claims = AuthenticatedClaims(adminClaims)
         assertThat(facade.checkActionAccessAuthorization(action, claims)).isTrue()
 
-        // Error tests for regular users:
-        claims = AuthenticatedClaims("Frank", PrincipalLevel.USER, "myOrg", emptyMap())
-
+        // Error: Regular user and Orgs don't match
+        claims = AuthenticatedClaims(userClaims)
         action = resetAction()
         action.sendingOrg = "UnhappyOrg" // mismatch sendingOrg
         assertThat(facade.checkActionAccessAuthorization(action, claims)).isFalse()
 
-        action = resetAction()
-        action.actionName = TaskAction.process // Not a 'receive' action
+        // Error: Org matches, but its not a sending org.
+        val notSendingOrg: Map<String, Any> = mapOf(
+            "organization" to listOf("DHmyOrg"),
+            "sub" to "bob@bob.com"
+        )
+        claims = AuthenticatedClaims(notSendingOrg)
         assertThat(facade.checkActionAccessAuthorization(action, claims)).isFalse()
     }
 }
