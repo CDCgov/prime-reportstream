@@ -281,6 +281,8 @@ class ReportFunction(
         // queue messages here after all task / action records are in
         if (!bypassMessageQueue)
             actionHistory.queueMessages(workflowEngine)
+        else
+            responseBuilder.status(HttpStatus.BAD_REQUEST)
 
         val uri = request.getUri()
         responseBuilder.header(
