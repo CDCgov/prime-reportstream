@@ -42,7 +42,11 @@ object DateUtilities {
         "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]" +
         "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]" +
         "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]"
-    /** A list of accepted date formats to try and parse to */
+    /**
+     * A list of accepted date formats to try and parse to, one by one. In some instances it is
+     * better to try and parse a date with a single pattern instead of the large variable date time
+     * pattern above.
+     **/
     val allowedDateFormats = listOf(
         "[yyyyMMdd[HHmm][ss][.S][Z]]", "[yyyy-MM-dd HH:mm:ss.ZZZ]",
         "[uuuuMMddHHmmss[.nnnn][Z]][uuuuMMddHHmm[.nnnn][Z]]",
@@ -141,7 +145,8 @@ object DateUtilities {
                     LocalDate::from
                 )
         } catch (t: Throwable) {
-            // our variable pattern has failed. let's try each one-by-one
+            // our variable pattern has failed. let's try each one-by-one. if none of them
+            // work, throw an error
             allowedDateFormats.forEach { format ->
                 val parsedDate = parseDate(dateValue, format)
                 if (parsedDate != null) return parsedDate
@@ -168,10 +173,11 @@ object DateUtilities {
     }
 
     /**
-     * Given a temporal accessor this will check the type that it needs to return
-     * and then output based on the format. you can extend this to accept a third
-     * variable which would be the element's output format, and do an extra branch
-     * based on that
+     * Given a [temporalAccessor] this will check the type that it needs to return
+     * and then output based on the [outputFormat]. It finally checks to see if
+     * [convertPositiveOffsetToNegative] is true, and if it is, it will flip
+     * the bit in the offset from +0000 to -0000 for those locations that want to
+     * or can only accept a negative offset
      */
     fun getDateAsFormattedString(
         temporalAccessor: TemporalAccessor,
@@ -245,8 +251,10 @@ object DateUtilities {
     }
 
     /**
-     * Given a temporal accessor and a report object, this will attempt to format the date for a
-     * receiver, by doing some checking on what is set for the receiver of the report.
+     * Given a [dateTimeValue] and a [report] object, this will attempt to format the date for a
+     * receiver, by doing some checking on what is set for the receiver of the report. It also accepts
+     * a [dateTimeFormat] that it will use first if it exists, and then the one from the [report]
+     * object, and then finally default to the [DateTimeFormat.OFFSET] value.
      */
     fun formatDateForReceiver(
         dateTimeValue: TemporalAccessor,
@@ -303,7 +311,7 @@ object DateUtilities {
         return formatDateForReceiver(timestamp, report)
     }
 
-    /** tries to parse the string value, and if it passes, returns true, otherwise false */
+    /** tries to parse the string [value], and if it passes, returns true, otherwise false */
     fun tryParse(value: String? = null): Boolean {
         if (value == null || StringUtils.trimToNull(value) == null) return false
         return try {
@@ -422,6 +430,10 @@ object DateUtilities {
         )
     }
 
+    /**
+     * Given any [dateTimeFormat] and [convertPositiveDateTimeOffsetToNegative] value, attempts to format the
+     * TemporalAccessor to a string value
+     **/
     fun TemporalAccessor.asFormattedString(
         dateTimeFormat: String? = null,
         convertPositiveDateTimeOffsetToNegative: Boolean = false

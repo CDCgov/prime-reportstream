@@ -86,6 +86,9 @@ class FakeDataService : Logging {
                 element.nameContains("DOB") -> faker.date().birthday(0, 100)
                 else -> faker.date().past(10, TimeUnit.DAYS)
             }
+            // Faker returns an older style Java date, which we need to convert to an
+            // instance, and then also set to UTC, so we can then format it for our purposes.
+            // The Java date object is super hard to work with and brittle.
             return date.toInstant().atZone(ZoneId.of("UTC")).let {
                 DateUtilities.getDateAsFormattedString(
                     it,
@@ -96,6 +99,9 @@ class FakeDataService : Logging {
 
         // creates a fake date time and then formats it
         fun createFakeDateTime(): String {
+            // Faker returns an older style Java date, which we need to convert to an
+            // instance, and then also set to UTC, so we can then format it for our purposes.
+            // The Java date object is super hard to work with and brittle.
             val date = faker.date().past(10, TimeUnit.DAYS)
                 .toInstant().atZone(ZoneId.of("UTC"))
             return DateUtilities.getDateAsFormattedString(date, DateUtilities.datetimePattern)

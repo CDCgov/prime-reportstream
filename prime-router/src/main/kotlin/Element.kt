@@ -307,7 +307,10 @@ data class Element(
             Type.BLANK -> ""
             Type.DATETIME -> {
                 try {
+                    // parse the date back out from the normalized value
                     val ta = DateUtilities.parseDate(cleanedNormalizedValue)
+                    // output the date time value as a formatted string, either using the format
+                    // provided or defaulting to the date time pattern
                     DateUtilities.getDateAsFormattedString(ta, format ?: DateUtilities.datetimePattern)
                 } catch (_: Throwable) {
                     cleanedNormalizedValue
@@ -315,7 +318,10 @@ data class Element(
             }
             Type.DATE -> {
                 try {
+                    // parse the date back out from the normalized value
                     val ta = DateUtilities.parseDate(cleanedNormalizedValue)
+                    // output the date value as a formatted string, either using the format
+                    // provided or defaulting to the date time pattern
                     DateUtilities.getDateAsFormattedString(ta, format ?: DateUtilities.datePattern)
                 } catch (_: Throwable) {
                     cleanedNormalizedValue
@@ -462,13 +468,13 @@ data class Element(
         if (cleanedValue == null && !isOptional && !canBeBlank) return MissingFieldMessage(fieldMapping)
 
         return when (type) {
+            // in this case, we can try to parse both a date and a date time
+            // the date utilities method will handle either and if it succeeds, it's valid
             Type.DATE, Type.DATETIME -> {
                 try {
                     DateUtilities.parseDate(cleanedValue)
                     null
-                } catch (e: Throwable) {
-                    println(e.localizedMessage)
-                    println(e.stackTraceToString())
+                } catch (_: Throwable) {
                     if (nullifyValue) {
                         null
                     } else {
@@ -562,12 +568,10 @@ data class Element(
                     DateUtilities
                         .parseDate(cleanedFormattedValue)
                         .asFormattedString(DateUtilities.datePattern)
-                } catch (t: Throwable) {
+                } catch (_: Throwable) {
                     if (nullifyValue) {
                         ""
                     } else {
-                        println(t.localizedMessage)
-                        println(t.stackTraceToString())
                         error("Invalid date: '$cleanedFormattedValue' for format '$format' for element $fieldMapping")
                     }
                 }
@@ -578,12 +582,10 @@ data class Element(
                         .parseDate(cleanedFormattedValue)
                         .toOffsetDateTime()
                         .asFormattedString(DateUtilities.datetimePattern)
-                } catch (t: Throwable) {
+                } catch (_: Throwable) {
                     if (nullifyValue) {
                         ""
                     } else {
-                        println(t.localizedMessage)
-                        println(t.stackTraceToString())
                         error(
                             "Invalid date time: '$cleanedFormattedValue' for format '$format' for element $fieldMapping"
                         )
