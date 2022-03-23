@@ -12,8 +12,8 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.FhirActionLogDetail
 import gov.cdc.prime.router.InvalidTranslationMessage
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.http.extensions.contentType
 import gov.cdc.prime.router.cli.tests.CompareData
@@ -31,7 +31,10 @@ const val fhirQueueName = "fhir-raw-received"
 /**
  * Process will work through all the reports waiting in the 'process' queue
  */
-class FHIRFlowFunctions : Logging {
+class FHIRFlowFunctions(
+    private val workflowEngine: WorkflowEngine = WorkflowEngine(),
+    private val actionHistory: ActionHistory = ActionHistory(TaskAction.fhir_processing)
+) : Logging {
     /**
      * An azure function for processing an HL7 message into of FHIR
      */
@@ -46,8 +49,6 @@ class FHIRFlowFunctions : Logging {
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         val responseBuilder = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-        val actionHistory = ActionHistory(TaskAction.translate)
-
         try {
             val hl7messages = HL7.decode(request.body)
             val body = buildString {
@@ -66,13 +67,11 @@ class FHIRFlowFunctions : Logging {
             )
         }
 
-        val workflowEngine = WorkflowEngine.Builder().metadata(Metadata.getInstance()).build()
         val response = responseBuilder.build()
 
         // despite similar names, these fns save different data
         actionHistory.trackActionRequestResponse(request, response)
         actionHistory.trackActionResponse(response, null, workflowEngine.settings)
-        workflowEngine.recordAction(actionHistory)
 
         return response
     }
@@ -102,12 +101,25 @@ class FHIRFlowFunctions : Logging {
         val hl7 = HL7.decode(String(blobContent))
         val result = hl7.first().encode()
 
+        val log: String
+        val type: ActionLogLevel
+
         val comparison = compare(String(blobContent), result)
         if (!comparison.passed) {
-            logger.debug("Failed on message $message\n$comparison")
+            log = "Failed on message $message\n$comparison"
+            type = ActionLogLevel.error
         } else {
-            logger.debug("Successfully processed $message")
+            log = "Successfully processed $message"
+            type = ActionLogLevel.info
         }
+
+        logger.debug(log)
+
+        actionHistory.trackLogs(
+            ActionLog(FhirActionLogDetail(log), type = type)
+        )
+
+        workflowEngine.recordAction(actionHistory)
     }
 
     /**
