@@ -37,7 +37,7 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.6.10"
-    id("com.avast.gradle.docker-compose") version "0.15.1"
+    id("com.avast.gradle.docker-compose") version "0.15.2"
 }
 
 group = "gov.cdc.prime"
@@ -650,7 +650,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.25.0")
+    implementation("com.azure:azure-core:1.26.0")
     implementation("com.azure:azure-core-http-netty:1.11.7")
     implementation("com.azure:azure-storage-blob:12.14.4") {
         exclude(group = "com.azure", module = "azure-core")
@@ -702,7 +702,7 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("org.flywaydb:flyway-core:8.5.2")
+    implementation("org.flywaydb:flyway-core:8.5.4")
     implementation("org.commonmark:commonmark:0.18.2")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("com.helger.as2:as2-lib:4.10.0")
@@ -721,7 +721,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
-    implementation("it.skrape:skrapeit-html-parser:1.2.0")
+    implementation("it.skrape:skrapeit-html-parser:1.2.1")
     implementation("it.skrape:skrapeit-http-fetcher:1.2.1")
     implementation("org.apache.poi:poi:5.2.1")
     implementation("org.apache.poi:poi-ooxml:5.2.2")
