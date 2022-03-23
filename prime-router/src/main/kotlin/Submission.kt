@@ -18,13 +18,17 @@ import java.util.UUID
  * @param actionId of the Submission is `action_id` from the `action` table
  * @param actionName of the Submission is `action_name` from the `action` table
  * @param createdAt of the Submission is `created_at` from the the `action` table
- * @param sender of the Submission which includes the org and client name
  * @param httpStatus of the Submission is `http_status` from the the `action` table
- * @param externalName of the Submission is `external_name` from the the `action` table
  * @param reports of the Submission are the Reports related to the action from the `report_file` table
  * @param logs of the Submission are the Logs produced by the submission from the `action_log` table
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder(
+    value = [
+        "id", "submissionId", "timestamp", "sender", "reportItemCount",
+        "errorCount", "warningCount"
+    ]
+)
 class DetailedSubmissionHistory(
     @JsonProperty("submissionId")
     val actionId: Long,
@@ -32,9 +36,7 @@ class DetailedSubmissionHistory(
     val actionName: TaskAction,
     @JsonProperty("timestamp")
     val createdAt: OffsetDateTime,
-    var sender: String? = null,
     val httpStatus: Int? = null,
-    var externalName: String? = null,
     @JsonIgnore
     var reports: MutableList<DetailReport>?,
     @JsonIgnore
@@ -44,7 +46,7 @@ class DetailedSubmissionHistory(
      * The report ID.
      */
     var id: String? = null
-        private set
+        internal set
 
     /**
      * The destinations.
@@ -65,7 +67,19 @@ class DetailedSubmissionHistory(
      * The schema topic.
      */
     var topic: String? = null
-        private set
+        internal set
+
+    /**
+     * The sender of the input report.
+     */
+    var sender: String? = null
+        internal set
+
+    /**
+     * The input report's external name.
+     */
+    var externalName: String? = null
+        internal set
 
     /**
      * The number of warnings.  Note this is not the number of consolidated warnings.

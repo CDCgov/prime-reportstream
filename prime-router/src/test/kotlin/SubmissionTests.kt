@@ -3,12 +3,14 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
+import java.util.UUID
 import kotlin.test.Test
 
 class SubmissionTests {
@@ -17,7 +19,7 @@ class SubmissionTests {
         fun createLogs(logs: List<DetailActionLog>?): DetailedSubmissionHistory {
             return DetailedSubmissionHistory(
                 1, TaskAction.receive, OffsetDateTime.now(),
-                null, null, null, null, logs
+                null, null, logs
             )
         }
 
@@ -223,5 +225,47 @@ class SubmissionTests {
                 )
             )
         ).isFalse()
+    }
+
+    @Test
+    fun `test DetailedSubmissionHistory common properties init`() {
+        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, null, null).run {
+            assertThat(actionId).isEqualTo(1)
+            assertThat(id).isNull()
+            assertThat(sender).isNull()
+            assertThat(topic).isNull()
+            assertThat(reportItemCount).isNull()
+            assertThat(externalName).isNull()
+        }
+
+        val inputReport = DetailReport(
+            UUID.randomUUID(), null, null, "org",
+            "client", "topic", "externalName", null, null, 5
+        )
+        var reports = listOf(
+            inputReport,
+            DetailReport(
+                UUID.randomUUID(), "recvOrg1", "recvSvc1", null,
+                null, "topic", "otherExternalName1", null, null, 1
+            ),
+            DetailReport(
+                UUID.randomUUID(), "recvOrg2", "recvSvc2", null,
+                null, "topic", "otherExternalName2", null, null, 2
+            )
+        ).toMutableList()
+
+        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, reports, null).run {
+            assertThat(actionId).isEqualTo(1)
+            assertThat(id).isEqualTo(inputReport.reportId.toString())
+            assertThat(sender).isEqualTo(ClientSource(inputReport.sendingOrg!!, inputReport.sendingOrgClient!!).name)
+            assertThat(topic).isEqualTo(inputReport.schemaTopic)
+            assertThat(reportItemCount).isEqualTo(inputReport.itemCount)
+            assertThat(externalName).isEqualTo(inputReport.externalName)
+        }
+
+        reports = listOf(inputReport, inputReport).toMutableList()
+        assertThat {
+            DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, reports, null)
+        }.isFailure()
     }
 }

@@ -265,7 +265,7 @@ class SubmissionFunctionTests {
         // Good return
         val returnBody = DetailedSubmissionHistory(
             100, TaskAction.receive, OffsetDateTime.now(),
-            null, null, null, null, null
+            null, null, null
         )
         returnBody.sender = "org.client"
         every { mockSubmissionFacade.findReport(any(), any()) } returns returnBody
