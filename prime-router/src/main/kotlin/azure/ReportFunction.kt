@@ -166,11 +166,13 @@ class ReportFunction(
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
         val verbose = verboseParam.equals(VERBOSE_TRUE, true)
-
-        val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
-        val options = Options.valueOf(optionsText)
+        var hasQualityFilterOption = false
 
         val report = try {
+            val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
+            val options = Options.valueOf(optionsText)
+            hasQualityFilterOption = (options == Options.BypassQueueForQualityFilters)
+
             // track the sending organization and client based on the header
             val validatedRequest = validateRequest(request)
             val rawBody = validatedRequest.content.toByteArray()
@@ -272,7 +274,7 @@ class ReportFunction(
         workflowEngine.recordAction(actionHistory)
 
         var bypassMessageQueue = false
-        if (options == Options.BypassQueueForQualityFilters) {
+        if (hasQualityFilterOption) {
             bypassMessageQueue = responseContainsQualityFilter(response.body.toString())
         }
 
