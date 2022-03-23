@@ -721,7 +721,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
-    implementation("it.skrape:skrapeit-html-parser:1.2.0")
+    implementation("it.skrape:skrapeit-html-parser:1.2.1")
     implementation("it.skrape:skrapeit-http-fetcher:1.2.1")
     implementation("org.apache.poi:poi:5.2.1")
     implementation("org.apache.poi:poi-ooxml:5.2.2")
