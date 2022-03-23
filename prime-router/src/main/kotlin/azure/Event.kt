@@ -23,7 +23,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         PROCESS_WARNING, // when an attempt at a process action fails, but will be retried
         PROCESS_ERROR, // when an attempt at a process action fails permanently
         RECEIVE,
-        TRANSLATE, // for HL7/FHIR conversions
+        TRANSLATE, // Deprecated
         BATCH,
         SEND,
         WIPE, // Deprecated
@@ -32,7 +32,8 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         SEND_ERROR,
         WIPE_ERROR, // Deprecated
         RESEND,
-        REBATCH;
+        REBATCH,
+        FHIR_PROCESSING; // for HL7/FHIR conversions
 
         fun toTaskAction(): TaskAction {
             return when (this) {
@@ -50,6 +51,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 WIPE_ERROR -> TaskAction.wipe_error
                 RESEND -> TaskAction.resend
                 REBATCH -> TaskAction.rebatch
+                FHIR_PROCESSING -> TaskAction.fhir_processing
             }
         }
 

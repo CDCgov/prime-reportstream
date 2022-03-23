@@ -783,6 +783,7 @@ class WorkflowEngine(
         fun finishedField(currentEventAction: Event.EventAction): Field<OffsetDateTime> {
             return when (currentEventAction) {
                 Event.EventAction.RECEIVE -> Tables.TASK.TRANSLATED_AT
+                Event.EventAction.FHIR_PROCESSING,
                 Event.EventAction.PROCESS -> Tables.TASK.PROCESSED_AT
                 Event.EventAction.TRANSLATE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.REBATCH -> Tables.TASK.TRANSLATED_AT // overwrites prior date
