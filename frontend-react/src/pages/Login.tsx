@@ -19,8 +19,8 @@ export const Login = () => {
         const parsedOrgs = parseOrgs(
             getOrganizationFromAccessToken(tokens?.accessToken)
         );
-        const newOrg = parsedOrgs[0].org || "";
-        const newSender = parsedOrgs[0].senderName || undefined;
+        const newOrg = parsedOrgs[0]?.org || "";
+        const newSender = parsedOrgs[0]?.senderName || undefined;
         updateSessionStorage({
             // Sets admins to `ignore` org
             org: newOrg.includes(PERMISSIONS.PRIME_ADMIN) ? "ignore" : newOrg,

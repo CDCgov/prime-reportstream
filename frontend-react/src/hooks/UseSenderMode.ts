@@ -12,6 +12,10 @@ const useSenderMode = (defaultOrg?: string, defaultSender?: string): string => {
     }, [defaultOrg, defaultSender]);
 
     useEffect(() => {
+        /* Tests threw a "you can't update state after a ReactElement is
+         * torn down" error, so this is measured for a conditional that
+         * changes state in the .then() call. On teardown, this will
+         * be set to false and the state will not attempt to update. */
         let isSubscribed = true;
         if (endpoint) {
             axios

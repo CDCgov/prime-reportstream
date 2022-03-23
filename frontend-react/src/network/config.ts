@@ -5,13 +5,10 @@ import {
 
 import { ApiConfig } from "./api/Api";
 
-const accessToken = getStoredOktaToken();
-const organization = getStoredOrg();
-
 export const primeApiConfig = new ApiConfig({
     root: `${process.env.REACT_APP_BACKEND_URL}/api`,
     headers: {
-        Authorization: `Bearer ${accessToken || ""}`,
-        Organization: organization || "",
+        Authorization: `Bearer ${getStoredOktaToken() || ""}`,
+        Organization: getStoredOrg() || "",
     },
 });
