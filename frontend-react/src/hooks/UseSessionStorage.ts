@@ -17,6 +17,8 @@ export interface SessionController {
     updateSessionStorage: (p: Partial<SessionStore>) => void;
 }
 
+const isNotEmpty = (s: string): boolean => s.length > 0;
+
 const useSessionStorage = (): SessionController => {
     const [values, setValues] = useState<SessionStore>({
         org: getStoredOrg(),
@@ -31,13 +33,13 @@ const useSessionStorage = (): SessionController => {
     };
 
     useEffect(() => {
-        if (values.org) {
+        if (values.org && isNotEmpty(values.org)) {
             setStoredOrg(values.org);
         }
     }, [values.org]);
 
     useEffect(() => {
-        if (values.senderName) {
+        if (values.senderName && isNotEmpty(values.senderName)) {
             setStoredSenderName(values.senderName);
         }
     }, [values.senderName]);
