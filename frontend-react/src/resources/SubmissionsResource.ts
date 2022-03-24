@@ -14,7 +14,7 @@ const FALLBACKDATE = "2020-01-01T00:00:00.000Z";
 export default class SubmissionsResource extends AuthResource {
     readonly submissionId: number = 0;
     readonly timestamp: string = FALLBACKDATE; // format is "2022-02-01T15:11:58.200754Z"
-    readonly sendend: string = "";
+    readonly sender: string = "";
     readonly httpStatus: number = 0;
     readonly externalName: string = "";
     readonly id: string | undefined;
