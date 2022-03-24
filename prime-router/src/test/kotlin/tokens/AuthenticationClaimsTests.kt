@@ -70,8 +70,12 @@ class AuthenticationClaimsTests {
         assertThat(claims.isSenderOrgClaim).isTrue()
         assertThat(claims.organizationNameClaim).isEqualTo("ignore")
 
+        claims = AuthenticatedClaims.generateTestClaims("")
+        assertThat(claims.isPrimeAdmin).isTrue()
+        assertThat(claims.isSenderOrgClaim).isTrue()
+        assertThat(claims.organizationNameClaim).isEqualTo("ignore")
+
         claims = AuthenticatedClaims.generateTestClaims("foo")
-        assertThat(claims.userName).isNotNull()
         assertThat(claims.isPrimeAdmin).isTrue()
         assertThat(claims.isSenderOrgClaim).isTrue()
         assertThat(claims.organizationNameClaim).isEqualTo("foo")

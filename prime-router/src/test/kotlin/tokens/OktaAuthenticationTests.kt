@@ -1,12 +1,50 @@
 package gov.cdc.prime.router.tokens
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import com.microsoft.azure.functions.HttpMethod
+import gov.cdc.prime.router.common.Environment
+import io.mockk.every
+import io.mockk.mockkObject
 import kotlin.test.Test
 
 class OktaAuthenticationTests {
     private val verifier = OktaAuthentication(PrincipalLevel.USER)
+
+    @Test
+    fun `test authenticate`() {
+        // This should trigger the local auth
+        var claims = verifier.authenticate(null, HttpMethod.GET, "foobar")
+        assertThat(claims).isNotNull()
+        assertThat(claims?.isPrimeAdmin).isEqualTo(true)
+        assertThat(claims?.isSenderOrgClaim).isEqualTo(true)
+        assertThat(claims?.organizationNameClaim).isEqualTo("ignore")
+
+        // Bad token
+        claims = verifier.authenticate("a.b.c", HttpMethod.GET, "foobar")
+        assertThat(claims).isNull()
+    }
+
+    @Test
+    fun `test isLocal`() {
+        mockkObject(Environment) {
+            every { Environment.isLocal() } returns false
+            assertThat(verifier.isLocal(null)).isFalse()
+            assertThat(verifier.isLocal("")).isFalse()
+            assertThat(verifier.isLocal("abc")).isFalse()
+            assertThat(verifier.isLocal("a.b.c")).isFalse()
+
+            every { Environment.isLocal() } returns true
+            assertThat(verifier.isLocal(null)).isTrue()
+            assertThat(verifier.isLocal("")).isTrue()
+            assertThat(verifier.isLocal("abc")).isTrue()
+            assertThat(verifier.isLocal("a.b.c")).isFalse()
+        }
+    }
 
     @Test
     fun `test user level authorizeByMembership`() {

@@ -274,7 +274,8 @@ class SubmissionFunctionTests : Logging {
         // Happy path with a good UUID
         val action = Action()
         action.actionId = 550
-        action.sendingOrg = "org"
+        action.sendingOrg = "foobar"
+        action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any()) } returns returnBody
