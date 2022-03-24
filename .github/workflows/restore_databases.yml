@@ -4,32 +4,36 @@ on:
   workflow_dispatch:
     inputs:
       backup_from:
+        description: 'Backup from:'
         required: true
-        description: 'Environment to generate backups from'
-        type: environment
+        options:
+        - prod
+        - staging
+        - test
         default: 'staging'
-      restore_to:
-        required: true
         type: choice
-        description: 'Environments to restore backups to'
-        default: 'test'
+      restore_to:
+        description: 'Restore to:'
+        required: true
         options:
         - staging
         - test
+        default: 'test'
+        type: choice
       backup_age_limit_mins:
+        description: 'Run ONLY if last backup file is older than mins:'
         required: true
-        description: 'Only generate backup if last run is older'
         default: 60
         type: number
       restore_ignore_backup_age:
+        description: 'Force restore, ignoring backup age:'
         required: true
-        description: 'Restore, even if backup does not occur due to age limit'
-        default: false
+        default: 'false'
         type: boolean
       databases:
+        description: 'Databases to backup and restore:'
         required: true
-        description: 'Databases to restore and backup'
-        default: '["prime_data_hub_candidate","prime_data_hub"]'
+        default: '[\"prime_data_hub_candidate\",\"prime_data_hub\"]'
         type: string
 
 defaults:
