@@ -17,9 +17,9 @@ import java.net.HttpURLConnection
 import java.time.OffsetDateTime
 
 data class ExpectedSubmissionHistory(
-    val taskId: Int,
-    val createdAt: OffsetDateTime,
-    val sendingOrg: String,
+    val submissionId: Int,
+    val timestamp: OffsetDateTime,
+    val sender: String,
     val httpStatus: Int,
     val id: ReportId?,
     val topic: String?,

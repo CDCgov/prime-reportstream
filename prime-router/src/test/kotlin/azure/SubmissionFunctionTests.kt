@@ -138,9 +138,9 @@ class SubmissionFunctionTests : Logging {
                     HttpStatus.OK,
                     listOf(
                         ExpectedSubmissionHistory(
-                            taskId = 8,
-                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919Z"),
-                            sendingOrg = "simple_report",
+                            submissionId = 8,
+                            timestamp = OffsetDateTime.parse("2021-11-30T16:36:54.919Z"),
+                            sender = "simple_report",
                             httpStatus = 201,
                             externalName = "testname.csv",
                             id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
@@ -150,9 +150,9 @@ class SubmissionFunctionTests : Logging {
                             errorCount = 0
                         ),
                         ExpectedSubmissionHistory(
-                            taskId = 7,
-                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307Z"),
-                            sendingOrg = "simple_report",
+                            submissionId = 7,
+                            timestamp = OffsetDateTime.parse("2021-11-30T16:36:48.307Z"),
+                            sender = "simple_report",
                             httpStatus = 400,
                             id = null,
                             topic = null,
