@@ -2,7 +2,7 @@ import { useResource } from "rest-hooks";
 
 import { getStoredOrg } from "../contexts/SessionStorageTools";
 import OrganizationResource from "../resources/OrganizationResource";
-import { groupToOrg } from "../webreceiver-utils";
+import { PERMISSIONS } from "../resources/PermissionsResource";
 
 export const getStates = () => {
     return [
@@ -66,6 +66,34 @@ export const getStates = () => {
         "Wisconsin",
         "Wyoming",
     ].sort();
+};
+
+export const groupToOrg = (group: string | undefined): string => {
+    const senderPrefix = `${PERMISSIONS.SENDER}_`;
+    const isStandardGroup = group?.startsWith("DH");
+    const isSenderGroup = group?.startsWith(senderPrefix);
+    /* Quick definitions:
+     * Sender - has an OktaGroup name beginning with DHSender_
+     * Receiver - has an OktaGroup name beginning with DHxx_ where xx is any state code
+     * Non-standard - has no associated OktaGroup and is already the org value in the db table */
+    const groupType = isStandardGroup
+        ? isSenderGroup
+            ? "sender"
+            : "receiver"
+        : "non-standard";
+
+    switch (groupType) {
+        case "sender":
+            // DHSender_test_sender -> test_sender
+            // DHSender_another-test-sender -> another-test-sender
+            return group ? group.replace(senderPrefix, "") : "";
+        case "receiver":
+            // DHmd_phd -> md-phd
+            return group ? group.replace("DH", "").replace("_", "-") : "";
+        case "non-standard":
+            // simple_report -> simple_report
+            return group ? group : "";
+    }
 };
 
 export function useOrgName(): string {
