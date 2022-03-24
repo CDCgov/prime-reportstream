@@ -161,7 +161,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         oktaSender: Boolean = false
     ): Boolean {
         @Suppress("UNCHECKED_CAST")
-        val memberships = claims.jwtClaims[oktaMembershipClaim] as? Collection<String> ?: return false
+        val membershipsFromOkta = claims.jwtClaims[oktaMembershipClaim] as? Collection<String> ?: return false
         // We are expecting a group name of:
         // DH<org name> if oktaSender is false
         // DHSender_<org name>.<sender name> if oktaSender is true
@@ -171,7 +171,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         // If the sender is from Okta, their "organizationName" will match their group from Okta,
         // so do not replace anything in the string
         val groupName = if (oktaSender) organizationName else organizationName?.replace('-', '_')
-        val lookupMemberships = when (requiredMinimumLevel) {
+        val requestedMemberships = when (requiredMinimumLevel) {
             PrincipalLevel.SYSTEM_ADMIN -> listOf(oktaSystemAdminGroup)
             PrincipalLevel.ORGANIZATION_ADMIN -> {
                 listOf(
@@ -186,13 +186,19 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                     oktaSystemAdminGroup
                 )
         }
-        lookupMemberships.forEach {
-            if (memberships.contains(it)) {
-                logger.info("User ${claims.userName} memberships $memberships matched required membership $it")
+        requestedMemberships.forEach {
+            if (membershipsFromOkta.contains(it)) {
+                logger.info(
+                    "User ${claims.userName}" +
+                        " memberships $membershipsFromOkta matched requested membership $it"
+                )
                 return true
             }
         }
-        logger.warn("User ${claims.userName} memberships $memberships did not match required $lookupMemberships")
+        logger.warn(
+            "User ${claims.userName}" +
+                " memberships $membershipsFromOkta did NOT match requested $requestedMemberships"
+        )
         return false
     }
 

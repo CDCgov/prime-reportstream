@@ -367,9 +367,11 @@ data class Destination(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class SubmissionHistory(
-    @JsonProperty("taskId") // todo change to submissionId.   But must change frontend-react/ too.
+    @JsonProperty("submissionId")
     val actionId: Long,
+    @JsonProperty("timestamp")
     val createdAt: OffsetDateTime,
+    @JsonProperty("sender")
     val sendingOrg: String,
     val httpStatus: Int,
     @JsonInclude(Include.NON_NULL)

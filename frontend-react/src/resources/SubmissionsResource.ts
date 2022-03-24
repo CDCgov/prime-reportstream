@@ -12,9 +12,9 @@ type SubmissionsResourceParams = {
 const FALLBACKDATE = "2020-01-01T00:00:00.000Z";
 
 export default class SubmissionsResource extends AuthResource {
-    readonly taskId: number = 0;
-    readonly createdAt: string = FALLBACKDATE; // format is "2022-02-01T15:11:58.200754Z"
-    readonly sendingOrg: string = "";
+    readonly submissionId: number = 0;
+    readonly timestamp: string = FALLBACKDATE; // format is "2022-02-01T15:11:58.200754Z"
+    readonly sendend: string = "";
     readonly httpStatus: number = 0;
     readonly externalName: string = "";
     readonly id: string | undefined;
@@ -25,8 +25,8 @@ export default class SubmissionsResource extends AuthResource {
 
     pk() {
         // For failed submissions, the report id will be null. Rest Hooks will not cache a record without a pk, thus
-        // falling back to using createdAt.
-        return `${this.createdAt} ${this.id}`;
+        // falling back to using timestamp
+        return `${this.timestamp} ${this.id}`;
     }
 
     static get key() {
@@ -54,9 +54,9 @@ export default class SubmissionsResource extends AuthResource {
     ): number {
         // format "2022-02-01T15:11:58.200754Z" means we can compare strings without converting to dates
         // since it's in descending time format (aka year, month, day, hour, min, sec)
-        if (a.createdAt === b.createdAt) {
+        if (a.timestamp === b.timestamp) {
             return 0;
         }
-        return a.createdAt > b.createdAt ? -1 : 1;
+        return a.timestamp > b.timestamp ? -1 : 1;
     }
 }
