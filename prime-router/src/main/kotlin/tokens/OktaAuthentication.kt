@@ -5,6 +5,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
+import com.okta.jwt.JwtVerificationException
 import com.okta.jwt.JwtVerifiers
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.azure.ActionHistory
@@ -28,81 +29,13 @@ enum class PrincipalLevel {
     USER
 }
 
-class AuthenticatedClaims(
-    val jwtClaims: Map<String, Any>,
-//    val principalLevel: PrincipalLevel,
-//    val organizationName: String?,
-) {
-    // These are all derived from the raw jwtClaims.
-    val userName: String
-    val isPrimeAdmin: Boolean
-    val organizationNameClaim: String?
-    val isSenderOrgClaim: Boolean?
-
-    init {
-        userName = jwtClaims[oktaSubjectClaim]?.toString() ?: error("No username in claims")
-        @Suppress("UNCHECKED_CAST")
-        val memberships = jwtClaims[oktaMembershipClaim] as? Collection<String> ?: error("No memberships in claims")
-        val orgNamePair = extractOrganizationNameFromOktaMembership(memberships)
-        isPrimeAdmin = isPrimeAdmin(memberships)
-        organizationNameClaim = orgNamePair?.first // might be null
-        isSenderOrgClaim = orgNamePair?.second // might be null
-    }
-
-    /**
-     * Derive useful info from jwtClaims on [memberships].
-     * Return the first well-formed ReportStream organizationName found in [memberships].
-     * At the same time, this determines if it's a Sender or Receiver claim.
-     * Returns Pair(organizationName, true) if this organizationName claim is a Sender claim.
-     * Returns Pair(organizationName, false) if this organizationName claim is a Receiver claim.
-     * Returns null if no well-formed organizationName is found in [memberships]
-     * Ignores the PrimeAdmins claim.
-     */
-    private fun extractOrganizationNameFromOktaMembership(memberships: Collection<String>): Pair<String?, Boolean>? {
-        if (memberships.isEmpty()) return null
-        // examples:   DHSender_ignore, DHPrimeAdmins, DHSender_all-in-one-health-ca, DHaz_phd, DHignore
-        // should return, resp.:  (ignore, true), <nothing>, (all-in-one-health-ca, true, (az_phd, false, (ignore, true)
-        memberships.forEach {
-            if (it == oktaSystemAdminGroup) return@forEach // skip
-            if (it.startsWith(oktaSenderGroupPrefix)) return Pair(it.removePrefix(oktaSenderGroupPrefix), true)
-            if (it.startsWith(oktaGroupPrefix)) return Pair(it.removePrefix(oktaGroupPrefix), false)
-        }
-        return null
-    }
-
-    /**
-     * Derive whether this user is an Admin based on claims [memberships].
-     * Returns true if a well-formed Administrator claim is in [memberships].  False otherwise.
-     */
-    private fun isPrimeAdmin(memberships: Collection<String>): Boolean {
-        memberships.forEach {
-            if (it == oktaSystemAdminGroup) return true
-        }
-        return false
-    }
-
-    companion object {
-        /**
-         * Create fake claims, for testing.
-         */
-        fun generateTestClaims(organizationName: String? = null): AuthenticatedClaims {
-            val tmpOrg = if (organizationName.isNullOrEmpty()) "ignore" else organizationName
-            val jwtClaims: Map<String, Any> = mapOf(
-                "organization" to listOf("${oktaSenderGroupPrefix}$tmpOrg", oktaSystemAdminGroup),
-                "sub" to "local@test.com",
-            )
-            return AuthenticatedClaims(jwtClaims)
-        }
-    }
-}
-
 class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLevel.USER) : Logging {
     private val issuerBaseUrl: String = System.getenv(envVariableForOktaBaseUrl) ?: ""
 
     companion object : Logging {
 
-        private val authenticationFailure = HttpUtilities.errorJson("Authentication Failed")
-        private val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
+        val authenticationFailure = HttpUtilities.errorJson("Authentication Failed")
+        val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
 
         fun getAccessToken(request: HttpRequestMessage<String?>): String? {
             // RFC6750 defines the access token
@@ -153,8 +86,11 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             val claims = AuthenticatedClaims(jwt.claims)
             logger.info("Authenticated request by ${claims.userName}: $httpMethod:$path")
             return claims
+        } catch (e: JwtVerificationException) {
+            logger.info("JWT token failed to authenticate for call: $httpMethod: $path", e)
+            return null
         } catch (e: Exception) {
-            logger.info("accessToken failed to authenticate: $httpMethod: $path", e)
+            logger.info("Failure while authenticating, for call: $httpMethod: $path", e)
             return null
         }
     }
@@ -195,7 +131,10 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             actionHistory?.trackUsername(claims.userName)
 
             if (!authorizeByMembership(claims, minimumLevel, organizationName, oktaSender)) {
-                logger.info("Invalid Authorization Header: ${request.httpMethod}:${request.uri.path}")
+                logger.warn(
+                    "Invalid Authorization for user ${claims.userName}:" +
+                        " ${request.httpMethod}:${request.uri.path}"
+                )
                 return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
             logger.info("Authorized request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
@@ -248,8 +187,12 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                 )
         }
         lookupMemberships.forEach {
-            if (memberships.contains(it)) return true
+            if (memberships.contains(it)) {
+                logger.info("User ${claims.userName} memberships $memberships matched required membership $it")
+                return true
+            }
         }
+        logger.warn("User ${claims.userName} memberships $memberships did not match required $lookupMemberships")
         return false
     }
 

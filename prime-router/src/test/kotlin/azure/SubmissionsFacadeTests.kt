@@ -64,7 +64,7 @@ class SubmissionsFacadeTests {
             "sub" to "bob@bob.com"
         )
         var claims = AuthenticatedClaims(userClaims)
-        assertThat(facade.checkActionAccessAuthorization(action, claims)).isTrue()
+        assertThat(facade.checkSenderAccessAuthorization(action, claims)).isTrue()
 
         // Sysadmin happy path:   Sysadmin user ok to be in a different org.
         val adminClaims: Map<String, Any> = mapOf(
@@ -72,13 +72,13 @@ class SubmissionsFacadeTests {
             "sub" to "bob@bob.com"
         )
         claims = AuthenticatedClaims(adminClaims)
-        assertThat(facade.checkActionAccessAuthorization(action, claims)).isTrue()
+        assertThat(facade.checkSenderAccessAuthorization(action, claims)).isTrue()
 
         // Error: Regular user and Orgs don't match
         claims = AuthenticatedClaims(userClaims)
         action = resetAction()
         action.sendingOrg = "UnhappyOrg" // mismatch sendingOrg
-        assertThat(facade.checkActionAccessAuthorization(action, claims)).isFalse()
+        assertThat(facade.checkSenderAccessAuthorization(action, claims)).isFalse()
 
         // Error: Org matches, but its not a sending org.
         val notSendingOrg: Map<String, Any> = mapOf(
@@ -86,6 +86,6 @@ class SubmissionsFacadeTests {
             "sub" to "bob@bob.com"
         )
         claims = AuthenticatedClaims(notSendingOrg)
-        assertThat(facade.checkActionAccessAuthorization(action, claims)).isFalse()
+        assertThat(facade.checkSenderAccessAuthorization(action, claims)).isFalse()
     }
 }

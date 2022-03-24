@@ -128,35 +128,46 @@ class SubmissionFunction(
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: String,
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, oktaSender = true) { claims ->
-            try {
-                var submissionId = id.toLongOrNull() // toLong a sacrifice can make a Null of the heart
-                val action = if (submissionId == null) {
-                    val reportId = HttpUtilities.toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
-                    facade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
-                } else {
-                    facade.fetchAction(submissionId) ?: error("No such submissionId $submissionId")
-                }
+        try {
+            val claims = oktaAuthentication.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authenticationFailure)
+            logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
 
-                // Confirm this is actually a submission.
-                if (action.sendingOrg == null || action.actionName != TaskAction.receive) {
-                    HttpUtilities.notFoundResponse(request, "$id is not a submitted report")
-                }
+            // actionHistory?.trackUsername(claims.userName)  todo
 
-                // Confirm these claims allow access to this Action
-                if (!facade.checkActionAccessAuthorization(action, claims)) {
-                    error("Access to $id denied")
-                }
-                val submission = facade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)
-                if (submission != null) HttpUtilities.okJSONResponse(request, submission)
-                else HttpUtilities.notFoundResponse(request, "Submission $submissionId was not found.")
-            } catch (e: DataAccessException) {
-                logger.error("Unable to fetch history for submission ID $id", e)
-                HttpUtilities.internalErrorResponse(request)
-            } catch (ex: IllegalStateException) {
-                logger.error(ex.message ?: "IllegalStateException", ex)
-                HttpUtilities.notFoundResponse(request, ex.message)
+            // Figure out whether we're dealing with an action_id or a report_id.
+            val submissionId = id.toLongOrNull() // toLong a sacrifice can make a Null of the heart
+            val action = if (submissionId == null) {
+                val reportId = HttpUtilities.toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
+                facade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
+            } else {
+                facade.fetchAction(submissionId) ?: error("No such submissionId $submissionId")
             }
+
+            // Confirm this is actually a submission.
+            if (action.sendingOrg == null || action.actionName != TaskAction.receive) {
+                return HttpUtilities.notFoundResponse(request, "$id is not a submitted report")
+            }
+
+            // Confirm these claims allow access to this Action
+            if (!facade.checkSenderAccessAuthorization(action, claims)) {
+                logger.warn(
+                    "Invalid Authorization for user ${claims.userName}:" +
+                        " ${request.httpMethod}:${request.uri.path}"
+                )
+                return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authorizationFailure)
+            }
+            val submission = facade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)
+            if (submission != null)
+                return HttpUtilities.okJSONResponse(request, submission)
+            else
+                return HttpUtilities.notFoundResponse(request, "Submission $submissionId was not found.")
+        } catch (e: DataAccessException) {
+            logger.error("Unable to fetch history for submission ID $id", e)
+            return HttpUtilities.internalErrorResponse(request)
+        } catch (ex: IllegalStateException) {
+            logger.error(ex.message ?: "IllegalStateException", ex)
+            return HttpUtilities.notFoundResponse(request, ex.message)
         }
     }
 }

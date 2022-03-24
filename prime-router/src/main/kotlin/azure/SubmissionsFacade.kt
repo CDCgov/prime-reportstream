@@ -154,10 +154,10 @@ class SubmissionsFacade(
     }
 
     /**
-     * @return true if [claims] authorizes access to this [action].  Return
+     * @return true if [claims] authorizes access to this 'receive' [action].  Return
      * false if the submissionId is not a proper submission or if the claim does not give access.
      */
-    fun checkActionAccessAuthorization(
+    fun checkSenderAccessAuthorization(
         action: Action,
         claims: AuthenticatedClaims,
     ): Boolean {
@@ -165,7 +165,9 @@ class SubmissionsFacade(
             // Admins always get access
             claims.isPrimeAdmin -> true
             // User has a sending organization claim, and that sendingOrg matches the action's sendingOrg
-            (claims.isSenderOrgClaim ?: false) && (action.sendingOrg == claims.organizationNameClaim) -> true
+            (claims.isSenderOrgClaim) &&
+                (action.sendingOrg == claims.organizationNameClaim) &&
+                (!claims.organizationNameClaim.isNullOrBlank()) -> true
             else -> {
                 logger.error(
                     "User from org '${claims.organizationNameClaim}'" +

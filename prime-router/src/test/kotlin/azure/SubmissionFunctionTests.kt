@@ -278,7 +278,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any()) } returns returnBody
-        every { mockSubmissionFacade.checkActionAccessAuthorization(any(), any()) } returns true
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
         response = function.getReportHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
@@ -293,7 +293,7 @@ class SubmissionFunctionTests : Logging {
 
         // Good actionId, but Not authorized
         every { mockSubmissionFacade.fetchAction(any()) } returns action
-        every { mockSubmissionFacade.checkActionAccessAuthorization(any(), any()) } returns false // not authorized
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
         response = function.getReportHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
@@ -301,7 +301,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockSubmissionFacade.fetchAction(any()) } returns action
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any()) } returns returnBody
-        every { mockSubmissionFacade.checkActionAccessAuthorization(any(), any()) } returns true
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
         response = function.getReportHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         responseBody = mapper.readValue(response.body.toString())
