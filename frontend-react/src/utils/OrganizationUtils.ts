@@ -72,7 +72,10 @@ export const groupToOrg = (group: string | undefined): string => {
     const senderPrefix = `${PERMISSIONS.SENDER}_`;
     const isStandardGroup = group?.startsWith("DH");
     const isSenderGroup = group?.startsWith(senderPrefix);
-    /* If isStandardGroup, either sender/receiver, else non-standard */
+    /* Quick definitions:
+     * Sender - has an OktaGroup name beginning with DHSender_
+     * Receiver - has an OktaGroup name beginning with DHxx_ where xx is any state code
+     * Non-standard - has no associated OktaGroup and is already the org value in the db table */
     const groupType = isStandardGroup
         ? isSenderGroup
             ? "sender"
@@ -81,10 +84,14 @@ export const groupToOrg = (group: string | undefined): string => {
 
     switch (groupType) {
         case "sender":
+            // DHSender_test_sender -> test_sender
+            // DHSender_another-test-sender -> another-test-sender
             return group ? group.replace(senderPrefix, "") : "";
         case "receiver":
+            // DHmd_phd -> md-phd
             return group ? group.replace("DH", "").replace("_", "-") : "";
         case "non-standard":
+            // simple_report -> simple_report
             return group ? group : "";
     }
 };
