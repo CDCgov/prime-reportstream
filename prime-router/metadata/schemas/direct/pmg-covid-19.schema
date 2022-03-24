@@ -11,4 +11,4 @@ elements:
     default: pmg
 
   - name: processing_mode_code
-    default: T
+    default: P
