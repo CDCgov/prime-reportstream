@@ -6,7 +6,10 @@ import { RouteComponentProps, useHistory } from "react-router-dom";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
-import { getStoredOktaToken, getStoredOrg } from "../GlobalContextProvider";
+import {
+    getStoredOktaToken,
+    getStoredOrg,
+} from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import Spinner from "../Spinner";
 
