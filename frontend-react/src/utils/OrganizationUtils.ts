@@ -1,6 +1,6 @@
 import { useResource } from "rest-hooks";
 
-import { getStoredOrg } from "../components/GlobalContextProvider";
+import { getStoredOrg } from "../contexts/SessionStorageTools";
 import OrganizationResource from "../resources/OrganizationResource";
 import { groupToOrg } from "../webreceiver-utils";
 

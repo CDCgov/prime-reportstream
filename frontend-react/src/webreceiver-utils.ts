@@ -1,7 +1,7 @@
 import { AccessToken, AuthState, UserClaims } from "@okta/okta-auth-js";
 
 import { PERMISSIONS } from "./resources/PermissionsResource";
-import { getStoredOrg } from "./components/GlobalContextProvider";
+import { getStoredOrg } from "./contexts/SessionStorageTools";
 
 declare type RSUserClaims = UserClaims<{ organization: string[] }>;
 
