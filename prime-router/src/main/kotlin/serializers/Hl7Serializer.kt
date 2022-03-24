@@ -1276,8 +1276,9 @@ class Hl7Serializer(
             terser.set(buildComponent(pathSpec, 3), "PH")
             terser.set(buildComponent(pathSpec, 5), country)
 
-            if (country == "1") {
-                // North America phone number with country code = "+1"
+            // If it is North America phone number with country code = "+1" US & CA, code = +52 Mexico
+            // then we fill PID-13-6, 7
+            if (country == "1" || country == "52") {
                 terser.set(buildComponent(pathSpec, 6), areaCode)
                 terser.set(buildComponent(pathSpec, 7), local)
             } else {

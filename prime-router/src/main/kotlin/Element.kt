@@ -595,7 +595,7 @@ data class Element(
                 }
             }
             Type.TELEPHONE -> {
-                val (region, _) = isValidatePhoneNumber(cleanedValue)
+                val (region, _) = parsePhoneNumber(cleanedValue)
                 if (region.isNullOrEmpty())
                     InvalidPhoneMessage(cleanedValue, fieldMapping)
                 null
@@ -741,7 +741,7 @@ data class Element(
                 }
             }
             Type.TELEPHONE -> {
-                val (region, number) = isValidatePhoneNumber(cleanedFormattedValue)
+                val (region, number) = parsePhoneNumber(cleanedFormattedValue)
                 if (region.isNullOrEmpty())
                     InvalidPhoneMessage(cleanedFormattedValue, fieldMapping)
                 val nationalNumber = DecimalFormat("0000000000").format(number?.nationalNumber)
@@ -790,10 +790,17 @@ data class Element(
      * @param [phoneNumber] phone numner to validate.
      * @return region, phone number if valid.  Otherwise, return null, null.
      */
-    fun isValidatePhoneNumber(phoneNumber: String): Pair<String?, Phonenumber.PhoneNumber?> {
-        val phone = phoneNumberUtil.parse(phoneNumber, "US")
+    fun parsePhoneNumber(phoneNumber: String): Pair<String?, Phonenumber.PhoneNumber?> {
+        val phone = phoneNumberUtil.parse(phoneNumber, "US") // Assume US in general
         if (phoneNumberUtil.isValidNumber(phone)) {
+            // This is phone either US or CA
             return Pair(phoneNumberUtil.getRegionCodeForNumber(phone), phone)
+        } else {
+            // Let us check for Mexico
+            if (phoneNumberUtil.isValidNumber(phoneNumberUtil.parse(phoneNumber, "MX"))) {
+                // This number is for Mexico
+                return Pair(phoneNumberUtil.getRegionCodeForNumber(phone), phone)
+            }
         }
         return Pair(null, phone)
     }
