@@ -15,8 +15,6 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.cli.oktaPreviewBaseUrl
-import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -424,10 +422,8 @@ open class BaseHistoryFunction : Logging {
             /* Trims Bearer off token */
             jwtToken = jwtToken.substring(7)
             /* Build our verifier to spec with what's in OktaAuthentication class */
-            val oktaHost = System.getenv("OKTA_baseUrl") ?: if (Environment.isLocal()) oktaPreviewBaseUrl
-            else null
             val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
-                .setIssuer("https://$oktaHost/oauth2/default")
+                .setIssuer("https://${System.getenv("OKTA_baseUrl")}/oauth2/default")
                 .build()
             val jwt = jwtVerifier.decode(jwtToken)
                 ?: throw Throwable("Error in validation of jwt token")
