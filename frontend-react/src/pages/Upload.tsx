@@ -12,7 +12,7 @@ import moment from "moment";
 
 import { senderClient } from "../webreceiver-utils";
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
-import { getStoredOrg } from "../components/GlobalContextProvider";
+import { getStoredOrg } from "../contexts/SessionStorageTools";
 import { showError } from "../components/AlertNotifications";
 import Spinner from "../components/Spinner";
 
