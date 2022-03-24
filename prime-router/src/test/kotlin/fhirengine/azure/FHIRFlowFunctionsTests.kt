@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.encoding.FHIR
 import gov.cdc.prime.router.encoding.getValue
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkObject
 import org.hl7.fhir.instance.model.api.IBase
 import org.junit.jupiter.api.Test
@@ -124,6 +125,13 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
 
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.downloadBlob(any()) } returns testHL7NonBulk.toByteArray()
+
+        val actionHistoryMock = mockk<ActionHistory>()
+        mockkObject(ActionHistory.Companion)
+
+        every { actionHistoryMock.saveToDb(any()) }.returns(Unit)
+        every { actionHistoryMock.trackActionResult(any() as String) }.returns(Unit)
+
         val fhirEngine = FHIRFlowFunctions()
         testCases.forEach { case ->
             try {
