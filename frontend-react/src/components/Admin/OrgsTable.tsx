@@ -11,7 +11,7 @@ import { useHistory } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
-import { getStoredOrg, useGlobalContext } from "../GlobalContextProvider";
+import { getStoredOrg, setStoredOrg } from "../../contexts/SessionStorageTools";
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(
@@ -19,12 +19,11 @@ export function OrgsTable() {
         {}
     ).sort((a, b) => a.name.localeCompare(b.name));
     const [filter, setFilter] = useState("");
-    const { updateOrganization } = useGlobalContext();
     const currentOrg = getStoredOrg();
     const history = useHistory();
 
     const handleSelectOrgClick = (orgName: string) => {
-        updateOrganization(orgName);
+        setStoredOrg(orgName);
         if (window.location.pathname.includes("/report-details")) {
             history.push("/daily-data");
         }

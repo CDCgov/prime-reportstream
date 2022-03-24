@@ -3,7 +3,7 @@ import { Button } from "@trussworks/react-uswds";
 import { useOktaAuth } from "@okta/okta-react";
 
 import ReportResource from "../../../resources/ReportResource";
-import { getStoredOrg } from "../../../components/GlobalContextProvider";
+import { getStoredOrg } from "../../../contexts/SessionStorageTools";
 
 interface Props {
     /* REQUIRED

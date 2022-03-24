@@ -12,7 +12,7 @@ import moment from "moment";
 
 import { senderClient } from "../webreceiver-utils";
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
-import { getStoredOrg } from "../components/GlobalContextProvider";
+import { getStoredOrg } from "../contexts/SessionStorageTools";
 import { showError } from "../components/AlertNotifications";
 import Spinner from "../components/Spinner";
 
@@ -348,7 +348,7 @@ export const Upload = () => {
                         id="upload-csv-input"
                         name="upload-csv-input"
                         aria-describedby="upload-csv-input-label"
-                        accept=".csv, text/csv"
+                        accept="text/csv, .csv"
                         onChange={(e) => handleFileChange(e)}
                         required
                     />
