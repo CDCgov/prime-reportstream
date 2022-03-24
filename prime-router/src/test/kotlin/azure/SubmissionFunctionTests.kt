@@ -286,8 +286,14 @@ class SubmissionFunctionTests : Logging {
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
         assertThat(responseBody.sender).isEqualTo(returnBody.sendingOrg)
 
+        // Good uuid, but not a 'receive' step report.
+        action.actionName = TaskAction.process
+        response = function.getReportHistory(mockRequest, goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
         // Good actionId, but Not found
         val goodActionId = "550"
+        action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchAction(any()) } returns null
         response = function.getReportHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
@@ -296,7 +302,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchAction(any()) } returns action
         every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
         response = function.getReportHistory(mockRequest, goodActionId)
-        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
         // Happy path with a good actionId
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
