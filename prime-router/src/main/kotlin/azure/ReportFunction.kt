@@ -159,9 +159,9 @@ class ReportFunction(
         val isAsync = processingType(request, sender) == ProcessingType.async
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
+        val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
         val httpStatus: HttpStatus =
             try {
-                val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
                 val options = Options.valueOf(optionsText)
                 val payloadName = extractPayloadName(request)
                 actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
@@ -254,7 +254,7 @@ class ReportFunction(
             actionHistory.action.sendingOrg,
             actionHistory.action.actionId
         )
-        val response = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+        val response = request.createResponseBuilder(httpStatus)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .body(JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(submission))
             .header(
