@@ -2,6 +2,7 @@ import { AccessToken, AuthState, UserClaims } from "@okta/okta-auth-js";
 
 import { PERMISSIONS } from "./resources/PermissionsResource";
 import { getStoredOrg } from "./contexts/SessionStorageTools";
+import { groupToOrg } from "./utils/OrganizationUtils";
 
 declare type RSUserClaims = UserClaims<{ organization: string[] }>;
 
@@ -11,22 +12,6 @@ export const getOrganizationFromAccessToken = (
     const newclaim: RSUserClaims =
         (accessToken?.claims as RSUserClaims) || undefined;
     return newclaim?.organization || [];
-};
-
-const groupToOrg = (group: String | undefined): string => {
-    // in order to replace all instances of the underscore we needed to use a
-    // global regex instead of a string. a string pattern only replaces the first
-    // instance
-    const startsWithSender = `${PERMISSIONS.SENDER}_`;
-    const isSender = group?.startsWith(startsWithSender);
-    const re = /_/g;
-    return group
-        ? group.toUpperCase().startsWith("DH")
-            ? isSender
-                ? group.replace(startsWithSender, "")
-                : group.slice(2).replace(re, "-")
-            : group.replace(re, "-")
-        : "";
 };
 
 const getOrganization = (authState: AuthState | undefined | null) => {
@@ -82,10 +67,4 @@ const senderClient = (authState: AuthState | undefined | null) => {
     return "";
 };
 
-export {
-    groupToOrg,
-    getOrganization,
-    permissionCheck,
-    reportReceiver,
-    senderClient,
-};
+export { getOrganization, permissionCheck, reportReceiver, senderClient };

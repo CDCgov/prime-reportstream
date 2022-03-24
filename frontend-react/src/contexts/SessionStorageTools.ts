@@ -2,7 +2,7 @@
  * right, but by no means is it a context. Feel free to move
  * it if you can think of a better spot. */
 import { PERMISSIONS } from "../resources/PermissionsResource";
-import { groupToOrg } from "../webreceiver-utils";
+import { groupToOrg } from "../utils/OrganizationUtils";
 import { SessionStore } from "../hooks/UseSessionStorage";
 
 export enum GLOBAL_STORAGE_KEYS {
