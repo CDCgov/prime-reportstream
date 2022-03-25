@@ -24,7 +24,7 @@ class SubmissionsFacadeTests {
         // Good return
         val goodReturn = DetailedSubmissionHistory(
             550, TaskAction.receive, OffsetDateTime.now(),
-            null, null, null, null, null, null
+            null, null, emptyList()
         )
         every {
             mockSubmissionAccess.fetchAction(

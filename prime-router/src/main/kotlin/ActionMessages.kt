@@ -122,6 +122,11 @@ class FieldPrecisionMessage(
 ) : ItemActionLogDetail(fieldMapping)
 
 /**
+ * A [message] for invalid HL7 message.  Note field mapping is not available from the HAPI errors.
+ */
+class InvalidHL7Message(override val message: String) : ItemActionLogDetail("")
+
+/**
  * A [message] for invalid request parameter.
  */
 class InvalidParamMessage(override val message: String) : GenericActionLogDetail(message, ActionLogScope.parameter)
@@ -130,11 +135,6 @@ class InvalidParamMessage(override val message: String) : GenericActionLogDetail
  * A [message] for an invalid report.
  */
 class InvalidReportMessage(override val message: String) : GenericActionLogDetail(message, ActionLogScope.report)
-
-/**
- * A [message] for invalid HL7 message.
- */
-class InvalidHL7Message(override val message: String) : GenericActionLogDetail(message, ActionLogScope.report)
 
 /**
  * A [message] for invalid translation operation.

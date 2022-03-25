@@ -486,6 +486,7 @@ tasks.azureFunctionsRun {
         "VAULT_API_ADDR" to "http://localhost:8200",
         "SFTP_HOST_OVERRIDE" to "localhost",
         "SFTP_PORT_OVERRIDE" to "2222",
+        "OKTA_baseUrl" to "hhs-prime.oktapreview.com"
     )
 
     // Load the vault variables

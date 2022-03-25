@@ -21,12 +21,9 @@ import java.time.format.DateTimeParseException
  */
 
 class SubmissionFunction(
-    submissionsFacade: SubmissionsFacade = SubmissionsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.USER)
+    private val submissionsFacade: SubmissionsFacade = SubmissionsFacade.instance,
+    private val oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.USER)
 ) : Logging {
-    private val facade = submissionsFacade
-    private val oktaAuthentication = oktaAuthentication
-
     data class Parameters(
         val sort: String,
         val sortColumn: String,
@@ -98,10 +95,21 @@ class SubmissionFunction(
             try {
                 val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
                     Parameters(request.queryParameters)
-                val submissions = facade.findSubmissionsAsJson(
+                val sortOrder = try {
+                    SubmissionAccess.SortOrder.valueOf(qSortOrder)
+                } catch (e: IllegalArgumentException) {
+                    SubmissionAccess.SortOrder.DESC
+                }
+
+                val sortColumn = try {
+                    SubmissionAccess.SortColumn.valueOf(qSortColumn)
+                } catch (e: IllegalArgumentException) {
+                    SubmissionAccess.SortColumn.CREATED_AT
+                }
+                val submissions = submissionsFacade.findSubmissionsAsJson(
                     organization,
-                    qSortOrder,
-                    qSortColumn,
+                    sortOrder,
+                    sortColumn,
                     resultsAfterDate,
                     resultsBeforeDate,
                     pageSize,
@@ -139,9 +147,9 @@ class SubmissionFunction(
             val submissionId = id.toLongOrNull() // toLong a sacrifice can make a Null of the heart
             val action = if (submissionId == null) {
                 val reportId = HttpUtilities.toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
-                facade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
+                submissionsFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
             } else {
-                facade.fetchAction(submissionId) ?: error("No such submissionId $submissionId")
+                submissionsFacade.fetchAction(submissionId) ?: error("No such submissionId $submissionId")
             }
 
             // Confirm this is actually a submission.
@@ -150,14 +158,14 @@ class SubmissionFunction(
             }
 
             // Confirm these claims allow access to this Action
-            if (!facade.checkSenderAccessAuthorization(action, claims)) {
+            if (!submissionsFacade.checkSenderAccessAuthorization(action, claims)) {
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
                         " ${request.httpMethod}:${request.uri.path}"
                 )
                 return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authorizationFailure)
             }
-            val submission = facade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)
+            val submission = submissionsFacade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)
             if (submission != null)
                 return HttpUtilities.okJSONResponse(request, submission)
             else
