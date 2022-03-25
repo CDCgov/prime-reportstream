@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -21,6 +20,8 @@ import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilterResult
+import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -275,7 +276,7 @@ class ReportFunction(
 
         var bypassMessageQueue = false
         if (hasQualityFilterOption) {
-            bypassMessageQueue = responseContainsQualityFilter(response.body.toString())
+            bypassMessageQueue = responseContainsQualityFilter()
         }
 
         // queue messages here after all task / action records are in
@@ -295,22 +296,12 @@ class ReportFunction(
         return responseBuilder.build()
     }
 
-    fun responseContainsQualityFilter(response: String): Boolean {
-        var hasQualityFilters = false
-        val tree = jacksonObjectMapper().readTree(response)
-        val destinations = tree.path("destinations")
-        destinations.apply {
-            forEach { it ->
-                val filteredReportItems = it.path("filteredReportItems")
-                filteredReportItems.forEach {
-                    if (it.path("filterType").textValue() == "QUALITY_FILTER") {
-                        hasQualityFilters = true
-                        return@apply
-                    }
-                }
-            }
+    fun responseContainsQualityFilter(): Boolean {
+        return actionHistory.actionLogs.any {
+            val detail = it.detail
+            it.type == ActionLogLevel.filter &&
+                (detail is ReportStreamFilterResult) && detail.filterType == ReportStreamFilterType.QUALITY_FILTER
         }
-        return hasQualityFilters
     }
 
     /**

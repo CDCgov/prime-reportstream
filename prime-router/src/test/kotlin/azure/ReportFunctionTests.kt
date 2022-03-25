@@ -44,45 +44,45 @@ class ReportFunctionTests {
             )
         ),
     )
-
-    var messageWithQualityFilter = """{
-    "destinations": [
-        {
-            "filteredReportItems": [
-                {
-                    "filteredIndex": 1,
-                    "originalCount": 5,
-                    "receiverName": "ak-phd.elr",
-                    "filterName": "hasValidDataFor",
-                    "filterType": "QUALITY_FILTER",
-                    "filteredTrackingElement": "Alaska1",
-                    "filteredArgs": [
-                        "patient_dob"
-                    ]
-                }
-            ]
-        }
-    ]
-}"""
-
-    var messageWithoutQualityFilter = """{
-    "destinations": [
-        {
-            "filteredReportItems": [
-                {
-                    "filteredIndex": 1,
-                    "originalCount": 5,
-                    "receiverName": "ak-phd.elr",
-                    "filterName": "hasValidDataFor",
-                    "filteredTrackingElement": "Alaska1",
-                    "filteredArgs": [
-                        "patient_dob"
-                    ]
-                }
-            ]
-        }
-    ]
-}"""
+//
+//    var messageWithQualityFilter = """{
+//    "destinations": [
+//        {
+//            "filteredReportItems": [
+//                {
+//                    "filteredIndex": 1,
+//                    "originalCount": 5,
+//                    "receiverName": "ak-phd.elr",
+//                    "filterName": "hasValidDataFor",
+//                    "filterType": "QUALITY_FILTER",
+//                    "filteredTrackingElement": "Alaska1",
+//                    "filteredArgs": [
+//                        "patient_dob"
+//                    ]
+//                }
+//            ]
+//        }
+//    ]
+// }"""
+//
+//    var messageWithoutQualityFilter = """{
+//    "destinations": [
+//        {
+//            "filteredReportItems": [
+//                {
+//                    "filteredIndex": 1,
+//                    "originalCount": 5,
+//                    "receiverName": "ak-phd.elr",
+//                    "filterName": "hasValidDataFor",
+//                    "filteredTrackingElement": "Alaska1",
+//                    "filteredArgs": [
+//                        "patient_dob"
+//                    ]
+//                }
+//            ]
+//        }
+//    ]
+// }"""
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
@@ -345,19 +345,19 @@ class ReportFunctionTests {
         verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
     }
 
-    @Test
-    fun testResponseContainsQualityFilterFunction() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-
-        val containsQualityFilter = reportFunc.responseContainsQualityFilter(messageWithQualityFilter)
-        val containsNoQualityFilter = reportFunc.responseContainsQualityFilter(messageWithoutQualityFilter)
-        assert(containsQualityFilter)
-        assert(!containsNoQualityFilter)
-    }
+//    @Test
+//    fun testResponseContainsQualityFilterFunction() {
+//        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+//        val metadata = Metadata(schema = one)
+//        val settings = FileSettings().loadOrganizations(oneOrganization)
+//
+//        val engine = makeEngine(metadata, settings)
+//        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+//        val reportFunc = spyk(ReportFunction(engine, actionHistory))
+//
+//        val containsQualityFilter = reportFunc.responseContainsQualityFilter(messageWithQualityFilter)
+//        val containsNoQualityFilter = reportFunc.responseContainsQualityFilter(messageWithoutQualityFilter)
+//        assert(containsQualityFilter)
+//        assert(!containsNoQualityFilter)
+//    }
 }
