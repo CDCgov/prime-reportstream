@@ -12,4 +12,3 @@
  * Add fhir_processing support for tracking and logging.
  */
 ALTER TYPE public.task_action ADD VALUE 'fhir_processing';
-ALTER TYPE public.action_log_scope ADD VALUE 'fhir_processing';
