@@ -63,7 +63,7 @@ class FHIRFlowFunctions(
         } catch (e: IllegalArgumentException) {
             responseBuilder.body(e.message)
             actionHistory.trackLogs(
-                ActionLog(InvalidTranslationMessage(e.message ?: "Translation failure."), type = ActionLogLevel.error)
+                ActionLog(InvalidTranslationMessage(e.stackTraceToString()), type = ActionLogLevel.error)
             )
         }
 
@@ -71,7 +71,6 @@ class FHIRFlowFunctions(
 
         // despite similar names, these fns save different data
         actionHistory.trackActionRequestResponse(request, response)
-        actionHistory.trackActionResponse(response, null, workflowEngine.settings)
 
         return response
     }
