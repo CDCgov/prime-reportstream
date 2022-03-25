@@ -16,7 +16,7 @@ data "azurerm_subnet" "public_subnet" {
 // Key Vault
 
 data "azurerm_key_vault" "app_config" {
-  name                = "${var.resource_prefix}-appconfig"
+  name                = "${var.resource_prefix}-app-config"
   resource_group_name = var.resource_group
 }
 

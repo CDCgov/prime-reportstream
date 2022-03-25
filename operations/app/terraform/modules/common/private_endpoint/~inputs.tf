@@ -36,5 +36,10 @@ variable "endpoint_subnet_id_for_dns" {
 variable "exclude_subnets" {
   type        = list(string)
   description = "subnets to exclude from private endpoint"
-  default = []
+  default     = []
+}
+
+variable "dns_vnet" {}
+variable "resource_prefix" {
+
 }

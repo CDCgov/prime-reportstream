@@ -141,6 +141,10 @@ variable "network" {
   }
 }
 
+variable "dns_vnet" {
+  description = "VNET to use for DNS entries"
+  default     = "East-vnet"
+}
 ##################
 ## App Service Plan Vars
 ##################

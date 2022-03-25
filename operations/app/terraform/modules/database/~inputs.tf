@@ -65,3 +65,7 @@ variable "vnet_subnets" {
   type        = list(string)
   description = "Vnet subnets"
 }
+
+variable "dns_vnet" {
+
+}
