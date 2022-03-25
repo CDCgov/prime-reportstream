@@ -6,7 +6,7 @@ terraform {
       source = "hashicorp/azurerm"
       # This version must also be changed in other environments
       # 3.0 has breaking changes
-      version = ">= 2.61.0, < 3.0.0" # This version must also be changed in other environments
+      version = ">= 2.61.0, < 3.0.0"
     }
   }
 
