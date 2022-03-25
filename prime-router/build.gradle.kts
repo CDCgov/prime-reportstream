@@ -486,6 +486,7 @@ tasks.azureFunctionsRun {
         "VAULT_API_ADDR" to "http://localhost:8200",
         "SFTP_HOST_OVERRIDE" to "localhost",
         "SFTP_PORT_OVERRIDE" to "2222",
+        "OKTA_baseUrl" to "hhs-prime.oktapreview.com"
     )
 
     // Load the vault variables
@@ -727,7 +728,7 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.2.1")
     implementation("it.skrape:skrapeit-http-fetcher:1.2.1")
-    implementation("org.apache.poi:poi:5.2.1")
+    implementation("org.apache.poi:poi:5.2.2")
     implementation("org.apache.poi:poi-ooxml:5.2.2")
     implementation("commons-io:commons-io: 2.11.0")
 
