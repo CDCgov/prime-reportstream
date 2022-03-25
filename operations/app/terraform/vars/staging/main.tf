@@ -1,10 +1,11 @@
 ## Set up our Azure Virtual Network.
 ## Need to determine a way to run or not if vnets are pre-configured
 module "vnet" {
-  source                  = "../../modules/vnet"
-  resource_group          = var.resource_group
-  environment             = var.environment
-  resource_prefix         = var.resource_prefix
+  source          = "../../modules/vnet"
+  resource_group  = var.resource_group
+  environment     = var.environment
+  resource_prefix = var.resource_prefix
+  # azure_vns       = var.network
 }
 
 ##########
@@ -12,12 +13,13 @@ module "vnet" {
 ##########
 
 module "network" {
-  source             = "../../modules/network"
-  environment        = var.environment
-  resource_group     = var.resource_group
-  resource_prefix    = var.resource_prefix
-  location           = var.location
-  azure_vns          = var.network
+  source = "../../modules/network"
+
+  environment     = var.environment
+  resource_group  = var.resource_group
+  resource_prefix = var.resource_prefix
+  location        = var.location
+  azure_vns       = var.network
 }
 
 module "nat_gateway" {
@@ -68,7 +70,7 @@ module "container_registry" {
   resource_group       = var.resource_group
   resource_prefix      = var.resource_prefix
   location             = var.location
-  enable_content_trust = true
+  enable_content_trust = false
   public_subnets       = module.network.public_subnet_ids
 }
 
@@ -84,7 +86,7 @@ module "database" {
   resource_group           = var.resource_group
   resource_prefix          = var.resource_prefix
   location                 = var.location
-  rsa_key_2048             = var.rsa_key_2048
+  rsa_key_2048             = data.azurerm_key_vault_key.pdhstaging-2048-key.id
   aad_group_postgres_admin = var.aad_group_postgres_admin
   is_metabase_env          = var.is_metabase_env
   use_cdc_managed_vnet     = var.use_cdc_managed_vnet
@@ -166,17 +168,18 @@ module "front_door" {
   application_key_vault_id    = module.key_vault.application_key_vault_id
 }
 
-# Not needed in staging
-# module "sftp_container" {
-#   count = var.environment != "prod" ? 1 : 0
+module "sftp_container" {
+  count = var.environment != "prod" ? 1 : 0
 
-#   source               = "../../modules/sftp_container"
-#   environment          = var.environment
-#   resource_group       = var.resource_group
-#   resource_prefix      = var.resource_prefix
-#   location             = var.location
-#   use_cdc_managed_vnet = var.use_cdc_managed_vnet
-# }
+  source                = "../../modules/sftp_container"
+  environment           = var.environment
+  resource_group        = var.resource_group
+  resource_prefix       = var.resource_prefix
+  location              = var.location
+  use_cdc_managed_vnet  = var.use_cdc_managed_vnet
+  sa_primary_access_key = module.storage.sa_primary_access_key
+
+}
 
 # module "metabase" {
 #   count = var.is_metabase_env ? 1 : 0
@@ -189,12 +192,14 @@ module "front_door" {
 #   ai_instrumentation_key = module.application_insights.metabase_instrumentation_key
 #   ai_connection_string   = module.application_insights.metabase_connection_string
 #   use_cdc_managed_vnet   = var.use_cdc_managed_vnet
+#   service_plan_id        = module.app_service_plan.service_plan_id
+
+
 # }
 
 ##########
 ## 05-Monitor
 ##########
-
 
 module "log_analytics_workspace" {
   source                     = "../../modules/log_analytics_workspace"
@@ -226,7 +231,7 @@ module "application_insights" {
   location           = var.location
   is_metabase_env    = var.is_metabase_env
   pagerduty_url      = data.azurerm_key_vault_secret.pagerduty_url.value
-  postgres_server_id = module.database.postgres_server_id
-  service_plan_id    = module.app_service_plan.service_plan_id
+  postgres_server_id = [module.database.postgres_server_id]
+  service_plan_id    = [module.app_service_plan.service_plan_id]
   workspace_id       = module.log_analytics_workspace.law_id
 }

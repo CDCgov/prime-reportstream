@@ -8,11 +8,13 @@ terraform {
     }
   }
 
+  # NOTE: injected at init time by calling terraform init with the "--backend-config=<path to .tfbackend file>"
+  # See configurations directory
   backend "azurerm" {
-    resource_group_name  = "prime-data-hub-staging"
-    storage_account_name = "pdhstagingnewterraform"
+    resource_group_name  = "prime-data-hub-test"
+    storage_account_name = "pdhtestnewterraform"
     container_name       = "terraformstate"
-    key                  = "stage.terraform.tfstate"
+    key                  = "test.terraform.tfstate"
   }
 }
 

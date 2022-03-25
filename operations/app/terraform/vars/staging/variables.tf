@@ -2,7 +2,7 @@
 variable "terraform_object_id" {
   type        = string
   description = "Object id of user running TF"
-  default     = ""
+  default     = "95c8618b-e33d-4c68-8c09-b5618c642f40"
 }
 
 variable "tf_secrets_vault" {
@@ -201,7 +201,7 @@ variable "use_cdc_managed_vnet" {
 }
 
 variable "app_config_kv_name" {
-  default     = "pdhstaging-app-config"
+  default     = "pdhstaging-appconfig"
   description = "The keyvault used for application specific secrets."
 }
 

@@ -26,7 +26,7 @@ data "azurerm_key_vault_secret" "pagerduty_url" {
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
 
-data "azurerm_key_vault_key" "pdhtest-2048-key" {
+data "azurerm_key_vault_key" "pdhstaging-2048-key" {
   name         = "pdh${var.environment}-2048-key"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
