@@ -655,7 +655,7 @@ dependencies {
     implementation("com.azure:azure-storage-blob:12.14.4") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.11.4") {
+    implementation("com.azure:azure-storage-queue:12.12.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.3.7") {
@@ -674,10 +674,14 @@ dependencies {
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.4.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.2") {
+        exclude(group = "org.yaml", module = "snakeyaml")
+    }
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
-    implementation("com.github.javafaker:javafaker:1.0.2")
+    implementation("com.github.javafaker:javafaker:1.0.2") {
+        exclude(group = "org.yaml", module = "snakeyaml")
+    }
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.17")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.7.1")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.0")
