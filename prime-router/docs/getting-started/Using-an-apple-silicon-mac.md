@@ -20,8 +20,8 @@ This approach has the benefit of reducing your build-debug cycle time and is det
 
 ### Step 1 - Read the getting started instructions
 
-Read the [Getting Started](./getting_started.md) instructions as background information about various components 
-needed to work in ReportStream. This document may have new information not found in this document. 
+Read the [Getting Started](./getting-started.md) instructions as background information about various components 
+needed to work in ReportStream. The [Getting Started](./getting-started.md) document may have new information not found in this document. 
 
 ### Step 2 - Install dev tools
 
@@ -55,7 +55,7 @@ docker ps
 
 ### Step 4 - Run support services
 
-ReportStream depends on set of services to be up before running main Azure service. These services include the following 
+ReportStream depends on set of services to be up before running main Azure service. These services include the following
 and are run automatically when starting ReportStream Dockerless:
 
 * Azurite - a simulator of Azure storage
@@ -64,17 +64,17 @@ and are run automatically when starting ReportStream Dockerless:
 * FTPS - an FTPS server
 * soap-webservice - SOAP web service emulator
 
-You can take down these services by running `./gradlew composeDown` or `docker-compose down` command. 
+You can take down these services by running `./gradlew composeDown` or `docker-compose down` command.
 For now, leave these services running and open up a new terminal session.
 
 ### Step 5 - Run ReportStream locally
-Use Gradle to launch ReportStream, as it will set up the environment variables that ReportStream needs. 
+Use Gradle to launch ReportStream, as it will set up the environment variables that ReportStream needs.
 
 ```bash
 ./gradlew run
 ```
 
-*Note:* for quicker development you can use `./gradlew quickrun` which skips some long running tasks, but use with 
+*Note:* for quicker development you can use `./gradlew quickrun` which skips some long running tasks, but use with
 caution as it will not build the FatJar, run database related tasks, or run the tests.  
 
 ReportStream should continue to run after launching. A `ctrl-c` will kill the running ReportStream instance. 
