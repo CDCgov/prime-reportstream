@@ -30,7 +30,7 @@ describe("testing ErrorPage", () => {
 
     // actual tests
     it("checks basic error", () => {
-        const { getAllByText, queryByText } = render(
+        const { getByText, queryByText } = render(
             <ErrorPage>
                 <div>child component</div>
             </ErrorPage>
