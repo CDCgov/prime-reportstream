@@ -147,4 +147,4 @@ class InvalidTranslationMessage(override val message: String) :
  */
 class FhirActionLogDetail(
     override val message: String
-) : GenericActionLogDetail(message, ActionLogScope.fhir_processing)
+) : GenericActionLogDetail(message, ActionLogScope.report)
