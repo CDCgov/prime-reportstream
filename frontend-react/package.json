@@ -128,7 +128,9 @@
                             "allowTestingFrameworkSetupHook": "beforeEach"
                         }
                     ],
-                    "testing-library/no-node-access": "off"
+                    "testing-library/no-node-access": "off",
+                    "testing-library/prefer-screen-queries": "warn",
+                    "testing-library/no-unnecessary-act": "warn"
                 }
             }
         ],

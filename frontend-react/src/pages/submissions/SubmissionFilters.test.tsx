@@ -14,19 +14,15 @@ describe("Rendering", () => {
         expect(container).toBeInTheDocument();
     });
 
-    test("pickers render", async () => {
+    test("pickers render", () => {
         /* Trussworks USWDS library uses the placeholder text in two different
          *  HTML elements, so we have to use getAllBy...() rather than getBy...()
          *  and assert that they are non-null.
          * */
-        const minPickerElements = await screen.getAllByPlaceholderText(
-            /start date/i
-        );
-        const maxPickerElements = await screen.getAllByPlaceholderText(
-            /end date/i
-        );
+        const minPickerElements = screen.getByPlaceholderText(/start date/i);
+        const maxPickerElements = screen.getByPlaceholderText(/end date/i);
 
-        expect(minPickerElements).not.toBeNull();
-        expect(maxPickerElements).not.toBeNull();
+        expect(minPickerElements).toBeInTheDocument();
+        expect(maxPickerElements).toBeInTheDocument();
     });
 });

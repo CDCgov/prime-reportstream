@@ -73,10 +73,10 @@ describe("EditSenderSettings", () => {
     };
 
     test("should be able to edit keys field", async () => {
-        const container = render(
+        const view = render(
             <EditSenderSettings {...mockRouteComponentProps} />
         );
-        const keysField = container.getByTestId("keys");
+        const keysField = view.getByTestId("keys");
 
         expect(keysField).toBeInTheDocument();
 
@@ -86,10 +86,10 @@ describe("EditSenderSettings", () => {
     });
 
     test("should be able to edit processing type field", async () => {
-        const container = render(
+        const view = render(
             <EditSenderSettings {...mockRouteComponentProps} />
         );
-        const processingTypeField = container.getByTestId("processingType");
+        const processingTypeField = view.getByTestId("processingType");
 
         expect(processingTypeField).toBeInTheDocument();
 

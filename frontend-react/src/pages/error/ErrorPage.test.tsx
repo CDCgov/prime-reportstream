@@ -37,9 +37,9 @@ describe("testing ErrorPage", () => {
         );
 
         expect(
-            getAllByText(/application has encountered an unknown error/i)
-        ).toBeDefined();
-        expect(queryByText(/child component/i)).toBe(null);
+            getByText(/application has encountered an unknown error/i)
+        ).toBeInTheDocument();
+        expect(queryByText(/child component/i)).not.toBeInTheDocument();
     });
 
     it("check UNSUPPORTED_BROWSER", () => {
@@ -48,8 +48,8 @@ describe("testing ErrorPage", () => {
                 <div>child component</div>
             </ErrorPage>
         );
-        expect(getByText(/does not support your browser/i)).toBeDefined();
-        expect(queryByText(/child component/i)).toBe(null);
+        expect(getByText(/does not support your browser/i)).toBeInTheDocument();
+        expect(queryByText(/child component/i)).not.toBeInTheDocument();
     });
 
     it("check NOT_FOUND_404", () => {
@@ -58,8 +58,8 @@ describe("testing ErrorPage", () => {
                 <div>child component</div>
             </ErrorPage>
         );
-        expect(getByText(/Page not found/i)).toBeDefined();
-        expect(queryByText(/child component/i)).toBe(null);
+        expect(getByText(/Page not found/i)).toBeInTheDocument();
+        expect(queryByText(/child component/i)).not.toBeInTheDocument();
     });
 
     it("NetworkErrorBoundary 500", () => {
@@ -71,9 +71,9 @@ describe("testing ErrorPage", () => {
                 <div>never renders</div>
             </NetworkErrorBoundary>
         );
-        expect(queryByText(/never renders/i)).toBe(null);
+        expect(queryByText(/never renders/i)).not.toBeInTheDocument();
         expect(
             getByText(/application has encountered an unknown error/i)
-        ).toBeDefined();
+        ).toBeInTheDocument();
     });
 });
