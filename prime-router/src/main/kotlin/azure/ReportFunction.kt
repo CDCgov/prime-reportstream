@@ -60,7 +60,7 @@ class ReportFunction(
     /**
      * POST a report to the router
      *
-     * @see ../../../docs/openapi.yml
+     * @see ../../../docs/api/reports.yml
      */
     @FunctionName("reports")
     @StorageAccount("AzureWebJobsStorage")
