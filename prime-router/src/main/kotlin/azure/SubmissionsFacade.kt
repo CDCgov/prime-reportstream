@@ -31,11 +31,10 @@ class SubmissionsFacade(
      *
      * @return a String representation of an array of actions.
      */
-    // Leaving separate from FindSubmissions to encapsulate json serialization
     fun findSubmissionsAsJson(
         organizationName: String,
-        sortOrder: String,
-        sortColumn: String,
+        sortOrder: SubmissionAccess.SortOrder,
+        sortColumn: SubmissionAccess.SortColumn,
         offset: OffsetDateTime?,
         toEnd: OffsetDateTime?,
         pageSize: Int,
@@ -43,33 +42,6 @@ class SubmissionsFacade(
     ): String {
         val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize, showFailed)
         return mapper.writeValueAsString(result)
-    }
-
-    private fun findSubmissions(
-        organizationName: String,
-        sortOrder: String,
-        sortColumn: String,
-        offset: OffsetDateTime?,
-        toEnd: OffsetDateTime?,
-        pageSize: Int,
-        showFailed: Boolean
-    ): List<SubmissionHistory> {
-        val order = try {
-            SubmissionAccess.SortOrder.valueOf(sortOrder)
-        } catch (e: IllegalArgumentException) {
-            SubmissionAccess.SortOrder.DESC
-        }
-
-        val column = try {
-            SubmissionAccess.SortColumn.valueOf(sortColumn)
-        } catch (e: IllegalArgumentException) {
-            SubmissionAccess.SortColumn.CREATED_AT
-        }
-
-        /* This will swap the order of the date-time offsets IF both are present
-         * and the given cursor is a date prior to the end-date.
-         */
-        return findSubmissions(organizationName, order, column, offset, toEnd, pageSize, showFailed)
     }
 
     /**
@@ -150,9 +122,7 @@ class SubmissionsFacade(
     }
 
     companion object {
-
-        // The SubmissionFacade is heavy-weight object (because it contains a Jackson Mapper) so reuse it when possible
-        val common: SubmissionsFacade by lazy {
+        val instance: SubmissionsFacade by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
             SubmissionsFacade(DatabaseSubmissionsAccess())
         }
     }
