@@ -74,8 +74,7 @@ export const ConfirmSaveSettingModal = forwardRef(
                 // route these down to modal ref
                 modalId: modalRef?.current?.modalId || "",
                 modalIsOpen: modalRef?.current?.modalIsOpen || false,
-                toggleModal:
-                    modalRef?.current?.toggleModal || ((e, o) => false),
+                toggleModal: modalRef?.current?.toggleModal || (() => false),
             }),
             [diffEditorRef, newjson, modalRef]
         );
