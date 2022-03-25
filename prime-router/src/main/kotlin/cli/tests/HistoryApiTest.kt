@@ -24,8 +24,6 @@ data class ExpectedSubmissionHistory(
     val id: ReportId?,
     val topic: String?,
     val reportItemCount: Int?,
-    val warningCount: Int?,
-    val errorCount: Int?,
     val externalName: String? = ""
 )
 

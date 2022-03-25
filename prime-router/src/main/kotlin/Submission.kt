@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
-import com.fasterxml.jackson.annotation.JsonUnwrapped
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
@@ -40,18 +39,17 @@ class DetailedSubmissionHistory(
     @JsonIgnore
     var reports: MutableList<DetailReport>?,
     @JsonIgnore
-    val logs: List<DetailActionLog>?
+    var logs: List<DetailActionLog> = emptyList()
 ) {
     /**
      * The report ID.
      */
     var id: String? = null
-        internal set
 
     /**
      * The destinations.
      */
-    val destinations = mutableListOf<Destination>()
+    var destinations = mutableListOf<Destination>()
 
     /**
      * Error log for the submission.
@@ -67,29 +65,26 @@ class DetailedSubmissionHistory(
      * The schema topic.
      */
     var topic: String? = null
-        internal set
 
     /**
      * The sender of the input report.
      */
     var sender: String? = null
-        internal set
 
     /**
      * The input report's external name.
      */
     var externalName: String? = null
-        internal set
 
     /**
      * The number of warnings.  Note this is not the number of consolidated warnings.
      */
-    val warningCount = logs?.count { it.type == ActionLogLevel.warning } ?: 0
+    val warningCount = logs.count { it.type == ActionLogLevel.warning }
 
     /**
      * The number of errors.  Note this is not the number of consolidated errors.
      */
-    val errorCount = logs?.count { it.type == ActionLogLevel.error } ?: 0
+    val errorCount = logs.count { it.type == ActionLogLevel.error }
 
     /**
      * Number of destinations that actually had/will have data sent to.
@@ -102,17 +97,16 @@ class DetailedSubmissionHistory(
      * Number of report items.
      */
     var reportItemCount: Int? = null
-        internal set
 
     init {
         reports?.forEach { report ->
             // For reports sent to a destination
             report.receivingOrg?.let {
-                val filterLogs = logs?.filter {
+                val filterLogs = logs.filter {
                     it.type == ActionLogLevel.filter && it.reportId == report.reportId
                 }
-                val filteredReportRows = filterLogs?.map { it.detail.message }
-                val filteredReportItems = filterLogs?.map {
+                val filteredReportRows = filterLogs.map { it.detail.message }
+                val filteredReportItems = filterLogs.map {
                     ReportStreamFilterResultForResponse(it.detail as ReportStreamFilterResult)
                 }
                 destinations.add(
@@ -251,36 +245,36 @@ class DetailedSubmissionHistory(
     internal fun consolidateLogs(filterBy: ActionLogLevel? = null):
         List<ConsolidatedActionLog> {
         val consolidatedList = mutableListOf<ConsolidatedActionLog>()
-        if (logs != null) {
-            // First filter the logs and sort by the message.  This first sorting can take care of sorting old messages
-            // that contain index numbers like "Report 3: xxxx"
-            val filteredList = when (filterBy) {
-                null -> logs
-                else -> logs.filter { it.type == filterBy }
-            }.sortedBy { it.detail.message }
-            // Now order the list so that logs contain first non-item messages, then item messages, and item messages
-            // are sorted by index.
-            val orderedList = (
-                filteredList.filter { it.scope != ActionLogScope.item }.sortedBy { it.scope } +
-                    filteredList.filter { it.scope == ActionLogScope.item }.sortedBy { it.index }
-                ).toMutableList()
-            // Now consolidate the list
-            while (orderedList.isNotEmpty()) {
-                // Grab the first log.
-                val consolidatedLog = ConsolidatedActionLog(orderedList.first())
-                orderedList.removeFirst()
-                // Now find similar logs and consolidate it.  Note by using the iterator we can delete on the fly.
-                with(orderedList.iterator()) {
-                    forEach { log ->
-                        if (consolidatedLog.canBeConsolidatedWith(log)) {
-                            consolidatedLog.add(log)
-                            remove()
-                        }
+
+        // First filter the logs and sort by the message.  This first sorting can take care of sorting old messages
+        // that contain index numbers like "Report 3: xxxx"
+        val filteredList = when (filterBy) {
+            null -> logs
+            else -> logs.filter { it.type == filterBy }
+        }.sortedBy { it.detail.message }
+        // Now order the list so that logs contain first non-item messages, then item messages, and item messages
+        // are sorted by index.
+        val orderedList = (
+            filteredList.filter { it.scope != ActionLogScope.item }.sortedBy { it.scope } +
+                filteredList.filter { it.scope == ActionLogScope.item }.sortedBy { it.index }
+            ).toMutableList()
+        // Now consolidate the list
+        while (orderedList.isNotEmpty()) {
+            // Grab the first log.
+            val consolidatedLog = ConsolidatedActionLog(orderedList.first())
+            orderedList.removeFirst()
+            // Now find similar logs and consolidate it.  Note by using the iterator we can delete on the fly.
+            with(orderedList.iterator()) {
+                forEach { log ->
+                    if (consolidatedLog.canBeConsolidatedWith(log)) {
+                        consolidatedLog.add(log)
+                        remove()
                     }
                 }
-                consolidatedList.add(consolidatedLog)
             }
+            consolidatedList.add(consolidatedLog)
         }
+
         return consolidatedList
     }
 }
@@ -440,27 +434,25 @@ class SubmissionHistory(
     val httpStatus: Int,
     @JsonInclude(Include.NON_NULL)
     val externalName: String? = "",
-    actionResponse: ActionResponse,
+    @JsonIgnore
+    val reportId: String? = null,
+    @JsonIgnore
+    val schemaTopic: String? = null,
+    @JsonIgnore
+    val itemCount: Int? = null
 ) {
-    @JsonUnwrapped
-    val actionReponse = actionResponse
+    /**
+     * The report ID.
+     */
+    val id = reportId
+
+    /**
+     * The topic.
+     */
+    val topic = schemaTopic
+
+    /**
+     * The number of items in the report.
+     */
+    val reportItemCount = itemCount
 }
-
-/**
- * An `ActionResponse` represents the required information from the `action.action_reponse` column for one submission of a message from a sender.
- *
- * @param id of the Submission is `action_response.id` and represents a Report ID from the table `public.action`
- * @param topic of the Submission is `action_response.topic` from the table `public.action`
- * @param reportItemCount of the Submission is `action_response.reportItemCount` and represents a Report ID from the table `public.action`
- * @param warningCount of the Submission is `action_response.warningCount` from the table `public.action`
- * @param errorCount of the Submission is `action_response.errorCount` from the table `public.action`
- */
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class ActionResponse(
-    val id: String?,
-    val topic: String?,
-    val reportItemCount: Int?,
-    val warningCount: Int?,
-    val errorCount: Int?,
-)

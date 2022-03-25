@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.ActionResponse
 import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SubmissionHistory
@@ -93,26 +92,23 @@ class SubmissionFunctionTests {
             sendingOrg = "simple_report",
             httpStatus = 201,
             externalName = "testname.csv",
-            actionResponse = ActionResponse(
-                id = "a2cf1c46-7689-4819-98de-520b5007e45f",
-                topic = "covid-19",
-                reportItemCount = 3,
-                warningCount = 3,
-                errorCount = 0
-            )
+            reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
+            schemaTopic = "covid-19",
+            itemCount = 3,
+//                warningCount = 3,
+//                errorCount = 0
         ),
         SubmissionHistory(
             actionId = 7,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
             sendingOrg = "simple_report",
             httpStatus = 400,
-            actionResponse = ActionResponse(
-                id = null,
-                topic = null,
-                reportItemCount = null,
-                warningCount = 1,
-                errorCount = 1
-            )
+            externalName = "testname.csv",
+            reportId = null,
+            schemaTopic = null,
+            itemCount = null,
+//                warningCount = 1,
+//                errorCount = 1
         )
     )
 
@@ -141,20 +137,17 @@ class SubmissionFunctionTests {
                             externalName = "testname.csv",
                             id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
                             topic = "covid-19",
-                            reportItemCount = 3,
-                            warningCount = 3,
-                            errorCount = 0
+                            reportItemCount = 3
                         ),
                         ExpectedSubmissionHistory(
                             taskId = 7,
                             createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307Z"),
                             sendingOrg = "simple_report",
                             httpStatus = 400,
+                            externalName = "testname.csv",
                             id = null,
                             topic = null,
-                            reportItemCount = null,
-                            warningCount = 1,
-                            errorCount = 1
+                            reportItemCount = null
                         )
                     )
                 ),
@@ -265,7 +258,7 @@ class SubmissionFunctionTests {
         // Good return
         val returnBody = DetailedSubmissionHistory(
             100, TaskAction.receive, OffsetDateTime.now(),
-            null, null, null
+            null, null, emptyList()
         )
         returnBody.sender = "org.client"
         every { mockSubmissionFacade.findReport(any(), any()) } returns returnBody

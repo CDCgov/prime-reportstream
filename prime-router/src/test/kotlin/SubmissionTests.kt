@@ -16,7 +16,7 @@ import kotlin.test.Test
 class SubmissionTests {
     @Test
     fun `tests consolidation of logs`() {
-        fun createLogs(logs: List<DetailActionLog>?): DetailedSubmissionHistory {
+        fun createLogs(logs: List<DetailActionLog>): DetailedSubmissionHistory {
             return DetailedSubmissionHistory(
                 1, TaskAction.receive, OffsetDateTime.now(),
                 null, null, logs
@@ -229,7 +229,7 @@ class SubmissionTests {
 
     @Test
     fun `test DetailedSubmissionHistory common properties init`() {
-        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, null, null).run {
+        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, null, emptyList()).run {
             assertThat(actionId).isEqualTo(1)
             assertThat(id).isNull()
             assertThat(sender).isNull()
@@ -254,7 +254,7 @@ class SubmissionTests {
             )
         ).toMutableList()
 
-        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, reports, null).run {
+        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, reports, emptyList()).run {
             assertThat(actionId).isEqualTo(1)
             assertThat(id).isEqualTo(inputReport.reportId.toString())
             assertThat(sender).isEqualTo(ClientSource(inputReport.sendingOrg!!, inputReport.sendingOrgClient!!).name)
@@ -282,7 +282,7 @@ class SubmissionTests {
 
         reports = listOf(inputReport, inputReport).toMutableList()
         assertThat {
-            DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, reports, null)
+            DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, reports, emptyList())
         }.isFailure()
     }
 }
