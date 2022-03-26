@@ -47,7 +47,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
     /**
      * Perform authentication on a human user.
      *
-     * Return the claims found in the jwt if the jwt token in [request] is validated.
+     * @return the claims found in the jwt if the jwt token in [request] is validated.
      * Return null if not authenticated.
      * Always performs authentication using Okta, unless running locally.
      */
@@ -57,7 +57,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
     }
 
     /**
-     * See full comments above.
+     * @see [authenticate].
      */
     fun authenticate(
         accessToken: String?,
@@ -97,26 +97,28 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
 
     /**
      * Helper method for authentication.
-     * Check whether we are running locally
+     * Check whether we are running locally.
+     * Even if local, if the [accessToken] is there, then do real Okta auth.
+     * @return true if we should do 'local' auth, false if we should do Okta auth.
      */
     fun isLocal(accessToken: String?): Boolean {
-        return if (!Environment.isLocal()) {
-            false
-        } else if (accessToken != null && accessToken.split(".").size == 3) {
-            // For testing auth.  Running local, but test using the real production parser.
-            // The above test is purposefully simple so that we can test all kinds of error conditions
-            // further downstream.
-            logger.info("Running locally, but will use the OktaAuthenticationVerifier")
-            false
-        } else {
-            true
+        return when {
+            (!Environment.isLocal()) -> false
+            (accessToken != null && accessToken.split(".").size == 3) -> {
+                // For testing auth.  Running local, but test using the real production parser.
+                // The above test is purposefully simple so that we can test all kinds of error conditions
+                // further downstream.
+                logger.info("Running locally, but will use the OktaAuthenticationVerifier")
+                false
+            }
+            else -> true
         }
     }
 
     /**
-     * Check BOTH authentication and authorization for this [request].
-     * [oktaSender] is true if we expect this call comes from a reportstream Sender.
-     * [oktaSender] is false if we expect this call comes from a reportstream receiver.
+     * Check BOTH authentication and authorization for this [request], and if both succeed, execute [block]
+     * [oktaSender] is true if we expect this call comes from a reportstream Sender named [organizationName]
+     * @return a suitable HttpResponse.
      */
     fun checkAccess(
         request: HttpRequestMessage<String?>,
@@ -149,10 +151,13 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
     }
 
     /**
-     * Return a valid AuthenticatedClaims iff
-     * 1) The okta group in the claim is at least as high as the [requiredMinimumLevel]
-     * 2) The okta group in the claim matches the organizationName.
-     * Return null otherwise
+     * @return true iff
+     * 1) The okta group in the [claims] is at least as high as the [requiredMinimumLevel]
+     * 2) The okta group in the [claims] matches the organizationName.
+     * Return false otherwise
+     *
+     * [otkaSender] means the caller desired permission to submit payloads to ReportStream.
+     * [organizationName] is the optional organization the caller desires to be associated with.
      */
     fun authorizeByMembership(
         claims: AuthenticatedClaims,

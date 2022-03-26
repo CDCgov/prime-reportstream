@@ -370,7 +370,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     /**
      * Fetch an action for a given [reportId].
      * @param txn an optional database transaction
-     * @return an Action ID, or null if no such reportId exists.
+     * @return an Action, or null if no such reportId exists.
      */
     fun fetchActionForReportId(
         reportId: UUID,
