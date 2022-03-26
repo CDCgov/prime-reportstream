@@ -71,14 +71,18 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
             <DetailItem
                 item={"Transmission Date"}
                 content={
-                    submissionDate ? submissionDate.dateString : "Parsing error"
+                    (destinationObj.itemCount > 0)
+                            ? (submissionDate ? submissionDate.dateString : "Parsing error")
+			    : "Not transmitting - all data filtered"
                 }
                 subItem
             />
             <DetailItem
                 item={"Transmission Time"}
                 content={
-                    submissionDate ? submissionDate.timeString : "Parsing error"
+                    (destinationObj.itemCount > 0)
+                            ? (submissionDate ? submissionDate.timeString : "Parsing error")
+			    : "Not transmitting - all data filtered"
                 }
                 subItem
             />
