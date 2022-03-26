@@ -515,7 +515,7 @@ class ActionHistory : Logging {
                 ActionLog(
                     it,
                     it.filteredTrackingElement,
-                    it.filteredIndex,
+                    null, // we don't have accurate filteredIndex (rownums) to put here; due to juri filtering.
                     reportId = report.id,
                     action = action,
                     type = ActionLogLevel.filter,

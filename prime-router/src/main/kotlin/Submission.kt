@@ -396,7 +396,6 @@ data class ReportStreamFilterResultForResponse(@JsonIgnore private val filterRes
     val filterType = filterResult.filterType
     val filterName = filterResult.filterName
     val originalCount = filterResult.originalCount
-    val filteredIndex = filterResult.filteredIndex
     val filteredTrackingElement = filterResult.filteredTrackingElement
     val filterArgs = filterResult.filterArgs
     val message = filterResult.message
