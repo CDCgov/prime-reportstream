@@ -52,7 +52,7 @@ export default class ActionDetailsResource extends AuthResource {
         organization: string;
     }): string {
         if (searchParams && Object.keys(searchParams).length) {
-            return `${process.env.REACT_APP_BACKEND_URL}/api/history/${searchParams.organization}/submissions/${searchParams.actionId}`;
+            return `${process.env.REACT_APP_BACKEND_URL}/api/waters/report/${searchParams.actionId}/history`;
         }
         throw new Error("Action details require an ActionID to retrieve");
     }

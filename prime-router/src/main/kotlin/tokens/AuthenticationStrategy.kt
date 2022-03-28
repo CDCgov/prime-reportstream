@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.tokens
 
-import gov.cdc.prime.router.azure.PrincipalLevel
 import gov.cdc.prime.router.azure.WorkflowEngine
 import org.apache.logging.log4j.kotlin.Logging
 
