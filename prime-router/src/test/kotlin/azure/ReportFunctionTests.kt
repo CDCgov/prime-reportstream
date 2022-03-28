@@ -53,7 +53,6 @@ class ReportFunctionTests {
 
     var actionLogWithQualityFilter = ActionLog(
         detail = ReportStreamFilterResult(
-            filteredIndex = 1,
             filterName = "isValidCLIA",
             filterType = ReportStreamFilterType.QUALITY_FILTER,
             filteredTrackingElement = "FilterTest1",
@@ -66,7 +65,6 @@ class ReportFunctionTests {
 
     var actionLogWithoutQualityFilter = ActionLog(
         detail = ReportStreamFilterResult(
-            filteredIndex = 1,
             filterName = "isValidCLIA",
             filterType = ReportStreamFilterType.JURISDICTIONAL_FILTER,
             filteredTrackingElement = "FilterTest1",
@@ -209,7 +207,7 @@ class ReportFunctionTests {
         req.parameters += mapOf("option" to Options.ValidatePayload.toString())
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
 
         // act
         reportFunc.processRequest(req, sender)
@@ -244,8 +242,11 @@ class ReportFunctionTests {
         req.parameters += mapOf("option" to Options.ValidatePayload.toString())
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
         every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "org"
+        every { actionHistory.action.sendingOrgClient } returns "client"
 
         // act
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
@@ -255,7 +256,7 @@ class ReportFunctionTests {
 
         // assert
         verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any(), any()) }
-        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+        verify(exactly = 2) { actionHistory.trackActionSenderInfo(any(), any()) }
     }
 
     // test duplicate override = true
@@ -285,8 +286,11 @@ class ReportFunctionTests {
         )
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
         every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "org"
+        every { actionHistory.action.sendingOrgClient } returns "client"
 
         // act
         reportFunc.processRequest(req, sender)
@@ -324,8 +328,11 @@ class ReportFunctionTests {
         )
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
         every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "org"
+        every { actionHistory.action.sendingOrgClient } returns "client"
 
         // act
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
@@ -335,7 +342,7 @@ class ReportFunctionTests {
 
         // assert
         verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any(), any()) }
-        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+        verify(exactly = 2) { actionHistory.trackActionSenderInfo(any(), any()) }
     }
 
     @Test
@@ -364,6 +371,7 @@ class ReportFunctionTests {
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        actionHistory.action.actionId = 1
         actionHistory.actionLogs.add(actionLogWithQualityFilter)
         val reportFunc = spyk(ReportFunction(engine, actionHistory))
         val sender = Sender(
@@ -399,6 +407,7 @@ class ReportFunctionTests {
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        actionHistory.action.actionId = 1
         actionHistory.actionLogs.add(actionLogWithoutQualityFilter)
         val reportFunc = spyk(ReportFunction(engine, actionHistory))
         val sender = Sender(
@@ -434,6 +443,7 @@ class ReportFunctionTests {
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        actionHistory.action.actionId = 1
         actionHistory.actionLogs.add(actionLogWithQualityFilter)
         val reportFunc = spyk(ReportFunction(engine, actionHistory))
         val sender = Sender(
@@ -468,6 +478,5 @@ class ReportFunctionTests {
         every { actionHistory.insertAll(any()) } returns Unit
         every { engine.verifyNoDuplicateFile(any(), any(), any()) } returns Unit
         every { engine.recordReceivedReport(any(), any(), any(), any()) } returns blobInfoMock
-        every { actionHistory.createResponseBody(any(), any(), any()) } returns "test"
     }
 }
