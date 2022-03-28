@@ -48,6 +48,7 @@ module "app_service_plan" {
 
 module "key_vault" {
   source                      = "../../modules/key_vault"
+  dns_vnet                    = var.dns_vnet
   environment                 = var.environment
   resource_group              = var.resource_group
   resource_prefix             = var.resource_prefix
@@ -83,6 +84,7 @@ module "container_registry" {
 module "database" {
   source                   = "../../modules/database"
   environment              = var.environment
+  dns_vnet                 = var.dns_vnet
   resource_group           = var.resource_group
   resource_prefix          = var.resource_prefix
   location                 = var.location
@@ -108,6 +110,7 @@ module "database" {
 
 module "storage" {
   source                      = "../../modules/storage"
+  dns_vnet                    = var.dns_vnet
   environment                 = var.environment
   resource_group              = var.resource_group
   resource_prefix             = var.resource_prefix

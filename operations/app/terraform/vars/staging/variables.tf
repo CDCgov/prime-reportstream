@@ -200,6 +200,11 @@ variable "use_cdc_managed_vnet" {
   default = false
 }
 
+variable "dns_vnet" {
+  description = "VNET to use for DNS entries"
+  default     = "East-vnet"
+}
+
 variable "app_config_kv_name" {
   default     = "pdhstaging-appconfig"
   description = "The keyvault used for application specific secrets."
