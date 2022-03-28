@@ -122,7 +122,7 @@ class ReportFunctionTests {
         )
 
         // Invoke function run
-        var res = reportFunc.run(req)
+        val res = reportFunc.run(req)
 
         // verify
         assert(res.statusCode == 400)
@@ -193,7 +193,7 @@ class ReportFunctionTests {
         req.parameters += mapOf("option" to Options.ValidatePayload.toString())
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
 
         // act
         reportFunc.processRequest(req, sender)
@@ -234,8 +234,11 @@ class ReportFunctionTests {
         req.parameters += mapOf("option" to Options.ValidatePayload.toString())
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
         every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "org"
+        every { actionHistory.action.sendingOrgClient } returns "client"
 
         // act
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
@@ -245,7 +248,7 @@ class ReportFunctionTests {
 
         // assert
         verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any(), any()) }
-        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+        verify(exactly = 2) { actionHistory.trackActionSenderInfo(any(), any()) }
     }
 
     // test duplicate override = true
@@ -281,8 +284,11 @@ class ReportFunctionTests {
         )
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
         every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "org"
+        every { actionHistory.action.sendingOrgClient } returns "client"
 
         // act
         reportFunc.processRequest(req, sender)
@@ -326,8 +332,11 @@ class ReportFunctionTests {
         )
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
         every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "org"
+        every { actionHistory.action.sendingOrgClient } returns "client"
 
         // act
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
@@ -337,6 +346,6 @@ class ReportFunctionTests {
 
         // assert
         verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any(), any()) }
-        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+        verify(exactly = 2) { actionHistory.trackActionSenderInfo(any(), any()) }
     }
 }

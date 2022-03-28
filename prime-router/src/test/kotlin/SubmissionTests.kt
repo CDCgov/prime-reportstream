@@ -3,21 +3,23 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
+import java.util.UUID
 import kotlin.test.Test
 
 class SubmissionTests {
     @Test
     fun `tests consolidation of logs`() {
-        fun createLogs(logs: List<DetailActionLog>?): DetailedSubmissionHistory {
+        fun createLogs(logs: List<DetailActionLog>): DetailedSubmissionHistory {
             return DetailedSubmissionHistory(
-                1, TaskAction.receive, OffsetDateTime.now(), null,
-                null, null, null, null, logs
+                1, TaskAction.receive, OffsetDateTime.now(),
+                null, null, logs
             )
         }
 
@@ -223,5 +225,64 @@ class SubmissionTests {
                 )
             )
         ).isFalse()
+    }
+
+    @Test
+    fun `test DetailedSubmissionHistory common properties init`() {
+        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, null, emptyList()).run {
+            assertThat(actionId).isEqualTo(1)
+            assertThat(id).isNull()
+            assertThat(sender).isNull()
+            assertThat(topic).isNull()
+            assertThat(reportItemCount).isNull()
+            assertThat(externalName).isNull()
+        }
+
+        val inputReport = DetailReport(
+            UUID.randomUUID(), null, null, "org",
+            "client", "topic", "externalName", null, null, 5
+        )
+        var reports = listOf(
+            inputReport,
+            DetailReport(
+                UUID.randomUUID(), "recvOrg1", "recvSvc1", null,
+                null, "topic", "otherExternalName1", null, null, 1
+            ),
+            DetailReport(
+                UUID.randomUUID(), "recvOrg2", "recvSvc2", null,
+                null, "topic", "otherExternalName2", null, null, 2
+            )
+        ).toMutableList()
+
+        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, reports, emptyList()).run {
+            assertThat(actionId).isEqualTo(1)
+            assertThat(id).isEqualTo(inputReport.reportId.toString())
+            assertThat(sender).isEqualTo(ClientSource(inputReport.sendingOrg!!, inputReport.sendingOrgClient!!).name)
+            assertThat(topic).isEqualTo(inputReport.schemaTopic)
+            assertThat(reportItemCount).isEqualTo(inputReport.itemCount)
+            assertThat(externalName).isEqualTo(inputReport.externalName)
+        }
+
+        DetailedSubmissionHistory(
+            1, TaskAction.receive, OffsetDateTime.now(), null, reports,
+            listOf(
+                DetailActionLog(
+                    ActionLogScope.item, UUID.randomUUID(), 1, null, ActionLogLevel.error,
+                    InvalidEquipmentMessage("")
+                )
+            )
+        ).run {
+            assertThat(actionId).isEqualTo(1)
+            assertThat(id).isEqualTo(null)
+            assertThat(sender).isEqualTo(ClientSource(inputReport.sendingOrg!!, inputReport.sendingOrgClient!!).name)
+            assertThat(topic).isEqualTo(inputReport.schemaTopic)
+            assertThat(reportItemCount).isEqualTo(inputReport.itemCount)
+            assertThat(externalName).isEqualTo(inputReport.externalName)
+        }
+
+        reports = listOf(inputReport, inputReport).toMutableList()
+        assertThat {
+            DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, reports, emptyList())
+        }.isFailure()
     }
 }

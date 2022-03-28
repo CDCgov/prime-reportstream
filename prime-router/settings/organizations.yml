@@ -1838,27 +1838,6 @@
           processing_mode_code: T
         format: CSV
 
-- name: md-doh
-  description: Maryland
-  jurisdiction: STATE
-  stateCode: MD
-  receivers:
-    - name: elr
-      organizationName: md-doh
-      topic: covid-19
-      customerStatus: active
-      jurisdictionalFilter:
-        - orEquals(patient_state, MD, ordering_facility_state, MD)
-      translation:
-        type: HL7
-        schemaName: covid-19
-        useBatchHeaders: true
-      timing:
-        operation: MERGE
-        numberPerDay: 1440
-        initialTime: 00:00
-        timeZone: EASTERN
-
 - name: md-phd
   description: Maryland Public Health Department
   jurisdiction: STATE
@@ -3525,6 +3504,22 @@
   senders:
     - name: "default"
       organizationName: "uhg-mn"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "mycarelabs-ca"
+  description: "MyCare Labs in CA - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "mycarelabs-ca"
       format: "CSV"
       topic: "covid-19"
       customerStatus: "testing"
