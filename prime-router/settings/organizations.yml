@@ -992,7 +992,8 @@
       jurisdictionalFilter:
         - "orEquals(ordering_facility_state, NM, patient_state, NM)"
       qualityFilter: null
-      routingFilter: null
+      routingFilter:
+        - "DoesNotMatch(sender_id, pmg)" #do not send PMG until NM completes validation
       processingModeFilter: null
   receivers:
     - name: elr
@@ -1388,6 +1389,8 @@
       customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, CA, patient_state, CA)
+      routingFilter:
+        - "DoesNotMatch(sender_id, pmg)" #do not send PMG until NM completes validation
       reverseTheQualityFilter: false
       translation:
         type: HL7
@@ -1417,6 +1420,8 @@
       customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, CA, patient_state, CA)
+      routingFilter:
+        - "DoesNotMatch(sender_id, pmg)" #do not send PMG until NM completes validation
       reverseTheQualityFilter: true
       translation:
         type: HL7
