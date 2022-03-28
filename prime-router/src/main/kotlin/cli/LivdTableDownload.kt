@@ -274,6 +274,7 @@ class LivdTableDownload : CliktCommand(
         val rawLivdReaderOptions = CsvReadOptions.builder(rawLivdFile).columnTypesToDetect(listOf(ColumnType.STRING))
             .build()
         val rawLivdTable = Table.read().usingOptions(rawLivdReaderOptions)
+            .sortAscendingOn(LivdTableColumns.MANUFACTURER.colName, LivdTableColumns.MODEL.colName)
         val supplLivdReaderOptions = CsvReadOptions.builder(livdSupplementalPathname)
             .columnTypesToDetect(listOf(ColumnType.STRING)).build()
         val supplLivdTable = Table.read().usingOptions(supplLivdReaderOptions)
