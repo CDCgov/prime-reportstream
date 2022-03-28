@@ -10,36 +10,36 @@
         {
             "title": "## 🔧 Backend",
             "labels": [
+                "api",
                 "backend",
-                "router",
                 "index",
                 "indexes",
-                "api",
-                "sender",
-                "schema"
+                "router",
+                "schema",
+                "sender"
             ]
         },
         {
             "title": "## 🚀 Pipelines",
             "labels": [
-                "DevOps", 
-                "deployment", 
-                "checks", 
-                "automated", 
-                "workflow", 
+                "automated",
+                "checks",
+                "deployment",
+                "DevOps",
+                "pipeline",
                 "scan",
-                "pipeline"
+                "workflow"
             ]
         },
         {
             "title": "## 🐛 Fixes",
             "labels": [
-                "fix", 
-                "fixed", 
+                "bug",
+                "correct",
+                "fix",
+                "fixed",
                 "fixes",
-                "fixing", 
-                "bug", 
-                "correct"
+                "fixing"
             ]
         },
         {
@@ -58,10 +58,10 @@
         {
             "title": "## 🌐 Release Notes",
             "labels": [
-                "release-notes",
-                "release",
+                "customer",
                 "customer-facing",
-                "customer"
+                "release",
+                "release-notes"
             ]
         },
         {

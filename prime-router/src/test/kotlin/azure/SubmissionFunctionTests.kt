@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.ActionResponse
-import gov.cdc.prime.router.DetailedActionResponse
 import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SubmissionHistory
@@ -43,12 +41,11 @@ data class DetailSubmissionHistoryResponse(
     val sender: String?,
     val httpStatus: Int?,
     val externalName: String? = "",
-    val actionResponse: DetailedActionResponse? = null
 )
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SubmissionFunctionTests {
-    private val mapper = JacksonMapperUtilities.datesAsTextMapper
+    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : SubmissionAccess {
 
@@ -59,6 +56,7 @@ class SubmissionFunctionTests {
             cursor: OffsetDateTime?,
             toEnd: OffsetDateTime?,
             limit: Int,
+            showFailed: Boolean,
             klass: Class<T>
         ): List<T> {
             @Suppress("UNCHECKED_CAST")
@@ -94,26 +92,23 @@ class SubmissionFunctionTests {
             sendingOrg = "simple_report",
             httpStatus = 201,
             externalName = "testname.csv",
-            actionResponse = ActionResponse(
-                id = "a2cf1c46-7689-4819-98de-520b5007e45f",
-                topic = "covid-19",
-                reportItemCount = 3,
-                warningCount = 3,
-                errorCount = 0
-            )
+            reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
+            schemaTopic = "covid-19",
+            itemCount = 3,
+//                warningCount = 3,
+//                errorCount = 0
         ),
         SubmissionHistory(
             actionId = 7,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
             sendingOrg = "simple_report",
             httpStatus = 400,
-            actionResponse = ActionResponse(
-                id = null,
-                topic = null,
-                reportItemCount = null,
-                warningCount = 1,
-                errorCount = 1
-            )
+            externalName = "testname.csv",
+            reportId = null,
+            schemaTopic = null,
+            itemCount = null,
+//                warningCount = 1,
+//                errorCount = 1
         )
     )
 
@@ -136,26 +131,23 @@ class SubmissionFunctionTests {
                     listOf(
                         ExpectedSubmissionHistory(
                             taskId = 8,
-                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
+                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919Z"),
                             sendingOrg = "simple_report",
                             httpStatus = 201,
                             externalName = "testname.csv",
                             id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
                             topic = "covid-19",
-                            reportItemCount = 3,
-                            warningCount = 3,
-                            errorCount = 0
+                            reportItemCount = 3
                         ),
                         ExpectedSubmissionHistory(
                             taskId = 7,
-                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
+                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307Z"),
                             sendingOrg = "simple_report",
                             httpStatus = 400,
+                            externalName = "testname.csv",
                             id = null,
                             topic = null,
-                            reportItemCount = null,
-                            warningCount = 1,
-                            errorCount = 1
+                            reportItemCount = null
                         )
                     )
                 ),
@@ -189,7 +181,7 @@ class SubmissionFunctionTests {
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf(
                     "pagesize" to "10",
-                    "cursor" to "2021-11-30T16:36:48.307109Z",
+                    "cursor" to "2021-11-30T16:36:48.307Z",
                     "sort" to "ASC"
                 ),
                 ExpectedAPIResponse(
@@ -227,8 +219,8 @@ class SubmissionFunctionTests {
                 "simple_report",
             )
             // Verify
-            assertThat(response.getStatus()).isEqualTo(it.expectedResponse.status)
-            if (response.getStatus() == HttpStatus.OK) {
+            assertThat(response.status).isEqualTo(it.expectedResponse.status)
+            if (response.status == HttpStatus.OK) {
                 val submissions: List<ExpectedSubmissionHistory> = mapper.readValue(response.body.toString())
                 if (it.expectedResponse.body != null) {
                     assertThat(submissions.size).isEqualTo(it.expectedResponse.body.size)
@@ -265,14 +257,15 @@ class SubmissionFunctionTests {
 
         // Good return
         val returnBody = DetailedSubmissionHistory(
-            100, TaskAction.receive, OffsetDateTime.now(), "org",
-            null, null, null, null, null
+            100, TaskAction.receive, OffsetDateTime.now(),
+            null, null, emptyList()
         )
+        returnBody.sender = "org.client"
         every { mockSubmissionFacade.findReport(any(), any()) } returns returnBody
         response = function.getReportHistory(mockRequest, "org", goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         val responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
-        assertThat(responseBody.sender).isEqualTo(returnBody.sendingOrg)
+        assertThat(responseBody.sender).isEqualTo(returnBody.sender)
     }
 }

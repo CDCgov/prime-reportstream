@@ -1,10 +1,10 @@
 import { GovBanner } from "@trussworks/react-uswds";
-import { Route, useHistory, Switch } from "react-router-dom";
+import { Route, Switch, useHistory } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
-import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
+import { LoginCallback, SecureRoute, Security } from "@okta/okta-react";
 import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import { ToastContainer } from "react-toastify";
 
@@ -22,7 +22,6 @@ import { PERMISSIONS } from "./resources/PermissionsResource";
 import { permissionCheck, reportReceiver } from "./webreceiver-utils";
 import { Upload } from "./pages/Upload";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
-import { GlobalContextProvider } from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
@@ -37,6 +36,8 @@ import "react-toastify/dist/ReactToastify.css";
 import SubmissionDetails from "./pages/submissions/SubmissionDetails";
 import { NewSetting } from "./components/Admin/NewSetting";
 import { FeatureFlagUIComponent } from "./pages/misc/FeatureFlags";
+import SenderModeBanner from "./components/SenderModeBanner";
+import SessionProvider from "./contexts/SessionStorageContext";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -47,7 +48,6 @@ const App = () => {
             process.env?.REACT_APP_CLIENT_ENV || "missing"
         }'`
     );
-
     const history = useHistory();
     const customAuthHandler = (): void => {
         history.push("/login");
@@ -88,17 +88,16 @@ const App = () => {
             onAuthRequired={customAuthHandler}
             restoreOriginalUri={restoreOriginalUri}
         >
-            <Suspense fallback={<Spinner fullPage />}>
+            <Suspense fallback={<Spinner size={"fullpage"} />}>
                 <NetworkErrorBoundary
-                    fallbackComponent={() => {
-                        return <div></div>;
-                    }}
+                    fallbackComponent={() => <ErrorPage type="page" />}
                 >
-                    <GlobalContextProvider>
+                    <SessionProvider>
                         <GovBanner aria-label="Official government website" />
+                        <SenderModeBanner />
                         <ReportStreamHeader />
                         {/* Changed from main to div to fix weird padding issue at the top
-                        caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
+                            caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
                         <main id="main-content">
                             <Switch>
                                 <Route path="/" exact={true} component={Home} />
@@ -193,17 +192,11 @@ const App = () => {
                                 />
                             </Switch>
                         </main>
-                        <ToastContainer
-                            autoClose={5000}
-                            closeButton={false}
-                            limit={2}
-                            position="bottom-center"
-                            hideProgressBar={true}
-                        />
-                    </GlobalContextProvider>
-                    <footer className="usa-identifier footer">
-                        <ReportStreamFooter />
-                    </footer>
+                        <ToastContainer limit={4} />
+                        <footer className="usa-identifier footer">
+                            <ReportStreamFooter />
+                        </footer>
+                    </SessionProvider>
                 </NetworkErrorBoundary>
             </Suspense>
         </Security>

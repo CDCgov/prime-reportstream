@@ -345,3 +345,29 @@ class HasAtLeastOneOf : ReportStreamFilterDefinition {
         return selection
     }
 }
+
+/**
+ * AtLeastOneHasValue(columnName1, columnName2, columnName3, ...)
+ * Implements a quality check match.  If a row has true value for any of the columns, the row is selected.
+ */
+class AtLeastOneHasValue : ReportStreamFilterDefinition {
+    override val name = "atLeastOneHasValue"
+
+    override fun getSelection(
+        args: List<String>,
+        table: Table,
+        receiver: Receiver,
+        doAuditing: Boolean
+    ): Selection {
+        if (args.isEmpty()) error("Expecting at least one arg for filter $name.  Got none.")
+        val searchValue = args[0]
+        var selection = Selection.withRange(0, 0)
+        val columnNames = table.columnNames()
+        args.drop(1).forEach { colName ->
+            if (columnNames.contains(colName)) {
+                selection = selection.or(table.stringColumn(colName).equalsIgnoreCase(searchValue))
+            }
+        }
+        return selection
+    }
+}

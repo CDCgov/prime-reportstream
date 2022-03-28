@@ -8,20 +8,16 @@ import {
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 import { NetworkErrorBoundary } from "rest-hooks";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRightLeft } from "@fortawesome/free-solid-svg-icons";
 
 import { permissionCheck } from "../../webreceiver-utils";
 import { PERMISSIONS } from "../../resources/PermissionsResource";
-import { getStoredOrg } from "../GlobalContextProvider";
+import { getStoredOrg } from "../../contexts/SessionStorageTools";
+import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
 
 import { SignInOrUser } from "./SignInOrUser";
 import { HowItWorksDropdown } from "./HowItWorksDropdown";
 import { AdminDropdownNav } from "./AdminDropdownNav";
 import { GettingStartedDropdown } from "./GettingStartedDropdown";
-
-library.add(faRightLeft);
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
@@ -123,10 +119,12 @@ export const ReportStreamHeader = () => {
                             >
                                 <span className="usa-breadcrumb padding-left-2 text-semibold text-no-wrap">
                                     {organization}
-                                    <FontAwesomeIcon
-                                        className="padding-x-1 padding-top-0 text-primary-vivid"
-                                        icon="right-left"
-                                        size="sm"
+                                    <RightLeftArrows
+                                        aria-hidden="true"
+                                        role="img"
+                                        className="rs-fa-right-left-icon padding-x-1 padding-top-1 text-primary-vivid"
+                                        width={"3em"}
+                                        height={"2em"}
                                     />
                                 </span>
                             </NavLink>

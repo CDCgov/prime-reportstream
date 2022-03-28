@@ -33,10 +33,10 @@ class RequeueFunction : Logging {
         val response = try {
             doResend(request, workflowEngine, msgs)
         } catch (t: Throwable) {
-            msgs.add(t.cause?.let { "${t.cause!!.localizedMessage}\n" } ?: "" + t.localizedMessage)
+            msgs.add(t.cause?.let { "${t.cause!!.localizedMessage}\n" } ?: ("" + t.localizedMessage))
             HttpUtilities.bad(request, msgs.joinToString("\n") + "\n")
         }
-        actionHistory.trackActionResult(response)
+        actionHistory.trackActionResult(response.status, response.body.toString())
         workflowEngine.recordAction(actionHistory)
         return response
     }

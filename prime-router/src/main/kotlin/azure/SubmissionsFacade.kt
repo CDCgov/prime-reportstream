@@ -18,7 +18,7 @@ class SubmissionsFacade(
 ) {
 
     // Ignoring unknown properties because we don't require them. -DK
-    private val mapper = JacksonMapperUtilities.datesAsTextMapper
+    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     /**
      * Serializes a list of Actions into a String.
@@ -31,40 +31,17 @@ class SubmissionsFacade(
      *
      * @return a String representation of an array of actions.
      */
-    // Leaving separate from FindSubmissions to encapsulate json serialization
     fun findSubmissionsAsJson(
         organizationName: String,
-        sortOrder: String,
-        sortColumn: String,
-        offset: OffsetDateTime?,
-        toEnd: OffsetDateTime?,
-        pageSize: Int
-    ): String {
-        val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize)
-        return mapper.writeValueAsString(result)
-    }
-
-    private fun findSubmissions(
-        organizationName: String,
-        sortOrder: String,
-        sortColumn: String,
+        sortOrder: SubmissionAccess.SortOrder,
+        sortColumn: SubmissionAccess.SortColumn,
         offset: OffsetDateTime?,
         toEnd: OffsetDateTime?,
         pageSize: Int,
-    ): List<SubmissionHistory> {
-        val order = try {
-            SubmissionAccess.SortOrder.valueOf(sortOrder)
-        } catch (e: IllegalArgumentException) {
-            SubmissionAccess.SortOrder.DESC
-        }
-
-        val column = try {
-            SubmissionAccess.SortColumn.valueOf(sortColumn)
-        } catch (e: IllegalArgumentException) {
-            SubmissionAccess.SortColumn.CREATED_AT
-        }
-
-        return findSubmissions(organizationName, order, column, offset, toEnd, pageSize)
+        showFailed: Boolean
+    ): String {
+        val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize, showFailed)
+        return mapper.writeValueAsString(result)
     }
 
     /**
@@ -83,6 +60,7 @@ class SubmissionsFacade(
         offset: OffsetDateTime?,
         toEnd: OffsetDateTime?,
         pageSize: Int,
+        showFailed: Boolean
     ): List<SubmissionHistory> {
         require(organizationName.isNotBlank()) {
             "Invalid organization."
@@ -98,6 +76,7 @@ class SubmissionsFacade(
             offset,
             toEnd,
             pageSize,
+            showFailed,
             SubmissionHistory::class.java
         )
         return submissions
@@ -143,9 +122,7 @@ class SubmissionsFacade(
     }
 
     companion object {
-
-        // The SubmissionFacade is heavy-weight object (because it contains a Jackson Mapper) so reuse it when possible
-        val common: SubmissionsFacade by lazy {
+        val instance: SubmissionsFacade by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
             SubmissionsFacade(DatabaseSubmissionsAccess())
         }
     }

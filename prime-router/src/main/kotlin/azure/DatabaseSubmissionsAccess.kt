@@ -34,6 +34,7 @@ interface SubmissionAccess {
         cursor: OffsetDateTime? = null,
         toEnd: OffsetDateTime? = null,
         limit: Int = 10,
+        showFailed: Boolean,
         klass: Class<T>
     ): List<T>
 
@@ -74,13 +75,28 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         cursor: OffsetDateTime?,
         toEnd: OffsetDateTime?,
         limit: Int,
+        showFailed: Boolean,
         klass: Class<T>
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, order)
-        val condition = createWhereCondition(sendingOrg, cursor, toEnd)
+        val condition = createWhereCondition(sendingOrg, cursor, toEnd, showFailed)
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
-                .selectFrom(ACTION)
+                // Note the report file and action tables have columns with the same name, so we must specify what we need.
+                .select(
+                    ACTION.ACTION_ID, ACTION.CREATED_AT, ACTION.SENDING_ORG, ACTION.HTTP_STATUS,
+                    ACTION.EXTERNAL_NAME, REPORT_FILE.REPORT_ID, REPORT_FILE.SCHEMA_TOPIC, REPORT_FILE.ITEM_COUNT
+                )
+                .from(
+                    ACTION.join(REPORT_FILE).on(
+                        REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID)
+                            .and(
+                                REPORT_FILE.SENDING_ORG.eq(
+                                    ACTION.SENDING_ORG
+                                )
+                            )
+                    )
+                )
                 .where(condition)
                 .orderBy(sortedColumn)
 
@@ -128,9 +144,10 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
     private fun createWhereCondition(
         sendingOrg: String,
         cursor: OffsetDateTime? = null,
-        toEnd: OffsetDateTime? = null
+        toEnd: OffsetDateTime? = null,
+        showFailed: Boolean
     ): Condition {
-        val condition: Condition = when (toEnd) {
+        val dateFilter: Condition = when (toEnd) {
             null -> {
                 /* Only the end is given: all results between today and cutoff */
                 ACTION.ACTION_NAME.eq(TaskAction.receive)
@@ -144,10 +161,19 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
             }
         }
 
-        return condition
+        val failedFilter: Condition = when (showFailed) {
+            true -> {
+                ACTION.HTTP_STATUS.between(200, 600)
+            }
+            false -> {
+                ACTION.HTTP_STATUS.between(200, 299)
+            }
+        }
+
+        return dateFilter.and(failedFilter)
     }
 
-    private fun <P, U> detailedSubmissionSelect(
+    fun <P, U> detailedSubmissionSelect(
         reportsKlass: Class<P>,
         logsKlass: Class<U>,
     ): List<SelectFieldOrAsterisk> {

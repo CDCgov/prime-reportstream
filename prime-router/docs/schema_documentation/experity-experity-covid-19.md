@@ -1154,7 +1154,7 @@ This field is ignored.
 
 **Format**: M/d/yyyy H:nn
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 ---
 
@@ -1194,40 +1194,6 @@ UNK|maybe|LOCAL
 **Documentation**:
 
 Translate multiple inbound Y/N/U AOE values to RS values
-
----
-
-**Name**: Testing_lab_ID
-
-**ReportStream Internal Name**: filler_clia
-
-**Type**: ID_CLIA
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: Testing_lab_accession_number
-
-**ReportStream Internal Name**: filler_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
-- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
-- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Accension number
 
 ---
 
@@ -1330,7 +1296,7 @@ unique id to track the usage of the message
 
 **Format**: M/d/yyyy
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 ---
 
@@ -1342,7 +1308,7 @@ unique id to track the usage of the message
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1406,7 +1372,7 @@ The state of the facility which the test was ordered from
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1422,7 +1388,7 @@ The address of the facility which the test was ordered from
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1438,7 +1404,7 @@ The zip code of the facility which the test was ordered from
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1459,7 +1425,7 @@ The city of the provider
 - [OBR-16-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.3)
 - [ORC-12-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.3)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1480,7 +1446,7 @@ The first name of the provider who ordered the test
 - [OBR-16-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.1)
 - [ORC-12-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1501,7 +1467,7 @@ The ordering provider’s National Provider Identifier
 - [OBR-16-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.2)
 - [ORC-12-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.2)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1538,7 +1504,7 @@ The phone number of the provider
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -1558,7 +1524,7 @@ The state of the provider
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1590,7 +1556,7 @@ The street second address of the provider
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1606,7 +1572,7 @@ The zip code of the provider
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1624,7 +1590,7 @@ The patient's city
 
 **Format**: M/d/yyyy
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1660,7 +1626,9 @@ H|Mex. Amer./Hispanic|LOCAL
 H|2135-2|LOCAL
 H|H|LOCAL
 N|Non Hispanic or Latino|LOCAL
+N|Non-Hispanic or Latino|LOCAL
 N|Non Hispanic|LOCAL
+N|Non-Hispanic|LOCAL
 N|Not Hispanic or Latino|LOCAL
 N|Not Hispanic|LOCAL
 N|2186-5|LOCAL
@@ -1688,7 +1656,7 @@ Translate multiple inbound ethnicity values to RS / OMB values
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1715,8 +1683,10 @@ The patient's first name
 Code | Display | System
 ---- | ------- | ------
 F|Female|LOCAL
+F|Woman|LOCAL
 F|F|LOCAL
 M|Male|LOCAL
+M|Man|LOCAL
 M|M|LOCAL
 U|U|LOCAL
 U|UNK|LOCAL
@@ -1908,7 +1878,7 @@ The patient's state
 
 **PII**: Yes
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -1940,32 +1910,11 @@ The patient's second address line
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
 The patient's zip code
-
----
-
-**Name**: Testing_lab_accession_number
-
-**ReportStream Internal Name**: placer_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
-- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The ID number of the lab order from the placer
 
 ---
 
@@ -2043,30 +1992,6 @@ P, D, or T for Production, Debugging, or Training
 
 ---
 
-**Name**: Testing_lab_ID
-
-**ReportStream Internal Name**: reporting_facility_clia
-
-**Type**: ID_CLIA
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
-- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
-- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
-- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
-- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's CLIA
-
----
-
 **Name**: sender_id
 
 **ReportStream Internal Name**: sender_id
@@ -2100,7 +2025,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 - [OBX-14](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.14)
 - [SPM-17-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.17.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -2339,7 +2264,7 @@ Translate multiple inbound Y/N/U AOE values to RS values
 
 **Format**: use value found in the Display column
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Value Sets**
 
@@ -2416,7 +2341,7 @@ Translate multiple inbound Test Result values to RS values
 
 **Format**: M/d/yyyy H:nn
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 ---
 
@@ -2472,7 +2397,7 @@ the test result is in some intermediate status, is a correction, or is the final
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -2505,22 +2430,6 @@ CLIA Number from the laboratory that sends the message to DOH
 
 An example of the ID is 03D2159846
 
-
----
-
-**Name**: Testing_lab_ID
-
-**ReportStream Internal Name**: testing_lab_id
-
-**Type**: ID
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
 
 ---
 
@@ -2562,7 +2471,7 @@ The phone number of the testing lab
 
 **Format**: M/d/yyyy H:nn
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -2582,7 +2491,7 @@ be offset, so this field takes the `specimen_collection_date_time` field and off
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Table**: fips-county
 
@@ -2602,7 +2511,7 @@ The state for the testing lab
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -2618,7 +2527,7 @@ The street address for the testing lab
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -2626,23 +2535,37 @@ The postal code for the testing lab
 
 ---
 
-**Name**: equipment_model_name
+**Name**: filler_clia
 
-**ReportStream Internal Name**: equipment_model_name
+**ReportStream Internal Name**: filler_clia
 
-**Type**: TABLE
+**Type**: ID_CLIA
 
 **PII**: No
 
 **Cardinality**: [0..1]
 
+---
 
-**Reference URL**:
-[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+**Name**: filler_order_id
 
-**Table**: LIVD-SARS-CoV-2
+**ReportStream Internal Name**: filler_order_id
 
-**Table Column**: Model
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
+- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
+- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Accension number
 
 ---
 
@@ -2714,7 +2637,7 @@ Is the patient in the ICU?
 
 **PII**: No
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
@@ -2764,6 +2687,51 @@ The name of the facility which the test was ordered from
 
 ---
 
+**Name**: placer_order_id
+
+**ReportStream Internal Name**: placer_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.1)
+- [ORC-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID number of the lab order from the placer
+
+---
+
+**Name**: reporting_facility_clia
+
+**ReportStream Internal Name**: reporting_facility_clia
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
+- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
+- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The reporting facility's CLIA
+
+---
+
 **Name**: reporting_facility_name
 
 **ReportStream Internal Name**: reporting_facility_name
@@ -2780,11 +2748,27 @@ The name of the facility which the test was ordered from
 - [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
 - [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 
 The reporting facility's name
+
+---
+
+**Name**: testing_lab_id
+
+**ReportStream Internal Name**: testing_lab_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Typically this will be the same as the `testing_lab_clia`, but potentially could not be.
 
 ---
 
@@ -2806,7 +2790,7 @@ The reporting facility's name
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
 - [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
 
-**Cardinality**: [0..1]
+**Cardinality**: [1..1]
 
 **Documentation**:
 

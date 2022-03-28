@@ -18,17 +18,6 @@ runs:
   using: "composite"
   steps:
 
-    - name: Set environment variables - dev
-      if: inputs.env-name == 'dev'
-      shell: bash
-      run: |
-        echo "RESOURCE_GROUP=prime-dev-rheft" >> $GITHUB_ENV
-        echo "TERRAFORM_ENV=rheft" >> $GITHUB_ENV
-        echo "ACR_NAME=rkh5012containerregistry.azurecr.io" >> $GITHUB_ENV
-        echo "IMAGE_REPO=rkh5012" >> $GITHUB_ENV
-        echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
-        echo "FUNCTION_APP=rkh5012-functionapp" >> $GITHUB_ENV
-
     - name: Set environment variables - test
       if: inputs.env-name == 'test'
       shell: bash

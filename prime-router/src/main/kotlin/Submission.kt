@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonUnwrapped
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
@@ -17,14 +17,17 @@ import java.util.UUID
  * @param actionId of the Submission is `action_id` from the `action` table
  * @param actionName of the Submission is `action_name` from the `action` table
  * @param createdAt of the Submission is `created_at` from the the `action` table
- * @param sendingOrg of the Submission is `sending_org` from the the `action` table
  * @param httpStatus of the Submission is `http_status` from the the `action` table
- * @param externalName of the Submission is `external_name` from the the `action` table
- * @param actionResponse of the Submission is the structured JSON from the `action` table
  * @param reports of the Submission are the Reports related to the action from the `report_file` table
  * @param logs of the Submission are the Logs produced by the submission from the `action_log` table
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder(
+    value = [
+        "id", "submissionId", "timestamp", "sender", "reportItemCount",
+        "errorCount", "warningCount"
+    ]
+)
 class DetailedSubmissionHistory(
     @JsonProperty("submissionId")
     val actionId: Long,
@@ -32,60 +35,106 @@ class DetailedSubmissionHistory(
     val actionName: TaskAction,
     @JsonProperty("timestamp")
     val createdAt: OffsetDateTime,
-    @JsonProperty("sender")
-    val sendingOrg: String?,
-    val httpStatus: Int?,
-    val externalName: String? = null,
-    val actionResponse: DetailedActionResponse?,
+    val httpStatus: Int? = null,
     @JsonIgnore
     var reports: MutableList<DetailReport>?,
     @JsonIgnore
-    val logs: List<DetailActionLog>?
+    var logs: List<DetailActionLog> = emptyList()
 ) {
-    val id: String? = actionResponse?.id
-    val destinations = mutableListOf<Destination>()
-
-    val errors = mutableListOf<DetailActionLog>()
-    val warnings = mutableListOf<DetailActionLog>()
-
-    val topic: String? = actionResponse?.topic
-
-    val warningCount: Int
-        get() = warnings.size
-
-    val errorCount: Int
-        get() = errors.size
+    /**
+     * The report ID.
+     */
+    var id: String? = null
 
     /**
-     * Number of destinations.
+     * The destinations.
      */
-    val destinationCount: Int
-        get() = destinations.size
+    var destinations = mutableListOf<Destination>()
+
+    /**
+     * Error log for the submission.
+     */
+    val errors = mutableListOf<ConsolidatedActionLog>()
+
+    /**
+     * Warning log for the submission.
+     */
+    val warnings = mutableListOf<ConsolidatedActionLog>()
+
+    /**
+     * The schema topic.
+     */
+    var topic: String? = null
+
+    /**
+     * The sender of the input report.
+     */
+    var sender: String? = null
+
+    /**
+     * The input report's external name.
+     */
+    var externalName: String? = null
+
+    /**
+     * The number of warnings.  Note this is not the number of consolidated warnings.
+     */
+    val warningCount = logs.count { it.type == ActionLogLevel.warning }
+
+    /**
+     * The number of errors.  Note this is not the number of consolidated errors.
+     */
+    val errorCount = logs.count { it.type == ActionLogLevel.error }
+
+    /**
+     * Number of destinations that actually had/will have data sent to.
+     */
+    val destinationCount: Int get() {
+        return destinations.filter { it.itemCount != 0 }.size
+    }
 
     /**
      * Number of report items.
      */
-    val reportItemCount: Int?
-        get() = actionResponse?.reportItemCount
+    var reportItemCount: Int? = null
 
     init {
         reports?.forEach { report ->
+            // For reports sent to a destination
             report.receivingOrg?.let {
+                val filterLogs = logs.filter {
+                    it.type == ActionLogLevel.filter && it.reportId == report.reportId
+                }
+                val filteredReportRows = filterLogs.map { it.detail.message }
+                val filteredReportItems = filterLogs.map {
+                    ReportStreamFilterResultForResponse(it.detail as ReportStreamFilterResult)
+                }
                 destinations.add(
                     Destination(
                         report.receivingOrg,
                         report.receivingOrgSvc!!,
-                        logs?.filter {
-                            it.type == ActionLog.ActionLogType.filter && it.reportId == report.reportId
-                        }?.map { it.message },
-                        report.nextActionAt?.toString() ?: "",
+                        filteredReportRows,
+                        filteredReportItems,
+                        report.nextActionAt,
                         report.itemCount,
                     )
                 )
             }
+
+            // For the report received from a sender
+            if (report.sendingOrg != null) {
+                // There can only be one!
+                check(id == null)
+                // Reports with errors do not show an ID
+                id = if (errorCount == 0) report.reportId.toString() else null
+                externalName = report.externalName
+                reportItemCount = report.itemCount
+                sender = ClientSource(report.sendingOrg, report.sendingOrgClient ?: "").name
+                topic = report.schemaTopic
+            }
         }
-        errors.addAll(logs?.filter { it.type == ActionLog.ActionLogType.error } ?: emptyList())
-        warnings.addAll(logs?.filter { it.type == ActionLog.ActionLogType.warning } ?: emptyList())
+        errors.addAll(consolidateLogs(ActionLogLevel.error))
+        warnings.addAll(consolidateLogs(ActionLogLevel.warning))
     }
 
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
@@ -100,7 +149,7 @@ class DetailedSubmissionHistory(
             TaskAction.process -> enrichWithProcessAction(descendant)
             // TaskAction.batch -> enrichWithBatchAction(descendant)
             TaskAction.send -> enrichWithSendAction(descendant)
-            // TaskAction.download -> enrichWithDownloadAction(descendant)
+            TaskAction.download -> enrichWithDownloadAction(descendant)
             else -> {}
         }
     }
@@ -143,8 +192,9 @@ class DetailedSubmissionHistory(
                             Destination(
                                 report.receivingOrg,
                                 report.receivingOrgSvc,
-                                listOf(),
-                                "",
+                                null,
+                                null,
+                                null,
                                 report.itemCount,
                             )
                         )
@@ -153,20 +203,169 @@ class DetailedSubmissionHistory(
             }
         }
     }
+
+    /**
+     * Enrich a parent detailed history with details from the download action
+     *
+     * Add download report information to each destination present in the parent's historical details.
+     */
+    private fun enrichWithDownloadAction(descendant: DetailedSubmissionHistory) {
+        require(descendant.actionName == TaskAction.download) { "Must be a download action" }
+
+        descendant.reports?.let { it ->
+            it.forEach { report ->
+                destinations.find {
+                    it.organizationId == report.receivingOrg && it.service == report.receivingOrgSvc
+                }?.let {
+                    it.downloadedReports.add(report)
+                } ?: run {
+                    if (report.receivingOrg != null && report.receivingOrgSvc != null) {
+                        val dest = Destination(
+                            report.receivingOrg,
+                            report.receivingOrgSvc,
+                            null,
+                            null,
+                            null,
+                            report.itemCount,
+                        )
+
+                        destinations.add(dest)
+                        dest.downloadedReports.add(report)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Consolidate the [logs] filtered by an optional [filterBy] action level, so to list similar messages once
+     * with a list of items they relate to.
+     * @return the consolidated list of logs
+     */
+    internal fun consolidateLogs(filterBy: ActionLogLevel? = null):
+        List<ConsolidatedActionLog> {
+        val consolidatedList = mutableListOf<ConsolidatedActionLog>()
+
+        // First filter the logs and sort by the message.  This first sorting can take care of sorting old messages
+        // that contain index numbers like "Report 3: xxxx"
+        val filteredList = when (filterBy) {
+            null -> logs
+            else -> logs.filter { it.type == filterBy }
+        }.sortedBy { it.detail.message }
+        // Now order the list so that logs contain first non-item messages, then item messages, and item messages
+        // are sorted by index.
+        val orderedList = (
+            filteredList.filter { it.scope != ActionLogScope.item }.sortedBy { it.scope } +
+                filteredList.filter { it.scope == ActionLogScope.item }.sortedBy { it.index }
+            ).toMutableList()
+        // Now consolidate the list
+        while (orderedList.isNotEmpty()) {
+            // Grab the first log.
+            val consolidatedLog = ConsolidatedActionLog(orderedList.first())
+            orderedList.removeFirst()
+            // Now find similar logs and consolidate it.  Note by using the iterator we can delete on the fly.
+            with(orderedList.iterator()) {
+                forEach { log ->
+                    if (consolidatedLog.canBeConsolidatedWith(log)) {
+                        consolidatedLog.add(log)
+                        remove()
+                    }
+                }
+            }
+            consolidatedList.add(consolidatedLog)
+        }
+
+        return consolidatedList
+    }
 }
 
+/**
+ * Consolidated action log class to be output to the API JSON response.
+ * @param log the base log message to be consolidated
+ */
+@JsonInclude(Include.NON_NULL)
+class ConsolidatedActionLog(log: DetailActionLog) {
+    /**
+     * The scope of the log.
+     */
+    val scope: ActionLogScope
+
+    /**
+     * The list of indices for item logs. An index can be null if there was no index provided with the log.
+     */
+    val indices: MutableList<Int?>?
+
+    /**
+     * The list of tracking IDs for item logs. A tracking ID can be null if there was no ID provided with the log.
+     */
+    val trackingIds: MutableList<String?>?
+
+    /**
+     * The log level.
+     */
+    @JsonIgnore
+    val type: ActionLogLevel
+
+    /**
+     * The field mapping for item logs.
+     */
+    val field: String?
+
+    /**
+     * The log message.
+     */
+    val message: String
+
+    init {
+        scope = log.scope
+        type = log.type
+        message = log.detail.message
+        if (log.detail is ItemActionLogDetail) {
+            field = log.detail.fieldMapping
+            indices = mutableListOf()
+            trackingIds = mutableListOf()
+        } else {
+            indices = null
+            trackingIds = null
+            field = null
+        }
+        add(log)
+    }
+
+    /**
+     * Add an action detail [log] to this consolidated log.
+     */
+    fun add(log: DetailActionLog) {
+        check(message == log.detail.message)
+        if (indices != null && trackingIds != null) {
+            indices.add(log.index)
+            trackingIds.add(log.trackingId)
+        }
+    }
+
+    /**
+     * Tests if a detail action log [other] can be consolidated into this existing consolidated log.
+     * @return true if the log can be consolidated, false otherwise
+     */
+    fun canBeConsolidatedWith(other: DetailActionLog): Boolean {
+        return this.message == other.detail.message && this.scope == other.scope && this.type == other.type
+    }
+}
+
+/**
+ * Detail action log class used to read the data from the database.
+ */
+@JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DetailActionLog(
-    val scope: ActionLog.ActionLogScope,
+    val scope: ActionLogScope,
     @JsonIgnore
     val reportId: UUID?,
     val index: Int?,
     val trackingId: String?,
-    val type: ActionLog.ActionLogType,
-    detail: ActionLogDetail,
-) {
-    val message: String = detail.detailMsg()
-}
+    val type: ActionLogLevel,
+    val detail: ActionLogDetail,
+)
 
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -176,29 +375,47 @@ data class DetailReport(
     val receivingOrg: String?,
     @JsonIgnore
     val receivingOrgSvc: String?,
+    @JsonIgnore
+    val sendingOrg: String?,
+    @JsonIgnore
+    val sendingOrgClient: String?,
+    @JsonIgnore
+    val schemaTopic: String?,
     val externalName: String?,
     val createdAt: OffsetDateTime?,
     val nextActionAt: OffsetDateTime?,
     val itemCount: Int
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class DetailedActionResponse(
-    val id: String?,
-    val topic: String?,
-    val reportItemCount: Int?
-)
+/**
+ * Response use for the API for the filtered report items. This removes unneeded properties that exist in
+ * ReportStreamFilterResult. ReportStreamFilterResult is used to serialize and deserialize to/from the database.
+ * @param filterResult the filter result to use
+ */
+data class ReportStreamFilterResultForResponse(@JsonIgnore private val filterResult: ReportStreamFilterResult) {
+    val filterType = filterResult.filterType
+    val filterName = filterResult.filterName
+    val originalCount = filterResult.originalCount
+    val filteredIndex = filterResult.filteredIndex
+    val filteredTrackingElement = filterResult.filteredTrackingElement
+    val filterArgs = filterResult.filterArgs
+    val message = filterResult.message
+}
 
+@JsonPropertyOrder(value = ["organization", "organizationId", "service", "itemCount", "sendingAt"])
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Destination(
     @JsonProperty("organization_id")
     val organizationId: String,
     val service: String,
     val filteredReportRows: List<String>?,
+    val filteredReportItems: List<ReportStreamFilterResultForResponse>?,
     @JsonProperty("sending_at")
-    val sendingAt: String,
+    @JsonInclude(Include.NON_NULL)
+    val sendingAt: OffsetDateTime?,
     val itemCount: Int,
     var sentReports: MutableList<DetailReport> = mutableListOf(),
+    var downloadedReports: MutableList<DetailReport> = mutableListOf(),
 ) {
     val organization: String?
         get() = WorkflowEngine.settingsProviderSingleton.findOrganizationAndReceiver(
@@ -215,28 +432,27 @@ class SubmissionHistory(
     val createdAt: OffsetDateTime,
     val sendingOrg: String,
     val httpStatus: Int,
-    @JsonInclude(Include.NON_NULL) val externalName: String? = "",
-    actionResponse: ActionResponse,
+    @JsonInclude(Include.NON_NULL)
+    val externalName: String? = "",
+    @JsonIgnore
+    val reportId: String? = null,
+    @JsonIgnore
+    val schemaTopic: String? = null,
+    @JsonIgnore
+    val itemCount: Int? = null
 ) {
-    @JsonUnwrapped
-    val actionReponse = actionResponse
+    /**
+     * The report ID.
+     */
+    val id = reportId
+
+    /**
+     * The topic.
+     */
+    val topic = schemaTopic
+
+    /**
+     * The number of items in the report.
+     */
+    val reportItemCount = itemCount
 }
-
-/**
- * An `ActionResponse` represents the required information from the `action.action_reponse` column for one submission of a message from a sender.
- *
- * @param id of the Submission is `action_response.id` and represents a Report ID from the table `public.action`
- * @param topic of the Submission is `action_response.topic` from the table `public.action`
- * @param reportItemCount of the Submission is `action_response.reportItemCount` and represents a Report ID from the table `public.action`
- * @param warningCount of the Submission is `action_response.warningCount` from the table `public.action`
- * @param errorCount of the Submission is `action_response.errorCount` from the table `public.action`
- */
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class ActionResponse(
-    val id: String?,
-    val topic: String?,
-    val reportItemCount: Int?,
-    val warningCount: Int?,
-    val errorCount: Int?,
-)

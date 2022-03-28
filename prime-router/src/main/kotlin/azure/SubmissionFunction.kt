@@ -20,25 +20,24 @@ import java.util.UUID
  */
 
 class SubmissionFunction(
-    submissionsFacade: SubmissionsFacade = SubmissionsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
+    private val submissionsFacade: SubmissionsFacade = SubmissionsFacade.instance,
+    private val oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.USER)
 ) : Logging {
-    private val facade = submissionsFacade
-    private val oktaAuthentication = oktaAuthentication
-
     data class Parameters(
         val sort: String,
         val sortColumn: String,
         val cursor: OffsetDateTime?,
         val endCursor: OffsetDateTime?,
         val pageSize: Int,
+        val showFailed: Boolean
     ) {
         constructor(query: Map<String, String>) : this (
             extractSortOrder(query),
             extractSortCol(query),
             extractCursor(query, "cursor"),
-            extractCursor(query, "endCursor"),
+            extractCursor(query, "endcursor"),
             extractPageSize(query),
+            extractShowFailed(query)
         )
 
         companion object {
@@ -47,7 +46,7 @@ class SubmissionFunction(
             }
 
             fun extractSortCol(query: Map<String, String>): String {
-                return query.getOrDefault("sortCol", "default")
+                return query.getOrDefault("sortcol", "default")
             }
 
             fun extractCursor(query: Map<String, String>, name: String): OffsetDateTime? {
@@ -65,6 +64,13 @@ class SubmissionFunction(
                 val size = query.getOrDefault("pagesize", "10").toIntOrNull()
                 require(size != null) { "pageSize must be a positive integer" }
                 return size
+            }
+
+            fun extractShowFailed(query: Map<String, String>): Boolean {
+                return when (query.getOrDefault("showfailed", "true")) {
+                    "false" -> false
+                    else -> true
+                }
             }
         }
     }
@@ -86,15 +92,27 @@ class SubmissionFunction(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
             try {
-                val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize) =
+                val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
                     Parameters(request.queryParameters)
-                val submissions = facade.findSubmissionsAsJson(
+                val sortOrder = try {
+                    SubmissionAccess.SortOrder.valueOf(qSortOrder)
+                } catch (e: IllegalArgumentException) {
+                    SubmissionAccess.SortOrder.DESC
+                }
+
+                val sortColumn = try {
+                    SubmissionAccess.SortColumn.valueOf(qSortColumn)
+                } catch (e: IllegalArgumentException) {
+                    SubmissionAccess.SortColumn.CREATED_AT
+                }
+                val submissions = submissionsFacade.findSubmissionsAsJson(
                     organization,
-                    qSortOrder,
-                    qSortColumn,
+                    sortOrder,
+                    sortColumn,
                     resultsAfterDate,
                     resultsBeforeDate,
-                    pageSize
+                    pageSize,
+                    showFailed
                 )
                 HttpUtilities.okResponse(request, submissions)
             } catch (e: IllegalArgumentException) {
@@ -116,7 +134,7 @@ class SubmissionFunction(
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
             try {
-                val submission = facade.findSubmission(organization, submissionId)
+                val submission = submissionsFacade.findSubmission(organization, submissionId)
                 if (submission != null) HttpUtilities.okJSONResponse(request, submission)
                 else HttpUtilities.notFoundResponse(request, "Submission $submissionId was not found.")
             } catch (e: DataAccessException) {
@@ -141,18 +159,24 @@ class SubmissionFunction(
         @BindingName("reportId") reportId: String, // Use string to be able to detect a format error
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request, organization, true) {
-            try {
-                val reportUuid = UUID.fromString(reportId)
-                val submission = facade.findReport(organization, reportUuid)
-                if (submission != null) HttpUtilities.okJSONResponse(request, submission)
-                else HttpUtilities.notFoundResponse(request, "Report $reportId was not found.")
+            val reportUuid = try {
+                UUID.fromString(reportId)
             } catch (e: IllegalArgumentException) {
+                // Need to isolate this catch as this type of exception can happen for other reasons
                 logger.debug("Invalid format for report ID.", e)
-                HttpUtilities.badRequestResponse(request, "Invalid format for report ID parameter.")
-            } catch (e: DataAccessException) {
-                logger.error("Unable to fetch history for report ID $reportId", e)
-                HttpUtilities.internalErrorResponse(request)
+                null
             }
+
+            if (reportUuid != null)
+                try {
+                    val submission = submissionsFacade.findReport(organization, reportUuid)
+                    if (submission != null) HttpUtilities.okJSONResponse(request, submission)
+                    else HttpUtilities.notFoundResponse(request, "Report $reportId was not found.")
+                } catch (e: DataAccessException) {
+                    logger.error("Unable to fetch history for report ID $reportId", e)
+                    HttpUtilities.internalErrorResponse(request)
+                }
+            else HttpUtilities.badRequestResponse(request, "Invalid format for report ID parameter.")
         }
     }
 }

@@ -78,7 +78,7 @@ class ReportFunctionTests {
         val req = MockHttpRequestMessage("test")
         val resp = HttpUtilities.okResponse(req, "fakeOkay")
 
-        every { reportFunc.processRequest(any(), any(), any()) } returns resp
+        every { reportFunc.processRequest(any(), any()) } returns resp
         every { engine.settings.findSender("Test Sender") } returns sender
 
         req.httpHeaders += mapOf(
@@ -87,10 +87,10 @@ class ReportFunctionTests {
         )
 
         // Invoke function run
-        reportFunc.run(req, context = null)
+        reportFunc.run(req)
 
         // processFunction should be called
-        verify(exactly = 1) { reportFunc.processRequest(any(), any(), any()) }
+        verify(exactly = 1) { reportFunc.processRequest(any(), any()) }
     }
 
     // Returns 400 bad request
@@ -114,7 +114,7 @@ class ReportFunctionTests {
         val req = MockHttpRequestMessage("test")
         val resp = HttpUtilities.okResponse(req, "fakeOkay")
 
-        every { reportFunc.processRequest(any(), any(), any()) } returns resp
+        every { reportFunc.processRequest(any(), any()) } returns resp
         every { engine.settings.findSender("Test Sender") } returns sender
 
         req.httpHeaders += mapOf(
@@ -122,7 +122,7 @@ class ReportFunctionTests {
         )
 
         // Invoke function run
-        var res = reportFunc.run(req, context = null)
+        val res = reportFunc.run(req)
 
         // verify
         assert(res.statusCode == 400)
@@ -148,7 +148,7 @@ class ReportFunctionTests {
         val req = MockHttpRequestMessage("test")
         val resp = HttpUtilities.okResponse(req, "fakeOkay")
 
-        every { reportFunc.processRequest(any(), any(), any()) } returns resp
+        every { reportFunc.processRequest(any(), any()) } returns resp
         every { engine.settings.findSender("Test Sender") } returns null
 
         req.httpHeaders += mapOf(
@@ -157,7 +157,7 @@ class ReportFunctionTests {
         )
 
         // Invoke function run
-        val res = reportFunc.run(req, context = null)
+        val res = reportFunc.run(req)
 
         // verify
         assert(res.statusCode == 400)
@@ -193,11 +193,11 @@ class ReportFunctionTests {
         req.parameters += mapOf("option" to Options.ValidatePayload.toString())
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
 
         // act
-        reportFunc.processRequest(req, sender, context = null)
-        reportFunc.processRequest(req, sender, context = null)
+        reportFunc.processRequest(req, sender)
+        reportFunc.processRequest(req, sender)
 
         // assert
         verify(exactly = 0) { engine.verifyNoDuplicateFile(any(), any(), any()) }
@@ -234,18 +234,21 @@ class ReportFunctionTests {
         req.parameters += mapOf("option" to Options.ValidatePayload.toString())
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
         every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "org"
+        every { actionHistory.action.sendingOrgClient } returns "client"
 
         // act
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
-        reportFunc.processRequest(req, sender, context = null)
+        reportFunc.processRequest(req, sender)
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns true
-        reportFunc.processRequest(req, sender, context = null)
+        reportFunc.processRequest(req, sender)
 
         // assert
         verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any(), any()) }
-        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+        verify(exactly = 2) { actionHistory.trackActionSenderInfo(any(), any()) }
     }
 
     // test duplicate override = true
@@ -281,12 +284,15 @@ class ReportFunctionTests {
         )
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
         every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "org"
+        every { actionHistory.action.sendingOrgClient } returns "client"
 
         // act
-        reportFunc.processRequest(req, sender, context = null)
-        reportFunc.processRequest(req, sender, context = null)
+        reportFunc.processRequest(req, sender)
+        reportFunc.processRequest(req, sender)
 
         // assert
         verify(exactly = 0) { engine.verifyNoDuplicateFile(any(), any(), any()) }
@@ -326,17 +332,20 @@ class ReportFunctionTests {
         )
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
         every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "org"
+        every { actionHistory.action.sendingOrgClient } returns "client"
 
         // act
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
-        reportFunc.processRequest(req, sender, context = null)
+        reportFunc.processRequest(req, sender)
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns true
-        reportFunc.processRequest(req, sender, context = null)
+        reportFunc.processRequest(req, sender)
 
         // assert
         verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any(), any()) }
-        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+        verify(exactly = 2) { actionHistory.trackActionSenderInfo(any(), any()) }
     }
 }

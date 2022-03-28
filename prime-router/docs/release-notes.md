@@ -2,11 +2,20 @@
 
 ## General useful links:
 
-- All Schemas are documented here:  [Link to detailed schema dictionaries](./schema_documentation)
+- All Schemas are documented here: [Link to detailed schema dictionaries](./schema_documentation)
 - The ReportStream API is documented here: [Hub OpenApi Spec](./openapi.yml)
+- More detailed changelog for individual releases: [Recent releases](https://github.com/CDCgov/prime-reportstream/releases)
+
+## March 8, 2022
+### Consistent formatting of timestamps in API responses
+Updated the timestamp formats to have consistent precision and time zone in our API JSON responses.  Our API responses 
+still use the ISO 8601 standard, but we have updated all timestamps be in the UTC time zone as well as to always show
+a precision down to milliseconds.  This follows the pattern of `yyyy-MM-dd'T'HH:mm:ss.SSSXX` per 
+[Java's DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).
+
+Example updated timestamp: 2022-03-02T17:53:17.981Z
 
 ## March 3, 2022
-
 ### Added duplicate detection
 
 ReportStream will now reject duplicate submissions
