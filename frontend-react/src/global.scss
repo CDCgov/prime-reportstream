@@ -11,15 +11,10 @@
 
 @import "uswds";
 
-@import "~@trussworks/react-uswds/lib/index.css";
-
-// Custom USWDS
-// we need to include because our settings uses uswds functions
-@import "../node_modules/uswds/dist/scss/core/mixins/_all";
+@import "@trussworks/react-uswds/lib/index.css";
 
 @import "styles/uswds_overrides"; // _uswds_overrides.scss
 @import "styles/reportstream";  // _reportstream.scss
 
 // Print styles (e.g. may be used by PDF generation)
 @import "./styles/print";
-

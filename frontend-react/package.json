@@ -43,14 +43,19 @@
         "web-vitals": "^2.1.2"
     },
     "scripts": {
-        "clean": "rimraf ./build",
-        "start:localdev": "env-cmd -f .env.development react-scripts start",
-        "build:test": "yarn compile:scss && env-cmd -f .env.test react-scripts build && yarn copy:404page",
-        "build:staging": "yarn compile:scss && env-cmd -f .env.staging react-scripts build && yarn copy:404page",
-        "build:production": "yarn compile:scss && env-cmd -f .env.production react-scripts build && yarn copy:404page",
-        "build:dev:csp": "yarn compile:scss && env-cmd -f .env.dev.csp react-scripts build && yarn copy:404page",
-        "compile:scss": "sass --load-path=./node_modules/uswds/dist/scss --style=compressed --no-source-map src/global.scss:src/content/generated/global.out.css",
-        "copy:404page": "cp build/index.html build/404.html",
+        "clean": "rimraf ./build &&  rimraf ./src/content/generated",
+        "start:localdev": "env-cmd -f .env.development npm-run-all -p watch-scss start-js",
+        "build:test": "env-cmd -f .env.test yarn build-base-prod",
+        "build:staging": "env-cmd -f .env.staging yarn build-base-prod",
+        "build:production": "env-cmd -f .env.production yarn build-base-prod",
+        "build:localdev:csp": "env-cmd -f .env.dev.csp yarn build-base-dev",
+        "build-base-prod": "yarn compile-scss-prod && react-scripts build && yarn copy-404page",
+        "build-base-dev": "yarn compile-scss-dev && react-scripts build && yarn copy-404page",
+        "start-js": "react-scripts start",
+        "copy-404page": "cp build/index.html build/404.html",
+        "compile-scss-prod": "sass --load-path=./node_modules/uswds/dist/scss --no-source-map --style=compressed --quiet src/global.scss:src/content/generated/global.out.css",
+        "compile-scss-dev":  "sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps src/global.scss:src/content/generated/global.out.css",
+        "watch-scss": "yarn compile-scss-dev && sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps -w src/global.scss:src/content/generated/global.out.css",
         "test": "react-scripts test",
         "test:ci": "CI=true yarn test --coverage",
         "eject": "react-scripts eject",
@@ -63,7 +68,7 @@
         "cypress-open": "./node_modules/.bin/cypress open",
         "cypress-run": "./node_modules/.bin/cypress run",
         "yarn:show-outdated-packages": "yarn outdated",
-        "run:build-dir": "yarn global add serve && serve -s build"
+        "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build"
     },
     "eslintConfig": {
         "extends": [
@@ -189,7 +194,7 @@
         "sass": "^1.47.2",
         "stylelint": "^14.2.0",
         "typescript": "^4.5.4",
-        "webpack": "5",
+        "webpack": "^5",
         "yaml-loader": "^0.6.0"
     }
 }
