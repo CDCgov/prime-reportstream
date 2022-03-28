@@ -16,12 +16,11 @@ export const AuthorizedRoute = ({
             {...rest}
             render={(props) => {
                 if (
-                    (authState?.accessToken &&
-                        permissionCheck(
-                            PERMISSIONS.PRIME_ADMIN,
-                            authState.accessToken
-                        )) ||
-                    permissionCheck(permission, authState.accessToken)
+                    authState?.accessToken &&
+                    (
+                        permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken) ||
+                        permissionCheck(permission, authState.accessToken)
+                    )
                 ) {
                     // permission authorized -> render component
                     return <Component {...props} />;
