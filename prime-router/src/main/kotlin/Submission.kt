@@ -396,7 +396,6 @@ data class ReportStreamFilterResultForResponse(@JsonIgnore private val filterRes
     val filterType = filterResult.filterType
     val filterName = filterResult.filterName
     val originalCount = filterResult.originalCount
-    val filteredIndex = filterResult.filteredIndex
     val filteredTrackingElement = filterResult.filteredTrackingElement
     val filterArgs = filterResult.filterArgs
     val message = filterResult.message
@@ -427,9 +426,11 @@ data class Destination(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class SubmissionHistory(
-    @JsonProperty("taskId")
+    @JsonProperty("submissionId")
     val actionId: Long,
+    @JsonProperty("timestamp")
     val createdAt: OffsetDateTime,
+    @JsonProperty("sender")
     val sendingOrg: String,
     val httpStatus: Int,
     @JsonInclude(Include.NON_NULL)

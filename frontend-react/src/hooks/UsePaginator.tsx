@@ -64,7 +64,7 @@ function usePaginator(
     /* Handles adding cursors in the Map when responseArray changes */
     useEffect(() => {
         const nextCursor =
-            responseArray[filterState.pageSize - 1]?.createdAt || null;
+            responseArray[filterState.pageSize - 1]?.timestamp || null;
         if (currentIndex === 1) {
             // add first item with value of filterState.startRange
             updateCursors(cursors.set(1, filterState.startRange));
