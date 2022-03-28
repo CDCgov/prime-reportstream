@@ -13,7 +13,7 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.FhirActionLogDetail
-import gov.cdc.prime.router.InvalidTranslationMessage
+import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.http.extensions.contentType
 import gov.cdc.prime.router.cli.tests.CompareData
@@ -63,16 +63,11 @@ class FHIRFlowFunctions(
         } catch (e: IllegalArgumentException) {
             responseBuilder.body(e.message)
             actionHistory.trackLogs(
-                ActionLog(InvalidTranslationMessage(e.stackTraceToString()), type = ActionLogLevel.error)
+                ActionLog(InvalidReportMessage(e.stackTraceToString()), type = ActionLogLevel.error)
             )
         }
 
-        val response = responseBuilder.build()
-
-        // despite similar names, these fns save different data
-        actionHistory.trackActionRequestResponse(request, response)
-
-        return response
+        return responseBuilder.build()
     }
 
     /**
@@ -113,6 +108,8 @@ class FHIRFlowFunctions(
         }
 
         logger.debug(log)
+
+        actionHistory.trackActionParams(message)
 
         actionHistory.trackLogs(
             ActionLog(FhirActionLogDetail(log), type = type)
