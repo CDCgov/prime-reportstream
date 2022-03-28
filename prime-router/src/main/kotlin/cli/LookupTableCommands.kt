@@ -551,7 +551,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         .required()
 
     /**
-     * The table name.
+     * Show the raw input table being created if set to true.
      */
     private val showTable by option("--show-table", help = "Always show the table to be created")
         .flag(default = false)
