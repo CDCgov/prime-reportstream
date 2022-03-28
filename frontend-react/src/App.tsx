@@ -22,7 +22,6 @@ import { PERMISSIONS } from "./resources/PermissionsResource";
 import { permissionCheck, reportReceiver } from "./webreceiver-utils";
 import { Upload } from "./pages/Upload";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
-import { GlobalContextProvider } from "./components/GlobalContextProvider";
 import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
@@ -37,6 +36,8 @@ import "react-toastify/dist/ReactToastify.css";
 import SubmissionDetails from "./pages/submissions/SubmissionDetails";
 import { NewSetting } from "./components/Admin/NewSetting";
 import { FeatureFlagUIComponent } from "./pages/misc/FeatureFlags";
+import SenderModeBanner from "./components/SenderModeBanner";
+import SessionProvider from "./contexts/SessionStorageContext";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -47,7 +48,6 @@ const App = () => {
             process.env?.REACT_APP_CLIENT_ENV || "missing"
         }'`
     );
-
     const history = useHistory();
     const customAuthHandler = (): void => {
         history.push("/login");
@@ -92,11 +92,12 @@ const App = () => {
                 <NetworkErrorBoundary
                     fallbackComponent={() => <ErrorPage type="page" />}
                 >
-                    <GlobalContextProvider>
+                    <SessionProvider>
                         <GovBanner aria-label="Official government website" />
+                        <SenderModeBanner />
                         <ReportStreamHeader />
                         {/* Changed from main to div to fix weird padding issue at the top
-                        caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
+                            caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
                         <main id="main-content">
                             <Switch>
                                 <Route path="/" exact={true} component={Home} />
@@ -192,10 +193,10 @@ const App = () => {
                             </Switch>
                         </main>
                         <ToastContainer limit={4} />
-                    </GlobalContextProvider>
-                    <footer className="usa-identifier footer">
-                        <ReportStreamFooter />
-                    </footer>
+                        <footer className="usa-identifier footer">
+                            <ReportStreamFooter />
+                        </footer>
+                    </SessionProvider>
                 </NetworkErrorBoundary>
             </Suspense>
         </Security>
