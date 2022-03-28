@@ -3,7 +3,7 @@
 ## General useful links:
 
 - All Schemas are documented here: [Link to detailed schema dictionaries](./schema_documentation)
-- The ReportStream API is documented here: [Hub OpenApi Spec](./openapi.yml)
+- The ReportStream API is documented here: [Hub OpenApi Specs](./api)
 - More detailed changelog for individual releases: [Recent releases](https://github.com/CDCgov/prime-reportstream/releases)
 
 ## March 8, 2022
