@@ -9,9 +9,13 @@ class AuthenticatedClaims(
     val jwtClaims: Map<String, Any>,
 ) {
     // These are all derived from the raw jwtClaims.
+    /** Name of user as extracted from the subject claim.  Usually an email address */
     val userName: String
+    /** Does this user have the prime administrator claim? */
     val isPrimeAdmin: Boolean
+    /** Name of the organization found in these claims */
     val organizationNameClaim: String?
+    /** Is this a Sender claim, of the form DHSender_orgname  ? */
     val isSenderOrgClaim: Boolean
 
     init {
@@ -26,7 +30,7 @@ class AuthenticatedClaims(
 
     /**
      * Derive useful info from jwtClaims on [memberships].
-     * Return the *first* well-formed ReportStream organizationName found in [memberships].
+     * @return the *first* well-formed ReportStream organizationName found in [memberships].
      * (So this won't work if user has many organization claims.)
      *
      * At the same time, this determines if it's a Sender or Receiver claim.
@@ -49,7 +53,7 @@ class AuthenticatedClaims(
 
     /**
      * Derive whether this user is an Admin based on claims [memberships].
-     * Returns true if a well-formed Administrator claim is in [memberships].  False otherwise.
+     * @return true if a well-formed Administrator claim is in [memberships].  False otherwise.
      */
     private fun isPrimeAdmin(memberships: Collection<String>): Boolean {
         memberships.forEach {
@@ -61,6 +65,8 @@ class AuthenticatedClaims(
     companion object {
         /**
          * Create fake claims, for testing.
+         * @return fake claims, for testing.
+         * Uses the [organizationName] if one is passed in, otherwise uses the `ignore` org.
          */
         fun generateTestClaims(organizationName: String? = null): AuthenticatedClaims {
             val tmpOrg = if (organizationName.isNullOrEmpty()) "ignore" else organizationName

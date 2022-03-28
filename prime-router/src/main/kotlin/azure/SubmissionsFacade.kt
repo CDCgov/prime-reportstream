@@ -112,20 +112,21 @@ class SubmissionsFacade(
     }
 
     /**
-     * get a single Action associated with this reportId
+     * @return a single Action associated with this [reportId]
      */
     fun fetchActionForReportId(reportId: UUID): Action? {
         return dbAccess.fetchActionForReportId(reportId)
     }
 
     /**
-     * get a single Action, given its key
+     * @return a single Action, given its key [actionId]
      */
     fun fetchAction(actionId: Long): Action? {
         return dbAccess.fetchAction(actionId)
     }
 
     /**
+     * Check whether these [claims] allow access to this [action]
      * @return true if [claims] authorizes access to this 'receive' [action].  Return
      * false if the submissionId is not a proper submission or if the claim does not give access.
      */

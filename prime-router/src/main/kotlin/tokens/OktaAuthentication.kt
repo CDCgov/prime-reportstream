@@ -23,6 +23,9 @@ const val oktaSubjectClaim = "sub"
 const val oktaMembershipClaim = "organization"
 const val envVariableForOktaBaseUrl = "OKTA_baseUrl"
 
+/**
+ * Allowed roles for human interaction with ReportStream
+ */
 enum class PrincipalLevel {
     SYSTEM_ADMIN,
     ORGANIZATION_ADMIN,
@@ -37,6 +40,10 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         val authenticationFailure = HttpUtilities.errorJson("Authentication Failed")
         val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
 
+        /**
+         * Extract and @return the bearer access token from the [request] Authorization header, if there is one
+         * Otherwise return null.
+         */
         fun getAccessToken(request: HttpRequestMessage<String?>): String? {
             // RFC6750 defines the access token
             val authorization = request.headers[HttpHeaders.AUTHORIZATION.lowercase()] ?: return null

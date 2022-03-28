@@ -14,6 +14,7 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
+import java.util.UUID
 
 /**
  * Submissions API
@@ -146,7 +147,7 @@ class SubmissionFunction(
             // Figure out whether we're dealing with an action_id or a report_id.
             val submissionId = id.toLongOrNull() // toLong a sacrifice can make a Null of the heart
             val action = if (submissionId == null) {
-                val reportId = HttpUtilities.toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
+                val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
                 submissionsFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
             } else {
                 submissionsFacade.fetchAction(submissionId) ?: error("No such submissionId $submissionId")
@@ -174,8 +175,22 @@ class SubmissionFunction(
             logger.error("Unable to fetch history for submission ID $id", e)
             return HttpUtilities.internalErrorResponse(request)
         } catch (ex: IllegalStateException) {
-            logger.error(ex.message ?: "IllegalStateException", ex)
+            logger.error(ex)
+            // Errors above are actionId or UUID not found errors.
             return HttpUtilities.notFoundResponse(request, ex.message)
+        }
+    }
+
+    /**
+     * Utility function.  Mimic String.toLongOrNull()
+     * @return a valid UUID, or null if this [str] cannot be parsed into a valid UUID.
+     */
+    fun toUuidOrNull(str: String): UUID? {
+        return try {
+            UUID.fromString(str)
+        } catch (e: IllegalArgumentException) {
+            logger.debug("Invalid format for report ID: $str", e)
+            null
         }
     }
 }
