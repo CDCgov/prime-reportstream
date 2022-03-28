@@ -23,7 +23,6 @@ import gov.cdc.prime.router.translation.FHIRtoHL7
 import gov.cdc.prime.router.translation.HL7toFHIR
 import gov.cdc.prime.router.translation.translate
 import org.apache.logging.log4j.kotlin.Logging
-import org.hl7.fhir.r4.model.Bundle
 
 const val fhirQueueName = "fhir-raw-received"
 
@@ -54,7 +53,7 @@ class FHIRFlowFunctions : Logging {
                     require(hl7messages.size > 0) { "No messages were found" }
                     buildString {
                         hl7messages.filterNotNull().forEach { message ->
-                            val fhir: Bundle = HL7toFHIR.translate(message)
+                            val fhir = HL7toFHIR.translate(message)
                             appendLine(fhir.encode())
                         }
                     }

@@ -9,7 +9,6 @@ import gov.cdc.prime.router.encoding.FHIR
 import gov.cdc.prime.router.encoding.getValue
 import io.mockk.every
 import io.mockk.mockkObject
-import org.hl7.fhir.instance.model.api.IBase
 import org.junit.jupiter.api.Test
 
 class FHIRFlowFunctionsTests {
@@ -211,7 +210,7 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
                 entries.forEach { line ->
                     assertThat {
                         val bundle = FHIR.decode(line)
-                        val values = bundle.getValue<IBase>("Bundle.entry.resource.as(MessageHeader)")
+                        val values = bundle.getValue("Bundle.entry.resource.as(MessageHeader)")
                         assertThat(values.size).isEqualTo(1)
                     }.isSuccess()
                 }

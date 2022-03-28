@@ -81,6 +81,7 @@ object FHIRtoHL7 {
                 val formatter = DateTimeFormatter.ofPattern(pattern)
                 formatter.format(instant)
             },
+            // TODO: This should be table based, there are a bunch of coded tables already
             Filter("hl7CodingSystem") {
                 val system = subject
                 requireNotNull(system)

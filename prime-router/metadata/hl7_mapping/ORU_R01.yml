@@ -15,7 +15,7 @@
   value: "{{resource.getResource().identifier[0].value}}"
 - hl7Path: "/.MSH-4-3"
   fhirPath: "Bundle.entry.resource.as(Provenance).first().agent.who"
-  value: IS0
+  value: ISO
 - hl7Path: "/.MSH-5-1"
   fhirPath: "Bundle.entry.resource.as(MessageHeader).destination.name"
   value: "{{resource.value}}"
@@ -38,11 +38,7 @@
 - hl7Path: "/.SFT-4"
   fhirPath: "Bundle.entry.resource.as(MessageHeader).source.extension('http://reportstream.cdc.gov/binaryIdentifier')"
   value: "{{resource.value}}"
-# how do we want to tell the system something is optional?
-# - hl7Path: "/.SFT-6"
-#   fhirPath: "Bundle.entry.resource.as(MessageHeader).source.extension('http://reportstream.cdc.gov/description')"
-#   value: "{{resource.value}}"
-- hl7Path: "/.SFT-7"
+- hl7Path: "/.SFT-6"
   fhirPath: "Bundle.entry.resource.as(MessageHeader).source.extension('http://reportstream.cdc.gov/installDate')"
   value: "{{resource.value}}"
 
