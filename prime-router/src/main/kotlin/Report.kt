@@ -68,6 +68,9 @@ enum class Options {
  * @property filterArgs The arguments used in the filter function
  * @property filteredTrackingElement The trackingElement value of the rows removed.
  * Note that we can't guarantee the Sender is sending good unique trackingElement values.
+ * Note that we are not tracking the index (aka rownum).  That's because the row numbers we get here are
+ * not the ones in the data the user submitted -- because quality filtering is done after juris filtering,
+ * which creates a brand new report with fewer rows.
  */
 data class ReportStreamFilterResult(
     val receiverName: String,
@@ -75,7 +78,6 @@ data class ReportStreamFilterResult(
     val filterName: String,
     val filterArgs: List<String>,
     val filteredTrackingElement: String,
-    val filteredIndex: Int,
     val filterType: ReportStreamFilterType?
 ) : ActionLogDetail {
     override val scope = ActionLogScope.translation
@@ -413,7 +415,7 @@ class Report : Logging {
                 val rowsFiltered = getValuesInRows(
                     trackingElement, filteredRowList, ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
                 )
-                rowsFiltered.zip(filteredRowList).forEach { (trackingId, rowNum) ->
+                rowsFiltered.forEach { trackingId ->
                     filteredRows.add(
                         ReportStreamFilterResult(
                             receiver.fullName,
@@ -421,7 +423,6 @@ class Report : Logging {
                             filterFn.name,
                             fnArgs,
                             trackingId,
-                            rowNum + 1,
                             reportStreamFilterType
                         )
                     )

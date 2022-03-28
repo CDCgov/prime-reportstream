@@ -77,14 +77,14 @@ function SubmissionTable() {
                                 <tr key={s.pk()}>
                                     <th scope="row">
                                         <NavLink
-                                            to={`/submissions/${s.taskId}`}
+                                            to={`/submissions/${s.submissionId}`}
                                         >
                                             {s.id}
                                         </NavLink>
                                     </th>
                                     {/* File name */}
                                     <th scope="row">
-                                        {new Date(s.createdAt).toLocaleString()}
+                                        {new Date(s.timestamp).toLocaleString()}
                                     </th>
                                     <th scope="row">{s.externalName}</th>
                                     <th scope="row">{s.reportItemCount}</th>

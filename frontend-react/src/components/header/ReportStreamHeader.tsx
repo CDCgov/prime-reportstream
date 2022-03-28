@@ -11,7 +11,7 @@ import { NetworkErrorBoundary } from "rest-hooks";
 
 import { permissionCheck } from "../../webreceiver-utils";
 import { PERMISSIONS } from "../../resources/PermissionsResource";
-import { getStoredOrg } from "../GlobalContextProvider";
+import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
 
 import { SignInOrUser } from "./SignInOrUser";
