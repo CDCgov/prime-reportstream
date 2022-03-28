@@ -3757,6 +3757,18 @@ The FIPS code for the patient's county
 
 ---
 
+**Name**: patient_id_temp
+
+**ReportStream Internal Name**: patient_id_temp
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: patient_id_type
 
 **ReportStream Internal Name**: patient_id_type

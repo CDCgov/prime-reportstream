@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.output.TermUi.echo
 import com.google.common.base.CharMatcher
+import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
 import gov.cdc.prime.router.Receiver
@@ -621,7 +622,44 @@ class QualityFilter : CoolTest() {
     override val status = TestStatus.SMOKE
 
     /**
-     * In the returned json, check the itemCount associated with receiver.name in the list of destinations.
+     * In the returned [history] response, check the itemCount associated with [receiver] name in the list of
+     * destinations against the [expectedCount].
+     * @return true if the check succeeds
+     */
+    private fun checkJsonItemCountForReceiver(
+        receiver: Receiver,
+        expectedCount: Int,
+        history: DetailedSubmissionHistory
+    ): Boolean {
+        try {
+            val reportId = history.id
+            echo("Id of submitted report: $reportId")
+            val destinations = history.destinations
+            for (destination in destinations) {
+                if (destination.service == receiver.name) {
+                    return if (destination.itemCount == expectedCount) {
+                        good("Test Passed: For ${receiver.name} expected $expectedCount and found $expectedCount")
+                    } else {
+                        bad(
+                            "***Test FAILED***; For ${receiver.name} expected " +
+                                "$expectedCount but got ${destination.itemCount}"
+                        )
+                    }
+                }
+            }
+            if (expectedCount == 0)
+                return good("Test Passed: No data went to ${receiver.name} dest")
+            else
+                return bad("***Test FAILED***: No data went to ${receiver.name} dest")
+        } catch (e: Exception) {
+            return bad("***$name Test FAILED***: Unexpected json returned for ${receiver.name}")
+        }
+    }
+
+    /**
+     * In the returned [json] response, check the itemCount associated with [receiver] name in the list of
+     * destinations against the [expectedCount].
+     * @return true if the check succeeds
      */
     private fun checkJsonItemCountForReceiver(receiver: Receiver, expectedCount: Int, json: String): Boolean {
         try {
