@@ -574,9 +574,10 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             return
         }
 
-        // Output the data for review specified and/or the table is small enough.
+        // Output the data for review specified.
         val isLargeTable = inputData.size > 50 || inputData[0].keys.size > 7
-        if (!silent && (showTable || (!showTable && !isLargeTable))) {
+        // Display the table when not silent, plus display it only if it is a small table unless told otherwise.
+        if (!silent && (showTable || !isLargeTable)) {
             TermUi.echo("Here is the table data to be created:")
             val colNames = inputData[0].keys.toList()
             TermUi.echo(LookupTableCommands.rowsToPrintableTable(inputData, colNames))
