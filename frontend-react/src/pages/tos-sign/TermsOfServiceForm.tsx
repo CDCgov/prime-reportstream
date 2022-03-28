@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
 import Title from "../../components/Title";
-import { getStates } from "../../utils/OrganizationUtils";
+import getStates from "../../utils/States";
 
 import SuccessPage from "./SuccessPage";
 
