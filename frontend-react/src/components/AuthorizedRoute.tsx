@@ -11,16 +11,18 @@ export const AuthorizedRoute = ({
     ...rest
 }) => {
     const { authState } = useOktaAuth();
+    const adminOverride = permissionCheck(
+        PERMISSIONS.PRIME_ADMIN,
+        authState.accessToken
+    );
     return (
         <SecureRoute
             {...rest}
             render={(props) => {
                 if (
                     authState?.accessToken &&
-                    (
-                        permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken) ||
-                        permissionCheck(permission, authState.accessToken)
-                    )
+                    (adminOverride ||
+                        permissionCheck(permission, authState.accessToken))
                 ) {
                     // permission authorized -> render component
                     return <Component {...props} />;
