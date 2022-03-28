@@ -37,6 +37,5 @@ variable "use_cdc_managed_vnet" {
 variable "endpoint_subnet" {}
 variable "public_subnet" {}
 variable "container_subnet" {}
-variable "application_key_vault_id" {
-  
-}
+variable "application_key_vault_id" {}
+variable "dns_vnet" {}

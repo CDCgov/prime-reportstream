@@ -66,8 +66,9 @@ module "application_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids = [var.endpoint_subnet[0]]
-
+  endpoint_subnet_ids        = var.endpoint_subnet
+  dns_vnet                   = var.dns_vnet
+  resource_prefix            = var.resource_prefix
   endpoint_subnet_id_for_dns = var.endpoint_subnet[0]
 }
 
@@ -110,8 +111,9 @@ module "app_config_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids = var.endpoint_subnet
-
+  endpoint_subnet_ids        = var.endpoint_subnet
+  dns_vnet                   = var.dns_vnet
+  resource_prefix            = var.resource_prefix
   endpoint_subnet_id_for_dns = var.endpoint_subnet[0]
 }
 
@@ -175,7 +177,8 @@ module "client_config_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids = var.endpoint_subnet
-
+  endpoint_subnet_ids        = var.endpoint_subnet
+  dns_vnet                   = var.dns_vnet
+  resource_prefix            = var.resource_prefix
   endpoint_subnet_id_for_dns = var.endpoint_subnet[0]
 }

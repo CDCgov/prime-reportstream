@@ -62,6 +62,7 @@ module "key_vault" {
   terraform_object_id         = var.terraform_object_id
   application_kv_name         = var.application_kv_name
   app_config_kv_name          = var.app_config_kv_name
+  dns_vnet                    = var.dns_vnet
 }
 
 module "container_registry" {
@@ -104,6 +105,7 @@ module "database" {
   west_vnet_subnets        = module.vnet.west_vnet_subnets
   east_vnet_subnets        = module.vnet.east_vnet_subnets
   vnet_subnets             = module.vnet.vnet_subnets
+  dns_vnet                 = var.dns_vnet
 }
 
 module "storage" {
@@ -119,6 +121,7 @@ module "storage" {
   public_subnet               = module.network.public_subnet_ids
   container_subnet            = module.network.container_subnet_ids
   application_key_vault_id    = module.key_vault.application_key_vault_id
+  dns_vnet                    = var.dns_vnet
 }
 
 
@@ -181,21 +184,21 @@ module "sftp_container" {
 
 }
 
-# module "metabase" {
-#   count = var.is_metabase_env ? 1 : 0
+module "metabase" {
+  count = var.is_metabase_env ? 1 : 0
 
-#   source                 = "../../modules/metabase"
-#   environment            = var.environment
-#   resource_group         = var.resource_group
-#   resource_prefix        = var.resource_prefix
-#   location               = var.location
-#   ai_instrumentation_key = module.application_insights.metabase_instrumentation_key
-#   ai_connection_string   = module.application_insights.metabase_connection_string
-#   use_cdc_managed_vnet   = var.use_cdc_managed_vnet
-#   service_plan_id        = module.app_service_plan.service_plan_id
+  source                 = "../../modules/metabase"
+  environment            = var.environment
+  resource_group         = var.resource_group
+  resource_prefix        = var.resource_prefix
+  location               = var.location
+  ai_instrumentation_key = module.application_insights.metabase_instrumentation_key
+  ai_connection_string   = module.application_insights.metabase_connection_string
+  use_cdc_managed_vnet   = var.use_cdc_managed_vnet
+  service_plan_id        = module.app_service_plan.service_plan_id
 
 
-# }
+}
 
 ##########
 ## 05-Monitor

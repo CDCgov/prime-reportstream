@@ -38,44 +38,47 @@ resource "azurerm_storage_account" "storage_account_candidate" {
   }
 }
 
-# module "storageaccount_candidate_blob_private_endpoint" {
-#   source         = "../common/private_endpoint"
-#   resource_id    = azurerm_storage_account.storage_account_candidate.id
-#   name           = azurerm_storage_account.storage_account_candidate.name
-#   type           = "storage_account_blob"
-#   resource_group = var.resource_group
-#   location       = var.location
+module "storageaccount_candidate_blob_private_endpoint" {
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_storage_account.storage_account_candidate.id
+  name           = azurerm_storage_account.storage_account_candidate.name
+  type           = "storage_account_blob"
+  resource_group = var.resource_group
+  location       = var.location
 
-#   endpoint_subnet_ids = var.endpoint_subnet
+  endpoint_subnet_ids        = var.endpoint_subnet
+  dns_vnet                   = var.dns_vnet
+  resource_prefix            = var.resource_prefix
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+}
 
-#   endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
-# }
+module "storageaccount_candidate_file_private_endpoint" {
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_storage_account.storage_account_candidate.id
+  name           = azurerm_storage_account.storage_account_candidate.name
+  type           = "storage_account_file"
+  resource_group = var.resource_group
+  location       = var.location
 
-# module "storageaccount_candidate_file_private_endpoint" {
-#   source         = "../common/private_endpoint"
-#   resource_id    = azurerm_storage_account.storage_account_candidate.id
-#   name           = azurerm_storage_account.storage_account_candidate.name
-#   type           = "storage_account_file"
-#   resource_group = var.resource_group
-#   location       = var.location
+  endpoint_subnet_ids        = var.endpoint_subnet
+  dns_vnet                   = var.dns_vnet
+  resource_prefix            = var.resource_prefix
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+}
 
-#   endpoint_subnet_ids = var.endpoint_subnet
+module "storageaccount_candidate_queue_private_endpoint" {
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_storage_account.storage_account_candidate.id
+  name           = azurerm_storage_account.storage_account_candidate.name
+  type           = "storage_account_queue"
+  resource_group = var.resource_group
+  location       = var.location
 
-#   endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
-# }
-
-# module "storageaccount_candidate_queue_private_endpoint" {
-#   source         = "../common/private_endpoint"
-#   resource_id    = azurerm_storage_account.storage_account_candidate.id
-#   name           = azurerm_storage_account.storage_account_candidate.name
-#   type           = "storage_account_queue"
-#   resource_group = var.resource_group
-#   location       = var.location
-
-#   endpoint_subnet_ids = var.endpoint_subnet
-
-#   endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
-# }
+  endpoint_subnet_ids        = var.endpoint_subnet
+  dns_vnet                   = var.dns_vnet
+  resource_prefix            = var.resource_prefix
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+}
 
 resource "azurerm_storage_management_policy" "retention_policy_candidate" {
   storage_account_id = azurerm_storage_account.storage_account_candidate.id
@@ -190,9 +193,10 @@ module "storageaccountcandidatepartner_blob_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids = var.endpoint_subnet
-
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
+  endpoint_subnet_ids        = var.endpoint_subnet
+  dns_vnet                   = var.dns_vnet
+  resource_prefix            = var.resource_prefix
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
 }
 
 resource "azurerm_storage_container" "storage_candidate_container_hhsprotect" {

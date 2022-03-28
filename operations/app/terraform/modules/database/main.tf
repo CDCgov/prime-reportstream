@@ -18,10 +18,10 @@ resource "azurerm_postgresql_server" "postgres_server" {
   ssl_enforcement_enabled          = true
   ssl_minimal_tls_version_enforced = "TLS1_2"
 
-   threat_detection_policy {
-     enabled              = var.db_threat_detection
-     email_account_admins = true
-   }
+  threat_detection_policy {
+    enabled              = var.db_threat_detection
+    email_account_admins = true
+  }
 
   # Required for customer-managed encryption
   identity {
@@ -49,9 +49,10 @@ module "postgres_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids = var.endpoint_subnet
-  exclude_subnets     = concat(var.west_vnet_subnets)
-
+  endpoint_subnet_ids        = var.endpoint_subnet
+  exclude_subnets            = concat(var.west_vnet_subnets)
+  dns_vnet                   = var.dns_vnet
+  resource_prefix            = var.resource_prefix
   endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
 }
 
@@ -103,7 +104,7 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
 }
 
 module "postgres_private_endpoint_replica" {
-  count = var.db_replica ? 1 : 0
+  count          = var.db_replica ? 1 : 0
   source         = "../common/private_endpoint"
   resource_id    = azurerm_postgresql_server.postgres_server_replica[0].id
   name           = azurerm_postgresql_server.postgres_server_replica[0].name
@@ -111,9 +112,10 @@ module "postgres_private_endpoint_replica" {
   resource_group = var.resource_group
   location       = azurerm_postgresql_server.postgres_server_replica[0].location
 
-  endpoint_subnet_ids = var.endpoint_subnet
-  exclude_subnets     = concat(var.east_vnet_subnets, var.vnet_subnets)
-
+  endpoint_subnet_ids        = var.endpoint_subnet
+  exclude_subnets            = concat(var.east_vnet_subnets, var.vnet_subnets)
+  dns_vnet                   = var.dns_vnet
+  resource_prefix            = var.resource_prefix
   endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
 }
 
