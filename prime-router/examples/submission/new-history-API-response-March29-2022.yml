@@ -1,165 +1,13 @@
 {
-    "id": "e6abc923-e699-478a-b981-df52bee7d302",
-    "submissionId": 373,
-    "timestamp": "2022-03-25T18:43:32.694Z",
+    "id": "cfec6911-e3d0-44f5-a40f-d59d9ee45a1b",
+    "submissionId": 3000619,
+    "timestamp": "2022-03-28T16:31:51.843Z",
     "sender": "simple_report.default",
     "reportItemCount": 14,
     "errorCount": 0,
     "warningCount": 5,
     "httpStatus": 201,
     "destinations": [
-        {
-            "organization": "Maryland Public Health Department",
-            "organization_id": "md-phd",
-            "service": "elr",
-            "itemCount": 2,
-            "sending_at": "2022-03-25T18:44:00.000Z",
-            "filteredReportRows": [],
-            "filteredReportItems": [],
-            "sentReports": [
-                {
-                    "reportId": "6d9839db-4d9c-40e5-945d-50712420b425",
-                    "externalName": "covid-19-bdb66045-fb1d-4aea-a970-4c571f2f7467-20220325184426.hl7",
-                    "createdAt": "2022-03-25T18:44:55.531Z",
-                    "itemCount": 2
-                }
-            ],
-            "downloadedReports": [
-                {
-                    "reportId": "51eb4371-bbf3-4276-8135-8a7b8f5f119a",
-                    "externalName": "covid-19-bdb66045-fb1d-4aea-a970-4c571f2f7467-20220325184426.hl7",
-                    "createdAt": "2022-03-25T18:47:48.102Z",
-                    "itemCount": 2
-                }
-            ]
-        },
-        {
-            "organization": "Alaska Public Health Department",
-            "organization_id": "ak-phd",
-            "service": "elr",
-            "itemCount": 2,
-            "sending_at": "2022-03-25T18:44:00.000Z",
-            "filteredReportRows": [
-                "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska4",
-                "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2",
-                "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1",
-                "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1"
-            ],
-            "filteredReportItems": [
-                {
-                    "filterType": "QUALITY_FILTER",
-                    "filterName": "isValidCLIA",
-                    "originalCount": 5,
-                    "filteredIndex": 4,
-                    "filteredTrackingElement": "Alaska4",
-                    "filterArgs": [
-                        "testing_lab_clia",
-                        "reporting_facility_clia"
-                    ],
-                    "message": "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska4"
-                },
-                {
-                    "filterType": "QUALITY_FILTER",
-                    "filterName": "isValidCLIA",
-                    "originalCount": 5,
-                    "filteredIndex": 2,
-                    "filteredTrackingElement": "Alaska2",
-                    "filterArgs": [
-                        "testing_lab_clia",
-                        "reporting_facility_clia"
-                    ],
-                    "message": "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2"
-                },
-                {
-                    "filterType": "QUALITY_FILTER",
-                    "filterName": "isValidCLIA",
-                    "originalCount": 5,
-                    "filteredIndex": 1,
-                    "filteredTrackingElement": "Alaska1",
-                    "filterArgs": [
-                        "testing_lab_clia",
-                        "reporting_facility_clia"
-                    ],
-                    "message": "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1"
-                },
-                {
-                    "filterType": "QUALITY_FILTER",
-                    "filterName": "hasValidDataFor",
-                    "originalCount": 5,
-                    "filteredIndex": 1,
-                    "filteredTrackingElement": "Alaska1",
-                    "filterArgs": [
-                        "patient_dob"
-                    ],
-                    "message": "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1"
-                }
-            ],
-            "sentReports": [
-                {
-                    "reportId": "24663a1b-b5c3-44c6-9f56-4b1aa76ab312",
-                    "externalName": "covid-19-72dfe9d7-7a36-46ec-86c4-14062e57848a-20220325184426.hl7",
-                    "createdAt": "2022-03-25T18:44:55.531Z",
-                    "itemCount": 2
-                }
-            ],
-            "downloadedReports": []
-        },
-        {
-            "organization": "Hawaii Public Health Department",
-            "organization_id": "hi-phd",
-            "service": "elr",
-            "itemCount": 2,
-            "sending_at": "2022-03-25T18:44:00.000Z",
-            "filteredReportRows": [
-                "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii9",
-                "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii7",
-                "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii6"
-            ],
-            "filteredReportItems": [
-                {
-                    "filterType": "QUALITY_FILTER",
-                    "filterName": "hasValidDataFor",
-                    "originalCount": 5,
-                    "filteredIndex": 4,
-                    "filteredTrackingElement": "Hawaii9",
-                    "filterArgs": [
-                        "specimen_type"
-                    ],
-                    "message": "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii9"
-                },
-                {
-                    "filterType": "QUALITY_FILTER",
-                    "filterName": "hasValidDataFor",
-                    "originalCount": 5,
-                    "filteredIndex": 2,
-                    "filteredTrackingElement": "Hawaii7",
-                    "filterArgs": [
-                        "specimen_type"
-                    ],
-                    "message": "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii7"
-                },
-                {
-                    "filterType": "QUALITY_FILTER",
-                    "filterName": "hasValidDataFor",
-                    "originalCount": 5,
-                    "filteredIndex": 1,
-                    "filteredTrackingElement": "Hawaii6",
-                    "filterArgs": [
-                        "specimen_type"
-                    ],
-                    "message": "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii6"
-                }
-            ],
-            "sentReports": [
-                {
-                    "reportId": "bb6c61af-4fa4-419a-a1f8-e68517d7609f",
-                    "externalName": "covid-19-3f8e18de-fe89-4e34-aad9-3ee241fa5f94-20220325184426.hl7",
-                    "createdAt": "2022-03-25T18:44:55.565Z",
-                    "itemCount": 2
-                }
-            ],
-            "downloadedReports": []
-        },
         {
             "organization": "Ohio Department of Health",
             "organization_id": "oh-doh",
@@ -177,7 +25,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "isValidCLIA",
                     "originalCount": 2,
-                    "filteredIndex": 2,
                     "filteredTrackingElement": "Ohio12",
                     "filterArgs": [
                         "testing_lab_clia",
@@ -189,7 +36,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "isValidCLIA",
                     "originalCount": 2,
-                    "filteredIndex": 1,
                     "filteredTrackingElement": "Ohio11",
                     "filterArgs": [
                         "testing_lab_clia",
@@ -201,7 +47,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "hasAtLeastOneOf",
                     "originalCount": 2,
-                    "filteredIndex": 1,
                     "filteredTrackingElement": "Ohio11",
                     "filterArgs": [
                         "order_test_date",
@@ -214,7 +59,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "hasValidDataFor",
                     "originalCount": 2,
-                    "filteredIndex": 2,
                     "filteredTrackingElement": "Ohio12",
                     "filterArgs": [
                         "patient_dob"
@@ -225,12 +69,135 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "hasValidDataFor",
                     "originalCount": 2,
-                    "filteredIndex": 1,
                     "filteredTrackingElement": "Ohio11",
                     "filterArgs": [
                         "patient_dob"
                     ],
                     "message": "For oh-doh.elr, filter hasValidDataFor[patient_dob] filtered out item Ohio11"
+                }
+            ],
+            "sentReports": [],
+            "downloadedReports": []
+        },
+        {
+            "organization": "Hawaii Public Health Department",
+            "organization_id": "hi-phd",
+            "service": "elr",
+            "itemCount": 2,
+            "sending_at": "2022-03-28T16:33:00.000Z",
+            "filteredReportRows": [
+                "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii9",
+                "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii7",
+                "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii6"
+            ],
+            "filteredReportItems": [
+                {
+                    "filterType": "QUALITY_FILTER",
+                    "filterName": "hasValidDataFor",
+                    "originalCount": 5,
+                    "filteredTrackingElement": "Hawaii9",
+                    "filterArgs": [
+                        "specimen_type"
+                    ],
+                    "message": "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii9"
+                },
+                {
+                    "filterType": "QUALITY_FILTER",
+                    "filterName": "hasValidDataFor",
+                    "originalCount": 5,
+                    "filteredTrackingElement": "Hawaii7",
+                    "filterArgs": [
+                        "specimen_type"
+                    ],
+                    "message": "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii7"
+                },
+                {
+                    "filterType": "QUALITY_FILTER",
+                    "filterName": "hasValidDataFor",
+                    "originalCount": 5,
+                    "filteredTrackingElement": "Hawaii6",
+                    "filterArgs": [
+                        "specimen_type"
+                    ],
+                    "message": "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii6"
+                }
+            ],
+            "sentReports": [],
+            "downloadedReports": [
+                {
+                    "reportId": "7aea9107-6270-4dec-b701-f8808892c8a2",
+                    "externalName": "covid-19-92e6885b-3e5f-410a-ac25-4e97eb5985de-20220328163245.hl7",
+                    "createdAt": "2022-03-28T16:45:17.382Z",
+                    "itemCount": 2
+                }
+            ]
+        },
+        {
+            "organization": "Maryland Public Health Department",
+            "organization_id": "md-phd",
+            "service": "elr",
+            "itemCount": 2,
+            "sending_at": "2022-03-28T16:33:00.000Z",
+            "filteredReportRows": [],
+            "filteredReportItems": [],
+            "sentReports": [],
+            "downloadedReports": []
+        },
+        {
+            "organization": "Alaska Public Health Department",
+            "organization_id": "ak-phd",
+            "service": "elr",
+            "itemCount": 2,
+            "sending_at": "2022-03-28T16:33:00.000Z",
+            "filteredReportRows": [
+                "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska4",
+                "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2",
+                "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1",
+                "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1"
+            ],
+            "filteredReportItems": [
+                {
+                    "filterType": "QUALITY_FILTER",
+                    "filterName": "isValidCLIA",
+                    "originalCount": 5,
+                    "filteredTrackingElement": "Alaska4",
+                    "filterArgs": [
+                        "testing_lab_clia",
+                        "reporting_facility_clia"
+                    ],
+                    "message": "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska4"
+                },
+                {
+                    "filterType": "QUALITY_FILTER",
+                    "filterName": "isValidCLIA",
+                    "originalCount": 5,
+                    "filteredTrackingElement": "Alaska2",
+                    "filterArgs": [
+                        "testing_lab_clia",
+                        "reporting_facility_clia"
+                    ],
+                    "message": "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2"
+                },
+                {
+                    "filterType": "QUALITY_FILTER",
+                    "filterName": "isValidCLIA",
+                    "originalCount": 5,
+                    "filteredTrackingElement": "Alaska1",
+                    "filterArgs": [
+                        "testing_lab_clia",
+                        "reporting_facility_clia"
+                    ],
+                    "message": "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1"
+                },
+                {
+                    "filterType": "QUALITY_FILTER",
+                    "filterName": "hasValidDataFor",
+                    "originalCount": 5,
+                    "filteredTrackingElement": "Alaska1",
+                    "filterArgs": [
+                        "patient_dob"
+                    ],
+                    "message": "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1"
                 }
             ],
             "sentReports": [],
