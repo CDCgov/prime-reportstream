@@ -16,6 +16,5 @@ variable "cyberark_ip_ingress" {}
 variable "terraform_object_id" {}
 variable "app_config_kv_name" {}
 variable "application_kv_name" {}
-variable "dns_vnet" {
-
-}
+variable "dns_vnet" {}
+variable "client_config_kv_name" {}
