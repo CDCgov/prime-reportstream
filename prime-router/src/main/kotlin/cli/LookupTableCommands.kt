@@ -541,13 +541,20 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
     /**
      * Activate a created table in one shot.
      */
-    private val activate by option("-a", "--activate", help = "Activate the table upon creation").flag()
+    private val activate by option("-a", "--activate", help = "Activate the table upon creation")
+        .flag(default = false)
 
     /**
      * The table name.
      */
     private val tableName by option("-n", "--name", help = "The name of the table to perform the operation on")
         .required()
+
+    /**
+     * The table name.
+     */
+    private val showTable by option("--show-table", help = "Always show the table to be created")
+        .flag(default = false)
 
     /**
      * Force to create table(s).
@@ -567,8 +574,9 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             return
         }
 
-        // Output the data for review.
-        if (!silent) {
+        // Output the data for review specified and/or the table is small enough.
+        val isLargeTable = inputData.size > 50 || inputData[0].keys.size > 7
+        if (!silent && (showTable || (!showTable && !isLargeTable))) {
             TermUi.echo("Here is the table data to be created:")
             val colNames = inputData[0].keys.toList()
             TermUi.echo(LookupTableCommands.rowsToPrintableTable(inputData, colNames))

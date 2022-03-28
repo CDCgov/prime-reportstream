@@ -318,6 +318,7 @@ class LivdTableDownload : CliktCommand(
                     else selector!!.and(newSelector)
                 }
             }
+            if (!silent) TermUi.echo("Here is the list of changes added from $livdSupplementalPathname")
             when {
                 selector == null -> {
                     TermUi.echo("Found row #${supplRow.rowNumber} with no device information.")
