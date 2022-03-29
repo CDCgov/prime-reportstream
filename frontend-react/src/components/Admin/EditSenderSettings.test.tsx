@@ -1,6 +1,5 @@
-import { fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
-import { render } from "../../utils/CustomRenderUtils";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
@@ -59,6 +58,9 @@ describe("EditSenderSettings", () => {
     beforeAll(() => settingsServer.listen());
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
+    beforeEach(() => {
+        render(<EditSenderSettings {...mockRouteComponentProps} />);
+    });
 
     const mockRouteComponentProps = {
         history: {} as any,
@@ -73,10 +75,7 @@ describe("EditSenderSettings", () => {
     };
 
     test("should be able to edit keys field", async () => {
-        const view = render(
-            <EditSenderSettings {...mockRouteComponentProps} />
-        );
-        const keysField = view.getByTestId("keys");
+        const keysField = screen.getByTestId("keys");
 
         expect(keysField).toBeInTheDocument();
 
@@ -86,10 +85,7 @@ describe("EditSenderSettings", () => {
     });
 
     test("should be able to edit processing type field", async () => {
-        const view = render(
-            <EditSenderSettings {...mockRouteComponentProps} />
-        );
-        const processingTypeField = view.getByTestId("processingType");
+        const processingTypeField = screen.getByTestId("processingType");
 
         expect(processingTypeField).toBeInTheDocument();
 
