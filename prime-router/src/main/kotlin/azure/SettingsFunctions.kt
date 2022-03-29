@@ -53,7 +53,8 @@ class GetOneOrganization(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
     ): HttpResponseMessage {
-        return getOne(request, organizationName, OrganizationAPI::class.java, organizationName)
+        // Counter-intuitive:  this fails if you pass the organizationName as the organizationName. ;)
+        return getOne(request, organizationName, OrganizationAPI::class.java, null)
     }
 }
 
