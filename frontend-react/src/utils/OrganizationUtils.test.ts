@@ -68,10 +68,9 @@ test("getOktaGroups", () => {
 
 test("getRSOrgs", () => {
     const all = getRSOrgs(goodAccessToken);
-    const senders = getRSOrgs(goodAccessToken, false, RSOrgType.SENDER);
-    const receivers = getRSOrgs(goodAccessToken, false, RSOrgType.RECEIVER);
-    const admins = getRSOrgs(goodAccessToken, false, RSOrgType.ADMIN);
-    const first = getRSOrgs(goodAccessToken, true);
+    const senders = getRSOrgs(goodAccessToken, RSOrgType.SENDER);
+    const receivers = getRSOrgs(goodAccessToken, RSOrgType.RECEIVER);
+    const admins = getRSOrgs(goodAccessToken, RSOrgType.ADMIN);
 
     expect(all).toEqual([
         "PrimeAdmins",
@@ -83,7 +82,6 @@ test("getRSOrgs", () => {
     expect(senders).toEqual(["ignore", "ignore.ignore-waters"]);
     expect(receivers).toEqual(["xx-phd"]);
     expect(admins).toEqual(["PrimeAdmins", "ignoreAdmins"]);
-    expect(first).toEqual("PrimeAdmins");
 });
 
 test("parseOrgs", () => {

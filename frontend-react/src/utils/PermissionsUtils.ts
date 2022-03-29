@@ -15,6 +15,11 @@ const isSender = (s: string) => s.toLowerCase().includes(RSOrgType.SENDER);
 const isAdmin = (s: string) => s.toLowerCase().includes(RSOrgType.ADMIN);
 const isReceiver = (s: string) => !isSender(s) && !isAdmin(s);
 
+/* Checks a user's Okta group memberships for any membership that qualifies
+ * them to access what's behind the auth wall.
+ *
+ * Example: User is member of "DHSender_xx-phd" and "DHxx_phd". User will be
+ * admitted to both sender and receiver features. */
 const permissionCheck = (
     level: PERMISSIONS,
     token: AccessToken | undefined

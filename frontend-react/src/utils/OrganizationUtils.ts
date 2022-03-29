@@ -22,9 +22,8 @@ const toRSClaims = (claims: UserClaims): RSUserClaims => {
 
 /* Parses the array of organizations (strings) from an AccessToken */
 const getOktaGroups = (accessToken: AccessToken | undefined): string[] => {
-    const rsClaims: RSUserClaims =
-        (accessToken?.claims as RSUserClaims) || undefined;
-    return rsClaims?.organization || [];
+    if (!accessToken?.claims) return [];
+    return toRSClaims(accessToken.claims).organization || [];
 };
 
 /* Converts Okta group names to their respective organization name
@@ -61,44 +60,30 @@ const groupToOrg = (group: string | undefined): string => {
  * groups. */
 const getRSOrgs = (
     token: AccessToken | undefined,
-    onlyFirst: boolean = false,
     onlyType?: RSOrgType
 ): string[] | string => {
     if (!token || !token.claims) return [];
     /* Have to convert to RSUserClaims type to get Organization claim */
-    const rsClaims = toRSClaims(token.claims);
+    const oktaGroups = getOktaGroups(token);
 
     /* Consolidate all the filtering logic */
     const filterGroups = (): string[] => {
-        if (onlyType) {
-            switch (onlyType) {
-                /* Return those WITH sender */
-                case RSOrgType.SENDER:
-                    return rsClaims.organization.filter((group) =>
-                        isSender(group)
-                    );
-                /* Return those WITHOUT sender */
-                case RSOrgType.RECEIVER:
-                    return rsClaims.organization.filter((group) =>
-                        isReceiver(group)
-                    );
-                /* Return ONLY admin orgs */
-                case RSOrgType.ADMIN:
-                    return rsClaims.organization.filter((group) =>
-                        isAdmin(group)
-                    );
-            }
-        } else {
-            return rsClaims.organization;
+        switch (onlyType) {
+            /* Return those WITH sender */
+            case RSOrgType.SENDER:
+                return oktaGroups.filter((group) => isSender(group));
+            /* Return those WITHOUT sender */
+            case RSOrgType.RECEIVER:
+                return oktaGroups.filter((group) => isReceiver(group));
+            /* Return ONLY admin groups */
+            case RSOrgType.ADMIN:
+                return oktaGroups.filter((group) => isAdmin(group));
+            /* Return all groups */
+            default:
+                return oktaGroups;
         }
     };
-    let organizations = filterGroups().map((group) => groupToOrg(group));
-
-    if (onlyFirst) {
-        return organizations[0];
-    } else {
-        return organizations;
-    }
+    return filterGroups().map((group) => groupToOrg(group));
 };
 
 function parseOrgs(orgs: Array<string>): Array<Partial<SessionStore>> {
