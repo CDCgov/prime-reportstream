@@ -75,7 +75,6 @@ export const ConfirmSaveSettingModal = forwardRef(
                 },
                 showModal: () => {
                     // need to refresh data passed into object
-                    debugger;
                     diffEditorRef?.current?.refeshEditedText(newjson);
                     modalRef?.current?.toggleModal(undefined, true);
                 },
