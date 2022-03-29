@@ -1383,20 +1383,6 @@ The reporting facility's CLIA
 
 ---
 
-**Name**: result_format
-
-**ReportStream Internal Name**: result_format
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: CWE
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: test_result_status
 
 **ReportStream Internal Name**: test_result_status
