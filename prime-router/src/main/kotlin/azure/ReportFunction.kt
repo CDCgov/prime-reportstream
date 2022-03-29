@@ -20,6 +20,8 @@ import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilterResult
+import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -161,9 +163,11 @@ class ReportFunction(
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
         val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
-        val httpStatus: HttpStatus =
+        var hasQualityFilterOption = false
+        var httpStatus: HttpStatus =
             try {
                 val options = Options.valueOf(optionsText)
+                hasQualityFilterOption = (options == Options.BypassQueueForQualityFilters)
                 val payloadName = extractPayloadName(request)
                 actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
 
@@ -247,6 +251,15 @@ class ReportFunction(
                 HttpStatus.BAD_REQUEST
             }
 
+        // if the BypassQueueForQualityFilters option was sent AND quality filters were present in the response,
+        // then return a 400 and bypass the message queue at the end
+        var bypassMessageQueue = false
+        if (hasQualityFilterOption) {
+            bypassMessageQueue = responseContainsQualityFilter()
+        }
+        if (bypassMessageQueue)
+            httpStatus = HttpStatus.BAD_REQUEST
+
         actionHistory.trackActionResult(httpStatus)
         workflowEngine.recordAction(actionHistory)
 
@@ -267,10 +280,19 @@ class ReportFunction(
             .build()
 
         // queue messages here after all task / action records are in
-        actionHistory.queueMessages(workflowEngine)
+        if (!bypassMessageQueue)
+            actionHistory.queueMessages(workflowEngine)
 
         // TODO: having to build response twice in order to save it and then include a response with the resulting actionID
         return response
+    }
+
+    fun responseContainsQualityFilter(): Boolean {
+        return actionHistory.actionLogs.any {
+            val detail = it.detail
+            it.type == ActionLogLevel.filter &&
+                (detail is ReportStreamFilterResult) && detail.filterType == ReportStreamFilterType.QUALITY_FILTER
+        }
     }
 
     /**
