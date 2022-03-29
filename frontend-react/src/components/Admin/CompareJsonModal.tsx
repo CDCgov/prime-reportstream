@@ -43,6 +43,8 @@ ModalConfirmSaveButton.displayName = "ModalConfirmSaveButton";
 // interface on Component that is callable
 export interface ConfirmSaveSettingModalRef extends ModalRef {
     getEditedText: () => string;
+    showModal: () => void;
+    hideModal: () => void;
 }
 
 interface CompareSettingsModalProps {
@@ -70,6 +72,15 @@ export const ConfirmSaveSettingModal = forwardRef(
                 // route this down the diffEditor
                 getEditedText: (): string => {
                     return diffEditorRef?.current?.getEditedText() || newjson;
+                },
+                showModal: () => {
+                    // need to refresh data passed into object
+                    debugger;
+                    diffEditorRef?.current?.refeshEditedText(newjson);
+                    modalRef?.current?.toggleModal(undefined, true);
+                },
+                hideModal: () => {
+                    modalRef?.current?.toggleModal(undefined, false);
                 },
                 // route these down to modal ref
                 modalId: modalRef?.current?.modalId || "",
