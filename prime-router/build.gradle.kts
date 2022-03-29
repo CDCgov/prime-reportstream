@@ -659,7 +659,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.12.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.7") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.8") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -685,7 +685,7 @@ dependencies {
     }
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.17")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.7.1")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.1")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.45")
