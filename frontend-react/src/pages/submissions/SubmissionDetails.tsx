@@ -50,10 +50,10 @@ export function DetailItem({ item, content, subItem }: DetailItemProps) {
 
 /*
     A component displaying information about a single destination
-    returned from the history/submissions details API
+    returned from the waters/report/{submissionId}/history details API
 
     @param destinationObj - a single object from the destinations array
-    in the history/submissions details API
+    in the report history details API
 */
 export function DestinationItem({ destinationObj }: DestinationItemProps) {
     const submissionDate = generateDateTitles(destinationObj.sending_at);
@@ -71,14 +71,22 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
             <DetailItem
                 item={"Transmission Date"}
                 content={
-                    submissionDate ? submissionDate.dateString : "Parsing error"
+                    destinationObj.itemCount > 0
+                        ? submissionDate
+                            ? submissionDate.dateString
+                            : "Parsing error"
+                        : "Not transmitting - all data filtered"
                 }
                 subItem
             />
             <DetailItem
                 item={"Transmission Time"}
                 content={
-                    submissionDate ? submissionDate.timeString : "Parsing error"
+                    destinationObj.itemCount > 0
+                        ? submissionDate
+                            ? submissionDate.timeString
+                            : "Parsing error"
+                        : "Not transmitting - all data filtered"
                 }
                 subItem
             />

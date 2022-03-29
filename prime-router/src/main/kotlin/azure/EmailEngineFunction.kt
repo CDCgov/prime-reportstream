@@ -31,6 +31,9 @@ import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.secrets.SecretHelper
+import gov.cdc.prime.router.tokens.oktaMembershipClaim
+import gov.cdc.prime.router.tokens.oktaSubjectClaim
+import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
@@ -45,9 +48,6 @@ const val FROM_EMAIL = "reportstream@cdc.gov"
 const val SUBJECT_EMAIL = "ReportStream Daily Email"
 const val FIVE_MINUTES_IN_SECONDS = 5 * 60
 const val AUTH_KEY = "Bearer "
-const val ORG_CLAIM = "organization"
-const val USER_CLAIM = "sub"
-const val ADMIN_GRP = "DHPrimeAdmins"
 
 data class EmailSchedule(
     val template: String,
@@ -267,8 +267,8 @@ class EmailScheduleEngine {
                 // get the user name
                 @Suppress("UNCHECKED_CAST")
                 user =
-                    if ((jwt.claims[ORG_CLAIM] as List<String>).contains(ADMIN_GRP))
-                        jwt.claims[USER_CLAIM].toString()
+                    if ((jwt.claims[oktaMembershipClaim] as List<String>).contains(oktaSystemAdminGroup))
+                        jwt.claims[oktaSubjectClaim].toString()
                     else null
             } catch (ex: Throwable) {
                 logger.log(Level.WARNING, "Error in verification of token", ex)
