@@ -70,13 +70,13 @@ resource "azurerm_private_endpoint" "endpoint" {
 # An A record is used specifically because azurerm_private_endpoint.private_dns_zone_group has an order-of-operations issue with multiple private endpoints
 
 
-resource "azurerm_private_dns_a_record" "endpoint_dns" {
-  # for_each = toset(local.option.cnames_private)
-
-  name                = var.name
-  resource_group_name = var.resource_group
-  zone_name           = join("", local.option.cnames_private)
-
-  records = [data.azurerm_private_endpoint_connection.endpoint_dns.private_service_connection[0].private_ip_address]
-  ttl     = 60
-}
+#resource "azurerm_private_dns_a_record" "endpoint_dns" {
+#  # for_each = toset(local.option.cnames_private)
+#
+#  name                = var.name
+#  resource_group_name = var.resource_group
+#  zone_name           = join("", local.option.cnames_private)
+#
+#  records = [data.azurerm_private_endpoint_connection.endpoint_dns.private_service_connection[0].private_ip_address]
+#  ttl     = 60
+#}

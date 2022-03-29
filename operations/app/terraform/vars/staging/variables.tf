@@ -215,6 +215,10 @@ variable "application_kv_name" {
   description = "The keyvault used for the entire application as a whole."
 }
 
+variable "client_config_kv_name" {
+  default = "pdhstaging-clientconfig"
+}
+
 variable "terraform_caller_ip_address" {
   type    = list(string)
   default = ["162.224.209.174", "24.163.118.70", "75.191.122.59"]

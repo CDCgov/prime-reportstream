@@ -63,6 +63,7 @@ module "key_vault" {
   terraform_object_id         = var.terraform_object_id
   application_kv_name         = var.application_kv_name
   app_config_kv_name          = var.app_config_kv_name
+  client_config_kv_name       = var.client_config_kv_name
 }
 
 module "container_registry" {
