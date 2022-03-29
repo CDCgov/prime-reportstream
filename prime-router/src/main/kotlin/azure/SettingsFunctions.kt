@@ -53,9 +53,7 @@ class GetOneOrganization(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
     ): HttpResponseMessage {
-        // Is the API user an Okta Sender?
-        val oktaSender = request.headers["authentication-type"] == "okta"
-        return getOne(request, organizationName, OrganizationAPI::class.java, null, oktaSender)
+        return getOne(request, organizationName, OrganizationAPI::class.java, organizationName)
     }
 }
 
@@ -120,9 +118,7 @@ class GetOneSender(
         @BindingName("organizationName") organizationName: String,
         @BindingName("senderName") senderName: String,
     ): HttpResponseMessage {
-        // Is the API user an Okta Sender?
-        val oktaSender = request.headers["authentication-type"] == "okta"
-        return getOne(request, senderName, SenderAPI::class.java, organizationName, oktaSender)
+        return getOne(request, senderName, SenderAPI::class.java, organizationName)
     }
 }
 
@@ -266,14 +262,9 @@ open class BaseFunction(
         settingName: String,
         clazz: Class<T>,
         organizationName: String? = null,
-        oktaSender: Boolean = false
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, organizationName ?: settingName, oktaSender) {
-            // if the user is an okta sender, their organization name matches the okta group naming schema
-            // it would be something like "ignore.ignore-waters", where "ignore" is the organization name
-            // split the organizationName to get the correct organization to find in the settings database
-            val settingValue = if (oktaSender) settingName.split(".")[0] else settingName
-            val setting = facade.findSettingAsJson(settingValue, clazz, organizationName)
+        return oktaAuthentication.checkAccess(request, organizationName ?: settingName) {
+            val setting = facade.findSettingAsJson(settingName, clazz, organizationName)
                 ?: return@checkAccess HttpUtilities.notFoundResponse(request)
             HttpUtilities.okResponse(request, setting)
         }
