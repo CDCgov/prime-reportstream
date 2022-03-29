@@ -1,21 +1,47 @@
-import { Endpoint } from "../api/Api";
+import { Api, ApiConfig, EndpointConfig } from "./Api";
 
-import { Api } from "./Api";
+const config = new ApiConfig({
+    root: `${process.env.REACT_APP_BACKEND_URL}/api`,
+    headers: {
+        Authorization: "Bearer [token]",
+    },
+});
 
-jest.mock("../../components/GlobalContextProvider");
+type ApiItem = string | string[];
+class TestApi extends Api {
+    /* Get array of test data */
+    getTestList(): EndpointConfig<ApiItem> {
+        return super.configure<ApiItem>({
+            method: "GET",
+            url: this.basePath,
+        });
+    }
+}
+const testApi = new TestApi(config, "test");
 
-describe("Api.ts", () => {
-    test("static members have values", () => {
-        expect(Api.accessToken).toBe("test token");
-        expect(Api.organization).toBe("test org");
-        expect(Api.baseUrl).toBe("/api");
+describe("ApiConfig", () => {
+    test("Constructor assigns properties", () => {
+        expect(config.root).toEqual(`${process.env.REACT_APP_BACKEND_URL}/api`);
+        expect(config.headers).toEqual({
+            Authorization: "Bearer [token]",
+        });
+    });
+});
+
+describe("Api", () => {
+    test("Constructor assigns properties", () => {
+        expect(testApi.config.root).toEqual(config.root);
+        expect(testApi.config.headers).toEqual(config.headers);
     });
 
-    /* TODO: Test axios config somehow? */
-
-    test("generateEndpoint() creates valid endpoint", () => {
-        const testEndpoint: Endpoint = Api.generateEndpoint("/test/url", Api);
-        expect(testEndpoint.url).toBe("/test/url");
-        expect(testEndpoint.api).toBe(Api);
+    test("Endpoints generate correctly", () => {
+        expect(testApi.getTestList()).toEqual({
+            method: "GET",
+            url: `${process.env.REACT_APP_BACKEND_URL}/api/test`,
+            headers: {
+                Authorization: "Bearer [token]",
+            },
+            responseType: "json",
+        });
     });
 });

@@ -133,7 +133,14 @@ class FakeDataService : Logging {
             val possibleValues = if (altValues?.isNotEmpty() == true) {
                 altValues.map { it.code }.toTypedArray()
             } else {
-                valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
+                if (element.cardinality?.name == "ZERO_OR_ONE") {
+                    // Pick random code from the ValueSet.Value and add ""
+                    val code = valueSet?.values?.asSequence()?.shuffled()?.take(1)?.map { it.code }
+                        ?.toList()?.toTypedArray() ?: arrayOf("")
+                    code.plus("")
+                } else {
+                    valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
+                }
             }
 
             return randomChoice(*possibleValues)

@@ -13,7 +13,9 @@ Below are the steps for how to most safely check and merge in the dependabot PRs
 `@dependabot rebase` to let dependabot rebase the branch for you.  If you use any other method then dependabot will not be able to keep track of the PR.
 1. Verify that the build for the PR is successful.  Note that the unit, integration and smoke tests are run as part of the build.
 1. Read the updated library's changelog and identify and communicate any risks you find.  When in doubt ask! Library changes can affect many parts of the system.
-1. Identify what places in the code the library is used then identify if the unit, integration and/or smoke tests provide enough coverage to verify the update does 
+1. Identify any library version conflicts for the updated library. This may happen when other libraries are dependent on a different version of the same library.  See 
+[Identifying Library Version Conflicts](#identifying-library-version-conflicts)
+3. Identify what places in the code the library is used then identify if the unit, integration and/or smoke tests provide enough coverage to verify the update does 
 not break the baseline.  If the tests do not provide proper coverage then you MUST manually test as necessary to verify the library update BEFORE merging the update.
 When in doubt ask!
 1. If not further testing is required then you can merge in the PR in GitHub
@@ -21,6 +23,24 @@ When in doubt ask!
    2. Go to the Files changed tab click Review changes
    3. Leave a brief comment (i.e. "tested locally"), select Approve and click Submit review
    4. At the bottom of the Conversation tab, click on Update branch, then Enable auto-merge (squash)
+
+## Identifying Library Version Conflicts
+Updates to library versions can create conflicts when another library is dependent on an older version of the given library.  
+1. Run the command `./gradlew dependencies | grep <library name>`.
+1. Look for different versions of the library.  If only one version is present then there are no issues with this update.  If more than one version is present then
+proceed to the next step.
+1. Identify what libraries have the dependency to the older version by running `./gradlew dependencies > project_dependencies.txt` and inspecting 
+the `project_dependencies.txt` file to trace the library dependencies.
+1. Once identified, you need to look at what dependencies the libraries have and identify if other libraries need to be updated, if we cannot update the library, 
+or if other specific steps need to be taken.  Each library is different and hence we cannot list all possible steps in this document.  Do your research and find
+a solution.
+
+A real life example from 3/2022:
+The library `com.fasterxml.jackson.core >> jackson-databind` was updated from version 2.13.1 to 2.13.2.  If you look at the dependecies for that library at 
+the [Maven Repository page](https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.13.2) you can see that 
+`com.fasterxml.jackson.core >> jackson-core` also needs to be at version 2.13.2.  If you keep following the rabbit you will find that 
+`com.fasterxml.jackson.module >> jackson-module-kotlin` has a depency to those libraries, but at the time the `jackson-module-kotlin` has not been updated to version 
+2.13.2 and hence we could not update until all those libraries are matched.
 
 ## Dealing with Breaking Changes
 If you have identified breaking changes then handle them in one of these ways:

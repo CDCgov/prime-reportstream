@@ -37,5 +37,5 @@ export const showAlertNotification = (
 
 export const showError = (message: string) => {
     showAlertNotification("error", message);
-    console.trace(`ShowError : "$message"`);
+    console.trace("ShowError", message);
 };
