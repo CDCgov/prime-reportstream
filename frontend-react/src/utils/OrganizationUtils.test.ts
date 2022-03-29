@@ -1,5 +1,3 @@
-import { AccessToken } from "@okta/okta-auth-js";
-
 import {
     getOktaGroups,
     getRSOrgs,
@@ -8,25 +6,10 @@ import {
     RSOrgType,
     RSUserClaims,
 } from "./OrganizationUtils";
+import { mockToken } from "./TestUtils";
 
-const badAccessToken: AccessToken = {
-    authorizeUrl: "",
-    expiresAt: 0,
-    scopes: [],
-    userinfoUrl: "",
-    accessToken: "",
-    claims: {
-        sub: "", // This satisfies the required attribute
-    },
-    tokenType: "",
-};
-
-const goodAccessToken: AccessToken = {
-    authorizeUrl: "",
-    expiresAt: 0,
-    scopes: [],
-    userinfoUrl: "",
-    accessToken: "",
+const badAccessToken = mockToken();
+const goodAccessToken = mockToken({
     claims: {
         organization: [
             "DHPrimeAdmins",
@@ -36,8 +19,7 @@ const goodAccessToken: AccessToken = {
             "DHSender_ignore.ignore-waters",
         ],
     } as RSUserClaims,
-    tokenType: "",
-};
+});
 
 test("groupToOrg", () => {
     const admins = groupToOrg("DHPrimeAdmins");

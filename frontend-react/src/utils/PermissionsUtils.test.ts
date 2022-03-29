@@ -1,43 +1,22 @@
-import { AccessToken } from "@okta/okta-auth-js";
-
 import { permissionCheck, PERMISSIONS } from "./PermissionsUtils";
 import { RSUserClaims } from "./OrganizationUtils";
+import { mockToken } from "./TestUtils";
 
-const senderToken: AccessToken = {
-    authorizeUrl: "",
-    expiresAt: 0,
-    scopes: [],
-    userinfoUrl: "",
-    accessToken: "",
+const senderToken = mockToken({
     claims: {
         organization: ["DHSender_ignore"],
     } as RSUserClaims,
-    tokenType: "",
-};
-
-const receiverToken: AccessToken = {
-    authorizeUrl: "",
-    expiresAt: 0,
-    scopes: [],
-    userinfoUrl: "",
-    accessToken: "",
+});
+const receiverToken = mockToken({
     claims: {
         organization: ["DHxx_phd"],
     } as RSUserClaims,
-    tokenType: "",
-};
-
-const adminToken: AccessToken = {
-    authorizeUrl: "",
-    expiresAt: 0,
-    scopes: [],
-    userinfoUrl: "",
-    accessToken: "",
+});
+const adminToken = mockToken({
     claims: {
         organization: ["DHPrimeAdmins"],
     } as RSUserClaims,
-    tokenType: "",
-};
+});
 
 test("permissionCheck", () => {
     const trueSenderAuth = permissionCheck(PERMISSIONS.SENDER, senderToken);
