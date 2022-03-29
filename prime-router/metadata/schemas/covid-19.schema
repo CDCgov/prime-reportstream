@@ -1278,7 +1278,7 @@ elements:
   #  hl7Field: AOE
 
   - name: value_type
-    type: ID
+    type: CODE
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: OBX-2
