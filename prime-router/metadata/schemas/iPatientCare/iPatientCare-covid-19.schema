@@ -138,9 +138,6 @@ elements:
     - name: test_result_status
       default: F
 
-    - name: result_format
-      default: CWE
-
 
 
 # Ordering provider
