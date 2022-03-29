@@ -55,9 +55,9 @@ class FHIRtoHL7Tests : Logging {
         bundle.addEntry().setResource(patient).setFullUrl(patient.getId())
 
         val translation = FHIRtoHL7.MappingTemplate(
-            hl7Path = "/.PID-3-1",
-            fhirPath = "Bundle.entry.resource.as(Patient).identifier.value",
-            value = "{{resource}}",
+            toHL7Field = "/.PID-3-1",
+            fromFHIRPathResources = "Bundle.entry.resource.as(Patient).identifier.value",
+            valueTemplate = "{{resource}}",
         )
 
         val terser = Terser(message)

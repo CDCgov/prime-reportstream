@@ -40,10 +40,10 @@ fun Terser.translate(mapping: FHIRtoHL7.Mapping): Terser {
 object FHIRtoHL7 {
 
     data class MappingTemplate(
-        val hl7Path: String,
-        val fhirPath: String,
+        val fromFHIRPathResources: String,
         // the template for the value
-        val value: String,
+        val valueTemplate: String,
+        val toHL7Field: String,
     )
 
     data class Mapping(
@@ -95,21 +95,30 @@ object FHIRtoHL7 {
     }
 
     fun toORU_R01(bundle: Bundle): Message {
+        val mappings = generateMapping(bundle, "./metadata/hl7_mapping/ORU_R01.yml")
         val message = ORU_R01()
         message.initQuickstart("ORU", "R01", "P")
         val terser = Terser(message)
-        val translations = readMappings("./metadata/hl7_mapping/ORU_R01.yml")
-        val mappings = processMapping(translations, bundle)
         terser.translate(mappings)
         return message
     }
 
-    fun templateHL7(bundle: Bundle): String {
-        return runBlocking {
-            val templateFile = File("./metadata/hl7_templates/ORU_R01.hl7")
-            val template = Template(templateFile.readText(), config)
-            template(mapOf("bundle" to bundle))
-        }
+    fun generateMapping(bundle: Bundle, mappingFile: String): List<Mapping> {
+        val translations = readMappings(mappingFile)
+        return processMapping(translations, bundle)
+    }
+
+    fun readMappings(path: String): List<MappingTemplate> {
+        val mapper = ObjectMapper(YAMLFactory()).registerModule(
+            KotlinModule.Builder()
+                .withReflectionCacheSize(512)
+                .configure(KotlinFeature.NullToEmptyCollection, false)
+                .configure(KotlinFeature.NullToEmptyMap, false)
+                .configure(KotlinFeature.NullIsSameAsDefault, false)
+                .configure(KotlinFeature.StrictNullChecks, false)
+                .build()
+        )
+        return mapper.readValue(File(path))
     }
 
     fun processMapping(mappings: List<MappingTemplate>, bundle: Bundle): List<Mapping> {
@@ -123,10 +132,10 @@ object FHIRtoHL7 {
     fun processMapping(mapping: MappingTemplate, bundle: Bundle): List<Mapping> {
         val mappings: MutableList<Mapping> = mutableListOf()
         runBlocking {
-            val hl7PathTemplate = Template(mapping.hl7Path, config)
-            val valueTemplate = Template(mapping.value, config)
-            val values = bundle.getValue(mapping.fhirPath)
-            require(values.size > 0) { "Failed to find elements for ${mapping.fhirPath}" }
+            val hl7PathTemplate = Template(mapping.toHL7Field, config)
+            val valueTemplate = Template(mapping.valueTemplate, config)
+            val values = bundle.getValue(mapping.fromFHIRPathResources)
+            require(values.size > 0) { "Failed to find elements for ${mapping.fromFHIRPathResources}" }
             values.forEachIndexed { index, resource ->
                 val path = hl7PathTemplate(mapOf("index" to index))
                 val value = valueTemplate(
@@ -145,23 +154,4 @@ object FHIRtoHL7 {
         }
         return mappings
     }
-
-    fun readMappings(path: String): List<MappingTemplate> {
-        val mapper = ObjectMapper(YAMLFactory()).registerModule(
-            KotlinModule.Builder()
-                .withReflectionCacheSize(512)
-                .configure(KotlinFeature.NullToEmptyCollection, false)
-                .configure(KotlinFeature.NullToEmptyMap, false)
-                .configure(KotlinFeature.NullIsSameAsDefault, false)
-                .configure(KotlinFeature.StrictNullChecks, false)
-                .build()
-        )
-        return mapper.readValue(File(path))
-    }
-
-    /*
-    fun translate(resource: Resource): Segment {
-
-    }
-    */
 }
