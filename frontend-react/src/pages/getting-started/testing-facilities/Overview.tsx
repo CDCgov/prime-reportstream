@@ -99,7 +99,7 @@ export const FacilitiesOverview = () => {
                         <p>
                             For more information, read the&nbsp;
                             <a
-                                href="/assets/pdf/ReportStream-programmers-guide-v2.0.pdf"
+                                href="/assets/pdf/ReportStream-Programmers-Guide-v2.1.pdf"
                                 className="usa-link"
                                 rel="noopener noreferrer"
                                 target="_blank"

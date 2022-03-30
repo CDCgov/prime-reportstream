@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 
 import ReportLink from "../daily/Table/ReportLink";
 import ReportResource from "../../resources/ReportResource";
-import { useOrgName } from "../../utils/OrganizationUtils";
+import { useOrgName } from "../../hooks/UseOrgName";
 
 interface Props {
     /* REQUIRED
