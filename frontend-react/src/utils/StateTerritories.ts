@@ -1,5 +1,5 @@
 /* Returns a list of all states and territories; helpful for dropdowns */
-const getStates = () => {
+const getStateTerritoryList = () => {
     return [
         "Alabama",
         "Alaska",
@@ -63,4 +63,4 @@ const getStates = () => {
     ].sort();
 };
 
-export default getStates;
+export default getStateTerritoryList;

@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
 import Title from "../../components/Title";
-import getStates from "../../utils/States";
+import getStateTerritoryList from "../../utils/StateTerritories";
 
 import SuccessPage from "./SuccessPage";
 
@@ -44,7 +44,7 @@ export interface AgreementBody {
 }
 
 function TermsOfServiceForm() {
-    const STATES = getStates();
+    const STATES = getStateTerritoryList();
 
     /* Form field values are stored here */
     const [title, setTitle] = useState("");
