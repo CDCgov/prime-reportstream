@@ -72,7 +72,7 @@ export function AdminOrgEdit({
                 JSON.stringify(orgSettings, jsonSortReplacer, 2)
             );
 
-            confirmModalRef?.current?.toggleModal(undefined, true);
+            confirmModalRef?.current?.showModal();
             setLoading(false);
         } catch (e) {
             console.error(e);
@@ -92,7 +92,7 @@ export function AdminOrgEdit({
                 "success",
                 `Item '${orgname}' has been updated`
             );
-            confirmModalRef?.current?.toggleModal(undefined, false);
+            confirmModalRef?.current?.hideModal();
             showAlertNotification("success", `Saved '${orgname}' setting.`);
         } catch (e: any) {
             showError(`Updating item '${orgname}' failed. ${e.toString()}`);
