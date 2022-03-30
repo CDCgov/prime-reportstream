@@ -405,6 +405,65 @@ internal class ElementTests {
     }
 
     @Test
+    fun `test toNormalized checkForError phone`() {
+        val one = Element(
+            "a",
+            type = Element.Type.TELEPHONE,
+            csvFields = Element.csvFields("phone")
+        )
+        one.checkForError("+9509428220723").run {
+            assertThat(this).isEqualTo(null) // Good international phone US Embassy MM
+        }
+        one.checkForError("9509428220723").run {
+            assertThat(this?.message?.contains("Invalid phone number") as Boolean).isTrue() // No + sign
+        }
+
+        one.checkForError("1(555)-968-5052").run {
+            assertThat(this?.message?.contains("Invalid phone number") as Boolean).isTrue() // Bad US phone
+        }
+        one.checkForError("555-968-5052").run {
+            assertThat(this?.message?.contains("Invalid phone number") as Boolean).isTrue() // Bad US phone
+        }
+        one.checkForError("+1(555)-968-5052").run {
+            assertThat(this?.message?.contains("Invalid phone number") as Boolean).isTrue() // BAD US phone
+        }
+        one.checkForError("968-5052").run {
+            assertThat(this?.message?.contains("Invalid phone number") as Boolean).isTrue() // No Area Code
+        }
+        one.checkForError("+1(555)-968-5052 x5555").run {
+            assertThat(this?.message?.contains("Invalid phone number") as Boolean).isTrue() // Bad US phone
+        }
+
+        // Check for CA phone
+        one.checkForError("+1 613-688-5335", null).run {
+            assertThat(this).isEqualTo(null) // Good international phone US Embassy CA
+        }
+        one.checkForError("1 613-688-5335", null).run {
+            assertThat(this).isEqualTo(null) // Good international phone US Embassy CA
+        }
+        one.checkForError("613-688-5335", null).run {
+            assertThat(this).isEqualTo(null) // Good international phone US Embassy CA
+        }
+
+        // MX phone number without + (test default parse)
+        one.checkForError("52-65-8888-8888").run {
+            assertThat(this).isEqualTo(null) // Good international MX phone
+        }
+        // MX phone number without + (test default parse)
+        one.checkForError("526588888888").run {
+            assertThat(this).isEqualTo(null) // Good international MX phone
+        }
+        // MX Phone number
+        one.checkForError("+52-65-8888-8888").run {
+            assertThat(this).isEqualTo(null) // Good international MX phone
+        }
+        // MX Phone number
+        one.checkForError("+52-65-8888-888").run {
+            assertThat(this?.message?.contains("Invalid phone number") as Boolean).isTrue() // Bad MX phone
+        }
+    }
+
+    @Test
     fun `test toNormalized dateTime`() {
         val one = Element(
             "a",
