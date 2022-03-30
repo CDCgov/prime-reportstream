@@ -109,23 +109,14 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
 
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
-    val accessSpy = spyk(DatabaseAccess(connection))
+
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val timing1 = mockkClass(Receiver.Timing::class)
 
     val oneOrganization = DeepOrganization(
         "phd", "test", Organization.Jurisdiction.FEDERAL,
-        receivers = listOf(
-            Receiver(
-                "elr",
-                "phd",
-                "topic",
-                CustomerStatus.INACTIVE,
-                "one",
-                timing = timing1
-            )
-        ),
+        receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one", timing = timing1)),
     )
 
     val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
@@ -134,12 +125,9 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
-            // WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            //     .blobAccess(blobMock).queueAccess(queueMock).build()
             WorkflowEngine.Builder()
                 .metadata(metadata)
                 .settingsProvider(settings)
-                // .databaseAccess(accessSpy)
                 .blobAccess(blobMock)
                 .queueAccess(queueMock)
                 .build()
