@@ -16,6 +16,7 @@ import { checkTextAreaJson, splitOn } from "../utils/misc";
 // interface on Component that is callable
 export type EditableCompareRef = {
     getEditedText: () => string;
+    refeshEditedText: (updatedjson: string) => void;
 };
 
 interface EditableCompareProps {
@@ -60,6 +61,10 @@ export const EditableCompare = forwardRef(
             () => ({
                 getEditedText() {
                     return textAreaContent;
+                },
+                // when showing/hiding json, force am update of the content
+                refeshEditedText(updatedjson) {
+                    setTextAreaContent(updatedjson);
                 },
             }),
             [textAreaContent]
@@ -144,8 +149,10 @@ export const EditableCompare = forwardRef(
         );
 
         useEffect(() => {
-            if (props.modified?.length > 0 && textAreaContent.length === 0) {
-                // initialization only
+            if (
+                props.modified?.length > 0 &&
+                props.modified !== textAreaContent
+            ) {
                 onChangeHandler(props.modified);
             }
         }, [textAreaContent, props, onChangeHandler]);

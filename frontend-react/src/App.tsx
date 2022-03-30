@@ -18,8 +18,7 @@ import { TermsOfService } from "./pages/TermsOfService";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
 import { oktaAuthConfig } from "./oktaConfig";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
-import { PERMISSIONS } from "./resources/PermissionsResource";
-import { permissionCheck, reportReceiver } from "./webreceiver-utils";
+import { PERMISSIONS, permissionCheck } from "./utils/PermissionsUtils";
 import { Upload } from "./pages/Upload";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import { logout } from "./utils/UserUtils";
@@ -60,9 +59,8 @@ const App = () => {
         // direct them to the /upload page if they do not have an organization that receives data
         const authState = OKTA_AUTH.authStateManager._authState;
         if (
-            authState &&
-            !reportReceiver(authState) &&
-            permissionCheck(PERMISSIONS.SENDER, authState)
+            authState?.accessToken &&
+            permissionCheck(PERMISSIONS.SENDER, authState.accessToken)
         ) {
             history.replace(
                 toRelativeUrl(
