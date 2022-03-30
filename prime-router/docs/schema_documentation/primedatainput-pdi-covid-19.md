@@ -140,6 +140,34 @@ unique id to track the usage of the message
 
 ---
 
+**Name**: Observation_result_status
+
+**ReportStream Internal Name**: observation_result_status
+
+**Type**: ID
+
+**PII**: No
+
+**Default Value**: F
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: Order_result_status
+
+**ReportStream Internal Name**: order_result_status
+
+**Type**: ID
+
+**PII**: No
+
+**Default Value**: F
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: Order_test_date
 
 **ReportStream Internal Name**: order_test_date
