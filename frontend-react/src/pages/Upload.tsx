@@ -10,9 +10,11 @@ import { useResource } from "rest-hooks";
 import { useOktaAuth } from "@okta/okta-react";
 import moment from "moment";
 
-import { senderClient } from "../webreceiver-utils";
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
-import { getStoredOrg } from "../contexts/SessionStorageTools";
+import {
+    getStoredOrg,
+    getStoredSenderName,
+} from "../contexts/SessionStorageTools";
 import { showError } from "../components/AlertNotifications";
 import Spinner from "../components/Spinner";
 
@@ -40,7 +42,7 @@ export const Upload = () => {
         `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
     );
 
-    const client = senderClient(authState);
+    const client = `${getStoredOrg()}.${getStoredSenderName()}`;
     const organization = useResource(SenderOrganizationResource.detail(), {
         name: getStoredOrg(),
     });
@@ -200,15 +202,22 @@ export const Upload = () => {
                 );
             }
 
-            if (response?.errors?.length > 0) {
-                setErrors(response.errors);
-            }
-
             setHeaderMessage("Your COVID-19 Results");
         } catch (error) {
-            if (response?.errors) {
-                setErrors(response.errors);
-            }
+            // Noop.  Errors are collected below
+        }
+
+        // Process the error messages
+        if (response?.errors && response.errors.length > 0) {
+            // Add a string to properly display the indices if available.
+            response.errors.map(
+                (errorMsg: any) =>
+                    (errorMsg.rowList =
+                        errorMsg.indices && errorMsg.indices.length > 0
+                            ? errorMsg.indices.join(", ")
+                            : "")
+            );
+            setErrors(response.errors);
         }
         setButtonText("Upload another file");
         // Changing the key to force the FileInput to reset. Otherwise it won't recognize changes to the file's content unless the file name changes
@@ -325,7 +334,7 @@ export const Upload = () => {
                                 return (
                                     <tr key={"error_" + i}>
                                         <td>{e["message"]}</td>
-                                        <td>Row(s): {e["itemNums"]}</td>
+                                        <td>Row(s): {e["rowList"]}</td>
                                     </tr>
                                 );
                             })}

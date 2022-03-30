@@ -2,81 +2,154 @@ package gov.cdc.prime.router.tokens
 
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.ExecutionContext
+import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
+import com.okta.jwt.JwtVerificationException
+import com.okta.jwt.JwtVerifiers
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.AuthenticatedClaims
-import gov.cdc.prime.router.azure.AuthenticationVerifier
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.OktaAuthenticationVerifier
-import gov.cdc.prime.router.azure.PrincipalLevel
-import gov.cdc.prime.router.azure.TestAuthenticationVerifier
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 
-class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLevel.USER) : Logging {
-    private val missingAuthorizationHeader = HttpUtilities.errorJson("Missing Authorization Header")
-    private val invalidClaim = HttpUtilities.errorJson("Invalid Authorization Header")
+// These constants match how PRIME Okta subscription is configured
+const val oktaGroupPrefix = "DH"
+const val oktaSenderGroupPrefix = "DHSender_"
+const val oktaAdminGroupSuffix = "Admins"
+const val oktaSystemAdminGroup = "DHPrimeAdmins"
+const val oktaSubjectClaim = "sub"
+const val oktaMembershipClaim = "organization"
+const val envVariableForOktaBaseUrl = "OKTA_baseUrl"
 
-    fun getAccessToken(request: HttpRequestMessage<String?>): String? {
-        // RFC6750 defines the access token
-        val authorization = request.headers[HttpHeaders.AUTHORIZATION.lowercase()] ?: return null
-        return authorization.substringAfter("Bearer ", "")
-    }
+/**
+ * Allowed roles for human interaction with ReportStream
+ */
+enum class PrincipalLevel {
+    SYSTEM_ADMIN,
+    ORGANIZATION_ADMIN,
+    USER
+}
+
+class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLevel.USER) : Logging {
+    private val issuerBaseUrl: String = System.getenv(envVariableForOktaBaseUrl) ?: ""
 
     companion object : Logging {
-        private var httpRequestMessage: HttpRequestMessage<String?>? = null
 
-        fun setRequest(request: HttpRequestMessage<String?>) {
-            httpRequestMessage = request
-        }
+        val authenticationFailure = HttpUtilities.errorJson("Authentication Failed")
+        val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
 
-        fun authenticationVerifier(): AuthenticationVerifier {
-            // If we are running this locally, use the TestAuthenticationVerifier
-            // To test locally _with_ auth, add a 'localauth=true' header to your POST.
-            val localAuth = httpRequestMessage?.headers?.get("localauth")
-
-            return if (!Environment.isLocal()) {
-                OktaAuthenticationVerifier()
-            } else if (localAuth != null && localAuth == "true") {
-                OktaAuthenticationVerifier()
-            } else {
-                logger.info("No auth needed - running locally")
-                TestAuthenticationVerifier()
-            }
+        /**
+         * Extract and @return the bearer access token from the [request] Authorization header, if there is one
+         * Otherwise return null.
+         */
+        fun getAccessToken(request: HttpRequestMessage<String?>): String? {
+            // RFC6750 defines the access token
+            val authorization = request.headers[HttpHeaders.AUTHORIZATION.lowercase()] ?: return null
+            return authorization.substringAfter("Bearer ", "")
         }
     }
 
+    /**
+     * Perform authentication on a human user.
+     *
+     * @return the claims found in the jwt if the jwt token in [request] is validated.
+     * Return null if not authenticated.
+     * Always performs authentication using Okta, unless running locally.
+     */
+    fun authenticate(request: HttpRequestMessage<String?>): AuthenticatedClaims? {
+        val accessToken = getAccessToken(request)
+        return authenticate(accessToken, request.httpMethod, request.uri.path)
+    }
+
+    /**
+     * @see [authenticate].
+     */
+    fun authenticate(
+        accessToken: String?,
+        httpMethod: HttpMethod,
+        path: String,
+    ): AuthenticatedClaims? {
+        if (isLocal(accessToken)) {
+            logger.info("Granted test auth request for $httpMethod:$path")
+            return AuthenticatedClaims.generateTestClaims()
+        }
+
+        // Confirm the token exists.
+        if (accessToken == null) {
+            logger.info("Missing Authorization Header: $httpMethod:$path}")
+            return null
+        }
+
+        try {
+            val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
+                .setIssuer("https://$issuerBaseUrl/oauth2/default")
+                .build()
+            // Perform authentication.  Throws exception if authentication fails.
+            val jwt = jwtVerifier.decode(accessToken)
+
+            // Extract claims into a more usable form
+            val claims = AuthenticatedClaims(jwt.claims)
+            logger.info("Authenticated request by ${claims.userName}: $httpMethod:$path")
+            return claims
+        } catch (e: JwtVerificationException) {
+            logger.info("JWT token failed to authenticate for call: $httpMethod: $path", e)
+            return null
+        } catch (e: Exception) {
+            logger.info("Failure while authenticating, for call: $httpMethod: $path", e)
+            return null
+        }
+    }
+
+    /**
+     * Helper method for authentication.
+     * Check whether we are running locally.
+     * Even if local, if the [accessToken] is there, then do real Okta auth.
+     * @return true if we should do 'local' auth, false if we should do Okta auth.
+     */
+    fun isLocal(accessToken: String?): Boolean {
+        return when {
+            (!Environment.isLocal()) -> false
+            (accessToken != null && accessToken.split(".").size == 3) -> {
+                // For testing auth.  Running local, but test using the real production parser.
+                // The above test is purposefully simple so that we can test all kinds of error conditions
+                // further downstream.
+                logger.info("Running locally, but will use the OktaAuthenticationVerifier")
+                false
+            }
+            else -> true
+        }
+    }
+
+    /**
+     * Check BOTH authentication and authorization for this [request], and if both succeed, execute [block].
+     * When an [organizationName] is provided, this allows access at the User principal level for users with a
+     * claim to that [organizationName].
+     * If [requireSenderClaim] is true, then only allow access if that organization is a Sender org.
+     * If [requireSenderClaim] is false, then both Sender orgs and non-Sender orgs are allowed access.
+     * @return a suitable HttpResponse.
+     */
     fun checkAccess(
         request: HttpRequestMessage<String?>,
         organizationName: String = "",
-        oktaSender: Boolean = false,
+        requireSenderClaim: Boolean = false,
         actionHistory: ActionHistory? = null,
         block: (AuthenticatedClaims) -> HttpResponseMessage
     ): HttpResponseMessage {
         try {
-            val accessToken = getAccessToken(request)
-            if (accessToken == null) {
-                logger.info("Missing Authorization Header: ${request.httpMethod}:${request.uri.path}")
-                return HttpUtilities.unauthorizedResponse(request, missingAuthorizationHeader)
-            }
-            val host = request.uri.toURL().host
-            setRequest(request)
-            val claimVerifier = authenticationVerifier()
-            if (claimVerifier.requiredHosts.isNotEmpty() && !claimVerifier.requiredHosts.contains(host)) {
-                logger.error("Wrong Authentication Verifier being used: ${claimVerifier::class} for $host")
-                return HttpUtilities.unauthorizedResponse(request)
-            }
-            val claims = claimVerifier.checkClaims(accessToken, minimumLevel, organizationName, oktaSender)
-            if (claims == null) {
-                logger.info("Invalid Authorization Header: ${request.httpMethod}:${request.uri.path}")
-                return HttpUtilities.unauthorizedResponse(request, invalidClaim)
-            }
-
-            logger.info("Request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
+            val claims = authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
             actionHistory?.trackUsername(claims.userName)
+
+            if (!authorizeByMembership(claims, minimumLevel, organizationName, requireSenderClaim)) {
+                logger.warn(
+                    "Invalid Authorization for user ${claims.userName}:" +
+                        " ${request.httpMethod}:${request.uri.path}"
+                )
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
+            logger.info("Authorized request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
             return block(claims)
         } catch (ex: Exception) {
             if (ex.message != null)
@@ -85,6 +158,61 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                 logger.error(ex)
             return HttpUtilities.internalErrorResponse(request)
         }
+    }
+
+    /**
+     * @return true iff at least one of the user's [claims] exactly matches one of the required memberships.
+     * The set of required memberships is calculated here based on the [requiredMinimumLevel],
+     * the [requiredOrganizationName], and the [requireSenderClaim].
+     *
+     * If [requireSenderClaim] is true, then this user must have a claim of the form DHSender_organizationName,
+     * or be an admin.
+     * If [requireSenderClaim] is false,then this user must have a claim of the form DHorganizationName, or
+     * DHSender_organizationName, or be an admin.
+     * [requiredOrganizationName] is the optional organization the caller desires to be associated with.
+     */
+    fun authorizeByMembership(
+        claims: AuthenticatedClaims,
+        requiredMinimumLevel: PrincipalLevel,
+        requiredOrganizationName: String?,
+        requireSenderClaim: Boolean = false
+    ): Boolean {
+        @Suppress("UNCHECKED_CAST")
+        val membershipsFromOkta = (claims.jwtClaims[oktaMembershipClaim] as? Collection<String> ?: return false)
+            .filter {
+                !it.isNullOrBlank()
+            }
+        // Requirement: User's claims must exactly match one of these strings to be authorized.
+        val requiredMemberships = when (requiredMinimumLevel) {
+            PrincipalLevel.SYSTEM_ADMIN -> listOf(oktaSystemAdminGroup)
+            PrincipalLevel.ORGANIZATION_ADMIN -> {
+                listOf(
+                    "$oktaGroupPrefix$requiredOrganizationName$oktaAdminGroupSuffix",
+                    oktaSystemAdminGroup
+                )
+            }
+            PrincipalLevel.USER ->
+                listOfNotNull(
+                    if (!requireSenderClaim) "$oktaGroupPrefix$requiredOrganizationName" else null,
+                    "$oktaSenderGroupPrefix$requiredOrganizationName",
+                    "$oktaGroupPrefix$requiredOrganizationName$oktaAdminGroupSuffix",
+                    oktaSystemAdminGroup
+                )
+        }
+        requiredMemberships.forEach {
+            if (membershipsFromOkta.contains(it)) {
+                logger.info(
+                    "User ${claims.userName}" +
+                        " memberships $membershipsFromOkta matched requested membership $it"
+                )
+                return true
+            }
+        }
+        logger.warn(
+            "User ${claims.userName}" +
+                " memberships $membershipsFromOkta did NOT match requested $requiredMemberships"
+        )
+        return false
     }
 
     /**

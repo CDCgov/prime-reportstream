@@ -75,7 +75,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2)
                 );
 
-                confirmModalRef?.current?.toggleModal(undefined, true);
+                confirmModalRef?.current?.showModal();
                 setLoading(false);
             } catch (e) {
                 setLoading(false);
@@ -115,7 +115,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     `Item '${receivername}' has been updated`
                 );
                 setLoading(false);
-                confirmModalRef?.current?.toggleModal(undefined, false);
+                confirmModalRef?.current?.hideModal();
                 history.goBack();
             } catch (e: any) {
                 console.trace(e);

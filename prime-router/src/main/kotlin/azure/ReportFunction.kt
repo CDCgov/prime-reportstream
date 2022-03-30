@@ -26,9 +26,11 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.PrincipalLevel
 import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -37,9 +39,7 @@ private const val PAYLOAD_NAME_PARAMETER = "payloadname"
 private const val OPTION_PARAMETER = "option"
 private const val DEFAULT_PARAMETER = "default"
 private const val ROUTE_TO_PARAMETER = "routeTo"
-private const val VERBOSE_PARAMETER = "verbose"
 private const val ALLOW_DUPLICATES_PARAMETER = "allowDuplicate"
-private const val VERBOSE_TRUE = "true"
 private const val PROCESSING_TYPE_PARAMETER = "processing"
 
 /**
@@ -61,7 +61,7 @@ class ReportFunction(
     /**
      * POST a report to the router
      *
-     * @see ../../../docs/openapi.yml
+     * @see ../../../docs/api/reports.yml
      */
     @FunctionName("reports")
     @StorageAccount("AzureWebJobsStorage")
@@ -152,7 +152,6 @@ class ReportFunction(
      * of the incoming PROCESSING_TYPE_PARAMETER query string value
      * @param request The incoming request
      * @param sender The sender record, pulled from the database based on sender name on the request
-     * @param context Execution context
      * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
      */
     internal fun processRequest(
@@ -161,35 +160,27 @@ class ReportFunction(
     ): HttpResponseMessage {
         // determine if we should be following the sync or async workflow
         val isAsync = processingType(request, sender) == ProcessingType.async
-        val responseBuilder = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .header(HttpHeaders.CONTENT_TYPE, "application/json")
-        // extract the verbose param and default to empty if not present
-        val verboseParam = request.queryParameters.getOrDefault(VERBOSE_PARAMETER, "")
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
-        val verbose = verboseParam.equals(VERBOSE_TRUE, true)
-        val report = try {
-            val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
-            val options = Options.valueOf(optionsText)
+        val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
+        val httpStatus: HttpStatus =
+            try {
+                val options = Options.valueOf(optionsText)
 
-            // if the override parameter is populated, use that, otherwise use the sender value
-            val allowDuplicates = if
-            (!allowDuplicatesParam.isNullOrEmpty()) allowDuplicatesParam == "true"
-            else
-                sender.allowDuplicates
+                // if the override parameter is populated, use that, otherwise use the sender value
+                val allowDuplicates = if
+                (!allowDuplicatesParam.isNullOrEmpty()) allowDuplicatesParam == "true"
+                else
+                    sender.allowDuplicates
 
-            // track the sending organization and client based on the header
-            val validatedRequest = validateRequest(request)
-            val rawBody = validatedRequest.content.toByteArray()
-            val payloadName = extractPayloadName(request)
+                // track the sending organization and client based on the header
+                val validatedRequest = validateRequest(request)
+                val rawBody = validatedRequest.content.toByteArray()
+                val payloadName = extractPayloadName(request)
 
-            actionHistory.trackActionSenderInfo(validatedRequest.sender.fullName, payloadName)
-            when (options) {
-                Options.CheckConnections, Options.ValidatePayload -> {
-                    responseBuilder.status(HttpStatus.OK)
-                    null
-                }
-                else -> {
+                actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
+                // Only process the report if we are not checking for connection or validation.
+                if (options != Options.CheckConnections && options != Options.ValidatePayload) {
                     val (report, actionLogs) = workflowEngine.parseReport(
                         sender,
                         validatedRequest.content,
@@ -243,59 +234,49 @@ class ReportFunction(
                             processEvent,
                             actionHistory
                         )
-
-//                        val routingWarnings = workflowEngine.routeReport(
-//                            report,
-//                            options,
-//                            validatedRequest.defaults,
-//                            validatedRequest.routeTo,
-//                            actionHistory
-//                        )
-//                        actionHistory.trackLogs(routingWarnings)
                     }
 
-                    responseBuilder.status(HttpStatus.CREATED)
-                    report
-                }
+                    HttpStatus.CREATED
+                } else HttpStatus.OK
+            } catch (e: ActionError) {
+                actionHistory.trackLogs(e.details)
+                HttpStatus.BAD_REQUEST
+            } catch (e: IllegalArgumentException) {
+                actionHistory.trackLogs(
+                    ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
+                )
+                HttpStatus.BAD_REQUEST
+            } catch (e: IllegalStateException) {
+                actionHistory.trackLogs(
+                    ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
+                )
+                HttpStatus.BAD_REQUEST
             }
-        } catch (e: ActionError) {
-            actionHistory.trackLogs(e.details)
-            null
-        } catch (e: IllegalArgumentException) {
-            actionHistory.trackLogs(
-                ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
-            )
-            null
-        } catch (e: IllegalStateException) {
-            actionHistory.trackLogs(
-                ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
-            )
-            null
-        }
 
-        responseBuilder.body(
-            actionHistory.createResponseBody(
-                verbose,
-                report,
-                workflowEngine.settings
-            )
-        )
-        val response = responseBuilder.build()
-        actionHistory.trackActionResult(response)
-        actionHistory.trackActionResponse(response, report, workflowEngine.settings)
+        actionHistory.trackActionResult(httpStatus)
         workflowEngine.recordAction(actionHistory)
+
+        check(actionHistory.action.actionId > 0)
+        val submission = SubmissionsFacade.instance.findDetailedSubmissionHistory(
+            actionHistory.action.sendingOrg,
+            actionHistory.action.actionId
+        )
+        val response = request.createResponseBuilder(httpStatus)
+            .header(HttpHeaders.CONTENT_TYPE, "application/json")
+            .body(JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(submission))
+            .header(
+                HttpHeaders.LOCATION,
+                request.uri.resolve(
+                    "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
+                ).toString()
+            )
+            .build()
 
         // queue messages here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)
-        val uri = request.getUri()
-        responseBuilder.header(
-            HttpHeaders.LOCATION,
-            uri.resolve(
-                "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
-            ).toString()
-        )
+
         // TODO: having to build response twice in order to save it and then include a response with the resulting actionID
-        return responseBuilder.build()
+        return response
     }
 
     /**
@@ -383,7 +364,7 @@ class ReportFunction(
                     else -> {}
                 }
         } catch (t: Throwable) {
-            logger.error("Failed to queue message for FHIR Engine: No action required durring testing phase\n$t")
+            logger.error("Failed to queue message for FHIR Engine: No action required during testing phase\n$t")
         }
     }
 
@@ -408,7 +389,7 @@ class ReportFunction(
     }
 
     private fun processingType(request: HttpRequestMessage<String?>, sender: Sender): ProcessingType {
-        val processingTypeString = request.queryParameters.get(PROCESSING_TYPE_PARAMETER)
+        val processingTypeString = request.queryParameters[PROCESSING_TYPE_PARAMETER]
         return if (processingTypeString == null) {
             sender.processingType
         } else {

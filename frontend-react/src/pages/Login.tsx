@@ -5,8 +5,8 @@ import { SiteAlert } from "@trussworks/react-uswds";
 import { Tokens } from "@okta/okta-auth-js";
 
 import OktaSignInWidget from "../components/OktaSignInWidget";
-import { getOrganizationFromAccessToken } from "../webreceiver-utils";
-import { parseOrgs, setStoredOktaToken } from "../contexts/SessionStorageTools";
+import { getOktaGroups, parseOrgs } from "../utils/OrganizationUtils";
+import { setStoredOktaToken } from "../contexts/SessionStorageTools";
 import { oktaSignInConfig } from "../oktaConfig";
 import { SessionStorageContext } from "../contexts/SessionStorageContext";
 
@@ -15,9 +15,7 @@ export const Login = () => {
     const { updateSessionStorage } = useContext(SessionStorageContext);
 
     const onSuccess = (tokens: Tokens | undefined) => {
-        const parsedOrgs = parseOrgs(
-            getOrganizationFromAccessToken(tokens?.accessToken)
-        );
+        const parsedOrgs = parseOrgs(getOktaGroups(tokens?.accessToken));
         const newOrg = parsedOrgs[0]?.org || "";
         const newSender = parsedOrgs[0]?.senderName || undefined;
         updateSessionStorage({

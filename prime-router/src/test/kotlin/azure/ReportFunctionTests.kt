@@ -510,7 +510,6 @@ class ReportFunctionTests {
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
         every { engine.handleProcessEvent(any(), any()) } returns Unit
-        every { actionHistory.createResponseBody(any(), any(), any()) } returns "test"
 
         // act
         reportFunc.processRequest(req, sender)
@@ -557,7 +556,6 @@ class ReportFunctionTests {
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { actionHistory.createResponseBody(any(), any(), any()) } returns "test"
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns true
 
         // act
