@@ -65,8 +65,11 @@ export const EditableCompare = forwardRef(
                 // when showing/hiding json, force am update of the content
                 refeshEditedText(updatedjson) {
                     setTextAreaContent(updatedjson);
+                    onChangeHandler(updatedjson);
                 },
             }),
+            // onChangeHandler appears below, remove from deps
+            // eslint-disable-next-line
             [textAreaContent]
         );
 
@@ -149,10 +152,8 @@ export const EditableCompare = forwardRef(
         );
 
         useEffect(() => {
-            if (
-                props.modified?.length > 0 &&
-                props.modified !== textAreaContent
-            ) {
+            if (props.modified?.length > 0 && textAreaContent.length === 0) {
+                // initialization only
                 onChangeHandler(props.modified);
             }
         }, [textAreaContent, props, onChangeHandler]);
