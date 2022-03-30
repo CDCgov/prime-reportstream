@@ -444,6 +444,9 @@ internal class ElementTests {
         one.checkForError("613-688-5335", null).run {
             assertThat(this).isEqualTo(null) // Good international phone US Embassy CA
         }
+        one.checkForError("6136885335", null).run {
+            assertThat(this).isEqualTo(null) // Good international phone US Embassy CA
+        }
 
         // MX phone number without + (test default parse)
         one.checkForError("52-65-8888-8888").run {

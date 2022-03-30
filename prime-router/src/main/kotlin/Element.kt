@@ -597,7 +597,7 @@ data class Element(
             Type.TELEPHONE -> {
                 val (region, _) = parsePhoneNumber(cleanedValue)
                 if (region.isNullOrEmpty())
-                    InvalidPhoneMessage(cleanedValue, fieldMapping)
+                    InvalidPhoneMessage("", fieldMapping)
                 else
                     null
             }
@@ -744,7 +744,7 @@ data class Element(
             Type.TELEPHONE -> {
                 val (region, number) = parsePhoneNumber(cleanedFormattedValue)
                 if (region.isNullOrEmpty())
-                    InvalidPhoneMessage(cleanedFormattedValue, fieldMapping)
+                    InvalidPhoneMessage("", fieldMapping)
                 val nationalNumber = DecimalFormat("0000000000").format(number?.nationalNumber)
                 "${nationalNumber}$phoneDelimiter${number?.countryCode}$phoneDelimiter${number?.extension}"
             }
