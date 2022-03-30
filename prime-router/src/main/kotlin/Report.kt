@@ -55,7 +55,6 @@ enum class Options {
     ValidatePayload,
     CheckConnections,
     SkipSend,
-    SkipInvalidItems,
     SendImmediately,
 }
 
@@ -852,19 +851,6 @@ class Report : Logging {
             .digest(rawStr.toByteArray())
 
         return DatatypeConverter.printHexBinary(digest).uppercase()
-    }
-
-    /**
-     * Clears existing table and re-adds the rows that are not being removed
-     */
-    fun removeRowsFromTable(removeRows: List<Int>) {
-        var existingTable = this.table.copy()
-        this.table.clear()
-        for (rowNum in 0 until existingTable.rowCount()) {
-            if (!removeRows.contains(rowNum)) {
-                this.table.append(existingTable.row(rowNum))
-            }
-        }
     }
 
     companion object {

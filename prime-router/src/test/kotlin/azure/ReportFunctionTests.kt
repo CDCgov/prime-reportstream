@@ -68,6 +68,23 @@ class ReportFunctionTests {
         "UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,3,2131-1,2135-2,F,19931,Sussex,1404270765," +
         "Reicherts,NormanB,19931,97D0667471,Any lab USA,DE,19931,122554006,esyuj9,vhd3cfvvt,DE,NO,bgq0b2e," +
         "840533007,NO,NO,h8jev96rc,YES,YES,YES,257628001,60001007"
+    val csvString_2Records_diff = "senderId,processingModeCode,testOrdered,testName,testResult,testPerformed," +
+        "testResultDate,testReportDate,deviceIdentifier,deviceName,specimenId,testId,patientAge,patientRace," +
+        "patientEthnicity,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname," +
+        "orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName," +
+        "performingFacilityState,performingFacilityZip,specimenSource,patientUniqueId,patientUniqueIdHash," +
+        "patientState,firstTest,previousTestType,previousTestResult,healthcareEmployee,symptomatic,symptomsList," +
+        "hospitalized,symptomsIcu,congregateResident,congregateResidentType,pregnant\n" +
+        "abbottt,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid " +
+        "immunoassay,419984006,95209-3,202112181841-0500,202112151325-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx " +
+        "UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,3,2131-1,2135-2,F,19931,Sussex,1404270765," +
+        "ReichertA,NormanBA,19931,97D0667471,Any lab USA,DE,19931,122554006,esyuj9,vhd3cfvvt,DE,NO,bgq0b2e,840533007," +
+        "NO,NO,h8jev96rc,YES,YES,YES,257628001,60001007\n" +
+        "abbott,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid " +
+        "immunoassayy,419984006,95209-3,202112181841-0500,202112151325-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx " +
+        "UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,3,2131-1,2135-2,F,19931,Sussex,1404270765," +
+        "Reicherts,NormanB,19931,97D0667471,Any lab USA,DE,19931,122554006,esyuj9,vhd3cfvvt,DE,NO,bgq0b2e," +
+        "840533007,NO,NO,h8jev96rc,YES,YES,YES,257628001,60001007"
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
@@ -180,9 +197,9 @@ class ReportFunctionTests {
     }
 
     /** addDuplicateLogs tests **/
-    // test addDuplicateLogs - duplicate file, skipInvalid = false
+    // test addDuplicateLogs - duplicate file
     @Test
-    fun `test addDuplicateLogs, duplicate file, no skipInvalidItems`() {
+    fun `test addDuplicateLogs, duplicate file`() {
         // setup
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -195,10 +212,10 @@ class ReportFunctionTests {
 
         // act
         reportFunc.addDuplicateLogs(
-            Options.None,
             actionLogs,
             "Duplicate file",
-            null
+            null,
+            false
         )
 
         // assert
@@ -207,9 +224,8 @@ class ReportFunctionTests {
         assert(actionLogs.errors[0].scope == ActionLogScope.report)
     }
 
-    // test addDuplicateLogs - duplicate file, skipInvalid = true
     @Test
-    fun `test addDuplicateLogs, duplicate file, yes skipInvalidItems`() {
+    fun `test addDuplicateLogs, all items dupe`() {
         // setup
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
@@ -222,10 +238,10 @@ class ReportFunctionTests {
 
         // act
         reportFunc.addDuplicateLogs(
-            Options.SkipInvalidItems,
             actionLogs,
             "Duplicate file",
-            null
+            null,
+            true
         )
 
         // assert
@@ -249,43 +265,16 @@ class ReportFunctionTests {
 
         // act
         reportFunc.addDuplicateLogs(
-            Options.None,
             actionLogs,
             "Duplicate item",
-            1
+            1,
+            false
         )
 
         // assert
         assert(actionLogs.hasErrors())
         assert(actionLogs.errors.size == 1)
         assert(actionLogs.errors[0].scope == ActionLogScope.item)
-    }
-
-    // test addDuplicateLogs - duplicate item, skipInvalid = true
-    @Test
-    fun `test addDuplicateLogs, duplicate item, yes skipInvalidItems`() {
-        // setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-
-        val actionLogs = ActionLogger()
-
-        // act
-        reportFunc.addDuplicateLogs(
-            Options.SkipInvalidItems,
-            actionLogs,
-            "Duplicate item",
-            1
-        )
-
-        // assert
-        assert(!actionLogs.hasErrors())
-        assert(actionLogs.warnings.size == 1)
-        assert(actionLogs.warnings[0].scope == ActionLogScope.item)
     }
 
     /** doDuplicateDetection tests **/
@@ -321,7 +310,6 @@ class ReportFunctionTests {
             req.content!!.toByteArray(),
             sender,
             "payload.txt",
-            Options.None,
             report,
             actionLogs
         )
@@ -376,7 +364,6 @@ class ReportFunctionTests {
             req.content!!.toByteArray(),
             sender,
             "payload.txt",
-            Options.SkipInvalidItems,
             report,
             actionLogs
         )
@@ -389,7 +376,6 @@ class ReportFunctionTests {
             reportFunc.addDuplicateLogs(any(), any(), any(), any())
             engine.isDuplicateFile(any(), any())
         }
-        assert(report.itemCount == 1)
     }
 
     // doDuplicateDetection, all items are duplicate
@@ -423,24 +409,21 @@ class ReportFunctionTests {
         )
 
         every { engine.settings.findSender("Test Sender") } returns sender
+        // returning false on 'dupe file' check to verify sanity checking logic
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
-        // first call to isDuplicateItem is false, second is true
-        every { accessSpy.isDuplicateItem(any(), any()) }
-            .returns(true)
-            .andThen(true)
+        every { accessSpy.isDuplicateItem(any(), any()) } returns true
 
         // act
         reportFunc.doDuplicateDetection(
             req.content!!.toByteArray(),
             sender,
             "payload.txt",
-            Options.SkipInvalidItems,
             report,
             actionLogs
         )
 
         // assert
-        verify(exactly = 3) { // one for each dupe item, one for the file as a whole
+        verify(exactly = 1) {
             reportFunc.addDuplicateLogs(any(), any(), any(), any())
         }
         verify(exactly = 2) {
@@ -526,6 +509,7 @@ class ReportFunctionTests {
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+        every { engine.handleProcessEvent(any(), any()) } returns Unit
         every { actionHistory.createResponseBody(any(), any(), any()) } returns "test"
 
         // act
@@ -580,7 +564,7 @@ class ReportFunctionTests {
         reportFunc.processRequest(req, sender)
 
         // assert
-        verify(exactly = 1) { reportFunc.doDuplicateDetection(any(), any(), any(), any(), any(), any()) }
+        verify(exactly = 1) { reportFunc.doDuplicateDetection(any(), any(), any(), any(), any()) }
     }
 
     // test processFunction when an error is added to ActionLogs
@@ -632,63 +616,5 @@ class ReportFunctionTests {
         verify(exactly = 0) { engine.isDuplicateItem(any()) }
         verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
         assert(resp.status.equals(HttpStatus.BAD_REQUEST))
-    }
-
-    //  test processFunction when no error is added to ActionLogs
-    @Test
-    fun `test processFunction when ActionLogs has no error`() {
-        // setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-        val sender = Sender(
-            "Test Sender",
-            "test",
-            Sender.Format.CSV,
-            "test",
-            schemaName =
-            "one",
-            allowDuplicates = false
-        )
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.CSV, "test", ByteArray(0))
-
-        val req = MockHttpRequestMessage(csvString_2Records)
-        req.parameters += mapOf(
-            "option" to Options.SkipInvalidItems.toString()
-        )
-
-        every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest(
-            csvString_2Records,
-            sender = sender
-        )
-        every { actionHistory.insertAction(any()) } returns 0
-        every { actionHistory.insertAll(any()) } returns Unit
-
-        every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
-        every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
-        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
-        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
-        every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { actionHistory.createResponseBody(any(), any(), any()) } returns "test"
-
-        every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
-        every { accessSpy.isDuplicateItem(any(), any()) }
-            .returns(false)
-            .andThen(true)
-
-        // act
-        var resp = reportFunc.processRequest(req, sender)
-
-        // assert
-        verify(exactly = 1) { engine.isDuplicateFile(any(), any()) }
-        // there are two records, since identical will be caught by ghecking generated hashes
-        verify(exactly = 1) { engine.isDuplicateItem(any()) }
-        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
-        assert(resp.status.equals(HttpStatus.CREATED))
     }
 }

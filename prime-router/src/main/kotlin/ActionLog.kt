@@ -81,7 +81,7 @@ class ActionError(val details: List<ActionLog>, message: String? = null) : Error
 @JsonIgnoreProperties(ignoreUnknown = true)
 interface ActionLogDetail {
     /**
-     * The scopt of the log.
+     * The scope of the log.
      */
     val scope: ActionLogScope
 

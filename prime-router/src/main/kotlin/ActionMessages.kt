@@ -145,9 +145,21 @@ class InvalidTranslationMessage(override val message: String) :
 /**
  * A [message] for entire duplicate report submission
  */
-class DuplicateFileMessage(override val message: String) : GenericActionLogDetail(message, ActionLogScope.report)
+class DuplicateFileMessage(private val payloadName: String?, private val allItemsDupe: Boolean) : ActionLogDetail {
+    override val scope = ActionLogScope.report
+    override val message: String get() {
+        var msg = if (allItemsDupe) "All items in this file are duplicates." else "Duplicate file detected."
+        if (!payloadName.isNullOrEmpty()) {
+            msg += " File: $payloadName"
+        }
+        return msg
+    }
+}
 
 /**
  * A [message] for a duplicate item within a report
  */
-class DuplicateItemMessage(override val message: String) : GenericActionLogDetail(message, ActionLogScope.item)
+class DuplicateItemMessage() : ActionLogDetail {
+    override val scope = ActionLogScope.item
+    override val message = "Item is a duplicate."
+}
