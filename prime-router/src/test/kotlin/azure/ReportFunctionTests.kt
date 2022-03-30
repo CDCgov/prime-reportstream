@@ -462,6 +462,8 @@ class ReportFunctionTests {
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
         every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "Test Sender"
 
         // act
         reportFunc.processRequest(req, sender)
@@ -510,6 +512,8 @@ class ReportFunctionTests {
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
         every { engine.handleProcessEvent(any(), any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "Test Sender"
 
         // act
         reportFunc.processRequest(req, sender)
@@ -557,6 +561,8 @@ class ReportFunctionTests {
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns true
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "Test Sender"
 
         // act
         reportFunc.processRequest(req, sender)
@@ -598,11 +604,12 @@ class ReportFunctionTests {
 
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
         every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "Test Sender"
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { actionHistory.createResponseBody(any(), any(), any()) } returns "test"
 
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns true
 

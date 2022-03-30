@@ -275,7 +275,6 @@ class ReportFunction(
         // queue messages here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)
 
-        // TODO: having to build response twice in order to save it and then include a response with the resulting actionID
         return response
     }
 
