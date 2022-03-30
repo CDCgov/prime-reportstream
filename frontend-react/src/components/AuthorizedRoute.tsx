@@ -13,7 +13,7 @@ export const AuthorizedRoute = ({
     const { authState } = useOktaAuth();
     const adminOverride = permissionCheck(
         PERMISSIONS.PRIME_ADMIN,
-        authState.accessToken
+        authState?.accessToken
     );
     return (
         <SecureRoute
