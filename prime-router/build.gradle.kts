@@ -659,7 +659,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.12.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.7") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.8") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -679,13 +679,13 @@ dependencies {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2")
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.17")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.7.1")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.1")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.45")
@@ -696,7 +696,7 @@ dependencies {
         exclude(group = "org.json", module = "json")
     }
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
-    implementation("org.json:json:20211205")
+    implementation("org.json:json:20220320")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.31.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
@@ -746,7 +746,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.12.2")
+    testImplementation("io.mockk:mockk:1.12.3")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
