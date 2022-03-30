@@ -405,7 +405,7 @@ internal class ElementTests {
     }
 
     @Test
-    fun `test toNormalized checkForError phone`() {
+    fun `test checkForError phone type`() {
         val one = Element(
             "a",
             type = Element.Type.TELEPHONE,
