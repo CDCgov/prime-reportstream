@@ -66,9 +66,8 @@ class SettingsFacade(
             return findSetting(pair.second, ReceiverAPI::class.java, pair.first)
         } catch (e: Exception) {
             logger.warn("Cannot find receiver: ${e.localizedMessage} ${e.stackTraceToString()}")
+            return null
         }
-
-        return null
     }
 
     override fun findSender(fullName: String): Sender? {
@@ -77,9 +76,8 @@ class SettingsFacade(
             return findSetting(pair.second, SenderAPI::class.java, pair.first)
         } catch (e: Exception) {
             logger.warn("Cannot find sender: ${e.localizedMessage} ${e.stackTraceToString()}")
+            return null
         }
-
-        return null
     }
 
     override fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>? {
