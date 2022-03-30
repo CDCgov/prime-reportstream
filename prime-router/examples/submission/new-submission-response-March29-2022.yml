@@ -1,7 +1,7 @@
 {
-    "id": "e6abc923-e699-478a-b981-df52bee7d302",
-    "submissionId": 373,
-    "timestamp": "2022-03-25T18:43:32.694Z",
+    "id": "d90397df-9816-452b-9b4d-472a97bcfd5f",
+    "submissionId": 743,
+    "timestamp": "2022-03-29T10:16:48.716Z",
     "sender": "simple_report.default",
     "reportItemCount": 14,
     "errorCount": 0,
@@ -13,7 +13,7 @@
             "organization_id": "md-phd",
             "service": "elr",
             "itemCount": 2,
-            "sending_at": "2022-03-25T18:44:00.000Z",
+            "sending_at": "2022-03-29T10:17:00.000Z",
             "filteredReportRows": [],
             "filteredReportItems": [],
             "sentReports": [],
@@ -24,7 +24,7 @@
             "organization_id": "ak-phd",
             "service": "elr",
             "itemCount": 2,
-            "sending_at": "2022-03-25T18:44:00.000Z",
+            "sending_at": "2022-03-29T10:17:00.000Z",
             "filteredReportRows": [
                 "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska4",
                 "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2",
@@ -36,7 +36,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "isValidCLIA",
                     "originalCount": 5,
-                    "filteredIndex": 4,
                     "filteredTrackingElement": "Alaska4",
                     "filterArgs": [
                         "testing_lab_clia",
@@ -48,7 +47,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "isValidCLIA",
                     "originalCount": 5,
-                    "filteredIndex": 2,
                     "filteredTrackingElement": "Alaska2",
                     "filterArgs": [
                         "testing_lab_clia",
@@ -60,7 +58,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "isValidCLIA",
                     "originalCount": 5,
-                    "filteredIndex": 1,
                     "filteredTrackingElement": "Alaska1",
                     "filterArgs": [
                         "testing_lab_clia",
@@ -72,7 +69,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "hasValidDataFor",
                     "originalCount": 5,
-                    "filteredIndex": 1,
                     "filteredTrackingElement": "Alaska1",
                     "filterArgs": [
                         "patient_dob"
@@ -88,7 +84,7 @@
             "organization_id": "hi-phd",
             "service": "elr",
             "itemCount": 2,
-            "sending_at": "2022-03-25T18:44:00.000Z",
+            "sending_at": "2022-03-29T10:17:00.000Z",
             "filteredReportRows": [
                 "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii9",
                 "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii7",
@@ -99,7 +95,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "hasValidDataFor",
                     "originalCount": 5,
-                    "filteredIndex": 4,
                     "filteredTrackingElement": "Hawaii9",
                     "filterArgs": [
                         "specimen_type"
@@ -110,7 +105,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "hasValidDataFor",
                     "originalCount": 5,
-                    "filteredIndex": 2,
                     "filteredTrackingElement": "Hawaii7",
                     "filterArgs": [
                         "specimen_type"
@@ -121,7 +115,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "hasValidDataFor",
                     "originalCount": 5,
-                    "filteredIndex": 1,
                     "filteredTrackingElement": "Hawaii6",
                     "filterArgs": [
                         "specimen_type"
@@ -149,7 +142,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "isValidCLIA",
                     "originalCount": 2,
-                    "filteredIndex": 2,
                     "filteredTrackingElement": "Ohio12",
                     "filterArgs": [
                         "testing_lab_clia",
@@ -161,7 +153,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "isValidCLIA",
                     "originalCount": 2,
-                    "filteredIndex": 1,
                     "filteredTrackingElement": "Ohio11",
                     "filterArgs": [
                         "testing_lab_clia",
@@ -173,7 +164,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "hasAtLeastOneOf",
                     "originalCount": 2,
-                    "filteredIndex": 1,
                     "filteredTrackingElement": "Ohio11",
                     "filterArgs": [
                         "order_test_date",
@@ -186,7 +176,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "hasValidDataFor",
                     "originalCount": 2,
-                    "filteredIndex": 2,
                     "filteredTrackingElement": "Ohio12",
                     "filterArgs": [
                         "patient_dob"
@@ -197,7 +186,6 @@
                     "filterType": "QUALITY_FILTER",
                     "filterName": "hasValidDataFor",
                     "originalCount": 2,
-                    "filteredIndex": 1,
                     "filteredTrackingElement": "Ohio11",
                     "filterArgs": [
                         "patient_dob"

@@ -123,14 +123,17 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
     }
 
     /**
-     * Check BOTH authentication and authorization for this [request], and if both succeed, execute [block]
-     * [oktaSender] is true if we expect this call comes from a reportstream Sender named [organizationName]
+     * Check BOTH authentication and authorization for this [request], and if both succeed, execute [block].
+     * When an [organizationName] is provided, this allows access at the User principal level for users with a
+     * claim to that [organizationName].
+     * If [requireSenderClaim] is true, then only allow access if that organization is a Sender org.
+     * If [requireSenderClaim] is false, then both Sender orgs and non-Sender orgs are allowed access.
      * @return a suitable HttpResponse.
      */
     fun checkAccess(
         request: HttpRequestMessage<String?>,
         organizationName: String = "",
-        oktaSender: Boolean = false,
+        requireSenderClaim: Boolean = false,
         actionHistory: ActionHistory? = null,
         block: (AuthenticatedClaims) -> HttpResponseMessage
     ): HttpResponseMessage {
@@ -139,7 +142,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
             actionHistory?.trackUsername(claims.userName)
 
-            if (!authorizeByMembership(claims, minimumLevel, organizationName, oktaSender)) {
+            if (!authorizeByMembership(claims, minimumLevel, organizationName, requireSenderClaim)) {
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
                         " ${request.httpMethod}:${request.uri.path}"
@@ -158,47 +161,45 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
     }
 
     /**
-     * @return true iff
-     * 1) The okta group in the [claims] is at least as high as the [requiredMinimumLevel]
-     * 2) The okta group in the [claims] matches the organizationName.
-     * Return false otherwise
+     * @return true iff at least one of the user's [claims] exactly matches one of the required memberships.
+     * The set of required memberships is calculated here based on the [requiredMinimumLevel],
+     * the [requiredOrganizationName], and the [requireSenderClaim].
      *
-     * [otkaSender] means the caller desired permission to submit payloads to ReportStream.
-     * [organizationName] is the optional organization the caller desires to be associated with.
+     * If [requireSenderClaim] is true, then this user must have a claim of the form DHSender_organizationName,
+     * or be an admin.
+     * If [requireSenderClaim] is false,then this user must have a claim of the form DHorganizationName, or
+     * DHSender_organizationName, or be an admin.
+     * [requiredOrganizationName] is the optional organization the caller desires to be associated with.
      */
     fun authorizeByMembership(
         claims: AuthenticatedClaims,
         requiredMinimumLevel: PrincipalLevel,
-        organizationName: String?,
-        oktaSender: Boolean = false
+        requiredOrganizationName: String?,
+        requireSenderClaim: Boolean = false
     ): Boolean {
         @Suppress("UNCHECKED_CAST")
-        val membershipsFromOkta = claims.jwtClaims[oktaMembershipClaim] as? Collection<String> ?: return false
-        // We are expecting a group name of:
-        // DH<org name> if oktaSender is false
-        // DHSender_<org name>.<sender name> if oktaSender is true
-        // Example receiver: If the receiver org name is "ignore", the Okta group name will be "DHignore"
-        // Example sender: If the sender org name is "ignore", and the sender name is "ignore-waters",
-        // the Okta group name will be "DHSender_ignore.ignore-waters
-        // If the sender is from Okta, their "organizationName" will match their group from Okta,
-        // so do not replace anything in the string
-        val groupName = if (oktaSender) organizationName else organizationName?.replace('-', '_')
-        val requestedMemberships = when (requiredMinimumLevel) {
+        val membershipsFromOkta = (claims.jwtClaims[oktaMembershipClaim] as? Collection<String> ?: return false)
+            .filter {
+                !it.isNullOrBlank()
+            }
+        // Requirement: User's claims must exactly match one of these strings to be authorized.
+        val requiredMemberships = when (requiredMinimumLevel) {
             PrincipalLevel.SYSTEM_ADMIN -> listOf(oktaSystemAdminGroup)
             PrincipalLevel.ORGANIZATION_ADMIN -> {
                 listOf(
-                    "$oktaGroupPrefix$groupName$oktaAdminGroupSuffix",
+                    "$oktaGroupPrefix$requiredOrganizationName$oktaAdminGroupSuffix",
                     oktaSystemAdminGroup
                 )
             }
             PrincipalLevel.USER ->
-                listOf(
-                    "${if (oktaSender) oktaSenderGroupPrefix else oktaGroupPrefix}$groupName",
-                    "$oktaGroupPrefix$groupName$oktaAdminGroupSuffix",
+                listOfNotNull(
+                    if (!requireSenderClaim) "$oktaGroupPrefix$requiredOrganizationName" else null,
+                    "$oktaSenderGroupPrefix$requiredOrganizationName",
+                    "$oktaGroupPrefix$requiredOrganizationName$oktaAdminGroupSuffix",
                     oktaSystemAdminGroup
                 )
         }
-        requestedMemberships.forEach {
+        requiredMemberships.forEach {
             if (membershipsFromOkta.contains(it)) {
                 logger.info(
                     "User ${claims.userName}" +
@@ -209,7 +210,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         }
         logger.warn(
             "User ${claims.userName}" +
-                " memberships $membershipsFromOkta did NOT match requested $requestedMemberships"
+                " memberships $membershipsFromOkta did NOT match requested $requiredMemberships"
         )
         return false
     }
