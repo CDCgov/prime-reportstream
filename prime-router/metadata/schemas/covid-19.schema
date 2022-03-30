@@ -209,6 +209,7 @@ elements:
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: OBX-11
+    valueSet: hl70085
 
   - name: order_result_status
     type: ID
@@ -216,6 +217,7 @@ elements:
     natFlatFileField: Order_result_status
     hhsGuidanceField:
     hl7Field: OBR-25
+    valueSet: hl70123
 
   - name: order_test_date
     type: DATETIME
