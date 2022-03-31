@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { MetaData } from "../../resources/OrgSettingsBaseResource";
 
 type Props = {
-    metaJaon?: string;
     metaObj?: MetaData | undefined;
 };
 
@@ -11,18 +10,10 @@ export const DisplayMeta = (props: Props) => {
     const [metaData, setMetaData] = useState<MetaData>();
 
     useEffect(() => {
-        try {
-            if (props.metaJaon === null && props.metaObj == null) {
-                return;
-            }
-            const parsed = props.metaJaon
-                ? JSON.parse(props.metaJaon)
-                : props.metaObj;
-
-            setMetaData(parsed);
-        } catch (err: any) {
-            console.error(err);
+        if (!props.metaObj) {
+            return;
         }
+        setMetaData(props.metaObj);
     }, [props]);
 
     const formatDate = (date: string) => {
@@ -46,7 +37,5 @@ export const DisplayMeta = (props: Props) => {
         <>{`v${metaData.version} ${formatDate(metaData.createdAt)} ${
             metaData.createdBy
         }`}</>
-    ) : (
-        <></>
-    );
+    ) : null;
 };
