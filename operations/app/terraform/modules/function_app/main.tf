@@ -126,6 +126,7 @@ resource "azurerm_function_app" "function_app" {
     always_on                 = true
     use_32_bit_worker_process = false
     linux_fx_version          = "DOCKER|${var.container_registry_login_server}/${var.resource_prefix}:latest"
+    ftps_state                = "Disabled"
 
     cors {
       allowed_origins = concat(local.cors_all, var.environment == "prod" ? local.cors_prod : local.cors_lower)
