@@ -270,7 +270,11 @@ class ReportFunction(
         )
         val response = request.createResponseBuilder(httpStatus)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
-            .body(JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(submission))
+            .body(
+                JacksonMapperUtilities.allowUnknownsMapper
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(submission)
+            )
             .header(
                 HttpHeaders.LOCATION,
                 request.uri.resolve(
