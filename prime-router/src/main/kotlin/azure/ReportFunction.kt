@@ -166,6 +166,11 @@ class ReportFunction(
         val httpStatus: HttpStatus =
             try {
                 val options = Options.valueOf(optionsText)
+                val payloadName = extractPayloadName(request)
+                // track the sending organization and client based on the header
+                actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
+                val validatedRequest = validateRequest(request)
+                val rawBody = validatedRequest.content.toByteArray()
 
                 // if the override parameter is populated, use that, otherwise use the sender value
                 val allowDuplicates = if
@@ -173,12 +178,6 @@ class ReportFunction(
                 else
                     sender.allowDuplicates
 
-                // track the sending organization and client based on the header
-                val validatedRequest = validateRequest(request)
-                val rawBody = validatedRequest.content.toByteArray()
-                val payloadName = extractPayloadName(request)
-
-                actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
                 // Only process the report if we are not checking for connection or validation.
                 if (options != Options.CheckConnections && options != Options.ValidatePayload) {
                     val (report, actionLogs) = workflowEngine.parseReport(
