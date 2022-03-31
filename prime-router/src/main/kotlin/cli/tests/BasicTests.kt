@@ -1228,7 +1228,7 @@ class OtcProctored : CoolTest() {
                         // verify each result is valid
                         for (result in processResults.values)
                             if (!examineProcessResponse(result))
-                                bad("***async end2end FAILED***: Process result invalid")
+                                bad("*** otcproctored FAILED***: Process result invalid")
                     }
                 }
                 good("Test PASSED: ${pair.first}")
