@@ -77,6 +77,43 @@ class DetailedSubmissionHistory(
     var externalName: String? = null
 
     /**
+     * Summary of how far along the submission's process is.
+     * Supported values:
+     *     error - error on initial submission
+     *     received - passed the received step in the pipeline and awaits processing/routing
+     *     notDelivering - processed but has no intended receivers
+     *     waitingToDeliver - processed but yet to be sent to any receivers
+     *     partiallyDelivered - processed, successfully sent to at least one receiver
+     *     delivered - processed, successfully sent to all receivers
+     * @todo For now, no "send error" type of state.
+     *     If a send error occurs for example,
+     *     it'll just sit in the waitingToDeliver or
+     *     partiallyDelivered state until someone fixes it.
+     */
+    // var overallStatus: String = "received"
+
+    /**
+     * When this submission is expected to finish sending.
+     * Mirrors the max of all the sendingAt values for this Submission's Destinations
+     */
+    // var plannedCompletionAt: OffsetDateTime? = null
+
+    /**
+     * Marks the actual time this submission finished sending.
+     * Mirrors the max createdAt of all sentReports after it has been sent to all receivers
+     */
+    val actualCompletionAt: OffsetDateTime? get() {
+        if (overallStatus != "delivered") {
+            return null
+        }
+
+        val sentReports = destinations.filter { it.sentReports.size > 0 }
+            .flatMap { it.sentReports }
+
+        return sentReports.maxWithOrNull(compareBy { it.createdAt })?.createdAt
+    }
+
+    /**
      * The number of warnings.  Note this is not the number of consolidated warnings.
      */
     val warningCount = logs.count { it.type == ActionLogLevel.warning }
