@@ -24,7 +24,10 @@ data class ExpectedSubmissionHistory(
     val id: ReportId?,
     val topic: String?,
     val reportItemCount: Int?,
-    val externalName: String? = ""
+    val externalName: String? = "",
+    val overallStatus: String,
+    val plannedCompletionAt: OffsetDateTime?,
+    val actualCompletionAt: OffsetDateTime?,
 )
 
 data class SubmissionAPITestCase(

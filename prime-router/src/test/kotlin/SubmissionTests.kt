@@ -236,6 +236,9 @@ class SubmissionTests {
             assertThat(topic).isNull()
             assertThat(reportItemCount).isNull()
             assertThat(externalName).isNull()
+            assertThat(overallStatus).isEqualTo("received")
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
         }
 
         val inputReport = DetailReport(
@@ -261,6 +264,9 @@ class SubmissionTests {
             assertThat(topic).isEqualTo(inputReport.schemaTopic)
             assertThat(reportItemCount).isEqualTo(inputReport.itemCount)
             assertThat(externalName).isEqualTo(inputReport.externalName)
+            assertThat(overallStatus).isEqualTo("received")
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
         }
 
         DetailedSubmissionHistory(
@@ -277,6 +283,9 @@ class SubmissionTests {
             assertThat(sender).isEqualTo(ClientSource(inputReport.sendingOrg!!, inputReport.sendingOrgClient!!).name)
             assertThat(topic).isEqualTo(inputReport.schemaTopic)
             assertThat(reportItemCount).isEqualTo(inputReport.itemCount)
+            assertThat(overallStatus).isEqualTo("received")
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
             assertThat(externalName).isEqualTo(inputReport.externalName)
         }
 
