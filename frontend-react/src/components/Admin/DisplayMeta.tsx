@@ -34,8 +34,7 @@ export const DisplayMeta = (props: Props) => {
     };
 
     return metaData ? (
-        <>{`v${metaData.version} ${formatDate(metaData.createdAt)} ${
-            metaData.createdBy
-        }`}</>
+        <>{`v${metaData.version} [${formatDate(metaData.createdAt)}] 
+        ${metaData.createdBy}`}</>
     ) : null;
 };
