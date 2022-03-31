@@ -222,18 +222,15 @@ class ReportFunction(
                             validatedRequest.routeTo
                         )
                     } else {
-                        // TODO update comments, maybe pull out 'processEvent' internal functionality in WFE?
-                        val processEvent = ProcessEvent(
-                            Event.EventAction.PROCESS,
-                            report.id,
+                        val routingWarnings = workflowEngine.routeReport(
+                            report,
                             options,
                             validatedRequest.defaults,
-                            validatedRequest.routeTo
-                        )
-                        workflowEngine.handleProcessEvent(
-                            processEvent,
+                            validatedRequest.routeTo,
                             actionHistory
                         )
+
+                        actionHistory.trackLogs(routingWarnings)
                     }
 
                     HttpStatus.CREATED
