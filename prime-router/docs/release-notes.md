@@ -82,7 +82,7 @@ Note that the Submission History Detail API response is identical to that return
 
 **Before**
 
-- [Example of the old submission response](../examples/submission/old-submission-response.yml)
+- [Example of the old submission response](../examples/submission/old-submission-response.json)
 
 **After**
 
