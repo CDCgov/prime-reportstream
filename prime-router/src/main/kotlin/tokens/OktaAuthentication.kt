@@ -170,6 +170,9 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
      * If [requireSenderClaim] is false,then this user must have a claim of the form DHorganizationName, or
      * DHSender_organizationName, or be an admin.
      * [requiredOrganizationName] is the optional organization the caller desires to be associated with.
+     * Note:  underscores and dashes in both claims and [requiredOrganizationName] are treated as identical.
+     * That is, for example, DHa_b-c is the same organization as DHa-b_c.  This is to cover for widespread
+     * inconsistencies between how Okta and Settings handle "-" and "_".
      */
     fun authorizeByMembership(
         claims: AuthenticatedClaims,
@@ -179,9 +182,8 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
     ): Boolean {
         @Suppress("UNCHECKED_CAST")
         val membershipsFromOkta = (claims.jwtClaims[oktaMembershipClaim] as? Collection<String> ?: return false)
-            .filter {
-                !it.isNullOrBlank()
-            }
+            .filter { !it.isNullOrBlank() }
+            .map { it.replace("-", "_") }
         // Requirement: User's claims must exactly match one of these strings to be authorized.
         val requiredMemberships = when (requiredMinimumLevel) {
             PrincipalLevel.SYSTEM_ADMIN -> listOf(oktaSystemAdminGroup)
@@ -198,7 +200,8 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                     "$oktaGroupPrefix$requiredOrganizationName$oktaAdminGroupSuffix",
                     oktaSystemAdminGroup
                 )
-        }
+        }.map { it.replace("-", "_") }
+
         requiredMemberships.forEach {
             if (membershipsFromOkta.contains(it)) {
                 logger.info(
