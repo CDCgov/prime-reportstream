@@ -82,13 +82,13 @@ Note that the Submission History Detail API response is identical to that return
 
 **Before**
 
-- [Example of the old submission response](../examples/submission/old-submission-response.yml)
+- [Example of the old submission response](../examples/submission/old-submission-response.json)
 
 **After**
 
-- [Example of the **new** submission response](../examples/submission/new-submission-response-March29-2022.yml)
-- [Example of the **new** asychronous submission response](../examples/submission/new-async-submission-response-March29-2022.yml).  High throughput senders to ReportStream use the _asynchronous_ endpoint to submit data to ReportStream.   This handles high volumes, but, as you can see from the example, initially returns less data.
-- [Example of the **new** History API response, after data has flowed to the states](../examples/submission/new-history-API-response-March29-2022.yml).   The History Details API can be used subsequent to _any_ submission, to get all the details about the processing of that submission.
+- [Example of the **new** asychronous submission response](../examples/submission/example1-async-response.json).  High throughput senders to ReportStream use the _asynchronous_ endpoint to submit data to ReportStream.   This handles high volumes, but, as you can see from the example, initially returns less data.
+- [Example of the **new** synchronous submission response](../examples/submission/example2-sync-response.json)
+- [Example of a complete **new** History API response, after data has flowed to the states](../examples/submission/example3-complete-response.json).   The History Details API can be used subsequent to _any_ submission, to get all the details about the processing of that submission.  Further data is added, as it flows to State, Local, and Federal health departments.
 
 
 ### Modifications to the Submission History List API
