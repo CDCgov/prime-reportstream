@@ -6,7 +6,7 @@ import {
     IconNavigateNext,
 } from "@trussworks/react-uswds";
 
-import { PaginationController } from "../../hooks/UsePaginator";
+import { ICursorManager } from "../../hooks/UseCursorManager";
 
 export interface TableRow {
     [key: string]: any;
@@ -32,7 +32,7 @@ export interface TableConfig {
 
 export interface TableProps {
     config: TableConfig;
-    pageController?: PaginationController;
+    pageController?: ICursorManager;
 }
 
 const Table = ({ config, pageController }: TableProps) => {
@@ -70,19 +70,13 @@ const Table = ({ config, pageController }: TableProps) => {
     };
 
     /* Handles pagination button logic and display */
-    function PaginationButtons({
-        paginator,
-    }: {
-        paginator: PaginationController;
-    }) {
+    function PaginationButtons({ values, controller }: ICursorManager) {
         return (
             <ButtonGroup type="segmented" className="float-right margin-top-5">
-                {paginator.hasPrev && (
+                {values.hasPrev && (
                     <Button
                         type="button"
-                        onClick={() =>
-                            paginator.changeCursor(paginator.currentIndex - 1)
-                        }
+                        onClick={() => controller.goTo(values.currentIndex - 1)}
                     >
                         <span>
                             <IconNavigateBefore className="text-middle" />
@@ -90,12 +84,10 @@ const Table = ({ config, pageController }: TableProps) => {
                         </span>
                     </Button>
                 )}
-                {paginator.hasNext && (
+                {values.hasNext && (
                     <Button
                         type="button"
-                        onClick={() =>
-                            paginator.changeCursor(paginator.currentIndex + 1)
-                        }
+                        onClick={() => controller.goTo(values.currentIndex + 1)}
                     >
                         <span>
                             Next
@@ -118,7 +110,10 @@ const Table = ({ config, pageController }: TableProps) => {
                 </tbody>
             </table>
             {pageController ? (
-                <PaginationButtons paginator={pageController} />
+                <PaginationButtons
+                    values={pageController.values}
+                    controller={pageController.controller}
+                />
             ) : null}
         </>
     );

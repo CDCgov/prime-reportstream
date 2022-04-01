@@ -1,26 +1,11 @@
-import { screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 
-import Table, { ColumnConfig, RowArray, TableProps } from "./Table";
-
-const fakeColumns: ColumnConfig = new Map([
-    ["one", "Column One"],
-    ["two", "Column Two"],
-]);
-const fakeRows: RowArray = [
-    { one: "value one", two: "value two", three: "value three" },
-    { two: "value two again", one: "value one again" },
-];
-const fakeTableProps: TableProps = {
-    config: {
-        columns: fakeColumns,
-        rows: fakeRows,
-    },
-};
+import { TestTable } from "./TestTable";
 
 describe("Table, basic tests", () => {
-    beforeEach(() => renderWithRouter(<Table {...fakeTableProps} />));
+    beforeEach(() => renderWithRouter(<TestTable />));
     test("Column names render", () => {
         const headerOne = screen.getByText("Column One");
         const headerTwo = screen.getByText("Column Two");
@@ -48,10 +33,42 @@ describe("Table, basic tests", () => {
     });
 });
 
-// describe("Table, pagination tests", () => {
-//     beforeEach(() => renderWithRouter(<TestTable />));
-//     test("Pages don't exceed pageSize", () => {
-//         const pageOneRows = screen.getAllByRole('row')
-//         expect(pageOneRows.length).toEqual(4) // +1 for headers row
-//     })
-// })
+describe("Table, pagination button tests", () => {
+    beforeEach(() => renderWithRouter(<TestTable />));
+
+    test("Next button appears when hasNext is true", () => {
+        const next = screen.getByText("Next");
+        expect(next).toBeInTheDocument();
+    });
+
+    test("Next button disappears when hasNext is false", async () => {
+        let next: HTMLElement | null = screen.getByText("Next");
+        fireEvent.click(next);
+        next = await screen.queryByText("Next");
+        expect(next).toBeNull();
+    });
+
+    test("Previous button appears when hasPrevious is true", () => {
+        const next = screen.getByText("Next");
+        fireEvent.click(next);
+        const prev = screen.queryByText("Previous");
+        expect(prev).toBeInTheDocument();
+    });
+
+    test("Previous button disappears when hasPrevious is false", async () => {
+        // First load
+        const next = screen.getByText("Next");
+        let prev = await screen.queryByText("Previous");
+        expect(prev).toBeNull();
+
+        // Simulate clicking next
+        fireEvent.click(next);
+        prev = screen.getByText("Previous");
+        expect(prev).not.toBeNull();
+
+        // Simulate clicking previous back to page 1
+        fireEvent.click(prev);
+        prev = await screen.queryByText("Previous");
+        expect(prev).toBeNull();
+    });
+});
