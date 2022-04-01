@@ -9,8 +9,7 @@ import {
 import { NavLink } from "react-router-dom";
 import { NetworkErrorBoundary } from "rest-hooks";
 
-import { permissionCheck } from "../../webreceiver-utils";
-import { PERMISSIONS } from "../../resources/PermissionsResource";
+import { PERMISSIONS, permissionCheck } from "../../utils/PermissionsUtils";
 import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
 
@@ -30,11 +29,11 @@ export const ReportStreamHeader = () => {
         `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
     const environment = `${process.env.REACT_APP_CLIENT_ENV}`;
 
-    if (authState !== null && authState.isAuthenticated) {
+    if (authState && authState.isAuthenticated && authState.accessToken) {
         /* RECEIVERS ONLY */
         if (
-            permissionCheck(PERMISSIONS.RECEIVER, authState) ||
-            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)
+            permissionCheck(PERMISSIONS.RECEIVER, authState.accessToken) ||
+            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
         ) {
             itemsMenu.push(
                 <NavLink
@@ -51,8 +50,8 @@ export const ReportStreamHeader = () => {
 
         /* SENDERS ONLY */
         if (
-            permissionCheck(PERMISSIONS.SENDER, authState) ||
-            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)
+            permissionCheck(PERMISSIONS.SENDER, authState.accessToken) ||
+            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
         ) {
             itemsMenu.push(
                 <NavLink
@@ -77,7 +76,7 @@ export const ReportStreamHeader = () => {
         }
 
         /* ADMIN ONLY */
-        if (permissionCheck(PERMISSIONS.PRIME_ADMIN, authState)) {
+        if (permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)) {
             itemsMenu.push(<AdminDropdownNav />);
         }
     }
@@ -105,7 +104,10 @@ export const ReportStreamHeader = () => {
                     onToggleMobileNav={toggleMobileNav}
                     mobileExpanded={expanded}
                 >
-                    {permissionCheck(PERMISSIONS.PRIME_ADMIN, authState) ? (
+                    {permissionCheck(
+                        PERMISSIONS.PRIME_ADMIN,
+                        authState?.accessToken
+                    ) ? (
                         <NetworkErrorBoundary
                             fallbackComponent={() => (
                                 <select>
