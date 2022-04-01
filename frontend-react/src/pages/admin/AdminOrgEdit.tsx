@@ -27,6 +27,7 @@ import {
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
 } from "../../components/Admin/CompareJsonModal";
+import { DisplayMeta } from "../../components/Admin/DisplayMeta";
 
 type AdminOrgEditProps = {
     orgname: string;
@@ -126,7 +127,7 @@ export function AdminOrgEdit({
                             <Grid row>
                                 <Grid col={3}>Meta:</Grid>
                                 <Grid col={9}>
-                                    {JSON.stringify(orgSettings?.meta) || {}}{" "}
+                                    <DisplayMeta metaObj={orgSettings.meta} />
                                     <br />
                                 </Grid>
                             </Grid>
