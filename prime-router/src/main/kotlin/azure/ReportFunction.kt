@@ -115,7 +115,7 @@ class ReportFunction(
         val authenticationStrategy = AuthenticationStrategy.authStrategy(
             request.headers["authentication-type"],
             PrincipalLevel.USER,
-            workflowEngine
+            workflowEngine.db
         )
 
         try {
@@ -123,7 +123,7 @@ class ReportFunction(
 
             if (authenticationStrategy is OktaAuthentication) {
                 // The report is coming from a sender that is using Okta, so set "oktaSender" to true
-                return authenticationStrategy.checkAccess(request, senderName, true, actionHistory) {
+                return authenticationStrategy.checkAccess(request, sender.organizationName, true, actionHistory) {
                     return@checkAccess processRequest(request, sender)
                 }
             }
