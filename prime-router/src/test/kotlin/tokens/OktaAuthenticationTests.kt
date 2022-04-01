@@ -134,9 +134,6 @@ class OktaAuthenticationTests {
         assertThat(
             verifier.authorizeByMembership(claims, PrincipalLevel.USER, "pima-az-phd")
         ).isTrue()
-        assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "pima_az_phd")
-        ).isFalse() // underscores don't work with a name with dashes.
         assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.USER, "foo")).isFalse()
     }
 
@@ -238,6 +235,38 @@ class OktaAuthenticationTests {
             .isFalse()
         assertThat(verifier.authorizeByMembership(claims2, PrincipalLevel.ORGANIZATION_ADMIN, null))
             .isFalse()
+    }
+
+    @Test
+    fun `test dashes and underscores in authorizeByMembership`() {
+        var memberships: Map<String, Any> = mapOf(
+            "organization" to listOf("DHthe-good-old-boys"),
+            "sub" to "bob@bob.com"
+        )
+        var claims = AuthenticatedClaims(memberships)
+        assertThat(
+            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "the-good-old-boys")
+        ).isTrue()
+        assertThat(
+            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "the_good_old_boys")
+        ).isTrue()
+        assertThat(
+            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "the_good-old_boys")
+        ).isTrue()
+        memberships = mapOf(
+            "organization" to listOf("DHSender_bobs_country_bunker"),
+            "sub" to "bob@bob.com"
+        )
+        claims = AuthenticatedClaims(memberships)
+        assertThat(
+            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "bobs_country_bunker")
+        ).isTrue()
+        assertThat(
+            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "bobs-country-bunker")
+        ).isTrue()
+        assertThat(
+            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "bobs_country-bunker")
+        ).isTrue()
     }
 
     @Test

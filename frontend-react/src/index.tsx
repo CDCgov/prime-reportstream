@@ -4,12 +4,15 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 import App from "./App";
 import "./global.scss";
+import SessionProvider from "./contexts/SessionStorageContext";
 
 ReactDOM.render(
     <CacheProvider>
-        <Router>
-            <App />
-        </Router>
+        <SessionProvider>
+            <Router>
+                <App />
+            </Router>
+        </SessionProvider>
     </CacheProvider>,
     document.getElementById("root")
 );
