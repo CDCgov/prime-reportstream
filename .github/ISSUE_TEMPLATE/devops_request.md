@@ -2,8 +2,8 @@
 name: DevOps request
 about: Request infrastructure from PRIME DevOps
 title: ''
-labels: 'DevOps'
-assignees: '@cwinters-usds'
+labels: DevOps
+assignees: ''
 
 ---
 
