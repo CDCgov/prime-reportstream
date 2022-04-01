@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.translation
+package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import ca.uhn.hl7v2.model.Message
 import io.github.linuxforhealth.fhir.FHIRContext

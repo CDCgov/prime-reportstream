@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure.http.extensions
+package gov.cdc.prime.router.fhirengine.azure.http.extensions
 
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpResponseMessage

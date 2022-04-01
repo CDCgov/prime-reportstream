@@ -1,83 +1,83 @@
 - fromFHIRPathResources: "Bundle.entry.resource.as(Provenance).entity.where(role='source')"
   valueTemplate: "{{resource.what.getResource().deviceName[0].name}}"
-  toHL7Field: "/.MSH-3-1"
+  toFieldTemplate: "/.MSH-3-1"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(Provenance).entity.where(role='source')"
   valueTemplate: "{{resource.what.getResource().identifier[0].value}}"
-  toHL7Field: "/.MSH-3-2"
+  toFieldTemplate: "/.MSH-3-2"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(Provenance).entity.where(role='source')"
   valueTemplate: "{{resource.what.getResource().identifier[0].system}}"
-  toHL7Field: "/.MSH-3-3"
+  toFieldTemplate: "/.MSH-3-3"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(Provenance).first().agent.who"
   valueTemplate: "{{resource.getResource().name}}"
-  toHL7Field: "/.MSH-4-1"
+  toFieldTemplate: "/.MSH-4-1"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(Provenance).first().agent.who"
   valueTemplate: "{{resource.getResource().identifier[0].value}}"
-  toHL7Field: "/.MSH-4-2"
+  toFieldTemplate: "/.MSH-4-2"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(Provenance).first().agent.who"
   valueTemplate: ISO
-  toHL7Field: "/.MSH-4-3"
+  toFieldTemplate: "/.MSH-4-3"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(MessageHeader).destination.name"
   valueTemplate: "{{resource.value}}"
-  toHL7Field: "/.MSH-5-1"
+  toFieldTemplate: "/.MSH-5-1"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(MessageHeader).destination.endpoint"
   valueTemplate: "{{resource.value}}"
-  toHL7Field: "/.MSH-6-1"
+  toFieldTemplate: "/.MSH-6-1"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(Provenance)"
   valueTemplate: "{{resource.recordedElement|datetime|formatDate(\"yyyyMMddHHmmss.SSSSZ\")}}"
-  toHL7Field: "/.MSH-7-1"
+  toFieldTemplate: "/.MSH-7-1"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(MessageHeader).source"
   valueTemplate: "{{resource.name}}"
-  toHL7Field: "/.SFT-1"
+  toFieldTemplate: "/.SFT-1"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(MessageHeader).source"
   valueTemplate: "{{resource.version}}"
-  toHL7Field: "/.SFT-2"
+  toFieldTemplate: "/.SFT-2"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(MessageHeader).source"
   valueTemplate: "{{resource.software}}"
-  toHL7Field: "/.SFT-3"
+  toFieldTemplate: "/.SFT-3"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(MessageHeader).source.extension('http://reportstream.cdc.gov/binaryIdentifier')"
   valueTemplate: "{{resource.value}}"
-  toHL7Field: "/.SFT-4"
+  toFieldTemplate: "/.SFT-4"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(MessageHeader).source.extension('http://reportstream.cdc.gov/installDate')"
   valueTemplate: "{{resource.value}}"
-  toHL7Field: "/.SFT-6"
+  toFieldTemplate: "/.SFT-6"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(Patient)"
   valueTemplate: "{{index + 1}}"
-  toHL7Field: "/PATIENT_RESULT({{index}})/PATIENT/PID-1"
+  toFieldTemplate: "/PATIENT_RESULT({{index}})/PATIENT/PID-1"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(Patient)"
   valueTemplate: "{{resource.identifier[0].value}}"
-  toHL7Field: "/PATIENT_RESULT/PATIENT/PID-3-1"
+  toFieldTemplate: "/PATIENT_RESULT/PATIENT/PID-3-1"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(Observation)"
   valueTemplate: "{{index + 1}}"
-  toHL7Field: "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION({{index}})/OBX-1"
+  toFieldTemplate: "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION({{index}})/OBX-1"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(Observation)"
   valueTemplate: "CWE"
-  toHL7Field: "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION({{index}})/OBX-2"
+  toFieldTemplate: "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION({{index}})/OBX-2"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(Observation)"
   valueTemplate: "{{resource.code.coding[0].code}}"
-  toHL7Field: "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION({{index}})/OBX-3-1"
+  toFieldTemplate: "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION({{index}})/OBX-3-1"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(Observation)"
   valueTemplate: "{{resource.code.text}}"
-  toHL7Field: "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION({{index}})/OBX-3-2"
+  toFieldTemplate: "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION({{index}})/OBX-3-2"
 
 - fromFHIRPathResources: "Bundle.entry.resource.as(Observation)"
   valueTemplate: "{{resource.code.coding[0].system|hl7CodingSystem}}"
-  toHL7Field: "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION({{index}})/OBX-3-3"
+  toFieldTemplate: "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION({{index}})/OBX-3-3"

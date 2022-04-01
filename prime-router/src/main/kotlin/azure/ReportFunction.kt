@@ -25,7 +25,7 @@ import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TokenAuthentication
@@ -282,7 +282,7 @@ class ReportFunction(
                     // limit to hl7
                     Report.Format.HL7 ->
                         queue.sendMessage(
-                            fhirQueueName,
+                            "fhir-raw-received",
                             RawSubmission(
                                 blobInfo.blobUrl,
                                 BlobAccess.digestToString(blobInfo.digest),

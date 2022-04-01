@@ -1,12 +1,14 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import assertk.assertions.isSuccess
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.encoding.FHIR
-import gov.cdc.prime.router.encoding.getValue
+import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.MockHttpRequestMessage
+import gov.cdc.prime.router.fhirengine.encoding.FHIR
+import gov.cdc.prime.router.fhirengine.encoding.getValue
 import io.mockk.every
 import io.mockk.mockkObject
 import org.junit.jupiter.api.Test
@@ -102,7 +104,7 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
             TestCase(
                 "success",
                 """{
-                    "class":"gov.cdc.prime.router.engine.RawSubmission",
+                    "class":"gov.cdc.prime.router.fhirengine.engine.RawSubmission",
                     "blobURL":"http://localhost:10000/devstoreaccount1/reports/receive%2Fsimple_report.hl7test%2Ftest-covid-19-4990af55-c25b-474b-b4f6-7ccf155706b0-20220210113202.hl7",
                     "digest":"2bffffff90ffffffa22674fffffff713ffffffbd64ffffffb26c663426877fffffff6ffffffa91aeffffffd4ffffff82313b5fffffffc1ffffffaf653a387323",
                     "sender":"simple_report.hl7test"
@@ -112,7 +114,7 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
             TestCase(
                 "bad-digest",
                 """{
-                    "class":"gov.cdc.prime.router.engine.RawSubmission",
+                    "class":"gov.cdc.prime.router.fhirengine.engine.RawSubmission",
                     "blobURL":"http://localhost:10000/devstoreaccount1/reports/receive%2Fsimple_report.hl7test%2Ftest-covid-19-4990af55-c25b-474b-b4f6-7ccf155706b0-20220210113202.hl7",
                     "digest":"badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff3ffffff8d4d7ffffffff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71",
                     "sender":"simple_report.hl7test"

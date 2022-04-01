@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.encoding
+package gov.cdc.prime.router.fhirengine.encoding
 
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.parser.IParser

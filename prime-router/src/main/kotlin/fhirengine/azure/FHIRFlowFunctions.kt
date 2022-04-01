@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.fhirengine.azure
 
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
@@ -11,17 +11,20 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.router.azure.http.extensions.contentType
+import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.HttpException
+import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.azure.UnsupportedMediaTypeException
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.cli.tests.CompareHl7Data
-import gov.cdc.prime.router.encoding.FHIR
-import gov.cdc.prime.router.encoding.HL7
-import gov.cdc.prime.router.encoding.encode
-import gov.cdc.prime.router.engine.Message
-import gov.cdc.prime.router.engine.RawSubmission
-import gov.cdc.prime.router.translation.FHIRtoHL7
-import gov.cdc.prime.router.translation.HL7toFHIR
-import gov.cdc.prime.router.translation.translate
+import gov.cdc.prime.router.fhirengine.azure.http.extensions.contentType
+import gov.cdc.prime.router.fhirengine.encoding.FHIR
+import gov.cdc.prime.router.fhirengine.encoding.HL7
+import gov.cdc.prime.router.fhirengine.encoding.encode
+import gov.cdc.prime.router.fhirengine.engine.Message
+import gov.cdc.prime.router.fhirengine.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.translation.fhir.FHIRtoHL7
+import gov.cdc.prime.router.fhirengine.translation.hl7.HL7toFHIR
 import org.apache.logging.log4j.kotlin.Logging
 
 const val fhirQueueName = "fhir-raw-received"
@@ -45,25 +48,28 @@ class FHIRFlowFunctions : Logging {
     ): HttpResponseMessage {
         val responseBuilder = request.createResponseBuilder(HttpStatus.OK)
         val body = try {
+            val requestBody = request.body
+            requireNotNull(requestBody)
+
             val contentType = request.headers.get(HttpHeaders.CONTENT_TYPE.lowercase())
             when (contentType) {
                 HttpUtilities.hl7MediaType, "application/hl7-v2", null -> {
                     responseBuilder.contentType(HttpUtilities.fhirMediaType)
-                    val hl7messages = HL7.decode(request.body)
+                    val hl7messages = HL7.decode(requestBody)
                     require(hl7messages.size > 0) { "No messages were found" }
+                    val bundles = hl7messages.map { message ->
+                        HL7toFHIR.translate(message)
+                    }
                     buildString {
-                        hl7messages.filterNotNull().forEach { message ->
-                            val fhir = HL7toFHIR.translate(message)
-                            appendLine(fhir.encode())
+                        bundles.forEach { bundle ->
+                            appendLine(bundle.encode())
                         }
                     }
                 }
                 HttpUtilities.fhirMediaType -> {
                     responseBuilder.contentType(HttpUtilities.hl7MediaType)
-                    val requestBody = request.body
-                    requireNotNull(requestBody)
                     val bundle = FHIR.decode(requestBody)
-                    val message = FHIRtoHL7.toORU_R01(bundle)
+                    val message = FHIRtoHL7().translate(bundle)
                     message.encode()
                 }
                 else -> {
@@ -107,9 +113,17 @@ class FHIRFlowFunctions : Logging {
         logger.debug("Got content ${blobContent.size}")
         // TODO behind an interface?
         val hl7 = HL7.decode(String(blobContent))
-        val result = hl7.first().encode()
 
-        val comparison = compare(String(blobContent), result)
+        // Encoding here for two reasons:
+        // 1. current fhir libraries only correctly reference within
+        //    bundles if those bundles are decoded from json
+        // 2. Simulates a future state where we save the fhir bundle between steps
+        var translatedBundle = HL7toFHIR.translate(hl7.first()).encode()
+        val bundle = FHIR.decode(translatedBundle)
+        val result = FHIRtoHL7().translate(bundle)
+        val encodedResult = result.encode()
+
+        val comparison = compare(String(blobContent), encodedResult)
         if (!comparison.passed) {
             logger.debug("Failed on message $message\n$comparison")
         } else {

@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.engine
+package gov.cdc.prime.router.fhirengine.engine
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -26,7 +26,7 @@ interface Message {
 
     companion object {
         private val ptv = BasicPolymorphicTypeValidator.builder()
-            .allowIfSubType("gov.cdc.prime.router.engine")
+            .allowIfSubType("gov.cdc.prime.router.fhirengine.engine")
             .build()
         val mapper = jacksonMapperBuilder()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

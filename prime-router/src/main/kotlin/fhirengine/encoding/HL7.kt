@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.encoding
+package gov.cdc.prime.router.fhirengine.encoding
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HapiContext

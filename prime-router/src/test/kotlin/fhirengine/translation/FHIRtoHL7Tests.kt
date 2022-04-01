@@ -1,13 +1,16 @@
-package gov.cdc.prime.router.translation
+package gov.cdc.prime.router.fhirengine.translation.fhir
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import ca.uhn.hl7v2.model.v251.message.ORU_R01
+import assertk.assertions.isLessThanOrEqualTo
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.encoding.FHIR
-import gov.cdc.prime.router.encoding.HL7
-import gov.cdc.prime.router.encoding.encode
-import gov.cdc.prime.router.encoding.getValue
+import gov.cdc.prime.router.cli.tests.CompareHl7Data
+import gov.cdc.prime.router.fhirengine.encoding.FHIR
+import gov.cdc.prime.router.fhirengine.encoding.HL7
+import gov.cdc.prime.router.fhirengine.encoding.encode
+import gov.cdc.prime.router.fhirengine.encoding.getValue
+import gov.cdc.prime.router.fhirengine.translation.hl7.HL7toFHIR
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Patient
@@ -43,8 +46,6 @@ class FHIRtoHL7Tests : Logging {
 
     @Test
     fun `translate message segment`() {
-        val message = ORU_R01()
-        message.initQuickstart("ORU", "R01", "P")
 
         // Create a Patient to create
         val patient = Patient()
@@ -54,15 +55,21 @@ class FHIRtoHL7Tests : Logging {
         val bundle = Bundle()
         bundle.addEntry().setResource(patient).setFullUrl(patient.getId())
 
-        val translation = FHIRtoHL7.MappingTemplate(
-            toHL7Field = "/.PID-3-1",
+        val translation = MappingTemplate(
+            toFieldTemplate = "/.PID-3-1",
             fromFHIRPathResources = "Bundle.entry.resource.as(Patient).identifier.value",
             valueTemplate = "{{resource}}",
         )
+        val fhirToHL7Translator = FHIRtoHL7()
 
+        val message = fhirToHL7Translator.translate(
+            Mapping.generate(
+                listOf(translation),
+                bundle,
+                fhirToHL7Translator.config
+            )
+        )
         val terser = Terser(message)
-        terser.translate(FHIRtoHL7.processMapping(translation, bundle))
-
         assertThat(terser.get("/.PID-3-1")).isEqualTo("bar")
     }
 
@@ -85,12 +92,12 @@ SPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8a
         logger.info("\n${bundle.encode()}\n")
 
         // Used for testing
-        val translations = FHIRtoHL7.readMappings("./metadata/hl7_mapping/ORU_R01.yml")
+        val translations = MappingTemplate.loadTemplate("./metadata/hl7_mapping/ORU_R01.yml")
         logger.info("\n${translations}\n")
-        val mappings = FHIRtoHL7.processMapping(translations, bundle)
+        val mappings = Mapping.generate(translations, bundle, FHIRtoHL7().config)
 
         // Have to do this in order for `getResource` to work, this is how FHIR builds is references
-        val message = FHIRtoHL7.toORU_R01(FHIR.decode(bundle.encode()))
+        val message = FHIRtoHL7().translate(FHIR.decode(bundle.encode()))
 
         logger.info("\n${message.encode()}\n")
 
@@ -99,20 +106,19 @@ SPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8a
 
         mappings.forEach { mapping ->
             assertThat(
-                terser.get(mapping.hl7Path),
-                "${mapping.hl7Path} ${mapping.value}"
-            ).isEqualTo(testTerser.get(mapping.hl7Path))
+                terser.get(mapping.field),
+                "${mapping.field} ${mapping.value}"
+            ).isEqualTo(testTerser.get(mapping.field))
         }
 
         val encodedResult = message.encode()
         logger.info("\n$encodedResult")
 
-        /*
         val result = CompareHl7Data().compare(rawHL7.byteInputStream(), encodedResult.byteInputStream())
         logger.info("\n${result.errors.joinToString("\n")}")
-        assertThat(result.errors.size).isEqualTo(0)
+        // Goal is to get this to 0
+        assertThat(result.errors.size).isLessThanOrEqualTo(144)
         assertThat(result.warnings).isEmpty()
-        assertThat(result.passed).isTrue()
-        */
+        // assertThat(result.passed).isTrue()
     }
 }
