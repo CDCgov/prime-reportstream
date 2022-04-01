@@ -24,12 +24,11 @@ describe("Table, basic tests", () => {
 
     test("Rows render data in configured order", () => {
         const allRows = screen.getAllByRole("row");
-        const rowTwoElementOne = screen.getByText("value one again");
-        expect(rowTwoElementOne).toEqual(allRows[2].firstChild);
+        expect(allRows[2].firstChild).toHaveTextContent("value two again");
     });
 
     test("Elements with no mapped column aren't rendered", () => {
-        expect(screen.queryByText("value three") || null).toBeNull();
+        expect(screen.queryByText("value three")).toBeNull();
     });
 });
 

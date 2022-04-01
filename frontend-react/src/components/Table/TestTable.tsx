@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 import useCursorManager from "../../hooks/UseCursorManager";
 
-import Table, { ColumnConfig, RowArray } from "./Table";
+import Table, { ColumnConfig } from "./Table";
 
 /* This component is specifically configured to help test the
  * Table component. Any  */
@@ -18,12 +18,12 @@ export const TestTable = () => {
 
     /* Fake configuration objects to pass to <Table> */
     const fakeColumns: ColumnConfig = new Map([
-        ["one", "Column One"],
-        ["two", "Column Two"],
+        ["two", "Column One"],
+        ["one", "Column Two"],
     ]);
-    const fakeRows: RowArray = [
+    const fakeRows = [
         { one: "value one", two: "value two", three: "value three" },
-        { two: "value two again", one: "value one again" },
+        { one: "value one again", two: "value two again" },
     ];
 
     return (
