@@ -1,6 +1,7 @@
 ---
 name: hl7-ingest-covid-19
 topic: covid-19
+trackingElement: message_id
 description: Schema for ingesting HL7 messages
 extends: covid-19
 elements:
