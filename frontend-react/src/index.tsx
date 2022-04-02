@@ -13,6 +13,7 @@ ReactDOM.render(
             <Router>
                 <App />
             </Router>
+        </SessionProvider>
     </CacheProvider>,
     document.getElementById("root")
 );
