@@ -4650,11 +4650,9 @@ The postal code for the testing lab
 
 **ReportStream Internal Name**: value_type
 
-**Type**: CODE
+**Type**: ID
 
 **PII**: No
-
-**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
