@@ -3,6 +3,8 @@ package gov.cdc.prime.router
 import org.apache.logging.log4j.kotlin.Logging
 import tech.tablesaw.api.Table
 import tech.tablesaw.selection.Selection
+import java.time.DateTimeException
+import java.time.OffsetDateTime
 
 /**
  * This is a library or toolkit of useful filter definitions.  Filters remove "rows" of data.
@@ -371,3 +373,54 @@ class AtLeastOneHasValue : ReportStreamFilterDefinition {
         return selection
     }
 }
+
+/**
+ * DateInBetween(elementName, earlyDate, lateDate)
+ *
+ * Example: DateInBetween(specimen_collection_date_time, 20200101, 20210101)
+ *
+ * Implements a date or datetime test that specified element (aka column) has a value between or equal to the early date
+ * and the late date. In other words `earlyDate` <= value <= `lateDate`
+ *
+ * There always must be 3 arguments, but the late and early argument can be blank to indicate no lower or upper bounds.
+ * The date formating convention of ReportStream are used. Any valid ReportStream date format can be used, but
+ *
+ * For event age types of tests see the EventAgeInBetween
+ */
+class DateInBetween : ReportStreamFilterDefinition {
+    override val name = "dateInBetween"
+
+    override fun getSelection(
+        args: List<String>,
+        table: Table,
+        receiver: Receiver,
+        doAuditing: Boolean
+    ): Selection {
+        // Check args
+        if (args.size != 3) error("Expecting 3 arguments: Got ${args.size}")
+        if (args[0].isBlank()) error("Expecting first argument is not blank")
+        val lowerBound = if (args[1].isBlank()) OffsetDateTime.MIN else {
+            Element.getDateTime(args[1], format = null)
+        }
+        val upperBound = if (args[2].isBlank()) OffsetDateTime.MAX else {
+            Element.getDateTime(args[2], format = null)
+        }
+        if (upperBound.isBefore(lowerBound)) error("Upper bound must be before lower bound")
+
+        // Add indexes to form a selection
+        val selection = Selection.withRange(0, 0)
+        val column = table.stringColumn(args[0])
+        column.forEachIndexed { index, value ->
+            val dateTime = try { Element.getDateTime(value, format = null) } catch (ex: DateTimeException) { null }
+            if (dateTime != null && !dateTime.isBefore(lowerBound) && !dateTime.isAfter(upperBound)) {
+                selection.add(index)
+            }
+        }
+        return selection
+    }
+}
+
+/**
+* EventAgeInBetween(columnName, earlyDate, lateDate)
+* Implements a date or datetime value test.   If a row has true value for any of the columns, the row is selected.
+*/

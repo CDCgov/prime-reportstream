@@ -2,9 +2,11 @@ package gov.cdc.prime.router
 
 import assertk.Assert
 import assertk.assertThat
+import assertk.assertions.containsExactly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
+import assertk.assertions.isTrue
 import assertk.assertions.support.expected
 import assertk.assertions.support.show
 import tech.tablesaw.api.StringColumn
@@ -483,6 +485,67 @@ class ReportStreamFilterDefinitionTests {
         filteredTable = table2.where(selection)
         assertThat(filteredTable).hasRowCount(1)
         assertThat(filteredTable.getString(0, "colA")).isEqualTo("12D4567890")
+    }
+
+    @Test
+    fun `Test DateInBetween Filter`() {
+        // Setup test data
+        val lowerDate = "202108030000-0700"
+        val middleDate = "202109030000-0500"
+        val upperDate = "202111030000-0900"
+        val filter = DateInBetween()
+        val table = Table.create(
+            StringColumn.create("colA", listOf(middleDate, lowerDate, "", upperDate)),
+            StringColumn.create("colB", listOf(middleDate, lowerDate, "1a2b3c4d5e", upperDate)),
+        )
+
+        // Test bad args
+        val emptyArgs = listOf<String>()
+        assertThat { filter.getSelection(emptyArgs, table, rcvr) }.isFailure()
+        val emptyColArgs = listOf("", "", "")
+        assertThat { filter.getSelection(emptyColArgs, table, rcvr) }.isFailure()
+        val reversedArgs = listOf("colA", upperDate, lowerDate)
+        assertThat { filter.getSelection(reversedArgs, table, rcvr) }.isFailure()
+
+        // Test with both bounds
+        val bothBoundsSelection = filter.getSelection(
+            listOf("colA", lowerDate, upperDate),
+            table,
+            rcvr
+        )
+        assertThat(bothBoundsSelection.toArray()).containsExactly(0, 1, 3)
+
+        // Test with an only an upper bound
+        val upperBoundSelection = filter.getSelection(
+            listOf("colB", "", middleDate),
+            table,
+            rcvr
+        )
+        assertThat(upperBoundSelection.toArray()).containsExactly(0, 1)
+
+        // Test with an only lower bound
+        val lowerBoundSelection = filter.getSelection(
+            listOf("colB", middleDate, ""),
+            table,
+            rcvr
+        )
+        assertThat(lowerBoundSelection.toArray()).containsExactly(0, 3)
+
+        // Test equal bounds
+        val equalBoundSelection = filter.getSelection(
+            listOf("colB", middleDate, middleDate),
+            table,
+            rcvr
+        )
+        assertThat(equalBoundSelection.toArray()).containsExactly(0)
+
+        // Test with bounds that should produce an empty selection
+        val emptySelection = filter.getSelection(
+            listOf("colA", "202208030000-0500", ""),
+            table,
+            rcvr
+        )
+        assertThat(emptySelection.isEmpty).isTrue()
     }
 
     companion object {
