@@ -5,6 +5,7 @@ import tech.tablesaw.api.Table
 import tech.tablesaw.selection.Selection
 import java.time.DateTimeException
 import java.time.OffsetDateTime
+import java.time.Period
 
 /**
  * This is a library or toolkit of useful filter definitions.  Filters remove "rows" of data.
@@ -375,20 +376,45 @@ class AtLeastOneHasValue : ReportStreamFilterDefinition {
 }
 
 /**
- * DateInBetween(elementName, earlyDate, lateDate)
+ * InDateInterval(elementName, date, period)
  *
- * Example: DateInBetween(specimen_collection_date_time, 20200101, 20210101)
+ * Implements a test that the specified element (e.g. table column) has a date value between or equal to the
+ * `date` and less than the `date + period`. In other words,
+ * ```
+ * // if period has a positive value
+ * date <= value < date + period
+ * // or if period has a negative value
+ * date + period <= value < date
+ * ```
  *
- * Implements a date or datetime test that specified element (aka column) has a value between or equal to the early date
- * and the late date. In other words `earlyDate` <= value <= `lateDate`
+ * ## Examples
+ * ```
+ *   // Specimens collected in 2020
+ *   inDateInterval(specimen_collection_date_time, 202001010000-0000, P1Y)
  *
- * There always must be 3 arguments, but the late and early argument can be blank to indicate no lower or upper bounds.
- * The date formating convention of ReportStream are used. Any valid ReportStream date format can be used, but
+ *   // Specimens collected after 2022-01-01
+ *   inDateInterval(specimen_collection_date_time, 202001010000-0000, P1000Y)
  *
- * For event age types of tests see the EventAgeInBetween
+ *   // Specimens collected in the past 19 days
+ *   inDateInterval(specimen_collection_date_time, now, -P19D)
+ * ```
+ *
+ * ## Notes
+ *
+ * * There always must be 3 arguments.
+ *
+ * * Empty values in the table never match the interval
+ *
+ * * A `date` argument can be `now` to indicate the current time. Otherwise, it must follow
+ * one of the formats that ReportStream understands. The HL7 date-time format is recommended.
+ *
+ * * A `duration` argument must follow the ISO 8061 standard format as implemented by Java.
+ * This format is `[-]P[n]Y[n]M[n]D` or `P[n]W`.
+ * The period can be negative to indicate an interval that starts before the `date` argument.
+ * The period can be zero but that will never match any value.
  */
-class DateInBetween : ReportStreamFilterDefinition {
-    override val name = "dateInBetween"
+class InDateInterval : ReportStreamFilterDefinition {
+    override val name = "inDateInterval"
 
     override fun getSelection(
         args: List<String>,
@@ -399,28 +425,27 @@ class DateInBetween : ReportStreamFilterDefinition {
         // Check args
         if (args.size != 3) error("Expecting 3 arguments: Got ${args.size}")
         if (args[0].isBlank()) error("Expecting first argument is not blank")
-        val lowerBound = if (args[1].isBlank()) OffsetDateTime.MIN else {
+        val intervalDate = if (args[1].contentEquals("now", ignoreCase = true)) {
+            OffsetDateTime.now()!!
+        } else {
             Element.getDateTime(args[1], format = null)
         }
-        val upperBound = if (args[2].isBlank()) OffsetDateTime.MAX else {
-            Element.getDateTime(args[2], format = null)
-        }
-        if (upperBound.isBefore(lowerBound)) error("Upper bound must be before lower bound")
+        val intervalPeriod = Period.parse(args[2])
+        val intervalStart = if (intervalPeriod.isNegative) intervalDate.plus(intervalPeriod) else intervalDate
+        val intervalEnd = if (intervalPeriod.isNegative) intervalDate else intervalDate.plus(intervalPeriod)
 
         // Add indexes to form a selection
         val selection = Selection.withRange(0, 0)
         val column = table.stringColumn(args[0])
         column.forEachIndexed { index, value ->
-            val dateTime = try { Element.getDateTime(value, format = null) } catch (ex: DateTimeException) { null }
-            if (dateTime != null && !dateTime.isBefore(lowerBound) && !dateTime.isAfter(upperBound)) {
-                selection.add(index)
+            try {
+                val dateTime = Element.getDateTime(value, format = null)
+                if (!dateTime.isBefore(intervalStart) && dateTime.isBefore(intervalEnd)) {
+                    selection.add(index)
+                }
+            } catch (_: DateTimeException) {
             }
         }
         return selection
     }
 }
-
-/**
-* EventAgeInBetween(columnName, earlyDate, lateDate)
-* Implements a date or datetime value test.   If a row has true value for any of the columns, the row is selected.
-*/

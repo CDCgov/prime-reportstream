@@ -488,15 +488,15 @@ class ReportStreamFilterDefinitionTests {
     }
 
     @Test
-    fun `Test DateInBetween Filter`() {
+    fun `Test InDateInterval Filter`() {
         // Setup test data
-        val lowerDate = "202108030000-0700"
-        val middleDate = "202109030000-0500"
-        val upperDate = "202111030000-0900"
-        val filter = DateInBetween()
+        val lowerDateTime = "202107030000-0700"
+        val middleDateTime = "202108030000-0500"
+        val upperDateTime = "202109030000-0900"
+
+        val filter = InDateInterval()
         val table = Table.create(
-            StringColumn.create("colA", listOf(middleDate, lowerDate, "", upperDate)),
-            StringColumn.create("colB", listOf(middleDate, lowerDate, "1a2b3c4d5e", upperDate)),
+            StringColumn.create("colA", listOf(lowerDateTime, middleDateTime, upperDateTime, "")),
         )
 
         // Test bad args
@@ -504,48 +504,101 @@ class ReportStreamFilterDefinitionTests {
         assertThat { filter.getSelection(emptyArgs, table, rcvr) }.isFailure()
         val emptyColArgs = listOf("", "", "")
         assertThat { filter.getSelection(emptyColArgs, table, rcvr) }.isFailure()
-        val reversedArgs = listOf("colA", upperDate, lowerDate)
-        assertThat { filter.getSelection(reversedArgs, table, rcvr) }.isFailure()
+        val badPeriodArgs = listOf("colA", "now", "20D")
+        assertThat { filter.getSelection(badPeriodArgs, table, rcvr) }.isFailure()
 
-        // Test with both bounds
-        val bothBoundsSelection = filter.getSelection(
-            listOf("colA", lowerDate, upperDate),
+        // Test with 1 Month
+        val oneMonth = filter.getSelection(
+            listOf("colA", middleDateTime, "P1M"),
             table,
             rcvr
         )
-        assertThat(bothBoundsSelection.toArray()).containsExactly(0, 1, 3)
+        assertThat(oneMonth.toArray()).containsExactly(1)
 
-        // Test with an only an upper bound
-        val upperBoundSelection = filter.getSelection(
-            listOf("colB", "", middleDate),
+        // Test with 1 Month and 1 Day
+        val oneMonthOneDay = filter.getSelection(
+            listOf("colA", middleDateTime, "P1M1D"),
             table,
             rcvr
         )
-        assertThat(upperBoundSelection.toArray()).containsExactly(0, 1)
+        assertThat(oneMonthOneDay.toArray()).containsExactly(1, 2)
 
-        // Test with an only lower bound
-        val lowerBoundSelection = filter.getSelection(
-            listOf("colB", middleDate, ""),
+        // Test with a negative month
+        val negativePeriod = filter.getSelection(
+            listOf("colA", middleDateTime, "-P1M"),
             table,
             rcvr
         )
-        assertThat(lowerBoundSelection.toArray()).containsExactly(0, 3)
+        assertThat(negativePeriod.toArray()).containsExactly(0)
 
-        // Test equal bounds
-        val equalBoundSelection = filter.getSelection(
-            listOf("colB", middleDate, middleDate),
+        // Test with now and a small offset
+        val nowSmall = filter.getSelection(
+            listOf("colA", "now", "-P1M"),
             table,
             rcvr
         )
-        assertThat(equalBoundSelection.toArray()).containsExactly(0)
+        assertThat(nowSmall.isEmpty).isTrue()
 
-        // Test with bounds that should produce an empty selection
-        val emptySelection = filter.getSelection(
-            listOf("colA", "202208030000-0500", ""),
+        // Test with now and a very large offset which should cover all dates
+        val nowLarge = filter.getSelection(
+            listOf("colA", "now", "-P10000Y"),
             table,
             rcvr
         )
-        assertThat(emptySelection.isEmpty).isTrue()
+        assertThat(nowLarge.toArray()).containsExactly(0, 1, 2)
+    }
+
+    @Test
+    fun `Test InDateInterval Filter on Date values`() {
+        // Setup test data
+        val lowerDate = "20210703"
+        val middleDate = "20210803"
+        val upperDate = "20210903"
+
+        val filter = InDateInterval()
+        val table = Table.create(
+            StringColumn.create("colA", listOf(lowerDate, middleDate, upperDate, "")),
+        )
+
+        // Test with 1 Month
+        val oneMonth = filter.getSelection(
+            listOf("colA", middleDate, "P1M"),
+            table,
+            rcvr
+        )
+        assertThat(oneMonth.toArray()).containsExactly(1)
+
+        // Test with 1 Month and 1 Day
+        val oneMonthOneDay = filter.getSelection(
+            listOf("colA", middleDate, "P1M1D"),
+            table,
+            rcvr
+        )
+        assertThat(oneMonthOneDay.toArray()).containsExactly(1, 2)
+
+        // Test with a negative month
+        val negativePeriod = filter.getSelection(
+            listOf("colA", middleDate, "-P1M"),
+            table,
+            rcvr
+        )
+        assertThat(negativePeriod.toArray()).containsExactly(0)
+
+        // Test with now and a small offset
+        val nowSmall = filter.getSelection(
+            listOf("colA", "now", "-P1M"),
+            table,
+            rcvr
+        )
+        assertThat(nowSmall.isEmpty).isTrue()
+
+        // Test with now and a very large offset which should cover all dates
+        val nowLarge = filter.getSelection(
+            listOf("colA", "now", "-P10000Y"),
+            table,
+            rcvr
+        )
+        assertThat(nowLarge.toArray()).containsExactly(0, 1, 2)
     }
 
     companion object {
