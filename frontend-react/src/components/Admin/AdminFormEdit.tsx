@@ -1,13 +1,13 @@
 import {
-    Checkbox,
     Grid,
+    Checkbox,
     Label,
     Textarea,
     TextInput,
 } from "@trussworks/react-uswds";
 import { useRef } from "react";
 
-import { showError } from "../AlertNotifications";
+import { checkTextAreaJson } from "../../utils/misc";
 
 export const TextInputComponent = (params: {
     fieldname: string;
@@ -30,6 +30,7 @@ export const TextInputComponent = (params: {
                     defaultValue={params.defaultvalue || ""}
                     data-testid={key}
                     maxLength={255}
+                    className="rs-textarea-json-input"
                     onChange={(e) => params.savefunc(e?.target?.value || "")}
                     disabled={params.disabled}
                 />
@@ -72,40 +73,14 @@ export const TextAreaComponent = (params: {
                     name={key}
                     defaultValue={defaultValue}
                     data-testid={key}
+                    className="rs-textarea-json-input"
                     onBlur={(e) => {
-                        const inputvalue =
+                        const text =
                             e?.target?.value || (defaultnullvalue as string);
-                        try {
-                            const textJson = JSON.parse(inputvalue);
-                            params.savefunc(textJson);
-                        } catch (err: any) {
-                            // message like `'Unexpected token _ in JSON at position 164'`
-                            showError(
-                                `Element "${key}" generated an error "${err?.message}"`
-                            );
-                            // now we parse out the position and try to select it for them.
-                            const findPositionMatch = err?.message
-                                ?.matchAll(/position (\d+)/gi)
-                                ?.next();
-                            if (findPositionMatch?.value?.length === 2) {
-                                let offset = parseInt(
-                                    findPositionMatch.value[1] || -1
-                                );
-                                if (!isNaN(offset) && offset !== -1) {
-                                    if (offset > 4) {
-                                        offset -= 4;
-                                    }
-                                    const end = Math.min(
-                                        offset + 8,
-                                        inputvalue.length - 1
-                                    );
-                                    inputRef?.current?.focus();
-                                    inputRef?.current?.setSelectionRange(
-                                        offset,
-                                        end
-                                    );
-                                }
-                            }
+                        const result = checkTextAreaJson(text, key, inputRef);
+                        if (result !== false) {
+                            // checkTextAreaJson made sure the following call won't throw.
+                            params.savefunc(result);
                         }
                     }}
                 />

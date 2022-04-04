@@ -71,3 +71,28 @@ One caveat, there is only a **single** .env file used per build type. Typically,
 - production: `env.production`
 
 `.env` and `.env.local` are not currently used.
+
+## Testing Content-Security-Policy locally
+CSP (Content-Security-Policy) is different from CORS (Cross-Origin Resource Sharing).  
+CSP 
+
+To use it:
+1. Build using yarn command `build:dev:csp`
+2. Local server-side env must be running locally on port 7071
+3. Run using yarn command `run:build-dir` 
+4. Open browser debugger and watch console for errors/warnings as you use the site.
+
+
+Example error would look like this:
+```
+index.js:2 Refused to apply inline style because it violates the 
+ following Content Security Policy directive: 
+ "style-src 'self' https://global.oktacdn.com https://cdnjs.cloudflare.com". 
+ Either the 'unsafe-inline' keyword, a hash ('sha256-B7Q+2rCrkIRlD5/BjZIWIMJPSHYlTD1AOL+zDLDYQVg='), 
+ or a nonce ('nonce-...') is required to enable inline execution. 
+ Note that hashes do not apply to event handlers, 
+ style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present.
+```
+(FYI. The error is on `index.js:2` because minification removes line feeds.)  
+
+NOTE: This only works `run:build-dir` because webpack's dynamic runtime updating does injection that violates CSP

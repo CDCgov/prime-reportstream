@@ -11,11 +11,12 @@ import {
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
 import { Diff, SES_TYPE } from "../utils/diff";
-import { splitOn } from "../utils/misc";
+import { checkTextAreaJson, splitOn } from "../utils/misc";
 
 // interface on Component that is callable
 export type EditableCompareRef = {
     getEditedText: () => string;
+    refeshEditedText: (updatedjson: string) => void;
 };
 
 interface EditableCompareProps {
@@ -61,7 +62,14 @@ export const EditableCompare = forwardRef(
                 getEditedText() {
                     return textAreaContent;
                 },
+                // when showing/hiding json, force am update of the content
+                refeshEditedText(updatedjson) {
+                    setTextAreaContent(updatedjson);
+                    onChangeHandler(updatedjson);
+                },
             }),
+            // onChangeHandler appears below, remove from deps
+            // eslint-disable-next-line
             [textAreaContent]
         );
 
@@ -183,6 +191,13 @@ export const EditableCompare = forwardRef(
                                 value={textAreaContent}
                                 onChange={(e) => {
                                     onChangeHandler(e.target.value);
+                                }}
+                                onBlur={(e) => {
+                                    checkTextAreaJson(
+                                        e?.target?.value,
+                                        "edited text",
+                                        editDiffRef
+                                    );
                                 }}
                             />
                         </ScrollSyncPane>

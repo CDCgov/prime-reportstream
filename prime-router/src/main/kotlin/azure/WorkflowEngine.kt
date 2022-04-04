@@ -513,7 +513,7 @@ class WorkflowEngine(
                 "Failed to process $message $numAttempts times, setting status to process_error." +
                     " Mo intervention required."
             )
-            logger.fatal("${actionHistory.action.actionResult}")
+            logger.fatal(actionHistory.action.actionResult)
         } else {
             actionHistory.setActionType(TaskAction.process_warning)
             actionHistory.trackActionResult(
@@ -561,13 +561,6 @@ class WorkflowEngine(
             )
 
             actionHistory.trackLogs(warnings)
-            // track response body
-            val responseBody = actionHistory.createResponseBody(
-                true,
-                report,
-                this.settings
-            )
-            actionHistory.trackActionResponse(responseBody)
 
             // record action history records
             recordAction(actionHistory)
@@ -870,7 +863,7 @@ class WorkflowEngine(
                 1440 / numberBatchesPerDay
             else
                 1440
-            return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS).toLong()
+            return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS)
         }
     }
 
@@ -881,8 +874,6 @@ class WorkflowEngine(
      * @param sender Sender information, pulled from database based on sender name
      * @param content Content of incoming message
      * @param defaults Default values that can be passed in as part of the request
-     * @param errors Transactional store of errors produced while processing this message
-     * @param warnings Transaction store of warnings produced while processing this message
      * @return Returns a generated report object, or null
      */
     fun parseReport(

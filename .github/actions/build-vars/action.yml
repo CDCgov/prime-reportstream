@@ -15,15 +15,9 @@ runs:
   using: "composite"
   steps:
 
-    - name: Set Build Environment - DEV
-      id: build_dev
-      if: github.ref == 'refs/heads/dev-rheft'
-      shell: bash
-      run: echo "::set-output name=env_name::dev"
-
     - name: Set Build Environment - TEST
       id: build_test
-      if: github.ref == 'refs/heads/ronheft/test-investigation'
+      if: github.ref == 'refs/heads/test'
       shell: bash
       run: echo "::set-output name=env_name::test"
 

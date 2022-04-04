@@ -4,7 +4,7 @@ import { NetworkErrorBoundary } from "rest-hooks";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
-import { useOrgName } from "../../utils/OrganizationUtils";
+import { useOrgName } from "../../hooks/UseOrgName";
 import { ErrorPage } from "../error/ErrorPage";
 
 import TableReports from "./Table/TableReports";

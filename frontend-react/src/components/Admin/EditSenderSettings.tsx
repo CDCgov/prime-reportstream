@@ -6,7 +6,10 @@ import { RouteComponentProps, useHistory } from "react-router-dom";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
-import { getStoredOktaToken, getStoredOrg } from "../GlobalContextProvider";
+import {
+    getStoredOktaToken,
+    getStoredOrg,
+} from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import Spinner from "../Spinner";
 
@@ -65,7 +68,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     JSON.stringify(orgSenderSettings, jsonSortReplacer, 2)
                 );
 
-                confirmModalRef?.current?.toggleModal(undefined, true);
+                confirmModalRef?.current?.showModal();
                 setLoading(false);
             } catch (e) {
                 setLoading(false);
