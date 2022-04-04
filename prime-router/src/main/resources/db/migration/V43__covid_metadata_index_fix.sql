@@ -18,5 +18,5 @@
 --	select distinct report_id
 --	from covid_result_metadata
 --	where report_index = 0
---	and created_at > [when did Carlos' PR go to prod?]
+--	and created_at > '2/22/2022 16:00:00'
 --)
