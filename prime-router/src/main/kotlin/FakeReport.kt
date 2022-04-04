@@ -117,22 +117,27 @@ class FakeDataService : Logging {
         fun createFakeValueFromValueSet(element: Element): String {
             val altValues = element.altValues
             val valueSet = element.valueSetRef
-            // if the code defines alternate values in the schema we need to
-            // output them here
-            val possibleValues = if (altValues?.isNotEmpty() == true) {
-                altValues.map { it.code }.toTypedArray()
-            } else {
-                if (element.cardinality?.name == "ZERO_OR_ONE") {
-                    // Pick random code from the ValueSet.Value and add ""
-                    val code = valueSet?.values?.asSequence()?.shuffled()?.take(1)?.map { it.code }
-                        ?.toList()?.toTypedArray() ?: arrayOf("")
-                    code.plus("")
-                } else {
-                    valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
+            return when (element.name) {
+                "value_type" -> "CWE"
+                else -> {
+                    // if the code defines alternate values in the schema we need to
+                    // output them here
+                    val possibleValues = if (altValues?.isNotEmpty() == true) {
+                        altValues.map { it.code }.toTypedArray()
+                    } else {
+                        if (element.cardinality?.name == "ZERO_OR_ONE") {
+                            // Pick random code from the ValueSet.Value and add ""
+                            val code = valueSet?.values?.asSequence()?.shuffled()?.take(1)?.map { it.code }
+                                ?.toList()?.toTypedArray() ?: arrayOf("")
+                            code.plus("")
+                        } else {
+                            valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
+                        }
+                    }
+
+                    randomChoice(*possibleValues)
                 }
             }
-
-            return randomChoice(*possibleValues)
         }
 
         // code values typically come from valuesets, so we pass in the element
