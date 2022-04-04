@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
@@ -12,6 +13,8 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.ReportStreamFilterResult
+import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
@@ -422,6 +425,21 @@ class WorkflowEngine(
         emptyReports.forEach { (filteredReport, receiver) ->
             if (!filteredReport.filteringResults.isEmpty()) {
                 actionHistory.trackFilteredReport(report, filteredReport, receiver)
+            }
+        }
+
+        // return early before writing to the db if the BypassQueueForQualityFilters option is set and
+        // quality filter messages were found
+        if (options == Options.BypassQueueForQualityFilters) {
+            val qualityFilterLogs = actionHistory.actionLogs.filter() {
+                val detail = it.detail
+                it.type == ActionLogLevel.filter &&
+                    (detail is ReportStreamFilterResult) && detail.filterType == ReportStreamFilterType.QUALITY_FILTER
+            }
+
+            if (qualityFilterLogs.any()) {
+                val msg = "Quality filter results detected. Aborting..."
+                throw ActionError(qualityFilterLogs, msg)
             }
         }
 

@@ -164,7 +164,7 @@ class ReportFunction(
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
         val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
         var hasQualityFilterOption = false
-        var httpStatus: HttpStatus =
+        val httpStatus: HttpStatus =
             try {
                 val options = Options.valueOf(optionsText)
                 hasQualityFilterOption = (options == Options.BypassQueueForQualityFilters)
@@ -257,8 +257,6 @@ class ReportFunction(
         if (hasQualityFilterOption) {
             bypassMessageQueue = responseContainsQualityFilter()
         }
-        if (bypassMessageQueue)
-            httpStatus = HttpStatus.BAD_REQUEST
 
         actionHistory.trackActionResult(httpStatus)
         workflowEngine.recordAction(actionHistory)
