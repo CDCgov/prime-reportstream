@@ -71,3 +71,18 @@ describe("Table, pagination button tests", () => {
         expect(prev).toBeNull();
     });
 });
+
+describe("Table, sort order tests", () => {
+    beforeEach(() => renderWithRouter(<TestTable />));
+
+    test("Click header to sort", () => {
+        let allRows = screen.getAllByRole("row");
+        expect(allRows[1].firstChild).toHaveTextContent("value two");
+
+        const columnOneHeader = screen.getByText("Column Two");
+        fireEvent.click(columnOneHeader);
+
+        allRows = screen.getAllByRole("row");
+        expect(allRows[1].firstChild).toHaveTextContent("value two again");
+    });
+});

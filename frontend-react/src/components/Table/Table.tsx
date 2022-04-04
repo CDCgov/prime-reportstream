@@ -5,46 +5,66 @@ import {
     IconNavigateBefore,
     IconNavigateNext,
 } from "@trussworks/react-uswds";
+import React from "react";
 
 import { ICursorManager } from "../../hooks/UseCursorManager";
 
+export type SortOrder = "ASC" | "DESC";
 export interface TableRow {
     [key: string]: any;
 }
 
-/* Convenient, descriptive type aliases */
-type Attribute = string;
-type Header = string;
+export interface SortDefinition {
+    attribute: string;
+    order: SortOrder;
+}
 
-/* The <Attribute, Header> shape ensures that your ColumnConfig renders
- * the proper data in the proper column.
+/* ColumnConfig tells the Table element how to render each column, including the
+ * data attribute of the object the column maps to, the header, and ... TODO: finish
  *
- * Attribute:  The name of the object attribute to be rendered in the
- * column
- *
- * Header:  The column name */
-export type ColumnConfig = Map<Attribute, Header>;
-export type RowArray = Array<TableRow>;
+ * @property dataAttr: Name of the object attribute to be rendered in the column
+ * @property columnHeader: The column name
+ * @property sort: React.SetStateAction function */
+export interface ColumnConfig {
+    dataAttr: string;
+    columnHeader: string;
+    sortable?: boolean;
+}
+
 export interface TableConfig {
-    columns: ColumnConfig;
-    rows: RowArray;
+    columns: Array<ColumnConfig>;
+    rows: Array<TableRow>;
 }
 
 export interface TableProps {
     config: TableConfig;
+    sortManager: () => void;
     pageController?: ICursorManager;
 }
 
-const Table = ({ config, pageController }: TableProps) => {
+const Table = ({ config, sortManager, pageController }: TableProps) => {
     /* Renders the header row of the table from columns.values() */
     const TableHeaders = () => {
         return (
             <tr>
-                {Array.from(config.columns.values()).map((val) => (
-                    <th key={val} scope="col">
-                        {val}
-                    </th>
-                ))}
+                {config.columns.map((colConfig) => {
+                    if (colConfig.sortable) {
+                        return (
+                            <th
+                                key={colConfig.columnHeader}
+                                onClick={() => sortManager()}
+                            >
+                                {colConfig.columnHeader}
+                            </th>
+                        );
+                    } else {
+                        return (
+                            <th key={colConfig.columnHeader}>
+                                {colConfig.columnHeader}
+                            </th>
+                        );
+                    }
+                })}
             </tr>
         );
     };
@@ -56,13 +76,11 @@ const Table = ({ config, pageController }: TableProps) => {
             <>
                 {config.rows.map((object, rowIndex) => (
                     <tr key={rowIndex}>
-                        {Array.from(config.columns.keys()).map(
-                            (col, colIndex) => (
-                                <td key={`${rowIndex}:${colIndex}`}>
-                                    {object[col]}
-                                </td>
-                            )
-                        )}
+                        {config.columns.map((col, colIndex) => (
+                            <td key={`${rowIndex}:${colIndex}`}>
+                                {object[col.dataAttr]}
+                            </td>
+                        ))}
                     </tr>
                 ))}
             </>
