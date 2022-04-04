@@ -836,7 +836,8 @@ class Report : Logging {
     }
 
     /**
-     * Gets the item hash for a the [rowNum] of the report. Returns the ByteArray hash.
+     * Gets the item hash for a the [rowNum] of the report.
+     * @return the ByteArray hash.
      */
     fun getItemHashForRow(rowNum: Int): String {
         // calculate and store item hash for deduplication purposes for the generated item
@@ -854,6 +855,9 @@ class Report : Logging {
         return DatatypeConverter.printHexBinary(digest).uppercase()
     }
 
+    /**
+     * Static functions for use in modifying and manipulating reports.
+     */
     companion object {
         fun merge(inputs: List<Report>): Report {
             if (inputs.isEmpty())

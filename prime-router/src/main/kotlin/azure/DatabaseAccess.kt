@@ -162,6 +162,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     /**
      * Returns true if there is already a record from the last 7 days
      * in the item_lineage table that matches the passed in [itemHash]
+     * @return true if item is duplicate
      */
     fun isDuplicateItem(
         itemHash: String,
