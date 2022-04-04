@@ -7,6 +7,7 @@ import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsReso
 import { showAlertNotification, showError } from "../AlertNotifications";
 
 import { ConfirmDeleteSettingModal } from "./AdminModal";
+import { DisplayMeta } from "./DisplayMeta";
 
 interface OrgSettingsTableProps {
     orgname: string;
@@ -95,7 +96,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                             <td>{eachOrgSetting.topic || ""}</td>
                             <td>{eachOrgSetting.customerStatus || ""}</td>
                             <td>
-                                {JSON.stringify(eachOrgSetting?.meta) || {}}
+                                <DisplayMeta metaObj={eachOrgSetting.meta} />
                             </td>
                             <td colSpan={2}>
                                 <ButtonGroup type="segmented">
