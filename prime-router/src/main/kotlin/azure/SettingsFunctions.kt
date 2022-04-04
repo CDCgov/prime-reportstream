@@ -124,6 +124,7 @@ class GetOneSender(
         @BindingName("senderName") senderName: String,
     ): HttpResponseMessage {
         return getOne(request, senderName, SenderMessage::class.java, organizationName)
+    }
 }
 
 class UpdateSender(
