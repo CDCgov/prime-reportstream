@@ -43,45 +43,59 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         defaultValues: DefaultValues = emptyMap(),
         limitReceiversTo: List<String> = emptyList(),
     ): RoutedReportsResult {
-        val warnings = mutableListOf<ActionLog>()
-        if (input.isEmpty()) return RoutedReportsResult(emptyList(), warnings)
-        val routedReports = settings.receivers.filter { receiver ->
-            receiver.topic == input.schema.topic &&
+        if (input.isEmpty()) return RoutedReportsResult(emptyList(), emptyList())
+
+        // Only want receivers that are for the topic and in the limitReceiverTo list (if this list is provided)
+        fun receiverPredicate(receiver: Receiver): Boolean {
+            return receiver.topic == input.schema.topic &&
                 (limitReceiversTo.isEmpty() || limitReceiversTo.contains(receiver.fullName))
-        }.mapNotNull { receiver ->
-            filterAndTranslateForReceiver(input, defaultValues, receiver, warnings)
         }
-        return RoutedReportsResult(routedReports, warnings)
+
+        // Combine RoutedReportResults together
+        fun combineReportResults(a: RoutedReportsResult, b: RoutedReportsResult): RoutedReportsResult {
+            return RoutedReportsResult(a.reports + b.reports, a.details + b.details)
+        }
+
+        return settings.receivers.filter { receiver ->
+            receiverPredicate(receiver)
+        }.map { receiver ->
+            filterAndTranslateForReceiver(input, defaultValues, receiver)
+        }.reduce { accumulator, result ->
+            combineReportResults(accumulator, result)
+        }
     }
 
     /**
-     * Filter and translate for an [input] report for a single [receiver]. Use [defaultValues] and
-     * fill in [warnings].
+     * Filter and translate for an [input] report for a single [receiver]. Use the passed in [defaultValues] and
+     * return warnings.
      */
     fun filterAndTranslateForReceiver(
         input: Report,
         defaultValues: Map<String, String>,
-        receiver: Receiver,
-        warnings: MutableList<ActionLog>
-    ): RoutedReport? {
+        receiver: Receiver
+    ): RoutedReportsResult {
+        fun RoutedReport.asRoutedReportsResult() = RoutedReportsResult(listOf(this), emptyList())
+
         return try {
             // Filter the report
-            val filteredReport = filterByAllFilterTypes(settings, input, receiver) ?: return null
-            if (filteredReport.isEmpty()) return RoutedReport(filteredReport, receiver)
+            val filteredReport = filterByAllFilterTypes(settings, input, receiver) ?: return emptyRoutedReportsResult
+            if (filteredReport.isEmpty()) return RoutedReport(filteredReport, receiver).asRoutedReportsResult()
 
             // Translate the filteredReport
             val translatedReport = translateByReceiver(filteredReport, receiver, defaultValues)
-            RoutedReport(translatedReport, receiver)
+            RoutedReport(translatedReport, receiver).asRoutedReportsResult()
         } catch (e: IllegalStateException) {
-            // catching individual translation exceptions enables overall work to continue
-            warnings.add(
-                ActionLog(
-                    InvalidTranslationMessage(e.localizedMessage),
-                    "TO:${receiver.fullName}:${receiver.schemaName}",
-                    reportId = input.id,
+            // catching individual translation exceptions enables the overall work to continue
+            return RoutedReportsResult(
+                reports = emptyList(),
+                details = listOf(
+                    ActionLog(
+                        InvalidTranslationMessage(e.localizedMessage),
+                        "TO:${receiver.fullName}:${receiver.schemaName}",
+                        reportId = input.id,
+                    )
                 )
             )
-            return null
         }
     }
 
@@ -342,5 +356,9 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             }
         }
         return Mapping(toSchema, fromSchema, useDirectly, useValueSet, useMapper, useDefault, missing)
+    }
+
+    companion object {
+        val emptyRoutedReportsResult = RoutedReportsResult(emptyList(), emptyList())
     }
 }

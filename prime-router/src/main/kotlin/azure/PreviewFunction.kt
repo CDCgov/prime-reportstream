@@ -19,6 +19,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.messages.PreviewMessage
 import gov.cdc.prime.router.messages.PreviewResponseMessage
 import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.PrincipalLevel
 import org.apache.logging.log4j.kotlin.Logging
 
 class PreviewFunction(
@@ -59,6 +60,14 @@ class PreviewFunction(
         val previewMessage: PreviewMessage,
         val receiver: Receiver,
         val sender: Sender,
+    )
+
+    /**
+     * Encapsulate the result with warnings
+     */
+    data class ResultWithWarnings(
+        val report: Report,
+        val warnings: List<ActionLog>,
     )
 
     /**
@@ -115,24 +124,22 @@ class PreviewFunction(
      * Main logic of the Azure function. Useful for unit testing.
      */
     fun processRequest(parameters: FunctionParameters): PreviewResponseMessage.Success {
-        val warnings = mutableListOf<ActionLog>()
-        return readReport(parameters, warnings)
-            .translate(parameters, warnings)
-            .buildResponse(parameters, warnings)
+        return readReport(parameters)
+            .translate(parameters)
+            .buildResponse(parameters)
     }
 
     /**
      * Read and parse the preview reports
      */
-    private fun readReport(parameters: FunctionParameters, warnings: MutableList<ActionLog>): Report {
+    private fun readReport(parameters: FunctionParameters): ResultWithWarnings {
         return try {
             val readResult = workflowEngine.parseReport(
                 parameters.sender,
                 parameters.previewMessage.inputContent,
                 emptyMap()
             )
-            warnings.addAll(readResult.actionLogs.warnings)
-            readResult.report
+            ResultWithWarnings(readResult.report, readResult.actionLogs.warnings)
         } catch (ae: ActionError) {
             badRequest("Unable to parse input report", errors = ae.details)
         }
@@ -141,29 +148,31 @@ class PreviewFunction(
     /**
      * Translate a report into a preview report
      */
-    private fun Report.translate(parameters: FunctionParameters, warnings: MutableList<ActionLog>): Report {
-        val routedReport = workflowEngine.translator.filterAndTranslateForReceiver(
-            input = this,
+    private fun ResultWithWarnings.translate(parameters: FunctionParameters): ResultWithWarnings {
+        val routedReportResult = workflowEngine.translator.filterAndTranslateForReceiver(
+            input = this.report,
             defaultValues = emptyMap(),
             receiver = parameters.receiver,
-            warnings = warnings
-        ) ?: badRequest("Unable to translate the report. May not match filters", warnings = warnings)
-        return routedReport.report
+        )
+        if (routedReportResult.reports.isEmpty()) {
+            badRequest(
+                message = "Unable to translate the report. May not match filters",
+                warnings = warnings + routedReportResult.details
+            )
+        }
+        return ResultWithWarnings(routedReportResult.reports.first().report, this.warnings)
     }
 
     /**
      * Build a preview response from a report and warnings
      */
-    private fun Report.buildResponse(
-        parameters: FunctionParameters,
-        warnings: List<ActionLog>
-    ): PreviewResponseMessage.Success {
-        val content = String(workflowEngine.blob.createBodyBytes(this))
+    private fun ResultWithWarnings.buildResponse(parameters: FunctionParameters): PreviewResponseMessage.Success {
+        val content = String(workflowEngine.blob.createBodyBytes(this.report))
         val externalName = Report.formFilename(
-            id,
-            schema.name,
-            bodyFormat,
-            createdDateTime,
+            report.id,
+            report.schema.name,
+            report.bodyFormat,
+            report.createdDateTime,
             parameters.receiver.translation,
             workflowEngine.metadata
         )
