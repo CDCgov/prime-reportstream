@@ -1117,6 +1117,7 @@ elements:
 
   - name: observation_result_status
     type: ID
+    default: F
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: OBX-11
@@ -1124,6 +1125,7 @@ elements:
 
   - name: order_result_status
     type: ID
+    default: F
     natFlatFileField: Order_result_status
     hhsGuidanceField:
     hl7Field: OBR-25
