@@ -6,6 +6,8 @@ on:
       - master
       - production
 
+concurrency: ${{ github.ref }}-gh-release
+
 jobs:
   wf_vars:
     name: Set workflow variables
