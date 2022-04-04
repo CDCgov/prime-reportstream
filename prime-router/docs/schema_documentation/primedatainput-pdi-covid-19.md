@@ -148,6 +148,8 @@ unique id to track the usage of the message
 
 **PII**: No
 
+**Default Value**: F
+
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -176,6 +178,8 @@ X|Results cannot be obtained for this observation|HL7
 **Type**: ID
 
 **PII**: No
+
+**Default Value**: F
 
 **Cardinality**: [0..1]
 
