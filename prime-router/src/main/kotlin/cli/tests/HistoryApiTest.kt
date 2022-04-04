@@ -17,9 +17,9 @@ import java.net.HttpURLConnection
 import java.time.OffsetDateTime
 
 data class ExpectedSubmissionHistory(
-    val taskId: Int,
-    val createdAt: OffsetDateTime,
-    val sendingOrg: String,
+    val submissionId: Int,
+    val timestamp: OffsetDateTime,
+    val sender: String,
     val httpStatus: Int,
     val id: ReportId?,
     val topic: String?,
@@ -56,7 +56,7 @@ class HistoryApiTest : CoolTest() {
             OktaCommand.fetchAccessToken(environment.oktaApp)
                 ?: abort(
                     "Cannot run test $name.  Invalid access token. " +
-                        "Run ./prime login to fetch/refresh your access token for the $environment environment."
+                        "Run ./prime login to fetch/refresh a PrimeAdmin access token for the $environment environment."
                 )
         }
     }
@@ -183,7 +183,7 @@ class HistoryApiTest : CoolTest() {
         val testCases = mutableListOf(
             SubmissionAPITestCase(
                 "simple history API happy path test",
-                "${environment.url}/api/history/$historyTestOrgName/submissions",
+                "${environment.url}/api/waters/org/$historyTestOrgName/submissions",
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
@@ -192,7 +192,7 @@ class HistoryApiTest : CoolTest() {
             ),
             SubmissionAPITestCase(
                 "no such organization",
-                "${environment.url}/api/history/gobblegobble/submissions",
+                "${environment.url}/api/waters/org/gobblegobble/submissions",
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
@@ -204,11 +204,11 @@ class HistoryApiTest : CoolTest() {
             testCases.add(
                 SubmissionAPITestCase(
                     "bad bearer token - TESTED ON STAGING, NOT TESTED ON LOCAL",
-                    "${environment.url}/api/history/$historyTestOrgName/submissions",
+                    "${environment.url}/api/waters/org/$historyTestOrgName/submissions",
                     emptyMap(),
                     listOf("pagesize" to options.submits),
                     bearer + "x",
-                    HttpStatus.SERVICE_UNAVAILABLE,
+                    HttpStatus.UNAUTHORIZED,
                     expectedReports = emptySet(),
                 ),
             )

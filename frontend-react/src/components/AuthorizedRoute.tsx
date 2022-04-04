@@ -3,8 +3,7 @@ import React from "react";
 import { Redirect } from "react-router-dom";
 import { SecureRoute, useOktaAuth } from "@okta/okta-react";
 
-import { permissionCheck } from "../webreceiver-utils";
-import { PERMISSIONS } from "../resources/PermissionsResource";
+import { PERMISSIONS, permissionCheck } from "../utils/PermissionsUtils";
 
 export const AuthorizedRoute = ({
     component: Component,
@@ -12,15 +11,18 @@ export const AuthorizedRoute = ({
     ...rest
 }) => {
     const { authState } = useOktaAuth();
+    const adminOverride = permissionCheck(
+        PERMISSIONS.PRIME_ADMIN,
+        authState?.accessToken
+    );
     return (
         <SecureRoute
             {...rest}
             render={(props) => {
-                /* TODO: Refactor this to support many args when refactoring permissions layer! */
-
                 if (
-                    permissionCheck(PERMISSIONS.PRIME_ADMIN, authState) ||
-                    permissionCheck(permission, authState)
+                    authState?.accessToken &&
+                    (adminOverride ||
+                        permissionCheck(permission, authState.accessToken))
                 ) {
                     // permission authorized -> render component
                     return <Component {...props} />;

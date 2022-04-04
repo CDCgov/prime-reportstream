@@ -992,7 +992,8 @@
       jurisdictionalFilter:
         - "orEquals(ordering_facility_state, NM, patient_state, NM)"
       qualityFilter: null
-      routingFilter: null
+      routingFilter:
+        - "DoesNotMatch(sender_id, pmg)" #do not send PMG until NM completes validation
       processingModeFilter: null
   receivers:
     - name: elr
@@ -1388,6 +1389,8 @@
       customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, CA, patient_state, CA)
+      routingFilter:
+        - "DoesNotMatch(sender_id, pmg)" #do not send PMG until NM completes validation
       reverseTheQualityFilter: false
       translation:
         type: HL7
@@ -1417,6 +1420,8 @@
       customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, CA, patient_state, CA)
+      routingFilter:
+        - "DoesNotMatch(sender_id, pmg)" #do not send PMG until NM completes validation
       reverseTheQualityFilter: true
       translation:
         type: HL7
@@ -1837,27 +1842,6 @@
         defaults:
           processing_mode_code: T
         format: CSV
-
-- name: md-doh
-  description: Maryland
-  jurisdiction: STATE
-  stateCode: MD
-  receivers:
-    - name: elr
-      organizationName: md-doh
-      topic: covid-19
-      customerStatus: active
-      jurisdictionalFilter:
-        - orEquals(patient_state, MD, ordering_facility_state, MD)
-      translation:
-        type: HL7
-        schemaName: covid-19
-        useBatchHeaders: true
-      timing:
-        operation: MERGE
-        numberPerDay: 1440
-        initialTime: 00:00
-        timeZone: EASTERN
 
 - name: md-phd
   description: Maryland Public Health Department
@@ -3188,7 +3172,7 @@
         receivingFacilityName: dn1fro00
         receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
         suppressQstForAoe: true
-        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3, OBR-25-2, OBR-25-3, OBX-2-2, OBX-2-3, OBX-11-2, OBX-11-3
+        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         replaceValueAwithB:
           MSH-3: ["PHX.ProviderReportingService":
                      "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO",
@@ -3231,7 +3215,7 @@
         receivingFacilityName: dn1fro00
         receivingFacilityOID: 1.3.6.1.4.1.38630.2.1.1.19
         suppressQstForAoe: true
-        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3, OBR-25-2, OBR-25-3, OBX-2-2, OBX-2-3, OBX-11-2, OBX-11-3
+        suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         replaceValueAwithB:
           MSH-3: ["PHX.ProviderReportingService":
                     "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO",

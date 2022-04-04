@@ -30,6 +30,7 @@ export const TextInputComponent = (params: {
                     defaultValue={params.defaultvalue || ""}
                     data-testid={key}
                     maxLength={255}
+                    className="rs-textarea-json-input"
                     onChange={(e) => params.savefunc(e?.target?.value || "")}
                     disabled={params.disabled}
                 />
@@ -72,6 +73,7 @@ export const TextAreaComponent = (params: {
                     name={key}
                     defaultValue={defaultValue}
                     data-testid={key}
+                    className="rs-textarea-json-input"
                     onBlur={(e) => {
                         const text =
                             e?.target?.value || (defaultnullvalue as string);
