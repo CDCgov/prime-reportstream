@@ -564,6 +564,20 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         help = "Force the creation of new table(s) even if it is already exist"
     ).flag()
 
+    companion object {
+        /**
+         * Maximum number of table columns allowed to be displayed by default.  If a table exceeds this then the user
+         * must use the --show-table option to show the raw table.
+         */
+        private const val SMALL_TABLE_MAX_COLS = 7
+
+        /**
+         * Maximum number of table rows allowed to be displayed by default.  If a table exceeds this then the user
+         * must use the --show-table option to show the raw table.
+         */
+        private const val SMALL_TABLE_MAX_ROWS = 50
+    }
+
     override fun run() {
         // Read the input file.
         val inputData = csvReader().readAllWithHeader(inputFile)
@@ -575,7 +589,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         }
 
         // Output the data for review specified.
-        val isLargeTable = inputData.size > 50 || inputData[0].keys.size > 7
+        val isLargeTable = inputData.size > SMALL_TABLE_MAX_ROWS || inputData[0].keys.size > SMALL_TABLE_MAX_COLS
         // Display the table when not silent, plus display it only if it is a small table unless told otherwise.
         if (!silent && (showTable || !isLargeTable)) {
             TermUi.echo("Here is the table data to be created:")
