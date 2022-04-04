@@ -59,6 +59,71 @@ class ReportFunction(
     )
 
     /**
+     * NEEDS CLEANUP - this is a test of a /verify endpoint for checking quality filters
+     *
+     */
+    @FunctionName("verify")
+    @StorageAccount("AzureWebJobsStorage")
+    fun verify(
+        @HttpTrigger(
+            name = "req",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.FUNCTION
+        ) request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        val senderName = extractClient(request)
+        if (senderName.isBlank())
+            return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
+
+        // Sender should eventually be obtained directly from who is authenticated
+        val sender = workflowEngine.settings.findSender(senderName)
+            ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
+        actionHistory.trackActionParams(request)
+
+        var response = request.createResponseBuilder(HttpStatus.BAD_REQUEST).build()
+
+        try {
+            val validatedRequest = validateRequest(request)
+
+            val (report, actionLogs) = workflowEngine.parseReport(
+                sender,
+                validatedRequest.content,
+                validatedRequest.defaults,
+            )
+
+            logger.info(actionLogs.toString())
+
+            val filterResults = workflowEngine.verifyQualityFilter(
+                report,
+                validatedRequest.defaults,
+                validatedRequest.routeTo
+            )
+
+            response = request.createResponseBuilder(HttpStatus.CREATED)
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .body(
+                    JacksonMapperUtilities.allowUnknownsMapper
+                        .writerWithDefaultPrettyPrinter()
+                        .writeValueAsString(filterResults)
+                )
+                .header(
+                    HttpHeaders.LOCATION,
+                    request.uri.resolve(
+                        "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
+                    ).toString()
+                )
+                .build()
+        } catch (ex: Exception) {
+            if (ex.message != null)
+                logger.error(ex.message!!, ex)
+            else
+                logger.error(ex)
+            HttpUtilities.internalErrorResponse(request)
+        }
+        return response
+    }
+
+    /**
      * POST a report to the router
      *
      * @see ../../../docs/api/reports.yml

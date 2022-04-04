@@ -405,6 +405,34 @@ class WorkflowEngine(
         }
     }
 
+    fun verifyQualityFilter(
+        report: Report,
+        defaults: Map<String, String>,
+        routeTo: List<String>,
+    ): List<ReportStreamFilterResult> {
+        val (routedReports, warnings) = this.translator
+            .filterAndTranslateByReceiver(
+                report,
+                defaults,
+                routeTo,
+            )
+        logger.info(warnings.toString())
+
+        val qualityFilterLogs = routedReports.map {
+            it.report.filteringResults.filter() { rep ->
+                rep.filterType == ReportStreamFilterType.QUALITY_FILTER
+            }
+        }
+        // clean up / kotlinify the merging of lists
+        var list = mutableListOf<ReportStreamFilterResult>()
+
+        for (qualityFilterLog in qualityFilterLogs) {
+            qualityFilterLog.forEach { list.add(it) }
+        }
+
+        return list
+    }
+
     // routeReport does all filtering and translating per receiver, generating one file per receiver to then be batched
     fun routeReport(
         report: Report,
