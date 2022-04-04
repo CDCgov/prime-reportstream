@@ -3238,13 +3238,16 @@
         receiverId: p1as2
         senderId: CDCPRIMETEST
     - name: gaen
-      description: Google/Apple Exposure Notification
+      description: WA Notify - Google and Apple Exposure Notification
       organizationName: wa-phd
       topic: covid-19
       customerStatus: testing
       jurisdictionalFilter:
-        - matches(abnormal_flag, A)
-        - orEquals(ordering_facility_state, WA, patient_state, WA)
+      - matches(sender_id, simple_report.default)
+      - matches(abnormal_flag, A)
+      - matches(test_result_status, F)
+      - inDateInterval(date_result_released, now, -P19D) # WA Notify policy
+      - orEquals(ordering_facility_state, WA, patient_state, WA)
       timing: null
       translation:
         type: GAEN
