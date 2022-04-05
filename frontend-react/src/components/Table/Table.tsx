@@ -8,7 +8,7 @@ import {
 import React from "react";
 
 import { ICursorManager } from "../../hooks/UseCursorManager";
-import { FilterController } from "../../hooks/UseFilterManager";
+import { IFilterManager } from "../../hooks/UseFilterManager";
 
 export type SortOrder = "ASC" | "DESC";
 export interface TableRow {
@@ -34,7 +34,7 @@ export interface TableConfig {
 
 export interface TableProps {
     config: TableConfig;
-    filterManager: FilterController;
+    filterManager: IFilterManager;
     pageController?: ICursorManager;
 }
 
@@ -49,7 +49,7 @@ const Table = ({ config, filterManager, pageController }: TableProps) => {
                             <th
                                 key={colConfig.columnHeader}
                                 onClick={() =>
-                                    filterManager.setSortSettings(
+                                    filterManager.update.setSortSettings(
                                         colConfig.dataAttr
                                     )
                                 }
@@ -118,22 +118,27 @@ const Table = ({ config, filterManager, pageController }: TableProps) => {
     }
 
     return (
-        <>
-            <table>
-                <thead>
-                    <TableHeaders />
-                </thead>
-                <tbody>
-                    <TableRows />
-                </tbody>
-            </table>
-            {pageController ? (
-                <PaginationButtons
-                    values={pageController.values}
-                    controller={pageController.controller}
-                />
-            ) : null}
-        </>
+        <div className="grid-container margin-bottom-10">
+            <div className="grid-col-12">
+                <table
+                    className="usa-table usa-table--borderless prime-table"
+                    aria-label="Submission history from the last 30 days"
+                >
+                    <thead>
+                        <TableHeaders />
+                    </thead>
+                    <tbody className="font-mono-2xs">
+                        <TableRows />
+                    </tbody>
+                </table>
+                {pageController ? (
+                    <PaginationButtons
+                        values={pageController.values}
+                        controller={pageController.controller}
+                    />
+                ) : null}
+            </div>
+        </div>
     );
 };
 

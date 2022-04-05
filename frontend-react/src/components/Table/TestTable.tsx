@@ -8,23 +8,23 @@ import Table, { ColumnConfig, TableConfig } from "./Table";
 /* This component is specifically configured to help test the
  * Table component. Any  */
 export const TestTable = () => {
-    const { filters, update } = useFilterManager({
+    const filterManager = useFilterManager({
         sort: { order: "ASC", column: "two" },
     });
-    const paginator = useCursorManager("firstCursor");
+    const cursorManager = useCursorManager("firstCursor");
 
     /* Ensure there's at least 1 more cursor in the cursorMap
      * to test the Next/Prev buttons. In a real application
      * the effect would call addNextCursor when the API response
      * state changes. */
     useEffect(() => {
-        paginator.controller.addNextCursor("secondCursor");
-    }, [paginator.controller]);
+        cursorManager.controller.addNextCursor("secondCursor");
+    }, [cursorManager.controller]);
 
     /* Mocking the sort behavior that would normally be performed by the
      * API call */
     const fakeRows = useMemo(() => {
-        switch (filters.sort.order) {
+        switch (filterManager.filters.sort.order) {
             case "ASC":
                 return [
                     {
@@ -44,7 +44,7 @@ export const TestTable = () => {
                     },
                 ];
         }
-    }, [filters.sort]);
+    }, [filterManager.filters.sort]);
 
     /* Configuration objects to pass to <Table> */
     const fakeColumns: Array<ColumnConfig> = [
@@ -60,8 +60,8 @@ export const TestTable = () => {
     return (
         <Table
             config={config}
-            filterManager={update}
-            pageController={paginator}
+            filterManager={filterManager}
+            pageController={cursorManager}
         />
     );
 };

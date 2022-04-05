@@ -1,105 +1,49 @@
-import { useContext } from "react";
-import {
-    Button,
-    ButtonGroup,
-    IconNavigateBefore,
-    IconNavigateNext,
-} from "@trussworks/react-uswds";
-import { NavLink } from "react-router-dom";
+import { useResource } from "rest-hooks";
 
 import { PaginationController } from "../../hooks/UsePaginator";
 import { SubmissionFilterContext } from "../../contexts/FilterContext";
-
-/* Handles pagination button logic and display */
-function PaginationButtons({ paginator }: { paginator: PaginationController }) {
-    return (
-        <ButtonGroup type="segmented" className="float-right margin-top-5">
-            {paginator.hasPrev && (
-                <Button
-                    type="button"
-                    onClick={() =>
-                        paginator.changeCursor(paginator.currentIndex - 1)
-                    }
-                >
-                    <span>
-                        <IconNavigateBefore className="text-middle" />
-                        Previous
-                    </span>
-                </Button>
-            )}
-            {paginator.hasNext && (
-                <Button
-                    type="button"
-                    onClick={() =>
-                        paginator.changeCursor(paginator.currentIndex + 1)
-                    }
-                >
-                    <span>
-                        Next
-                        <IconNavigateNext className="text-middle" />
-                    </span>
-                </Button>
-            )}
-        </ButtonGroup>
-    );
-}
+import useFilterManager from "../../hooks/UseFilterManager";
+import useCursorManager from "../../hooks/UseCursorManager";
+import SubmissionsResource from "../../resources/SubmissionsResource";
+import { getStoredOrg } from "../../contexts/SessionStorageTools";
+import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 
 function SubmissionTable() {
-    /* The one-stop-shop for all things filters, pagination, and API responses! */
-    const { filters, paginator, contents } = useContext(
-        SubmissionFilterContext
+    const filterManager = useFilterManager();
+    const cursorManager = useCursorManager();
+
+    /* Our API call! Updates when any of the given state variables update */
+    const submissions: SubmissionsResource[] = useResource(
+        SubmissionsResource.list(),
+        {
+            organization: getStoredOrg(),
+            cursor: cursorManager.values.cursor,
+            endCursor: filterManager.filters.endRange,
+            pageSize: filterManager.filters.pageSize + 1, // Pulls +1 to check for next page
+            sort: filterManager.filters.sort.order,
+            showFailed: false, // No plans for this to be set to true
+        }
     );
 
-    /* Handles pagination button logic and display */
+    const columns: Array<ColumnConfig> = [
+        { dataAttr: "id", columnHeader: "Report ID" },
+        { dataAttr: "timestamp", columnHeader: "Date/time submitted" },
+        { dataAttr: "externalName", columnHeader: "File" },
+        { dataAttr: "reportItemCount", columnHeader: "Records" },
+        { dataAttr: "httpStatus", columnHeader: "Status" },
+    ];
+
+    const submissionsConfig: TableConfig = {
+        columns: columns,
+        rows: submissions,
+    };
 
     return (
-        <div className="grid-container margin-bottom-10">
-            <div className="grid-col-12">
-                <table
-                    className="usa-table usa-table--borderless prime-table"
-                    aria-label="Submission history from the last 30 days"
-                >
-                    <thead>
-                        <tr>
-                            <th scope="col">Report ID</th>
-                            <th scope="col">Date/time submitted</th>
-                            <th scope="col">File</th>
-                            <th scope="col">Records</th>
-                            <th scope="col">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tBody" className="font-mono-2xs">
-                        {contents.map((s, i) => {
-                            // Do not render the additional item pulled for measuring
-                            // whether the next page exists.
-                            if (i === filters.pageSize) return null;
-                            return (
-                                <tr key={s.pk()}>
-                                    <th scope="row">
-                                        <NavLink
-                                            to={`/submissions/${s.submissionId}`}
-                                        >
-                                            {s.id}
-                                        </NavLink>
-                                    </th>
-                                    {/* File name */}
-                                    <th scope="row">
-                                        {new Date(s.timestamp).toLocaleString()}
-                                    </th>
-                                    <th scope="row">{s.externalName}</th>
-                                    <th scope="row">{s.reportItemCount}</th>
-                                    <th scope="row">{"Success"}</th>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-                {contents?.length === 0 ? (
-                    <p>There were no results found.</p>
-                ) : null}
-                {paginator ? <PaginationButtons paginator={paginator} /> : null}
-            </div>
-        </div>
+        <Table
+            config={submissionsConfig}
+            filterManager={filterManager}
+            pageController={cursorManager}
+        />
     );
 }
 
