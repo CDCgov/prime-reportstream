@@ -163,6 +163,18 @@ class Report : Logging {
     val itemCount: Int get() = this.table.rowCount()
 
     /**
+     * The number of items that passed the jurisdictionalFilter for this report, prior to
+     * other filtering.  This is purely informational.   It is >= the actual number of items
+     * in the report.  This is only useful for reports created by the routing step.
+     * In all other cases, this value can be confusing, for example after batching has occurred.
+     * So in all other cases, we set it to null.
+     *
+     * Example usage: if during filtering 10 items passed the juris filter for Kentucky, but then only 3 passed
+     * the qualityFilter, this report would have [itemCountPreQualityFilter] = 10 and [itemCount] = 3.
+     */
+    var itemCountPreQualityFilter: Int? = null
+
+    /**
      * The set of parent -> child lineage items associated with this report.
      * The items in *this* report are the *child* items.
      * There should be `itemCount` items in this List, or it should be null.
@@ -295,7 +307,8 @@ class Report : Logging {
         destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
-        metadata: Metadata? = null
+        metadata: Metadata? = null,
+        itemCountBeforeQualityFilter: Int? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -306,6 +319,7 @@ class Report : Logging {
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.metadata = metadata ?: Metadata.getInstance()
+        this.itemCountPreQualityFilter = itemCountBeforeQualityFilter
     }
 
     @Suppress("Destructure")
@@ -439,7 +453,9 @@ class Report : Logging {
             this.schema,
             filteredTable,
             fromThisReport("filter: $filterFunctions"),
-            metadata = this.metadata
+            metadata = this.metadata,
+            // copy from previous filter; avoid losing info during filtering steps subsequent to quality filter.
+            itemCountBeforeQualityFilter = this.itemCountPreQualityFilter
         )
         // Write same info to our logs that goes in the json response obj
         if (doLogging)

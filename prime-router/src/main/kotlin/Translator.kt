@@ -106,6 +106,11 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         // ok to just return null, we don't need any info about what was eliminated.
         if (jurisFilteredReport.isEmpty()) return null
 
+        // keep track of how many items passed the juris filter prior to quality filtering.
+        // For informational/reporting purposes only.
+        // Normally this value is passed from parent to child Report, like mitochondrial DNA.  This overrides that.
+        jurisFilteredReport.itemCountPreQualityFilter = jurisFilteredReport.itemCount
+
         // Do qualityFiltering on the jurisFilteredReport
         val qualityFilteredReport = filterByOneFilterType(
             jurisFilteredReport,
