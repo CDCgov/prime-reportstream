@@ -2797,3 +2797,19 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 ---
+
+**Name**: testing_lab_specimen_id
+
+**ReportStream Internal Name**: testing_lab_specimen_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The specimen-id from the testing lab
+
+---
