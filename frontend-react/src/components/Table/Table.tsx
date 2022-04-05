@@ -8,15 +8,11 @@ import {
 import React from "react";
 
 import { ICursorManager } from "../../hooks/UseCursorManager";
+import { FilterController } from "../../hooks/UseFilterManager";
 
 export type SortOrder = "ASC" | "DESC";
 export interface TableRow {
     [key: string]: any;
-}
-
-export interface SortDefinition {
-    attribute: string;
-    order: SortOrder;
 }
 
 /* ColumnConfig tells the Table element how to render each column, including the
@@ -38,11 +34,11 @@ export interface TableConfig {
 
 export interface TableProps {
     config: TableConfig;
-    sortManager: () => void;
+    filterManager: FilterController;
     pageController?: ICursorManager;
 }
 
-const Table = ({ config, sortManager, pageController }: TableProps) => {
+const Table = ({ config, filterManager, pageController }: TableProps) => {
     /* Renders the header row of the table from columns.values() */
     const TableHeaders = () => {
         return (
@@ -52,7 +48,7 @@ const Table = ({ config, sortManager, pageController }: TableProps) => {
                         return (
                             <th
                                 key={colConfig.columnHeader}
-                                onClick={() => sortManager()}
+                                onClick={() => filterManager.swapSortOrder()}
                             >
                                 {colConfig.columnHeader}
                             </th>

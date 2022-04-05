@@ -13,7 +13,7 @@ import { getStoredOrg } from "./SessionStorageTools";
 
 /* Convenient type aliases */
 type SortOrder = "ASC" | "DESC";
-type PageSize = 10 | 25 | 50 | 100;
+export type PageSize = 10 | 25 | 50 | 100;
 type FilterTypes = string | SortOrder | PageSize;
 
 type StateUpdater = (filter: FilterName, val?: FilterTypes) => void;
