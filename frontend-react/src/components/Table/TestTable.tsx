@@ -8,7 +8,9 @@ import Table, { ColumnConfig, TableConfig } from "./Table";
 /* This component is specifically configured to help test the
  * Table component. Any  */
 export const TestTable = () => {
-    const { filters, update } = useFilterManager({ sortOrder: "ASC" });
+    const { filters, update } = useFilterManager({
+        sort: { order: "ASC", column: "two" },
+    });
     const paginator = useCursorManager("firstCursor");
 
     /* Ensure there's at least 1 more cursor in the cursorMap
@@ -22,7 +24,7 @@ export const TestTable = () => {
     /* Mocking the sort behavior that would normally be performed by the
      * API call */
     const fakeRows = useMemo(() => {
-        switch (filters.sortOrder) {
+        switch (filters.sort.order) {
             case "ASC":
                 return [
                     {
@@ -42,7 +44,7 @@ export const TestTable = () => {
                     },
                 ];
         }
-    }, [filters.sortOrder]);
+    }, [filters.sort]);
 
     /* Configuration objects to pass to <Table> */
     const fakeColumns: Array<ColumnConfig> = [

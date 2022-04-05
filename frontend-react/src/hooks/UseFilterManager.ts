@@ -5,17 +5,22 @@ import { PageSize } from "../contexts/FilterContext";
 
 export type StateUpdate<T> = React.Dispatch<React.SetStateAction<T>>;
 
+interface SortSettings {
+    column: string;
+    order: SortOrder;
+}
+
 export interface FilterState {
     startRange: string;
     endRange: string;
-    sortOrder: SortOrder;
+    sort: SortSettings;
     pageSize: PageSize;
 }
 
 export interface FilterController {
     setStartRange: StateUpdate<string>;
     setEndRange: StateUpdate<string>;
-    swapSortOrder: () => void;
+    setSortSettings: (col: string) => void;
     setPageSize: StateUpdate<PageSize>;
 }
 
@@ -27,19 +32,27 @@ export interface IFilterManager {
 const useFilterManager = (init?: Partial<FilterState>): IFilterManager => {
     const [startRange, setStartRange] = useState(init?.startRange || "");
     const [endRange, setEndRange] = useState(init?.endRange || "");
-    const [sortOrder, setSortOrder] = useState<SortOrder>(
-        init?.sortOrder || "DESC"
+    const [sort, setSort] = useState<SortSettings>(
+        init?.sort || { column: "", order: "DESC" }
     );
     const [pageSize, setPageSize] = useState<PageSize>(init?.pageSize || 10);
 
-    const swapSortOrder = () => {
-        switch (sortOrder) {
-            case "DESC":
-                setSortOrder("ASC");
-                break;
-            case "ASC":
-                setSortOrder("DESC");
-                break;
+    const setSortSettings = (col: string, order?: SortOrder) => {
+        if (sort.column === col) {
+            /* If the user isn't changing sort column, they're swapping
+             * sort order. */
+            switch (sort.order) {
+                case "DESC":
+                    setSort({ column: col, order: order || "ASC" });
+                    break;
+                case "ASC":
+                    setSort({ column: col, order: order || "DESC" });
+                    break;
+            }
+        } else {
+            /* Else, the user has selected a new column, and the current
+             * sort order will apply to the new column */
+            setSort({ column: col, order: order || sort.order });
         }
     };
 
@@ -47,13 +60,13 @@ const useFilterManager = (init?: Partial<FilterState>): IFilterManager => {
         filters: {
             startRange,
             endRange,
-            sortOrder,
+            sort,
             pageSize,
         },
         update: {
             setStartRange,
             setEndRange,
-            swapSortOrder,
+            setSortSettings,
             setPageSize,
         },
     };

@@ -48,7 +48,11 @@ const Table = ({ config, filterManager, pageController }: TableProps) => {
                         return (
                             <th
                                 key={colConfig.columnHeader}
-                                onClick={() => filterManager.swapSortOrder()}
+                                onClick={() =>
+                                    filterManager.setSortSettings(
+                                        colConfig.dataAttr
+                                    )
+                                }
                             >
                                 {colConfig.columnHeader}
                             </th>
