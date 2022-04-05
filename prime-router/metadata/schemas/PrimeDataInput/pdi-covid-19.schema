@@ -55,10 +55,10 @@ elements:
     csvFields: [{name: Test_correction_reason}]
 
   - name: placer_order_id
-    mapper: use(message_id)
+    mapper: use(previous_message_id, message_id)
 
   - name: filler_order_id
-    mapper: use(message_id)
+    mapper: use(previous_message_id, message_id)
 
   # Optional until SimpleReport team provides this.
   - name: test_result_status
