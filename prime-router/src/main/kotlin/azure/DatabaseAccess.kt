@@ -150,12 +150,14 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         txn: DataAccessTransaction? = null
     ): Boolean {
         val ctx = if (txn != null) DSL.using(txn) else create
+        val weekAgo = OffsetDateTime.now().minusDays(7)
         return ctx
             .fetchExists(
                 ctx.selectFrom(REPORT_FILE)
                     .where(REPORT_FILE.SENDING_ORG.eq(senderOrgName))
                     .and(REPORT_FILE.SENDING_ORG_CLIENT.eq(senderName))
                     .and(REPORT_FILE.BLOB_DIGEST.eq(digest))
+                    .and(REPORT_FILE.CREATED_AT.greaterOrEqual(weekAgo))
             )
     }
 

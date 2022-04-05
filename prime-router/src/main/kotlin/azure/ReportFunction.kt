@@ -336,7 +336,7 @@ class ReportFunction(
         allItemsDupe: Boolean
     ) {
         if (rowNum != null) {
-            actionLogs.getItemLogger(rowNum).error(DuplicateItemMessage())
+            actionLogs.getItemLogger(rowNum).error(DuplicateItemMessage(rowNum))
         } else {
             // duplicate files are always an error, never a warning
             actionLogs.error(DuplicateFileMessage(payloadName, allItemsDupe))

@@ -159,7 +159,7 @@ class DuplicateFileMessage(private val payloadName: String?, private val allItem
 /**
  * A [message] for a duplicate item within a report
  */
-class DuplicateItemMessage() : ActionLogDetail {
+class DuplicateItemMessage(private val rowNum: Int) : ActionLogDetail {
     override val scope = ActionLogScope.item
-    override val message = "Item is a duplicate."
+    override val message = "Item $rowNum is a duplicate."
 }
