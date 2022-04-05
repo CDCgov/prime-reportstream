@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-globals */
 import { ReactElement } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 
 import { CODES, ErrorPage } from "./ErrorPage";
 
@@ -30,40 +30,42 @@ describe("testing ErrorPage", () => {
 
     // actual tests
     it("checks basic error", () => {
-        const { getAllByText, queryByText } = render(
+        render(
             <ErrorPage>
                 <div>child component</div>
             </ErrorPage>
         );
 
         expect(
-            getAllByText(/application has encountered an unknown error/i)
-        ).toBeDefined();
-        expect(queryByText(/child component/i)).toBe(null);
+            screen.getByText(/application has encountered an unknown error/i)
+        ).toBeInTheDocument();
+        expect(screen.queryByText(/child component/i)).not.toBeInTheDocument();
     });
 
     it("check UNSUPPORTED_BROWSER", () => {
-        const { getByText, queryByText } = render(
+        render(
             <ErrorPage code={CODES.UNSUPPORTED_BROWSER}>
                 <div>child component</div>
             </ErrorPage>
         );
-        expect(getByText(/does not support your browser/i)).toBeDefined();
-        expect(queryByText(/child component/i)).toBe(null);
+        expect(
+            screen.getByText(/does not support your browser/i)
+        ).toBeInTheDocument();
+        expect(screen.queryByText(/child component/i)).not.toBeInTheDocument();
     });
 
     it("check NOT_FOUND_404", () => {
-        const { getByText, queryByText } = render(
+        render(
             <ErrorPage code={CODES.NOT_FOUND_404}>
                 <div>child component</div>
             </ErrorPage>
         );
-        expect(getByText(/Page not found/i)).toBeDefined();
-        expect(queryByText(/child component/i)).toBe(null);
+        expect(screen.getByText(/Page not found/i)).toBeInTheDocument();
+        expect(screen.queryByText(/child component/i)).not.toBeInTheDocument();
     });
 
     it("NetworkErrorBoundary 500", () => {
-        const { getByText, queryByText } = render(
+        render(
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="page" />}
             >
@@ -71,9 +73,9 @@ describe("testing ErrorPage", () => {
                 <div>never renders</div>
             </NetworkErrorBoundary>
         );
-        expect(queryByText(/never renders/i)).toBe(null);
+        expect(screen.queryByText(/never renders/i)).not.toBeInTheDocument();
         expect(
-            getByText(/application has encountered an unknown error/i)
-        ).toBeDefined();
+            screen.getByText(/application has encountered an unknown error/i)
+        ).toBeInTheDocument();
     });
 });

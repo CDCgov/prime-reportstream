@@ -44,18 +44,18 @@ describe("Basic rendering", () => {
                 errorMsg: "Organization is a required",
             },
         ];
-        const submitBtn = await screen.getByTestId("submit");
+        const submitBtn = screen.getByTestId("submit");
 
         for (const eachItem of DATA) {
             // clear item, click submit, make sure error is there.
-            const inputField = await screen.getByTestId(eachItem.dataTestId);
+            const inputField = screen.getByTestId(eachItem.dataTestId);
 
             // fireEvent.change(inputField, {target: {value: " "}});
             fireEvent.change(inputField, { target: { value: "" } });
 
             userEvent.click(submitBtn);
             expect(
-                screen.queryByText(eachItem.errorMsg, { exact: false })
+                screen.getByText(eachItem.errorMsg, { exact: false })
             ).toBeInTheDocument();
 
             // now fill in and see if error messag is cleared
@@ -72,7 +72,7 @@ describe("Basic rendering", () => {
 
             userEvent.click(submitBtn);
             expect(
-                screen.queryByText(eachItem.errorMsg, { exact: false })
+                screen.getByText(eachItem.errorMsg, { exact: false })
             ).toBeInTheDocument();
         }
 
