@@ -3,7 +3,8 @@ import { CacheProvider } from "rest-hooks";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import App from "./App";
-import "./global.scss";
+// compiled css so the resources process for the static site by the compiler
+import "./content/generated/global.out.css";
 import SessionProvider from "./contexts/SessionStorageContext";
 
 ReactDOM.render(

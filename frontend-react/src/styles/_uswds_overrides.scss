@@ -88,14 +88,10 @@ main {
   line-height: units(4);
 }
 
-.usa-process-list__heading {
-  @include u-font('sans', 'md');
-}
-
 // ALERT
 
 .usa-site-alert {
-  
+
   .usa-alert__heading {
     font-size: size('body', 'md');
   }

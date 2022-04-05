@@ -8,7 +8,8 @@ import useSessionStorage, {
 export const SessionStorageContext = createContext<SessionController>({
     values: {},
     updateSessionStorage: (store: Partial<SessionStore>) => {
-        console.log("to please SonarCloud");
+        // Never gets called, just used store to please the linter
+        console.log(`${store}`);
     },
 });
 
