@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 
-import { SortOrder } from "../components/Table/Table";
-import { PageSize } from "../contexts/FilterContext";
-
+type SortOrder = "ASC" | "DESC";
+export type PageSize = 10 | 25 | 50 | 100;
 export type StateUpdate<T> = React.Dispatch<React.SetStateAction<T>>;
 
 interface SortSettings {
@@ -22,6 +21,7 @@ export interface FilterController {
     setEndRange: StateUpdate<string>;
     setSortSettings: (col: string) => void;
     setPageSize: StateUpdate<PageSize>;
+    clearAll: () => void;
 }
 
 export interface IFilterManager {
@@ -56,6 +56,13 @@ const useFilterManager = (init?: Partial<FilterState>): IFilterManager => {
         }
     };
 
+    const clearAll = () => {
+        setStartRange("");
+        setEndRange("");
+        setSort({ column: "", order: "DESC" });
+        setPageSize(10);
+    };
+
     return {
         filters: {
             startRange,
@@ -68,6 +75,7 @@ const useFilterManager = (init?: Partial<FilterState>): IFilterManager => {
             setEndRange,
             setSortSettings,
             setPageSize,
+            clearAll,
         },
     };
 };

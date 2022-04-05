@@ -61,7 +61,7 @@ export const TestTable = () => {
         <Table
             config={config}
             filterManager={filterManager}
-            pageController={cursorManager}
+            cursorManager={cursorManager}
         />
     );
 };

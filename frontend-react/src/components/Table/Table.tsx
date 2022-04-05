@@ -10,7 +10,6 @@ import React from "react";
 import { ICursorManager } from "../../hooks/UseCursorManager";
 import { IFilterManager } from "../../hooks/UseFilterManager";
 
-export type SortOrder = "ASC" | "DESC";
 export interface TableRow {
     [key: string]: any;
 }
@@ -35,10 +34,10 @@ export interface TableConfig {
 export interface TableProps {
     config: TableConfig;
     filterManager: IFilterManager;
-    pageController?: ICursorManager;
+    cursorManager?: ICursorManager;
 }
 
-const Table = ({ config, filterManager, pageController }: TableProps) => {
+const Table = ({ config, filterManager, cursorManager }: TableProps) => {
     /* Renders the header row of the table from columns.values() */
     const TableHeaders = () => {
         return (
@@ -131,10 +130,10 @@ const Table = ({ config, filterManager, pageController }: TableProps) => {
                         <TableRows />
                     </tbody>
                 </table>
-                {pageController ? (
+                {cursorManager ? (
                     <PaginationButtons
-                        values={pageController.values}
-                        controller={pageController.controller}
+                        values={cursorManager.values}
+                        controller={cursorManager.controller}
                     />
                 ) : null}
             </div>

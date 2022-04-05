@@ -1,15 +1,26 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Button, DatePicker, Label } from "@trussworks/react-uswds";
 
 import "./SubmissionPages.css";
-import {
-    FilterName,
-    SubmissionFilterContext,
-} from "../../contexts/FilterContext";
+import { IFilterManager } from "../../hooks/UseFilterManager";
+import { ICursorManager } from "../../hooks/UseCursorManager";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
     DATE_CONTAINER = "date-picker-container",
+}
+
+export enum FilterName {
+    START_RANGE = "start-range",
+    END_RANGE = "end-range",
+    CURSOR = "cursor",
+    SORT_ORDER = "sort-order",
+    PAGE_SIZE = "page-size",
+}
+
+interface SubmissionFilterProps {
+    filterManager: IFilterManager;
+    cursorManager: ICursorManager;
 }
 
 /* This component contains the UI for selecting query parameters.
@@ -18,11 +29,10 @@ export enum StyleClass {
  * table component contains the call and param passing to the API,
  * and will use the context to get these values.
  */
-function SubmissionFilters() {
-    const { updateFilter, clear, paginator } = useContext(
-        SubmissionFilterContext
-    );
-
+function SubmissionFilters({
+    filterManager,
+    cursorManager,
+}: SubmissionFilterProps) {
     /* Local state to hold values before pushing to context. Pushing to context
      * will trigger a re-render due to the API call fetching new data. We have local
      * state to hold these so updates don't render immediately after setting a filter */
@@ -30,42 +40,38 @@ function SubmissionFilters() {
     const [localEndRange, setLocalEndRange] = useState<string>();
 
     /* This workhorse function handles all Context changes with null checking */
-    const pushToContext = () => {
+    const updateRange = () => {
         if (localStartRange && localEndRange) {
             const srDate = new Date(localStartRange);
             const erDate = new Date(localEndRange);
 
             if (srDate < erDate) {
-                updateFilter(FilterName.START_RANGE, erDate.toISOString());
-                updateFilter(FilterName.END_RANGE, srDate.toISOString());
+                filterManager.update.setStartRange(erDate.toISOString());
+                filterManager.update.setEndRange(srDate.toISOString());
             } else {
-                updateFilter(FilterName.START_RANGE, srDate.toISOString());
-                updateFilter(FilterName.END_RANGE, erDate.toISOString());
+                filterManager.update.setStartRange(srDate.toISOString());
+                filterManager.update.setEndRange(erDate.toISOString());
             }
         } else if (localStartRange && !localEndRange) {
-            updateFilter(
-                FilterName.START_RANGE,
-                new Date(localStartRange).toISOString()
-            );
+            const date = new Date(localStartRange);
+            filterManager.update.setStartRange(date.toISOString());
         } else if (localEndRange && !localStartRange) {
-            updateFilter(
-                FilterName.START_RANGE,
-                new Date(localEndRange).toISOString()
-            );
+            const date = new Date(localEndRange);
+            filterManager.update.setStartRange(date.toISOString());
         }
     };
 
     /* Pushes local state to context and resets cursor to page 1 */
-    const applyToContext = () => {
-        pushToContext();
-        if (paginator?.resetCursors) paginator.resetCursors();
-        if (paginator?.changeCursor) paginator.changeCursor(1);
+    const applyToFilterManager = () => {
+        updateRange();
+        cursorManager.controller.reset();
+        cursorManager.controller.goTo(0);
     };
 
-    /* Clears context and local state values */
+    /* Clears manager and local state values */
     const clearAll = () => {
-        // Clear context
-        if (clear) clear();
+        // Clears manager state
+        filterManager.update.clearAll();
 
         // Clear local state
         setLocalLocalStartRange("");
@@ -103,7 +109,7 @@ function SubmissionFilters() {
                 />
             </div>
             <div className={StyleClass.DATE_CONTAINER}>
-                <Button onClick={() => applyToContext()} type={"button"}>
+                <Button onClick={() => applyToFilterManager()} type={"button"}>
                     Filter
                 </Button>
             </div>

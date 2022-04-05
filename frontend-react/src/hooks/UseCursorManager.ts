@@ -13,6 +13,7 @@ interface ICursorValues {
 interface ICursorController {
     addNextCursor: (val: string) => void;
     goTo: (i: number) => void;
+    reset: () => void;
 }
 
 interface ICursorManager {
@@ -66,6 +67,10 @@ const useCursorManager = (firstCursor?: string) => {
         }
     };
 
+    const resetCursors = () => {
+        setCursors(new Map<number, string>([[0, firstCursor || ""]]));
+    };
+
     /* Returning values and controllers as objects to keep them clean */
     const values: ICursorValues = useMemo(() => {
         return {
@@ -80,6 +85,7 @@ const useCursorManager = (firstCursor?: string) => {
     const controller: ICursorController = {
         addNextCursor: addNextCursor,
         goTo: goTo,
+        reset: resetCursors,
     };
 
     return { values, controller };

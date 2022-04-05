@@ -1,12 +1,13 @@
 import { useResource } from "rest-hooks";
+import { useEffect } from "react";
 
-import { PaginationController } from "../../hooks/UsePaginator";
-import { SubmissionFilterContext } from "../../contexts/FilterContext";
 import useFilterManager from "../../hooks/UseFilterManager";
 import useCursorManager from "../../hooks/UseCursorManager";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
+
+import SubmissionFilters from "./SubmissionFilters";
 
 function SubmissionTable() {
     const filterManager = useFilterManager();
@@ -25,6 +26,12 @@ function SubmissionTable() {
         }
     );
 
+    useEffect(() => {
+        cursorManager.controller.addNextCursor(
+            submissions[filterManager.filters.pageSize].timestamp
+        );
+    }, [submissions, cursorManager, filterManager]);
+
     const columns: Array<ColumnConfig> = [
         { dataAttr: "id", columnHeader: "Report ID" },
         { dataAttr: "timestamp", columnHeader: "Date/time submitted" },
@@ -39,11 +46,17 @@ function SubmissionTable() {
     };
 
     return (
-        <Table
-            config={submissionsConfig}
-            filterManager={filterManager}
-            pageController={cursorManager}
-        />
+        <>
+            <SubmissionFilters
+                filterManager={filterManager}
+                cursorManager={cursorManager}
+            />
+            <Table
+                config={submissionsConfig}
+                filterManager={filterManager}
+                cursorManager={cursorManager}
+            />
+        </>
     );
 }
 

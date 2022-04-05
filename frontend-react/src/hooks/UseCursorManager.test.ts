@@ -83,6 +83,19 @@ describe("useCursorManager", () => {
         expect(result.current.values.hasPrev).toBe(false);
     });
 
+    test("Reset sets cursors back to original state", () => {
+        const { result } = renderHook(() => useCursorManager("first"));
+        act(() => result.current.controller.addNextCursor("second"));
+        expect(result.current.values.cursors).toEqual(
+            new Map([
+                [0, "first"],
+                [1, "second"],
+            ])
+        );
+        act(() => result.current.controller.reset());
+        expect(result.current.values.cursors).toEqual(new Map([[0, "first"]]));
+    });
+
     test("Simulate selecting a new cursor", () => {
         const { result } = renderHook(() => useCursorManager());
         act(() => result.current.controller.addNextCursor("next cursor"));

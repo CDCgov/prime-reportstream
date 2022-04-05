@@ -1,6 +1,13 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import useFilterManager from "./UseFilterManager";
+import useFilterManager, { FilterState } from "./UseFilterManager";
+
+const emptyFilters: FilterState = {
+    startRange: "",
+    endRange: "",
+    sort: { column: "", order: "DESC" },
+    pageSize: 10,
+};
 
 describe("UseFilterManager", () => {
     test("Renders with default FilterState", () => {
@@ -30,5 +37,8 @@ describe("UseFilterManager", () => {
 
         act(() => result.current.update.setPageSize(50));
         expect(result.current.filters.pageSize).toEqual(50);
+
+        act(() => result.current.update.clearAll());
+        expect(result.current.filters).toEqual(emptyFilters);
     });
 });
