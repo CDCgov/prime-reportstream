@@ -60,6 +60,9 @@ elements:
   - name: filler_order_id
     mapper: use(previous_message_id, message_id)
 
+  - name: testing_lab_specimen_id
+    mapper: use(previous_message_id, message_id)
+
   # Optional until SimpleReport team provides this.
   - name: test_result_status
     default: F
