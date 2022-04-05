@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
+import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
@@ -79,28 +80,72 @@ class DetailedSubmissionHistory(
     /**
      * Summary of how far along the submission's process is.
      * Supported values:
-     *     error - error on initial submission
-     *     received - passed the received step in the pipeline and awaits processing/routing
-     *     notDelivering - processed but has no intended receivers
-     *     waitingToDeliver - processed but yet to be sent to any receivers
-     *     partiallyDelivered - processed, successfully sent to at least one receiver
-     *     delivered - processed, successfully sent to all receivers
+     *     Error - error on initial submission
+     *     Received - passed the received step in the pipeline and awaits processing/routing
+     *     Not Delivering - processed but has no intended receivers
+     *     Waiting to Deliver - processed but yet to be sent to/downloaded by any receivers
+     *     Partially Delivered - processed, successfully sent to/downloaded by at least one receiver
+     *     Delivered - processed, successfully sent to/downloaded by all receivers
      * @todo For now, no "send error" type of state.
      *     If a send error occurs for example,
      *     it'll just sit in the waitingToDeliver or
      *     partiallyDelivered state until someone fixes it.
      */
-    // var overallStatus: String = "received"
+    val overallStatus: String get() {
+        if (httpStatus != HttpStatus.OK.value() && httpStatus != HttpStatus.CREATED.value()) {
+            return "Error"
+        }
+
+        if (destinations.size == 0) {
+            return "Received" // 0 unfiltered destinations = unprocessed in almost every situation
+        } else if (realDestinations.size == 0) {
+            return "Not Delivering"
+        }
+
+        var finishedDestinations = 0
+
+        realDestinations.forEach {
+            var sentItemCount = 0
+
+            it.sentReports.forEach {
+                sentItemCount += it.itemCount
+            }
+
+            var downloadedItemCount = 0
+
+            it.downloadedReports.forEach {
+                downloadedItemCount += it.itemCount
+            }
+
+            if (sentItemCount >= it.itemCount || downloadedItemCount >= it.itemCount) {
+                finishedDestinations++
+            }
+        }
+
+        if (finishedDestinations >= realDestinations.size) {
+            return "Delivered"
+        } else if (finishedDestinations > 0) {
+            return "Partially Delivered"
+        }
+
+        return "Waiting to Deliver"
+    }
 
     /**
      * When this submission is expected to finish sending.
      * Mirrors the max of all the sendingAt values for this Submission's Destinations
      */
-    // var plannedCompletionAt: OffsetDateTime? = null
+    val plannedCompletionAt: OffsetDateTime? get() {
+        if (overallStatus == "error" || overallStatus == "received" || overallStatus == "notDelivering") {
+            return null
+        }
+
+        return destinations.maxWithOrNull(compareBy { it.sendingAt })?.sendingAt
+    }
 
     /**
      * Marks the actual time this submission finished sending.
-     * Mirrors the max createdAt of all sentReports after it has been sent to all receivers
+     * Mirrors the max createdAt of all sent and downloaded reports after it has been sent to all receivers
      */
     val actualCompletionAt: OffsetDateTime? get() {
         if (overallStatus != "delivered") {
@@ -110,7 +155,10 @@ class DetailedSubmissionHistory(
         val sentReports = destinations.filter { it.sentReports.size > 0 }
             .flatMap { it.sentReports }
 
-        return sentReports.maxWithOrNull(compareBy { it.createdAt })?.createdAt
+        val downloadedReports = destinations.filter { it.downloadedReports.size > 0 }
+            .flatMap { it.downloadedReports }
+
+        return sentReports.plus(downloadedReports).maxWithOrNull(compareBy { it.createdAt })?.createdAt
     }
 
     /**
@@ -124,10 +172,17 @@ class DetailedSubmissionHistory(
     val errorCount = logs.count { it.type == ActionLogLevel.error }
 
     /**
+     * Destinations that actually had/will have data sent to.
+     */
+    val realDestinations: List<Destination> get() {
+        return destinations.filter { it.itemCount != 0 }
+    }
+
+    /**
      * Number of destinations that actually had/will have data sent to.
      */
     val destinationCount: Int get() {
-        return destinations.filter { it.itemCount != 0 }.size
+        return realDestinations.size
     }
 
     /**
