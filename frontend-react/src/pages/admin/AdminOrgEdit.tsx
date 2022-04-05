@@ -21,12 +21,13 @@ import {
 import {
     getStoredOktaToken,
     getStoredOrg,
-} from "../../components/GlobalContextProvider";
+} from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
 } from "../../components/Admin/CompareJsonModal";
+import { DisplayMeta } from "../../components/Admin/DisplayMeta";
 
 type AdminOrgEditProps = {
     orgname: string;
@@ -72,7 +73,7 @@ export function AdminOrgEdit({
                 JSON.stringify(orgSettings, jsonSortReplacer, 2)
             );
 
-            confirmModalRef?.current?.toggleModal(undefined, true);
+            confirmModalRef?.current?.showModal();
             setLoading(false);
         } catch (e) {
             console.error(e);
@@ -92,7 +93,7 @@ export function AdminOrgEdit({
                 "success",
                 `Item '${orgname}' has been updated`
             );
-            confirmModalRef?.current?.toggleModal(undefined, false);
+            confirmModalRef?.current?.hideModal();
             showAlertNotification("success", `Saved '${orgname}' setting.`);
         } catch (e: any) {
             showError(`Updating item '${orgname}' failed. ${e.toString()}`);
@@ -126,7 +127,7 @@ export function AdminOrgEdit({
                             <Grid row>
                                 <Grid col={3}>Meta:</Grid>
                                 <Grid col={9}>
-                                    {JSON.stringify(orgSettings?.meta) || {}}{" "}
+                                    <DisplayMeta metaObj={orgSettings.meta} />
                                     <br />
                                 </Grid>
                             </Grid>

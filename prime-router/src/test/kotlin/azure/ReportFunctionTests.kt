@@ -12,9 +12,14 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.AuthenticationStrategy
+import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.PrincipalLevel
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkClass
+import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
 import org.jooq.tools.jdbc.MockConnection
@@ -55,6 +60,83 @@ class ReportFunctionTests {
     @BeforeEach
     fun reset() {
         clearAllMocks()
+    }
+
+    /**
+     * Do all the zany setup work needed to run the 'waters' endpoint as a test.
+     * Written specifically for the 'client header' tests below, to start.  But could probably
+     * be generalized for all 'waters' endpoint tests in the future.
+     */
+    private fun setupForDotNotationTests(): Pair<ReportFunction, MockHttpRequestMessage> {
+        every { timing1.isValid() } returns true
+        every { timing1.numberPerDay } returns 1
+        every { timing1.maxReportCount } returns 1
+        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val sender = Sender("default", "simple_report", Sender.Format.CSV, "test", schemaName = "one")
+        val req = MockHttpRequestMessage("test")
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val reportFunc = spyk(ReportFunction(engine, actionHistory))
+        val resp = HttpUtilities.okResponse(req, "fakeOkay")
+        every { engine.db } returns accessSpy
+        val oktaAuth = spyk(OktaAuthentication(PrincipalLevel.USER))
+        mockkObject(AuthenticationStrategy.Companion)
+        every { AuthenticationStrategy.authStrategy(any(), any(), any()) } returns oktaAuth
+        val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
+        val claims = AuthenticatedClaims(jwt)
+        every { oktaAuth.authenticate(any()) } returns claims
+        every { reportFunc.processRequest(any(), any()) } returns resp
+        every { engine.settings.findSender(any()) } returns sender // This test only works with org = simple_report
+        return Pair(reportFunc, req)
+    }
+
+    /**
+     * Test that header of the form client:simple_report.default works with the auth code.
+     */
+    @Test
+    fun `test the waters function with dot-notation client header - basic happy path`() {
+        val (reportFunc, req) = setupForDotNotationTests()
+        // This is the most common way our customers use the client string
+        req.httpHeaders += mapOf(
+            "client" to "simple_report",
+            "authentication-type" to "okta",
+            "content-length" to "4"
+        )
+        // Invoke the waters function run
+        reportFunc.report(req)
+        // processFunction should be called
+        verify(exactly = 1) { reportFunc.processRequest(any(), any()) }
+    }
+
+    @Test
+    fun `test the waters function with dot-notation client header - full dotted name`() {
+        val (reportFunc, req) = setupForDotNotationTests()
+        // Now try it with a full client name
+        req.httpHeaders += mapOf(
+            "client" to "simple_report.default",
+            "authentication-type" to "okta",
+            "content-length" to "4"
+        )
+        reportFunc.report(req)
+        verify(exactly = 1) { reportFunc.processRequest(any(), any()) }
+    }
+
+    @Test
+    fun `test the waters function with dot-notation client header - dotted but not default`() {
+        val (reportFunc, req) = setupForDotNotationTests()
+        // Now try it with a full client name but not with "default"
+        // The point of these tests is that the call to the auth code only contains the org prefix 'simple_report'
+        req.httpHeaders += mapOf(
+            "client" to "simple_report.foobar",
+            "authentication-type" to "okta",
+            "content-length" to "4"
+        )
+        reportFunc.report(req)
+        verify(exactly = 1) { reportFunc.processRequest(any(), any()) }
     }
 
     // Hits processRequest, tracks 'receive' action in actionHistory
@@ -122,7 +204,7 @@ class ReportFunctionTests {
         )
 
         // Invoke function run
-        var res = reportFunc.run(req)
+        val res = reportFunc.run(req)
 
         // verify
         assert(res.statusCode == 400)
@@ -193,7 +275,7 @@ class ReportFunctionTests {
         req.parameters += mapOf("option" to Options.ValidatePayload.toString())
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
 
         // act
         reportFunc.processRequest(req, sender)
@@ -234,8 +316,11 @@ class ReportFunctionTests {
         req.parameters += mapOf("option" to Options.ValidatePayload.toString())
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
         every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "org"
+        every { actionHistory.action.sendingOrgClient } returns "client"
 
         // act
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
@@ -245,7 +330,7 @@ class ReportFunctionTests {
 
         // assert
         verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any(), any()) }
-        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+        verify(exactly = 2) { actionHistory.trackActionSenderInfo(any(), any()) }
     }
 
     // test duplicate override = true
@@ -281,8 +366,11 @@ class ReportFunctionTests {
         )
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
         every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "org"
+        every { actionHistory.action.sendingOrgClient } returns "client"
 
         // act
         reportFunc.processRequest(req, sender)
@@ -326,8 +414,11 @@ class ReportFunctionTests {
         )
 
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAction(any()) } returns 1
         every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "org"
+        every { actionHistory.action.sendingOrgClient } returns "client"
 
         // act
         every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
@@ -337,6 +428,6 @@ class ReportFunctionTests {
 
         // assert
         verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any(), any()) }
-        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+        verify(exactly = 2) { actionHistory.trackActionSenderInfo(any(), any()) }
     }
 }

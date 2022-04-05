@@ -506,11 +506,11 @@ The message profile identifer
 
 **ReportStream Internal Name**: observation_result_status
 
-**Type**: CODE
+**Type**: ID
 
 **PII**: No
 
-**Format**: use value found in the Code column
+**Default Value**: F
 
 **Cardinality**: [0..1]
 
@@ -537,11 +537,11 @@ X|Results cannot be obtained for this observation|HL7
 
 **ReportStream Internal Name**: order_result_status
 
-**Type**: CODE
+**Type**: ID
 
 **PII**: No
 
-**Format**: use value found in the Code column
+**Default Value**: F
 
 **Cardinality**: [0..1]
 
