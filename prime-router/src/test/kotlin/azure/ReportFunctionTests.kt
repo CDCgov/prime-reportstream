@@ -1,8 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import assertk.assertThat
-import gov.cdc.prime.router.ActionLog
-import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
@@ -11,8 +8,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.ReportStreamFilterResult
-import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
@@ -54,30 +49,6 @@ class ReportFunctionTests {
                 timing = timing1
             )
         ),
-    )
-
-    var actionLogWithQualityFilter = ActionLog(
-        detail = ReportStreamFilterResult(
-            filterName = "isValidCLIA",
-            filterType = ReportStreamFilterType.QUALITY_FILTER,
-            filteredTrackingElement = "FilterTest1",
-            filterArgs = listOf("testing_lab_clia", "reporting_facility_clia"),
-            originalCount = 2,
-            receiverName = oneOrganization.name
-        ),
-        type = ActionLogLevel.filter,
-    )
-
-    var actionLogWithoutQualityFilter = ActionLog(
-        detail = ReportStreamFilterResult(
-            filterName = "isValidCLIA",
-            filterType = ReportStreamFilterType.JURISDICTIONAL_FILTER,
-            filteredTrackingElement = "FilterTest1",
-            filterArgs = listOf("testing_lab_clia", "reporting_facility_clia"),
-            originalCount = 2,
-            receiverName = oneOrganization.name
-        ),
-        type = ActionLogLevel.filter,
     )
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
@@ -425,140 +396,5 @@ class ReportFunctionTests {
         // assert
         verify(exactly = 2) { engine.verifyNoDuplicateFile(any(), any(), any()) }
         verify(exactly = 2) { actionHistory.trackActionSenderInfo(any(), any()) }
-    }
-
-    @Test
-    fun `test responseContainsQualityFilter method`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = ActionHistory(TaskAction.receive)
-
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-        actionHistory.actionLogs.add(actionLogWithoutQualityFilter)
-
-        var hasQualityFilter = reportFunc.responseContainsQualityFilter()
-        assertThat(!hasQualityFilter)
-        actionHistory.actionLogs.add(actionLogWithQualityFilter)
-        hasQualityFilter = reportFunc.responseContainsQualityFilter()
-        assertThat(hasQualityFilter)
-    }
-
-    @Test
-    fun `test processFunction with BypassQueueForQualityFilters option and quality filters in response`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        actionHistory.action.actionId = 1
-        actionHistory.actionLogs.add(actionLogWithQualityFilter)
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-        val sender = Sender(
-            "Test Sender",
-            "test",
-            Sender.Format.CSV,
-            "test",
-            schemaName =
-            "one",
-            allowDuplicates = false
-        )
-
-        val req = MockHttpRequestMessage("test")
-        req.parameters += mapOf(
-            "option" to Options.BypassQueueForQualityFilters.toString()
-        )
-
-        setupProcessRequest(reportFunc, sender, actionHistory, engine)
-
-        // act
-        val resp = reportFunc.processRequest(req, sender)
-
-        // assert
-        verify(exactly = 1) { reportFunc.responseContainsQualityFilter() }
-        assertThat(resp.statusCode == 400)
-    }
-
-    @Test
-    fun `test processFunction with BypassQueueForQualityFilters option and quality filters NOT in response`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        actionHistory.action.actionId = 1
-        actionHistory.actionLogs.add(actionLogWithoutQualityFilter)
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-        val sender = Sender(
-            "Test Sender",
-            "test",
-            Sender.Format.CSV,
-            "test",
-            schemaName =
-            "one",
-            allowDuplicates = false
-        )
-
-        val req = MockHttpRequestMessage("test")
-        req.parameters += mapOf(
-            "option" to Options.BypassQueueForQualityFilters.toString()
-        )
-
-        setupProcessRequest(reportFunc, sender, actionHistory, engine)
-
-        // act
-        val resp = reportFunc.processRequest(req, sender)
-
-        // assert
-        verify(exactly = 1) { reportFunc.responseContainsQualityFilter() }
-        assertThat(resp.statusCode == 201)
-    }
-
-    @Test
-    fun `test processFunction without BypassQueueForQualityFilters option`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        actionHistory.action.actionId = 1
-        actionHistory.actionLogs.add(actionLogWithQualityFilter)
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-        val sender = Sender(
-            "Test Sender",
-            "test",
-            Sender.Format.CSV,
-            "test",
-            schemaName =
-            "one",
-            allowDuplicates = false
-        )
-        val req = MockHttpRequestMessage("test")
-
-        setupProcessRequest(reportFunc, sender, actionHistory, engine)
-
-        // act
-        val resp = reportFunc.processRequest(req, sender)
-
-        // assert
-        verify(exactly = 0) { reportFunc.responseContainsQualityFilter() }
-        assertThat(resp.statusCode == 201)
-    }
-
-    private fun setupProcessRequest(
-        reportFunc: ReportFunction,
-        sender: Sender,
-        actionHistory: ActionHistory,
-        engine: WorkflowEngine
-    ) {
-        every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
-        every { actionHistory.insertAll(any()) } returns Unit
-        every { engine.verifyNoDuplicateFile(any(), any(), any()) } returns Unit
-        every { engine.recordReceivedReport(any(), any(), any(), any()) } returns blobInfoMock
     }
 }

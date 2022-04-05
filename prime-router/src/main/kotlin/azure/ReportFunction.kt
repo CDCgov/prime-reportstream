@@ -20,8 +20,6 @@ import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportStreamFilterResult
-import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -59,8 +57,8 @@ class ReportFunction(
     )
 
     /**
-     * NEEDS CLEANUP - this is a test of a /verify endpoint for checking quality filters
-     *
+     * This endpoint checks for quality filter messages
+     * in a potential submission and returns them to the client
      */
     @FunctionName("verify")
     @StorageAccount("AzureWebJobsStorage")
@@ -85,32 +83,24 @@ class ReportFunction(
         try {
             val validatedRequest = validateRequest(request)
 
-            val (report, actionLogs) = workflowEngine.parseReport(
+            val (report) = workflowEngine.parseReport(
                 sender,
                 validatedRequest.content,
                 validatedRequest.defaults,
             )
 
-            logger.info(actionLogs.toString())
-
-            val filterResults = workflowEngine.verifyQualityFilter(
+            val filterResults = workflowEngine.retrieveQualityFilterResults(
                 report,
                 validatedRequest.defaults,
                 validatedRequest.routeTo
             )
 
-            response = request.createResponseBuilder(HttpStatus.CREATED)
+            response = request.createResponseBuilder(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .body(
                     JacksonMapperUtilities.allowUnknownsMapper
                         .writerWithDefaultPrettyPrinter()
                         .writeValueAsString(filterResults)
-                )
-                .header(
-                    HttpHeaders.LOCATION,
-                    request.uri.resolve(
-                        "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
-                    ).toString()
                 )
                 .build()
         } catch (ex: Exception) {
@@ -228,11 +218,9 @@ class ReportFunction(
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
         val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
-        var hasQualityFilterOption = false
         val httpStatus: HttpStatus =
             try {
                 val options = Options.valueOf(optionsText)
-                hasQualityFilterOption = (options == Options.BypassQueueForQualityFilters)
                 val payloadName = extractPayloadName(request)
                 actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
 
@@ -316,13 +304,6 @@ class ReportFunction(
                 HttpStatus.BAD_REQUEST
             }
 
-        // if the BypassQueueForQualityFilters option was sent AND quality filters were present in the response,
-        // then return a 400 and bypass the message queue at the end
-        var bypassMessageQueue = false
-        if (hasQualityFilterOption) {
-            bypassMessageQueue = responseContainsQualityFilter()
-        }
-
         actionHistory.trackActionResult(httpStatus)
         workflowEngine.recordAction(actionHistory)
 
@@ -347,19 +328,10 @@ class ReportFunction(
             .build()
 
         // queue messages here after all task / action records are in
-        if (!bypassMessageQueue)
-            actionHistory.queueMessages(workflowEngine)
+        actionHistory.queueMessages(workflowEngine)
 
         // TODO: having to build response twice in order to save it and then include a response with the resulting actionID
         return response
-    }
-
-    fun responseContainsQualityFilter(): Boolean {
-        return actionHistory.actionLogs.any {
-            val detail = it.detail
-            it.type == ActionLogLevel.filter &&
-                (detail is ReportStreamFilterResult) && detail.filterType == ReportStreamFilterType.QUALITY_FILTER
-        }
     }
 
     /**
