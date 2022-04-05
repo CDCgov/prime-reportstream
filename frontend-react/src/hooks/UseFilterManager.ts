@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { SortOrder } from "../components/Table/Table";
 import { PageSize } from "../contexts/FilterContext";
 
-
 export type StateUpdate<T> = React.Dispatch<React.SetStateAction<T>>;
 
 export interface FilterState {
