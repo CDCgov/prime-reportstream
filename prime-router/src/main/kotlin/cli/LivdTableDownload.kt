@@ -186,13 +186,15 @@ class LivdTableDownload : CliktCommand(
         }
 
         val data = StringBuffer() // Buffer and output file for CSV data
-        val fileInputStream = FileInputStream(inputfile)
         val ext: String = FilenameUtils.getExtension(inputfile.name)
         if (!ext.equals("xlsx", ignoreCase = true)) {
             error("$inputfile is unsupported since it is not Excel xlsx format file.")
         }
 
+        val fileInputStream = FileInputStream(inputfile)
         val workbook: Workbook = XSSFWorkbook(fileInputStream)
+        fileInputStream.close()
+
         val outputfile = File.createTempFile(
             livdSARSCov2FilenamePrefix, "_orig.csv",
             File(defaultOutputDir)
@@ -258,6 +260,7 @@ class LivdTableDownload : CliktCommand(
         // Write to CSV file.
         fileOutputStream.write(data.toString().toByteArray())
         fileOutputStream.close()
+
         return outputfile
     }
 
@@ -271,6 +274,7 @@ class LivdTableDownload : CliktCommand(
         val rawLivdReaderOptions = CsvReadOptions.builder(rawLivdFile).columnTypesToDetect(listOf(ColumnType.STRING))
             .build()
         val rawLivdTable = Table.read().usingOptions(rawLivdReaderOptions)
+            .sortAscendingOn(LivdTableColumns.MANUFACTURER.colName, LivdTableColumns.MODEL.colName)
         val supplLivdReaderOptions = CsvReadOptions.builder(livdSupplementalPathname)
             .columnTypesToDetect(listOf(ColumnType.STRING)).build()
         val supplLivdTable = Table.read().usingOptions(supplLivdReaderOptions)
@@ -315,6 +319,7 @@ class LivdTableDownload : CliktCommand(
                     else selector!!.and(newSelector)
                 }
             }
+            if (!silent) TermUi.echo("Here is the list of changes added from $livdSupplementalPathname")
             when {
                 selector == null -> {
                     TermUi.echo("Found row #${supplRow.rowNumber} with no device information.")

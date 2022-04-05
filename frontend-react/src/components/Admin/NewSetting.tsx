@@ -7,6 +7,7 @@ import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
+import Spinner from "../Spinner";
 
 import { TextInputComponent, TextAreaComponent } from "./AdminFormEdit";
 
@@ -102,6 +103,7 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
                     label={"JSON"}
                     savefunc={(v) => (orgSetting = v)}
                     defaultvalue={[]}
+                    defaultnullvalue="[]"
                 />
                 <Grid row>
                     <Button type="button" onClick={() => history.goBack()}>
@@ -128,7 +130,7 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
                 <Suspense
                     fallback={
                         <span className="text-normal text-base">
-                            Loading Sender Settings Info...
+                            <Spinner />
                         </span>
                     }
                 >

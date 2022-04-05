@@ -27,8 +27,8 @@ services:
       # postgresql comes from the build environment; it is accessible because we are connected to the build network (see "networks")
       - POSTGRES_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
       - PRIME_ENVIRONMENT=local
-      - OKTA_baseUrl=hhs-prime.okta.com
-      - OKTA_clientId=0oa6fm8j4G1xfrthd4h6
+      - OKTA_baseUrl=hhs-prime.oktapreview.com
+      - OKTA_clientId=0oa2fs6vp3W5MTzjh1d7
       - OKTA_redirect=http://localhost:7071/api/download
       - VAULT_API_ADDR=http://vault:8200
       - FHIR_ENGINE_TEST_PIPELINE=enabled
@@ -44,7 +44,7 @@ services:
 
   # Azurite is the Azure storage emulator for local development
   azurite:
-    image: mcr.microsoft.com/azure-storage/azurite:3.14.0
+    image: mcr.microsoft.com/azure-storage/azurite:3.16.0
     # uncomment the line below to skip x-ms-version checks
     # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
     volumes:

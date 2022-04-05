@@ -91,11 +91,9 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **ReportStream Internal Name**: comment_source
 
-**Type**: CODE
+**Type**: ID
 
 **PII**: No
-
-**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -508,11 +506,11 @@ The message profile identifer
 
 **ReportStream Internal Name**: observation_result_status
 
-**Type**: CODE
+**Type**: ID
 
 **PII**: No
 
-**Format**: use value found in the Code column
+**Default Value**: F
 
 **Cardinality**: [0..1]
 
@@ -539,11 +537,11 @@ X|Results cannot be obtained for this observation|HL7
 
 **ReportStream Internal Name**: order_result_status
 
-**Type**: CODE
+**Type**: ID
 
 **PII**: No
 
-**Format**: use value found in the Code column
+**Default Value**: F
 
 **Cardinality**: [0..1]
 
@@ -2623,6 +2621,8 @@ Code | Display | System
 29092000|Venous structure (body structure)|SNOMED_CT
 123851003|Mouth region structure (body structure)|SNOMED_CT
 31389004|Oropharyngeal structure (body structure)|SNOMED_CT
+39607008|Lung structure (body structure)|SNOMED_CT
+955009|Bronchial structure (body structure)|SNOMED_CT
 
 **Documentation**:
 
@@ -2655,6 +2655,7 @@ Code | Display | System
 258529004|Throat swab|SNOMED_CT
 119334006|Sputum specimen|SNOMED_CT
 119342007|Saliva specimen|SNOMED_CT
+258560004|Oral saliva sample|SNOMED_CT
 258607008|Bronchoalveolar lavage fluid sample|SNOMED_CT
 119364003|Serum specimen|SNOMED_CT
 119361006|Plasma specimen|SNOMED_CT
@@ -2663,6 +2664,10 @@ Code | Display | System
 122555007|Venous blood specimen|SNOMED_CT
 119297000|Blood specimen|SNOMED_CT
 122554006|Capillary blood specimen|SNOMED_CT
+258467004|Nasopharyngeal washings|SNOMED_CT
+418932006|Oral swab specimen|SNOMED_CT
+433801000124107|Nasopharyngeal and oropharyngeal swab|SNOMED_CT
+309171007|Lower respiratory fluid sample|SNOMED_CT
 
 **Documentation**:
 
@@ -2864,19 +2869,18 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 Code | Display | System
 ---- | ------- | ------
-A|Some, but not all, results available|HL7
-C|Corrected, final|HL7
-F|Final results|HL7
-I|No results available; specimen received, procedure incomplete|HL7
-M|Corrected, not final|HL7
-N|Procedure completed, results pending|HL7
-O|Order received; specimen not yet received|HL7
-P|Preliminary|HL7
-R|Results stored; not yet verified|HL7
-S|No results available; procedure scheduled, but not done|HL7
-X|No results available; Order canceled|HL7
-Y|No order on record for this test|HL7
-Z|No record of this patient|HL7
+C|Record coming over is a correction and thus replaces a final result|HL7
+D|Deletes the OBX record|HL7
+F|Final results; Can only be changed with a corrected result|HL7
+I|Specimen in lab; results pending|HL7
+N|Not asked; used to affirmatively document that the observation identified in the OBX was not sought when the universal service ID in OBR-4 implies that it would be sought.|HL7
+O|Order detail description only (no result)|HL7
+P|Preliminary results|HL7
+R|Results entered -- not verified|HL7
+S|Partial results|HL7
+U|Results status change to final without retransmitting results already sent as ‘preliminary.’  E.g., radiology changes status from preliminary to final|HL7
+W|Post original as wrong, e.g., transmitted for wrong patient|HL7
+X|Results cannot be obtained for this observation|HL7
 
 **Documentation**:
 

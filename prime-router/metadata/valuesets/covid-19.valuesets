@@ -33,7 +33,9 @@
     - code: 119334006
       display: Sputum specimen 
     - code: 119342007
-      display: Saliva specimen 
+      display: Saliva specimen
+    - code: 258560004
+      display: Oral saliva sample 
     - code: 258607008
       display: Bronchoalveolar lavage fluid sample 
     - code: 119364003
@@ -50,6 +52,14 @@
       display: Blood specimen
     - code: 122554006
       display: Capillary blood specimen
+    - code: 258467004
+      display: Nasopharyngeal washings
+    - code: 418932006
+      display: Oral swab specimen
+    - code: 433801000124107
+      display: Nasopharyngeal and oropharyngeal swab
+    - code: 309171007
+      display: Lower respiratory fluid sample
 
 - name: covid-19/test_result
   system: SNOMED_CT
@@ -207,6 +217,12 @@
       version: 2020-09-01
     - code: 31389004
       display: Oropharyngeal structure (body structure)
+      version: 2020-09-01
+    - code: 39607008
+      display: Lung structure (body structure)
+      version: 2020-09-01
+    - code: 955009
+      display: Bronchial structure (body structure)
       version: 2020-09-01
 
 - name: covid-19/yesno

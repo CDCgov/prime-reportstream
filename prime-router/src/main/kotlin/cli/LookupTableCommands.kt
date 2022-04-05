@@ -1,9 +1,6 @@
 package gov.cdc.prime.router.cli
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
@@ -35,6 +32,7 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.LookupTableFunctions
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.commons.io.FileUtils
 import org.apache.http.HttpStatus
 import org.jooq.JSONB
@@ -167,7 +165,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         /**
          * Mapper to convert objects to JSON.
          */
-        private val mapper: ObjectMapper = jacksonMapperBuilder().addModule(JavaTimeModule()).build()
+        private val mapper = JacksonMapperUtilities.defaultMapper
 
         /**
          * Exception thrown with a [message] if a table is not found.
@@ -543,7 +541,8 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
     /**
      * Activate a created table in one shot.
      */
-    private val activate by option("-a", "--activate", help = "Activate the table upon creation").flag()
+    private val activate by option("-a", "--activate", help = "Activate the table upon creation")
+        .flag(default = false)
 
     /**
      * The table name.
@@ -552,12 +551,32 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         .required()
 
     /**
+     * Show the raw input table being created if set to true.
+     */
+    private val showTable by option("--show-table", help = "Always show the table to be created")
+        .flag(default = false)
+
+    /**
      * Force to create table(s).
      */
     private val forceTableToCreate by option(
         "-f", "--force",
         help = "Force the creation of new table(s) even if it is already exist"
     ).flag()
+
+    companion object {
+        /**
+         * Maximum number of table columns allowed to be displayed by default.  If a table exceeds this then the user
+         * must use the --show-table option to show the raw table.
+         */
+        private const val SMALL_TABLE_MAX_COLS = 7
+
+        /**
+         * Maximum number of table rows allowed to be displayed by default.  If a table exceeds this then the user
+         * must use the --show-table option to show the raw table.
+         */
+        private const val SMALL_TABLE_MAX_ROWS = 50
+    }
 
     override fun run() {
         // Read the input file.
@@ -569,8 +588,10 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             return
         }
 
-        // Output the data for review.
-        if (!silent) {
+        // Output the data for review specified.
+        val isLargeTable = inputData.size > SMALL_TABLE_MAX_ROWS || inputData[0].keys.size > SMALL_TABLE_MAX_COLS
+        // Display the table when not silent, plus display it only if it is a small table unless told otherwise.
+        if (!silent && (showTable || !isLargeTable)) {
             TermUi.echo("Here is the table data to be created:")
             val colNames = inputData[0].keys.toList()
             TermUi.echo(LookupTableCommands.rowsToPrintableTable(inputData, colNames))

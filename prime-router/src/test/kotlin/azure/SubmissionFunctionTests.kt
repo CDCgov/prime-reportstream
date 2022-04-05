@@ -2,20 +2,24 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.ActionResponse
+import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SubmissionHistory
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.tests.ExpectedSubmissionHistory
-import org.junit.jupiter.api.Test
+import gov.cdc.prime.router.common.JacksonMapperUtilities
+import io.mockk.every
+import io.mockk.mockk
+import org.apache.logging.log4j.kotlin.Logging
+import org.jooq.exception.DataAccessException
 import org.junit.jupiter.api.TestInstance
 import java.time.OffsetDateTime
+import kotlin.test.Test
 
 data class ExpectedAPIResponse(
     val status: HttpStatus,
@@ -29,24 +33,32 @@ data class SubmissionUnitTestCase(
     val name: String?
 )
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SubmissionFunctionTests {
-    // Ignoring unknown properties because we don't require them. -DK
-    val mapper = jacksonMapperBuilder().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).build()
+/**
+ * Detail Submission History Response from the API.
+ */
+data class DetailSubmissionHistoryResponse(
+    val submissionId: Long,
+    val id: String?,
+    val timestamp: OffsetDateTime,
+    val sender: String?,
+    val httpStatus: Int?,
+    val externalName: String? = "",
+)
 
-    init {
-        // Format OffsetDateTime as an ISO string
-        mapper.registerModule(JavaTimeModule())
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    }
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class SubmissionFunctionTests : Logging {
+    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : SubmissionAccess {
 
         override fun <T> fetchActions(
             sendingOrg: String,
             order: SubmissionAccess.SortOrder,
-            resultsAfterDate: OffsetDateTime?,
+            sortColumn: SubmissionAccess.SortColumn,
+            cursor: OffsetDateTime?,
+            toEnd: OffsetDateTime?,
             limit: Int,
+            showFailed: Boolean,
             klass: Class<T>
         ): List<T> {
             @Suppress("UNCHECKED_CAST")
@@ -82,26 +94,23 @@ class SubmissionFunctionTests {
             sendingOrg = "simple_report",
             httpStatus = 201,
             externalName = "testname.csv",
-            actionResponse = ActionResponse(
-                id = "a2cf1c46-7689-4819-98de-520b5007e45f",
-                topic = "covid-19",
-                reportItemCount = 3,
-                warningCount = 3,
-                errorCount = 0
-            )
+            reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
+            schemaTopic = "covid-19",
+            itemCount = 3,
+//                warningCount = 3,
+//                errorCount = 0
         ),
         SubmissionHistory(
             actionId = 7,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
             sendingOrg = "simple_report",
             httpStatus = 400,
-            actionResponse = ActionResponse(
-                id = null,
-                topic = null,
-                reportItemCount = null,
-                warningCount = 1,
-                errorCount = 1
-            )
+            externalName = "testname.csv",
+            reportId = null,
+            schemaTopic = null,
+            itemCount = null,
+//                warningCount = 1,
+//                errorCount = 1
         )
     )
 
@@ -109,7 +118,7 @@ class SubmissionFunctionTests {
     fun `test list submissions`() {
         val testCases = listOf(
             SubmissionUnitTestCase(
-                emptyMap(),
+                mapOf("authorization" to "Bearer 111.222.333"),
                 emptyMap(),
                 ExpectedAPIResponse(
                     HttpStatus.UNAUTHORIZED
@@ -123,27 +132,24 @@ class SubmissionFunctionTests {
                     HttpStatus.OK,
                     listOf(
                         ExpectedSubmissionHistory(
-                            taskId = 8,
-                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
-                            sendingOrg = "simple_report",
+                            submissionId = 8,
+                            timestamp = OffsetDateTime.parse("2021-11-30T16:36:54.919Z"),
+                            sender = "simple_report",
                             httpStatus = 201,
                             externalName = "testname.csv",
                             id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
                             topic = "covid-19",
-                            reportItemCount = 3,
-                            warningCount = 3,
-                            errorCount = 0
+                            reportItemCount = 3
                         ),
                         ExpectedSubmissionHistory(
-                            taskId = 7,
-                            createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
-                            sendingOrg = "simple_report",
+                            submissionId = 7,
+                            timestamp = OffsetDateTime.parse("2021-11-30T16:36:48.307Z"),
+                            sender = "simple_report",
                             httpStatus = 400,
+                            externalName = "testname.csv",
                             id = null,
                             topic = null,
-                            reportItemCount = null,
-                            warningCount = 1,
-                            errorCount = 1
+                            reportItemCount = null
                         )
                     )
                 ),
@@ -177,7 +183,21 @@ class SubmissionFunctionTests {
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf(
                     "pagesize" to "10",
-                    "cursor" to "2021-11-30T16:36:48.307109Z",
+                    "cursor" to "2021-11-30T16:36:48.307Z",
+                    "sort" to "ASC"
+                ),
+                ExpectedAPIResponse(
+                    HttpStatus.OK
+                ),
+                "good minimum params"
+            ),
+            SubmissionUnitTestCase(
+                mapOf("authorization" to "Bearer fdafads"),
+                mapOf(
+                    "pagesize" to "10",
+                    "cursor" to "2021-11-30T16:36:54.307109Z",
+                    "endCursor" to "2021-11-30T16:36:53.919104Z",
+                    "sortCol" to "CREATED_AT",
                     "sort" to "ASC"
                 ),
                 ExpectedAPIResponse(
@@ -185,25 +205,25 @@ class SubmissionFunctionTests {
                 ),
                 "good all params"
             )
-
         )
 
         testCases.forEach {
-            var httpRequestMessage = MockHttpRequestMessage()
+            logger.info("Executing list submissions unit test ${it.name}")
+            val httpRequestMessage = MockHttpRequestMessage()
             httpRequestMessage.httpHeaders += it.headers
             httpRequestMessage.parameters += it.parameters
             // Invoke
-            var response = SubmissionFunction(
+            val response = SubmissionFunction(
                 SubmissionsFacade(
                     TestSubmissionAccess(testData, mapper)
                 )
-            ).submissions(
+            ).getOrgSubmissions(
                 httpRequestMessage,
                 "simple_report",
             )
             // Verify
-            assertThat(response.getStatus()).isEqualTo(it.expectedResponse.status)
-            if (response.getStatus() == HttpStatus.OK) {
+            assertThat(response.status).isEqualTo(it.expectedResponse.status)
+            if (response.status == HttpStatus.OK) {
                 val submissions: List<ExpectedSubmissionHistory> = mapper.readValue(response.body.toString())
                 if (it.expectedResponse.body != null) {
                     assertThat(submissions.size).isEqualTo(it.expectedResponse.body.size)
@@ -211,5 +231,78 @@ class SubmissionFunctionTests {
                 }
             }
         }
+    }
+
+    @Test
+    fun `test get report history`() {
+        val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val mockRequest = MockHttpRequestMessage()
+        val mockSubmissionFacade = mockk<SubmissionsFacade>()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+
+        val function = SubmissionFunction(mockSubmissionFacade)
+
+        // Invalid id:  not a UUID nor a Long
+        var response = function.getReportHistory(mockRequest, "bad")
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Database error
+        every { mockSubmissionFacade.fetchActionForReportId(any()) }.throws(DataAccessException("dummy"))
+        response = function.getReportHistory(mockRequest, goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+
+        // Good UUID, but Not found
+        every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null
+        response = function.getReportHistory(mockRequest, goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Good return
+        val returnBody = DetailedSubmissionHistory(
+            550, TaskAction.receive, OffsetDateTime.now(), 201,
+            null
+        )
+
+        // Happy path with a good UUID
+        val action = Action()
+        action.actionId = 550
+        action.sendingOrg = "foobar"
+        action.actionName = TaskAction.receive
+        every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
+        every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any()) } returns returnBody
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        response = function.getReportHistory(mockRequest, goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        var responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
+        assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
+
+        // Good uuid, but not a 'receive' step report.
+        action.actionName = TaskAction.process
+        response = function.getReportHistory(mockRequest, goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Good actionId, but Not found
+        val goodActionId = "550"
+        action.actionName = TaskAction.receive
+        every { mockSubmissionFacade.fetchAction(any()) } returns null
+        response = function.getReportHistory(mockRequest, goodActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Good actionId, but Not authorized
+        every { mockSubmissionFacade.fetchAction(any()) } returns action
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
+        response = function.getReportHistory(mockRequest, goodActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+
+        // Happy path with a good actionId
+        every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
+        every { mockSubmissionFacade.fetchAction(any()) } returns action
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any()) } returns returnBody
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        response = function.getReportHistory(mockRequest, goodActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        responseBody = mapper.readValue(response.body.toString())
+        assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
+        assertThat(responseBody.sender).isEqualTo(returnBody.sender)
     }
 }

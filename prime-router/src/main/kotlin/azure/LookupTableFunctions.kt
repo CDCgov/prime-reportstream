@@ -1,9 +1,6 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -13,7 +10,9 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.PrincipalLevel
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.JSONB
 
@@ -27,7 +26,7 @@ class LookupTableFunctions(
     /**
      * Mapper to convert objects to JSON.
      */
-    private val mapper: ObjectMapper = jacksonMapperBuilder().addModule(JavaTimeModule()).build()
+    private val mapper = JacksonMapperUtilities.defaultMapper
 
     /**
      * Get the Okta authenticator based on the [level].  If it was specified via the constructor then use that

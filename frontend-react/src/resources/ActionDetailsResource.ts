@@ -23,8 +23,8 @@ export interface ReportError extends ReportWarning {
 
 export default class ActionDetailsResource extends AuthResource {
     readonly submissionId: number = -1;
-    readonly submittedAt: string = ""; //comes in format yyyy-mm-ddThh:mm:ss.ssszzzz
-    readonly submitter: string | undefined = undefined;
+    readonly timestamp: string = ""; //comes in format yyyy-mm-ddThh:mm:ss.sssZ
+    readonly sender: string | undefined = undefined;
     readonly httpStatus: number = -1;
     readonly externalName: string = "";
     readonly id: string = "";
@@ -36,7 +36,7 @@ export default class ActionDetailsResource extends AuthResource {
     readonly errorCount: number = -1;
 
     pk() {
-        return `${this.submissionId}-${this.submitter}`;
+        return `${this.submissionId}-${this.sender}`;
     }
 
     /* 
@@ -52,7 +52,7 @@ export default class ActionDetailsResource extends AuthResource {
         organization: string;
     }): string {
         if (searchParams && Object.keys(searchParams).length) {
-            return `${process.env.REACT_APP_BACKEND_URL}/api/history/${searchParams.organization}/submissions/${searchParams.actionId}`;
+            return `${process.env.REACT_APP_BACKEND_URL}/api/waters/report/${searchParams.actionId}/history`;
         }
         throw new Error("Action details require an ActionID to retrieve");
     }

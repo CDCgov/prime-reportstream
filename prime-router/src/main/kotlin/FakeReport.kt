@@ -109,6 +109,37 @@ class FakeDataService : Logging {
             return "${context.patientName.username()}@email.com"
         }
 
+        // ID values typically come from valuesets, so we pass in the element
+        // and then we examine both the alt values and the value set for the element
+        // and we then pull a random value from all the potential values available.
+        // the rationale here is that if an element specifies alt values, they are preferred
+        // to the values held in the value set collection, and so we use them first
+        fun createFakeValueFromValueSet(element: Element): String {
+            val altValues = element.altValues
+            val valueSet = element.valueSetRef
+            return when (element.name) {
+                "value_type" -> "CWE"
+                else -> {
+                    // if the code defines alternate values in the schema we need to
+                    // output them here
+                    val possibleValues = if (altValues?.isNotEmpty() == true) {
+                        altValues.map { it.code }.toTypedArray()
+                    } else {
+                        if (element.cardinality?.name == "ZERO_OR_ONE") {
+                            // Pick random code from the ValueSet.Value and add ""
+                            val code = valueSet?.values?.asSequence()?.shuffled()?.take(1)?.map { it.code }
+                                ?.toList()?.toTypedArray() ?: arrayOf("")
+                            code.plus("")
+                        } else {
+                            valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
+                        }
+                    }
+
+                    randomChoice(*possibleValues)
+                }
+            }
+        }
+
         // code values typically come from valuesets, so we pass in the element
         // and then we examine both the alt values and the value set for the element
         // and we then pull a random value from all the potential values available.
@@ -124,17 +155,7 @@ class FakeDataService : Logging {
                     // Reduce the choice to between detected, not detected, and uncertain for more typical results
                     randomChoice("260373001", "260415000", "419984006")
                 else -> {
-                    val altValues = element.altValues
-                    val valueSet = element.valueSetRef
-                    // if the code defines alternate values in the schema we need to
-                    // output them here
-                    val possibleValues = if (altValues?.isNotEmpty() == true) {
-                        altValues.map { it.code }.toTypedArray()
-                    } else {
-                        valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
-                    }
-
-                    randomChoice(*possibleValues)
+                    createFakeValueFromValueSet(element)
                 }
             }
         }
@@ -205,7 +226,7 @@ class FakeDataService : Logging {
             Element.Type.TABLE, Element.Type.TABLE_OR_BLANK -> createFakeTableValue(element)
             Element.Type.HD -> element.default ?: "0.0.0.0.1"
             Element.Type.EI -> element.default ?: "SomeEntityID"
-            Element.Type.ID -> faker.numerify("######")
+            Element.Type.ID -> createFakeValueFromValueSet(element).ifBlank { faker.numerify("######") }
             Element.Type.ID_CLIA -> faker.numerify("##D#######") // Ex, 03D1021379
             Element.Type.ID_DLN -> faker.idNumber().valid()
             Element.Type.ID_SSN -> faker.idNumber().validSvSeSsn()

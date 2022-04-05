@@ -5,6 +5,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
 import org.apache.logging.log4j.kotlin.Logging
@@ -61,12 +62,15 @@ enum class Options {
  * might filter many rows. ReportStreamFilterResult entries are only created when filter logging is on.  This is to
  * prevent tons of junk logging of jurisdictionalFilters - the vast majority of which typically filter out everything.
  *
- * @property receiverName Then intended reciever for the report
+ * @property receiverName Then intended receiver for the report
  * @property originalCount The original number of items in the report
  * @property filterName The name of the filter function that removed the rows
  * @property filterArgs The arguments used in the filter function
  * @property filteredTrackingElement The trackingElement value of the rows removed.
  * Note that we can't guarantee the Sender is sending good unique trackingElement values.
+ * Note that we are not tracking the index (aka rownum).  That's because the row numbers we get here are
+ * not the ones in the data the user submitted -- because quality filtering is done after juris filtering,
+ * which creates a brand new report with fewer rows.
  */
 data class ReportStreamFilterResult(
     val receiverName: String,
@@ -74,25 +78,20 @@ data class ReportStreamFilterResult(
     val filterName: String,
     val filterArgs: List<String>,
     val filteredTrackingElement: String,
-    val filteredIndex: Int,
-    override val type: ActionLogDetailType = ActionLogDetailType.TRANSLATION
+    val filterType: ReportStreamFilterType?
 ) : ActionLogDetail {
+    override val scope = ActionLogScope.translation
     companion object {
         // Use this value in logs and user-facing messages if the trackingElement is missing.
-        val DEFAULT_TRACKING_VALUE = "MissingID"
+        const val DEFAULT_TRACKING_VALUE = "MissingID"
     }
 
+    override val message = "For $receiverName, filter $filterName$filterArgs" +
+        " filtered out item $filteredTrackingElement"
+
+    // Used for deserializing to a JSON response
     override fun toString(): String {
-        return "For $receiverName, filter $filterName$filterArgs" +
-            " filtered out item $filteredTrackingElement at index $filteredIndex"
-    }
-
-    override fun detailMsg(): String {
-        return toString()
-    }
-
-    override fun groupingId(): String {
-        return receiverName
+        return message
     }
 }
 
@@ -401,21 +400,22 @@ class Report : Logging {
         receiver: Receiver,
         doLogging: Boolean,
         trackingElement: String?,
-        reverseTheFilter: Boolean = false
+        reverseTheFilter: Boolean = false,
+        reportStreamFilterType: ReportStreamFilterType
     ): Report {
         val filteredRows = mutableListOf<ReportStreamFilterResult>()
         val combinedSelection = Selection.withRange(0, table.rowCount())
         filterFunctions.forEach { (filterFn, fnArgs) ->
             val filterFnSelection = filterFn.getSelection(fnArgs, table, receiver, doLogging)
             // NOTE: It's odd that we have to do logic after the fact
-            //       to figure out what the prvious function did
+            //       to figure out what the previous function did
             if (doLogging && filterFnSelection.size() < table.rowCount()) {
                 val before = Selection.withRange(0, table.rowCount())
                 val filteredRowList = before.andNot(filterFnSelection).toList()
                 val rowsFiltered = getValuesInRows(
                     trackingElement, filteredRowList, ReportStreamFilterResult.DEFAULT_TRACKING_VALUE
                 )
-                rowsFiltered.zip(filteredRowList).forEach { (trackingId, rowNum) ->
+                rowsFiltered.forEach { trackingId ->
                     filteredRows.add(
                         ReportStreamFilterResult(
                             receiver.fullName,
@@ -423,7 +423,7 @@ class Report : Logging {
                             filterFn.name,
                             fnArgs,
                             trackingId,
-                            rowNum + 1
+                            reportStreamFilterType
                         )
                     )
                 }
@@ -485,6 +485,16 @@ class Report : Logging {
             itemLineage = this.itemLineages,
             metadata = this.metadata
         )
+    }
+
+    /**
+     * Writes the [value] for the [columnName] for the [row].  If a [columnName] is not in the schema,
+     * an error is thrown.
+     * Any data in the field will be overwritten.
+     */
+    fun setString(row: Int, columnName: String, value: String) {
+        val column = schema.findElementColumn(columnName) ?: error("Internal Error: '$columnName' is not found")
+        table.stringColumn(column).set(row, value)
     }
 
     // takes the data in the existing report and synthesizes different data from it
@@ -706,10 +716,10 @@ class Report : Logging {
      *          - validate it is not null, it is valid digit number, and not lesser than zero
      *      else
      *          - the patient will be calculated using period.between patient date of birth and
-     *          the speciment collection date.
+     *          the specimen collection date.
      *  @param patient_age - input patient's age.
-     *  @param patient_dob - imput patient date of birth.
-     *  @param specimenCollectionDate - input date of when speciment was collected.
+     *  @param patient_dob - input patient date of birth.
+     *  @param specimenCollectionDate - input date of when specimen was collected.
      *  @return age - result of patient's age.
      */
     private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: LocalDate?): String? {
@@ -721,7 +731,7 @@ class Report : Logging {
         } else {
             //
             // Here, we got invalid or blank patient_age given to us.  Therefore, we will use patient date
-            // of birth and date of speciment collected to calculate the patient's age.
+            // of birth and date of specimen collected to calculate the patient's age.
             //
             try {
                 val d = LocalDate.parse(patient_dob, Element.dateFormatter)
@@ -1091,14 +1101,6 @@ class Report : Logging {
                     metadata = metadata ?: Metadata.getInstance()
                 )
             }
-        }
-
-        /**
-         * Takes a nullable String and trims it down to null if the string is empty
-         */
-        private fun String?.trimToNull(): String? {
-            if (this?.isEmpty() == true) return null
-            return this
         }
 
         /**

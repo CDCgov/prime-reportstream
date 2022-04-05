@@ -1,71 +1,57 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.DetailActionLog
 import gov.cdc.prime.router.DetailReport
 import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.SubmissionHistory
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
+import java.util.UUID
 
 /**
  * Submissions / history API
  * Contains all business logic regarding submissions and JSON serialization.
  */
 class SubmissionsFacade(
-    private val db: SubmissionAccess = DatabaseSubmissionsAccess()
-) {
+    private val dbSubmissionAccess: SubmissionAccess = DatabaseSubmissionsAccess(),
+    private val dbAccess: DatabaseAccess = WorkflowEngine.databaseAccessSingleton
+) : Logging {
 
     // Ignoring unknown properties because we don't require them. -DK
-    private val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-
-    init {
-        // Format OffsetDateTime as an ISO string
-        mapper.registerModule(JavaTimeModule())
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    }
+    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     /**
      * Serializes a list of Actions into a String.
      *
      * @param organizationName from JWT Claim.
      * @param sortOrder sort the table by date in ASC or DESC order.
-     * @param resultsAfterDate String representation of an OffsetDateTime used for paginating results.
+     * @param sortColumn sort the table by a specific column; defaults to sorting by created_at.
+     * @param offset String representation of an OffsetDateTime used for paginating results.
      * @param pageSize Int of items to return per page.
      *
      * @return a String representation of an array of actions.
      */
-    // Leaving separate from FindSubmissions to encapsulate json serialization
     fun findSubmissionsAsJson(
         organizationName: String,
-        sortOrder: String,
+        sortOrder: SubmissionAccess.SortOrder,
+        sortColumn: SubmissionAccess.SortColumn,
         offset: OffsetDateTime?,
-        pageSize: Int
-    ): String {
-        val result = findSubmissions(organizationName, sortOrder, offset, pageSize)
-        return mapper.writeValueAsString(result)
-    }
-
-    private fun findSubmissions(
-        organizationName: String,
-        sortOrder: String,
-        offset: OffsetDateTime?,
+        toEnd: OffsetDateTime?,
         pageSize: Int,
-    ): List<SubmissionHistory> {
-        val order = try {
-            SubmissionAccess.SortOrder.valueOf(sortOrder)
-        } catch (e: IllegalArgumentException) {
-            SubmissionAccess.SortOrder.DESC
-        }
-        return findSubmissions(organizationName, order, offset, pageSize)
+        showFailed: Boolean
+    ): String {
+        val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize, showFailed)
+        return mapper.writeValueAsString(result)
     }
 
     /**
      * @param organizationName from JWT Claim.
-     * @param sortOrder sort the table by date in ASC or DESC order.
-     * @param resultsAfterDate String representation of an OffsetDateTime used for paginating results.
+     * @param sortOrder sort the table by date in ASC or DESC order; defaults to DESC.
+     * @param sortColumn sort the table by a specific column; defaults to sorting by CREATED_AT.
+     * @param offset String representation of an OffsetDateTime used for paginating results.
      * @param pageSize Int of items to return per page.
      *
      * @return a List of Actions
@@ -73,32 +59,38 @@ class SubmissionsFacade(
     private fun findSubmissions(
         organizationName: String,
         sortOrder: SubmissionAccess.SortOrder,
+        sortColumn: SubmissionAccess.SortColumn,
         offset: OffsetDateTime?,
+        toEnd: OffsetDateTime?,
         pageSize: Int,
+        showFailed: Boolean
     ): List<SubmissionHistory> {
-        require(!organizationName.isNullOrBlank()) {
+        require(organizationName.isNotBlank()) {
             "Invalid organization."
         }
         require(pageSize > 0) {
             "pageSize must be a positive integer."
         }
 
-        val submissions = db.fetchActions(
+        val submissions = dbSubmissionAccess.fetchActions(
             organizationName,
             sortOrder,
+            sortColumn,
             offset,
+            toEnd,
             pageSize,
+            showFailed,
             SubmissionHistory::class.java
         )
         return submissions
     }
 
-    fun findSubmission(
+    fun findDetailedSubmissionHistory(
         organizationName: String,
         submissionId: Long,
     ): DetailedSubmissionHistory? {
 
-        val submission = db.fetchAction(
+        val submission = dbSubmissionAccess.fetchAction(
             organizationName,
             submissionId,
             DetailedSubmissionHistory::class.java,
@@ -107,7 +99,7 @@ class SubmissionsFacade(
         )
 
         submission?.let {
-            val relatedSubmissions = db.fetchRelatedActions(
+            val relatedSubmissions = dbSubmissionAccess.fetchRelatedActions(
                 submission.actionId,
                 DetailedSubmissionHistory::class.java,
                 DetailReport::class.java,
@@ -119,10 +111,49 @@ class SubmissionsFacade(
         return submission
     }
 
-    companion object {
+    /**
+     * @return a single Action associated with this [reportId]
+     */
+    fun fetchActionForReportId(reportId: UUID): Action? {
+        return dbAccess.fetchActionForReportId(reportId)
+    }
 
-        // The SubmissionFacade is heavy-weight object (because it contains a Jackson Mapper) so reuse it when possible
-        val common: SubmissionsFacade by lazy {
+    /**
+     * @return a single Action, given its key [actionId]
+     */
+    fun fetchAction(actionId: Long): Action? {
+        return dbAccess.fetchAction(actionId)
+    }
+
+    /**
+     * Check whether these [claims] allow access to this [action]
+     * @return true if [claims] authorizes access to this 'receive' [action].  Return
+     * false if the submissionId is not a proper submission or if the claim does not give access.
+     */
+    fun checkSenderAccessAuthorization(
+        action: Action,
+        claims: AuthenticatedClaims,
+    ): Boolean {
+        return when {
+            // Admins always get access
+            claims.isPrimeAdmin -> true
+            // User has a sending organization claim, and that sendingOrg matches the action's sendingOrg
+            (claims.isSenderOrgClaim) &&
+                (action.sendingOrg == claims.organizationNameClaim) &&
+                (!claims.organizationNameClaim.isNullOrBlank()) -> true
+            else -> {
+                logger.error(
+                    "User from org '${claims.organizationNameClaim}'" +
+                        " denied access to action_id ${action.actionId}" +
+                        " submitted by ${action.sendingOrg}"
+                )
+                false
+            }
+        }
+    }
+
+    companion object {
+        val instance: SubmissionsFacade by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
             SubmissionsFacade(DatabaseSubmissionsAccess())
         }
     }

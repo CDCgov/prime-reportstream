@@ -178,6 +178,19 @@ internal class ElementTests {
         one.toNormalized("     ").run {
             assertThat(this).isEqualTo("")
         }
+
+        // Hours with single digits and afternoon times
+        var testTimes = listOf(
+            "3/30/1998 9:35", "3/30/1998 09:35", "1998/3/30 9:35", "1998/3/30 09:35", "19980330 9:35:00",
+            "19980330 09:35:00", "1998-03-30 9:35:00", "1998-03-30 09:35:00"
+        )
+        testTimes.forEach {
+            assertThat(one.toNormalized(it)).isEqualTo("199803300935-0600")
+        }
+        testTimes = listOf("11/30/1998 16:35", "1998/11/30 16:35", "19981130 16:35:00", "1998-11-30 16:35:00")
+        testTimes.forEach {
+            assertThat(one.toNormalized(it)).isEqualTo("199811301635-0600")
+        }
     }
 
     @Test
@@ -430,23 +443,11 @@ internal class ElementTests {
         )
 
         // Test wrong date = 50
-        try {
-            one.toNormalized("12502021")
-        } catch (e: IllegalStateException) {
-            assertThat(e.message).isEqualTo("Invalid date: '12502021' for element 'datetime' ('a')")
-        }
+        assertThat { one.toNormalized("12502021") }.isFailure()
         // Test wrong month = 13
-        try {
-            one.toNormalized("13/2/2021")
-        } catch (e: IllegalStateException) {
-            assertThat(e.message).isEqualTo("Invalid date: '13/2/2021' for element 'datetime' ('a')")
-        }
+        assertThat { one.toNormalized("13/2/2021") }.isFailure()
         // Test wrong year = abcd
-        try {
-            one.toNormalized("abcd/12/3")
-        } catch (e: IllegalStateException) {
-            assertThat(e.message).isEqualTo("Invalid date: 'abcd/12/3' for element 'datetime' ('a')")
-        }
+        assertThat { one.toNormalized("abcd/12/3") }.isFailure()
     }
 
     @Test
@@ -580,9 +581,8 @@ internal class ElementTests {
         }
 
         // return an InvalidDateMessage
-        val expected = InvalidDateMessage.new("a week ago", "'date' ('a')", null)
         val actual = checkForErrorDateElement.checkForError("a week ago", null)
-        assertThat(actual?.detailMsg()).isEqualTo(expected.detailMsg())
+        assertThat(actual is InvalidDateMessage).isTrue()
     }
 
     @Test
@@ -595,11 +595,7 @@ internal class ElementTests {
         )
 
         // nullify an invalid date if nullifyValue is true
-        assertThat(
-            checkForErrorDateTimeElementNullify.checkForError("a week ago")
-        ).isEqualTo(
-            null
-        )
+        assertThat(checkForErrorDateTimeElementNullify.checkForError("a week ago")).isNull()
 
         val checkForErrorDateTimeElement = Element(
             "a",
@@ -608,20 +604,18 @@ internal class ElementTests {
         )
 
         // passing through a valid date of known manual formats does not throw an error
-        val dateTimeStrings = arrayOf("12012021", "12/2/2021", "2021/12/3", "12/4/2021 09:00", "2021/12/05 10:00")
+        val dateTimeStrings = arrayOf(
+            "12012021", "12/2/2021", "2021/12/3", "12/4/2021 09:00", "2021/12/05 10:00",
+            "3/30/1998 9:35", "1998/3/30 9:35", "2022-01-30 9:35:09", "20220130 9:35:09", "20220130 09:35:09"
+        )
 
         dateTimeStrings.forEach { dateTimeString ->
-            assertThat(
-                checkForErrorDateTimeElement.checkForError(dateTimeString)
-            ).isEqualTo(
-                null
-            )
+            assertThat(checkForErrorDateTimeElement.checkForError(dateTimeString)).isNull()
         }
 
         // return an InvalidDateMessage
-        val expected = InvalidDateMessage.new("a week ago", "'datetime' ('a')", null)
         val actual = checkForErrorDateTimeElement.checkForError("a week ago", null)
-        assertThat(actual?.detailMsg()).isEqualTo(expected.detailMsg())
+        assertThat(actual is InvalidDateMessage).isTrue()
     }
 
     @Test
@@ -640,11 +634,7 @@ internal class ElementTests {
         )
 
         dateTimeStrings.forEach { dateTimeString ->
-            assertThat(
-                checkForErrorDateTimeElement.checkForError(dateTimeString)?.type
-            ).isEqualTo(
-                ActionLogDetailType.INVALID_DATE
-            )
+            assertThat(checkForErrorDateTimeElement.checkForError(dateTimeString) is InvalidDateMessage).isTrue()
         }
     }
 
@@ -1076,24 +1066,28 @@ internal class ElementTests {
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings).isEmpty()
 
-        result.warning(InvalidEquipmentMessage.new(element))
+        result.warning(InvalidEquipmentMessage(element.fieldMapping))
         assertThat(result.warnings.size).isEqualTo(1)
         assertThat(result.errors).isEmpty()
 
-        result.error(InvalidEquipmentMessage.new(element))
+        result.error(InvalidEquipmentMessage(element.fieldMapping))
         assertThat(result.errors.size).isEqualTo(1)
 
         result = ElementResult(
-            "value", mutableListOf(InvalidEquipmentMessage.new(element), InvalidEquipmentMessage.new(element)),
+            "value",
             mutableListOf(
-                InvalidEquipmentMessage.new(element), InvalidEquipmentMessage.new(element),
-                InvalidEquipmentMessage.new(element)
+                InvalidEquipmentMessage(element.fieldMapping),
+                InvalidEquipmentMessage(element.fieldMapping)
+            ),
+            mutableListOf(
+                InvalidEquipmentMessage(element.fieldMapping), InvalidEquipmentMessage(element.fieldMapping),
+                InvalidEquipmentMessage(element.fieldMapping)
             )
         )
-        result.warning(InvalidEquipmentMessage.new(element))
+        result.warning(InvalidEquipmentMessage(element.fieldMapping))
         assertThat(result.warnings.size).isEqualTo(4)
         assertThat(result.errors.size).isEqualTo(2)
-        result.error(InvalidEquipmentMessage.new(element))
+        result.error(InvalidEquipmentMessage(element.fieldMapping))
         assertThat(result.errors.size).isEqualTo(3)
     }
 
@@ -1157,14 +1151,14 @@ internal class ElementTests {
             ): ElementResult {
                 return if (args.isEmpty()) ElementResult(null)
                 else when (args[0]) {
-                    "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage.new(element))
-                    "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage.new(element))
-                        .warning(InvalidEquipmentMessage.new(element))
-                    "1error" -> ElementResult(null).error(InvalidEquipmentMessage.new(element))
-                    "2errors" -> ElementResult(null).error(InvalidEquipmentMessage.new(element))
-                        .error(InvalidEquipmentMessage.new(element))
-                    "mixed" -> ElementResult(null).error(InvalidEquipmentMessage.new(element))
-                        .warning(InvalidEquipmentMessage.new(element))
+                    "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
+                    "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
+                        .warning(InvalidEquipmentMessage(element.fieldMapping))
+                    "1error" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                    "2errors" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                        .error(InvalidEquipmentMessage(element.fieldMapping))
+                    "mixed" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                        .warning(InvalidEquipmentMessage(element.fieldMapping))
                     else -> throw UnsupportedOperationException()
                 }
             }

@@ -45,6 +45,7 @@ class MetadataTests {
         assertThat(metadata.findReportStreamFilterDefinitions("hasValidDataFor")).isNotNull()
         assertThat(metadata.findReportStreamFilterDefinitions("isValidCLIA")).isNotNull()
         assertThat(metadata.findReportStreamFilterDefinitions("hasAtLeastOneOf")).isNotNull()
+        assertThat(metadata.findReportStreamFilterDefinitions("atLeastOneHasValue")).isNotNull()
     }
 
     @Test

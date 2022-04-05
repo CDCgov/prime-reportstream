@@ -29,14 +29,15 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.6.10"
-    id("org.flywaydb.flyway") version "8.4.2"
-    id("nu.studer.jooq") version "6.0.1"
-    id("com.github.johnrengelman.shadow") version "7.1.1"
+    id("org.flywaydb.flyway") version "8.5.5"
+    id("nu.studer.jooq") version "7.1.1"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
-    id("com.adarshr.test-logger") version "3.1.0"
+    id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.6.10"
+    id("com.avast.gradle.docker-compose") version "0.15.2"
 }
 
 group = "gov.cdc.prime"
@@ -92,7 +93,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "1.6.7"
+val ktorVersion = "1.6.8"
 val kotlinVersion = "1.6.10"
 jacoco.toolVersion = "0.8.7"
 
@@ -110,12 +111,15 @@ compileTestKotlin.kotlinOptions.jvmTarget = "11"
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
+    group = rootProject.description ?: ""
+    description = "Clean the build artifacts"
     // Delete the old Maven build folder
+    dependsOn("composeDownForced")
     delete("target")
     // clean up all the old event files in the SOAP set up
     doLast {
         val eventsDir = File("../.environment/soap_service/soap/event/v1")
-        if (eventsDir.exists() && eventsDir.isDirectory && eventsDir.listFiles().isNotEmpty()) {
+        if (eventsDir.exists() && eventsDir.isDirectory && (eventsDir.listFiles()?.isNotEmpty() == true)) {
             // Note FileUtils does not like when the folder is empty.
             FileUtils.listFiles(eventsDir, arrayOf("event"), true).forEach {
                 it.delete()
@@ -129,6 +133,8 @@ tasks.clean {
  */
 val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/tests/*")
 tasks.test {
+    group = rootProject.description ?: ""
+    description = "Run the unit tests"
     // Use JUnit 5 for running tests
     useJUnitPlatform()
 
@@ -233,6 +239,8 @@ val testIntegrationImplementation: Configuration by configurations.getting {
 configurations["testIntegrationRuntimeOnly"].extendsFrom(configurations["runtimeOnly"])
 
 tasks.register<Test>("testIntegration") {
+    group = rootProject.description ?: ""
+    description = "Run the integration tests"
     useJUnitPlatform()
     dependsOn("compile")
     dependsOn("compileTestIntegrationKotlin")
@@ -264,10 +272,6 @@ tasks.register<Test>("testIntegration") {
             true
         }
     }
-}
-
-tasks.check {
-    dependsOn("testIntegration")
 }
 
 tasks.withType<Test>().configureEach {
@@ -393,6 +397,7 @@ tasks.register<Copy>("gatherAzureResources") {
     from("./")
     into(azureResourcesTmpDir)
     include("metadata/**/*.yml")
+    include("metadata/**/*.properties")
     include("metadata/**/*.schema")
     include("metadata/**/*.valuesets")
     include("metadata/**/*.csv")
@@ -404,7 +409,7 @@ tasks.register("copyAzureResources") {
     dependsOn("gatherAzureResources")
     doLast {
         // We need to use a regular copy, so Gradle does not delete the existing folder
-        org.apache.commons.io.FileUtils.copyDirectory(azureResourcesTmpDir, azureResourcesFinalDir)
+        FileUtils.copyDirectory(azureResourcesTmpDir, azureResourcesFinalDir)
     }
 }
 
@@ -423,7 +428,7 @@ tasks.register("copyAzureScripts") {
     dependsOn("gatherAzureScripts")
     doLast {
         // We need to use a regular copy, so Gradle does not delete the existing folder
-        org.apache.commons.io.FileUtils.copyDirectory(azureScriptsTmpDir, azureScriptsFinalDir)
+        FileUtils.copyDirectory(azureScriptsTmpDir, azureScriptsFinalDir)
         File(azureScriptsFinalDir.path, primeScriptName).setExecutable(true)
         File(azureScriptsFinalDir.path, startFuncScriptName).setExecutable(true)
     }
@@ -442,6 +447,8 @@ tasks.register("package") {
 }
 
 tasks.register("quickPackage") {
+    group = rootProject.description ?: ""
+    description = "Package the code and necessary files to run the Azure functions skipping unit tests and migration"
     // Quick package for development purposes.  Use with caution.
     dependsOn("azureFunctionsPackage")
     dependsOn("copyAzureResources")
@@ -454,7 +461,19 @@ tasks.register("quickPackage") {
     tasks["dokkaHtml"].enabled = false
 }
 
+/**
+ * Docker services needed for running Dockerless
+ */
+dockerCompose {
+    projectName = "prime-router"
+    useComposeFiles.addAll("docker-compose.yml")
+    startedServices.addAll("sftp", "ftps", "soap-webservice", "vault", "azurite")
+    stopContainers.set(false)
+    waitForTcpPorts.set(false)
+}
+
 tasks.azureFunctionsRun {
+    dependsOn("composeUp")
     // This storage account key is not a secret, just a dummy value.
     val devAzureConnectString =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
@@ -471,6 +490,7 @@ tasks.azureFunctionsRun {
         "VAULT_API_ADDR" to "http://localhost:8200",
         "SFTP_HOST_OVERRIDE" to "localhost",
         "SFTP_PORT_OVERRIDE" to "2222",
+        "OKTA_baseUrl" to "hhs-prime.oktapreview.com"
     )
 
     // Load the vault variables
@@ -487,6 +507,8 @@ tasks.register("run") {
 }
 
 tasks.register("quickRun") {
+    group = rootProject.description ?: ""
+    description = "Run the Azure functions locally skipping tests and migration"
     dependsOn("azureFunctionsRun")
     tasks["test"].enabled = false
     tasks["jacocoTestReport"].enabled = false
@@ -615,7 +637,7 @@ buildscript {
     dependencies {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
         // will need to be removed once this issue is resolved in Maven.
-        classpath("net.minidev:json-smart:2.4.2")
+        classpath("net.minidev:json-smart:2.4.8")
     }
 }
 
@@ -628,26 +650,26 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.3.1")
+    jooqGenerator("org.postgresql:postgresql:42.3.3")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.24.1")
-    implementation("com.azure:azure-core-http-netty:1.11.6")
-    implementation("com.azure:azure-storage-blob:12.14.1") {
+    implementation("com.azure:azure-core:1.26.0")
+    implementation("com.azure:azure-core-http-netty:1.11.7")
+    implementation("com.azure:azure-storage-blob:12.14.4") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.11.2") {
+    implementation("com.azure:azure-storage-queue:12.12.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.6") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.3.8") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.4.2") {
+    implementation("com.azure:azure-identity:1.4.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -659,21 +681,28 @@ dependencies {
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.4.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.2") {
+        exclude(group = "org.yaml", module = "snakeyaml")
+    }
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
-    implementation("com.github.javafaker:javafaker:1.0.2")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2")
+    implementation("com.github.javafaker:javafaker:1.0.2") {
+        exclude(group = "org.yaml", module = "snakeyaml")
+    }
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.17")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.7.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.1")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.41")
-    implementation("org.thymeleaf:thymeleaf:3.0.14.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.8.1")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.45")
+    implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
+    implementation("com.sendgrid:sendgrid-java:4.9.1")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
     }
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
-    implementation("org.json:json:20211205")
+    implementation("org.json:json:20220320")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.31.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
@@ -682,11 +711,11 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.9")
     implementation("commons-codec:commons-codec:1.15")
     implementation("commons-io:commons-io:2.11.0")
-    implementation("org.postgresql:postgresql:42.3.0")
-    implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("org.flywaydb:flyway-core:8.4.2")
-    implementation("org.commonmark:commonmark:0.18.1")
-    implementation("com.google.guava:guava:31.0.1-jre")
+    implementation("org.postgresql:postgresql:42.3.3")
+    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("org.flywaydb:flyway-core:8.5.4")
+    implementation("org.commonmark:commonmark:0.18.2")
+    implementation("com.google.guava:guava:31.1-jre")
     implementation("com.helger.as2:as2-lib:4.10.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
@@ -703,10 +732,10 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
-    implementation("it.skrape:skrapeit-html-parser:1.1.6")
-    implementation("it.skrape:skrapeit-http-fetcher:1.2.0")
-    implementation("org.apache.poi:poi:5.2.0")
-    implementation("org.apache.poi:poi-ooxml:5.1.0")
+    implementation("it.skrape:skrapeit-html-parser:1.2.1")
+    implementation("it.skrape:skrapeit-http-fetcher:1.2.1")
+    implementation("org.apache.poi:poi:5.2.2")
+    implementation("org.apache.poi:poi-ooxml:5.2.2")
     implementation("commons-io:commons-io: 2.11.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
@@ -723,7 +752,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.12.1")
+    testImplementation("io.mockk:mockk:1.12.3")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")

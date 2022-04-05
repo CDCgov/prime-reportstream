@@ -2,7 +2,16 @@
 <Configuration status="INFO">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t][%T] %-5level %logger{36} - %msg%n"/>
+            <PatternLayout>
+                <!-- Might be able to use entity references to avoid repeating this pattern over and over. -->
+                <LevelPatternSelector defaultPattern="%d{HH:mm:ss.SSS} [%t][%T] %-5level %logger{36} - %msg%n">
+                  <!-- Add some color to ERROR and WARN -->
+                  <PatternMatch key="ERROR" pattern="%highlight{%d{HH:mm:ss.SSS} [%t][%T] %-5level %logger{36} - %msg}{bright,red}%n" />
+                  <PatternMatch key="WARN" pattern="%highlight{%d{HH:mm:ss.SSS} [%t][%T] %-5level %logger{36} - %msg}{bright,red}%n" />
+                  <!-- Also add a unique string that can trigger PagerDuty  -->
+                  <PatternMatch key="FATAL" pattern="%highlight{%d{HH:mm:ss.SSS} [%t][%T] FATAL-ALERT %logger{36} - %msg}{bright,red}%n" />
+                </LevelPatternSelector>
+           </PatternLayout>
         </Console>
     </Appenders>
     <Loggers>

@@ -27,7 +27,7 @@ elements:
     hl7Field: NTE-3
 
   - name: comment_source
-    type: CODE
+    type: ID
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: NTE-2
@@ -202,20 +202,6 @@ elements:
     hhsGuidanceField:
     hl7Field: AOE
     hl7AOEQuestion: 65222-2
-
-  - name: observation_result_status
-    type: CODE
-    natFlatFileField:
-    hhsGuidanceField:
-    hl7Field: OBX-11
-    valueSet: hl70085
-
-  - name: order_result_status
-    type: CODE
-    valueSet: hl70123
-    natFlatFileField: Order_result_status
-    hhsGuidanceField:
-    hl7Field: OBR-25
 
   - name: order_test_date
     type: DATETIME
@@ -1120,7 +1106,7 @@ elements:
     type: CODE
     cardinality: ZERO_OR_ONE
 # Don't default.    default: F
-    valueSet: hl70123
+    valueSet: hl70085
     natFlatFileField: Test_result_status
     hhsGuidanceField:
     hl7Field: OBX-11-1
@@ -1128,6 +1114,22 @@ elements:
     documentation: |
       The test result status, which is different from the test result itself. Per the valueset, this indicates if
       the test result is in some intermediate status, is a correction, or is the final result.
+
+  - name: observation_result_status
+    type: ID
+    default: F
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: OBX-11
+    valueSet: hl70085
+
+  - name: order_result_status
+    type: ID
+    default: F
+    natFlatFileField: Order_result_status
+    hhsGuidanceField:
+    hl7Field: OBR-25
+    valueSet: hl70123
 
   - name: test_result_sub_id
     type: ID
@@ -1278,7 +1280,7 @@ elements:
   #  hl7Field: AOE
 
   - name: value_type
-    type: CODE
+    type: ID
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: OBX-2

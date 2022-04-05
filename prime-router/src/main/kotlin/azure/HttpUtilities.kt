@@ -1,9 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -13,6 +9,7 @@ import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.http.client.utils.URIBuilder
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
@@ -20,24 +17,19 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 class HttpUtilities {
+
     companion object : Logging {
         const val jsonMediaType = "application/json"
+        const val fhirMediaType = "application/fhir+json"
         const val oldApi = "/api/reports"
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
 
         // Ignoring unknown properties because we don't require them. -DK
-        private val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-
-        init {
-            // Format OffsetDateTime as an ISO string
-            mapper.registerModule(JavaTimeModule())
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        }
+        private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
         /**
          * Last modified time header value formatter.
@@ -86,7 +78,7 @@ class HttpUtilities {
             return request
                 .createResponseBuilder(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
-                .body(mapper.writeValueAsString(body))
+                .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(body))
                 .build()
         }
 
@@ -196,7 +188,7 @@ class HttpUtilities {
             // https://datatracker.ietf.org/doc/html/rfc7232#section-2.2 defines this header format
 
             // Convert to UTC timezone
-            val lastModifiedGMT = OffsetDateTime.ofInstant(lastModified.toInstant(), ZoneOffset.UTC)
+            val lastModifiedGMT = OffsetDateTime.ofInstant(lastModified.toInstant(), Environment.rsTimeZone)
             val lastModifiedFormatted = lastModifiedGMT.format(lastModifiedFormatter)
             builder.header(HttpHeaders.LAST_MODIFIED, lastModifiedFormatted)
         }
