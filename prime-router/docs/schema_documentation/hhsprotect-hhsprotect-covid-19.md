@@ -1597,22 +1597,6 @@ P, D, or T for Production, Debugging, or Training
 
 **Name**: reportingFacility
 
-**ReportStream Internal Name**: reportingFacility
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is no longer used.  Included here so it does not generate a warning if present.
-
----
-
-**Name**: reportingFacility
-
 **ReportStream Internal Name**: reporting_facility_name
 
 **Type**: TEXT
