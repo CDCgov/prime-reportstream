@@ -1,14 +1,14 @@
-# Run this:  ./prime multiple-settings set --input ./settings/prod/0100-mycarelabs-ca.yml --env prod
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0106-update-youthclinic-co.yml --env prod
 ---
-- name: "mycarelabs-ca"
-  description: "MyCare Labs in CA - CSV Uploader"
+- name: "youthclinic-co"
+  description: "The Youth Clinic (CO) - CSV Uploader"
   jurisdiction: "FEDERAL"
   stateCode: null
   countyName: null
   filters: []
   senders:
     - name: "default"
-      organizationName: "mycarelabs-ca"
+      organizationName: "youthclinic-co"
       format: "CSV"
       topic: "covid-19"
       customerStatus: "active"
