@@ -2,9 +2,7 @@ import { screen } from "@testing-library/react";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { IFilterManager } from "../../hooks/UseFilterManager";
-import {
-    ICursorManager,
-} from "../../hooks/UseCursorManager";
+import { ICursorManager } from "../../hooks/UseCursorManager";
 
 import SubmissionFilters from "./SubmissionFilters";
 
