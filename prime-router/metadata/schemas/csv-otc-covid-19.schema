@@ -1,0 +1,466 @@
+---
+name: csv-otc-covid-19
+description: CSV Schema for OTC Results based on NIH At-Home specs
+topic: covid-19
+trackingElement: message_id
+basedOn: covid-19
+
+elements:
+    - name: sender_id
+      mapper: useSenderSetting(organizationName)
+
+    - name: processing_mode_code_fromsettings
+      type: TEXT
+      mapper: useSenderSetting(processingModeCode)
+
+    - name: processing_mode_code
+      cardinality: ONE
+      mapper: use(processing_mode_code, processing_mode_code_fromsettings)
+      csvFields: [ { name: processing_mode_code, format: $alt} ]
+      type: CODE
+      altValues:
+        - code: "T"
+          display: "TESTING"
+        - code: "T"
+          display: "INACTIVE"
+        - code: "T"
+          display: "T"
+        - code: "P"
+          display: "ACTIVE"
+        - code: "P"
+          display: "P"
+
+
+############### Set the major ID fields
+#    - name: sending_application_name
+#      type: TEXT
+#      cardinality: ZERO_OR_ONE
+#      csvFields: [{name: sending_application_name}]
+
+#    - name: sending_application_OID
+#      type: TEXT
+#      cardinality: ZERO_OR_ONE
+#      csvFields: [{name: sending_application_OID}]
+
+    - name: clia_text
+      type: TEXT
+      default: "CLIA"
+
+    - name: iso_text
+      type: TEXT
+      default: "ISO"
+
+    - name: patient_id
+      cardinality: ONE
+      csvFields: [{name: patient_id}]
+
+    - name: accession_number_temp
+      type: TEXT
+      mapper: concat(patient_id, $index, $currentDate)
+      delimiter: "+"
+
+    - name: filler_order_id
+      csvFields: [ { name: accession_number } ]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, accession_number_temp, filler_order_id)
+
+    - name: placer_order_id
+      mapper: use(filler_order_id)
+
+    - name: message_id
+      mapper: concat(filler_order_id, $index, $currentDate)
+      delimiter: "+"
+
+    - name: testing_lab_specimen_id
+      mapper: use(filler_order_id)
+
+
+################ Reporting Facility Info
+    - name: reporting_facility_name
+      cardinality: ONE
+      csvFields: [{name: reporting_facility_name }]
+
+    - name: reporting_facility_clia
+      cardinality: ONE
+      csvFields: [{name: reporting_facility_clia}]
+
+
+############### Set Other Miscellaneous Info; Assigning Authorities, etc
+    - name: filler_clia
+      mapper: use(reporting_facility_clia)
+
+    - name: patient_id_assigner
+      mapper: concat(reporting_facility_name,reporting_facility_clia,clia_text)
+      delimiter: "&"
+
+#    - name: patient_id_assigner
+#      mapper: use(reporting_facility_clia)
+
+    - name: filler_name
+      mapper: use(reporting_facility_name)
+
+
+############### Patient Info
+    - name: patient_id_type
+      default: "PI"
+
+    - name: patient_last_name
+      csvFields: [{name: patient_last_name}]
+
+    - name: patient_middle_name
+      csvFields: [{name: patient_middle_name}]
+
+    - name: patient_first_name
+      csvFields: [{name: patient_first_name}]
+
+    - name: patient_street
+      csvFields: [{name: patient_street}]
+
+    - name: patient_street2
+      csvFields: [{name: patient_street2}]
+
+    - name: patient_city
+      csvFields: [{name: patient_city}]
+
+    - name: patient_state_fromCSV
+      type: TEXT
+      csvFields: [{ name: patient_state}]
+
+    - name: patient_state_fromValueSet
+      type: CODE
+      valueSet: sender-automation/state
+      documentation: Translate multiple inbound State values to RS values
+      csvFields: [{ name: patient_state, format: $display}]
+
+    - name: patient_state
+      cardinality: ONE 
+      mapper: use(patient_state_fromValueSet, patient_state_fromCSV)
+
+    - name: patient_zip_code
+      cardinality: ONE 
+      csvFields: [{name: patient_zip_code}]
+
+    - name: patient_county
+      type: TEXT
+      cardinality: ZERO_OR_ONE
+      csvFields: [{name: patient_county}]
+
+    - name: patient_county_code
+      type: TABLE
+      cardinality: ZERO_OR_ONE
+      table: fips-county
+      tableColumn: FIPS
+      mapper: lookup(patient_state, patient_county)
+
+    - name: patient_phone_number
+      csvFields: [{name: patient_phone_number}]
+
+    - name: patient_dob
+      type: DATE
+      csvFields: [{name: patient_dob}]
+
+    - name: patient_gender
+      cardinality: ONE 
+      type: CODE
+      valueSet: sender-automation/gender
+      documentation: Translate multiple inbound Gender values to RS values
+      csvFields: [{ name: patient_gender, format: $display}]
+
+    - name: patient_ethnicity
+      valueSet: sender-automation/ethnicity
+      documentation: Translate multiple inbound ethnicity values to RS / OMB values
+      csvFields: [{ name: patient_ethnicity, format: $display}]
+
+    - name: patient_race
+      valueSet: sender-automation/race
+      documentation: Translate multiple inbound Race values to RS / OMB values
+      csvFields: [{ name: patient_race, format: $display}]
+
+    - name: patient_email
+      csvFields: [{name: patient_email }]
+
+
+############### Order Info / Result Info / Specimen Info
+    - name: order_test_date
+      type: DATETIME
+      cardinality: ONE 
+      nullifyValue: true
+      csvFields: [{name: order_test_date}]
+
+    - name: specimen_collection_date_temp
+      type: TEXT
+      csvFields: [{name: specimen_collection_date }]
+
+    - name: specimen_collection_date_time
+      type: DATETIME
+      cardinality: ONE 
+      nullifyValue: true
+      csvFields: [{name: specimen_collection_date}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, order_test_date, specimen_collection_date_temp)
+
+    - name: testing_lab_specimen_received_date_temp
+      type: TEXT
+      csvFields: [{name: testing_lab_specimen_received_date}]
+
+    - name: testing_lab_specimen_received_datetime
+      type: DATETIME
+      cardinality: ONE 
+      nullifyValue: true
+      csvFields: [{name: testing_lab_specimen_received_date}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, order_test_date, testing_lab_specimen_received_date_temp)
+
+    - name: test_result_date
+      type: DATETIME
+      cardinality: ONE 
+      nullifyValue: true
+      csvFields: [{name: test_result_date}]
+
+    - name: date_result_released_temp
+      type: TEXT
+      csvFields: [{name: date_result_released}]
+
+    - name: date_result_released
+      type: DATETIME
+      cardinality: ONE 
+      nullifyValue: true
+      csvFields: [{name: date_result_released}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, test_result_date, date_result_released_temp)
+
+    - name: test_result
+      cardinality: ONE 
+      type: CODE
+      valueSet: sender-automation/test_result
+      documentation: Translate multiple inbound Test Result values to RS values
+      csvFields: [{ name: test_result, format: $display}]
+
+    - name: test_result_status
+      default: F
+      cardinality: ONE 
+      nullifyValue: true
+      type: CODE
+      csvFields: [{name: test_result_status, format: $alt}]
+      altValues:
+        - code: "F"
+          display: "F"
+        - code: "F"
+          display: "f"
+        - code: "C"
+          display: "C"
+        - code: "C"
+          display: "c"
+
+    - name: specimen_type
+      cardinality: ONE 
+      type: CODE
+      valueSet: sender-automation/specimen_type
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: specimen_type, format: $display}]
+
+    - name: specimen_source_site_code
+      type: CODE
+      valueSet: sender-automation/specimen_source_site_code
+      documentation: Translate inbound text to outbound SNOMED Codes
+      csvFields: [{ name: specimen_type, format: $display}]
+
+
+############### LIVD Lookup() related fields
+    - name: equipment_model_name
+      cardinality: ONE 
+      type: TEXT
+      csvFields: [{name: equipment_model_name }]
+      mapperOverridesValue: true
+
+    - name: test_performed_code
+      cardinality: ONE 
+      type: TEXT
+      csvFields: [{name: test_performed_code}]
+
+
+############### Ordering provider info
+    - name: ordering_provider_id
+      csvFields: [{name: ordering_provider_id}]
+
+    - name: ordering_provider_last_name
+      csvFields: [{name: ordering_provider_last_name}]
+
+    - name: ordering_provider_first_name_fromCSV
+      type: TEXT
+      csvFields: [{ name: ordering_provider_first_name}]
+
+    - name: ordering_provider_first_name
+      cardinality: ONE 
+      csvFields: [{name: ordering_provider_first_name}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:literal, $string:SA.OverTheCounter, ordering_provider_first_name_fromCSV)
+
+    - name: ordering_provider_middle_name
+      csvFields: [{name: ordering_provider_middle_name}]
+
+    - name: ordering_provider_street
+      csvFields: [{name: ordering_provider_street}]
+
+    - name: ordering_provider_street2
+      csvFields: [{name: ordering_provider_street2}]
+
+    - name: ordering_provider_city
+      csvFields: [{name: ordering_provider_city}]
+
+    - name: ordering_provider_state_fromCSV
+      type: TEXT
+      csvFields: [{ name: ordering_provider_state}]
+
+    - name: ordering_provider_state_fromValueSet
+      type: CODE
+      valueSet: sender-automation/state
+      documentation: Translate multiple inbound State values to RS values
+      csvFields: [{ name: ordering_provider_state, format: $display}]
+
+    - name: ordering_provider_state
+      mapper: use(ordering_provider_state_fromValueSet, ordering_provider_state_fromCSV)
+
+    - name: ordering_provider_zip_code
+      csvFields: [{name: ordering_provider_zip_code}]
+
+    - name: ordering_provider_phone_number
+      csvFields: [{name: ordering_provider_phone_number}]
+
+
+############### Testing lab info
+    - name: testing_lab_clia
+      cardinality: ONE 
+      nullifyValue: true
+      type: CODE
+      csvFields: [{name: testing_lab_clia, format: $alt}]
+      altValues:
+        - code: "00Z0000014"
+          display: "00Z0000014"
+        - code: "00Z0000015"
+          display: "00Z0000015"
+
+    - name: testing_lab_id
+      mapper: use(testing_lab_clia)
+
+    - name: testing_lab_id_assigner
+      default: "CLIA&2.16.840.1.113883.4.7&ISO"
+
+    - name: testing_lab_name
+      cardinality: ONE 
+      nullifyValue: true
+      type: CODE
+      csvFields: [{name: testing_lab_clia, format: $alt}]
+      altValues:
+        - code: "SA.OverTheCounter"
+          display: "00Z0000014"
+        - code: "SA.Prescription"
+          display: "00Z0000015"
+
+    - name: testing_lab_street
+      cardinality: ONE 
+      nullifyValue: true
+      type: CODE
+      csvFields: [{name: testing_lab_clia, format: $alt}]
+      altValues:
+        - code: "11 Fake AtHome Test Street"
+          display: "00Z0000014"
+        - code: "12 Fake AtHome Test Street"
+          display: "00Z0000015"
+
+    - name: testing_lab_city
+      default: "Yakutat"
+
+    - name: testing_lab_state
+      default: "AK"
+
+    - name: testing_lab_zip_code
+      default: "99689"
+
+    - name: testing_lab_county_code
+      default: "02282"
+
+
+############### Ordering facility info
+    - name: otc_flag
+      nullifyValue: true
+      type: CODE
+      csvFields: [{name: testing_lab_clia, format: $alt}]
+      altValues:
+        - code: "SA.OverTheCounter"
+          display: "00Z0000014"
+        - code: ""
+          display: "00Z0000015"
+
+    - name: ordering_facility_name
+      default: "SA.OverTheCounter"
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, ordering_provider_last_name, otc_flag)
+
+    - name: ordering_facility_street
+      csvFields: [{name: patient_street}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, ordering_provider_street, otc_flag)
+
+    - name: ordering_facility_street2
+      csvFields: [{name: patient_street2}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, ordering_provider_street2, otc_flag)
+
+    - name: ordering_facility_city
+      csvFields: [{name: patient_city}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, ordering_provider_city, otc_flag)
+
+
+#    - name: ordering_facility_state_fromCSV
+#      type: TEXT
+#      csvFields: [{ name: ordering_facility_state}]
+
+#    - name: ordering_facility_state_fromValueSet
+#      type: CODE
+#      valueSet: sender-automation/state
+#      documentation: Translate multiple inbound State values to RS values
+#      csvFields: [{ name: ordering_facility_state, format: $display}]
+
+#    - name: ordering_facility_state_temp
+#      type: TEXT
+#      mapper: use(ordering_facility_state_fromValueSet, ordering_facility_state_fromCSV)
+
+#    - name: ordering_facility_state
+#      cardinality: ONE 
+########## Create a ticket for mapper: ifThenElse
+#      mapper: ifThenElse(otc_flag, comparisonValue, ordering_provider_state, ELSE patient_state)
+#      operator: blank or != or == or >= or <=
+
+
+    - name: ordering_facility_state
+      type: TEXT
+      csvFields: [{name: patient_state}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, ordering_provider_state, otc_flag)
+
+    - name: ordering_facility_zip_code
+      csvFields: [{name: patient_zip_code}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, ordering_provider_zip_code, otc_flag)
+
+    - name: ordering_facility_phone_number
+      csvFields: [{name: patient_phone_number}]
+      mapperOverridesValue: true
+      mapper: ifNotPresent($mode:lookup, ordering_provider_phone_number, otc_flag)
+
+
+############### AOE fields
+    - name: symptomatic_for_disease
+      type: CODE
+      valueSet: sender-automation/yesno
+      documentation: Translate multiple inbound Y/N/U AOE values to RS values
+      csvFields: [{ name: symptomatic_for_disease, format: $display}]
+      default: ""
+
+    - name: illness_onset_date
+      type: DATE
+      default: ""
+      csvFields: [{name: illness_onset_date, format: "yyyyMMdd"}]
+      nullifyValue: true
