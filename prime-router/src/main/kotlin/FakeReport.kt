@@ -300,19 +300,19 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         } ?: faker.address().city().toString()
 
         // TODO ticket 4016
-        val facilitiesName: String? = if(includeNcesFacilities) {
-                // TODO("get value from NCES Table, using state, zipCode, country")
-                Hl7Serializer.ncesLookupTable.value.lookupBestMatch(
-                    lookupColumn = "SCHNAME",
-                    searchColumn = "LZIP",
-                    searchValue = zipCode,
-                    canonicalize = { canonicalizeSchoolName(it) },
-                    commonWords = listOf("ELEMENTARY", "JUNIOR", "HIGH", "MIDDLE")
-                )?.toString()
-            } else {
-                // TODO("state, zipCode, county")
-                "Any facility USA"
-            }
+        val facilitiesName: String? = if (includeNcesFacilities) {
+            // TODO("get value from NCES Table, using state, zipCode, country")
+            Hl7Serializer.ncesLookupTable.value.lookupBestMatch(
+                lookupColumn = "SCHNAME",
+                searchColumn = "LZIP",
+                searchValue = zipCode,
+                canonicalize = { canonicalizeSchoolName(it) },
+                commonWords = listOf("ELEMENTARY", "JUNIOR", "HIGH", "MIDDLE")
+            )?.toString()
+        } else {
+            // TODO("state, zipCode, county")
+            "Any facility USA"
+        }
 
         /**
          * Prepare the string for matching by throwing away non-searchable characters and spacing
@@ -394,12 +394,14 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         targetCounty: String? = null,
         includeNcesFacilities: Boolean = false
     ): List<String> {
-        val context = RowContext(metadata::findLookupTable,
+        val context = RowContext(
+            metadata::findLookupTable,
             targetState,
             schemaName = schema.name,
             targetCounty,
             includeNcesFacilities,
-            locale)
+            locale
+        )
         return schema.elements.map {
             if (it.mapper.isNullOrEmpty())
                 buildColumn(it, context)
