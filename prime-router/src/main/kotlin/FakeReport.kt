@@ -9,6 +9,7 @@ import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import gov.cdc.prime.router.metadata.Mappers
 import gov.cdc.prime.router.metadata.UseMapper
+import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.apache.logging.log4j.kotlin.Logging
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -40,17 +41,21 @@ class FakeDataService : Logging {
                 element.nameContains("name_of_testing_lab") -> "Any lab USA"
                 element.nameContains("lab_name") -> "Any lab USA"
                 element.nameContains("sender_id") -> "${element.default}" // Allow the default to fill this in
-                element.nameContains("facility_name") -> "Any facility USA"
+                element.nameContains("facility_name") -> context.facilitiesName ?: "Any facility USA"
                 element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
                 element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
                 element.nameContains("result_format") -> "CWE"
                 element.nameContains("patient_preferred_language") -> randomChoice("ENG", "FRE", "SPA", "CHI", "KOR")
                 element.nameContains("patient_country") -> "USA"
-                element.nameContains("site_of_care") -> randomChoice(
-                    "airport", "assisted_living", "camp", "correctional_facility", "employer", "fqhc",
-                    "government_agency", "hospice", "hospital", "k12", "lab", "nursing_home", "other",
-                    "pharmacy", "primary_care", "shelter", "treatment_center", "university", "urgent_care"
-                )
+                element.nameContains("site_of_care") -> if (context.facilitiesName.isNullOrEmpty()) {
+                    randomChoice(
+                        "airport", "assisted_living", "camp", "correctional_facility", "employer", "fqhc",
+                        "government_agency", "hospice", "hospital", "k12", "lab", "nursing_home", "other",
+                        "pharmacy", "primary_care", "shelter", "treatment_center", "university", "urgent_care"
+                    )
+                } else {
+                    "k12"
+                }
                 element.nameContains("patient_age_and_units") -> {
                     val unit = randomChoice("months", "years", "days")
                     val value = when (unit) {
@@ -256,6 +261,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         reportState: String? = null,
         val schemaName: String? = null,
         reportCounty: String? = null,
+        includeNcesFacilities: Boolean = false,
         locale: Locale? = null
     ) {
         val faker = if (locale == null) Faker() else Faker(locale)
@@ -292,6 +298,49 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
                     .isEqualTo("zipcode", zipCode).findAllUnique("city")
             )
         } ?: faker.address().city().toString()
+
+        // TODO ticket 4016
+        val facilitiesName: String? = if(includeNcesFacilities) {
+                // TODO("get value from NCES Table, using state, zipCode, country")
+                Hl7Serializer.ncesLookupTable.value.lookupBestMatch(
+                    lookupColumn = "SCHNAME",
+                    searchColumn = "LZIP",
+                    searchValue = zipCode,
+                    canonicalize = { canonicalizeSchoolName(it) },
+                    commonWords = listOf("ELEMENTARY", "JUNIOR", "HIGH", "MIDDLE")
+                )?.toString()
+            } else {
+                // TODO("state, zipCode, county")
+                "Any facility USA"
+            }
+
+        /**
+         * Prepare the string for matching by throwing away non-searchable characters and spacing
+         */
+        internal fun canonicalizeSchoolName(schoolName: String): String {
+            val normalizeSchoolType = schoolName
+                .uppercase()
+                .replace("SCHOOL", "")
+                .replace("(H)", "HIGH")
+                .replace("(M)", "MIDDLE")
+                .replace("K-8", "K8")
+                .replace("K-12", "K12")
+                .replace("\\(E\\)|ELEM\\.|EL\\.".toRegex(), "ELEMENTARY")
+                .replace("ELEM\\s|ELEM$".toRegex(), "ELEMENTARY ")
+                .replace("SR HIGH", "SENIOR HIGH")
+                .replace("JR HIGH", "JUNIOR HIGH")
+
+            val possesive = normalizeSchoolType
+                .replace("\'S", "S")
+            val onlyLettersAndSpaces = possesive
+                .replace("[^A-Z0-9\\s]".toRegex(), " ")
+
+            // Throw away single letter words
+            return onlyLettersAndSpaces
+                .split(" ")
+                .filter { it.length > 1 }
+                .joinToString(" ")
+        }
     }
 
     internal fun buildColumn(element: Element, context: RowContext): String {
@@ -339,8 +388,18 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         }
     }
 
-    private fun buildRow(schema: Schema, targetState: String? = null, targetCounty: String? = null): List<String> {
-        val context = RowContext(metadata::findLookupTable, targetState, schemaName = schema.name, targetCounty, locale)
+    private fun buildRow(
+        schema: Schema,
+        targetState: String? = null,
+        targetCounty: String? = null,
+        includeNcesFacilities: Boolean = false
+    ): List<String> {
+        val context = RowContext(metadata::findLookupTable,
+            targetState,
+            schemaName = schema.name,
+            targetCounty,
+            includeNcesFacilities,
+            locale)
         return schema.elements.map {
             if (it.mapper.isNullOrEmpty())
                 buildColumn(it, context)
@@ -354,7 +413,8 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         count: Int = 10,
         source: Source,
         targetStates: String? = null,
-        targetCounties: String? = null
+        targetCounties: String? = null,
+        includeNcesFacilities: Boolean = false
     ): Report {
         val counties = targetCounties?.split(",")
         val states = if (targetStates.isNullOrEmpty()) {
@@ -364,7 +424,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
             targetStates.split(",")
         }
         val rows = (0 until count).map {
-            buildRow(schema, roundRobinChoice(states), roundRobinChoice(counties))
+            buildRow(schema, roundRobinChoice(states), roundRobinChoice(counties), includeNcesFacilities)
         }.toList()
         return Report(schema, rows, listOf(source), metadata = metadata)
     }
