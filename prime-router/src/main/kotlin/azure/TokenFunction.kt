@@ -52,11 +52,13 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
         actionHistory.trackActionParams(request)
         val senderKeyFinder = FindSenderKeyInSettings(scope, metadata)
         val tokenAuthentication = TokenAuthentication(DatabaseJtiCache(workflowEngine.db))
-        if (tokenAuthentication.checkSenderToken(clientAssertion, senderKeyFinder, actionHistory)) {
+        val response = if (tokenAuthentication.checkSenderToken(clientAssertion, senderKeyFinder, actionHistory)) {
             val token = tokenAuthentication.createAccessToken(scope, FindReportStreamSecretInVault(), actionHistory)
-            workflowEngine.recordAction(actionHistory)
+
             // Per https://hl7.org/fhir/uv/bulkdata/authorization/index.html#issuing-access-tokens
-            return HttpUtilities.httpResponse(request, jacksonObjectMapper().writeValueAsString(token), HttpStatus.OK)
+            HttpUtilities.httpResponse(
+                request, jacksonObjectMapper().writeValueAsString(token), HttpStatus.OK
+            )
         } else {
             actionHistory.trackActionResult("Token request denied.")
             actionHistory.setActionType(TaskAction.token_error)
@@ -64,8 +66,10 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
                 logger.error("${senderKeyFinder.errorMsg}")
                 actionHistory.trackActionResult("${senderKeyFinder.errorMsg}")
             }
-            workflowEngine.recordAction(actionHistory)
-            return HttpUtilities.unauthorizedResponse(request)
+
+            HttpUtilities.unauthorizedResponse(request)
         }
+        workflowEngine.recordAction(actionHistory)
+        return response
     }
 }

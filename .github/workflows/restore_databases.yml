@@ -1,0 +1,316 @@
+name: Restore databases
+
+on:
+  workflow_dispatch:
+    inputs:
+      backup_from:
+        description: 'Backup from:'
+        required: true
+        options:
+        - prod
+        - staging
+        - test
+        default: 'staging'
+        type: choice
+      restore_to:
+        description: 'Restore to:'
+        required: true
+        options:
+        - staging
+        - test
+        default: 'test'
+        type: choice
+      backup_age_limit_mins:
+        description: 'Run ONLY if last backup file is older than mins:'
+        required: true
+        default: 60
+        type: number
+      restore_ignore_backup_age:
+        description: 'Force restore, ignoring backup age:'
+        required: true
+        default: 'false'
+        type: boolean
+      databases:
+        description: 'Databases to backup and restore:'
+        required: true
+        default: '[\"prime_data_hub_candidate\",\"prime_data_hub\"]'
+        type: string
+
+defaults:
+  run:
+    working-directory: prime-router
+
+jobs:
+  pre_job:
+    name: "Set Build Environment"
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ env.ENV_NAME }}
+      sink_env_name: ${{ env.SINK_ENV_NAME }}
+      restore_ignore_backup_age: ${{ env.RESTORE_IGNORE_BACKUP_AGE }}
+      backup_age_limit_mins: ${{ env.BACKUP_AGE_LIMIT_MINS }}
+      databases: ${{ env.DATABASES }}
+      source_resource_group: ${{ env.SOURCE_RESOURCE_GROUP }}
+      sink_resource_group: ${{ env.SINK_RESOURCE_GROUP }}
+      source_db_server: ${{ env.SOURCE_DB_SERVER }}
+      sink_db_server: ${{ env.SINK_DB_SERVER }}
+      sink_backup_storage: ${{ env.SINK_BACKUP_STORAGE }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@v2
+
+      - name: Set env variables
+        shell: bash
+        run: |
+          echo "event_name: ${{ github.event_name }}"
+          if [[ "${{ github.event_name }}" == 'workflow_dispatch' ]]; then 
+            echo "ENV_NAME=${{ github.event.inputs.backup_from }}" >> $GITHUB_ENV
+            echo "SINK_ENV_NAME=${{ github.event.inputs.restore_to }}" >> $GITHUB_ENV
+            echo "RESTORE_IGNORE_BACKUP_AGE=${{ github.event.inputs.restore_ignore_backup_age }}" >> $GITHUB_ENV
+            echo "BACKUP_AGE_LIMIT_MINS=${{ github.event.inputs.backup_age_limit_mins }}" >> $GITHUB_ENV
+            echo "DATABASES=${{ github.event.inputs.databases }}" >> $GITHUB_ENV
+          else
+            echo "ENV_NAME=staging" >> $GITHUB_ENV
+            echo "SINK_ENV_NAME=test" >> $GITHUB_ENV
+            echo "RESTORE_IGNORE_BACKUP_AGE=false" >> $GITHUB_ENV
+            echo "BACKUP_AGE_LIMIT_MINS=1440" >> $GITHUB_ENV
+            echo "DATABASES=[\"prime_data_hub_candidate\"]" >> $GITHUB_ENV
+          fi
+          
+      - name: Set backup and restore variables
+        shell: bash
+        run: |
+          echo "SOURCE_RESOURCE_GROUP=prime-data-hub-${{ env.ENV_NAME }}" >> $GITHUB_ENV
+          echo "SINK_RESOURCE_GROUP=prime-data-hub-${{ env.SINK_ENV_NAME }}" >> $GITHUB_ENV
+          echo "SOURCE_DB_SERVER=pdh${{ env.ENV_NAME }}-pgsql" >> $GITHUB_ENV
+          echo "SINK_DB_SERVER=pdh${{ env.SINK_ENV_NAME }}-pgsql" >> $GITHUB_ENV
+          echo "SINK_BACKUP_STORAGE=pdh${{ env.SINK_ENV_NAME }}terraform" >> $GITHUB_ENV
+
+      # Login to Azure
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      # Restores will fail if sink server is not pre-expanded
+      - name: Increase sink server size if necessary
+        shell: bash
+        run: |
+          source_size=$(az postgres server show --name ${{ env.SOURCE_DB_SERVER }} --resource-group ${{ env.SOURCE_RESOURCE_GROUP }} \
+            --query 'storageProfile.storageMb' -o tsv)
+          sink_size=$(az postgres server show --name ${{ env.SINK_DB_SERVER }}-replica --resource-group ${{ env.SINK_RESOURCE_GROUP }} \
+            --query 'storageProfile.storageMb' -o tsv)
+          if [[ ${source_size} -gt ${sink_size} ]]; then 
+            az postgres server update --name ${{ env.SINK_DB_SERVER }}-replica -g ${{ env.SINK_RESOURCE_GROUP }} --storage-size $source_size
+            az postgres server update --name ${{ env.SINK_DB_SERVER }} -g ${{ env.SINK_RESOURCE_GROUP }} --storage-size $source_size
+          fi
+
+  backup_source:
+    name: "Backup source: ${{ needs.pre_job.outputs.env_name }} - ${{ matrix.db }}"
+    needs:
+      - pre_job
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        db: ${{ fromJson(needs.pre_job.outputs.databases) }}
+    concurrency: ${{ needs.pre_job.outputs.env_name }}
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    env:
+      env_name: ${{ needs.pre_job.outputs.env_name }}
+      sink_backup_storage: ${{ needs.pre_job.outputs.sink_backup_storage }}
+      source_resource_group: ${{ needs.pre_job.outputs.source_resource_group }}
+      source_db_server: ${{ needs.pre_job.outputs.source_db_server }}
+    outputs:
+       backup_age_valid: ${{ env.BACKUP_AGE_VALID }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@v2
+
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ env.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Get public ip
+        shell: bash
+        run: echo "PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)" >> $GITHUB_ENV
+
+      # Only create a backup if last run is greater than age limit
+      - name: Confirm last backup age valid
+        shell: bash
+        run: |
+          backup_exists=$(az storage file exists --account-name ${{ env.sink_backup_storage }} --path ${{ env.env_name }}_${{ matrix.db }}.dump \
+            --share-name dbbackups --query 'exists' -o tsv --only-show-errors)
+          if [ $backup_exists == "false" ]; then
+              lastModified="1970-01-01"
+          else 
+              lastModified=$(az storage file show --path ${{ env.env_name }}_${{ matrix.db }}.dump --share-name dbbackups \
+                --account-name ${{ env.sink_backup_storage }} --query 'properties.lastModified' --only-show-errors -o tsv)
+          fi
+          currentDate=$(date +%s)
+          lastModified=$(date +%s -d $lastModified)
+          backupAgeMins=$(( ( $currentDate - $lastModified ) / 60 ))
+          if [[ ${backupAgeMins} -gt ${{ needs.pre_job.outputs.backup_age_limit_mins }} ]]; then echo "BACKUP_AGE_VALID=true" >> $GITHUB_ENV; fi
+
+      # Allow runner db access
+      - name: Add db access
+        if: env.BACKUP_AGE_VALID == 'true'
+        id: add-db-access
+        shell: bash
+        run: |
+          az postgres server update -g ${{ env.source_resource_group }} -n ${{ env.source_db_server }} --public-network-access "Enabled"
+          az postgres server firewall-rule create -g ${{ env.source_resource_group }} -s ${{ env.source_db_server }} -n github_actions_runner \
+            --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
+
+      # Mount Azure file share to store backup file
+      - name: Mount file share
+        if: env.BACKUP_AGE_VALID == 'true'
+        id: mount_share
+        uses: ./.github/actions/mount-share
+        with:
+          storage-account-resource-group: ${{ needs.pre_job.outputs.sink_resource_group }}
+          storage-account-name: ${{ env.sink_backup_storage }}
+          file-share-name: "dbbackups"
+
+      - name: Backup db
+        if: env.BACKUP_AGE_VALID == 'true'
+        uses: ./.github/actions/db-backup
+        with:
+          pass: ${{ secrets[format('POSTGRESQL_{0}_PWD', env.env_name)] }}
+          host: ${{ env.source_db_server }}.postgres.database.azure.com
+          port: 5432
+          user: prime
+          database: ${{ matrix.db }}
+          file-path: ${{ steps.mount_share.outputs.mount-path }}/${{ env.env_name }}_${{ matrix.db }}.dump
+          options: -Fc --compress=1
+
+      # Remove runner db access
+      - name: Remove db access
+        if: always() && steps.add-db-access.outcome == 'success'
+        shell: bash
+        run: |
+          az postgres server firewall-rule delete -g ${{ env.source_resource_group }} -s ${{ env.source_db_server }} -n github_actions_runner --yes
+          az postgres server update -g ${{ env.source_resource_group }} -n ${{ env.source_db_server }} --public-network-access "Disabled"
+
+  restore_sink:
+    name: "Restore sink: ${{ needs.pre_job.outputs.sink_env_name }} - ${{ matrix.db }}"
+    needs:
+      - pre_job
+      - backup_source
+    # Restore only if backup age is less than limit, backup age is ignored, and the restore destination is either staging or test
+    if: |
+      (needs.pre_job.outputs.restore_ignore_backup_age == 'true' || needs.backup_source.outputs.backup_age_valid == 'true') &&
+      (needs.pre_job.outputs.sink_env_name != 'prod')
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        db: ${{ fromJson(needs.pre_job.outputs.databases) }}
+    concurrency: ${{ needs.pre_job.outputs.sink_env_name }}
+    environment: ${{ needs.pre_job.outputs.sink_env_name }}
+    env:
+      sink_env_name: ${{ needs.pre_job.outputs.sink_env_name }}
+      sink_resource_group: ${{ needs.pre_job.outputs.sink_resource_group }}
+      sink_db_server: ${{ needs.pre_job.outputs.sink_db_server }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@v2
+
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ env.sink_env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Get public ip
+        shell: bash
+        run: echo "PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)" >> $GITHUB_ENV
+
+      # Allow runner db access
+      - name: Add db access
+        id: add-db-access
+        shell: bash
+        run: |
+          az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Enabled"
+          az postgres server firewall-rule create -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner \
+            --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
+
+      # Mount Azure file share to retrieve backup file
+      - name: Mount file share
+        id: mount_share
+        uses: ./.github/actions/mount-share
+        with:
+          storage-account-resource-group: ${{ env.sink_resource_group }}
+          storage-account-name: ${{ needs.pre_job.outputs.sink_backup_storage }}
+          file-share-name: "dbbackups"
+
+      - name: Restore db
+        uses: ./.github/actions/db-restore
+        with:
+          pass: ${{ secrets[format('POSTGRESQL_{0}_PWD', env.sink_env_name)] }}
+          host: ${{ env.sink_db_server }}
+          port: 5432
+          user: prime
+          database: ${{ matrix.db }}
+          file-path: ${{ steps.mount_share.outputs.mount-path }}/${{ needs.pre_job.outputs.env_name }}_${{ matrix.db }}.dump
+          resource-group: ${{ env.sink_resource_group }}
+          options: -Fc -j 16
+
+      - name: Clean sink db
+        if: |
+          needs.pre_job.outputs.sink_env_name != 'prod' &&
+          (${{ matrix.db }} == 'prime_data_hub' || ${{ matrix.db }} == 'prime_data_hub_candidate')
+        uses: ./.github/actions/db-query
+        with:
+          pass: ${{ secrets[format('POSTGRESQL_{0}_PWD', env.sink_env_name)] }}
+          host: ${{ env.sink_db_server }}
+          port: 5432
+          user: prime
+          database: ${{ matrix.db }}
+          output-file: clean_output_${{ matrix.db }}.html
+          options: -H
+          query: |
+            \echo <h1>${{ matrix.db }} data cleanup</h1>
+            \echo <h2><code>setting</code> table changes:</h2>
+            \echo
+            UPDATE
+              setting    
+            SET               
+              values = values || '{"transport": {"host": "10.0.1.100", "port": "22", "type": "SFTP", "filePath": "./staging", "credentialName": null}}'::jsonb
+            WHERE                                     
+              type = 'RECEIVER'
+              AND values -> 'transport' ->> 'type' = 'SFTP';
+            \echo <hr/>
+            SELECT 
+              relname, n_tup_ins - n_tup_del as rowcount 
+            FROM pg_stat_all_tables
+            WHERE schemaname NOT IN ('pg_catalog', 'information_schema') AND
+              schemaname !~ '^pg_toast'
+            ORDER BY relname;
+
+      - name: Upload clean db result
+        if: |
+          needs.pre_job.outputs.sink_env_name != 'prod' &&
+          (${{ matrix.db }} == 'prime_data_hub' || ${{ matrix.db }} == 'prime_data_hub_candidate')
+        uses: actions/upload-artifact@v2
+        with:
+          name: clean_output_${{ matrix.db }}
+          path: clean_output_${{ matrix.db }}.html
+          retention-days: 7
+
+      # Remove runner db access
+      - name: Remove db access
+        if: always() && steps.add-db-access.outcome == 'success'
+        shell: bash
+        run: |
+          az postgres server firewall-rule delete -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner --yes
+          az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Disabled"

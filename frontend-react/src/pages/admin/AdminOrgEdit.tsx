@@ -1,8 +1,8 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { RouteComponentProps } from "react-router-dom";
-import { GridContainer, Grid, Button } from "@trussworks/react-uswds";
+import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
@@ -11,13 +11,23 @@ import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
 import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
 import {
-    TextInputComponent,
     TextAreaComponent,
+    TextInputComponent,
 } from "../../components/Admin/AdminFormEdit";
 import {
     showAlertNotification,
     showError,
 } from "../../components/AlertNotifications";
+import {
+    getStoredOktaToken,
+    getStoredOrg,
+} from "../../contexts/SessionStorageTools";
+import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
+import {
+    ConfirmSaveSettingModal,
+    ConfirmSaveSettingModalRef,
+} from "../../components/Admin/CompareJsonModal";
+import { DisplayMeta } from "../../components/Admin/DisplayMeta";
 
 type AdminOrgEditProps = {
     orgname: string;
@@ -31,11 +41,49 @@ export function AdminOrgEdit({
         OrgSettingsResource.detail(),
         { orgname: orgname }
     );
+    const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
+    const [orgSettingsOldJson, setOrgSettingsOldJson] = useState("");
+    const [orgSettingsNewJson, setOrgSettingsNewJson] = useState("");
     const { fetch: fetchController } = useController();
+    const [loading, setLoading] = useState(false);
+
+    const ShowCompareConfirm = async () => {
+        try {
+            // fetch original version
+            setLoading(true);
+            const accessToken = getStoredOktaToken();
+            const organization = getStoredOrg();
+
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        Organization: organization!,
+                    },
+                }
+            );
+
+            const responseBody = await response.json();
+            setOrgSettingsOldJson(
+                JSON.stringify(responseBody, jsonSortReplacer, 2)
+            );
+            setOrgSettingsNewJson(
+                JSON.stringify(orgSettings, jsonSortReplacer, 2)
+            );
+
+            confirmModalRef?.current?.showModal();
+            setLoading(false);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
     const saveOrgData = async () => {
         try {
-            const data = JSON.stringify(orgSettings);
+            const data = confirmModalRef?.current?.getEditedText();
+            showAlertNotification("success", `Saving...`);
             await fetchController(
                 OrgSettingsResource.update(),
                 { orgname },
@@ -45,8 +93,9 @@ export function AdminOrgEdit({
                 "success",
                 `Item '${orgname}' has been updated`
             );
+            confirmModalRef?.current?.hideModal();
+            showAlertNotification("success", `Saved '${orgname}' setting.`);
         } catch (e: any) {
-            console.trace(e);
             showError(`Updating item '${orgname}' failed. ${e.toString()}`);
             return false;
         }
@@ -63,13 +112,7 @@ export function AdminOrgEdit({
             </Helmet>
             <section className="grid-container margin-bottom-5">
                 <h2 className="margin-bottom-0">
-                    <Suspense
-                        fallback={
-                            <span className="text-normal text-base">
-                                Loading Info...
-                            </span>
-                        }
-                    >
+                    <Suspense fallback={<Spinner />}>
                         Org name:{" "}
                         {match?.params?.orgname || "missing param 'orgname'"}
                     </Suspense>
@@ -84,7 +127,7 @@ export function AdminOrgEdit({
                             <Grid row>
                                 <Grid col={3}>Meta:</Grid>
                                 <Grid col={9}>
-                                    {JSON.stringify(orgSettings?.meta) || {}}{" "}
+                                    <DisplayMeta metaObj={orgSettings.meta} />
                                     <br />
                                 </Grid>
                             </Grid>
@@ -130,11 +173,19 @@ export function AdminOrgEdit({
                                     form="edit-setting"
                                     type="submit"
                                     data-testid="submit"
-                                    onClick={() => saveOrgData()}
+                                    disabled={loading}
+                                    onClick={() => ShowCompareConfirm()}
                                 >
-                                    Save
+                                    Preview save...
                                 </Button>
                             </Grid>
+                            <ConfirmSaveSettingModal
+                                uniquid={orgname}
+                                onConfirm={saveOrgData}
+                                ref={confirmModalRef}
+                                oldjson={orgSettingsOldJson}
+                                newjson={orgSettingsNewJson}
+                            />
                         </GridContainer>
 
                         <br />

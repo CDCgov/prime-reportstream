@@ -33,7 +33,7 @@ import kotlin.random.Random
  * Based on Okta article https://developer.okta.com/blog/2018/12/13/oauth-2-for-native-and-mobile-apps
  */
 private const val oktaProdBaseUrl = "https://hhs-prime.okta.com"
-private const val oktaPreviewBaseUrl = "https://hhs-prime.oktapreview.com"
+const val oktaPreviewBaseUrl = "https://hhs-prime.oktapreview.com"
 private const val oktaProdClientId = "0oa6kt4j3tOFz5SH84h6"
 private const val oktaPreviewClientId = "0oa2fs6vp3W5MTzjh1d7"
 private const val oktaAuthorizePath = "/oauth2/default/v1/authorize" // Default authorization server
@@ -213,7 +213,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             OktaApp.DH_DEV to oktaPreviewBaseUrl,
         )
 
-        private val jsonMapper = JacksonMapperUtilities.datesAsTextMapper
+        private val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
 
         /**
          * Returns the access token saved from the last login if valid given [app].

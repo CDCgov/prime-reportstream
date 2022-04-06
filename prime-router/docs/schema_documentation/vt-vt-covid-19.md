@@ -77,11 +77,9 @@ This field is generated based on the normalcy status of the result. A = abnormal
 
 **ReportStream Internal Name**: comment_source
 
-**Type**: CODE
+**Type**: ID
 
 **PII**: No
-
-**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
@@ -545,11 +543,11 @@ The message profile identifer
 
 **ReportStream Internal Name**: observation_result_status
 
-**Type**: CODE
+**Type**: ID
 
 **PII**: No
 
-**Format**: use value found in the Code column
+**Default Value**: F
 
 **Cardinality**: [0..1]
 
@@ -576,11 +574,11 @@ X|Results cannot be obtained for this observation|HL7
 
 **ReportStream Internal Name**: order_result_status
 
-**Type**: CODE
+**Type**: ID
 
 **PII**: No
 
-**Format**: use value found in the Code column
+**Default Value**: F
 
 **Cardinality**: [0..1]
 
@@ -4686,11 +4684,9 @@ The postal code for the testing lab
 
 **ReportStream Internal Name**: value_type
 
-**Type**: CODE
+**Type**: ID
 
 **PII**: No
-
-**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 

@@ -1,11 +1,11 @@
 package gov.cdc.prime.router.azure
 
-import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
@@ -33,6 +33,7 @@ import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.transport.SoapTransport
+import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
@@ -60,7 +61,7 @@ class WorkflowEngine(
     val ftpsTransport: FTPSTransport = FTPSTransport(),
     val soapTransport: SoapTransport = SoapTransport(),
     val gaenTransport: GAENTransport = GAENTransport()
-) {
+) : Logging {
 
     /**
      * Custom builder for Workflow engine
@@ -154,6 +155,25 @@ class WorkflowEngine(
     }
 
     /**
+     * Checks if the [sender] has already sent this report by comparing the [digest] against existing records for
+     * this sender in the report_file table. If a duplicate is found an ActionError is thrown which will be picked up
+     * by ReportFunction and logged in action and action_log.
+     */
+    fun verifyNoDuplicateFile(
+        sender: Sender,
+        digest: ByteArray,
+        payloadName: String?
+    ) {
+        if (db.isDuplicateReportFile(sender.name, sender.organizationName, digest)) {
+            var msg = "Duplicate file detected."
+            if (!payloadName.isNullOrEmpty()) {
+                msg += "File: $payloadName"
+            }
+            throw ActionError(ActionLog(InvalidReportMessage(msg)), msg)
+        }
+    }
+
+    /**
      * Record a received [report] from a [sender] into the action history and save the original [rawBody]
      * of the received message. Return the blobUrl string to the calling function to save as part of the report
      */
@@ -194,7 +214,6 @@ class WorkflowEngine(
         actionHistory: ActionHistory,
         receiver: Receiver,
         txn: Configuration? = null,
-        context: ExecutionContext? = null,
         isEmptyReport: Boolean = false
     ) {
         val receiverName = "${receiver.organizationName}.${receiver.name}"
@@ -221,16 +240,13 @@ class WorkflowEngine(
                 receivingFacility
             )
         } catch (ex: Exception) {
-            context?.logger?.warning(
+            logger.error(
                 "Got exception while dispatching to schema ${report.schema.name}" +
                     ", and rcvr ${receiver.fullName}"
             )
             throw ex
         }
-        context?.logger?.fine(
-            "Saved dispatched report for receiver $receiverName" +
-                " to blob ${blobInfo.blobUrl}"
-        )
+        logger.info("Saved dispatched report for receiver $receiverName to blob ${blobInfo.blobUrl}")
         try {
             db.insertTask(report, blobInfo.format.toString(), blobInfo.blobUrl, nextAction, txn)
             // todo remove this; its now tracked in BlobInfo
@@ -256,7 +272,6 @@ class WorkflowEngine(
      */
     fun handleReportEvent(
         messageEvent: ReportEvent,
-        context: ExecutionContext? = null,
         updateBlock: (header: Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
     ) {
         var nextEvent: ReportEvent? = null
@@ -272,18 +287,16 @@ class WorkflowEngine(
             val currentEventAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
             // Ignore messages that are not consistent with the current header
             if (currentEventAction != messageEvent.eventAction) {
-                context?.let {
-                    context.logger.warning(
-                        "Weirdness for $reportId: queue event = ${messageEvent.eventAction.name}, " +
-                            " but task.nextAction = ${currentEventAction.name} "
-                    )
-                }
+                logger.warn(
+                    "Weirdness for $reportId: queue event = ${messageEvent.eventAction.name}, " +
+                        " but task.nextAction = ${currentEventAction.name} "
+                )
                 return@transact
             }
             val retryToken = RetryToken.fromJSON(header.task.retryToken?.data())
 
             nextEvent = updateBlock(header, retryToken, txn)
-            context?.let { context.logger.info("Finished updateBlock for $reportId") }
+            logger.debug("Finished updateBlock for $reportId")
             val retryJson = nextEvent!!.retryToken?.toJSON()
             updateHeader(
                 header.task.reportId,
@@ -364,7 +377,6 @@ class WorkflowEngine(
      * Creates an empty report to send to a [receiver] that is configured to receive empty batches.
      */
     fun generateEmptyReport(
-        context: ExecutionContext?,
         actionHistory: ActionHistory,
         receiver: Receiver,
     ) {
@@ -386,13 +398,12 @@ class WorkflowEngine(
         // set the empty report to be sent to the receiver
         this.db.transact { txn ->
             val sendEvent = ReportEvent(Event.EventAction.SEND, emptyReport.id, true)
-            this.dispatchReport(sendEvent, emptyReport, actionHistory, receiver, txn, context, true)
+            this.dispatchReport(sendEvent, emptyReport, actionHistory, receiver, txn, true)
         }
     }
 
     // routeReport does all filtering and translating per receiver, generating one file per receiver to then be batched
     fun routeReport(
-        context: ExecutionContext,
         report: Report,
         options: Options,
         defaults: Map<String, String>,
@@ -419,7 +430,6 @@ class WorkflowEngine(
                 sendToDestination(
                     report,
                     receiver,
-                    context,
                     options,
                     actionHistory,
                     txn
@@ -435,7 +445,6 @@ class WorkflowEngine(
     private fun sendToDestination(
         report: Report,
         receiver: Receiver,
-        context: ExecutionContext,
         options: Options,
         actionHistory: ActionHistory,
         txn: DataAccessTransaction
@@ -445,7 +454,7 @@ class WorkflowEngine(
             options == Options.SkipSend -> {
                 // Note that SkipSend should really be called SkipBothTimingAndSend  ;)
                 val event = ReportEvent(Event.EventAction.NONE, report.id, actionHistory.generatingEmptyReport)
-                this.dispatchReport(event, report, actionHistory, receiver, txn, context)
+                this.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.timing != null && options != Options.SendImmediately -> {
@@ -453,7 +462,7 @@ class WorkflowEngine(
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
                 val event = BatchEvent(Event.EventAction.BATCH, receiver.fullName, false, time)
-                this.dispatchReport(event, batchReport, actionHistory, receiver, txn, context)
+                this.dispatchReport(event, batchReport, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
             receiver.format.isSingleItemFormat -> {
@@ -474,36 +483,44 @@ class WorkflowEngine(
                     .split()
                     .forEach {
                         val event = ReportEvent(Event.EventAction.SEND, it.id, actionHistory.generatingEmptyReport)
-                        this.dispatchReport(event, it, actionHistory, receiver, txn, context)
+                        this.dispatchReport(event, it, actionHistory, receiver, txn)
                     }
                 loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
             else -> {
                 val event = ReportEvent(Event.EventAction.SEND, report.id, actionHistory.generatingEmptyReport)
-                this.dispatchReport(event, report, actionHistory, receiver, txn, context)
+                this.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
             }
         }
-        context.logger.info(loggerMsg)
+        logger.info(loggerMsg)
     }
 
     /**
      * The process step has failed. Ensure the actionHistory gets a 'warning' if it is not yet the 5th attempt
-     *  at this record. If it is the 5th attempt, set it to process_error
+     * at this record. If it is the 5th attempt, set it to process_error
+     * Also, save all the action history to the database.
      */
     fun handleProcessFailure(
         numAttempts: Int,
-        actionHistory: ActionHistory
+        actionHistory: ActionHistory,
+        message: String
     ) {
         // if there are already four process_warning records in the database for this reportId, this is the last try
-        val actionStatus = if (numAttempts >= 5) TaskAction.process_error else TaskAction.process_warning
-        // if count is < 5, add a process_warning status to the task
-        // if count is >= 5, add a process_error status to the task
-        actionHistory.setActionType(actionStatus)
-        actionHistory.trackActionResult(
-            "Failed to process $numAttempts times, setting status to $actionStatus."
-        )
-
+        if (numAttempts >= 5) {
+            actionHistory.setActionType(TaskAction.process_error)
+            actionHistory.trackActionResult(
+                "Failed to process $message $numAttempts times, setting status to process_error." +
+                    " Mo intervention required."
+            )
+            logger.fatal(actionHistory.action.actionResult)
+        } else {
+            actionHistory.setActionType(TaskAction.process_warning)
+            actionHistory.trackActionResult(
+                "Failed to process message $message $numAttempts times," +
+                    " setting status to process_warning."
+            )
+        }
         // save action record to db
         db.transact { txn ->
             actionHistory.saveToDb(txn)
@@ -513,12 +530,10 @@ class WorkflowEngine(
     /**
      * Handle a receiver specific event. Fetch all pending tasks for the specified receiver and nextAction
      * @param messageEvent that was received
-     * @param context execution context
      * @param actionHistory action history being passed through for this message process
      */
     fun handleProcessEvent(
         messageEvent: ProcessEvent,
-        context: ExecutionContext,
         actionHistory: ActionHistory
     ) {
         db.transact { txn ->
@@ -538,7 +553,6 @@ class WorkflowEngine(
 
             //  send to routeReport
             val warnings = routeReport(
-                context,
                 report,
                 messageEvent.options,
                 messageEvent.defaults,
@@ -547,12 +561,6 @@ class WorkflowEngine(
             )
 
             actionHistory.trackLogs(warnings)
-            // track response body
-            val responseBody = actionHistory.createResponseBody(
-                true,
-                report
-            )
-            actionHistory.trackActionResponse(responseBody)
 
             // record action history records
             recordAction(actionHistory)
@@ -652,7 +660,7 @@ class WorkflowEngine(
                     emptyList(),
                     header.receiver
                 )
-                if (result.errors.isNotEmpty()) {
+                if (result.actionLogs.hasErrors()) {
                     error("Internal Error: Could not read a saved CSV blob: ${header.task.bodyUrl}")
                 }
                 result.report
@@ -855,7 +863,7 @@ class WorkflowEngine(
                 1440 / numberBatchesPerDay
             else
                 1440
-            return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS).toLong()
+            return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS)
         }
     }
 
@@ -867,8 +875,6 @@ class WorkflowEngine(
      * @param sender Sender information, pulled from database based on sender name
      * @param content Content of incoming message
      * @param defaults Default values that can be passed in as part of the request
-     * @param errors Transactional store of errors produced while processing this message
-     * @param warnings Transaction store of warnings produced while processing this message
      * @return Returns a generated report object, or null
      */
     fun parseReport(
@@ -888,9 +894,11 @@ class WorkflowEngine(
                     )
                 } catch (e: Exception) {
                     throw ActionError(
-                        ActionLog.report(
-                            "An unexpected error occurred requiring additional help. Contact the ReportStream " +
-                                "team at reportstream@cdc.gov."
+                        ActionLog(
+                            InvalidReportMessage(
+                                "An unexpected error occurred requiring additional help. Contact the ReportStream " +
+                                    "team at reportstream@cdc.gov."
+                            )
                         ),
                         e.message,
                     )
@@ -906,9 +914,11 @@ class WorkflowEngine(
                     )
                 } catch (e: Exception) {
                     throw ActionError(
-                        ActionLog.report(
-                            "An unexpected error occurred requiring additional help. Contact the ReportStream " +
-                                "team at reportstream@cdc.gov."
+                        ActionLog(
+                            InvalidReportMessage(
+                                "An unexpected error occurred requiring additional help. Contact the ReportStream " +
+                                    "team at reportstream@cdc.gov."
+                            )
                         ),
                         e.message,
                     )

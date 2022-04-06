@@ -14,6 +14,7 @@ enum class LivdTableColumns(val colName: String) {
     MODEL("Model"),
     TEST_PERFORMED_CODE("Test Performed LOINC Code"),
     PROCESSING_MODE_CODE("processing_mode_code"),
+    MANUFACTURER("Manufacturer")
 }
 
 /**
@@ -117,7 +118,7 @@ class LIVDLookupMapper : Mapper {
             if (!element.csvFields.isNullOrEmpty() || !element.hl7Field.isNullOrBlank() ||
                 !element.hl7OutputFields.isNullOrEmpty()
             )
-                it.warning(InvalidEquipmentMessage.new(element))
+                it.warning(InvalidEquipmentMessage(element.fieldMapping))
         }
     }
 

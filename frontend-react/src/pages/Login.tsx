@@ -1,33 +1,29 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link, Redirect } from "react-router-dom";
 import { useOktaAuth } from "@okta/okta-react";
 import { SiteAlert } from "@trussworks/react-uswds";
 import { Tokens } from "@okta/okta-auth-js";
 
 import OktaSignInWidget from "../components/OktaSignInWidget";
-import {
-    getOrganizationFromAccessToken,
-    groupToOrg,
-} from "../webreceiver-utils";
-import {
-    setStoredOktaToken,
-    useGlobalContext,
-} from "../components/GlobalContextProvider";
-import { PERMISSIONS } from "../resources/PermissionsResource";
+import { getOktaGroups, parseOrgs } from "../utils/OrganizationUtils";
+import { setStoredOktaToken } from "../contexts/SessionStorageTools";
 import { oktaSignInConfig } from "../oktaConfig";
+import { SessionStorageContext } from "../contexts/SessionStorageContext";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
-    const { updateOrganization } = useGlobalContext();
+    const { updateSessionStorage } = useContext(SessionStorageContext);
 
     const onSuccess = (tokens: Tokens | undefined) => {
-        let oktaGroups =
-            getOrganizationFromAccessToken(tokens?.accessToken).filter(
-                (group: string) => group !== PERMISSIONS.PRIME_ADMIN
-            ) || [];
+        const parsedOrgs = parseOrgs(getOktaGroups(tokens?.accessToken));
+        const newOrg = parsedOrgs[0]?.org || "";
+        const newSender = parsedOrgs[0]?.senderName || undefined;
+        updateSessionStorage({
+            // Sets admins to `ignore` org
+            org: newOrg === "PrimeAdmins" ? "ignore" : newOrg,
+            senderName: newSender,
+        });
         setStoredOktaToken(tokens?.accessToken?.accessToken || "");
-        /* Setting az-phd as default when PrimeAdmin has no sender/receiver orgs */
-        updateOrganization(groupToOrg(oktaGroups[0]) || "az-phd");
         oktaAuth.handleLoginRedirect(tokens);
     };
 
