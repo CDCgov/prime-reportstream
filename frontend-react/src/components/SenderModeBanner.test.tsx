@@ -1,4 +1,4 @@
-import { act, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import { orgServer } from "../__mocks__/OrganizationMockServer";
 import {
@@ -28,9 +28,7 @@ describe("SenderModeBanner", () => {
     afterAll(() => orgServer.close());
 
     test("renders when sender is testing", async () => {
-        act(() => {
-            renderWithSession(<SenderModeBanner />);
-        });
+        renderWithSession(<SenderModeBanner />);
         const text = await screen.findByText("Learn more about onboarding.");
         expect(text).toBeInTheDocument();
     });
