@@ -692,7 +692,8 @@ class Report : Logging {
                     )
                     it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.reportId = this.id
-                    it.reportIndex = idx
+                    // switched to 1-based index on items in Feb 2022
+                    it.reportIndex = idx + 1
                     // For sender ID, use first the provided ID and if not use the client ID.
                     it.senderId = row.getStringOrNull("sender_id").trimToNull()
                     if (it.senderId.isNullOrBlank()) {

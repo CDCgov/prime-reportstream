@@ -10,7 +10,10 @@ import com.microsoft.azure.functions.HttpMethod
 import gov.cdc.prime.router.common.Environment
 import io.mockk.every
 import io.mockk.mockkObject
+import io.mockk.spyk
+import java.time.Instant
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class OktaAuthenticationTests {
     private val verifier = OktaAuthentication(PrincipalLevel.USER)
@@ -27,6 +30,29 @@ class OktaAuthenticationTests {
         // Bad token
         claims = verifier.authenticate("a.b.c", HttpMethod.GET, "foobar")
         assertThat(claims).isNull()
+    }
+
+    @Test
+    fun `test authenticated claims return from authenticate`() {
+        // "Good" token
+        val oktaAuth = spyk<OktaAuthentication>()
+        val claimsMap = mapOf(
+            "sub" to "test",
+            "organization" to listOf("DHca-phd")
+        )
+        every { oktaAuth.decodeJwt(any()) } returns
+            TestDefaultJwt(
+                "a.b.c",
+                Instant.now(),
+                Instant.now().plusSeconds(60),
+                claimsMap
+            )
+
+        val authenticatedClaims = oktaAuth.authenticate("a.b.c", HttpMethod.GET, "foobar")
+        assertThat(authenticatedClaims).isNotNull()
+        assertEquals("test", authenticatedClaims?.userName)
+        assertEquals(false, authenticatedClaims?.isPrimeAdmin)
+        assertEquals("ca-phd", authenticatedClaims?.organizationNameClaim)
     }
 
     @Test

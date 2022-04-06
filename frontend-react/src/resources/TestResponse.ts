@@ -7,7 +7,7 @@ export enum ResponseType {
 }
 
 export class TestResponse {
-    /* 
+    /*
         We should ultimately make `data` a generic that extends
         our base class (for rest-hooks, Resource). This will do
         for now.
@@ -107,7 +107,11 @@ export class TestResponse {
             throw new Error("Function not implemented.");
         },
         name: "",
-        meta: [],
+        meta: {
+            version: 0,
+            createdBy: "mctest@example.com",
+            createdAt: "1/1/2000 00:00:00",
+        },
         url: "",
     };
 }
