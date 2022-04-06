@@ -136,7 +136,7 @@ class DetailedSubmissionHistory(
      * Mirrors the max of all the sendingAt values for this Submission's Destinations
      */
     val plannedCompletionAt: OffsetDateTime? get() {
-        if (overallStatus == "error" || overallStatus == "received" || overallStatus == "notDelivering") {
+        if (overallStatus == "Error" || overallStatus == "Received" || overallStatus == "Not Delivering") {
             return null
         }
 
@@ -148,7 +148,7 @@ class DetailedSubmissionHistory(
      * Mirrors the max createdAt of all sent and downloaded reports after it has been sent to all receivers
      */
     val actualCompletionAt: OffsetDateTime? get() {
-        if (overallStatus != "delivered") {
+        if (overallStatus != "Delivered") {
             return null
         }
 

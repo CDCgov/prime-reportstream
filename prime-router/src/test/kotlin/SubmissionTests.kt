@@ -313,17 +313,21 @@ class SubmissionTests {
     }
 
     @Test
-    fun `test DetailedSubmissionHistory overallStatus calculations`() {
+    fun `test DetailedSubmissionHistory overallStatus and completionAt calculations`() {
         DetailedSubmissionHistory(
             1, TaskAction.receive, OffsetDateTime.now(), HttpStatus.BAD_REQUEST.value(), null
         ).run {
             assertThat(overallStatus).isEqualTo("Error")
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
         }
 
         DetailedSubmissionHistory(
             1, TaskAction.receive, OffsetDateTime.now(), HttpStatus.OK.value(), null
         ).run {
             assertThat(overallStatus).isEqualTo("Received")
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
         }
 
         var reports = listOf(
@@ -339,22 +343,29 @@ class SubmissionTests {
             OffsetDateTime.now(), HttpStatus.OK.value(), reports
         ).run {
             assertThat(overallStatus).isEqualTo("Not Delivering")
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
         }
+
+        val tomorrow = OffsetDateTime.now().plusDays(1)
+        val today = OffsetDateTime.now()
 
         val inputReport = DetailReport(
             UUID.randomUUID(), null, null, "org", "client",
             "topic", "externalName", null, null, 3
         )
 
+        val latestReport = DetailReport(
+            UUID.randomUUID(), "recvOrg2", "recvSvc2", null, null,
+            "topic", "otherExternalName2", null, tomorrow, 2
+        )
+
         reports = listOf(
             inputReport,
+            latestReport,
             DetailReport(
                 UUID.randomUUID(), "recvOrg1", "recvSvc1", null, null,
-                "topic", "otherExternalName1", null, null, 1
-            ),
-            DetailReport(
-                UUID.randomUUID(), "recvOrg2", "recvSvc2", null, null,
-                "topic", "otherExternalName2", null, null, 2
+                "topic", "otherExternalName1", null, today, 1
             ),
             DetailReport(
                 UUID.randomUUID(), "recvOrg3", "recvSvc3", null, null,
@@ -367,6 +378,8 @@ class SubmissionTests {
             HttpStatus.OK.value(), reports
         ).run {
             assertThat(overallStatus).isEqualTo("Waiting to Deliver")
+            assertThat(plannedCompletionAt).isEqualTo(tomorrow)
+            assertThat(actualCompletionAt).isNull()
         }
 
         val partiallyDelivered = listOf(
@@ -388,6 +401,8 @@ class SubmissionTests {
         )
         testSent.run {
             assertThat(overallStatus).isEqualTo("Partially Delivered")
+            assertThat(plannedCompletionAt).isEqualTo(tomorrow)
+            assertThat(actualCompletionAt).isNull()
         }
 
         val testDownload = DetailedSubmissionHistory(
@@ -402,6 +417,8 @@ class SubmissionTests {
         )
         testDownload.run {
             assertThat(overallStatus).isEqualTo("Partially Delivered")
+            assertThat(plannedCompletionAt).isEqualTo(tomorrow)
+            assertThat(actualCompletionAt).isNull()
         }
 
         val deliveredReports = listOf(
@@ -423,6 +440,8 @@ class SubmissionTests {
         )
         testSent.run {
             assertThat(overallStatus).isEqualTo("Delivered")
+            assertThat(plannedCompletionAt).isEqualTo(tomorrow)
+            assertThat(actualCompletionAt).isEqualTo(latestReport.createdAt)
         }
 
         testDownload.enrichWithDescendant(
@@ -433,14 +452,8 @@ class SubmissionTests {
         )
         testDownload.run {
             assertThat(overallStatus).isEqualTo("Delivered")
+            assertThat(plannedCompletionAt).isEqualTo(tomorrow)
+            assertThat(actualCompletionAt).isEqualTo(latestReport.createdAt)
         }
-    }
-
-    @Test
-    fun `test DetailedSubmissionHistory plannedCompletionAt calculations`() {
-    }
-
-    @Test
-    fun `test DetailedSubmissionHistory actualCompletionAt calculations`() {
     }
 }
