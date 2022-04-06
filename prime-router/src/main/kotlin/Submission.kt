@@ -26,7 +26,8 @@ import java.util.UUID
 @JsonPropertyOrder(
     value = [
         "id", "submissionId", "timestamp", "sender", "reportItemCount",
-        "errorCount", "warningCount"
+        "errorCount", "warningCount", "status", "plannedCompletionAt",
+        "actualCompletionAt",
     ]
 )
 class DetailedSubmissionHistory(
@@ -78,28 +79,42 @@ class DetailedSubmissionHistory(
     var externalName: String? = null
 
     /**
-     * Summary of how far along the submission's process is.
+     * The step in the delivery process for a submission
      * Supported values:
-     *     Error - error on initial submission
-     *     Received - passed the received step in the pipeline and awaits processing/routing
-     *     Not Delivering - processed but has no intended receivers
-     *     Waiting to Deliver - processed but yet to be sent to/downloaded by any receivers
-     *     Partially Delivered - processed, successfully sent to/downloaded by at least one receiver
-     *     Delivered - processed, successfully sent to/downloaded by all receivers
+     *     ERROR - error on initial submission
+     *     RECEIVED - passed the received step in the pipeline and awaits processing/routing
+     *     NOT_DELIVERING - processed but has no intended receivers
+     *     WAITING_TO_DELIVER - processed but yet to be sent to/downloaded by any receivers
+     *     PARTIALLY_DELIVERED - processed, successfully sent to/downloaded by at least one receiver
+     *     DELIVERED - processed, successfully sent to/downloaded by all receivers
      * @todo For now, no "send error" type of state.
      *     If a send error occurs for example,
      *     it'll just sit in the waitingToDeliver or
      *     partiallyDelivered state until someone fixes it.
      */
-    val overallStatus: String get() {
+    enum class Status(val printableName: String) {
+        ERROR("Error"),
+        RECEIVED("Received"),
+        NOT_DELIVERING("Not Delivering"),
+        WAITING_TO_DELIVER("Waiting to Deliver"),
+        PARTIALLY_DELIVERED("Partially Delivered"),
+        DELIVERED("Delivered"),
+    }
+
+    /**
+     * Summary of how far along the submission's process is.
+     * The supported values arre listed in the Status enum.
+     */
+    val overallStatus: Status get() {
         if (httpStatus != HttpStatus.OK.value() && httpStatus != HttpStatus.CREATED.value()) {
-            return "Error"
+            return Status.ERROR
         }
 
         if (destinations.size == 0) {
-            return "Received" // 0 unfiltered destinations = unprocessed in almost every situation
+            // 0 unfiltered destinations = unprocessed in almost every situation
+            return Status.RECEIVED
         } else if (realDestinations.size == 0) {
-            return "Not Delivering"
+            return Status.NOT_DELIVERING
         }
 
         var finishedDestinations = 0
@@ -123,12 +138,19 @@ class DetailedSubmissionHistory(
         }
 
         if (finishedDestinations >= realDestinations.size) {
-            return "Delivered"
+            return Status.DELIVERED
         } else if (finishedDestinations > 0) {
-            return "Partially Delivered"
+            return Status.PARTIALLY_DELIVERED
         }
 
-        return "Waiting to Deliver"
+        return Status.WAITING_TO_DELIVER
+    }
+
+    /**
+     * More readable version of overallStatus, passed to the JSON version of this object
+     */
+    val status: String get() {
+        return overallStatus.printableName
     }
 
     /**
@@ -136,7 +158,10 @@ class DetailedSubmissionHistory(
      * Mirrors the max of all the sendingAt values for this Submission's Destinations
      */
     val plannedCompletionAt: OffsetDateTime? get() {
-        if (overallStatus == "Error" || overallStatus == "Received" || overallStatus == "Not Delivering") {
+        if (overallStatus == Status.ERROR ||
+            overallStatus == Status.RECEIVED ||
+            overallStatus == Status.NOT_DELIVERING
+        ) {
             return null
         }
 
@@ -148,7 +173,7 @@ class DetailedSubmissionHistory(
      * Mirrors the max createdAt of all sent and downloaded reports after it has been sent to all receivers
      */
     val actualCompletionAt: OffsetDateTime? get() {
-        if (overallStatus != "Delivered") {
+        if (overallStatus != Status.DELIVERED) {
             return null
         }
 

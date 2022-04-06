@@ -317,7 +317,7 @@ class SubmissionTests {
         DetailedSubmissionHistory(
             1, TaskAction.receive, OffsetDateTime.now(), HttpStatus.BAD_REQUEST.value(), null
         ).run {
-            assertThat(overallStatus).isEqualTo("Error")
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.ERROR)
             assertThat(plannedCompletionAt).isNull()
             assertThat(actualCompletionAt).isNull()
         }
@@ -325,7 +325,7 @@ class SubmissionTests {
         DetailedSubmissionHistory(
             1, TaskAction.receive, OffsetDateTime.now(), HttpStatus.OK.value(), null
         ).run {
-            assertThat(overallStatus).isEqualTo("Received")
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
             assertThat(plannedCompletionAt).isNull()
             assertThat(actualCompletionAt).isNull()
         }
@@ -342,7 +342,7 @@ class SubmissionTests {
             TaskAction.receive,
             OffsetDateTime.now(), HttpStatus.OK.value(), reports
         ).run {
-            assertThat(overallStatus).isEqualTo("Not Delivering")
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.NOT_DELIVERING)
             assertThat(plannedCompletionAt).isNull()
             assertThat(actualCompletionAt).isNull()
         }
@@ -377,7 +377,7 @@ class SubmissionTests {
             1, TaskAction.receive, OffsetDateTime.now(),
             HttpStatus.OK.value(), reports
         ).run {
-            assertThat(overallStatus).isEqualTo("Waiting to Deliver")
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.WAITING_TO_DELIVER)
             assertThat(plannedCompletionAt).isEqualTo(tomorrow)
             assertThat(actualCompletionAt).isNull()
         }
@@ -400,7 +400,7 @@ class SubmissionTests {
             )
         )
         testSent.run {
-            assertThat(overallStatus).isEqualTo("Partially Delivered")
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED)
             assertThat(plannedCompletionAt).isEqualTo(tomorrow)
             assertThat(actualCompletionAt).isNull()
         }
@@ -416,7 +416,7 @@ class SubmissionTests {
             )
         )
         testDownload.run {
-            assertThat(overallStatus).isEqualTo("Partially Delivered")
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED)
             assertThat(plannedCompletionAt).isEqualTo(tomorrow)
             assertThat(actualCompletionAt).isNull()
         }
@@ -439,7 +439,7 @@ class SubmissionTests {
             )
         )
         testSent.run {
-            assertThat(overallStatus).isEqualTo("Delivered")
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.DELIVERED)
             assertThat(plannedCompletionAt).isEqualTo(tomorrow)
             assertThat(actualCompletionAt).isEqualTo(latestReport.createdAt)
         }
@@ -451,7 +451,7 @@ class SubmissionTests {
             )
         )
         testDownload.run {
-            assertThat(overallStatus).isEqualTo("Delivered")
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.DELIVERED)
             assertThat(plannedCompletionAt).isEqualTo(tomorrow)
             assertThat(actualCompletionAt).isEqualTo(latestReport.createdAt)
         }
