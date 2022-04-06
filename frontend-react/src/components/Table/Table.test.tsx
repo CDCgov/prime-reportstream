@@ -36,11 +36,11 @@ describe("Table, basic tests", () => {
         /* This looks ugly but it's ensuring the VALUE at linkAttr
          * (or dataAttr) is plugged into the href.
          *
-         * "/submissions/value two" is the outcome with the test data
+         * "/test/value two" is the outcome with the test data
          * but the attributes we plug in don't have spaces to account
          * for */
         expect(linkInCell).toContainHTML(
-            '<a href="/submissions/value two">value two</a>'
+            '<a href="/test/value two">value two</a>'
         );
     });
 

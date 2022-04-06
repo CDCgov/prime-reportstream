@@ -62,6 +62,7 @@ export const TestTable = () => {
             columnHeader: "Column Two",
             sortable: true,
             link: true,
+            linkBasePath: "/test",
         },
         { dataAttr: "one", columnHeader: "Column One" },
         {

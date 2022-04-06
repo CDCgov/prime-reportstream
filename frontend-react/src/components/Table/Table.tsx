@@ -4,6 +4,8 @@ import {
     ButtonGroup,
     IconNavigateBefore,
     IconNavigateNext,
+    IconArrowUpward,
+    IconArrowDownward,
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 import React from "react";
@@ -15,17 +17,21 @@ export interface TableRow {
     [key: string]: any;
 }
 
-/* ColumnConfig tells the Table element how to render each column, including the
- * data attribute of the object the column maps to, the header, and ... TODO: finish
+/* ColumnConfig tells the Table element how to render each column
  *
  * @property dataAttr: Name of the object attribute to be rendered in the column
  * @property columnHeader: The column name
- * @property sort: React.SetStateAction function */
+ * @property sortable: React.SetStateAction function
+ * @property link: boolean indicating column values are links
+ * @property linkAttr: the attribute to plug into the link url
+ * @property valueMap: provides key/value pairs to map API values to UI values
+ * @property transform: a function used to transform values within the column */
 export interface ColumnConfig {
     dataAttr: string;
     columnHeader: string;
     sortable?: boolean;
     link?: boolean;
+    linkBasePath?: string;
     linkAttr?: string; // if no linkAttr is given, defaults to dataAttr
     valueMap?: Map<string | number, any>;
     transform?: Function;
@@ -59,6 +65,14 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                                 }}
                             >
                                 {colConfig.columnHeader}
+                                {colConfig.sortable ? (
+                                    filterManager.filters.sort.order ===
+                                    "ASC" ? (
+                                        <IconArrowUpward />
+                                    ) : (
+                                        <IconArrowDownward />
+                                    )
+                                ) : null}
                             </th>
                         );
                     } else {
@@ -75,13 +89,16 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
 
     const renderRow = (object: TableRow, columnConfig: ColumnConfig) => {
         let textValue = object[columnConfig.dataAttr];
+        // Transforms textValue if transform function is given
         if (columnConfig.transform) {
             textValue = columnConfig.transform(textValue);
         }
+
         if (columnConfig.link) {
+            // Render column value as NavLink
             return (
                 <NavLink
-                    to={`/submissions/${
+                    to={`${columnConfig?.linkBasePath || ""}/${
                         object[columnConfig?.linkAttr || columnConfig.dataAttr]
                     }`}
                 >
@@ -104,15 +121,23 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
     const TableRows = () => {
         return (
             <>
-                {config.rows.map((object, rowIndex) => (
-                    <tr key={rowIndex}>
-                        {config.columns.map((colConfig, colIndex) => (
-                            <td key={`${rowIndex}:${colIndex}`}>
-                                {renderRow(object, colConfig)}
-                            </td>
-                        ))}
-                    </tr>
-                ))}
+                {config.rows.map((object, rowIndex) => {
+                    // Caps page size when filterManager exists
+                    if (
+                        filterManager &&
+                        rowIndex >= filterManager?.filters.pageSize
+                    )
+                        return null;
+                    return (
+                        <tr key={rowIndex}>
+                            {config.columns.map((colConfig, colIndex) => (
+                                <td key={`${rowIndex}:${colIndex}`}>
+                                    {renderRow(object, colConfig)}
+                                </td>
+                            ))}
+                        </tr>
+                    );
+                })}
             </>
         );
     };
