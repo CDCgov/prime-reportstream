@@ -48,24 +48,27 @@ function SubmissionFilters({
             if (srDate < erDate) {
                 filterManager.update.setStartRange(erDate.toISOString());
                 filterManager.update.setEndRange(srDate.toISOString());
+                cursorManager.controller.reset(erDate.toISOString());
             } else {
                 filterManager.update.setStartRange(srDate.toISOString());
                 filterManager.update.setEndRange(erDate.toISOString());
+                cursorManager.controller.reset(srDate.toISOString());
             }
         } else if (localStartRange && !localEndRange) {
             const date = new Date(localStartRange);
             filterManager.update.setStartRange(date.toISOString());
+            cursorManager.controller.reset(date.toISOString());
         } else if (localEndRange && !localStartRange) {
             const date = new Date(localEndRange);
             filterManager.update.setStartRange(date.toISOString());
+            cursorManager.controller.reset(date.toISOString());
         }
     };
 
     /* Pushes local state to context and resets cursor to page 1 */
     const applyToFilterManager = () => {
         updateRange();
-        cursorManager.controller.reset();
-        cursorManager.controller.goTo(0);
+        // Future functions to update filters here
     };
 
     /* Clears manager and local state values */

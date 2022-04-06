@@ -26,10 +26,14 @@ function SubmissionTable() {
         }
     );
 
+    /* Effect to add next cursor whenever submissions returns a new array */
     useEffect(() => {
-        cursorManager.controller.addNextCursor(
-            submissions[filterManager.filters.pageSize].timestamp
-        );
+        const nextCursor =
+            submissions[filterManager.filters.pageSize - 1]?.timestamp ||
+            undefined;
+        if (nextCursor) {
+            cursorManager.controller.addNextCursor(nextCursor);
+        }
     }, [submissions, cursorManager, filterManager]);
 
     const columns: Array<ColumnConfig> = [

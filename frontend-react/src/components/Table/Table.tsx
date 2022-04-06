@@ -33,7 +33,7 @@ export interface TableConfig {
 
 export interface TableProps {
     config: TableConfig;
-    filterManager: IFilterManager;
+    filterManager?: IFilterManager;
     cursorManager?: ICursorManager;
 }
 
@@ -42,8 +42,8 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
     const TableHeaders = () => {
         return (
             <tr>
-                {config.columns.map((colConfig) => {
-                    if (colConfig.sortable) {
+                {config.columns?.map((colConfig) => {
+                    if (colConfig.sortable && filterManager) {
                         return (
                             <th
                                 key={colConfig.columnHeader}
