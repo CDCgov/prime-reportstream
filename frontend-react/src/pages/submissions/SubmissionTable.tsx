@@ -10,7 +10,12 @@ import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import SubmissionFilters from "./SubmissionFilters";
 
 function SubmissionTable() {
-    const filterManager = useFilterManager();
+    const filterManager = useFilterManager({
+        sort: {
+            column: "timestamp",
+            order: "DESC",
+        },
+    });
     const cursorManager = useCursorManager();
 
     /* Our API call! Updates when any of the given state variables update */
@@ -34,6 +39,7 @@ function SubmissionTable() {
         if (nextCursor) {
             cursorManager.controller.addNextCursor(nextCursor);
         }
+        debugger;
     }, [submissions, cursorManager, filterManager]);
 
     const transformDate = (s: string) => {
@@ -61,6 +67,8 @@ function SubmissionTable() {
         columns: columns,
         rows: submissions,
     };
+
+    // TODO: sort order swap needs to reset cursors
 
     return (
         <>
