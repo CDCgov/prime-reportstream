@@ -62,6 +62,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                                     filterManager.update.setSortSettings(
                                         colConfig.dataAttr
                                     );
+                                    cursorManager?.controller.goTo(0);
                                 }}
                             >
                                 {colConfig.columnHeader}

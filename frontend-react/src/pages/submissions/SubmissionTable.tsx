@@ -34,12 +34,13 @@ function SubmissionTable() {
     /* Effect to add next cursor whenever submissions returns a new array */
     useEffect(() => {
         const nextCursor =
-            submissions[filterManager.filters.pageSize - 1]?.timestamp ||
-            undefined;
-        if (nextCursor) {
-            cursorManager.controller.addNextCursor(nextCursor);
+            submissions[filterManager.filters.pageSize]?.timestamp || undefined;
+
+        // Ensures first page cursor is always the start of your range
+        if (cursorManager.values.currentIndex === 0) {
+            cursorManager.controller.reset(filterManager.filters.startRange);
         }
-        debugger;
+        if (nextCursor) cursorManager.controller.addNextCursor(nextCursor);
     }, [submissions, cursorManager, filterManager]);
 
     const transformDate = (s: string) => {
@@ -67,8 +68,6 @@ function SubmissionTable() {
         columns: columns,
         rows: submissions,
     };
-
-    // TODO: sort order swap needs to reset cursors
 
     return (
         <>
