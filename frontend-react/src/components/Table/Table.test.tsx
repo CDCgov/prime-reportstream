@@ -28,7 +28,7 @@ describe("Table, basic tests", () => {
     });
 
     test("Elements with no mapped column aren't rendered", () => {
-        expect(screen.queryByText("value three")).toBeNull();
+        expect(screen.queryByText("value three")).not.toBeInTheDocument();
     });
 
     test("Link columns are rendered as links", () => {
@@ -63,11 +63,11 @@ describe("Table, pagination button tests", () => {
         expect(next).toBeInTheDocument();
     });
 
-    test("Next button disappears when hasNext is false", async () => {
+    test("Next button disappears when hasNext is false", () => {
         let next: HTMLElement | null = screen.getByText("Next");
         fireEvent.click(next);
-        next = await screen.queryByText("Next");
-        expect(next).toBeNull();
+        next = screen.queryByText("Next");
+        expect(next).not.toBeInTheDocument();
     });
 
     test("Previous button appears when hasPrevious is true", () => {
@@ -77,21 +77,21 @@ describe("Table, pagination button tests", () => {
         expect(prev).toBeInTheDocument();
     });
 
-    test("Previous button disappears when hasPrevious is false", async () => {
+    test("Previous button disappears when hasPrevious is false", () => {
         // First load
         const next = screen.getByText("Next");
-        let prev = await screen.queryByText("Previous");
-        expect(prev).toBeNull();
+        let prev = screen.queryByText("Previous");
+        expect(prev).not.toBeInTheDocument();
 
         // Simulate clicking next
         fireEvent.click(next);
         prev = screen.getByText("Previous");
-        expect(prev).not.toBeNull();
+        expect(prev).toBeInTheDocument();
 
         // Simulate clicking previous back to page 1
         fireEvent.click(prev);
-        prev = await screen.queryByText("Previous");
-        expect(prev).toBeNull();
+        prev = screen.queryByText("Previous");
+        expect(prev).not.toBeInTheDocument();
     });
 });
 

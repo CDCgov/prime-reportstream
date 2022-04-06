@@ -49,6 +49,16 @@ export interface TableProps {
 }
 
 const Table = ({ config, filterManager, cursorManager }: TableProps) => {
+    const renderArrow = () => {
+        if (filterManager && filterManager.filters.sort.order === "ASC") {
+            return <IconArrowUpward />;
+        } else if (
+            filterManager &&
+            filterManager.filters.sort.order === "DESC"
+        ) {
+            return <IconArrowDownward />;
+        }
+    };
     /* Renders the header row of the table from columns.values() */
     const TableHeaders = () => {
         return (
@@ -66,14 +76,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                                 }}
                             >
                                 {colConfig.columnHeader}
-                                {colConfig.sortable ? (
-                                    filterManager.filters.sort.order ===
-                                    "ASC" ? (
-                                        <IconArrowUpward />
-                                    ) : (
-                                        <IconArrowDownward />
-                                    )
-                                ) : null}
+                                {colConfig.sortable ? renderArrow() : null}
                             </th>
                         );
                     } else {

@@ -23,7 +23,7 @@ const fakeOrg: Organization = {
 };
 
 const handlers = [
-    rest.get(orgList.url, (req, res, ctx) => {
+    rest.get(orgList.url, (_req, res, ctx) => {
         return res(
             ctx.json([fakeOrg, fakeOrg, fakeOrg, fakeOrg]),
             ctx.status(200)
