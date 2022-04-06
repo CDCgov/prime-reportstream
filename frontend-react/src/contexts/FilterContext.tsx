@@ -60,7 +60,8 @@ export const SubmissionFilterContext = createContext<ISubmissionFilterContext>({
      * SonarCloud.
      */
     updateFilter: (filter: FilterName, val?: FilterTypes) => {
-        console.log("to please SonarCloud");
+        // Never gets called, just used store to please the linter
+        console.log(`${filter} and ${val}`);
     },
     clear: () => {
         console.log("to please SonarCloud");
