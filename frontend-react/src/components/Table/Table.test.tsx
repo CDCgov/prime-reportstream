@@ -30,6 +30,29 @@ describe("Table, basic tests", () => {
     test("Elements with no mapped column aren't rendered", () => {
         expect(screen.queryByText("value three")).toBeNull();
     });
+
+    test("Link columns are rendered as links", () => {
+        const linkInCell = screen.getByText("value two");
+        /* This looks ugly but it's ensuring the VALUE at linkAttr
+         * (or dataAttr) is plugged into the href.
+         *
+         * "/submissions/value two" is the outcome with the test data
+         * but the attributes we plug in don't have spaces to account
+         * for */
+        expect(linkInCell).toContainHTML(
+            '<a href="/submissions/value two">value two</a>'
+        );
+    });
+
+    test("Map columns use mapped value", () => {
+        const mappedElement = screen.getAllByRole("row")[2].lastChild;
+        expect(mappedElement).toHaveTextContent("mapped value");
+    });
+
+    test("Transform columns use transformed value", () => {
+        const transformedElements = screen.getAllByText("transformed");
+        expect(transformedElements).toHaveLength(2);
+    });
 });
 
 describe("Table, pagination button tests", () => {

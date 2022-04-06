@@ -29,19 +29,31 @@ function SubmissionTable() {
     /* Effect to add next cursor whenever submissions returns a new array */
     useEffect(() => {
         const nextCursor =
-            submissions[filterManager.filters.pageSize - 1]?.timestamp ||
-            undefined;
+            submissions[filterManager.filters.pageSize]?.timestamp || undefined;
         if (nextCursor) {
             cursorManager.controller.addNextCursor(nextCursor);
         }
     }, [submissions, cursorManager, filterManager]);
 
+    const transformDate = (s: string) => {
+        return new Date(s).toLocaleString();
+    };
+
     const columns: Array<ColumnConfig> = [
-        { dataAttr: "id", columnHeader: "Report ID" },
-        { dataAttr: "timestamp", columnHeader: "Date/time submitted" },
+        { dataAttr: "id", columnHeader: "Report ID", link: true },
+        {
+            dataAttr: "timestamp",
+            columnHeader: "Date/time submitted",
+            sortable: true,
+            transform: transformDate,
+        },
         { dataAttr: "externalName", columnHeader: "File" },
         { dataAttr: "reportItemCount", columnHeader: "Records" },
-        { dataAttr: "httpStatus", columnHeader: "Status" },
+        {
+            dataAttr: "httpStatus",
+            columnHeader: "Status",
+            valueMap: new Map([[201, "Success"]]),
+        },
     ];
 
     const submissionsConfig: TableConfig = {

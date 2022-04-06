@@ -5,6 +5,7 @@ import {
     IconNavigateBefore,
     IconNavigateNext,
 } from "@trussworks/react-uswds";
+import { NavLink } from "react-router-dom";
 import React from "react";
 
 import { ICursorManager } from "../../hooks/UseCursorManager";
@@ -24,6 +25,10 @@ export interface ColumnConfig {
     dataAttr: string;
     columnHeader: string;
     sortable?: boolean;
+    link?: boolean;
+    linkAttr?: string; // if no linkAttr is given, defaults to dataAttr
+    valueMap?: Map<string | number, any>;
+    transform?: Function;
 }
 
 export interface TableConfig {
@@ -47,11 +52,11 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                         return (
                             <th
                                 key={colConfig.columnHeader}
-                                onClick={() =>
+                                onClick={() => {
                                     filterManager.update.setSortSettings(
                                         colConfig.dataAttr
-                                    )
-                                }
+                                    );
+                                }}
                             >
                                 {colConfig.columnHeader}
                             </th>
@@ -68,6 +73,32 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
         );
     };
 
+    const renderRow = (object: TableRow, columnConfig: ColumnConfig) => {
+        let textValue = object[columnConfig.dataAttr];
+        if (columnConfig.transform) {
+            textValue = columnConfig.transform(textValue);
+        }
+        if (columnConfig.link) {
+            return (
+                <NavLink
+                    to={`/submissions/${
+                        object[columnConfig?.linkAttr || columnConfig.dataAttr]
+                    }`}
+                >
+                    {columnConfig.valueMap
+                        ? columnConfig.valueMap?.get(
+                              object[columnConfig.dataAttr]
+                          ) || object[columnConfig.dataAttr]
+                        : textValue}
+                </NavLink>
+            );
+        } else {
+            return columnConfig.valueMap
+                ? columnConfig.valueMap?.get(object[columnConfig.dataAttr])
+                : textValue;
+        }
+    };
+
     /* Iterates each row, and then uses the key value from columns.keys()
      * to render each cell in the appropriate column. */
     const TableRows = () => {
@@ -75,9 +106,9 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
             <>
                 {config.rows.map((object, rowIndex) => (
                     <tr key={rowIndex}>
-                        {config.columns.map((col, colIndex) => (
+                        {config.columns.map((colConfig, colIndex) => (
                             <td key={`${rowIndex}:${colIndex}`}>
-                                {object[col.dataAttr]}
+                                {renderRow(object, colConfig)}
                             </td>
                         ))}
                     </tr>

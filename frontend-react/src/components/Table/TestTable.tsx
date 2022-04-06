@@ -5,6 +5,21 @@ import useFilterManager from "../../hooks/UseFilterManager";
 
 import Table, { ColumnConfig, TableConfig } from "./Table";
 
+const dummyRowOne = {
+    one: "value one",
+    two: "value two",
+    three: "value three",
+    four: "not a test",
+    five: "transform this",
+};
+
+const dummyRowTwo = {
+    one: "value one again",
+    two: "value two again",
+    four: "test",
+    five: "transform this",
+};
+
 /* This component is specifically configured to help test the
  * Table component. Any  */
 export const TestTable = () => {
@@ -26,30 +41,39 @@ export const TestTable = () => {
     const fakeRows = useMemo(() => {
         switch (filterManager.filters.sort.order) {
             case "ASC":
-                return [
-                    {
-                        one: "value one",
-                        two: "value two",
-                        three: "value three",
-                    },
-                    { one: "value one again", two: "value two again" },
-                ];
+                return [dummyRowOne, dummyRowTwo];
             case "DESC":
-                return [
-                    { one: "value one again", two: "value two again" },
-                    {
-                        one: "value one",
-                        two: "value two",
-                        three: "value three",
-                    },
-                ];
+                return [dummyRowTwo, dummyRowOne];
         }
     }, [filterManager.filters.sort]);
 
+    const testTransform = (v: string) => {
+        if (v === "transform this") {
+            return "transformed";
+        } else {
+            return v;
+        }
+    };
+
     /* Configuration objects to pass to <Table> */
     const fakeColumns: Array<ColumnConfig> = [
-        { dataAttr: "two", columnHeader: "Column Two", sortable: true },
+        {
+            dataAttr: "two",
+            columnHeader: "Column Two",
+            sortable: true,
+            link: true,
+        },
         { dataAttr: "one", columnHeader: "Column One" },
+        {
+            dataAttr: "five",
+            columnHeader: "Transform Column",
+            transform: testTransform,
+        },
+        {
+            dataAttr: "four",
+            columnHeader: "Map Column",
+            valueMap: new Map([["test", "mapped value"]]),
+        },
     ];
 
     const config: TableConfig = {
