@@ -121,7 +121,7 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
 
     val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
     val metadata = Metadata(schema = one)
-    val actionHistory = spyk(ActionHistory(TaskAction.fhir_processing))
+    val actionHistory = spyk(ActionHistory(TaskAction.process))
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(

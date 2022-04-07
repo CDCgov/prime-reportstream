@@ -33,7 +33,7 @@ const val fhirQueueName = "fhir-raw-received"
  */
 class FHIRFlowFunctions(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-    private val actionHistory: ActionHistory = ActionHistory(TaskAction.fhir_processing)
+    private val actionHistory: ActionHistory = ActionHistory(TaskAction.process)
 ) : Logging {
     /**
      * An azure function for processing an HL7 message into of FHIR

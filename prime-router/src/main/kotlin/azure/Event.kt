@@ -32,8 +32,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         SEND_ERROR,
         WIPE_ERROR, // Deprecated
         RESEND,
-        REBATCH,
-        FHIR_PROCESSING; // for HL7/FHIR conversions
+        REBATCH;
 
         fun toTaskAction(): TaskAction {
             return when (this) {
@@ -51,7 +50,6 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 WIPE_ERROR -> TaskAction.wipe_error
                 RESEND -> TaskAction.resend
                 REBATCH -> TaskAction.rebatch
-                FHIR_PROCESSING -> TaskAction.fhir_processing
             }
         }
 

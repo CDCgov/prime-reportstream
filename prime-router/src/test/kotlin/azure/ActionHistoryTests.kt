@@ -46,7 +46,7 @@ class ActionHistoryTests {
 
     @Test
     fun `test trackActionParams`() {
-        val actionHistory = ActionHistory(TaskAction.fhir_processing)
+        val actionHistory = ActionHistory(TaskAction.process)
 
         actionHistory.trackActionParams("")
         assertThat(actionHistory.action.actionParams).isNull()
