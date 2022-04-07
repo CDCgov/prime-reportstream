@@ -12,6 +12,7 @@ import {
 } from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import Spinner from "../Spinner";
+import { getErrorDetail } from "../../utils/misc";
 
 import { TextAreaComponent, TextInputComponent } from "./AdminFormEdit";
 import {
@@ -111,9 +112,9 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                 setLoading(false);
                 history.goBack();
             } catch (e: any) {
-                console.trace(e);
+                let errorDetail = await getErrorDetail(e);
                 showError(
-                    `Updating item '${sendername}' failed. ${e.toString()}`
+                    `Updating sender '${sendername}' failed with: ${errorDetail}`
                 );
                 return false;
             }

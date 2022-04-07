@@ -1,4 +1,4 @@
-import { showError } from "../components/AlertNotifications";
+import {showError} from "../components/AlertNotifications";
 
 /**
  * splitOn('foo', 1);
@@ -55,3 +55,14 @@ export const checkTextAreaJson = (
         return false;
     }
 };
+
+/**
+ * returns the error detail usually found in the "error" field of the JSON returned
+ * otherwise, just return the general exception detail
+ */
+export async function getErrorDetail(e: any) {
+    let errorResponse = await e?.response?.json();
+    return errorResponse && errorResponse.error
+        ? errorResponse.error
+        : e.toString();
+}

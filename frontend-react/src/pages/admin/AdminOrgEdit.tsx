@@ -28,6 +28,7 @@ import {
     ConfirmSaveSettingModalRef,
 } from "../../components/Admin/CompareJsonModal";
 import { DisplayMeta } from "../../components/Admin/DisplayMeta";
+import { getErrorDetail } from "../../utils/misc";
 
 type AdminOrgEditProps = {
     orgname: string;
@@ -96,7 +97,8 @@ export function AdminOrgEdit({
             confirmModalRef?.current?.hideModal();
             showAlertNotification("success", `Saved '${orgname}' setting.`);
         } catch (e: any) {
-            showError(`Updating item '${orgname}' failed. ${e.toString()}`);
+            let errorDetail = await getErrorDetail(e);
+            showError(`Updating org '${orgname}' failed with: ${errorDetail}`);
             return false;
         }
 

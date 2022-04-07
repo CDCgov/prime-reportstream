@@ -12,6 +12,7 @@ import {
 } from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import Spinner from "../Spinner";
+import { getErrorDetail } from "../../utils/misc";
 
 import {
     ConfirmSaveSettingModal,
@@ -118,9 +119,9 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                 confirmModalRef?.current?.hideModal();
                 history.goBack();
             } catch (e: any) {
-                console.trace(e);
+                let errorDetail = await getErrorDetail(e);
                 showError(
-                    `Updating item '${receivername}' failed. ${e.toString()}`
+                    `Updating receiver '${receivername}' failed with: ${errorDetail}`
                 );
                 return false;
             }
