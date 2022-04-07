@@ -2,6 +2,7 @@ package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.DT
@@ -13,6 +14,7 @@ import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
+import com.anyascii.AnyAscii
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -668,6 +670,26 @@ class Hl7Serializer(
         }
 
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
+        if (hl7Config?.replaceUnicodeWithAscii == true) {
+            var s = "résumé"
+            println(AnyAscii.transliterate(s))
+            hapiContext.modelClassFactory = modelClassFactory
+            val tempMessage = hapiContext.pipeParser.encode(message)
+            println(AnyAscii.transliterate(tempMessage))
+            val parsedMessage = AnyAscii.transliterate(tempMessage)
+
+            // convert ORU message to string
+            // parse the string message
+            // convert parsed message to ORU format
+            // return newly created ORU message
+            val tempMessage2 = hapiContext.pipeParser.parse(parsedMessage)
+            if (tempMessage2 is ORU_R01) {
+                println("****************************************** INSTANCE!!")
+                return tempMessage2
+            } else {
+                print("***************************************** NOT AN INSTANCE!!!!")
+            }
+        }
         return message
     }
 

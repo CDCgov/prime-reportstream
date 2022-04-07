@@ -650,10 +650,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
-    implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
+    implementation("com.microsoft.azure.functions:azure-functions-java-library:2.0.0")
     implementation("com.azure:azure-core:1.26.0")
-    implementation("com.azure:azure-core-http-netty:1.11.7")
-    implementation("com.azure:azure-storage-blob:12.14.4") {
+    implementation("com.azure:azure-core-http-netty:1.11.8")
+    implementation("com.azure:azure-storage-blob:12.15.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.12.0") {
@@ -663,27 +663,27 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.4.4") {
+    implementation("com.azure:azure-identity:1.4.6") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("org.apache.logging.log4j:log4j-api:[2.17.1,)")
-    implementation("org.apache.logging.log4j:log4j-core:[2.17.1,)")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.1,)")
+    implementation("org.apache.logging.log4j:log4j-api:2.17.1")
+    implementation("org.apache.logging.log4j:log4j-core:2.17.1")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.17.1")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.4.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2")
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.17")
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.18")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.7.1")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.1")
     implementation("ca.uhn.hapi:hapi-base:2.3")
@@ -698,7 +698,7 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20220320")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
-    implementation("com.hierynomus:sshj:0.31.0")
+    implementation("com.hierynomus:sshj:0.32.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.commons:commons-lang3:3.12.0")
@@ -710,7 +710,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:8.5.4")
     implementation("org.commonmark:commonmark:0.18.2")
     implementation("com.google.guava:guava:31.1-jre")
-    implementation("com.helger.as2:as2-lib:4.10.0")
+    implementation("com.helger.as2:as2-lib:4.10.1")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("org.bouncycastle:bcmail-jdk15on:1.70")
@@ -718,7 +718,7 @@ dependencies {
 
     implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.6")
-    implementation("com.auth0:java-jwt:3.18.3")
+    implementation("com.auth0:java-jwt:3.19.0")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.9")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
@@ -731,6 +731,7 @@ dependencies {
     implementation("org.apache.poi:poi:5.2.2")
     implementation("org.apache.poi:poi-ooxml:5.2.2")
     implementation("commons-io:commons-io: 2.11.0")
+    implementation("com.anyascii:anyascii:0.3.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
@@ -744,7 +745,7 @@ dependencies {
         exclude(group = "com.github.kittinunf.fuel", module = "fuel")
     }
     // kotlinx-coroutines-core is needed by mock-fuel
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.12.3")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
