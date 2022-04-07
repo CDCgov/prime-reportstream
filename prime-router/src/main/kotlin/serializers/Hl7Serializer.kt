@@ -2,7 +2,6 @@ package gov.cdc.prime.router.serializers
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
-import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.v251.datatype.DR
 import ca.uhn.hl7v2.model.v251.datatype.DT
