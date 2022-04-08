@@ -64,6 +64,7 @@ const useFilterManager = (init?: Partial<FilterState>): IFilterManager => {
     );
     const [pageSize, setPageSize] = useState<PageSize>(init?.pageSize || 10);
 
+    /* Ensures startRange is and endRange match sort order configuration needs */
     const dateRange: DateFilterRange = useMemo(() => {
         if (sort.order === "ASC") {
             return {
@@ -78,6 +79,7 @@ const useFilterManager = (init?: Partial<FilterState>): IFilterManager => {
         }
     }, [sort.order, date1, date2]);
 
+    /* TODO: Refactor this? Could probably  be a bit simpler */
     const setSortSettings = (col: string, order?: SortOrder) => {
         if (sort.column === col) {
             /* If the user isn't changing sort column, they're swapping
@@ -97,50 +99,11 @@ const useFilterManager = (init?: Partial<FilterState>): IFilterManager => {
         }
     };
 
-    /* The startRange filter is used as the main cursor, and endRange is used to cap
-     * your range in the direction of your sort.
-     *
-     * The proper date order in FilterManager is:
-     * New -> Old (DESC): startRange must be a more recent date than endRange
-     * Old -> New (ASC): startRange must be a more historic date than endRange */
     const setRange = (date1: Date, date2?: Date) => {
         setDate1(date1.toISOString());
         if (date2) {
             setDate2(date2?.toISOString());
         }
-        // if (date2) {
-        //     const setDateAsCursor = (whichDate: "OLD" | "NEW") => {
-        //         if (whichDate === "OLD") {
-        //             if (olderOfDates(date1, date2) === date2) {
-        //                 setDate1(date2.toISOString());
-        //                 setDate2(date1.toISOString());
-        //             } else {
-        //                 setDate1(date1.toISOString());
-        //                 setDate2(date2.toISOString());
-        //             }
-        //         } else {
-        //             if (newerOfDates(date1, date2) === date2) {
-        //                 setDate1(date1.toISOString());
-        //                 setDate2(date2.toISOString());
-        //             } else {
-        //                 setDate1(date2.toISOString());
-        //                 setDate2(date1.toISOString());
-        //             }
-        //         }
-        //     };
-        //
-        //     if (sort.order === "ASC") {
-        //         setDateAsCursor("OLD");
-        //     } else if (sort.order === "DESC") {
-        //         setDateAsCursor("NEW");
-        //     }
-        // } else {
-        //     if (sort.order === "ASC") {
-        //         setDate2(date1.toISOString());
-        //     } else if (sort.order === "DESC") {
-        //         setDate1(date1.toISOString());
-        //     }
-        // }
     };
 
     const clearAll = () => {
