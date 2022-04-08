@@ -359,7 +359,7 @@ class ActionHistory : Logging {
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCount = report.itemCount
         reportFile.bodyFormat = report.bodyFormat.toString()
-        reportFile.itemCountPreQualfilter = report.itemCountPreQualityFilter
+        reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
         filteredOutReports[reportFile.reportId] = reportFile
         reportLineages.add(ReportLineage(null, null, input.id, report.id, null))
         trackFilteredItems(report)
@@ -391,7 +391,7 @@ class ActionHistory : Logging {
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
         reportFile.itemCount = report.itemCount
-        reportFile.itemCountPreQualfilter = report.itemCountPreQualityFilter
+        reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
         reportsOut[reportFile.reportId] = reportFile
         trackFilteredItems(report)
         trackItemLineages(report)

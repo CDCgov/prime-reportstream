@@ -170,9 +170,10 @@ class Report : Logging {
      * So in all other cases, we set it to null.
      *
      * Example usage: if during filtering 10 items passed the juris filter for Kentucky, but then only 3 passed
-     * the qualityFilter, this report would have [itemCountPreQualityFilter] = 10 and [itemCount] = 3.
+     * the qualityFilter, the report created by routing (prior to batching)
+     * would have [itemCountBeforeQualFilter] = 10 and [itemCount] = 3.
      */
-    var itemCountPreQualityFilter: Int? = null
+    var itemCountBeforeQualFilter: Int? = null
 
     /**
      * The set of parent -> child lineage items associated with this report.
@@ -246,7 +247,8 @@ class Report : Logging {
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
         id: ReportId? = null, // If constructing from blob storage, must pass in its UUID here.  Otherwise null.
-        metadata: Metadata
+        metadata: Metadata,
+        itemCountBeforeQualFilter: Int? = null,
     ) {
         this.id = id ?: UUID.randomUUID()
         this.schema = schema
@@ -257,6 +259,7 @@ class Report : Logging {
         this.itemLineages = itemLineage
         this.table = createTable(schema, values)
         this.metadata = metadata
+        this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
 
     // Test source
@@ -267,7 +270,8 @@ class Report : Logging {
         destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
-        metadata: Metadata? = null
+        metadata: Metadata? = null,
+        itemCountBeforeQualFilter: Int? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -278,6 +282,7 @@ class Report : Logging {
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
         this.metadata = metadata ?: Metadata.getInstance()
+        this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
 
     constructor(
@@ -287,7 +292,8 @@ class Report : Logging {
         destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
-        metadata: Metadata
+        metadata: Metadata,
+        itemCountBeforeQualFilter: Int? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -298,6 +304,7 @@ class Report : Logging {
         this.itemLineages = itemLineage
         this.table = createTable(values)
         this.metadata = metadata
+        this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
 
     private constructor(
@@ -308,7 +315,7 @@ class Report : Logging {
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata? = null,
-        itemCountBeforeQualityFilter: Int? = null,
+        itemCountBeforeQualFilter: Int? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -319,7 +326,7 @@ class Report : Logging {
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.metadata = metadata ?: Metadata.getInstance()
-        this.itemCountPreQualityFilter = itemCountBeforeQualityFilter
+        this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
 
     @Suppress("Destructure")
@@ -357,7 +364,8 @@ class Report : Logging {
             fromThisReport("copy"),
             destination ?: this.destination,
             bodyFormat ?: this.bodyFormat,
-            metadata = this.metadata
+            metadata = this.metadata,
+            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter,
         )
         copy.itemLineages = createOneToOneItemLineages(this, copy)
         copy.filteringResults.addAll(this.filteringResults)
@@ -455,7 +463,7 @@ class Report : Logging {
             fromThisReport("filter: $filterFunctions"),
             metadata = this.metadata,
             // copy from previous filter; avoid losing info during filtering steps subsequent to quality filter.
-            itemCountBeforeQualityFilter = this.itemCountPreQualityFilter
+            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter
         )
         // Write same info to our logs that goes in the json response obj
         if (doLogging)
@@ -499,7 +507,8 @@ class Report : Logging {
             Table.create(columns),
             fromThisReport("deidentify"),
             itemLineage = this.itemLineages,
-            metadata = this.metadata
+            metadata = this.metadata,
+            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter,
         )
     }
 
@@ -625,13 +634,17 @@ class Report : Logging {
         }
     }
 
+    /**
+     * Here 'mapping' means to tranform data from the current schema to a new schema per the rules in the [mapping].
+     * Not to be confused with our lower level [Mapper] concept.
+     */
     fun applyMapping(mapping: Translator.Mapping): Report {
         val pass1Columns = mapping.toSchema.elements.map { element -> buildColumnPass1(mapping, element) }
         val pass2Columns = mapping.toSchema.elements.map { element -> buildColumnPass2(mapping, element, pass1Columns) }
         val newTable = Table.create(pass2Columns)
         return Report(
             mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineages,
-            metadata = this.metadata
+            metadata = this.metadata, itemCountBeforeQualFilter = this.itemCountBeforeQualFilter
         )
     }
 

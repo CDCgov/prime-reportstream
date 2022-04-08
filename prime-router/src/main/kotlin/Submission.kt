@@ -117,6 +117,7 @@ class DetailedSubmissionHistory(
                         filteredReportItems,
                         report.nextActionAt,
                         report.itemCount,
+                        report.itemCountBeforeQualFilter,
                     )
                 )
             }
@@ -196,6 +197,7 @@ class DetailedSubmissionHistory(
                                 null,
                                 null,
                                 report.itemCount,
+                                report.itemCountBeforeQualFilter,
                             )
                         )
                     }
@@ -227,6 +229,7 @@ class DetailedSubmissionHistory(
                             null,
                             null,
                             report.itemCount,
+                            report.itemCountBeforeQualFilter,
                         )
 
                         destinations.add(dest)
@@ -384,7 +387,9 @@ data class DetailReport(
     val externalName: String?,
     val createdAt: OffsetDateTime?,
     val nextActionAt: OffsetDateTime?,
-    val itemCount: Int
+    val itemCount: Int,
+    @JsonIgnore
+    val itemCountBeforeQualFilter: Int?,
 )
 
 /**
@@ -395,13 +400,16 @@ data class DetailReport(
 data class ReportStreamFilterResultForResponse(@JsonIgnore private val filterResult: ReportStreamFilterResult) {
     val filterType = filterResult.filterType
     val filterName = filterResult.filterName
-    val originalCount = filterResult.originalCount
     val filteredTrackingElement = filterResult.filteredTrackingElement
     val filterArgs = filterResult.filterArgs
     val message = filterResult.message
 }
 
-@JsonPropertyOrder(value = ["organization", "organizationId", "service", "itemCount", "sendingAt"])
+@JsonPropertyOrder(
+    value = [
+        "organization", "organizationId", "service", "itemCount", "itemCountBeforeQualFilter", "sendingAt"
+    ]
+)
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Destination(
     @JsonProperty("organization_id")
@@ -413,6 +421,8 @@ data class Destination(
     @JsonInclude(Include.NON_NULL)
     val sendingAt: OffsetDateTime?,
     val itemCount: Int,
+    @JsonProperty("itemCountBeforeQualityFiltering")
+    val itemCountBeforeQualFilter: Int?,
     var sentReports: MutableList<DetailReport> = mutableListOf(),
     var downloadedReports: MutableList<DetailReport> = mutableListOf(),
 ) {

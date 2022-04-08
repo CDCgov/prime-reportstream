@@ -109,7 +109,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         // keep track of how many items passed the juris filter prior to quality filtering.
         // For informational/reporting purposes only.
         // Normally this value is passed from parent to child Report, like mitochondrial DNA.  This overrides that.
-        jurisFilteredReport.itemCountPreQualityFilter = jurisFilteredReport.itemCount
+        jurisFilteredReport.itemCountBeforeQualFilter = jurisFilteredReport.itemCount
 
         // Do qualityFiltering on the jurisFilteredReport
         val qualityFilteredReport = filterByOneFilterType(
