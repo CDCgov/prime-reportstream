@@ -25,9 +25,8 @@ import java.util.UUID
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder(
     value = [
-        "id", "submissionId", "timestamp", "sender", "reportItemCount",
-        "errorCount", "warningCount", "status", "plannedCompletionAt",
-        "actualCompletionAt",
+        "id", "submissionId", "status", "timestamp", "plannedCompletionAt", "actualComplexiontAt",
+        "sender", "reportItemCount", "errorCount", "warningCount",
     ]
 )
 class DetailedSubmissionHistory(
@@ -103,48 +102,9 @@ class DetailedSubmissionHistory(
 
     /**
      * Summary of how far along the submission's process is.
-     * The supported values arre listed in the Status enum.
+     * The supported values are listed in the Status enum.
      */
-    val overallStatus: Status get() {
-        if (httpStatus != HttpStatus.OK.value() && httpStatus != HttpStatus.CREATED.value()) {
-            return Status.ERROR
-        }
-
-        if (destinations.size == 0) {
-            // 0 unfiltered destinations = unprocessed in almost every situation
-            return Status.RECEIVED
-        } else if (realDestinations.size == 0) {
-            return Status.NOT_DELIVERING
-        }
-
-        var finishedDestinations = 0
-
-        realDestinations.forEach {
-            var sentItemCount = 0
-
-            it.sentReports.forEach {
-                sentItemCount += it.itemCount
-            }
-
-            var downloadedItemCount = 0
-
-            it.downloadedReports.forEach {
-                downloadedItemCount += it.itemCount
-            }
-
-            if (sentItemCount >= it.itemCount || downloadedItemCount >= it.itemCount) {
-                finishedDestinations++
-            }
-        }
-
-        if (finishedDestinations >= realDestinations.size) {
-            return Status.DELIVERED
-        } else if (finishedDestinations > 0) {
-            return Status.PARTIALLY_DELIVERED
-        }
-
-        return Status.WAITING_TO_DELIVER
-    }
+    var overallStatus: Status = Status.RECEIVED
 
     /**
      * More readable version of overallStatus, passed to the JSON version of this object
@@ -157,34 +117,13 @@ class DetailedSubmissionHistory(
      * When this submission is expected to finish sending.
      * Mirrors the max of all the sendingAt values for this Submission's Destinations
      */
-    val plannedCompletionAt: OffsetDateTime? get() {
-        if (overallStatus == Status.ERROR ||
-            overallStatus == Status.RECEIVED ||
-            overallStatus == Status.NOT_DELIVERING
-        ) {
-            return null
-        }
-
-        return destinations.maxWithOrNull(compareBy { it.sendingAt })?.sendingAt
-    }
+    var plannedCompletionAt: OffsetDateTime? = null
 
     /**
      * Marks the actual time this submission finished sending.
      * Mirrors the max createdAt of all sent and downloaded reports after it has been sent to all receivers
      */
-    val actualCompletionAt: OffsetDateTime? get() {
-        if (overallStatus != Status.DELIVERED) {
-            return null
-        }
-
-        val sentReports = destinations.filter { it.sentReports.size > 0 }
-            .flatMap { it.sentReports }
-
-        val downloadedReports = destinations.filter { it.downloadedReports.size > 0 }
-            .flatMap { it.downloadedReports }
-
-        return sentReports.plus(downloadedReports).maxWithOrNull(compareBy { it.createdAt })?.createdAt
-    }
+    var actualCompletionAt: OffsetDateTime? = null
 
     /**
      * The number of warnings.  Note this is not the number of consolidated warnings.
@@ -252,6 +191,10 @@ class DetailedSubmissionHistory(
         }
         errors.addAll(consolidateLogs(ActionLogLevel.error))
         warnings.addAll(consolidateLogs(ActionLogLevel.warning))
+
+        overallStatus = calculateStatus()
+        plannedCompletionAt = calculatePlannedCompletionAt()
+        actualCompletionAt = calculateActualCompletionAt()
     }
 
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
@@ -259,9 +202,13 @@ class DetailedSubmissionHistory(
         descendants.forEach { descendant ->
             enrichWithDescendant(descendant)
         }
+
+        overallStatus = calculateStatus()
+        plannedCompletionAt = calculatePlannedCompletionAt()
+        actualCompletionAt = calculateActualCompletionAt()
     }
 
-    fun enrichWithDescendant(descendant: DetailedSubmissionHistory) {
+    private fun enrichWithDescendant(descendant: DetailedSubmissionHistory) {
         when (descendant.actionName) {
             TaskAction.process -> enrichWithProcessAction(descendant)
             // TaskAction.batch -> enrichWithBatchAction(descendant)
@@ -393,6 +340,89 @@ class DetailedSubmissionHistory(
         }
 
         return consolidatedList
+    }
+
+    /**
+     * Runs the calculations for the overallStatus field so that it can be done during init.
+     * @returns The status from the Status enum that matches the current Submission state.
+     */
+    fun calculateStatus(): Status {
+        if (httpStatus != HttpStatus.OK.value() && httpStatus != HttpStatus.CREATED.value()) {
+            return Status.ERROR
+        }
+
+        if (destinations.size == 0) {
+            /**
+             * Cases where this may hit:
+             *     1) Data hasn't been processed yet (common in async submissions)
+             *     2) Very rare: No data matches any geographical location.
+             *         e.g. If both the testing tab and patient data were foreign addresses.
+             * At the moment we have NO easy way to distinguish the latter rare case,
+             * so it will be treated as status RECEIVED as well.
+             */
+            return Status.RECEIVED
+        } else if (realDestinations.size == 0) {
+            return Status.NOT_DELIVERING
+        }
+
+        var finishedDestinations = 0
+
+        realDestinations.forEach {
+            var sentItemCount = 0
+
+            it.sentReports.forEach {
+                sentItemCount += it.itemCount
+            }
+
+            var downloadedItemCount = 0
+
+            it.downloadedReports.forEach {
+                downloadedItemCount += it.itemCount
+            }
+
+            if (sentItemCount >= it.itemCount || downloadedItemCount >= it.itemCount) {
+                finishedDestinations++
+            }
+        }
+
+        if (finishedDestinations >= realDestinations.size) {
+            return Status.DELIVERED
+        } else if (finishedDestinations > 0) {
+            return Status.PARTIALLY_DELIVERED
+        }
+
+        return Status.WAITING_TO_DELIVER
+    }
+
+    /**
+     * g
+     */
+    fun calculatePlannedCompletionAt(): OffsetDateTime? {
+        if (overallStatus == Status.ERROR ||
+            overallStatus == Status.RECEIVED ||
+            overallStatus == Status.NOT_DELIVERING
+        ) {
+            return null
+        }
+
+        return realDestinations.maxWithOrNull(compareBy { it.sendingAt })?.sendingAt
+    }
+
+    /**
+     * g
+     */
+    fun calculateActualCompletionAt(): OffsetDateTime? {
+        if (overallStatus != Status.DELIVERED) {
+            return null
+        }
+
+        val sentReports = realDestinations.filter { it.sentReports.size > 0 }
+            .flatMap { it.sentReports }
+
+        val downloadedReports = realDestinations.filter { it.downloadedReports.size > 0 }
+            .flatMap { it.downloadedReports }
+
+        return sentReports.plus(downloadedReports).maxWithOrNull(compareBy { it.createdAt })?.createdAt
     }
 }
 

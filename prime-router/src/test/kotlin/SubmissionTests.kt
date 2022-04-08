@@ -393,12 +393,15 @@ class SubmissionTests {
             1, TaskAction.receive, OffsetDateTime.now(),
             HttpStatus.OK.value(), reports
         )
-        testSent.enrichWithDescendant(
-            DetailedSubmissionHistory(
-                1, TaskAction.send, OffsetDateTime.now(),
-                HttpStatus.OK.value(), partiallyDelivered
+        testSent.enrichWithDescendants(
+            listOf(
+                DetailedSubmissionHistory(
+                    1, TaskAction.send, OffsetDateTime.now(),
+                    HttpStatus.OK.value(), partiallyDelivered
+                )
             )
         )
+
         testSent.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED)
             assertThat(plannedCompletionAt).isEqualTo(tomorrow)
@@ -409,10 +412,12 @@ class SubmissionTests {
             1, TaskAction.receive, OffsetDateTime.now(),
             HttpStatus.OK.value(), reports
         )
-        testDownload.enrichWithDescendant(
-            DetailedSubmissionHistory(
-                1, TaskAction.download, OffsetDateTime.now(),
-                HttpStatus.OK.value(), partiallyDelivered
+        testDownload.enrichWithDescendants(
+            listOf(
+                DetailedSubmissionHistory(
+                    1, TaskAction.send, OffsetDateTime.now(),
+                    HttpStatus.OK.value(), partiallyDelivered
+                )
             )
         )
         testDownload.run {
@@ -432,10 +437,12 @@ class SubmissionTests {
             ),
         ).toMutableList()
 
-        testSent.enrichWithDescendant(
-            DetailedSubmissionHistory(
-                1, TaskAction.send, OffsetDateTime.now(),
-                HttpStatus.OK.value(), deliveredReports
+        testSent.enrichWithDescendants(
+            listOf(
+                DetailedSubmissionHistory(
+                    1, TaskAction.send, OffsetDateTime.now(),
+                    HttpStatus.OK.value(), deliveredReports
+                )
             )
         )
         testSent.run {
@@ -444,10 +451,12 @@ class SubmissionTests {
             assertThat(actualCompletionAt).isEqualTo(latestReport.createdAt)
         }
 
-        testDownload.enrichWithDescendant(
-            DetailedSubmissionHistory(
-                1, TaskAction.download, OffsetDateTime.now(),
-                HttpStatus.OK.value(), deliveredReports
+        testDownload.enrichWithDescendants(
+            listOf(
+                DetailedSubmissionHistory(
+                    1, TaskAction.send, OffsetDateTime.now(),
+                    HttpStatus.OK.value(), deliveredReports
+                )
             )
         )
         testDownload.run {
