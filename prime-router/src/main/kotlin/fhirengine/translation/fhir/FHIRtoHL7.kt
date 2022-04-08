@@ -6,7 +6,6 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
 import com.soywiz.korte.Filter
 import com.soywiz.korte.TemplateConfig
-import gov.cdc.prime.router.fhirengine.encoding.getValue
 import org.hl7.fhir.r4.model.InstantType
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
