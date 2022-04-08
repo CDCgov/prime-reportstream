@@ -16,7 +16,9 @@ function SubmissionTable() {
             order: "DESC",
         },
     });
-    const cursorManager = useCursorManager();
+    const cursorManager = useCursorManager(
+        filterManager.filters.dateRange.startRange
+    );
 
     /* Our API call! Updates when any of the given state variables update */
     const submissions: SubmissionsResource[] = useResource(
@@ -24,7 +26,7 @@ function SubmissionTable() {
         {
             organization: getStoredOrg(),
             cursor: cursorManager.values.cursor,
-            endCursor: filterManager.filters.endRange,
+            endCursor: filterManager.filters.dateRange.endRange,
             pageSize: filterManager.filters.pageSize + 1, // Pulls +1 to check for next page
             sort: filterManager.filters.sort.order,
             showFailed: false, // No plans for this to be set to true
@@ -35,10 +37,11 @@ function SubmissionTable() {
     useEffect(() => {
         const nextCursor =
             submissions[filterManager.filters.pageSize]?.timestamp || undefined;
-
         // Ensures first page cursor is always the start of your range
         if (cursorManager.values.currentIndex === 0) {
-            cursorManager.controller.reset(filterManager.filters.startRange);
+            cursorManager.controller.reset(
+                filterManager.filters.dateRange.startRange
+            );
         }
         if (nextCursor) cursorManager.controller.addNextCursor(nextCursor);
     }, [submissions, cursorManager, filterManager]);

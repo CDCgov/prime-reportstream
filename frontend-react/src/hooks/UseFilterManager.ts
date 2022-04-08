@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
-type SortOrder = "ASC" | "DESC";
+export type SortOrder = "ASC" | "DESC";
 export type PageSize = 10 | 25 | 50 | 100;
 export type StateUpdate<T> = React.Dispatch<React.SetStateAction<T>>;
+
+interface DateFilterRange {
+    startRange: string;
+    endRange: string;
+}
 
 interface SortSettings {
     column: string;
@@ -10,15 +15,13 @@ interface SortSettings {
 }
 
 export interface FilterState {
-    startRange: string;
-    endRange: string;
+    dateRange: DateFilterRange;
     sort: SortSettings;
     pageSize: PageSize;
 }
 
 export interface FilterController {
-    setStartRange: StateUpdate<string>;
-    setEndRange: StateUpdate<string>;
+    setRange: (date1: Date, date2?: Date) => void;
     setSortSettings: (col: string) => void;
     setPageSize: StateUpdate<PageSize>;
     clearAll: () => void;
@@ -29,13 +32,51 @@ export interface IFilterManager {
     update: FilterController;
 }
 
+export const FALLBACK_DATE1 = new Date().toISOString();
+export const FALLBACK_DATE2 = "2020-01-01T00:00:00.000Z";
+
+export const checkDate = (d: Date | string) =>
+    typeof d === "string" ? new Date(d) : d;
+export const olderOfDates = (date1: Date | string, date2: Date | string) => {
+    if (checkDate(date1) < checkDate(date2)) {
+        return checkDate(date1);
+    } else {
+        return checkDate(date2);
+    }
+};
+export const newerOfDates = (date1: Date | string, date2: Date | string) => {
+    if (checkDate(date1) > checkDate(date2)) {
+        return checkDate(date1);
+    } else {
+        return checkDate(date2);
+    }
+};
+
 const useFilterManager = (init?: Partial<FilterState>): IFilterManager => {
-    const [startRange, setStartRange] = useState(init?.startRange || "");
-    const [endRange, setEndRange] = useState(init?.endRange || "");
+    const [date1, setDate1] = useState(
+        init?.dateRange?.startRange || FALLBACK_DATE1
+    );
+    const [date2, setDate2] = useState(
+        init?.dateRange?.endRange || FALLBACK_DATE2
+    );
     const [sort, setSort] = useState<SortSettings>(
         init?.sort || { column: "", order: "DESC" }
     );
     const [pageSize, setPageSize] = useState<PageSize>(init?.pageSize || 10);
+
+    const dateRange: DateFilterRange = useMemo(() => {
+        if (sort.order === "ASC") {
+            return {
+                startRange: olderOfDates(date1, date2).toISOString(),
+                endRange: newerOfDates(date1, date2).toISOString(),
+            };
+        } else {
+            return {
+                startRange: newerOfDates(date1, date2).toISOString(),
+                endRange: olderOfDates(date1, date2).toISOString(),
+            };
+        }
+    }, [sort.order, date1, date2]);
 
     const setSortSettings = (col: string, order?: SortOrder) => {
         if (sort.column === col) {
@@ -56,23 +97,67 @@ const useFilterManager = (init?: Partial<FilterState>): IFilterManager => {
         }
     };
 
+    /* The startRange filter is used as the main cursor, and endRange is used to cap
+     * your range in the direction of your sort.
+     *
+     * The proper date order in FilterManager is:
+     * New -> Old (DESC): startRange must be a more recent date than endRange
+     * Old -> New (ASC): startRange must be a more historic date than endRange */
+    const setRange = (date1: Date, date2?: Date) => {
+        setDate1(date1.toISOString());
+        if (date2) {
+            setDate2(date2?.toISOString());
+        }
+        // if (date2) {
+        //     const setDateAsCursor = (whichDate: "OLD" | "NEW") => {
+        //         if (whichDate === "OLD") {
+        //             if (olderOfDates(date1, date2) === date2) {
+        //                 setDate1(date2.toISOString());
+        //                 setDate2(date1.toISOString());
+        //             } else {
+        //                 setDate1(date1.toISOString());
+        //                 setDate2(date2.toISOString());
+        //             }
+        //         } else {
+        //             if (newerOfDates(date1, date2) === date2) {
+        //                 setDate1(date1.toISOString());
+        //                 setDate2(date2.toISOString());
+        //             } else {
+        //                 setDate1(date2.toISOString());
+        //                 setDate2(date1.toISOString());
+        //             }
+        //         }
+        //     };
+        //
+        //     if (sort.order === "ASC") {
+        //         setDateAsCursor("OLD");
+        //     } else if (sort.order === "DESC") {
+        //         setDateAsCursor("NEW");
+        //     }
+        // } else {
+        //     if (sort.order === "ASC") {
+        //         setDate2(date1.toISOString());
+        //     } else if (sort.order === "DESC") {
+        //         setDate1(date1.toISOString());
+        //     }
+        // }
+    };
+
     const clearAll = () => {
-        setStartRange("");
-        setEndRange("");
-        setSort({ column: "", order: "DESC" });
-        setPageSize(10);
+        setDate1(init?.dateRange?.startRange || FALLBACK_DATE1);
+        setDate2(init?.dateRange?.endRange || FALLBACK_DATE2);
+        setSort(init?.sort || { column: "", order: "DESC" });
+        setPageSize(init?.pageSize || 10);
     };
 
     return {
         filters: {
-            startRange,
-            endRange,
+            dateRange,
             sort,
             pageSize,
         },
         update: {
-            setStartRange,
-            setEndRange,
+            setRange,
             setSortSettings,
             setPageSize,
             clearAll,

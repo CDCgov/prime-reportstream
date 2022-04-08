@@ -72,7 +72,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                                     filterManager.update.setSortSettings(
                                         colConfig.dataAttr
                                     );
-                                    cursorManager?.controller.goTo(0);
+                                    cursorManager?.controller.reset();
                                 }}
                             >
                                 {colConfig.columnHeader}
@@ -91,11 +91,25 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
         );
     };
 
+    const showMappedValue = (
+        columnConfig: ColumnConfig,
+        object: TableRow
+    ): string => {
+        if (columnConfig.valueMap) {
+            return (
+                columnConfig.valueMap?.get(object[columnConfig.dataAttr]) ||
+                object[columnConfig.dataAttr]
+            );
+        } else {
+            return object[columnConfig.dataAttr];
+        }
+    };
+
     const renderRow = (object: TableRow, columnConfig: ColumnConfig) => {
-        let textValue = object[columnConfig.dataAttr];
-        // Transforms textValue if transform function is given
+        let displayValue = object[columnConfig.dataAttr];
+        // Transforms value if transform function is given
         if (columnConfig.transform) {
-            textValue = columnConfig.transform(textValue);
+            displayValue = columnConfig.transform(displayValue);
         }
 
         if (columnConfig.link) {
@@ -107,16 +121,14 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                     }`}
                 >
                     {columnConfig.valueMap
-                        ? columnConfig.valueMap?.get(
-                              object[columnConfig.dataAttr]
-                          ) || object[columnConfig.dataAttr]
-                        : textValue}
+                        ? showMappedValue(columnConfig, object)
+                        : displayValue}
                 </NavLink>
             );
         } else {
             return columnConfig.valueMap
-                ? columnConfig.valueMap?.get(object[columnConfig.dataAttr])
-                : textValue;
+                ? showMappedValue(columnConfig, object)
+                : displayValue;
         }
     };
 

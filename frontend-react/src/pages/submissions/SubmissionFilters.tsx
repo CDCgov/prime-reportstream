@@ -33,35 +33,31 @@ function SubmissionFilters({
     filterManager,
     cursorManager,
 }: SubmissionFilterProps) {
+    const FALLBACK_LOCAL_START = "2999-12-31";
+    const FALLBACK_LOCAL_END = "2020-01-01";
+
     /* Local state to hold values before pushing to context. Pushing to context
      * will trigger a re-render due to the API call fetching new data. We have local
      * state to hold these so updates don't render immediately after setting a filter */
-    const [localStartRange, setLocalLocalStartRange] = useState<string>();
-    const [localEndRange, setLocalEndRange] = useState<string>();
+    const [localStartRange, setLocalStartRange] =
+        useState<string>(FALLBACK_LOCAL_START);
+    const [localEndRange, setLocalEndRange] =
+        useState<string>(FALLBACK_LOCAL_END);
 
     /* This workhorse function handles all Context changes with null checking */
     const updateRange = () => {
         if (localStartRange && localEndRange) {
-            const srDate = new Date(localStartRange);
-            const erDate = new Date(localEndRange);
-
-            if (srDate < erDate) {
-                filterManager.update.setStartRange(erDate.toISOString());
-                filterManager.update.setEndRange(srDate.toISOString());
-                cursorManager.controller.reset(erDate.toISOString());
-            } else {
-                filterManager.update.setStartRange(srDate.toISOString());
-                filterManager.update.setEndRange(erDate.toISOString());
-                cursorManager.controller.reset(srDate.toISOString());
-            }
+            const startRangeDate = new Date(localStartRange);
+            const endRangeDate = new Date(localEndRange);
+            filterManager.update.setRange(startRangeDate, endRangeDate);
         } else if (localStartRange && !localEndRange) {
             const date = new Date(localStartRange);
-            filterManager.update.setStartRange(date.toISOString());
-            cursorManager.controller.reset(date.toISOString());
+            filterManager.update.setRange(date);
+            cursorManager.controller.reset(localStartRange);
         } else if (localEndRange && !localStartRange) {
             const date = new Date(localEndRange);
-            filterManager.update.setStartRange(date.toISOString());
-            cursorManager.controller.reset(date.toISOString());
+            filterManager.update.setRange(date);
+            cursorManager.controller.reset(localEndRange);
         }
     };
 
@@ -77,8 +73,8 @@ function SubmissionFilters({
         filterManager.update.clearAll();
 
         // Clear local state
-        setLocalLocalStartRange("");
-        setLocalEndRange("");
+        setLocalStartRange(FALLBACK_LOCAL_START);
+        setLocalEndRange(FALLBACK_LOCAL_END);
     };
 
     return (
@@ -94,7 +90,11 @@ function SubmissionFilters({
                     name="start-date-picker"
                     placeholder="Start Date"
                     value={localStartRange}
-                    onChange={(val) => setLocalLocalStartRange(val)}
+                    onChange={(val) =>
+                        val
+                            ? setLocalStartRange(val)
+                            : console.log("StartRange is undefined")
+                    }
                 />
             </div>
             <div className={StyleClass.DATE_CONTAINER}>
@@ -108,7 +108,11 @@ function SubmissionFilters({
                     name="end-date-picker"
                     placeholder="End Date"
                     value={localEndRange}
-                    onChange={(val) => setLocalEndRange(val)}
+                    onChange={(val) =>
+                        val
+                            ? setLocalEndRange(val)
+                            : console.log("EndRange is undefined")
+                    }
                 />
             </div>
             <div className={StyleClass.DATE_CONTAINER}>

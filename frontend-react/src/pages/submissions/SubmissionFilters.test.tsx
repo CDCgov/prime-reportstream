@@ -8,8 +8,10 @@ import SubmissionFilters from "./SubmissionFilters";
 
 const fakeFilterManager: IFilterManager = {
     filters: {
-        startRange: "",
-        endRange: "",
+        dateRange: {
+            startRange: "",
+            endRange: "",
+        },
         sort: {
             column: "",
             order: "ASC",
@@ -17,10 +19,7 @@ const fakeFilterManager: IFilterManager = {
         pageSize: 10,
     },
     update: {
-        setStartRange: () => {
-            console.log("");
-        },
-        setEndRange: () => {
+        setRange: () => {
             console.log("");
         },
         setSortSettings: () => {
