@@ -16,7 +16,7 @@ resource "azurerm_monitor_metric_alert" "app_service_cpu_util" {
   name                = "${var.environment}-api-cpu"
   description         = "${var.environment} CPU utilization is greater than ${local.app_service_cpu_threshold}%"
   resource_group_name = var.resource_group
-  scopes              = var.service_plan_id
+  scopes              = [var.service_plan_id]
   frequency           = "PT1M"
   window_size         = "PT5M"
   severity            = 1
@@ -40,7 +40,7 @@ resource "azurerm_monitor_metric_alert" "app_service_mem_util" {
   name                = "${var.environment}-api-mem"
   description         = "${var.environment} memory utilization is greater than ${local.app_service_mem_threshold}%"
   resource_group_name = var.resource_group
-  scopes              = var.service_plan_id
+  scopes              = [var.service_plan_id]
   frequency           = "PT1M"
   window_size         = "PT5M"
   severity            = 1

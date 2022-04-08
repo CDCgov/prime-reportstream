@@ -11,7 +11,7 @@ output "connection_string" {
 }
 
 output "metabase_instrumentation_key" {
-  value = var.is_metabase_env ? azurerm_application_insights.metabase_insights[0].instrumentation_key : null
+  value = var.is_metabase_env ? azurerm_application_insights.metabase_insights[0].instrumentation_key : null 
 }
 
 output "metabase_app_id" {

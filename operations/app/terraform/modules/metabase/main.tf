@@ -10,14 +10,14 @@ resource "azurerm_app_service" "metabase" {
       action                    = "Allow"
       name                      = "AllowVNetTraffic"
       priority                  = 100
-      virtual_network_subnet_id = data.azurerm_subnet.public.id
+      virtual_network_subnet_id = var.public_subnet[0]
     }
 
     ip_restriction {
       action                    = "Allow"
       name                      = "AllowVNetEastTraffic"
       priority                  = 100
-      virtual_network_subnet_id = data.azurerm_subnet.public_subnet.id
+      virtual_network_subnet_id = var.public_subnet[1]
     }
 
     ip_restriction {
@@ -34,7 +34,7 @@ resource "azurerm_app_service" "metabase" {
   }
 
   app_settings = {
-    "MB_DB_CONNECTION_URI" = "postgresql://${data.azurerm_postgresql_server.postgres_server.name}.postgres.database.azure.com:5432/metabase?user=${data.azurerm_key_vault_secret.postgres_user.value}@${data.azurerm_postgresql_server.postgres_server.name}&password=${data.azurerm_key_vault_secret.postgres_pass.value}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+    "MB_DB_CONNECTION_URI" = "postgresql://${var.postgres_server_name}.postgres.database.azure.com:5432/metabase?user=${var.postgres_user}@${var.postgres_server_name}&password=${var.postgres_pass}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
 
     # Route outbound traffic through the VNET
     "WEBSITE_VNET_ROUTE_ALL" = 1
@@ -62,5 +62,5 @@ resource "azurerm_app_service" "metabase" {
 
 resource "azurerm_app_service_virtual_network_swift_connection" "metabase_vnet_integration" {
   app_service_id = azurerm_app_service.metabase.id
-  subnet_id      = var.use_cdc_managed_vnet ? data.azurerm_subnet.public_subnet.id : data.azurerm_subnet.public.id
+  subnet_id      = var.use_cdc_managed_vnet ? var.public_subnet[1].id : var.public_subnet[0].id
 }

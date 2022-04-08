@@ -52,6 +52,20 @@ module "storageaccount_candidate_blob_private_endpoint" {
   endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
 }
 
+module "storageaccountcandidatepartner_blob_private_endpoint" {
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_storage_account.storage_partner_candidate.id
+  name           = azurerm_storage_account.storage_partner_candidate.name
+  type           = "storage_account_blob"
+  resource_group = var.resource_group
+  location       = var.location
+
+  endpoint_subnet_ids        = var.endpoint_subnet
+  dns_vnet                   = var.dns_vnet
+  resource_prefix            = var.resource_prefix
+  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+}
+
 module "storageaccount_candidate_file_private_endpoint" {
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account_candidate.id
@@ -183,20 +197,6 @@ resource "azurerm_storage_account_customer_managed_key" "storage_candidate_partn
   storage_account_id = azurerm_storage_account.storage_partner_candidate.id
 
   depends_on = [azurerm_key_vault_access_policy.storage_candidate_partner_policy]
-}
-
-module "storageaccountcandidatepartner_blob_private_endpoint" {
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_partner_candidate.id
-  name           = azurerm_storage_account.storage_partner_candidate.name
-  type           = "storage_account_blob"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
 }
 
 resource "azurerm_storage_container" "storage_candidate_container_hhsprotect" {
