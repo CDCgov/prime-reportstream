@@ -6,7 +6,7 @@ import {
 } from "../contexts/SessionStorageTools";
 
 export default class AuthResource extends Resource {
-    pk(parent?: any, key?: string): string | undefined {
+    pk(_parent?: any, _key?: string): string | undefined {
         throw new Error("Method not implemented.");
     }
 

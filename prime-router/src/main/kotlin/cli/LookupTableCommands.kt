@@ -541,7 +541,8 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
     /**
      * Activate a created table in one shot.
      */
-    private val activate by option("-a", "--activate", help = "Activate the table upon creation").flag()
+    private val activate by option("-a", "--activate", help = "Activate the table upon creation")
+        .flag(default = false)
 
     /**
      * The table name.
@@ -550,12 +551,32 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         .required()
 
     /**
+     * Show the raw input table being created if set to true.
+     */
+    private val showTable by option("--show-table", help = "Always show the table to be created")
+        .flag(default = false)
+
+    /**
      * Force to create table(s).
      */
     private val forceTableToCreate by option(
         "-f", "--force",
         help = "Force the creation of new table(s) even if it is already exist"
     ).flag()
+
+    companion object {
+        /**
+         * Maximum number of table columns allowed to be displayed by default.  If a table exceeds this then the user
+         * must use the --show-table option to show the raw table.
+         */
+        private const val SMALL_TABLE_MAX_COLS = 7
+
+        /**
+         * Maximum number of table rows allowed to be displayed by default.  If a table exceeds this then the user
+         * must use the --show-table option to show the raw table.
+         */
+        private const val SMALL_TABLE_MAX_ROWS = 50
+    }
 
     override fun run() {
         // Read the input file.
@@ -567,8 +588,10 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             return
         }
 
-        // Output the data for review.
-        if (!silent) {
+        // Output the data for review specified.
+        val isLargeTable = inputData.size > SMALL_TABLE_MAX_ROWS || inputData[0].keys.size > SMALL_TABLE_MAX_COLS
+        // Display the table when not silent, plus display it only if it is a small table unless told otherwise.
+        if (!silent && (showTable || !isLargeTable)) {
             TermUi.echo("Here is the table data to be created:")
             val colNames = inputData[0].keys.toList()
             TermUi.echo(LookupTableCommands.rowsToPrintableTable(inputData, colNames))
