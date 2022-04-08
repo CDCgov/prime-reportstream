@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import com.github.javafaker.Faker
 import com.github.javafaker.Name
+import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.ConcatenateMapper
 import gov.cdc.prime.router.metadata.ElementAndValue
@@ -9,7 +10,6 @@ import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import gov.cdc.prime.router.metadata.Mappers
 import gov.cdc.prime.router.metadata.UseMapper
-import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.apache.logging.log4j.kotlin.Logging
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -37,6 +37,8 @@ class FakeDataService : Logging {
         val faker = context.faker
         // creates fake text data
         fun createFakeText(element: Element): String {
+            if (element.nameContains("facility_name"))
+                print("Ott")
             return when {
                 element.nameContains("name_of_testing_lab") -> "Any lab USA"
                 element.nameContains("lab_name") -> "Any lab USA"
@@ -299,47 +301,21 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
             )
         } ?: faker.address().city().toString()
 
-        // TODO ticket 4016
-        val facilitiesName: String? = if (includeNcesFacilities) {
-            // TODO("get value from NCES Table, using state, zipCode, country")
-            Hl7Serializer.ncesLookupTable.value.lookupBestMatch(
+        // Do a lazy init because this table may never be used and it is large
+        private val ncesLookupTable = lazy {
+            Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
+        }
+
+        val facilitiesName: String? = if (includeNcesFacilities && !zipCode.isNullOrEmpty()) {
+            ncesLookupTable.value.lookupBestMatch(
                 lookupColumn = "SCHNAME",
                 searchColumn = "LZIP",
                 searchValue = zipCode,
-                canonicalize = { canonicalizeSchoolName(it) },
+                canonicalize = { Hl7Utilities.canonicalizeSchoolName(it) },
                 commonWords = listOf("ELEMENTARY", "JUNIOR", "HIGH", "MIDDLE")
-            )?.toString()
+            )
         } else {
-            // TODO("state, zipCode, county")
-            "Any facility USA"
-        }
-
-        /**
-         * Prepare the string for matching by throwing away non-searchable characters and spacing
-         */
-        internal fun canonicalizeSchoolName(schoolName: String): String {
-            val normalizeSchoolType = schoolName
-                .uppercase()
-                .replace("SCHOOL", "")
-                .replace("(H)", "HIGH")
-                .replace("(M)", "MIDDLE")
-                .replace("K-8", "K8")
-                .replace("K-12", "K12")
-                .replace("\\(E\\)|ELEM\\.|EL\\.".toRegex(), "ELEMENTARY")
-                .replace("ELEM\\s|ELEM$".toRegex(), "ELEMENTARY ")
-                .replace("SR HIGH", "SENIOR HIGH")
-                .replace("JR HIGH", "JUNIOR HIGH")
-
-            val possesive = normalizeSchoolType
-                .replace("\'S", "S")
-            val onlyLettersAndSpaces = possesive
-                .replace("[^A-Z0-9\\s]".toRegex(), " ")
-
-            // Throw away single letter words
-            return onlyLettersAndSpaces
-                .split(" ")
-                .filter { it.length > 1 }
-                .joinToString(" ")
+            null
         }
     }
 

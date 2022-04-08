@@ -166,6 +166,102 @@ class FakeReportTests {
     }
 
     @Test
+    fun `test passing include nces facility flag into row context`() {
+        val zipCodeTable = """
+            city,state,county,zipcode,state_abbr,state_fips
+            New site,Alabama,Tallapoosa,35010,AL,1
+        """.trimIndent()
+
+        val zipCodesTable = LookupTable.read(
+            "zip-code-data",
+            inputStream = ByteArrayInputStream(zipCodeTable.toByteArray())
+        ).loadTable(1)
+        val metadata = metadata.loadLookupTable("zip-code-data", zipCodesTable)
+
+        val alRowContext = FakeReport.RowContext(
+            metadata::findLookupTable,
+            "AL", reportCounty = "Tallapoosa", includeNcesFacilities = true
+        )
+        assertThat(alRowContext.facilitiesName).isNotNull()
+
+        val orderingFacilityNameElement = Element(
+            "ordering_facility_name",
+            type = Element.Type.TEXT
+        )
+
+        val orderingFacilityNames = (1..1).map { _ ->
+            FakeReport(metadata).buildColumn(orderingFacilityNameElement, alRowContext)
+        }
+        val orderingFacilityName = orderingFacilityNames.toSet()
+
+        // assert
+        assertThat(orderingFacilityName.contains("Any facility USA")).isFalse()
+        assertThat(orderingFacilityName.count() == 1).isTrue()
+
+        val siteOfCareElement = Element(
+            "site_of_care",
+            type = Element.Type.TEXT
+        )
+
+        val siteOfCares = (1..1).map { _ ->
+            FakeReport(metadata).buildColumn(siteOfCareElement, alRowContext)
+        }
+        val siteOfCare = siteOfCares.toSet()
+
+        // assert
+        assertThat(siteOfCare.contains("k12")).isTrue()
+        assertThat(orderingFacilityName.count() == 1).isTrue()
+    }
+
+    @Test
+    fun `test passing not include nces facility flag into row context`() {
+        val zipCodeTable = """
+            city,state,county,zipcode,state_abbr,state_fips
+            New site,Alabama,Tallapoosa,35010,AL,1
+        """.trimIndent()
+
+        val zipCodesTable = LookupTable.read(
+            "zip-code-data",
+            inputStream = ByteArrayInputStream(zipCodeTable.toByteArray())
+        ).loadTable(1)
+        val metadata = metadata.loadLookupTable("zip-code-data", zipCodesTable)
+
+        val alRowContext = FakeReport.RowContext(
+            metadata::findLookupTable,
+            "AL", reportCounty = "Tallapoosa"
+        )
+        assertThat(alRowContext.facilitiesName).isNull()
+
+        val orderingFacilityNameElement = Element(
+            "ordering_facility_name",
+            type = Element.Type.TEXT
+        )
+
+        val orderingFacilityNames = (1..1).map { _ ->
+            FakeReport(metadata).buildColumn(orderingFacilityNameElement, alRowContext)
+        }
+        val orderingFacilityName = orderingFacilityNames.toSet()
+
+        // assert
+        assertThat(orderingFacilityName.contains("Any facility USA")).isTrue()
+        assertThat(orderingFacilityName.count() == 1).isTrue()
+
+        val siteOfCareElement = Element(
+            "site_of_care",
+            type = Element.Type.TEXT
+        )
+
+        val siteOfCares = (1..1).map { _ ->
+            FakeReport(metadata).buildColumn(siteOfCareElement, alRowContext)
+        }
+        val siteOfCare = siteOfCares.toSet()
+
+        // assert
+        assertThat(siteOfCare.contains("k12")).isFalse()
+        assertThat(orderingFacilityName.count() == 1).isTrue()
+    }
+
+    @Test
     fun `test use mapper in fake data`() {
         val fieldName = "testing_lab_name"
         val useField = metadata.findSchema(schemaName)
