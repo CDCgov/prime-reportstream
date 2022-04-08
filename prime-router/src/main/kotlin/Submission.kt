@@ -346,7 +346,7 @@ class DetailedSubmissionHistory(
      * Runs the calculations for the overallStatus field so that it can be done during init.
      * @returns The status from the Status enum that matches the current Submission state.
      */
-    fun calculateStatus(): Status {
+    private fun calculateStatus(): Status {
         if (httpStatus != HttpStatus.OK.value() && httpStatus != HttpStatus.CREATED.value()) {
             return Status.ERROR
         }
@@ -395,9 +395,10 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * g
+     * Runs the calculations for the plannedCompletionAt field so that it can be done during init.
+     * @returns The timestamp that equals the max of all the sendingAt values for this Submission's Destinations
      */
-    fun calculatePlannedCompletionAt(): OffsetDateTime? {
+    private fun calculatePlannedCompletionAt(): OffsetDateTime? {
         if (overallStatus == Status.ERROR ||
             overallStatus == Status.RECEIVED ||
             overallStatus == Status.NOT_DELIVERING
@@ -409,9 +410,11 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * g
+     * Runs the calculations for the overallStatus field so that it can be done during init.
+     * @returns The timestamp that equals the max createdAt of all sent and downloaded reports
+     *     after it has been sent to all receivers
      */
-    fun calculateActualCompletionAt(): OffsetDateTime? {
+    private fun calculateActualCompletionAt(): OffsetDateTime? {
         if (overallStatus != Status.DELIVERED) {
             return null
         }
