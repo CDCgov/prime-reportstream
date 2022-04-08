@@ -182,8 +182,8 @@ class FakeReportTests {
         val metadata = metadata.loadLookupTable("zip-code-data", zipCodesTable)
 
         val alRowContext = FakeReport.RowContext(
-            metadata::findLookupTable,
-            "AL", reportCounty = "Tallapoosa", includeNcesFacilities = true
+            metadata::findLookupTable, "AL", schemaName = "test",
+            reportCounty = "Tallapoosa", includeNcesFacilities = true
         )
         assertThat(alRowContext.facilitiesName).isNotNull()
 
@@ -231,7 +231,7 @@ class FakeReportTests {
 
         val alRowContext = FakeReport.RowContext(
             metadata::findLookupTable,
-            "AL", reportCounty = "Tallapoosa"
+            "AL", schemaName = "test", reportCounty = "Tallapoosa"
         )
         assertThat(alRowContext.facilitiesName).isNull()
 

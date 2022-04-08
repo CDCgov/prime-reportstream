@@ -37,8 +37,6 @@ class FakeDataService : Logging {
         val faker = context.faker
         // creates fake text data
         fun createFakeText(element: Element): String {
-            if (element.nameContains("facility_name"))
-                print("Ott")
             return when {
                 element.nameContains("name_of_testing_lab") -> "Any lab USA"
                 element.nameContains("lab_name") -> "Any lab USA"
