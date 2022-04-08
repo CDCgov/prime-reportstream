@@ -470,6 +470,17 @@
       schemaName: direct/xtrava-covid-19
       format: CSV
 
+- name: detect
+  description: Detect
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: detect
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/detect-covid-19
+      format: HL7
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
@@ -1877,7 +1888,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,Strac,InBios,reddyfmc,abbott,lifepoint,hca,prescryptive)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
