@@ -1708,22 +1708,6 @@ default processing mode for testing
 
 ---
 
-**Name**: reportingFacility
-
-**ReportStream Internal Name**: reportingFacility
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is no longer used.  Included here so it does not generate a warning if present.
-
----
-
 **Name**: congregateResident
 
 **ReportStream Internal Name**: resident_congregate_setting
