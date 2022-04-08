@@ -9,7 +9,7 @@
 #
 name: covid-19
 topic: covid-19
-trackingElement: message_id
+trackingElement: specimen_id
 description: collection of standard elements, not an actual schema
 elements:
   - name: abnormal_flag

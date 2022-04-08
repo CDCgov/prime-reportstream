@@ -1,7 +1,7 @@
 
 ### Schema: standard/standard-covid-19
 ### Topic: covid-19
-### Tracking Element: (message_id)
+### Tracking Element: (specimen_id)
 ### Base On: none
 ### Extends: [covid-19](./covid-19.md)
 #### Description: A standard file for ELR HL7 messages

@@ -1,7 +1,7 @@
 
 ### Schema: mt/mt-covid-19
 ### Topic: covid-19
-### Tracking Element: (message_id)
+### Tracking Element: (specimen_id)
 ### Base On: none
 ### Extends: [covid-19](./covid-19.md)
 #### Description: A schema for MT DOH to receive HL7 files

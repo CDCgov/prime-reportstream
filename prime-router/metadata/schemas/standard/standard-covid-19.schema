@@ -4,7 +4,7 @@
 # HL7 message and then we can extend, modify, etc from there
 name: standard-covid-19
 topic: covid-19
-trackingElement: message_id
+trackingElement: specimen_id
 description: A standard file for ELR HL7 messages
 extends: covid-19
 elements:

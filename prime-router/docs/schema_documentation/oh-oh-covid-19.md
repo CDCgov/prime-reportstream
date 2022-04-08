@@ -1,7 +1,7 @@
 
 ### Schema: oh/oh-covid-19
 ### Topic: covid-19
-### Tracking Element: (message_id)
+### Tracking Element: (specimen_id)
 ### Base On: [covid-19](./covid-19.md)
 ### Extends: none
 #### Description: A schema for OH DOH to receive HL7 files
