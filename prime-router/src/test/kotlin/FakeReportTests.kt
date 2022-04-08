@@ -178,7 +178,7 @@ class FakeReportTests {
         val zipCodesTable = LookupTable.read(
             "zip-code-data",
             inputStream = ByteArrayInputStream(zipCodeTable.toByteArray())
-        ).loadTable(1)
+        )
         val metadata = metadata.loadLookupTable("zip-code-data", zipCodesTable)
 
         val alRowContext = FakeReport.RowContext(
@@ -226,7 +226,7 @@ class FakeReportTests {
         val zipCodesTable = LookupTable.read(
             "zip-code-data",
             inputStream = ByteArrayInputStream(zipCodeTable.toByteArray())
-        ).loadTable(1)
+        )
         val metadata = metadata.loadLookupTable("zip-code-data", zipCodesTable)
 
         val alRowContext = FakeReport.RowContext(
