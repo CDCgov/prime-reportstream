@@ -16,6 +16,7 @@ import { checkTextAreaJson, splitOn } from "../utils/misc";
 // interface on Component that is callable
 export type EditableCompareRef = {
     getEditedText: () => string;
+    refeshEditedText: (updatedjson: string) => void;
 };
 
 interface EditableCompareProps {
@@ -61,7 +62,14 @@ export const EditableCompare = forwardRef(
                 getEditedText() {
                     return textAreaContent;
                 },
+                // when showing/hiding json, force am update of the content
+                refeshEditedText(updatedjson) {
+                    setTextAreaContent(updatedjson);
+                    onChangeHandler(updatedjson);
+                },
             }),
+            // onChangeHandler appears below, remove from deps
+            // eslint-disable-next-line
             [textAreaContent]
         );
 

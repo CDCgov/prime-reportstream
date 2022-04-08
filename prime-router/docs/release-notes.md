@@ -3,8 +3,157 @@
 ## General useful links:
 
 - All Schemas are documented here: [Link to detailed schema dictionaries](./schema_documentation)
-- The ReportStream API is documented here: [Hub OpenApi Spec](./openapi.yml)
+- The ReportStream API is documented here: [Hub OpenApi Spec](./api)
 - More detailed changelog for individual releases: [Recent releases](https://github.com/CDCgov/prime-reportstream/releases)
+
+## March 29, 2022
+
+This release contains a much-enhanced **_Submission Response_** json, a new ***Submission History Details AP*I**,
+and changes to the **_Submission History List API_**.
+
+### Changes and Additions to the _Submission Response_ json
+
+Upon submission, ReportStream returns a json object with useful information about the submission.   That json object has been greatly expanded.
+
+#### Changes to the _Submission Response_
+
+Full detailed _before_ and _after_ examples of changes are in the links below.
+
+1.  In error and warning objects, the `itemNums` field has been removed and replaced with `indices`
+
+Example:
+
+Old `itemNums` looked like this: 
+
+`"itemNums": "6 to 7, 9"`
+
+New `indices` looks like this:
+```
+      "indices": [
+            6,
+            7,
+            9
+        ],
+ ```
+
+Same information, but the new `indices` are designed to be easily  machine-readable.
+
+
+#### Additions to the Submission Response
+
+Full detailed before and after examples of all these changes are in the links below.
+
+1.  `destinations` array objects now include detailed information about each item that was filtered, in the `filteredReportItems` object.  The information in `filteredReportItems` is identical to the older `filteredReportRows` array.
+2.  `destinations` array objects now include detailed information about when data was sent to receiving Health Departments, in the `sentReports`.  Manual downloads by Health Departments are reported in the `downloadedReports` object.
+3.  If all items for a receiving Health Department are filtered out, the `itemCount` will be `0` for that `destination`.
+4.  `error` and `warning` objects are now broken down into fine-grained subfields, in addition to the human-readable text string `message`.  The subfields are `scope`, `indices`, `trackingIds`, and `field`.
+
+### Announcing the new Submission History Details API
+
+The Submission History Details API endpoint is:
+
+`https://prime.reportstream.gov/api/waters/report/{id}/history`
+
+The Submission History Details API returns detailed information about a single Report submitted to ReportStream.   As the Report's data flows through the system, later queries to this endpoint will add more information as it becomes available.   For example, most states only take deliver of data one time or a few times a day.   When your submitted data has been successfully delivered, that information will be added, so the data in the Submission History Details API response will grow over time.
+
+For convenience, the Submission History Details API can be queried with either an `id` or a `submissionId`, both of which can be found in the Submission History List API response and in the Submission Response.
+
+#### Example Submission History Detail GET calls:
+
+**GET based on an _id_ value**
+
+`https://prime.reportstream.gov/api/waters/report/5f1ba919-f1ed-40d7-abc5-924a9c20b7fe/history`
+
+**GET based on a _submissionId_ value**
+
+`https://prime.reportstream.gov/api/waters/report/123456/history`
+
+Both requests use the same endpoint and return the same data in the same object structure.  
+
+Then why have both? 
+The reason is that only successfully submitted reports (httpStatus: 201) have an `id` value.
+Therefore while `submissionId` queries succeed in gathering history on both 
+successful and failed submissions, `id` queries can only be used for successful submissions.
+This anomaly may be cleaned up in a future release.
+
+Note that the Submission History Detail API response is identical to that returned by the initial submission, but will include further information as the data progresses through ReportStream and is sent to states.   
+
+### Links to Before and After Examples
+
+**Before**
+
+- [Example of the old submission response](../examples/submission/old-submission-response.json)
+
+**After**
+
+- [Example of the **new** asychronous submission response](../examples/submission/example1-async-response.json).  High throughput senders to ReportStream use the _asynchronous_ endpoint to submit data to ReportStream.   This handles high volumes, but, as you can see from the example, initially returns less data.
+- [Example of the **new** synchronous submission response](../examples/submission/example2-sync-response.json)
+- [Example of a complete **new** History API response, after data has flowed to the states](../examples/submission/example3-complete-response.json).   The History Details API can be used subsequent to _any_ submission, to get all the details about the processing of that submission.  Further data is added, as it flows to State, Local, and Federal health departments.
+
+
+### Modifications to the Submission History List API
+
+There are two changes to the ReportStream API that returns lists of submissions done by a Sending organization.
+
+#### 1) New URL Path for the Submission History List
+
+The old path 
+
+`https://prime.reportstream.gov/api/history/{organizationName}/submissions`
+
+has been changed to
+
+`https://prime.reportstream.gov/api/waters/org/{organizationName}/submissions`
+
+You must provide your organization name.  Please contact the ReportStream team if you do not know the name you are using.
+
+#### 2) Changes to several field names in the Submission History List
+
+Three field names have changed.
+
+`taskId` has been changed to `submissionId`
+`createdAt` has been changed to `timestamp`
+`sendingOrg` has been changed to `sender`
+
+These changes are to ensure that the Submission History List fieldnames are identical to those in the Submission History Details.
+
+Here are before and after examples of Submission History List API response
+
+##### Old Submission History List API response
+
+```
+    {
+        "taskId": 29,
+        "createdAt": "2022-03-23T21:29:14.860Z",
+        "sendingOrg": "ignore",
+        "httpStatus": 201,
+        "id": "88785ed2-0375-4286-97f6-b649f107384b",
+        "topic": "covid-19",
+        "reportItemCount": 20,
+        "warningCount": 0,
+        "errorCount": 0
+    },
+```
+
+
+##### New Submission History List API response
+
+```
+   {
+        "submissionId": 29,
+        "timestamp": "2022-03-23T21:29:14.860Z",
+        "sender": "ignore",
+        "httpStatus": 201,
+        "id": "88785ed2-0375-4286-97f6-b649f107384b",
+        "topic": "covid-19",
+        "reportItemCount": 20,
+        "warningCount": 0,
+        "errorCount": 0
+    }
+```
+-----
+
+
 
 ## March 8, 2022
 ### Consistent formatting of timestamps in API responses

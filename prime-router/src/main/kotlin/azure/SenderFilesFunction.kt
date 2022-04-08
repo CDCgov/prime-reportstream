@@ -15,6 +15,7 @@ import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.messages.ReportFileMessage
 import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.PrincipalLevel
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.FileNotFoundException
 import java.io.IOException

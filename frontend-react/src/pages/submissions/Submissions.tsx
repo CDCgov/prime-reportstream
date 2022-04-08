@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary } from "rest-hooks";
 
-import { useOrgName } from "../../utils/OrganizationUtils";
+import { useOrgName } from "../../hooks/UseOrgName";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
 import HipaaNotice from "../../components/HipaaNotice";

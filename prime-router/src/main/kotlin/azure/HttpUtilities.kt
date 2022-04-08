@@ -79,7 +79,7 @@ class HttpUtilities {
             return request
                 .createResponseBuilder(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
-                .body(mapper.writeValueAsString(body))
+                .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(body))
                 .build()
         }
 

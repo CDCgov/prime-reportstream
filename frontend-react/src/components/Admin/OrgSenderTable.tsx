@@ -1,12 +1,13 @@
 import { useController, useResource } from "rest-hooks";
 import { NavLink } from "react-router-dom";
 import { Button, ModalRef, ButtonGroup, Table } from "@trussworks/react-uswds";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
 
 import { ConfirmDeleteSettingModal } from "./AdminModal";
+import { DisplayMeta } from "./DisplayMeta";
 
 interface OrgSettingsTableProps {
     orgname: string;
@@ -93,7 +94,7 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                             <td>{eachOrgSetting.topic || ""}</td>
                             <td>{eachOrgSetting.customerStatus || ""}</td>
                             <td>
-                                {JSON.stringify(eachOrgSetting?.meta) || {}}
+                                <DisplayMeta metaObj={eachOrgSetting.meta} />
                             </td>
                             <td colSpan={2}>
                                 <ButtonGroup type="segmented">

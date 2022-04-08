@@ -28,6 +28,7 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.PrincipalLevel
 import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -114,7 +115,7 @@ class ReportFunction(
         val authenticationStrategy = AuthenticationStrategy.authStrategy(
             request.headers["authentication-type"],
             PrincipalLevel.USER,
-            workflowEngine
+            workflowEngine.db
         )
 
         try {
@@ -122,7 +123,7 @@ class ReportFunction(
 
             if (authenticationStrategy is OktaAuthentication) {
                 // The report is coming from a sender that is using Okta, so set "oktaSender" to true
-                return authenticationStrategy.checkAccess(request, senderName, true, actionHistory) {
+                return authenticationStrategy.checkAccess(request, sender.organizationName, true, actionHistory) {
                     return@checkAccess processRequest(request, sender)
                 }
             }
@@ -250,13 +251,17 @@ class ReportFunction(
         workflowEngine.recordAction(actionHistory)
 
         check(actionHistory.action.actionId > 0)
-        val submission = SubmissionsFacade.instance.findSubmission(
+        val submission = SubmissionsFacade.instance.findDetailedSubmissionHistory(
             actionHistory.action.sendingOrg,
             actionHistory.action.actionId
         )
         val response = request.createResponseBuilder(httpStatus)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
-            .body(JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(submission))
+            .body(
+                JacksonMapperUtilities.allowUnknownsMapper
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(submission)
+            )
             .header(
                 HttpHeaders.LOCATION,
                 request.uri.resolve(
