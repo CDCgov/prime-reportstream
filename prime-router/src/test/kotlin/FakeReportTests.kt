@@ -6,8 +6,17 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import com.github.javafaker.Faker
+import com.github.kittinunf.fuel.core.FuelError
+import com.github.kittinunf.fuel.core.Response
+import com.github.kittinunf.result.Result
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkClass
+import org.apache.http.HttpStatus
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.fail
@@ -175,19 +184,18 @@ class FakeReportTests {
             New site,Alabama,Tallapoosa,35010,AL,1
         """.trimIndent()
 
-        val zipCodesTable = LookupTable.read(
-            "zip-code-data",
-            inputStream = ByteArrayInputStream(zipCodeTable.toByteArray())
-        )
-        val metadata = metadata.loadLookupTable("zip-code-data", zipCodesTable)
+        val zipCodesTable = LookupTable.read("zip-code-data",
+            inputStream = ByteArrayInputStream(zipCodeTable.toByteArray()))
 
-        val alRowContext = FakeReport.RowContext(
-            metadata::findLookupTable, "AL", schemaName = "test",
-            reportCounty = "Tallapoosa", includeNcesFacilities = true
-        )
-        assertThat(alRowContext.facilitiesName).isNotNull()
+        val mockFindLookupTable = mockkClass(Metadata::class)
+        every { mockFindLookupTable.findLookupTable("fips-county") } returns null
+        every { mockFindLookupTable.findLookupTable("zip-code-data") } returns zipCodesTable
+        val alRowContext = FakeReport.RowContext(mockFindLookupTable::findLookupTable,
+            "AL", schemaName = "test", reportCounty = "Tallapoosa", includeNcesFacilities = true)
 
-        val orderingFacilityNameElement = Element(
+        assertThat(alRowContext.facilitiesName?.contains("Alexander City Middle School"))
+
+       val orderingFacilityNameElement = Element(
             "ordering_facility_name",
             type = Element.Type.TEXT
         )
@@ -198,7 +206,7 @@ class FakeReportTests {
         val orderingFacilityName = orderingFacilityNames.toSet()
 
         // assert
-        assertThat(orderingFacilityName.contains("Any facility USA")).isFalse()
+        assertThat(orderingFacilityName.contains("Alexander City Middle School")).isTrue()
         assertThat(orderingFacilityName.count() == 1).isTrue()
 
         val siteOfCareElement = Element(
@@ -223,16 +231,15 @@ class FakeReportTests {
             New site,Alabama,Tallapoosa,35010,AL,1
         """.trimIndent()
 
-        val zipCodesTable = LookupTable.read(
-            "zip-code-data",
-            inputStream = ByteArrayInputStream(zipCodeTable.toByteArray())
-        )
-        val metadata = metadata.loadLookupTable("zip-code-data", zipCodesTable)
+        val zipCodesTable = LookupTable.read("zip-code-data",
+            inputStream = ByteArrayInputStream(zipCodeTable.toByteArray()))
 
-        val alRowContext = FakeReport.RowContext(
-            metadata::findLookupTable,
-            "AL", schemaName = "test", reportCounty = "Tallapoosa"
-        )
+        val mockFindLookupTable = mockkClass(Metadata::class)
+        every { mockFindLookupTable.findLookupTable("fips-county") } returns null
+        every { mockFindLookupTable.findLookupTable("zip-code-data") } returns zipCodesTable
+        val alRowContext = FakeReport.RowContext(mockFindLookupTable::findLookupTable,
+            "AL", schemaName = "test", reportCounty = "Tallapoosa")
+
         assertThat(alRowContext.facilitiesName).isNull()
 
         val orderingFacilityNameElement = Element(
