@@ -723,6 +723,8 @@ class Hl7Serializer(
         val testResultStatus = report.getString(row, "test_result_status") ?: ""
         if (testResultStatus.isNullOrEmpty()) {
             report.setString(row, "test_result_status", "F")
+            report.setString(row, "order_result_status", "F")
+            report.setString(row, "observation_result_status", "F")
         }
 
         val senderId = report.getString(row, "sender_id") ?: ""
@@ -1417,7 +1419,7 @@ class Hl7Serializer(
         } else {
             rawObx19Value
         }
-        terser.set(formPathSpec("OBX-11", aoeRep), report.getString(row, "test_result_status"))
+        terser.set(formPathSpec("OBX-11", aoeRep), report.getString(row, "observation_result_status"))
         terser.set(formPathSpec("OBX-14", aoeRep), date)
         // some states want the observation date for the AOE questions as well
         terser.set(formPathSpec("OBX-19", aoeRep), obx19Value)

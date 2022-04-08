@@ -111,6 +111,8 @@ compileTestKotlin.kotlinOptions.jvmTarget = "11"
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
+    group = rootProject.description ?: ""
+    description = "Clean the build artifacts"
     // Delete the old Maven build folder
     dependsOn("composeDownForced")
     delete("target")
@@ -131,6 +133,8 @@ tasks.clean {
  */
 val coverageExcludedClasses = listOf("gov/cdc/prime/router/azure/db/*", "gov/cdc/prime/router/cli/tests/*")
 tasks.test {
+    group = rootProject.description ?: ""
+    description = "Run the unit tests"
     // Use JUnit 5 for running tests
     useJUnitPlatform()
 
@@ -235,6 +239,8 @@ val testIntegrationImplementation: Configuration by configurations.getting {
 configurations["testIntegrationRuntimeOnly"].extendsFrom(configurations["runtimeOnly"])
 
 tasks.register<Test>("testIntegration") {
+    group = rootProject.description ?: ""
+    description = "Run the integration tests"
     useJUnitPlatform()
     dependsOn("compile")
     dependsOn("compileTestIntegrationKotlin")
@@ -266,10 +272,6 @@ tasks.register<Test>("testIntegration") {
             true
         }
     }
-}
-
-tasks.check {
-    dependsOn("testIntegration")
 }
 
 tasks.withType<Test>().configureEach {
@@ -445,6 +447,8 @@ tasks.register("package") {
 }
 
 tasks.register("quickPackage") {
+    group = rootProject.description ?: ""
+    description = "Package the code and necessary files to run the Azure functions skipping unit tests and migration"
     // Quick package for development purposes.  Use with caution.
     dependsOn("azureFunctionsPackage")
     dependsOn("copyAzureResources")
@@ -503,6 +507,8 @@ tasks.register("run") {
 }
 
 tasks.register("quickRun") {
+    group = rootProject.description ?: ""
+    description = "Run the Azure functions locally skipping tests and migration"
     dependsOn("azureFunctionsRun")
     tasks["test"].enabled = false
     tasks["jacocoTestReport"].enabled = false
