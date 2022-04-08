@@ -665,7 +665,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.12.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.8") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.4.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -716,7 +716,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:8.5.4")
     implementation("org.commonmark:commonmark:0.18.2")
     implementation("com.google.guava:guava:31.1-jre")
-    implementation("com.helger.as2:as2-lib:4.10.0")
+    implementation("com.helger.as2:as2-lib:4.10.1")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("org.bouncycastle:bcmail-jdk15on:1.70")
