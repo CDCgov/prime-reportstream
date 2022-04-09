@@ -3,27 +3,18 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
-import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import com.github.javafaker.Faker
-import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.core.Response
-import com.github.kittinunf.result.Result
-import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.mockkClass
-import org.apache.http.HttpStatus
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 import kotlin.test.fail
 
 class FakeReportTests {
     private val schemaName = "test"
-    private val rowContext = FakeReport.RowContext(schemaName = schemaName)
     private val metadata = Metadata(
         schema = UnitTestUtils.simpleSchema,
         valueSet = ValueSet("fake", ValueSet.SetSystem.LOCAL, values = listOf(ValueSet.Value(code = "AZ"))),
@@ -61,6 +52,7 @@ class FakeReportTests {
             )
         )
     )
+    private val rowContext = FakeReport.RowContext(metadata, schemaName = schemaName)
 
     @Test
     fun `test blank column is blank`() {
@@ -153,7 +145,7 @@ class FakeReportTests {
         """.trimIndent()
 
         val fipsCountyTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
-        val flRowContext = FakeReport.RowContext({ null }, "FL")
+        val flRowContext = FakeReport.RowContext(metadata, "FL")
         val orderingFacilityStateElement = Element(
             "ordering_facility_state",
             type = Element.Type.TABLE,
@@ -183,19 +175,32 @@ class FakeReportTests {
             city,state,county,zipcode,state_abbr,state_fips
             New site,Alabama,Tallapoosa,35010,AL,1
         """.trimIndent()
+        val ncesTable = """
+            lzip, ncesid, schname 
+            35010, 010003000001, Alexander City Middle School
+        """.trimIndent()
 
-        val zipCodesTable = LookupTable.read("zip-code-data",
-            inputStream = ByteArrayInputStream(zipCodeTable.toByteArray()))
+        val zipCodeLookupTable = LookupTable.read(
+            "zip-code-data",
+            inputStream = ByteArrayInputStream(zipCodeTable.toByteArray())
+        )
+        val ncesLookupTable = LookupTable.read(
+            "nces_id",
+            inputStream = ByteArrayInputStream(ncesTable.toByteArray())
+        )
 
-        val mockFindLookupTable = mockkClass(Metadata::class)
-        every { mockFindLookupTable.findLookupTable("fips-county") } returns null
-        every { mockFindLookupTable.findLookupTable("zip-code-data") } returns zipCodesTable
-        val alRowContext = FakeReport.RowContext(mockFindLookupTable::findLookupTable,
-            "AL", schemaName = "test", reportCounty = "Tallapoosa", includeNcesFacilities = true)
+        val mockMetadata = mockkClass(Metadata::class)
+        every { mockMetadata.findLookupTable("fips-county") } returns null
+        every { mockMetadata.findLookupTable("zip-code-data") } returns zipCodeLookupTable
+        every { mockMetadata.findLookupTable("nces_id") } returns ncesLookupTable
+        val alRowContext = FakeReport.RowContext(
+            mockMetadata,
+            "AL", schemaName = "test", reportCounty = "Tallapoosa", includeNcesFacilities = true
+        )
 
         assertThat(alRowContext.facilitiesName?.contains("Alexander City Middle School"))
 
-       val orderingFacilityNameElement = Element(
+        val orderingFacilityNameElement = Element(
             "ordering_facility_name",
             type = Element.Type.TEXT
         )
@@ -230,15 +235,28 @@ class FakeReportTests {
             city,state,county,zipcode,state_abbr,state_fips
             New site,Alabama,Tallapoosa,35010,AL,1
         """.trimIndent()
+        val ncesTable = """
+            lzip, ncesid, schname 
+            35010, 010003000001, Alexander City Middle School
+        """.trimIndent()
 
-        val zipCodesTable = LookupTable.read("zip-code-data",
-            inputStream = ByteArrayInputStream(zipCodeTable.toByteArray()))
+        val zipCodeLookupTable = LookupTable.read(
+            "zip-code-data",
+            inputStream = ByteArrayInputStream(zipCodeTable.toByteArray())
+        )
+        val ncesLookupTable = LookupTable.read(
+            "nces_id",
+            inputStream = ByteArrayInputStream(ncesTable.toByteArray())
+        )
 
-        val mockFindLookupTable = mockkClass(Metadata::class)
-        every { mockFindLookupTable.findLookupTable("fips-county") } returns null
-        every { mockFindLookupTable.findLookupTable("zip-code-data") } returns zipCodesTable
-        val alRowContext = FakeReport.RowContext(mockFindLookupTable::findLookupTable,
-            "AL", schemaName = "test", reportCounty = "Tallapoosa")
+        val mockMetadata = mockkClass(Metadata::class)
+        every { mockMetadata.findLookupTable("fips-county") } returns null
+        every { mockMetadata.findLookupTable("zip-code-data") } returns zipCodeLookupTable
+        every { mockMetadata.findLookupTable("nces_id") } returns ncesLookupTable
+        val alRowContext = FakeReport.RowContext(
+            mockMetadata,
+            "AL", schemaName = "test", reportCounty = "Tallapoosa"
+        )
 
         assertThat(alRowContext.facilitiesName).isNull()
 

@@ -6,7 +6,6 @@ import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.ConcatenateMapper
 import gov.cdc.prime.router.metadata.ElementAndValue
-import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import gov.cdc.prime.router.metadata.Mappers
 import gov.cdc.prime.router.metadata.UseMapper
@@ -257,13 +256,14 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
     private val fakeDataService: FakeDataService = FakeDataService()
 
     class RowContext(
-        findLookupTable: (String) -> LookupTable? = { null },
+        val metadata: Metadata,
         reportState: String? = null,
         val schemaName: String? = null,
         reportCounty: String? = null,
         includeNcesFacilities: Boolean = false,
         locale: Locale? = null
     ) {
+        val findLookupTable = metadata::findLookupTable
         val faker = if (locale == null) Faker() else Faker(locale)
         val patientName: Name = faker.name()
         val schoolName: String = faker.university().name()
@@ -301,7 +301,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
 
         // Do a lazy init because this table may never be used and it is large
         private val ncesLookupTable = lazy {
-            Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
+            metadata.findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
         }
 
         val facilitiesName: String? = if (includeNcesFacilities && !zipCode.isNullOrEmpty()) {
@@ -369,7 +369,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         includeNcesFacilities: Boolean = false
     ): List<String> {
         val context = RowContext(
-            metadata::findLookupTable,
+            metadata,
             targetState,
             schemaName = schema.name,
             targetCounty,
