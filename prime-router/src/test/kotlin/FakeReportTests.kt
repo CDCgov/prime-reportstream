@@ -14,6 +14,9 @@ import kotlin.test.Test
 import kotlin.test.fail
 
 class FakeReportTests {
+    private val fipsCounty = "fips-county"
+    private val zipCodeData = "zip-code-data"
+    private val ncesId = "nces_id"
     private val schemaName = "test"
     private val metadata = Metadata(
         schema = UnitTestUtils.simpleSchema,
@@ -149,13 +152,13 @@ class FakeReportTests {
         val orderingFacilityStateElement = Element(
             "ordering_facility_state",
             type = Element.Type.TABLE,
-            table = "fips-county",
+            table = fipsCounty,
             cardinality = Element.Cardinality.ONE,
             tableColumn = "State",
             tableRef = fipsCountyTable
         )
         // add the look up table for fips county
-        val metadata = metadata.loadLookupTable("fips-county", fipsCountyTable)
+        val metadata = metadata.loadLookupTable(fipsCounty, fipsCountyTable)
 
         // act
         val states = (1..10).map { _ ->
@@ -181,18 +184,18 @@ class FakeReportTests {
         """.trimIndent()
 
         val zipCodeLookupTable = LookupTable.read(
-            "zip-code-data",
+            zipCodeData,
             inputStream = ByteArrayInputStream(zipCodeTable.toByteArray())
         )
         val ncesLookupTable = LookupTable.read(
-            "nces_id",
+            ncesId,
             inputStream = ByteArrayInputStream(ncesTable.toByteArray())
         )
 
         val mockMetadata = mockkClass(Metadata::class)
-        every { mockMetadata.findLookupTable("fips-county") } returns null
-        every { mockMetadata.findLookupTable("zip-code-data") } returns zipCodeLookupTable
-        every { mockMetadata.findLookupTable("nces_id") } returns ncesLookupTable
+        every { mockMetadata.findLookupTable(fipsCounty) } returns null
+        every { mockMetadata.findLookupTable(zipCodeData) } returns zipCodeLookupTable
+        every { mockMetadata.findLookupTable(ncesId) } returns ncesLookupTable
         val alRowContext = FakeReport.RowContext(
             mockMetadata,
             "AL", schemaName = "test", reportCounty = "Tallapoosa", includeNcesFacilities = true
@@ -241,18 +244,18 @@ class FakeReportTests {
         """.trimIndent()
 
         val zipCodeLookupTable = LookupTable.read(
-            "zip-code-data",
+            zipCodeData,
             inputStream = ByteArrayInputStream(zipCodeTable.toByteArray())
         )
         val ncesLookupTable = LookupTable.read(
-            "nces_id",
+            ncesId,
             inputStream = ByteArrayInputStream(ncesTable.toByteArray())
         )
 
         val mockMetadata = mockkClass(Metadata::class)
-        every { mockMetadata.findLookupTable("fips-county") } returns null
-        every { mockMetadata.findLookupTable("zip-code-data") } returns zipCodeLookupTable
-        every { mockMetadata.findLookupTable("nces_id") } returns ncesLookupTable
+        every { mockMetadata.findLookupTable(fipsCounty) } returns null
+        every { mockMetadata.findLookupTable(zipCodeData) } returns zipCodeLookupTable
+        every { mockMetadata.findLookupTable(ncesId) } returns ncesLookupTable
         val alRowContext = FakeReport.RowContext(
             mockMetadata,
             "AL", schemaName = "test", reportCounty = "Tallapoosa"
