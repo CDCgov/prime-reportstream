@@ -256,14 +256,14 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
     private val fakeDataService: FakeDataService = FakeDataService()
 
     class RowContext(
-        val metadata: Metadata,
+        val localMetadata: Metadata,
         reportState: String? = null,
         val schemaName: String? = null,
         reportCounty: String? = null,
         includeNcesFacilities: Boolean = false,
         locale: Locale? = null
     ) {
-        val findLookupTable = metadata::findLookupTable
+        val findLookupTable = localMetadata::findLookupTable
         val faker = if (locale == null) Faker() else Faker(locale)
         val patientName: Name = faker.name()
         val schoolName: String = faker.university().name()
@@ -301,7 +301,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
 
         // Do a lazy init because this table may never be used and it is large
         private val ncesLookupTable = lazy {
-            metadata.findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
+            localMetadata.findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
         }
 
         val facilitiesName: String? = if (includeNcesFacilities && !zipCode.isNullOrEmpty()) {
