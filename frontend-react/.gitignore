@@ -27,3 +27,6 @@ yarn-error.log*
 
 # we are using yarn
 package-lock.json
+
+# .scss is compiled to .css
+/src/content/generated
