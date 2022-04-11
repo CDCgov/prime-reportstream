@@ -10,6 +10,29 @@
 
 This release contains further enhancements to the json response to Report History GETs and report submission POSTs.
 
+The new fields are `overallStatus`, `plannedCompletionAt`, `actualCompletionAt`, and `itemCountBeforeQualityFiltering`
+
+### 1. overallStatus
+
+The new `overallStatus` field tells whether all the data in that submission have made their way to all the intended recipients. Values are:
+
+- `Error` - error on initial submission; not successfully received.
+- `Received` - submission successfully received but not yet processed (routing determination and filtering have not yet completed).
+- `Not Delivering` - submission has been processed, but has no intended recipients.  This may happen if the data did not meet the recipient's quality criteria. This is a final status.
+- `Waiting to Deliver` - submission has been processed, has intended recipients, but not yet delivered.
+- `Partially Delivered` -- submission has gone to some recipients, but not all.
+- `Delivered`- submission has gone to all intended recipients.  This is the final status.
+
+### 2. plannedCompletionAt and actualCompletionAt
+
+- `plannedCompletionAt` is the timestamp when ReportStream intends to finish sending all data to all intended recipients, based on their chosen timing.  Note: `plannedCompletionAt` will be null if there is no data to deliver, or has not been processed yet.
+
+- `actualCompletionAt` is the timestamp when ReportStream actually finished sending all data to all intended recipients.  Note: this value will be null if there is no delivery, or if not complete yet.
+
+The `actualCompletionAt` might be later than the `plannedCompletionAt` if there was a delivery delay.  For example, a down sftp site might prevent ReportStream from delivering.
+
+### 3.  itemCountBeforeQualityFiltering
+
 The Report History was already displaying `itemCount`, the number of items (aka Covid-19 Tests) that were being sent to each destination.   Now, the Report History also displays `itemCountBeforeQualityFiltering`, the number of items available to be sent to that destination, prior to quality filtering.   Quality filtering is a step that ReportStream takes to ensure that the submitted data meets the minimum standards of the STLT (State/Local/Tribal/Territorial) jurisdiction destined to receive that item.  Each STLT can set their own minimum standards for each data feed they get from ReportStream.
 
 For example, if Covid-19 data was submitted to ReportStream containing 7 patients with addresses in Maryland, but 4 of those patients were missing information required by the Maryland primary Covid-19 data feed, then that data feed would have
