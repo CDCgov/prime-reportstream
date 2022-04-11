@@ -219,7 +219,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         }
     }
 
-    private fun reportDecendentExpression(submissionId: Long): CommonTableExpression<*> {
+    private fun reportDescendantExpression(submissionId: Long): CommonTableExpression<*> {
         return DSL.name("t").fields(
             "action_id",
             "child_report_id",
@@ -260,7 +260,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         reportsKlass: Class<P>,
         logsKlass: Class<U>,
     ): List<T> {
-        val cte = reportDecendentExpression(submissionId)
+        val cte = reportDescendantExpression(submissionId)
         return db.transactReturning { txn ->
             DSL.using(txn)
                 .withRecursive(cte)
