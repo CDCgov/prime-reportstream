@@ -66,7 +66,8 @@ class SenderFilesFunctionTests {
             1,
             null,
             OffsetDateTime.now().minusWeeks(1),
-            ""
+            "",
+            null,
         )
     }
 
