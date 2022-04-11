@@ -10,8 +10,8 @@ import {
 import { NavLink } from "react-router-dom";
 import React from "react";
 
-import { ICursorManager } from "../../hooks/UseCursorManager";
-import { IFilterManager } from "../../hooks/UseFilterManager";
+import { CursorManager } from "../../hooks/filters/UseCursorManager";
+import { FilterManager } from "../../hooks/filters/UseFilterManager";
 
 export interface TableRow {
     [key: string]: any;
@@ -44,18 +44,15 @@ export interface TableConfig {
 
 export interface TableProps {
     config: TableConfig;
-    filterManager?: IFilterManager;
-    cursorManager?: ICursorManager;
+    filterManager?: FilterManager;
+    cursorManager?: CursorManager;
 }
 
 const Table = ({ config, filterManager, cursorManager }: TableProps) => {
     const renderArrow = () => {
-        if (filterManager && filterManager.filters.sort.order === "ASC") {
+        if (filterManager && filterManager.sort.order === "ASC") {
             return <IconArrowUpward />;
-        } else if (
-            filterManager &&
-            filterManager.filters.sort.order === "DESC"
-        ) {
+        } else if (filterManager && filterManager.sort.order === "DESC") {
             return <IconArrowDownward />;
         }
     };
@@ -69,10 +66,8 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                             <th
                                 key={colConfig.columnHeader}
                                 onClick={() => {
-                                    filterManager.update.setSortSettings(
-                                        colConfig.dataAttr
-                                    );
-                                    cursorManager?.controller.reset();
+                                    filterManager.sort.set(colConfig.dataAttr);
+                                    // cursorManager?.controller.reset();
                                 }}
                             >
                                 {colConfig.columnHeader}
@@ -141,7 +136,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                     // Caps page size when filterManager exists
                     if (
                         filterManager &&
-                        rowIndex >= filterManager?.filters.pageSize
+                        rowIndex >= filterManager?.pageSize.count
                     )
                         return null;
                     return (
@@ -159,7 +154,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
     };
 
     /* Handles pagination button logic and display */
-    function PaginationButtons({ values, controller }: ICursorManager) {
+    function PaginationButtons({ values, controller }: CursorManager) {
         return (
             <ButtonGroup type="segmented" className="float-right margin-top-5">
                 {values.hasPrev && (

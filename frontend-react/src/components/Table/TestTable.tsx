@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 
-import useCursorManager from "../../hooks/UseCursorManager";
-import useFilterManager from "../../hooks/UseFilterManager";
+import useCursorManager from "../../hooks/filters/UseCursorManager";
+import useFilterManager from "../../hooks/filters/UseFilterManager";
 
 import Table, { ColumnConfig, TableConfig } from "./Table";
 
@@ -23,9 +23,7 @@ const dummyRowTwo = {
 /* This component is specifically configured to help test the
  * Table component. Any  */
 export const TestTable = () => {
-    const filterManager = useFilterManager({
-        sort: { order: "ASC", column: "two" },
-    });
+    const filterManager = useFilterManager();
     const cursorManager = useCursorManager("firstCursor");
 
     /* Ensure there's at least 1 more cursor in the cursorMap
@@ -39,13 +37,13 @@ export const TestTable = () => {
     /* Mocking the sort behavior that would normally be performed by the
      * API call */
     const fakeRows = useMemo(() => {
-        switch (filterManager.filters.sort.order) {
+        switch (filterManager.sort.order) {
             case "ASC":
                 return [dummyRowOne, dummyRowTwo];
             case "DESC":
                 return [dummyRowTwo, dummyRowOne];
         }
-    }, [filterManager.filters.sort]);
+    }, [filterManager.sort]);
 
     const testTransform = (v: string) => {
         if (v === "transform this") {

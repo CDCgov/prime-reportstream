@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Button, DatePicker, Label } from "@trussworks/react-uswds";
 
 import "./SubmissionPages.css";
-import { IFilterManager } from "../../hooks/UseFilterManager";
-import { ICursorManager } from "../../hooks/UseCursorManager";
+import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { CursorManager } from "../../hooks/filters/UseCursorManager";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
@@ -19,8 +19,8 @@ export enum FilterName {
 }
 
 interface SubmissionFilterProps {
-    filterManager: IFilterManager;
-    cursorManager: ICursorManager;
+    filterManager: FilterManager;
+    cursorManager: CursorManager;
 }
 
 /* This component contains the UI for selecting query parameters.
@@ -44,20 +44,31 @@ function SubmissionFilters({
     const [localEndRange, setLocalEndRange] =
         useState<string>(FALLBACK_LOCAL_END);
 
-    /* This workhorse function handles all Context changes with null checking */
     const updateRange = () => {
         if (localStartRange && localEndRange) {
-            const startRangeDate = new Date(localStartRange);
-            const endRangeDate = new Date(localEndRange);
-            filterManager.update.setRange(startRangeDate, endRangeDate);
+            filterManager.range.controller.set({
+                date1: localStartRange,
+                date2: localEndRange,
+            });
+            cursorManager.controller.reset(
+                new Date(localStartRange).toISOString()
+            );
         } else if (localStartRange && !localEndRange) {
-            const date = new Date(localStartRange);
-            filterManager.update.setRange(date);
-            cursorManager.controller.reset(localStartRange);
-        } else if (localEndRange && !localStartRange) {
-            const date = new Date(localEndRange);
-            filterManager.update.setRange(date);
-            cursorManager.controller.reset(localEndRange);
+            filterManager.range.controller.set({
+                date1: localStartRange,
+                sort: filterManager.sort.order,
+            });
+            cursorManager.controller.reset(
+                new Date(localStartRange).toISOString()
+            );
+        } else if (!localStartRange && localEndRange) {
+            filterManager.range.controller.set({
+                date1: localEndRange,
+                sort: filterManager.sort.order,
+            });
+            cursorManager.controller.reset(
+                new Date(localEndRange).toISOString()
+            );
         }
     };
 
@@ -70,7 +81,8 @@ function SubmissionFilters({
     /* Clears manager and local state values */
     const clearAll = () => {
         // Clears manager state
-        filterManager.update.clearAll();
+        filterManager.clearAll();
+        cursorManager.controller.reset();
 
         // Clear local state
         setLocalStartRange(FALLBACK_LOCAL_START);

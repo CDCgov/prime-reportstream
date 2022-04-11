@@ -1,24 +1,22 @@
 import { useResource } from "rest-hooks";
 import { useEffect } from "react";
 
-import useFilterManager from "../../hooks/UseFilterManager";
-import useCursorManager from "../../hooks/UseCursorManager";
+import useFilterManager from "../../hooks/filters/UseFilterManager";
+import useCursorManager from "../../hooks/filters/UseCursorManager";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 
 import SubmissionFilters from "./SubmissionFilters";
 
+/* TODO: This component needs to be able to sort ASC and DESC
+ *   while being properly paginated. */
+
 function SubmissionTable() {
-    const filterManager = useFilterManager({
-        sort: {
-            column: "timestamp",
-            order: "DESC",
-        },
-    });
+    const filterManager = useFilterManager();
     const cursorManager = useCursorManager(
-        filterManager.filters.dateRange.startRange
-    );
+        filterManager.range.startRange.toISOString()
+    ); // First cursor set to StartRange on load
 
     /* Our API call! Updates when any of the given state variables update */
     const submissions: SubmissionsResource[] = useResource(
@@ -26,9 +24,9 @@ function SubmissionTable() {
         {
             organization: getStoredOrg(),
             cursor: cursorManager.values.cursor,
-            endCursor: filterManager.filters.dateRange.endRange,
-            pageSize: filterManager.filters.pageSize + 1, // Pulls +1 to check for next page
-            sort: filterManager.filters.sort.order,
+            endCursor: filterManager.range.endRange.toISOString(),
+            pageSize: filterManager.pageSize.count + 1, // Pulls +1 to check for next page
+            sort: filterManager.sort.order,
             showFailed: false, // No plans for this to be set to true
         }
     );
@@ -36,15 +34,11 @@ function SubmissionTable() {
     /* Effect to add next cursor whenever submissions returns a new array */
     useEffect(() => {
         const nextCursor =
-            submissions[filterManager.filters.pageSize]?.timestamp || undefined;
-        // Ensures first page cursor is always the start of your range
-        if (cursorManager.values.currentIndex === 0) {
-            cursorManager.controller.reset(
-                filterManager.filters.dateRange.startRange
-            );
+            submissions[filterManager.pageSize.count]?.timestamp || undefined;
+        if (nextCursor) {
+            cursorManager.controller.addNextCursor(nextCursor);
         }
-        if (nextCursor) cursorManager.controller.addNextCursor(nextCursor);
-    }, [submissions, cursorManager, filterManager]);
+    }, [submissions, filterManager.pageSize.count, cursorManager.controller]);
 
     const transformDate = (s: string) => {
         return new Date(s).toLocaleString();
@@ -55,7 +49,7 @@ function SubmissionTable() {
         {
             dataAttr: "timestamp",
             columnHeader: "Date/time submitted",
-            sortable: true,
+            // sortable: true,
             transform: transformDate,
         },
         { dataAttr: "externalName", columnHeader: "File" },

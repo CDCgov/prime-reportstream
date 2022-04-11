@@ -1,40 +1,35 @@
 import { screen } from "@testing-library/react";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
-import { IFilterManager } from "../../hooks/UseFilterManager";
-import { ICursorManager } from "../../hooks/UseCursorManager";
+import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { CursorManager } from "../../hooks/filters/UseCursorManager";
 
 import SubmissionFilters from "./SubmissionFilters";
 
-const fakeFilterManager: IFilterManager = {
-    filters: {
-        dateRange: {
-            startRange: "",
-            endRange: "",
-        },
-        sort: {
-            column: "",
-            order: "ASC",
-        },
-        pageSize: 10,
-    },
-    update: {
-        setRange: () => {
-            console.log("");
-        },
-        setSortSettings: () => {
-            console.log("");
-        },
-        setPageSize: () => {
-            console.log("");
-        },
-        clearAll: () => {
-            console.log("");
+const fakeFilterManager: FilterManager = {
+    range: {
+        startRange: new Date("2022-01-01"),
+        endRange: new Date("2022-12-31"),
+        controller: {
+            set: () => console.log("set"),
+            reset: () => console.log("reset"),
         },
     },
+    sort: {
+        column: "",
+        order: "DESC",
+        set: () => console.log("set"),
+        reset: () => console.log("reset"),
+    },
+    pageSize: {
+        count: 10,
+        set: () => console.log("set"),
+        reset: () => console.log("reset"),
+    },
+    clearAll: () => console.log("clearAll"),
 };
 
-const fakeCursorManager: ICursorManager = {
+const fakeCursorManager: CursorManager = {
     values: {
         cursor: "",
         cursors: new Map(),

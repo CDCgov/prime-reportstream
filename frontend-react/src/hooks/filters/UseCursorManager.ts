@@ -16,7 +16,7 @@ interface ICursorController {
     reset: (c?: string) => void;
 }
 
-interface ICursorManager {
+interface CursorManager {
     values: ICursorValues;
     controller: ICursorController;
 }
@@ -104,4 +104,4 @@ const useCursorManager = (firstCursor?: string) => {
 };
 
 export default useCursorManager;
-export type { ICursorValues, ICursorController, ICursorManager };
+export type { ICursorValues, ICursorController, CursorManager };
