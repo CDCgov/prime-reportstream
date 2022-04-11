@@ -1555,6 +1555,7 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+<<<<<<< HEAD
 "@okta/okta-auth-js@6.5.1":
   version "6.5.1"
   resolved "https://registry.yarnpkg.com/@okta/okta-auth-js/-/okta-auth-js-6.5.1.tgz#aa1b3815152e729c6a69137a19c7fd502d2e4e5d"
@@ -1578,10 +1579,10 @@
     webcrypto-shim "^0.1.5"
     xhr2 "0.1.3"
 
-"@okta/okta-auth-js@=6.3.1":
-  version "6.3.1"
-  resolved "https://registry.yarnpkg.com/@okta/okta-auth-js/-/okta-auth-js-6.3.1.tgz#23960350d859719c3f231046b19612043d302c7d"
-  integrity sha512-HbJHlIN1+Jcnq/jOnFaBsNZvAjZJtAvd+mnx8HXDbbWghzU99/jVVkt1AlpvntynLJaokzLq0ctYF+4cYPJzBQ==
+"@okta/okta-auth-js@^6.4.0":
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/@okta/okta-auth-js/-/okta-auth-js-6.4.0.tgz#96ffa804e299b5284ab128409249923b17e5a42c"
+  integrity sha512-Y9bPPwK/Ic8f5Yb0l97SIK/UeyACoOU4m3WkqnQ9RpG3beZkXDc5D5HRgMcB0vAvZjdiBEWvP6lCR3aiGwNJkg==
   dependencies:
     "@babel/runtime" "^7.12.5"
     "@babel/runtime-corejs3" "^7.17.0"
