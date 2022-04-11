@@ -888,6 +888,16 @@ elements:
     hl7AOEQuestion: 95421-4
     documentation: Does the patient reside in a congregate care setting?
 
+  - name: residence_type
+    type: CODE
+    cardinality: ZERO_OR_ONE
+    valueSet: covid-19/residence_type
+    natFlatFileField: Residence_type
+    hhsGuidanceField: Residence type
+    hl7Field: AOE
+    hl7AOEQuestion: 75617-1
+    documentation: Residence Type?
+
   - name: result_format
     type: TEXT
     default: CWE
