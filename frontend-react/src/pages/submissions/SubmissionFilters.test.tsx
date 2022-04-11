@@ -19,14 +19,16 @@ describe("Rendering", () => {
          *  HTML elements, so we have to use getAllBy...() rather than getBy...()
          *  and assert that they are non-null.
          * */
-        const minPickerElements = await screen.getAllByPlaceholderText(
-            /start date/i
+        const minPickerElements = await screen.findAllByPlaceholderText(
+            "Start Date"
         );
-        const maxPickerElements = await screen.getAllByPlaceholderText(
-            /end date/i
+        const maxPickerElements = await screen.findAllByPlaceholderText(
+            "End Date"
         );
 
-        expect(minPickerElements).not.toBeNull();
-        expect(maxPickerElements).not.toBeNull();
+        expect(minPickerElements).not.toBeUndefined();
+        expect(maxPickerElements).not.toBeUndefined();
+        expect(minPickerElements[0]).toBeInTheDocument();
+        expect(maxPickerElements[0]).toBeInTheDocument();
     });
 });

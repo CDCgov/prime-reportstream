@@ -65,6 +65,14 @@ elements:
     default: F
     csvFields: [{name: Test_result_status}]
 
+  - name: order_result_status
+    csvFields: [{name: Order_result_status}]
+    mapper: use(test_result_status)
+
+  - name: observation_result_status
+    csvFields: [{name: Observation_result_status}]
+    mapper: use(test_result_status)
+
   - name: test_result
     csvFields: [{name: Test_result_code}]
 
