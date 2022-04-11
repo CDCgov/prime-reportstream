@@ -61,7 +61,7 @@ class FakeReportTests {
     val zipCodeTable = """
             city,state,county,zipcode,state_abbr,state_fips
             New site,Alabama,Tallapoosa,35010,AL,1
-        """.trimIndent()
+    """.trimIndent()
     val zipCodeLookupTable = LookupTable.read(
         zipCodeData,
         inputStream = ByteArrayInputStream(zipCodeTable.toByteArray())
@@ -69,7 +69,7 @@ class FakeReportTests {
     val ncesTable = """
             lzip, ncesid, schname 
             35010, 010003000001, Alexander City Middle School
-        """.trimIndent()
+    """.trimIndent()
     val ncesLookupTable = LookupTable.read(
         ncesId,
         inputStream = ByteArrayInputStream(ncesTable.toByteArray())
