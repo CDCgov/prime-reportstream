@@ -702,6 +702,8 @@ class Hl7Serializer(
         val testResultStatus = report.getString(row, "test_result_status") ?: ""
         if (testResultStatus.isNullOrEmpty()) {
             report.setString(row, "test_result_status", "F")
+            report.setString(row, "order_result_status", "F")
+            report.setString(row, "observation_result_status", "F")
         }
 
         val senderId = report.getString(row, "sender_id") ?: ""
@@ -1275,16 +1277,8 @@ class Hl7Serializer(
             // it's a phone
             terser.set(buildComponent(pathSpec, 3), "PH")
             terser.set(buildComponent(pathSpec, 5), country)
-
-            // If it is North America phone number with country code = "+1" US & CA, code = +52 Mexico
-            // then we fill PID-13-6, 7
-            if (country == "1" || country == "52") {
-                terser.set(buildComponent(pathSpec, 6), areaCode)
-                terser.set(buildComponent(pathSpec, 7), local)
-            } else {
-                // International phone number
-                terser.set(buildComponent(pathSpec, 12), "+$country$areaCode$local")
-            }
+            terser.set(buildComponent(pathSpec, 6), areaCode)
+            terser.set(buildComponent(pathSpec, 7), local)
             if (extension.isNotEmpty()) terser.set(buildComponent(pathSpec, 8), extension)
         }
 
@@ -1404,7 +1398,7 @@ class Hl7Serializer(
         } else {
             rawObx19Value
         }
-        terser.set(formPathSpec("OBX-11", aoeRep), report.getString(row, "test_result_status"))
+        terser.set(formPathSpec("OBX-11", aoeRep), report.getString(row, "observation_result_status"))
         terser.set(formPathSpec("OBX-14", aoeRep), date)
         // some states want the observation date for the AOE questions as well
         terser.set(formPathSpec("OBX-19", aoeRep), obx19Value)
