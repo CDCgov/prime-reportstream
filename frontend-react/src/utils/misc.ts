@@ -1,4 +1,4 @@
-import {showError} from "../components/AlertNotifications";
+import { showError } from "../components/AlertNotifications";
 
 /**
  * splitOn('foo', 1);
