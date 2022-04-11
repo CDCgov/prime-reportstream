@@ -54,7 +54,7 @@
         "start-js": "react-scripts start",
         "copy-404page": "cp build/index.html build/404.html",
         "compile-scss-prod": "sass --load-path=./node_modules/uswds/dist/scss --no-source-map --style=compressed --quiet src/global.scss:src/content/generated/global.out.css",
-        "compile-scss-dev":  "sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps src/global.scss:src/content/generated/global.out.css",
+        "compile-scss-dev": "sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps src/global.scss:src/content/generated/global.out.css",
         "watch-scss": "yarn compile-scss-dev && sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps -w src/global.scss:src/content/generated/global.out.css",
         "test": "react-scripts test",
         "test:ci": "CI=true yarn test --coverage",
@@ -71,6 +71,7 @@
         "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build"
     },
     "eslintConfig": {
+        "parser": "@typescript-eslint/parser",
         "extends": [
             "react-app",
             "prettier",
@@ -144,8 +145,9 @@
             "import/resolver": {}
         },
         "plugins": [
-            "@typescript-eslint",
-            "unused-imports"
+            "testing-library",
+            "unused-imports",
+            "jest-dom"
         ],
         "ignorePatterns": [
             "node_modules/",
@@ -169,7 +171,7 @@
         "@testing-library/react": "^12.1.2",
         "@testing-library/react-hooks": "^7.0.2",
         "@types/dompurify": "^2.3.1",
-        "@types/jest": "^27.0.3",
+        "@types/jest": "^27.4.1",
         "@types/lodash": "^4.14.180",
         "@types/react-helmet": "^6.1.4",
         "@types/react-router-dom": "^5.3.2",
@@ -177,11 +179,10 @@
         "@types/testing-library__jest-dom": "^5.14.2",
         "@typescript-eslint/eslint-plugin": "^5.9.1",
         "@typescript-eslint/parser": "^5.9.1",
-        "eslint": "^7.26.0",
+        "eslint": "^8.12.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-config-react-app": "^7.0.0",
         "eslint-plugin-cypress": "^2.12.1",
-        "eslint-plugin-import": "^2.25.4",
         "eslint-plugin-jest-dom": "^4.0.1",
         "eslint-plugin-testing-library": "^5.0.3",
         "eslint-plugin-unused-imports": "2.0.0",
@@ -196,5 +197,10 @@
         "typescript": "^4.5.4",
         "webpack": "^5",
         "yaml-loader": "^0.6.0"
+    },
+    "peerDependencies": {
+        "minimist": "^1.2.6"
+    },
+    "resolutions": {
     }
 }

@@ -6,6 +6,32 @@
 - The ReportStream API is documented here: [Hub OpenApi Spec](./api)
 - More detailed changelog for individual releases: [Recent releases](https://github.com/CDCgov/prime-reportstream/releases)
 
+## April 12, 2022
+
+This release contains further enhancements to the json response to Report History GETs and report submission POSTs.
+
+The Report History was already displaying `itemCount`, the number of items (aka Covid-19 Tests) that were being sent to each destination.   Now, the Report History also displays `itemCountBeforeQualityFiltering`, the number of items available to be sent to that destination, prior to quality filtering.   Quality filtering is a step that ReportStream takes to ensure that the submitted data meets the minimum standards of the STLT (State/Local/Tribal/Territorial) jurisdiction destined to receive that item.  Each STLT can set their own minimum standards for each data feed they get from ReportStream.
+
+For example, if Covid-19 data was submitted to ReportStream containing 7 patients with addresses in Maryland, but 4 of those patients were missing information required by the Maryland primary Covid-19 data feed, then that data feed would have
+
+```
+itemCount: 3
+itemCountBeforeQualityFiltering: 7
+```
+
+To find detailed information on _why_ items were filtered, look at the `filteredReportItems` section for that destination.
+
+Note: in this release the filteringReportItems field `originalCount` has been removed, because it is redundant with the new `itemCountBeforeQualityFiltering` field.
+
+### Examples
+
+Updated Examples including the new field can be found here:
+
+- [Example **asychronous** submission response](../examples/submission/example1-async-response.json). 
+- [Example of the **synchronous** submission response](../examples/submission/example2-sync-response.json)
+- [Example of a **complete History API response**, after data has flowed to the states](../examples/submission/example3-complete-response.json).
+
+
 ## March 29, 2022
 
 This release contains a much-enhanced **_Submission Response_** json, a new ***Submission History Details AP*I**,
