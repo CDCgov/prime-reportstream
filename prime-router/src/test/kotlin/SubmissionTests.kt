@@ -259,7 +259,7 @@ class SubmissionTests {
             ),
             DetailReport(
                 UUID.randomUUID(), "recvOrg3", "recvSvc3", null,
-                null, "topic", "no item count dest", null, null, 0
+                null, "topic", "no item count dest", null, null, 0, null
             ),
         ).toMutableList()
 
@@ -333,7 +333,7 @@ class SubmissionTests {
         var reports = listOf(
             DetailReport(
                 UUID.randomUUID(), "recvOrg3", "recvSvc3", null, null,
-                "topic", "no item count dest", null, null, 0
+                "topic", "no item count dest", null, null, 0, null
             ),
         ).toMutableList()
 
@@ -352,12 +352,12 @@ class SubmissionTests {
 
         val inputReport = DetailReport(
             UUID.randomUUID(), null, null, "org", "client",
-            "topic", "externalName", null, null, 3
+            "topic", "externalName", null, null, 3, null
         )
 
         val latestReport = DetailReport(
             UUID.randomUUID(), "recvOrg2", "recvSvc2", null, null,
-            "topic", "otherExternalName2", null, tomorrow, 2
+            "topic", "otherExternalName2", null, tomorrow, 2, null
         )
 
         reports = listOf(
@@ -365,11 +365,11 @@ class SubmissionTests {
             latestReport,
             DetailReport(
                 UUID.randomUUID(), "recvOrg1", "recvSvc1", null, null,
-                "topic", "otherExternalName1", null, today, 1
+                "topic", "otherExternalName1", null, today, 1, null
             ),
             DetailReport(
                 UUID.randomUUID(), "recvOrg3", "recvSvc3", null, null,
-                "topic", "no item count dest", null, null, 0
+                "topic", "no item count dest", null, null, 0, null
             ),
         ).toMutableList()
 
@@ -385,7 +385,7 @@ class SubmissionTests {
         val partiallyDelivered = listOf(
             DetailReport(
                 UUID.randomUUID(), "recvOrg1", "recvSvc1", null, null,
-                "topic", "extname", null, null, 3
+                "topic", "extname", null, null, 3, null
             ),
         ).toMutableList()
 
@@ -429,11 +429,11 @@ class SubmissionTests {
         val deliveredReports = listOf(
             DetailReport(
                 UUID.randomUUID(), "recvOrg1", "recvSvc1", null, null,
-                "topic", "otherExternalName1", null, null, 1
+                "topic", "otherExternalName1", null, null, 1, null
             ),
             DetailReport(
                 UUID.randomUUID(), "recvOrg2", "recvSvc2", null, null,
-                "topic", "otherExternalName2", null, null, 2
+                "topic", "otherExternalName2", null, null, 2, null
             ),
         ).toMutableList()
 
