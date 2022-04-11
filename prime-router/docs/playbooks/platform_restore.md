@@ -1,30 +1,28 @@
-## Conditions
+## Platform Restore to Different Region
 
-In the event that Azure's East US region becomes unavailable, the entire platform can be restored by configuring terraform to deploy to another Azure region.  
+In the event that Azure's East US region becomes unavailable, the entire platform can be restored by configuring
+Terraform to deploy to another Azure region.
 
-Alternatively, individual resources can be restored within the environment as well.
+### Actions to Mitigate 
 
-## Prerequisites
+To configure Terraform to deploy to a new Azure region, update the local `location` in the environment's `variables.tf`
+file -- for example, in `operations/app/terraform/vars/production.tf`.  If you're restoring the platform to Azure's West
+US region you'd change:
 
-### Full Platform Restore
+```
+location = "eastus"
+```
 
-To configure terraform to deploy to a new Azure region, update the local `location` variable within the `prime_data_hub` module.  For example, changing `location = "eastus"` to `location = "westus"` will update the terraform configuration to deploy to Azure's West US region.
+to:
 
-### Partial Restore
+```
+location = "westus"
+```
 
-If only individual resources are needed to be restored, make any terraform configuration updates (if needed).
-
-## Actions
-
-### Full Platform Restore in Separate Region
-
-1. Update the `prime_data_hub` module within the terraform configuration to deploy to the desired Azure region.
-2. Run `terraform plan -out plan.tf` and review the planned configuration changes.
-3. Run `terraform apply plan.tf` to make the infrastructure updates.
-
-### Restore Individual Resources
-
-1. Make any necessary configuration updates.  Examples may include a new Azure region or a new resource name.
-2. Run `terraform plan -out plan.tf` and review the planned configuration changes.
-3. Run `terraform apply plan.tf` to make the infrastructure updates.
-4. [OPTIONAL] You can also target a specific resource with the `plan/apply`.  For example, run `terraform plan -target module.prime_data_hub.module.function_app -out plan.tf` to target the function app specifically.
+1. Follow the directions in the [operations README](https://github.com/CDCgov/prime-reportstream/tree/master/operations)
+   to prepare the region for use by Terraform. This may include creating a storage account, populating Key Vaults, and
+   other actions.
+2. Update the relevant environment's module as specified above in the Terraform configuration to deploy to the desired
+   Azure region.
+3. Run `terraform plan -out plan.tf` and review the planned configuration changes.
+4. Run `terraform apply plan.tf` to make the infrastructure updates.
