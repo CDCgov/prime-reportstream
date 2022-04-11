@@ -45,13 +45,8 @@ describe("SubmissionDetails", () => {
 
     test("renders data to sub-components", async () => {
         /* Custom matcher for transitionTime */
-        const findTimeWithoutDate: MatcherFunction = (
-            content,
-            element
-        ): boolean => {
-            if (!content.includes("7 Apr 1970") && timeRegex.test(content))
-                return true;
-            return false;
+        const findTimeWithoutDate: MatcherFunction = (content): boolean => {
+            return !content.includes("7 Apr 1970") && timeRegex.test(content);
         };
 
         /* Report ID DetailItem */

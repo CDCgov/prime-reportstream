@@ -88,6 +88,7 @@ Wait another minute or longer (so the data flows all the way to sftp) and run th
 curl "localhost:7071/api/waters/report/1211/history" > examples/submission/example3-complete-response.json
 ```
 
+Be sure to do a `git diff` to confirm that the changes you expected are in the files.    If not, you may need to run it again, because its just so slow the first time you run it.
 
 
 
