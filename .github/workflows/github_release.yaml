@@ -77,13 +77,13 @@ jobs:
           fetch-depth: 0
       - name: Download router artifact
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@fb598a63ae348fa914e94cd0ff38f362e927b741
         with:
           name: prime-router-build-${{ needs.wf_vars.outputs.version }}
           path: archives/
       - name: Download frontend artifact
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@fb598a63ae348fa914e94cd0ff38f362e927b741
         with:
           name: static-website-react-${{ needs.wf_vars.outputs.version }}
           path: archives/
@@ -117,7 +117,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Update release notes
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@58ae73b360456532aafd58ee170c045abbeaee37
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.wf_vars.outputs.version }}
