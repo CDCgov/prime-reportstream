@@ -379,3 +379,8 @@ h3 img[src*="svg"] {
     overflow: visible !important;
     zoom: 0.5;
 }
+
+.rs-textarea-json-input {
+    word-break: break-all;
+    max-width: 100vw;
+}

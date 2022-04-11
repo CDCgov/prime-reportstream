@@ -20,7 +20,7 @@ export default class OrgSettingsResource extends OrgSettingsBaseResource {
         return "OrgSettingsResource";
     }
 
-    static listUrl(params: {}): string {
+    static listUrl(_params: {}): string {
         return `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations`;
     }
 

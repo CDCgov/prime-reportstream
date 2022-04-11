@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import java.io.ByteArrayInputStream
@@ -104,7 +105,7 @@ class TranslatorTests {
             it.loadOrganizations(ByteArrayInputStream(filterTestYaml.toByteArray()))
         }
         val translator = Translator(metadata, settings)
-        // Table has 4 rows and 2 columns.
+        // Table has 4 rows and 3 columns.
         val table1 = Report(
             mySchema,
             listOf(
@@ -114,7 +115,8 @@ class TranslatorTests {
                 listOf("3", "no", "false"), // row 3
             ),
             TestSource,
-            metadata = metadata
+            metadata = metadata,
+            itemCountBeforeQualFilter = 4,
         )
         val rcvr = settings.findReceiver("phd.elr")
         assertThat(rcvr).isNotNull()
@@ -125,6 +127,7 @@ class TranslatorTests {
             table1, rcvr!!, org!!, ReportStreamFilterType.JURISDICTIONAL_FILTER, mySchema.trackingElement, true
         ).run {
             assertThat(this.itemCount).isEqualTo(1)
+            assertThat(this.itemCountBeforeQualFilter).isEqualTo(4)
             assertThat(this.getRow(0)[0]).isEqualTo("0") // row 0 is only one left.
             assertThat(this.filteringResults.size).isEqualTo(4) // two rows eliminated, and two filter messages.
             assertThat(this.filteringResults[0].filteredTrackingElement).isEqualTo("2")
@@ -167,7 +170,7 @@ class TranslatorTests {
             it.loadOrganizations(ByteArrayInputStream(onlyDefaultFiltersYaml.toByteArray()))
         }
         val translator = Translator(metadata, settings)
-        // Table has 4 rows and 2 columns.
+        // Table has 4 rows and 3 columns.
         val table1 = Report(
             mySchema,
             listOf(
@@ -177,7 +180,8 @@ class TranslatorTests {
                 listOf("3", "no", "false"), // row 3
             ),
             TestSource,
-            metadata = metadata
+            metadata = metadata,
+            itemCountBeforeQualFilter = 4,
         )
         val rcvr = settings.findReceiver("xyzzy.elr")
         assertThat(rcvr).isNotNull()
@@ -188,6 +192,7 @@ class TranslatorTests {
             table1, rcvr!!, org!!, ReportStreamFilterType.JURISDICTIONAL_FILTER, mySchema.trackingElement, true
         ).run {
             assertThat(this.itemCount).isEqualTo(4)
+            assertThat(this.itemCountBeforeQualFilter).isEqualTo(4)
             // just confirm the first and last rows
             assertThat(this.getRow(0)[0]).isEqualTo("0")
             assertThat(this.getRow(1)[0]).isEqualTo("1")
@@ -200,6 +205,7 @@ class TranslatorTests {
             table1, rcvr, org, ReportStreamFilterType.QUALITY_FILTER, mySchema.trackingElement, false
         ).run {
             assertThat(this.itemCount).isEqualTo(2)
+            assertThat(this.itemCountBeforeQualFilter).isEqualTo(4)
             assertThat(this.getRow(0)[0]).isEqualTo("0")
             assertThat(this.getRow(1)[0]).isEqualTo("2")
             assertThat(this.filteringResults.size).isEqualTo(0) // no logging done.
@@ -209,6 +215,7 @@ class TranslatorTests {
             table1, rcvr, org, ReportStreamFilterType.ROUTING_FILTER, mySchema.trackingElement, true
         ).run {
             assertThat(this.itemCount).isEqualTo(2)
+            assertThat(this.itemCountBeforeQualFilter).isEqualTo(4)
             assertThat(this.getRow(0)[0]).isEqualTo("2")
             assertThat(this.getRow(1)[0]).isEqualTo("3")
             assertThat(this.filteringResults.size).isEqualTo(2) // two rows eliminated, by one rule.
@@ -228,7 +235,7 @@ class TranslatorTests {
             it.loadOrganizations(ByteArrayInputStream(filterTestYaml.toByteArray()))
         }
         val translator = Translator(metadata, settings)
-        // Table has 4 rows and 2 columns.
+        // Table has 4 rows and 3 columns.
         val table1 = Report(
             mySchema,
             listOf(
@@ -263,6 +270,7 @@ class TranslatorTests {
         translator.filterByAllFilterTypes(settings2, table1, rcvr2!!).run {
             assertThat(this).isNotNull()
             assertThat(this!!.itemCount).isEqualTo(1)
+            assertThat(this.itemCountBeforeQualFilter).isEqualTo(4)
             assertThat(this.getRow(0)[0]).isEqualTo("2")
             assertThat(this.filteringResults.size).isEqualTo(1) // three rows eliminated, only routingFilter message.
             assertThat(this.filteringResults[0].filteredTrackingElement).isEqualTo("0")
@@ -302,6 +310,7 @@ class TranslatorTests {
         ).run {
             assertThat(this).isNotNull()
             assertThat(this.itemCount).isEqualTo(2)
+            assertThat(this.itemCountBeforeQualFilter).isNull()
             assertThat(this.getRow(0)[0]).isEqualTo("x") // row 0
             assertThat(this.getRow(1)[0]).isEqualTo("") // row 0
             assertThat(this.filteringResults.size).isEqualTo(2) // two rows eliminated by one filter

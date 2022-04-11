@@ -68,7 +68,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     JSON.stringify(orgSenderSettings, jsonSortReplacer, 2)
                 );
 
-                confirmModalRef?.current?.toggleModal(undefined, true);
+                confirmModalRef?.current?.showModal();
                 setLoading(false);
             } catch (e) {
                 setLoading(false);
