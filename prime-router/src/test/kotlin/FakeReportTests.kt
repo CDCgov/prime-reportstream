@@ -61,7 +61,7 @@ class FakeReportTests {
     val zipCodeTable = """
             city,state,county,zipcode,state_abbr,state_fips
             New site,Alabama,Tallapoosa,35010,AL,1
-    """.trimIndent()
+        """.trimIndent()
     val zipCodeLookupTable = LookupTable.read(
         zipCodeData,
         inputStream = ByteArrayInputStream(zipCodeTable.toByteArray())
@@ -69,7 +69,7 @@ class FakeReportTests {
     val ncesTable = """
             lzip, ncesid, schname 
             35010, 010003000001, Alexander City Middle School
-    """.trimIndent()
+        """.trimIndent()
     val ncesLookupTable = LookupTable.read(
         ncesId,
         inputStream = ByteArrayInputStream(ncesTable.toByteArray())
@@ -231,6 +231,40 @@ class FakeReportTests {
 
         // assert expected return value of siteOfCare = "k12"
         assertThat(siteOfCare.contains("k12")).isTrue()
+    }
+
+    @Test
+    fun `testFaileBuildOrderFacilityNameAndSiteOfCareColumnIncludeNCESFacilityFlag`() {
+
+        // Setup to return expected mock data
+        val mockMetadata = mockkClass(Metadata::class)
+        every { mockMetadata.findLookupTable(fipsCounty) } returns null
+        every { mockMetadata.findLookupTable(zipCodeData) } returns zipCodeLookupTable
+        every { mockMetadata.findLookupTable(ncesId) } returns ncesLookupTable
+
+        // Build RowContext test case: given reportState = "XY", reportCounty = "fakeCountry",
+        // .. and includeNcesFacilities = true
+        val alRowContext = FakeReport.RowContext(
+            mockMetadata,
+            "XY",
+            reportCounty = "fakeCountry",
+            includeNcesFacilities = true
+        )
+
+        // assert expected value of alRowContext.facilitiesName = null
+        assertThat(alRowContext.facilitiesName).isNull()
+
+        // Test: Build the "ording_facility_name" column.
+        val orderingFacilityName = FakeReport(mockMetadata).buildColumn(orderingFacilityNameElement, alRowContext)
+
+        // assert expected return value of orderingFacilityName: "Any facility USA"
+        assertThat(orderingFacilityName.contains("Any facility USA")).isTrue()
+
+        // Test: Build the site_of_care column.
+        val siteOfCare = FakeReport(mockMetadata).buildColumn(siteOfCareElement, alRowContext)
+
+        // assert expected return value of siteOfCare != "k12"
+        assertThat(siteOfCare.contains("k12")).isFalse()
     }
 
     @Test

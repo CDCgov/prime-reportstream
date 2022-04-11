@@ -49,7 +49,7 @@ class FakeDataService : Logging {
                 element.nameContains("site_of_care") -> if (context.facilitiesName.isNullOrEmpty()) {
                     randomChoice(
                         "airport", "assisted_living", "camp", "correctional_facility", "employer", "fqhc",
-                        "government_agency", "hospice", "hospital", "k12", "lab", "nursing_home", "other",
+                        "government_agency", "hospice", "hospital", "lab", "nursing_home", "other",
                         "pharmacy", "primary_care", "shelter", "treatment_center", "university", "urgent_care"
                     )
                 } else {
