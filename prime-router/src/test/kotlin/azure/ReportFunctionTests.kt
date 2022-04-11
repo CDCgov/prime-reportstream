@@ -360,50 +360,6 @@ class ReportFunctionTests {
     }
 
     /** doDuplicateDetection tests **/
-    // entire file is duplicate, should not check for item duplication
-    @Test
-    fun `test doDuplicateDetection, entire file`() {
-        // setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val report = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-        val sender = Sender(
-            "Test Sender",
-            "test",
-            Sender.Format.CSV,
-            "test",
-            schemaName =
-            "one",
-            allowDuplicates = false
-        )
-        val actionLogs = ActionLogger()
-
-        val req = MockHttpRequestMessage("test")
-        every { engine.settings.findSender("Test Sender") } returns sender
-        every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns true
-
-        // act
-        reportFunc.doDuplicateDetection(
-            req.content!!.toByteArray(),
-            sender,
-            "payload.txt",
-            report,
-            actionLogs
-        )
-
-        // assert
-        verify(exactly = 1) {
-            engine.isDuplicateFile(any(), any())
-            reportFunc.addDuplicateLogs(any(), any(), any(), any())
-        }
-        verify(exactly = 0) { engine.isDuplicateItem(any()) }
-    }
-
     // doDuplicateDetection, one item is duplicate
     @Test
     fun `test doDuplicateDetection, 2 records, one duplicate`() {
@@ -427,15 +383,12 @@ class ReportFunctionTests {
         )
         val actionLogs = ActionLogger()
 
-        val req = MockHttpRequestMessage(csvString_2Records)
-
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest(
             csvString_2Records,
             sender = sender
         )
 
         every { engine.settings.findSender("Test Sender") } returns sender
-        every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
         // first call to isDuplicateItem is false, second is true
         every { accessSpy.isDuplicateItem(any(), any()) }
             .returns(false)
@@ -443,9 +396,6 @@ class ReportFunctionTests {
 
         // act
         reportFunc.doDuplicateDetection(
-            req.content!!.toByteArray(),
-            sender,
-            "payload.txt",
             report,
             actionLogs
         )
@@ -456,7 +406,6 @@ class ReportFunctionTests {
         }
         verify(exactly = 1) {
             reportFunc.addDuplicateLogs(any(), any(), any(), any())
-            engine.isDuplicateFile(any(), any())
         }
     }
 
@@ -483,23 +432,16 @@ class ReportFunctionTests {
         )
         val actionLogs = ActionLogger()
 
-        val req = MockHttpRequestMessage(csvString_2Records)
-
         every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest(
             csvString_2Records,
             sender = sender
         )
 
         every { engine.settings.findSender("Test Sender") } returns sender
-        // returning false on 'dupe file' check to verify sanity checking logic
-        every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
         every { accessSpy.isDuplicateItem(any(), any()) } returns true
 
         // act
         reportFunc.doDuplicateDetection(
-            req.content!!.toByteArray(),
-            sender,
-            "payload.txt",
             report,
             actionLogs
         )
@@ -510,9 +452,6 @@ class ReportFunctionTests {
         }
         verify(exactly = 2) {
             engine.isDuplicateItem(any())
-        }
-        verify(exactly = 1) {
-            engine.isDuplicateFile(any(), any())
         }
         assert(actionLogs.hasErrors())
     }
@@ -657,7 +596,7 @@ class ReportFunctionTests {
         reportFunc.processRequest(req, sender)
 
         // assert
-        verify(exactly = 1) { reportFunc.doDuplicateDetection(any(), any(), any(), any(), any()) }
+        verify(exactly = 1) { reportFunc.doDuplicateDetection(any(), any()) }
     }
 
     // test processFunction when an error is added to ActionLogs
@@ -700,14 +639,13 @@ class ReportFunctionTests {
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
 
-        every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns true
+        every { accessSpy.isDuplicateItem(any(), any()) } returns true
 
         // act
         var resp = reportFunc.processRequest(req, sender)
 
         // assert
-        verify(exactly = 1) { engine.isDuplicateFile(any(), any()) }
-        verify(exactly = 0) { engine.isDuplicateItem(any()) }
+        verify(exactly = 2) { engine.isDuplicateItem(any()) }
         verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
         assert(resp.status.equals(HttpStatus.BAD_REQUEST))
     }
