@@ -476,5 +476,7 @@ class SubmissionTests {
     }
 
     @Test
-    fun `test Status enum`() {}
+    fun `test Status enum toString`() {
+        assertThat(DetailedSubmissionHistory.Status.RECEIVED.toString()).isEqualTo("Received")
+    }
 }

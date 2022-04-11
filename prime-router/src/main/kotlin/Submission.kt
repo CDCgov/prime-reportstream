@@ -286,6 +286,10 @@ class DetailedSubmissionHistory(
         }
     }
 
+    /**
+     *  Update the summary fields for this Submission report based on the destinations that
+     *  will be receiving reports.
+     */
     fun enrichWithSummary() {
         val realDestinations = destinations.filter { it.itemCount != 0 }
 
