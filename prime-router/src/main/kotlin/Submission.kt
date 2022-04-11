@@ -188,28 +188,16 @@ class DetailedSubmissionHistory(
 
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
         check(descendants.distinctBy { it.actionId }.size == descendants.size)
-
         // Enforce an order on the enrichment:  process, send, download
         descendants.filter { it.actionName == TaskAction.process }.forEach { descendant ->
             enrichWithProcessAction(descendant)
         }
-
         // note: we do not use any data from the batch action at this time.
         descendants.filter { it.actionName == TaskAction.send }.forEach { descendant ->
             enrichWithSendAction(descendant)
         }
         descendants.filter { it.actionName == TaskAction.download }.forEach { descendant ->
             enrichWithDownloadAction(descendant)
-        }
-    }
-
-    private fun enrichWithDescendant(descendant: DetailedSubmissionHistory) {
-        when (descendant.actionName) {
-            TaskAction.process -> enrichWithProcessAction(descendant)
-            // TaskAction.batch -> enrichWithBatchAction(descendant)
-            TaskAction.send -> enrichWithSendAction(descendant)
-            TaskAction.download -> enrichWithDownloadAction(descendant)
-            else -> {}
         }
     }
 
