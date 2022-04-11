@@ -6,7 +6,7 @@ import {
 import AuthResource from "./AuthResource";
 
 export default class SenderAuthResource extends AuthResource {
-    pk(parent?: any, key?: string): string | undefined {
+    pk(_parent?: any, _key?: string): string | undefined {
         throw new Error("Method not implemented.");
     }
 

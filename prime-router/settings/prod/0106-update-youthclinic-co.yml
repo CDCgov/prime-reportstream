@@ -1,0 +1,17 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0106-update-youthclinic-co.yml --env prod
+---
+- name: "youthclinic-co"
+  description: "The Youth Clinic (CO) - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "youthclinic-co"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "active"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"

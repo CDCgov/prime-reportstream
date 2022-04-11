@@ -4,12 +4,16 @@
 /*
   These are necessary for the image and font urls referenced in the source
   files to resolve correctly.
-*/
-$theme-image-path: '~uswds/dist/img';
-$theme-font-path: '~uswds/dist/fonts';
-$theme-hero-image: '~uswds/dist/img/hero.png';
 
-$theme-show-compile-warnings: false;
+
+    these paths are from where the output css lives, in this case
+            /frontend-react/src/content/generated/global.out.css
+ */
+$theme-image-path: "../../../node_modules/uswds/dist/img";
+$theme-font-path: "../../../node_modules/uswds/dist/fonts";
+$theme-hero-image: "../../../node_modules/uswds/dist/img/hero.png";
+
+$theme-show-compile-warnings: true;
 $theme-show-notifications: false;
 $theme-font-role-heading: "sans";
 
@@ -50,3 +54,6 @@ $desktop: 1200px;
 // these are color names we can reference else where and/or redefine usds colors
 $black: #010101;
 $medium-gray: #d9d9d9;
+
+$theme-process-list-heading-font-family: "sans";
+$theme-process-list-heading-font-size: "md";

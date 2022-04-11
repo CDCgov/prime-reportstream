@@ -5,6 +5,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
+import com.okta.jwt.Jwt
 import com.okta.jwt.JwtVerificationException
 import com.okta.jwt.JwtVerifiers
 import gov.cdc.prime.router.Organization
@@ -83,11 +84,8 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         }
 
         try {
-            val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
-                .setIssuer("https://$issuerBaseUrl/oauth2/default")
-                .build()
             // Perform authentication.  Throws exception if authentication fails.
-            val jwt = jwtVerifier.decode(accessToken)
+            val jwt = decodeJwt(accessToken)
 
             // Extract claims into a more usable form
             val claims = AuthenticatedClaims(jwt.claims)
@@ -100,6 +98,14 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             logger.info("Failure while authenticating, for call: $httpMethod: $path", e)
             return null
         }
+    }
+
+    fun decodeJwt(accessToken: String): Jwt {
+        val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
+            .setIssuer("https://$issuerBaseUrl/oauth2/default")
+            .build()
+        // Perform authentication.  Throws exception if authentication fails.
+        return jwtVerifier.decode(accessToken)
     }
 
     /**
