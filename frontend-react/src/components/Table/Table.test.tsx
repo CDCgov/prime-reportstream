@@ -24,7 +24,7 @@ describe("Table, basic tests", () => {
 
     test("Rows render data in configured order", () => {
         const allRows = screen.getAllByRole("row");
-        expect(allRows[2].firstChild).toHaveTextContent("value two again");
+        expect(allRows[2].firstChild).toHaveTextContent("value two");
     });
 
     test("Elements with no mapped column aren't rendered", () => {
@@ -45,7 +45,7 @@ describe("Table, basic tests", () => {
     });
 
     test("Map columns use mapped value", () => {
-        const mappedElement = screen.getAllByRole("row")[2].lastChild;
+        const mappedElement = screen.getAllByRole("row")[1].children[3];
         expect(mappedElement).toHaveTextContent("mapped value");
     });
 
@@ -99,13 +99,16 @@ describe("Table, sort order tests", () => {
     beforeEach(() => renderWithRouter(<TestTable />));
 
     test("Click header to sort", () => {
+        // order: desc
         let allRows = screen.getAllByRole("row");
-        expect(allRows[1].firstChild).toHaveTextContent("value two");
+        expect(allRows[1].firstChild).toHaveTextContent("value two again");
 
+        // swap order
         const columnOneHeader = screen.getByText("Column Two");
         fireEvent.click(columnOneHeader);
 
+        // order: asc
         allRows = screen.getAllByRole("row");
-        expect(allRows[1].firstChild).toHaveTextContent("value two again");
+        expect(allRows[1].firstChild).toHaveTextContent("value two");
     });
 });
