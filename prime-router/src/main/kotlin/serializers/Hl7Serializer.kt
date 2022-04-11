@@ -424,6 +424,10 @@ class Hl7Serializer(
         }
         val message = buildMessage(report, row, processingId)
         hapiContext.modelClassFactory = modelClassFactory
+        if (hl7Config?.replaceUnicodeWithAscii == true) {
+            println("**************************************************** PARSING MESSAGE!!**************************")
+            return unicodeToAscii(hapiContext.pipeParser.encode(message))
+        }
         return hapiContext.pipeParser.encode(message)
     }
 
@@ -669,26 +673,7 @@ class Hl7Serializer(
         }
 
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
-        if (hl7Config?.replaceUnicodeWithAscii == true) {
-            var s = "résumé"
-            println(AnyAscii.transliterate(s))
-            hapiContext.modelClassFactory = modelClassFactory
-            val tempMessage = hapiContext.pipeParser.encode(message)
-            println(AnyAscii.transliterate(tempMessage))
-            val parsedMessage = AnyAscii.transliterate(tempMessage)
 
-            // convert ORU message to string
-            // parse the string message
-            // convert parsed message to ORU format
-            // return newly created ORU message
-            val tempMessage2 = hapiContext.pipeParser.parse(parsedMessage)
-            if (tempMessage2 is ORU_R01) {
-                println("****************************************** INSTANCE!!")
-                return tempMessage2
-            } else {
-                print("***************************************** NOT AN INSTANCE!!!!")
-            }
-        }
         return message
     }
 
@@ -1742,6 +1727,21 @@ class Hl7Serializer(
         } else {
             hdFields.name
         }
+    }
+
+    /**
+     * Coverts unicode string to ASCII string if any special characters are found.
+     * This function takes a string parameter of unicode characters, checks to see if it has unicode special characters
+     * (À,Á,Â,Ã,Ä,Å,È,É,Ê,Ë,Î,Ô,Ù,Ç, and many more), converts it to a string representation of ASCII characters if any
+     * unicode special characters are found. AnyAscii is the open library that is used to perform this conversion.
+     * @param message the string to convert to ASCII string representation
+     * @return same string if no special characters are found or converted ASCII string if any special chars are found.
+     * @link https://github.com/anyascii/anyascii
+     */
+    private fun unicodeToAscii(
+        message: String
+    ): String {
+        return AnyAscii.transliterate(message)
     }
 
     private fun formatEI(eiFields: Element.EIFields, separator: String = "^"): String {
