@@ -244,18 +244,18 @@ class SubmissionTests {
 
         val inputReport = DetailReport(
             UUID.randomUUID(), null, null, "org",
-            "client", "topic", "externalName", null, null, 5
+            "client", "topic", "externalName", null, null, 5, 7
         )
 
         var reports = listOf(
             inputReport,
             DetailReport(
                 UUID.randomUUID(), "recvOrg1", "recvSvc1", null,
-                null, "topic", "otherExternalName1", null, null, 1
+                null, "topic", "otherExternalName1", null, null, 1, 1
             ),
             DetailReport(
                 UUID.randomUUID(), "recvOrg2", "recvSvc2", null,
-                null, "topic", "otherExternalName2", null, null, 2
+                null, "topic", "otherExternalName2", null, null, 2, null
             ),
             DetailReport(
                 UUID.randomUUID(), "recvOrg3", "recvSvc3", null,
