@@ -1690,7 +1690,7 @@ Custom field. Note, value matched LIVD column "F", "Test Performed LOINC Code"
 
 **Format**: use value found in the Code column
 
-**Default Value**: T
+**Default Value**: P
 
 **Cardinality**: [0..1]
 
@@ -1705,22 +1705,6 @@ T|Training|HL7
 **Documentation**:
 
 P, D, or T for Production, Debugging, or Training
-
----
-
-**Name**: reportingFacility
-
-**ReportStream Internal Name**: reportingFacility
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is no longer used.  Included here so it does not generate a warning if present.
 
 ---
 

@@ -1,0 +1,17 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0107-toprankdx-ca.yml --env staging
+---
+- name: "toprankdx-ca"
+  description: "Top Rank Diagnostics in CA - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "toprankdx-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
