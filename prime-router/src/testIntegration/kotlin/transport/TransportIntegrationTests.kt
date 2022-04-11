@@ -49,6 +49,6 @@ abstract class TransportIntegrationTests {
         "elr-test",
         null, null, "standard.standard-covid-19", null, null, null, null, null,
         4, // pretend we have 4 items to send.
-        null, OffsetDateTime.now(), null
+        null, OffsetDateTime.now(), null, null
     )
 }
