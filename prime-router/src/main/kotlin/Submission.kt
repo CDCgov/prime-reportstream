@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
+import com.fasterxml.jackson.annotation.JsonValue
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -25,7 +26,7 @@ import java.util.UUID
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder(
     value = [
-        "id", "submissionId", "status", "timestamp", "plannedCompletionAt", "actualComplexiontAt",
+        "id", "submissionId", "overallStatus", "timestamp", "plannedCompletionAt", "actualCompletionAt",
         "sender", "reportItemCount", "errorCount", "warningCount",
     ]
 )
@@ -97,7 +98,12 @@ class DetailedSubmissionHistory(
         NOT_DELIVERING("Not Delivering"),
         WAITING_TO_DELIVER("Waiting to Deliver"),
         PARTIALLY_DELIVERED("Partially Delivered"),
-        DELIVERED("Delivered"),
+        DELIVERED("Delivered");
+
+        @JsonValue
+        override fun toString(): String {
+            return printableName
+        }
     }
 
     /**
@@ -105,13 +111,6 @@ class DetailedSubmissionHistory(
      * The supported values are listed in the Status enum.
      */
     var overallStatus: Status = Status.RECEIVED
-
-    /**
-     * More readable version of overallStatus, passed to the JSON version of this object
-     */
-    val status: String get() {
-        return overallStatus.printableName
-    }
 
     /**
      * When this submission is expected to finish sending.
@@ -136,17 +135,10 @@ class DetailedSubmissionHistory(
     val errorCount = logs.count { it.type == ActionLogLevel.error }
 
     /**
-     * Destinations that actually had/will have data sent to.
-     */
-    val realDestinations: List<Destination> get() {
-        return destinations.filter { it.itemCount != 0 }
-    }
-
-    /**
      * Number of destinations that actually had/will have data sent to.
      */
     val destinationCount: Int get() {
-        return realDestinations.size
+        return destinations.filter { it.itemCount != 0 }.size
     }
 
     /**
@@ -192,10 +184,6 @@ class DetailedSubmissionHistory(
         }
         errors.addAll(consolidateLogs(ActionLogLevel.error))
         warnings.addAll(consolidateLogs(ActionLogLevel.warning))
-
-        overallStatus = calculateStatus()
-        plannedCompletionAt = calculatePlannedCompletionAt()
-        actualCompletionAt = calculateActualCompletionAt()
     }
 
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
@@ -213,10 +201,6 @@ class DetailedSubmissionHistory(
         descendants.filter { it.actionName == TaskAction.download }.forEach { descendant ->
             enrichWithDownloadAction(descendant)
         }
-
-        overallStatus = calculateStatus()
-        plannedCompletionAt = calculatePlannedCompletionAt()
-        actualCompletionAt = calculateActualCompletionAt()
     }
 
     private fun enrichWithDescendant(descendant: DetailedSubmissionHistory) {
@@ -314,6 +298,14 @@ class DetailedSubmissionHistory(
         }
     }
 
+    fun enrichWithSummary() {
+        val realDestinations = destinations.filter { it.itemCount != 0 }
+
+        overallStatus = calculateStatus(realDestinations)
+        plannedCompletionAt = calculatePlannedCompletionAt(realDestinations)
+        actualCompletionAt = calculateActualCompletionAt(realDestinations)
+    }
+
     /**
      * Consolidate the [logs] filtered by an optional [filterBy] action level, so to list similar messages once
      * with a list of items they relate to.
@@ -359,7 +351,7 @@ class DetailedSubmissionHistory(
      * Runs the calculations for the overallStatus field so that it can be done during init.
      * @returns The status from the Status enum that matches the current Submission state.
      */
-    private fun calculateStatus(): Status {
+    private fun calculateStatus(realDestinations: List<Destination>): Status {
         if (httpStatus != HttpStatus.OK.value() && httpStatus != HttpStatus.CREATED.value()) {
             return Status.ERROR
         }
@@ -411,7 +403,7 @@ class DetailedSubmissionHistory(
      * Runs the calculations for the plannedCompletionAt field so that it can be done during init.
      * @returns The timestamp that equals the max of all the sendingAt values for this Submission's Destinations
      */
-    private fun calculatePlannedCompletionAt(): OffsetDateTime? {
+    private fun calculatePlannedCompletionAt(realDestinations: List<Destination>): OffsetDateTime? {
         if (overallStatus == Status.ERROR ||
             overallStatus == Status.RECEIVED ||
             overallStatus == Status.NOT_DELIVERING
@@ -427,7 +419,7 @@ class DetailedSubmissionHistory(
      * @returns The timestamp that equals the max createdAt of all sent and downloaded reports
      *     after it has been sent to all receivers
      */
-    private fun calculateActualCompletionAt(): OffsetDateTime? {
+    private fun calculateActualCompletionAt(realDestinations: List<Destination>): OffsetDateTime? {
         if (overallStatus != Status.DELIVERED) {
             return null
         }

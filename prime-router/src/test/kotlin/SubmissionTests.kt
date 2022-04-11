@@ -238,7 +238,6 @@ class SubmissionTests {
             assertThat(reportItemCount).isNull()
             assertThat(externalName).isNull()
             assertThat(destinations.size).isEqualTo(0)
-            assertThat(realDestinations.size).isEqualTo(0)
             assertThat(destinationCount).isEqualTo(0)
         }
 
@@ -271,7 +270,6 @@ class SubmissionTests {
             assertThat(reportItemCount).isEqualTo(inputReport.itemCount)
             assertThat(externalName).isEqualTo(inputReport.externalName)
             assertThat(destinations.size).isEqualTo(3)
-            assertThat(realDestinations.size).isEqualTo(2)
             assertThat(destinationCount).isEqualTo(2)
         }
 
@@ -294,7 +292,6 @@ class SubmissionTests {
             assertThat(reportItemCount).isEqualTo(inputReport.itemCount)
             assertThat(externalName).isEqualTo(inputReport.externalName)
             assertThat(destinations.size).isEqualTo(3)
-            assertThat(realDestinations.size).isEqualTo(2)
             assertThat(destinationCount).isEqualTo(2)
         }
 
@@ -314,17 +311,21 @@ class SubmissionTests {
 
     @Test
     fun `test DetailedSubmissionHistory overallStatus and completionAt calculations`() {
-        DetailedSubmissionHistory(
+        val testError = DetailedSubmissionHistory(
             1, TaskAction.receive, OffsetDateTime.now(), HttpStatus.BAD_REQUEST.value(), null
-        ).run {
+        )
+        testError.enrichWithSummary()
+        testError.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.ERROR)
             assertThat(plannedCompletionAt).isNull()
             assertThat(actualCompletionAt).isNull()
         }
 
-        DetailedSubmissionHistory(
+        val testReceived = DetailedSubmissionHistory(
             1, TaskAction.receive, OffsetDateTime.now(), HttpStatus.OK.value(), null
-        ).run {
+        )
+        testReceived.enrichWithSummary()
+        testReceived.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
             assertThat(plannedCompletionAt).isNull()
             assertThat(actualCompletionAt).isNull()
@@ -337,11 +338,13 @@ class SubmissionTests {
             ),
         ).toMutableList()
 
-        DetailedSubmissionHistory(
+        val testNotDelivering = DetailedSubmissionHistory(
             1,
             TaskAction.receive,
             OffsetDateTime.now(), HttpStatus.OK.value(), reports
-        ).run {
+        )
+        testNotDelivering.enrichWithSummary()
+        testNotDelivering.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.NOT_DELIVERING)
             assertThat(plannedCompletionAt).isNull()
             assertThat(actualCompletionAt).isNull()
@@ -373,10 +376,12 @@ class SubmissionTests {
             ),
         ).toMutableList()
 
-        DetailedSubmissionHistory(
+        val testWaitingToDeliver = DetailedSubmissionHistory(
             1, TaskAction.receive, OffsetDateTime.now(),
             HttpStatus.OK.value(), reports
-        ).run {
+        )
+        testWaitingToDeliver.enrichWithSummary()
+        testWaitingToDeliver.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.WAITING_TO_DELIVER)
             assertThat(plannedCompletionAt).isEqualTo(tomorrow)
             assertThat(actualCompletionAt).isNull()
@@ -401,6 +406,7 @@ class SubmissionTests {
                 )
             )
         )
+        testSent.enrichWithSummary()
 
         testSent.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED)
@@ -420,6 +426,7 @@ class SubmissionTests {
                 )
             )
         )
+        testDownload.enrichWithSummary()
         testDownload.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED)
             assertThat(plannedCompletionAt).isEqualTo(tomorrow)
@@ -445,6 +452,7 @@ class SubmissionTests {
                 )
             )
         )
+        testSent.enrichWithSummary()
         testSent.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.DELIVERED)
             assertThat(plannedCompletionAt).isEqualTo(tomorrow)
@@ -459,10 +467,14 @@ class SubmissionTests {
                 )
             )
         )
+        testDownload.enrichWithSummary()
         testDownload.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.DELIVERED)
             assertThat(plannedCompletionAt).isEqualTo(tomorrow)
             assertThat(actualCompletionAt).isEqualTo(latestReport.createdAt)
         }
     }
+
+    @Test
+    fun `test Status enum`() {}
 }
