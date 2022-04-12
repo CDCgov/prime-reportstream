@@ -601,6 +601,43 @@ class ReportStreamFilterDefinitionTests {
         assertThat(nowLarge.toArray()).containsExactly(0, 1, 2)
     }
 
+    @Test
+    fun `Test InDateInterval Filter on invalid date values`() {
+        // Setup random data
+        val lowerDate = "2333-9090-90-90"
+        val middleDate = "asdfadfsasfd"
+        val upperDate = "2234390-0-90-0"
+
+        val filter = InDateInterval()
+        val table = Table.create(
+            StringColumn.create("colA", listOf(lowerDate, middleDate, upperDate, "")),
+        )
+
+        // Test with 1 Month
+        val oneMonth = filter.getSelection(
+            listOf("colA", middleDate, "P1M"),
+            table,
+            rcvr
+        )
+        assertThat(oneMonth.toArray()).containsExactly(1)
+
+        // Test with 1 Month and 1 Day
+        val oneMonthOneDay = filter.getSelection(
+            listOf("colA", middleDate, "P1M1D"),
+            table,
+            rcvr
+        )
+        assertThat(oneMonthOneDay.toArray()).containsExactly(1, 2)
+
+        // Test with now and a small offset
+        val nowSmall = filter.getSelection(
+            listOf("colA", "now", "-P1M"),
+            table,
+            rcvr
+        )
+        assertThat(nowSmall.isEmpty).isTrue()
+    }
+
     companion object {
         private fun Assert<Table>.hasRowCount(expected: Int) = given { actual ->
             if (actual.rowCount() == expected) return
