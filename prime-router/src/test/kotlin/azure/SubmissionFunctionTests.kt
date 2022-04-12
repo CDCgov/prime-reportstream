@@ -48,6 +48,7 @@ data class DetailSubmissionHistoryResponse(
     val sender: String?,
     val httpStatus: Int?,
     val externalName: String? = "",
+    val overallStatus: String,
 )
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -339,6 +340,7 @@ class SubmissionFunctionTests : Logging {
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
+        assertThat(responseBody.overallStatus).isEqualTo(returnBody.overallStatus.toString())
 
         // Good uuid, but not a 'receive' step report.
         action.actionName = TaskAction.process
