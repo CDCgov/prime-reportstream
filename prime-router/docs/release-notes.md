@@ -6,6 +6,55 @@
 - The ReportStream API is documented here: [Hub OpenApi Spec](./api)
 - More detailed changelog for individual releases: [Recent releases](https://github.com/CDCgov/prime-reportstream/releases)
 
+## April 12, 2022
+
+This release contains further enhancements to the json response to Report History GETs and report submission POSTs.
+
+The new fields are `overallStatus`, `plannedCompletionAt`, `actualCompletionAt`, and `itemCountBeforeQualityFiltering`
+
+### 1. overallStatus
+
+The new `overallStatus` field tells whether all the data in that submission have made their way to all the intended recipients. Values are:
+
+- `Error` - error on initial submission; not successfully received.
+- `Received` - submission successfully received but not yet processed (routing determination and filtering have not yet completed).
+- `Not Delivering` - submission has been processed, but has no intended recipients.  This may happen if the data did not meet the recipient's quality criteria. This is a final status.
+- `Waiting to Deliver` - submission has been processed, has intended recipients, but not yet delivered.
+- `Partially Delivered` -- submission has gone to some recipients, but not all.
+- `Delivered`- submission has gone to all intended recipients.  This is the final status.
+
+### 2. plannedCompletionAt and actualCompletionAt
+
+- `plannedCompletionAt` is the timestamp when ReportStream intends to finish sending all data to all intended recipients, based on their chosen timing.  Note: `plannedCompletionAt` will be null if there is no data to deliver, or has not been processed yet.
+
+- `actualCompletionAt` is the timestamp when ReportStream actually finished sending all data to all intended recipients.  Note: this value will be null if there is no delivery, or if not complete yet.
+
+The `actualCompletionAt` might be later than the `plannedCompletionAt` if there was a delivery delay.  For example, a down sftp site might prevent ReportStream from delivering.
+
+### 3.  itemCountBeforeQualityFiltering
+
+The Report History was already displaying `itemCount`, the number of items (aka Covid-19 Tests) that were being sent to each destination.   Now, the Report History also displays `itemCountBeforeQualityFiltering`, the number of items available to be sent to that destination, prior to quality filtering.   Quality filtering is a step that ReportStream takes to ensure that the submitted data meets the minimum standards of the STLT (State/Local/Tribal/Territorial) jurisdiction destined to receive that item.  Each STLT can set their own minimum standards for each data feed they get from ReportStream.
+
+For example, if Covid-19 data was submitted to ReportStream containing 7 patients with addresses in Maryland, but 4 of those patients were missing information required by the Maryland primary Covid-19 data feed, then that data feed would have
+
+```
+itemCount: 3
+itemCountBeforeQualityFiltering: 7
+```
+
+To find detailed information on _why_ items were filtered, look at the `filteredReportItems` section for that destination.
+
+Note: in this release the filteringReportItems field `originalCount` has been removed, because it is redundant with the new `itemCountBeforeQualityFiltering` field.
+
+### Examples
+
+Updated Examples including the new field can be found here:
+
+- [Example **asychronous** submission response](../examples/submission/example1-async-response.json). 
+- [Example of the **synchronous** submission response](../examples/submission/example2-sync-response.json)
+- [Example of a **complete History API response**, after data has flowed to the states](../examples/submission/example3-complete-response.json).
+
+
 ## March 29, 2022
 
 This release contains a much-enhanced **_Submission Response_** json, a new ***Submission History Details AP*I**,
