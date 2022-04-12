@@ -4,10 +4,12 @@ locals {
 }
 
 resource "azurerm_application_insights" "app_insights" {
-  name                = "${var.resource_prefix}-appinsights"
-  location            = var.location
-  resource_group_name = var.resource_group
-  application_type    = "web"
+  name                       = "${var.resource_prefix}-appinsights"
+  location                   = var.location
+  resource_group_name        = var.resource_group
+  application_type           = "web"
+  internet_ingestion_enabled = false
+  internet_query_enabled     = false
 
   tags = {
     environment = var.environment
