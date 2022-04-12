@@ -92,6 +92,7 @@ NTE|1|L|This is a final comment|RE"""
         suppressNonNPI: Boolean = false,
         truncateHDNamespaceIds: Boolean = false,
         stripInvalidCharsRegex: String? = null,
+        replaceUnicodeWithAscii: Boolean = false
     ): Hl7Configuration {
         return Hl7Configuration(
             messageProfileId = "",
@@ -106,7 +107,8 @@ NTE|1|L|This is a final comment|RE"""
             truncateHl7Fields = truncateHl7Fields,
             suppressNonNPI = suppressNonNPI,
             truncateHDNamespaceIds = truncateHDNamespaceIds,
-            stripInvalidCharsRegex = stripInvalidCharsRegex
+            stripInvalidCharsRegex = stripInvalidCharsRegex,
+            replaceUnicodeWithAscii = replaceUnicodeWithAscii
         )
     }
 
@@ -213,6 +215,28 @@ NTE|1|L|This is a final comment|RE"""
                 "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
             )
         ).isEqualTo("High Meadow")
+        assertThat(output).isNotNull()
+    }
+
+    @Test
+    fun `test write a message converting unicode to ASCII`() {
+        val inputStream = File("./src/test/unit_test_files/ca_test_file.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+        val hl7Config = createConfig(replaceUnicodeWithAscii = true)
+        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
+        val output = serializer.createMessage(testReport, 2)
+        println(output)
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(output, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
+        val terser = Terser(hapiMsg)
+        println("-------------MESSAGE-------------")
+        println(cleanedMessage)
         assertThat(output).isNotNull()
     }
 
