@@ -7,8 +7,8 @@ interface SortSettings {
     order: SortOrder;
 }
 interface Sort extends SortSettings {
-    set: SortSetter;
-    reset: () => void;
+    setSort: SortSetter;
+    resetSort: () => void;
 }
 
 const useSortOrder = (init?: Partial<SortSettings>): Sort => {
@@ -28,8 +28,8 @@ const useSortOrder = (init?: Partial<SortSettings>): Sort => {
     return {
         column,
         order,
-        set,
-        reset,
+        setSort: set,
+        resetSort: reset,
     };
 };
 

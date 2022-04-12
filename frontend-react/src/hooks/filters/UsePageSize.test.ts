@@ -9,7 +9,7 @@ describe("UsePageSize", () => {
     });
     test("setter updates size", () => {
         const { result } = renderHook(() => usePageSize());
-        act(() => result.current.set(25));
+        act(() => result.current.setCount(25));
         expect(result.current.count).toEqual(25);
     });
 });

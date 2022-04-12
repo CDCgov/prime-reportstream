@@ -50,9 +50,9 @@ export interface TableProps {
 
 const Table = ({ config, filterManager, cursorManager }: TableProps) => {
     const renderArrow = () => {
-        if (filterManager && filterManager.sort.order === "ASC") {
+        if (filterManager && filterManager.order === "ASC") {
             return <IconArrowUpward />;
-        } else if (filterManager && filterManager.sort.order === "DESC") {
+        } else if (filterManager && filterManager.order === "DESC") {
             return <IconArrowDownward />;
         }
     };
@@ -66,9 +66,9 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                             <th
                                 key={colConfig.columnHeader}
                                 onClick={() => {
-                                    filterManager.sort.set(
+                                    filterManager?.setSort(
                                         colConfig.dataAttr,
-                                        filterManager?.sort.order
+                                        filterManager?.order
                                     );
                                     cursorManager?.controller.reset();
                                     debugger;
@@ -138,10 +138,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
             <>
                 {config.rows.map((object, rowIndex) => {
                     // Caps page size when filterManager exists
-                    if (
-                        filterManager &&
-                        rowIndex >= filterManager?.pageSize.count
-                    )
+                    if (filterManager && rowIndex >= filterManager.count)
                         return null;
                     return (
                         <tr key={rowIndex}>

@@ -12,7 +12,7 @@ describe("UseSortOrder", () => {
     test("setting SortOrder", () => {
         const { result } = renderHook(() => useSortOrder());
 
-        act(() => result.current.set("test", "ASC"));
+        act(() => result.current.setSort("test", "ASC"));
 
         expect(result.current.column).toEqual("test");
         expect(result.current.order).toEqual("DESC");

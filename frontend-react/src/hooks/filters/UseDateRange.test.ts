@@ -30,7 +30,7 @@ describe("UseDateRange", () => {
     test("can set full range", () => {
         const { result } = renderHook(() => useDateRange());
         act(() =>
-            result.current.set({
+            result.current.setRange({
                 date1: "2022-12-31",
                 date2: "2022-01-01",
             })
@@ -45,7 +45,9 @@ describe("UseDateRange", () => {
 
     test("can set partial range (ASC)", () => {
         const { result } = renderHook(() => useDateRange());
-        act(() => result.current.set({ date1: "2022-12-31", sort: "ASC" }));
+        act(() =>
+            result.current.setRange({ date1: "2022-12-31", sort: "ASC" })
+        );
         expect(result.current.startRange.toISOString()).toEqual(
             "2998-01-01T00:00:00.000Z"
         );
@@ -56,7 +58,9 @@ describe("UseDateRange", () => {
 
     test("can set partial range (DESC)", () => {
         const { result } = renderHook(() => useDateRange());
-        act(() => result.current.set({ date1: "2022-12-31", sort: "DESC" }));
+        act(() =>
+            result.current.setRange({ date1: "2022-12-31", sort: "DESC" })
+        );
         expect(result.current.startRange.toISOString()).toEqual(
             "2022-12-31T00:00:00.000Z"
         );

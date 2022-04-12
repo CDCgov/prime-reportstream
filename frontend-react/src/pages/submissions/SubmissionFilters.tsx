@@ -46,7 +46,7 @@ function SubmissionFilters({
 
     const updateRange = () => {
         if (localStartRange && localEndRange) {
-            filterManager.range.set({
+            filterManager.setRange({
                 date1: localStartRange,
                 date2: localEndRange,
             });
@@ -54,17 +54,17 @@ function SubmissionFilters({
                 new Date(localStartRange).toISOString()
             );
         } else if (localStartRange && !localEndRange) {
-            filterManager.range.set({
+            filterManager.setRange({
                 date1: localStartRange,
-                sort: filterManager.sort.order,
+                sort: filterManager.order,
             });
             cursorManager.controller.reset(
                 new Date(localStartRange).toISOString()
             );
         } else if (!localStartRange && localEndRange) {
-            filterManager.range.set({
+            filterManager.setRange({
                 date1: localEndRange,
-                sort: filterManager.sort.order,
+                sort: filterManager.order,
             });
             cursorManager.controller.reset(
                 new Date(localEndRange).toISOString()
@@ -81,7 +81,7 @@ function SubmissionFilters({
     /* Clears manager and local state values */
     const clearAll = () => {
         // Clears manager state
-        filterManager.clearAll();
+        filterManager.resetAll();
         cursorManager.controller.reset();
 
         // Clear local state

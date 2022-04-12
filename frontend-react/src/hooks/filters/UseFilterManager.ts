@@ -2,32 +2,34 @@ import useDateRange, { DateRange } from "./UseDateRange";
 import useSortOrder, { Sort } from "./UseSortOrder";
 import usePageSize, { PageSize } from "./UsePageSize";
 
-export interface FilterState {
-    range: DateRange;
-    sort: Sort;
-    pageSize: PageSize;
-}
-
-export interface FilterManager extends FilterState {
-    clearAll: () => void;
+export interface FilterManager extends DateRange, Sort, PageSize {
+    resetAll: () => void;
 }
 
 const useFilterManager = (): FilterManager => {
-    const range = useDateRange();
-    const sort = useSortOrder();
-    const pageSize = usePageSize();
+    const { startRange, endRange, setRange, resetRange } = useDateRange();
+    const { order, column, setSort, resetSort } = useSortOrder();
+    const { count, setCount, resetCount } = usePageSize();
 
-    const clearAll = () => {
-        range.reset();
-        sort.reset();
-        pageSize.reset();
+    const resetAll = () => {
+        resetRange();
+        resetSort();
+        resetCount();
     };
 
     return {
-        range,
-        sort,
-        pageSize,
-        clearAll,
+        startRange,
+        endRange,
+        order,
+        column,
+        count,
+        setRange,
+        setSort,
+        setCount,
+        resetRange,
+        resetSort,
+        resetCount,
+        resetAll,
     };
 };
 

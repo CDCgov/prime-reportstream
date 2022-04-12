@@ -15,7 +15,7 @@ import SubmissionFilters from "./SubmissionFilters";
 function SubmissionTable() {
     const filterManager = useFilterManager();
     const cursorManager = useCursorManager(
-        filterManager.range.startRange.toISOString()
+        filterManager.startRange.toISOString()
     ); // First cursor set to StartRange on load
 
     /* Our API call! Updates when any of the given state variables update */
@@ -24,9 +24,9 @@ function SubmissionTable() {
         {
             organization: getStoredOrg(),
             cursor: cursorManager.values.cursor,
-            endCursor: filterManager.range.endRange.toISOString(),
-            pageSize: filterManager.pageSize.count + 1, // Pulls +1 to check for next page
-            sort: filterManager.sort.order,
+            endCursor: filterManager.endRange.toISOString(),
+            pageSize: filterManager.count + 1, // Pulls +1 to check for next page
+            sort: filterManager.order,
             showFailed: false, // No plans for this to be set to true
         }
     );
@@ -34,11 +34,11 @@ function SubmissionTable() {
     /* Effect to add next cursor whenever submissions returns a new array */
     useEffect(() => {
         const nextCursor =
-            submissions[filterManager.pageSize.count]?.timestamp || undefined;
+            submissions[filterManager.count]?.timestamp || undefined;
         if (nextCursor) {
             cursorManager.controller.addNextCursor(nextCursor);
         }
-    }, [submissions, filterManager.pageSize.count, cursorManager.controller]);
+    }, [submissions, filterManager.count, cursorManager.controller]);
 
     const transformDate = (s: string) => {
         return new Date(s).toLocaleString();

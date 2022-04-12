@@ -7,24 +7,18 @@ import { CursorManager } from "../../hooks/filters/UseCursorManager";
 import SubmissionFilters from "./SubmissionFilters";
 
 const fakeFilterManager: FilterManager = {
-    range: {
-        startRange: new Date("2022-01-01"),
-        endRange: new Date("2022-12-31"),
-        set: () => console.log("set"),
-        reset: () => console.log("reset"),
-    },
-    sort: {
-        column: "",
-        order: "DESC",
-        set: () => console.log("set"),
-        reset: () => console.log("reset"),
-    },
-    pageSize: {
-        count: 10,
-        set: () => console.log("set"),
-        reset: () => console.log("reset"),
-    },
-    clearAll: () => console.log("clearAll"),
+    startRange: new Date("2022-01-01"),
+    endRange: new Date("2022-12-31"),
+    column: "",
+    order: "DESC",
+    count: 10,
+    setRange: () => console.log("set"),
+    setSort: () => console.log("set"),
+    setCount: () => console.log("set"),
+    resetRange: () => console.log("reset"),
+    resetSort: () => console.log("reset"),
+    resetCount: () => console.log("reset"),
+    resetAll: () => console.log("clearAll"),
 };
 
 const fakeCursorManager: CursorManager = {

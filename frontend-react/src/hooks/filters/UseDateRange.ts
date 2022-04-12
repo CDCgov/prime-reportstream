@@ -15,8 +15,8 @@ interface SetRangeParams {
 interface DateRange {
     startRange: Date;
     endRange: Date;
-    set: DateRangeSetter;
-    reset: () => void;
+    setRange: DateRangeSetter;
+    resetRange: () => void;
 }
 
 const FALLBACK_START = new Date("2998-01-01");
@@ -56,8 +56,8 @@ const useDateRange = (init?: Partial<DateRange>): DateRange => {
     return {
         startRange,
         endRange,
-        set,
-        reset,
+        setRange: set,
+        resetRange: reset,
     };
 };
 
