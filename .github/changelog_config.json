@@ -90,7 +90,7 @@
     "tag_resolver": {
       "method": "sort",
       "filter": {
-        "pattern": "v-20(.+)",
+        "pattern": "v-(.+)",
         "flags": "gu"
       }
     },

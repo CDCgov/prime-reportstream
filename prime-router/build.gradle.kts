@@ -665,7 +665,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.12.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.3.8") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.4.1") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -679,7 +679,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.4.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.4.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.2") {
         exclude(group = "org.yaml", module = "snakeyaml")

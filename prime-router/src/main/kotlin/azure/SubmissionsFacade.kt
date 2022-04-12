@@ -108,6 +108,8 @@ class SubmissionsFacade(
             it.enrichWithDescendants(relatedSubmissions)
         }
 
+        submission?.enrichWithSummary()
+
         return submission
     }
 
