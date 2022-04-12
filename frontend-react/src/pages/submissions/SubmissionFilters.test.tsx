@@ -10,10 +10,8 @@ const fakeFilterManager: FilterManager = {
     range: {
         startRange: new Date("2022-01-01"),
         endRange: new Date("2022-12-31"),
-        controller: {
-            set: () => console.log("set"),
-            reset: () => console.log("reset"),
-        },
+        set: () => console.log("set"),
+        reset: () => console.log("reset"),
     },
     sort: {
         column: "",

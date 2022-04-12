@@ -16,7 +16,7 @@ describe("UseFilterManager", () => {
     test("FilterController functions update the state", () => {
         const { result } = renderHook(() => useFilterManager());
         act(() =>
-            result.current.range.controller.set({
+            result.current.range.set({
                 date1: "2999-01-01",
                 date2: "2020-01-01",
             })
@@ -28,7 +28,7 @@ describe("UseFilterManager", () => {
             "2999-01-01T00:00:00.000Z"
         );
 
-        act(() => result.current.sort.set("test"));
+        act(() => result.current.sort.set("test", "DESC"));
         expect(result.current.sort.column).toEqual("test");
         expect(result.current.sort.order).toEqual("ASC");
 

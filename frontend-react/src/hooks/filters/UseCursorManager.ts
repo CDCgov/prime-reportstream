@@ -45,10 +45,13 @@ const useCursorManager = (firstCursor?: string) => {
 
     /* Checks for next and previous values in map from currentIndex OR from
      * passed-in index. */
-    const checkNextPrev = (i?: number) => {
-        setHasNext(cursors.get((i || currentIndex) + 1) !== undefined);
-        setHasPrev(cursors.get((i || currentIndex) - 1) !== undefined);
-    };
+    const checkNextPrev = useCallback(
+        (i?: number) => {
+            setHasNext(cursors.get((i || currentIndex) + 1) !== undefined);
+            setHasPrev(cursors.get((i || currentIndex) - 1) !== undefined);
+        },
+        [currentIndex, cursors]
+    );
 
     /* Private method for handling cursor addition since we may not always
      * want to just append a cursor. Checks for duplicates and won't add

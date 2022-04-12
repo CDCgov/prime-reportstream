@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 type SortOrder = "ASC" | "DESC";
-type SortSetter = (column: string) => void;
+type SortSetter = (column: string, currentOrder: SortOrder) => void;
 interface SortSettings {
     column: string;
     order: SortOrder;
@@ -15,15 +15,15 @@ const useSortOrder = (init?: Partial<SortSettings>): Sort => {
     const [column, setColumn] = useState(init?.column || "");
     const [order, setOrder] = useState<SortOrder>(init?.order || "DESC");
 
-    const set = (column: string) => {
+    const set = useCallback((column: string, currentOrder: SortOrder) => {
         setColumn(column);
-        order === "ASC" ? setOrder("DESC") : setOrder("ASC");
-    };
+        currentOrder === "ASC" ? setOrder("DESC") : setOrder("ASC");
+    }, []);
 
-    const reset = () => {
+    const reset = useCallback(() => {
         setColumn(init?.column || "");
         setOrder(init?.order || "DESC");
-    };
+    }, [init]);
 
     return {
         column,

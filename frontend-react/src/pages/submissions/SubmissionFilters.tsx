@@ -46,7 +46,7 @@ function SubmissionFilters({
 
     const updateRange = () => {
         if (localStartRange && localEndRange) {
-            filterManager.range.controller.set({
+            filterManager.range.set({
                 date1: localStartRange,
                 date2: localEndRange,
             });
@@ -54,7 +54,7 @@ function SubmissionFilters({
                 new Date(localStartRange).toISOString()
             );
         } else if (localStartRange && !localEndRange) {
-            filterManager.range.controller.set({
+            filterManager.range.set({
                 date1: localStartRange,
                 sort: filterManager.sort.order,
             });
@@ -62,7 +62,7 @@ function SubmissionFilters({
                 new Date(localStartRange).toISOString()
             );
         } else if (!localStartRange && localEndRange) {
-            filterManager.range.controller.set({
+            filterManager.range.set({
                 date1: localEndRange,
                 sort: filterManager.sort.order,
             });

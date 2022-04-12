@@ -66,8 +66,12 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                             <th
                                 key={colConfig.columnHeader}
                                 onClick={() => {
-                                    filterManager.sort.set(colConfig.dataAttr);
-                                    // cursorManager?.controller.reset();
+                                    filterManager.sort.set(
+                                        colConfig.dataAttr,
+                                        filterManager?.sort.order
+                                    );
+                                    cursorManager?.controller.reset();
+                                    debugger;
                                 }}
                             >
                                 {colConfig.columnHeader}

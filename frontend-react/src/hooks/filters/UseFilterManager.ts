@@ -18,7 +18,7 @@ const useFilterManager = (): FilterManager => {
     const pageSize = usePageSize();
 
     const clearAll = () => {
-        range.controller.reset();
+        range.reset();
         sort.reset();
         pageSize.reset();
     };
