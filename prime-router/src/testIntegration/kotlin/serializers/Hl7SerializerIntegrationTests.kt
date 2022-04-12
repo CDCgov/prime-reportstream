@@ -225,7 +225,7 @@ NTE|1|L|This is a final comment|RE"""
         val hl7Config = createConfig(replaceUnicodeWithAscii = true)
         val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
-        val output = serializer.createMessage(testReport, 2)
+        val output = serializer.createMessage(testReport, 3)
         println(output)
         val mcf = CanonicalModelClassFactory("2.5.1")
         context.modelClassFactory = mcf
@@ -237,7 +237,21 @@ NTE|1|L|This is a final comment|RE"""
         val terser = Terser(hapiMsg)
         println("-------------MESSAGE-------------")
         println(cleanedMessage)
+        // assert
         assertThat(output).isNotNull()
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
+            )
+        ).isEqualTo("Any lab USA") // Ãny lab USA
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-11-4")).isEqualTo("CA") // ÇA
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-11-6")).isEqualTo("USA") // ÙSA
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-5-4")).isEqualTo("III") // ÎÎÎ
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE-3"
+            )
+        ).isEqualTo("OOO-AAAAAA-EEEE-I-U-CCC") // ÔÔÔ-ÀÁÂÃÄÅ-ÈÉÊË-Î-Ù-ÇÇÇ
     }
 
     @Test
