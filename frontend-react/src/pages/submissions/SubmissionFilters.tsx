@@ -1,15 +1,26 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Button, DatePicker, Label } from "@trussworks/react-uswds";
 
 import "./SubmissionPages.css";
-import {
-    FilterName,
-    SubmissionFilterContext,
-} from "../../contexts/FilterContext";
+import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { CursorManager } from "../../hooks/filters/UseCursorManager";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
     DATE_CONTAINER = "date-picker-container",
+}
+
+export enum FilterName {
+    START_RANGE = "start-range",
+    END_RANGE = "end-range",
+    CURSOR = "cursor",
+    SORT_ORDER = "sort-order",
+    PAGE_SIZE = "page-size",
+}
+
+interface SubmissionFilterProps {
+    filterManager: FilterManager;
+    cursorManager: CursorManager;
 }
 
 /* This component contains the UI for selecting query parameters.
@@ -18,58 +29,64 @@ export enum StyleClass {
  * table component contains the call and param passing to the API,
  * and will use the context to get these values.
  */
-function SubmissionFilters() {
-    const { updateFilter, clear, paginator } = useContext(
-        SubmissionFilterContext
-    );
+function SubmissionFilters({
+    filterManager,
+    cursorManager,
+}: SubmissionFilterProps) {
+    const FALLBACK_LOCAL_START = "2999-12-31";
+    const FALLBACK_LOCAL_END = "2020-01-01";
 
     /* Local state to hold values before pushing to context. Pushing to context
      * will trigger a re-render due to the API call fetching new data. We have local
      * state to hold these so updates don't render immediately after setting a filter */
-    const [localStartRange, setLocalLocalStartRange] = useState<string>();
-    const [localEndRange, setLocalEndRange] = useState<string>();
+    const [localStartRange, setLocalStartRange] =
+        useState<string>(FALLBACK_LOCAL_START);
+    const [localEndRange, setLocalEndRange] =
+        useState<string>(FALLBACK_LOCAL_END);
 
-    /* This workhorse function handles all Context changes with null checking */
-    const pushToContext = () => {
+    const updateRange = () => {
         if (localStartRange && localEndRange) {
-            const srDate = new Date(localStartRange);
-            const erDate = new Date(localEndRange);
-
-            if (srDate < erDate) {
-                updateFilter(FilterName.START_RANGE, erDate.toISOString());
-                updateFilter(FilterName.END_RANGE, srDate.toISOString());
-            } else {
-                updateFilter(FilterName.START_RANGE, srDate.toISOString());
-                updateFilter(FilterName.END_RANGE, erDate.toISOString());
-            }
-        } else if (localStartRange && !localEndRange) {
-            updateFilter(
-                FilterName.START_RANGE,
+            filterManager.range.set({
+                date1: localStartRange,
+                date2: localEndRange,
+            });
+            cursorManager.controller.reset(
                 new Date(localStartRange).toISOString()
             );
-        } else if (localEndRange && !localStartRange) {
-            updateFilter(
-                FilterName.START_RANGE,
+        } else if (localStartRange && !localEndRange) {
+            filterManager.range.set({
+                date1: localStartRange,
+                sort: filterManager.sort.order,
+            });
+            cursorManager.controller.reset(
+                new Date(localStartRange).toISOString()
+            );
+        } else if (!localStartRange && localEndRange) {
+            filterManager.range.set({
+                date1: localEndRange,
+                sort: filterManager.sort.order,
+            });
+            cursorManager.controller.reset(
                 new Date(localEndRange).toISOString()
             );
         }
     };
 
     /* Pushes local state to context and resets cursor to page 1 */
-    const applyToContext = () => {
-        pushToContext();
-        if (paginator?.resetCursors) paginator.resetCursors();
-        if (paginator?.changeCursor) paginator.changeCursor(1);
+    const applyToFilterManager = () => {
+        updateRange();
+        // Future functions to update filters here
     };
 
-    /* Clears context and local state values */
+    /* Clears manager and local state values */
     const clearAll = () => {
-        // Clear context
-        if (clear) clear();
+        // Clears manager state
+        filterManager.clearAll();
+        cursorManager.controller.reset();
 
         // Clear local state
-        setLocalLocalStartRange("");
-        setLocalEndRange("");
+        setLocalStartRange(FALLBACK_LOCAL_START);
+        setLocalEndRange(FALLBACK_LOCAL_END);
     };
 
     return (
@@ -85,7 +102,11 @@ function SubmissionFilters() {
                     name="start-date-picker"
                     placeholder="Start Date"
                     value={localStartRange}
-                    onChange={(val) => setLocalLocalStartRange(val)}
+                    onChange={(val) =>
+                        val
+                            ? setLocalStartRange(val)
+                            : console.log("StartRange is undefined")
+                    }
                 />
             </div>
             <div className={StyleClass.DATE_CONTAINER}>
@@ -99,11 +120,15 @@ function SubmissionFilters() {
                     name="end-date-picker"
                     placeholder="End Date"
                     value={localEndRange}
-                    onChange={(val) => setLocalEndRange(val)}
+                    onChange={(val) =>
+                        val
+                            ? setLocalEndRange(val)
+                            : console.log("EndRange is undefined")
+                    }
                 />
             </div>
             <div className={StyleClass.DATE_CONTAINER}>
-                <Button onClick={() => applyToContext()} type={"button"}>
+                <Button onClick={() => applyToFilterManager()} type={"button"}>
                     Filter
                 </Button>
             </div>
