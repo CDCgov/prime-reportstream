@@ -425,7 +425,6 @@ class Hl7Serializer(
         val message = buildMessage(report, row, processingId)
         hapiContext.modelClassFactory = modelClassFactory
         if (hl7Config?.replaceUnicodeWithAscii == true) {
-            println("**************************************************** PARSING MESSAGE!!**************************")
             return unicodeToAscii(hapiContext.pipeParser.encode(message))
         }
         return hapiContext.pipeParser.encode(message)
