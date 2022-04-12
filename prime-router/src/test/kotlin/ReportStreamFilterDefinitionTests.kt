@@ -604,16 +604,20 @@ class ReportStreamFilterDefinitionTests {
     @Test
     fun `Test InDateInterval Filter on invalid date values`() {
         // Setup random data
-        val lowerDate = "2333-9090-90-90"
-        val middleDate = "asdfadfsasfd"
-        val upperDate = "2234390-0-90-0"
+        val lowerDate = "20210703"
+        val middleDate = "20210803"
+        val upperDate = "20210903"
+        val lowerBadDate = "2333-9090-90-90"
+        val middleBadDate = "asdfadfsasfd"
+        val upperBadDate = "2234390-0-90-0"
 
         val filter = InDateInterval()
         val table = Table.create(
             StringColumn.create("colA", listOf(lowerDate, middleDate, upperDate, "")),
+            StringColumn.create("colBad", listOf(lowerBadDate, middleBadDate, upperBadDate, "")),
         )
 
-        // Test with 1 Month
+        // Test with 1 Month and good data
         val oneMonth = filter.getSelection(
             listOf("colA", middleDate, "P1M"),
             table,
@@ -621,21 +625,30 @@ class ReportStreamFilterDefinitionTests {
         )
         assertThat(oneMonth.toArray()).containsExactly(1)
 
-        // Test with 1 Month and 1 Day
-        val oneMonthOneDay = filter.getSelection(
-            listOf("colA", middleDate, "P1M1D"),
+        // Test with 1 Month and bad data
+        val oneBadMonth = filter.getSelection(
+            listOf("colBad", middleDate, "P1M"),
             table,
             rcvr
         )
-        assertThat(oneMonthOneDay.toArray()).containsExactly(1, 2)
+        assertThat(oneBadMonth.toArray()).isEmpty()
 
-        // Test with now and a small offset
-        val nowSmall = filter.getSelection(
-            listOf("colA", "now", "-P1M"),
+        // Test with bad argument and bad data
+        assertThat {
+            filter.getSelection(
+                listOf("colBad", middleBadDate, "P1M"),
+                table,
+                rcvr
+            )
+        }.isFailure()
+
+        // Test with bad data and negative argument
+        val nowLarge = filter.getSelection(
+            listOf("colBad", "now", "-P10000Y"),
             table,
             rcvr
         )
-        assertThat(nowSmall.isEmpty).isTrue()
+        assertThat(nowLarge.isEmpty).isTrue()
     }
 
     companion object {

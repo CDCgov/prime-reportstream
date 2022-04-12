@@ -6,6 +6,7 @@ import tech.tablesaw.selection.Selection
 import java.time.DateTimeException
 import java.time.OffsetDateTime
 import java.time.Period
+import java.time.format.DateTimeParseException
 
 /**
  * This is a library or toolkit of useful filter definitions.  Filters remove "rows" of data.
@@ -428,7 +429,11 @@ class InDateInterval : ReportStreamFilterDefinition {
         val intervalDate = if (args[1].contentEquals("now", ignoreCase = true)) {
             OffsetDateTime.now()!!
         } else {
-            Element.getDateTime(args[1], format = null)
+            try {
+                Element.getDateTime(args[1], format = null)
+            } catch (ex: DateTimeParseException) {
+                error("Invalid date value in date arg: ${ex.message}")
+            }
         }
         val intervalPeriod = Period.parse(args[2])
         val intervalStart = if (intervalPeriod.isNegative) intervalDate.plus(intervalPeriod) else intervalDate
