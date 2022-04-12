@@ -9,8 +9,8 @@ describe("Home rendering", () => {
         render(<Home />);
     });
 
-    test("Container renders", async () => {
-        expect(await screen.getByTestId("container")).toBeInTheDocument();
+    test("Container renders", () => {
+        expect(screen.getByTestId("container")).toBeInTheDocument();
     });
 
     test("Renders correct number of elements", async () => {
