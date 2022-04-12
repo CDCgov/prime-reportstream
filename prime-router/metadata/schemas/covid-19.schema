@@ -896,7 +896,7 @@ elements:
     hhsGuidanceField: Residence type
     hl7Field: AOE
     hl7AOEQuestion: 75617-1
-    documentation: Residence Type?
+    documentation: Congregate Setting Residence Type?
 
   - name: result_format
     type: TEXT
@@ -917,7 +917,7 @@ elements:
   - name: site_of_care
     type: TEXT
     natFlatFileField: Site_of_care
-    documentation: The type of facility providing care (Hospital, Nursing Home, etc.).
+    documentation: The type of facility providing care (Hospital, Nursing Home, etc.).  This is a CUSTOM internal field. DO NOT use this for the COVID AOE residence_type.
 
   - name: specimen_collection_date_time
     type: DATETIME

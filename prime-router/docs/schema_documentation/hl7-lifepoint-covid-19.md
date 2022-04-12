@@ -3690,7 +3690,7 @@ Code | Display | System
 
 **Documentation**:
 
-Residence Type?
+Congregate Setting Residence Type?
 
 ---
 
@@ -3783,7 +3783,7 @@ The name and OID for the application sending information to the receivers
 
 **Documentation**:
 
-The type of facility providing care (Hospital, Nursing Home, etc.).
+The type of facility providing care (Hospital, Nursing Home, etc.).  This is a CUSTOM internal field. DO NOT use this for the COVID AOE residence_type.
 
 ---
 
