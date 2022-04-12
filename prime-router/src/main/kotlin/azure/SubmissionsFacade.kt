@@ -44,7 +44,7 @@ class SubmissionsFacade(
         showFailed: Boolean
     ): String {
         val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize, showFailed)
-        return mapper.writeValueAsString(result)
+        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(result)
     }
 
     /**
@@ -107,6 +107,8 @@ class SubmissionsFacade(
             )
             it.enrichWithDescendants(relatedSubmissions)
         }
+
+        submission?.enrichWithSummary()
 
         return submission
     }
