@@ -64,7 +64,7 @@ class SettingsFacade(
         try {
             val pair = Receiver.parseFullName(fullName)
             return findSetting(pair.second, ReceiverAPI::class.java, pair.first)
-        } catch (e: Exception) {
+        } catch (e: RuntimeException) {
             logger.warn("Cannot find receiver: ${e.localizedMessage} ${e.stackTraceToString()}")
             return null
         }
@@ -74,7 +74,7 @@ class SettingsFacade(
         try {
             val pair = Sender.parseFullName(fullName)
             return findSetting(pair.second, SenderAPI::class.java, pair.first)
-        } catch (e: Exception) {
+        } catch (e: RuntimeException) {
             logger.warn("Cannot find sender: ${e.localizedMessage} ${e.stackTraceToString()}")
             return null
         }
