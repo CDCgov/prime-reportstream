@@ -140,28 +140,6 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * Returns true if there is already a record in the report_file table that matches the passed in [senderName],
-     * [senderOrgName], and [digest]
-     */
-    fun isDuplicateReportFile(
-        senderName: String,
-        senderOrgName: String,
-        digest: ByteArray,
-        txn: DataAccessTransaction? = null
-    ): Boolean {
-        val ctx = if (txn != null) DSL.using(txn) else create
-        val weekAgo = OffsetDateTime.now().minusDays(7)
-        return ctx
-            .fetchExists(
-                ctx.selectFrom(REPORT_FILE)
-                    .where(REPORT_FILE.SENDING_ORG.eq(senderOrgName))
-                    .and(REPORT_FILE.SENDING_ORG_CLIENT.eq(senderName))
-                    .and(REPORT_FILE.BLOB_DIGEST.eq(digest))
-                    .and(REPORT_FILE.CREATED_AT.greaterOrEqual(weekAgo))
-            )
-    }
-
-    /**
      * Returns true if there is already a record from the last 7 days
      * in the item_lineage table that matches the passed in [itemHash]
      * @return true if item is duplicate

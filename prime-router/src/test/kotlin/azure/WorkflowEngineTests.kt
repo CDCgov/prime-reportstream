@@ -160,29 +160,6 @@ class WorkflowEngineTests {
         confirmVerified(accessSpy, blobMock, queueMock) // todo
     }
 
-    /* Test duplicate detection error return message */
-    @Test
-    fun `test verifyIsDuplicateFile`() {
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings()
-        val sender = Sender("senderName", "org", Sender.Format.CSV, "covid-19", CustomerStatus.INACTIVE, one.name)
-
-        every {
-            accessSpy.isDuplicateReportFile(any(), any(), any())
-        }.returns(true)
-
-        val digest = "fakeDigest".toByteArray()
-        val engine = makeEngine(metadata, settings)
-
-        val isDupe = engine.isDuplicateFile(sender, digest)
-
-        assertThat { isDupe }
-        verify(exactly = 1) {
-            accessSpy.isDuplicateReportFile(any(), any(), any())
-        }
-    }
-
     @Test
     fun `test receiveReport`() {
         mockkObject(BlobAccess.Companion)

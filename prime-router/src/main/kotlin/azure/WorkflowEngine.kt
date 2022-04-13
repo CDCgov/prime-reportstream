@@ -155,17 +155,6 @@ class WorkflowEngine(
     }
 
     /**
-     * Checks if the [sender] has already sent this report by comparing the [digest] against existing records for
-     * this sender in the report_file table. Return true if a duplicate is found
-     */
-    fun isDuplicateFile(
-        sender: Sender,
-        digest: ByteArray
-    ): Boolean {
-        return db.isDuplicateReportFile(sender.name, sender.organizationName, digest)
-    }
-
-    /**
      * Returns true if the [itemHash] passed in is already present in the database
      */
     fun isDuplicateItem(itemHash: String): Boolean {

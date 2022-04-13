@@ -877,7 +877,6 @@ class Report : Logging {
             rawStr += row.getString(colNum)
         }
 
-        // combine collectionTime and digest for lower chance of collision
         val digest = MessageDigest
             .getInstance("SHA-256")
             .digest(rawStr.toByteArray())

@@ -467,8 +467,8 @@ class ConsolidatedActionLog(log: DetailActionLog) {
         scope = log.scope
         type = log.type
         message = log.detail.message
-        if (log.detail is ItemActionLogDetail) {
-            field = log.detail.fieldMapping
+        if (log.detail.scope == ActionLogScope.item) {
+            field = if (log.detail is ItemActionLogDetail) log.detail.fieldMapping else null
             indices = mutableListOf()
             trackingIds = mutableListOf()
         } else {

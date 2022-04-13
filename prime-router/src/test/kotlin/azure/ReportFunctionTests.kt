@@ -9,7 +9,6 @@ import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -297,7 +296,7 @@ class ReportFunctionTests {
             actionLogs,
             "Duplicate file",
             null,
-            false
+            null
         )
 
         // assert
@@ -321,9 +320,9 @@ class ReportFunctionTests {
         // act
         reportFunc.addDuplicateLogs(
             actionLogs,
-            "Duplicate file",
+            "Duplicate submission",
             null,
-            true
+            null
         )
 
         // assert
@@ -350,7 +349,7 @@ class ReportFunctionTests {
             actionLogs,
             "Duplicate item",
             1,
-            false
+            null
         )
 
         // assert
@@ -457,99 +456,6 @@ class ReportFunctionTests {
     }
 
     /** processFunction tests **/
-    // duplicate file can run more than once
-    @Test
-    fun `test processFunction duplicate when allowed (entire file)`() {
-        // setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-        val sender = Sender(
-            "Test Sender",
-            "test",
-            Sender.Format.CSV,
-            "test",
-            schemaName =
-            "one",
-            allowDuplicates = true
-        )
-
-        val req = MockHttpRequestMessage("test")
-        req.parameters += mapOf("option" to Options.ValidatePayload.toString())
-
-        every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
-        every { actionHistory.action.actionId } returns 1
-        every { actionHistory.action.sendingOrg } returns "Test Sender"
-
-        // act
-        every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns false
-        reportFunc.processRequest(req, sender)
-        every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns true
-        reportFunc.processRequest(req, sender)
-
-        // assert
-        verify(exactly = 0) { engine.isDuplicateFile(any(), any()) }
-        verify(exactly = 2) { actionHistory.trackActionSenderInfo(any(), any()) }
-    }
-
-    // test duplicate override = true
-    @Test
-    fun `test processFunction duplicate override false to true`() {
-        // setup
-        every { timing1.isValid() } returns true
-        every { timing1.numberPerDay } returns 1
-        every { timing1.maxReportCount } returns 1
-        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
-
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-        val sender = Sender(
-            "Test Sender",
-            "test",
-            Sender.Format.CSV,
-            "test",
-            schemaName =
-            "one",
-            allowDuplicates = false
-        )
-
-        val req = MockHttpRequestMessage("test")
-        req.parameters += mapOf(
-            "allowDuplicate" to "true"
-        )
-
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.CSV, "test", ByteArray(0))
-
-        every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
-        every { actionHistory.insertAll(any()) } returns Unit
-        every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
-        every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
-        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
-        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
-        every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { engine.handleProcessEvent(any(), any()) } returns Unit
-        every { actionHistory.action.actionId } returns 1
-        every { actionHistory.action.sendingOrg } returns "Test Sender"
-
-        // act
-        reportFunc.processRequest(req, sender)
-        reportFunc.processRequest(req, sender)
-
-        // assert
-        verify(exactly = 0) { engine.isDuplicateFile(any(), any()) }
-    }
 
     // test duplicate override = false
     @Test
@@ -588,7 +494,6 @@ class ReportFunctionTests {
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { accessSpy.isDuplicateReportFile(any(), any(), any(), any()) } returns true
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
 
