@@ -258,6 +258,96 @@
     - code: 261665006
       display: 261665006
 
+- name: sender-automation/residence_type
+  reference: Multiple values are mapped to the HHS guidence for SNOMED-CT
+  system: SNOMED_CT
+  referenceUrl: https://loinc.org/75617-1/
+  values:
+    - code: 22232009
+      display: Hospital
+    - code: 22232009
+      display: 22232009
+    - code: 2081004
+      display: Hospital Ship
+    - code: 2081004
+      display: 2081004
+    - code: 32074000
+      display: Long Term Care Hospital
+    - code: 32074000
+      display: 32074000
+    - code: 224929004
+      display: Secure Hospital
+    - code: 224929004
+      display: 224929004
+    - code: 42665001
+      display: Nursing Home
+    - code: 42665001
+      display: 42665001
+    - code: 30629002
+      display: Retirement Home
+    - code: 30629002
+      display: 30629002
+    - code: 74056004
+      display: Orphanage
+    - code: 74056004
+      display: 74056004
+    - code: 722173008
+      display: Prison-based Care Site
+    - code: 722173008
+      display: Prison Based Care Site
+    - code: 722173008
+      display: 722173008
+    - code: 20078004
+      display: Substance Abuse Treatment Center
+    - code: 20078004
+      display: 20078004
+    - code: 257573002
+      display: Boarding House
+    - code: 257573002
+      display: 257573002
+    - code: 224683003
+      display: Military Accommodation
+    - code: 224683003
+      display: 224683003
+    - code: 284546000
+      display: Hospice
+    - code: 284546000
+      display: 284546000
+    - code: 257628001
+      display: Hostel
+    - code: 257628001
+      display: 257628001
+    - code: 310207003
+      display: Sheltered Housing
+    - code: 310207003
+      display: 310207003
+    - code: 57656006
+      display: Penal Institution
+    - code: 57656006
+      display: Prison
+    - code: 57656006
+      display: Correctional Facility
+    - code: 57656006
+      display: Jail
+    - code: 57656006
+      display: County Jail
+    - code: 57656006
+      display: City Jail
+    - code: 57656006
+      display: 57656006
+    - code: 285113009
+      display: Religious Institutional Residence
+    - code: 285113009
+      display: 285113009
+    - code: 285141008
+      display: Work (environment)
+    - code: 285141008
+      display: Work
+    - code: 285141008
+      display: 285141008
+    - code: 32911000
+      display: Homeless
+
 - name: sender-automation/test_result
   reference: This maps multiple values to the ReportStream internal codes which are SNOMED-CT codes
   system: SNOMED_CT
