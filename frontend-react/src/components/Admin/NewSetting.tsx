@@ -8,7 +8,7 @@ import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
 import Spinner from "../Spinner";
-import { getErrorDetail } from "../../utils/misc";
+import { getErrorDetailFromResponse } from "../../utils/misc";
 
 import { TextInputComponent, TextAreaComponent } from "./AdminFormEdit";
 
@@ -53,7 +53,7 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
                 );
                 history.goBack();
             } catch (e: any) {
-                let errorDetail = await getErrorDetail(e);
+                let errorDetail = await getErrorDetailFromResponse(e);
                 console.trace(e, errorDetail);
                 showError(
                     `Updating setting '${orgSettingName}' failed with: ${errorDetail}`

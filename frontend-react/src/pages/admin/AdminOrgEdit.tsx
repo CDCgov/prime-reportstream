@@ -28,7 +28,7 @@ import {
     ConfirmSaveSettingModalRef,
 } from "../../components/Admin/CompareJsonModal";
 import { DisplayMeta } from "../../components/Admin/DisplayMeta";
-import { getErrorDetail } from "../../utils/misc";
+import { getErrorDetailFromResponse } from "../../utils/misc";
 
 type AdminOrgEditProps = {
     orgname: string;
@@ -78,7 +78,7 @@ export function AdminOrgEdit({
             setLoading(false);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetail(e);
+            let errorDetail = await getErrorDetailFromResponse(e);
             console.trace(e, errorDetail);
             showError(`Reloading org '${orgname}' failed with: ${errorDetail}`);
             return false;
@@ -102,7 +102,7 @@ export function AdminOrgEdit({
             showAlertNotification("success", `Saved '${orgname}' setting.`);
         } catch (e: any) {
             setLoading(false);
-            let errorDetail = await getErrorDetail(e);
+            let errorDetail = await getErrorDetailFromResponse(e);
             console.trace(e, errorDetail);
             showError(
                 `Updating receiver '${orgname}' failed with: ${errorDetail}`

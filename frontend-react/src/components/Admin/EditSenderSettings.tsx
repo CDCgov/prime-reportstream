@@ -12,7 +12,7 @@ import {
 } from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import Spinner from "../Spinner";
-import { getErrorDetail } from "../../utils/misc";
+import { getErrorDetailFromResponse } from "../../utils/misc";
 
 import { TextAreaComponent, TextInputComponent } from "./AdminFormEdit";
 import {
@@ -73,7 +73,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                 setLoading(false);
             } catch (e: any) {
                 setLoading(false);
-                let errorDetail = await getErrorDetail(e);
+                let errorDetail = await getErrorDetailFromResponse(e);
                 console.trace(e, errorDetail);
                 showError(
                     `Reloading sender '${sendername}' failed with: ${errorDetail}`
@@ -117,7 +117,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                 history.goBack();
             } catch (e: any) {
                 setLoading(false);
-                let errorDetail = await getErrorDetail(e);
+                let errorDetail = await getErrorDetailFromResponse(e);
                 console.trace(e, errorDetail);
                 showError(
                     `Updating receiver '${sendername}' failed with: ${errorDetail}`
