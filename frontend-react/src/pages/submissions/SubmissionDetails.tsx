@@ -15,7 +15,6 @@ import { ErrorPage } from "../error/ErrorPage";
 type DetailItemProps = {
     item: string;
     content: any;
-    subItem?: boolean;
 };
 
 type DestinationItemProps = {
@@ -33,7 +32,7 @@ type SubmissionDetailsProps = {
     @param item - the title of a property; e.g. Report ID
     @param content - the content of a property; e.g. 000000-0000-0000-000000
 */
-export function DetailItem({ item, content, subItem }: DetailItemProps) {
+export function DetailItem({ item, content }: DetailItemProps) {
     return (
         <div className="display-flex flex-column margin-bottom-4">
             <span className="text-base">{item}</span>
@@ -66,7 +65,6 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
                             : "Parsing error"
                         : "Not transmitting - all data filtered"
                 }
-                subItem
             />
             <DetailItem
                 item={"Transmission Time"}
@@ -77,13 +75,8 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
                             : "Parsing error"
                         : "Not transmitting - all data filtered"
                 }
-                subItem
             />
-            <DetailItem
-                item={"Records"}
-                content={destinationObj.itemCount}
-                subItem
-            />
+            <DetailItem item={"Records"} content={destinationObj.itemCount} />
         </div>
     );
 }
