@@ -76,8 +76,12 @@ export function AdminOrgEdit({
 
             confirmModalRef?.current?.showModal();
             setLoading(false);
-        } catch (e) {
-            console.error(e);
+        } catch (e: any) {
+            setLoading(false);
+            let errorDetail = await getErrorDetail(e);
+            console.trace(e, errorDetail);
+            showError(`Reloading org '${orgname}' failed with: ${errorDetail}`);
+            return false;
         }
     };
 
@@ -97,8 +101,12 @@ export function AdminOrgEdit({
             confirmModalRef?.current?.hideModal();
             showAlertNotification("success", `Saved '${orgname}' setting.`);
         } catch (e: any) {
+            setLoading(false);
             let errorDetail = await getErrorDetail(e);
-            showError(`Updating org '${orgname}' failed with: ${errorDetail}`);
+            console.trace(e, errorDetail);
+            showError(
+                `Updating receiver '${orgname}' failed with: ${errorDetail}`
+            );
             return false;
         }
 

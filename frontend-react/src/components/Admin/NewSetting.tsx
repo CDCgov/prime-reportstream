@@ -8,18 +8,19 @@ import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
 import Spinner from "../Spinner";
+import { getErrorDetail } from "../../utils/misc";
 
 import { TextInputComponent, TextAreaComponent } from "./AdminFormEdit";
 
 type Props = {
     orgname: string;
-    settingtype: string;
+    settingtype: "sender" | "receiver";
 };
 
 export function NewSetting({ match }: RouteComponentProps<Props>) {
     const history = useHistory();
     const orgname = match?.params?.orgname || "";
-    const settingtype = match?.params?.settingtype || "";
+    const settingtype = match?.params?.settingtype;
 
     const FormComponent = () => {
         let orgSetting: object = [];
@@ -27,54 +28,38 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
 
         const { fetch: fetchController } = useController();
         const saveData = async () => {
-            const data = orgSetting;
-            switch (settingtype) {
-                case "sender":
-                    try {
-                        await fetchController(
-                            OrgSenderSettingsResource.update(),
-                            { orgname, sendername: orgSettingName },
-                            data
-                        );
-                        showAlertNotification(
-                            "success",
-                            `Item '${orgSettingName}' has been created`
-                        );
-                        history.goBack();
-                    } catch (e: any) {
-                        console.trace(e);
+            try {
+                const data = orgSetting;
+                const SETTINGTYPE = {
+                    sender: {
+                        updateFn: OrgSenderSettingsResource.update(),
+                        args: { orgname, sendername: orgSettingName },
+                    },
+                    receiver: {
+                        updateFn: OrgReceiverSettingsResource.update(),
+                        args: { orgname, receivername: orgSettingName },
+                    },
+                };
 
-                        showError(
-                            `Creating item '${orgSettingName}' failed. ${e.toString()}`
-                        );
-                        return false;
-                    }
-                    break;
-                case "receiver":
-                    try {
-                        await fetchController(
-                            OrgReceiverSettingsResource.update(),
-                            { orgname, receivername: orgSettingName },
-                            data
-                        );
-                        showAlertNotification(
-                            "success",
-                            `Item '${orgSettingName}' has been created`
-                        );
-                        history.goBack();
-                    } catch (e: any) {
-                        console.trace(e);
+                await fetchController(
+                    SETTINGTYPE[settingtype].updateFn,
+                    SETTINGTYPE[settingtype].args,
+                    data
+                );
 
-                        showError(
-                            `Creating item '${orgSettingName}' failed. ${e.toString()}`
-                        );
-                        return false;
-                    }
-                    break;
-                default:
-                    return false;
+                showAlertNotification(
+                    "success",
+                    `Item '${orgSettingName}' has been created`
+                );
+                history.goBack();
+            } catch (e: any) {
+                let errorDetail = await getErrorDetail(e);
+                console.trace(e, errorDetail);
+                showError(
+                    `Updating setting '${orgSettingName}' failed with: ${errorDetail}`
+                );
+                return false;
             }
-
             return true;
         };
 
@@ -113,7 +98,7 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
                         form="edit-setting"
                         type="submit"
                         data-testid="submit"
-                        onClick={() => saveData()}
+                        onClick={async () => await saveData()}
                     >
                         Save
                     </Button>
