@@ -77,9 +77,15 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
 
                 confirmModalRef?.current?.showModal();
                 setLoading(false);
-            } catch (e) {
+            } catch (e: any) {
                 setLoading(false);
-                console.error(e);
+                const details = (await e?.response?.text()) || "";
+                console.trace(e, details);
+                showError(
+                    `Reloading item failed. '${e.toString()}'
+                    ${details}`
+                );
+                return false;
             }
         };
 
@@ -94,14 +100,14 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
 
         const saveReceiverData = async () => {
             try {
+                setLoading(true);
+
                 const data = confirmModalRef?.current?.getEditedText();
 
                 const receivernamelocal =
                     action === "clone"
                         ? orgReceiverSettings.name
                         : receivername;
-
-                setLoading(true);
 
                 await fetchController(
                     OrgReceiverSettingsResource.update(),
@@ -118,11 +124,13 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                 confirmModalRef?.current?.hideModal();
                 history.goBack();
             } catch (e: any) {
-                console.trace(e);
+                setLoading(false);
+                const details = (await e?.response?.text()) || "";
+                console.trace(e, details);
                 showError(
-                    `Updating item '${receivername}' failed. ${e.toString()}`
+                    `Saving item '${receivername}' failed '${e.toString()}'
+                    ${details}`
                 );
-                return false;
             }
 
             return true;

@@ -70,9 +70,14 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
 
                 confirmModalRef?.current?.showModal();
                 setLoading(false);
-            } catch (e) {
+            } catch (e: any) {
                 setLoading(false);
-                console.error(e);
+                const details = (await e?.response?.text()) || "";
+                console.trace(e, details);
+                showError(
+                    `Reloading item failed '${e.toString()}'
+                    ${details}`
+                );
             }
         };
 
@@ -87,12 +92,13 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
 
         const saveSenderData = async () => {
             try {
+                setLoading(true);
+
                 const data = confirmModalRef?.current?.getEditedText();
 
                 const sendernamelocal =
                     action === "clone" ? orgSenderSettings.name : sendername;
 
-                setLoading(true);
                 // saving can be slow, so let them know it's happening (this is kind of lame, but it works for now)
 
                 await fetchController(
@@ -111,9 +117,12 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                 setLoading(false);
                 history.goBack();
             } catch (e: any) {
-                console.trace(e);
+                setLoading(false);
+                const details = (await e?.response?.text()) || "";
+                console.trace(e, details);
                 showError(
-                    `Updating item '${sendername}' failed. ${e.toString()}`
+                    `Saving item '${sendername}' failed '${e.toString()}'
+                    ${details}`
                 );
                 return false;
             }
