@@ -1,9 +1,10 @@
 resource "azurerm_container_registry" "container_registry" {
-  name                = "${var.resource_prefix}containerregistry"
-  resource_group_name = var.resource_group
-  location            = var.location
-  sku                 = "Premium"
-  admin_enabled       = true
+  name                          = "${var.resource_prefix}containerregistry"
+  resource_group_name           = var.resource_group
+  location                      = var.location
+  sku                           = "Premium"
+  admin_enabled                 = false
+  public_network_access_enabled = false
 
   # network_rule_set {
   #   default_action = "Allow"
