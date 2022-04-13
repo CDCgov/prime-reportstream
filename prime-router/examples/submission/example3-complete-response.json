@@ -1,7 +1,10 @@
 {
-  "id" : "36639b40-0a3e-47ef-b2c2-686c2177f286",
-  "submissionId" : 2270,
-  "timestamp" : "2022-04-10T19:20:07.393Z",
+  "id" : "ade3fd00-ebbd-437d-bbd4-bd509647ec04",
+  "submissionId" : 267,
+  "overallStatus" : "Delivered",
+  "timestamp" : "2022-04-11T20:43:02.424Z",
+  "plannedCompletionAt" : "2022-04-11T20:44:00.000Z",
+  "actualCompletionAt" : "2022-04-11T20:44:04.507Z",
   "sender" : "simple_report.default",
   "reportItemCount" : 14,
   "errorCount" : 0,
@@ -53,7 +56,7 @@
     "service" : "elr",
     "itemCount" : 2,
     "itemCountBeforeQualityFiltering" : 5,
-    "sending_at" : "2022-04-10T19:21:00.000Z",
+    "sending_at" : "2022-04-11T20:44:00.000Z",
     "filteredReportRows" : [ "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii9", "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii7", "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii6" ],
     "filteredReportItems" : [ {
       "filterType" : "QUALITY_FILTER",
@@ -75,9 +78,9 @@
       "message" : "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii6"
     } ],
     "sentReports" : [ {
-      "reportId" : "bb92c103-5437-4425-b7f2-0d7f2aeee60a",
-      "externalName" : "covid-19-a0602eec-5cf7-48f2-bbfd-5a611d19568f-20220410192102.hl7",
-      "createdAt" : "2022-04-10T19:21:05.303Z",
+      "reportId" : "7c2f3349-1c5b-4ea6-bd5d-621d85db62d0",
+      "externalName" : "covid-19-5372ca5b-556a-4211-995b-94d059d2dc03-20220411164401.hl7",
+      "createdAt" : "2022-04-11T20:44:04.474Z",
       "itemCount" : 2
     } ],
     "downloadedReports" : [ ]
@@ -87,7 +90,7 @@
     "service" : "elr",
     "itemCount" : 2,
     "itemCountBeforeQualityFiltering" : 5,
-    "sending_at" : "2022-04-10T19:21:00.000Z",
+    "sending_at" : "2022-04-11T20:44:00.000Z",
     "filteredReportRows" : [ "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska4", "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2", "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1", "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1" ],
     "filteredReportItems" : [ {
       "filterType" : "QUALITY_FILTER",
@@ -115,9 +118,9 @@
       "message" : "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1"
     } ],
     "sentReports" : [ {
-      "reportId" : "0a34c893-409e-47ba-9ef1-ee5221c686d0",
-      "externalName" : "covid-19-043db143-ab82-48e8-866e-488dc41184a6-20220410192102.hl7",
-      "createdAt" : "2022-04-10T19:21:05.320Z",
+      "reportId" : "9b6612b8-0c75-44e5-83db-4a8b5c28f283",
+      "externalName" : "covid-19-5d3d1d74-b3e7-4c57-ad7f-77868b4433cf-20220411164401.hl7",
+      "createdAt" : "2022-04-11T20:44:04.474Z",
       "itemCount" : 2
     } ],
     "downloadedReports" : [ ]
@@ -127,13 +130,13 @@
     "service" : "elr",
     "itemCount" : 2,
     "itemCountBeforeQualityFiltering" : 2,
-    "sending_at" : "2022-04-10T19:21:00.000Z",
+    "sending_at" : "2022-04-11T20:44:00.000Z",
     "filteredReportRows" : [ ],
     "filteredReportItems" : [ ],
     "sentReports" : [ {
-      "reportId" : "78206692-027b-486c-be80-df82f05a6ccc",
-      "externalName" : "covid-19-aeea6d9b-3dcf-4e8b-8443-3eec277dcb85-20220410192102.hl7",
-      "createdAt" : "2022-04-10T19:21:05.298Z",
+      "reportId" : "42b6c997-52d3-46d7-85ee-95d38a83d7e0",
+      "externalName" : "covid-19-f584e798-17ca-4e99-8e92-1d09f2e46259-20220411164401.hl7",
+      "createdAt" : "2022-04-11T20:44:04.507Z",
       "itemCount" : 2
     } ],
     "downloadedReports" : [ ]

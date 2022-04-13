@@ -2816,6 +2816,75 @@ The reporting facility's name
 
 ---
 
+**Name**: residence_type
+
+**ReportStream Internal Name**: residence_type
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Display column
+
+**Default Value**: 
+
+**LOINC Code**: 75617-1
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+22232009|Hospital|SNOMED_CT
+22232009|22232009|SNOMED_CT
+2081004|Hospital Ship|SNOMED_CT
+2081004|2081004|SNOMED_CT
+32074000|Long Term Care Hospital|SNOMED_CT
+32074000|32074000|SNOMED_CT
+224929004|Secure Hospital|SNOMED_CT
+224929004|224929004|SNOMED_CT
+42665001|Nursing Home|SNOMED_CT
+42665001|42665001|SNOMED_CT
+30629002|Retirement Home|SNOMED_CT
+30629002|30629002|SNOMED_CT
+74056004|Orphanage|SNOMED_CT
+74056004|74056004|SNOMED_CT
+722173008|Prison-based Care Site|SNOMED_CT
+722173008|Prison Based Care Site|SNOMED_CT
+722173008|722173008|SNOMED_CT
+20078004|Substance Abuse Treatment Center|SNOMED_CT
+20078004|20078004|SNOMED_CT
+257573002|Boarding House|SNOMED_CT
+257573002|257573002|SNOMED_CT
+224683003|Military Accommodation|SNOMED_CT
+224683003|224683003|SNOMED_CT
+284546000|Hospice|SNOMED_CT
+284546000|284546000|SNOMED_CT
+257628001|Hostel|SNOMED_CT
+257628001|257628001|SNOMED_CT
+310207003|Sheltered Housing|SNOMED_CT
+310207003|310207003|SNOMED_CT
+57656006|Penal Institution|SNOMED_CT
+57656006|Prison|SNOMED_CT
+57656006|Correctional Facility|SNOMED_CT
+57656006|Jail|SNOMED_CT
+57656006|County Jail|SNOMED_CT
+57656006|City Jail|SNOMED_CT
+57656006|57656006|SNOMED_CT
+285113009|Religious Institutional Residence|SNOMED_CT
+285113009|285113009|SNOMED_CT
+285141008|Work (environment)|SNOMED_CT
+285141008|Work|SNOMED_CT
+285141008|285141008|SNOMED_CT
+32911000|Homeless|SNOMED_CT
+
+**Documentation**:
+
+Translate multiple inbound values into Residence Type SNOMED codes.
+
+---
+
 **Name**: resident_congregate_setting
 
 **ReportStream Internal Name**: resident_congregate_setting

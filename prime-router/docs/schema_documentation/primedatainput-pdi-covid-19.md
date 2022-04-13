@@ -2104,7 +2104,7 @@ Does the patient reside in a congregate care setting?
 
 **Documentation**:
 
-The type of facility providing care (Hospital, Nursing Home, etc.).
+The type of facility providing care (Hospital, Nursing Home, etc.).  This is a CUSTOM internal field. DO NOT use this for the COVID AOE residence_type.
 
 ---
 
