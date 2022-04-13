@@ -10,6 +10,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
+import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
 import gov.cdc.prime.router.azure.db.Tables.RECEIVER_CONNECTION_CHECK_RESULTS
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
@@ -139,22 +140,21 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * Returns true if there is already a record in the report_file table that matches the passed in [senderName],
-     * [senderOrgName], and [digest]
+     * Returns true if there is already a record from the last 7 days
+     * in the item_lineage table that matches the passed in [itemHash]
+     * @return true if item is duplicate
      */
-    fun isDuplicateReportFile(
-        senderName: String,
-        senderOrgName: String,
-        digest: ByteArray,
+    fun isDuplicateItem(
+        itemHash: String,
         txn: DataAccessTransaction? = null
     ): Boolean {
         val ctx = if (txn != null) DSL.using(txn) else create
+        val weekAgo = OffsetDateTime.now().minusDays(7)
         return ctx
             .fetchExists(
-                ctx.selectFrom(REPORT_FILE)
-                    .where(REPORT_FILE.SENDING_ORG.eq(senderOrgName))
-                    .and(REPORT_FILE.SENDING_ORG_CLIENT.eq(senderName))
-                    .and(REPORT_FILE.BLOB_DIGEST.eq(digest))
+                ctx.selectFrom(ITEM_LINEAGE)
+                    .where(ITEM_LINEAGE.ITEM_HASH.eq(itemHash))
+                    .and(ITEM_LINEAGE.CREATED_AT.greaterOrEqual(weekAgo))
             )
     }
 
