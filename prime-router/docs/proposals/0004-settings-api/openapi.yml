@@ -34,7 +34,6 @@ paths:
               - ValidatePayload # Validate the payload, but do not process. return 200 on OK or 400 on fail
               - CheckConnections # Health check
               - SkipSend # Validate and route but do not send reports. Data is kept in the hub.
-              - SkipInvalidItems # Send valid ones
           example: ValidatePayload
         - in: query
           name: default
