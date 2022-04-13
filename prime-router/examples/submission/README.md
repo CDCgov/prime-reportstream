@@ -12,13 +12,13 @@ Run your local reportstream.
 Then, using your favority POSTal system, submit something like this:
 
 ```
-curl -X POST -H "client:simple_report" -H "Content-Type: text/csv"  --data-binary "@./examples/submission/simple_report_example.csv" "http://localhost:7071/api/reports" | python -mjson.tool
+curl -X POST -H "client:simple_report" -H "Content-Type: text/csv"  --data-binary "@./examples/submission/simple_report_example.csv" "http://localhost:7071/api/reports"
 ```
 
 Then you can grab the "id" from the json response, and submit it to the Histor API.  Here's an example History API request
 
 ```
-curl -H "authorization:bearer 123" "http://localhost:7071/api/history/simple_report/report/d44b1d7c-2974-4663-a929-0ef83004b32f" | python -mjson.tool
+curl "http://localhost:7071/api/waters/report/d44b1d7c-2974-4663-a929-0ef83004b32f/history"
 ```
 
 ### Structure of the simple_report_example.csv 
@@ -40,14 +40,11 @@ This example is meant to show the errors you get when you submit duplicate rows.
 ### How to generate the json response
 
 ```
-curl -X POST -H "client:ignore.no-duplicates" -H "Content-Type: text/csv"  --data-binary "@./examples/submission/duplicate.csv" "http://localhost:7071/api/reports" | python -mjson.tool
+curl -X POST -H "client:ignore.no-duplicates" -H "Content-Type: text/csv"  --data-binary "@./examples/submission/duplicate.csv" "http://localhost:7071/api/reports"
 ```
 
-Then you can grab the "id" from the json response, and submit it to the Histor API.  Here's an example History API request
+You can also change a bit of data in one of the rows and resubmit the file again, as above.  This should result in a row being in error as well.
 
-```
-curl -H "authorization:bearer 123" "http://localhost:7071/api/history/ignore/report/d44b1d7c-2974-4663-a929-0ef83004b32f" | python -mjson.tool
-```
 
 ### Structure of the duplicate.csv 
 
