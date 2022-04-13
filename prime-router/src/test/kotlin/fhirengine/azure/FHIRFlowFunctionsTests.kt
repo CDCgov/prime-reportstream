@@ -121,7 +121,7 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
 
     val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
     val metadata = Metadata(schema = one)
-    val actionHistory = spyk(ActionHistory(TaskAction.process))
+    // val actionHistory = spyk(ActionHistory(TaskAction.process))
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
@@ -148,7 +148,6 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
     fun `process and test fhir`() {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
-        val fhirEngine = spyk(FHIRFlowFunctions(engine, actionHistory))
 
         data class TestCase(
             val name: String,
@@ -184,6 +183,9 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
 
         testCases.forEach { case ->
             try {
+                val actionHistory = spyk(ActionHistory(TaskAction.process))
+                val fhirEngine = spyk(FHIRFlowFunctions(engine, actionHistory))
+
                 fhirEngine.process(case.message)
                 assertThat(case.exception, case.name).isNull()
             } catch (t: Throwable) {
@@ -200,7 +202,6 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
     fun `test results`() {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
-        val fhirEngine = spyk(FHIRFlowFunctions(engine, actionHistory))
 
         data class TestCase(
             val name: String,
@@ -224,6 +225,8 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
         )
 
         testCases.forEach { case ->
+            val actionHistory = spyk(ActionHistory(TaskAction.process))
+            val fhirEngine = spyk(FHIRFlowFunctions(engine, actionHistory))
             assertThat(fhirEngine.compare(case.input, case.output).passed).isEqualTo(case.matches)
         }
     }
@@ -232,7 +235,6 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
     fun `convert hl7 to fhir`() {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
-        val fhirEngine = spyk(FHIRFlowFunctions(engine, actionHistory))
 
         data class TestCase(
             val name: String,
@@ -263,6 +265,8 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
         )
 
         testCases.forEach { case ->
+            val actionHistory = spyk(ActionHistory(TaskAction.process))
+            val fhirEngine = spyk(FHIRFlowFunctions(engine, actionHistory))
             val request = MockHttpRequestMessage(case.input)
             val response = fhirEngine.convert(request)
             assertThat(response.status).isEqualTo(case.status)

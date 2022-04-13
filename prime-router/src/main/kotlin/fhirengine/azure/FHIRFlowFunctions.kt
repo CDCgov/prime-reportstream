@@ -70,6 +70,8 @@ class FHIRFlowFunctions(
         val response = responseBuilder.build()
         actionHistory.trackActionRequestResponse(request, response)
 
+        workflowEngine.recordAction(actionHistory)
+
         return response
     }
 
