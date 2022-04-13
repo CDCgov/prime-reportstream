@@ -881,4 +881,58 @@ NTE|1|L|This is a final comment|RE"""
             }
         ).isEqualTo("John;@:,")
     }
+
+    @Test
+    fun `test organization yml replaceValueAwithBUsingTerser setting field`() {
+        val oneOrganization = DeepOrganization(
+            "phd", "test", Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
+        )
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val serializer = Hl7Serializer(metadata, settings)
+        val msh3tValues = arrayListOf(
+            mapOf("*" to "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO")
+        )
+        val msh11_1_1tValues = arrayListOf(
+            mapOf("*" to "D")
+        )
+        val replaceValueAwithB: Map<String, Any>? = mapOf("MSH-3" to msh3tValues, "MSH-11-1" to msh11_1_1tValues)
+
+        val message = ORU_R01()
+        message.initQuickstart(Hl7Serializer.MESSAGE_CODE, Hl7Serializer.MESSAGE_TRIGGER_EVENT, "T")
+        val terser = Terser(message)
+
+        // Set known values
+        terser.set("MSH-3", "PHX.ProviderReportingService")
+        terser.set("MSH-11-1", "P")
+
+        replaceValueAwithB?.let {
+            serializer.replaceValueAwithBUsingTerser(replaceValueAwithB, terser)
+            assertThat(terser.get("MSH-3-1")).equals("CDC PRIME - Atlanta, Georgia (Dekalb)")
+            assertThat(terser.get("MSH-3-2")).equals("2.16.840.1.114222.4.1.237821")
+            assertThat(terser.get("MSH-3-3")).equals("ISO")
+            assertThat(terser.get("MSH-11-1")).equals("D")
+        }
+
+        val arrayistValues = arrayListOf(
+            mapOf(
+                "PHX.ProviderReportingService" to
+                    "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+            )
+        )
+
+        // Reset
+        terser.set("MSH-3", "PHX.ProviderReportingService")
+        terser.set("MSH-11-1", "P")
+        val replaceValueAwithBExact = mapOf("MSH-3" to arrayistValues)
+        replaceValueAwithB?.let {
+            serializer.replaceValueAwithBUsingTerser(replaceValueAwithBExact, terser)
+            assertThat(terser.get("MSH-3-1")).equals("CDC PRIME - Atlanta, Georgia (Dekalb)")
+            assertThat(terser.get("MSH-3-2")).equals("2.16.840.1.114222.4.1.237821")
+            assertThat(terser.get("MSH-3-3")).equals("ISO")
+            assertThat(terser.get("MSH-11-1")).equals("D")
+        }
+    }
 }

@@ -503,14 +503,11 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                replaceValueAwithB(
-                    element, replaceValueAwithB,
-                    if (it.isNullOrEmpty() || it == "null") {
-                        element.default ?: ""
-                    } else {
-                        stripInvalidCharactersRegex?.replace(it, "") ?: it
-                    }
-                )
+                if (it.isNullOrEmpty() || it == "null") {
+                    element.default ?: ""
+                } else {
+                    stripInvalidCharactersRegex?.replace(it, "") ?: it
+                }
             }.trim()
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
@@ -667,6 +664,7 @@ class Hl7Serializer(
             }
         }
 
+        replaceValueAwithBUsingTerser(replaceValueAwithB, terser)
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
         return message
     }
@@ -808,6 +806,46 @@ class Hl7Serializer(
         }
 
         return valueArg
+    }
+
+    /**
+     * Loop through all [replaceValueMap] key value pairs to find the hl7Field
+     * if found, we check the value A is equal to the value need to replace.
+     * if so, we replace with value B.
+     * if all obove is not met, we return the same valueArg.
+     * Note: this function is basically the same as the function above except it uses Terser to work with HL7.
+     */
+    fun replaceValueAwithBUsingTerser(
+        replaceValueAwithBMap: Map<String, Any>,
+        terser: Terser
+    ) {
+
+        replaceValueAwithBMap.forEach { element ->
+            @Suppress("UNCHECKED_CAST")
+            (element.value as ArrayList<Map<String, String>>).forEach { pairs ->
+                val pathSpec = formPathSpec(element.key)
+                val valueInMessage = try {
+                    terser.get(pathSpec)
+                } catch (e: Exception) {
+                    terser.set(pathSpec, "unKnown")
+                }
+
+                if (valueInMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
+                    val newValues = pairs.values.first().trim().split("^")
+                    if (pathSpec.split("-").size >= 3) {
+                        // Single compoment
+                        terser.set(pathSpec, newValues.get(0))
+                    } else {
+                        // Multiple components
+                        var rep = 1
+                        newValues.forEach { value ->
+                            terser.set("$pathSpec-$rep", value)
+                            rep++
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
