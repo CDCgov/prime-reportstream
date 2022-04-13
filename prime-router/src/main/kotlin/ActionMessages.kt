@@ -163,3 +163,10 @@ class DuplicateItemMessage() : ActionLogDetail {
     override val scope = ActionLogScope.item
     override val message = "Item is a duplicate."
 }
+
+/**
+ * A [message] for non-error details.
+ */
+class FhirActionLogDetail(
+    override val message: String
+) : GenericActionLogDetail(message, ActionLogScope.report)
