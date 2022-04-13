@@ -1,7 +1,6 @@
 /* Makes row objects string-indexed */
 import {
     Button,
-    ButtonGroup,
     IconNavigateBefore,
     IconNavigateNext,
     IconArrowUpward,
@@ -160,10 +159,12 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
     /* Handles pagination button logic and display */
     function PaginationButtons({ values, controller }: CursorManager) {
         return (
-            <ButtonGroup type="segmented" className="float-right margin-top-5">
+            <div className="float-right margin-top-5">
                 {values.hasPrev && (
                     <Button
+                        unstyled
                         type="button"
+                        className="margin-right-2"
                         onClick={() => controller.goTo(values.currentIndex - 1)}
                     >
                         <span>
@@ -174,6 +175,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                 )}
                 {values.hasNext && (
                     <Button
+                        unstyled
                         type="button"
                         onClick={() => controller.goTo(values.currentIndex + 1)}
                     >
@@ -183,7 +185,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                         </span>
                     </Button>
                 )}
-            </ButtonGroup>
+            </div>
         );
     }
 

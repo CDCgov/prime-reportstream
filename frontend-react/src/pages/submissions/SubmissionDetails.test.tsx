@@ -54,7 +54,9 @@ describe("SubmissionDetails", () => {
 
         /* DestinationItem contents*/
         const receiverOrgNameAndService = await screen.findByText(
-            `${mockData.destinations[0].organization} (${mockData.destinations[0].service})`
+            `${
+                mockData.destinations[0].organization
+            } (${mockData.destinations[0].service.toUpperCase()})`
         );
         const transmissionDate = await screen.findByText("7 Apr 1970");
         const transmissionTime = screen.getByText(findTimeWithoutDate);
