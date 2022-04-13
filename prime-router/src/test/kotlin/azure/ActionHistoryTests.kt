@@ -45,6 +45,20 @@ class ActionHistoryTests {
     }
 
     @Test
+    fun `test trackActionParams`() {
+        val actionHistory = ActionHistory(TaskAction.process)
+
+        actionHistory.trackActionParams("")
+        assertThat(actionHistory.action.actionParams).isNull()
+
+        actionHistory.trackActionParams("foo")
+        assertThat(actionHistory.action.actionParams).isEqualTo("foo")
+
+        actionHistory.trackActionParams("bar")
+        assertThat(actionHistory.action.actionParams).isEqualTo("foo, bar")
+    }
+
+    @Test
     fun `test trackActionResult`() {
         val actionHistory1 = ActionHistory(TaskAction.batch)
         actionHistory1.trackActionResult("foobar")
