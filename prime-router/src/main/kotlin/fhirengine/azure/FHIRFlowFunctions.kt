@@ -29,7 +29,7 @@ import org.hl7.fhir.r4.model.Bundle
 const val fhirQueueName = "fhir-raw-received"
 
 /**
- * Process will work through all the reports waiting in the 'process' queue
+ * Functions to execution and logging of FHIR translations
  */
 class FHIRFlowFunctions(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),

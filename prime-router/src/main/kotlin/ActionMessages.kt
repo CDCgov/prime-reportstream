@@ -142,7 +142,6 @@ class InvalidReportMessage(override val message: String) : GenericActionLogDetai
 class InvalidTranslationMessage(override val message: String) :
     GenericActionLogDetail(message, ActionLogScope.translation)
 
-
 /**
  * A [message] for entire duplicate report submission
  */
