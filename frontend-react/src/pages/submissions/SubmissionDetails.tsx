@@ -10,6 +10,7 @@ import ActionDetailsResource, {
 } from "../../resources/ActionDetailsResource";
 import { generateDateTitles } from "../../utils/DateTimeUtils";
 import { ErrorPage } from "../error/ErrorPage";
+import Crumbs, { CrumbConfig } from "../../components/Crumbs";
 
 /* Custom types */
 type DetailItemProps = {
@@ -162,14 +163,22 @@ function SubmissionDetailsContent() {
     the according tags, hence this wrapper.
 */
 function SubmissionDetails() {
+    const { actionId } = useParams<SubmissionDetailsProps>();
+    const crumbs: CrumbConfig[] = [
+        { label: "Submissions", path: "/submissions" },
+        { label: `Details: ${actionId}` },
+    ];
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
-            <Suspense fallback={<Spinner size="fullpage" />}>
-                <SubmissionDetailsContent />
-            </Suspense>
-        </NetworkErrorBoundary>
+        <>
+            <Crumbs crumbList={crumbs} />
+            <NetworkErrorBoundary
+                fallbackComponent={() => <ErrorPage type="page" />}
+            >
+                <Suspense fallback={<Spinner size="fullpage" />}>
+                    <SubmissionDetailsContent />
+                </Suspense>
+            </NetworkErrorBoundary>
+        </>
     );
 }
 
