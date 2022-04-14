@@ -300,6 +300,7 @@ class GAENTransport : ITransport, Logging {
                     "$reportId"
                 }
                 GAENUUIDFormat.WA_NOTIFY -> {
+                    // WA Notify doesn't want the country code in the UUID calculation
                     val phoneNumber = PhoneNumberUtil.getInstance().parse(phone, "US")
                     hmacGenerator.hmacHex("${phoneNumber.nationalNumber}$testDate")
                 }

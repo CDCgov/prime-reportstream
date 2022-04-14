@@ -3271,7 +3271,11 @@
         type: GAEN
       transport:
         type: GAEN
-        apiUrl: ""
+        uuidFormat: WA_NOTIFY
+        uuidIV: 1  # actual value provided by WA NOTIFY
+        apiUrl: "" # for no sending
+        # apiUrl: "https://adminapi.encv-test.org/api/issue" # for test
+        # apiUrl: "https://adminapi.encv.org/api/issue" # for prod
 
 - name: wv-phd
   description: West Virginia Public Health Department
