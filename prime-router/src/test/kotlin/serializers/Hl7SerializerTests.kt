@@ -843,47 +843,7 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
-    fun `test organization yml replaceValueAwithB setting field`() {
-        val oneOrganization = DeepOrganization(
-            "phd", "test", Organization.Jurisdiction.FEDERAL,
-            receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
-        )
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val serializer = Hl7Serializer(metadata, settings)
-        val arrayistValues = arrayListOf(
-            mapOf("" to "Unknow"),
-            mapOf("Crona" to "Joe"),
-            mapOf("Bode" to "John;@:,")
-        )
-        val replaceValueAwithB: Map<String, Any>? = mapOf("ORC-12-2" to arrayistValues)
-        val orderingProviderLastName = Element(
-            "ordering_provider_last_name",
-            type = Element.Type.PERSON_NAME,
-            hl7Field = "ORC-12-2",
-            hl7OutputFields = listOf("ORC-12-2", "OBR-16-2")
-        )
-
-        assertThat(
-            replaceValueAwithB?.let {
-                serializer.replaceValueAwithB(orderingProviderLastName, it, "")
-            }
-        ).isEqualTo("Unknow")
-        assertThat(
-            replaceValueAwithB?.let {
-                serializer.replaceValueAwithB(orderingProviderLastName, it, "Crona")
-            }
-        ).isEqualTo("Joe")
-        assertThat(
-            replaceValueAwithB?.let {
-                serializer.replaceValueAwithB(orderingProviderLastName, it, "Bode")
-            }
-        ).isEqualTo("John;@:,")
-    }
-
-    @Test
-    fun `test organization yml replaceValueAwithBUsingTerser setting field`() {
+    fun `testOrganizationYmlReplaceValueAwithBUsingTerserSettingField`() {
         val oneOrganization = DeepOrganization(
             "phd", "test", Organization.Jurisdiction.FEDERAL,
             receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
@@ -895,12 +855,10 @@ NTE|1|L|This is a final comment|RE"""
         val msh3tValues = arrayListOf(
             mapOf("*" to "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO")
         )
-        val msh11_1_1tValues = arrayListOf(
-            mapOf("*" to "D")
-        )
-        val unKnownValues = arrayListOf(
-            mapOf("" to "Unknown")
-        )
+        val msh11_1_1tValues = arrayListOf(mapOf("*" to "D"))
+        val unKnownValues = arrayListOf(mapOf("*" to "Unknown"))
+        val obxValues = arrayListOf(mapOf("*" to "OBX31^OBX32^OBX33"))
+
         val replaceValueAwithB: Map<String, Any>? = mapOf(
             "MSH-3" to msh3tValues,
             "MSH-11-1" to msh11_1_1tValues,
@@ -909,9 +867,13 @@ NTE|1|L|This is a final comment|RE"""
             // .. if replaceValueAwithB:
             // ..   ORC-12-1: ["":"unKnow"] is set than replaceAwithB will
             // .. replace "" with "unKnown"
-            "ORC-12-2" to unKnownValues
+            "ORC-12-2" to unKnownValues,
+            "OBX-3" to obxValues
         )
-        val pathORC = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-2" // ORC Hl7 path
+        val pathORC = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-2"
+        val pathOBX31 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-1"
+        val pathOBX32 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-2"
+        val pathOBX33 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-3"
 
         val message = ORU_R01()
         message.initQuickstart(Hl7Serializer.MESSAGE_CODE, Hl7Serializer.MESSAGE_TRIGGER_EVENT, "T")
@@ -920,14 +882,23 @@ NTE|1|L|This is a final comment|RE"""
         // Set known values
         terser.set("MSH-3", "PHX.ProviderReportingService")
         terser.set("MSH-11-1", "P")
+        terser.set(pathOBX31, "94534-5")
+        terser.set(pathOBX32, "SARS Old String")
+        terser.set(pathOBX33, "LN")
 
         replaceValueAwithB?.let {
-            serializer.replaceValueAwithBUsingTerser(replaceValueAwithB, terser)
+            serializer.replaceValueAwithBUsingTerser(
+                replaceValueAwithB, terser,
+                message.patienT_RESULT.ordeR_OBSERVATION.observationReps
+            )
             assertThat(terser.get("MSH-3-1")).equals("CDC PRIME - Atlanta, Georgia (Dekalb)")
             assertThat(terser.get("MSH-3-2")).equals("2.16.840.1.114222.4.1.237821")
             assertThat(terser.get("MSH-3-3")).equals("ISO")
             assertThat(terser.get("MSH-11-1")).equals("D")
             assertThat(terser.get(pathORC)).equals("Unknown")
+            assertThat(terser.get(pathOBX31)).equals("OBX31")
+            assertThat(terser.get(pathOBX32)).equals("OBX32")
+            assertThat(terser.get(pathOBX33)).equals("OBX33")
         }
 
         val arrayistValues = arrayListOf(
@@ -942,7 +913,10 @@ NTE|1|L|This is a final comment|RE"""
         terser.set("MSH-11-1", "P")
         val replaceValueAwithBExact = mapOf("MSH-3" to arrayistValues)
         replaceValueAwithB?.let {
-            serializer.replaceValueAwithBUsingTerser(replaceValueAwithBExact, terser)
+            serializer.replaceValueAwithBUsingTerser(
+                replaceValueAwithBExact, terser,
+                message.patienT_RESULT.ordeR_OBSERVATION.observationReps
+            )
             assertThat(terser.get("MSH-3-1")).equals("CDC PRIME - Atlanta, Georgia (Dekalb)")
             assertThat(terser.get("MSH-3-2")).equals("2.16.840.1.114222.4.1.237821")
             assertThat(terser.get("MSH-3-3")).equals("ISO")

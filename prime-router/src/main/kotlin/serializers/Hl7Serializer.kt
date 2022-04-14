@@ -664,7 +664,9 @@ class Hl7Serializer(
             }
         }
 
-        replaceValueAwithBUsingTerser(replaceValueAwithB, terser)
+        replaceValueAwithBUsingTerser(
+            replaceValueAwithB, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps
+        )
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
         return message
     }
@@ -779,45 +781,12 @@ class Hl7Serializer(
      * if found, we check the value A is equal to the value need to replace.
      * if so, we replace with value B.
      * if all obove is not met, we return the same valueArg.
-     */
-    fun replaceValueAwithB(
-        elementArg: Element,
-        replaceValueAwithBMap: Map<String, Any>,
-        valueArg: String
-    ): String {
-
-        replaceValueAwithBMap.forEach { element ->
-            @Suppress("UNCHECKED_CAST")
-            (element.value as ArrayList<Map<String, String>>).forEach { pairs ->
-                if (elementArg.hl7Field == element.key) {
-                    if (pairs.keys.first().trim() == valueArg) {
-                        return pairs.values.first().trim()
-                    }
-                } else {
-                    elementArg.hl7OutputFields?.forEach { outField ->
-                        if (outField.trim() == element.key) {
-                            if (pairs.keys.first().trim() == valueArg) {
-                                return pairs.values.first().trim()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return valueArg
-    }
-
-    /**
-     * Loop through all [replaceValueMap] key value pairs to find the hl7Field
-     * if found, we check the value A is equal to the value need to replace.
-     * if so, we replace with value B.
-     * if all obove is not met, we return the same valueArg.
      * Note: this function is basically the same as the function above except it uses Terser to work with HL7.
      */
     fun replaceValueAwithBUsingTerser(
         replaceValueAwithBMap: Map<String, Any>,
-        terser: Terser
+        terser: Terser,
+        observationRepeats: Int
     ) {
 
         replaceValueAwithBMap.forEach { element ->
@@ -829,21 +798,31 @@ class Hl7Serializer(
                 } catch (e: Exception) {
                 }
 
-                if (valueInMessage == null || valueInMessage.equals("")) {
-                    terser.set(pathSpec, "unKnown")
-                } else {
-                    if (valueInMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
-                        val newValues = pairs.values.first().trim().split("^")
-                        if (pathSpec.split("-").size >= 3) {
-                            // Single compoment
-                            terser.set(pathSpec, newValues.get(0))
-                        } else {
-                            // Multiple components
+                val newValues = if (pairs.values.first().trim().contains("^"))
+                    pairs.values.first().trim().split("^")
+                else
+                    pairs.values.first().trim().split("&")
+
+                // OBX segment can repeat. All repeats need to be looped
+                if (element.key.length >= 3 && element.key.substring(0, 3) == "OBX") {
+                    for (i in 0..observationRepeats.minus(1)) {
+                        val pathOBXSpec = formPathSpec(element.key, i)
+                        val valueInOBXMessage = terser.get(pathOBXSpec)
+                        if (valueInOBXMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
                             var rep = 1
                             newValues.forEach { value ->
-                                terser.set("$pathSpec-$rep", value)
+                                terser.set("$pathOBXSpec-$rep", value)
                                 rep++
                             }
+                        }
+                    }
+                } else {
+                    // Replace value if exact key from setting equal to key in message OR always replace
+                    if (valueInMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
+                        var rep = 1
+                        newValues.forEach { value ->
+                            terser.set("$pathSpec-$rep", value)
+                            rep++
                         }
                     }
                 }
