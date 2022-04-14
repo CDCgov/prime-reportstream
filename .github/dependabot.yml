@@ -14,14 +14,6 @@ updates:
   
   # FRONTEND
   - package-ecosystem: "npm"
-    directory: "/frontend"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "docker"
-    directory: "/frontend"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "npm"
     directory: "/frontend-react"
     schedule:
       interval: "weekly"

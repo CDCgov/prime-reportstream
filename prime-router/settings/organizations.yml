@@ -1928,6 +1928,13 @@
       customerStatus: inactive
       schemaName: primedatainput/pdi-covid-19
       format: CSV
+    - name: no-duplicates      # Use this to test sending simple_report with a dup check
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: active
+      schemaName: primedatainput/pdi-covid-19
+      allowDuplicates: false    # Duplicate data causes errors!!
+      format: CSV
     - name: ignore-waters      # Use this to test sending waters data
       organizationName: ignore
       topic: covid-19
@@ -3248,14 +3255,17 @@
         receiverUrl: http://host.docker.internal:8000/pyas2/as2receive
         receiverId: p1as2
         senderId: CDCPRIMETEST
-    - name: gaen # Note: I don't see this feed in prod, might need routing filter for OBX-11-1 (test_result_status)
-      description: Google/Apple Exposure Notification
+    - name: gaen
+      description: WA Notify - Google and Apple Exposure Notification
       organizationName: wa-phd
       topic: covid-19
       customerStatus: testing
       jurisdictionalFilter:
-        - matches(abnormal_flag, A)
-        - orEquals(ordering_facility_state, WA, patient_state, WA)
+      - matches(sender_id, simple_report.default)
+      - matches(abnormal_flag, A)
+      - matches(test_result_status, F)
+      - inDateInterval(date_result_released, now, -P19D) # WA Notify policy
+      - orEquals(ordering_facility_state, WA, patient_state, WA)
       timing: null
       translation:
         type: GAEN
