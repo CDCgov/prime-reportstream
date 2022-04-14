@@ -526,6 +526,8 @@ flyway {
     url = dbUrl
     user = dbUser
     password = dbPassword
+    // defaults to 50, set high to avoid locks when spinning up a lot of processes at once
+    lockRetryCount = 120
 }
 
 // Database code generation configuration
