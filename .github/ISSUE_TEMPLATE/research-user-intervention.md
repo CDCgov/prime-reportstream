@@ -24,4 +24,4 @@ assignees: victorialb-usds
 - [ ] Update notes/call info in Excel 
 - [ ] Share insights with team:
   - [ ] Slack
-  - [ ] Research tracker in MS Lists (see here https://cdc.sharepoint.com/teams/USDSatCDC/Lists/Test%20test/AllItems.aspx?env=WebViewList) 
+  - [ ] Research tracker in MS Lists (see here https://cdc.sharepoint.com/teams/USDSatCDC/Lists/Test%20test/AllItems.aspx?env=WebViewList)

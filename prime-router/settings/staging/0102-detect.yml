@@ -1,0 +1,57 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0102-detect.yml --env staging
+---
+- name: detect
+  description: Detect
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: detect
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/detect-covid-19
+      format: HL7
+      processingType: sync
+
+- name: "hhsprotect"
+  description: "HHSProtect"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders: []
+  receivers:
+  - name: "elr"
+    organizationName: "hhsprotect"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<CUSTOM>
+      schemaName: "hhsprotect/hhsprotect-covid-19"
+      format: "CSV"
+      defaults: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      type: "CUSTOM"
+    jurisdictionalFilter:
+    - "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect)"
+    qualityFilter:
+    - "allowAll()"
+    routingFilter: []
+    processingModeFilter:
+    - "allowAll()"
+    reverseTheQualityFilter: false
+    deidentify: true
+    timing:
+      operation: "MERGE"
+      numberPerDay: 96
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<BLOBSTORE>
+      storageName: "PartnerStorage"
+      containerName: "hhsprotect"
+      type: "BLOBSTORE"
+    externalName: null

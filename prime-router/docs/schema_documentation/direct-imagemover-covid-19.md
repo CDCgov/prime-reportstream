@@ -1751,22 +1751,6 @@ P, D, or T for Production, Debugging, or Training
 
 ---
 
-**Name**: reportingFacility
-
-**ReportStream Internal Name**: reportingFacility
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-This field is no longer used.  Included here so it does not generate a warning if present.
-
----
-
 **Name**: congregateResident
 
 **ReportStream Internal Name**: resident_congregate_setting
@@ -2464,11 +2448,6 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 **Format**: use value found in the Code column
 
 **Default Value**: F
-
-**HL7 Fields**
-
-- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
-- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
 
 **Cardinality**: [0..1]
 

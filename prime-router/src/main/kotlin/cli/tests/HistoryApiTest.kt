@@ -56,7 +56,7 @@ class HistoryApiTest : CoolTest() {
             OktaCommand.fetchAccessToken(environment.oktaApp)
                 ?: abort(
                     "Cannot run test $name.  Invalid access token. " +
-                        "Run ./prime login to fetch/refresh your access token for the $environment environment."
+                        "Run ./prime login to fetch/refresh a PrimeAdmin access token for the $environment environment."
                 )
         }
     }
@@ -208,7 +208,7 @@ class HistoryApiTest : CoolTest() {
                     emptyMap(),
                     listOf("pagesize" to options.submits),
                     bearer + "x",
-                    HttpStatus.SERVICE_UNAVAILABLE,
+                    HttpStatus.UNAUTHORIZED,
                     expectedReports = emptySet(),
                 ),
             )

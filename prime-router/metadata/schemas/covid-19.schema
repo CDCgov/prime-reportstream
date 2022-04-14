@@ -203,20 +203,6 @@ elements:
     hl7Field: AOE
     hl7AOEQuestion: 65222-2
 
-  - name: observation_result_status
-    type: ID
-    default: F
-    natFlatFileField:
-    hhsGuidanceField:
-    hl7Field: OBX-11
-
-  - name: order_result_status
-    type: ID
-    default: F
-    natFlatFileField: Order_result_status
-    hhsGuidanceField:
-    hl7Field: OBR-25
-
   - name: order_test_date
     type: DATETIME
     natFlatFileField: Order_test_date
@@ -902,6 +888,16 @@ elements:
     hl7AOEQuestion: 95421-4
     documentation: Does the patient reside in a congregate care setting?
 
+  - name: residence_type
+    type: CODE
+    cardinality: ZERO_OR_ONE
+    valueSet: covid-19/residence_type
+    natFlatFileField: Residence_type
+    hhsGuidanceField: Residence type
+    hl7Field: AOE
+    hl7AOEQuestion: 75617-1
+    documentation: Congregate Setting Residence Type?
+
   - name: result_format
     type: TEXT
     default: CWE
@@ -921,7 +917,7 @@ elements:
   - name: site_of_care
     type: TEXT
     natFlatFileField: Site_of_care
-    documentation: The type of facility providing care (Hospital, Nursing Home, etc.).
+    documentation: The type of facility providing care (Hospital, Nursing Home, etc.).  This is a CUSTOM internal field. DO NOT use this for the COVID AOE residence_type.
 
   - name: specimen_collection_date_time
     type: DATETIME
@@ -1123,11 +1119,29 @@ elements:
     valueSet: hl70085
     natFlatFileField: Test_result_status
     hhsGuidanceField:
-    hl7Field: OBX-11-1
-    hl7OutputFields: [OBX-11-1, OBR-25-1]
+    hl7Field:
+    mapper: use(observation_result_status)
     documentation: |
       The test result status, which is different from the test result itself. Per the valueset, this indicates if
       the test result is in some intermediate status, is a correction, or is the final result.
+
+  - name: observation_result_status
+    type: ID
+    default: F
+    natFlatFileField:
+    hhsGuidanceField:
+    hl7Field: OBX-11-1
+    valueSet: hl70085
+    mapper: use(test_result_status)
+
+  - name: order_result_status
+    type: ID
+    default: F
+    natFlatFileField: Order_result_status
+    hhsGuidanceField:
+    hl7Field: OBR-25-1
+    valueSet: hl70123
+    mapper: use(test_result_status)
 
   - name: test_result_sub_id
     type: ID
@@ -1278,7 +1292,7 @@ elements:
   #  hl7Field: AOE
 
   - name: value_type
-    type: CODE
+    type: ID
     natFlatFileField:
     hhsGuidanceField:
     hl7Field: OBX-2
