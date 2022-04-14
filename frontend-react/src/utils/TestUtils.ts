@@ -19,3 +19,11 @@ const mockToken = (mock?: Partial<AccessToken>) => {
 };
 
 export { mockToken };
+
+const mockEvent = (mock?: Partial<any>) => {
+    return {
+        response: mock?.response || null,
+    };
+};
+
+export { mockEvent };
