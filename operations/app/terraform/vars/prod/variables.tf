@@ -26,7 +26,7 @@ variable "rsa_key_4096" {
   default = null
 }
 variable "is_metabase_env" {
-  default = false
+  default = true
 }
 variable "https_cert_names" {
   default = []
@@ -78,9 +78,9 @@ variable "network" {
       "address_space"           = "172.17.7.128/25"
       "dns_servers"             = ["172.17.0.135"]
       "location"                = "West Us"
-      "subnets"                 = ["public", "private", "container"]
+      "subnets"                 = ["public", "private", "container", "endpoint"]
       "nsg_prefix"              = "westus-"
-      "network_security_groups" = ["private", "public", "container"]
+      "network_security_groups" = ["private", "public", "container", "endpoint"]
       "subnet_cidrs" = [
         {
           name     = "public"
@@ -106,7 +106,7 @@ variable "network" {
       "location"                = "East Us"
       "subnets"                 = ["public", "private", "container", "endpoint"]
       "nsg_prefix"              = ""
-      "network_security_groups" = ["public", "private", "container"]
+      "network_security_groups" = ["private", "public", "container"]
       "subnet_cidrs" = [
         {
           name     = "GatewaySubnet"
@@ -132,6 +132,32 @@ variable "network" {
           name     = "endpoint"
           new_bits = 8
         }
+      ]
+    },
+    "vnet-peer" = {
+      "address_space"           = "10.1.0.0/16"
+      "dns_servers"             = [""]
+      "location"                = "West Us"
+      "subnets"                 = ["private", "endpoint"]
+      "nsg_prefix"              = ""
+      "network_security_groups" = [""]
+      "subnet_cidrs" = [
+        {
+          name     = "public"
+          new_bits = 3
+        },
+        {
+          name     = "container"
+          new_bits = 3
+        },
+        {
+          name     = "private"
+          new_bits = 3
+        },
+        {
+          name     = "endpoint"
+          new_bits = 2
+        },
       ]
     }
   }
@@ -208,10 +234,10 @@ variable "db_threat_detection" {
   default = true
 }
 variable "db_replica" {
-  default = false
+  default = true
 }
 variable "aad_group_postgres_admin" {
   type        = string
   description = "Azure Active Directory group id containing postgres db admins"
-  default     = "f94409a9-12b1-4820-a1b6-e3e0a4fa282d"
+  default     = "c4031f1f-229c-4a8a-b3b9-23bae9dbf197"
 }

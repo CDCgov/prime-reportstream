@@ -13,6 +13,11 @@ data "azurerm_virtual_network" "vnet" {
   resource_group_name = var.resource_group
 }
 
+data "azurerm_virtual_network" "vnet_peer" {
+  name                = "${var.resource_prefix}-vnet-peer"
+  resource_group_name = var.resource_group
+}
+
 data "azurerm_subnet" "west_vnet" {
   for_each = toset(data.azurerm_virtual_network.west_vnet.subnets)
 
@@ -34,5 +39,13 @@ data "azurerm_subnet" "vnet" {
 
   name                 = each.value
   virtual_network_name = "${var.resource_prefix}-vnet"
+  resource_group_name  = var.resource_group
+}
+
+data "azurerm_subnet" "peer_vnet" {
+  for_each = toset(data.azurerm_virtual_network.vnet_peer.subnets)
+
+  name                 = each.value
+  virtual_network_name = "${var.resource_prefix}-vnet-peer"
   resource_group_name  = var.resource_group
 }

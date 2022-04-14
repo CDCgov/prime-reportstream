@@ -106,6 +106,7 @@ module "database" {
   west_vnet_subnets        = module.vnet.west_vnet_subnets
   east_vnet_subnets        = module.vnet.east_vnet_subnets
   vnet_subnets             = module.vnet.vnet_subnets
+  peer_vnet_subnets        = module.vnet.peer_vnet_subnets
   dns_vnet                 = var.dns_vnet
 }
 
@@ -196,10 +197,10 @@ module "metabase" {
   use_cdc_managed_vnet   = var.use_cdc_managed_vnet
   service_plan_id        = module.app_service_plan.service_plan_id
   app_config_kv_name     = var.app_config_kv_name
-  postgres_server_name         = module.database.postgres_server_name
-  postgres_user            = data.azurerm_key_vault_secret.postgres_user.value
-  postgres_pass            = data.azurerm_key_vault_secret.postgres_pass.value
-  public_subnet       = module.network.public_subnet_ids
+  postgres_server_name   = module.database.postgres_server_name
+  postgres_user          = data.azurerm_key_vault_secret.postgres_user.value
+  postgres_pass          = data.azurerm_key_vault_secret.postgres_pass.value
+  public_subnet          = module.network.public_subnet_ids
 }
 
 

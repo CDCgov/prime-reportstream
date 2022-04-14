@@ -30,3 +30,10 @@ output "vnet_subnets" {
     id => ({ "id" = details.id })
   }).*.id
 }
+
+output "peer_vnet_subnets" {
+  value = values({
+    for id, details in data.azurerm_subnet.peer_vnet :
+    id => ({ "id" = details.id })
+  }).*.id
+}

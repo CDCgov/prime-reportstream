@@ -31,7 +31,8 @@ resource "azurerm_postgresql_server" "postgres_server" {
   lifecycle {
     prevent_destroy = false
     ignore_changes = [
-      storage_mb,                  # Auto-grow will change the size
+      storage_mb, # Auto-grow will change the size
+      administrator_login,
       administrator_login_password # This can't change without a redeploy
     ]
   }
@@ -50,7 +51,7 @@ module "postgres_private_endpoint" {
   location       = var.location
 
   endpoint_subnet_ids        = var.endpoint_subnet
-  exclude_subnets            = concat(var.west_vnet_subnets)
+  exclude_subnets            = concat(var.west_vnet_subnets, var.peer_vnet_subnets)
   dns_vnet                   = var.dns_vnet
   resource_prefix            = var.resource_prefix
   endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
@@ -93,7 +94,8 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
   lifecycle {
     prevent_destroy = false
     ignore_changes = [
-      storage_mb,                  # Auto-grow will change the size
+      storage_mb, # Auto-grow will change the size
+      administrator_login,
       administrator_login_password # This can't change without a redeploy
     ]
   }
@@ -114,7 +116,7 @@ module "postgres_private_endpoint_replica" {
 
   endpoint_subnet_ids        = var.endpoint_subnet
   exclude_subnets            = concat(var.east_vnet_subnets, var.vnet_subnets)
-  dns_vnet                   = var.dns_vnet
+  dns_vnet                   = var.dns_vnet == "East-vnet" ? "West-vnet" : var.dns_vnet
   resource_prefix            = var.resource_prefix
   endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
 }
