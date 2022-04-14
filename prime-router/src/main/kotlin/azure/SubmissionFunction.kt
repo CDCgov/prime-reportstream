@@ -138,7 +138,7 @@ class SubmissionFunction(
         @BindingName("id") id: String,
     ): HttpResponseMessage {
         try {
-            val claims = oktaAuthentication.authenticate(request)
+            val claims = OktaAuthentication.authenticate(request)
                 ?: return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authenticationFailure)
             logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
 

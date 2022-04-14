@@ -7,8 +7,8 @@ import java.lang.IllegalArgumentException
 /**
  * A set of helper functions related to validating scopes.
  *
- * In ReportStream, a scope is of the form senderFullname.detailedScope,
- * that is, orgName.senderName.detailedScope
+ * In ReportStream, a scope is of the form senderOrReceiverFullname.detailedScope,
+ * that is, orgName.senderName.detailedScope or orgName.receiverName.detailedScope.
  * Example:  strac.default.report
  */
 class Scope {
@@ -26,8 +26,12 @@ class Scope {
             return true
         }
 
+        /**
+         * Is this [scope] string well-formed and has a valid DetailedScope,
+         * and the org.sender portion of it matches the [expectedSender]
+         */
         fun isValidScope(scope: String, expectedSender: Sender): Boolean {
-            if (!isWellFormedScope(scope)) return false
+            if (!isValidScope(scope)) return false
             val splits = scope.split(".")
             if (splits[0] != expectedSender.organizationName) {
                 logger.warn("Expected organization ${expectedSender.organizationName}. Instead got: ${splits[0]}")
@@ -37,6 +41,15 @@ class Scope {
                 logger.warn("Expected sender ${expectedSender.name}. Instead got: ${splits[1]}")
                 return false
             }
+            return true
+        }
+
+        /**
+         * Is this [scope] string well-formed and has a valid DetailedScope.
+         */
+        fun isValidScope(scope: String): Boolean {
+            if (!isWellFormedScope(scope)) return false
+            val splits = scope.split(".")
             try {
                 DetailedScope.valueOf(splits[2])
             } catch (e: IllegalArgumentException) {
@@ -46,15 +59,29 @@ class Scope {
             return true
         }
 
-        fun generateValidScope(sender: Sender, detailedScope: String): String {
-            return "${sender.fullName}.$detailedScope"
+        /**
+         * Break apart a scope into its constituent parts.
+         * @return null if it isn't well-formed.
+         * Otherwise return the triple (organizationName, sender/receiverName, detailed scope)
+         */
+        fun parseScope(scope: String): Triple<String, String, DetailedScope>? {
+            if (!isValidScope(scope)) return null
+            val splits = scope.split(".")
+            val orgName = splits[0]
+            val senderOrReceiver = splits[1]
+            val detailedScope = DetailedScope.valueOf(splits[2])
+            return Triple(orgName, senderOrReceiver, detailedScope)
         }
 
-        fun scopeListContainsScope(scopeList: String, desiredScope: String): Boolean {
-            if (desiredScope.isBlank() || desiredScope.isEmpty()) return false
+        /**
+         * Returns true if the [scopeList], presumably from the claims, contains the desired [requiredScope].
+         * Otherwise false.
+         */
+        fun scopeListContainsScope(scopeList: String, requiredScope: String): Boolean {
+            if (requiredScope.isBlank() || requiredScope.isEmpty()) return false
             // A scope is a set of strings separated by single spaces
             val scopesTrial: List<String> = scopeList.split(" ")
-            return scopesTrial.contains(desiredScope)
+            return scopesTrial.contains(requiredScope)
         }
     }
 }

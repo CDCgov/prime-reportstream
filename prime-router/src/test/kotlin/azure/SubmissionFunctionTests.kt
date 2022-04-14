@@ -18,6 +18,7 @@ import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.spyk
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
@@ -252,9 +253,11 @@ class SubmissionFunctionTests : Logging {
 
     private fun setUpAccessTests(organizationName: String): Pair<SubmissionFunction, MockHttpRequestMessage> {
         val oktaAuth = spyk<OktaAuthentication>()
+
         val claimsMap = buildClaimsMap(organizationName)
 
-        every { oktaAuth.decodeJwt(any()) } returns
+        mockkObject(OktaAuthentication.Companion)
+        every { OktaAuthentication.Companion.decodeJwt(any()) } returns
             TestDefaultJwt(
                 "a.b.c",
                 Instant.now(),

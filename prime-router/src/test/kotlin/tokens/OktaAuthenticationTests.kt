@@ -8,9 +8,10 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.HttpMethod
 import gov.cdc.prime.router.common.Environment
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkObject
-import io.mockk.spyk
+import org.junit.jupiter.api.BeforeEach
 import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -18,29 +19,34 @@ import kotlin.test.assertEquals
 class OktaAuthenticationTests {
     private val verifier = OktaAuthentication(PrincipalLevel.USER)
 
+    @BeforeEach
+    fun reset() {
+        clearAllMocks() // If using Companion object mocks, you need to be sure to clear between tests
+    }
+
     @Test
     fun `test authenticate`() {
         // This should trigger the local auth
-        var claims = verifier.authenticate(null, HttpMethod.GET, "foobar")
+        var claims = OktaAuthentication.authenticate(null, HttpMethod.GET, "foobar")
         assertThat(claims).isNotNull()
         assertThat(claims?.isPrimeAdmin).isEqualTo(true)
         assertThat(claims?.isSenderOrgClaim).isEqualTo(true)
         assertThat(claims?.organizationNameClaim).isEqualTo("ignore")
 
         // Bad token
-        claims = verifier.authenticate("a.b.c", HttpMethod.GET, "foobar")
+        claims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar")
         assertThat(claims).isNull()
     }
 
     @Test
     fun `test authenticated claims return from authenticate`() {
         // "Good" token
-        val oktaAuth = spyk<OktaAuthentication>()
         val claimsMap = mapOf(
             "sub" to "test",
             "organization" to listOf("DHca-phd")
         )
-        every { oktaAuth.decodeJwt(any()) } returns
+        mockkObject(OktaAuthentication.Companion)
+        every { OktaAuthentication.Companion.decodeJwt(any()) } returns
             TestDefaultJwt(
                 "a.b.c",
                 Instant.now(),
@@ -48,7 +54,7 @@ class OktaAuthenticationTests {
                 claimsMap
             )
 
-        val authenticatedClaims = oktaAuth.authenticate("a.b.c", HttpMethod.GET, "foobar")
+        val authenticatedClaims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar")
         assertThat(authenticatedClaims).isNotNull()
         assertEquals("test", authenticatedClaims?.userName)
         assertEquals(false, authenticatedClaims?.isPrimeAdmin)
@@ -59,16 +65,16 @@ class OktaAuthenticationTests {
     fun `test isLocal`() {
         mockkObject(Environment) {
             every { Environment.isLocal() } returns false
-            assertThat(verifier.isLocal(null)).isFalse()
-            assertThat(verifier.isLocal("")).isFalse()
-            assertThat(verifier.isLocal("abc")).isFalse()
-            assertThat(verifier.isLocal("a.b.c")).isFalse()
+            assertThat(OktaAuthentication.isLocal(null)).isFalse()
+            assertThat(OktaAuthentication.isLocal("")).isFalse()
+            assertThat(OktaAuthentication.isLocal("abc")).isFalse()
+            assertThat(OktaAuthentication.isLocal("a.b.c")).isFalse()
 
             every { Environment.isLocal() } returns true
-            assertThat(verifier.isLocal(null)).isTrue()
-            assertThat(verifier.isLocal("")).isTrue()
-            assertThat(verifier.isLocal("abc")).isTrue()
-            assertThat(verifier.isLocal("a.b.c")).isFalse()
+            assertThat(OktaAuthentication.isLocal(null)).isTrue()
+            assertThat(OktaAuthentication.isLocal("")).isTrue()
+            assertThat(OktaAuthentication.isLocal("abc")).isTrue()
+            assertThat(OktaAuthentication.isLocal("a.b.c")).isFalse()
         }
     }
 

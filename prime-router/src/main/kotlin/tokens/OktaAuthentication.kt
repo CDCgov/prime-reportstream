@@ -34,10 +34,8 @@ enum class PrincipalLevel {
 }
 
 class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLevel.USER) : Logging {
-    private val issuerBaseUrl: String = System.getenv(envVariableForOktaBaseUrl) ?: ""
-
     companion object : Logging {
-
+        val issuerBaseUrl: String = System.getenv(envVariableForOktaBaseUrl) ?: ""
         val authenticationFailure = HttpUtilities.errorJson("Authentication Failed")
         val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
 
@@ -50,81 +48,80 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             val authorization = request.headers[HttpHeaders.AUTHORIZATION.lowercase()] ?: return null
             return authorization.substringAfter("Bearer ", "")
         }
-    }
 
-    /**
-     * Perform authentication on a human user.
-     *
-     * @return the claims found in the jwt if the jwt token in [request] is validated.
-     * Return null if not authenticated.
-     * Always performs authentication using Okta, unless running locally.
-     */
-    fun authenticate(request: HttpRequestMessage<String?>): AuthenticatedClaims? {
-        val accessToken = getAccessToken(request)
-        return authenticate(accessToken, request.httpMethod, request.uri.path)
-    }
-
-    /**
-     * @see [authenticate].
-     */
-    fun authenticate(
-        accessToken: String?,
-        httpMethod: HttpMethod,
-        path: String,
-    ): AuthenticatedClaims? {
-        if (isLocal(accessToken)) {
-            logger.info("Granted test auth request for $httpMethod:$path")
-            return AuthenticatedClaims.generateTestClaims()
+        /**
+         * Perform authentication on a human user.
+         *
+         * @return the claims found in the jwt if the jwt token in [request] is validated.
+         * Return null if not authenticated.
+         * Always performs authentication using Okta, unless running locally.
+         */
+        fun authenticate(request: HttpRequestMessage<String?>): AuthenticatedClaims? {
+            val accessToken = getAccessToken(request)
+            return authenticate(accessToken, request.httpMethod, request.uri.path)
         }
 
-        // Confirm the token exists.
-        if (accessToken == null) {
-            logger.info("Missing Authorization Header: $httpMethod:$path}")
-            return null
-        }
-
-        try {
-            // Perform authentication.  Throws exception if authentication fails.
-            val jwt = decodeJwt(accessToken)
-
-            // Extract claims into a more usable form
-            val claims = AuthenticatedClaims(jwt.claims)
-            logger.info("Authenticated request by ${claims.userName}: $httpMethod:$path")
-            return claims
-        } catch (e: JwtVerificationException) {
-            logger.info("JWT token failed to authenticate for call: $httpMethod: $path", e)
-            return null
-        } catch (e: Exception) {
-            logger.info("Failure while authenticating, for call: $httpMethod: $path", e)
-            return null
-        }
-    }
-
-    fun decodeJwt(accessToken: String): Jwt {
-        val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
-            .setIssuer("https://$issuerBaseUrl/oauth2/default")
-            .build()
-        // Perform authentication.  Throws exception if authentication fails.
-        return jwtVerifier.decode(accessToken)
-    }
-
-    /**
-     * Helper method for authentication.
-     * Check whether we are running locally.
-     * Even if local, if the [accessToken] is there, then do real Okta auth.
-     * @return true if we should do 'local' auth, false if we should do Okta auth.
-     */
-    fun isLocal(accessToken: String?): Boolean {
-        return when {
-            (!Environment.isLocal()) -> false
-            (accessToken != null && accessToken.split(".").size == 3) -> {
-                // For testing auth.  Running local, but test using the real production parser.
-                // The above test is purposefully simple so that we can test all kinds of error conditions
-                // further downstream.
-                logger.info("Running locally, but will use the OktaAuthenticationVerifier")
-                false
+        /**
+         * @see [authenticate].
+         */
+        fun authenticate(
+            accessToken: String?,
+            httpMethod: HttpMethod,
+            path: String,
+        ): AuthenticatedClaims? {
+            if (isLocal(accessToken)) {
+                logger.info("Granted test auth request for $httpMethod:$path")
+                return AuthenticatedClaims.generateTestClaims()
             }
-            else -> true
+
+            // Confirm the token exists.
+            if (accessToken == null) {
+                logger.info("Missing Authorization Header: $httpMethod:$path}")
+                return null
+            }
+
+            try {
+                // Perform authentication.  Throws exception if authentication fails.
+                val jwt = decodeJwt(accessToken)
+
+                // Extract claims into a more usable form
+                val claims = AuthenticatedClaims(jwt.claims)
+                logger.info("Authenticated request by ${claims.userName}: $httpMethod:$path")
+                return claims
+            } catch (e: JwtVerificationException) {
+                logger.info("JWT token failed to authenticate for call: $httpMethod: $path", e)
+                return null
+            } catch (e: Exception) {
+                logger.info("Failure while authenticating, for call: $httpMethod: $path", e)
+                return null
+            }
+        }
+        /**
+         * Helper method for authentication.
+         * Check whether we are running locally.
+         * Even if local, if the [accessToken] is there, then do real Okta auth.
+         * @return true if we should do 'local' auth, false if we should do Okta auth.
+         */
+        fun isLocal(accessToken: String?): Boolean {
+            return when {
+                (!Environment.isLocal()) -> false
+                (accessToken != null && accessToken.split(".").size == 3) -> {
+                    // For testing auth.  Running local, but test using the real production parser.
+                    // The above test is purposefully simple so that we can test all kinds of error conditions
+                    // further downstream.
+                    logger.info("Running locally, but will use the OktaAuthenticationVerifier")
+                    false
+                }
+                else -> true
+            }
+        }
+
+        fun decodeJwt(accessToken: String): Jwt {
+            val jwtVerifier = JwtVerifiers.accessTokenVerifierBuilder()
+                .setIssuer("https://$issuerBaseUrl/oauth2/default")
+                .build()
+            // Perform authentication.  Throws exception if authentication fails.
+            return jwtVerifier.decode(accessToken)
         }
     }
 

@@ -109,7 +109,7 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
         return AccessToken(subject, token, "bearer", expiresInSeconds, expiresAtSeconds, scopeAuthorized)
     }
 
-    fun checkAccessToken(request: HttpRequestMessage<String?>, desiredScope: String): Claims? {
+    fun checkAccessToken(request: HttpRequestMessage<String?>, requiredScope: String): Claims? {
         val bearerComponent = request.headers["authorization"]
         if (bearerComponent == null) {
             logger.error("Missing Authorization header.  AccessToken Unauthorized.")
@@ -120,15 +120,18 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
             logger.error("Request has Authorization header but no token.  AccessToken Unauthorized")
             return null
         }
-        return checkAccessToken(accessToken, desiredScope, FindReportStreamSecretInVault())
+        return checkAccessToken(accessToken, requiredScope, FindReportStreamSecretInVault())
     }
 
     /**
-     * lookup is a call back to get the ReportStream secret used to sign the token.  Using a callback
+     * [lookup] is a call back to get the ReportStream secret used to sign the [accessToken].  Using a callback
      * makes this easy to test - can pass in a static test secret
      * This does not need to be a public/private key.
+     *
+     * This confirms that the token is properly unexpired and signed by that secret, and that it contains the
+     * [requiredScope]
      */
-    fun checkAccessToken(accessToken: String, desiredScope: String, lookup: ReportStreamSecretFinder): Claims? {
+    fun checkAccessToken(accessToken: String, requiredScope: String, lookup: ReportStreamSecretFinder): Claims? {
         try {
             val secret = lookup.getReportStreamTokenSigningSecret()
             // Check the signature.  Throws JwtException on problems.
@@ -156,10 +159,10 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
                 logger.error("Missing scope claim in AccessToken $subject.  Unauthorized.")
                 return null
             }
-            if (!Scope.scopeListContainsScope(scope, desiredScope)) {
+            if (!Scope.scopeListContainsScope(scope, requiredScope)) {
                 logger.error(
                     "In AccessToken $subject," +
-                        " signed key has scope $scope, but requests $desiredScope. Unauthorized"
+                        " signed key has scope $scope, but requests $requiredScope. Unauthorized"
                 )
                 return null
             }

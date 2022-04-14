@@ -5,10 +5,14 @@ package gov.cdc.prime.router.tokens
  * have been authorized). For convenience, certain claims have been pulled out into more readable/usable forms,
  * using helper methods in the class, called during object construction.
  */
-class AuthenticatedClaims(
-    val jwtClaims: Map<String, Any>,
-) {
-    // These are all derived from the raw jwtClaims.
+class AuthenticatedClaims {
+    /**
+     * Raw claims map, typically as sent in a JWT
+     */
+    val jwtClaims: Map<String, Any>
+
+    // For Okta, these are all derived from the raw jwtClaims.
+
     /** Name of user as extracted from the subject claim.  Usually an email address */
     val userName: String
     /** Does this user have the prime administrator claim? */
@@ -18,14 +22,42 @@ class AuthenticatedClaims(
     /** Is this a Sender claim, of the form DHSender_orgname  ? */
     val isSenderOrgClaim: Boolean
 
-    init {
-        userName = jwtClaims[oktaSubjectClaim]?.toString() ?: error("No username in claims")
+    /**
+     * This constructor assumes certain claims that are found in Okta. Only use this for Okta claims.
+     */
+    constructor(_jwtClaims: Map<String, Any>) {
+        this.jwtClaims = _jwtClaims
+        this.userName = _jwtClaims[oktaSubjectClaim]?.toString() ?: error("No username in claims")
         @Suppress("UNCHECKED_CAST")
         val memberships = jwtClaims[oktaMembershipClaim] as? Collection<String> ?: error("No memberships in claims")
         val orgNamePair = extractOrganizationNameFromOktaMembership(memberships)
-        isPrimeAdmin = isPrimeAdmin(memberships)
-        organizationNameClaim = orgNamePair?.first // might be null
-        isSenderOrgClaim = orgNamePair?.second ?: false
+        this.isPrimeAdmin = isPrimeAdmin(memberships)
+        this.organizationNameClaim = orgNamePair?.first // might be null
+        this.isSenderOrgClaim = orgNamePair?.second ?: false
+    }
+
+    /**
+     * Use this for claims not coming from a human being (this is, from Okta).
+     * For example, use this for claims for server-to-server auth.
+     * Each value passed must have been authenticated.  These are *not* for requested or required authorizations.
+     *
+     * [_jwtClaims]  The raw list of claims.
+     * [_organizationNameClaim] The organization Name of this server. (Not the full name, eg oh-doh, not oh-doh.elr)
+     * [_isPrimeAdmin] true if this server claims to act as a PrimeAdmin
+     * [_isSenderOrgClaim] true if this claims set is from a Sender organization.  Certain queries (eg, give me
+     * a list of submissions) only make sense if the Organization has at least one Sender in it.
+     */
+    constructor(
+        _jwtClaims: Map<String, Any>,
+        _organizationNameClaim: String,
+        _isPrimeAdmin: Boolean = false,
+        _isSenderOrgClaim: Boolean = false,
+    ) {
+        this.jwtClaims = _jwtClaims
+        this.userName = _jwtClaims[oktaSubjectClaim]?.toString() ?: error("No username in claims")
+        this.isPrimeAdmin = _isPrimeAdmin
+        this.organizationNameClaim = _organizationNameClaim
+        this.isSenderOrgClaim = _isSenderOrgClaim
     }
 
     /**
