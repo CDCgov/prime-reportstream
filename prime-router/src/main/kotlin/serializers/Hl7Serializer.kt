@@ -827,20 +827,23 @@ class Hl7Serializer(
                 val valueInMessage = try {
                     terser.get(pathSpec)
                 } catch (e: Exception) {
-                    terser.set(pathSpec, "unKnown")
                 }
 
-                if (valueInMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
-                    val newValues = pairs.values.first().trim().split("^")
-                    if (pathSpec.split("-").size >= 3) {
-                        // Single compoment
-                        terser.set(pathSpec, newValues.get(0))
-                    } else {
-                        // Multiple components
-                        var rep = 1
-                        newValues.forEach { value ->
-                            terser.set("$pathSpec-$rep", value)
-                            rep++
+                if (valueInMessage == null || valueInMessage.equals("")) {
+                    terser.set(pathSpec, "unKnown")
+                } else {
+                    if (valueInMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
+                        val newValues = pairs.values.first().trim().split("^")
+                        if (pathSpec.split("-").size >= 3) {
+                            // Single compoment
+                            terser.set(pathSpec, newValues.get(0))
+                        } else {
+                            // Multiple components
+                            var rep = 1
+                            newValues.forEach { value ->
+                                terser.set("$pathSpec-$rep", value)
+                                rep++
+                            }
                         }
                     }
                 }

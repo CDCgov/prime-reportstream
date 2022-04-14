@@ -898,7 +898,20 @@ NTE|1|L|This is a final comment|RE"""
         val msh11_1_1tValues = arrayListOf(
             mapOf("*" to "D")
         )
-        val replaceValueAwithB: Map<String, Any>? = mapOf("MSH-3" to msh3tValues, "MSH-11-1" to msh11_1_1tValues)
+        val unKnownValues = arrayListOf(
+            mapOf("" to "Unknown")
+        )
+        val replaceValueAwithB: Map<String, Any>? = mapOf(
+            "MSH-3" to msh3tValues,
+            "MSH-11-1" to msh11_1_1tValues,
+            // Note this will not be set in Terser as input since it is "".
+            // .. Hl7Serializer.kt will not set to any value.  Therefore,
+            // .. if replaceValueAwithB:
+            // ..   ORC-12-1: ["":"unKnow"] is set than replaceAwithB will
+            // .. replace "" with "unKnown"
+            "ORC-12-2" to unKnownValues
+        )
+        val pathORC = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-2" // ORC Hl7 path
 
         val message = ORU_R01()
         message.initQuickstart(Hl7Serializer.MESSAGE_CODE, Hl7Serializer.MESSAGE_TRIGGER_EVENT, "T")
@@ -914,6 +927,7 @@ NTE|1|L|This is a final comment|RE"""
             assertThat(terser.get("MSH-3-2")).equals("2.16.840.1.114222.4.1.237821")
             assertThat(terser.get("MSH-3-3")).equals("ISO")
             assertThat(terser.get("MSH-11-1")).equals("D")
+            assertThat(terser.get(pathORC)).equals("Unknown")
         }
 
         val arrayistValues = arrayListOf(
@@ -933,6 +947,7 @@ NTE|1|L|This is a final comment|RE"""
             assertThat(terser.get("MSH-3-2")).equals("2.16.840.1.114222.4.1.237821")
             assertThat(terser.get("MSH-3-3")).equals("ISO")
             assertThat(terser.get("MSH-11-1")).equals("D")
+            assertThat(terser.get(pathORC)).equals("Unknown")
         }
     }
 }
