@@ -2338,11 +2338,6 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Default Value**: F
 
-**HL7 Fields**
-
-- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
-- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
-
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -2795,5 +2790,21 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 **Documentation**:
 
 Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
+
+---
+
+**Name**: testing_lab_specimen_id
+
+**ReportStream Internal Name**: testing_lab_specimen_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The specimen-id from the testing lab
 
 ---

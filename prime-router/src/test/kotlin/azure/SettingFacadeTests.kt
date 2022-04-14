@@ -194,6 +194,20 @@ class SettingFacadeTests {
     }
 
     @Test
+    fun `get sender test failure with invalid name`() {
+        setupSenderDatabaseAccess()
+        // verifies solve for #4002 - an overly-long exception name should not be throwing an exception, instead failing as normal
+        var sender = SettingsFacade(testMetadata(), accessSpy).findSender("ignore.ignore-waters.ignore-waters")
+        assertThat(sender).isNull()
+
+        sender = SettingsFacade(testMetadata(), accessSpy).findSender("ignore.ignore-waters")
+        assertThat(sender).isNull()
+
+        sender = SettingsFacade(testMetadata(), accessSpy).findSender("ignore")
+        assertThat(sender).isNull()
+    }
+
+    @Test
     fun `get receivers test`() {
         setupReceiverDatabaseAccess()
         val list = SettingsFacade(testMetadata(), accessSpy).receivers
@@ -207,5 +221,19 @@ class SettingFacadeTests {
         val receiver = SettingsFacade(testMetadata(), accessSpy).findReceiver("test.elr-test")
         assertThat(receiver?.name).isEqualTo("elr-test")
         assertThat(receiver?.format).isEqualTo(Report.Format.CSV)
+    }
+
+    @Test
+    fun `get receiver test failure with invalid name`() {
+        setupReceiverDatabaseAccess()
+        // verifies solve for #4002 - an overly-long exception name should not be throwing an exception, instead failing as normal
+        var receiver = SettingsFacade(testMetadata(), accessSpy).findReceiver("ignore.ignore-waters.ignore-waters")
+        assertThat(receiver).isNull()
+
+        receiver = SettingsFacade(testMetadata(), accessSpy).findReceiver("ignore.ignore-waters")
+        assertThat(receiver).isNull()
+
+        receiver = SettingsFacade(testMetadata(), accessSpy).findReceiver("ignore")
+        assertThat(receiver).isNull()
     }
 }
