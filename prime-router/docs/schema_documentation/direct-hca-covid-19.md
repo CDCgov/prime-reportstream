@@ -3632,6 +3632,49 @@ The reporting facility's name
 
 ---
 
+**Name**: residence_type
+
+**ReportStream Internal Name**: residence_type
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**LOINC Code**: 75617-1
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+22232009|Hospital|SNOMED_CT
+2081004|Hospital Ship|SNOMED_CT
+32074000|Long Term Care Hospital|SNOMED_CT
+224929004|Secure Hospital|SNOMED_CT
+42665001|Nursing Home|SNOMED_CT
+30629002|Retirement Home|SNOMED_CT
+74056004|Orphanage|SNOMED_CT
+722173008|Prison-based Care Site|SNOMED_CT
+20078004|Substance Abuse Treatment Center|SNOMED_CT
+257573002|Boarding House|SNOMED_CT
+224683003|Military Accommodation|SNOMED_CT
+284546000|Hospice|SNOMED_CT
+257628001|Hostel|SNOMED_CT
+310207003|Sheltered Housing|SNOMED_CT
+57656006|Penal Institution|SNOMED_CT
+285113009|Religious Institutional Residence|SNOMED_CT
+285141008|Work (environment)|SNOMED_CT
+32911000|Homeless|SNOMED_CT
+
+**Documentation**:
+
+Congregate Setting Residence Type?
+
+---
+
 **Name**: resident_congregate_setting
 
 **ReportStream Internal Name**: resident_congregate_setting
@@ -3723,7 +3766,7 @@ The name and OID for the application sending information to the receivers
 
 **Documentation**:
 
-The type of facility providing care (Hospital, Nursing Home, etc.).
+The type of facility providing care (Hospital, Nursing Home, etc.).  This is a CUSTOM internal field. DO NOT use this for the COVID AOE residence_type.
 
 ---
 
@@ -4320,11 +4363,6 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **PII**: No
 
 **Format**: use value found in the Code column
-
-**HL7 Fields**
-
-- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
-- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
 
 **Cardinality**: [0..1]
 

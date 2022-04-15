@@ -525,3 +525,10 @@ elements:
       documentation: Translate multiple inbound Y/N/U AOE values to RS values
       csvFields: [{ name: resident_congregate_setting, format: $display}]
       default: ""
+
+    - name: residence_type
+      type: CODE
+      valueSet: sender-automation/residence_type
+      documentation: Translate multiple inbound values into Residence Type SNOMED codes.
+      csvFields: [{ name: residence_type, format: $display}]
+      default: ""

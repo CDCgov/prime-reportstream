@@ -71,7 +71,6 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                                         filterManager?.order
                                     );
                                     cursorManager?.controller.reset();
-                                    debugger;
                                 }}
                             >
                                 {colConfig.columnHeader}
