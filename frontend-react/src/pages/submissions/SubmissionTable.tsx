@@ -2,28 +2,32 @@ import { useResource } from "rest-hooks";
 import { useEffect } from "react";
 
 import useFilterManager from "../../hooks/filters/UseFilterManager";
-import useCursorManager from "../../hooks/filters/UseCursorManager";
+import useCursorManager, {
+    CursorActionType,
+} from "../../hooks/filters/UseCursorManager";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
-
-import SubmissionFilters from "./SubmissionFilters";
+import TableFilters from "../../components/Table/TableFilters";
 
 /* TODO: This component needs to be able to sort ASC and DESC
  *   while being properly paginated. */
 
 function SubmissionTable() {
     const filterManager = useFilterManager();
-    const cursorManager = useCursorManager(
-        filterManager.startRange.toISOString()
-    ); // First cursor set to StartRange on load
+    const {
+        cursors,
+        hasPrev,
+        hasNext,
+        update: updateCursors,
+    } = useCursorManager(filterManager.startRange.toISOString()); // First cursor set to StartRange on load
 
     /* Our API call! Updates when any of the given state variables update */
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
         {
             organization: getStoredOrg(),
-            cursor: cursorManager.values.cursor,
+            cursor: cursors.current,
             endCursor: filterManager.endRange.toISOString(),
             pageSize: filterManager.count + 1, // Pulls +1 to check for next page
             sort: filterManager.order,
@@ -36,9 +40,12 @@ function SubmissionTable() {
         const nextCursor =
             submissions[filterManager.count]?.timestamp || undefined;
         if (nextCursor) {
-            cursorManager.controller.addNextCursor(nextCursor);
+            updateCursors({
+                type: CursorActionType.ADD_NEXT,
+                payload: nextCursor,
+            });
         }
-    }, [submissions, filterManager.count, cursorManager.controller]);
+    }, [submissions, filterManager.count, updateCursors]);
 
     const transformDate = (s: string) => {
         return new Date(s).toLocaleString();
@@ -73,14 +80,24 @@ function SubmissionTable() {
 
     return (
         <>
-            <SubmissionFilters
+            <TableFilters
                 filterManager={filterManager}
-                cursorManager={cursorManager}
+                cursorManager={{
+                    cursors,
+                    hasPrev,
+                    hasNext,
+                    update: updateCursors,
+                }}
             />
             <Table
                 config={submissionsConfig}
                 filterManager={filterManager}
-                cursorManager={cursorManager}
+                cursorManager={{
+                    cursors,
+                    hasPrev,
+                    hasNext,
+                    update: updateCursors,
+                }}
             />
         </>
     );

@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { Button, DatePicker, Label } from "@trussworks/react-uswds";
 
-import "./SubmissionPages.css";
+import "../../pages/submissions/SubmissionPages.css";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
-import { CursorManager } from "../../hooks/filters/UseCursorManager";
+import {
+    CursorActionType,
+    CursorManager,
+} from "../../hooks/filters/UseCursorManager";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
@@ -29,10 +32,7 @@ interface SubmissionFilterProps {
  * table component contains the call and param passing to the API,
  * and will use the context to get these values.
  */
-function SubmissionFilters({
-    filterManager,
-    cursorManager,
-}: SubmissionFilterProps) {
+function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
     const FALLBACK_LOCAL_START = "2999-12-31";
     const FALLBACK_LOCAL_END = "2020-01-01";
 
@@ -50,25 +50,28 @@ function SubmissionFilters({
                 date1: localStartRange,
                 date2: localEndRange,
             });
-            cursorManager.controller.reset(
-                new Date(localStartRange).toISOString()
-            );
+            cursorManager.update({
+                type: CursorActionType.RESET,
+                payload: new Date(localStartRange).toISOString(),
+            });
         } else if (localStartRange && !localEndRange) {
             filterManager.setRange({
                 date1: localStartRange,
                 sort: filterManager.order,
             });
-            cursorManager.controller.reset(
-                new Date(localStartRange).toISOString()
-            );
+            cursorManager.update({
+                type: CursorActionType.RESET,
+                payload: new Date(localStartRange).toISOString(),
+            });
         } else if (!localStartRange && localEndRange) {
             filterManager.setRange({
                 date1: localEndRange,
                 sort: filterManager.order,
             });
-            cursorManager.controller.reset(
-                new Date(localEndRange).toISOString()
-            );
+            cursorManager.update({
+                type: CursorActionType.RESET,
+                payload: new Date(localEndRange).toISOString(),
+            });
         }
     };
 
@@ -82,7 +85,7 @@ function SubmissionFilters({
     const clearAll = () => {
         // Clears manager state
         filterManager.resetAll();
-        cursorManager.controller.reset();
+        cursorManager.update({ type: CursorActionType.RESET });
 
         // Clear local state
         setLocalStartRange(FALLBACK_LOCAL_START);
@@ -141,4 +144,4 @@ function SubmissionFilters({
     );
 }
 
-export default SubmissionFilters;
+export default TableFilters;

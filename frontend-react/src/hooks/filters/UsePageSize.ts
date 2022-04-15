@@ -7,6 +7,7 @@ interface PageSize {
     resetCount: () => void;
 }
 
+/* TODO: Refactor to usePages and have this manage pageSize and currentPage */
 const usePageSize = (): PageSize => {
     const [pageSize, setPageSize] = useState<ItemCount>(10);
 

@@ -6,7 +6,7 @@ describe("UseDateRange", () => {
     test("renders with friendly default values", () => {
         const { result } = renderHook(() => useDateRange());
         expect(result.current.startRange.toISOString()).toEqual(
-            "2998-01-01T00:00:00.000Z"
+            "3000-01-01T00:00:00.000Z"
         );
         expect(result.current.endRange.toISOString()).toEqual(
             "2000-01-01T00:00:00.000Z"
@@ -49,7 +49,7 @@ describe("UseDateRange", () => {
             result.current.setRange({ date1: "2022-12-31", sort: "ASC" })
         );
         expect(result.current.startRange.toISOString()).toEqual(
-            "2998-01-01T00:00:00.000Z"
+            "3000-01-01T00:00:00.000Z"
         );
         expect(result.current.endRange.toISOString()).toEqual(
             "2022-12-31T00:00:00.000Z"

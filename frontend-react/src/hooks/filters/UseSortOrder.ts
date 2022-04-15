@@ -12,6 +12,9 @@ interface Sort extends SortSettings {
 }
 
 const useSortOrder = (init?: Partial<SortSettings>): Sort => {
+    /* TODO: Refactor this into a useReducer call that stores the sort
+     *   state as an object. The reducer should handle setting column,
+     *   swapping sort order. */
     const [column, setColumn] = useState(init?.column || "");
     const [order, setOrder] = useState<SortOrder>(init?.order || "DESC");
 

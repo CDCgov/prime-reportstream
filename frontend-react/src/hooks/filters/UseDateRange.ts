@@ -19,7 +19,7 @@ interface DateRange {
     resetRange: () => void;
 }
 
-const FALLBACK_START = new Date("2998-01-01");
+const FALLBACK_START = new Date("3000-01-01");
 const FALLBACK_END = new Date("2000-01-01");
 
 const useDateRange = (init?: Partial<DateRange>): DateRange => {
@@ -28,6 +28,8 @@ const useDateRange = (init?: Partial<DateRange>): DateRange => {
     );
     const [endRange, setEndRange] = useState(init?.endRange || FALLBACK_END);
 
+    /* TODO: Break this into a setRange function and a cursor-based range update
+     *   function. */
     const set = useCallback(({ date1, date2, sort }: SetRangeParams) => {
         if (!date2) {
             /* If one date is given, this is a cursor update */

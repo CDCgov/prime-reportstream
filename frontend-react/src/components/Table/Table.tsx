@@ -2,15 +2,18 @@
 import {
     Button,
     ButtonGroup,
+    IconArrowDownward,
+    IconArrowUpward,
     IconNavigateBefore,
     IconNavigateNext,
-    IconArrowUpward,
-    IconArrowDownward,
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 import React from "react";
 
-import { CursorManager } from "../../hooks/filters/UseCursorManager";
+import {
+    CursorActionType,
+    CursorManager,
+} from "../../hooks/filters/UseCursorManager";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
 
 export interface TableRow {
@@ -70,7 +73,12 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                                         colConfig.dataAttr,
                                         filterManager?.order
                                     );
-                                    cursorManager?.controller.reset();
+                                    cursorManager?.update({
+                                        type: CursorActionType.RESET,
+                                        payload:
+                                            filterManager?.startRange.toISOString() ||
+                                            "",
+                                    });
                                 }}
                             >
                                 {colConfig.columnHeader}
@@ -154,13 +162,15 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
     };
 
     /* Handles pagination button logic and display */
-    function PaginationButtons({ values, controller }: CursorManager) {
+    function PaginationButtons(cm: CursorManager) {
         return (
             <ButtonGroup type="segmented" className="float-right margin-top-5">
-                {values.hasPrev && (
+                {cm.hasPrev && (
                     <Button
                         type="button"
-                        onClick={() => controller.goTo(values.currentIndex - 1)}
+                        onClick={() =>
+                            cm.update({ type: CursorActionType.PAGE_DOWN })
+                        }
                     >
                         <span>
                             <IconNavigateBefore className="text-middle" />
@@ -168,10 +178,12 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                         </span>
                     </Button>
                 )}
-                {values.hasNext && (
+                {cm.hasNext && (
                     <Button
                         type="button"
-                        onClick={() => controller.goTo(values.currentIndex + 1)}
+                        onClick={() =>
+                            cm.update({ type: CursorActionType.PAGE_UP })
+                        }
                     >
                         <span>
                             Next
@@ -198,10 +210,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                     </tbody>
                 </table>
                 {cursorManager ? (
-                    <PaginationButtons
-                        values={cursorManager.values}
-                        controller={cursorManager.controller}
-                    />
+                    <PaginationButtons {...cursorManager} />
                 ) : null}
             </div>
         </div>

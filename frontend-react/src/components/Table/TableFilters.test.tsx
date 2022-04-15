@@ -2,9 +2,9 @@ import { screen } from "@testing-library/react";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
-import { CursorManager } from "../../hooks/filters/UseCursorManager";
+import { mockCursorManager } from "../../hooks/filters/mocks/MockCursorManager";
 
-import SubmissionFilters from "./SubmissionFilters";
+import TableFilters from "./TableFilters";
 
 const fakeFilterManager: FilterManager = {
     startRange: new Date("2022-01-01"),
@@ -21,33 +21,12 @@ const fakeFilterManager: FilterManager = {
     resetAll: () => console.log("clearAll"),
 };
 
-const fakeCursorManager: CursorManager = {
-    values: {
-        cursor: "",
-        cursors: new Map(),
-        currentIndex: 0,
-        hasPrev: false,
-        hasNext: false,
-    },
-    controller: {
-        addNextCursor: (v) => {
-            console.log(v);
-        },
-        goTo: (v) => {
-            console.log(v);
-        },
-        reset: (v) => {
-            console.log(v);
-        },
-    },
-};
-
 describe("Rendering", () => {
     beforeEach(() => {
         renderWithRouter(
-            <SubmissionFilters
+            <TableFilters
                 filterManager={fakeFilterManager}
-                cursorManager={fakeCursorManager}
+                cursorManager={mockCursorManager}
             />
         );
     });

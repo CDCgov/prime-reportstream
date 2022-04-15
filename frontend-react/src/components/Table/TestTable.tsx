@@ -1,6 +1,8 @@
 import { useEffect, useMemo } from "react";
 
-import useCursorManager from "../../hooks/filters/UseCursorManager";
+import useCursorManager, {
+    CursorActionType,
+} from "../../hooks/filters/UseCursorManager";
 import useFilterManager from "../../hooks/filters/UseFilterManager";
 
 import Table, { ColumnConfig, TableConfig } from "./Table";
@@ -24,15 +26,16 @@ const dummyRowTwo = {
  * Table component. Any  */
 export const TestTable = () => {
     const filterManager = useFilterManager();
-    const cursorManager = useCursorManager("firstCursor");
+    const { cursors, hasNext, hasPrev, update } =
+        useCursorManager("firstCursor");
 
     /* Ensure there's at least 1 more cursor in the cursorMap
      * to test the Next/Prev buttons. In a real application
      * the effect would call addNextCursor when the API response
      * state changes. */
     useEffect(() => {
-        cursorManager.controller.addNextCursor("secondCursor");
-    }, [cursorManager.controller]);
+        update({ type: CursorActionType.ADD_NEXT, payload: "secondCursor" });
+    }, [update]);
 
     /* Mocking the sort behavior that would normally be performed by the
      * API call */
@@ -84,7 +87,7 @@ export const TestTable = () => {
         <Table
             config={config}
             filterManager={filterManager}
-            cursorManager={cursorManager}
+            cursorManager={{ cursors, hasNext, hasPrev, update }}
         />
     );
 };
