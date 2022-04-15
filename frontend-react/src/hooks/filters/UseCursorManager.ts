@@ -32,24 +32,32 @@ const cursorReducer = (state: Cursors, action: CursorAction): Cursors => {
     const { type, payload } = action;
     switch (type) {
         case CursorActionType.PAGE_UP:
+            /* Pages up by setting new current with state.next,
+             * sets next to an empty string since ADD_NEXT handles
+             * that, and adds state.current to the history. */
             return {
                 current: state.next,
                 next: "",
                 history: [...state.history, state.current],
             } as Cursors;
         case CursorActionType.PAGE_DOWN:
+            /* Pages down by popping the last history item as current,
+             * sets next to state.current, and spreads the remaining
+             * history */
             return {
                 current: state.history.pop(),
                 next: state.current,
                 history: [...state.history],
             } as Cursors;
         case CursorActionType.RESET:
+            /* Resets all values */
             return {
                 current: payload || "",
                 next: "",
                 history: [],
             } as Cursors;
         case CursorActionType.ADD_NEXT:
+            /* Adds next cursor value */
             return {
                 ...state,
                 next: payload || "",
@@ -59,9 +67,6 @@ const cursorReducer = (state: Cursors, action: CursorAction): Cursors => {
     }
 };
 
-/* CursorManager handles logic to maintain an accurate map of cursors by page.
- * Each time you append a cursor with `addNextCursor`, the manager will handle,
- * duplicates and set your hasNext and hasPrev values for you. */
 const useCursorManager = (firstCursor?: string) => {
     const [cursors, cursorDispatch] = useReducer<
         CursorReducer<Cursors, CursorAction>
