@@ -60,13 +60,16 @@ class AuthenticationStrategy() : Logging {
                     // In all other cases, do Server-to-server 'two-legged' auth.
                     val tokAuth = TokenAuthentication(DatabaseJtiCache(db))
                     // This will authenticate the token.
-                    // todo this also checks authorization to access [requiredScope]. Mixing authz/n
+                    // This _also_ checks authorization to access [requiredScope]. Mixing authz/n, which is not ideal,
+                    // but we make use of this:   if this call authorizes access to requiredScope,
+                    // then it is ok to extract the orgName from the requiredScope and use it.
                     val tokClaims = tokAuth.checkAccessToken(request, requiredScope)
                         ?: return null
                     val (orgName, _, _) = Scope.parseScope(requiredScope) ?: return null
                     logger.info("Authenticated request by ${tokClaims["sub"]} for scope $requiredScope")
                     // It is OK to allow the claim on orgName, because it was extracted from the requiredScope,
                     // which was authorized above.
+                    // Still, this is a slight hack, there is still this:
                     // todo : have the TokenAuthentication.checkAccessToken return type AuthenticatedClaims.
                     AuthenticatedClaims(tokClaims, orgName)
                 }
