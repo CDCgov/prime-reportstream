@@ -852,32 +852,16 @@ NTE|1|L|This is a final comment|RE"""
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val serializer = Hl7Serializer(metadata, settings)
-        val msh3tValues = arrayListOf(
-            mapOf("*" to "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO")
-        )
-        val msh11_1_1tValues = arrayListOf(mapOf("*" to "D"))
-        val unKnownValues = arrayListOf(mapOf("*" to "Unknown"))
-        val obxValues = arrayListOf(mapOf("*" to "OBX31^OBX32^OBX33"))
-
-        val replaceValueAwithB: Map<String, Any>? = mapOf(
-            "MSH-3" to msh3tValues,
-            "MSH-11-1" to msh11_1_1tValues,
-            // Note this will not be set in Terser as input since it is "".
-            // .. Hl7Serializer.kt will not set to any value.  Therefore,
-            // .. if replaceValueAwithB:
-            // ..   ORC-12-1: ["":"unKnow"] is set than replaceAwithB will
-            // .. replace "" with "unKnown"
-            "ORC-12-2" to unKnownValues,
-            "OBX-3" to obxValues
-        )
-        val pathORC = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-2"
-        val pathOBX31 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-1"
-        val pathOBX32 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-2"
-        val pathOBX33 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-3"
 
         val message = ORU_R01()
         message.initQuickstart(Hl7Serializer.MESSAGE_CODE, Hl7Serializer.MESSAGE_TRIGGER_EVENT, "T")
         val terser = Terser(message)
+
+        val pathORC = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-2"
+        val pathOBX31 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-1"
+        val pathOBX32 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-2"
+        val pathOBX33 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-3"
+        val pathSPM = "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
 
         // Set known values
         terser.set("MSH-3", "PHX.ProviderReportingService")
@@ -886,22 +870,64 @@ NTE|1|L|This is a final comment|RE"""
         terser.set(pathOBX32, "SARS Old String")
         terser.set(pathOBX33, "LN")
 
+        terser.set("$pathSPM-2-1-1", "1234567")
+        terser.set("$pathSPM-2-1-2", "WASHINGTON TEST SITE")
+        terser.set("$pathSPM-2-1-3", "123456789")
+        terser.set("$pathSPM-2-1-4", "NPI")
+
+        terser.set("$pathSPM-2-2-1", "2345678")
+        terser.set("$pathSPM-2-2-2", "NEW YORK TEST SITE")
+        terser.set("$pathSPM-2-2-3", "234567890")
+        terser.set("$pathSPM-2-2-4", "NPI")
+
+        val msh3_ValuePair = arrayListOf(mapOf("*" to "CDC PRIME - Atlanta^2.16.840.1.114222.4.1.237821^ISO"))
+        val msh11_1_Values = arrayListOf(mapOf("*" to "D"))
+        val unKnownValuePair = arrayListOf(mapOf("*" to "Unknown"))
+        val obxValuePair = arrayListOf(mapOf("*" to "OBX31^OBX32^OBX33"))
+        val spmValuePair = arrayListOf(mapOf("*" to "646&Wichita TEST SITE&123&NPI"))
+
+        val replaceValueAwithB: Map<String, Any>? = mapOf(
+            "MSH-3" to msh3_ValuePair,
+            "MSH-11-1" to msh11_1_Values,
+            // Note for the value=""/blank/null/empty is same as the valude is not in HL7 file.
+            // .. Hl7Serializer.kt will not set to any value.  Therefore,
+            // .. if replaceValueAwithB contains:
+            // ..   ORC-12-2: ["*":"unKnow"], it will add "unKnown" value to the component
+            "ORC-12-2" to unKnownValuePair,
+            "OBX-3" to obxValuePair,
+            "SPM-2" to spmValuePair
+        )
+
         replaceValueAwithB?.let {
             serializer.replaceValueAwithBUsingTerser(
                 replaceValueAwithB, terser,
                 message.patienT_RESULT.ordeR_OBSERVATION.observationReps
             )
-            assertThat(terser.get("MSH-3-1")).equals("CDC PRIME - Atlanta, Georgia (Dekalb)")
-            assertThat(terser.get("MSH-3-2")).equals("2.16.840.1.114222.4.1.237821")
-            assertThat(terser.get("MSH-3-3")).equals("ISO")
-            assertThat(terser.get("MSH-11-1")).equals("D")
-            assertThat(terser.get(pathORC)).equals("Unknown")
-            assertThat(terser.get(pathOBX31)).equals("OBX31")
-            assertThat(terser.get(pathOBX32)).equals("OBX32")
-            assertThat(terser.get(pathOBX33)).equals("OBX33")
+
+            assertThat(terser.get("MSH-3-1")).isEqualTo("CDC PRIME - Atlanta")
+            assertThat(terser.get("MSH-3-2")).isEqualTo("2.16.840.1.114222.4.1.237821")
+            assertThat(terser.get("MSH-3-3")).isEqualTo("ISO")
+            assertThat(terser.get("MSH-11-1")).isEqualTo("D")
+
+            assertThat(terser.get(pathORC)).isEqualTo("Unknown")
+
+            assertThat(terser.get(pathOBX31)).isEqualTo("OBX31")
+            assertThat(terser.get(pathOBX32)).isEqualTo("OBX32")
+            assertThat(terser.get(pathOBX33)).isEqualTo("OBX33")
+
+            assertThat(terser.get("$pathSPM-2-1-1")).isEqualTo("646")
+            assertThat(terser.get("$pathSPM-2-1-2")).isEqualTo("Wichita TEST SITE")
+            assertThat(terser.get("$pathSPM-2-1-3")).isEqualTo("123")
+            assertThat(terser.get("$pathSPM-2-1-4")).isEqualTo("NPI")
+
+            assertThat(terser.get("$pathSPM-2-2-1")).isEqualTo("2345678")
+            assertThat(terser.get("$pathSPM-2-2-2")).isEqualTo("NEW YORK TEST SITE")
+            assertThat(terser.get("$pathSPM-2-2-3")).isEqualTo("234567890")
+            assertThat(terser.get("$pathSPM-2-2-4")).isEqualTo("NPI")
         }
 
-        val arrayistValues = arrayListOf(
+        // Test case for exact match
+        val arrayistValuesReplace = arrayListOf(
             mapOf(
                 "PHX.ProviderReportingService" to
                     "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
@@ -911,17 +937,36 @@ NTE|1|L|This is a final comment|RE"""
         // Reset
         terser.set("MSH-3", "PHX.ProviderReportingService")
         terser.set("MSH-11-1", "P")
-        val replaceValueAwithBExact = mapOf("MSH-3" to arrayistValues)
+        val replaceValueAwithBReplace = mapOf("MSH-3" to arrayistValuesReplace)
         replaceValueAwithB?.let {
             serializer.replaceValueAwithBUsingTerser(
-                replaceValueAwithBExact, terser,
+                replaceValueAwithBReplace, terser,
                 message.patienT_RESULT.ordeR_OBSERVATION.observationReps
             )
-            assertThat(terser.get("MSH-3-1")).equals("CDC PRIME - Atlanta, Georgia (Dekalb)")
-            assertThat(terser.get("MSH-3-2")).equals("2.16.840.1.114222.4.1.237821")
-            assertThat(terser.get("MSH-3-3")).equals("ISO")
-            assertThat(terser.get("MSH-11-1")).equals("D")
-            assertThat(terser.get(pathORC)).equals("Unknown")
+            assertThat(terser.get("MSH-3-1")).isEqualTo("CDC PRIME - Atlanta, Georgia (Dekalb)")
+            assertThat(terser.get("MSH-3-2")).isEqualTo("2.16.840.1.114222.4.1.237821")
+            assertThat(terser.get("MSH-3-3")).isEqualTo("ISO")
+            assertThat(terser.get("MSH-11-1")).isEqualTo("P") // Still since we did have it in the replace list
+            assertThat(terser.get(pathORC)).isEqualTo("Unknown") // Left over from above terser modification.
+        }
+
+        // Test case exact match But not replace since the value in terser and new is NOT match.
+        val arrayistValues = arrayListOf(
+            mapOf(
+                "PHX.ProviderReportingService" to
+                    "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+            )
+        )
+
+        // Reset
+        terser.set("MSH-3", "Don't replace me")
+        val arrayistValuesNotReplace = mapOf("MSH-3" to arrayistValues)
+        replaceValueAwithB?.let {
+            serializer.replaceValueAwithBUsingTerser(
+                arrayistValuesNotReplace, terser,
+                message.patienT_RESULT.ordeR_OBSERVATION.observationReps
+            )
+            assertThat(terser.get("MSH-3-1")).isEqualTo("Don't replace me")
         }
     }
 }
