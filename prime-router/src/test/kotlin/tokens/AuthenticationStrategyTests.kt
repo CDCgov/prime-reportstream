@@ -2,9 +2,12 @@ package gov.cdc.prime.router.tokens
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
+import gov.cdc.prime.router.common.Environment
 import io.jsonwebtoken.Claims
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -27,6 +30,23 @@ class AuthenticationStrategyTests {
     @BeforeEach
     fun reset() {
         clearAllMocks()
+    }
+
+    @Test
+    fun `test isLocal`() {
+        mockkObject(Environment) {
+            every { Environment.isLocal() } returns false
+            assertThat(AuthenticationStrategy.isLocal(null)).isFalse()
+            assertThat(AuthenticationStrategy.isLocal("")).isFalse()
+            assertThat(AuthenticationStrategy.isLocal("abc")).isFalse()
+            assertThat(AuthenticationStrategy.isLocal("a.b.c")).isFalse()
+
+            every { Environment.isLocal() } returns true
+            assertThat(AuthenticationStrategy.isLocal(null)).isTrue()
+            assertThat(AuthenticationStrategy.isLocal("")).isTrue()
+            assertThat(AuthenticationStrategy.isLocal("abc")).isTrue()
+            assertThat(AuthenticationStrategy.isLocal("a.b.c")).isFalse()
+        }
     }
 
     @Test
@@ -118,5 +138,52 @@ class AuthenticationStrategyTests {
         requiredScope = "   " // bad scope format
         assertThat(AuthenticationStrategy.authenticate(req, requiredScope, accessSpy)?.organizationNameClaim)
             .isNull()
+    }
+
+    @Test
+    fun `test getAccessToken`() {
+        val req = MockHttpRequestMessage("test")
+        req.httpHeaders["Authorization"] = "Bearer tok1"
+        var tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isEqualTo("tok1")
+
+        req.httpHeaders.clear()
+        req.httpHeaders["authorization"] = "Bearer tok2"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isEqualTo("tok2")
+
+        req.httpHeaders.clear()
+        req.httpHeaders["AUTHORIZATION"] = "Bearer tok3"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isEqualTo("tok3")
+
+        req.httpHeaders.clear()
+        req.httpHeaders["authorization"] = "tok4"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isEqualTo("tok4")
+
+        req.httpHeaders.clear()
+        req.httpHeaders["foobar"] = "Bearer tok5"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isNull()
+
+        req.httpHeaders.clear()
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isNull()
+
+        req.httpHeaders.clear()
+        req.httpHeaders["foobar"] = "Bearer tok5"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isNull()
+
+        req.httpHeaders.clear()
+        req.httpHeaders["foobar"] = "bearer tok5"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isNull()
+
+        req.httpHeaders.clear()
+        req.httpHeaders["foobar"] = "BEARER tok5"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isNull()
     }
 }

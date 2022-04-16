@@ -7,7 +7,6 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.HttpMethod
-import gov.cdc.prime.router.common.Environment
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkObject
@@ -27,14 +26,14 @@ class OktaAuthenticationTests {
     @Test
     fun `test authenticate`() {
         // This should trigger the local auth
-        var claims = OktaAuthentication.authenticate(null, HttpMethod.GET, "foobar")
+        var claims = OktaAuthentication.authenticate(null, HttpMethod.GET, "foobar", null)
         assertThat(claims).isNotNull()
         assertThat(claims?.isPrimeAdmin).isEqualTo(true)
         assertThat(claims?.isSenderOrgClaim).isEqualTo(true)
         assertThat(claims?.organizationNameClaim).isEqualTo("ignore")
 
         // Bad token
-        claims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar")
+        claims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar", null)
         assertThat(claims).isNull()
     }
 
@@ -54,28 +53,11 @@ class OktaAuthenticationTests {
                 claimsMap
             )
 
-        val authenticatedClaims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar")
+        val authenticatedClaims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar", null)
         assertThat(authenticatedClaims).isNotNull()
         assertEquals("test", authenticatedClaims?.userName)
         assertEquals(false, authenticatedClaims?.isPrimeAdmin)
         assertEquals("ca-phd", authenticatedClaims?.organizationNameClaim)
-    }
-
-    @Test
-    fun `test isLocal`() {
-        mockkObject(Environment) {
-            every { Environment.isLocal() } returns false
-            assertThat(OktaAuthentication.isLocal(null)).isFalse()
-            assertThat(OktaAuthentication.isLocal("")).isFalse()
-            assertThat(OktaAuthentication.isLocal("abc")).isFalse()
-            assertThat(OktaAuthentication.isLocal("a.b.c")).isFalse()
-
-            every { Environment.isLocal() } returns true
-            assertThat(OktaAuthentication.isLocal(null)).isTrue()
-            assertThat(OktaAuthentication.isLocal("")).isTrue()
-            assertThat(OktaAuthentication.isLocal("abc")).isTrue()
-            assertThat(OktaAuthentication.isLocal("a.b.c")).isFalse()
-        }
     }
 
     @Test

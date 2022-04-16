@@ -1,5 +1,9 @@
 package gov.cdc.prime.router.tokens
 
+import gov.cdc.prime.router.Sender
+import io.jsonwebtoken.Claims
+import io.jsonwebtoken.Jwts
+
 /**
  * This represents a set of claims coming from Okta that have been authenticated (but may or may not
  * have been authorized). For convenience, certain claims have been pulled out into more readable/usable forms,
@@ -96,17 +100,25 @@ class AuthenticatedClaims {
 
     companion object {
         /**
-         * Create fake claims, for testing.
+         * Create fake Okta Auth claims, for testing
          * @return fake claims, for testing.
-         * Uses the [organizationName] if one is passed in, otherwise uses the `ignore` org.
+         * Uses the organizationName in the [sender] if one is passed in, otherwise uses the `ignore` org.
          */
-        fun generateTestClaims(organizationName: String? = null): AuthenticatedClaims {
-            val tmpOrg = if (organizationName.isNullOrEmpty()) "ignore" else organizationName
+        fun generateTestClaims(sender: Sender? = null): AuthenticatedClaims {
+            val tmpOrg = sender?.organizationName ?: "ignore"
             val jwtClaims: Map<String, Any> = mapOf(
                 "organization" to listOf("$oktaSenderGroupPrefix$tmpOrg", oktaSystemAdminGroup),
                 "sub" to "local@test.com",
             )
             return AuthenticatedClaims(jwtClaims)
+        }
+
+        /**
+         * Create fake twolegged TokenAuthentication claims, for testing.
+         * @return fake claims, for testing.
+         */
+        fun generateTestJwtClaims(): Claims {
+            return Jwts.claims().setSubject("local@test.com")
         }
     }
 }

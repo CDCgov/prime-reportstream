@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.tokens
 
-import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -12,7 +11,6 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
-import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 
 // These constants match how PRIME Okta subscription is configured
@@ -40,16 +38,6 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
 
         /**
-         * Extract and @return the bearer access token from the [request] Authorization header, if there is one
-         * Otherwise return null.
-         */
-        fun getAccessToken(request: HttpRequestMessage<String?>): String? {
-            // RFC6750 defines the access token
-            val authorization = request.headers[HttpHeaders.AUTHORIZATION.lowercase()] ?: return null
-            return authorization.substringAfter("Bearer ", "")
-        }
-
-        /**
          * Perform authentication on a human user.
          *
          * @return the claims found in the jwt if the jwt token in [request] is validated.
@@ -57,26 +45,35 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
          * Always performs authentication using Okta, unless running locally.
          */
         fun authenticate(request: HttpRequestMessage<String?>): AuthenticatedClaims? {
-            val accessToken = getAccessToken(request)
-            return authenticate(accessToken, request.httpMethod, request.uri.path)
+            val accessToken = AuthenticationStrategy.getAccessToken(request)
+            val client = request.headers["client"]
+            return authenticate(accessToken, request.httpMethod, request.uri.path, client)
         }
 
         /**
-         * @see [authenticate].
+         * Confirm this [accessToken] is a valid Okta token.
+         * [httpMethod] and [path] are just for logging.
+         * Optional [client] is the 'client' header as passed in API POSTs submissions. Only if running local,
+         * use this as the sender in the claims.  Otherwise, ignore [client].   OK if null.
          */
         fun authenticate(
             accessToken: String?,
             httpMethod: HttpMethod,
             path: String,
+            client: String? = null,
         ): AuthenticatedClaims? {
-            if (isLocal(accessToken)) {
+            if (AuthenticationStrategy.isLocal(accessToken)) {
                 logger.info("Granted test auth request for $httpMethod:$path")
-                return AuthenticatedClaims.generateTestClaims()
+                val sender = if (client == null)
+                    null
+                else
+                    WorkflowEngine().settings.findSender(client)
+                return AuthenticatedClaims.generateTestClaims(sender)
             }
 
             // Confirm the token exists.
             if (accessToken == null) {
-                logger.info("Missing Authorization Header: $httpMethod:$path}")
+                logger.info("Missing or badly formatted Authorization Header: $httpMethod:$path}")
                 return null
             }
 
@@ -94,25 +91,6 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
             } catch (e: Exception) {
                 logger.info("Failure while authenticating, for call: $httpMethod: $path", e)
                 return null
-            }
-        }
-        /**
-         * Helper method for authentication.
-         * Check whether we are running locally.
-         * Even if local, if the [accessToken] is there, then do real Okta auth.
-         * @return true if we should do 'local' auth, false if we should do Okta auth.
-         */
-        fun isLocal(accessToken: String?): Boolean {
-            return when {
-                (!Environment.isLocal()) -> false
-                (accessToken != null && accessToken.split(".").size == 3) -> {
-                    // For testing auth.  Running local, but test using the real production parser.
-                    // The above test is purposefully simple so that we can test all kinds of error conditions
-                    // further downstream.
-                    logger.info("Running locally, but will use the OktaAuthenticationVerifier")
-                    false
-                }
-                else -> true
             }
         }
 

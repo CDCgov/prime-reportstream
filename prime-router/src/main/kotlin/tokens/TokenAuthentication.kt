@@ -14,8 +14,6 @@ import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SigningKeyResolverAdapter
 import org.apache.logging.log4j.kotlin.Logging
-import java.lang.IllegalArgumentException
-import java.lang.RuntimeException
 import java.security.Key
 import java.time.OffsetDateTime
 import java.util.Date
@@ -110,16 +108,7 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
     }
 
     fun checkAccessToken(request: HttpRequestMessage<String?>, requiredScope: String): Claims? {
-        val bearerComponent = request.headers["authorization"]
-        if (bearerComponent == null) {
-            logger.error("Missing Authorization header.  AccessToken Unauthorized.")
-            return null
-        }
-        val accessToken = bearerComponent.split(" ")[1]
-        if (accessToken.isEmpty()) {
-            logger.error("Request has Authorization header but no token.  AccessToken Unauthorized")
-            return null
-        }
+        val accessToken = AuthenticationStrategy.getAccessToken(request)
         return checkAccessToken(accessToken, requiredScope, FindReportStreamSecretInVault())
     }
 
@@ -131,8 +120,16 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
      * This confirms that the token is properly unexpired and signed by that secret, and that it contains the
      * [requiredScope]
      */
-    fun checkAccessToken(accessToken: String, requiredScope: String, lookup: ReportStreamSecretFinder): Claims? {
+    fun checkAccessToken(accessToken: String?, requiredScope: String, lookup: ReportStreamSecretFinder): Claims? {
         try {
+            if (AuthenticationStrategy.isLocal(accessToken)) {
+                return AuthenticatedClaims.generateTestJwtClaims()
+            } else {
+                if (accessToken.isNullOrEmpty()) {
+                    logger.error("Missing or badly formatted 'Authorization: Bearer <tok>' header.  Unauthorized")
+                    return null
+                }
+            }
             val secret = lookup.getReportStreamTokenSigningSecret()
             // Check the signature.  Throws JwtException on problems.
             val jws = Jwts.parserBuilder()

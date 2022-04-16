@@ -7,6 +7,8 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Sender
 import org.junit.jupiter.api.Test
 
 class AuthenticationClaimsTests {
@@ -63,21 +65,25 @@ class AuthenticationClaimsTests {
     }
 
     @Test
-    fun `test TestClaims`() {
+    fun `test generateTestClaims`() {
         var claims = AuthenticatedClaims.generateTestClaims()
         assertThat(claims.userName).isNotNull()
         assertThat(claims.isPrimeAdmin).isTrue()
         assertThat(claims.isSenderOrgClaim).isTrue()
         assertThat(claims.organizationNameClaim).isEqualTo("ignore")
 
-        claims = AuthenticatedClaims.generateTestClaims("")
+        val sender = Sender(
+            "mySenderName",
+            "myOrgName",
+            Sender.Format.CSV,
+            "covid-19",
+            CustomerStatus.INACTIVE,
+            "mySchema",
+            keys = null
+        )
+        claims = AuthenticatedClaims.generateTestClaims(sender)
         assertThat(claims.isPrimeAdmin).isTrue()
         assertThat(claims.isSenderOrgClaim).isTrue()
-        assertThat(claims.organizationNameClaim).isEqualTo("ignore")
-
-        claims = AuthenticatedClaims.generateTestClaims("foo")
-        assertThat(claims.isPrimeAdmin).isTrue()
-        assertThat(claims.isSenderOrgClaim).isTrue()
-        assertThat(claims.organizationNameClaim).isEqualTo("foo")
+        assertThat(claims.organizationNameClaim).isEqualTo("myOrgName")
     }
 }

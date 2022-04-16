@@ -1,13 +1,47 @@
 package gov.cdc.prime.router.tokens
 
+import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 
 val USE_OKTA_AUTH = "okta"
 
 class AuthenticationStrategy() : Logging {
     companion object : Logging {
+
+        /**
+         * Helper method for authentication.
+         * Check whether we are running locally.
+         * Even if local, if the [accessToken] is there, then do real Okta auth.
+         * @return true if we should do 'local' auth, false if we should do Okta auth.
+         */
+        fun isLocal(accessToken: String?): Boolean {
+            return when {
+                (!Environment.isLocal()) -> false
+                (accessToken != null && accessToken.split(".").size == 3) -> {
+                    // For testing auth.  Running local, but test using the real production parser.
+                    // The above test is purposefully simple so that we can test all kinds of error conditions
+                    // further downstream.
+                    logger.info("Running locally, but will use the OktaAuthenticationVerifier")
+                    false
+                }
+                else -> true
+            }
+        }
+
+        /**
+         * Utility function to extract and @return the bearer access token from the [request] Authorization header,
+         * if there is one. Otherwise return null.  Fully case insensitive.
+         */
+        fun getAccessToken(request: HttpRequestMessage<String?>): String? {
+            // RFC6750 defines the access token
+            val caseInsensitiveHeaders = request.headers.mapKeys { it.key.lowercase() }
+            val authorization = caseInsensitiveHeaders[HttpHeaders.AUTHORIZATION.lowercase()] ?: return null
+            val tok = authorization.replace("Bearer ", "", ignoreCase = true)
+            return tok.ifBlank { null }
+        }
 
         // Returns an OktaAuthentication strategy if the authenticationType is "okta"
         fun authStrategy(
