@@ -162,7 +162,7 @@ class ReportFunction(
         val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
         val httpStatus: HttpStatus =
             try {
-                val options = Options.valueOf(optionsText)
+                val options = Options.valueOfOrNone(optionsText)
                 val payloadName = extractPayloadName(request)
                 // track the sending organization and client based on the header
                 actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
