@@ -37,6 +37,7 @@ import { NewSetting } from "./components/Admin/NewSetting";
 import { FeatureFlagUIComponent } from "./pages/misc/FeatureFlags";
 import SenderModeBanner from "./components/SenderModeBanner";
 import { SessionStorageContext } from "./contexts/SessionStorageContext";
+import {AdminOrgNew} from "./pages/admin/AdminOrgNew";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -155,6 +156,11 @@ const App = () => {
                                 path="/admin/settings"
                                 authorize={PERMISSIONS.PRIME_ADMIN}
                                 component={AdminMain}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/new/org"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={AdminOrgNew}
                             />
                             <AuthorizedRoute
                                 path="/admin/orgsettings/org/:orgname"

@@ -1,9 +1,11 @@
 import ActionDetailsResource from "./ActionDetailsResource";
 import OrgSenderSettingsResource from "./OrgSenderSettingsResource";
+import OrganizationResource from "./OrganizationResource";
 
 export enum ResponseType {
     ACTION_DETAIL = "actionDetail",
     SENDER_SETTINGS = "senderSettings",
+    NEW_ORGANIZATION = "newOrg"
 }
 
 export class TestResponse {
@@ -21,6 +23,9 @@ export class TestResponse {
                 break;
             case ResponseType.SENDER_SETTINGS:
                 this.data = this.senderSettingsPutResponse;
+                break;
+            case ResponseType.NEW_ORGANIZATION:
+                this.data = this.newOrgResponse;
                 break;
             default:
                 this.data = null;
@@ -114,4 +119,16 @@ export class TestResponse {
         },
         url: "",
     };
+
+    newOrgResponse: OrganizationResource = {
+        name: 'test',
+        description: 'A Test Organization',
+        jurisdiction: 'STATE',
+        countyName: 'Test',
+        stateCode: 'CA',
+        url: '',
+        pk(): string {
+            return this.name;
+        }
+    }
 }
