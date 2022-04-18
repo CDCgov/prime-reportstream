@@ -11,6 +11,10 @@ import io.jsonwebtoken.SigningKeyResolverAdapter
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.io.Encoders
 import io.jsonwebtoken.security.Keys
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockkObject
+import org.junit.jupiter.api.BeforeEach
 import java.math.BigInteger
 import java.security.Key
 import java.time.OffsetDateTime
@@ -99,6 +103,11 @@ class TokenAuthenticationTests {
         }
     }
 
+    @BeforeEach
+    fun reset() {
+        clearAllMocks() // If using Companion object mocks, you need to be sure to clear between tests
+    }
+
     @Test
     fun `test reading in Keys`() {
         // This really is a test of Jwk.kt, but I need the key pair here, and didn't
@@ -153,6 +162,8 @@ class TokenAuthenticationTests {
         assertEquals("bearer", token.tokenType)
         assertTrue(token.sub.startsWith("foobar_"))
 
+        mockkObject(AuthenticationStrategy.Companion)
+        every { AuthenticationStrategy.isLocal(any()) } returns false
         // Now read the token back in, and confirm its valid.
         val claims = tokenAuthentication.checkAccessToken(token.accessToken, "foobar", rslookup)
         // if claims is non-null then the sender's accessToken is valid.

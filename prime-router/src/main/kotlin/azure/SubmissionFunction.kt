@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.PrincipalLevel
 import org.apache.logging.log4j.kotlin.Logging
@@ -23,7 +24,8 @@ import java.util.UUID
 
 class SubmissionFunction(
     private val submissionsFacade: SubmissionsFacade = SubmissionsFacade.instance,
-    private val oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.USER)
+    private val oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.USER),
+    private val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
     data class Parameters(
         val sort: String,
@@ -92,34 +94,59 @@ class SubmissionFunction(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organization") organization: String,
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, organization, true) {
-            try {
-                val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
-                    Parameters(request.queryParameters)
-                val sortOrder = try {
-                    SubmissionAccess.SortOrder.valueOf(qSortOrder)
-                } catch (e: IllegalArgumentException) {
-                    SubmissionAccess.SortOrder.DESC
-                }
-
-                val sortColumn = try {
-                    SubmissionAccess.SortColumn.valueOf(qSortColumn)
-                } catch (e: IllegalArgumentException) {
-                    SubmissionAccess.SortColumn.CREATED_AT
-                }
-                val submissions = submissionsFacade.findSubmissionsAsJson(
-                    organization,
-                    sortOrder,
-                    sortColumn,
-                    resultsAfterDate,
-                    resultsBeforeDate,
-                    pageSize,
-                    showFailed
+        try {
+            // Confirm this is a sender in the system.
+            val sender = workflowEngine.settings.findSender(organization) // err if no default sender in settings in org
+                ?: return HttpUtilities.unauthorizedResponse(
+                    request,
+                    OktaAuthentication.authenticationFailure + "$organization': unknown sender",
                 )
-                HttpUtilities.okResponse(request, submissions)
-            } catch (e: IllegalArgumentException) {
-                HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")
+            // Do authentication
+            val claims = AuthenticationStrategy.authenticate(
+                request,
+                "${sender.fullName}.report",
+                workflowEngine.db,
+            ) ?: return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authenticationFailure)
+
+            // Do authorization based on org name in claim matching org name in client header, or being a prime admin.
+            if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {
+                logger.warn(
+                    "Invalid Authorization for user ${claims.userName}:" +
+                        " ${request.httpMethod}:${request.uri.path}." +
+                        " ERR: Claim org is ${claims.organizationNameClaim} but client id is ${sender.organizationName}"
+                )
+                return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authorizationFailure)
             }
+            logger.info(
+                "Authorized request by org ${claims.organizationNameClaim}" +
+                    " to $sender/submissions endpoint via client id ${sender.organizationName}. "
+            )
+
+            val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
+                Parameters(request.queryParameters)
+            val sortOrder = try {
+                SubmissionAccess.SortOrder.valueOf(qSortOrder)
+            } catch (e: IllegalArgumentException) {
+                SubmissionAccess.SortOrder.DESC
+            }
+
+            val sortColumn = try {
+                SubmissionAccess.SortColumn.valueOf(qSortColumn)
+            } catch (e: IllegalArgumentException) {
+                SubmissionAccess.SortColumn.CREATED_AT
+            }
+            val submissions = submissionsFacade.findSubmissionsAsJson(
+                sender.organizationName,
+                sortOrder,
+                sortColumn,
+                resultsAfterDate,
+                resultsBeforeDate,
+                pageSize,
+                showFailed
+            )
+            return HttpUtilities.okResponse(request, submissions)
+        } catch (e: IllegalArgumentException) {
+            return HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")
         }
     }
 

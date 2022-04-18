@@ -7,7 +7,11 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.DetailedSubmissionHistory
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.SubmissionHistory
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -16,12 +20,17 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.spyk
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
+import org.jooq.tools.jdbc.MockConnection
+import org.jooq.tools.jdbc.MockDataProvider
+import org.jooq.tools.jdbc.MockResult
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -132,11 +141,26 @@ class SubmissionFunctionTests : Logging {
         )
     )
 
+    val dataProvider = MockDataProvider { emptyArray<MockResult>() }
+    val connection = MockConnection(dataProvider)
+    val accessSpy = spyk(DatabaseAccess(connection))
+
+    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
+        return spyk(
+            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy).build()
+        )
+    }
+
+    @BeforeEach
+    fun reset() {
+        clearAllMocks()
+    }
+
     @Test
     fun `test list submissions`() {
         val testCases = listOf(
             SubmissionUnitTestCase(
-                mapOf("authorization" to "Bearer 111.222.333"),
+                mapOf("authorization" to "Bearer 111.222.333", "authentication-type" to "okta"),
                 emptyMap(),
                 ExpectedAPIResponse(
                     HttpStatus.UNAUTHORIZED
@@ -225,6 +249,12 @@ class SubmissionFunctionTests : Logging {
             )
         )
 
+        val metadata = Metadata(schema = Schema(name = "one", topic = "test"))
+        val settings = MockSettings()
+        val sender = Sender("default", "simple_report", Sender.Format.CSV, "test", schemaName = "one")
+        settings.senderStore[sender.fullName] = sender
+        val engine = makeEngine(metadata, settings)
+
         testCases.forEach {
             logger.info("Executing list submissions unit test ${it.name}")
             val httpRequestMessage = MockHttpRequestMessage()
@@ -232,9 +262,8 @@ class SubmissionFunctionTests : Logging {
             httpRequestMessage.parameters += it.parameters
             // Invoke
             val response = SubmissionFunction(
-                SubmissionsFacade(
-                    TestSubmissionAccess(testData, mapper)
-                )
+                SubmissionsFacade(TestSubmissionAccess(testData, mapper)),
+                workflowEngine = engine,
             ).getOrgSubmissions(
                 httpRequestMessage,
                 "simple_report",
@@ -251,10 +280,19 @@ class SubmissionFunctionTests : Logging {
         }
     }
 
-    private fun setUpAccessTests(organizationName: String): Pair<SubmissionFunction, MockHttpRequestMessage> {
+    private fun setUpAccessTests(
+        organizationName: String,
+        oktaClaimsOrganizationName: String
+    ): Pair<SubmissionFunction, MockHttpRequestMessage> {
         val oktaAuth = spyk<OktaAuthentication>()
 
-        val claimsMap = buildClaimsMap(organizationName)
+        val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
+
+        val metadata = Metadata(schema = Schema(name = "one", topic = "test"))
+        val settings = MockSettings()
+        val sender = Sender("default", organizationName, Sender.Format.CSV, "test", schemaName = "one")
+        settings.senderStore[sender.fullName] = sender
+        val engine = makeEngine(metadata, settings)
 
         mockkObject(OktaAuthentication.Companion)
         every { OktaAuthentication.Companion.decodeJwt(any()) } returns
@@ -266,20 +304,24 @@ class SubmissionFunctionTests : Logging {
             )
 
         val httpRequestMessage = MockHttpRequestMessage()
-        httpRequestMessage.httpHeaders += mapOf("authorization" to "Bearer 111.222.333")
+        httpRequestMessage.httpHeaders += mapOf(
+            "authorization" to "Bearer 111.222.333",
+            "authentication-type" to "okta"
+        )
 
         val submissionFunction = SubmissionFunction(
-            SubmissionsFacade(
+            submissionsFacade = SubmissionsFacade(
                 TestSubmissionAccess(testData, mapper)
             ),
-            oktaAuth
+            oktaAuthentication = oktaAuth,
+            workflowEngine = engine
         )
         return Pair(submissionFunction, httpRequestMessage)
     }
 
     @Test
     fun `test access user can view their org's submission history`() {
-        val (submissionFunction, httpRequestMessage) = setUpAccessTests(oktaClaimsOrganizationName)
+        val (submissionFunction, httpRequestMessage) = setUpAccessTests(organizationName, oktaClaimsOrganizationName)
 
         val response = submissionFunction.getOrgSubmissions(httpRequestMessage, organizationName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -287,7 +329,7 @@ class SubmissionFunctionTests : Logging {
 
     @Test
     fun `test access user cannot view another org's submission history`() {
-        val (submissionFunction, httpRequestMessage) = setUpAccessTests(oktaClaimsOrganizationName)
+        val (submissionFunction, httpRequestMessage) = setUpAccessTests(organizationName, oktaClaimsOrganizationName)
 
         val response = submissionFunction.getOrgSubmissions(httpRequestMessage, otherOrganizationName)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -295,7 +337,7 @@ class SubmissionFunctionTests : Logging {
 
     @Test
     fun `test access dhadmins can view all org's submission history`() {
-        val (submissionFunction, httpRequestMessage) = setUpAccessTests(oktaSystemAdminGroup)
+        val (submissionFunction, httpRequestMessage) = setUpAccessTests(organizationName, oktaSystemAdminGroup)
 
         val response = submissionFunction.getOrgSubmissions(httpRequestMessage, organizationName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
