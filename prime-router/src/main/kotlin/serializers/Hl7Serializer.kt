@@ -1737,7 +1737,7 @@ class Hl7Serializer(
      * @return same string if no special characters are found or converted ASCII string if any special chars are found.
      * @link https://github.com/anyascii/anyascii
      */
-    private fun unicodeToAscii(
+    internal fun unicodeToAscii(
         message: String
     ): String {
         return AnyAscii.transliterate(message)
