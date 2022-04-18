@@ -49,30 +49,44 @@ export function AdminOrgEdit({
     const { fetch: fetchController } = useController();
     const [loading, setLoading] = useState(false);
 
+    const newerVersionPopupMessage = `WARNING!!! A newer version of this setting now exists in the database'`;
+    const newerVersionModalMessage = `WARNING!!! A change has been made to the setting you're trying to update by 
+                    '${orgSettings?.meta?.createdBy}'. Please coordinate with that user and return to update the setting 
+                    again, if needed`;
+
+    async function getLatestOrgResponse() {
+        const accessToken = getStoredOktaToken();
+        const organization = getStoredOrg();
+
+        const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    Organization: organization!,
+                },
+            }
+        );
+
+        return await response.json();
+    }
+
     const ShowCompareConfirm = async () => {
         try {
             // fetch original version
             setLoading(true);
-            const accessToken = getStoredOktaToken();
-            const organization = getStoredOrg();
-
-            const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        Organization: organization!,
-                    },
-                }
-            );
-
-            const responseBody = await response.json();
+            const latestResponse = await getLatestOrgResponse();
             setOrgSettingsOldJson(
-                JSON.stringify(responseBody, jsonSortReplacer, 2)
+                JSON.stringify(latestResponse, jsonSortReplacer, 2)
             );
             setOrgSettingsNewJson(
                 JSON.stringify(orgSettings, jsonSortReplacer, 2)
             );
+
+            if (latestResponse?.meta?.version !== orgSettings?.meta?.version) {
+                showError(newerVersionPopupMessage);
+                confirmModalRef?.current?.setWarning(newerVersionModalMessage);
+            }
 
             confirmModalRef?.current?.showModal();
             setLoading(false);
@@ -87,6 +101,17 @@ export function AdminOrgEdit({
 
     const saveOrgData = async () => {
         try {
+            const latestResponse = await getLatestOrgResponse();
+            if (latestResponse.meta?.version !== orgSettings?.meta?.version) {
+                // refresh left-side panel in compare modal to make it obvious what has changed
+                setOrgSettingsOldJson(
+                    JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                );
+                showError(newerVersionPopupMessage);
+                confirmModalRef?.current?.setWarning(newerVersionModalMessage);
+                return false;
+            }
+
             const data = confirmModalRef?.current?.getEditedText();
             showAlertNotification("success", `Saving...`);
             await fetchController(
@@ -104,9 +129,7 @@ export function AdminOrgEdit({
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
             console.trace(e, errorDetail);
-            showError(
-                `Updating receiver '${orgname}' failed with: ${errorDetail}`
-            );
+            showError(`Updating org '${orgname}' failed with: ${errorDetail}`);
             return false;
         }
 

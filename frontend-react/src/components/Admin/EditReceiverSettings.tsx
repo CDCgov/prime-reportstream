@@ -52,29 +52,49 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
             useState("");
         const { invalidate } = useController();
 
+        const newerVersionPopupMessage = `WARNING!!! A newer version of this setting now exists in the database'`;
+        const newerVersionModalMessage = `WARNING!!! A change has been made to the setting you're trying to update by 
+                    '${orgReceiverSettings?.meta?.createdBy}'. Please coordinate with that user and return to update the setting 
+                    again, if needed`;
+
+        async function getLatestReceiverResponse() {
+            const accessToken = getStoredOktaToken();
+            const organization = getStoredOrg();
+
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        Organization: organization!,
+                    },
+                }
+            );
+
+            return await response.json();
+        }
+
         const showCompareConfirm = async () => {
             try {
                 // fetch original version
                 setLoading(true);
-                const accessToken = getStoredOktaToken();
-                const organization = getStoredOrg();
-
-                const response = await fetch(
-                    `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                            Organization: organization!,
-                        },
-                    }
-                );
-                const responseBody = await response.json();
+                const latestResponse = await getLatestReceiverResponse();
                 setOrgReceiverSettingsOldJson(
-                    JSON.stringify(responseBody, jsonSortReplacer, 2)
+                    JSON.stringify(latestResponse, jsonSortReplacer, 2)
                 );
                 setOrgReceiverSettingsNewJson(
                     JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2)
                 );
+
+                if (
+                    latestResponse?.meta?.version !==
+                    orgReceiverSettings?.meta?.version
+                ) {
+                    showError(newerVersionPopupMessage);
+                    confirmModalRef?.current?.setWarning(
+                        newerVersionModalMessage
+                    );
+                }
 
                 confirmModalRef?.current?.showModal();
                 setLoading(false);
@@ -101,6 +121,22 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
         const saveReceiverData = async () => {
             try {
                 setLoading(true);
+
+                const latestResponse = await getLatestReceiverResponse();
+                if (
+                    latestResponse.meta?.version !==
+                    orgReceiverSettings?.meta?.version
+                ) {
+                    // refresh left-side panel in compare modal to make it obvious what has changed
+                    setOrgReceiverSettingsOldJson(
+                        JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                    );
+                    showError(newerVersionPopupMessage);
+                    confirmModalRef?.current?.setWarning(
+                        newerVersionModalMessage
+                    );
+                    return false;
+                }
 
                 const data = confirmModalRef?.current?.getEditedText();
 

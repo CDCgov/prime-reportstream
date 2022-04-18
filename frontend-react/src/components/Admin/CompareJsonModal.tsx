@@ -7,7 +7,13 @@ import {
     ModalRef,
     ModalToggleButton,
 } from "@trussworks/react-uswds";
-import React, { forwardRef, Ref, useImperativeHandle, useRef } from "react";
+import React, {
+    forwardRef,
+    Ref,
+    useImperativeHandle,
+    useRef,
+    useState,
+} from "react";
 import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 
 import { EditableCompare, EditableCompareRef } from "../EditableCompare";
@@ -43,6 +49,8 @@ ModalConfirmSaveButton.displayName = "ModalConfirmSaveButton";
 // interface on Component that is callable
 export interface ConfirmSaveSettingModalRef extends ModalRef {
     getEditedText: () => string;
+    getOriginalText: () => string;
+    setWarning: (warning: string) => void;
     showModal: () => void;
     hideModal: () => void;
 }
@@ -61,7 +69,7 @@ export const ConfirmSaveSettingModal = forwardRef(
     ) => {
         const modalRef = useRef<ModalRef>(null);
         const diffEditorRef = useRef<EditableCompareRef>(null);
-
+        const [errorText, setErrorText] = useState("");
         const scopedConfirm = () => {
             onConfirm();
         };
@@ -73,9 +81,15 @@ export const ConfirmSaveSettingModal = forwardRef(
                 getEditedText: (): string => {
                     return diffEditorRef?.current?.getEditedText() || newjson;
                 },
+                getOriginalText: (): string => {
+                    return diffEditorRef?.current?.getOriginalText() || newjson;
+                },
+                setWarning(warning) {
+                    setErrorText(warning);
+                },
                 showModal: () => {
                     // need to refresh data passed into object
-                    diffEditorRef?.current?.refeshEditedText(newjson);
+                    diffEditorRef?.current?.refreshEditedText(newjson);
                     modalRef?.current?.toggleModal(undefined, true);
                 },
                 hideModal: () => {
@@ -105,6 +119,12 @@ export const ConfirmSaveSettingModal = forwardRef(
                     <div className="usa-prose">
                         <p id={`${uniquid}-description`}>
                             You are about to change this setting: {uniquid}
+                        </p>
+                        <p
+                            id={`${uniquid}-error`}
+                            className="usa-error-message"
+                        >
+                            {errorText}
                         </p>
                         <EditableCompare
                             ref={diffEditorRef}

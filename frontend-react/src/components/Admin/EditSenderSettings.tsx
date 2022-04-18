@@ -44,30 +44,49 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
         const { invalidate } = useController();
         const [loading, setLoading] = useState(false);
 
+        const newerVersionPopupMessage = `WARNING!!! A newer version of this setting now exists in the database'`;
+        const newerVersionModalMessage = `WARNING!!! A change has been made to the setting you're trying to update by 
+                    '${orgSenderSettings?.meta?.createdBy}'. Please coordinate with that user and return to update the setting 
+                    again, if needed`;
+
+        async function getLatestSenderResponse() {
+            const accessToken = getStoredOktaToken();
+            const organization = getStoredOrg();
+
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        Organization: organization!,
+                    },
+                }
+            );
+
+            return await response.json();
+        }
+
         const ShowCompareConfirm = async () => {
             try {
                 // fetch original version
                 setLoading(true);
-                const accessToken = getStoredOktaToken();
-                const organization = getStoredOrg();
-
-                const response = await fetch(
-                    `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                            Organization: organization!,
-                        },
-                    }
-                );
-
-                const responseBody = await response.json();
+                const latestResponse = await getLatestSenderResponse();
                 setOrgSenderSettingsOldJson(
-                    JSON.stringify(responseBody, jsonSortReplacer, 2)
+                    JSON.stringify(latestResponse, jsonSortReplacer, 2)
                 );
                 setOrgSenderSettingsNewJson(
                     JSON.stringify(orgSenderSettings, jsonSortReplacer, 2)
                 );
+
+                if (
+                    latestResponse?.meta?.version !==
+                    orgSenderSettings?.meta?.version
+                ) {
+                    showError(newerVersionPopupMessage);
+                    confirmModalRef?.current?.setWarning(
+                        newerVersionModalMessage
+                    );
+                }
 
                 confirmModalRef?.current?.showModal();
                 setLoading(false);
@@ -94,6 +113,21 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
         const saveSenderData = async () => {
             try {
                 setLoading(true);
+                const latestResponse = await getLatestSenderResponse();
+                if (
+                    latestResponse.meta?.version !==
+                    orgSenderSettings?.meta?.version
+                ) {
+                    // refresh left-side panel in compare modal to make it obvious what has changed
+                    setOrgSenderSettingsOldJson(
+                        JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                    );
+                    showError(newerVersionPopupMessage);
+                    confirmModalRef?.current?.setWarning(
+                        newerVersionModalMessage
+                    );
+                    return false;
+                }
 
                 const data = confirmModalRef?.current?.getEditedText();
 
@@ -120,7 +154,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                 let errorDetail = await getErrorDetailFromResponse(e);
                 console.trace(e, errorDetail);
                 showError(
-                    `Updating receiver '${sendername}' failed with: ${errorDetail}`
+                    `Updating sender '${sendername}' failed with: ${errorDetail}`
                 );
                 return false;
             }
