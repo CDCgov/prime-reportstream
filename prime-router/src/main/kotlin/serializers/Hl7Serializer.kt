@@ -29,9 +29,9 @@ import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.formatDateTimeForReceiver
+import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
-import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -908,9 +908,7 @@ class Hl7Serializer(
 
             // Override with organization name if available
             Hl7Configuration.OrderingFacilityName.ORGANIZATION_NAME -> {
-                val organizationName = StringUtils.trimToNull(
-                    report.getString(row, "organization_name")
-                ) ?: rawFacilityName
+                val organizationName = report.getString(row, "organization_name").trimToNull() ?: rawFacilityName
                 setPlainOrderingFacility(terser, organizationName)
             }
         }
@@ -1066,7 +1064,7 @@ class Hl7Serializer(
         val pathSpec = formPathSpec(hl7Field, repeat)
 
         // All components should be trimmed and not blank.
-        val trimmedValue = StringUtils.trimToNull(value) ?: return
+        val trimmedValue = value.trimToNull() ?: return
 
         when (element.type) {
             Element.Type.ID_CLIA -> setCliaComponent(terser, trimmedValue, hl7Field, hl7Config)
@@ -1434,7 +1432,7 @@ class Hl7Serializer(
             else -> setComponent(terser, element, "OBX-5", aoeRep, value, report)
         }
         // convert to local date time if that's what the receiver wants
-        val rawObx19Value = StringUtils.trimToNull(report.getString(row, "test_result_date"))
+        val rawObx19Value = report.getString(row, "test_result_date").trimToNull()
         val obx19Value = if (rawObx19Value != null && rawObx19Value.uppercase() != "UNK") {
             DateUtilities.parseDate(rawObx19Value).formatDateTimeForReceiver(report)
         } else {

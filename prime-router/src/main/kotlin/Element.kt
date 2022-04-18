@@ -7,6 +7,7 @@ import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
+import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
 import gov.cdc.prime.router.metadata.LookupMapper
@@ -302,7 +303,7 @@ data class Element(
         format: String? = null,
     ): String {
         // trim the normalized value down to null and if it is null return empty string
-        val cleanedNormalizedValue = StringUtils.trimToNull(normalizedValue) ?: return ""
+        val cleanedNormalizedValue = normalizedValue.trimToNull() ?: return ""
         val formattedValue = when (type) {
             // sometimes you just need to send through an empty column
             Type.BLANK -> ""

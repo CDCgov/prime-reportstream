@@ -2,7 +2,7 @@ package gov.cdc.prime.router.common
 
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Report
-import org.apache.commons.lang3.StringUtils
+import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -131,7 +131,7 @@ object DateUtilities {
      */
     fun parseDate(dateValue: String): TemporalAccessor {
         // check to see if the value has something in it
-        if (StringUtils.trimToNull(dateValue) == null)
+        if (dateValue.trimToNull() == null)
             error("Invalid value passed in for date value. Received $dateValue")
         // parse out the date
         return try {
@@ -313,7 +313,7 @@ object DateUtilities {
 
     /** tries to parse the string [value], and if it passes, returns true, otherwise false */
     fun tryParse(value: String? = null): Boolean {
-        if (value == null || StringUtils.trimToNull(value) == null) return false
+        if (value == null || value.trimToNull() == null) return false
         return try {
             parseDate(value)
             true
