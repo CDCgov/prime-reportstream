@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import useSortOrder, { SortActionType } from "./UseSortOrder";
+import useSortOrder, { SortSettingsActionType } from "./UseSortOrder";
 
 describe("UseSortOrder", () => {
     test("renders with default values", () => {
@@ -15,7 +15,7 @@ describe("UseSortOrder", () => {
         const { result } = renderHook(() => useSortOrder());
         act(() =>
             result.current.update({
-                type: SortActionType.CHANGE_COL,
+                type: SortSettingsActionType.CHANGE_COL,
                 payload: {
                     column: "test",
                 },
@@ -31,7 +31,7 @@ describe("UseSortOrder", () => {
         const { result } = renderHook(() => useSortOrder());
         act(() =>
             result.current.update({
-                type: SortActionType.SWAP_ORDER,
+                type: SortSettingsActionType.SWAP_ORDER,
             })
         );
         expect(result.current.settings).toEqual({
@@ -44,7 +44,7 @@ describe("UseSortOrder", () => {
         const { result } = renderHook(() => useSortOrder());
         act(() =>
             result.current.update({
-                type: SortActionType.CHANGE_COL,
+                type: SortSettingsActionType.CHANGE_COL,
                 payload: {
                     column: "test",
                 },
@@ -52,7 +52,7 @@ describe("UseSortOrder", () => {
         );
         act(() =>
             result.current.update({
-                type: SortActionType.SWAP_ORDER,
+                type: SortSettingsActionType.SWAP_ORDER,
             })
         );
         expect(result.current.settings).toEqual({
@@ -61,7 +61,7 @@ describe("UseSortOrder", () => {
         });
         act(() =>
             result.current.update({
-                type: SortActionType.RESET,
+                type: SortSettingsActionType.RESET,
             })
         );
         expect(result.current.settings).toEqual({
@@ -74,7 +74,7 @@ describe("UseSortOrder", () => {
         const { result } = renderHook(() => useSortOrder());
         act(() =>
             result.current.update({
-                type: SortActionType.RESET,
+                type: SortSettingsActionType.RESET,
                 payload: {
                     column: "test",
                     order: "ASC",

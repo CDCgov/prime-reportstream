@@ -15,7 +15,7 @@ import {
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
-import { SortActionType } from "../../hooks/filters/UseSortOrder";
+import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
 
 export interface TableRow {
     [key: string]: any;
@@ -74,13 +74,13 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                                 key={colConfig.columnHeader}
                                 onClick={() => {
                                     filterManager?.updateSort({
-                                        type: SortActionType.CHANGE_COL,
+                                        type: SortSettingsActionType.CHANGE_COL,
                                         payload: {
                                             column: colConfig.dataAttr,
                                         },
                                     });
                                     filterManager?.updateSort({
-                                        type: SortActionType.SWAP_ORDER,
+                                        type: SortSettingsActionType.SWAP_ORDER,
                                     });
                                     cursorManager?.update({
                                         type: CursorActionType.RESET,

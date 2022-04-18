@@ -1,39 +1,42 @@
 import { Dispatch, useReducer } from "react";
 
-enum DateRangeActionType {
+enum RangeSettingsActionType {
     UPDATE_START = "update-start",
     UPDATE_END = "update-end",
     RESET = "reset",
 }
 
-interface DateRange {
+interface RangeSettings {
     start: string;
     end: string;
 }
-interface DateRangeAction {
-    type: DateRangeActionType;
-    payload?: Partial<DateRange>;
+interface RangeSettingsAction {
+    type: RangeSettingsActionType;
+    payload?: Partial<RangeSettings>;
 }
 
 interface RangeFilter {
-    settings: DateRange;
-    update: Dispatch<DateRangeAction>;
+    settings: RangeSettings;
+    update: Dispatch<RangeSettingsAction>;
 }
 
-const rangeReducer = (state: DateRange, action: DateRangeAction): DateRange => {
+const rangeReducer = (
+    state: RangeSettings,
+    action: RangeSettingsAction
+): RangeSettings => {
     const { type, payload } = action;
     switch (type) {
-        case DateRangeActionType.UPDATE_START:
+        case RangeSettingsActionType.UPDATE_START:
             return {
                 ...state,
                 start: payload?.start || state.start,
             };
-        case DateRangeActionType.UPDATE_END:
+        case RangeSettingsActionType.UPDATE_END:
             return {
                 ...state,
                 end: payload?.end || state.end,
             };
-        case DateRangeActionType.RESET: // Can use this to manually set for edge cases
+        case RangeSettingsActionType.RESET: // Can use this to manually set for edge cases
             return {
                 start: payload?.start || FALLBACK_START,
                 end: payload?.end || FALLBACK_END,
@@ -59,5 +62,5 @@ const useDateRange = (): RangeFilter => {
 };
 
 export default useDateRange;
-export { DateRangeActionType };
-export type { DateRange };
+export { RangeSettingsActionType };
+export type { RangeSettings, RangeSettingsAction };

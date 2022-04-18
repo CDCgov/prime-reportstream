@@ -7,26 +7,26 @@ enum PageSettingsActionType {
     RESET = "reset",
 }
 
-type ItemCount = 10 | 25 | 50 | 100;
+type PageSize = 10 | 25 | 50 | 100;
 
-interface PageInfo {
-    size: ItemCount;
+interface PageSettings {
+    size: PageSize;
     currentPage: number;
 }
 interface PageFilter {
-    settings: PageInfo;
+    settings: PageSettings;
     update: Dispatch<PageSettingsAction>;
 }
 
 interface PageSettingsAction {
     type: PageSettingsActionType;
-    payload?: Partial<PageInfo>;
+    payload?: Partial<PageSettings>;
 }
 
 const pageNumReducer = (
-    state: PageInfo,
+    state: PageSettings,
     action: PageSettingsAction
-): PageInfo => {
+): PageSettings => {
     const { type, payload } = action;
     switch (type) {
         case PageSettingsActionType.DEC_PAGE:
@@ -68,4 +68,4 @@ const usePages = (): PageFilter => {
 
 export default usePages;
 export { PageSettingsActionType };
-export type { ItemCount, PageInfo, PageSettingsAction };
+export type { PageSize, PageSettings, PageSettingsAction };

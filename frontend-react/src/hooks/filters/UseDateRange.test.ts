@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import useDateRange, { DateRangeActionType } from "./UseDateRange";
+import useDateRange, { RangeSettingsActionType } from "./UseDateRange";
 
 describe("UseDateRange", () => {
     test("renders with default values", () => {
@@ -15,7 +15,7 @@ describe("UseDateRange", () => {
         const { result } = renderHook(() => useDateRange());
         act(() =>
             result.current.update({
-                type: DateRangeActionType.UPDATE_START,
+                type: RangeSettingsActionType.UPDATE_START,
                 payload: {
                     start: new Date("2022-12-31").toISOString(),
                 },
@@ -31,7 +31,7 @@ describe("UseDateRange", () => {
         const { result } = renderHook(() => useDateRange());
         act(() =>
             result.current.update({
-                type: DateRangeActionType.UPDATE_END,
+                type: RangeSettingsActionType.UPDATE_END,
                 payload: {
                     end: new Date("2022-01-01").toISOString(),
                 },
@@ -47,7 +47,7 @@ describe("UseDateRange", () => {
         const { result } = renderHook(() => useDateRange());
         act(() =>
             result.current.update({
-                type: DateRangeActionType.UPDATE_END,
+                type: RangeSettingsActionType.UPDATE_END,
                 payload: {
                     end: new Date("2022-01-01").toISOString(),
                 },
@@ -55,7 +55,7 @@ describe("UseDateRange", () => {
         );
         act(() =>
             result.current.update({
-                type: DateRangeActionType.RESET,
+                type: RangeSettingsActionType.RESET,
             })
         );
         expect(result.current.settings).toEqual({
@@ -68,7 +68,7 @@ describe("UseDateRange", () => {
         const { result } = renderHook(() => useDateRange());
         act(() =>
             result.current.update({
-                type: DateRangeActionType.RESET,
+                type: RangeSettingsActionType.RESET,
                 payload: {
                     start: new Date("2022-12-31").toISOString(),
                     end: new Date("2022-01-01").toISOString(),

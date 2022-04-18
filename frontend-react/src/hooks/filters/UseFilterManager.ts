@@ -1,23 +1,26 @@
 import { Dispatch, useCallback } from "react";
 
-import useDateRange, { DateRange, DateRangeActionType } from "./UseDateRange";
+import useDateRange, {
+    RangeSettings,
+    RangeSettingsActionType,
+} from "./UseDateRange";
 import useSortOrder, {
-    SortAction,
-    SortActionType,
+    SortSettingsAction,
+    SortSettingsActionType,
     SortSettings,
 } from "./UseSortOrder";
 import usePages, {
-    PageInfo,
+    PageSettings,
     PageSettingsAction,
     PageSettingsActionType,
 } from "./UsePages";
 
 export interface FilterManager {
-    rangeSettings: DateRange;
+    rangeSettings: RangeSettings;
     sortSettings: SortSettings;
-    pageSettings: PageInfo;
+    pageSettings: PageSettings;
     updateRange: Dispatch<any>;
-    updateSort: Dispatch<SortAction>;
+    updateSort: Dispatch<SortSettingsAction>;
     updatePage: Dispatch<PageSettingsAction>;
     resetAll: () => void;
 }
@@ -28,8 +31,8 @@ const useFilterManager = (): FilterManager => {
     const { settings: pageSettings, update: updatePage } = usePages();
 
     const resetAll = useCallback(() => {
-        updateRange({ type: DateRangeActionType.RESET });
-        updateSort({ type: SortActionType.RESET });
+        updateRange({ type: RangeSettingsActionType.RESET });
+        updateSort({ type: SortSettingsActionType.RESET });
         updatePage({ type: PageSettingsActionType.RESET });
     }, [updatePage, updateRange, updateSort]);
 

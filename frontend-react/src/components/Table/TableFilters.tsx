@@ -7,7 +7,7 @@ import {
     CursorActionType,
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
-import { DateRangeActionType } from "../../hooks/filters/UseDateRange";
+import { RangeSettingsActionType } from "../../hooks/filters/UseDateRange";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
@@ -48,7 +48,7 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
     const updateRange = () => {
         if (localStartRange && localEndRange) {
             filterManager.updateRange({
-                type: DateRangeActionType.RESET,
+                type: RangeSettingsActionType.RESET,
                 payload: {
                     start: new Date(localStartRange).toISOString(),
                     end: new Date(localEndRange).toISOString(),
@@ -60,7 +60,7 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
             });
         } else if (localStartRange && !localEndRange) {
             filterManager.updateRange({
-                type: DateRangeActionType.UPDATE_START,
+                type: RangeSettingsActionType.UPDATE_START,
                 payload: {
                     start: new Date(localStartRange).toISOString(),
                 },
@@ -71,7 +71,7 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
             });
         } else if (!localStartRange && localEndRange) {
             filterManager.updateRange({
-                type: DateRangeActionType.UPDATE_END,
+                type: RangeSettingsActionType.UPDATE_END,
                 payload: {
                     end: new Date(localEndRange).toISOString(),
                 },

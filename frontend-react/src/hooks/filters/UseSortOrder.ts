@@ -1,6 +1,6 @@
 import { Dispatch, useReducer } from "react";
 
-enum SortActionType {
+enum SortSettingsActionType {
     CHANGE_COL = "change-column",
     SWAP_ORDER = "swap-order",
     RESET = "reset",
@@ -8,8 +8,8 @@ enum SortActionType {
 
 type SortOrder = "ASC" | "DESC";
 
-interface SortAction {
-    type: SortActionType;
+interface SortSettingsAction {
+    type: SortSettingsActionType;
     payload?: Partial<SortSettings>;
 }
 interface SortSettings {
@@ -18,26 +18,26 @@ interface SortSettings {
 }
 interface SortFilter {
     settings: SortSettings;
-    update: Dispatch<SortAction>;
+    update: Dispatch<SortSettingsAction>;
 }
 
 const sortSettingsReducer = (
     state: SortSettings,
-    action: SortAction
+    action: SortSettingsAction
 ): SortSettings => {
     const { type, payload } = action;
     switch (type) {
-        case SortActionType.CHANGE_COL:
+        case SortSettingsActionType.CHANGE_COL:
             return {
                 column: payload?.column || state.column,
                 order: state.order,
             };
-        case SortActionType.SWAP_ORDER:
+        case SortSettingsActionType.SWAP_ORDER:
             return {
                 column: state.column,
                 order: state.order === "ASC" ? "DESC" : "ASC",
             };
-        case SortActionType.RESET: // Also able to manually update settings
+        case SortSettingsActionType.RESET: // Also able to manually update settings
             return {
                 column: payload?.column || "",
                 order: payload?.order || "DESC",
@@ -60,5 +60,5 @@ const useSortOrder = (): SortFilter => {
 };
 
 export default useSortOrder;
-export { SortActionType };
-export type { SortOrder, SortSettings, SortAction };
+export { SortSettingsActionType };
+export type { SortOrder, SortSettings, SortSettingsAction };
