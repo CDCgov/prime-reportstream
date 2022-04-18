@@ -9,20 +9,7 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.router.ActionError
-import gov.cdc.prime.router.ActionLog
-import gov.cdc.prime.router.ActionLogLevel
-import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.DEFAULT_SEPARATOR
-import gov.cdc.prime.router.DuplicateItemMessage
-import gov.cdc.prime.router.DuplicateSubmissionMessage
-import gov.cdc.prime.router.InvalidParamMessage
-import gov.cdc.prime.router.InvalidReportMessage
-import gov.cdc.prime.router.Options
-import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.*
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.Environment
@@ -180,8 +167,13 @@ class ReportFunction(
 
                 // Only process the report if we are not checking for connection or validation.
                 if (options != Options.CheckConnections && options != Options.ValidatePayload) {
-                    val (report, actionLogs) = workflowEngine.parseReport(
-                        sender,
+                    // TODO: Decision point - we will need to parse non-covid reports and only call parseCovidReport
+                    //  once we have verified the sender is a covid-specific sender
+                    // TODO: full ELR, See #5050
+                    val (report, actionLogs) = workflowEngine.parseCovidReport(
+                        // TODO: when the full ELR stuff is refactored out, ideally we would already know we
+                        //  have a CovidSender before reaching the point of parseCovidReport
+                        sender as CovidSender,
                         validatedRequest.content,
                         validatedRequest.defaults,
                     )
@@ -431,11 +423,18 @@ class ReportFunction(
         if (sender == null)
             actionLogs.error(InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown sender"))
 
-        val schema = workflowEngine.metadata.findSchema(sender?.schemaName ?: "")
-        if (sender != null && schema == null)
-            actionLogs.error(
-                InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
-            )
+        // TODO: full ELR, See #5050
+        // verify schema if the sender is a covidSender
+        var missingRequiredSchema = false
+        var schema : Schema? = null
+        if (sender != null && sender is CovidSender) {
+            schema = workflowEngine.metadata.findSchema(sender.schemaName)
+            if (schema == null)
+                missingRequiredSchema = true
+                actionLogs.error(
+                    InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
+                )
+        }
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
@@ -449,7 +448,7 @@ class ReportFunction(
             actionLogs.error(InvalidParamMessage("Expecting a post message with content"))
         }
 
-        if (sender == null || schema == null || content.isEmpty() || actionLogs.hasErrors()) {
+        if (sender == null || missingRequiredSchema || content.isEmpty() || actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
 
@@ -461,15 +460,20 @@ class ReportFunction(
                     actionLogs.error(InvalidParamMessage("'$it' is not a valid default"))
                     return@mapNotNull null
                 }
-                val element = schema.findElement(parts[0])
-                if (element == null) {
-                    actionLogs.error(InvalidParamMessage("'${parts[0]}' is not a valid element name"))
-                    return@mapNotNull null
-                }
-                val error = element.checkForError(parts[1])
-                if (error != null) {
-                    actionLogs.error(InvalidParamMessage(error.message))
-                    return@mapNotNull null
+
+                // TODO: full ELR, See #5050
+                // only CovidSenders will have a schema
+                if (sender is CovidSender && schema != null) {
+                    val element = schema.findElement(parts[0])
+                    if (element == null) {
+                        actionLogs.error(InvalidParamMessage("'${parts[0]}' is not a valid element name"))
+                        return@mapNotNull null
+                    }
+                    val error = element.checkForError(parts[1])
+                    if (error != null) {
+                        actionLogs.error(InvalidParamMessage(error.message))
+                        return@mapNotNull null
+                    }
                 }
                 Pair(parts[0], parts[1])
             }.toMap()

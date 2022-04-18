@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.cli.FileUtilities
@@ -20,11 +21,12 @@ class Hl7Ingest : CoolTest() {
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         initListOfGoodReceiversAndCounties()
         var passed = true
+        // TODO: full ELR, See #5050
         val sender = hl7Sender
         val receivers = allGoodReceivers
         val itemCount = options.items * receivers.size
         ugly("Starting $name Test: send ${sender.fullName} data to $allGoodCounties")
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             sender,

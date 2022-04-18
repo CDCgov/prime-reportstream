@@ -3,6 +3,7 @@ package gov.cdc.prime.router.azure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.tokens.AccessToken
@@ -39,11 +40,11 @@ class TokenFunctionTests {
     val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
     val pubKey = keyPair.getPublic() as RSAPublicKey
 
-    var sender = Sender(
+    // TODO: Should this just be Sender to cover full ELR tests?  See #5050
+    var sender = CovidSender(
         "default",
         "simple_report",
         Sender.Format.CSV,
-        "covid-19",
         CustomerStatus.INACTIVE,
         "default"
     )

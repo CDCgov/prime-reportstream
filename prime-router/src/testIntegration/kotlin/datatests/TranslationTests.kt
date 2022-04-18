@@ -3,13 +3,7 @@ package gov.cdc.prime.router.datatests
 import assertk.assertThat
 import assertk.assertions.isTrue
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import gov.cdc.prime.router.ActionError
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.TestSource
-import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.*
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -237,7 +231,7 @@ class TranslationTests {
             format: Report.Format,
             result: CompareData.Result
         ): Report? {
-            val sender = settings.senders.filter { it.schemaName == schema.name }.randomOrNull()
+            val sender = settings.senders.filter { it is CovidSender && it.schemaName == schema.name }.randomOrNull()
             return try {
                 when (format) {
                     // Get a random sender name that uses the provided schema, or null if no sender is found.

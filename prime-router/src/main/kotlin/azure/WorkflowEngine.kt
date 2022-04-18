@@ -1,21 +1,6 @@
 package gov.cdc.prime.router.azure
 
-import gov.cdc.prime.router.ActionError
-import gov.cdc.prime.router.ActionLog
-import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.InvalidReportMessage
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Options
-import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.*
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
@@ -859,14 +844,15 @@ class WorkflowEngine(
     // 2. readExternal and return result / errors / warnings
     // TODO: This could be moved to a utility/reports.kt or something like that, as it is not really part of workflow
     /**
-     * Reads in a received message of HL7 or CSV format, generates an in-memory report instance
+     * Reads in a received covid-19 message of HL7 or CSV format, generates an in-memory report instance
      * @param sender Sender information, pulled from database based on sender name
      * @param content Content of incoming message
      * @param defaults Default values that can be passed in as part of the request
      * @return Returns a generated report object, or null
      */
-    fun parseReport(
-        sender: Sender,
+    // TODO: full ELR, See #5050
+    fun parseCovidReport(
+        sender: CovidSender,
         content: String,
         defaults: Map<String, String>,
     ): ReadResult {

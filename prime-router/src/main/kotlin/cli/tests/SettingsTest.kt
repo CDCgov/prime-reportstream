@@ -200,7 +200,7 @@ class SenderSettings : CoolTest() {
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting $name: $description")
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             emptySender,

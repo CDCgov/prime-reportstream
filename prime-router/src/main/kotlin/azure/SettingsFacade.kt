@@ -357,7 +357,6 @@ class SenderAPI
     format: Format,
     topic: String,
     customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
-    schemaName: String,
     keys: List<JwkSet>? = null,
     processingType: ProcessingType = ProcessingType.sync,
     allowDuplicates: Boolean = true,
@@ -370,14 +369,18 @@ class SenderAPI
     format,
     topic,
     customerStatus,
-    schemaName,
     keys,
     processingType,
     allowDuplicates,
     senderType,
     primarySubmissionMethod,
 ),
-    SettingAPI
+    SettingAPI {
+    // TODO why was this not a problem before?
+    override fun consistencyErrorMessage(metadata: Metadata): String? {
+        TODO("Not yet implemented")
+    }
+}
 
 class ReceiverAPI
 @JsonCreator constructor(

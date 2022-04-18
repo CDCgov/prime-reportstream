@@ -9,14 +9,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
-import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.DetailActionLog
-import gov.cdc.prime.router.DetailReport
-import gov.cdc.prime.router.DetailedSubmissionHistory
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.*
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.DatabaseSubmissionsAccess
@@ -718,23 +711,28 @@ abstract class CoolTest {
         const val receivingStates = "IG"
 
         const val simpleReportSenderName = "ignore-simple-report"
-        val simpleRepSender = settings.findSender("$orgName.$simpleReportSenderName")
+        // TODO: Full ELR changes required, see #5050
+        val simpleRepSender = settings.findSender("$orgName.$simpleReportSenderName") as? CovidSender
             ?: error("Unable to find sender $simpleReportSenderName for organization ${org.name}")
 
         const val stracSenderName = "ignore-strac"
-        val stracSender = settings.findSender("$orgName.$stracSenderName")
+        // TODO: Full ELR changes required, see #5050
+        val stracSender = settings.findSender("$orgName.$stracSenderName") as? CovidSender
             ?: error("Unable to find sender $stracSenderName for organization ${org.name}")
 
         const val watersSenderName = "ignore-waters"
-        val watersSender = settings.findSender("$orgName.$watersSenderName")
+        // TODO: Full ELR changes required, see #5050
+        val watersSender = settings.findSender("$orgName.$watersSenderName") as? CovidSender
             ?: error("Unable to find sender $watersSenderName for organization ${org.name}")
 
         const val emptySenderName = "ignore-empty"
-        val emptySender = settings.findSender("$orgName.$emptySenderName")
+        // TODO: Full ELR changes required, see #5050
+        val emptySender = settings.findSender("$orgName.$emptySenderName") as? CovidSender
             ?: error("Unable to find sender $emptySenderName for organization ${org.name}")
 
         const val hl7SenderName = "ignore-hl7"
-        val hl7Sender = settings.findSender("$orgName.$hl7SenderName")
+        // TODO: Full ELR changes required, see #5050
+        val hl7Sender = settings.findSender("$orgName.$hl7SenderName") as? CovidSender
             ?: error("Unable to find sender $hl7SenderName for organization ${org.name}")
 
         val csvReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "CSV" }[0]

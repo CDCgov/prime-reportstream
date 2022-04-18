@@ -2,18 +2,7 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.DeepOrganization
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.*
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import io.mockk.clearAllMocks
 import io.mockk.confirmVerified
@@ -169,7 +158,8 @@ class WorkflowEngineTests {
         val settings = FileSettings()
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val actionHistory = mockk<ActionHistory>()
-        val sender = Sender("senderName", "org", Sender.Format.CSV, "covid-19", CustomerStatus.INACTIVE, one.name)
+        // TODO: Should this just be Sender to cover full ELR tests?  See #5050
+        val sender = CovidSender("senderName", "org", Sender.Format.CSV, CustomerStatus.INACTIVE, one.name)
 
         every {
             BlobAccess.Companion.uploadBody(

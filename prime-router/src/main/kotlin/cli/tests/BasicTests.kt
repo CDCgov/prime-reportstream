@@ -5,13 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.output.TermUi.echo
 import com.google.common.base.CharMatcher
-import gov.cdc.prime.router.DetailedSubmissionHistory
-import gov.cdc.prime.router.Options
-import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.*
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -85,7 +79,7 @@ class End2End : CoolTest() {
         ugly("Running end2end synchronously -- with no query param")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             simpleRepSender,
@@ -139,7 +133,7 @@ class End2End : CoolTest() {
         ugly("Running end2end asynchronously -- with query param")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             simpleRepSender,
@@ -294,7 +288,7 @@ class Merge : CoolTest() {
         val mergingCounties = mergingReceivers.map { it.name }.joinToString(",")
         val fakeItemCount = mergingReceivers.size * options.items
         ugly("Starting merge test:  Merge ${options.submits} reports, each of which sends to $mergingCounties")
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             simpleRepSender,
@@ -343,7 +337,7 @@ class Hl7Null : CoolTest() {
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val fakeItemCount = 100
         ugly("Starting hl7null Test: test of many threads all doing database interactions, but no sends. ")
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             simpleRepSender,
@@ -472,7 +466,7 @@ class Strac : CoolTest() {
         ugly("Starting bigly strac Test: sending Strac data to all of these receivers: $allGoodCounties!")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             stracSender,
@@ -524,7 +518,7 @@ class Waters : CoolTest() {
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting Waters: sending ${options.items} Waters items to ${blobstoreReceiver.name} receiver")
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             watersSender,
@@ -570,7 +564,7 @@ class Garbage : CoolTest() {
         ugly("Starting $name Test: send ${emptySender.fullName} data to $allGoodCounties")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             emptySender,
@@ -695,7 +689,7 @@ class QualityFilter : CoolTest() {
         // ALLOW ALL
         ugly("\nTest the allowAll QualityFilter")
         val fakeItemCount = 5
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             emptySender,
@@ -739,7 +733,7 @@ class QualityFilter : CoolTest() {
         // QUALITY_PASS
         ugly("\nTest a QualityFilter that allows some data through")
         expectItemCount = fakeItemCount - 2 // Removed 2 items
-        val file2 = FileUtilities.createFakeFile(
+        val file2 = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             emptySender,
@@ -780,7 +774,7 @@ class QualityFilter : CoolTest() {
         // FAIL
         ugly("\nTest a QualityFilter that allows NO data through.")
         expectItemCount = 0 // No Item
-        val file3 = FileUtilities.createFakeFile(
+        val file3 = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             emptySender,
@@ -821,7 +815,7 @@ class QualityFilter : CoolTest() {
         // QUALITY_REVERSED
         ugly("\nTest the REVERSE of the QualityFilter that allows some data through")
         expectItemCount = 2
-        val file4 = FileUtilities.createFakeFile(
+        val file4 = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             emptySender,
@@ -876,7 +870,7 @@ class DbConnections : CoolTest() {
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting dbconnections Test: test of many threads attempting to sftp ${options.items} HL7s.")
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             simpleRepSender,
@@ -937,7 +931,7 @@ class BadSftp : CoolTest() {
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting badsftp Test: test that our code handles sftp connectivity problems")
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             simpleRepSender,
@@ -997,7 +991,7 @@ class InternationalContent : CoolTest() {
         }
         val receiverName = hl7Receiver.name
         ugly("Starting $name Test: send ${simpleRepSender.fullName} data to $receiverName")
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             simpleRepSender,
@@ -1072,7 +1066,7 @@ class SantaClaus : CoolTest() {
         }
         options.sender?.let {
             // validates sender existence
-            val sender = settings.findSender(it) ?: return createBad("The sender indicated doesn't exists '$it'")
+            val sender = settings.findSender(it)?: return createBad("The sender indicated doesn't exists '$it'")
             // replace the list of senders to test
             // with the indicated by parameter
             sendersToTestWith = listOf(sender)
@@ -1088,10 +1082,11 @@ class SantaClaus : CoolTest() {
 
         sendersToTestWith.forEach { sender ->
             ugly("Starting $name Test: send with ${sender.fullName}")
-            val file = FileUtilities.createFakeFile(
+            val file = FileUtilities.createFakeCovidFile(
                 metadata = metadata,
                 settings = settings,
-                sender = sender,
+                // TODO: Full ELR changes needed, see #5050
+                sender = sender as CovidSender,
                 count = states.size,
                 format = if (sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,
                 directory = System.getProperty("java.io.tmpdir"),

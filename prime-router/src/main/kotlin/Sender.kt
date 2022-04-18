@@ -14,7 +14,6 @@ import gov.cdc.prime.router.tokens.JwkSet
  * @property format the primary format of the reports from the sender
  * @property topic the topic of the reports from the sender currently always covid 19
  * @property customerStatus the status of the sender active inactive
- * @property schemaName the name of the schema used by the sender
  * @property keys used to track server-to-server auths for this sender via public keys sets
  * @property processingType sync or async
  * @property allowDuplicates if false a duplicate submission will be rejected
@@ -27,7 +26,6 @@ open class Sender(
     val format: Format,
     val topic: String,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
-    val schemaName: String,
     val keys: List<JwkSet>? = null,
     val processingType: ProcessingType = ProcessingType.sync,
     val allowDuplicates: Boolean = true,
@@ -90,7 +88,6 @@ open class Sender(
         copy.format,
         copy.topic,
         copy.customerStatus,
-        copy.schemaName,
         if (copy.keys != null) ArrayList(copy.keys) else null
     )
 
@@ -101,7 +98,6 @@ open class Sender(
         copy.format,
         copy.topic,
         copy.customerStatus,
-        copy.schemaName,
         addJwkSet(copy.keys, newScope, newJwk)
     )
 
@@ -122,18 +118,18 @@ open class Sender(
         CustomerStatus.TESTING -> "T"
     }
 
+    /**
+     * Returns true if this is a covid sender instead of a full ELR sender.
+     */
+    @get:JsonIgnore
+    val isCovidSender: Boolean get() = this.topic == "covid-19"
+
     enum class Format(val mimeType: String) {
         CSV("text/csv"),
         HL7("application/hl7-v2"),
     }
 
-    /**
-     * Validate the object and return null or an error message
-     */
-    fun consistencyErrorMessage(metadata: Metadata): String? {
-        if (metadata.findSchema(schemaName) == null) return "Invalid schemaName: $schemaName"
-        return null
-    }
+
 
     fun findKeySetByScope(scope: String): JwkSet? {
         if (keys == null) return null
@@ -194,5 +190,62 @@ open class Sender(
                 else -> error("Internal Error: Invalid fullName: $fullName")
             }
         }
+    }
+}
+
+/**
+ * Represents a Sender that is specifically used for covid data, and not for full ELR data. The topic of this
+ * sender will be 'covid-19', and a [schemaName] must be specified
+ *
+ * @property schemaName the name of the schema used by the sender
+ */
+open class CovidSender(name: String,
+                  organizationName: String,
+                  format: Format,
+                  customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
+                  val schemaName: String,
+                  keys: List<JwkSet>? = null,
+                  processingType: ProcessingType = ProcessingType.sync,
+                  allowDuplicates: Boolean = true,
+                  senderType: SenderType? = null,
+                  primarySubmissionMethod: PrimarySubmissionMethod? = null) :
+    Sender(
+        name,
+        organizationName,
+        format,
+        // a CovidSender will always have the topic "covid-19"
+        "covid-19",
+        customerStatus,
+        keys,
+        processingType,
+        allowDuplicates,
+        senderType,
+        primarySubmissionMethod,
+    ) {
+
+    constructor(copy: CovidSender) : this(
+        copy.name,
+        copy.organizationName,
+        copy.format,
+        copy.customerStatus,
+        copy.schemaName,
+        if (copy.keys != null) ArrayList(copy.keys) else null
+    )
+
+    // constructor that copies and adds a key
+    constructor(copy: CovidSender, newScope: String, newJwk: Jwk) : this(
+        copy.name,
+        copy.organizationName,
+        copy.format,
+        copy.customerStatus,
+        copy.schemaName,
+        addJwkSet(copy.keys, newScope, newJwk)
+    )
+    /**
+     * Validate the object and return null or an error message
+     */
+    fun consistencyErrorMessage(metadata: Metadata): String? {
+        if (metadata.findSchema(schemaName) == null) return "Invalid schemaName: $schemaName"
+        return null
     }
 }

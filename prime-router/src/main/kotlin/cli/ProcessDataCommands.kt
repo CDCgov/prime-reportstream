@@ -8,21 +8,7 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
-import gov.cdc.prime.router.ActionLog
-import gov.cdc.prime.router.CustomConfiguration
-import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.DefaultValues
-import gov.cdc.prime.router.FakeReport
-import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.FileSource
-import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.*
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
@@ -374,19 +360,30 @@ class ProcessData(
             is InputClientInfo.InputClient -> {
                 val clientName = (inputClientInfo as InputClientInfo.InputClient).clientName
                 val sender = fileSettings.findSender(clientName)
-                Pair(
-                    sender?.let {
-                        metadata.findSchema(it.schemaName) ?: error("Schema $clientName is not found")
-                    },
-                    sender
-                )
+                // TODO: make this work for ELR - see #5050. Do we load this sender if it is not a covid sender?
+                //  At that point does it even matter that the 'schema' is null?
+                if (sender != null && sender is CovidSender) {
+                    Pair(
+                        sender.let {
+                            metadata.findSchema(it.schemaName) ?: error("Schema $clientName is not found")
+                        },
+                        sender
+                    )
+                }
+                else {
+                    Pair (
+                        null
+                        , sender
+                    )
+                }
             }
             is InputClientInfo.InputSchema -> {
                 val inputSchema = (inputClientInfo as InputClientInfo.InputSchema).schemaName
                 val schName = inputSchema.lowercase()
                 metadata.findSchema(schName) ?: error("Schema $inputSchema is not found")
+                // TODO: make this work with ELR sender - #5050
                 // Get a random sender name that uses the provided schema, or null if no sender is found.
-                val sender = fileSettings.senders.filter { it.schemaName == schName }.randomOrNull()
+                val sender = fileSettings.senders.filter { (it as CovidSender).schemaName == schName }.randomOrNull()
                 Pair(metadata.findSchema(schName), sender)
             }
             else -> {

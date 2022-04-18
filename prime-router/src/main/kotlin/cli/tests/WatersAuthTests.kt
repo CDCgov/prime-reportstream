@@ -3,6 +3,7 @@ package gov.cdc.prime.router.cli.tests
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
@@ -57,8 +58,7 @@ class WatersAuthTests : CoolTest() {
             organizationName = organization,
             format = Sender.Format.CSV,
             topic = "covid-19",
-            customerStatus = CustomerStatus.INACTIVE,
-            schemaName = "primedatainput/pdi-covid-19"
+            customerStatus = CustomerStatus.INACTIVE
         )
 
         // Convert from ReportStreamEnv to Settings.Environment.  todo consolidate these!
@@ -98,10 +98,10 @@ class WatersAuthTests : CoolTest() {
             ?: error("Unable to save sender")
 
         // create a fake report
-        fakeReportFile = FileUtilities.createFakeFile(
+        fakeReportFile = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            sender = savedSender,
+            sender = savedSender as CovidSender,
             count = 1,
             format = Report.Format.CSV,
             directory = System.getProperty("java.io.tmpdir"),

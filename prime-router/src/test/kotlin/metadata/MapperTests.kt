@@ -4,11 +4,7 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.Element
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.*
 import gov.cdc.prime.router.common.NPIUtilities
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
@@ -115,11 +111,10 @@ class MapperTests {
 
     @Test
     fun `test useSenderSetting`() {
-        val sender = Sender(
+        val sender = CovidSender(
             "senderName",
             "orgName",
             format = Sender.Format.CSV,
-            "covid-19",
             CustomerStatus.ACTIVE,
             "mySchemaName",
             keys = null,
