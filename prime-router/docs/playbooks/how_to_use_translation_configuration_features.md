@@ -64,7 +64,7 @@ Note: Some features take multiple parameters and some can only take one. The one
 
 ### Configurations
 
-- **replaceUnicodeWithAscii**: Boolean type, can only take true of false. This feature replaces diacritics into their ascii representation. It checks whe whole hl7 message and it replaces any unicode diacritc that it finds.
+- **replaceUnicodeWithAscii**: Boolean type, can only take true of false. This feature replaces diacritics into their ascii representation. It checks the whole hl7 message, and it replaces any unicode diacritc that it finds.
 Example:
   - ```
     translation:
