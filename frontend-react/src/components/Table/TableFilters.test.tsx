@@ -6,26 +6,26 @@ import { mockCursorManager } from "../../hooks/filters/mocks/MockCursorManager";
 
 import TableFilters from "./TableFilters";
 
-const fakeFilterManager: FilterManager = {
-    startRange: new Date("2022-01-01"),
-    endRange: new Date("2022-12-31"),
-    column: "",
-    order: "DESC",
-    size: 10,
-    setRange: () => console.log("set"),
-    setSort: () => console.log("set"),
-    setSize: () => console.log("set"),
-    resetRange: () => console.log("reset"),
-    resetSort: () => console.log("reset"),
-    resetSize: () => console.log("reset"),
-    resetAll: () => console.log("clearAll"),
+const fakeFilterManager: Partial<FilterManager> = {
+    rangeSettings: {
+        start: new Date("2022-01-01").toISOString(),
+        end: new Date("2022-12-31").toISOString(),
+    },
+    sortSettings: {
+        column: "",
+        order: "DESC",
+    },
+    pageSettings: {
+        size: 10,
+        currentPage: 1,
+    },
 };
 
 describe("Rendering", () => {
     beforeEach(() => {
         renderWithRouter(
             <TableFilters
-                filterManager={fakeFilterManager}
+                filterManager={fakeFilterManager as FilterManager}
                 cursorManager={mockCursorManager}
             />
         );

@@ -7,6 +7,7 @@ import {
     CursorActionType,
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
+import { DateRangeActionType } from "../../hooks/filters/UseDateRange";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
@@ -46,27 +47,34 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
 
     const updateRange = () => {
         if (localStartRange && localEndRange) {
-            filterManager.setRange({
-                date1: localStartRange,
-                date2: localEndRange,
+            filterManager.updateRange({
+                type: DateRangeActionType.RESET,
+                payload: {
+                    start: new Date(localStartRange).toISOString(),
+                    end: new Date(localEndRange).toISOString(),
+                },
             });
             cursorManager.update({
                 type: CursorActionType.RESET,
                 payload: new Date(localStartRange).toISOString(),
             });
         } else if (localStartRange && !localEndRange) {
-            filterManager.setRange({
-                date1: localStartRange,
-                sort: filterManager.order,
+            filterManager.updateRange({
+                type: DateRangeActionType.UPDATE_START,
+                payload: {
+                    start: new Date(localStartRange).toISOString(),
+                },
             });
             cursorManager.update({
                 type: CursorActionType.RESET,
                 payload: new Date(localStartRange).toISOString(),
             });
         } else if (!localStartRange && localEndRange) {
-            filterManager.setRange({
-                date1: localEndRange,
-                sort: filterManager.order,
+            filterManager.updateRange({
+                type: DateRangeActionType.UPDATE_END,
+                payload: {
+                    end: new Date(localEndRange).toISOString(),
+                },
             });
             cursorManager.update({
                 type: CursorActionType.RESET,
