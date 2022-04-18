@@ -7,9 +7,30 @@ info:
     url: https://open.cdc.gov
     email: usds@cdc.gov
 paths:
+  /api/waters/org/{organization}/submissions:
+    get:
+      description: returns simple history for recent submissions
+      security:
+        - OktaAuth: [ ANONYMOUS ]
+      parameters:
+        - name: organization
+          in: path
+          description: sender of the report history we want to look at
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: a list of submission history objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleReportHistory'
+        '400':
+          description: bad request
   /api/waters/report/{id}/history:
     get:
-      description: return history of a single report
+      description: return detailed history of a single submitted report
       security:
         - OktaAuth: [ ANONYMOUS ]
       parameters:
@@ -21,11 +42,11 @@ paths:
             type: string
       responses:
         '200':
-          description: the report history object
+          description: the detailed report history object
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReportHistory'
+                $ref: '#/components/schemas/DetailedReportHistory'
         '401':
           description: unauthorized
         '404':
@@ -34,7 +55,32 @@ paths:
           description: unable to fetch history due to Data Access Exception
 components:
   schemas:
-    ReportHistory:
+    SimpleReportHistory:
+      type: object
+      properties:
+        submissionId:
+          description: the row number for this report's action log
+          type: integer
+        timestamp:
+          description: the timestamp for this report submission
+          type: string
+          format: date-time
+        sender:
+          description: the name of the sender account
+          type: string
+        httpStatus:
+          description: response given to the sender upon submission
+          type: integer
+        id:
+          description: the uuid for this submission
+          type: string
+        topic:
+          description: the schema topic (e.g. COVID-19, Flu)
+          type: string
+        reportItemCount:
+          description: total number of individual reports sent to the Hub (in a csv, the number of data lines sent)
+          type: integer
+    DetailedReportHistory:
       type: object
       properties:
         id:
