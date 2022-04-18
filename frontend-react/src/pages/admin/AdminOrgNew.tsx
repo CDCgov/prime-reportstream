@@ -1,8 +1,8 @@
 import React, { Suspense, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { NetworkErrorBoundary, useController } from "rest-hooks";
-
 import { useHistory } from "react-router-dom";
+
 import { ErrorPage } from "../error/ErrorPage";
 import {
     showAlertNotification,
