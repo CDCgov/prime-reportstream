@@ -64,7 +64,12 @@ export function OrgsTable() {
                             onChange={(evt) => setFilter(evt.target.value)}
                         />
                     </div>
-                    <NavLink to={"/admin/new/org"} className="usa-button flex-align-self-end height-5" >Create New Organization</NavLink>
+                    <NavLink
+                        to={"/admin/new/org"}
+                        className="usa-button flex-align-self-end height-5"
+                    >
+                        Create New Organization
+                    </NavLink>
                 </form>
                 <Table
                     key="orgsettingstable"

@@ -37,7 +37,7 @@ import { NewSetting } from "./components/Admin/NewSetting";
 import { FeatureFlagUIComponent } from "./pages/misc/FeatureFlags";
 import SenderModeBanner from "./components/SenderModeBanner";
 import { SessionStorageContext } from "./contexts/SessionStorageContext";
-import {AdminOrgNew} from "./pages/admin/AdminOrgNew";
+import { AdminOrgNew } from "./pages/admin/AdminOrgNew";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 

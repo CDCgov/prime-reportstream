@@ -5,7 +5,7 @@ import OrganizationResource from "./OrganizationResource";
 export enum ResponseType {
     ACTION_DETAIL = "actionDetail",
     SENDER_SETTINGS = "senderSettings",
-    NEW_ORGANIZATION = "newOrg"
+    NEW_ORGANIZATION = "newOrg",
 }
 
 export class TestResponse {
@@ -121,14 +121,14 @@ export class TestResponse {
     };
 
     newOrgResponse: OrganizationResource = {
-        name: 'test',
-        description: 'A Test Organization',
-        jurisdiction: 'STATE',
-        countyName: 'Test',
-        stateCode: 'CA',
-        url: '',
+        name: "test",
+        description: "A Test Organization",
+        jurisdiction: "STATE",
+        countyName: "Test",
+        stateCode: "CA",
+        url: "",
         pk(): string {
             return this.name;
-        }
-    }
+        },
+    };
 }
