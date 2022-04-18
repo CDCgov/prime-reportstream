@@ -45,7 +45,12 @@ function SubmissionTable() {
     };
 
     const columns: Array<ColumnConfig> = [
-        { dataAttr: "id", columnHeader: "Report ID", link: true },
+        {
+            dataAttr: "id",
+            columnHeader: "Report ID",
+            link: true,
+            linkBasePath: "/submissions",
+        },
         {
             dataAttr: "timestamp",
             columnHeader: "Date/time submitted",
