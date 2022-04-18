@@ -227,6 +227,7 @@ class DateUtilitiesTests {
             )
         )
         every { report.destination }.returns(receiver)
+        every { report.getTimeZoneForReport() }.returns(ZoneId.of("UTC"))
         var timestampValue = DateUtilities.nowTimestamp(report)
         assertThat(lowPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
         every { receiver.translation }.returns(
@@ -244,7 +245,8 @@ class DateUtilitiesTests {
     fun `check temporal accessor coercion`() {
         // set up our variables and mock
         // arrange
-        val rightNow = Instant.now().atZone(ZoneId.of("US/Eastern"))
+        val timeZoneId = ZoneId.of("US/Eastern")
+        val rightNow = Instant.now().atZone(timeZoneId)
         val hl7Configuration = mockk<Hl7Configuration>()
         every { hl7Configuration.convertDateTimesToReceiverLocalTime } returns true
         val destination = mockk<Receiver>()
@@ -252,6 +254,7 @@ class DateUtilitiesTests {
         every { destination.translation } returns hl7Configuration
         val report = mockk<Report>()
         every { report.destination } returns destination
+        every { report.getTimeZoneForReport() } returns timeZoneId
         // act & assert
         rightNow.let {
             assertThat(it.toLocalDateTime()).isEqualTo(rightNow.toLocalDateTime())
@@ -271,8 +274,10 @@ class DateUtilitiesTests {
         )
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.OFFSET)
         every { report.destination }.returns(receiver)
+        every { report.getTimeZoneForReport() }.returns(ZoneId.of("US/Eastern"))
         val easternTimeStampValue = DateUtilities.nowTimestamp(report)
         every { receiver.timeZone }.returns(USTimeZone.PACIFIC)
+        every { report.getTimeZoneForReport() }.returns(ZoneId.of("US/Pacific"))
         val pacificTimeStampValue = DateUtilities.nowTimestamp(report)
         val easternParsedDate = DateUtilities.parseDate(easternTimeStampValue) as OffsetDateTime
         val pacificParsedDate = DateUtilities.parseDate(pacificTimeStampValue) as OffsetDateTime
@@ -291,6 +296,7 @@ class DateUtilitiesTests {
         )
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.LOCAL)
         every { report.destination }.returns(receiver)
+        every { report.getTimeZoneForReport() }.returns(ZoneId.of("US/Eastern"))
         // act
         val dateTimeValue = ZonedDateTime.parse(zonedDateTimeValue)
         DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
@@ -312,6 +318,7 @@ class DateUtilitiesTests {
         // now let's change the receiver to be PST and see what happens
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.LOCAL)
         every { receiver.timeZone }.returns(USTimeZone.PACIFIC)
+        every { report.getTimeZoneForReport() }.returns(ZoneId.of("US/Pacific"))
         // act
         DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
             // assert

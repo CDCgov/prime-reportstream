@@ -19,6 +19,7 @@ import tech.tablesaw.selection.Selection
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.Period
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.random.Random
@@ -374,8 +375,22 @@ class Report : Logging {
         return copy
     }
 
+    /** Checks to see if the report is empty or not */
     fun isEmpty(): Boolean {
         return table.rowCount() == 0
+    }
+
+    /** Given a report object, returns the assigned time zone or the default */
+    fun getTimeZoneForReport(): ZoneId {
+        val hl7Config = this.destination?.translation as? Hl7Configuration
+        return if (
+            hl7Config?.convertDateTimesToReceiverLocalTime == true && this.destination?.timeZone != null
+        ) {
+            ZoneId.of(this.destination.timeZone.zoneId)
+        } else {
+            // default to UTC
+            ZoneId.of("UTC")
+        }
     }
 
     fun getString(row: Int, column: Int, maxLength: Int? = null): String? {

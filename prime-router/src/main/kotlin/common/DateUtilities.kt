@@ -112,19 +112,6 @@ object DateUtilities {
         }
     }
 
-    /** Given a report object, returns the assigned time zone or the default */
-    fun getTimeZoneForReport(report: Report? = null): ZoneId {
-        val hl7Config = report?.destination?.translation as? Hl7Configuration
-        return if (
-            hl7Config?.convertDateTimesToReceiverLocalTime == true && report.destination.timeZone != null
-        ) {
-            ZoneId.of(report.destination.timeZone.zoneId)
-        } else {
-            // default to UTC
-            ZoneId.of("UTC")
-        }
-    }
-
     /**
      * This method takes a date value as a string and returns a
      * TemporalAccessor based on the variable date time pattern
@@ -255,6 +242,10 @@ object DateUtilities {
      * receiver, by doing some checking on what is set for the receiver of the report. It also accepts
      * a [dateTimeFormat] that it will use first if it exists, and then the one from the [report]
      * object, and then finally default to the [DateTimeFormat.OFFSET] value.
+     *
+     * This currently takes a report object and pulls out the HL7 configuration from it. There could
+     * be a time in the future when we abstract out the time zone configuration data into the base
+     * translation configuration and let other types of translation (CSV, etc.) also use the features here
      */
     fun formatDateForReceiver(
         dateTimeValue: TemporalAccessor,
@@ -262,7 +253,7 @@ object DateUtilities {
         dateTimeFormat: DateTimeFormat? = null
     ): String {
         val hl7Config = report?.destination?.translation as? Hl7Configuration
-        val timeZone = getTimeZoneForReport(report)
+        val timeZone = report?.getTimeZoneForReport() ?: ZoneId.of("UTC")
         // return the formatted date
         return formatDateForReceiver(
             dateTimeValue,
@@ -305,7 +296,7 @@ object DateUtilities {
      * further to allow for the CSV serializer and others to use it too
      */
     fun nowTimestamp(report: Report? = null): String {
-        val timeZone = getTimeZoneForReport(report)
+        val timeZone = report?.getTimeZoneForReport() ?: ZoneId.of("UTC")
         val timestamp = ZonedDateTime.now(timeZone)
         // now format the date to what the receiver wants
         return formatDateForReceiver(timestamp, report)
