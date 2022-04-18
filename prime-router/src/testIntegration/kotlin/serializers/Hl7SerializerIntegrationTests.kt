@@ -235,8 +235,6 @@ NTE|1|L|This is a final comment|RE"""
         val cleanedMessage = reg.replace(output, "\r")
         val hapiMsg = parser.parse(cleanedMessage)
         val terser = Terser(hapiMsg)
-        println("-------------MESSAGE-------------")
-        println(cleanedMessage)
         // assert
         assertThat(output).isNotNull()
         assertThat(
