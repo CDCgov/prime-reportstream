@@ -712,8 +712,7 @@ NTE|1|L|This is a final comment|RE"""
     fun `test unicodeToAscii`() {
         // arrange
         val settings = FileSettings("./settings")
-        val metadata = Metadata.getInstance()
-        val serializer = Hl7Serializer(metadata, settings)
+        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
         val unicodeInput: String = "ÀÁÂÃÄÅ, ÈÉÊË, Î, Ô, Ù, Ç"
         // act
         val expectedValue: String = "AAAAAA, EEEE, I, O, U, C"
