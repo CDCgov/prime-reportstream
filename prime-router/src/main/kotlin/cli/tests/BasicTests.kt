@@ -1190,7 +1190,7 @@ class OtcProctored : CoolTest() {
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val otcPairs = listOf(
             Pair("BinaxNOW COVID-19 Antigen Self Test_Abbott Diagnostics Scarborough, Inc.", "OTC_PROCTORED_YYY"),
-            Pair("QuickVue At-Home COVID-19 Test_Quidel Corporation", "OTC_PROCTORED_NYY"),
+            Pair("10811877011337", "OTC_PROCTORED_NYY"),
             Pair("00810055970001", "OTC_PROCTORED_NUNKUNK"),
         )
         for (pair in otcPairs) {
@@ -1228,7 +1228,7 @@ class OtcProctored : CoolTest() {
                         // verify each result is valid
                         for (result in processResults.values)
                             if (!examineProcessResponse(result))
-                                bad("***async end2end FAILED***: Process result invalid")
+                                bad("*** otcproctored FAILED***: Process result invalid")
                     }
                 }
                 good("Test PASSED: ${pair.first}")

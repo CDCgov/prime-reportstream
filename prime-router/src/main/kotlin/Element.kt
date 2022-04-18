@@ -1,7 +1,6 @@
 package gov.cdc.prime.router
 
 import com.google.i18n.phonenumbers.PhoneNumberUtil
-import com.google.i18n.phonenumbers.Phonenumber
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
 import gov.cdc.prime.router.common.DateUtilities
@@ -13,6 +12,7 @@ import gov.cdc.prime.router.metadata.LookupMapper
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.commons.lang3.StringUtils
+import java.lang.Exception
 import java.text.DecimalFormat
 import java.time.LocalDate
 
@@ -505,10 +505,17 @@ data class Element(
                 }
             }
             Type.TELEPHONE -> {
-                val (region, _) = parsePhoneNumber(cleanedValue)
-                if (region.isNullOrEmpty())
+                return try {
+                    // parse can fail if the phone number is not correct, which feels like bad behavior
+                    // this then causes a report level failure, not an element level failure
+                    val number = phoneNumberUtil.parse(cleanedValue, "US")
+                    if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
+                        InvalidPhoneMessage(cleanedValue, fieldMapping)
+                    else
+                        null
+                } catch (ex: Exception) {
                     InvalidPhoneMessage(cleanedValue, fieldMapping)
-                null
+                }
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
@@ -615,11 +622,11 @@ data class Element(
                 }
             }
             Type.TELEPHONE -> {
-                val (region, number) = parsePhoneNumber(cleanedFormattedValue)
-                if (region.isNullOrEmpty())
-                    InvalidPhoneMessage(cleanedFormattedValue, fieldMapping)
-                val nationalNumber = DecimalFormat("0000000000").format(number?.nationalNumber)
-                "${nationalNumber}$phoneDelimiter${number?.countryCode}$phoneDelimiter${number?.extension}"
+                val number = phoneNumberUtil.parse(cleanedFormattedValue, "US")
+                if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
+                    error("Invalid phone number '$cleanedFormattedValue' for $fieldMapping")
+                val nationalNumber = DecimalFormat("0000000000").format(number.nationalNumber)
+                "${nationalNumber}$phoneDelimiter${number.countryCode}$phoneDelimiter${number.extension}"
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf

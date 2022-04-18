@@ -34,4 +34,43 @@ My initial basic design of this file:
 - Totally feel free to mess with this file to make it generate other interesting example json.  
 
 
+### How to generate the three .json example files
+
+This assumes you have ReportStream running locally.  If you just started the Functions, you'll need to do these steps twice, because the startup is so slow, you won't be fast enough the first time.
+
+#### Steps
+
+Wait until just a second past the top of the minute, and run:
+
+```
+curl -X POST -H "client:simple_report" -H "Content-Type: text/csv"  --data-binary "@./examples/submission/simple_report_example.csv" "http://localhost:7071/api/reports?processing=async" > examples/submission/example1-async-response.json
+```
+
+Grab the submissionId
+
+```
+cat examples/submission/example1-async-response.json
+```
+
+Let's say the submissionId is 1211.  Quickly put it in this query, and run it before the minute expires:
+
+```
+curl "localhost:7071/api/waters/report/1211/history" > examples/submission/example2-sync-response.json
+```
+
+Now you can take your time.
+
+Bonus:  Go into your the UI and do a download or two as 'md-phd' user, so that downloads show up in the example.
+
+Wait another minute or longer (so the data flows all the way to sftp) and run this:
+
+```
+curl "localhost:7071/api/waters/report/1211/history" > examples/submission/example3-complete-response.json
+```
+
+Be sure to do a `git diff` to confirm that the changes you expected are in the files.    If not, you may need to run it again, because its just so slow the first time you run it.
+
+
+
+
 

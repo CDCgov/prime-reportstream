@@ -1,0 +1,164 @@
+{
+  "id" : "ade3fd00-ebbd-437d-bbd4-bd509647ec04",
+  "submissionId" : 267,
+  "overallStatus" : "Delivered",
+  "timestamp" : "2022-04-11T20:43:02.424Z",
+  "plannedCompletionAt" : "2022-04-11T20:44:00.000Z",
+  "actualCompletionAt" : "2022-04-11T20:44:04.507Z",
+  "sender" : "simple_report.default",
+  "reportItemCount" : 14,
+  "errorCount" : 0,
+  "warningCount" : 5,
+  "httpStatus" : 201,
+  "destinations" : [ {
+    "organization" : "Ohio Department of Health",
+    "organization_id" : "oh-doh",
+    "service" : "elr",
+    "itemCount" : 0,
+    "itemCountBeforeQualityFiltering" : 2,
+    "filteredReportRows" : [ "For oh-doh.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Ohio12", "For oh-doh.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Ohio11", "For oh-doh.elr, filter hasAtLeastOneOf[order_test_date, specimen_collection_date_time, test_result_date] filtered out item Ohio11", "For oh-doh.elr, filter hasValidDataFor[patient_dob] filtered out item Ohio12", "For oh-doh.elr, filter hasValidDataFor[patient_dob] filtered out item Ohio11" ],
+    "filteredReportItems" : [ {
+      "filterType" : "QUALITY_FILTER",
+      "filterName" : "isValidCLIA",
+      "filteredTrackingElement" : "Ohio12",
+      "filterArgs" : [ "testing_lab_clia", "reporting_facility_clia" ],
+      "message" : "For oh-doh.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Ohio12"
+    }, {
+      "filterType" : "QUALITY_FILTER",
+      "filterName" : "isValidCLIA",
+      "filteredTrackingElement" : "Ohio11",
+      "filterArgs" : [ "testing_lab_clia", "reporting_facility_clia" ],
+      "message" : "For oh-doh.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Ohio11"
+    }, {
+      "filterType" : "QUALITY_FILTER",
+      "filterName" : "hasAtLeastOneOf",
+      "filteredTrackingElement" : "Ohio11",
+      "filterArgs" : [ "order_test_date", "specimen_collection_date_time", "test_result_date" ],
+      "message" : "For oh-doh.elr, filter hasAtLeastOneOf[order_test_date, specimen_collection_date_time, test_result_date] filtered out item Ohio11"
+    }, {
+      "filterType" : "QUALITY_FILTER",
+      "filterName" : "hasValidDataFor",
+      "filteredTrackingElement" : "Ohio12",
+      "filterArgs" : [ "patient_dob" ],
+      "message" : "For oh-doh.elr, filter hasValidDataFor[patient_dob] filtered out item Ohio12"
+    }, {
+      "filterType" : "QUALITY_FILTER",
+      "filterName" : "hasValidDataFor",
+      "filteredTrackingElement" : "Ohio11",
+      "filterArgs" : [ "patient_dob" ],
+      "message" : "For oh-doh.elr, filter hasValidDataFor[patient_dob] filtered out item Ohio11"
+    } ],
+    "sentReports" : [ ],
+    "downloadedReports" : [ ]
+  }, {
+    "organization" : "Hawaii Public Health Department",
+    "organization_id" : "hi-phd",
+    "service" : "elr",
+    "itemCount" : 2,
+    "itemCountBeforeQualityFiltering" : 5,
+    "sending_at" : "2022-04-11T20:44:00.000Z",
+    "filteredReportRows" : [ "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii9", "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii7", "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii6" ],
+    "filteredReportItems" : [ {
+      "filterType" : "QUALITY_FILTER",
+      "filterName" : "hasValidDataFor",
+      "filteredTrackingElement" : "Hawaii9",
+      "filterArgs" : [ "specimen_type" ],
+      "message" : "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii9"
+    }, {
+      "filterType" : "QUALITY_FILTER",
+      "filterName" : "hasValidDataFor",
+      "filteredTrackingElement" : "Hawaii7",
+      "filterArgs" : [ "specimen_type" ],
+      "message" : "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii7"
+    }, {
+      "filterType" : "QUALITY_FILTER",
+      "filterName" : "hasValidDataFor",
+      "filteredTrackingElement" : "Hawaii6",
+      "filterArgs" : [ "specimen_type" ],
+      "message" : "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii6"
+    } ],
+    "sentReports" : [ {
+      "reportId" : "7c2f3349-1c5b-4ea6-bd5d-621d85db62d0",
+      "externalName" : "covid-19-5372ca5b-556a-4211-995b-94d059d2dc03-20220411164401.hl7",
+      "createdAt" : "2022-04-11T20:44:04.474Z",
+      "itemCount" : 2
+    } ],
+    "downloadedReports" : [ ]
+  }, {
+    "organization" : "Alaska Public Health Department",
+    "organization_id" : "ak-phd",
+    "service" : "elr",
+    "itemCount" : 2,
+    "itemCountBeforeQualityFiltering" : 5,
+    "sending_at" : "2022-04-11T20:44:00.000Z",
+    "filteredReportRows" : [ "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska4", "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2", "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1", "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1" ],
+    "filteredReportItems" : [ {
+      "filterType" : "QUALITY_FILTER",
+      "filterName" : "isValidCLIA",
+      "filteredTrackingElement" : "Alaska4",
+      "filterArgs" : [ "testing_lab_clia", "reporting_facility_clia" ],
+      "message" : "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska4"
+    }, {
+      "filterType" : "QUALITY_FILTER",
+      "filterName" : "isValidCLIA",
+      "filteredTrackingElement" : "Alaska2",
+      "filterArgs" : [ "testing_lab_clia", "reporting_facility_clia" ],
+      "message" : "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2"
+    }, {
+      "filterType" : "QUALITY_FILTER",
+      "filterName" : "isValidCLIA",
+      "filteredTrackingElement" : "Alaska1",
+      "filterArgs" : [ "testing_lab_clia", "reporting_facility_clia" ],
+      "message" : "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1"
+    }, {
+      "filterType" : "QUALITY_FILTER",
+      "filterName" : "hasValidDataFor",
+      "filteredTrackingElement" : "Alaska1",
+      "filterArgs" : [ "patient_dob" ],
+      "message" : "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1"
+    } ],
+    "sentReports" : [ {
+      "reportId" : "9b6612b8-0c75-44e5-83db-4a8b5c28f283",
+      "externalName" : "covid-19-5d3d1d74-b3e7-4c57-ad7f-77868b4433cf-20220411164401.hl7",
+      "createdAt" : "2022-04-11T20:44:04.474Z",
+      "itemCount" : 2
+    } ],
+    "downloadedReports" : [ ]
+  }, {
+    "organization" : "Maryland Public Health Department",
+    "organization_id" : "md-phd",
+    "service" : "elr",
+    "itemCount" : 2,
+    "itemCountBeforeQualityFiltering" : 2,
+    "sending_at" : "2022-04-11T20:44:00.000Z",
+    "filteredReportRows" : [ ],
+    "filteredReportItems" : [ ],
+    "sentReports" : [ {
+      "reportId" : "42b6c997-52d3-46d7-85ee-95d38a83d7e0",
+      "externalName" : "covid-19-f584e798-17ca-4e99-8e92-1d09f2e46259-20220411164401.hl7",
+      "createdAt" : "2022-04-11T20:44:04.507Z",
+      "itemCount" : 2
+    } ],
+    "downloadedReports" : [ ]
+  } ],
+  "errors" : [ ],
+  "warnings" : [ {
+    "scope" : "report",
+    "message" : "Missing Ordering_facility_email (ordering_facility_email) header"
+  }, {
+    "scope" : "item",
+    "indices" : [ 6, 7, 9 ],
+    "trackingIds" : [ "Hawaii6", "Hawaii7", "Hawaii9" ],
+    "field" : "Specimen_type_code (specimen_type)",
+    "message" : "Invalid code: '' is not a display value in altValues set for Specimen_type_code (specimen_type)."
+  }, {
+    "scope" : "item",
+    "indices" : [ 8 ],
+    "trackingIds" : [ "Hawaii8" ],
+    "field" : "Ordering_provider_phone_number (ordering_provider_phone_number)",
+    "message" : "Invalid phone number 'WRONG_ordering_provider_phone_number' for Ordering_provider_phone_number (ordering_provider_phone_number). Reformat to a 10-digit phone number (e.g. (555) - 555-5555)."
+  } ],
+  "topic" : "covid-19",
+  "externalName" : null,
+  "destinationCount" : 3
+}
