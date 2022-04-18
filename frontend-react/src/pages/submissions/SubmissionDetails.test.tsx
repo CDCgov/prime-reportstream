@@ -38,6 +38,12 @@ describe("SubmissionDetails", () => {
         renderWithRouter(<SubmissionDetails />);
     });
 
+    test("renders crumb nav to Submissions list", () => {
+        const submissionCrumb = screen.getByRole("link");
+        expect(submissionCrumb).toBeInTheDocument();
+        expect(submissionCrumb).toHaveTextContent("Submissions");
+    });
+
     test("renders without error", async () => {
         const container = await screen.findByTestId("container");
         expect(container).toBeInTheDocument();

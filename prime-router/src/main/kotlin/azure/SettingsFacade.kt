@@ -20,6 +20,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.JwkSet
+import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.JSONB
 import java.time.OffsetDateTime
 
@@ -30,7 +31,7 @@ import java.time.OffsetDateTime
 class SettingsFacade(
     private val metadata: Metadata,
     private val db: DatabaseAccess = DatabaseAccess()
-) : SettingsProvider {
+) : SettingsProvider, Logging {
     enum class AccessResult {
         SUCCESS,
         CREATED,
@@ -60,13 +61,23 @@ class SettingsFacade(
     }
 
     override fun findReceiver(fullName: String): Receiver? {
-        val pair = Receiver.parseFullName(fullName)
-        return findSetting(pair.second, ReceiverAPI::class.java, pair.first)
+        try {
+            val pair = Receiver.parseFullName(fullName)
+            return findSetting(pair.second, ReceiverAPI::class.java, pair.first)
+        } catch (e: RuntimeException) {
+            logger.warn("Cannot find receiver: ${e.localizedMessage} ${e.stackTraceToString()}")
+            return null
+        }
     }
 
     override fun findSender(fullName: String): Sender? {
-        val pair = Sender.parseFullName(fullName)
-        return findSetting(pair.second, SenderAPI::class.java, pair.first)
+        try {
+            val pair = Sender.parseFullName(fullName)
+            return findSetting(pair.second, SenderAPI::class.java, pair.first)
+        } catch (e: RuntimeException) {
+            logger.warn("Cannot find sender: ${e.localizedMessage} ${e.stackTraceToString()}")
+            return null
+        }
     }
 
     override fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>? {
