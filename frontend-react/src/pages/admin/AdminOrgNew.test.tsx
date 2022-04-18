@@ -44,7 +44,7 @@ const testNewOrgJson = JSON.stringify(
         meta: null
     }
 );
-import {createMemoryHistory} from 'history'
+
 describe("AdminOrgNew", () => {
     beforeAll(() => settingsServer.listen());
     afterEach(() => settingsServer.resetHandlers());
