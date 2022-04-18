@@ -1,40 +1,64 @@
-import { useCallback, useState } from "react";
+import { Dispatch, useReducer } from "react";
+
+enum SortActionType {
+    CHANGE_COL = "change-column",
+    SWAP_ORDER = "swap-order",
+    RESET = "reset",
+}
 
 type SortOrder = "ASC" | "DESC";
-type SortSetter = (column: string, currentOrder: SortOrder) => void;
+
+interface SortAction {
+    type: SortActionType;
+    payload?: Partial<SortSettings>;
+}
 interface SortSettings {
     column: string;
     order: SortOrder;
 }
-interface Sort extends SortSettings {
-    setSort: SortSetter;
-    resetSort: () => void;
+interface SortFilter {
+    settings: SortSettings;
+    update: Dispatch<SortAction>;
 }
 
-const useSortOrder = (init?: Partial<SortSettings>): Sort => {
-    /* TODO: Refactor this into a useReducer call that stores the sort
-     *   state as an object. The reducer should handle setting column,
-     *   swapping sort order. */
-    const [column, setColumn] = useState(init?.column || "");
-    const [order, setOrder] = useState<SortOrder>(init?.order || "DESC");
+const sortSettingsReducer = (
+    state: SortSettings,
+    action: SortAction
+): SortSettings => {
+    const { type, payload } = action;
+    switch (type) {
+        case SortActionType.CHANGE_COL:
+            return {
+                column: payload?.column || state.column,
+                order: state.order,
+            };
+        case SortActionType.SWAP_ORDER:
+            return {
+                column: state.column,
+                order: state.order === "ASC" ? "DESC" : "ASC",
+            };
+        case SortActionType.RESET: // Also able to manually update settings
+            return {
+                column: payload?.column || "",
+                order: payload?.order || "DESC",
+            };
+        default:
+            return state;
+    }
+};
 
-    const set = useCallback((column: string, currentOrder: SortOrder) => {
-        setColumn(column);
-        currentOrder === "ASC" ? setOrder("DESC") : setOrder("ASC");
-    }, []);
-
-    const reset = useCallback(() => {
-        setColumn(init?.column || "");
-        setOrder(init?.order || "DESC");
-    }, [init]);
+const useSortOrder = (): SortFilter => {
+    const [settings, dispatchSettings] = useReducer(sortSettingsReducer, {
+        column: "",
+        order: "DESC",
+    });
 
     return {
-        column,
-        order,
-        setSort: set,
-        resetSort: reset,
+        settings,
+        update: dispatchSettings,
     };
 };
 
 export default useSortOrder;
-export type { SortOrder, SortSettings, SortSetter, Sort };
+export { SortActionType };
+export type { SortOrder, SortSettings, SortAction };

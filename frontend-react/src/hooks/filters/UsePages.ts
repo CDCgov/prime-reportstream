@@ -1,0 +1,71 @@
+import { Dispatch, useReducer } from "react";
+
+enum PageSettingsActionType {
+    INC_PAGE = "increment",
+    DEC_PAGE = "decrement",
+    SET_SIZE = "set-size",
+    RESET = "reset",
+}
+
+type ItemCount = 10 | 25 | 50 | 100;
+
+interface PageInfo {
+    size: ItemCount;
+    currentPage: number;
+}
+interface PageFilter {
+    settings: PageInfo;
+    update: Dispatch<PageSettingsAction>;
+}
+
+interface PageSettingsAction {
+    type: PageSettingsActionType;
+    payload?: Partial<PageInfo>;
+}
+
+const pageNumReducer = (
+    state: PageInfo,
+    action: PageSettingsAction
+): PageInfo => {
+    const { type, payload } = action;
+    switch (type) {
+        case PageSettingsActionType.DEC_PAGE:
+            return {
+                ...state,
+                currentPage: state.currentPage - 1,
+            };
+        case PageSettingsActionType.INC_PAGE:
+            return {
+                ...state,
+                currentPage: state.currentPage + 1,
+            };
+        case PageSettingsActionType.SET_SIZE:
+            return {
+                ...state,
+                size: payload?.size || state.size,
+            };
+        case PageSettingsActionType.RESET:
+            return {
+                ...state,
+                currentPage: 1,
+            };
+        default:
+            return state;
+    }
+};
+
+const usePages = (): PageFilter => {
+    const [settings, dispatchSettings] = useReducer(pageNumReducer, {
+        size: 10,
+        currentPage: 1,
+    });
+
+    return {
+        settings,
+        update: dispatchSettings,
+    };
+};
+
+export default usePages;
+export { PageSettingsActionType };
+export type { ItemCount, PageInfo, PageSettingsAction };

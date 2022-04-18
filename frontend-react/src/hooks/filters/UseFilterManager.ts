@@ -1,35 +1,30 @@
-import useDateRange, { DateRange } from "./UseDateRange";
-import useSortOrder, { Sort } from "./UseSortOrder";
-import usePageSize, { PageSize } from "./UsePageSize";
+import { Dispatch } from "react";
 
-export interface FilterManager extends DateRange, Sort, PageSize {
-    resetAll: () => void;
+import useDateRange, { DateRange } from "./UseDateRange";
+import useSortOrder, { SortAction, SortSettings } from "./UseSortOrder";
+import usePages, { PageInfo, PageSettingsAction } from "./UsePages";
+
+export interface FilterManager {
+    rangeSettings: DateRange;
+    sortSettings: SortSettings;
+    pageSettings: PageInfo;
+    updateRange: Dispatch<any>;
+    updateSort: Dispatch<SortAction>;
+    updatePage: Dispatch<PageSettingsAction>;
 }
 
 const useFilterManager = (): FilterManager => {
-    const { startRange, endRange, setRange, resetRange } = useDateRange();
-    const { order, column, setSort, resetSort } = useSortOrder();
-    const { count, setCount, resetCount } = usePageSize();
-
-    const resetAll = () => {
-        resetRange();
-        resetSort();
-        resetCount();
-    };
+    const { settings: rangeSettings, update: updateRange } = useDateRange();
+    const { settings: sortSettings, update: updateSort } = useSortOrder();
+    const { settings: pageSettings, update: updatePage } = usePages();
 
     return {
-        startRange,
-        endRange,
-        order,
-        column,
-        count,
-        setRange,
-        setSort,
-        setCount,
-        resetRange,
-        resetSort,
-        resetCount,
-        resetAll,
+        rangeSettings,
+        sortSettings,
+        pageSettings,
+        updateRange,
+        updateSort,
+        updatePage,
     };
 };
 

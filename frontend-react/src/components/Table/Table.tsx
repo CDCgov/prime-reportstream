@@ -15,6 +15,7 @@ import {
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { SortActionType } from "../../hooks/filters/UseSortOrder";
 
 export interface TableRow {
     [key: string]: any;
@@ -53,9 +54,12 @@ export interface TableProps {
 
 const Table = ({ config, filterManager, cursorManager }: TableProps) => {
     const renderArrow = () => {
-        if (filterManager && filterManager.order === "ASC") {
+        if (filterManager && filterManager.sortSettings.order === "ASC") {
             return <IconArrowUpward />;
-        } else if (filterManager && filterManager.order === "DESC") {
+        } else if (
+            filterManager &&
+            filterManager.sortSettings.order === "DESC"
+        ) {
             return <IconArrowDownward />;
         }
     };
@@ -69,15 +73,20 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                             <th
                                 key={colConfig.columnHeader}
                                 onClick={() => {
-                                    filterManager?.setSort(
-                                        colConfig.dataAttr,
-                                        filterManager?.order
-                                    );
+                                    filterManager?.updateSort({
+                                        type: SortActionType.CHANGE_COL,
+                                        payload: {
+                                            column: colConfig.dataAttr,
+                                        },
+                                    });
+                                    filterManager?.updateSort({
+                                        type: SortActionType.SWAP_ORDER,
+                                    });
                                     cursorManager?.update({
                                         type: CursorActionType.RESET,
                                         payload:
-                                            filterManager?.startRange.toISOString() ||
-                                            "",
+                                            filterManager?.rangeSettings
+                                                .start || "",
                                     });
                                 }}
                             >
@@ -145,7 +154,10 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
             <>
                 {config.rows.map((object, rowIndex) => {
                     // Caps page size when filterManager exists
-                    if (filterManager && rowIndex >= filterManager.count)
+                    if (
+                        filterManager &&
+                        rowIndex >= filterManager.pageSettings.size
+                    )
                         return null;
                     return (
                         <tr key={rowIndex}>

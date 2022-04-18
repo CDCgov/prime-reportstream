@@ -40,13 +40,13 @@ export const TestTable = () => {
     /* Mocking the sort behavior that would normally be performed by the
      * API call */
     const fakeRows = useMemo(() => {
-        switch (filterManager.order) {
+        switch (filterManager.sortSettings.order) {
             case "ASC":
                 return [dummyRowOne, dummyRowTwo];
             case "DESC":
                 return [dummyRowTwo, dummyRowOne];
         }
-    }, [filterManager.order]);
+    }, [filterManager.sortSettings.order]);
 
     const testTransform = (v: string) => {
         if (v === "transform this") {

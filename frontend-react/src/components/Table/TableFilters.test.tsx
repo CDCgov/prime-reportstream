@@ -11,13 +11,13 @@ const fakeFilterManager: FilterManager = {
     endRange: new Date("2022-12-31"),
     column: "",
     order: "DESC",
-    count: 10,
+    size: 10,
     setRange: () => console.log("set"),
     setSort: () => console.log("set"),
-    setCount: () => console.log("set"),
+    setSize: () => console.log("set"),
     resetRange: () => console.log("reset"),
     resetSort: () => console.log("reset"),
-    resetCount: () => console.log("reset"),
+    resetSize: () => console.log("reset"),
     resetAll: () => console.log("clearAll"),
 };
 

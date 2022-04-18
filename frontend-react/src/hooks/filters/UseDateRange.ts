@@ -1,67 +1,63 @@
-import { useCallback, useState } from "react";
+import { Dispatch, useReducer } from "react";
 
-import { SortOrder } from "./UseSortOrder";
+enum DateRangeActionType {
+    UPDATE_START = "update-start",
+    UPDATE_END = "update-end",
+    RESET = "reset",
+}
 
-type DateRangeSetter = ({ date1, date2, sort }: SetRangeParams) => void;
 interface DateRange {
-    startRange: Date;
-    endRange: Date;
+    start: string;
+    end: string;
 }
-interface SetRangeParams {
-    date1: string;
-    date2?: string;
-    sort?: SortOrder;
-}
-interface DateRange {
-    startRange: Date;
-    endRange: Date;
-    setRange: DateRangeSetter;
-    resetRange: () => void;
+interface DateRangeAction {
+    type: DateRangeActionType;
+    payload?: Partial<DateRange>;
 }
 
-const FALLBACK_START = new Date("3000-01-01");
-const FALLBACK_END = new Date("2000-01-01");
+interface RangeFilter {
+    settings: DateRange;
+    update: Dispatch<DateRangeAction>;
+}
 
-const useDateRange = (init?: Partial<DateRange>): DateRange => {
-    const [startRange, setStartRange] = useState(
-        init?.startRange || FALLBACK_START
-    );
-    const [endRange, setEndRange] = useState(init?.endRange || FALLBACK_END);
+const rangeReducer = (state: DateRange, action: DateRangeAction): DateRange => {
+    const { type, payload } = action;
+    switch (type) {
+        case DateRangeActionType.UPDATE_START:
+            return {
+                ...state,
+                start: payload?.start || state.start,
+            };
+        case DateRangeActionType.UPDATE_END:
+            return {
+                ...state,
+                end: payload?.end || state.end,
+            };
+        case DateRangeActionType.RESET: // Can use this to manually set for edge cases
+            return {
+                start: payload?.start || FALLBACK_START,
+                end: payload?.end || FALLBACK_END,
+            };
+        default:
+            return state;
+    }
+};
 
-    /* TODO: Break this into a setRange function and a cursor-based range update
-     *   function. */
-    const set = useCallback(({ date1, date2, sort }: SetRangeParams) => {
-        if (!date2) {
-            /* If one date is given, this is a cursor update */
-            const date1AsDate = new Date(date1);
-            if (sort === "DESC") {
-                /* Descending cursor updates must incrementally narrow
-                 * the range from Start -> End */
-                setStartRange(date1AsDate);
-            } else {
-                /* Ascending cursor updates must incrementally narrow
-                 * the range from End -> Start */
-                setEndRange(date1AsDate);
-            }
-        } else {
-            /* If both dates are given, this is a range filter set */
-            setStartRange(new Date(date1));
-            setEndRange(new Date(date2));
-        }
-    }, []);
+const FALLBACK_START = new Date("3000-01-01").toISOString();
+const FALLBACK_END = new Date("2000-01-01").toISOString();
 
-    const reset = useCallback(() => {
-        setStartRange(init?.startRange || FALLBACK_START);
-        setEndRange(init?.endRange || FALLBACK_END);
-    }, [init]);
+const useDateRange = (): RangeFilter => {
+    const [settings, dispatchRange] = useReducer(rangeReducer, {
+        start: FALLBACK_START,
+        end: FALLBACK_END,
+    });
 
     return {
-        startRange,
-        endRange,
-        setRange: set,
-        resetRange: reset,
+        settings,
+        update: dispatchRange,
     };
 };
 
 export default useDateRange;
-export type { DateRange, SetRangeParams, DateRangeSetter };
+export { DateRangeActionType };
+export type { DateRange };
