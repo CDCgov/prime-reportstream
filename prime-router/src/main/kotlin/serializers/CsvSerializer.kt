@@ -160,14 +160,11 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         destination: Receiver? = null,
         blobReportId: ReportId? = null
     ): Report {
-        // find our schema
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
-        // get our rows
         val rows = csvReader().readAllWithHeader(input).map {
             // For each element name, if it doesn't exist in the map, then we add it with a default.
-            // Doing it this way means that even if someone adds a new element in the middle of the schema
-            // after a report has been received, but before completely process, then this should still be okay
-            // and it won't necessarily break
+            // This is so we can add/remove fields/elements anywhere in a schema and not break the process step
+            // when a report has been queued and its schema changes before processing.
             schema.elements.map { element ->
                 it.getOrDefault(element.name, element.default ?: "")
             }
