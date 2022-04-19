@@ -1,6 +1,6 @@
 ---
 title: Frontend Dependency scan for {{ date | date('MM/DD/YYYY') }}
-assignees: 
+assignees: TomNUSDS
 labels: dependencies, frontend
 ---
 ## Overview

@@ -1,8 +1,8 @@
 name: Check For Unused Dependencies
 
-on: [push]
-  # schedule:
-  #   - cron: '0 9 * * 1' # At 09:00 on Monday
+on:
+  schedule:
+    - cron: '0 8 1,15 * *' # At 8am on 1st and 15th of each month
 
 permissions:
   contents: read
