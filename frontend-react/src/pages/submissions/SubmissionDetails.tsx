@@ -50,12 +50,11 @@ export function DetailItem({ item, content }: DetailItemProps) {
 */
 export function DestinationItem({ destinationObj }: DestinationItemProps) {
     const submissionDate = generateDateTitles(destinationObj.sending_at);
-    const dataStream = `(${destinationObj.service})`.toUpperCase();
+    const dataStream = destinationObj.service.toUpperCase();
     return (
         <div className="display-flex flex-column">
-            <h2>
-                {destinationObj.organization} {dataStream}
-            </h2>
+            <h2>{destinationObj.organization}</h2>
+            <DetailItem item={"Data Stream"} content={dataStream} />
             <DetailItem
                 item={"Transmission Date"}
                 content={
