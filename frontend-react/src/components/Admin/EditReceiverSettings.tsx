@@ -12,7 +12,11 @@ import {
 } from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import Spinner from "../Spinner";
-import { getErrorDetailFromResponse } from "../../utils/misc";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    VersionWarningType,
+} from "../../utils/misc";
 
 import {
     ConfirmSaveSettingModal,
@@ -52,11 +56,6 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
             useState("");
         const { invalidate } = useController();
 
-        const newerVersionPopupMessage = `WARNING!!! A newer version of this setting now exists in the database'`;
-        const newerVersionModalMessage = `WARNING!!! A change has been made to the setting you're trying to update by 
-                    '${orgReceiverSettings?.meta?.createdBy}'. Please coordinate with that user and return to update the setting 
-                    again, if needed`;
-
         async function getLatestReceiverResponse() {
             const accessToken = getStoredOktaToken();
             const organization = getStoredOrg();
@@ -90,9 +89,12 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     latestResponse?.meta?.version !==
                     orgReceiverSettings?.meta?.version
                 ) {
-                    showError(newerVersionPopupMessage);
+                    showError(getVersionWarning(VersionWarningType.POPUP));
                     confirmModalRef?.current?.setWarning(
-                        newerVersionModalMessage
+                        getVersionWarning(
+                            VersionWarningType.FULL,
+                            orgReceiverSettings
+                        )
                     );
                 }
 
@@ -131,9 +133,12 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     setOrgReceiverSettingsOldJson(
                         JSON.stringify(latestResponse, jsonSortReplacer, 2)
                     );
-                    showError(newerVersionPopupMessage);
+                    showError(getVersionWarning(VersionWarningType.POPUP));
                     confirmModalRef?.current?.setWarning(
-                        newerVersionModalMessage
+                        getVersionWarning(
+                            VersionWarningType.FULL,
+                            orgReceiverSettings
+                        )
                     );
                     return false;
                 }

@@ -12,7 +12,11 @@ import {
 } from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import Spinner from "../Spinner";
-import { getErrorDetailFromResponse } from "../../utils/misc";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    VersionWarningType,
+} from "../../utils/misc";
 
 import { TextAreaComponent, TextInputComponent } from "./AdminFormEdit";
 import {
@@ -43,11 +47,6 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
         const { fetch: fetchController } = useController();
         const { invalidate } = useController();
         const [loading, setLoading] = useState(false);
-
-        const newerVersionPopupMessage = `WARNING!!! A newer version of this setting now exists in the database'`;
-        const newerVersionModalMessage = `WARNING!!! A change has been made to the setting you're trying to update by 
-                    '${orgSenderSettings?.meta?.createdBy}'. Please coordinate with that user and return to update the setting 
-                    again, if needed`;
 
         async function getLatestSenderResponse() {
             const accessToken = getStoredOktaToken();
@@ -82,9 +81,12 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     latestResponse?.meta?.version !==
                     orgSenderSettings?.meta?.version
                 ) {
-                    showError(newerVersionPopupMessage);
+                    showError(getVersionWarning(VersionWarningType.POPUP));
                     confirmModalRef?.current?.setWarning(
-                        newerVersionModalMessage
+                        getVersionWarning(
+                            VersionWarningType.FULL,
+                            orgSenderSettings
+                        )
                     );
                 }
 
@@ -122,9 +124,12 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     setOrgSenderSettingsOldJson(
                         JSON.stringify(latestResponse, jsonSortReplacer, 2)
                     );
-                    showError(newerVersionPopupMessage);
+                    showError(getVersionWarning(VersionWarningType.POPUP));
                     confirmModalRef?.current?.setWarning(
-                        newerVersionModalMessage
+                        getVersionWarning(
+                            VersionWarningType.FULL,
+                            orgSenderSettings
+                        )
                     );
                     return false;
                 }

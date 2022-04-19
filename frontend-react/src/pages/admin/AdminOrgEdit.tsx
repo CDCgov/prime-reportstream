@@ -28,7 +28,11 @@ import {
     ConfirmSaveSettingModalRef,
 } from "../../components/Admin/CompareJsonModal";
 import { DisplayMeta } from "../../components/Admin/DisplayMeta";
-import { getErrorDetailFromResponse } from "../../utils/misc";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    VersionWarningType,
+} from "../../utils/misc";
 
 type AdminOrgEditProps = {
     orgname: string;
@@ -48,11 +52,6 @@ export function AdminOrgEdit({
     const [orgSettingsNewJson, setOrgSettingsNewJson] = useState("");
     const { fetch: fetchController } = useController();
     const [loading, setLoading] = useState(false);
-
-    const newerVersionPopupMessage = `WARNING!!! A newer version of this setting now exists in the database'`;
-    const newerVersionModalMessage = `WARNING!!! A change has been made to the setting you're trying to update by 
-                    '${orgSettings?.meta?.createdBy}'. Please coordinate with that user and return to update the setting 
-                    again, if needed`;
 
     async function getLatestOrgResponse() {
         const accessToken = getStoredOktaToken();
@@ -84,8 +83,10 @@ export function AdminOrgEdit({
             );
 
             if (latestResponse?.meta?.version !== orgSettings?.meta?.version) {
-                showError(newerVersionPopupMessage);
-                confirmModalRef?.current?.setWarning(newerVersionModalMessage);
+                showError(getVersionWarning(VersionWarningType.POPUP));
+                confirmModalRef?.current?.setWarning(
+                    getVersionWarning(VersionWarningType.FULL, orgSettings)
+                );
             }
 
             confirmModalRef?.current?.showModal();
@@ -107,8 +108,8 @@ export function AdminOrgEdit({
                 setOrgSettingsOldJson(
                     JSON.stringify(latestResponse, jsonSortReplacer, 2)
                 );
-                showError(newerVersionPopupMessage);
-                confirmModalRef?.current?.setWarning(newerVersionModalMessage);
+                showError(getVersionWarning(VersionWarningType.POPUP));
+                getVersionWarning(VersionWarningType.FULL, orgSettings);
                 return false;
             }
 
