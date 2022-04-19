@@ -107,7 +107,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                     //  or a blank string
                     val after = if (parts[6].isNotEmpty()) OffsetDateTime.parse(parts[6]) else null
                     val reportId = UUID.fromString(parts[2])
-                    val options = Options.valueOf(parts[3])
+                    val options = Options.valueOfOrNone(parts[3])
 
                     // convert incoming serialized routeTo string into List<String>
                     val routeTo = if (parts[5].isNotEmpty())
