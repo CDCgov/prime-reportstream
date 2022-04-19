@@ -958,6 +958,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                     testData.map { td ->
                         CovidResultMetadataRecord().also { record ->
                             record.messageId = td.messageId?.take(METADATA_MAX_LENGTH)
+                            record.previousMessageId = td.previousMessageId?.take(METADATA_MAX_LENGTH)
                             record.reportId = td.reportId
                             record.reportIndex = td.reportIndex
                             record.orderingProviderName =

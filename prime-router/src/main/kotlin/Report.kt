@@ -673,6 +673,7 @@ class Report : Logging {
             table.mapIndexed { idx, row ->
                 CovidResultMetadata().also {
                     it.messageId = row.getStringOrNull("message_id")
+                    it.previousMessageId = row.getStringOrNull("previous_message_id")
                     it.orderingProviderName = row.getStringOrNull("ordering_provider_first_name") +
                         " " + row.getStringOrNull("ordering_provider_last_name")
                     it.orderingProviderId = row.getStringOrNull("ordering_provider_id").trimToNull()
