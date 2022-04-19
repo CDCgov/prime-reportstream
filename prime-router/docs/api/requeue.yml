@@ -25,18 +25,25 @@ paths:
           required: true
           schema:
             type: string
-        - name: test
-          in: path
-          description: adds some additional debug text
-          required: false
-          schema:
-            type: boolean
+      requestBody:
+        description: Empty body due to the POST format
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmptyBody'
       responses:
         '200':
           description: text stating how many items in the report will be resent
           content:
             application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/RequeueResponse'
         '400':
           description: bad request
+components:
+  schemas:
+    EmptyBody:
+      type: string
+    RequeueResponse:
+      type: string
