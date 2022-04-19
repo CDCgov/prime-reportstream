@@ -87,14 +87,31 @@ data class FTPSTransportType
         "host=$host, port=$port, username=$username, protocol=$protocol, binaryTransfer=$binaryTransfer"
 }
 
+/**
+ * The GAEN UUID Format instructs how the UUID field of the GAEN payload is built
+ */
+enum class GAENUUIDFormat {
+    PHONE_DATE, // Default if IV specified hmac_md5(phone+date, iv).toHex()
+    REPORT_ID, // Default if IV is not specified, use report stream's report id
+    WA_NOTIFY, // Use the format that WA_NOTIFY uses, must specify IV
+}
+
+/**
+ * The Google/Apple Exposure Notification transport sends a report to the Exposure Notification service
+ */
 data class GAENTransportType
 @JsonCreator constructor(
     /**
      * [apiUrl] is API URL to post to. Typically, something like https://adminapi.encv.org/api/issue.
+     * [uuidFormat] is format that is used for generating the UUID of the message.
+     * The UUID enables the GAEN system deduplicate notifications.
+     * [uuidIV] is the HMAC initialization vector (aka key) in hex
      */
     val apiUrl: String,
+    val uuidFormat: GAENUUIDFormat? = null,
+    val uuidIV: String? = null,
 ) : TransportType("GAEN") {
-    override fun toString(): String = "url=$apiUrl"
+    override fun toString(): String = "url=$apiUrl, uuidFormat=$uuidFormat, uuidIV=$uuidIV"
 }
 
 data class NullTransportType
