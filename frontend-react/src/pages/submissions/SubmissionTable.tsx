@@ -20,22 +20,24 @@ function SubmissionTable() {
     } = useCursorManager(filterManager.rangeSettings.start);
 
     /* Our API call! Updates when any of the given state variables update.
-    * The logical swap of cursors and range value is to account for which end of the
-    * range needs to update when paginating with a specific sort order.
-    *
-    * DESC -> Start [ -> ] End (Start uses cursor to increment towards end)
-    * ASC -> Start [ <- ] End (End uses cursor to increment towards start)
-    */
+     * The logical swap of cursors and range value is to account for which end of the
+     * range needs to update when paginating with a specific sort order.
+     *
+     * DESC -> Start [ -> ] End (Start uses cursor to increment towards end)
+     * ASC -> Start [ <- ] End (End uses cursor to increment towards start)
+     */
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
         {
             organization: getStoredOrg(),
-            startCursor: filterManager.sortSettings.order === "DESC"
-                ? cursors.current
-                : filterManager.rangeSettings.start,
-            endRange: filterManager.sortSettings.order === "ASC"
-                ? cursors.current
-                : filterManager.rangeSettings.end,
+            cursor:
+                filterManager.sortSettings.order === "DESC"
+                    ? cursors.current
+                    : filterManager.rangeSettings.start,
+            endCursor:
+                filterManager.sortSettings.order === "ASC"
+                    ? cursors.current
+                    : filterManager.rangeSettings.end,
             pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
             sort: filterManager.sortSettings.order,
             showFailed: false, // No plans for this to be set to true

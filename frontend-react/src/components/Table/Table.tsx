@@ -9,9 +9,12 @@ import {
 import { NavLink } from "react-router-dom";
 import React from "react";
 
-import {CursorActionType, CursorManager} from "../../hooks/filters/UseCursorManager";
+import {
+    CursorActionType,
+    CursorManager,
+} from "../../hooks/filters/UseCursorManager";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
-import {SortSettingsActionType} from "../../hooks/filters/UseSortOrder";
+import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
 
 export interface TableRow {
     [key: string]: any;
@@ -49,11 +52,13 @@ export interface TableProps {
 }
 
 const Table = ({ config, filterManager, cursorManager }: TableProps) => {
-
     const renderArrow = () => {
         if (filterManager && filterManager.sortSettings.order === "ASC") {
             return <IconArrowUpward />;
-        } else if (filterManager && filterManager.sortSettings.order === "DESC") {
+        } else if (
+            filterManager &&
+            filterManager.sortSettings.order === "DESC"
+        ) {
             return <IconArrowDownward />;
         }
     };
@@ -77,14 +82,18 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                                         type: SortSettingsActionType.SWAP_ORDER,
                                     });
                                     /* IMPORTANT:
-                                    * The conditional presented in this call is measuring
-                                    * sortSettings.order BEFORE it's swapped (which we do
-                                    * above this). This is why the logic is backwards */
+                                     * The conditional presented in this call is measuring
+                                     * sortSettings.order BEFORE it's swapped (which we do
+                                     * above this). This is why the logic is backwards */
                                     cursorManager?.update({
                                         type: CursorActionType.RESET,
-                                        payload: filterManager?.sortSettings.order === "ASC"
-                                            ? filterManager?.rangeSettings.start
-                                            : filterManager?.rangeSettings.end
+                                        payload:
+                                            filterManager?.sortSettings
+                                                .order === "ASC"
+                                                ? filterManager?.rangeSettings
+                                                      .start
+                                                : filterManager?.rangeSettings
+                                                      .end,
                                     });
                                 }}
                             >
@@ -180,7 +189,9 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                         unstyled
                         type="button"
                         className="margin-right-2"
-                        onClick={() => cm.update({ type: CursorActionType.PAGE_DOWN })}
+                        onClick={() =>
+                            cm.update({ type: CursorActionType.PAGE_DOWN })
+                        }
                     >
                         <span>
                             <IconNavigateBefore className="text-middle" />
@@ -192,7 +203,9 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                     <Button
                         unstyled
                         type="button"
-                        onClick={() => cm.update({ type: CursorActionType.PAGE_UP })}
+                        onClick={() =>
+                            cm.update({ type: CursorActionType.PAGE_UP })
+                        }
                     >
                         <span>
                             Next
