@@ -1,0 +1,42 @@
+openapi: "3.0.3"
+info:
+  title: ReportStream Requeue API
+  version: "1.0"
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+paths:
+  /api/requeue/send:
+    post:
+      description: manually queue up a report to be sent again to one receiver
+      security:
+        - OktaAuth: [ FUNCTION ]
+      parameters:
+        - name: reportId
+          in: path
+          description: UUID for the report to resend
+          required: true
+          schema:
+            type: string
+        - name: receiver
+          in: path
+          description: full name of the receiver to resend the report to
+          required: true
+          schema:
+            type: string
+        - name: test
+          in: path
+          description: adds some additional debug text
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: text stating how many items in the report will be resent
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: bad request
