@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.router.Options
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
@@ -69,5 +70,23 @@ class EventTest {
         val message = event.toQueueMessage()
         val returnEvent = Event.parseQueueMessage(message)
         assertThat(returnEvent).isEqualTo(event)
+    }
+
+    @Test
+    fun `test valid options param sent`() {
+        val result = Options.valueOfOrNone("CheckConnections")
+        assertThat(result).isEqualTo(Options.CheckConnections)
+    }
+
+    @Test
+    fun `test incorrect capitalization options param sent`() {
+        val result = Options.valueOfOrNone("CHECKCONNECTIONS")
+        assertThat(result).isEqualTo(Options.None)
+    }
+
+    @Test
+    fun `test entirely invalid options param sent`() {
+        val result = Options.valueOfOrNone("NoGood")
+        assertThat(result).isEqualTo(Options.None)
     }
 }

@@ -81,7 +81,7 @@ class ActionError(val details: List<ActionLog>, message: String? = null) : Error
 @JsonIgnoreProperties(ignoreUnknown = true)
 interface ActionLogDetail {
     /**
-     * The scopt of the log.
+     * The scope of the log.
      */
     val scope: ActionLogScope
 
@@ -161,7 +161,7 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
         actionDetail: ActionLogDetail,
         level: ActionLogLevel
     ) {
-        if (actionDetail is ItemActionLogDetail) check(itemIndex != null) {
+        if (actionDetail.scope == ActionLogScope.item) check(itemIndex != null) {
             "Index is required for item logs.  Use the item action logger"
         }
         logs.add(ActionLog(actionDetail, trackingId, itemIndex, reportId, type = level))

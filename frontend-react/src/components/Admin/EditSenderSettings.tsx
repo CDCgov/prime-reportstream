@@ -12,6 +12,7 @@ import {
 } from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import Spinner from "../Spinner";
+import { getErrorDetailFromResponse } from "../../utils/misc";
 
 import { TextAreaComponent, TextInputComponent } from "./AdminFormEdit";
 import {
@@ -70,9 +71,14 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
 
                 confirmModalRef?.current?.showModal();
                 setLoading(false);
-            } catch (e) {
+            } catch (e: any) {
                 setLoading(false);
-                console.error(e);
+                let errorDetail = await getErrorDetailFromResponse(e);
+                console.trace(e, errorDetail);
+                showError(
+                    `Reloading sender '${sendername}' failed with: ${errorDetail}`
+                );
+                return false;
             }
         };
 
@@ -87,13 +93,12 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
 
         const saveSenderData = async () => {
             try {
+                setLoading(true);
+
                 const data = confirmModalRef?.current?.getEditedText();
 
                 const sendernamelocal =
                     action === "clone" ? orgSenderSettings.name : sendername;
-
-                setLoading(true);
-                // saving can be slow, so let them know it's happening (this is kind of lame, but it works for now)
 
                 await fetchController(
                     // NOTE: For 'clone' does not use the expected OrgSenderSettingsResource.create() method
@@ -111,9 +116,11 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                 setLoading(false);
                 history.goBack();
             } catch (e: any) {
-                console.trace(e);
+                setLoading(false);
+                let errorDetail = await getErrorDetailFromResponse(e);
+                console.trace(e, errorDetail);
                 showError(
-                    `Updating item '${sendername}' failed. ${e.toString()}`
+                    `Updating receiver '${sendername}' failed with: ${errorDetail}`
                 );
                 return false;
             }
