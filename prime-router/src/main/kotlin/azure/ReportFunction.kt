@@ -29,7 +29,8 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
-import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 
 private const val CLIENT_PARAMETER = "client"
@@ -118,7 +119,7 @@ class ReportFunction(
                 request,
                 "${sender.fullName}.report",
                 workflowEngine.db,
-            ) ?: return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authenticationFailure)
+            ) ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
             // Do authorization based on org name in claim matching org name in client header
             if (claims.organizationNameClaim != sender.organizationName) {
@@ -127,7 +128,7 @@ class ReportFunction(
                         " ${request.httpMethod}:${request.uri.path}." +
                         " ERR: Claim org is ${claims.organizationNameClaim} but client id is ${sender.organizationName}"
                 )
-                return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authorizationFailure)
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
             logger.info(
                 "Authorized request by org ${claims.organizationNameClaim}" +

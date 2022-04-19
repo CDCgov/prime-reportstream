@@ -34,8 +34,6 @@ enum class PrincipalLevel {
 class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLevel.USER) : Logging {
     companion object : Logging {
         val issuerBaseUrl: String = System.getenv(envVariableForOktaBaseUrl) ?: ""
-        val authenticationFailure = HttpUtilities.errorJson("Authentication Failed")
-        val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
 
         /**
          * Perform authentication on a human user.

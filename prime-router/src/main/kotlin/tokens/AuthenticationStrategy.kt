@@ -3,10 +3,14 @@ package gov.cdc.prime.router.tokens
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 
 val USE_OKTA_AUTH = "okta"
+
+val authenticationFailure = HttpUtilities.errorJson("Authentication Failed")
+val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
 
 class AuthenticationStrategy() : Logging {
     companion object : Logging {

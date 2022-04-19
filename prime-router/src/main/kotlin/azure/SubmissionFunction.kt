@@ -11,6 +11,8 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.PrincipalLevel
+import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.time.OffsetDateTime
@@ -98,15 +100,14 @@ class SubmissionFunction(
             // Confirm this is a sender in the system.
             val sender = workflowEngine.settings.findSender(organization) // err if no default sender in settings in org
                 ?: return HttpUtilities.unauthorizedResponse(
-                    request,
-                    OktaAuthentication.authenticationFailure + "$organization': unknown sender",
+                    request, HttpUtilities.errorJson("Authentication Failed: $organization: unknown sender")
                 )
             // Do authentication
             val claims = AuthenticationStrategy.authenticate(
                 request,
                 "${sender.fullName}.report",
                 workflowEngine.db,
-            ) ?: return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authenticationFailure)
+            ) ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
             // Do authorization based on org name in claim matching org name in client header, or being a prime admin.
             if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {
@@ -115,7 +116,7 @@ class SubmissionFunction(
                         " ${request.httpMethod}:${request.uri.path}." +
                         " ERR: Claim org is ${claims.organizationNameClaim} but client id is ${sender.organizationName}"
                 )
-                return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authorizationFailure)
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
             logger.info(
                 "Authorized request by org ${claims.organizationNameClaim}" +
@@ -166,7 +167,7 @@ class SubmissionFunction(
     ): HttpResponseMessage {
         try {
             val claims = OktaAuthentication.authenticate(request)
-                ?: return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authenticationFailure)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
             logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
 
             // actionHistory?.trackUsername(claims.userName)  todo
@@ -191,7 +192,7 @@ class SubmissionFunction(
                     "Invalid Authorization for user ${claims.userName}:" +
                         " ${request.httpMethod}:${request.uri.path}"
                 )
-                return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authorizationFailure)
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
             val submission = submissionsFacade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)
             if (submission != null)
