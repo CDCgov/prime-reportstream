@@ -16,7 +16,6 @@ import Crumbs, { CrumbConfig } from "../../components/Crumbs";
 type DetailItemProps = {
     item: string;
     content: any;
-    subItem?: boolean;
 };
 
 type DestinationItemProps = {
@@ -34,16 +33,10 @@ type SubmissionDetailsProps = {
     @param item - the title of a property; e.g. Report ID
     @param content - the content of a property; e.g. 000000-0000-0000-000000
 */
-export function DetailItem({ item, content, subItem }: DetailItemProps) {
+export function DetailItem({ item, content }: DetailItemProps) {
     return (
-        <div
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                margin: subItem ? "16px 32px" : "8px 0px",
-            }}
-        >
-            <span>{item}</span>
+        <div className="display-flex flex-column margin-bottom-4">
+            <span className="text-base">{item}</span>
             <span>{content}</span>
         </div>
     );
@@ -58,17 +51,11 @@ export function DetailItem({ item, content, subItem }: DetailItemProps) {
 */
 export function DestinationItem({ destinationObj }: DestinationItemProps) {
     const submissionDate = generateDateTitles(destinationObj.sending_at);
-    const dataStream = `(${destinationObj.service})`;
+    const dataStream = destinationObj.service.toUpperCase();
     return (
-        <div
-            style={{
-                display: "flex",
-                flexDirection: "column",
-            }}
-        >
-            <h2>
-                {destinationObj.organization} {dataStream}
-            </h2>
+        <div className="display-flex flex-column">
+            <h2>{destinationObj.organization}</h2>
+            <DetailItem item={"Data Stream"} content={dataStream} />
             <DetailItem
                 item={"Transmission Date"}
                 content={
@@ -78,7 +65,6 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
                             : "Parsing error"
                         : "Not transmitting - all data filtered"
                 }
-                subItem
             />
             <DetailItem
                 item={"Transmission Time"}
@@ -89,13 +75,8 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
                             : "Parsing error"
                         : "Not transmitting - all data filtered"
                 }
-                subItem
             />
-            <DetailItem
-                item={"Records"}
-                content={destinationObj.itemCount}
-                subItem
-            />
+            <DetailItem item={"Records"} content={destinationObj.itemCount} />
         </div>
     );
 }
@@ -126,7 +107,7 @@ function SubmissionDetailsContent() {
 
     /* Only used when externalName is present */
     const titleWithFilename: string | undefined =
-        actionDetails.externalName !== ""
+        actionDetails.externalName !== null
             ? `${titleString} - ${actionDetails.externalName}`
             : undefined;
 
