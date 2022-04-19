@@ -1,7 +1,7 @@
 
 ### Schema: pa/pa-covid-19-hl7
 ### Topic: covid-19
-### Tracking Element: (specimen_id)
+### Tracking Element: (message_id)
 ### Base On: none
 ### Extends: [covid-19](./covid-19.md)
 #### Description: Pennsylvania Department of Health HL7 messages

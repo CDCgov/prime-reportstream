@@ -1,7 +1,7 @@
 
 ### Schema: covid-19
 ### Topic: covid-19
-### Tracking Element: (specimen_id)
+### Tracking Element: (message_id)
 ### Base On: none
 ### Extends: none
 #### Description: collection of standard elements, not an actual schema

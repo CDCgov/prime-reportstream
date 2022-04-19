@@ -1,7 +1,7 @@
 
 ### Schema: vt/vt-covid-19
 ### Topic: covid-19
-### Tracking Element: (specimen_id)
+### Tracking Element: (message_id)
 ### Base On: none
 ### Extends: [covid-19](./covid-19.md)
 #### Description: A schema for VT DOH to receive HL7 files

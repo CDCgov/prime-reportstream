@@ -1,7 +1,7 @@
 
 ### Schema: hl7/hl7-ingest-covid-19
 ### Topic: covid-19
-### Tracking Element: (specimen_id)
+### Tracking Element: (message_id)
 ### Base On: none
 ### Extends: [covid-19](./covid-19.md)
 #### Description: Schema for ingesting HL7 messages
