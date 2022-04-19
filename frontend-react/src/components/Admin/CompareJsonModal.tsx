@@ -53,6 +53,7 @@ export interface ConfirmSaveSettingModalRef extends ModalRef {
     setWarning: (warning: string) => void;
     showModal: () => void;
     hideModal: () => void;
+    disableSave: () => void;
 }
 
 interface CompareSettingsModalProps {
@@ -70,6 +71,7 @@ export const ConfirmSaveSettingModal = forwardRef(
         const modalRef = useRef<ModalRef>(null);
         const diffEditorRef = useRef<EditableCompareRef>(null);
         const [errorText, setErrorText] = useState("");
+        const [saveDisabled, setSaveDisabled] = useState(false);
         const scopedConfirm = () => {
             onConfirm();
         };
@@ -94,6 +96,9 @@ export const ConfirmSaveSettingModal = forwardRef(
                 },
                 hideModal: () => {
                     modalRef?.current?.toggleModal(undefined, false);
+                },
+                disableSave: () => {
+                    setSaveDisabled(true);
                 },
                 // route these down to modal ref
                 modalId: modalRef?.current?.modalId || "",
@@ -145,6 +150,7 @@ export const ConfirmSaveSettingModal = forwardRef(
                             <ModalConfirmSaveButton
                                 uniquid={uniquid}
                                 handleClose={scopedConfirm}
+                                disabled={saveDisabled}
                             >
                                 Save
                             </ModalConfirmSaveButton>

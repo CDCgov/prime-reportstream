@@ -85,8 +85,9 @@ export function AdminOrgEdit({
             if (latestResponse?.meta?.version !== orgSettings?.meta?.version) {
                 showError(getVersionWarning(VersionWarningType.POPUP));
                 confirmModalRef?.current?.setWarning(
-                    getVersionWarning(VersionWarningType.FULL, orgSettings)
+                    getVersionWarning(VersionWarningType.FULL, latestResponse)
                 );
+                confirmModalRef?.current?.disableSave();
             }
 
             confirmModalRef?.current?.showModal();
@@ -109,7 +110,10 @@ export function AdminOrgEdit({
                     JSON.stringify(latestResponse, jsonSortReplacer, 2)
                 );
                 showError(getVersionWarning(VersionWarningType.POPUP));
-                getVersionWarning(VersionWarningType.FULL, orgSettings);
+                confirmModalRef?.current?.setWarning(
+                    getVersionWarning(VersionWarningType.FULL, latestResponse)
+                );
+                confirmModalRef?.current?.disableSave();
                 return false;
             }
 

@@ -85,9 +85,10 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     confirmModalRef?.current?.setWarning(
                         getVersionWarning(
                             VersionWarningType.FULL,
-                            orgSenderSettings
+                            latestResponse
                         )
                     );
+                    confirmModalRef?.current?.disableSave();
                 }
 
                 confirmModalRef?.current?.showModal();
@@ -128,9 +129,10 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     confirmModalRef?.current?.setWarning(
                         getVersionWarning(
                             VersionWarningType.FULL,
-                            orgSenderSettings
+                            latestResponse
                         )
                     );
+                    confirmModalRef?.current?.disableSave();
                     return false;
                 }
 

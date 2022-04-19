@@ -93,9 +93,10 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     confirmModalRef?.current?.setWarning(
                         getVersionWarning(
                             VersionWarningType.FULL,
-                            orgReceiverSettings
+                            latestResponse
                         )
                     );
+                    confirmModalRef?.current?.disableSave();
                 }
 
                 confirmModalRef?.current?.showModal();
@@ -137,9 +138,10 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     confirmModalRef?.current?.setWarning(
                         getVersionWarning(
                             VersionWarningType.FULL,
-                            orgReceiverSettings
+                            latestResponse
                         )
                     );
+                    confirmModalRef?.current?.disableSave();
                     return false;
                 }
 
