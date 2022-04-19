@@ -26,9 +26,16 @@ data "azurerm_subnet" "private_subnet" {
 
 /* Endpoint subnet */
 data "azurerm_subnet" "endpoint_subnet" {
-  for_each = { for k, v in var.azure_vns : k => v if contains(var.azure_vns[k].subnets, "endpoint") }
-
+  for_each             = { for k, v in var.azure_vns : k => v if contains(var.azure_vns[k].subnets, "endpoint") }
   name                 = "endpoint"
+  resource_group_name  = var.resource_group
+  virtual_network_name = "${var.resource_prefix}-${each.key}"
+}
+
+/* Gateway subnet */
+data "azurerm_subnet" "gateway_subnet" {
+  for_each             = { for k, v in var.azure_vns : k => v if contains(var.azure_vns[k].subnets, "GatewaySubnet") }
+  name                 = "GatewaySubnet"
   resource_group_name  = var.resource_group
   virtual_network_name = "${var.resource_prefix}-${each.key}"
 }

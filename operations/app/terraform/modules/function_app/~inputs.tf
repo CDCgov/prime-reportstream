@@ -46,7 +46,6 @@ variable "use_cdc_managed_vnet" {
   description = "If the environment should be deployed to the CDC managed VNET"
 }
 
-variable "public_subnet" {}
 variable "pagerduty_url" {}
 variable "app_service_plan" {}
 variable "primary_access_key" {}
@@ -62,3 +61,7 @@ variable "client_config_key_vault_id" {}
 variable "app_config_key_vault_id" {}
 variable "dns_ip" {}
 variable "okta_base_url" {}
+
+variable "subnets" {
+  description = "A set of all available subnet combinations"
+}

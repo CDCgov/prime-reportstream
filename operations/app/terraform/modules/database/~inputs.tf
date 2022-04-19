@@ -47,30 +47,15 @@ variable "db_auto_grow" {}
 variable "db_prevent_destroy" {}
 
 variable "db_threat_detection" {}
-variable "endpoint_subnet" {}
 variable "db_replica" {}
 variable "application_key_vault_id" {}
 
-variable "west_vnet_subnets" {
-  type        = list(string)
-  description = "West Vnet subnets"
+variable "dns_vnet" {}
+
+variable "subnets" {
+  description = "A set of all available subnet combinations"
 }
 
-variable "east_vnet_subnets" {
-  type        = list(string)
-  description = "East Vnet subnets"
-}
-
-variable "vnet_subnets" {
-  type        = list(string)
-  description = "Vnet subnets"
-}
-
-variable "peer_vnet_subnets" {
-  type        = list(string)
-  description = "Peer vnet subnets"
-}
-
-variable "dns_vnet" {
-
+variable "dns_zones" {
+  description = "A set of all available dns zones"
 }

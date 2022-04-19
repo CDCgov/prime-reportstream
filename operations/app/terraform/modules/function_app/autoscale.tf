@@ -9,9 +9,9 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
     name = "ScaleOnHighLoad"
 
     capacity {
-      default = 2
-      minimum = 2
-      maximum = 10
+      default = 6
+      minimum = 6
+      maximum = 20
     }
 
     rule {
@@ -96,8 +96,19 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
   }
 
   notification {
+    email {
+      custom_emails                         = []
+      send_to_subscription_administrator    = false
+      send_to_subscription_co_administrator = false
+    }
     webhook {
       service_uri = var.pagerduty_url
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      notification[0].webhook[0].service_uri
+    ]
   }
 }

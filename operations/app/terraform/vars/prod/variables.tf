@@ -29,13 +29,13 @@ variable "is_metabase_env" {
   default = true
 }
 variable "https_cert_names" {
-  default = []
+  default = ["prime-cdc-gov", "reportstream-cdc-gov"]
 }
 variable "okta_base_url" {
-  default = "hhs-prime.oktapreview.com"
+  default = "hhs-prime.okta.com"
 }
 variable "okta_redirect_url" {
-  default = "https://prime-data-hub-rkh5012.azurefd.net/download"
+  default = "https://prime.cdc.gov/download"
 }
 variable "aad_object_keyvault_admin" {
   default = "5c6a951e-a4c2-4890-b62c-0ed8179501bb"
@@ -104,7 +104,7 @@ variable "network" {
       "address_space"           = "10.0.0.0/16"
       "dns_server"              = [""]
       "location"                = "East Us"
-      "subnets"                 = ["public", "private", "container", "endpoint"]
+      "subnets"                 = ["public", "private", "container", "endpoint", "GatewaySubnet"]
       "nsg_prefix"              = ""
       "network_security_groups" = ["private", "public", "container"]
       "subnet_cidrs" = [
@@ -183,7 +183,7 @@ variable "app_size" {
 ##################
 
 variable "use_cdc_managed_vnet" {
-  default = false
+  default = true
 }
 variable "app_config_kv_name" {
   default     = "pdhprod-appconfig"
@@ -198,7 +198,7 @@ variable "client_config_kv_name" {
 }
 variable "terraform_caller_ip_address" {
   type    = list(string)
-  default = ["162.224.209.174", "24.163.118.70", "75.191.122.59"]
+  default = ["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191"]
 }
 
 ##########

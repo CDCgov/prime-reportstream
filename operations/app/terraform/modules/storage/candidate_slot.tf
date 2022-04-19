@@ -21,7 +21,7 @@ resource "azurerm_storage_account" "storage_account_candidate" {
 
     ip_rules = var.terraform_caller_ip_address
 
-    virtual_network_subnet_ids = concat(var.public_subnet, var.container_subnet, var.endpoint_subnet)
+    virtual_network_subnet_ids = var.subnets.vnet_public_container_endpoint_subnets
   }
 
   # Required for customer-managed encryption
@@ -31,6 +31,10 @@ resource "azurerm_storage_account" "storage_account_candidate" {
 
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [
+      secondary_blob_connection_string,
+      network_rules[0].ip_rules
+    ]
   }
 
   tags = {
@@ -39,6 +43,8 @@ resource "azurerm_storage_account" "storage_account_candidate" {
 }
 
 module "storageaccount_candidate_blob_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account_candidate.id
   name           = azurerm_storage_account.storage_account_candidate.name
@@ -46,13 +52,16 @@ module "storageaccount_candidate_blob_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+  dns_zone = var.dns_zones["blob"].name
 }
 
 module "storageaccountcandidatepartner_blob_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_partner_candidate.id
   name           = azurerm_storage_account.storage_partner_candidate.name
@@ -60,13 +69,16 @@ module "storageaccountcandidatepartner_blob_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+  dns_zone = var.dns_zones["blob"].name
 }
 
 module "storageaccount_candidate_file_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account_candidate.id
   name           = azurerm_storage_account.storage_account_candidate.name
@@ -74,13 +86,16 @@ module "storageaccount_candidate_file_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+  dns_zone = var.dns_zones["file"].name
 }
 
 module "storageaccount_candidate_queue_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account_candidate.id
   name           = azurerm_storage_account.storage_account_candidate.name
@@ -88,10 +103,11 @@ module "storageaccount_candidate_queue_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+  dns_zone = var.dns_zones["queue"].name
 }
 
 resource "azurerm_storage_management_policy" "retention_policy_candidate" {
@@ -114,6 +130,13 @@ resource "azurerm_storage_management_policy" "retention_policy_candidate" {
         delete_after_days_since_creation_greater_than = 30
       }
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      // -1 value is applied, but not accepted in tf
+      rule[0].actions[0].base_blob[0].tier_to_cool_after_days_since_last_access_time_greater_than
+    ]
   }
 }
 
@@ -163,7 +186,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
 
     ip_rules = var.terraform_caller_ip_address
 
-    virtual_network_subnet_ids = concat(var.public_subnet, var.endpoint_subnet)
+    virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
   }
 
   # Required for customer-managed encryption
@@ -173,6 +196,10 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
 
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [
+      secondary_blob_connection_string,
+      network_rules[0].ip_rules
+    ]
   }
 
   tags = {
@@ -224,5 +251,12 @@ resource "azurerm_storage_management_policy" "storage_candidate_partner_retentio
         delete_after_days_since_creation_greater_than = 30
       }
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      // -1 value is applied, but not accepted in tf
+      rule[0].actions[0].base_blob[0].tier_to_cool_after_days_since_last_access_time_greater_than
+    ]
   }
 }

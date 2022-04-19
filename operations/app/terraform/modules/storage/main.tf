@@ -11,7 +11,7 @@ resource "azurerm_storage_account" "storage_account" {
   enable_https_traffic_only = true
 
   network_rules {
-    default_action = "Allow"
+    default_action = "Deny"
     bypass         = ["None"]
 
     # ip_rules = sensitive(concat(
@@ -19,7 +19,7 @@ resource "azurerm_storage_account" "storage_account" {
     #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
     # ))
 
-    virtual_network_subnet_ids = concat(var.public_subnet, var.container_subnet, var.endpoint_subnet)
+    virtual_network_subnet_ids = var.subnets.primary_subnets
   }
 
   # Required for customer-managed encryption
@@ -29,6 +29,10 @@ resource "azurerm_storage_account" "storage_account" {
 
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [
+      secondary_blob_connection_string,
+      network_rules[0].ip_rules
+    ]
   }
 
   tags = {
@@ -37,6 +41,8 @@ resource "azurerm_storage_account" "storage_account" {
 }
 
 module "storageaccount_blob_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account.id
   name           = azurerm_storage_account.storage_account.name
@@ -44,13 +50,16 @@ module "storageaccount_blob_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.subnets.primary_endpoint_subnets[0]
+  dns_zone = var.dns_zones["blob"].name
 }
 
 module "storageaccountpartner_blob_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_partner.id
   name           = azurerm_storage_account.storage_partner.name
@@ -58,13 +67,16 @@ module "storageaccountpartner_blob_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.subnets.primary_endpoint_subnets[0]
+  dns_zone = var.dns_zones["blob"].name
 }
 
 module "storageaccount_file_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account.id
   name           = azurerm_storage_account.storage_account.name
@@ -72,13 +84,16 @@ module "storageaccount_file_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.subnets.primary_endpoint_subnets[0]
+  dns_zone = var.dns_zones["file"].name
 }
 
 module "storageaccount_queue_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account.id
   name           = azurerm_storage_account.storage_account.name
@@ -86,10 +101,11 @@ module "storageaccount_queue_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.subnets.primary_endpoint_subnets[0]
+  dns_zone = var.dns_zones["queue"].name
 }
 
 # Point-in-time restore, soft delete, versioning, and change feed were
@@ -103,7 +119,7 @@ resource "azurerm_storage_management_policy" "retention_policy" {
   storage_account_id = azurerm_storage_account.storage_account.id
 
   rule {
-    name    = "limitedretention"
+    name    = "30dayretention"
     enabled = true
 
     filters {
@@ -113,14 +129,21 @@ resource "azurerm_storage_management_policy" "retention_policy" {
 
     actions {
       base_blob {
-        delete_after_days_since_modification_greater_than = 60
+        delete_after_days_since_modification_greater_than = 30
       }
       snapshot {
-        delete_after_days_since_creation_greater_than = 60
+        delete_after_days_since_creation_greater_than = 30
       }
       # Terraform does not appear to support deletion of versions
       # This needs to be manually checked in the policy and set to 60 days
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      // -1 value is applied, but not accepted in tf
+      rule[0].actions[0].base_blob[0].tier_to_cool_after_days_since_last_access_time_greater_than
+    ]
   }
 }
 
@@ -202,7 +225,7 @@ resource "azurerm_storage_account" "storage_partner" {
 
     # ip_rules = [var.terraform_caller_ip_address]
 
-    virtual_network_subnet_ids = concat(var.endpoint_subnet, var.container_subnet, var.public_subnet)
+    virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
   }
 
   # Required for customer-managed encryption
@@ -212,6 +235,10 @@ resource "azurerm_storage_account" "storage_partner" {
 
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [
+      secondary_blob_connection_string,
+      network_rules[0].ip_rules
+    ]
   }
 
   tags = {
@@ -249,7 +276,7 @@ resource "azurerm_storage_management_policy" "storage_partner_retention_policy" 
   storage_account_id = azurerm_storage_account.storage_partner.id
 
   rule {
-    name    = "limitedretention"
+    name    = "30dayretention"
     enabled = true
 
     filters {
@@ -259,13 +286,20 @@ resource "azurerm_storage_management_policy" "storage_partner_retention_policy" 
 
     actions {
       base_blob {
-        delete_after_days_since_modification_greater_than = 60
+        delete_after_days_since_modification_greater_than = 30
       }
       snapshot {
-        delete_after_days_since_creation_greater_than = 60
+        delete_after_days_since_creation_greater_than = 30
       }
       # Terraform does not appear to support deletion of versions
       # This needs to be manually checked in the policy and set to 60 days
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      // -1 value is applied, but not accepted in tf
+      rule[0].actions[0].base_blob[0].tier_to_cool_after_days_since_last_access_time_greater_than
+    ]
   }
 }

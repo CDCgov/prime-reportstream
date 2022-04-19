@@ -10,14 +10,14 @@ resource "azurerm_app_service" "metabase" {
       action                    = "Allow"
       name                      = "AllowVNetTraffic"
       priority                  = 100
-      virtual_network_subnet_id = var.public_subnet[0]
+      virtual_network_subnet_id = var.subnets.public_subnets[2]
     }
 
     ip_restriction {
       action                    = "Allow"
       name                      = "AllowVNetEastTraffic"
       priority                  = 100
-      virtual_network_subnet_id = var.public_subnet[1]
+      virtual_network_subnet_id = var.subnets.public_subnets[0]
     }
 
     ip_restriction {
@@ -58,9 +58,17 @@ resource "azurerm_app_service" "metabase" {
     "XDT_MicrosoftApplicationInsights_Mode"           = "recommended"
     "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
   }
+
+  lifecycle {
+    ignore_changes = [
+      app_settings["APPINSIGHTS_INSTRUMENTATIONKEY"],
+      app_settings["APPLICATIONINSIGHTS_CONNECTION_STRING"],
+      app_settings["MB_DB_CONNECTION_URI"],
+    ]
+  }
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "metabase_vnet_integration" {
   app_service_id = azurerm_app_service.metabase.id
-  subnet_id      = var.use_cdc_managed_vnet ? var.public_subnet[1].id : var.public_subnet[0].id
+  subnet_id      = var.use_cdc_managed_vnet ? var.subnets.public_subnets[0] : var.subnets.public_subnets[2]
 }

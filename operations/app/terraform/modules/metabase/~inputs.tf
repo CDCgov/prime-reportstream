@@ -44,4 +44,7 @@ variable "postgres_server_name" {
 variable "app_config_kv_name" {}
 variable "postgres_user" {}
 variable "postgres_pass" {}
-variable "public_subnet" {}
+
+variable "subnets" {
+  description = "A set of all available subnet combinations"
+}

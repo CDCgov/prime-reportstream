@@ -43,6 +43,8 @@ resource "azurerm_postgresql_server" "postgres_server" {
 }
 
 module "postgres_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_postgresql_server.postgres_server.id
   name           = azurerm_postgresql_server.postgres_server.name
@@ -50,11 +52,11 @@ module "postgres_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  exclude_subnets            = concat(var.west_vnet_subnets, var.peer_vnet_subnets)
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.subnets.primary_endpoint_subnets[0]
+  dns_zone = var.dns_zones["postgres"].name
 }
 
 
@@ -106,7 +108,8 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
 }
 
 module "postgres_private_endpoint_replica" {
-  count          = var.db_replica ? 1 : 0
+  for_each = var.db_replica ? var.subnets.replica_endpoint_subnets : []
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_postgresql_server.postgres_server_replica[0].id
   name           = azurerm_postgresql_server.postgres_server_replica[0].name
@@ -114,11 +117,11 @@ module "postgres_private_endpoint_replica" {
   resource_group = var.resource_group
   location       = azurerm_postgresql_server.postgres_server_replica[0].location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  exclude_subnets            = concat(var.east_vnet_subnets, var.vnet_subnets)
-  dns_vnet                   = var.dns_vnet == "East-vnet" ? "West-vnet" : var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet == "East-vnet" ? "West-vnet" : var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.subnets.replica_endpoint_subnets[0]
+  dns_zone = var.dns_zones["postgres"].name
 }
 
 

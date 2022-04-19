@@ -24,22 +24,20 @@ variable "location" {
 }
 
 variable "endpoint_subnet_ids" {
-  type        = list(string)
+  type        = string
   description = "Private Endpoint Subnet ID(s)"
 }
 
 variable "endpoint_subnet_id_for_dns" {
   type        = string
   description = "The endpoint the DNS record should point to"
-}
-
-variable "exclude_subnets" {
-  type        = list(string)
-  description = "subnets to exclude from private endpoint"
-  default     = []
+  default     = ""
 }
 
 variable "dns_vnet" {}
+variable "dns_zone" {
+  default = ""
+}
 variable "resource_prefix" {
 
 }
