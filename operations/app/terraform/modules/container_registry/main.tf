@@ -18,9 +18,9 @@ resource "azurerm_container_registry" "container_registry" {
   #   }
   # }
 
-   trust_policy {
-     enabled = "true"
-   }
+  trust_policy {
+    enabled = "true"
+  }
 
   tags = {
     environment = var.environment

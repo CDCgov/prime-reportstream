@@ -17,6 +17,6 @@ data "azurerm_key_vault" "tf-secrets" {
 # }
 
 data "azurerm_key_vault_secret" "pagerduty_url" {
-  name      = "pagerduty-integration-url"
+  name         = "pagerduty-integration-url"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
