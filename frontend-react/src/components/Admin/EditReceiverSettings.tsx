@@ -12,6 +12,7 @@ import {
 } from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import Spinner from "../Spinner";
+import { getErrorDetailFromResponse } from "../../utils/misc";
 
 import {
     ConfirmSaveSettingModal,
@@ -77,9 +78,14 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
 
                 confirmModalRef?.current?.showModal();
                 setLoading(false);
-            } catch (e) {
+            } catch (e: any) {
                 setLoading(false);
-                console.error(e);
+                let errorDetail = await getErrorDetailFromResponse(e);
+                console.trace(e, errorDetail);
+                showError(
+                    `Reloading receiver '${receivername}' failed with: ${errorDetail}`
+                );
+                return false;
             }
         };
 
@@ -94,14 +100,14 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
 
         const saveReceiverData = async () => {
             try {
+                setLoading(true);
+
                 const data = confirmModalRef?.current?.getEditedText();
 
                 const receivernamelocal =
                     action === "clone"
                         ? orgReceiverSettings.name
                         : receivername;
-
-                setLoading(true);
 
                 await fetchController(
                     OrgReceiverSettingsResource.update(),
@@ -118,9 +124,11 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                 confirmModalRef?.current?.hideModal();
                 history.goBack();
             } catch (e: any) {
-                console.trace(e);
+                setLoading(false);
+                let errorDetail = await getErrorDetailFromResponse(e);
+                console.trace(e, errorDetail);
                 showError(
-                    `Updating item '${receivername}' failed. ${e.toString()}`
+                    `Updating receiver '${receivername}' failed with: ${errorDetail}`
                 );
                 return false;
             }
