@@ -7,7 +7,7 @@ import { CursorManager } from "../../hooks/filters/UseCursorManager";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
-    DATE_CONTAINER = "date-picker-container",
+    DATE_CONTAINER = "date-picker-container tablet:grid-col",
 }
 
 export enum FilterName {
@@ -91,51 +91,62 @@ function SubmissionFilters({
 
     return (
         <div data-testid="filter-container" className={StyleClass.CONTAINER}>
-            <div className={StyleClass.DATE_CONTAINER}>
-                <Label htmlFor="start-date" id="start-date-label">
-                    Submitted (Start Range)
-                </Label>
-                {/* BUG: Despite value being set to the local state, clearing it
+            <div className="grid-row display-flex flex-align-end">
+                <div className={StyleClass.DATE_CONTAINER}>
+                    <Label htmlFor="start-date" id="start-date-label">
+                        Submitted (Start Range)
+                    </Label>
+                    {/* BUG: Despite value being set to the local state, clearing it
                      does not actually clear the displayed value. */}
-                <DatePicker
-                    id="start-date"
-                    name="start-date-picker"
-                    placeholder="Start Date"
-                    value={localStartRange}
-                    onChange={(val) =>
-                        val
-                            ? setLocalStartRange(val)
-                            : console.log("StartRange is undefined")
-                    }
-                />
-            </div>
-            <div className={StyleClass.DATE_CONTAINER}>
-                <Label htmlFor="start-date" id="start-date-label">
-                    Submitted (End Range)
-                </Label>
-                {/* BUG: Despite value being set to the local state, clearing it
+                    <DatePicker
+                        id="start-date"
+                        name="start-date-picker"
+                        placeholder="Start Date"
+                        value={localStartRange}
+                        onChange={(val) =>
+                            val
+                                ? setLocalStartRange(val)
+                                : console.log("StartRange is undefined")
+                        }
+                    />
+                </div>
+                <div className={StyleClass.DATE_CONTAINER}>
+                    <Label htmlFor="start-date" id="start-date-label">
+                        Submitted (End Range)
+                    </Label>
+                    {/* BUG: Despite value being set to the local state, clearing it
                      does not actually clear the displayed value. */}
-                <DatePicker
-                    id="end-date"
-                    name="end-date-picker"
-                    placeholder="End Date"
-                    value={localEndRange}
-                    onChange={(val) =>
-                        val
-                            ? setLocalEndRange(val)
-                            : console.log("EndRange is undefined")
-                    }
-                />
-            </div>
-            <div className={StyleClass.DATE_CONTAINER}>
-                <Button onClick={() => applyToFilterManager()} type={"button"}>
-                    Filter
-                </Button>
-            </div>
-            <div className={StyleClass.DATE_CONTAINER}>
-                <Button onClick={() => clearAll()} type={"button"} outline>
-                    Clear
-                </Button>
+                    <DatePicker
+                        id="end-date"
+                        name="end-date-picker"
+                        placeholder="End Date"
+                        value={localEndRange}
+                        onChange={(val) =>
+                            val
+                                ? setLocalEndRange(val)
+                                : console.log("EndRange is undefined")
+                        }
+                    />
+                </div>
+                <div className="button-container">
+                    <div className={StyleClass.DATE_CONTAINER}>
+                        <Button
+                            onClick={() => applyToFilterManager()}
+                            type={"button"}
+                        >
+                            Filter
+                        </Button>
+                    </div>
+                    <div className={StyleClass.DATE_CONTAINER}>
+                        <Button
+                            onClick={() => clearAll()}
+                            type={"button"}
+                            unstyled
+                        >
+                            Clear
+                        </Button>
+                    </div>
+                </div>
             </div>
         </div>
     );
