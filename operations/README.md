@@ -1,20 +1,30 @@
 # PRIME ReportStream Operations
 
-PRIME ReportStream uses Terraform to manage our Azure development environment. All Azure configuration should be done through Terraform to ensure consistency between environments.
+PRIME ReportStream uses Terraform to manage our Azure development environment.
+All Azure configuration should be done through Terraform to ensure consistency
+between environments.
 
-To ensure our Terraform state is managed with consistent Terraform versions, we are running Terraform through a Docker image. Terraform should not be used outside of this Docker image to ensure the Terraform core, plugins, and other versions all remain identical.
+To ensure our Terraform state is managed with consistent Terraform versions, we
+are running Terraform through a Docker image. Terraform should not be used
+outside of this Docker image to ensure the Terraform core, plugins, and other
+versions all remain identical.
 
 
 ## Connect to the VPN
 
-All infrastructure operations must be done behind the environment-specific VPN. You can find [directions for configuring your VPN client in prime-router/docs/VPN.md](https://github.com/CDCgov/prime-data-hub/blob/master/prime-router/docs/vpn.md).
+All infrastructure operations must be done behind the environment-specific VPN.
+You can find [directions for configuring your VPN client in prime-router/docs/VPN.md](https://github.com/CDCgov/prime-data-hub/blob/master/prime-router/docs/vpn.md).
 
 
 ## Run Terraform interactively
 
-Ensure you have the intended git branch checked out and navigate to the `./operations` directory in your CLI. For production deploys, always deploy from the `master` branch.
+Ensure you have the intended git branch checked out and navigate to the
+`./operations` directory in your CLI. For production deploys, always deploy
+from the `master` branch.
 
-Our Terraform modules are broken out into four stages, each with the dependencies on the previous stages. Each stage can be accessed with an interactive terminal via the following commands:
+Our Terraform modules are broken out into four stages, each with the
+dependencies on the previous stages. Each stage can be accessed with an
+interactive terminal via the following commands:
 
 ```shell
 make TF_ENV={dev,test,staging,prod} tf-01-network

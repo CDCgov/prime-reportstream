@@ -1,21 +1,17 @@
 /* Makes row objects string-indexed */
 import {
     Button,
-    ButtonGroup,
-    IconArrowDownward,
-    IconArrowUpward,
     IconNavigateBefore,
     IconNavigateNext,
+    IconArrowUpward,
+    IconArrowDownward,
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 import React from "react";
 
-import {
-    CursorActionType,
-    CursorManager,
-} from "../../hooks/filters/UseCursorManager";
+import {CursorActionType, CursorManager} from "../../hooks/filters/UseCursorManager";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
-import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
+import {SortSettingsActionType} from "../../hooks/filters/UseSortOrder";
 
 export interface TableRow {
     [key: string]: any;
@@ -53,13 +49,11 @@ export interface TableProps {
 }
 
 const Table = ({ config, filterManager, cursorManager }: TableProps) => {
+
     const renderArrow = () => {
         if (filterManager && filterManager.sortSettings.order === "ASC") {
             return <IconArrowUpward />;
-        } else if (
-            filterManager &&
-            filterManager.sortSettings.order === "DESC"
-        ) {
+        } else if (filterManager && filterManager.sortSettings.order === "DESC") {
             return <IconArrowDownward />;
         }
     };
@@ -82,11 +76,15 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                                     filterManager?.updateSort({
                                         type: SortSettingsActionType.SWAP_ORDER,
                                     });
+                                    /* IMPORTANT:
+                                    * The conditional presented in this call is measuring
+                                    * sortSettings.order BEFORE it's swapped (which we do
+                                    * above this). This is why the logic is backwards */
                                     cursorManager?.update({
                                         type: CursorActionType.RESET,
-                                        payload:
-                                            filterManager?.rangeSettings
-                                                .start || "",
+                                        payload: filterManager?.sortSettings.order === "ASC"
+                                            ? filterManager?.rangeSettings.start
+                                            : filterManager?.rangeSettings.end
                                     });
                                 }}
                             >
@@ -156,7 +154,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                     // Caps page size when filterManager exists
                     if (
                         filterManager &&
-                        rowIndex >= filterManager.pageSettings.size
+                        rowIndex >= filterManager?.pageSettings.size
                     )
                         return null;
                     return (
@@ -176,13 +174,13 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
     /* Handles pagination button logic and display */
     function PaginationButtons(cm: CursorManager) {
         return (
-            <ButtonGroup type="segmented" className="float-right margin-top-5">
+            <div className="float-right margin-top-5">
                 {cm.hasPrev && (
                     <Button
+                        unstyled
                         type="button"
-                        onClick={() =>
-                            cm.update({ type: CursorActionType.PAGE_DOWN })
-                        }
+                        className="margin-right-2"
+                        onClick={() => cm.update({ type: CursorActionType.PAGE_DOWN })}
                     >
                         <span>
                             <IconNavigateBefore className="text-middle" />
@@ -192,10 +190,9 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                 )}
                 {cm.hasNext && (
                     <Button
+                        unstyled
                         type="button"
-                        onClick={() =>
-                            cm.update({ type: CursorActionType.PAGE_UP })
-                        }
+                        onClick={() => cm.update({ type: CursorActionType.PAGE_UP })}
                     >
                         <span>
                             Next
@@ -203,7 +200,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                         </span>
                     </Button>
                 )}
-            </ButtonGroup>
+            </div>
         );
     }
 

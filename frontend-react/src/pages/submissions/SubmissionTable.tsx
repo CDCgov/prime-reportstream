@@ -10,9 +10,6 @@ import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters from "../../components/Table/TableFilters";
 
-/* TODO: This component needs to be able to sort ASC and DESC
- *   while being properly paginated. */
-
 function SubmissionTable() {
     const filterManager = useFilterManager();
     const {
@@ -20,15 +17,25 @@ function SubmissionTable() {
         hasPrev,
         hasNext,
         update: updateCursors,
-    } = useCursorManager(filterManager.rangeSettings.start); // First cursor set to StartRange on load
+    } = useCursorManager(filterManager.rangeSettings.start);
 
-    /* Our API call! Updates when any of the given state variables update */
+    /* Our API call! Updates when any of the given state variables update.
+    * The logical swap of cursors and range value is to account for which end of the
+    * range needs to update when paginating with a specific sort order.
+    *
+    * DESC -> Start [ -> ] End (Start uses cursor to increment towards end)
+    * ASC -> Start [ <- ] End (End uses cursor to increment towards start)
+    */
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
         {
             organization: getStoredOrg(),
-            cursor: cursors.current,
-            endCursor: filterManager.rangeSettings.end,
+            startCursor: filterManager.sortSettings.order === "DESC"
+                ? cursors.current
+                : filterManager.rangeSettings.start,
+            endRange: filterManager.sortSettings.order === "ASC"
+                ? cursors.current
+                : filterManager.rangeSettings.end,
             pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
             sort: filterManager.sortSettings.order,
             showFailed: false, // No plans for this to be set to true
@@ -62,7 +69,7 @@ function SubmissionTable() {
         {
             dataAttr: "timestamp",
             columnHeader: "Date/time submitted",
-            // sortable: true,
+            sortable: true,
             transform: transformDate,
         },
         { dataAttr: "externalName", columnHeader: "File" },
