@@ -1,9 +1,9 @@
 ## Set up our Azure Virtual Network.
 ## Need to determine a way to run or not if vnets are pre-configured
 module "vnet" {
-  source = "../../modules/vnet"
-  resource_group = var.resource_group
-  environment = var.environment
+  source          = "../../modules/vnet"
+  resource_group  = var.resource_group
+  environment     = var.environment
   resource_prefix = var.resource_prefix
 }
 
@@ -12,15 +12,15 @@ module "vnet" {
 ##########
 
 module "network" {
-  source          = "../../modules/network"
+  source             = "../../modules/network"
   vnet_address_space = module.vnet.vnet_address_spaces
-  vnet_ids        = module.vnet.ids
-  vnets = module.vnet.vnets
-  vnet_names      = module.vnet.names
-  environment     = var.environment
-  resource_group  = var.resource_group
-  resource_prefix = var.resource_prefix
-  location        = var.location
+  vnet_ids           = module.vnet.ids
+  vnets              = module.vnet.vnets
+  vnet_names         = module.vnet.names
+  environment        = var.environment
+  resource_group     = var.resource_group
+  resource_prefix    = var.resource_prefix
+  location           = var.location
 }
 
 module "nat_gateway" {

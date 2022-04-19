@@ -3,7 +3,7 @@ output "ids" {
 }
 
 output "names" {
-    value = module.vnet.names
+  value = module.vnet.names
 }
 
 output "vnets" {
@@ -12,11 +12,11 @@ output "vnets" {
 }
 
 output "public_subnet" {
-   value = module.network.public_subnet_ids
-   }
+  value = module.network.public_subnet_ids
+}
 output "container_subnet" {
-   value = module.network.container_subnet_ids
-   }
+  value = module.network.container_subnet_ids
+}
 output "endpoint_subnet" {
-   value = module.network.endpoint_subnet_ids
-   }
+  value = module.network.endpoint_subnet_ids
+}
