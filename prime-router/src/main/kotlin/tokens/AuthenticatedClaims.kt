@@ -41,7 +41,8 @@ class AuthenticatedClaims {
     }
 
     /**
-     * Use this for claims not coming from a human being (this is, from Okta).
+
+     * Use this for claims not coming from a human being (that is, not using Okta).
      * For example, use this for claims for server-to-server auth.
      * Each value passed must have been authenticated.  These are *not* for requested or required authorizations.
      *
@@ -50,18 +51,24 @@ class AuthenticatedClaims {
      * [_isPrimeAdmin] true if this server claims to act as a PrimeAdmin
      * [_isSenderOrgClaim] true if this claims set is from a Sender organization.  Certain queries (eg, give me
      * a list of submissions) only make sense if the Organization has at least one Sender in it.
+     *
+     * The latter args are optional.   If not provided, this constructor will attempt to extract the values in the jwt
+     * claims, following our Okta claim forms (eg, "DH...", etc).   Otherwise it will default to least privilege.
      */
     constructor(
         _jwtClaims: Map<String, Any>,
-        _organizationNameClaim: String,
-        _isPrimeAdmin: Boolean = false,
-        _isSenderOrgClaim: Boolean = false,
+        _organizationNameClaim: String? = null,
+        _isPrimeAdmin: Boolean? = null,
+        _isSenderOrgClaim: Boolean? = null,
     ) {
         this.jwtClaims = _jwtClaims
         this.userName = _jwtClaims[oktaSubjectClaim]?.toString() ?: error("No username in claims")
-        this.isPrimeAdmin = _isPrimeAdmin
-        this.organizationNameClaim = _organizationNameClaim
-        this.isSenderOrgClaim = _isSenderOrgClaim
+        @Suppress("UNCHECKED_CAST")
+        val memberships = jwtClaims[oktaMembershipClaim] as? Collection<String> ?: emptyList()
+        val orgNamePair = extractOrganizationNameFromOktaMembership(memberships)
+        this.isPrimeAdmin = _isPrimeAdmin ?: isPrimeAdmin(memberships)
+        this.organizationNameClaim = _organizationNameClaim ?: orgNamePair?.first // might be null
+        this.isSenderOrgClaim = _isSenderOrgClaim ?: orgNamePair?.second ?: false
     }
 
     /**
@@ -115,10 +122,14 @@ class AuthenticatedClaims {
 
         /**
          * Create fake twolegged TokenAuthentication claims, for testing.
+         * Extract the orgname from the [scope] which must be well-formed per rules in [Scope]
          * @return fake claims, for testing.
          */
-        fun generateTestJwtClaims(): Claims {
-            return Jwts.claims().setSubject("local@test.com")
+        fun generateTestJwtClaims(scope: String): Claims {
+            val jwtClaims = Jwts.claims().setSubject("local@test.com")
+            val (orgName, _, _) = Scope.parseScope(scope) ?: error("Malformed scope for test claims: $scope")
+            jwtClaims["organization"] = listOf("$oktaSenderGroupPrefix$orgName", oktaSystemAdminGroup)
+            return jwtClaims
         }
     }
 }

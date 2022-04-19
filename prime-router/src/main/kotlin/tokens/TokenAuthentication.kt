@@ -123,7 +123,7 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
     fun checkAccessToken(accessToken: String?, requiredScope: String, lookup: ReportStreamSecretFinder): Claims? {
         try {
             if (AuthenticationStrategy.isLocal(accessToken)) {
-                return AuthenticatedClaims.generateTestJwtClaims()
+                return AuthenticatedClaims.generateTestJwtClaims(requiredScope)
             } else {
                 if (accessToken.isNullOrEmpty()) {
                     logger.error("Missing or badly formatted 'Authorization: Bearer <tok>' header.  Unauthorized")

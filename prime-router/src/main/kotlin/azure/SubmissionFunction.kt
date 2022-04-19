@@ -166,12 +166,6 @@ class SubmissionFunction(
         @BindingName("id") id: String,
     ): HttpResponseMessage {
         try {
-            val claims = OktaAuthentication.authenticate(request)
-                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-            logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
-
-            // actionHistory?.trackUsername(claims.userName)  todo
-
             // Figure out whether we're dealing with an action_id or a report_id.
             val submissionId = id.toLongOrNull() // toLong a sacrifice can make a Null of the heart
             val action = if (submissionId == null) {
@@ -186,6 +180,21 @@ class SubmissionFunction(
                 return HttpUtilities.notFoundResponse(request, "$id is not a submitted report")
             }
 
+            // Confirm this is a sender in the system.
+            // This fails if there is no 'default' sender in settings in the organization.
+            val sender = workflowEngine.settings.findSender(action.sendingOrg)
+                ?: return HttpUtilities.unauthorizedResponse(
+                    request, HttpUtilities.errorJson("Authentication Failed: ${action.sendingOrg}: unknown sender")
+                )
+
+            // Do authentication
+            val claims = AuthenticationStrategy.authenticate(
+                request,
+                "${sender.fullName}.report",
+                workflowEngine.db,
+            ) ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+            logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
+
             // Confirm these claims allow access to this Action
             if (!submissionsFacade.checkSenderAccessAuthorization(action, claims)) {
                 logger.warn(
@@ -194,6 +203,11 @@ class SubmissionFunction(
                 )
                 return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
+            logger.info(
+                "Authorized request by org ${claims.organizationNameClaim}" +
+                    " to $sender/submissions endpoint via client id ${sender.organizationName}. "
+            )
+
             val submission = submissionsFacade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)
             if (submission != null)
                 return HttpUtilities.okJSONResponse(request, submission)
