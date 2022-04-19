@@ -5,11 +5,28 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import assertk.assertions.isSuccess
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.encoding.FHIR
 import gov.cdc.prime.router.encoding.getValue
+import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.mockkClass
 import io.mockk.mockkObject
+import io.mockk.spyk
 import org.hl7.fhir.instance.model.api.IBase
+import org.jooq.tools.jdbc.MockConnection
+import org.jooq.tools.jdbc.MockDataProvider
+import org.jooq.tools.jdbc.MockResult
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class FHIRFlowFunctionsTests {
@@ -90,8 +107,47 @@ SPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8a
     val badHL7Message = """FHIR - Downloaded file does not match expected file
 badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff3ffffff8d4d7ffffffff2156fffffffbaffffff963ffffffff6ffffffa0397b10607fffffffa36cffffffbf71 | 2bffffff90ffffffa22674fffffff713ffffffbd64ffffffb26c663426877fffffff6ffffffa91aeffffffd4ffffff82313b5fffffffc1ffffffaf653a387323"""
 
+    val dataProvider = MockDataProvider { emptyArray<MockResult>() }
+    val connection = MockConnection(dataProvider)
+
+    val blobMock = mockkClass(BlobAccess::class)
+    val queueMock = mockkClass(QueueAccess::class)
+    val timing1 = mockkClass(Receiver.Timing::class)
+
+    val oneOrganization = DeepOrganization(
+        "phd", "test", Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one", timing = timing1)),
+    )
+
+    val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+    val metadata = Metadata(schema = one)
+    // val actionHistory = spyk(ActionHistory(TaskAction.process))
+
+    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
+        return spyk(
+            WorkflowEngine.Builder()
+                .metadata(metadata)
+                .settingsProvider(settings)
+                .blobAccess(blobMock)
+                .queueAccess(queueMock)
+                .build()
+        )
+    }
+
+    @BeforeEach
+    fun setup() {
+        clearAllMocks()
+
+        every { timing1.isValid() } returns true
+        every { timing1.numberPerDay } returns 1
+        every { timing1.maxReportCount } returns 1
+        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+    }
+
     @Test
     fun `process and test fhir`() {
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
 
         data class TestCase(
             val name: String,
@@ -124,9 +180,12 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
 
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.downloadBlob(any()) } returns testHL7NonBulk.toByteArray()
-        val fhirEngine = FHIRFlowFunctions()
+
         testCases.forEach { case ->
             try {
+                val actionHistory = spyk(ActionHistory(TaskAction.process))
+                val fhirEngine = spyk(FHIRFlowFunctions(engine, actionHistory))
+
                 fhirEngine.process(case.message)
                 assertThat(case.exception, case.name).isNull()
             } catch (t: Throwable) {
@@ -141,6 +200,9 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
 
     @Test
     fun `test results`() {
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+
         data class TestCase(
             val name: String,
             val input: String,
@@ -162,14 +224,18 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
             )
         )
 
-        val fhirEngine = FHIRFlowFunctions()
         testCases.forEach { case ->
+            val actionHistory = spyk(ActionHistory(TaskAction.process))
+            val fhirEngine = spyk(FHIRFlowFunctions(engine, actionHistory))
             assertThat(fhirEngine.compare(case.input, case.output).passed).isEqualTo(case.matches)
         }
     }
 
     @Test
     fun `convert hl7 to fhir`() {
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+
         data class TestCase(
             val name: String,
             val input: String,
@@ -198,8 +264,9 @@ badffffff9bffffffcb46fffffff5ffffff886fffffff84ffffff9efffffffaffffffd23bfffffff
             )
         )
 
-        val fhirEngine = FHIRFlowFunctions()
         testCases.forEach { case ->
+            val actionHistory = spyk(ActionHistory(TaskAction.process))
+            val fhirEngine = spyk(FHIRFlowFunctions(engine, actionHistory))
             val request = MockHttpRequestMessage(case.input)
             val response = fhirEngine.convert(request)
             assertThat(response.status).isEqualTo(case.status)

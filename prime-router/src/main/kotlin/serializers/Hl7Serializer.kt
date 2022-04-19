@@ -503,14 +503,11 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                replaceValueAwithB(
-                    element, replaceValueAwithB,
-                    if (it.isNullOrEmpty() || it == "null") {
-                        element.default ?: ""
-                    } else {
-                        stripInvalidCharactersRegex?.replace(it, "") ?: it
-                    }
-                )
+                if (it.isNullOrEmpty() || it == "null") {
+                    element.default ?: ""
+                } else {
+                    stripInvalidCharactersRegex?.replace(it, "") ?: it
+                }
             }.trim()
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
@@ -667,6 +664,9 @@ class Hl7Serializer(
             }
         }
 
+        replaceValueAwithBUsingTerser(
+            replaceValueAwithB, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps
+        )
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
         return message
     }
@@ -777,37 +777,82 @@ class Hl7Serializer(
     }
 
     /**
-     * Loop through all [replaceValueMap] key value pairs to find the hl7Field
-     * if found, we check the value A is equal to the value need to replace.
-     * if so, we replace with value B.
-     * if all obove is not met, we return the same valueArg.
+     * The function goes through each segment in [replaceValueAwithBMap]
+     * (SEGMENT: ["componentToReplace0": "newComponent0", "componentToReplace1": "newComponent1", ... ].
+     * It will replace the componentInMessageX with the newCompomentX if and only if the componentToReplaceX is
+     * equal to the componentInMassage or old component.  If the componentToReplaceX is "*", it will replace
+     * regardless.
+     * @param replaceValueAwithBMap - String (SEGMENT: ["componentToReplace0": "newComponent0", ... ].
+     * @param terser - message that contains HL7 to be working on.
+     * @param observationRepeats - number of OBX segment.
+     *
+     * To understand the logic, you can follow in the Unit Test Hl7Serializer::
      */
-    fun replaceValueAwithB(
-        elementArg: Element,
+    fun replaceValueAwithBUsingTerser(
         replaceValueAwithBMap: Map<String, Any>,
-        valueArg: String
-    ): String {
+        terser: Terser,
+        observationRepeats: Int
+    ) {
 
-        replaceValueAwithBMap.forEach { element ->
+        replaceValueAwithBMap.forEach segment@{ segment ->
+            // Scan through segment(s)
             @Suppress("UNCHECKED_CAST")
-            (element.value as ArrayList<Map<String, String>>).forEach { pairs ->
-                if (elementArg.hl7Field == element.key) {
-                    if (pairs.keys.first().trim() == valueArg) {
-                        return pairs.values.first().trim()
+            (segment.value as ArrayList<Map<String, String>>).forEach valuePairs@{ pairs ->
+                val pathSpec = formPathSpec(segment.key)
+                val componentInMessage = try {
+                    terser.get(pathSpec)
+                } catch (e: Exception) {
+                    return@segment
+                }
+
+                // Get new components separate by ^ (second value of the value pair)
+                val components = pairs.values.first().trim().split("^")
+
+                // OBX segment can repeat. All repeats need to be looped
+                if (segment.key.length >= 3 && segment.key.substring(0, 3) == "OBX") {
+                    for (i in 0..observationRepeats.minus(1)) {
+                        val pathOBXSpec = formPathSpec(segment.key, i)
+                        val valueInOBXMessage = terser.get(pathOBXSpec)
+                        if (valueInOBXMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
+                            var obxComponentRep = 1
+                            components.forEach { obxComponent ->
+                                val obxSubComponents = obxComponent.split("&")
+                                if (obxSubComponents.size > 1) {
+                                    // If there is subComponent separate by &, we need to handle them.
+                                    var obxSubComponentRep = 1
+                                    obxSubComponents.forEach { obxSubComponent ->
+                                        terser.set("$pathSpec-$obxComponentRep-$obxSubComponentRep", obxSubComponent)
+                                        obxSubComponentRep++
+                                    }
+                                } else {
+                                    terser.set("$pathOBXSpec-$obxComponentRep", obxComponent)
+                                }
+                                obxComponentRep++
+                            }
+                        }
                     }
                 } else {
-                    elementArg.hl7OutputFields?.forEach { outField ->
-                        if (outField.trim() == element.key) {
-                            if (pairs.keys.first().trim() == valueArg) {
-                                return pairs.values.first().trim()
+                    // Replace value if exact key from setting equal to key in message OR always replace
+                    if (componentInMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
+                        var componentRep = 1
+                        components.forEach { component ->
+                            val subComponents = component.split("&")
+                            if (subComponents.size > 1) {
+                                // If there is subComponent separate by &, we need to handle them.
+                                var suComponentRep = 1
+                                subComponents.forEach { subComponent ->
+                                    terser.set("$pathSpec-$componentRep-$suComponentRep", subComponent)
+                                    suComponentRep++
+                                }
+                            } else {
+                                terser.set("$pathSpec-$componentRep", component)
                             }
+                            componentRep++
                         }
                     }
                 }
             }
         }
-
-        return valueArg
     }
 
     /**
