@@ -9,7 +9,22 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.CovidSender
+import gov.cdc.prime.router.DEFAULT_SEPARATOR
+import gov.cdc.prime.router.DuplicateItemMessage
+import gov.cdc.prime.router.DuplicateSubmissionMessage
+import gov.cdc.prime.router.InvalidParamMessage
+import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.Environment
@@ -426,14 +441,14 @@ class ReportFunction(
         // TODO: full ELR, See #5050
         // verify schema if the sender is a covidSender
         var missingRequiredSchema = false
-        var schema : Schema? = null
+        var schema: Schema? = null
         if (sender != null && sender is CovidSender) {
             schema = workflowEngine.metadata.findSchema(sender.schemaName)
             if (schema == null)
                 missingRequiredSchema = true
-                actionLogs.error(
-                    InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
-                )
+            actionLogs.error(
+                InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
+            )
         }
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")

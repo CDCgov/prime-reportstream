@@ -2,7 +2,19 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.CovidSender
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import io.mockk.clearAllMocks
 import io.mockk.confirmVerified

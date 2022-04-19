@@ -1,7 +1,22 @@
 package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogScope
+import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.CovidSender
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Organization
+import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
@@ -181,7 +196,7 @@ class ReportFunctionTests {
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         // TODO: Should this just be Sender to cover full ELR tests?  See #5050
-        val sender = CovidSender("Test Sender", "test", Sender.Format.CSV,  schemaName = "one")
+        val sender = CovidSender("Test Sender", "test", Sender.Format.CSV, schemaName = "one")
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))

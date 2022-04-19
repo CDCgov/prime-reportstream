@@ -1,6 +1,8 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.JwkSet
 
@@ -20,6 +22,15 @@ import gov.cdc.prime.router.tokens.JwkSet
  * @property senderType one of four broad sender categories
  * @property primarySubmissionMethod Sender preference for submission - manual or automatic
  */
+
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "topic"
+)
+@JsonSubTypes(
+    JsonSubTypes.Type(value = CovidSender::class, name = "covid-19"),
+)
 open class Sender(
     val name: String,
     val organizationName: String,
@@ -129,8 +140,6 @@ open class Sender(
         HL7("application/hl7-v2"),
     }
 
-
-
     fun findKeySetByScope(scope: String): JwkSet? {
         if (keys == null) return null
         return keys.find { it.scope == scope }
@@ -199,16 +208,18 @@ open class Sender(
  *
  * @property schemaName the name of the schema used by the sender
  */
-open class CovidSender(name: String,
-                  organizationName: String,
-                  format: Format,
-                  customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
-                  val schemaName: String,
-                  keys: List<JwkSet>? = null,
-                  processingType: ProcessingType = ProcessingType.sync,
-                  allowDuplicates: Boolean = true,
-                  senderType: SenderType? = null,
-                  primarySubmissionMethod: PrimarySubmissionMethod? = null) :
+open class CovidSender(
+    name: String,
+    organizationName: String,
+    format: Format,
+    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
+    val schemaName: String,
+    keys: List<JwkSet>? = null,
+    processingType: ProcessingType = ProcessingType.sync,
+    allowDuplicates: Boolean = true,
+    senderType: SenderType? = null,
+    primarySubmissionMethod: PrimarySubmissionMethod? = null
+) :
     Sender(
         name,
         organizationName,

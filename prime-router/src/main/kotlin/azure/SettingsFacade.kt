@@ -2,6 +2,8 @@ package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -350,7 +352,15 @@ class OrganizationAPI
  * @property meta m
  */
 
-class SenderAPI
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "topic"
+)
+@JsonSubTypes(
+    JsonSubTypes.Type(value = CovidSenderAPI::class, name = "covid-19"),
+)
+open class SenderAPI
 @JsonCreator constructor(
     name: String,
     organizationName: String,
@@ -381,6 +391,35 @@ class SenderAPI
         TODO("Not yet implemented")
     }
 }
+
+// TODO: is this needed?
+class CovidSenderAPI
+@JsonCreator constructor(
+    name: String,
+    organizationName: String,
+    format: Format,
+    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
+    val schemaName: String,
+    keys: List<JwkSet>? = null,
+    processingType: ProcessingType = ProcessingType.sync,
+    allowDuplicates: Boolean = true,
+    senderType: SenderType? = null,
+    primarySubmissionMethod: PrimarySubmissionMethod? = null,
+    override var meta: SettingMetadata?,
+) : SenderAPI(
+    name,
+    organizationName,
+    format,
+    // a CovidSender will always have the topic "covid-19"
+    "covid-19",
+    customerStatus,
+    keys,
+    processingType,
+    allowDuplicates,
+    senderType,
+    primarySubmissionMethod,
+    meta
+)
 
 class ReceiverAPI
 @JsonCreator constructor(

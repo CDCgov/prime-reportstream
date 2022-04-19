@@ -5,7 +5,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.output.TermUi.echo
 import com.google.common.base.CharMatcher
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.CovidSender
+import gov.cdc.prime.router.DetailedSubmissionHistory
+import gov.cdc.prime.router.Options
+import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
+import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -1066,7 +1073,7 @@ class SantaClaus : CoolTest() {
         }
         options.sender?.let {
             // validates sender existence
-            val sender = settings.findSender(it)?: return createBad("The sender indicated doesn't exists '$it'")
+            val sender = settings.findSender(it) ?: return createBad("The sender indicated doesn't exists '$it'")
             // replace the list of senders to test
             // with the indicated by parameter
             sendersToTestWith = listOf(sender)

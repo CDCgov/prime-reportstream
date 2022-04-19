@@ -4,7 +4,12 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import gov.cdc.prime.router.*
+import gov.cdc.prime.router.CovidSender
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.common.NPIUtilities
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
@@ -31,7 +36,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "test",
+            "test", topic = "covid-19",
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
                 Element("c", type = Element.Type.TABLE, table = "test", tableColumn = "c")
@@ -57,7 +62,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "test",
+            "test", topic = "covid-19",
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
                 Element("b", type = Element.Type.TABLE, table = "test", tableColumn = "b"),
@@ -479,7 +484,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "test",
+            "test", topic = "covid-19",
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
             )
@@ -631,7 +636,7 @@ class MapperTests {
     fun `test LookupSenderValuesetsMapper`() {
         val table = LookupTable.read("./src/test/resources/metadata/tables/sender_valuesets.csv")
         val schema = Schema(
-            "test", topic = "test",
+            "test", topic = "covid-19",
             elements = listOf(
                 Element(
                     "pregnant", type = Element.Type.TABLE, table = "sender_valuesets", tableColumn = "result",

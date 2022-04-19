@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.cli.FileUtilities
