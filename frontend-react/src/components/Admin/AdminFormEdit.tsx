@@ -45,6 +45,7 @@ export const TextAreaComponent = (params: {
     defaultvalue: object;
     savefunc: (val: object) => void;
     defaultnullvalue: string | null;
+    disabled?: boolean;
 }): JSX.Element => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -83,6 +84,7 @@ export const TextAreaComponent = (params: {
                             params.savefunc(result);
                         }
                     }}
+                    disabled={params.disabled}
                 />
             </Grid>
         </Grid>
