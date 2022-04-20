@@ -14,18 +14,23 @@ paths:
         - OktaAuth: [ FUNCTION ]
       parameters:
         - name: reportId
-          in: path
+          in: query
           description: UUID for the report to resend
           required: true
           schema:
             type: string
             format: uuid
         - name: receiver
-          in: path
+          in: query
           description: full name of the receiver to resend the report to
           required: true
           schema:
             type: string
+        - name: test
+          in: query
+          description: if given, includes additional debug messages
+          schema:
+            type: boolean
       requestBody:
         description: Empty body due to the POST format
         required: true
