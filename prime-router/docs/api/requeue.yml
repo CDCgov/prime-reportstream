@@ -19,6 +19,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
         - name: receiver
           in: path
           description: full name of the receiver to resend the report to

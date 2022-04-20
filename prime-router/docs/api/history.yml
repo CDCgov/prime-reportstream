@@ -78,6 +78,7 @@ components:
         id:
           description: the uuid for this submission
           type: string
+          format: uuid
         topic:
           description: the schema topic (e.g. COVID-19, Flu)
           type: string
@@ -90,6 +91,7 @@ components:
         id:
           description: the uuid for this submission
           type: string
+          format: uuid
         submissionId:
           description: the row number for this report's action log
           type: integer
@@ -238,6 +240,7 @@ components:
         reportId:
           description: the uuid for this report
           type: string
+          format: uuid
         externalName:
           description: name of the hl7 file version of this report
           type: string
