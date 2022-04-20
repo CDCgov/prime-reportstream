@@ -238,37 +238,8 @@ object DateUtilities {
     }
 
     /**
-     * Given a [dateTimeValue] and a [report] object, this will attempt to format the date for a
-     * receiver, by doing some checking on what is set for the receiver of the report. It also accepts
-     * a [dateTimeFormat] that it will use first if it exists, and then the one from the [report]
-     * object, and then finally default to the [DateTimeFormat.OFFSET] value.
-     *
-     * This currently takes a report object and pulls out the HL7 configuration from it. There could
-     * be a time in the future when we abstract out the time zone configuration data into the base
-     * translation configuration and let other types of translation (CSV, etc.) also use the features here
-     */
-    fun formatDateForReceiver(
-        dateTimeValue: TemporalAccessor,
-        report: Report? = null,
-        dateTimeFormat: DateTimeFormat? = null
-    ): String {
-        val hl7Config = report?.destination?.translation as? Hl7Configuration
-        val timeZone = report?.getTimeZoneForReport() ?: ZoneId.of("UTC")
-        // return the formatted date
-        return formatDateForReceiver(
-            dateTimeValue,
-            timeZone,
-            // try the one passed in first, then the one associated with the report, finally default to OFFSET
-            dateTimeFormat ?: report?.destination?.dateTimeFormat ?: DateTimeFormat.OFFSET,
-            hl7Config?.convertPositiveDateTimeOffsetToNegative ?: false,
-            hl7Config?.useHighPrecisionHeaderDateTimeFormat ?: false
-        )
-    }
-
-    /**
-     * A format method that gets each control parameter injected. This is more generic and allows for
-     * easier testing. The one that will be called from the serializers calls this under the covers, so
-     * it contains most of the logic.
+     * Given a [dateTimeValue] and a [timeZone] and a [dateTimeFormat], this will attempt to format the date for a
+     * receiver, by doing some checking on what is set for the receiver of the report.
      */
     fun formatDateForReceiver(
         dateTimeValue: TemporalAccessor,
@@ -291,15 +262,25 @@ object DateUtilities {
     }
 
     /**
-     * Given a report object, looks at varying configuration options, and outputs the correctly formatted
-     * timestamp for our needs. This is primarily used by the HL7 serializer, but could be generalized out
-     * further to allow for the CSV serializer and others to use it too
+     * Outputs the correctly formatted timestamp for our needs. This is primarily used by the HL7 serializer,
+     * but could be generalized out further to allow for the CSV serializer and others to use it too
      */
-    fun nowTimestamp(report: Report? = null): String {
-        val timeZone = report?.getTimeZoneForReport() ?: ZoneId.of("UTC")
-        val timestamp = ZonedDateTime.now(timeZone)
+    fun nowTimestamp(
+        timeZone: ZoneId?,
+        dateTimeFormat: DateTimeFormat?,
+        convertPositiveDateTimeOffsetToNegative: Boolean? = false,
+        useHighPrecisionHeaderDateTimeFormat: Boolean? = false
+    ): String {
+        val tz = timeZone ?: ZoneId.of("UTC")
+        val timestamp = ZonedDateTime.now(tz)
         // now format the date to what the receiver wants
-        return formatDateForReceiver(timestamp, report)
+        return formatDateForReceiver(
+            timestamp,
+            tz,
+            dateTimeFormat ?: DateTimeFormat.OFFSET,
+            convertPositiveDateTimeOffsetToNegative ?: false,
+            useHighPrecisionHeaderDateTimeFormat ?: false
+        )
     }
 
     /** tries to parse the string [value], and if it passes, returns true, otherwise false */
@@ -409,15 +390,25 @@ object DateUtilities {
      * An extension method to TemporalAccessor that will format the date for us by calling the internal method
      **/
     fun TemporalAccessor.formatDateTimeForReceiver(report: Report? = null): String {
-        return formatDateForReceiver(this, report)
+        val hl7Config = report?.destination?.translation as? Hl7Configuration
+        return formatDateForReceiver(
+            this,
+            report?.getTimeZoneForReport() ?: ZoneId.of("UTC"),
+            report?.destination?.dateTimeFormat ?: DateTimeFormat.OFFSET,
+            hl7Config?.convertPositiveDateTimeOffsetToNegative ?: false,
+            hl7Config?.useHighPrecisionHeaderDateTimeFormat ?: false
+        )
     }
 
     /** Format the date for the receiver, but overriding the format with one specifically passed in */
     fun TemporalAccessor.formatDateTimeForReceiver(dateTimeFormat: DateTimeFormat, report: Report? = null): String {
+        val hl7Config = report?.destination?.translation as? Hl7Configuration
         return formatDateForReceiver(
             this,
-            report,
-            dateTimeFormat
+            report?.getTimeZoneForReport() ?: ZoneId.of("UTC"),
+            dateTimeFormat,
+            hl7Config?.convertPositiveDateTimeOffsetToNegative ?: false,
+            hl7Config?.useHighPrecisionHeaderDateTimeFormat ?: false
         )
     }
 

@@ -1694,17 +1694,33 @@ class Hl7Serializer(
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
-            DateUtilities.nowTimestamp(report) +
+            getNowTimestamp(report) +
             hl7SegmentDelimiter +
             "BHS|$encodingCharacters|" +
             "$sendingApp|" +
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
-            DateUtilities.nowTimestamp(report) +
+            getNowTimestamp(report) +
             hl7SegmentDelimiter
     }
 
+    /**
+     * helper method that gets the now timestamp for the report for the header segments
+     */
+    private fun getNowTimestamp(report: Report): String {
+        val hl7Config = report.destination?.translation as? Hl7Configuration
+        return DateUtilities.nowTimestamp(
+            report.getTimeZoneForReport(),
+            report.destination?.dateTimeFormat,
+            hl7Config?.convertPositiveDateTimeOffsetToNegative,
+            hl7Config?.useHighPrecisionHeaderDateTimeFormat
+        )
+    }
+
+    /**
+     * Creates the footers for the report
+     */
     private fun createFooters(report: Report): String {
         return "BTS|${report.itemCount}$hl7SegmentDelimiter" +
             "FTS|1$hl7SegmentDelimiter"

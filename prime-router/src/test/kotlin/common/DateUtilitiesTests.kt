@@ -228,8 +228,17 @@ class DateUtilitiesTests {
         )
         every { report.destination }.returns(receiver)
         every { report.getTimeZoneForReport() }.returns(ZoneId.of("UTC"))
-        var timestampValue = DateUtilities.nowTimestamp(report)
-        assertThat(lowPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
+        (report.destination?.translation as Hl7Configuration).let {
+            DateUtilities.nowTimestamp(
+                report.getTimeZoneForReport(),
+                report.destination?.dateTimeFormat,
+                it.convertPositiveDateTimeOffsetToNegative,
+                it.useHighPrecisionHeaderDateTimeFormat
+            ).run {
+                assertThat(lowPrecisionTimeStampRegex.containsMatchIn(this)).isTrue()
+            }
+        }
+
         every { receiver.translation }.returns(
             createConfig(
                 useHighPrecisionHeaderDateTimeFormat = true,
@@ -237,8 +246,16 @@ class DateUtilitiesTests {
             )
         )
         every { report.destination }.returns(receiver)
-        timestampValue = DateUtilities.nowTimestamp(report)
-        assertThat(highPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
+        (report.destination?.translation as Hl7Configuration).let {
+            DateUtilities.nowTimestamp(
+                report.getTimeZoneForReport(),
+                report.destination?.dateTimeFormat,
+                it.convertPositiveDateTimeOffsetToNegative,
+                it.useHighPrecisionHeaderDateTimeFormat
+            ).run {
+                assertThat(highPrecisionTimeStampRegex.containsMatchIn(this)).isTrue()
+            }
+        }
     }
 
     @Test
@@ -266,6 +283,16 @@ class DateUtilitiesTests {
 
     @Test
     fun `test now timestamp logic to local time zone`() {
+        fun getNowTimestamp(report: Report): String {
+            val hl7Config = report.destination?.translation as? Hl7Configuration
+            return DateUtilities.nowTimestamp(
+                report.getTimeZoneForReport(),
+                report.destination?.dateTimeFormat,
+                hl7Config?.convertPositiveDateTimeOffsetToNegative,
+                hl7Config?.useHighPrecisionHeaderDateTimeFormat
+            )
+        }
+
         val report = mockkClass(Report::class)
         val receiver = mockkClass(Receiver::class)
         every { receiver.timeZone }.returns(USTimeZone.EASTERN)
@@ -275,10 +302,10 @@ class DateUtilitiesTests {
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.OFFSET)
         every { report.destination }.returns(receiver)
         every { report.getTimeZoneForReport() }.returns(ZoneId.of("US/Eastern"))
-        val easternTimeStampValue = DateUtilities.nowTimestamp(report)
+        val easternTimeStampValue = getNowTimestamp(report)
         every { receiver.timeZone }.returns(USTimeZone.PACIFIC)
         every { report.getTimeZoneForReport() }.returns(ZoneId.of("US/Pacific"))
-        val pacificTimeStampValue = DateUtilities.nowTimestamp(report)
+        val pacificTimeStampValue = getNowTimestamp(report)
         val easternParsedDate = DateUtilities.parseDate(easternTimeStampValue) as OffsetDateTime
         val pacificParsedDate = DateUtilities.parseDate(pacificTimeStampValue) as OffsetDateTime
         val duration = Duration.between(pacificParsedDate.toLocalDateTime(), easternParsedDate.toLocalDateTime())
@@ -287,6 +314,16 @@ class DateUtilitiesTests {
 
     @Test
     fun `test format date for receiver`() {
+        fun formatDateForReceiver(dateTimeValue: ZonedDateTime, report: Report): String {
+            val hl7Config = report.destination?.translation as? Hl7Configuration
+            return DateUtilities.formatDateForReceiver(
+                dateTimeValue,
+                report.getTimeZoneForReport(),
+                report.destination?.dateTimeFormat ?: DateUtilities.DateTimeFormat.OFFSET,
+                hl7Config?.convertPositiveDateTimeOffsetToNegative ?: false,
+                hl7Config?.useHighPrecisionHeaderDateTimeFormat ?: false
+            )
+        }
         // arrange
         val report = mockkClass(Report::class)
         val receiver = mockkClass(Receiver::class)
@@ -299,19 +336,19 @@ class DateUtilitiesTests {
         every { report.getTimeZoneForReport() }.returns(ZoneId.of("US/Eastern"))
         // act
         val dateTimeValue = ZonedDateTime.parse(zonedDateTimeValue)
-        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+        formatDateForReceiver(dateTimeValue, report).run {
             // assert
             assertThat(this).isEqualTo("20220104110000")
         }
         // again
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.OFFSET)
-        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+        formatDateForReceiver(dateTimeValue, report).run {
             // assert
             assertThat(this).isEqualTo("20220104110000-0500")
         }
         // once more
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.HIGH_PRECISION_OFFSET)
-        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+        formatDateForReceiver(dateTimeValue, report).run {
             // assert
             assertThat(this).isEqualTo("20220104110000.0000-0500")
         }
@@ -320,25 +357,25 @@ class DateUtilitiesTests {
         every { receiver.timeZone }.returns(USTimeZone.PACIFIC)
         every { report.getTimeZoneForReport() }.returns(ZoneId.of("US/Pacific"))
         // act
-        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+        formatDateForReceiver(dateTimeValue, report).run {
             // assert
             assertThat(this).isEqualTo("20220104080000")
         }
         // again
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.OFFSET)
-        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+        formatDateForReceiver(dateTimeValue, report).run {
             // assert
             assertThat(this).isEqualTo("20220104080000-0800")
         }
         // once more
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.HIGH_PRECISION_OFFSET)
-        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+        formatDateForReceiver(dateTimeValue, report).run {
             // assert
             assertThat(this).isEqualTo("20220104080000.0000-0800")
         }
         // and now let's check that both methods return the same values
         every { receiver.dateTimeFormat }.returns(DateUtilities.DateTimeFormat.OFFSET)
-        DateUtilities.formatDateForReceiver(dateTimeValue, report).run {
+        formatDateForReceiver(dateTimeValue, report).run {
             // get comparison
             val compareValue = DateUtilities.formatDateForReceiver(
                 dateTimeValue,
