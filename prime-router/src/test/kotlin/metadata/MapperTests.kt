@@ -22,10 +22,19 @@ class MapperTests {
     fun `test IfThenElseMapper`() {
         val mapper = IfThenElseMapper()
         val element = Element("test")
-        // testing for empty list
-        assertThat { mapper.valueNames(element, emptyList()) }.isFailure()
-        // testing normal call
-        val args = listOf("==", "test_element_1", "test_element_2", "then_element", "else_element")
+        assertThat { mapper.valueNames(element, emptyList()) }.isFailure() // test for empty list
+        var args = listOf("one") // test for one argument passed
+        assertThat { mapper.valueNames(element, args) }.isFailure()
+        args = listOf("one", "two") // test for two arguments passed
+        assertThat { mapper.valueNames(element, args) }.isFailure()
+        args = listOf("one", "two", "three") // test for three arguments passed
+        assertThat { mapper.valueNames(element, args) }.isFailure()
+        args = listOf("one", "two", "three", "four") // test for four arguments passed
+        assertThat { mapper.valueNames(element, args) }.isFailure()
+        args = listOf("one", "two", "three", "four", "five", "six") // test for six arguments passed
+        assertThat { mapper.valueNames(element, args) }.isFailure()
+        // test normal call
+        args = listOf("==", "test_element_1", "test_element_2", "then_element", "else_element")
         val valNames = mapper.valueNames(element, args)
         assertThat(valNames.count()).isEqualTo(4)
         assertThat(valNames[0]).isEqualTo("test_element_1")

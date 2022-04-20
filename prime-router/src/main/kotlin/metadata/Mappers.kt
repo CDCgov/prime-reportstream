@@ -91,7 +91,7 @@ class IfThenElseMapper : Mapper {
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
         if (args.size != 5) error("Schema Error: Invalid number of arguments, 5 required")
-        return listOf(args[1], args[2], args[3], args[4])
+        return args.takeLast(4)
     }
 
     override fun apply(
