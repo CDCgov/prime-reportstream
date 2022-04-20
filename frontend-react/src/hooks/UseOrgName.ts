@@ -6,7 +6,7 @@ import { groupToOrg } from "../utils/OrganizationUtils";
 
 function useOrgName(): string {
     const org = useResource(OrganizationResource.detail(), {
-        name: groupToOrg(getStoredOrg()),
+        orgname: groupToOrg(getStoredOrg()),
     });
 
     return org?.description || "";
