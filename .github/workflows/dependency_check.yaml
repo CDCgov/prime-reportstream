@@ -33,7 +33,13 @@ jobs:
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
           echo "::set-output name=output::$(echo "$OUTPUT")"
 
+      - name: Check if output is empty
+        id: check-output
+        if: "${{ steps.depcheck.outputs.output != 'No depcheck issue' }}"
+        run: echo "::set-output name=ticket::true"
+
       - name: Create other issue from template
+        if: ${{ steps.check-output.outputs.ticket }}
         uses: JasonEtco/create-an-issue@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
