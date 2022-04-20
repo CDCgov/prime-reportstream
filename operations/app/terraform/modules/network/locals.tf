@@ -1,19 +1,33 @@
 locals {
-  public_subnet_ids       = [for k, v in data.azurerm_subnet.public_subnet : v.id]
-  kv_public_subnet_ids    = [for k, v in data.azurerm_subnet.public_subnet : replace(replace(v.id, "East", "east"), "West", "west")]
-  container_subnet_ids    = [for k, v in data.azurerm_subnet.container_subnet : v.id]
-  kv_container_subnet_ids = [for k, v in data.azurerm_subnet.container_subnet : replace(replace(v.id, "East", "east"), "West", "west")]
-  private_subnet_ids      = [for k, v in data.azurerm_subnet.private_subnet : v.id]
-  endpoint_subnet_ids     = [for k, v in data.azurerm_subnet.endpoint_subnet : v.id]
-  kv_endpoint_subnet_ids  = [for k, v in data.azurerm_subnet.endpoint_subnet : replace(replace(v.id, "East", "east"), "West", "west")]
-  gateway_subnet_ids      = [for k, v in data.azurerm_subnet.gateway_subnet : v.id]
+  vnets = {
+    default = {
+      name     = "vnet",
+      key_name = "default"
+    },
+    east = {
+      name     = "East-vnet",
+      key_name = "east"
+    },
+    west = {
+      name     = "West-vnet",
+      key_name = "west"
+    },
+    peer = {
+      name     = "vnet-peer",
+      key_name = "peer"
+    }
+  }
+}
+
+locals {
+  public_subnet_ids    = [for k, v in data.azurerm_subnet.public_subnet : v.id]
+  container_subnet_ids = [for k, v in data.azurerm_subnet.container_subnet : v.id]
+  private_subnet_ids   = [for k, v in data.azurerm_subnet.private_subnet : v.id]
+  endpoint_subnet_ids  = [for k, v in data.azurerm_subnet.endpoint_subnet : v.id]
+  gateway_subnet_ids   = [for k, v in data.azurerm_subnet.gateway_subnet : v.id]
   west_vnet_subnets = values({
     for id, details in data.azurerm_subnet.west_vnet :
     id => ({ "id" = details.id })
-  }).*.id
-  kv_west_vnet_subnets = values({
-    for id, details in data.azurerm_subnet.west_vnet :
-    id => ({ "id" = replace(details.id, "West", "west") })
   }).*.id
   peer_vnet_subnets = values({
     for id, details in data.azurerm_subnet.peer_vnet :
@@ -27,6 +41,9 @@ locals {
     for id, details in data.azurerm_subnet.vnet :
     id => ({ "id" = details.id })
   }).*.id
+  default_vnet = data.azurerm_virtual_network.vnet["default"]
+  east_vnet    = data.azurerm_virtual_network.vnet["east"]
+  west_vnet    = data.azurerm_virtual_network.vnet["west"]
 }
 
 locals {
@@ -68,56 +85,56 @@ locals {
     prime = {
       name = "prime.local",
       vnets = [
-        data.azurerm_virtual_network.vnet,
-        data.azurerm_virtual_network.east_vnet,
-        data.azurerm_virtual_network.west_vnet
+        local.default_vnet,
+        local.east_vnet,
+        local.west_vnet
     ] },
     azurewebsites = {
       name = "privatelink.azurewebsites.net",
       vnets = [
-        data.azurerm_virtual_network.vnet,
-        data.azurerm_virtual_network.east_vnet,
-        data.azurerm_virtual_network.west_vnet
+        local.default_vnet,
+        local.east_vnet,
+        local.west_vnet
     ] },
     blob = {
       name = "privatelink.blob.core.windows.net",
       vnets = [
-        data.azurerm_virtual_network.vnet,
-        data.azurerm_virtual_network.east_vnet,
-        data.azurerm_virtual_network.west_vnet
+        local.default_vnet,
+        local.east_vnet,
+        local.west_vnet
     ] },
     file = {
       name = "privatelink.file.core.windows.net",
       vnets = [
-        data.azurerm_virtual_network.vnet,
-        data.azurerm_virtual_network.east_vnet,
-        data.azurerm_virtual_network.west_vnet
+        local.default_vnet,
+        local.east_vnet,
+        local.west_vnet
     ] },
     postgres = {
       name = "privatelink.postgres.database.azure.com",
       vnets = [
-        data.azurerm_virtual_network.vnet,
-        data.azurerm_virtual_network.east_vnet,
-        data.azurerm_virtual_network.west_vnet
+        local.default_vnet,
+        local.east_vnet,
+        local.west_vnet
     ] },
     queue = {
       name = "privatelink.queue.core.windows.net",
       vnets = [
-        data.azurerm_virtual_network.vnet,
-        data.azurerm_virtual_network.east_vnet,
-        data.azurerm_virtual_network.west_vnet
+        local.default_vnet,
+        local.east_vnet,
+        local.west_vnet
     ] },
     servicebus = {
       name = "privatelink.servicebus.windows.net",
       vnets = [
-        data.azurerm_virtual_network.vnet,
-        data.azurerm_virtual_network.east_vnet,
-        data.azurerm_virtual_network.west_vnet
+        local.default_vnet,
+        local.east_vnet,
+        local.west_vnet
     ] },
     vaultcore = {
       name = "privatelink.vaultcore.azure.net",
       vnets = [
-        data.azurerm_virtual_network.vnet
+        local.default_vnet
     ] }
   }
 }

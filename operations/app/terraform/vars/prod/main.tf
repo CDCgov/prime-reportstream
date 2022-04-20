@@ -13,12 +13,12 @@ module "network" {
 }
 
 module "nat_gateway" {
-  source           = "../../modules/nat_gateway"
-  environment      = var.environment
-  resource_group   = var.resource_group
-  resource_prefix  = var.resource_prefix
-  location         = var.location
-  public_subnet_id = module.network.public_subnet_ids[2]
+  source          = "../../modules/nat_gateway"
+  environment     = var.environment
+  resource_group  = var.resource_group
+  resource_prefix = var.resource_prefix
+  location        = var.location
+  subnets         = module.network.subnets
 }
 
 
@@ -180,7 +180,6 @@ module "metabase" {
   ai_connection_string   = module.application_insights.metabase_connection_string
   use_cdc_managed_vnet   = var.use_cdc_managed_vnet
   service_plan_id        = module.app_service_plan.service_plan_id
-  app_config_kv_name     = var.app_config_kv_name
   postgres_server_name   = module.database.postgres_server_name
   postgres_user          = data.azurerm_key_vault_secret.postgres_user.value
   postgres_pass          = data.azurerm_key_vault_secret.postgres_pass.value
@@ -207,8 +206,8 @@ module "log_analytics_workspace" {
   function_app_id            = module.function_app.function_app_id
   front_door_id              = module.front_door.front_door_id
   nat_gateway_id             = module.nat_gateway.nat_gateway_id
-  east_vnet_id               = module.network.east_vnet_id
-  west_vnet_id               = module.network.west_vnet_id
+  primary_vnet_id            = module.network.primary_vnet_id
+  replica_vnet_id            = module.network.replica_vnet_id
   storage_account_id         = module.storage.storage_account_id
   storage_public_id          = module.storage.storage_public_id
   storage_partner_id         = module.storage.storage_partner_id

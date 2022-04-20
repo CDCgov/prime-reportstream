@@ -55,8 +55,7 @@ module "postgres_private_endpoint" {
   endpoint_subnet_ids = each.value
   dns_vnet            = var.dns_vnet
   resource_prefix     = var.resource_prefix
-  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.subnets.primary_endpoint_subnets[0]
-  dns_zone = var.dns_zones["postgres"].name
+  dns_zone            = var.dns_zones["postgres"].name
 }
 
 
@@ -120,8 +119,7 @@ module "postgres_private_endpoint_replica" {
   endpoint_subnet_ids = each.value
   dns_vnet            = var.dns_vnet == "East-vnet" ? "West-vnet" : var.dns_vnet
   resource_prefix     = var.resource_prefix
-  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.subnets.replica_endpoint_subnets[0]
-  dns_zone = var.dns_zones["postgres"].name
+  dns_zone            = var.dns_zones["postgres"].name
 }
 
 

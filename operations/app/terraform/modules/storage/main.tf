@@ -53,8 +53,7 @@ module "storageaccount_blob_private_endpoint" {
   endpoint_subnet_ids = each.value
   dns_vnet            = var.dns_vnet
   resource_prefix     = var.resource_prefix
-  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.subnets.primary_endpoint_subnets[0]
-  dns_zone = var.dns_zones["blob"].name
+  dns_zone            = var.dns_zones["blob"].name
 }
 
 module "storageaccountpartner_blob_private_endpoint" {
@@ -70,8 +69,7 @@ module "storageaccountpartner_blob_private_endpoint" {
   endpoint_subnet_ids = each.value
   dns_vnet            = var.dns_vnet
   resource_prefix     = var.resource_prefix
-  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.subnets.primary_endpoint_subnets[0]
-  dns_zone = var.dns_zones["blob"].name
+  dns_zone            = var.dns_zones["blob"].name
 }
 
 module "storageaccount_file_private_endpoint" {
@@ -87,8 +85,7 @@ module "storageaccount_file_private_endpoint" {
   endpoint_subnet_ids = each.value
   dns_vnet            = var.dns_vnet
   resource_prefix     = var.resource_prefix
-  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.subnets.primary_endpoint_subnets[0]
-  dns_zone = var.dns_zones["file"].name
+  dns_zone            = var.dns_zones["file"].name
 }
 
 module "storageaccount_queue_private_endpoint" {
@@ -104,8 +101,7 @@ module "storageaccount_queue_private_endpoint" {
   endpoint_subnet_ids = each.value
   dns_vnet            = var.dns_vnet
   resource_prefix     = var.resource_prefix
-  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.subnets.primary_endpoint_subnets[0]
-  dns_zone = var.dns_zones["queue"].name
+  dns_zone            = var.dns_zones["queue"].name
 }
 
 # Point-in-time restore, soft delete, versioning, and change feed were

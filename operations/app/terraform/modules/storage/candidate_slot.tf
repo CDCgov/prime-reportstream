@@ -55,8 +55,7 @@ module "storageaccount_candidate_blob_private_endpoint" {
   endpoint_subnet_ids = each.value
   dns_vnet            = var.dns_vnet
   resource_prefix     = var.resource_prefix
-  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
-  dns_zone = var.dns_zones["blob"].name
+  dns_zone            = var.dns_zones["blob"].name
 }
 
 module "storageaccountcandidatepartner_blob_private_endpoint" {
@@ -72,8 +71,7 @@ module "storageaccountcandidatepartner_blob_private_endpoint" {
   endpoint_subnet_ids = each.value
   dns_vnet            = var.dns_vnet
   resource_prefix     = var.resource_prefix
-  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
-  dns_zone = var.dns_zones["blob"].name
+  dns_zone            = var.dns_zones["blob"].name
 }
 
 module "storageaccount_candidate_file_private_endpoint" {
@@ -89,8 +87,7 @@ module "storageaccount_candidate_file_private_endpoint" {
   endpoint_subnet_ids = each.value
   dns_vnet            = var.dns_vnet
   resource_prefix     = var.resource_prefix
-  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
-  dns_zone = var.dns_zones["file"].name
+  dns_zone            = var.dns_zones["file"].name
 }
 
 module "storageaccount_candidate_queue_private_endpoint" {
@@ -106,8 +103,7 @@ module "storageaccount_candidate_queue_private_endpoint" {
   endpoint_subnet_ids = each.value
   dns_vnet            = var.dns_vnet
   resource_prefix     = var.resource_prefix
-  //endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
-  dns_zone = var.dns_zones["queue"].name
+  dns_zone            = var.dns_zones["queue"].name
 }
 
 resource "azurerm_storage_management_policy" "retention_policy_candidate" {

@@ -104,7 +104,7 @@ variable "app_size" {
 ##################
 
 variable "use_cdc_managed_vnet" {
-  default = false
+  default = trye
 }
 
 variable "terraform_caller_ip_address" {

@@ -108,7 +108,7 @@ variable "network" {
       "address_space"           = "10.0.0.0/16"
       "dns_server"              = [""]
       "location"                = "East Us"
-      "subnets"                 = ["public", "private", "container", "endpoint"]
+      "subnets"                 = ["public", "private", "container", "endpoint", "GatewaySubnet"]
       "nsg_prefix"              = ""
       "network_security_groups" = ["public", "private", "container"]
       "subnet_cidrs" = [
@@ -162,7 +162,7 @@ variable "app_size" {
 ##################
 
 variable "use_cdc_managed_vnet" {
-  default = false
+  default = true
 }
 
 variable "app_config_kv_name" {

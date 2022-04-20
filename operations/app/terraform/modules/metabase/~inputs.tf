@@ -41,7 +41,7 @@ variable "postgres_server_name" {
   type        = string
   description = "Postgres Server name"
 }
-variable "app_config_kv_name" {}
+
 variable "postgres_user" {}
 variable "postgres_pass" {}
 

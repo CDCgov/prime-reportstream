@@ -71,8 +71,7 @@ module "application_private_endpoint" {
   endpoint_subnet_ids = each.value
   dns_vnet            = "vnet"
   resource_prefix     = var.resource_prefix
-  //endpoint_subnet_id_for_dns = var.subnets.primary_endpoint_subnets[2]
-  dns_zone = var.dns_zones["vaultcore"].name
+  dns_zone            = var.dns_zones["vaultcore"].name
 }
 
 resource "azurerm_key_vault_access_policy" "dev_app_config_access_policy" {
@@ -119,8 +118,7 @@ module "app_config_private_endpoint" {
   endpoint_subnet_ids = each.value
   dns_vnet            = "vnet"
   resource_prefix     = var.resource_prefix
-  //endpoint_subnet_id_for_dns = var.subnets.primary_endpoint_subnets[0]
-  dns_zone = var.dns_zones["vaultcore"].name
+  dns_zone            = var.dns_zones["vaultcore"].name
 }
 
 
@@ -191,6 +189,5 @@ module "client_config_private_endpoint" {
   endpoint_subnet_ids = each.value
   dns_vnet            = "vnet"
   resource_prefix     = var.resource_prefix
-  //endpoint_subnet_id_for_dns = var.subnets.primary_endpoint_subnets[0]
-  dns_zone = var.dns_zones["vaultcore"].name
+  dns_zone            = var.dns_zones["vaultcore"].name
 }

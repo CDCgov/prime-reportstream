@@ -63,14 +63,14 @@ variable "nat_gateway_id" {
   description = "Nat Gateway resource id"
 }
 
-variable "east_vnet_id" {
+variable "primary_vnet_id" {
   type        = string
-  description = "East Vnet resource id"
+  description = "Primary vnet resource id"
 }
 
-variable "west_vnet_id" {
+variable "replica_vnet_id" {
   type        = string
-  description = "West Vnet resource id"
+  description = "Replica vnet resource id"
 }
 
 variable "storage_account_id" {
