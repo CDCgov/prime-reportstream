@@ -13,6 +13,6 @@
  * Add previous messages id to the table. In instances where a corrected message is sent, the message id of
  * original message is sent in this field and represents the accession number.
  */
+
 ALTER TABLE covid_result_metadata
     ADD previous_message_id VARCHAR(512) NULL
-;
