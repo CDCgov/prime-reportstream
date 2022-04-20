@@ -46,7 +46,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DetailedReportHistory'
+                $ref: '#/components/schemas/DetailedReportModel'
         '401':
           description: unauthorized
         '404':
@@ -58,8 +58,8 @@ components:
     SimpleReportHistory:
       type: array
       items:
-        $ref: '#/components/schemas/SimpleReport'
-    SimpleReport:
+        $ref: '#/components/schemas/SimpleReportModel'
+    SimpleReportModel:
       type: object
       properties:
         submissionId:
@@ -85,77 +85,56 @@ components:
         reportItemCount:
           description: total number of individual reports sent to the Hub (in a csv, the number of data lines sent)
           type: integer
-    DetailedReportHistory:
-      type: object
-      properties:
-        id:
-          description: the uuid for this submission
-          type: string
-          format: uuid
-        submissionId:
-          description: the row number for this report's action log
-          type: integer
-        overallStatus:
-          description: the step in the delivery process for a submission
-          type: string
-          enum:
-            - Error
-            - Received
-            - Not Delivering
-            - Waiting to Deliver
-            - Partially Delivered
-            - Delivered
-        timestamp:
-          description: the timestamp for this report submission
-          type: string
-          format: date-time
-        plannedCompletionAt:
-          description: when this submission is expected to finish sending
-          type: string
-          format: date-time
-        actualCompletionAt:
-          description: marks the actual time this submission finished sending
-          type: string
-          format: date-time
-        sender:
-          description: the name of the sender account
-          type: string
-        reportItemCount:
-          description: total number of individual reports sent to the Hub (in a csv, the number of data lines sent)
-          type: integer
-        errorCount:
-          description: total errors found during initial validation.  There may be multiple errors per item.
-          type: integer
-        warningCount:
-          description: total warnings found during initial validation.  There may be multiple warnings per item.
-          type: integer
-        httpStatus:
-          description: response given to the sender upon submission
-          type: integer
-        destinations:
-          description: where the report is being sent to
-          type: array
-          items:
-            $ref: '#/components/schemas/Destination'
-        errors:
-          description: a list of errors in the report
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorWarningLog'
-        warnings:
-          description: a list of warnings in the report
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorWarningLog'
-        topic:
-          description: the schema topic (e.g. COVID-19, Flu)
-          type: string
-        externalName:
-          description: the input report's external name
-          type: string
-        destinationCount:
-          description: total destinations recieving the report(s)
-          type: integer
+    DetailedReportModel:
+      allOf:
+        - $ref: '#/components/schemas/SimpleReportModel'
+        - type: object
+          properties:
+            overallStatus:
+              description: the step in the delivery process for a submission
+              type: string
+              enum:
+                - Error
+                - Received
+                - Not Delivering
+                - Waiting to Deliver
+                - Partially Delivered
+                - Delivered
+            plannedCompletionAt:
+              description: when this submission is expected to finish sending
+              type: string
+              format: date-time
+            actualCompletionAt:
+              description: marks the actual time this submission finished sending
+              type: string
+              format: date-time
+            errorCount:
+              description: total errors found during initial validation.  There may be multiple errors per item.
+              type: integer
+            warningCount:
+              description: total warnings found during initial validation.  There may be multiple warnings per item.
+              type: integer
+            destinations:
+              description: where the report is being sent to
+              type: array
+              items:
+                $ref: '#/components/schemas/Destination'
+            errors:
+              description: a list of errors in the report
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorWarningLog'
+            warnings:
+              description: a list of warnings in the report
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorWarningLog'
+            externalName:
+              description: the input report's external name
+              type: string
+            destinationCount:
+              description: total destinations recieving the report(s)
+              type: integer
     Destination:
       type: object
       properties:
