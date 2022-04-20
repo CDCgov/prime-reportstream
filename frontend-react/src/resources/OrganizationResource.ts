@@ -12,4 +12,8 @@ export default class OrganizationResource extends AuthResource {
     }
 
     static urlRoot = `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations`;
+
+    static url(params: { orgname: string }): string {
+        return `${this.urlRoot}/${params.orgname}`;
+    }
 }

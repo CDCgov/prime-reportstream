@@ -148,6 +148,48 @@
     - code: 261665006
       display: Unknown
 
+- name: covid-19/residence_type
+  system: SNOMED_CT
+  reference: HHS guidence and LOINC
+  referenceUrl: https://loinc.org/75617-1/
+  values:
+    - code: 22232009
+      display: Hospital
+    - code: 2081004
+      display: Hospital Ship
+    - code: 32074000
+      display: Long Term Care Hospital
+    - code: 224929004
+      display: Secure Hospital
+    - code: 42665001
+      display: Nursing Home
+    - code: 30629002
+      display: Retirement Home
+    - code: 74056004
+      display: Orphanage
+    - code: 722173008
+      display: Prison-based Care Site
+    - code: 20078004
+      display: Substance Abuse Treatment Center
+    - code: 257573002
+      display: Boarding House
+    - code: 224683003
+      display: Military Accommodation
+    - code: 284546000
+      display: Hospice
+    - code: 257628001
+      display: Hostel
+    - code: 310207003
+      display: Sheltered Housing
+    - code: 57656006
+      display: Penal Institution
+    - code: 285113009
+      display: Religious Institutional Residence
+    - code: 285141008
+      display: Work (environment)
+    - code: 32911000
+      display: Homeless
+
 - name: covid-19/aoe
   system: LOINC
   reference: HHS guidence on the LOINC codes to use for ask-on-entry questions
