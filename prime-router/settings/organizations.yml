@@ -3265,7 +3265,11 @@
         type: GAEN
       transport:
         type: GAEN
-        apiUrl: ""
+        uuidFormat: WA_NOTIFY
+        uuidIV: 1  # actual value provided by WA NOTIFY
+        apiUrl: "" # for no sending
+        # apiUrl: "https://adminapi.encv-test.org/api/issue" # for test
+        # apiUrl: "https://adminapi.encv.org/api/issue" # for prod
 
 - name: wv-phd
   description: West Virginia Public Health Department
@@ -3665,6 +3669,22 @@
   senders:
     - name: "default"
       organizationName: "bi2technologies"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "testing"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"
+
+- name: "navushealth"
+  description: "Navus Health, LLC - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "navushealth"
       format: "CSV"
       topic: "covid-19"
       customerStatus: "testing"
