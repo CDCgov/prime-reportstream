@@ -21,7 +21,6 @@ locals {
       subresource_names = ["queue"]
     },
     "container_registry" : {
-      cnames_private    = ["privatelink.azurecr.io"]
       subresource_names = ["registry"]
     },
     "event_hub" : {
@@ -31,7 +30,6 @@ locals {
       subresource_names = ["sites"]
     },
   }
-  //private_ip_address = data.azurerm_private_endpoint_connection.endpoint_dns.private_service_connection[0].private_ip_address
 
   # Make options a little easier to reference
   option = local.options[var.type]

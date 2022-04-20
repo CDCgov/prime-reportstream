@@ -275,6 +275,7 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_default_https"
 
   lifecycle {
     ignore_changes = [
+      // Avoid cert updates blocking tf
       custom_https_configuration[0].azure_key_vault_certificate_secret_version
     ]
   }
@@ -294,6 +295,7 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" 
 
   lifecycle {
     ignore_changes = [
+      // Avoid cert updates blocking tf
       custom_https_configuration[0].azure_key_vault_certificate_secret_version
     ]
   }

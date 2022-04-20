@@ -1,3 +1,6 @@
+##########
+## Referenced by vnets.tf
+##########
 locals {
   vnets = {
     default = {
@@ -19,6 +22,10 @@ locals {
   }
 }
 
+##########
+## Generate subnet output variable
+## START
+##########
 locals {
   public_subnet_ids    = [for k, v in data.azurerm_subnet.public_subnet : v.id]
   container_subnet_ids = [for k, v in data.azurerm_subnet.container_subnet : v.id]
@@ -79,7 +86,13 @@ locals {
     vnet_public_container_endpoint_subnets = local.vnet_public_container_endpoint_subnets
   }
 }
+##########
+## END
+##########
 
+##########
+## Referenced by dns_zones.tf
+##########
 locals {
   dns_zones = {
     prime = {

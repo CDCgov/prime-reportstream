@@ -96,6 +96,7 @@ resource "azurerm_monitor_autoscale_setting" "app_autoscale" {
   }
 
   notification {
+    // Updated to match production
     email {
       custom_emails                         = []
       send_to_subscription_administrator    = false

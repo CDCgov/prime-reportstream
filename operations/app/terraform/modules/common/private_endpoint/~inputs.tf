@@ -35,9 +35,5 @@ variable "endpoint_subnet_id_for_dns" {
 }
 
 variable "dns_vnet" {}
-variable "dns_zone" {
-  default = ""
-}
-variable "resource_prefix" {
-
-}
+variable "dns_zone" {}
+variable "resource_prefix" {}
