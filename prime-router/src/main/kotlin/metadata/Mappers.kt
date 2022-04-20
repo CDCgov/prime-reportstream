@@ -106,7 +106,6 @@ class IfThenElseMapper : Mapper {
     }
 }
 
-
 class MiddleInitialMapper : Mapper {
     override val name = "middleInitial"
 

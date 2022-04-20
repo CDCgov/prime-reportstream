@@ -23,7 +23,7 @@ class MapperTests {
         val mapper = IfThenElseMapper()
         val element = Element("test")
         // testing for empty list
-        assertThat {mapper.valueNames(element, emptyList())}.isFailure()
+        assertThat { mapper.valueNames(element, emptyList()) }.isFailure()
         // testing normal call
         val args = listOf("==", "test_element_1", "test_element_2", "then_element", "else_element")
         val valNames = mapper.valueNames(element, args)
