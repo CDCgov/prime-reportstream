@@ -3,6 +3,7 @@ package gov.cdc.prime.router.metadata
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isNull
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Element
@@ -16,6 +17,23 @@ import kotlin.test.assertFails
 import kotlin.test.fail
 
 class MapperTests {
+
+    @Test
+    fun `test IfThenElseMapper`() {
+        val mapper = IfThenElseMapper()
+        val element = Element("test")
+        // testing for empty list
+        assertThat {mapper.valueNames(element, emptyList())}.isFailure()
+        // testing normal call
+        val args = listOf("==", "test_element_1", "test_element_2", "then_element", "else_element")
+        val valNames = mapper.valueNames(element, args)
+        assertThat(valNames.count()).isEqualTo(4)
+        assertThat(valNames[0]).isEqualTo("test_element_1")
+        assertThat(valNames[1]).isEqualTo("test_element_2")
+        assertThat(valNames[2]).isEqualTo("then_element")
+        assertThat(valNames[3]).isEqualTo("else_element")
+    }
+
     @Test
     fun `test MiddleInitialMapper`() {
         val mapper = MiddleInitialMapper()

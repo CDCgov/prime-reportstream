@@ -81,6 +81,32 @@ data class ElementAndValue(
     val value: String
 )
 
+/**
+ *
+ *
+ *
+ */
+class IfThenElseMapper : Mapper {
+    override val name = "ifThenElse"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.size != 5) error("Schema Error: Invalid number of arguments, 5 required")
+        return listOf(args[1], args[2], args[3], args[4])
+    }
+
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        return ElementResult(
+            null
+        )
+    }
+}
+
+
 class MiddleInitialMapper : Mapper {
     override val name = "middleInitial"
 
