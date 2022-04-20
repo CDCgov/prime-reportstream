@@ -56,6 +56,10 @@ paths:
 components:
   schemas:
     SimpleReportHistory:
+      type: array
+      items:
+        $ref: '#/components/schemas/SimpleReport'
+    SimpleReport:
       type: object
       properties:
         submissionId:
