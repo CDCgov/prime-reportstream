@@ -139,7 +139,7 @@ class MapperTests {
             .isEqualTo("orgName.senderName")
         args = listOf("topic")
         assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
-            .isEqualTo("covid-19")
+            .isEqualTo("COVID19")
         args = listOf("schemaName")
         assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
             .isEqualTo("mySchemaName")

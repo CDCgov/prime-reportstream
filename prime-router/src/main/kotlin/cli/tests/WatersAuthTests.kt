@@ -7,6 +7,7 @@ import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.SenderTopic
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.cli.DeleteSenderSetting
@@ -57,7 +58,7 @@ class WatersAuthTests : CoolTest() {
             name = senderName,
             organizationName = organization,
             format = Sender.Format.CSV,
-            topic = "covid-19",
+            topic = SenderTopic.COVID19,
             customerStatus = CustomerStatus.INACTIVE
         )
 

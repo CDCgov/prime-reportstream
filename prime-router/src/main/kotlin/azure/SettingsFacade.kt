@@ -14,6 +14,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.SenderTopic
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.TransportType
@@ -365,7 +366,7 @@ open class SenderAPI
     name: String,
     organizationName: String,
     format: Format,
-    topic: String,
+    topic: SenderTopic,
     customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     keys: List<JwkSet>? = null,
     processingType: ProcessingType = ProcessingType.sync,
@@ -411,7 +412,7 @@ class CovidSenderAPI
     organizationName,
     format,
     // a CovidSender will always have the topic "covid-19"
-    "covid-19",
+    SenderTopic.COVID19,
     customerStatus,
     keys,
     processingType,
