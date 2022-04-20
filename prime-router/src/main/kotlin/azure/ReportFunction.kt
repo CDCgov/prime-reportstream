@@ -111,7 +111,7 @@ class ReportFunction(
 
         // Sender should eventually be obtained directly from who is authenticated
         val sender = workflowEngine.settings.findSender(senderName)
-            ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
+            ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown client")
 
         actionHistory.trackActionParams(request)
         try {
