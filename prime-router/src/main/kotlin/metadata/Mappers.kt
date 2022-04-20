@@ -90,7 +90,7 @@ class IfThenElseMapper : Mapper {
     override val name = "ifThenElse"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        if ((args.size != 5) && (args.size != 2)) error("Schema Error: Invalid number of arguments 5 2 args are reqd")
+        if (args.size != 5) error("Schema Error: Invalid number of arguments - 5 required")
         return args.takeLast(4)
     }
 
