@@ -39,7 +39,9 @@ variable "use_cdc_managed_vnet" {
 }
 
 variable "postgres_user" {}
-variable "postgres_pass" {}
+variable "postgres_pass" {
+  sensitive = true
+}
 variable "db_sku_name" {}
 variable "db_version" {}
 variable "db_storage_mb" {}

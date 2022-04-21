@@ -1,4 +1,4 @@
-// Postgres Server
+# Postgres Server
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_postgresql_server" "postgres_server" {
@@ -59,7 +59,7 @@ module "postgres_private_endpoint" {
 }
 
 
-// Replicate Server
+# Replicate Server
 
 resource "azurerm_postgresql_server" "postgres_server_replica" {
   count                        = var.db_replica ? 1 : 0
@@ -95,8 +95,8 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
   lifecycle {
     prevent_destroy = false
     ignore_changes = [
-      storage_mb, # Auto-grow will change the size
-      administrator_login,
+      storage_mb,                  # Auto-grow will change the size
+      administrator_login,         # Temp ignore during terraform overhaul
       administrator_login_password # This can't change without a redeploy
     ]
   }
@@ -123,7 +123,7 @@ module "postgres_private_endpoint_replica" {
 }
 
 
-// User Administration
+# User Administration
 
 resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin" {
   server_name         = azurerm_postgresql_server.postgres_server.name
@@ -134,7 +134,7 @@ resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin
 }
 
 
-// Encryption
+# Encryption
 
 #resource "azurerm_key_vault_access_policy" "postgres_policy" {
 #  key_vault_id = var.application_key_vault_id
@@ -161,7 +161,7 @@ resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin
 #  key_vault_key_id = var.rsa_key_2048
 #}
 
-// Databases
+# Databases
 
 resource "azurerm_postgresql_database" "prime_data_hub_db" {
   name                = "prime_data_hub"

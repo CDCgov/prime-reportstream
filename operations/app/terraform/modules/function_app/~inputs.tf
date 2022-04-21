@@ -48,15 +48,25 @@ variable "use_cdc_managed_vnet" {
 
 variable "pagerduty_url" {}
 variable "app_service_plan" {}
-variable "primary_access_key" {}
+variable "primary_access_key" {
+  sensitive = true
+}
 variable "container_registry_login_server" {}
 variable "container_registry_admin_username" {}
-variable "container_registry_admin_password" {}
-variable "primary_connection_string" {}
+variable "container_registry_admin_password" {
+  sensitive = true
+}
+variable "primary_connection_string" {
+  sensitive = true
+}
 variable "postgres_user" {}
-variable "postgres_pass" {}
+variable "postgres_pass" {
+  sensitive = true
+}
 variable "application_key_vault_id" {}
-variable "sa_partner_connection_string" {}
+variable "sa_partner_connection_string" {
+  sensitive = true
+}
 variable "client_config_key_vault_id" {}
 variable "app_config_key_vault_id" {}
 variable "dns_ip" {}

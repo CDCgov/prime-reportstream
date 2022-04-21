@@ -32,7 +32,7 @@ resource "azurerm_storage_account" "storage_account_candidate" {
   lifecycle {
     prevent_destroy = false
     ignore_changes = [
-      // Temp ignore ip_rules during tf development
+      # Temp ignore ip_rules during tf development
       secondary_blob_connection_string,
       network_rules[0].ip_rules
     ]
@@ -131,7 +131,7 @@ resource "azurerm_storage_management_policy" "retention_policy_candidate" {
 
   lifecycle {
     ignore_changes = [
-      // -1 value is applied, but not accepted in tf
+      # -1 value is applied, but not accepted in tf
       rule[0].actions[0].base_blob[0].tier_to_cool_after_days_since_last_access_time_greater_than
     ]
   }
@@ -150,14 +150,14 @@ resource "azurerm_storage_account_customer_managed_key" "storage_key_candidate" 
   count              = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
   key_name           = var.rsa_key_4096
   key_vault_id       = var.application_key_vault_id
-  key_version        = null // Null allows automatic key rotation
+  key_version        = null # Null allows automatic key rotation
   storage_account_id = azurerm_storage_account.storage_account_candidate.id
 
   depends_on = [azurerm_key_vault_access_policy.storage_policy_candidate]
 }
 
 
-# // Partner
+# # Partner
 
 resource "azurerm_storage_account" "storage_partner_candidate" {
   resource_group_name       = var.resource_group
@@ -194,7 +194,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
   lifecycle {
     prevent_destroy = false
     ignore_changes = [
-      // Temp ignore ip_rules during tf development
+      # Temp ignore ip_rules during tf development
       secondary_blob_connection_string,
       network_rules[0].ip_rules
     ]
@@ -218,7 +218,7 @@ resource "azurerm_storage_account_customer_managed_key" "storage_candidate_partn
   count              = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
   key_name           = var.rsa_key_4096
   key_vault_id       = var.application_key_vault_id
-  key_version        = null // Null allows automatic key rotation
+  key_version        = null # Null allows automatic key rotation
   storage_account_id = azurerm_storage_account.storage_partner_candidate.id
 
   depends_on = [azurerm_key_vault_access_policy.storage_candidate_partner_policy]
@@ -253,7 +253,7 @@ resource "azurerm_storage_management_policy" "storage_candidate_partner_retentio
 
   lifecycle {
     ignore_changes = [
-      // -1 value is applied, but not accepted in tf
+      # -1 value is applied, but not accepted in tf
       rule[0].actions[0].base_blob[0].tier_to_cool_after_days_since_last_access_time_greater_than
     ]
   }

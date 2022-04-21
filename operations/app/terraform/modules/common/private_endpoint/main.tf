@@ -52,7 +52,7 @@ resource "azurerm_private_endpoint" "endpoint" {
 
 # An A record is used specifically because azurerm_private_endpoint.private_dns_zone_group has an order-of-operations issue with multiple private endpoints
 resource "azurerm_private_dns_a_record" "endpoint_dns" {
-  // Only create record on dns vnet
+  # Only create record on dns vnet
   for_each = toset(regexall("${var.resource_prefix}-${var.dns_vnet}", var.endpoint_subnet_ids))
 
   name                = var.name

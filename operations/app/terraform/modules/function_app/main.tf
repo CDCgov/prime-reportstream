@@ -154,6 +154,7 @@ resource "azurerm_function_app" "function_app" {
       site_config[0].linux_fx_version,
       storage_account_access_key,
       tags,
+      # Temp ignore app_settings during terraform overhaul
       app_settings["APPINSIGHTS_INSTRUMENTATIONKEY"],
       app_settings["APPLICATIONINSIGHTS_CONNECTION_STRING"],
       app_settings["DOCKER_REGISTRY_SERVER_PASSWORD"],
@@ -191,9 +192,9 @@ resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vn
   subnet_id      = var.use_cdc_managed_vnet ? var.subnets.public_subnets[0] : var.subnets.public_subnets[2]
 }
 
-// Enable sticky slot settings
-// Done via a template due to a missing Terraform feature:
-// https://github.com/terraform-providers/terraform-provider-azurerm/issues/1440
+# Enable sticky slot settings
+# Done via a template due to a missing Terraform feature:
+# https://github.com/terraform-providers/terraform-provider-azurerm/issues/1440
 resource "azurerm_template_deployment" "functionapp_sticky_settings" {
   name                = "functionapp_sticky_settings"
   resource_group_name = var.resource_group

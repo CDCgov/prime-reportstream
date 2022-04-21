@@ -43,7 +43,9 @@ variable "postgres_server_name" {
 }
 
 variable "postgres_user" {}
-variable "postgres_pass" {}
+variable "postgres_pass" {
+  sensitive = true
+}
 
 variable "subnets" {
   description = "A set of all available subnet combinations"

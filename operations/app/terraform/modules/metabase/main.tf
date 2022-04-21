@@ -61,6 +61,7 @@ resource "azurerm_app_service" "metabase" {
 
   lifecycle {
     ignore_changes = [
+      # Temp ignore app_settings during terraform overhaul
       app_settings["APPINSIGHTS_INSTRUMENTATIONKEY"],
       app_settings["APPLICATIONINSIGHTS_CONNECTION_STRING"],
       app_settings["MB_DB_CONNECTION_URI"],

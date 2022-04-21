@@ -17,9 +17,9 @@ locals {
   dev_env      = length(local.static_endpoints) == 0 ? [1] : []
 }
 
-// TODO: Terraform does not support Azure's rules engine yet
-// We have an HSTS rule that must be manually configured
-// Ticket tracking rules engine in Terraform: https://github.com/terraform-providers/terraform-provider-azurerm/issues/7455
+# TODO: Terraform does not support Azure's rules engine yet
+# We have an HSTS rule that must be manually configured
+# Ticket tracking rules engine in Terraform: https://github.com/terraform-providers/terraform-provider-azurerm/issues/7455
 
 resource "azurerm_frontdoor" "front_door" {
   name                                         = local.name
@@ -275,7 +275,7 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_default_https"
 
   lifecycle {
     ignore_changes = [
-      // Avoid cert updates blocking tf
+      # Avoid cert updates blocking tf
       custom_https_configuration[0].azure_key_vault_certificate_secret_version
     ]
   }
@@ -295,7 +295,7 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" 
 
   lifecycle {
     ignore_changes = [
-      // Avoid cert updates blocking tf
+      # Avoid cert updates blocking tf
       custom_https_configuration[0].azure_key_vault_certificate_secret_version
     ]
   }
