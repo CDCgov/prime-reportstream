@@ -8,14 +8,15 @@ We utilize terrform to describe the entire infrastructure for PRIME ReportStream
 
 ## Azure Prerequisites
 We assume the following infrastructure has already been deployed by CMS. 
-- Resource Group
+- Resource Group for underlying infrastructure
 - VNETs - Redundant vnets for both East and West US as well as VNETS tied to a VPN.
-- VPN - A VPN that will connect t
+- VPN - A VPN that will connect to the VPN VNETs
 - Storage Account - Used to store the terraform tf state.
-- Key Vault - Prepopulated with the following secrets
+- Application Key Vault - Prepopulated with the following secrets
   - _functionapp-postgres-user_: User for the postgresql hosted instance
   - _functionapp-postgres-pass_: Password for the postgresql hosted instance
   - _pagerduty-integration-url_: URL for the pagerduty alerts.
+- 
 
 ## Layout
 The terraform code is layed out in the following folder structure. 
@@ -26,10 +27,10 @@ operations/app/terraform
 └─── modules
     │
     └─── <module_name>
-        │   ~inputs.tf              # Any inputs needed by the module.
-        │   ~outputs.tf             # Outputs from resources in the module for use by other modules.
-        │   main.tf                 # The teffarom resources created by the module.
-        |   data.tf                 # Any data lookups needed by the module (Not used in all modules)
+    |   │   ~inputs.tf              # Any inputs needed by the module.
+    |   │   ~outputs.tf             # Outputs from resources in the module for use by other modules.
+    |   │   main.tf                 # The teffarom resources created by the module.
+    |   |   data.tf                 # Any data lookups needed by the module (Not used in all modules)
     |
     └─── vars
         |
@@ -42,6 +43,29 @@ operations/app/terraform
 
 ```
 **Note:** The individual variables and what they are related to should have a description fild in the variable file. Please refer to that description for additional information as it relates to that specific variable.
+
+
+# Modules
+
+We utilize several custom modules that are as follows
+
+* app_service_plan - Defines the app service plan used for the function apps
+* application_insights - Adds application insights to each resource.
+* common
+  * private_endpoint - Creates private endpoints for whichever service calls it
+  * vnet_dns_zones - DNS virtual network links
+* container_registry - Location for the build docker containers
+* database - Deploy our Postgresql database and replica
+* front_door - Spins up and configures Front Door
+* function_app - Creates our main function app
+* key_vault - Builds our terraform responsible key vaults
+* log_analytics_workspace - Add a LAW for all log files for all resources.
+* metabase - App service for our metabase
+* nat_gateway - Our gateway for external traffic
+* network - Gets more detailed data inside our VNETs
+* sftp_container - Creates the test SFTP container
+* storage - Adds our Storage Accounts for each service
+* vnet - Gets top level data about our VNETs
 
 ## DNS
 For testing in test, you may use the Azure DNS of 168.63.129.16. Typically though, we will want this set to the IP for the CDC DNS server. You can find more information related to that [here]

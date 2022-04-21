@@ -7,16 +7,16 @@ data "azurerm_key_vault" "tf-secrets" {
 }
 
 data "azurerm_key_vault_secret" "postgres_user" {
-  name      = "postgres-user"
+  name         = "postgres-user"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
 
 data "azurerm_key_vault_secret" "postgres_pass" {
-  name      = "postgres-pass"
+  name         = "postgres-pass"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
 
 data "azurerm_key_vault_secret" "pagerduty_url" {
-  name      = "pagerduty-url"
+  name         = "pagerduty-url"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }

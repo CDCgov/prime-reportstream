@@ -1,13 +1,3 @@
-## Set up our Azure Virtual Network.
-## Need to determine a way to run or not if vnets are pre-configured
-module "vnet" {
-  source          = "../../modules/vnet"
-  resource_group  = var.resource_group
-  environment     = var.environment
-  resource_prefix = var.resource_prefix
-  # azure_vns       = var.network
-}
-
 ##########
 ## 01-network
 ##########
@@ -23,12 +13,12 @@ module "network" {
 }
 
 module "nat_gateway" {
-  source           = "../../modules/nat_gateway"
-  environment      = var.environment
-  resource_group   = var.resource_group
-  resource_prefix  = var.resource_prefix
-  location         = var.location
-  public_subnet_id = module.network.public_subnet_ids[0]
+  source          = "../../modules/nat_gateway"
+  environment     = var.environment
+  resource_group  = var.resource_group
+  resource_prefix = var.resource_prefix
+  location        = var.location
+  subnets         = module.network.subnets
 }
 
 
@@ -55,15 +45,14 @@ module "key_vault" {
   aad_object_keyvault_admin   = var.aad_object_keyvault_admin
   terraform_caller_ip_address = var.terraform_caller_ip_address
   use_cdc_managed_vnet        = var.use_cdc_managed_vnet
-  public_subnet               = module.network.public_subnet_ids
-  container_subnet            = module.network.container_subnet_ids
-  endpoint_subnet             = module.network.endpoint_subnet_ids
+  subnets                     = module.network.subnets
   cyberark_ip_ingress         = ""
   terraform_object_id         = var.terraform_object_id
   application_kv_name         = var.application_kv_name
   app_config_kv_name          = var.app_config_kv_name
   client_config_kv_name       = var.client_config_kv_name
   dns_vnet                    = var.dns_vnet
+  dns_zones                   = module.network.dns_zones
 }
 
 module "container_registry" {
@@ -73,7 +62,7 @@ module "container_registry" {
   resource_prefix      = var.resource_prefix
   location             = var.location
   enable_content_trust = false
-  public_subnets       = module.network.public_subnet_ids
+  subnets              = module.network.subnets
 }
 
 
@@ -100,13 +89,11 @@ module "database" {
   db_auto_grow             = var.db_auto_grow
   db_prevent_destroy       = var.db_prevent_destroy
   db_threat_detection      = var.db_threat_detection
-  endpoint_subnet          = module.network.endpoint_subnet_ids
+  subnets                  = module.network.subnets
   db_replica               = var.db_replica
   application_key_vault_id = module.key_vault.application_key_vault_id
-  west_vnet_subnets        = module.vnet.west_vnet_subnets
-  east_vnet_subnets        = module.vnet.east_vnet_subnets
-  vnet_subnets             = module.vnet.vnet_subnets
   dns_vnet                 = var.dns_vnet
+  dns_zones                = module.network.dns_zones
 }
 
 module "storage" {
@@ -118,11 +105,10 @@ module "storage" {
   rsa_key_4096                = var.rsa_key_4096
   terraform_caller_ip_address = var.terraform_caller_ip_address
   use_cdc_managed_vnet        = var.use_cdc_managed_vnet
-  endpoint_subnet             = module.network.endpoint_subnet_ids
-  public_subnet               = module.network.public_subnet_ids
-  container_subnet            = module.network.container_subnet_ids
+  subnets                     = module.network.subnets
   application_key_vault_id    = module.key_vault.application_key_vault_id
   dns_vnet                    = var.dns_vnet
+  dns_zones                   = module.network.dns_zones
 }
 
 
@@ -152,7 +138,7 @@ module "function_app" {
   postgres_pass                     = data.azurerm_key_vault_secret.postgres_pass.value
   container_registry_admin_username = module.container_registry.container_registry_admin_username
   container_registry_admin_password = module.container_registry.container_registry_admin_password
-  public_subnet                     = module.network.public_subnet_ids
+  subnets                           = module.network.subnets
   application_key_vault_id          = module.key_vault.application_key_vault_id
   sa_partner_connection_string      = module.storage.sa_partner_connection_string
   client_config_key_vault_id        = module.key_vault.client_config_key_vault_id
@@ -197,8 +183,10 @@ module "metabase" {
   ai_connection_string   = module.application_insights.metabase_connection_string
   use_cdc_managed_vnet   = var.use_cdc_managed_vnet
   service_plan_id        = module.app_service_plan.service_plan_id
-
-
+  postgres_server_name   = module.database.postgres_server_name
+  postgres_user          = data.azurerm_key_vault_secret.postgres_user.value
+  postgres_pass          = data.azurerm_key_vault_secret.postgres_pass.value
+  subnets                = module.network.subnets
 }
 
 ##########
@@ -220,8 +208,8 @@ module "log_analytics_workspace" {
   function_app_id            = module.function_app.function_app_id
   front_door_id              = module.front_door.front_door_id
   nat_gateway_id             = module.nat_gateway.nat_gateway_id
-  east_vnet_id               = module.vnet.east_vnet_id
-  west_vnet_id               = module.vnet.west_vnet_id
+  primary_vnet_id            = module.network.primary_vnet_id
+  replica_vnet_id            = module.network.replica_vnet_id
   storage_account_id         = module.storage.storage_account_id
   storage_public_id          = module.storage.storage_public_id
   storage_partner_id         = module.storage.storage_partner_id

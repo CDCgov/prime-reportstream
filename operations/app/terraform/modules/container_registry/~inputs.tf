@@ -23,4 +23,6 @@ variable "enable_content_trust" {
   description = "Boolean value indicating enabledness of Content Trust"
 }
 
-variable "public_subnets" {}
+variable "subnets" {
+  description = "A set of all available subnet combinations"
+}

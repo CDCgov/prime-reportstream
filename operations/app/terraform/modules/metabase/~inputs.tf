@@ -33,4 +33,20 @@ variable "use_cdc_managed_vnet" {
   type        = bool
   description = "If the environment should be deployed to the CDC managed VNET"
 }
-variable "service_plan_id" {}
+variable "service_plan_id" {
+  type        = string
+  description = "Application Service Plan resource id"
+}
+variable "postgres_server_name" {
+  type        = string
+  description = "Postgres Server name"
+}
+
+variable "postgres_user" {}
+variable "postgres_pass" {
+  sensitive = true
+}
+
+variable "subnets" {
+  description = "A set of all available subnet combinations"
+}

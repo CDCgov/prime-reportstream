@@ -15,7 +15,7 @@ resource "azurerm_monitor_metric_alert" "db_cpu_util" {
   name                = "${var.environment}-db-cpu"
   description         = "${var.environment} database CPU utilization is greater than ${local.database_cpu_threshold}%"
   resource_group_name = var.resource_group
-  scopes              = var.postgres_server_id
+  scopes              = [var.postgres_server_id]
   frequency           = "PT1M"
   window_size         = "PT5M"
   severity            = 1
@@ -39,7 +39,7 @@ resource "azurerm_monitor_metric_alert" "db_mem_util" {
   name                = "${var.environment}-db-mem"
   description         = "${var.environment} database memory utilization is greater than ${local.database_mem_threshold}%"
   resource_group_name = var.resource_group
-  scopes              = var.postgres_server_id
+  scopes              = [var.postgres_server_id]
   frequency           = "PT1M"
   window_size         = "PT5M"
   severity            = 1

@@ -15,7 +15,6 @@
 !gradle-wrapper.jar
 *.war
 
-
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
@@ -89,6 +88,7 @@ operations/app/src/**/terraform.tfstate*
 operations/app/src/**/plan.out
 operations/app/src/environments/configurations/dev.*
 !operations/app/src/**/.terraform.lock.hcl
+terraform-fmt.log
 
 # Hashicorp Vault Secrets
 prime-router/.vault/env/**
@@ -99,11 +99,10 @@ prime-router/.vault/env/**
 # Gradle files
 **/.gradle/**
 
+# Gitleaks
 gitleaks.report.json
 gitleaks.log
 *.jtl
-
-terraform-fmt.log
 
 # CastleMock event files
 .environment/soap_service/soap/event/v1/**

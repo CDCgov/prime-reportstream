@@ -103,14 +103,14 @@ resource "azurerm_function_app" "function_app" {
       action                    = "Allow"
       name                      = "AllowVNetTraffic"
       priority                  = 100
-      virtual_network_subnet_id = var.public_subnet[0]
+      virtual_network_subnet_id = var.subnets.public_subnets[2]
     }
 
     ip_restriction {
       action                    = "Allow"
       name                      = "AllowVNetEastTraffic"
       priority                  = 100
-      virtual_network_subnet_id = var.public_subnet[1]
+      virtual_network_subnet_id = var.subnets.public_subnets[0]
     }
 
     ip_restriction {
@@ -126,6 +126,7 @@ resource "azurerm_function_app" "function_app" {
     always_on                 = true
     use_32_bit_worker_process = false
     linux_fx_version          = "DOCKER|${var.container_registry_login_server}/${var.resource_prefix}:latest"
+    ftps_state                = "Disabled"
 
     cors {
       allowed_origins = concat(local.cors_all, var.environment == "prod" ? local.cors_prod : local.cors_lower)
@@ -133,8 +134,8 @@ resource "azurerm_function_app" "function_app" {
   }
 
   app_settings = merge(local.all_app_settings, {
-    "POSTGRES_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
-
+    "POSTGRES_URL"                              = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
+    "AzureWebJobs.emailScheduleEngine.Disabled" = "1"
     # HHS Protect Storage Account
     "PartnerStorage" = var.sa_partner_connection_string
   })
@@ -151,6 +152,15 @@ resource "azurerm_function_app" "function_app" {
     ignore_changes = [
       # Allows Docker versioning via GitHub Actions
       site_config[0].linux_fx_version,
+      storage_account_access_key,
+      tags,
+      # Temp ignore app_settings during terraform overhaul
+      app_settings["APPINSIGHTS_INSTRUMENTATIONKEY"],
+      app_settings["APPLICATIONINSIGHTS_CONNECTION_STRING"],
+      app_settings["DOCKER_REGISTRY_SERVER_PASSWORD"],
+      app_settings["POSTGRES_PASSWORD"],
+      app_settings["POSTGRES_USER"],
+      app_settings["PartnerStorage"]
     ]
   }
 }
@@ -179,12 +189,12 @@ resource "azurerm_key_vault_access_policy" "functionapp_client_config_access_pol
 
 resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vnet_integration" {
   app_service_id = azurerm_function_app.function_app.id
-  subnet_id      = var.use_cdc_managed_vnet ? "" : var.public_subnet[0]
+  subnet_id      = var.use_cdc_managed_vnet ? var.subnets.public_subnets[0] : var.subnets.public_subnets[2]
 }
 
-// Enable sticky slot settings
-// Done via a template due to a missing Terraform feature:
-// https://github.com/terraform-providers/terraform-provider-azurerm/issues/1440
+# Enable sticky slot settings
+# Done via a template due to a missing Terraform feature:
+# https://github.com/terraform-providers/terraform-provider-azurerm/issues/1440
 resource "azurerm_template_deployment" "functionapp_sticky_settings" {
   name                = "functionapp_sticky_settings"
   resource_group_name = var.resource_group

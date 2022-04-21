@@ -1,4 +1,4 @@
-// Postgres Server
+# Postgres Server
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_postgresql_server" "postgres_server" {
@@ -31,7 +31,8 @@ resource "azurerm_postgresql_server" "postgres_server" {
   lifecycle {
     prevent_destroy = false
     ignore_changes = [
-      storage_mb,                  # Auto-grow will change the size
+      storage_mb, # Auto-grow will change the size
+      administrator_login,
       administrator_login_password # This can't change without a redeploy
     ]
   }
@@ -42,6 +43,8 @@ resource "azurerm_postgresql_server" "postgres_server" {
 }
 
 module "postgres_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_postgresql_server.postgres_server.id
   name           = azurerm_postgresql_server.postgres_server.name
@@ -49,15 +52,14 @@ module "postgres_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  exclude_subnets            = concat(var.west_vnet_subnets)
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  dns_zone            = var.dns_zones["postgres"].name
 }
 
 
-// Replicate Server
+# Replicate Server
 
 resource "azurerm_postgresql_server" "postgres_server_replica" {
   count                        = var.db_replica ? 1 : 0
@@ -94,6 +96,7 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
     prevent_destroy = false
     ignore_changes = [
       storage_mb,                  # Auto-grow will change the size
+      administrator_login,         # Temp ignore during terraform overhaul
       administrator_login_password # This can't change without a redeploy
     ]
   }
@@ -104,7 +107,8 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
 }
 
 module "postgres_private_endpoint_replica" {
-  count          = var.db_replica ? 1 : 0
+  for_each = var.db_replica ? var.subnets.replica_endpoint_subnets : []
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_postgresql_server.postgres_server_replica[0].id
   name           = azurerm_postgresql_server.postgres_server_replica[0].name
@@ -112,15 +116,14 @@ module "postgres_private_endpoint_replica" {
   resource_group = var.resource_group
   location       = azurerm_postgresql_server.postgres_server_replica[0].location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  exclude_subnets            = concat(var.east_vnet_subnets, var.vnet_subnets)
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.endpoint_subnet[0]
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet == "East-vnet" ? "West-vnet" : var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  dns_zone            = var.dns_zones["postgres"].name
 }
 
 
-// User Administration
+# User Administration
 
 resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin" {
   server_name         = azurerm_postgresql_server.postgres_server.name
@@ -131,7 +134,7 @@ resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin
 }
 
 
-// Encryption
+# Encryption
 
 #resource "azurerm_key_vault_access_policy" "postgres_policy" {
 #  key_vault_id = var.application_key_vault_id
@@ -158,7 +161,7 @@ resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin
 #  key_vault_key_id = var.rsa_key_2048
 #}
 
-// Databases
+# Databases
 
 resource "azurerm_postgresql_database" "prime_data_hub_db" {
   name                = "prime_data_hub"

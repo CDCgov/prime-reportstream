@@ -17,9 +17,9 @@ locals {
   dev_env      = length(local.static_endpoints) == 0 ? [1] : []
 }
 
-// TODO: Terraform does not support Azure's rules engine yet
-// We have an HSTS rule that must be manually configured
-// Ticket tracking rules engine in Terraform: https://github.com/terraform-providers/terraform-provider-azurerm/issues/7455
+# TODO: Terraform does not support Azure's rules engine yet
+# We have an HSTS rule that must be manually configured
+# Ticket tracking rules engine in Terraform: https://github.com/terraform-providers/terraform-provider-azurerm/issues/7455
 
 resource "azurerm_frontdoor" "front_door" {
   name                                         = local.name
@@ -27,7 +27,6 @@ resource "azurerm_frontdoor" "front_door" {
   enforce_backend_pools_certificate_name_check = true
   backend_pools_send_receive_timeout_seconds   = 90
   friendly_name                                = local.name
-
 
   /* General */
 
@@ -43,7 +42,6 @@ resource "azurerm_frontdoor" "front_door" {
       host_name = replace(frontend_endpoint.value, "-", ".")
     }
   }
-
 
   /* Function app */
 
@@ -73,18 +71,6 @@ resource "azurerm_frontdoor" "front_door" {
     interval_in_seconds = 30
     protocol            = "Https"
     probe_method        = "HEAD"
-  }
-
-  routing_rule {
-    name               = "HttpToHttpsRedirect"
-    frontend_endpoints = local.frontend_endpoints
-    accepted_protocols = ["Http"]
-    patterns_to_match  = ["/", "/*", "/api/*", "/download"]
-
-    redirect_configuration {
-      redirect_protocol = "HttpsOnly"
-      redirect_type     = "Moved"
-    }
   }
 
   routing_rule {
@@ -134,6 +120,17 @@ resource "azurerm_frontdoor" "front_door" {
     }
   }
 
+  routing_rule {
+    name               = "HttpToHttpsRedirect"
+    frontend_endpoints = local.frontend_endpoints
+    accepted_protocols = ["Http"]
+    patterns_to_match  = ["/", "/*", "/api/*", "/download"]
+
+    redirect_configuration {
+      redirect_protocol = "HttpsOnly"
+      redirect_type     = "Moved"
+    }
+  }
 
   /* Metabase */
 
@@ -177,21 +174,6 @@ resource "azurerm_frontdoor" "front_door" {
   dynamic "routing_rule" {
     for_each = local.metabase_env
     content {
-      name               = "HttpToHttpsRedirectMetabase"
-      frontend_endpoints = local.frontend_endpoints
-      accepted_protocols = ["Http"]
-      patterns_to_match  = ["/metabase", "/metabase/*"]
-
-      redirect_configuration {
-        redirect_protocol = "HttpsOnly"
-        redirect_type     = "Moved"
-      }
-    }
-  }
-
-  dynamic "routing_rule" {
-    for_each = local.metabase_env
-    content {
       name               = "metabase"
       frontend_endpoints = local.frontend_endpoints
       accepted_protocols = ["Https"]
@@ -205,6 +187,20 @@ resource "azurerm_frontdoor" "front_door" {
     }
   }
 
+  dynamic "routing_rule" {
+    for_each = local.metabase_env
+    content {
+      name               = "HttpToHttpsRedirectMetabase"
+      frontend_endpoints = local.frontend_endpoints
+      accepted_protocols = ["Http"]
+      patterns_to_match  = ["/metabase", "/metabase/*"]
+
+      redirect_configuration {
+        redirect_protocol = "HttpsOnly"
+        redirect_type     = "Moved"
+      }
+    }
+  }
 
   /* Static site */
 
@@ -265,11 +261,24 @@ resource "azurerm_frontdoor" "front_door" {
       }
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      explicit_resource_order
+    ]
+  }
 }
 
 resource "azurerm_frontdoor_custom_https_configuration" "frontend_default_https" {
   frontend_endpoint_id              = azurerm_frontdoor.front_door.frontend_endpoints["DefaultFrontendEndpoint"]
   custom_https_provisioning_enabled = false
+
+  lifecycle {
+    ignore_changes = [
+      # Avoid cert updates blocking tf
+      custom_https_configuration[0].azure_key_vault_certificate_secret_version
+    ]
+  }
 }
 
 resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" {
@@ -282,6 +291,13 @@ resource "azurerm_frontdoor_custom_https_configuration" "frontend_custom_https" 
     certificate_source                      = "AzureKeyVault"
     azure_key_vault_certificate_secret_name = each.value
     azure_key_vault_certificate_vault_id    = var.application_key_vault_id
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Avoid cert updates blocking tf
+      custom_https_configuration[0].azure_key_vault_certificate_secret_version
+    ]
   }
 }
 

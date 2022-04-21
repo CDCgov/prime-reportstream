@@ -25,10 +25,10 @@ locals {
       resource_id = var.client_config_key_vault_id
     },
     "west_vnet" = {
-      resource_id = var.west_vnet_id
+      resource_id = var.replica_vnet_id
     },
     "east_vnet" = {
-      resource_id = var.east_vnet_id
+      resource_id = var.primary_vnet_id
     },
     "storage_account" = {
       resource_id = var.storage_account_id
