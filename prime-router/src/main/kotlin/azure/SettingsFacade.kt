@@ -16,7 +16,6 @@ import gov.cdc.prime.router.messages.SenderMessage
 import gov.cdc.prime.router.messages.SettingMessage
 import gov.cdc.prime.router.messages.SettingMetadata
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.JwkSet
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.JSONB
 import java.time.OffsetDateTime
@@ -60,7 +59,7 @@ class SettingsFacade(
     override fun findReceiver(fullName: String): Receiver? {
         try {
             val pair = Receiver.parseFullName(fullName)
-            return findSetting(pair.second, ReceiverAPI::class.java, pair.first)
+            return findSetting(pair.second, ReceiverMessage::class.java, pair.first)
         } catch (e: RuntimeException) {
             logger.warn("Cannot find receiver: ${e.localizedMessage} ${e.stackTraceToString()}")
             return null
@@ -70,7 +69,7 @@ class SettingsFacade(
     override fun findSender(fullName: String): Sender? {
         try {
             val pair = Sender.parseFullName(fullName)
-            return findSetting(pair.second, SenderAPI::class.java, pair.first)
+            return findSetting(pair.second, SenderMessage::class.java, pair.first)
         } catch (e: RuntimeException) {
             logger.warn("Cannot find sender: ${e.localizedMessage} ${e.stackTraceToString()}")
             return null
