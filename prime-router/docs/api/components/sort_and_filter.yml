@@ -1,4 +1,5 @@
 openapi: "3.0.3"
+paths: {}
 info:
   title: Sort and Filter Parameters
   version: "1.0"
@@ -17,27 +18,27 @@ components:
         enum: [ASC, DESC]
         default: DESC
     sortColumn:
-    - name: sortColumn
+      name: sortColumn
       in: query
       description: column used as the basis for sorting
       schema:
         type: string
     resultsAfterDate:
-    - name: resultsAfterDate
+      name: resultsAfterDate
       in: query
       description: only return reports from after the given date
       schema:
         type: string
         format: date-time
     resultsBeforeDate:
-    - name: resultsBeforeDate
+      name: resultsBeforeDate
       in: query
       description: only return reports from before the given date
       schema:
         type: string
         format: date-time
     pageSize:
-    - name: pageSize
+      name: pageSize
       in: query
       description: number of results per page
       schema:

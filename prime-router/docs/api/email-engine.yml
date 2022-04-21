@@ -1,7 +1,7 @@
 openapi: "3.0.3"
 info:
   title: ReportStream Email Engine API
-  description: "This is a stub to be completed when this API is reviewed",
+  description: "This is a stub to be completed when this API is reviewed"
   version: "0.1"
   contact:
     name: USDS at Centers for Disease Control and Prevention
@@ -13,8 +13,14 @@ paths:
       description: create email schedule
       security:
         - OktaAuth: [ ANONYMOUS ]
+      responses:
+        '200':
+          description: success call
   /api/email-schedule/{scheduleId}:
     delete:
       description: delete an inactive email schedule
       security:
         - OktaAuth: [ ANONYMOUS ]
+      responses:
+        '200':
+          description: success call
