@@ -39,7 +39,9 @@ variable "use_cdc_managed_vnet" {
 }
 
 variable "postgres_user" {}
-variable "postgres_pass" {}
+variable "postgres_pass" {
+  sensitive = true
+}
 variable "db_sku_name" {}
 variable "db_version" {}
 variable "db_storage_mb" {}
@@ -47,25 +49,15 @@ variable "db_auto_grow" {}
 variable "db_prevent_destroy" {}
 
 variable "db_threat_detection" {}
-variable "endpoint_subnet" {}
 variable "db_replica" {}
 variable "application_key_vault_id" {}
 
-variable "west_vnet_subnets" {
-  type        = list(string)
-  description = "West Vnet subnets"
+variable "dns_vnet" {}
+
+variable "subnets" {
+  description = "A set of all available subnet combinations"
 }
 
-variable "east_vnet_subnets" {
-  type        = list(string)
-  description = "East Vnet subnets"
-}
-
-variable "vnet_subnets" {
-  type        = list(string)
-  description = "Vnet subnets"
-}
-
-variable "dns_vnet" {
-
+variable "dns_zones" {
+  description = "A set of all available dns zones"
 }

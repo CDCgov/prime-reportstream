@@ -66,10 +66,9 @@ module "container_registry" {
 }
 
 
-
-# ##########
-# ## 03-Persistent
-# ##########
+##########
+## 03-Persistent
+##########
 
 module "database" {
   source                   = "../../modules/database"
@@ -77,7 +76,7 @@ module "database" {
   resource_group           = var.resource_group
   resource_prefix          = var.resource_prefix
   location                 = var.location
-  rsa_key_2048             = data.azurerm_key_vault_key.pdhtest-2048-key.id
+  rsa_key_2048             = data.azurerm_key_vault_key.pdh-2048-key.id
   aad_group_postgres_admin = var.aad_group_postgres_admin
   is_metabase_env          = var.is_metabase_env
   use_cdc_managed_vnet     = var.use_cdc_managed_vnet
@@ -112,10 +111,9 @@ module "storage" {
 }
 
 
-
-# # ##########
-# # ## 04-App
-# # ##########
+##########
+## 04-App
+##########
 
 module "function_app" {
   source                            = "../../modules/function_app"
@@ -168,7 +166,6 @@ module "sftp_container" {
   location              = var.location
   use_cdc_managed_vnet  = var.use_cdc_managed_vnet
   sa_primary_access_key = module.storage.sa_primary_access_key
-
 }
 
 module "metabase" {
@@ -188,6 +185,7 @@ module "metabase" {
   postgres_pass          = data.azurerm_key_vault_secret.postgres_pass.value
   subnets                = module.network.subnets
 }
+
 
 ##########
 ## 05-Monitor

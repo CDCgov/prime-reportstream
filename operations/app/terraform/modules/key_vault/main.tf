@@ -59,6 +59,8 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
 }
 
 module "application_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = data.azurerm_key_vault.application.id
   name           = data.azurerm_key_vault.application.name
@@ -66,10 +68,10 @@ module "application_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.endpoint_subnet[0]
+  endpoint_subnet_ids = each.value
+  dns_vnet            = "vnet"
+  resource_prefix     = var.resource_prefix
+  dns_zone            = var.dns_zones["vaultcore"].name
 }
 
 resource "azurerm_key_vault_access_policy" "dev_app_config_access_policy" {
@@ -104,6 +106,8 @@ resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" 
 }
 
 module "app_config_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = data.azurerm_key_vault.app_config.id
   name           = data.azurerm_key_vault.app_config.name
@@ -111,10 +115,10 @@ module "app_config_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.endpoint_subnet[0]
+  endpoint_subnet_ids = each.value
+  dns_vnet            = "vnet"
+  resource_prefix     = var.resource_prefix
+  dns_zone            = var.dns_zones["vaultcore"].name
 }
 
 
@@ -137,11 +141,15 @@ resource "azurerm_key_vault" "client_config" {
 
     ip_rules = var.terraform_caller_ip_address
 
-    virtual_network_subnet_ids = concat(var.public_subnet, var.container_subnet, var.endpoint_subnet)
+    virtual_network_subnet_ids = var.subnets.primary_subnets
   }
 
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [
+      # Temp ignore ip_rules during tf development
+      network_acls[0].ip_rules
+    ]
   }
 
   tags = {
@@ -170,6 +178,8 @@ resource "azurerm_key_vault_access_policy" "dev_client_config_access_policy" {
 }
 
 module "client_config_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_key_vault.client_config.id
   name           = azurerm_key_vault.client_config.name
@@ -177,8 +187,8 @@ module "client_config_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.endpoint_subnet[0]
+  endpoint_subnet_ids = each.value
+  dns_vnet            = "vnet"
+  resource_prefix     = var.resource_prefix
+  dns_zone            = var.dns_zones["vaultcore"].name
 }

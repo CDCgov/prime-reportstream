@@ -35,6 +35,12 @@ resource "azurerm_container_group" "sftp_container" {
   os_type             = "Linux"
   restart_policy      = "Always"
 
+  # Updated to match test environment
+  exposed_port = [{
+    port     = 22
+    protocol = "TCP"
+  }]
+
   container {
     name   = "${var.resource_prefix}-sftpserver"
     image  = "atmoz/sftp:alpine"
@@ -64,7 +70,7 @@ resource "azurerm_container_group" "sftp_container" {
   }
 
   lifecycle {
-    // Workaround. TF thinks this is a new resource after import
+    # Workaround. TF thinks this is a new resource after import
     ignore_changes = [
       container[0].volume[0],
     ]

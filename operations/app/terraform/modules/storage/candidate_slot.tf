@@ -21,7 +21,7 @@ resource "azurerm_storage_account" "storage_account_candidate" {
 
     ip_rules = var.terraform_caller_ip_address
 
-    virtual_network_subnet_ids = concat(var.public_subnet, var.container_subnet, var.endpoint_subnet)
+    virtual_network_subnet_ids = var.subnets.vnet_public_container_endpoint_subnets
   }
 
   # Required for customer-managed encryption
@@ -31,6 +31,11 @@ resource "azurerm_storage_account" "storage_account_candidate" {
 
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [
+      # Temp ignore ip_rules during tf development
+      secondary_blob_connection_string,
+      network_rules[0].ip_rules
+    ]
   }
 
   tags = {
@@ -39,6 +44,8 @@ resource "azurerm_storage_account" "storage_account_candidate" {
 }
 
 module "storageaccount_candidate_blob_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account_candidate.id
   name           = azurerm_storage_account.storage_account_candidate.name
@@ -46,13 +53,31 @@ module "storageaccount_candidate_blob_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  dns_zone            = var.dns_zones["blob"].name
+}
+
+module "storageaccountcandidatepartner_blob_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
+  source         = "../common/private_endpoint"
+  resource_id    = azurerm_storage_account.storage_partner_candidate.id
+  name           = azurerm_storage_account.storage_partner_candidate.name
+  type           = "storage_account_blob"
+  resource_group = var.resource_group
+  location       = var.location
+
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  dns_zone            = var.dns_zones["blob"].name
 }
 
 module "storageaccount_candidate_file_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account_candidate.id
   name           = azurerm_storage_account.storage_account_candidate.name
@@ -60,13 +85,15 @@ module "storageaccount_candidate_file_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  dns_zone            = var.dns_zones["file"].name
 }
 
 module "storageaccount_candidate_queue_private_endpoint" {
+  for_each = var.subnets.primary_endpoint_subnets
+
   source         = "../common/private_endpoint"
   resource_id    = azurerm_storage_account.storage_account_candidate.id
   name           = azurerm_storage_account.storage_account_candidate.name
@@ -74,10 +101,10 @@ module "storageaccount_candidate_queue_private_endpoint" {
   resource_group = var.resource_group
   location       = var.location
 
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
+  endpoint_subnet_ids = each.value
+  dns_vnet            = var.dns_vnet
+  resource_prefix     = var.resource_prefix
+  dns_zone            = var.dns_zones["queue"].name
 }
 
 resource "azurerm_storage_management_policy" "retention_policy_candidate" {
@@ -101,6 +128,13 @@ resource "azurerm_storage_management_policy" "retention_policy_candidate" {
       }
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      # -1 value is applied, but not accepted in tf
+      rule[0].actions[0].base_blob[0].tier_to_cool_after_days_since_last_access_time_greater_than
+    ]
+  }
 }
 
 # Grant the storage account Key Vault access, to access encryption keys
@@ -116,14 +150,14 @@ resource "azurerm_storage_account_customer_managed_key" "storage_key_candidate" 
   count              = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
   key_name           = var.rsa_key_4096
   key_vault_id       = var.application_key_vault_id
-  key_version        = null // Null allows automatic key rotation
+  key_version        = null # Null allows automatic key rotation
   storage_account_id = azurerm_storage_account.storage_account_candidate.id
 
   depends_on = [azurerm_key_vault_access_policy.storage_policy_candidate]
 }
 
 
-# // Partner
+# # Partner
 
 resource "azurerm_storage_account" "storage_partner_candidate" {
   resource_group_name       = var.resource_group
@@ -149,7 +183,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
 
     ip_rules = var.terraform_caller_ip_address
 
-    virtual_network_subnet_ids = concat(var.public_subnet, var.endpoint_subnet)
+    virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
   }
 
   # Required for customer-managed encryption
@@ -159,6 +193,11 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
 
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [
+      # Temp ignore ip_rules during tf development
+      secondary_blob_connection_string,
+      network_rules[0].ip_rules
+    ]
   }
 
   tags = {
@@ -179,24 +218,10 @@ resource "azurerm_storage_account_customer_managed_key" "storage_candidate_partn
   count              = var.rsa_key_4096 != null && var.rsa_key_4096 != "" ? 1 : 0
   key_name           = var.rsa_key_4096
   key_vault_id       = var.application_key_vault_id
-  key_version        = null // Null allows automatic key rotation
+  key_version        = null # Null allows automatic key rotation
   storage_account_id = azurerm_storage_account.storage_partner_candidate.id
 
   depends_on = [azurerm_key_vault_access_policy.storage_candidate_partner_policy]
-}
-
-module "storageaccountcandidatepartner_blob_private_endpoint" {
-  source         = "../common/private_endpoint"
-  resource_id    = azurerm_storage_account.storage_partner_candidate.id
-  name           = azurerm_storage_account.storage_partner_candidate.name
-  type           = "storage_account_blob"
-  resource_group = var.resource_group
-  location       = var.location
-
-  endpoint_subnet_ids        = var.endpoint_subnet
-  dns_vnet                   = var.dns_vnet
-  resource_prefix            = var.resource_prefix
-  endpoint_subnet_id_for_dns = var.use_cdc_managed_vnet ? "" : var.dns_vnet
 }
 
 resource "azurerm_storage_container" "storage_candidate_container_hhsprotect" {
@@ -224,5 +249,12 @@ resource "azurerm_storage_management_policy" "storage_candidate_partner_retentio
         delete_after_days_since_creation_greater_than = 30
       }
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # -1 value is applied, but not accepted in tf
+      rule[0].actions[0].base_blob[0].tier_to_cool_after_days_since_last_access_time_greater_than
+    ]
   }
 }

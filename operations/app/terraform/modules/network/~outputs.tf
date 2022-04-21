@@ -1,13 +1,15 @@
-output "public_subnet_ids" {
-  value = [for k, v in data.azurerm_subnet.public_subnet : v.id]
+output "replica_vnet_id" {
+  value = data.azurerm_virtual_network.vnet["west"].id
 }
-output "container_subnet_ids" {
-  value = [for k, v in data.azurerm_subnet.container_subnet : v.id]
+
+output "primary_vnet_id" {
+  value = data.azurerm_virtual_network.vnet["east"].id
 }
-output "private_subnet_ids" {
-  value = [for k, v in data.azurerm_subnet.private_subnet : v.id]
+
+output "subnets" {
+  value = local.subnets
 }
-output "endpoint_subnet_ids" {
-  value = [for k, v in data.azurerm_subnet.endpoint_subnet : v.id]
+
+output "dns_zones" {
+  value = azurerm_private_dns_zone.zone
 }
-  

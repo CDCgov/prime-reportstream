@@ -32,6 +32,6 @@ resource "azurerm_nat_gateway_public_ip_association" "nat_gateway_ip_association
 }
 
 resource "azurerm_subnet_nat_gateway_association" "nat_gateway_public_subnet_association" {
-  subnet_id      = var.public_subnet_id
+  subnet_id      = var.subnets.public_subnets[2]
   nat_gateway_id = azurerm_nat_gateway.nat_gateway.id
 }

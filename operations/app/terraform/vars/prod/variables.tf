@@ -4,20 +4,17 @@ variable "terraform_object_id" {
   description = "Object id of user running TF"
   default     = "4d81288c-27a3-4df8-b776-c9da8e688bc7"
 }
-
 variable "tf_secrets_vault" {
-  default = "pdhtest-keyvault"
+  default = "pdhprod-keyvault"
 }
-
 variable "environment" {
-  default = "test"
+  default = "prod"
 }
 variable "resource_group" {
-  default = "prime-data-hub-test"
+  default = "prime-data-hub-prod"
 }
-
 variable "resource_prefix" {
-  default = "pdhtest"
+  default = "pdhprod"
 }
 variable "location" {
   default = "eastus"
@@ -32,17 +29,16 @@ variable "is_metabase_env" {
   default = true
 }
 variable "https_cert_names" {
-  default = []
+  default = ["prime-cdc-gov", "reportstream-cdc-gov"]
 }
-
 variable "okta_base_url" {
-  default = "hhs-prime.oktapreview.com"
+  default = "hhs-prime.okta.com"
 }
 variable "okta_redirect_url" {
-  default = "https://prime-data-hub-rkh5012.azurefd.net/download"
+  default = "https://prime.cdc.gov/download"
 }
 variable "aad_object_keyvault_admin" {
-  default = "3c17896c-ff94-4298-a719-aaac248aa2c8"
+  default = "5c6a951e-a4c2-4890-b62c-0ed8179501bb"
 } # Group or individual user id
 
 ###################
@@ -53,7 +49,7 @@ variable "network" {
   description = "The map that describes all of our networking. Orders are important for subnets."
   default = {
     "East-vnet" = {
-      "address_space"           = "172.17.5.0/25"
+      "address_space"           = "172.17.7.0/25"
       "dns_servers"             = ["172.17.0.135"]
       "location"                = "East Us"
       "nsg_prefix"              = "eastus-"
@@ -79,12 +75,12 @@ variable "network" {
       ]
     },
     "West-vnet" = {
-      "address_space"           = "172.17.5.128/25"
+      "address_space"           = "172.17.7.128/25"
       "dns_servers"             = ["172.17.0.135"]
       "location"                = "West Us"
-      "subnets"                 = ["public", "private", "container"]
+      "subnets"                 = ["public", "private", "container", "endpoint"]
       "nsg_prefix"              = "westus-"
-      "network_security_groups" = ["private", "public", "container"]
+      "network_security_groups" = ["private", "public", "container", "endpoint"]
       "subnet_cidrs" = [
         {
           name     = "public"
@@ -110,7 +106,7 @@ variable "network" {
       "location"                = "East Us"
       "subnets"                 = ["public", "private", "container", "endpoint", "GatewaySubnet"]
       "nsg_prefix"              = ""
-      "network_security_groups" = ["public", "private", "container"]
+      "network_security_groups" = ["private", "public", "container"]
       "subnet_cidrs" = [
         {
           name     = "GatewaySubnet"
@@ -137,14 +133,40 @@ variable "network" {
           new_bits = 8
         }
       ]
+    },
+    "vnet-peer" = {
+      "address_space"           = "10.1.0.0/16"
+      "dns_servers"             = [""]
+      "location"                = "West Us"
+      "subnets"                 = ["private", "endpoint"]
+      "nsg_prefix"              = ""
+      "network_security_groups" = [""]
+      "subnet_cidrs" = [
+        {
+          name     = "public"
+          new_bits = 3
+        },
+        {
+          name     = "container"
+          new_bits = 3
+        },
+        {
+          name     = "private"
+          new_bits = 3
+        },
+        {
+          name     = "endpoint"
+          new_bits = 2
+        },
+      ]
     }
   }
 }
-
 variable "dns_vnet" {
   description = "VNET to use for DNS entries"
   default     = "East-vnet"
 }
+
 ##################
 ## App Service Plan Vars
 ##################
@@ -152,7 +174,6 @@ variable "dns_vnet" {
 variable "app_tier" {
   default = "PremiumV2"
 }
-
 variable "app_size" {
   default = "P3v2"
 }
@@ -164,26 +185,21 @@ variable "app_size" {
 variable "use_cdc_managed_vnet" {
   default = true
 }
-
 variable "app_config_kv_name" {
-  default     = "pdhtest-app-config"
+  default     = "pdhprod-appconfig"
   description = "The keyvault used for application specific secrets."
 }
-
 variable "application_kv_name" {
-  default     = "pdhtest-keyvault"
+  default     = "pdhprod-keyvault"
   description = "The keyvault used for the entire application as a whole."
 }
-
 variable "client_config_kv_name" {
-  default = "pdhtest-clientconfig2"
+  default = "pdhprod-clientconfig"
 }
-
 variable "terraform_caller_ip_address" {
   type    = list(string)
-  default = ["162.224.209.174", "24.163.118.70", "75.191.122.59"]
+  default = ["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191"]
 }
-
 
 ##########
 ## Function App Vars
@@ -192,9 +208,8 @@ variable "terraform_caller_ip_address" {
 variable "dns_ip" {
   type        = string
   description = "IP address for function app dns"
-  default     = "168.63.129.16"
+  default     = "172.17.0.135"
 }
-
 
 ##########
 ## DB Vars
@@ -213,19 +228,16 @@ variable "db_auto_grow" {
   default = true
 }
 variable "db_prevent_destroy" {
-  default = false
+  default = true
 }
-
 variable "db_threat_detection" {
   default = true
 }
-
 variable "db_replica" {
   default = true
 }
-
 variable "aad_group_postgres_admin" {
   type        = string
   description = "Azure Active Directory group id containing postgres db admins"
-  default     = "f94409a9-12b1-4820-a1b6-e3e0a4fa282d"
+  default     = "c4031f1f-229c-4a8a-b3b9-23bae9dbf197"
 }

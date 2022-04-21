@@ -18,7 +18,6 @@ variable "location" {
   description = "NAT Gateway Location"
 }
 
-variable "public_subnet_id" {
-  type        = string
-  description = "Public Subnet ID"
+variable "subnets" {
+  description = "A set of all available subnet combinations"
 }
