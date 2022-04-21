@@ -177,7 +177,7 @@ export function OrgsTable() {
                                     size="small"
                                     className="padding-1 usa-button--outline"
                                 >
-                                    Save List to CSV File
+                                    Save List to CSV
                                 </Button>
                             </td>
                         </tr>
