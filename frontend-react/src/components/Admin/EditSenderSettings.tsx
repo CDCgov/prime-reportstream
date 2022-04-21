@@ -12,7 +12,11 @@ import {
 } from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import Spinner from "../Spinner";
-import { getErrorDetailFromResponse } from "../../utils/misc";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    VersionWarningType,
+} from "../../utils/misc";
 
 import { TextAreaComponent, TextInputComponent } from "./AdminFormEdit";
 import {
@@ -44,30 +48,48 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
         const { invalidate } = useController();
         const [loading, setLoading] = useState(false);
 
+        async function getLatestSenderResponse() {
+            const accessToken = getStoredOktaToken();
+            const organization = getStoredOrg();
+
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        Organization: organization!,
+                    },
+                }
+            );
+
+            return await response.json();
+        }
+
         const ShowCompareConfirm = async () => {
             try {
                 // fetch original version
                 setLoading(true);
-                const accessToken = getStoredOktaToken();
-                const organization = getStoredOrg();
-
-                const response = await fetch(
-                    `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                            Organization: organization!,
-                        },
-                    }
-                );
-
-                const responseBody = await response.json();
+                const latestResponse = await getLatestSenderResponse();
                 setOrgSenderSettingsOldJson(
-                    JSON.stringify(responseBody, jsonSortReplacer, 2)
+                    JSON.stringify(latestResponse, jsonSortReplacer, 2)
                 );
                 setOrgSenderSettingsNewJson(
                     JSON.stringify(orgSenderSettings, jsonSortReplacer, 2)
                 );
+
+                if (
+                    latestResponse?.meta?.version !==
+                    orgSenderSettings?.meta?.version
+                ) {
+                    showError(getVersionWarning(VersionWarningType.POPUP));
+                    confirmModalRef?.current?.setWarning(
+                        getVersionWarning(
+                            VersionWarningType.FULL,
+                            latestResponse
+                        )
+                    );
+                    confirmModalRef?.current?.disableSave();
+                }
 
                 confirmModalRef?.current?.showModal();
                 setLoading(false);
@@ -94,6 +116,25 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
         const saveSenderData = async () => {
             try {
                 setLoading(true);
+                const latestResponse = await getLatestSenderResponse();
+                if (
+                    latestResponse.meta?.version !==
+                    orgSenderSettings?.meta?.version
+                ) {
+                    // refresh left-side panel in compare modal to make it obvious what has changed
+                    setOrgSenderSettingsOldJson(
+                        JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                    );
+                    showError(getVersionWarning(VersionWarningType.POPUP));
+                    confirmModalRef?.current?.setWarning(
+                        getVersionWarning(
+                            VersionWarningType.FULL,
+                            latestResponse
+                        )
+                    );
+                    confirmModalRef?.current?.disableSave();
+                    return false;
+                }
 
                 const data = confirmModalRef?.current?.getEditedText();
 
@@ -120,7 +161,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                 let errorDetail = await getErrorDetailFromResponse(e);
                 console.trace(e, errorDetail);
                 showError(
-                    `Updating receiver '${sendername}' failed with: ${errorDetail}`
+                    `Updating sender '${sendername}' failed with: ${errorDetail}`
                 );
                 return false;
             }

@@ -12,7 +12,11 @@ import {
 } from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import Spinner from "../Spinner";
-import { getErrorDetailFromResponse } from "../../utils/misc";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    VersionWarningType,
+} from "../../utils/misc";
 
 import {
     ConfirmSaveSettingModal,
@@ -52,29 +56,48 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
             useState("");
         const { invalidate } = useController();
 
+        async function getLatestReceiverResponse() {
+            const accessToken = getStoredOktaToken();
+            const organization = getStoredOrg();
+
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        Organization: organization!,
+                    },
+                }
+            );
+
+            return await response.json();
+        }
+
         const showCompareConfirm = async () => {
             try {
                 // fetch original version
                 setLoading(true);
-                const accessToken = getStoredOktaToken();
-                const organization = getStoredOrg();
-
-                const response = await fetch(
-                    `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                            Organization: organization!,
-                        },
-                    }
-                );
-                const responseBody = await response.json();
+                const latestResponse = await getLatestReceiverResponse();
                 setOrgReceiverSettingsOldJson(
-                    JSON.stringify(responseBody, jsonSortReplacer, 2)
+                    JSON.stringify(latestResponse, jsonSortReplacer, 2)
                 );
                 setOrgReceiverSettingsNewJson(
                     JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2)
                 );
+
+                if (
+                    latestResponse?.meta?.version !==
+                    orgReceiverSettings?.meta?.version
+                ) {
+                    showError(getVersionWarning(VersionWarningType.POPUP));
+                    confirmModalRef?.current?.setWarning(
+                        getVersionWarning(
+                            VersionWarningType.FULL,
+                            latestResponse
+                        )
+                    );
+                    confirmModalRef?.current?.disableSave();
+                }
 
                 confirmModalRef?.current?.showModal();
                 setLoading(false);
@@ -101,6 +124,26 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
         const saveReceiverData = async () => {
             try {
                 setLoading(true);
+
+                const latestResponse = await getLatestReceiverResponse();
+                if (
+                    latestResponse.meta?.version !==
+                    orgReceiverSettings?.meta?.version
+                ) {
+                    // refresh left-side panel in compare modal to make it obvious what has changed
+                    setOrgReceiverSettingsOldJson(
+                        JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                    );
+                    showError(getVersionWarning(VersionWarningType.POPUP));
+                    confirmModalRef?.current?.setWarning(
+                        getVersionWarning(
+                            VersionWarningType.FULL,
+                            latestResponse
+                        )
+                    );
+                    confirmModalRef?.current?.disableSave();
+                    return false;
+                }
 
                 const data = confirmModalRef?.current?.getEditedText();
 
