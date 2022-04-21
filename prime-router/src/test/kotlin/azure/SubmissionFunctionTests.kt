@@ -17,6 +17,8 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.tests.ExpectedSubmissionHistory
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
@@ -280,20 +282,19 @@ class SubmissionFunctionTests : Logging {
         }
     }
 
-    private fun setUpAccessTests(
-        organizationName: String,
-        oktaClaimsOrganizationName: String
-    ): Pair<SubmissionFunction, MockHttpRequestMessage> {
+    private fun setupSubmissionFunctionForTesting(
+        oktaClaimsOrganizationName: String,
+        facade: SubmissionsFacade,
+    ): SubmissionFunction {
         val oktaAuth = spyk<OktaAuthentication>()
-
         val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
-
         val metadata = Metadata(schema = Schema(name = "one", topic = "test"))
         val settings = MockSettings()
         val sender = Sender("default", organizationName, Sender.Format.CSV, "test", schemaName = "one")
         settings.senderStore[sender.fullName] = sender
+        val sender2 = Sender("default", otherOrganizationName, Sender.Format.CSV, "test", schemaName = "one")
+        settings.senderStore[sender2.fullName] = sender2
         val engine = makeEngine(metadata, settings)
-
         mockkObject(OktaAuthentication.Companion)
         every { OktaAuthentication.Companion.decodeJwt(any()) } returns
             TestDefaultJwt(
@@ -302,55 +303,63 @@ class SubmissionFunctionTests : Logging {
                 Instant.now().plusSeconds(60),
                 claimsMap
             )
+        return SubmissionFunction(
+            submissionsFacade = facade,
+            oktaAuthentication = oktaAuth,
+            workflowEngine = engine
+        )
+    }
 
+    private fun setupHttpRequestMessageForTesting(): MockHttpRequestMessage {
         val httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.httpHeaders += mapOf(
             "authorization" to "Bearer 111.222.333",
             "authentication-type" to "okta"
         )
-
-        val submissionFunction = SubmissionFunction(
-            submissionsFacade = SubmissionsFacade(
-                TestSubmissionAccess(testData, mapper)
-            ),
-            oktaAuthentication = oktaAuth,
-            workflowEngine = engine
-        )
-        return Pair(submissionFunction, httpRequestMessage)
+        return httpRequestMessage
     }
 
     @Test
     fun `test access user can view their org's submission history`() {
-        val (submissionFunction, httpRequestMessage) = setUpAccessTests(organizationName, oktaClaimsOrganizationName)
-
+        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
+        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, facade)
+        val httpRequestMessage = setupHttpRequestMessageForTesting()
         val response = submissionFunction.getOrgSubmissions(httpRequestMessage, organizationName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
     @Test
     fun `test access user cannot view another org's submission history`() {
-        val (submissionFunction, httpRequestMessage) = setUpAccessTests(organizationName, oktaClaimsOrganizationName)
-
+        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
+        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, facade)
+        val httpRequestMessage = setupHttpRequestMessageForTesting()
         val response = submissionFunction.getOrgSubmissions(httpRequestMessage, otherOrganizationName)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
     @Test
-    fun `test access dhadmins can view all org's submission history`() {
-        val (submissionFunction, httpRequestMessage) = setUpAccessTests(organizationName, oktaSystemAdminGroup)
-
-        val response = submissionFunction.getOrgSubmissions(httpRequestMessage, organizationName)
+    fun `test access DHPrimeAdmins can view all org's submission history`() {
+        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
+        val submissionFunction = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, facade)
+        val httpRequestMessage = setupHttpRequestMessageForTesting()
+        var response = submissionFunction.getOrgSubmissions(httpRequestMessage, organizationName)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        response = submissionFunction.getOrgSubmissions(httpRequestMessage, otherOrganizationName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
     @Test
-    fun `test get report history`() {
+    fun `test get report detail history`() {
         val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
         val mockRequest = MockHttpRequestMessage()
-        val mockSubmissionFacade = mockk<SubmissionsFacade>()
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
 
-        val function = SubmissionFunction(mockSubmissionFacade)
+        val mockSubmissionFacade = mockk<SubmissionsFacade>()
+        val function = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, mockSubmissionFacade)
+
+        mockkObject(AuthenticationStrategy.Companion)
+        every { AuthenticationStrategy.authenticate(any(), any(), any()) } returns
+            AuthenticatedClaims.generateTestClaims()
 
         // Invalid id:  not a UUID nor a Long
         var response = function.getReportHistory(mockRequest, "bad")
@@ -371,11 +380,10 @@ class SubmissionFunctionTests : Logging {
             550, TaskAction.receive, OffsetDateTime.now(), 201,
             null
         )
-
         // Happy path with a good UUID
         val action = Action()
         action.actionId = 550
-        action.sendingOrg = "simple_report"
+        action.sendingOrg = organizationName
         action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
