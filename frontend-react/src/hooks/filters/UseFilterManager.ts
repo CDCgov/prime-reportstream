@@ -1,13 +1,15 @@
 import { Dispatch, useCallback } from "react";
 
 import useDateRange, {
+    RangeField,
     RangeSettings,
     RangeSettingsActionType,
 } from "./UseDateRange";
 import useSortOrder, {
+    SortOrder,
+    SortSettings,
     SortSettingsAction,
     SortSettingsActionType,
-    SortSettings,
 } from "./UseSortOrder";
 import usePages, {
     PageSettings,
@@ -24,6 +26,33 @@ export interface FilterManager {
     updatePage: Dispatch<PageSettingsAction>;
     resetAll: () => void;
 }
+
+/* This helper can plug into your API call to allow for pagination
+ * with both an ASC and DESC sort. The cursor will increment:
+ *
+ * history (end) -> present (start) for ASC
+ * present (start) -> history (end) for DESC */
+const cursorOrRange = (
+    order: SortOrder,
+    field: RangeField,
+    cursor: string,
+    range: string
+): string => {
+    if (
+        (order === "ASC" && field === RangeField.START) ||
+        (order === "DESC" && field === RangeField.END)
+    ) {
+        return range;
+    }
+    if (
+        (order === "ASC" && field === RangeField.END) ||
+        (order === "DESC" && field === RangeField.START)
+    ) {
+        return cursor;
+    }
+
+    return range; // fallback to just the range value
+};
 
 const useFilterManager = (): FilterManager => {
     const { settings: rangeSettings, update: updateRange } = useDateRange();
@@ -48,3 +77,4 @@ const useFilterManager = (): FilterManager => {
 };
 
 export default useFilterManager;
+export { cursorOrRange };

@@ -26,16 +26,23 @@ const dummyRowTwo = {
  * Table component. Any  */
 export const TestTable = () => {
     const filterManager = useFilterManager();
-    const { cursors, hasNext, hasPrev, update } =
-        useCursorManager("firstCursor");
+    const {
+        cursors,
+        hasNext,
+        hasPrev,
+        update: updateCursors,
+    } = useCursorManager("firstCursor");
 
     /* Ensure there's at least 1 more cursor in the cursorMap
      * to test the Next/Prev buttons. In a real application
      * the effect would call addNextCursor when the API response
      * state changes. */
     useEffect(() => {
-        update({ type: CursorActionType.ADD_NEXT, payload: "secondCursor" });
-    }, [update]);
+        updateCursors({
+            type: CursorActionType.ADD_NEXT,
+            payload: "secondCursor",
+        });
+    }, [updateCursors]);
 
     /* Mocking the sort behavior that would normally be performed by the
      * API call */
@@ -87,7 +94,7 @@ export const TestTable = () => {
         <Table
             config={config}
             filterManager={filterManager}
-            cursorManager={{ cursors, hasNext, hasPrev, update }}
+            cursorManager={{ cursors, hasNext, hasPrev, update: updateCursors }}
         />
     );
 };

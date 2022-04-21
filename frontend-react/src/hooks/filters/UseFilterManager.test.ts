@@ -1,6 +1,7 @@
 import { renderHook } from "@testing-library/react-hooks";
 
-import useFilterManager from "./UseFilterManager";
+import useFilterManager, { cursorOrRange } from "./UseFilterManager";
+import { RangeField } from "./UseDateRange";
 
 describe("UseFilterManager", () => {
     test("renders with default FilterState", () => {
@@ -17,5 +18,39 @@ describe("UseFilterManager", () => {
             size: 10,
             currentPage: 1,
         });
+    });
+});
+
+describe("Helper functions", () => {
+    test("cursorOrRange", () => {
+        const rangeAsStart = cursorOrRange(
+            "ASC",
+            RangeField.START,
+            "cursor",
+            "range"
+        );
+        const cursorAsStart = cursorOrRange(
+            "DESC",
+            RangeField.START,
+            "cursor",
+            "range"
+        );
+        const rangeAsEnd = cursorOrRange(
+            "DESC",
+            RangeField.END,
+            "cursor",
+            "range"
+        );
+        const cursorAsEnd = cursorOrRange(
+            "ASC",
+            RangeField.END,
+            "cursor",
+            "range"
+        );
+
+        expect(rangeAsStart).toEqual("range");
+        expect(rangeAsEnd).toEqual("range");
+        expect(cursorAsStart).toEqual("cursor");
+        expect(cursorAsEnd).toEqual("cursor");
     });
 });

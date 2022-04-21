@@ -1,7 +1,9 @@
 import { useResource } from "rest-hooks";
 import { useEffect } from "react";
 
-import useFilterManager from "../../hooks/filters/UseFilterManager";
+import useFilterManager, {
+    cursorOrRange,
+} from "../../hooks/filters/UseFilterManager";
 import useCursorManager, {
     CursorActionType,
 } from "../../hooks/filters/UseCursorManager";
@@ -9,6 +11,7 @@ import SubmissionsResource from "../../resources/SubmissionsResource";
 import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters from "../../components/Table/TableFilters";
+import { RangeField } from "../../hooks/filters/UseDateRange";
 
 function SubmissionTable() {
     const filterManager = useFilterManager();
@@ -30,14 +33,18 @@ function SubmissionTable() {
         SubmissionsResource.list(),
         {
             organization: getStoredOrg(),
-            cursor:
-                filterManager.sortSettings.order === "DESC"
-                    ? cursors.current
-                    : filterManager.rangeSettings.start,
-            endCursor:
-                filterManager.sortSettings.order === "ASC"
-                    ? cursors.current
-                    : filterManager.rangeSettings.end,
+            cursor: cursorOrRange(
+                filterManager.sortSettings.order,
+                RangeField.START,
+                cursors.current,
+                filterManager.rangeSettings.start
+            ),
+            endCursor: cursorOrRange(
+                filterManager.sortSettings.order,
+                RangeField.END,
+                cursors.current,
+                filterManager.rangeSettings.end
+            ),
             pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
             sort: filterManager.sortSettings.order,
             showFailed: false, // No plans for this to be set to true

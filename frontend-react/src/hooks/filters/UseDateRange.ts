@@ -1,5 +1,9 @@
 import { Dispatch, useReducer } from "react";
 
+enum RangeField {
+    START = "start",
+    END = "end",
+}
 enum RangeSettingsActionType {
     UPDATE_START = "update-start",
     UPDATE_END = "update-end",
@@ -62,5 +66,5 @@ const useDateRange = (): RangeFilter => {
 };
 
 export default useDateRange;
-export { RangeSettingsActionType };
+export { RangeSettingsActionType, RangeField };
 export type { RangeSettings, RangeSettingsAction };
