@@ -116,6 +116,7 @@ class HistoryApiTest : CoolTest() {
         val (_, response, result) = Fuel.get(testCase.path, testCase.parameters)
             .authentication()
             .bearer(testCase.bearer)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
             .responseString()
         if (response.statusCode != testCase.expectedHttpStatus.value()) {
             bad(
