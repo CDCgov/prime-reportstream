@@ -454,7 +454,11 @@ abstract class SettingCommand(
      * Echo verbose information to the console respecting the --silent and --verbose flag
      */
     fun verbose(message: String) {
-        if (verbose) TermUi.echo(message)
+        try {
+            if (verbose) TermUi.echo(message)
+        } catch (e: IllegalStateException) {
+            // ignore this error that can occur if directly calling SettingsCommands (e.g. put) rather than from cmdline
+        }
     }
 
     /**

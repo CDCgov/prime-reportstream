@@ -166,13 +166,18 @@ class WatersAuthTests : CoolTest() {
 
         setup(environment)
 
-        // first, try to send a report without having assigned a public key
-        val (responseCode, _) = HttpUtilities.postReportFileFhir(environment, fakeReportFile, savedSender)
+        // first, try to send a report with a bogus token
+        val (responseCode, _) = HttpUtilities.postReportFileFhir(
+            environment,
+            fakeReportFile,
+            savedSender,
+            "a.b.c"
+        )
 
         if (responseCode == 401) {
-            good("Attempt to send token with no auth rightly failed.")
+            good("Attempt to send bogus token with no auth rightly failed.")
         } else {
-            bad("Should get a 401 response while sending report without a token. Instead got $responseCode")
+            bad("Should get a 401 response while sending report with bogus token. Instead got $responseCode")
             passed = false
         }
 

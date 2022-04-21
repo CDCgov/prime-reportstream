@@ -196,7 +196,7 @@ class HistoryApiTest : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
-                HttpStatus.OK,
+                HttpStatus.UNAUTHORIZED,
                 expectedReports = emptySet(),
             ),
         )
