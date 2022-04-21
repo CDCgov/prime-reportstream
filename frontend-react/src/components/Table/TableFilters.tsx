@@ -27,6 +27,12 @@ interface SubmissionFilterProps {
     cursorManager: CursorManager;
 }
 
+/* This helper ensures start range values are inclusive
+ * of the day set in the date picker. */
+const inclusiveDateString = (originalDate: string) => {
+    return `${originalDate} 23:59:59 GMT`;
+};
+
 /* This component contains the UI for selecting query parameters.
  * When the `Apply` button is clicked, these should be updated in
  * a context wrapping this and the SubmissionTable component. The
@@ -50,24 +56,32 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
             filterManager.updateRange({
                 type: RangeSettingsActionType.RESET,
                 payload: {
-                    start: new Date(localStartRange).toISOString(),
+                    start: new Date(
+                        inclusiveDateString(localStartRange)
+                    ).toISOString(),
                     end: new Date(localEndRange).toISOString(),
                 },
             });
             cursorManager.update({
                 type: CursorActionType.RESET,
-                payload: new Date(localStartRange).toISOString(),
+                payload: new Date(
+                    inclusiveDateString(localStartRange)
+                ).toISOString(),
             });
         } else if (localStartRange && !localEndRange) {
             filterManager.updateRange({
                 type: RangeSettingsActionType.UPDATE_START,
                 payload: {
-                    start: new Date(localStartRange).toISOString(),
+                    start: new Date(
+                        inclusiveDateString(localStartRange)
+                    ).toISOString(),
                 },
             });
             cursorManager.update({
                 type: CursorActionType.RESET,
-                payload: new Date(localStartRange).toISOString(),
+                payload: new Date(
+                    inclusiveDateString(localStartRange)
+                ).toISOString(),
             });
         } else if (!localStartRange && localEndRange) {
             filterManager.updateRange({
@@ -164,3 +178,4 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
 }
 
 export default TableFilters;
+export { inclusiveDateString };
