@@ -9,8 +9,12 @@ import {
 import { NavLink } from "react-router-dom";
 import React from "react";
 
-import { CursorManager } from "../../hooks/filters/UseCursorManager";
+import {
+    CursorActionType,
+    CursorManager,
+} from "../../hooks/filters/UseCursorManager";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
 
 export interface TableRow {
     [key: string]: any;
@@ -49,9 +53,12 @@ export interface TableProps {
 
 const Table = ({ config, filterManager, cursorManager }: TableProps) => {
     const renderArrow = () => {
-        if (filterManager && filterManager.sort.order === "ASC") {
+        if (filterManager && filterManager.sortSettings.order === "ASC") {
             return <IconArrowUpward />;
-        } else if (filterManager && filterManager.sort.order === "DESC") {
+        } else if (
+            filterManager &&
+            filterManager.sortSettings.order === "DESC"
+        ) {
             return <IconArrowDownward />;
         }
     };
@@ -65,11 +72,29 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                             <th
                                 key={colConfig.columnHeader}
                                 onClick={() => {
-                                    filterManager.sort.set(
-                                        colConfig.dataAttr,
-                                        filterManager?.sort.order
-                                    );
-                                    cursorManager?.controller.reset();
+                                    filterManager?.updateSort({
+                                        type: SortSettingsActionType.CHANGE_COL,
+                                        payload: {
+                                            column: colConfig.dataAttr,
+                                        },
+                                    });
+                                    filterManager?.updateSort({
+                                        type: SortSettingsActionType.SWAP_ORDER,
+                                    });
+                                    /* IMPORTANT:
+                                     * The conditional presented in this call is measuring
+                                     * sortSettings.order BEFORE it's swapped (which we do
+                                     * above this). This is why the logic is backwards */
+                                    cursorManager?.update({
+                                        type: CursorActionType.RESET,
+                                        payload:
+                                            filterManager?.sortSettings
+                                                .order === "ASC"
+                                                ? filterManager?.rangeSettings
+                                                      .start
+                                                : filterManager?.rangeSettings
+                                                      .end,
+                                    });
                                 }}
                             >
                                 {colConfig.columnHeader}
@@ -138,7 +163,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                     // Caps page size when filterManager exists
                     if (
                         filterManager &&
-                        rowIndex >= filterManager?.pageSize.count
+                        rowIndex >= filterManager?.pageSettings.size
                     )
                         return null;
                     return (
@@ -156,15 +181,17 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
     };
 
     /* Handles pagination button logic and display */
-    function PaginationButtons({ values, controller }: CursorManager) {
+    function PaginationButtons(cm: CursorManager) {
         return (
             <div className="float-right margin-top-5">
-                {values.hasPrev && (
+                {cm.hasPrev && (
                     <Button
                         unstyled
                         type="button"
                         className="margin-right-2"
-                        onClick={() => controller.goTo(values.currentIndex - 1)}
+                        onClick={() =>
+                            cm.update({ type: CursorActionType.PAGE_DOWN })
+                        }
                     >
                         <span>
                             <IconNavigateBefore className="text-middle" />
@@ -172,11 +199,13 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                         </span>
                     </Button>
                 )}
-                {values.hasNext && (
+                {cm.hasNext && (
                     <Button
                         unstyled
                         type="button"
-                        onClick={() => controller.goTo(values.currentIndex + 1)}
+                        onClick={() =>
+                            cm.update({ type: CursorActionType.PAGE_UP })
+                        }
                     >
                         <span>
                             Next
@@ -203,10 +232,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                     </tbody>
                 </table>
                 {cursorManager ? (
-                    <PaginationButtons
-                        values={cursorManager.values}
-                        controller={cursorManager.controller}
-                    />
+                    <PaginationButtons {...cursorManager} />
                 ) : null}
             </div>
         </div>
