@@ -121,7 +121,7 @@ export function OrgsTable() {
                             <th scope="col">Jurisdiction</th>
                             <th scope="col">State</th>
                             <th scope="col">County</th>
-                            <th scope="col"></th>
+                            <th scope="col">{" "}</th>
                         </tr>
                     </thead>
                     <tbody id="tBodyFac" className="font-mono-2xs">
