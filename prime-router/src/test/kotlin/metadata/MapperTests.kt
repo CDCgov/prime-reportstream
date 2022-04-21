@@ -41,6 +41,19 @@ class MapperTests {
         assertThat(valNames[1]).isEqualTo("test_element_2")
         assertThat(valNames[2]).isEqualTo("then_element")
         assertThat(valNames[3]).isEqualTo("else_element")
+
+        assertThat(
+            mapper.apply(
+                element,
+                args,
+                listOf(
+                    ElementAndValue(element, "OTC"),
+                    ElementAndValue(element, "OTC"),
+                    ElementAndValue(element, "AL"),
+                    ElementAndValue(element, "TN"),
+                )
+            ).value
+        ).isEqualTo("AL")
     }
 
     @Test

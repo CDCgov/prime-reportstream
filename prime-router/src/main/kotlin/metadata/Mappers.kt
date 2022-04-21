@@ -100,9 +100,17 @@ class IfThenElseMapper : Mapper {
         values: List<ElementAndValue>,
         sender: Sender?
     ): ElementResult {
-        return ElementResult(
-            null
-        )
+        val elVal1 = values.find { it.element.name == args[1] }?.value ?: ""
+        val elVal2 = values.find { it.element.name == args[2] }?.value ?: ""
+        val elVal3 = values.find { it.element.name == args[3] }?.value ?: ""
+        val elVal4 = values.find { it.element.name == args[4] }?.value ?: ""
+        return when (args[0]) {
+            "==" -> if (elVal1 == elVal2) ElementResult(elVal3) else ElementResult(elVal4)
+            // "!=" -> if(values[0].value != values[1].value) ElementResult(values[2].value) else ElementResult(values[3].value)
+            // ">=" -> if(values[0].value >= values[1].value) ElementResult(values[2].value) else ElementResult(values[3].value)
+            // "<=" -> if(values[0].value <= values[1].value) ElementResult(values[2].value) else ElementResult(values[3].value)
+            else -> ElementResult(null)
+        }
     }
 }
 
