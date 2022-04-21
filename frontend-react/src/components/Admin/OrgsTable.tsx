@@ -36,6 +36,34 @@ export function OrgsTable() {
         history.push(`/admin/orgsettings/org/${orgName}`);
     };
 
+    const saveListToCSVFile = () => {
+        // generate a lines that has "value","value","value"... each line is a
+        const csvbody = orgs
+            .filter((eachOrg) => eachOrg.filterMatch(filter))
+            .map((eachOrg) =>
+                [
+                    `"`,
+                    [
+                        eachOrg.name,
+                        eachOrg.description,
+                        eachOrg.jurisdiction,
+                        eachOrg.stateCode,
+                        eachOrg.countyName,
+                        new Date(eachOrg.meta.createdAt).toDateString(),
+                    ].join(`","`),
+                    `"`,
+                ].join("")
+            )
+            .join(`\n`); // join result of .map() lines
+        const csvheader = `Name,Description,Jurisdiction,State,County,Created\n`;
+        const filecontent = [
+            "data:text/csv;charset=utf-8,", // this makes it a csv file
+            csvheader,
+            csvbody,
+        ].join("");
+        window.open(encodeURI(filecontent), "prime-orgs.csv", "noopener");
+    };
+
     return (
         <>
             <Helmet>
@@ -84,7 +112,7 @@ export function OrgsTable() {
                             <th scope="col">Jurisdiction</th>
                             <th scope="col">State</th>
                             <th scope="col">County</th>
-                            <th scope="col"> </th>
+                            <th scope="col"></th>
                         </tr>
                     </thead>
                     <tbody id="tBodyFac" className="font-mono-2xs">
@@ -139,6 +167,20 @@ export function OrgsTable() {
                                     </td>
                                 </tr>
                             ))}
+                        <tr>
+                            <td colSpan={4}></td>
+                            <td colSpan={2} align={"right"}>
+                                <Button
+                                    key={`savelist`}
+                                    onClick={() => saveListToCSVFile()}
+                                    type="button"
+                                    size="small"
+                                    className="padding-1 usa-button--outline"
+                                >
+                                    Save List to CSV File
+                                </Button>
+                            </td>
+                        </tr>
                     </tbody>
                 </Table>
             </section>
