@@ -8,10 +8,12 @@ The testing and staging environments are automatically deployed on every merge i
 
 We automatically deploy changes through [GitHub Actions](.github/workflows/release.yml) based on changes in target branches as described in the table below. These changes can only enter these branches through successfully reviewed Pull Requests.
 
-| Changes are merged into branch | Changes get deployed into environment(s) |
-|:--|:--|
-| `master` | test and staging |
-| `production` | production |
+| Changes are merged into branch | Changes get deployed into environment(s) | Release Builds |
+|:--|:--|:--|
+| `master` | test and staging | *[pre-release](https://github.com/CDCgov/prime-reportstream/releases/tag/v-pre-release) (staging) |
+| `production` | production | [release](https://github.com/CDCgov/prime-reportstream/releases/latest) |
+
+\* ⚠️*Returns "404 not found" if no changes have been merged since the last release.*
 
 The deployment process is zero-downtime with a blue/green deployment process used [via Azure Function deployment slots](https://docs.microsoft.com/en-us/azure/azure-functions/functions-deployment-slots). The deployment process is [documented in PR #1318](https://github.com/CDCgov/prime-reportstream/issues/1318).
 
@@ -25,7 +27,7 @@ The GitHub Action deploys changes in the following directories:
 | Directory | Deployment Process |
 |:--|:--|
 | [/prime-router](/prime-router) | New version released to Azure Functions |
-| [/frontend](/frontend) | Static site served via an Azure Storage Account |
+| [/frontend-react](/frontend-react) | Static site served via an Azure Storage Account |
 | [/operations](/operations) | Not deployed. (Coming soon in, see #578) |
 
 ## What is our deployment process for production?

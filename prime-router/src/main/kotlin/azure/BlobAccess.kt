@@ -145,7 +145,7 @@ class BlobAccess(
          * Upload a raw [blobBytes] as [blobName]
          * @return the url for the uploaded blob
          */
-        private fun uploadBlob(
+        internal fun uploadBlob(
             blobName: String,
             bytes: ByteArray,
             blobContainerName: String = defaultBlobContainerName,
