@@ -1,0 +1,15 @@
+openapi: "3.0.3"
+info:
+  title: ReportStream Email Sender API
+  description: "This is a stub to be completed when this API is reviewed",
+  version: "0.1"
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+paths:
+  /api/email-registered:
+    post:
+      description:
+      security:
+        - OktaAuth: [ ANONYMOUS ]
