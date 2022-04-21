@@ -11,7 +11,7 @@ export interface MetaData {
  */
 export default abstract class OrgSettingsBaseResource extends AuthResource {
     name: string = "";
-    readonly meta: MetaData | undefined;
+    readonly meta: MetaData = { version: 0, createdBy: "", createdAt: "" };
 
     pk() {
         return this.name;
