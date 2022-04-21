@@ -185,21 +185,21 @@ module "sftp_container" {
 
 }
 
-# module "metabase" {
-#   count = var.is_metabase_env ? 1 : 0
+module "metabase" {
+  count = var.is_metabase_env ? 1 : 0
 
-#   source                 = "../../modules/metabase"
-#   environment            = var.environment
-#   resource_group         = var.resource_group
-#   resource_prefix        = var.resource_prefix
-#   location               = var.location
-#   ai_instrumentation_key = module.application_insights.metabase_instrumentation_key
-#   ai_connection_string   = module.application_insights.metabase_connection_string
-#   use_cdc_managed_vnet   = var.use_cdc_managed_vnet
-#   service_plan_id        = module.app_service_plan.service_plan_id
+  source                 = "../../modules/metabase"
+  environment            = var.environment
+  resource_group         = var.resource_group
+  resource_prefix        = var.resource_prefix
+  location               = var.location
+  ai_instrumentation_key = module.application_insights.metabase_instrumentation_key
+  ai_connection_string   = module.application_insights.metabase_connection_string
+  use_cdc_managed_vnet   = var.use_cdc_managed_vnet
+  service_plan_id        = module.app_service_plan.service_plan_id
 
 
-# }
+}
 
 ##########
 ## 05-Monitor

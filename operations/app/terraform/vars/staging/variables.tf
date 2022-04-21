@@ -2,7 +2,7 @@
 variable "terraform_object_id" {
   type        = string
   description = "Object id of user running TF"
-  default     = "95c8618b-e33d-4c68-8c09-b5618c642f40"
+  default     = "4d81288c-27a3-4df8-b776-c9da8e688bc7"
 }
 
 variable "tf_secrets_vault" {
@@ -32,16 +32,20 @@ variable "is_metabase_env" {
   default = false
 }
 variable "https_cert_names" {
-  default = []
+  type = list(string)
+  default = [
+    "staging-prime-cdc-gov",
+    "staging-reportstream-cdc-gov"
+  ]
 }
 variable "okta_base_url" {
   default = "hhs-prime.oktapreview.com"
 }
 variable "okta_redirect_url" {
-  default = "https://prime-data-hub-rkh5012.azurefd.net/download"
+  default = "https://staging.prime.cdc.gov/download"
 }
 variable "aad_object_keyvault_admin" {
-  default = "f94409a9-12b1-4820-a1b6-e3e0a4fa282d"
+  default = "c4031f1f-229c-4a8a-b3b9-23bae9dbf197"
 } # Group or individual user id
 
 ###################
@@ -231,7 +235,7 @@ variable "terraform_caller_ip_address" {
 variable "dns_ip" {
   type        = string
   description = "IP address for function app WEBSITE_DNS_SERVER setting"
-  default     = "172.17.0.13"
+  default     = "172.17.0.135"
 }
 
 ##########
@@ -239,23 +243,23 @@ variable "dns_ip" {
 ##########
 
 variable "db_sku_name" {
-  default = "GP_Gen5_2"
+  default = "GP_Gen5_16"
 }
 variable "db_version" {
   default = "11"
 }
 variable "db_storage_mb" {
-  default = 5120
+  default = 566272
 }
 variable "db_auto_grow" {
-  default = false
+  default = true
 }
 variable "db_prevent_destroy" {
   default = false
 }
 
 variable "db_threat_detection" {
-  default = false
+  default = true
 }
 
 variable "db_replica" {
