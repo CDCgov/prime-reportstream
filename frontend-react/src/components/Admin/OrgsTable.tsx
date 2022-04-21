@@ -98,6 +98,15 @@ export function OrgsTable() {
                     >
                         Create New Organization
                     </NavLink>
+                    <Button
+                        key={`savelist`}
+                        onClick={() => saveListToCSVFile()}
+                        type="button"
+                        size="small"
+                        className="usa-button usa-button--outline usa-button--small flex-align-self-end height-5"
+                    >
+                        Save List to CSV
+                    </Button>
                 </form>
                 <Table
                     key="orgsettingstable"
@@ -167,20 +176,6 @@ export function OrgsTable() {
                                     </td>
                                 </tr>
                             ))}
-                        <tr>
-                            <td colSpan={4}></td>
-                            <td colSpan={2} align={"right"}>
-                                <Button
-                                    key={`savelist`}
-                                    onClick={() => saveListToCSVFile()}
-                                    type="button"
-                                    size="small"
-                                    className="padding-1 usa-button--outline"
-                                >
-                                    Save List to CSV
-                                </Button>
-                            </td>
-                        </tr>
                     </tbody>
                 </Table>
             </section>
