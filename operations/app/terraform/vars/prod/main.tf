@@ -3,8 +3,7 @@
 ##########
 
 module "network" {
-  source = "../../modules/network"
-
+  source          = "../../modules/network"
   environment     = var.environment
   resource_group  = var.resource_group
   resource_prefix = var.resource_prefix
