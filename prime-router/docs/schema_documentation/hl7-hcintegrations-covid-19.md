@@ -3501,7 +3501,7 @@ P|Production|HL7
 T|Training|HL7
 D|Debugging|HL7
 T|Training|HL7
-P|Production|HL7
+T|Training|HL7
 
 **Alt Value Sets**
 
@@ -3509,7 +3509,7 @@ Code | Display | System
 ---- | ------- | ------
 D|D|HL7
 T|T|HL7
-P|P|HL7
+T|P|HL7
 
 **Documentation**:
 

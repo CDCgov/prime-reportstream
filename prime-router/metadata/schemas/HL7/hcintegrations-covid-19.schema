@@ -16,5 +16,5 @@ elements:
         display: D
       - code: T
         display: T
-      - code: P
+      - code: T
         display: P
