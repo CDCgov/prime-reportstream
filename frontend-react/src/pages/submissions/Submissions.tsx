@@ -2,13 +2,13 @@ import { Suspense } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary } from "rest-hooks";
 
-import { useOrgName } from "../../utils/OrganizationUtils";
+import { useOrgName } from "../../hooks/UseOrgName";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
 
-import SubmissionTable from "./SubmissionsTable";
+import SubmissionTable from "./SubmissionTable";
 
 function Submissions() {
     const orgName: string = useOrgName();

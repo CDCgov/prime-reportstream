@@ -8,8 +8,10 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.result.Result
+import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.GAENTransportType
+import gov.cdc.prime.router.GAENUUIDFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -20,6 +22,8 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
+import org.apache.commons.codec.digest.HmacAlgorithms
+import org.apache.commons.codec.digest.HmacUtils
 import org.apache.commons.lang3.RandomStringUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
@@ -178,7 +182,12 @@ class GAENTransport : ITransport, Logging {
      * The structure is defined in
      * https://github.com/google/exposure-notifications-verification-server/blob/main/docs/api.md#apiissue
      */
-    internal class Notification(table: List<Map<String, String>>, reportId: ReportId /* = java.util.UUID */) {
+    internal class Notification(
+        table: List<Map<String, String>>,
+        reportId: ReportId, /* = java.util.UUID */
+        uuidFormat: GAENUUIDFormat?,
+        uuidIV: String?
+    ) {
         val symptomDate: String
         val testDate: String
         val testType: String = "confirmed"
@@ -194,7 +203,7 @@ class GAENTransport : ITransport, Logging {
             symptomDate = table[0][ "illness_onset_date"] ?: testDate
             phone = table[0]["patient_phone_number"] ?: ""
             padding = RandomStringUtils.randomAlphanumeric(16)
-            uuid = "$reportId"
+            uuid = formatUUID(uuidFormat, reportId, phone, testDate, uuidIV)
         }
     }
 
@@ -213,7 +222,9 @@ class GAENTransport : ITransport, Logging {
         val table = csvReader().readAllWithHeader(reportStream)
 
         // Send the notification
-        val notification = Notification(table, params.reportId)
+        val notification = Notification(
+            table, params.reportId, params.gaenTransportInfo.uuidFormat, params.gaenTransportInfo.uuidIV
+        )
         val payload = mapper.writeValueAsString(notification)
         val (_, response, result) = Fuel
             .post(params.gaenTransportInfo.apiUrl)
@@ -262,6 +273,39 @@ class GAENTransport : ITransport, Logging {
     companion object {
         const val API_KEY = "x-api-key"
         const val GAEN_TIMEOUT = 1000
+
+        /**
+         * Format the UUID of the GAEN message. The UUID is used for notification deduplication
+         *
+         * [uuidFormat] is the format to follow. If non specified, use [GAENUUIDFormat.REPORT_ID]
+         * [reportId] is how to the report stream id
+         * [phone] is the phone number sent to the GAEN server
+         * [testDate] is the test date sent to the GAEN server
+         * [uuidIV] is initialization vector for the HMAC (aka key)
+         */
+        fun formatUUID(
+            uuidFormat: GAENUUIDFormat?,
+            reportId: ReportId,
+            phone: String,
+            testDate: String,
+            uuidIV: String?
+        ): String {
+            if (uuidFormat == null || uuidIV == null) return "$reportId"
+            val hmacGenerator = HmacUtils(HmacAlgorithms.HMAC_MD5, uuidIV)
+            return when (uuidFormat) {
+                GAENUUIDFormat.PHONE_DATE -> {
+                    hmacGenerator.hmacHex("$phone$testDate")
+                }
+                GAENUUIDFormat.REPORT_ID -> {
+                    "$reportId"
+                }
+                GAENUUIDFormat.WA_NOTIFY -> {
+                    // WA Notify doesn't want the country code in the UUID calculation
+                    val phoneNumber = PhoneNumberUtil.getInstance().parse(phone, "US")
+                    hmacGenerator.hmacHex("${phoneNumber.nationalNumber}$testDate")
+                }
+            }
+        }
 
         private val mapper = ObjectMapper().registerModule(
             KotlinModule.Builder()

@@ -3,21 +3,24 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
+import java.util.UUID
 import kotlin.test.Test
 
 class SubmissionTests {
     @Test
     fun `tests consolidation of logs`() {
-        fun createLogs(logs: List<DetailActionLog>?): DetailedSubmissionHistory {
+        fun createLogs(logs: List<DetailActionLog>): DetailedSubmissionHistory {
             return DetailedSubmissionHistory(
-                1, TaskAction.receive, OffsetDateTime.now(), null,
-                null, null, null, null, logs
+                1, TaskAction.receive, OffsetDateTime.now(),
+                null, null, logs
             )
         }
 
@@ -223,5 +226,257 @@ class SubmissionTests {
                 )
             )
         ).isFalse()
+    }
+
+    @Test
+    fun `test DetailedSubmissionHistory common properties init`() {
+        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, null, emptyList()).run {
+            assertThat(actionId).isEqualTo(1)
+            assertThat(id).isNull()
+            assertThat(sender).isNull()
+            assertThat(topic).isNull()
+            assertThat(reportItemCount).isNull()
+            assertThat(externalName).isNull()
+            assertThat(destinations.size).isEqualTo(0)
+            assertThat(destinationCount).isEqualTo(0)
+        }
+
+        val inputReport = DetailReport(
+            UUID.randomUUID(), null, null, "org",
+            "client", "topic", "externalName", null, null, 5, 7
+        )
+
+        var reports = listOf(
+            inputReport,
+            DetailReport(
+                UUID.randomUUID(), "recvOrg1", "recvSvc1", null,
+                null, "topic", "otherExternalName1", null, null, 1, 1
+            ),
+            DetailReport(
+                UUID.randomUUID(), "recvOrg2", "recvSvc2", null,
+                null, "topic", "otherExternalName2", null, null, 2, null
+            ),
+            DetailReport(
+                UUID.randomUUID(), "recvOrg3", "recvSvc3", null,
+                null, "topic", "no item count dest", null, null, 0, null
+            ),
+        ).toMutableList()
+
+        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, reports, emptyList()).run {
+            assertThat(actionId).isEqualTo(1)
+            assertThat(id).isEqualTo(inputReport.reportId.toString())
+            assertThat(sender).isEqualTo(ClientSource(inputReport.sendingOrg!!, inputReport.sendingOrgClient!!).name)
+            assertThat(topic).isEqualTo(inputReport.schemaTopic)
+            assertThat(reportItemCount).isEqualTo(inputReport.itemCount)
+            assertThat(externalName).isEqualTo(inputReport.externalName)
+            assertThat(destinations.size).isEqualTo(3)
+            assertThat(destinationCount).isEqualTo(2)
+        }
+
+        val logs = listOf(
+            DetailActionLog(
+                ActionLogScope.item,
+                UUID.randomUUID(),
+                1,
+                null,
+                ActionLogLevel.error,
+                InvalidEquipmentMessage("")
+            )
+        )
+
+        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, reports, logs).run {
+            assertThat(actionId).isEqualTo(1)
+            assertThat(id).isEqualTo(null)
+            assertThat(sender).isEqualTo(ClientSource(inputReport.sendingOrg!!, inputReport.sendingOrgClient!!).name)
+            assertThat(topic).isEqualTo(inputReport.schemaTopic)
+            assertThat(reportItemCount).isEqualTo(inputReport.itemCount)
+            assertThat(externalName).isEqualTo(inputReport.externalName)
+            assertThat(destinations.size).isEqualTo(3)
+            assertThat(destinationCount).isEqualTo(2)
+        }
+
+        reports = listOf(inputReport, inputReport).toMutableList()
+
+        assertThat {
+            DetailedSubmissionHistory(
+                1,
+                TaskAction.receive,
+                OffsetDateTime.now(),
+                null,
+                reports,
+                emptyList()
+            )
+        }.isFailure()
+    }
+
+    @Test
+    fun `test DetailedSubmissionHistory overallStatus and completionAt calculations`() {
+        val testError = DetailedSubmissionHistory(
+            1, TaskAction.receive, OffsetDateTime.now(), HttpStatus.BAD_REQUEST.value(), null
+        )
+        testError.enrichWithSummary()
+        testError.run {
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.ERROR)
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
+        }
+
+        val testReceived = DetailedSubmissionHistory(
+            1, TaskAction.receive, OffsetDateTime.now(), HttpStatus.OK.value(), null
+        )
+        testReceived.enrichWithSummary()
+        testReceived.run {
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
+        }
+
+        var reports = listOf(
+            DetailReport(
+                UUID.randomUUID(), "recvOrg3", "recvSvc3", null, null,
+                "topic", "no item count dest", null, null, 0, null
+            ),
+        ).toMutableList()
+
+        val testNotDelivering = DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(), HttpStatus.OK.value(), reports
+        )
+        testNotDelivering.enrichWithSummary()
+        testNotDelivering.run {
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.NOT_DELIVERING)
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
+        }
+
+        val tomorrow = OffsetDateTime.now().plusDays(1)
+        val today = OffsetDateTime.now()
+
+        val inputReport = DetailReport(
+            UUID.randomUUID(), null, null, "org", "client",
+            "topic", "externalName", null, null, 3, null
+        )
+
+        val latestReport = DetailReport(
+            UUID.randomUUID(), "recvOrg2", "recvSvc2", null, null,
+            "topic", "otherExternalName2", null, tomorrow, 2, null
+        )
+
+        reports = listOf(
+            inputReport,
+            latestReport,
+            DetailReport(
+                UUID.randomUUID(), "recvOrg1", "recvSvc1", null, null,
+                "topic", "otherExternalName1", null, today, 1, null
+            ),
+            DetailReport(
+                UUID.randomUUID(), "recvOrg3", "recvSvc3", null, null,
+                "topic", "no item count dest", null, null, 0, null
+            ),
+        ).toMutableList()
+
+        val testWaitingToDeliver = DetailedSubmissionHistory(
+            1, TaskAction.receive, OffsetDateTime.now(),
+            HttpStatus.OK.value(), reports
+        )
+        testWaitingToDeliver.enrichWithSummary()
+        testWaitingToDeliver.run {
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.WAITING_TO_DELIVER)
+            assertThat(plannedCompletionAt).isEqualTo(tomorrow)
+            assertThat(actualCompletionAt).isNull()
+        }
+
+        val partiallyDelivered = listOf(
+            DetailReport(
+                UUID.randomUUID(), "recvOrg1", "recvSvc1", null, null,
+                "topic", "extname", null, null, 3, null
+            ),
+        ).toMutableList()
+
+        val testSent = DetailedSubmissionHistory(
+            1, TaskAction.receive, OffsetDateTime.now(),
+            HttpStatus.OK.value(), reports
+        )
+        testSent.enrichWithDescendants(
+            listOf(
+                DetailedSubmissionHistory(
+                    1, TaskAction.send, OffsetDateTime.now(),
+                    HttpStatus.OK.value(), partiallyDelivered
+                )
+            )
+        )
+        testSent.enrichWithSummary()
+
+        testSent.run {
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED)
+            assertThat(plannedCompletionAt).isEqualTo(tomorrow)
+            assertThat(actualCompletionAt).isNull()
+        }
+
+        val testDownload = DetailedSubmissionHistory(
+            1, TaskAction.receive, OffsetDateTime.now(),
+            HttpStatus.OK.value(), reports
+        )
+        testDownload.enrichWithDescendants(
+            listOf(
+                DetailedSubmissionHistory(
+                    1, TaskAction.send, OffsetDateTime.now(),
+                    HttpStatus.OK.value(), partiallyDelivered
+                )
+            )
+        )
+        testDownload.enrichWithSummary()
+        testDownload.run {
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED)
+            assertThat(plannedCompletionAt).isEqualTo(tomorrow)
+            assertThat(actualCompletionAt).isNull()
+        }
+
+        val deliveredReports = listOf(
+            DetailReport(
+                UUID.randomUUID(), "recvOrg1", "recvSvc1", null, null,
+                "topic", "otherExternalName1", null, null, 1, null
+            ),
+            DetailReport(
+                UUID.randomUUID(), "recvOrg2", "recvSvc2", null, null,
+                "topic", "otherExternalName2", null, null, 2, null
+            ),
+        ).toMutableList()
+
+        testSent.enrichWithDescendants(
+            listOf(
+                DetailedSubmissionHistory(
+                    1, TaskAction.send, OffsetDateTime.now(),
+                    HttpStatus.OK.value(), deliveredReports
+                )
+            )
+        )
+        testSent.enrichWithSummary()
+        testSent.run {
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.DELIVERED)
+            assertThat(plannedCompletionAt).isEqualTo(tomorrow)
+            assertThat(actualCompletionAt).isEqualTo(latestReport.createdAt)
+        }
+
+        testDownload.enrichWithDescendants(
+            listOf(
+                DetailedSubmissionHistory(
+                    1, TaskAction.send, OffsetDateTime.now(),
+                    HttpStatus.OK.value(), deliveredReports
+                )
+            )
+        )
+        testDownload.enrichWithSummary()
+        testDownload.run {
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.DELIVERED)
+            assertThat(plannedCompletionAt).isEqualTo(tomorrow)
+            assertThat(actualCompletionAt).isEqualTo(latestReport.createdAt)
+        }
+    }
+
+    @Test
+    fun `test Status enum toString`() {
+        assertThat(DetailedSubmissionHistory.Status.RECEIVED.toString()).isEqualTo("Received")
     }
 }

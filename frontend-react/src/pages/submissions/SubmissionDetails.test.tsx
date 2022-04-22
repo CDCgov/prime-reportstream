@@ -38,6 +38,12 @@ describe("SubmissionDetails", () => {
         renderWithRouter(<SubmissionDetails />);
     });
 
+    test("renders crumb nav to Submissions list", () => {
+        const submissionCrumb = screen.getByRole("link");
+        expect(submissionCrumb).toBeInTheDocument();
+        expect(submissionCrumb).toHaveTextContent("Submissions");
+    });
+
     test("renders without error", async () => {
         const container = await screen.findByTestId("container");
         expect(container).toBeInTheDocument();
@@ -45,13 +51,8 @@ describe("SubmissionDetails", () => {
 
     test("renders data to sub-components", async () => {
         /* Custom matcher for transitionTime */
-        const findTimeWithoutDate: MatcherFunction = (
-            content,
-            element
-        ): boolean => {
-            if (!content.includes("7 Apr 1970") && timeRegex.test(content))
-                return true;
-            return false;
+        const findTimeWithoutDate: MatcherFunction = (content): boolean => {
+            return !content.includes("7 Apr 1970") && timeRegex.test(content);
         };
 
         /* Report ID DetailItem */
@@ -59,7 +60,10 @@ describe("SubmissionDetails", () => {
 
         /* DestinationItem contents*/
         const receiverOrgNameAndService = await screen.findByText(
-            `${mockData.destinations[0].organization} (${mockData.destinations[0].service})`
+            `${mockData.destinations[0].organization}`
+        );
+        const dataStream = await screen.findByText(
+            mockData.destinations[0].service.toUpperCase()
         );
         const transmissionDate = await screen.findByText("7 Apr 1970");
         const transmissionTime = screen.getByText(findTimeWithoutDate);
@@ -74,6 +78,7 @@ describe("SubmissionDetails", () => {
         const testElements = [
             idElement,
             receiverOrgNameAndService,
+            dataStream,
             transmissionDate,
             transmissionTime,
             recordsTransmitted,

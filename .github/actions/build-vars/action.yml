@@ -4,26 +4,27 @@ description: 'Variables shared by build workflows'
 outputs:
   env_name:
     value: ${{ steps.build_result.outputs.env_name }}
+    description: 'Test, staging, or prod'
   version:
     value: ${{ steps.version_result.outputs.version }}
+    description: 'Tag name'
   has_router_change:
     value: ${{ steps.backend_change_result.outputs.has_router_change }}
+    description: 'For non-prod, do not build if no changes'
   has_react_change:
     value: ${{ steps.frontend_change_result.outputs.has_react_change }}
+    description: 'For non-prod, do not build if no changes'
+  prerelease:
+    value: ${{ steps.prerelease_result.outputs.prerelease }}
+    description: 'GitHub release or pre-release'
 
 runs:
   using: "composite"
   steps:
 
-    - name: Set Build Environment - DEV
-      id: build_dev
-      if: github.ref == 'refs/heads/dev-rheft'
-      shell: bash
-      run: echo "::set-output name=env_name::dev"
-
     - name: Set Build Environment - TEST
       id: build_test
-      if: github.ref == 'refs/heads/acoushawk/terraform-revamp'
+      if: github.ref == 'refs/heads/test'
       shell: bash
       run: echo "::set-output name=env_name::test"
 
@@ -31,28 +32,44 @@ runs:
       id: build_staging
       if: github.ref == 'refs/heads/master'
       shell: bash
-      run: echo "::set-output name=env_name::staging"
+      run: |
+        echo "::set-output name=env_name::staging"
+        echo "::set-output name=prerelease::true"
+        echo "::set-output name=version::v-pre-release"
 
     - name: Set Build Environment - PROD
       id: build_prod
       if: github.ref == 'refs/heads/production'
       shell: bash
-      run: echo "::set-output name=env_name::prod"
+      run: |
+        echo "::set-output name=env_name::prod"
+        echo "::set-output name=prerelease::false"
+        echo "::set-output name=version::v-$(date +%Y.%m.%d-%H%M%S)"
 
     - name: Set Build Environment - RESULT
       id: build_result
       shell: bash
       run: |
         echo "::set-output name=env_name::\
-        ${{ steps.build_dev.outputs.env_name }}\
         ${{ steps.build_test.outputs.env_name }}\
         ${{ steps.build_staging.outputs.env_name }}\
         ${{ steps.build_prod.outputs.env_name }}"
 
-    - name: Set tag automatically
+    - name: Set if prerelease - RESULT
+      id: prerelease_result
+      shell: bash
+      run: |
+        echo "::set-output name=prerelease::\
+        ${{ steps.build_staging.outputs.prerelease }}\
+        ${{ steps.build_prod.outputs.prerelease }}"
+
+    - name: Set tag version - RESULT
       id: version_result
       shell: bash
-      run: echo "::set-output name=version::v-$(date +%Y.%m.%d-%H%M%S)"
+      run: |
+        echo "::set-output name=version::\
+        ${{ steps.build_staging.outputs.version }}\
+        ${{ steps.build_prod.outputs.version }}"
 
     - uses: dorny/paths-filter@v2
       id: backend_check

@@ -3,6 +3,10 @@ package gov.cdc.prime.router
 import org.apache.logging.log4j.kotlin.Logging
 import tech.tablesaw.api.Table
 import tech.tablesaw.selection.Selection
+import java.time.DateTimeException
+import java.time.OffsetDateTime
+import java.time.Period
+import java.time.format.DateTimeParseException
 
 /**
  * This is a library or toolkit of useful filter definitions.  Filters remove "rows" of data.
@@ -340,6 +344,111 @@ class HasAtLeastOneOf : ReportStreamFilterDefinition {
         args.forEach { colName ->
             if (columnNames.contains(colName)) {
                 selection = selection.or(table.stringColumn(colName).isNotMissing)
+            }
+        }
+        return selection
+    }
+}
+
+/**
+ * AtLeastOneHasValue(columnName1, columnName2, columnName3, ...)
+ * Implements a quality check match.  If a row has true value for any of the columns, the row is selected.
+ */
+class AtLeastOneHasValue : ReportStreamFilterDefinition {
+    override val name = "atLeastOneHasValue"
+
+    override fun getSelection(
+        args: List<String>,
+        table: Table,
+        receiver: Receiver,
+        doAuditing: Boolean
+    ): Selection {
+        if (args.isEmpty()) error("Expecting at least one arg for filter $name.  Got none.")
+        val searchValue = args[0]
+        var selection = Selection.withRange(0, 0)
+        val columnNames = table.columnNames()
+        args.drop(1).forEach { colName ->
+            if (columnNames.contains(colName)) {
+                selection = selection.or(table.stringColumn(colName).equalsIgnoreCase(searchValue))
+            }
+        }
+        return selection
+    }
+}
+
+/**
+ * InDateInterval(elementName, date, period)
+ *
+ * Implements a test that the specified element (e.g. table column) has a date value between or equal to the
+ * `date` and less than the `date + period`. In other words,
+ * ```
+ * // if period has a positive value
+ * date <= value < date + period
+ * // or if period has a negative value
+ * date + period <= value < date
+ * ```
+ *
+ * ## Examples
+ * ```
+ *   // Specimens collected in 2020
+ *   inDateInterval(specimen_collection_date_time, 202001010000-0000, P1Y)
+ *
+ *   // Specimens collected after 2022-01-01
+ *   inDateInterval(specimen_collection_date_time, 202001010000-0000, P1000Y)
+ *
+ *   // Specimens collected in the past 19 days
+ *   inDateInterval(specimen_collection_date_time, now, -P19D)
+ * ```
+ *
+ * ## Notes
+ *
+ * * There always must be 3 arguments.
+ *
+ * * Empty values in the table never match the interval
+ *
+ * * A `date` argument can be `now` to indicate the current time. Otherwise, it must follow
+ * one of the formats that ReportStream understands. The HL7 date-time format is recommended.
+ *
+ * * A `duration` argument must follow the ISO 8061 standard format as implemented by Java.
+ * This format is `[-]P[n]Y[n]M[n]D` or `P[n]W`.
+ * The period can be negative to indicate an interval that starts before the `date` argument.
+ * The period can be zero but that will never match any value.
+ */
+class InDateInterval : ReportStreamFilterDefinition {
+    override val name = "inDateInterval"
+
+    override fun getSelection(
+        args: List<String>,
+        table: Table,
+        receiver: Receiver,
+        doAuditing: Boolean
+    ): Selection {
+        // Check args
+        if (args.size != 3) error("Expecting 3 arguments: Got ${args.size}")
+        if (args[0].isBlank()) error("Expecting first argument is not blank")
+        val intervalDate = if (args[1].contentEquals("now", ignoreCase = true)) {
+            OffsetDateTime.now()!!
+        } else {
+            try {
+                Element.getDateTime(args[1], format = null)
+            } catch (ex: DateTimeParseException) {
+                error("Invalid date value in date arg: ${ex.message}")
+            }
+        }
+        val intervalPeriod = Period.parse(args[2])
+        val intervalStart = if (intervalPeriod.isNegative) intervalDate.plus(intervalPeriod) else intervalDate
+        val intervalEnd = if (intervalPeriod.isNegative) intervalDate else intervalDate.plus(intervalPeriod)
+
+        // Add indexes to form a selection
+        val selection = Selection.withRange(0, 0)
+        val column = table.stringColumn(args[0])
+        column.forEachIndexed { index, value ->
+            try {
+                val dateTime = Element.getDateTime(value, format = null)
+                if (!dateTime.isBefore(intervalStart) && dateTime.isBefore(intervalEnd)) {
+                    selection.add(index)
+                }
+            } catch (_: DateTimeException) {
             }
         }
         return selection

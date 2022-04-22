@@ -84,9 +84,11 @@ class Metadata : Logging {
         OrEquals(),
         HasValidDataFor(),
         HasAtLeastOneOf(),
+        AtLeastOneHasValue(),
         AllowAll(),
         AllowNone(),
         IsValidCLIA(),
+        InDateInterval(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(

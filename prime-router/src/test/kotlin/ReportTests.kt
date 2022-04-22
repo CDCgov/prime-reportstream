@@ -286,6 +286,49 @@ class ReportTests {
         assertThat(covidResultMetadata2.get(2).patientAge).isEqualTo("2")
     }
 
+    @Test
+    fun `test covid metadata output`() {
+
+        /**
+         * Create table's header
+         */
+        val oneWithAge = Schema(
+            name = "one", topic = "test",
+            elements = listOf(
+                Element("message_id"), Element("patient_age"),
+                Element("specimen_collection_date_time"), Element("patient_dob")
+            )
+        )
+
+        /**
+         * Add Rows values to the table
+         */
+        val oneReport = Report(
+            schema = oneWithAge,
+            values = listOf(
+                listOf("0", "100", "202110300809", "30300102"),
+                listOf("1", ")@*", "202110300809-0501", "30300101"),
+                listOf("2", "_", "202110300809", "20190101"),
+                listOf("3", "20", "adfadf", "!@!*@(7"),
+                listOf("4", "0", "202110300809-0500", "20190101"),
+                listOf("5", "-5", "202110300809-0502", "20111029"),
+                listOf("6", "40", "asajh", "20190101"),
+                listOf("7", "", "asajh", "20190101"),
+            ),
+            TestSource,
+            metadata = metadata
+        )
+
+        val covidResultMetadata = oneReport.getDeidentifiedResultMetaData()
+        assertThat(covidResultMetadata).isNotNull()
+        // there should never be a report index of 0 in covid result metadata, row indexing should start at 1
+        assertThat(covidResultMetadata.filter { it.reportIndex == 0 }.size).isEqualTo(0)
+        assertThat(covidResultMetadata.get(0).reportIndex).isEqualTo(1)
+        assertThat(covidResultMetadata.get(1).reportIndex).isEqualTo(2)
+        assertThat(covidResultMetadata.get(7).reportIndex).isEqualTo(8)
+        assertThat(covidResultMetadata.filter { it.reportIndex == 9 }.size).isEqualTo(0)
+    }
+
     // Tests for Item lineage
     @Test
     fun `test merge item lineage`() {
@@ -592,5 +635,47 @@ class ReportTests {
         assertThat(synthesizedReport.getString(0, "first_name")).isNotEqualTo("sarah")
         assertThat(synthesizedReport.getString(1, "first_name")).isNotEqualTo("mary")
         assertThat(synthesizedReport.getString(2, "first_name")).isNotEqualTo("roberta")
+    }
+
+    @Test
+    fun `test setString`() {
+        // arrange
+        val schema = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element("first_name"), // pii =  true
+                Element("test_time"), // type = DATETIME
+                Element("specimen_id"), // type = ID
+                Element("observation") // type = TEXT
+            )
+        )
+        val report = Report(
+            schema = schema,
+            values = listOf(
+                listOf("blue", "202110300809-0501", "2039784", "observationvalue"),
+                listOf("", "", "", ""),
+                listOf("green", "202110300809-0501", "123Fake", "words123"),
+                listOf("red", "null", "null", "null"),
+                listOf("black", "202110300809-0501", "!@#Fake", "asdlkj123!@#")
+            ),
+            source = TestSource,
+            metadata = metadata
+        )
+
+        report.setString(1, "first_name", "square")
+        report.setString(2, "test_time", "20220101")
+        report.setString(3, "specimen_id", "")
+        report.setString(4, "observation", "null")
+
+        val firstName = report.getString(1, "first_name")
+        val testTime = report.getString(2, "test_time")
+        val specimenId = report.getString(3, "specimen_id")
+        val observation = report.getString(4, "observation")
+
+        assertThat(firstName).isEqualTo("square")
+        assertThat(testTime).isEqualTo("20220101")
+        assertThat(specimenId).isEqualTo("")
+        assertThat(observation).isEqualTo("null")
     }
 }

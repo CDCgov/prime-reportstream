@@ -1,8 +1,13 @@
 # PRIME ReportStream Operations
 
-PRIME ReportStream uses Terraform to manage our Azure development environment. All Azure configuration should be done through Terraform to ensure consistency between environments.
+PRIME ReportStream uses Terraform to manage our Azure development environment.
+All Azure configuration should be done through Terraform to ensure consistency
+between environments.
 
-To ensure our Terraform state is managed with consistent Terraform versions, we are running Terraform through a Docker image. Terraform should not be used outside of this Docker image to ensure the Terraform core, plugins, and other versions all remain identical.
+To ensure our Terraform state is managed with consistent Terraform versions, we
+are running Terraform through a Docker image. Terraform should not be used
+outside of this Docker image to ensure the Terraform core, plugins, and other
+versions all remain identical.
 
 ---
 ## Prerequisites
@@ -11,8 +16,8 @@ To ensure our Terraform state is managed with consistent Terraform versions, we 
 
 > [Azure cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 
-**Note**
-All CDC Azure infrastructure operations must be done behind the environment-specific VPN. You can find [directions for configuring your VPN client in prime-router/docs/VPN.md](https://github.com/CDCgov/prime-data-hub/blob/master/prime-router/docs/vpn.md).
+All infrastructure operations must be done behind the environment-specific VPN.
+You can find [directions for configuring your VPN client in prime-router/docs/VPN.md](https://github.com/CDCgov/prime-data-hub/blob/master/prime-router/docs/vpn.md).
 
 ### Resource Group and KeyVault
 In order to deploy, we will need to define our resource group and keyvault. There are some specific keys we need to be pre-populated before we run our terraform as well. 

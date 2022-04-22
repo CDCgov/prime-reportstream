@@ -2,7 +2,7 @@ import React, { Suspense, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { RouteComponentProps } from "react-router-dom";
-import { GridContainer, Grid, Button, ModalRef } from "@trussworks/react-uswds";
+import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
@@ -11,8 +11,8 @@ import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
 import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
 import {
-    TextInputComponent,
     TextAreaComponent,
+    TextInputComponent,
 } from "../../components/Admin/AdminFormEdit";
 import {
     showAlertNotification,
@@ -21,10 +21,18 @@ import {
 import {
     getStoredOktaToken,
     getStoredOrg,
-} from "../../components/GlobalContextProvider";
+} from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
-import { ConfirmSaveSettingModal } from "../../components/Admin/CompareJsonModal";
-import { CheckFeatureFlag } from "../misc/FeatureFlags";
+import {
+    ConfirmSaveSettingModal,
+    ConfirmSaveSettingModalRef,
+} from "../../components/Admin/CompareJsonModal";
+import { DisplayMeta } from "../../components/Admin/DisplayMeta";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    VersionWarningType,
+} from "../../utils/misc";
 
 type AdminOrgEditProps = {
     orgname: string;
@@ -38,54 +46,79 @@ export function AdminOrgEdit({
         OrgSettingsResource.detail(),
         { orgname: orgname }
     );
-    const modalRef = useRef<ModalRef>(null);
-    const diffEditorRef = useRef(null);
+    const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
     const [orgSettingsOldJson, setOrgSettingsOldJson] = useState("");
     const [orgSettingsNewJson, setOrgSettingsNewJson] = useState("");
     const { fetch: fetchController } = useController();
+    const [loading, setLoading] = useState(false);
 
-    function handleEditorDidMount(editor: null) {
-        diffEditorRef.current = editor;
+    async function getLatestOrgResponse() {
+        const accessToken = getStoredOktaToken();
+        const organization = getStoredOrg();
+
+        const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    Organization: organization!,
+                },
+            }
+        );
+
+        return await response.json();
     }
 
     const ShowCompareConfirm = async () => {
         try {
             // fetch original version
-            const accessToken = getStoredOktaToken();
-            const organization = getStoredOrg();
-
-            const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        Organization: organization!,
-                    },
-                }
-            );
-
-            const responseBody = await response.json();
+            setLoading(true);
+            const latestResponse = await getLatestOrgResponse();
             setOrgSettingsOldJson(
-                JSON.stringify(responseBody, jsonSortReplacer, 2)
+                JSON.stringify(latestResponse, jsonSortReplacer, 2)
             );
             setOrgSettingsNewJson(
                 JSON.stringify(orgSettings, jsonSortReplacer, 2)
             );
 
-            modalRef?.current?.toggleModal(undefined, true);
-        } catch (e) {
-            console.error(e);
+            if (latestResponse?.meta?.version !== orgSettings?.meta?.version) {
+                showError(getVersionWarning(VersionWarningType.POPUP));
+                confirmModalRef?.current?.setWarning(
+                    getVersionWarning(VersionWarningType.FULL, latestResponse)
+                );
+                confirmModalRef?.current?.disableSave();
+            }
+
+            confirmModalRef?.current?.showModal();
+            setLoading(false);
+        } catch (e: any) {
+            setLoading(false);
+            let errorDetail = await getErrorDetailFromResponse(e);
+            console.trace(e, errorDetail);
+            showError(`Reloading org '${orgname}' failed with: ${errorDetail}`);
+            return false;
         }
     };
 
     const saveOrgData = async () => {
         try {
-            const data = CheckFeatureFlag("showDiffEditor")
-                ? // @ts-ignore
-                  diffEditorRef.current.getModifiedEditor().getValue()
-                : orgSettingsNewJson;
+            const latestResponse = await getLatestOrgResponse();
+            if (latestResponse.meta?.version !== orgSettings?.meta?.version) {
+                // refresh left-side panel in compare modal to make it obvious what has changed
+                setOrgSettingsOldJson(
+                    JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                );
+                showError(getVersionWarning(VersionWarningType.POPUP));
+                confirmModalRef?.current?.setWarning(
+                    getVersionWarning(VersionWarningType.FULL, latestResponse)
+                );
+                confirmModalRef?.current?.disableSave();
+                return false;
+            }
 
+            const data = confirmModalRef?.current?.getEditedText();
+            showAlertNotification("success", `Saving...`);
             await fetchController(
                 OrgSettingsResource.update(),
                 { orgname },
@@ -95,9 +128,13 @@ export function AdminOrgEdit({
                 "success",
                 `Item '${orgname}' has been updated`
             );
+            confirmModalRef?.current?.hideModal();
+            showAlertNotification("success", `Saved '${orgname}' setting.`);
         } catch (e: any) {
-            console.trace(e);
-            showError(`Updating item '${orgname}' failed. ${e.toString()}`);
+            setLoading(false);
+            let errorDetail = await getErrorDetailFromResponse(e);
+            console.trace(e, errorDetail);
+            showError(`Updating org '${orgname}' failed with: ${errorDetail}`);
             return false;
         }
 
@@ -113,13 +150,7 @@ export function AdminOrgEdit({
             </Helmet>
             <section className="grid-container margin-bottom-5">
                 <h2 className="margin-bottom-0">
-                    <Suspense
-                        fallback={
-                            <span className="text-normal text-base">
-                                Loading Info...
-                            </span>
-                        }
-                    >
+                    <Suspense fallback={<Spinner />}>
                         Org name:{" "}
                         {match?.params?.orgname || "missing param 'orgname'"}
                     </Suspense>
@@ -134,7 +165,7 @@ export function AdminOrgEdit({
                             <Grid row>
                                 <Grid col={3}>Meta:</Grid>
                                 <Grid col={9}>
-                                    {JSON.stringify(orgSettings?.meta) || {}}{" "}
+                                    <DisplayMeta metaObj={orgSettings.meta} />
                                     <br />
                                 </Grid>
                             </Grid>
@@ -180,18 +211,18 @@ export function AdminOrgEdit({
                                     form="edit-setting"
                                     type="submit"
                                     data-testid="submit"
+                                    disabled={loading}
                                     onClick={() => ShowCompareConfirm()}
                                 >
-                                    Save...
+                                    Preview save...
                                 </Button>
                             </Grid>
                             <ConfirmSaveSettingModal
                                 uniquid={orgname}
                                 onConfirm={saveOrgData}
-                                modalRef={modalRef}
+                                ref={confirmModalRef}
                                 oldjson={orgSettingsOldJson}
                                 newjson={orgSettingsNewJson}
-                                handleEditorDidMount={handleEditorDidMount}
                             />
                         </GridContainer>
 

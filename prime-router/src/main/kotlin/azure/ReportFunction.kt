@@ -15,6 +15,8 @@ import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
+import gov.cdc.prime.router.DuplicateItemMessage
+import gov.cdc.prime.router.DuplicateSubmissionMessage
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Options
@@ -24,9 +26,11 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.PrincipalLevel
 import gov.cdc.prime.router.tokens.TokenAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -35,9 +39,7 @@ private const val PAYLOAD_NAME_PARAMETER = "payloadname"
 private const val OPTION_PARAMETER = "option"
 private const val DEFAULT_PARAMETER = "default"
 private const val ROUTE_TO_PARAMETER = "routeTo"
-private const val VERBOSE_PARAMETER = "verbose"
 private const val ALLOW_DUPLICATES_PARAMETER = "allowDuplicate"
-private const val VERBOSE_TRUE = "true"
 private const val PROCESSING_TYPE_PARAMETER = "processing"
 
 /**
@@ -59,7 +61,7 @@ class ReportFunction(
     /**
      * POST a report to the router
      *
-     * @see ../../../docs/openapi.yml
+     * @see ../../../docs/api/reports.yml
      */
     @FunctionName("reports")
     @StorageAccount("AzureWebJobsStorage")
@@ -115,7 +117,7 @@ class ReportFunction(
         val authenticationStrategy = AuthenticationStrategy.authStrategy(
             request.headers["authentication-type"],
             PrincipalLevel.USER,
-            workflowEngine
+            workflowEngine.db
         )
 
         try {
@@ -123,7 +125,7 @@ class ReportFunction(
 
             if (authenticationStrategy is OktaAuthentication) {
                 // The report is coming from a sender that is using Okta, so set "oktaSender" to true
-                return authenticationStrategy.checkAccess(request, senderName, true, actionHistory) {
+                return authenticationStrategy.checkAccess(request, sender.organizationName, true, actionHistory) {
                     return@checkAccess processRequest(request, sender)
                 }
             }
@@ -150,7 +152,6 @@ class ReportFunction(
      * of the incoming PROCESSING_TYPE_PARAMETER query string value
      * @param request The incoming request
      * @param sender The sender record, pulled from the database based on sender name on the request
-     * @param context Execution context
      * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
      */
     internal fun processRequest(
@@ -159,64 +160,52 @@ class ReportFunction(
     ): HttpResponseMessage {
         // determine if we should be following the sync or async workflow
         val isAsync = processingType(request, sender) == ProcessingType.async
-        val responseBuilder = request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .header(HttpHeaders.CONTENT_TYPE, "application/json")
-        // extract the verbose param and default to empty if not present
-        val verboseParam = request.queryParameters.getOrDefault(VERBOSE_PARAMETER, "")
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
-        val verbose = verboseParam.equals(VERBOSE_TRUE, true)
-        val report = try {
-            val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
-            val options = Options.valueOf(optionsText)
+        val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
+        val httpStatus: HttpStatus =
+            try {
+                val options = Options.valueOfOrNone(optionsText)
+                val payloadName = extractPayloadName(request)
+                // track the sending organization and client based on the header
+                actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
+                val validatedRequest = validateRequest(request)
+                val rawBody = validatedRequest.content.toByteArray()
 
-            // track the sending organization and client based on the header
-            val validatedRequest = validateRequest(request)
-            val rawBody = validatedRequest.content.toByteArray()
-            val payloadName = extractPayloadName(request)
+                // if the override parameter is populated, use that, otherwise use the sender value
+                val allowDuplicates = if
+                (!allowDuplicatesParam.isNullOrEmpty()) allowDuplicatesParam == "true"
+                else
+                    sender.allowDuplicates
 
-            // if the override parameter is populated, use that, otherwise use the sender value
-            val allowDuplicates = if
-            (!allowDuplicatesParam.isNullOrEmpty()) allowDuplicatesParam == "true"
-            else
-                sender.allowDuplicates
-
-            // check if we are preventing duplicate files from the sender
-            if (!allowDuplicates) {
-                // TODO this should be only calculated once and passed, but the underlying functions are called by
-                //  receive (this), process, batch, send and those do *not* need to calculate it outside of the function
-                //  so leaving it 2x calculating on receive for the time being.
-                val digest = BlobAccess.sha256Digest(rawBody)
-
-                // throws ActionError if there is a duplicate detected
-                workflowEngine.verifyNoDuplicateFile(sender, digest, payloadName)
-            }
-
-            actionHistory.trackActionSenderInfo(validatedRequest.sender.fullName, payloadName)
-            when (options) {
-                Options.CheckConnections, Options.ValidatePayload -> {
-                    responseBuilder.status(HttpStatus.OK)
-                    null
-                }
-                else -> {
+                // Only process the report if we are not checking for connection or validation.
+                if (options != Options.CheckConnections && options != Options.ValidatePayload) {
                     val (report, actionLogs) = workflowEngine.parseReport(
                         sender,
                         validatedRequest.content,
                         validatedRequest.defaults,
                     )
 
+                    // prevent duplicates if configured to not allow them
+                    if (!allowDuplicates) {
+                        doDuplicateDetection(
+                            report,
+                            actionLogs
+                        )
+                    }
+
                     val receivedBlobInfo = workflowEngine.recordReceivedReport(
                         report, rawBody, sender, actionHistory, payloadName
                     )
 
+                    // if there are any errors, kick this out.
+                    if (actionLogs.hasErrors()) {
+                        throw actionLogs.exception
+                    }
+
                     // Places a message on a queue for async testing of the fhir engine
                     // Only triggers if a feature flag is enabled
                     routeToFHIREngine(receivedBlobInfo, sender, workflowEngine.queue)
-
-                    // checks for errors from parseReport
-                    if (options != Options.SkipInvalidItems && actionLogs.hasErrors()) {
-                        throw actionLogs.exception
-                    }
 
                     actionHistory.trackLogs(actionLogs.logs)
 
@@ -236,51 +225,108 @@ class ReportFunction(
                             validatedRequest.routeTo,
                             actionHistory
                         )
+
                         actionHistory.trackLogs(routingWarnings)
                     }
 
-                    responseBuilder.status(HttpStatus.CREATED)
-                    report
-                }
+                    HttpStatus.CREATED
+                } else HttpStatus.OK
+            } catch (e: ActionError) {
+                actionHistory.trackLogs(e.details)
+                HttpStatus.BAD_REQUEST
+            } catch (e: IllegalArgumentException) {
+                actionHistory.trackLogs(
+                    ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
+                )
+                HttpStatus.BAD_REQUEST
+            } catch (e: IllegalStateException) {
+                actionHistory.trackLogs(
+                    ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
+                )
+                HttpStatus.BAD_REQUEST
             }
-        } catch (e: ActionError) {
-            actionHistory.trackLogs(e.details)
-            null
-        } catch (e: IllegalArgumentException) {
-            actionHistory.trackLogs(
-                ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
-            )
-            null
-        } catch (e: IllegalStateException) {
-            actionHistory.trackLogs(
-                ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
-            )
-            null
-        }
 
-        responseBuilder.body(
-            actionHistory.createResponseBody(
-                verbose,
-                report,
-                workflowEngine.settings
-            )
-        )
-        val response = responseBuilder.build()
-        actionHistory.trackActionResult(response)
-        actionHistory.trackActionResponse(response, report, workflowEngine.settings)
+        actionHistory.trackActionResult(httpStatus)
         workflowEngine.recordAction(actionHistory)
+
+        check(actionHistory.action.actionId > 0)
+        val submission = SubmissionsFacade.instance.findDetailedSubmissionHistory(
+            actionHistory.action.sendingOrg,
+            actionHistory.action.actionId
+        )
+        val response = request.createResponseBuilder(httpStatus)
+            .header(HttpHeaders.CONTENT_TYPE, "application/json")
+            .body(
+                JacksonMapperUtilities.allowUnknownsMapper
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(submission)
+            )
+            .header(
+                HttpHeaders.LOCATION,
+                request.uri.resolve(
+                    "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
+                ).toString()
+            )
+            .build()
 
         // queue messages here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)
-        val uri = request.getUri()
-        responseBuilder.header(
-            HttpHeaders.LOCATION,
-            uri.resolve(
-                "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
-            ).toString()
-        )
-        // TODO: having to build response twice in order to save it and then include a response with the resulting actionID
-        return responseBuilder.build()
+
+        return response
+    }
+
+    /**
+     * Checks the [report] rows looking for duplicates, and adds errors as needed
+     */
+    internal fun doDuplicateDetection(
+        report: Report,
+        actionLogs: ActionLogger
+    ) {
+        // keep list of hashes generated by this ingest to do same-file comparison
+        val generatedHashes = mutableListOf<String>()
+        val duplicateIndexes = mutableListOf<Int>()
+        for (rowNum in 0 until report.itemCount) {
+            var itemHash = report.getItemHashForRow(rowNum)
+            // check for duplicate item
+            val isDuplicate = generatedHashes.contains(itemHash) ||
+                workflowEngine.isDuplicateItem(itemHash)
+            if (isDuplicate) {
+                duplicateIndexes.add(rowNum + 1)
+            } else {
+                generatedHashes.add(itemHash)
+            }
+        }
+        // TODO Tech Debt: We need a more consistent way to handle 'trackingId'. Once we have one, we can
+        //  pass it in here to ensure a trackingId is returned in the response message
+        // sanity check - if all items are duplicate
+        if (duplicateIndexes.size == report.itemCount) {
+            addDuplicateLogs(actionLogs, null, null, null)
+        }
+        // add logs as needed
+        else {
+            duplicateIndexes.forEach {
+                addDuplicateLogs(actionLogs, null, it, null)
+            }
+        }
+    }
+
+    /**
+     * If a [rowNum] is passed, a DuplicateItemMessage with [message] is added to [actionLogs] as an error.
+     * If no [rowNum] is passed, a DuplicateFileMessage with [message] is added to [actionLogs] as an error.
+     * If a [trackingId] is passed, it will be used in the response message
+     */
+    internal fun addDuplicateLogs(
+        actionLogs: ActionLogger,
+        payloadName: String?,
+        rowNum: Int?,
+        trackingId: String?
+    ) {
+        if (rowNum != null) {
+            actionLogs.getItemLogger(rowNum, trackingId).error(DuplicateItemMessage())
+        } else {
+            // duplicate files are always an error, never a warning
+            actionLogs.error(DuplicateSubmissionMessage(payloadName))
+        }
     }
 
     /**
@@ -303,7 +349,7 @@ class ReportFunction(
                     else -> {}
                 }
         } catch (t: Throwable) {
-            logger.error("Failed to queue message for FHIR Engine: No action required durring testing phase\n$t")
+            logger.error("Failed to queue message for FHIR Engine: No action required during testing phase\n$t")
         }
     }
 
@@ -328,7 +374,7 @@ class ReportFunction(
     }
 
     private fun processingType(request: HttpRequestMessage<String?>, sender: Sender): ProcessingType {
-        val processingTypeString = request.queryParameters.get(PROCESSING_TYPE_PARAMETER)
+        val processingTypeString = request.queryParameters[PROCESSING_TYPE_PARAMETER]
         return if (processingTypeString == null) {
             sender.processingType
         } else {

@@ -82,7 +82,21 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         val condition = createWhereCondition(sendingOrg, cursor, toEnd, showFailed)
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
-                .selectFrom(ACTION)
+                // Note the report file and action tables have columns with the same name, so we must specify what we need.
+                .select(
+                    ACTION.ACTION_ID, ACTION.CREATED_AT, ACTION.SENDING_ORG, ACTION.HTTP_STATUS,
+                    ACTION.EXTERNAL_NAME, REPORT_FILE.REPORT_ID, REPORT_FILE.SCHEMA_TOPIC, REPORT_FILE.ITEM_COUNT
+                )
+                .from(
+                    ACTION.join(REPORT_FILE).on(
+                        REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID)
+                            .and(
+                                REPORT_FILE.SENDING_ORG.eq(
+                                    ACTION.SENDING_ORG
+                                )
+                            )
+                    )
+                )
                 .where(condition)
                 .orderBy(sortedColumn)
 
@@ -156,13 +170,10 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
             }
         }
 
-        return ACTION.ACTION_NAME.eq(TaskAction.receive)
-            .and(ACTION.SENDING_ORG.eq(sendingOrg))
-            .and(dateFilter)
-            .and(failedFilter)
+        return dateFilter.and(failedFilter)
     }
 
-    private fun <P, U> detailedSubmissionSelect(
+    fun <P, U> detailedSubmissionSelect(
         reportsKlass: Class<P>,
         logsKlass: Class<U>,
     ): List<SelectFieldOrAsterisk> {
@@ -208,7 +219,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         }
     }
 
-    private fun reportDecendentExpression(submissionId: Long): CommonTableExpression<*> {
+    private fun reportDescendantExpression(submissionId: Long): CommonTableExpression<*> {
         return DSL.name("t").fields(
             "action_id",
             "child_report_id",
@@ -249,7 +260,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         reportsKlass: Class<P>,
         logsKlass: Class<U>,
     ): List<T> {
-        val cte = reportDecendentExpression(submissionId)
+        val cte = reportDescendantExpression(submissionId)
         return db.transactReturning { txn ->
             DSL.using(txn)
                 .withRecursive(cte)

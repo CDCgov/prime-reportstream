@@ -1,0 +1,17 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0100-mycarelabs-ca.yml --env prod
+---
+- name: "mycarelabs-ca"
+  description: "MyCare Labs in CA - CSV Uploader"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "mycarelabs-ca"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "active"
+      schemaName: "upload-covid-19"
+      keys: null
+      processingType: "sync"

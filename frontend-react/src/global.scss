@@ -1,30 +1,20 @@
-// By using these themes directly from uswds, they don't get out of sync.
-// themes $variables you'd like to override can be found in these files, but should be placed in
-// _settings
 
-// load default variables
-@import '~uswds/dist/scss/theme/uswds-theme-general';
-@import '~uswds/dist/scss/theme/uswds-theme-typography';
-@import '~uswds/dist/scss/theme/uswds-theme-spacing';
-@import '~uswds/dist/scss/theme/uswds-theme-color';
-@import '~uswds/dist/scss/theme/uswds-theme-utilities';
+// load default variables .. not required?
+//@import '~uswds/dist/scss/theme/uswds-theme-general';
+//@import '~uswds/dist/scss/theme/uswds-theme-typography';
+//@import '~uswds/dist/scss/theme/uswds-theme-spacing';
+//@import '~uswds/dist/scss/theme/uswds-theme-color';
+//@import '~uswds/dist/scss/theme/uswds-theme-utilities';
 
 // override (change some of the defaults loaded above)
-@import 'styles/uswds_settings';  // _uswds_settings.scss
+@import "styles/uswds_settings";  // _uswds_settings.scss
 
-@import "~uswds";
+@import "uswds";
 
-@import "~@trussworks/react-uswds/lib/index.css";
+@import "@trussworks/react-uswds/lib/index.css";
 
-// Vendor Styles
-@import '~font-awesome/css/font-awesome.min.css';
-
-// Custom USWDS
-@import 'styles/uswds_overrides'; // _uswds_overrides.scss
-@import 'styles/reportstream';  // _reportstream.scss
+@import "styles/uswds_overrides"; // _uswds_overrides.scss
+@import "styles/reportstream";  // _reportstream.scss
 
 // Print styles (e.g. may be used by PDF generation)
-@import './styles/print';
-
-
-
+@import "./styles/print";

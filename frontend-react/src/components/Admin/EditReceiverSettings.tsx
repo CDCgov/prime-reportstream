@@ -1,33 +1,49 @@
 import React, { Suspense, useRef, useState } from "react";
-import { Button, GridContainer, Grid, ModalRef } from "@trussworks/react-uswds";
-import { useResource, NetworkErrorBoundary, useController } from "rest-hooks";
+import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
+import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { RouteComponentProps, useHistory } from "react-router-dom";
 
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
-import { getStoredOktaToken, getStoredOrg } from "../GlobalContextProvider";
+import {
+    getStoredOktaToken,
+    getStoredOrg,
+} from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
-import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
+import Spinner from "../Spinner";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    VersionWarningType,
+} from "../../utils/misc";
 
-import { ConfirmSaveSettingModal } from "./CompareJsonModal";
+import {
+    ConfirmSaveSettingModal,
+    ConfirmSaveSettingModalRef,
+} from "./CompareJsonModal";
 import {
     CheckboxComponent,
     TextAreaComponent,
     TextInputComponent,
 } from "./AdminFormEdit";
 
-type Props = { orgname: string; receivername: string; action: string };
+type Props = {
+    orgname: string;
+    receivername: string;
+    action: "edit" | "clone";
+};
 
 export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
     const orgname = match?.params?.orgname || "";
     const receivername = match?.params?.receivername || "";
     const action = match?.params?.action || "";
-    const history = useHistory();
-    const modalRef = useRef<ModalRef>(null);
-    const diffEditorRef = useRef(null);
 
     const FormComponent = () => {
+        const [loading, setLoading] = useState(false);
+        const history = useHistory();
+        const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
+
         const orgReceiverSettings: OrgReceiverSettingsResource = useResource(
             OrgReceiverSettingsResource.detail(),
             { orgname, receivername, action }
@@ -40,111 +56,124 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
             useState("");
         const { invalidate } = useController();
 
-        function handleEditorDidMount(editor: null) {
-            diffEditorRef.current = editor;
+        async function getLatestReceiverResponse() {
+            const accessToken = getStoredOktaToken();
+            const organization = getStoredOrg();
+
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        Organization: organization!,
+                    },
+                }
+            );
+
+            return await response.json();
         }
 
-        const ShowCompareConfirm = async () => {
+        const showCompareConfirm = async () => {
             try {
                 // fetch original version
-                const accessToken = getStoredOktaToken();
-                const organization = getStoredOrg();
-
-                const response = await fetch(
-                    `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                            Organization: organization!,
-                        },
-                    }
-                );
-
-                const responseBody = await response.json();
+                setLoading(true);
+                const latestResponse = await getLatestReceiverResponse();
                 setOrgReceiverSettingsOldJson(
-                    JSON.stringify(responseBody, jsonSortReplacer, 2)
+                    JSON.stringify(latestResponse, jsonSortReplacer, 2)
                 );
                 setOrgReceiverSettingsNewJson(
                     JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2)
                 );
 
-                modalRef?.current?.toggleModal(undefined, true);
-            } catch (e) {
-                console.error(e);
+                if (
+                    latestResponse?.meta?.version !==
+                    orgReceiverSettings?.meta?.version
+                ) {
+                    showError(getVersionWarning(VersionWarningType.POPUP));
+                    confirmModalRef?.current?.setWarning(
+                        getVersionWarning(
+                            VersionWarningType.FULL,
+                            latestResponse
+                        )
+                    );
+                    confirmModalRef?.current?.disableSave();
+                }
+
+                confirmModalRef?.current?.showModal();
+                setLoading(false);
+            } catch (e: any) {
+                setLoading(false);
+                let errorDetail = await getErrorDetailFromResponse(e);
+                console.trace(e, errorDetail);
+                showError(
+                    `Reloading receiver '${receivername}' failed with: ${errorDetail}`
+                );
+                return false;
             }
         };
 
-        async function resetReceiverList() {
+        const resetReceiverList = async () => {
             await invalidate(OrgReceiverSettingsResource.list(), {
                 orgname,
-                receivername: match?.params?.receivername,
+                receivername: receivername,
             });
 
             return true;
-        }
+        };
 
         const saveReceiverData = async () => {
-            switch (action) {
-                case "edit":
-                    try {
-                        const data = CheckFeatureFlag("showDiffEditor")
-                            ? // @ts-ignore
-                              diffEditorRef.current
-                                  .getModifiedEditor()
-                                  .getValue()
-                            : orgReceiverSettingsNewJson;
+            try {
+                setLoading(true);
 
-                        await fetchController(
-                            OrgReceiverSettingsResource.update(),
-                            { orgname, receivername: receivername },
-                            data
-                        );
-                        showAlertNotification(
-                            "success",
-                            `Item '${receivername}' has been updated`
-                        );
-                        await resetReceiverList();
-                        history.goBack();
-                    } catch (e: any) {
-                        console.trace(e);
-                        showError(
-                            `Updating item '${receivername}' failed. ${e.toString()}`
-                        );
-                        return false;
-                    }
-                    break;
-                case "clone":
-                    try {
-                        const data = CheckFeatureFlag("showDiffEditor")
-                            ? // @ts-ignore
-                              diffEditorRef.current
-                                  .getModifiedEditor()
-                                  .getValue()
-                            : orgReceiverSettingsNewJson;
-
-                        await fetchController(
-                            OrgReceiverSettingsResource.update(),
-                            { orgname, receivername: orgReceiverSettings.name },
-                            data
-                        );
-                        showAlertNotification(
-                            "success",
-                            `Item '${orgReceiverSettings.name}' has been created`
-                        );
-                        await resetReceiverList();
-                        history.goBack();
-                    } catch (e: any) {
-                        console.trace(e);
-                        showError(
-                            `Cloning item '${
-                                orgReceiverSettings.name
-                            }' failed. ${e.toString()}`
-                        );
-                        return false;
-                    }
-                    break;
-                default:
+                const latestResponse = await getLatestReceiverResponse();
+                if (
+                    latestResponse.meta?.version !==
+                    orgReceiverSettings?.meta?.version
+                ) {
+                    // refresh left-side panel in compare modal to make it obvious what has changed
+                    setOrgReceiverSettingsOldJson(
+                        JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                    );
+                    showError(getVersionWarning(VersionWarningType.POPUP));
+                    confirmModalRef?.current?.setWarning(
+                        getVersionWarning(
+                            VersionWarningType.FULL,
+                            latestResponse
+                        )
+                    );
+                    confirmModalRef?.current?.disableSave();
                     return false;
+                }
+
+                const data = confirmModalRef?.current?.getEditedText();
+
+                const receivernamelocal =
+                    action === "clone"
+                        ? orgReceiverSettings.name
+                        : receivername;
+
+                await fetchController(
+                    OrgReceiverSettingsResource.update(),
+                    { orgname, receivername: receivernamelocal },
+                    data
+                );
+
+                await resetReceiverList();
+                showAlertNotification(
+                    "success",
+                    `Item '${receivername}' has been updated`
+                );
+                setLoading(false);
+                confirmModalRef?.current?.hideModal();
+                history.goBack();
+            } catch (e: any) {
+                setLoading(false);
+                let errorDetail = await getErrorDetailFromResponse(e);
+                console.trace(e, errorDetail);
+                showError(
+                    `Updating receiver '${receivername}' failed with: ${errorDetail}`
+                );
+                return false;
             }
 
             return true;
@@ -277,9 +306,10 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                         form="edit-setting"
                         type="submit"
                         data-testid="submit"
-                        onClick={() => ShowCompareConfirm()}
+                        disabled={loading}
+                        onClick={showCompareConfirm}
                     >
-                        Save...
+                        Preview...
                     </Button>
                 </Grid>
                 <ConfirmSaveSettingModal
@@ -288,11 +318,10 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                             ? receivername
                             : orgReceiverSettings.name
                     }
+                    ref={confirmModalRef}
                     onConfirm={saveReceiverData}
-                    modalRef={modalRef}
                     oldjson={orgReceiverSettingsOldJson}
                     newjson={orgReceiverSettingsNewJson}
-                    handleEditorDidMount={handleEditorDidMount}
                 />
             </GridContainer>
         );
@@ -306,7 +335,7 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                 <Suspense
                     fallback={
                         <span className="text-normal text-base">
-                            Loading Receiver Info...
+                            <Spinner />
                         </span>
                     }
                 >

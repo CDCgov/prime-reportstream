@@ -3,10 +3,10 @@ import { Resource } from "@rest-hooks/rest";
 import {
     getStoredOktaToken,
     getStoredOrg,
-} from "../components/GlobalContextProvider";
+} from "../contexts/SessionStorageTools";
 
 export default class AuthResource extends Resource {
-    pk(parent?: any, key?: string): string | undefined {
+    pk(_parent?: any, _key?: string): string | undefined {
         throw new Error("Method not implemented.");
     }
 
@@ -19,7 +19,7 @@ export default class AuthResource extends Resource {
             headers: {
                 ...init.headers,
                 Authorization: `Bearer ${accessToken}`,
-                Organization: organization,
+                Organization: organization || "",
             },
         };
     };

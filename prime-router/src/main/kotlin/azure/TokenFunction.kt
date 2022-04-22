@@ -69,7 +69,6 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
 
             HttpUtilities.unauthorizedResponse(request)
         }
-        actionHistory.trackActionResponse(response, null, workflowEngine.settings)
         workflowEngine.recordAction(actionHistory)
         return response
     }

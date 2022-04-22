@@ -122,6 +122,11 @@ class FieldPrecisionMessage(
 ) : ItemActionLogDetail(fieldMapping)
 
 /**
+ * A [message] for invalid HL7 message.  Note field mapping is not available from the HAPI errors.
+ */
+class InvalidHL7Message(override val message: String) : ItemActionLogDetail("")
+
+/**
  * A [message] for invalid request parameter.
  */
 class InvalidParamMessage(override val message: String) : GenericActionLogDetail(message, ActionLogScope.parameter)
@@ -132,12 +137,36 @@ class InvalidParamMessage(override val message: String) : GenericActionLogDetail
 class InvalidReportMessage(override val message: String) : GenericActionLogDetail(message, ActionLogScope.report)
 
 /**
- * A [message] for invalid HL7 message.
- */
-class InvalidHL7Message(override val message: String) : GenericActionLogDetail(message, ActionLogScope.report)
-
-/**
  * A [message] for invalid translation operation.
  */
 class InvalidTranslationMessage(override val message: String) :
     GenericActionLogDetail(message, ActionLogScope.translation)
+
+/**
+ * A [message] for entire duplicate report submission
+ */
+class DuplicateSubmissionMessage(val payloadName: String?) : ActionLogDetail {
+    override val scope = ActionLogScope.report
+    override val message: String get() {
+        var msg = "All items in this submission are duplicates."
+        if (!payloadName.isNullOrEmpty()) {
+            msg += " Payload name: $payloadName"
+        }
+        return msg
+    }
+}
+
+/**
+ * A [message] for a duplicate item within a submission
+ */
+class DuplicateItemMessage() : ActionLogDetail {
+    override val scope = ActionLogScope.item
+    override val message = "Item is a duplicate."
+}
+
+/**
+ * A [message] for non-error details.
+ */
+class FhirActionLogDetail(
+    override val message: String
+) : GenericActionLogDetail(message, ActionLogScope.report)

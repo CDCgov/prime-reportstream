@@ -1,0 +1,21 @@
+
+.filter-container {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 1em;
+}
+
+.button-container {
+    display: flex;
+    align-items: center;
+}
+
+.apply-button {
+    background: none;
+    border: none;
+}
+
+.date-picker-container {
+    max-width: 225px;
+    margin-right: 32px;
+}

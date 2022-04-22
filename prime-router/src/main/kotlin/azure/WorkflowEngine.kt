@@ -155,22 +155,10 @@ class WorkflowEngine(
     }
 
     /**
-     * Checks if the [sender] has already sent this report by comparing the [digest] against existing records for
-     * this sender in the report_file table. If a duplicate is found an ActionError is thrown which will be picked up
-     * by ReportFunction and logged in action and action_log.
+     * Returns true if the [itemHash] passed in is already present in the database
      */
-    fun verifyNoDuplicateFile(
-        sender: Sender,
-        digest: ByteArray,
-        payloadName: String?
-    ) {
-        if (db.isDuplicateReportFile(sender.name, sender.organizationName, digest)) {
-            var msg = "Duplicate file detected."
-            if (!payloadName.isNullOrEmpty()) {
-                msg += "File: $payloadName"
-            }
-            throw ActionError(ActionLog(InvalidReportMessage(msg)), msg)
-        }
+    fun isDuplicateItem(itemHash: String): Boolean {
+        return db.isDuplicateItem(itemHash)
     }
 
     /**
@@ -513,7 +501,7 @@ class WorkflowEngine(
                 "Failed to process $message $numAttempts times, setting status to process_error." +
                     " Mo intervention required."
             )
-            logger.fatal("${actionHistory.action.actionResult}")
+            logger.fatal(actionHistory.action.actionResult)
         } else {
             actionHistory.setActionType(TaskAction.process_warning)
             actionHistory.trackActionResult(
@@ -561,13 +549,6 @@ class WorkflowEngine(
             )
 
             actionHistory.trackLogs(warnings)
-            // track response body
-            val responseBody = actionHistory.createResponseBody(
-                true,
-                report,
-                this.settings
-            )
-            actionHistory.trackActionResponse(responseBody)
 
             // record action history records
             recordAction(actionHistory)
@@ -678,8 +659,7 @@ class WorkflowEngine(
                     ByteArrayInputStream(bytes),
                     emptyList(),
                     header.receiver,
-                    header.reportFile.reportId,
-                    true
+                    header.reportFile.reportId
                 )
             }
             else -> error("Unsupported read format")
@@ -870,7 +850,7 @@ class WorkflowEngine(
                 1440 / numberBatchesPerDay
             else
                 1440
-            return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS).toLong()
+            return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS)
         }
     }
 
@@ -882,8 +862,6 @@ class WorkflowEngine(
      * @param sender Sender information, pulled from database based on sender name
      * @param content Content of incoming message
      * @param defaults Default values that can be passed in as part of the request
-     * @param errors Transactional store of errors produced while processing this message
-     * @param warnings Transaction store of warnings produced while processing this message
      * @return Returns a generated report object, or null
      */
     fun parseReport(

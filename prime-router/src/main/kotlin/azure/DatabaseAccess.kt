@@ -10,6 +10,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
+import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
 import gov.cdc.prime.router.azure.db.Tables.RECEIVER_CONNECTION_CHECK_RESULTS
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
@@ -19,6 +20,7 @@ import gov.cdc.prime.router.azure.db.Tables.TASK
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.JtiCache
@@ -138,22 +140,21 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * Returns true if there is already a record in the report_file table that matches the passed in [senderName],
-     * [senderOrgName], and [digest]
+     * Returns true if there is already a record from the last 7 days
+     * in the item_lineage table that matches the passed in [itemHash]
+     * @return true if item is duplicate
      */
-    fun isDuplicateReportFile(
-        senderName: String,
-        senderOrgName: String,
-        digest: ByteArray,
+    fun isDuplicateItem(
+        itemHash: String,
         txn: DataAccessTransaction? = null
     ): Boolean {
         val ctx = if (txn != null) DSL.using(txn) else create
+        val weekAgo = OffsetDateTime.now().minusDays(7)
         return ctx
             .fetchExists(
-                ctx.selectFrom(REPORT_FILE)
-                    .where(REPORT_FILE.SENDING_ORG.eq(senderOrgName))
-                    .and(REPORT_FILE.SENDING_ORG_CLIENT.eq(senderName))
-                    .and(REPORT_FILE.BLOB_DIGEST.eq(digest))
+                ctx.selectFrom(ITEM_LINEAGE)
+                    .where(ITEM_LINEAGE.ITEM_HASH.eq(itemHash))
+                    .and(ITEM_LINEAGE.CREATED_AT.greaterOrEqual(weekAgo))
             )
     }
 
@@ -367,19 +368,38 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * Fetch an action ID for a given [reportId].
+     * Fetch an action for a given [reportId].
      * @param txn an optional database transaction
-     * @return an action ID, or null if no action ID was found
+     * @return an Action, or null if no such reportId exists.
      */
-    fun fetchActionIdForReport(
+    fun fetchActionForReportId(
         reportId: UUID,
         txn: DataAccessTransaction? = null
-    ): Long? {
+    ): Action? {
         val ctx = if (txn != null) DSL.using(txn) else create
-        return ctx.select(REPORT_FILE.ACTION_ID)
-            .from(REPORT_FILE)
+        return ctx.select(ACTION.asterisk())
+            .from(ACTION)
+            .join(REPORT_FILE)
+            .on(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
             .where(REPORT_FILE.REPORT_ID.eq(reportId))
-            .fetchOne(REPORT_FILE.ACTION_ID)
+            .fetchOne()
+            ?.into(Action::class.java)
+    }
+
+    /**
+     * Fetch a single action obj for a given [actionId].
+     * @param txn an optional database transaction
+     * @return an Action.  Returns null if no such action exists.
+     */
+    fun fetchAction(
+        actionId: Long,
+        txn: DataAccessTransaction? = null
+    ): Action? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.selectFrom(ACTION)
+            .where(ACTION.ACTION_ID.eq(actionId))
+            .fetchOne()
+            ?.into(Action::class.java)
     }
 
     fun fetchDownloadableReportFiles(

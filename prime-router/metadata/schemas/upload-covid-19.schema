@@ -39,8 +39,15 @@ elements:
 
 
 ############### Set the major ID fields
+    - name: patient_id_temp
+      type: TEXT
+      mapper: concat($index, $currentDate)
+      delimiter: "+"
+
     - name: patient_id
       csvFields: [{name: patient_id}]
+      mapperOverridesValue: true
+      mapper: use(patient_id, patient_id_temp)
 
     - name: accession_number_temp
       type: TEXT
@@ -56,7 +63,8 @@ elements:
       mapper: use(filler_order_id)
 
     - name: message_id
-      mapper: use(filler_order_id)
+      mapper: concat(filler_order_id, $index, $currentDate)
+      delimiter: "+"
 
     - name: testing_lab_specimen_id
       mapper: use(filler_order_id)
@@ -420,7 +428,6 @@ elements:
       cardinality: ONE 
       mapper: use(ordering_facility_state_temp, testing_lab_state)
 
-
 #    - name: ordering_facility_state
 #      cardinality: ONE 
 #      csvFields: [{name: ordering_facility_state}]
@@ -517,4 +524,11 @@ elements:
       valueSet: sender-automation/yesno
       documentation: Translate multiple inbound Y/N/U AOE values to RS values
       csvFields: [{ name: resident_congregate_setting, format: $display}]
+      default: ""
+
+    - name: residence_type
+      type: CODE
+      valueSet: sender-automation/residence_type
+      documentation: Translate multiple inbound values into Residence Type SNOMED codes.
+      csvFields: [{ name: residence_type, format: $display}]
       default: ""

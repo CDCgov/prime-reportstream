@@ -26,7 +26,7 @@
     .gu, /* Guam */
     /* .hi, Hawaii */
     .ia, /* Iowa */
-    /* .id, Idaho */
+    .id, /* Idaho */
     .il, /* Illinois */
     /* .in, Indiana */
     /* .ks, Kansas */
@@ -46,7 +46,7 @@
     .nh, /* New Hampshire */
     .nj, /* New Jersey */
     .nm, /* New Mexico */
-    /* .nv, Nevada */
+    .nv, /* Nevada */
     /* .ny, New York */
     .oh, /* Ohio */
     /* .ok, Oklahoma */
