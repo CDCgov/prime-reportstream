@@ -34,25 +34,35 @@ class MapperTests {
         args = listOf("one", "two", "three", "four", "five", "six") // test for six arguments passed
         assertThat { mapper.valueNames(element, args) }.isFailure()
         // test normal call
-        args = listOf("==", "test_element_1", "test_element_2", "then_element", "else_element")
+        args = listOf("<=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         val valNames = mapper.valueNames(element, args)
         assertThat(valNames.count()).isEqualTo(4)
-        assertThat(valNames[0]).isEqualTo("test_element_1")
-        assertThat(valNames[1]).isEqualTo("test_element_2")
-        assertThat(valNames[2]).isEqualTo("then_element")
-        assertThat(valNames[3]).isEqualTo("else_element")
+        assertThat(valNames[0]).isEqualTo("otc_flag")
+        assertThat(valNames[1]).isEqualTo("comparisonValue")
+        assertThat(valNames[2]).isEqualTo("patient_state")
+        assertThat(valNames[3]).isEqualTo("ordering_provider_state")
 
+        val EAVotc = ElementAndValue(Element(args[1]), "OTC")
+        val EAVpresc = ElementAndValue(Element(args[2]), "Prescription")
+        val EAValabama = ElementAndValue(Element(args[3]), "AL")
+        val EAVtn = ElementAndValue(Element(args[4]), "TN")
+        // test equality else ("OTC" != "Prescription")
+        args = listOf("==", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         assertThat(
-            mapper.apply(
-                element,
-                args,
-                listOf(
-                    ElementAndValue(element, "OTC"),
-                    ElementAndValue(element, "OTC"),
-                    ElementAndValue(element, "AL"),
-                    ElementAndValue(element, "TN"),
-                )
-            ).value
+            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
+        ).isEqualTo("TN")
+        // test inequality operator
+        args = listOf("!=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        assertThat(
+            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
+        ).isEqualTo("AL")
+
+        // make "comparisonValue" equal to "otc_flag"
+        val EAVotc2 = ElementAndValue(Element(args[2]), "OTC")
+        // test new equality ("OTC" == "OTC")
+        args = listOf("==", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        assertThat(
+            mapper.apply(element, args, listOf(EAVotc, EAVotc2, EAValabama, EAVtn)).value
         ).isEqualTo("AL")
     }
 

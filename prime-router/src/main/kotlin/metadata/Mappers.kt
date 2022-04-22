@@ -100,15 +100,15 @@ class IfThenElseMapper : Mapper {
         values: List<ElementAndValue>,
         sender: Sender?
     ): ElementResult {
-        val elVal1 = values.find { it.element.name == args[1] }?.value ?: ""
-        val elVal2 = values.find { it.element.name == args[2] }?.value ?: ""
-        val elVal3 = values.find { it.element.name == args[3] }?.value ?: ""
-        val elVal4 = values.find { it.element.name == args[4] }?.value ?: ""
+        val elVal1 = values.find { it.element.name == args[1] }?.value ?: "El1of4NotFound"
+        val elVal2 = values.find { it.element.name == args[2] }?.value ?: "El2of4NotFound"
+        val elVal3 = values.find { it.element.name == args[3] }?.value ?: "El3of4NotFound"
+        val elVal4 = values.find { it.element.name == args[4] }?.value ?: "El4of4NotFound"
         return when (args[0]) {
             "==" -> if (elVal1 == elVal2) ElementResult(elVal3) else ElementResult(elVal4)
-            // "!=" -> if(values[0].value != values[1].value) ElementResult(values[2].value) else ElementResult(values[3].value)
-            // ">=" -> if(values[0].value >= values[1].value) ElementResult(values[2].value) else ElementResult(values[3].value)
-            // "<=" -> if(values[0].value <= values[1].value) ElementResult(values[2].value) else ElementResult(values[3].value)
+            "!=" -> if (elVal1 != elVal2) ElementResult(elVal3) else ElementResult(elVal4)
+            ">=" -> if (elVal1 >= elVal2) ElementResult(elVal3) else ElementResult(elVal4)
+            "<=" -> if (elVal1 <= elVal2) ElementResult(elVal3) else ElementResult(elVal4)
             else -> ElementResult(null)
         }
     }
