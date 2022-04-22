@@ -84,7 +84,7 @@ export const ConfirmSaveSettingModal = forwardRef(
                     return diffEditorRef?.current?.getEditedText() || newjson;
                 },
                 getOriginalText: (): string => {
-                    return diffEditorRef?.current?.getOriginalText() || newjson;
+                    return diffEditorRef?.current?.getOriginalText() || oldjson;
                 },
                 setWarning(warning) {
                     setErrorText(warning);
@@ -105,7 +105,7 @@ export const ConfirmSaveSettingModal = forwardRef(
                 modalIsOpen: modalRef?.current?.modalIsOpen || false,
                 toggleModal: modalRef?.current?.toggleModal || (() => false),
             }),
-            [diffEditorRef, newjson, modalRef]
+            [diffEditorRef, newjson, modalRef, oldjson]
         );
 
         return (
