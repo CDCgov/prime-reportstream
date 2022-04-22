@@ -41,29 +41,48 @@ class MapperTests {
         assertThat(valNames[1]).isEqualTo("comparisonValue")
         assertThat(valNames[2]).isEqualTo("patient_state")
         assertThat(valNames[3]).isEqualTo("ordering_provider_state")
-
+// mapper: ifThenElseMapper(==, otc_flag,...)
+        // In all these cases, think of "AL" as the "that's right" and "TN" as the "else case"
+        // ("OTC" != "Prescription")
         val EAVotc = ElementAndValue(Element(args[1]), "OTC")
         val EAVpresc = ElementAndValue(Element(args[2]), "Prescription")
         val EAValabama = ElementAndValue(Element(args[3]), "AL")
         val EAVtn = ElementAndValue(Element(args[4]), "TN")
-        // test equality else ("OTC" != "Prescription")
-        args = listOf("==", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        // test equality else
+        args = listOf("==", "otc_flag", "comparisonValue", EAValabama.element.name, "ordering_provider_state")
         assertThat(
             mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
-        ).isEqualTo("TN")
+        ).isEqualTo("TN") // else case
         // test inequality operator
         args = listOf("!=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         assertThat(
             mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
-        ).isEqualTo("AL")
+        ).isEqualTo("AL") // It's TRUE, "OTC" != "Prescription" so we return "AL" that's right!
+        // when we use ">=" with strings, it's a test for alphabetical order
+        // "OTC" comes before "Prescription", so it's "<="  (technically, "<")
+        args = listOf("<=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        assertThat(
+            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
+        ).isEqualTo("AL") // That's right!
+        // finally, test a 'failure' of the assumption that "Prescription" comes before "OTC" in the dictionary
+        args = listOf(">=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        assertThat(
+            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
+        ).isEqualTo("TN") // Else Clause!
 
-        // make "comparisonValue" equal to "otc_flag"
-        val EAVotc2 = ElementAndValue(Element(args[2]), "OTC")
+        // make "comparisonValue" equal to "otc_flag"  ("OTC" == "OTC")
+        val EAVotc2 = ElementAndValue(Element(args[2]), "OTC") // set "comparisonValue" element's value to "OTC"
         // test new equality ("OTC" == "OTC")
         args = listOf("==", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         assertThat(
             mapper.apply(element, args, listOf(EAVotc, EAVotc2, EAValabama, EAVtn)).value
-        ).isEqualTo("AL")
+        ).isEqualTo("AL") // good
+        // test inequality else (now that they are equal, testing of r!= should return the else value (TN)
+        args = listOf("!=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        assertThat(
+            mapper.apply(element, args, listOf(EAVotc, EAVotc2, EAValabama, EAVtn)).value
+        ).isEqualTo("TN") // else
+        // now that the test is equal to the compare, "<=" and ">=" will also return "AL"
     }
 
     @Test

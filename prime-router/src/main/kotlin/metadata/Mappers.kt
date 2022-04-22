@@ -100,16 +100,21 @@ class IfThenElseMapper : Mapper {
         values: List<ElementAndValue>,
         sender: Sender?
     ): ElementResult {
-        val elVal1 = values.find { it.element.name == args[1] }?.value ?: "El1of4NotFound"
-        val elVal2 = values.find { it.element.name == args[2] }?.value ?: "El2of4NotFound"
-        val elVal3 = values.find { it.element.name == args[3] }?.value ?: "El3of4NotFound"
-        val elVal4 = values.find { it.element.name == args[4] }?.value ?: "El4of4NotFound"
+        val elVal1 = values.find { it.element.name == args[1] }?.value
+            ?: error("Schema Error: first element (${args[1]}) not found")
+        val elVal2 = values.find { it.element.name == args[2] }?.value ?: ""
+        if (elVal2 == "") error("Schema Error: second element (${args[2]}) not found")
+        val elVal3 = values.find { it.element.name == args[3] }?.value ?: ""
+        if (elVal3 == "") error("Schema Error: third element (${args[3]}) not found")
+        val elVal4 = values.find { it.element.name == args[4] }?.value ?: ""
+        if (elVal4 == "") error("Schema Error: fourth element (${args[4]}) not found")
+
         return when (args[0]) {
             "==" -> if (elVal1 == elVal2) ElementResult(elVal3) else ElementResult(elVal4)
             "!=" -> if (elVal1 != elVal2) ElementResult(elVal3) else ElementResult(elVal4)
             ">=" -> if (elVal1 >= elVal2) ElementResult(elVal3) else ElementResult(elVal4)
             "<=" -> if (elVal1 <= elVal2) ElementResult(elVal3) else ElementResult(elVal4)
-            else -> ElementResult(null)
+            else -> error("Bad operator: choose one of ==, !=, >=, <= ")
         }
     }
 }
