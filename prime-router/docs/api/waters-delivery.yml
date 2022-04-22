@@ -39,7 +39,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/AvailableReport'
-        # $ref: '#/components/schemas/Pagination'
     AvailableReport:
       type: object
       properties:

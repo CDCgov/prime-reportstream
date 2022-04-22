@@ -7,6 +7,38 @@ info:
     url: https://open.cdc.gov
     email: usds@cdc.gov
 paths:
+  /api/waters/reports:
+    post:
+      description: submit a report to be routed
+      security:
+        - OktaAuth: [ FUNCTION ]
+      parameters:
+        - name: processing
+          in: query
+          description: flag for processing the report in a different manner
+          schema:
+            type: string
+            enum: [ async ]
+      requestBody:
+        description: The public health information being routed
+        required: true
+        content:
+          text/csv:
+            schema:
+              type: string
+              format: hl7
+              example:
+                Patient_last_name,Patient_first_name
+                tests,Jordan
+      responses:
+        '200':
+          description: the detailed report history object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedReportModel'
+        '401':
+          description: unknown or invalid sender
   /api/waters/report/{id}/history:
     get:
       description: return detailed history of a single submitted report
