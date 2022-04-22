@@ -188,6 +188,37 @@ class ReportFunctionTests {
         verify(exactly = 1) { reportFunc.processRequest(any(), any()) }
     }
 
+    @Test
+    fun `test reportFunction 'report' endpoint for full ELR sender`() {
+        // Setup
+//        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata()
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val sender = Sender("Test ELR Sender", "test", Sender.Format.HL7)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val reportFunc = spyk(ReportFunction(engine, actionHistory))
+
+        val req = MockHttpRequestMessage("test")
+        val resp = HttpUtilities.okResponse(req, "fakeOkay")
+
+        every { reportFunc.processRequest(any(), any()) } returns resp
+        every { engine.settings.findSender(any()) } returns sender
+
+        req.httpHeaders += mapOf(
+            "client" to "Test ELR Sender",
+            "content-length" to "4"
+        )
+
+        // Invoke function run
+        reportFunc.run(req)
+
+        // processFunction should be called
+        verify(exactly = 1) { reportFunc.processRequest(any(), any()) }
+    }
+
     // Hits processRequest, tracks 'receive' action in actionHistory
     @Test
     fun `test reportFunction 'report' endpoint`() {

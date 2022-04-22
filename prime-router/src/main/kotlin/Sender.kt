@@ -8,14 +8,14 @@ import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.JwkSet
 
 /**
- * A sender with topic ELR will be processed using the full ELR pipeline, submissions from a sender with '
- * topic COVID19 will be processed using the covid-19 pipeline.
+ * A sender with topic FULL_ELR will be processed using the full ELR pipeline (fhir engine), submissions
+ * from a sender with topic COVID_19 will be processed using the covid-19 pipeline.
  */
 enum class SenderTopic {
-    @JsonProperty("elr")
-    ELR,
+    @JsonProperty("full-elr")
+    FULL_ELR,
     @JsonProperty("covid-19")
-    COVID19
+    COVID_19
 }
 
 /**
@@ -38,16 +38,20 @@ enum class SenderTopic {
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
-    property = "topic"
+    property = "topic",
+    visible = true
 )
 @JsonSubTypes(
+    JsonSubTypes.Type(value = Sender::class, name = "full-elr"),
     JsonSubTypes.Type(value = CovidSender::class, name = "covid-19"),
 )
 open class Sender(
     val name: String,
     val organizationName: String,
     val format: Format,
-    val topic: SenderTopic = SenderTopic.ELR,
+    // this will be auto added to json by jacksonMapper since it is used as the JsonTypeInfo for polymorphic Senders
+    @JsonIgnore
+    val topic: SenderTopic = SenderTopic.FULL_ELR,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val keys: List<JwkSet>? = null,
     val processingType: ProcessingType = ProcessingType.sync,
@@ -145,7 +149,7 @@ open class Sender(
      * Returns true if this is a covid sender instead of a full ELR sender.
      */
     @get:JsonIgnore
-    val isCovidSender: Boolean get() = this.topic == SenderTopic.COVID19
+    val isCovidSender: Boolean get() = this.topic == SenderTopic.COVID_19
 
     enum class Format(val mimeType: String) {
         CSV("text/csv"),
@@ -236,8 +240,7 @@ open class CovidSender(
         name,
         organizationName,
         format,
-        // a CovidSender will always have the topic "COVID19"
-        SenderTopic.COVID19,
+        SenderTopic.COVID_19,
         customerStatus,
         keys,
         processingType,

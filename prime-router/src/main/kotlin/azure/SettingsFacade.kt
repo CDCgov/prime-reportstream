@@ -359,6 +359,7 @@ class OrganizationAPI
     property = "topic"
 )
 @JsonSubTypes(
+    JsonSubTypes.Type(value = SenderAPI::class, name = "full-elr"),
     JsonSubTypes.Type(value = CovidSenderAPI::class, name = "covid-19"),
 )
 open class SenderAPI
@@ -366,7 +367,7 @@ open class SenderAPI
     name: String,
     organizationName: String,
     format: Format,
-    topic: SenderTopic,
+    topic: SenderTopic = SenderTopic.FULL_ELR,
     customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     keys: List<JwkSet>? = null,
     processingType: ProcessingType = ProcessingType.sync,
@@ -387,13 +388,12 @@ open class SenderAPI
     primarySubmissionMethod,
 ),
     SettingAPI {
-    // TODO why was this not a problem before?
+    // TODO: what is this used for / do we care about it here?
     override fun consistencyErrorMessage(metadata: Metadata): String? {
-        TODO("Not yet implemented")
+        return null
     }
 }
 
-// TODO: is this needed?
 class CovidSenderAPI
 @JsonCreator constructor(
     name: String,
@@ -412,7 +412,7 @@ class CovidSenderAPI
     organizationName,
     format,
     // a CovidSender will always have the topic "covid-19"
-    SenderTopic.COVID19,
+    SenderTopic.COVID_19,
     customerStatus,
     keys,
     processingType,

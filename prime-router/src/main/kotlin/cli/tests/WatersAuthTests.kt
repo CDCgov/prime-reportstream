@@ -58,7 +58,7 @@ class WatersAuthTests : CoolTest() {
             name = senderName,
             organizationName = organization,
             format = Sender.Format.CSV,
-            topic = SenderTopic.COVID19,
+            topic = SenderTopic.COVID_19,
             customerStatus = CustomerStatus.INACTIVE
         )
 
