@@ -366,13 +366,19 @@ warnings: ${warnings.joinToString()}
 
 /**
  * Compares two HL7 files.
+ * @property result object to contain the result of the comparison
  */
-class CompareHl7Data(val result: CompareData.Result = CompareData.Result()) {
-    /**
-     * The list of fields that contain dynamic values that cannot be compared.  Source:
-     * Hl7Serializer.setLiterals()
-     */
-    internal val dynamicHl7Values = arrayOf("MSH-7", "SFT-2", "SFT-4", "SFT-6")
+class CompareHl7Data(
+    val result: CompareData.Result = CompareData.Result(),
+    private val ignoredFields: List<String> = covidDynamicHl7Fields
+) {
+    companion object {
+        /**
+         * The list of fields that contain dynamic values that cannot be compared.  Source:
+         * Hl7Serializer.setLiterals()
+         */
+        private val covidDynamicHl7Fields = listOf("MSH-7", "SFT-2", "SFT-4", "SFT-6")
+    }
 
     /**
      * Compare the data in the [actual] report to the data in the [expected] report.  This
@@ -495,7 +501,7 @@ class CompareHl7Data(val result: CompareData.Result = CompareData.Result()) {
             // Loop through all the components in a field and compare their values.
             for (repetitionIndex in 0 until maxNumRepetitions) {
                 // If this is not a dynamic value then check it against the expected values
-                if (!dynamicHl7Values.contains(fieldSpec)) {
+                if (!ignoredFields.contains(fieldSpec)) {
                     val expectedFieldValue = if (repetitionIndex < expectedFieldContents.size)
                         expectedFieldContents[repetitionIndex].toString().trim() else ""
                     val actualFieldValue = if (repetitionIndex < actualFieldContents.size)

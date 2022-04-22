@@ -3,13 +3,16 @@ package gov.cdc.prime.router.common
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
+import java.time.DateTimeException
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.time.temporal.TemporalAccessor
 import java.util.Locale
 
@@ -293,6 +296,67 @@ object DateUtilities {
             // we don't care about the exception, just return false
             false
         }
+    }
+
+    /**
+     * The getDateTime function return the OffsetDatetime.  If it can't parse, it will throw either
+     * DateTimeParseException or DateTimeException.  Which allows the caller to catch the exception.
+     * @param [cleanedFormattedValue] datetime value to be parsed.
+     * @param [format] format to parse
+     * @return [OffsetDateTime] the best parsed datetime value
+     */
+    fun getDateTime(cleanedFormattedValue: String, format: String?): OffsetDateTime {
+        val dateTime = try {
+            // Try an ISO pattern
+            OffsetDateTime.parse(cleanedFormattedValue)
+        } catch (e: DateTimeParseException) {
+            null
+        } ?: try {
+            // Try a HL7 pattern
+            val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
+            OffsetDateTime.parse(cleanedFormattedValue, formatter)
+        } catch (e: DateTimeParseException) {
+            null
+        } ?: try {
+            // Try to parse using a LocalDate pattern assuming it is in our canonical dateFormatter. Central timezone.
+            val date = LocalDate.parse(cleanedFormattedValue, dateFormatter)
+            OffsetDateTime.of(date, LocalTime.of(0, 0), Environment.rsTimeZone)
+        } catch (e: DateTimeParseException) {
+            null
+        } ?: try {
+            // Try to parse using a LocalDate pattern, assuming it follows a non-canonical format value.
+            // Example: 'yyyy-mm-dd' - the incoming data is a Date, but not our canonical date format.
+            val formatter = DateTimeFormatter.ofPattern(format ?: datetimePattern, Locale.ENGLISH)
+            val date = LocalDate.parse(cleanedFormattedValue, formatter)
+            OffsetDateTime.of(date, LocalTime.of(0, 0), Environment.rsTimeZone)
+        } catch (e: DateTimeParseException) {
+            null
+        } ?: try {
+            getBestDateTime(cleanedFormattedValue)
+        } catch (e: DateTimeParseException) {
+            null
+        } catch (e: DateTimeException) {
+            null
+        } ?: try {
+            getBestDateTime(cleanedFormattedValue)
+        } catch (e: DateTimeParseException) {
+            throw DateTimeParseException(e.message, e.parsedString, e.errorIndex)
+        } catch (e: DateTimeException) {
+            throw DateTimeException(e.message)
+        }
+
+        return dateTime
+    }
+
+    /**
+     * The getBestDateTime function parse to get the best match and return OffsetDatetime.
+     * If it can't parse, it will throw either DateTimeParseException or DateTimeException.
+     * Which allows the caller to catch the exception.
+     * @param [value] datetime value to be parsed.
+     * @return [OffsetDateTime] the best parsed datetime value
+     */
+    private fun getBestDateTime(value: String): OffsetDateTime {
+        return parseDate(value).toOffsetDateTime()
     }
 
     /**

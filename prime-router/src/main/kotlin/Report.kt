@@ -16,12 +16,14 @@ import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
 import tech.tablesaw.selection.Selection
+import java.security.MessageDigest
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.Period
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import javax.xml.bind.DatatypeConverter
 import kotlin.random.Random
 
 /**
@@ -56,8 +58,21 @@ enum class Options {
     ValidatePayload,
     CheckConnections,
     SkipSend,
-    SkipInvalidItems,
-    SendImmediately,
+    SendImmediately;
+
+    companion object {
+        /**
+         * Handles invalid values, which are technically not allowed in an enum. In this case if the [input]
+         *  is not one that is supported, it will be set to None
+         */
+        fun valueOfOrNone(input: String): Options {
+            return try {
+                valueOf(input)
+            } catch (ex: IllegalArgumentException) {
+                None
+            }
+        }
+    }
 }
 
 /**
@@ -889,6 +904,28 @@ class Report : Logging {
         )
     }
 
+    /**
+     * Gets the item hash for a the [rowNum] of the report.
+     * @return the ByteArray hash.
+     */
+    fun getItemHashForRow(rowNum: Int): String {
+        // calculate and store item hash for deduplication purposes for the generated item
+        val row = this.table.row(rowNum)
+        var rawStr = ""
+        for (colNum in 0 until row.columnCount()) {
+            rawStr += row.getString(colNum)
+        }
+
+        val digest = MessageDigest
+            .getInstance("SHA-256")
+            .digest(rawStr.toByteArray())
+
+        return DatatypeConverter.printHexBinary(digest).uppercase()
+    }
+
+    /**
+     * Static functions for use in modifying and manipulating reports.
+     */
     companion object {
         fun merge(inputs: List<Report>): Report {
             if (inputs.isEmpty())
@@ -971,6 +1008,14 @@ class Report : Logging {
             childReport: Report,
             childRowNum: Int
         ): ItemLineage {
+            // get the item hash to store for deduplication purposes. If a hash has already been generated
+            //  for a row, use that hash to represent the row itself, since translations will result in different
+            //  hash values
+            val itemHash = if (parentReport.itemLineages != null && parentReport.itemLineages!!.isNotEmpty())
+                parentReport.itemLineages!![parentRowNum].itemHash
+            else
+                parentReport.getItemHashForRow(parentRowNum)
+
             // Row numbers start at 0, but index need to start at 1
             val childIndex = childRowNum + 1
             val parentIndex = parentRowNum + 1
@@ -990,7 +1035,8 @@ class Report : Logging {
                     childIndex,
                     grandParentTrackingValue,
                     null,
-                    null
+                    null,
+                    itemHash
                 )
             } else {
                 val trackingElementValue =
@@ -1003,7 +1049,8 @@ class Report : Logging {
                     childIndex,
                     trackingElementValue,
                     null,
-                    null
+                    null,
+                    itemHash
                 )
             }
         }
@@ -1033,7 +1080,8 @@ class Report : Logging {
                         it.childIndex, // one-to-one mapping
                         it.trackingId,
                         it.transportResult,
-                        null
+                        null,
+                        it.itemHash
                     )
             }
             val retval = mutableListOf<ItemLineage>()

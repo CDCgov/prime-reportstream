@@ -1,7 +1,6 @@
 package gov.cdc.prime.router
 
 import com.google.i18n.phonenumbers.PhoneNumberUtil
-import com.google.i18n.phonenumbers.Phonenumber
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
 import gov.cdc.prime.router.common.DateUtilities
@@ -666,26 +665,6 @@ data class Element(
             }
             else -> cleanedFormattedValue
         }
-    }
-
-    /**
-     * Validate phone number and return pair of region and phone number
-     * @param [phoneNumber] phone numner to validate.
-     * @return region, phone number if valid.  Otherwise, return null, null.
-     */
-    fun parsePhoneNumber(phoneNumber: String): Pair<String?, Phonenumber.PhoneNumber?> {
-        val phone = phoneNumberUtil.parse(phoneNumber, "US") // Assume US in general
-        if (phoneNumberUtil.isValidNumber(phone)) {
-            // This is phone either US or CA
-            return Pair(phoneNumberUtil.getRegionCodeForNumber(phone), phone)
-        } else {
-            // Let us check for Mexico
-            if (phoneNumberUtil.isValidNumber(phoneNumberUtil.parse(phoneNumber, "MX"))) {
-                // This number is for Mexico
-                return Pair(phoneNumberUtil.getRegionCodeForNumber(phone), phone)
-            }
-        }
-        return Pair(null, phone)
     }
 
     fun toNormalized(subValues: List<SubValue>): String {
