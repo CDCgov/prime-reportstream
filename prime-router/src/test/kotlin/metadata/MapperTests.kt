@@ -132,12 +132,11 @@ class MapperTests {
         // numeric
         // literal
         args = listOf("==", "otc_flag", "37", "patient_state", "ordering_provider_state")
-        EAVotc = ElementAndValue(Element(args[1]), "22")
+        EAVotc = ElementAndValue(Element(args[1]), "22") // element otc_flag has .value "22"
         assertEq(mapper, element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn), "TN") // else case 22 != 37
 
         // again!  again!
         args = listOf("<=", "otc_flag", "37", "patient_state", "ordering_provider_state")
-        EAVotc = ElementAndValue(Element(args[1]), "22") // element otc_flag has .value "22"
         assertEq(mapper, element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn), "AL") // 22 <= 37
 
         // float (this test actually caught a typo for me!)
