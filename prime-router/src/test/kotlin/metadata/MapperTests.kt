@@ -41,29 +41,32 @@ class MapperTests {
         assertThat(valNames[1]).isEqualTo("comparisonValue")
         assertThat(valNames[2]).isEqualTo("patient_state")
         assertThat(valNames[3]).isEqualTo("ordering_provider_state")
-// mapper: ifThenElseMapper(==, otc_flag,...)
+
         // In all these cases, think of "AL" as the "that's right" and "TN" as the "else case"
         // ("OTC" != "Prescription")
         val EAVotc = ElementAndValue(Element(args[1]), "OTC")
         val EAVpresc = ElementAndValue(Element(args[2]), "Prescription")
         val EAValabama = ElementAndValue(Element(args[3]), "AL")
         val EAVtn = ElementAndValue(Element(args[4]), "TN")
+
         // test equality else
         args = listOf("==", "otc_flag", "comparisonValue", EAValabama.element.name, "ordering_provider_state")
         assertThat(
             mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
-        ).isEqualTo("TN") // else case
+        ).isEqualTo("TN") // else case ("OTC" != "Prescription")
+
         // test inequality operator
         args = listOf("!=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         assertThat(
             mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
         ).isEqualTo("AL") // It's TRUE, "OTC" != "Prescription" so we return "AL" that's right!
-        // when we use ">=" with strings, it's a test for alphabetical order
+
         // "OTC" comes before "Prescription", so it's "<="  (technically, "<")
         args = listOf("<=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         assertThat(
             mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
         ).isEqualTo("AL") // That's right!
+
         // finally, test a 'failure' of the assumption that "Prescription" comes before "OTC" in the dictionary
         args = listOf(">=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         assertThat(
@@ -77,12 +80,92 @@ class MapperTests {
         assertThat(
             mapper.apply(element, args, listOf(EAVotc, EAVotc2, EAValabama, EAVtn)).value
         ).isEqualTo("AL") // good
-        // test inequality else (now that they are equal, testing of r!= should return the else value (TN)
+        // now that the otc_flag is equal to the comparisonValue, "<=" and ">=" will also return "AL"
+
+        // test inequality else (now that they are equal, testing of != should return the else value (TN)
         args = listOf("!=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         assertThat(
             mapper.apply(element, args, listOf(EAVotc, EAVotc2, EAValabama, EAVtn)).value
         ).isEqualTo("TN") // else
-        // now that the test is equal to the compare, "<=" and ">=" will also return "AL"
+    }
+
+    @Test
+    fun `test string and numeric literals IfThenElseMapper`() {
+        val mapper = IfThenElseMapper()
+        val element = Element("test")
+        var args = listOf("<=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        val valNames = mapper.valueNames(element, args)
+        assertThat(valNames.count()).isEqualTo(4)
+        assertThat(valNames[0]).isEqualTo("otc_flag")
+        assertThat(valNames[1]).isEqualTo("comparisonValue")
+        assertThat(valNames[2]).isEqualTo("patient_state")
+        assertThat(valNames[3]).isEqualTo("ordering_provider_state")
+        // In all these cases, think of "AL" as the "that's right" and "TN" as the "else case"
+        // ("OTC" != "Prescription")
+        var EAVotc = ElementAndValue(Element(args[1]), "OTC")
+        var EAVpresc = ElementAndValue(Element(args[2]), "Prescription")
+        val EAValabama = ElementAndValue(Element(args[3]), "AL")
+        val EAVtn = ElementAndValue(Element(args[4]), "TN")
+        // test normal equality else
+        args = listOf("==", "otc_flag", "comparisonValue", EAValabama.element.name, "ordering_provider_state")
+        assertThat(
+            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
+        ).isEqualTo("TN") // else case
+
+        // now try a string literal ("OTC" is not an element name)
+        args = listOf("==", "otc_flag", "OTC", EAValabama.element.name, "ordering_provider_state")
+        EAVpresc = ElementAndValue(Element("testing"), "nulll") // should work, even after killing EAVpresc
+        assertThat(
+            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
+        ).isEqualTo("AL") // else case
+
+        // now try a
+        // numeric
+        // literal
+        args = listOf("==", "otc_flag", "37", EAValabama.element.name, "ordering_provider_state")
+        EAVotc = ElementAndValue(Element(args[1]), "22")
+        assertThat(
+            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
+        ).isEqualTo("TN") // else case 22 != 37
+
+        // again!  again!
+        args = listOf("<=", "otc_flag", "37", EAValabama.element.name, "ordering_provider_state")
+        EAVotc = ElementAndValue(Element(args[1]), "22") // element otc_flag has .value "22"
+        assertThat(
+            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
+        ).isEqualTo("AL") // 22 <= 37
+
+        // now we make this fail so we can see "expected: "[AL]" "
+        // args = listOf("<=", "otc_flag", "17", EAValabama.element.name, "ordering_provider_state")
+        // and fail it did
+
+        // float (this test actually caught a typo for me!)
+        args = listOf("==", "otc_flag", "3.1415926536", EAValabama.element.name, "ordering_provider_state")
+        EAVotc = ElementAndValue(Element(args[1]), "3.1415926536") // pi is pi
+        assertThat(
+            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
+        ).isEqualTo("AL") // floating point!
+
+        // int not a string
+        args = listOf("<=", "otc_flag", "1700", EAValabama.element.name, "ordering_provider_state")
+        EAVotc = ElementAndValue(Element(args[1]), "22") // element otc_flag has .value "22"
+        assertThat(
+            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
+        ).isEqualTo("AL") // 22 <= 1700
+
+        // string not an int
+        args = listOf("<=", "otc_flag", "1700xx", EAValabama.element.name, "ordering_provider_state")
+        EAVotc = ElementAndValue(Element(args[1]), "22xx") // element otc_flag has .value "22"
+        assertThat(
+            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
+        ).isEqualTo("TN") // 22xx >= 1700xx, alphanumerically
+
+        // equality of two (numeric looking) strings
+        args = listOf("==", "otc_flag", "1700xx", EAValabama.element.name, "ordering_provider_state")
+        EAVotc = ElementAndValue(Element(args[1]), "1700xx") // element otc_flag has .value "22"
+        assertThat(
+            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
+        ).isEqualTo("AL") // it's AL good!
     }
 
     @Test

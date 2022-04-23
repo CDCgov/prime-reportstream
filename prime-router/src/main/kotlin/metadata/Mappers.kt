@@ -94,28 +94,73 @@ class IfThenElseMapper : Mapper {
         return args.takeLast(4)
     }
 
+    /**
+     * Determines the true meaning of a mapper: (argument)
+     *
+     * Determines if a mapperArg exists a List of <ElementAndValue>s.
+     * If it does, the found element's .value is returned; otherwise, the argument itself is
+     * returned as a String literal.  This allows the mapper property of a schema to have literal
+     * arguments.  The downside is that misspelled or non-existent schema elements are treated
+     * as string literals.  Use with care.
+     *
+     * @param values the list of ElementAndValue objects passed to the apply function
+     * @param mapperArg one of the arguments from a schema elements mapper property
+     * @return Either a passed-in Elements .value or the mapper argument as a string literal
+     */
+    fun decodeArg(values: List<ElementAndValue>, mapperArg: String): String {
+        return values.find { it.element.name == mapperArg }?.value ?: mapperArg
+    }
+
+    /**
+     * Compares two strings for equalities
+     *
+     * If BOTH strings are numeric ("12"), it compares them as numbers.
+     * Otherwise they are compared as string literals
+     * @param op a String which denotes a comparison
+     * @param val1 a String literal which is either numeric or not
+     * @param val2 a String literal which is either numeric or not
+     * @return the Boolean result of properly applying the operator implied in op on val1 and val2
+     */
+    fun comp(op: String, val1: String, val2: String): Boolean {
+        val tVal1 = val1.toIntOrNull()
+        val tVal2 = val2.toIntOrNull()
+        if ((tVal1 != null) && (tVal2 != null)) { // only if both val1 and val2 are integer strings
+            return when (op) {
+                "==" -> (tVal1 == tVal2) // all Int comparisons
+                "!=" -> (tVal1 != tVal2)
+                ">=" -> (tVal1 >= tVal2)
+                "<=" -> (tVal1 <= tVal2)
+                else -> false
+            }
+        }
+        val dVal1 = val1.toDoubleOrNull()
+        val dVal2 = val2.toDoubleOrNull()
+        if ((dVal1 != null) && (dVal2 != null)) { // only if both val1 and val2 are Double strings
+            return when (op) {
+                "==" -> (dVal1 == dVal2) // all Double comparisons (should cover Float)
+                "!=" -> (dVal1 != dVal2)
+                ">=" -> (dVal1 >= dVal2)
+                "<=" -> (dVal1 <= dVal2)
+                else -> false
+            }
+        }
+        return when (op) {
+            "==" -> (val1 == val2) // all string comparisons
+            "!=" -> (val1 != val2)
+            ">=" -> (val1 >= val2)
+            "<=" -> (val1 <= val2)
+            else -> false
+        }
+    } // comp(op, v1, v2):Boolean
+
     override fun apply(
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
         sender: Sender?
     ): ElementResult {
-        val elVal1 = values.find { it.element.name == args[1] }?.value
-            ?: error("Schema Error: first element (${args[1]}) not found")
-        val elVal2 = values.find { it.element.name == args[2] }?.value ?: ""
-        if (elVal2 == "") error("Schema Error: second element (${args[2]}) not found")
-        val elVal3 = values.find { it.element.name == args[3] }?.value ?: ""
-        if (elVal3 == "") error("Schema Error: third element (${args[3]}) not found")
-        val elVal4 = values.find { it.element.name == args[4] }?.value ?: ""
-        if (elVal4 == "") error("Schema Error: fourth element (${args[4]}) not found")
-
-        return when (args[0]) {
-            "==" -> if (elVal1 == elVal2) ElementResult(elVal3) else ElementResult(elVal4)
-            "!=" -> if (elVal1 != elVal2) ElementResult(elVal3) else ElementResult(elVal4)
-            ">=" -> if (elVal1 >= elVal2) ElementResult(elVal3) else ElementResult(elVal4)
-            "<=" -> if (elVal1 <= elVal2) ElementResult(elVal3) else ElementResult(elVal4)
-            else -> error("Bad operator: choose one of ==, !=, >=, <= ")
-        }
+        return if (comp(args[0], decodeArg(values, args[1]), decodeArg(values, args[2]))) // see comp()
+            ElementResult(decodeArg(values, args[3])) else ElementResult(decodeArg(values, args[4])) // see decodeArg()
     }
 }
 
