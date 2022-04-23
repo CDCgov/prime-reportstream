@@ -15,7 +15,7 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.SubmissionHistory
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
-import gov.cdc.prime.router.cli.tests.ExpectedSubmissionHistory
+import gov.cdc.prime.router.cli.tests.ExpectedSubmissionList
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
@@ -40,7 +40,7 @@ import kotlin.test.Test
 
 data class ExpectedAPIResponse(
     val status: HttpStatus,
-    val body: List<ExpectedSubmissionHistory>? = null
+    val body: List<ExpectedSubmissionList>? = null
 )
 
 data class SubmissionUnitTestCase(
@@ -175,7 +175,7 @@ class SubmissionFunctionTests : Logging {
                 ExpectedAPIResponse(
                     HttpStatus.OK,
                     listOf(
-                        ExpectedSubmissionHistory(
+                        ExpectedSubmissionList(
                             submissionId = 8,
                             timestamp = OffsetDateTime.parse("2021-11-30T16:36:54.919Z"),
                             sender = "simple_report",
@@ -185,7 +185,7 @@ class SubmissionFunctionTests : Logging {
                             topic = "covid-19",
                             reportItemCount = 3
                         ),
-                        ExpectedSubmissionHistory(
+                        ExpectedSubmissionList(
                             submissionId = 7,
                             timestamp = OffsetDateTime.parse("2021-11-30T16:36:48.307Z"),
                             sender = "simple_report",
@@ -273,7 +273,7 @@ class SubmissionFunctionTests : Logging {
             // Verify
             assertThat(response.status).isEqualTo(it.expectedResponse.status)
             if (response.status == HttpStatus.OK) {
-                val submissions: List<ExpectedSubmissionHistory> = mapper.readValue(response.body.toString())
+                val submissions: List<ExpectedSubmissionList> = mapper.readValue(response.body.toString())
                 if (it.expectedResponse.body != null) {
                     assertThat(submissions.size).isEqualTo(it.expectedResponse.body.size)
                     assertThat(submissions).isEqualTo(it.expectedResponse.body)

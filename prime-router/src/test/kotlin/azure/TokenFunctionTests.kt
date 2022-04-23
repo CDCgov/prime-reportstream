@@ -236,14 +236,7 @@ class TokenFunctionTests {
                     "Invalid scope for this sender: wrong.default.report",
                 "Expected organization simple_report. Instead got: wrong"
             ),
-            // Wrong sender
-            listOf(
-                "simple_report.wrong.report",
-                "AccessToken Request Denied: Error while requesting simple_report.wrong.report: " +
-                    "Invalid scope for this sender: simple_report.wrong.report",
-                "Expected sender default. Instead got: wrong"
-            ),
-            // Wrong 
+            // Wrong
             listOf(
                 "simple_report.default.bad",
                 "AccessToken Request Denied: Error while requesting simple_report.default.bad: " +

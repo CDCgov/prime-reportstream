@@ -465,10 +465,15 @@ abstract class SettingCommand(
      * Abort the program with the message
      */
     fun abort(message: String): Nothing {
-        if (silent)
-            throw ProgramResult(statusCode = 1)
-        else
+        try {
+            if (silent)
+                throw ProgramResult(statusCode = 1)
+            else
+                throw PrintMessage(message, error = true)
+        } catch (e: IllegalStateException) {
+            // The if (silent) test can cause this exception if directly calling SettingsCommands, and not from cmdline.
             throw PrintMessage(message, error = true)
+        }
     }
 
     /**

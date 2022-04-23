@@ -167,23 +167,19 @@ class SubmissionFunction(
         @BindingName("id") id: String,
     ): HttpResponseMessage {
         try {
-            println("here1")
             // Figure out whether we're dealing with an action_id or a report_id.
             val submissionId = id.toLongOrNull() // toLong a sacrifice can make a Null of the heart
-            println("here2")
             val action = if (submissionId == null) {
                 val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
                 submissionsFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
             } else {
                 submissionsFacade.fetchAction(submissionId) ?: error("No such submissionId $submissionId")
             }
-            println("here3")
 
             // Confirm this is actually a submission.
             if (action.sendingOrg == null || action.actionName != TaskAction.receive) {
                 return HttpUtilities.notFoundResponse(request, "$id is not a submitted report")
             }
-            println("here4")
 
             // Confirm this is a sender in the system.
             // This fails if there is no 'default' sender in settings in the organization.
@@ -191,7 +187,6 @@ class SubmissionFunction(
                 ?: return HttpUtilities.unauthorizedResponse(
                     request, HttpUtilities.errorJson("Authentication Failed: ${action.sendingOrg}: unknown sender")
                 )
-            println("here5")
 
             // Do authentication
             val claims = AuthenticationStrategy.authenticate(

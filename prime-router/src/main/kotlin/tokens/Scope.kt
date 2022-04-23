@@ -28,17 +28,13 @@ class Scope {
 
         /**
          * Is this [scope] string well-formed and has a valid DetailedScope,
-         * and the org.sender portion of it matches the [expectedSender]
+         * and the org portion of it matches the org of the [expectedSender]
          */
         fun isValidScope(scope: String, expectedSender: Sender): Boolean {
             if (!isValidScope(scope)) return false
             val splits = scope.split(".")
             if (splits[0] != expectedSender.organizationName) {
                 logger.warn("Expected organization ${expectedSender.organizationName}. Instead got: ${splits[0]}")
-                return false
-            }
-            if (splits[1] != expectedSender.name) {
-                logger.warn("Expected sender ${expectedSender.name}. Instead got: ${splits[1]}")
                 return false
             }
             return true
