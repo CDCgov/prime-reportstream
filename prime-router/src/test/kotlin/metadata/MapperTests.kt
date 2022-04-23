@@ -89,6 +89,18 @@ class MapperTests {
         ).isEqualTo("TN") // else
     }
 
+    private fun assertEq(
+        mapper: Mapper,
+        elm: Element,
+        args: List<String>,
+        EAVs: List<ElementAndValue>,
+        compVal: String
+    ) {
+        assertThat(
+            mapper.apply(elm, args, EAVs).value
+        ).isEqualTo(compVal)
+    }
+
     @Test
     fun `test string and numeric literals IfThenElseMapper`() {
         val mapper = IfThenElseMapper()
@@ -100,72 +112,53 @@ class MapperTests {
         assertThat(valNames[1]).isEqualTo("comparisonValue")
         assertThat(valNames[2]).isEqualTo("patient_state")
         assertThat(valNames[3]).isEqualTo("ordering_provider_state")
-        // In all these cases, think of "AL" as the "that's right" and "TN" as the "else case"
-        // ("OTC" != "Prescription")
+
         var EAVotc = ElementAndValue(Element(args[1]), "OTC")
         var EAVpresc = ElementAndValue(Element(args[2]), "Prescription")
         val EAValabama = ElementAndValue(Element(args[3]), "AL")
         val EAVtn = ElementAndValue(Element(args[4]), "TN")
-        // test normal equality else
-        args = listOf("==", "otc_flag", "comparisonValue", EAValabama.element.name, "ordering_provider_state")
-        assertThat(
-            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
-        ).isEqualTo("TN") // else case
+
+        // In all these cases, think of "AL" as the "that's right" and "TN" as the "else case"
+        // test normal equality else (Note: "OTC" != "Prescription")
+        args = listOf("==", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        assertEq(mapper, element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn), "TN") // else case
 
         // now try a string literal ("OTC" is not an element name)
-        args = listOf("==", "otc_flag", "OTC", EAValabama.element.name, "ordering_provider_state")
+        args = listOf("==", "otc_flag", "OTC", "patient_state", "ordering_provider_state")
         EAVpresc = ElementAndValue(Element("testing"), "nulll") // should work, even after killing EAVpresc
-        assertThat(
-            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
-        ).isEqualTo("AL") // else case
+        assertEq(mapper, element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn), "AL")
 
         // now try a
         // numeric
         // literal
-        args = listOf("==", "otc_flag", "37", EAValabama.element.name, "ordering_provider_state")
+        args = listOf("==", "otc_flag", "37", "patient_state", "ordering_provider_state")
         EAVotc = ElementAndValue(Element(args[1]), "22")
-        assertThat(
-            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
-        ).isEqualTo("TN") // else case 22 != 37
+        assertEq(mapper, element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn), "TN") // else case 22 != 37
 
         // again!  again!
-        args = listOf("<=", "otc_flag", "37", EAValabama.element.name, "ordering_provider_state")
+        args = listOf("<=", "otc_flag", "37", "patient_state", "ordering_provider_state")
         EAVotc = ElementAndValue(Element(args[1]), "22") // element otc_flag has .value "22"
-        assertThat(
-            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
-        ).isEqualTo("AL") // 22 <= 37
-
-        // now we make this fail so we can see "expected: "[AL]" "
-        // args = listOf("<=", "otc_flag", "17", EAValabama.element.name, "ordering_provider_state")
-        // and fail it did
+        assertEq(mapper, element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn), "AL") // 22 <= 37
 
         // float (this test actually caught a typo for me!)
-        args = listOf("==", "otc_flag", "3.1415926536", EAValabama.element.name, "ordering_provider_state")
+        args = listOf("==", "otc_flag", "3.1415926536", "patient_state", "ordering_provider_state")
         EAVotc = ElementAndValue(Element(args[1]), "3.1415926536") // pi is pi
-        assertThat(
-            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
-        ).isEqualTo("AL") // floating point!
+        assertEq(mapper, element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn), "AL") // floating point
 
         // int not a string
-        args = listOf("<=", "otc_flag", "1700", EAValabama.element.name, "ordering_provider_state")
+        args = listOf("<=", "otc_flag", "1700", "patient_state", "ordering_provider_state")
         EAVotc = ElementAndValue(Element(args[1]), "22") // element otc_flag has .value "22"
-        assertThat(
-            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
-        ).isEqualTo("AL") // 22 <= 1700
+        assertEq(mapper, element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn), "AL") // 22 <= 1700
 
         // string not an int
-        args = listOf("<=", "otc_flag", "1700xx", EAValabama.element.name, "ordering_provider_state")
-        EAVotc = ElementAndValue(Element(args[1]), "22xx") // element otc_flag has .value "22"
-        assertThat(
-            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
-        ).isEqualTo("TN") // 22xx >= 1700xx, alphanumerically
+        args = listOf("<=", "otc_flag", "1700xx", "patient_state", "ordering_provider_state")
+        EAVotc = ElementAndValue(Element(args[1]), "22xx") // element otc_flag has .value "22xx"
+        assertEq(mapper, element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn), "TN") // 22xx >= 1700xx (alpha)
 
-        // equality of two (numeric looking) strings
-        args = listOf("==", "otc_flag", "1700xx", EAValabama.element.name, "ordering_provider_state")
-        EAVotc = ElementAndValue(Element(args[1]), "1700xx") // element otc_flag has .value "22"
-        assertThat(
-            mapper.apply(element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn)).value
-        ).isEqualTo("AL") // it's AL good!
+        // equality of two (numeric looking) strings, returning a passed string literal
+        args = listOf("==", "otc_flag", "1700xx", "SweetHomeAlabama", "ordering_provider_state")
+        EAVotc = ElementAndValue(Element(args[1]), "1700xx") // element otc_flag has .value "1700xx"
+        assertEq(mapper, element, args, listOf(EAVotc, EAVpresc, EAValabama, EAVtn), "SweetHomeAlabama") // AL good!
     }
 
     @Test

@@ -130,6 +130,8 @@ class IfThenElseMapper : Mapper {
                 "!=" -> (tVal1 != tVal2)
                 ">=" -> (tVal1 >= tVal2)
                 "<=" -> (tVal1 <= tVal2)
+                "<" -> (tVal1 < tVal2)
+                ">" -> (tVal1 > tVal2)
                 else -> false
             }
         }
@@ -141,6 +143,8 @@ class IfThenElseMapper : Mapper {
                 "!=" -> (dVal1 != dVal2)
                 ">=" -> (dVal1 >= dVal2)
                 "<=" -> (dVal1 <= dVal2)
+                "<" -> (dVal1 < dVal2)
+                ">" -> (dVal1 > dVal2)
                 else -> false
             }
         }
@@ -149,6 +153,8 @@ class IfThenElseMapper : Mapper {
             "!=" -> (val1 != val2)
             ">=" -> (val1 >= val2)
             "<=" -> (val1 <= val2)
+            "<" -> (val1 < val2)
+            ">" -> (val1 > val2)
             else -> false
         }
     } // comp(op, v1, v2):Boolean
@@ -159,8 +165,15 @@ class IfThenElseMapper : Mapper {
         values: List<ElementAndValue>,
         sender: Sender?
     ): ElementResult {
-        return if (comp(args[0], decodeArg(values, args[1]), decodeArg(values, args[2]))) // see comp()
-            ElementResult(decodeArg(values, args[3])) else ElementResult(decodeArg(values, args[4])) // see decodeArg()
+        return if (
+            comp(
+                args[0],
+                decodeArg(values, args[1]),
+                decodeArg(values, args[2])
+            ) // see comp()
+        )
+            ElementResult(decodeArg(values, args[3])) else
+            ElementResult(decodeArg(values, args[4])) // see decodeArg()
     }
 }
 
