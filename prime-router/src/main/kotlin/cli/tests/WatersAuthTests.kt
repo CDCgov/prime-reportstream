@@ -348,24 +348,24 @@ class WatersAuthTests : CoolTest() {
 
         if (environment == Environment.PROD) error("Can't create simple_report test data in PROD")
         val org1 = "simple_report"
-        val sender1 = createNewSenderForExistingOrg(mySenderName, org1)
+        var sender1 = createNewSenderForExistingOrg(mySenderName, org1)
         // Right now in order to access submission history you must have the default scope
         // This attaches the ignore.default.report scope claim to the ignore.temporary_sender_auth_test.report Sender.
         val scope1 = "$org1.default.report"
         val uploadReportScope1 = "$org1.$mySenderName.report"
         // Submit this new scope and public key to the Settings store, associated with this Sender.
-        saveSendersKey(sender1, end2EndExampleRSAPublicKeyStr, kid, scope1)
-        saveSendersKey(sender1, end2EndExampleRSAPublicKeyStr, kid, uploadReportScope1)
+        sender1 = saveSendersKey(sender1, end2EndExampleRSAPublicKeyStr, kid, scope1)
+        sender1 = saveSendersKey(sender1, end2EndExampleRSAPublicKeyStr, kid, uploadReportScope1)
 
         val org2 = "ignore"
-        val sender2 = createNewSenderForExistingOrg(mySenderName, org2)
+        var sender2 = createNewSenderForExistingOrg(mySenderName, org2)
         // Right now in order to access submission history you must have the default scope
         // This attaches the ignore.default.report scope claim to the ignore.temporary_sender_auth_test.report Sender.
         val scope2 = "$org2.default.report"
         val uploadReportScope2 = "$org2.$mySenderName.report"
         // Submit this new scope and public key to the Settings store, associated with this Sender.
-        saveSendersKey(sender2, end2EndExampleRSAPublicKeyStr, kid, scope2)
-        saveSendersKey(sender2, end2EndExampleRSAPublicKeyStr, kid, uploadReportScope2)
+        sender2 = saveSendersKey(sender2, end2EndExampleRSAPublicKeyStr, kid, scope2)
+        sender2 = saveSendersKey(sender2, end2EndExampleRSAPublicKeyStr, kid, uploadReportScope2)
 
         try {
             val myFakeReportFile = createFakeReport(sender1)
@@ -426,7 +426,9 @@ class WatersAuthTests : CoolTest() {
             // Setup is done!   Ready to run some tests.
             passed = passed and oktaPrimeAdminSubmissionListAuthTests(environment, org1, org2)
             passed = passed and server2ServerSubmissionListAuthTests(environment, org1, org2, token1, token2)
-            passed = passed and server2ServerSubmissionDetailsAuthTests(environment, reportId2, token2)
+            passed = passed and server2ServerSubmissionDetailsAuthTests(
+                environment, org1, org2, reportId1, reportId2, token1, token2
+            )
         } finally {
             deleteSender(sender1)
             deleteSender(sender2)
@@ -450,7 +452,7 @@ class WatersAuthTests : CoolTest() {
         )
         val testCases = listOf(
             HistoryApiTestCase(
-                "Get submissions to $orgName1",
+                "Okta: get submissions to $orgName1",
                 "${environment.url}/api/waters/org/$orgName1/submissions",
                 mapOf("authentication-type" to "okta"),
                 listOf("pagesize" to 1),
@@ -461,7 +463,7 @@ class WatersAuthTests : CoolTest() {
                 doMinimalChecking = true
             ),
             HistoryApiTestCase(
-                "Get submissions to $orgName1.default",
+                "Okta: Get submissions to $orgName1.default",
                 "${environment.url}/api/waters/org/$orgName1.default/submissions",
                 mapOf("authentication-type" to "okta"),
                 listOf("pagesize" to 1),
@@ -472,7 +474,7 @@ class WatersAuthTests : CoolTest() {
                 doMinimalChecking = true
             ),
             HistoryApiTestCase(
-                "Get submissions to $orgName2",
+                "Okta: Get submissions to $orgName2",
                 "${environment.url}/api/waters/org/$orgName2/submissions",
                 mapOf("authentication-type" to "okta"),
                 listOf("pagesize" to 1),
@@ -483,7 +485,7 @@ class WatersAuthTests : CoolTest() {
                 doMinimalChecking = true
             ),
             HistoryApiTestCase(
-                "Get submissions to $orgName2.default",
+                "Okta: Get submissions to $orgName2.default",
                 "${environment.url}/api/waters/org/$orgName2.default/submissions",
                 mapOf("authentication-type" to "okta"),
                 listOf("pagesize" to 1),
@@ -590,24 +592,61 @@ class WatersAuthTests : CoolTest() {
 
     private fun server2ServerSubmissionDetailsAuthTests(
         environment: Environment,
-        reportId: ReportId?,
-        server2ServerAccessTok: String
+        orgName1: String,
+        orgName2: String,
+        reportId1: ReportId?,
+        reportId2: ReportId?,
+        token1: String,
+        token2: String,
     ): Boolean {
-        ugly("Starting $name Test: submission DETAILS using server2server auth. Querying for report $reportId.")
-        if (reportId == null) {
-            return bad("Unable to do server2ServerSubmissionDetailsAuthTests:  no reportId to test with")
+        ugly("Starting $name Test: submission DETAILS using server2server auth.")
+        if (reportId1 == null || reportId2 == null) {
+            return bad("Unable to do server2ServerSubmissionDetailsAuthTests:  no reportId's to test with")
         }
         val testCases = mutableListOf(
             // Example
             // curl -H "Authorization: Bearer $TOK" "http://localhost:7071/api/waters/report/<UUID>/history"
             HistoryApiTestCase(
-                "Get submission details for a report: Happy path",
-                "${environment.url}/api/waters/report/$reportId/history",
+                "Get submission details for an $orgName1 report using an $orgName1 token: Happy path",
+                "${environment.url}/api/waters/report/$reportId1/history",
                 emptyMap(),
                 emptyList(),
-                server2ServerAccessTok,
+                token1,
                 HttpStatus.OK,
-                expectedReports = setOf(reportId),
+                expectedReports = setOf(reportId1),
+                SubmissionDetailsChecker(this),
+                doMinimalChecking = false,
+            ),
+            HistoryApiTestCase(
+                "Get submission details for an $orgName2 report using an $orgName2 token: Happy path",
+                "${environment.url}/api/waters/report/$reportId2/history",
+                emptyMap(),
+                emptyList(),
+                token2,
+                HttpStatus.OK,
+                expectedReports = setOf(reportId2),
+                SubmissionDetailsChecker(this),
+                doMinimalChecking = false,
+            ),
+            HistoryApiTestCase(
+                "Get submission details for an $orgName1 report using an $orgName2 token: Should fail",
+                "${environment.url}/api/waters/report/$reportId1/history",
+                emptyMap(),
+                emptyList(),
+                token2,
+                HttpStatus.UNAUTHORIZED,
+                expectedReports = setOf(reportId1),
+                SubmissionDetailsChecker(this),
+                doMinimalChecking = false,
+            ),
+            HistoryApiTestCase(
+                "Get submission details for an $orgName2 report using an $orgName1 token: Should fail",
+                "${environment.url}/api/waters/report/$reportId2/history",
+                emptyMap(),
+                emptyList(),
+                token1,
+                HttpStatus.UNAUTHORIZED,
+                expectedReports = setOf(reportId2),
                 SubmissionDetailsChecker(this),
                 doMinimalChecking = false,
             ),
@@ -616,7 +655,7 @@ class WatersAuthTests : CoolTest() {
                 "${environment.url}/api/waters/report/87a02e0c-5b77-4595-a039-e143fbaadda2/history",
                 emptyMap(),
                 emptyList(),
-                server2ServerAccessTok,
+                token1,
                 HttpStatus.NOT_FOUND,
                 expectedReports = setOf(UUID.fromString("87a02e0c-5b77-4595-a039-e143fbaadda2")),
                 SubmissionDetailsChecker(this),
@@ -627,9 +666,9 @@ class WatersAuthTests : CoolTest() {
                 "${environment.url}/api/waters/report/BOGOSITY/history",
                 emptyMap(),
                 emptyList(),
-                server2ServerAccessTok,
+                token1,
                 HttpStatus.NOT_FOUND,
-                expectedReports = setOf(reportId),
+                expectedReports = setOf(reportId1),
                 SubmissionDetailsChecker(this),
                 doMinimalChecking = false,
             ),
