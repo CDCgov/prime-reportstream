@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { Button, DatePicker, Label } from "@trussworks/react-uswds";
 
-import "./SubmissionPages.css";
+import "../../pages/submissions/SubmissionPages.css";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
-import { CursorManager } from "../../hooks/filters/UseCursorManager";
+import {
+    CursorActionType,
+    CursorManager,
+} from "../../hooks/filters/UseCursorManager";
+import { RangeSettingsActionType } from "../../hooks/filters/UseDateRange";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
@@ -23,16 +27,19 @@ interface SubmissionFilterProps {
     cursorManager: CursorManager;
 }
 
+/* This helper ensures start range values are inclusive
+ * of the day set in the date picker. */
+const inclusiveDateString = (originalDate: string) => {
+    return `${originalDate} 23:59:59 GMT`;
+};
+
 /* This component contains the UI for selecting query parameters.
  * When the `Apply` button is clicked, these should be updated in
  * a context wrapping this and the SubmissionTable component. The
  * table component contains the call and param passing to the API,
  * and will use the context to get these values.
  */
-function SubmissionFilters({
-    filterManager,
-    cursorManager,
-}: SubmissionFilterProps) {
+function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
     const FALLBACK_LOCAL_START = "2999-12-31";
     const FALLBACK_LOCAL_END = "2020-01-01";
 
@@ -46,29 +53,47 @@ function SubmissionFilters({
 
     const updateRange = () => {
         if (localStartRange && localEndRange) {
-            filterManager.range.set({
-                date1: localStartRange,
-                date2: localEndRange,
+            filterManager.updateRange({
+                type: RangeSettingsActionType.RESET,
+                payload: {
+                    start: new Date(
+                        inclusiveDateString(localStartRange)
+                    ).toISOString(),
+                    end: new Date(localEndRange).toISOString(),
+                },
             });
-            cursorManager.controller.reset(
-                new Date(localStartRange).toISOString()
-            );
+            cursorManager.update({
+                type: CursorActionType.RESET,
+                payload: new Date(
+                    inclusiveDateString(localStartRange)
+                ).toISOString(),
+            });
         } else if (localStartRange && !localEndRange) {
-            filterManager.range.set({
-                date1: localStartRange,
-                sort: filterManager.sort.order,
+            filterManager.updateRange({
+                type: RangeSettingsActionType.UPDATE_START,
+                payload: {
+                    start: new Date(
+                        inclusiveDateString(localStartRange)
+                    ).toISOString(),
+                },
             });
-            cursorManager.controller.reset(
-                new Date(localStartRange).toISOString()
-            );
+            cursorManager.update({
+                type: CursorActionType.RESET,
+                payload: new Date(
+                    inclusiveDateString(localStartRange)
+                ).toISOString(),
+            });
         } else if (!localStartRange && localEndRange) {
-            filterManager.range.set({
-                date1: localEndRange,
-                sort: filterManager.sort.order,
+            filterManager.updateRange({
+                type: RangeSettingsActionType.UPDATE_END,
+                payload: {
+                    end: new Date(localEndRange).toISOString(),
+                },
             });
-            cursorManager.controller.reset(
-                new Date(localEndRange).toISOString()
-            );
+            cursorManager.update({
+                type: CursorActionType.RESET,
+                payload: new Date(localEndRange).toISOString(),
+            });
         }
     };
 
@@ -81,8 +106,8 @@ function SubmissionFilters({
     /* Clears manager and local state values */
     const clearAll = () => {
         // Clears manager state
-        filterManager.clearAll();
-        cursorManager.controller.reset();
+        filterManager.resetAll();
+        cursorManager.update({ type: CursorActionType.RESET });
 
         // Clear local state
         setLocalStartRange(FALLBACK_LOCAL_START);
@@ -152,4 +177,5 @@ function SubmissionFilters({
     );
 }
 
-export default SubmissionFilters;
+export default TableFilters;
+export { inclusiveDateString };
