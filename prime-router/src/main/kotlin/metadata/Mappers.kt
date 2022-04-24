@@ -81,6 +81,33 @@ data class ElementAndValue(
     val value: String
 )
 
+class MiddleInitialMapper : Mapper {
+    override val name = "middleInitial"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.size != 1) error("Schema Error: Invalid number of arguments")
+        return args
+    }
+
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        return ElementResult(
+            if (values.isEmpty()) {
+                null
+            } else {
+                if (values.size != 1)
+                    error("Found ${values.size} values.  Expecting 1 value. Args: $args, Values: $values")
+                else if (values.first().value.isEmpty()) null
+                else values.first().value.substring(0..0).uppercase()
+            }
+        )
+    }
+}
+
 /**
  *
  *
@@ -107,7 +134,7 @@ class IfThenElseMapper : Mapper {
      * @param mapperArg one of the arguments from a schema elements mapper property
      * @return Either a passed-in Elements .value or the mapper argument as a string literal
      */
-    fun decodeArg(values: List<ElementAndValue>, mapperArg: String): String {
+    private fun decodeArg(values: List<ElementAndValue>, mapperArg: String): String {
         return values.find { it.element.name == mapperArg }?.value ?: mapperArg
     }
 
@@ -174,33 +201,6 @@ class IfThenElseMapper : Mapper {
         )
             ElementResult(decodeArg(values, args[3])) else
             ElementResult(decodeArg(values, args[4])) // see decodeArg()
-    }
-}
-
-class MiddleInitialMapper : Mapper {
-    override val name = "middleInitial"
-
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.size != 1) error("Schema Error: Invalid number of arguments")
-        return args
-    }
-
-    override fun apply(
-        element: Element,
-        args: List<String>,
-        values: List<ElementAndValue>,
-        sender: Sender?
-    ): ElementResult {
-        return ElementResult(
-            if (values.isEmpty()) {
-                null
-            } else {
-                if (values.size != 1)
-                    error("Found ${values.size} values.  Expecting 1 value. Args: $args, Values: $values")
-                else if (values.first().value.isEmpty()) null
-                else values.first().value.substring(0..0).uppercase()
-            }
-        )
     }
 }
 
