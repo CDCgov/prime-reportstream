@@ -154,7 +154,6 @@ class HistoryApiTest : CoolTest() {
             return Pair(false, null)
         }
         if (testCase.expectedHttpStatus != HttpStatus.OK) {
-            good("$name test '${testCase.name}' passed:  Got expected http status ${testCase.expectedHttpStatus}")
             return Pair(true, null)
         }
         if (result !is Result.Success) {
@@ -298,7 +297,7 @@ class SubmissionListChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker
  * returns a single [DetailedSubmissionHistory] object.
  * [testBeingRun] is the test calling this checker.
  */
-class SubmissionDetailsChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker(testBeingRun) {
+class ReportDetailsChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker(testBeingRun) {
     /**
      * Compare the list of reportIds we got from the original submissions vs response from history API
      * @return whether the test passed

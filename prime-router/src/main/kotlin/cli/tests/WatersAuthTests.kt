@@ -24,7 +24,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 /**
- *
+ *  Test a variety of waters endpoints across all our various authorization techniques
  */
 class WatersAuthTests : CoolTest() {
     override val name = "watersauth"
@@ -169,7 +169,7 @@ class WatersAuthTests : CoolTest() {
         var passed = true
         settingsEnv = environment
         passed = passed and doEcAndRsaEcKeyTests(environment)
-        passed = passed and doAllSubmissionAuthTests(environment)
+        passed = passed and doEndpointAuthTests(environment)
         return passed
     }
 
@@ -328,23 +328,18 @@ class WatersAuthTests : CoolTest() {
     }
 
     /**
-     * Run a wide variety of tests of auth of the submissions API endpoints.
-     * This assumes settingsAccessTok has a valid token and that the 5 minutes has not expired.
-     * Use it to perform a series of auth tests on our submission endpoints.
+     * Run a wide variety of tests of auth of waters API endpoints.
      */
-    private fun doAllSubmissionAuthTests(
+    private fun doEndpointAuthTests(
         environment: Environment,
     ): Boolean {
         var passed = true
-
-        // First, quite a lot of setup for the testing:
-        // Make sure the setting has a key with a scope that enables submission history calls.
-        // Then get a 5-minute token, and submit a single file.
+        // There is quite a lot of setup needed here.
+        // To truly test auth, we need tokens for two orgs, so we can test that org1 can't see org2, etc.
+        // So you'll see everything done twice here.
 
         val mySenderName = "temporary_submission_auth_test"
         val kid = "submission-testing-kid"
-
-        // We need to submit reports to two separate orgs to do this testing.
 
         if (environment == Environment.PROD) error("Can't create simple_report test data in PROD")
         val org1 = "simple_report"
@@ -424,15 +419,164 @@ class WatersAuthTests : CoolTest() {
             }
 
             // Setup is done!   Ready to run some tests.
+            passed = passed and oktaLocalAuthTests(environment, myFakeReportFile, sender1, org1, reportId1)
+            passed = passed and oktaBadTokenAuthTests(environment, myFakeReportFile, sender1, org1, reportId1, token1)
             passed = passed and oktaPrimeAdminSubmissionListAuthTests(environment, org1, org2)
             passed = passed and server2ServerSubmissionListAuthTests(environment, org1, org2, token1, token2)
-            passed = passed and server2ServerSubmissionDetailsAuthTests(
+            passed = passed and server2ServerReportDetailsAuthTests(
                 environment, org1, org2, reportId1, reportId2, token1, token2
             )
         } finally {
             deleteSender(sender1)
             deleteSender(sender2)
         }
+        return passed
+    }
+
+    /**
+     * Run a suite of tests using local auth
+     */
+    private fun oktaLocalAuthTests(
+        environment: Environment,
+        fakeReportFile: File,
+        sender1: Sender,
+        orgName1: String,
+        reportId1: ReportId?,
+    ): Boolean {
+        ugly("Starting $name Test: try various API paths using local auth only")
+        var passed = true
+        // First, test submitting a report using local auth.
+        val (responseCode, json) = HttpUtilities.postReportFileToWatersApi(
+            environment, fakeReportFile, sender1, token = "dummy"
+        )
+        if (responseCode != 201) {
+            passed = passed and bad("Local auth: Should get a 201 response, but but instead got $responseCode")
+        } else {
+            if (getReportIdFromResponse(json) == null)
+                passed = passed and bad("Local auth:  got a 201 json, but no reportId. json is $json")
+        }
+        val testCases = listOf(
+            HistoryApiTestCase(
+                "Local server2server auth: get list-of-submissions to $orgName1",
+                "${environment.url}/api/waters/org/$orgName1/submissions",
+                emptyMap(),
+                listOf("pagesize" to 1),
+                bearer = "",
+                HttpStatus.OK,
+                expectedReports = emptySet(),
+                SubmissionListChecker(this),
+                doMinimalChecking = true
+            ),
+            HistoryApiTestCase(
+                "Local server2server auth: Get report-details-history for one report",
+                "${environment.url}/api/waters/report/$reportId1/history",
+                emptyMap(),
+                emptyList(),
+                bearer = "x",
+                HttpStatus.OK,
+                expectedReports = setOf(reportId1!!),
+                ReportDetailsChecker(this),
+                doMinimalChecking = false
+            ),
+            HistoryApiTestCase(
+                "Local okta auth: get list-of-submissions to $orgName1",
+                "${environment.url}/api/waters/org/$orgName1/submissions",
+                mapOf("authentication-type" to "okta"),
+                listOf("pagesize" to 1),
+                bearer = "",
+                HttpStatus.OK,
+                expectedReports = emptySet(),
+                SubmissionListChecker(this),
+                doMinimalChecking = true
+            ),
+            HistoryApiTestCase(
+                "Local okta auth: Get report-details-history for one report",
+                "${environment.url}/api/waters/report/$reportId1/history",
+                mapOf("authentication-type" to "okta"),
+                emptyList(),
+                bearer = "x",
+                HttpStatus.OK,
+                expectedReports = setOf(reportId1),
+                ReportDetailsChecker(this),
+                doMinimalChecking = false
+            ),
+        )
+        val historyApiTest = HistoryApiTest()
+        historyApiTest.outputToConsole = this.outputToConsole
+        passed = passed and historyApiTest.runHistoryTestCases(testCases)
+        return passed
+    }
+
+    /**
+     * Run a suite of tests using a bad token
+     */
+    private fun oktaBadTokenAuthTests(
+        environment: Environment,
+        fakeReportFile: File,
+        sender1: Sender,
+        orgName1: String,
+        reportId1: ReportId?,
+        token1: String,
+    ): Boolean {
+        ugly("Starting $name Test: try various API paths using a bad bad token")
+        var passed = true
+        val badToken = token1.reversed()
+        // First, test submitting a report using local auth.
+        val (responseCode, _) = HttpUtilities.postReportFileToWatersApi(
+            environment, fakeReportFile, sender1, token = badToken
+        )
+        if (responseCode != HttpStatus.UNAUTHORIZED.value()) {
+            passed = passed and bad("Local auth: Should get a 401 response, but but instead got $responseCode")
+        }
+        val testCases = listOf(
+            HistoryApiTestCase(
+                "Badtoken server2server: get list-of-submissions to $orgName1",
+                "${environment.url}/api/waters/org/$orgName1/submissions",
+                emptyMap(),
+                listOf("pagesize" to 1),
+                bearer = badToken,
+                HttpStatus.UNAUTHORIZED,
+                expectedReports = emptySet(),
+                SubmissionListChecker(this),
+                doMinimalChecking = true
+            ),
+            HistoryApiTestCase(
+                "Badtoken server2server: Get report-details-history for one report",
+                "${environment.url}/api/waters/report/$reportId1/history",
+                emptyMap(),
+                emptyList(),
+                bearer = badToken,
+                HttpStatus.UNAUTHORIZED,
+                expectedReports = setOf(reportId1!!),
+                ReportDetailsChecker(this),
+                doMinimalChecking = false
+            ),
+            HistoryApiTestCase(
+                "Badtoken okta: get list-of-submissions to $orgName1",
+                "${environment.url}/api/waters/org/$orgName1/submissions",
+                mapOf("authentication-type" to "okta"),
+                listOf("pagesize" to 1),
+                bearer = badToken,
+                HttpStatus.UNAUTHORIZED,
+                expectedReports = emptySet(),
+                SubmissionListChecker(this),
+                doMinimalChecking = true
+            ),
+            HistoryApiTestCase(
+                "Badtoken okta: Get report-details-history for one report",
+                "${environment.url}/api/waters/report/$reportId1/history",
+                mapOf("authentication-type" to "okta"),
+                emptyList(),
+                bearer = badToken,
+                HttpStatus.UNAUTHORIZED,
+                expectedReports = setOf(reportId1),
+                ReportDetailsChecker(this),
+                doMinimalChecking = false
+            ),
+        )
+        val historyApiTest = HistoryApiTest()
+        historyApiTest.outputToConsole = this.outputToConsole
+        passed = passed and historyApiTest.runHistoryTestCases(testCases)
         return passed
     }
 
@@ -445,6 +589,7 @@ class WatersAuthTests : CoolTest() {
         orgName1: String,
         orgName2: String,
     ): Boolean {
+        ugly("Starting $name Test: test list-of-submissions queries using Okta PrimeAdmin token")
         val advice = "Run   ./prime login --env staging    " +
             "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
         val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: abort(
@@ -452,7 +597,7 @@ class WatersAuthTests : CoolTest() {
         )
         val testCases = listOf(
             HistoryApiTestCase(
-                "Okta: get submissions to $orgName1",
+                "Okta: get list-of-submissions to $orgName1",
                 "${environment.url}/api/waters/org/$orgName1/submissions",
                 mapOf("authentication-type" to "okta"),
                 listOf("pagesize" to 1),
@@ -463,7 +608,7 @@ class WatersAuthTests : CoolTest() {
                 doMinimalChecking = true
             ),
             HistoryApiTestCase(
-                "Okta: Get submissions to $orgName1.default",
+                "Okta: Get list-of-submissions to $orgName1.default",
                 "${environment.url}/api/waters/org/$orgName1.default/submissions",
                 mapOf("authentication-type" to "okta"),
                 listOf("pagesize" to 1),
@@ -474,7 +619,7 @@ class WatersAuthTests : CoolTest() {
                 doMinimalChecking = true
             ),
             HistoryApiTestCase(
-                "Okta: Get submissions to $orgName2",
+                "Okta: Get list-of-submissions to $orgName2",
                 "${environment.url}/api/waters/org/$orgName2/submissions",
                 mapOf("authentication-type" to "okta"),
                 listOf("pagesize" to 1),
@@ -485,7 +630,7 @@ class WatersAuthTests : CoolTest() {
                 doMinimalChecking = true
             ),
             HistoryApiTestCase(
-                "Okta: Get submissions to $orgName2.default",
+                "Okta: Get list-of-submissions to $orgName2.default",
                 "${environment.url}/api/waters/org/$orgName2.default/submissions",
                 mapOf("authentication-type" to "okta"),
                 listOf("pagesize" to 1),
@@ -504,8 +649,9 @@ class WatersAuthTests : CoolTest() {
         }
         return passed
     }
+
     /**
-     * Run a suite of tests against the submission list endpoint.
+     * Run a suite of tests against the list-of-submissions endpoint.
      */
     private fun server2ServerSubmissionListAuthTests(
         environment: Environment,
@@ -514,12 +660,12 @@ class WatersAuthTests : CoolTest() {
         token1: String,
         token2: String,
     ): Boolean {
-        ugly("Starting $name Test: submission list queries using server2server auth.")
+        ugly("Starting $name Test: test list-of-submissions queries using server2server tokens")
         val testCases = mutableListOf(
             // A variety of auth test cases, against the submission list queries
             // curl -H "Authorization: Bearer $TOK" "http://localhost:7071/api/waters/org/ignore/submissions?pagesize=1"
             HistoryApiTestCase(
-                "Get submissions to $orgName1 with correct tok",
+                "Get list-of-submissions to $orgName1 with correct tok",
                 "${environment.url}/api/waters/org/$orgName1/submissions",
                 emptyMap(),
                 listOf("pagesize" to 1),
@@ -530,7 +676,7 @@ class WatersAuthTests : CoolTest() {
                 doMinimalChecking = true
             ),
             HistoryApiTestCase(
-                "Get submissions to $orgName1.default with correct auth",
+                "Get list-of-submissions to $orgName1.default with correct auth",
                 "${environment.url}/api/waters/org/$orgName1.default/submissions",
                 emptyMap(),
                 listOf("pagesize" to 1),
@@ -541,7 +687,7 @@ class WatersAuthTests : CoolTest() {
                 doMinimalChecking = true
             ),
             HistoryApiTestCase(
-                "Get submissions to a bogus organization",
+                "Get list-of-submissions to a bogus organization",
                 "${environment.url}/api/waters/org/BOGOSITY/submissions",
                 emptyMap(),
                 listOf("pagesize" to 1),
@@ -552,7 +698,7 @@ class WatersAuthTests : CoolTest() {
                 doMinimalChecking = true
             ),
             HistoryApiTestCase(
-                "Get submissions to $orgName2 with $orgName1 auth",
+                "Get list-of-submissions to $orgName2 with $orgName1 auth",
                 "${environment.url}/api/waters/org/$orgName2/submissions",
                 emptyMap(),
                 listOf("pagesize" to 1),
@@ -563,7 +709,7 @@ class WatersAuthTests : CoolTest() {
                 doMinimalChecking = true
             ),
             HistoryApiTestCase(
-                "Get submissions to oh-doh receiver with $orgName1 auth",
+                "Get list-of-submissions to oh-doh receiver with $orgName1 auth",
                 "${environment.url}/api/waters/org/oh-doh/submissions",
                 emptyMap(),
                 listOf("pagesize" to 1),
@@ -574,7 +720,7 @@ class WatersAuthTests : CoolTest() {
                 doMinimalChecking = true
             ),
             HistoryApiTestCase(
-                "Get submissions to $orgName1 with $orgName2 auth",
+                "Get list-of-submissions to $orgName1 with $orgName2 auth",
                 "${environment.url}/api/waters/org/$orgName1/submissions",
                 emptyMap(),
                 listOf("pagesize" to 1),
@@ -590,7 +736,7 @@ class WatersAuthTests : CoolTest() {
         return historyApiTest.runHistoryTestCases(testCases)
     }
 
-    private fun server2ServerSubmissionDetailsAuthTests(
+    private fun server2ServerReportDetailsAuthTests(
         environment: Environment,
         orgName1: String,
         orgName2: String,
@@ -599,77 +745,77 @@ class WatersAuthTests : CoolTest() {
         token1: String,
         token2: String,
     ): Boolean {
-        ugly("Starting $name Test: submission DETAILS using server2server auth.")
+        ugly("Starting $name Test: test report-details-history queries using server2server auth.")
         if (reportId1 == null || reportId2 == null) {
-            return bad("Unable to do server2ServerSubmissionDetailsAuthTests:  no reportId's to test with")
+            return bad("Unable to do server2ServerReportDetailsAuthTests:  no reportId's to test with")
         }
         val testCases = mutableListOf(
             // Example
             // curl -H "Authorization: Bearer $TOK" "http://localhost:7071/api/waters/report/<UUID>/history"
             HistoryApiTestCase(
-                "Get submission details for an $orgName1 report using an $orgName1 token: Happy path",
+                "Get report-details-history for an $orgName1 report using an $orgName1 token: Happy path",
                 "${environment.url}/api/waters/report/$reportId1/history",
                 emptyMap(),
                 emptyList(),
                 token1,
                 HttpStatus.OK,
                 expectedReports = setOf(reportId1),
-                SubmissionDetailsChecker(this),
+                ReportDetailsChecker(this),
                 doMinimalChecking = false,
             ),
             HistoryApiTestCase(
-                "Get submission details for an $orgName2 report using an $orgName2 token: Happy path",
+                "Get report-details-history for an $orgName2 report using an $orgName2 token: Happy path",
                 "${environment.url}/api/waters/report/$reportId2/history",
                 emptyMap(),
                 emptyList(),
                 token2,
                 HttpStatus.OK,
                 expectedReports = setOf(reportId2),
-                SubmissionDetailsChecker(this),
+                ReportDetailsChecker(this),
                 doMinimalChecking = false,
             ),
             HistoryApiTestCase(
-                "Get submission details for an $orgName1 report using an $orgName2 token: Should fail",
+                "Get report-details-history for an $orgName1 report using an $orgName2 token: Should fail",
                 "${environment.url}/api/waters/report/$reportId1/history",
                 emptyMap(),
                 emptyList(),
                 token2,
                 HttpStatus.UNAUTHORIZED,
                 expectedReports = setOf(reportId1),
-                SubmissionDetailsChecker(this),
+                ReportDetailsChecker(this),
                 doMinimalChecking = false,
             ),
             HistoryApiTestCase(
-                "Get submission details for an $orgName2 report using an $orgName1 token: Should fail",
+                "Get report-details-history for an $orgName2 report using an $orgName1 token: Should fail",
                 "${environment.url}/api/waters/report/$reportId2/history",
                 emptyMap(),
                 emptyList(),
                 token1,
                 HttpStatus.UNAUTHORIZED,
                 expectedReports = setOf(reportId2),
-                SubmissionDetailsChecker(this),
+                ReportDetailsChecker(this),
                 doMinimalChecking = false,
             ),
             HistoryApiTestCase(
-                "Get submission details for a nonexistent report:",
+                "Get report-details-history for a nonexistent report:",
                 "${environment.url}/api/waters/report/87a02e0c-5b77-4595-a039-e143fbaadda2/history",
                 emptyMap(),
                 emptyList(),
                 token1,
                 HttpStatus.NOT_FOUND,
                 expectedReports = setOf(UUID.fromString("87a02e0c-5b77-4595-a039-e143fbaadda2")),
-                SubmissionDetailsChecker(this),
+                ReportDetailsChecker(this),
                 doMinimalChecking = false,
             ),
             HistoryApiTestCase(
-                "Get submission details for a bogus report:",
+                "Get report-details-history for a bogus report:",
                 "${environment.url}/api/waters/report/BOGOSITY/history",
                 emptyMap(),
                 emptyList(),
                 token1,
                 HttpStatus.NOT_FOUND,
                 expectedReports = setOf(reportId1),
-                SubmissionDetailsChecker(this),
+                ReportDetailsChecker(this),
                 doMinimalChecking = false,
             ),
         )
