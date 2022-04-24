@@ -122,8 +122,8 @@ class ReportFunction(
             ) ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
             // Do authorization based on org name in claim matching org name in client header
-            if (claims.organizationNameClaim != sender.organizationName) {
-                logger.info(
+            if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {
+                logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
                         " ${request.httpMethod}:${request.uri.path}." +
                         " ERR: Claim org is ${claims.organizationNameClaim} but client id is ${sender.organizationName}"

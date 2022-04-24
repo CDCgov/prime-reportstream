@@ -422,6 +422,7 @@ class WatersAuthTests : CoolTest() {
             passed = passed and oktaLocalAuthTests(environment, myFakeReportFile, sender1, org1, reportId1)
             passed = passed and oktaBadTokenAuthTests(environment, myFakeReportFile, sender1, org1, reportId1, token1)
             passed = passed and oktaPrimeAdminSubmissionListAuthTests(environment, org1, org2)
+            passed = passed and oktaPrimeAdminReportDetailsAuthTests(environment, org1, org2, reportId1, reportId2)
             passed = passed and server2ServerSubmissionListAuthTests(environment, org1, org2, token1, token2)
             passed = passed and server2ServerReportDetailsAuthTests(
                 environment, org1, org2, reportId1, reportId2, token1, token2
@@ -639,6 +640,78 @@ class WatersAuthTests : CoolTest() {
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
+            ),
+        )
+        val historyApiTest = HistoryApiTest()
+        historyApiTest.outputToConsole = this.outputToConsole
+        val passed = historyApiTest.runHistoryTestCases(testCases)
+        if (!passed) {
+            bad("One or more Okta PrimeAdmin tests failed. You might need to:  $advice")
+        }
+        return passed
+    }
+
+    private fun oktaPrimeAdminReportDetailsAuthTests(
+        environment: Environment,
+        orgName1: String,
+        orgName2: String,
+        reportId1: ReportId?,
+        reportId2: ReportId?,
+    ): Boolean {
+        ugly("Starting $name Test: test report-details-history queries using Okta auth.")
+        val advice = "Run   ./prime login --env staging    " +
+            "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
+        val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: abort(
+            "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
+        )
+
+        if (reportId1 == null || reportId2 == null) {
+            return bad("Unable to do oktaPrimeAdminReportDetailsAuthTests:  no reportId's to test with")
+        }
+        val testCases = mutableListOf(
+            HistoryApiTestCase(
+                "Get report-details-history for an $orgName1 report using an Okta PrimeAdmin token: Happy path",
+                "${environment.url}/api/waters/report/$reportId1/history",
+                mapOf("authentication-type" to "okta"),
+                emptyList(),
+                oktaToken,
+                HttpStatus.OK,
+                expectedReports = setOf(reportId1),
+                ReportDetailsChecker(this),
+                doMinimalChecking = false,
+            ),
+            HistoryApiTestCase(
+                "Get report-details-history for an $orgName2 report using an Okta PrimeAdmin token: Happy path",
+                "${environment.url}/api/waters/report/$reportId2/history",
+                mapOf("authentication-type" to "okta"),
+                emptyList(),
+                oktaToken,
+                HttpStatus.OK,
+                expectedReports = setOf(reportId2),
+                ReportDetailsChecker(this),
+                doMinimalChecking = false,
+            ),
+            HistoryApiTestCase(
+                "Get report-details-history for a nonexistent report using an Okta PrimeAdmin token: should fail",
+                "${environment.url}/api/waters/report/87a02e0c-5b77-4595-a039-e143fbaadda2/history",
+                mapOf("authentication-type" to "okta"),
+                emptyList(),
+                oktaToken,
+                HttpStatus.NOT_FOUND,
+                expectedReports = setOf(UUID.fromString("87a02e0c-5b77-4595-a039-e143fbaadda2")),
+                ReportDetailsChecker(this),
+                doMinimalChecking = false,
+            ),
+            HistoryApiTestCase(
+                "Get report-details-history for a bogus report using an Okta PrimeAdmin token: should fail",
+                "${environment.url}/api/waters/report/BOGOSITY/history",
+                mapOf("authentication-type" to "okta"),
+                emptyList(),
+                oktaToken,
+                HttpStatus.NOT_FOUND,
+                expectedReports = setOf(reportId1),
+                ReportDetailsChecker(this),
+                doMinimalChecking = false,
             ),
         )
         val historyApiTest = HistoryApiTest()
