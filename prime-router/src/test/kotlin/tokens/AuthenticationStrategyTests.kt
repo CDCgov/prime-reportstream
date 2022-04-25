@@ -50,7 +50,7 @@ class AuthenticationStrategyTests {
         mockkObject(OktaAuthentication)
         // Okta style token. There's a logger call that uses 'sub'
         val jwt = mapOf("sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, AuthenticationType.okta, "simple_report")
+        val claims = AuthenticatedClaims(jwt, "simple_report")
         every { OktaAuthentication.authenticate(any()) } returns claims
         assertThat(AuthenticationStrategy.authenticate(req)).isEqualTo(claims)
     }

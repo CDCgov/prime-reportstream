@@ -19,7 +19,6 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
-import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.DO_OKTA_AUTH
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -142,7 +141,7 @@ class ReportFunctionTests {
     fun `test submitToWaters with missing client`() {
         val (reportFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("foo" to "bar", "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, AuthenticationType.server2server, "simple_report")
+        val claims = AuthenticatedClaims(jwt, "simple_report")
         every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "content-length" to "4"
@@ -157,7 +156,7 @@ class ReportFunctionTests {
     fun `test submitToWaters with server2server auth - basic happy path`() {
         val (reportFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("foo" to "bar", "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, AuthenticationType.server2server, "simple_report")
+        val claims = AuthenticatedClaims(jwt, "simple_report")
         every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "client" to "simple_report",
@@ -173,7 +172,7 @@ class ReportFunctionTests {
     fun `test submitToWaters with server2server auth - claim does not match`() {
         val (reportFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("foo" to "bar", "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, AuthenticationType.server2server, "bogus_org")
+        val claims = AuthenticatedClaims(jwt, "bogus_org")
         every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "client" to "simple_report",

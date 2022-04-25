@@ -93,7 +93,7 @@ class AuthenticationStrategy : Logging {
                     val orgName = triple.first
                     logger.info("Authenticated request for scope $claimsScope by subject ${tokClaims["sub"]}")
                     // todo : have the TokenAuthentication.authenticate return type AuthenticatedClaims.
-                    AuthenticatedClaims(tokClaims, AuthenticationType.server2server, _organizationNameClaim = orgName)
+                    AuthenticatedClaims(tokClaims, _organizationNameClaim = orgName)
                 }
             }
         }
