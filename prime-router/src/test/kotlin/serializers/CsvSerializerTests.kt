@@ -594,4 +594,47 @@ class CsvSerializerTests {
         }
         assertThat(err.details).isNotEmpty()
     }
+
+    @Test
+    fun `test schema changes do not affect reading`() {
+        val schema = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element("a", csvFields = Element.csvFields("a")),
+                Element("c", csvFields = Element.csvFields("c"))
+            )
+        )
+        val serializer = CsvSerializer(Metadata(schema))
+
+        // Internal CSV with extra fields.
+        var internalCsv = """
+            a,b,c
+            a1,b1,c1
+            a2,b2,c2
+        """.trimIndent()
+        var report = serializer.readInternal(
+            schema.name, ByteArrayInputStream(internalCsv.toByteArray()),
+            emptyList()
+        )
+        assertThat(report.itemCount).isEqualTo(2)
+        assertThat(report.getString(0, "a")).isEqualTo("a1")
+        assertThat(report.getString(0, "c")).isEqualTo("c1")
+        assertThat(report.getString(1, "c")).isEqualTo("c2")
+
+        // Internal CSV with fewer fields.
+        internalCsv = """
+            c
+            c1
+            c2
+        """.trimIndent()
+        report = serializer.readInternal(
+            schema.name, ByteArrayInputStream(internalCsv.toByteArray()),
+            emptyList()
+        )
+        assertThat(report.itemCount).isEqualTo(2)
+        assertThat(report.getString(0, "a")).isEqualTo("")
+        assertThat(report.getString(0, "c")).isEqualTo("c1")
+        assertThat(report.getString(1, "c")).isEqualTo("c2")
+    }
 }

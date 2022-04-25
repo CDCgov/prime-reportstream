@@ -660,8 +660,7 @@ class WorkflowEngine(
                     ByteArrayInputStream(bytes),
                     emptyList(),
                     header.receiver,
-                    header.reportFile.reportId,
-                    true
+                    header.reportFile.reportId
                 )
             }
             else -> error("Unsupported read format")

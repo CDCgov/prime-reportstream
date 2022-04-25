@@ -258,8 +258,7 @@ class TranslationTests {
                         CsvSerializer(metadata).readInternal(
                             schema.name,
                             input,
-                            listOf(TestSource),
-                            useDefaultsForMissing = true
+                            listOf(TestSource)
                         )
                     }
                     else -> {
