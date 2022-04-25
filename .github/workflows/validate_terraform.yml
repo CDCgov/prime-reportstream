@@ -15,10 +15,6 @@ jobs:
       - name: Check Out Changes
         uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
 
-      - name: Build vars
-        id: build_vars
-        uses: ./.github/actions/build-vars
-
       - uses: dorny/paths-filter@v2
         id: skip_check
         with:
@@ -42,7 +38,7 @@ jobs:
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
+          env-name: staging
           tls-key: ${{ secrets.TLS_KEY }}
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
