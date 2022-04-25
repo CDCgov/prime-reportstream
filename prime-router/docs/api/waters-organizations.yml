@@ -26,16 +26,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleReportHistory'
+                $ref: '#/components/schemas/SubmissionHistoryList'
         '400':
           description: bad request
 components:
   schemas:
-    SimpleReportHistory:
+    SubmissionHistoryList:
       type: array
       items:
-        $ref: '#/components/schemas/SimpleReportModel'
-    SimpleReportModel:
+        $ref: '#/components/schemas/SubmissionHistory'
+    SubmissionHistory:
       type: object
       properties:
         submissionId:
