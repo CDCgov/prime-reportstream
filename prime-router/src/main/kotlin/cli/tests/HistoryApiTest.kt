@@ -71,7 +71,6 @@ class HistoryApiTest : CoolTest() {
         val counties = receivers.map { it.name }.joinToString(",")
         val fakeItemCount = receivers.size * options.items
         ugly("Starting $name test: Submitting ${options.submits} reports, each going to to $counties")
-        // TODO: need to update for testing full ELR, see #5050
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,

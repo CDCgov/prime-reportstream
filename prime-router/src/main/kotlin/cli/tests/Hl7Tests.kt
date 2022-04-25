@@ -20,7 +20,6 @@ class Hl7Ingest : CoolTest() {
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         initListOfGoodReceiversAndCounties()
         var passed = true
-        // TODO: full ELR, See #5050
         val sender = hl7Sender
         val receivers = allGoodReceivers
         val itemCount = options.items * receivers.size

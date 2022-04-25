@@ -5,9 +5,9 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.FullELRSender
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.SenderTopic
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.cli.DeleteSenderSetting
@@ -54,11 +54,10 @@ class WatersAuthTests : CoolTest() {
      * 3. Create a fake report.
      */
     fun setup(environment: Environment) {
-        val newSender = Sender(
+        val newSender = FullELRSender(
             name = senderName,
             organizationName = organization,
             format = Sender.Format.CSV,
-            topic = SenderTopic.COVID_19,
             customerStatus = CustomerStatus.INACTIVE
         )
 
@@ -95,7 +94,7 @@ class WatersAuthTests : CoolTest() {
         // deserialize the written sender
         savedSender = jacksonObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .readValue(savedSenderJson, Sender::class.java)
+            .readValue(savedSenderJson, FullELRSender::class.java)
             ?: error("Unable to save sender")
 
         // create a fake report
@@ -116,11 +115,10 @@ class WatersAuthTests : CoolTest() {
      * and store in on the database
      */
     private fun saveSendersKey(key: String, kid: String) {
-
         // associate a public key to the sender
         val publicKeyStr = SenderUtils.readPublicKeyPem(key)
         publicKeyStr.kid = kid
-        savedSender = Sender(savedSender, scope, publicKeyStr)
+        savedSender = savedSender.makeCopyWithNewScopeAndJwk(scope, publicKeyStr)
 
         // save the sender with the new key
         PutSenderSetting()

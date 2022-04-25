@@ -2,8 +2,7 @@ package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -14,7 +13,6 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.SenderTopic
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.TransportType
@@ -22,7 +20,6 @@ import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.JwkSet
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.JSONB
 import java.time.OffsetDateTime
@@ -54,7 +51,7 @@ class SettingsFacade(
         get() = findSettings(OrganizationAPI::class.java)
 
     override val senders: Collection<Sender>
-        get() = findSettings(SenderAPI::class.java)
+        get() = findSettings(Sender::class.java)
 
     override val receivers: Collection<Receiver>
         get() = findSettings(ReceiverAPI::class.java)
@@ -76,7 +73,7 @@ class SettingsFacade(
     override fun findSender(fullName: String): Sender? {
         try {
             val pair = Sender.parseFullName(fullName)
-            return findSetting(pair.second, SenderAPI::class.java, pair.first)
+            return findSetting(pair.second, Sender::class.java, pair.first)
         } catch (e: RuntimeException) {
             logger.warn("Cannot find sender: ${e.localizedMessage} ${e.stackTraceToString()}")
             return null
@@ -113,7 +110,6 @@ class SettingsFacade(
                 db.fetchSetting(settingType, name, parentId = null, txn)
         } ?: return null
         val result = mapper.readValue(setting.values.data(), clazz)
-        result.meta = SettingMetadata(setting.version, setting.createdBy, setting.createdAt)
         return result
     }
 
@@ -129,7 +125,6 @@ class SettingsFacade(
         }
         return settings.map {
             val result = mapper.readValue(it.values.data(), clazz)
-            result.meta = SettingMetadata(it.version, it.createdBy, it.createdAt)
             result
         }
     }
@@ -147,7 +142,6 @@ class SettingsFacade(
         return if (result == AccessResult.SUCCESS) {
             val settingsWithMeta = settings.map {
                 val setting = mapper.readValue(it.values.data(), clazz)
-                setting.meta = SettingMetadata(it.version, it.createdBy, it.createdAt)
                 setting
             }
             val json = mapper.writeValueAsString(settingsWithMeta)
@@ -193,23 +187,22 @@ class SettingsFacade(
             val currentVersion = current?.version ?: db.findSettingVersion(settingType, name, organizationId, txn)
 
             // Form the new setting
-            val settingMetadata = SettingMetadata(currentVersion + 1, claims.userName, OffsetDateTime.now())
             val setting = Setting(
                 null, settingType, name, organizationId,
                 normalizedJson, false, true,
-                settingMetadata.version, settingMetadata.createdBy, settingMetadata.createdAt
+                currentVersion + 1, claims.userName, OffsetDateTime.now()
             )
 
             // Now insert
-            val (accessResult, resultMetadata) = when {
+            val accessResult = when {
                 current == null -> {
                     // No existing setting, just add to the new setting to the table
                     db.insertSetting(setting, txn)
-                    Pair(AccessResult.CREATED, settingMetadata)
+                    AccessResult.CREATED
                 }
                 current.values == normalizedJson -> {
                     // Don't create a new version if the payload matches the current version
-                    Pair(AccessResult.SUCCESS, SettingMetadata(current.version, current.createdBy, current.createdAt))
+                    AccessResult.SUCCESS
                 }
                 else -> {
                     // Update existing setting by deactivate the current setting and inserting a new version
@@ -218,16 +211,11 @@ class SettingsFacade(
                     // If inserting an org, update all children settings to point to the new org
                     if (settingType == SettingType.ORGANIZATION)
                         db.updateOrganizationId(current.settingId, newId, txn)
-                    Pair(AccessResult.SUCCESS, settingMetadata)
+                    AccessResult.SUCCESS
                 }
             }
 
             val settingResult = mapper.readValue(setting.values.data(), clazz)
-            settingResult.meta = SettingMetadata(
-                resultMetadata.version,
-                resultMetadata.createdBy,
-                resultMetadata.createdAt
-            )
 
             val outputJson = mapper.writeValueAsString(settingResult)
             Pair(accessResult, outputJson)
@@ -270,13 +258,12 @@ class SettingsFacade(
             else
                 db.fetchSetting(settingType, name, parentId = null, txn)
             if (current == null) return@transactReturning Pair(AccessResult.NOT_FOUND, errorJson("Item not found"))
-            val settingMetadata = SettingMetadata(current.version + 1, claims.userName, OffsetDateTime.now())
+            // val settingMetadata = SettingMetadata(current.version + 1, claims.userName, OffsetDateTime.now())
 
-            db.insertDeletedSettingAndChildren(current.settingId, settingMetadata, txn)
+            db.insertDeletedSettingAndChildren(current.settingId, claims.userName, OffsetDateTime.now(), txn)
             db.deactivateSettingAndChildren(current.settingId, txn)
 
-            val outputJson = mapper.writeValueAsString(settingMetadata)
-            Pair(AccessResult.SUCCESS, outputJson)
+            Pair(AccessResult.SUCCESS, "")
         }
     }
 
@@ -288,9 +275,9 @@ class SettingsFacade(
 
         private fun settingTypeFromClass(className: String): SettingType {
             return when (className) {
-                "gov.cdc.prime.router.azure.OrganizationAPI" -> SettingType.ORGANIZATION
-                "gov.cdc.prime.router.azure.ReceiverAPI" -> SettingType.RECEIVER
-                "gov.cdc.prime.router.azure.SenderAPI" -> SettingType.SENDER
+                OrganizationAPI::class.qualifiedName -> SettingType.ORGANIZATION
+                ReceiverAPI::class.qualifiedName -> SettingType.RECEIVER
+                Sender::class.qualifiedName -> SettingType.SENDER
                 else -> error("Internal Error: Unknown classname: $className")
             }
         }
@@ -301,23 +288,13 @@ class SettingsFacade(
     }
 }
 
-/**
- * Classes for JSON serialization
- */
-
-data class SettingMetadata(
-    val version: Int,
-    val createdBy: String,
-    val createdAt: OffsetDateTime
-)
-
 interface SettingAPI {
     val name: String
     val organizationName: String?
-    var meta: SettingMetadata?
     fun consistencyErrorMessage(metadata: Metadata): String?
 }
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 class OrganizationAPI
 @JsonCreator constructor(
     name: String,
@@ -326,7 +303,6 @@ class OrganizationAPI
     stateCode: String?,
     countyName: String?,
     filters: List<ReportStreamFilters>?,
-    override var meta: SettingMetadata?,
 ) : Organization(name, description, jurisdiction, stateCode.trimToNull(), countyName.trimToNull(), filters),
     SettingAPI {
     @get:JsonIgnore
@@ -334,94 +310,7 @@ class OrganizationAPI
     override fun consistencyErrorMessage(metadata: Metadata): String? { return this.consistencyErrorMessage() }
 }
 
-/**
- * A `SenderAPI` is a facade a class that combines two or more classes into a more-simple interface
- * for property details, see the following classes:
- * s = class Sender in src main kotlin Sender.kt
- * m = class SettingMetadata above
- * @property name s
- * @property organizationName s
- * @property format s
- * @property topic s
- * @property customerStatus s
- * @property schemaName s
- * @property keys  s
- * @property processingType s
- * @property allowDuplicates s
- * @property senderType s
- * @property primarySubmissionMethod s
- * @property meta m
- */
-
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "topic"
-)
-@JsonSubTypes(
-    JsonSubTypes.Type(value = SenderAPI::class, name = "full-elr"),
-    JsonSubTypes.Type(value = CovidSenderAPI::class, name = "covid-19"),
-)
-open class SenderAPI
-@JsonCreator constructor(
-    name: String,
-    organizationName: String,
-    format: Format,
-    topic: SenderTopic = SenderTopic.FULL_ELR,
-    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
-    keys: List<JwkSet>? = null,
-    processingType: ProcessingType = ProcessingType.sync,
-    allowDuplicates: Boolean = true,
-    senderType: SenderType? = null,
-    primarySubmissionMethod: PrimarySubmissionMethod? = null,
-    override var meta: SettingMetadata?,
-) : Sender(
-    name,
-    organizationName,
-    format,
-    topic,
-    customerStatus,
-    keys,
-    processingType,
-    allowDuplicates,
-    senderType,
-    primarySubmissionMethod,
-),
-    SettingAPI {
-    // TODO: what is this used for / do we care about it here?
-    override fun consistencyErrorMessage(metadata: Metadata): String? {
-        return null
-    }
-}
-
-class CovidSenderAPI
-@JsonCreator constructor(
-    name: String,
-    organizationName: String,
-    format: Format,
-    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
-    val schemaName: String,
-    keys: List<JwkSet>? = null,
-    processingType: ProcessingType = ProcessingType.sync,
-    allowDuplicates: Boolean = true,
-    senderType: SenderType? = null,
-    primarySubmissionMethod: PrimarySubmissionMethod? = null,
-    override var meta: SettingMetadata?,
-) : SenderAPI(
-    name,
-    organizationName,
-    format,
-    // a CovidSender will always have the topic "covid-19"
-    SenderTopic.COVID_19,
-    customerStatus,
-    keys,
-    processingType,
-    allowDuplicates,
-    senderType,
-    primarySubmissionMethod,
-    meta
-)
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ReceiverAPI
 @JsonCreator constructor(
     name: String,
@@ -438,7 +327,6 @@ class ReceiverAPI
     timing: Timing? = null,
     description: String = "",
     transport: TransportType? = null,
-    override var meta: SettingMetadata?,
 ) : Receiver(
     name,
     organizationName,

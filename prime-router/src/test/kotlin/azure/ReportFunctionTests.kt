@@ -9,6 +9,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.FullELRSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -124,7 +125,7 @@ class ReportFunctionTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        // TODO: Should this just be Sender to cover full ELR tests?  See #5050
+        // does not matter what type of Sender it is for this test
         val sender = CovidSender("default", "simple_report", Sender.Format.CSV, schemaName = "one")
         val req = MockHttpRequestMessage("test")
         val engine = makeEngine(metadata, settings)
@@ -195,7 +196,7 @@ class ReportFunctionTests {
         val metadata = Metadata()
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val sender = Sender("Test ELR Sender", "test", Sender.Format.HL7)
+        val sender = FullELRSender("Test ELR Sender", "test", Sender.Format.HL7)
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -219,6 +220,7 @@ class ReportFunctionTests {
         verify(exactly = 1) { reportFunc.processRequest(any(), any()) }
     }
 
+    // TODO: Will need to copy this test for Full ELR senders once receiving full ELR is implemented (see #5051)
     // Hits processRequest, tracks 'receive' action in actionHistory
     @Test
     fun `test reportFunction 'report' endpoint`() {
@@ -226,7 +228,6 @@ class ReportFunctionTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        // TODO: Should this just be Sender to cover full ELR tests?  See #5050
         val sender = CovidSender("Test Sender", "test", Sender.Format.CSV, schemaName = "one")
 
         val engine = makeEngine(metadata, settings)
@@ -258,7 +259,6 @@ class ReportFunctionTests {
         val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        // TODO: Should this just be Sender to cover full ELR tests?  See #5050
         val sender = CovidSender("Test Sender", "test", Sender.Format.CSV, schemaName = "one")
 
         val engine = makeEngine(metadata, settings)
@@ -407,7 +407,6 @@ class ReportFunctionTests {
         val report = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val reportFunc = spyk(ReportFunction(engine, actionHistory))
 
-        // TODO: Should this just be Sender to cover full ELR tests?  See #5050
         val sender = CovidSender(
             "Test Sender",
             "test",
@@ -457,7 +456,6 @@ class ReportFunctionTests {
         val report = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val reportFunc = spyk(ReportFunction(engine, actionHistory))
 
-        // TODO: Should this just be Sender to cover full ELR tests?  See #5050
         val sender = CovidSender(
             "Test Sender",
             "test",
@@ -506,7 +504,6 @@ class ReportFunctionTests {
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
         val reportFunc = spyk(ReportFunction(engine, actionHistory))
 
-        // TODO: Should this just be Sender to cover full ELR tests?  See #5050
         val sender = CovidSender(
             "Test Sender",
             "test",
@@ -553,7 +550,6 @@ class ReportFunctionTests {
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
         val reportFunc = spyk(ReportFunction(engine, actionHistory))
-        // TODO: Should this just be Sender to cover full ELR tests?  See #5050
         val sender = CovidSender(
             "Test Sender",
             "test",

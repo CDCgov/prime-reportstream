@@ -64,7 +64,6 @@ val differentRsaPublicKeyStr = """
 
 class TokenAuthenticationTests {
 
-    // TODO: Should this just be Sender to cover full ELR tests?  See #5050
     private val sender = CovidSender(
         "foo",
         "bar",

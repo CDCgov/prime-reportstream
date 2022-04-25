@@ -161,6 +161,7 @@ class WorkflowEngineTests {
         confirmVerified(accessSpy, blobMock, queueMock) // todo
     }
 
+    // TODO: Will need to copy this test for Full ELR senders once receiving full ELR is implemented (see #5051)
     @Test
     fun `test receiveReport`() {
         mockkObject(BlobAccess.Companion)
@@ -170,7 +171,6 @@ class WorkflowEngineTests {
         val settings = FileSettings()
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val actionHistory = mockk<ActionHistory>()
-        // TODO: Should this just be Sender to cover full ELR tests?  See #5050
         val sender = CovidSender("senderName", "org", Sender.Format.CSV, CustomerStatus.INACTIVE, one.name)
 
         every {

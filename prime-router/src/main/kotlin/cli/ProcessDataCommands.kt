@@ -375,8 +375,6 @@ class ProcessData(
             is InputClientInfo.InputClient -> {
                 val clientName = (inputClientInfo as InputClientInfo.InputClient).clientName
                 val sender = fileSettings.findSender(clientName)
-                // TODO: make this work for ELR - see #5050. Do we load this sender if it is not a covid sender?
-                //  At that point does it even matter that the 'schema' is null?
                 if (sender != null && sender is CovidSender) {
                     Pair(
                         sender.let {
@@ -394,9 +392,10 @@ class ProcessData(
                 val inputSchema = (inputClientInfo as InputClientInfo.InputSchema).schemaName
                 val schName = inputSchema.lowercase()
                 metadata.findSchema(schName) ?: error("Schema $inputSchema is not found")
-                // TODO: make this work with ELR sender - #5050
                 // Get a random sender name that uses the provided schema, or null if no sender is found.
-                val sender = fileSettings.senders.filter { (it as CovidSender).schemaName == schName }.randomOrNull()
+                val sender = fileSettings.senders.filter {
+                    it is CovidSender && it.schemaName == schName
+                }.randomOrNull()
                 Pair(metadata.findSchema(schName), sender)
             }
             else -> {

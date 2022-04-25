@@ -1,32 +1,25 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import gov.cdc.prime.router.azure.SettingAPI
 import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.JwkSet
 
 /**
- * A sender with topic FULL_ELR will be processed using the full ELR pipeline (fhir engine), submissions
- * from a sender with topic COVID_19 will be processed using the covid-19 pipeline.
- */
-enum class SenderTopic {
-    @JsonProperty("full-elr")
-    FULL_ELR,
-    @JsonProperty("covid-19")
-    COVID_19
-}
-
-/**
  * A `Sender` represents the agent that is sending reports to
- * the data hub (minus the credentials used by that agent, of course). It
- * contains information about the specific topic and schema that the sender uses.
+ * the data hub (minus the credentials used by that agent, of course). It is an abstract base class that represents
+ * either a full ELR sender or a Covid sender. In the former case, it will be used to pass data into the FHIR
+ * pipeline, in the latter it will go through the legacy covid pipeline
  *
  * @property name the name of this sender - if only one send for an org, it is default
  * @property organizationName the name of the organization that this sender belongs to
  * @property format the primary format of the reports from the sender
- * @property topic the topic of the reports from the sender currently always covid 19
+ * @property topic the topic of the reports from the sender - determines if the sender is covid or full ELR
  * @property customerStatus the status of the sender active inactive
  * @property keys used to track server-to-server auths for this sender via public keys sets
  * @property processingType sync or async
@@ -35,30 +28,38 @@ enum class SenderTopic {
  * @property primarySubmissionMethod Sender preference for submission - manual or automatic
  */
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "topic",
-    visible = true
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "topic"
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(value = Sender::class, name = "full-elr"),
+    JsonSubTypes.Type(value = FullELRSender::class, name = "full-elr"),
     JsonSubTypes.Type(value = CovidSender::class, name = "covid-19"),
 )
-open class Sender(
-    val name: String,
-    val organizationName: String,
+abstract class Sender(
+    val topic: Topic,
+    override val name: String,
+    override val organizationName: String,
     val format: Format,
-    // this will be auto added to json by jacksonMapper since it is used as the JsonTypeInfo for polymorphic Senders
-    @JsonIgnore
-    val topic: SenderTopic = SenderTopic.FULL_ELR,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
     val keys: List<JwkSet>? = null,
     val processingType: ProcessingType = ProcessingType.sync,
     val allowDuplicates: Boolean = true,
     val senderType: SenderType? = null,
     val primarySubmissionMethod: PrimarySubmissionMethod? = null
-) {
+) : SettingAPI {
+
+    /**
+     * Makes a copy of the concrete Sender with a new scope and jwk
+     */
+    abstract fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender
+    /**
+     * Makes a copy of the concrete Sender
+     */
+    abstract fun makeCopy(): Sender
+
     /**
      * Enumeration representing whether a submission will be processed follow the synchronous or asynchronous
      * message pipeline. Within the code this defaults to Sync unless the PROCESSING_TYPE_PARAMETER query
@@ -84,6 +85,17 @@ open class Sender(
     }
 
     /**
+     * A sender with topic FULL_ELR will be processed using the full ELR pipeline (fhir engine), submissions
+     * from a sender with topic COVID_19 will be processed using the covid-19 pipeline.
+     */
+    enum class Topic {
+        @JsonProperty("full-elr")
+        FULL_ELR,
+        @JsonProperty("covid-19")
+        COVID_19
+    }
+
+    /**
      * Enumeration that divides a Sender into four subcategories or types for data management
      *
      * @property testManufacturer Sender a test manufacturer
@@ -99,6 +111,14 @@ open class Sender(
     }
 
     /**
+     * The format this sender makes submissions in
+     */
+    enum class Format(val mimeType: String) {
+        CSV("text/csv"),
+        HL7("application/hl7-v2"),
+    }
+
+    /**
      * Enumeration to describe the Primary or default method of submission for a Sender
      *
      * @property automated Directly sent to the API
@@ -109,27 +129,8 @@ open class Sender(
         manual
     }
 
-    constructor(copy: Sender) : this(
-        copy.name,
-        copy.organizationName,
-        copy.format,
-        copy.topic,
-        copy.customerStatus,
-        if (copy.keys != null) ArrayList(copy.keys) else null
-    )
-
-    // constructor that copies and adds a key
-    constructor(copy: Sender, newScope: String, newJwk: Jwk) : this(
-        copy.name,
-        copy.organizationName,
-        copy.format,
-        copy.topic,
-        copy.customerStatus,
-        addJwkSet(copy.keys, newScope, newJwk)
-    )
-
     @get:JsonIgnore
-    val fullName: String get() = "$organizationName$fullNameSeparator$name"
+    val fullName: String get() = "$organizationName${fullNameSeparator}$name"
 
     /**
      * Calculate the customer's default processingModeCode based on their
@@ -143,17 +144,6 @@ open class Sender(
         CustomerStatus.ACTIVE -> "P"
         CustomerStatus.INACTIVE -> "T"
         CustomerStatus.TESTING -> "T"
-    }
-
-    /**
-     * Returns true if this is a covid sender instead of a full ELR sender.
-     */
-    @get:JsonIgnore
-    val isCovidSender: Boolean get() = this.topic == SenderTopic.COVID_19
-
-    enum class Format(val mimeType: String) {
-        CSV("text/csv"),
-        HL7("application/hl7-v2"),
     }
 
     fun findKeySetByScope(scope: String): JwkSet? {
@@ -219,35 +209,107 @@ open class Sender(
 }
 
 /**
- * Represents a Sender that is specifically used for covid data, and not for full ELR data. The topic of this
- * sender will be 'covid-19', and a [schemaName] must be specified
- *
- * @property schemaName the name of the schema used by the sender
+ *  This sender represents a sender that is sending full ELR data, not just covid data. It has all the same parameters
+ *  as the base Sender abstract class, although may be extended / modified in the future.
  */
-open class CovidSender(
-    name: String,
-    organizationName: String,
-    format: Format,
-    customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
-    val schemaName: String,
-    keys: List<JwkSet>? = null,
-    processingType: ProcessingType = ProcessingType.sync,
-    allowDuplicates: Boolean = true,
-    senderType: SenderType? = null,
-    primarySubmissionMethod: PrimarySubmissionMethod? = null
-) :
-    Sender(
+class FullELRSender : Sender {
+    @JsonCreator constructor(
+        name: String,
+        organizationName: String,
+        format: Format,
+        customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
+        keys: List<JwkSet>? = null,
+        processingType: ProcessingType = ProcessingType.sync,
+        allowDuplicates: Boolean = true,
+        senderType: SenderType? = null,
+        primarySubmissionMethod: PrimarySubmissionMethod? = null
+    ) : super(
+        Topic.FULL_ELR,
         name,
         organizationName,
         format,
-        SenderTopic.COVID_19,
         customerStatus,
         keys,
         processingType,
         allowDuplicates,
         senderType,
-        primarySubmissionMethod,
+        primarySubmissionMethod
+    )
+
+    constructor(copy: FullELRSender) : this(
+        copy.name,
+        copy.organizationName,
+        copy.format,
+        copy.customerStatus,
+        if (copy.keys != null) ArrayList(copy.keys) else null
+    )
+
+    // constructor that copies and adds a key
+    constructor(copy: FullELRSender, newScope: String, newJwk: Jwk) : this(
+        copy.name,
+        copy.organizationName,
+        copy.format,
+        copy.customerStatus,
+        addJwkSet(copy.keys, newScope, newJwk)
+    )
+
+    /**
+     * To ensure existing functionality, we need to be able to create a copy of this FullELRSender with
+     * a different scope and jwk.
+     */
+    override fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender {
+        return FullELRSender(this, scope, jwk)
+    }
+
+    /**
+     * To ensure existing functionality, we need to be able to create a straight copy of this FullELRSender
+     */
+    override fun makeCopy(): Sender {
+        return FullELRSender(this)
+    }
+
+    /**
+     * For validation, not used in this context. Maybe refactor in the future.
+     */
+    override fun consistencyErrorMessage(metadata: Metadata): String? {
+        return null
+    }
+}
+
+/**
+ * Represents a Sender that is specifically used for covid data, and not for full ELR data. The topic of this
+ * sender will be 'COVID-19', and a [schemaName] must be specified
+ *
+ * @property schemaName the name of the schema used by the sender
+ */
+class CovidSender : Sender {
+    var schemaName: String
+    @JsonCreator
+    constructor(
+        name: String,
+        organizationName: String,
+        format: Format,
+        customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
+        schemaName: String,
+        keys: List<JwkSet>? = null,
+        processingType: ProcessingType = ProcessingType.sync,
+        allowDuplicates: Boolean = true,
+        senderType: SenderType? = null,
+        primarySubmissionMethod: PrimarySubmissionMethod? = null
+    ) : super(
+        Topic.COVID_19,
+        name,
+        organizationName,
+        format,
+        customerStatus,
+        keys,
+        processingType,
+        allowDuplicates,
+        senderType,
+        primarySubmissionMethod
     ) {
+        this.schemaName = schemaName
+    }
 
     constructor(copy: CovidSender) : this(
         copy.name,
@@ -267,11 +329,26 @@ open class CovidSender(
         copy.schemaName,
         addJwkSet(copy.keys, newScope, newJwk)
     )
+
     /**
-     * Validate the object and return null or an error message
+     * To ensure existing functionality, we need to be able to create a copy of this CovidSender with
+     * a different scope and jwk.
      */
-    fun consistencyErrorMessage(metadata: Metadata): String? {
-        if (metadata.findSchema(schemaName) == null) return "Invalid schemaName: $schemaName"
+    override fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender {
+        return CovidSender(this, scope, jwk)
+    }
+
+    /**
+     * To ensure existing functionality, we need to be able to create a straight copy of this CovidSender
+     */
+    override fun makeCopy(): Sender {
+        return CovidSender(this)
+    }
+
+    /**
+     * For validation, not used in this context. Maybe refactor in the future.
+     */
+    override fun consistencyErrorMessage(metadata: Metadata): String? {
         return null
     }
 }

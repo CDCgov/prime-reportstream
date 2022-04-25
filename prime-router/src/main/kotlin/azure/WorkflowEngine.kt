@@ -866,7 +866,6 @@ class WorkflowEngine(
      * @param defaults Default values that can be passed in as part of the request
      * @return Returns a generated report object, or null
      */
-    // TODO: full ELR, See #5050
     fun parseCovidReport(
         sender: CovidSender,
         content: String,

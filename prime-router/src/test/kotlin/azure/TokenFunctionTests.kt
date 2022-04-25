@@ -40,7 +40,6 @@ class TokenFunctionTests {
     val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
     val pubKey = keyPair.getPublic() as RSAPublicKey
 
-    // TODO: Should this just be Sender to cover full ELR tests?  See #5050
     var sender = CovidSender(
         "default",
         "simple_report",
@@ -187,7 +186,7 @@ class TokenFunctionTests {
 
     @Test
     fun `Test expired key`() {
-        settings.senderStore.put(sender.fullName, Sender(sender, validScope, jwk))
+        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
 
         val expiresAtSeconds = ((System.currentTimeMillis() / 1000) + 10).toInt()
         val expirationDate = Date(expiresAtSeconds.toLong() - 1000)
@@ -228,7 +227,7 @@ class TokenFunctionTests {
 
     @Test
     fun `Test invalid scope for sender`() {
-        settings.senderStore.put(sender.fullName, Sender(sender, validScope, jwk))
+        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
         listOf(
             // Wrong org
             listOf(
@@ -267,7 +266,7 @@ class TokenFunctionTests {
     @Test
     fun `Test no key for scope`() {
 
-        settings.senderStore.put(sender.fullName, Sender(sender, "test.scope", jwk))
+        settings.senderStore.put(sender.fullName, CovidSender(sender, "test.scope", jwk))
 
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)
@@ -298,7 +297,7 @@ class TokenFunctionTests {
             "test"
         )
 
-        settings.senderStore.put(sender.fullName, Sender(sender, validScope, jwk))
+        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
 
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)

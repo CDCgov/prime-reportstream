@@ -1092,7 +1092,6 @@ class SantaClaus : CoolTest() {
             val file = FileUtilities.createFakeCovidFile(
                 metadata = metadata,
                 settings = settings,
-                // TODO: Full ELR changes needed, see #5050
                 sender = sender as CovidSender,
                 count = states.size,
                 format = if (sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,

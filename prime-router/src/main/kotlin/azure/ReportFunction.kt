@@ -438,17 +438,17 @@ class ReportFunction(
         if (sender == null)
             actionLogs.error(InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown sender"))
 
-        // TODO: full ELR, See #5050
         // verify schema if the sender is a covidSender
         var missingRequiredSchema = false
         var schema: Schema? = null
         if (sender != null && sender is CovidSender) {
             schema = workflowEngine.metadata.findSchema(sender.schemaName)
-            if (schema == null)
+            if (schema == null) {
                 missingRequiredSchema = true
-            actionLogs.error(
-                InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
-            )
+                actionLogs.error(
+                    InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
+                )
+            }
         }
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
@@ -476,7 +476,6 @@ class ReportFunction(
                     return@mapNotNull null
                 }
 
-                // TODO: full ELR, See #5050
                 // only CovidSenders will have a schema
                 if (sender is CovidSender && schema != null) {
                     val element = schema.findElement(parts[0])

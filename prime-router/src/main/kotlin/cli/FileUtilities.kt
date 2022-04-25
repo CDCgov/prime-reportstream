@@ -15,7 +15,6 @@ import java.util.Locale
 class FileUtilities {
     companion object {
 
-        // TODO: need to duplicate this for creating a generic non-covid report. See #5050
         fun createFakeCovidFile(
             metadata: Metadata,
             settings: SettingsProvider,
@@ -38,7 +37,6 @@ class FileUtilities {
             return writeReportToFile(report, format, metadata, directory, null, settings)
         }
 
-        // TODO: need to duplicate this for creating a generic non-covid report. See #5050
         fun createFakeCovidReport(
             metadata: Metadata,
             sender: CovidSender,
