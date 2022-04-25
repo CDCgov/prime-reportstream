@@ -47,6 +47,9 @@ jobs:
           terraform -chdir=operations/app/terraform/vars/staging \
             fmt -check -recursive ../../
 
+      - name: Import Terraform State
+        run: terraform -chdir=operations/app/terraform/vars/staging init -migrate-state
+
       - name: Validate All Terraform Modules
         run: terraform -chdir=operations/app/terraform/vars/staging validate
 
