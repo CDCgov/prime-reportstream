@@ -36,6 +36,34 @@ export function OrgsTable() {
         history.push(`/admin/orgsettings/org/${orgName}`);
     };
 
+    const saveListToCSVFile = () => {
+        // generate a lines that has "value","value","value"... each line is a
+        const csvbody = orgs
+            .filter((eachOrg) => eachOrg.filterMatch(filter))
+            .map((eachOrg) =>
+                [
+                    `"`,
+                    [
+                        eachOrg.name,
+                        eachOrg.description,
+                        eachOrg.jurisdiction,
+                        eachOrg.stateCode,
+                        eachOrg.countyName,
+                        new Date(eachOrg.meta.createdAt).toDateString(),
+                    ].join(`","`),
+                    `"`,
+                ].join("")
+            )
+            .join(`\n`); // join result of .map() lines
+        const csvheader = `Name,Description,Jurisdiction,State,County,Created\n`;
+        const filecontent = [
+            "data:text/csv;charset=utf-8,", // this makes it a csv file
+            csvheader,
+            csvbody,
+        ].join("");
+        window.open(encodeURI(filecontent), "prime-orgs.csv", "noopener");
+    };
+
     return (
         <>
             <Helmet>
@@ -70,6 +98,15 @@ export function OrgsTable() {
                     >
                         Create New Organization
                     </NavLink>
+                    <Button
+                        key={`savelist`}
+                        onClick={() => saveListToCSVFile()}
+                        type="button"
+                        size="small"
+                        className="usa-button usa-button--outline usa-button--small flex-align-self-end height-5"
+                    >
+                        Save List to CSV
+                    </Button>
                 </form>
                 <Table
                     key="orgsettingstable"
