@@ -77,7 +77,7 @@ jobs:
       - name: Generate a Plan for All Terraform Modules
         run: |
           terraform -chdir=operations/app/terraform/vars/staging \
-            plan -out=../../plan/staging-${{ github.run_id }}-${{ github.sha }}.tf
+            plan -out=../../../plan/staging-${{ github.run_id }}-${{ github.sha }}.output
 
       - name: Upload Terraform Plan to Storage Account
         if: ${{ always() }} # We want to upload whatever part of the plan we have
