@@ -202,7 +202,7 @@ class IfThenElseMapper : Mapper {
             ElementResult(decodeArg(values, args[3])) else
             ElementResult(decodeArg(values, args[4])) // see decodeArg()
     }
-}
+} // IfThenElseMapper()
 
 /**
  * The args for the use mapper is a list of element names in order of priority.

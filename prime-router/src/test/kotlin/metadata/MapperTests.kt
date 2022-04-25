@@ -102,7 +102,7 @@ class MapperTests {
             if (args.count() != 5) assertThat { mapper.valueNames(element, args) }.isFailure()
             args.add("arg")
         }
-        // test normal call
+        // test normal call  mapper: ifThenElse(<=, otc_flag comparisonValue, patient_state, ordering_provider_state)
         args = mutableListOf("<=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         val valNames = mapper.valueNames(element, args)
         assertThat(valNames.count()).isEqualTo(4)
