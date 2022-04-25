@@ -122,7 +122,7 @@ object DateUtilities {
     fun parseDate(dateValue: String): TemporalAccessor {
         // check to see if the value has something in it
         if (dateValue.trimToNull() == null)
-            error("Invalid value passed in for date value. Received $dateValue")
+            throw DateTimeException("Invalid value passed in for date value. Received $dateValue")
         // parse out the date
         return try {
             DateTimeFormatter.ofPattern(variableDateTimePattern)
@@ -141,7 +141,7 @@ object DateUtilities {
                 val parsedDate = parseDate(dateValue, format)
                 if (parsedDate != null) return parsedDate
             }
-            error("Unable to parse $dateValue.")
+            throw DateTimeParseException("Unable to parse $dateValue.", dateValue, 0, t)
         }
     }
 

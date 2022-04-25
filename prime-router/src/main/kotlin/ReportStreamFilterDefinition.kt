@@ -450,6 +450,7 @@ class InDateInterval : ReportStreamFilterDefinition {
                     selection.add(index)
                 }
             } catch (_: DateTimeException) {
+            } catch (_: DateTimeParseException) {
             }
         }
         return selection
