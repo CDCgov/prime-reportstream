@@ -44,13 +44,11 @@ jobs:
 
       - name: Verify Terraform Formatting
         run: |
-          terraform -chdir=operations/app/terraform/vars/staging plan \
+          terraform -chdir=operations/app/terraform/vars/staging \
             fmt -check -recursive ../../
 
       - name: Validate All Terraform Modules
-        run: |
-          terraform -chdir=operations/app/terraform/vars/staging plan \
-            validate
+        run: terraform -chdir=operations/app/terraform/vars/staging validate
 
       - name: Generate a Plan for All Terraform Modules
         run: |
