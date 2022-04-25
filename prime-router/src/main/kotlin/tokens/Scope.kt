@@ -13,8 +13,15 @@ import java.lang.IllegalArgumentException
  */
 class Scope {
     companion object : Logging {
+
+        /**
+         * Scope that represents prime admin access.
+         */
+        val primeAdminScope = "primeadmin.all.all"
+
         enum class DetailedScope {
             report, // ability to submit a report
+            all, // all abilities
         }
 
         fun isWellFormedScope(scope: String): Boolean {
@@ -33,7 +40,7 @@ class Scope {
         fun isValidScope(scope: String, expectedSender: Sender): Boolean {
             if (!isValidScope(scope)) return false
             val splits = scope.split(".")
-            if (splits[0] != expectedSender.organizationName) {
+            if (splits[0] != expectedSender.organizationName && scope != primeAdminScope) {
                 logger.warn("Expected organization ${expectedSender.organizationName}. Instead got: ${splits[0]}")
                 return false
             }

@@ -2,19 +2,20 @@ package gov.cdc.prime.router.tokens
 
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
-import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 
-val USE_OKTA_AUTH = "okta"
+const val DO_OKTA_AUTH = "okta"
 
 val authenticationFailure = HttpUtilities.errorJson("Authentication Failed")
 val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
 
-class AuthenticationStrategy() : Logging {
+/**
+ * Hides the fact that we support two different authentication protocols:  server2server(two-legged) and okta.
+ */
+class AuthenticationStrategy : Logging {
     companion object : Logging {
-
         /**
          * Helper method for authentication.
          * Check whether we are running locally.
@@ -47,21 +48,6 @@ class AuthenticationStrategy() : Logging {
             return tok.ifBlank { null }
         }
 
-        // Returns an OktaAuthentication strategy if the authenticationType is "okta"
-        fun authStrategy(
-            authenticationType: String?,
-            requiredPrincipalLevel: PrincipalLevel,
-            db: DatabaseAccess,
-        ): Any {
-            // Clients using Okta will send "authentication-type": "okta" in the request header
-            if (authenticationType == USE_OKTA_AUTH) {
-                return OktaAuthentication(requiredPrincipalLevel)
-            }
-
-            // default is TokenAuthentication
-            return TokenAuthentication(DatabaseJtiCache(db))
-        }
-
         /**
          * Authenticate a caller (which could be a human or machine).
          * This does not perform authorization!
@@ -70,23 +56,18 @@ class AuthenticationStrategy() : Logging {
          * 1) OktaAuthentication to confirm the token is a valid okta token, or,
          * 2) two-legged (aka 'Token') authentication to confirm the token is a valid two-legged token.
          *
-         * Two-legged uses the [db] and enforces the [requiredScope].
+         * Two-legged uses the [db]
          *
          * Since the two mechanisms were developed separately, they take those slighty different arguments, so there
          * remains some cleanup work:
-         * 1) todo:  Have both okta and token auth use the same claims obj.  Below now we hack the token auth claims
+         * todo:  Have both okta and token auth create the same claims obj.  Currently we hack the token auth claims
          * to look like okta claims, below.
-         * 2) todo: Factor out the authorization code from tok auth.  Right now it does both authn and authz.  Bleh.
          *
          * @return a valid claims obj if authenticated.   Otherwise null if authentication failed.
          */
-        fun authenticate(
-            request: HttpRequestMessage<String?>,
-            requiredScope: String,
-            db: DatabaseAccess,
-        ): AuthenticatedClaims? {
+        fun authenticate(request: HttpRequestMessage<String?>): AuthenticatedClaims? {
             return when (request.headers["authentication-type"]) {
-                USE_OKTA_AUTH -> { // Humans using Okta will send "authentication-type": "okta" in the request header
+                DO_OKTA_AUTH -> { // Humans using Okta will send "authentication-type": "okta" in the request header
                     val oktaClaims = OktaAuthentication.authenticate(request) ?: return null
                     logger.info(
                         "Authenticated request by ${oktaClaims.userName}:" +
@@ -95,21 +76,24 @@ class AuthenticationStrategy() : Logging {
                     oktaClaims
                 }
                 else -> {
-                    // In all other cases, do Server-to-server 'two-legged' auth.
-                    val tokAuth = TokenAuthentication(DatabaseJtiCache(db))
-                    // This will authenticate the token.
-                    // This _also_ checks authorization to access [requiredScope]. Mixing authz/n, which is not ideal,
-                    // but we make use of this:   if this call authorizes access to requiredScope,
-                    // then it is ok to extract the orgName from the requiredScope and use it.
-                    val tokClaims = tokAuth.checkAccessToken(request, requiredScope)
-                        ?: return null
-                    val (orgName, _, _) = Scope.parseScope(requiredScope) ?: return null
-                    logger.info("Authenticated request by ${tokClaims["sub"]} for scope $requiredScope")
-                    // It is OK to allow the claim on orgName, because it was extracted from the requiredScope,
-                    // which was authorized above.
-                    // Still, this is a slight hack, there is still this:
-                    // todo : have the TokenAuthentication.checkAccessToken return type AuthenticatedClaims.
-                    AuthenticatedClaims(tokClaims, orgName)
+                    // In all other cases, do server2server (also called 'two-legged' or 'FHIR') auth.
+                    // Authenticate the token.
+                    val tokClaims = TokenAuthentication().authenticate(request) ?: return null
+                    // All the rest of this is to generate an AuthenticatedClaims obj from server2server claims.
+                    val claimsScope = tokClaims["scope"] as String
+                    if (claimsScope.isEmpty()) {
+                        logger.warn("server2server token had no scope defined.   Not authenticated")
+                        return null
+                    }
+                    val triple = Scope.parseScope(claimsScope)
+                    if (triple == null) {
+                        logger.warn("Malformed scope $claimsScope - no orgName found.  Not authenticated")
+                        return null
+                    }
+                    val orgName = triple.first
+                    logger.info("Authenticated request for scope $claimsScope by subject ${tokClaims["sub"]}")
+                    // todo : have the TokenAuthentication.authenticate return type AuthenticatedClaims.
+                    AuthenticatedClaims(tokClaims, AuthenticationType.server2server, _organizationNameClaim = orgName)
                 }
             }
         }

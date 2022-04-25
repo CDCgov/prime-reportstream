@@ -77,7 +77,8 @@ class TokenAuthenticationTests {
         keys = null
     )
 
-    private val tokenAuthentication = TokenAuthentication(MemoryJtiCache())
+    private val tokenAuthentication = TokenAuthentication()
+    private val jtiCache = MemoryJtiCache()
 
     // return the hardcoded public key used with this test.  This is the Sender's public key.
     class UseTestKey(private val rsaPublicKeyStr: String) : SigningKeyResolverAdapter() {
@@ -141,12 +142,11 @@ class TokenAuthenticationTests {
             rsaPrivateKey,
             exampleKeyId
         )
-
         // Must be a valid JWT
         assertEquals(3, senderToken.split(".").size)
 
         // Check that the public key correctly validates.
-        assertTrue(tokenAuthentication.checkSenderToken(senderToken, UseTestKey(exampleRsaPublicKeyStr)))
+        assertTrue(TokenAuthentication().checkSenderToken(senderToken, UseTestKey(exampleRsaPublicKeyStr), jtiCache))
     }
 
     @Test
@@ -204,7 +204,7 @@ class TokenAuthenticationTests {
         // Step 2: ReportStream gets the token and checks it.
         val rslookup = GetTestSecret() // callback to look up the Reportstream secret, using to sign RS token.
         val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // callback to lookup the sender's public key.
-        val accessToken = if (tokenAuthentication.checkSenderToken(senderToken, senderLookup)) {
+        val accessToken = if (TokenAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache)) {
             // Step 3:  Report stream creates a new accessToken
             tokenAuthentication.createAccessToken("myScope", rslookup)
         } else error("Unauthorized connection")
@@ -226,7 +226,7 @@ class TokenAuthenticationTests {
 
         val senderLookup = UseTestKey(differentRsaPublicKeyStr) // Its the wrong trousers!
         // false means we failed to validate the sender's jwt.
-        assertFalse(tokenAuthentication.checkSenderToken(senderToken, senderLookup))
+        assertFalse(TokenAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
     }
 
     @Test
@@ -244,7 +244,7 @@ class TokenAuthenticationTests {
         """.trimIndent()
         val senderLookup = UseTestKey(junkPublicKeyStr) // Its the wrong trousers!
         // false means we failed to validate the sender's jwt.
-        assertFalse(tokenAuthentication.checkSenderToken(senderToken, senderLookup))
+        assertFalse(TokenAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
     }
 
     @Test
@@ -260,7 +260,7 @@ class TokenAuthenticationTests {
 
         val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // Its the wrong trousers!
         // false means we failed to validate the sender's jwt.
-        assertFalse(tokenAuthentication.checkSenderToken(senderToken, senderLookup))
+        assertFalse(TokenAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
     }
 
     @Test
@@ -275,9 +275,9 @@ class TokenAuthenticationTests {
 
         val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // Its the wrong trousers!
         // It should work the first time.
-        assertTrue(tokenAuthentication.checkSenderToken(senderToken, senderLookup))
+        assertTrue(TokenAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
         // Then fail the second time
-        assertFalse(tokenAuthentication.checkSenderToken(senderToken, senderLookup))
+        assertFalse(TokenAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
     }
 
     @Test

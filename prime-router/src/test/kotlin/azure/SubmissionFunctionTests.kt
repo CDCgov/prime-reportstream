@@ -170,7 +170,7 @@ class SubmissionFunctionTests : Logging {
                 "unauthorized"
             ),
             SubmissionUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads"),
+                mapOf("authorization" to "Bearer fdafads"), // no 'okta' auth-type, so this uses server2server auth
                 emptyMap(),
                 ExpectedAPIResponse(
                     HttpStatus.OK,
@@ -200,7 +200,7 @@ class SubmissionFunctionTests : Logging {
                 "simple success"
             ),
             SubmissionUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads"),
+                mapOf("authorization" to "Bearer fdafads", "authentication-type" to "okta"),
                 mapOf("cursor" to "nonsense"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
@@ -266,7 +266,7 @@ class SubmissionFunctionTests : Logging {
             val response = SubmissionFunction(
                 SubmissionsFacade(TestSubmissionAccess(testData, mapper)),
                 workflowEngine = engine,
-            ).getOrgSubmissions(
+            ).getOrgSubmissionsList(
                 httpRequestMessage,
                 "simple_report",
             )
@@ -324,7 +324,7 @@ class SubmissionFunctionTests : Logging {
         val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
         val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
-        val response = submissionFunction.getOrgSubmissions(httpRequestMessage, organizationName)
+        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
@@ -333,7 +333,7 @@ class SubmissionFunctionTests : Logging {
         val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
         val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
-        val response = submissionFunction.getOrgSubmissions(httpRequestMessage, otherOrganizationName)
+        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, otherOrganizationName)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
@@ -342,9 +342,9 @@ class SubmissionFunctionTests : Logging {
         val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
         val submissionFunction = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
-        var response = submissionFunction.getOrgSubmissions(httpRequestMessage, organizationName)
+        var response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
-        response = submissionFunction.getOrgSubmissions(httpRequestMessage, otherOrganizationName)
+        response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, otherOrganizationName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
@@ -358,21 +358,21 @@ class SubmissionFunctionTests : Logging {
         val function = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, mockSubmissionFacade)
 
         mockkObject(AuthenticationStrategy.Companion)
-        every { AuthenticationStrategy.authenticate(any(), any(), any()) } returns
+        every { AuthenticationStrategy.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
 
         // Invalid id:  not a UUID nor a Long
-        var response = function.getReportHistory(mockRequest, "bad")
+        var response = function.getReportDetailedHistory(mockRequest, "bad")
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
         // Database error
         every { mockSubmissionFacade.fetchActionForReportId(any()) }.throws(DataAccessException("dummy"))
-        response = function.getReportHistory(mockRequest, goodUuid)
+        response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
 
         // Good UUID, but Not found
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null
-        response = function.getReportHistory(mockRequest, goodUuid)
+        response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
         // Good return
@@ -389,7 +389,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any()) } returns returnBody
         every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
-        response = function.getReportHistory(mockRequest, goodUuid)
+        response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
@@ -397,20 +397,20 @@ class SubmissionFunctionTests : Logging {
 
         // Good uuid, but not a 'receive' step report.
         action.actionName = TaskAction.process
-        response = function.getReportHistory(mockRequest, goodUuid)
+        response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
         // Good actionId, but Not found
         val goodActionId = "550"
         action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchAction(any()) } returns null
-        response = function.getReportHistory(mockRequest, goodActionId)
+        response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
         // Good actionId, but Not authorized
         every { mockSubmissionFacade.fetchAction(any()) } returns action
         every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
-        response = function.getReportHistory(mockRequest, goodActionId)
+        response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
         // Happy path with a good actionId
@@ -418,7 +418,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchAction(any()) } returns action
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any()) } returns returnBody
         every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
-        response = function.getReportHistory(mockRequest, goodActionId)
+        response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         responseBody = mapper.readValue(response.body.toString())
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)

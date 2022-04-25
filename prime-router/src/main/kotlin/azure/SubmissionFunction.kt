@@ -86,10 +86,10 @@ class SubmissionFunction(
      * It does not assume the user belongs to a single Organization.  Rather, it uses
      * the organization in the URL path, after first confirming authorization to access that organization.
      */
-    @FunctionName("getOrgSubmissions")
-    fun getOrgSubmissions(
+    @FunctionName("getOrgSubmissionsList")
+    fun getOrgSubmissionsList(
         @HttpTrigger(
-            name = "getOrgSubmissions",
+            name = "getOrgSubmissionsList",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/org/{organization}/submissions"
@@ -97,20 +97,17 @@ class SubmissionFunction(
         @BindingName("organization") organization: String,
     ): HttpResponseMessage {
         try {
-            // Confirm this is a sender in the system.
+            // Do authentication
+            val claims = AuthenticationStrategy.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+            // Confirm the org name in the path is a sender in the system.
             val sender = workflowEngine.settings.findSender(organization) // err if no default sender in settings in org
                 ?: return HttpUtilities.unauthorizedResponse(
                     request, HttpUtilities.errorJson("Authentication Failed: $organization: unknown sender")
                 )
 
-            // Do authentication
-            val claims = AuthenticationStrategy.authenticate(
-                request,
-                "${sender.fullName}.report",
-                workflowEngine.db,
-            ) ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-
-            // Do authorization based on org name in claim matching org name in client header, or being a prime admin.
+            // Do authorization based on: org name in the path == org name in claim.  Or be a prime admin.
             if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
@@ -156,10 +153,10 @@ class SubmissionFunction(
      * API endpoint to return history of a single report.
      * The [id] can be a valid UUID or a valid actionId (aka submissionId, to our users)
      */
-    @FunctionName("getReportHistory")
-    fun getReportHistory(
+    @FunctionName("getReportDetailedHistory")
+    fun getReportDetailedHistory(
         @HttpTrigger(
-            name = "getReportHistory",
+            name = "getReportDetailedHistory",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{id}/history"
@@ -167,6 +164,11 @@ class SubmissionFunction(
         @BindingName("id") id: String,
     ): HttpResponseMessage {
         try {
+            // Do authentication
+            val claims = AuthenticationStrategy.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+            logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
+
             // Figure out whether we're dealing with an action_id or a report_id.
             val submissionId = id.toLongOrNull() // toLong a sacrifice can make a Null of the heart
             val action = if (submissionId == null) {
@@ -181,22 +183,7 @@ class SubmissionFunction(
                 return HttpUtilities.notFoundResponse(request, "$id is not a submitted report")
             }
 
-            // Confirm this is a sender in the system.
-            // This fails if there is no 'default' sender in settings in the organization.
-            val sender = workflowEngine.settings.findSender(action.sendingOrg)
-                ?: return HttpUtilities.unauthorizedResponse(
-                    request, HttpUtilities.errorJson("Authentication Failed: ${action.sendingOrg}: unknown sender")
-                )
-
-            // Do authentication
-            val claims = AuthenticationStrategy.authenticate(
-                request,
-                "${sender.fullName}.report",
-                workflowEngine.db,
-            ) ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-            logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
-
-            // Confirm these claims allow access to this Action
+            // Do Authorization.  Confirm these claims allow access to this Action
             if (!submissionsFacade.checkSenderAccessAuthorization(action, claims)) {
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
@@ -205,8 +192,7 @@ class SubmissionFunction(
                 return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
             logger.info(
-                "Authorized request by org ${claims.organizationNameClaim}" +
-                    " to $sender/submissions endpoint via client id ${sender.organizationName}. "
+                "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
             )
 
             val submission = submissionsFacade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)

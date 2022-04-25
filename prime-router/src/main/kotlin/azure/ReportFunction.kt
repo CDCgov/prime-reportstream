@@ -115,11 +115,8 @@ class ReportFunction(
 
         actionHistory.trackActionParams(request)
         try {
-            val claims = AuthenticationStrategy.authenticate(
-                request,
-                "${sender.fullName}.report",
-                workflowEngine.db,
-            ) ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+            val claims = AuthenticationStrategy.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
             // Do authorization based on org name in claim matching org name in client header
             if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {

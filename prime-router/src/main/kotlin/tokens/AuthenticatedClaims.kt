@@ -5,6 +5,12 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 
 /**
+ * Currently using this class to represent both TokenAuthentication (server2server) and OtkaAuthentication claims.
+ * todo Fix this dichotomy and just have a single way of representing claims.
+ */
+enum class AuthenticationType { okta, server2server, local }
+
+/**
  * This represents a set of claims coming from Okta that have been authenticated (but may or may not
  * have been authorized). For convenience, certain claims have been pulled out into more readable/usable forms,
  * using helper methods in the class, called during object construction.
@@ -15,7 +21,10 @@ class AuthenticatedClaims {
      */
     val jwtClaims: Map<String, Any>
 
-    // For Okta, these are all derived from the raw jwtClaims.
+    /** What type of auth was used to create these claims? */
+    val authenticationType: AuthenticationType
+
+    // For Okta, these below are all derived from the raw jwtClaims.
 
     /** Name of user as extracted from the subject claim.  Usually an email address */
     val userName: String
@@ -30,6 +39,7 @@ class AuthenticatedClaims {
      * This constructor assumes certain claims that are found in Okta. Only use this for Okta claims.
      */
     constructor(_jwtClaims: Map<String, Any>) {
+        this.authenticationType = AuthenticationType.okta
         this.jwtClaims = _jwtClaims
         this.userName = _jwtClaims[oktaSubjectClaim]?.toString() ?: error("No username in claims")
         @Suppress("UNCHECKED_CAST")
@@ -57,11 +67,13 @@ class AuthenticatedClaims {
      */
     constructor(
         _jwtClaims: Map<String, Any>,
+        _authenticationType: AuthenticationType,
         _organizationNameClaim: String? = null,
         _isPrimeAdmin: Boolean? = null,
         _isSenderOrgClaim: Boolean? = null,
     ) {
         this.jwtClaims = _jwtClaims
+        this.authenticationType = _authenticationType
         this.userName = _jwtClaims[oktaSubjectClaim]?.toString() ?: error("No username in claims")
         @Suppress("UNCHECKED_CAST")
         val memberships = jwtClaims[oktaMembershipClaim] as? Collection<String> ?: emptyList()
@@ -125,10 +137,12 @@ class AuthenticatedClaims {
          * Extract the orgname from the [scope] which must be well-formed per rules in [Scope]
          * @return fake claims, for testing.
          */
-        fun generateTestJwtClaims(scope: String): Claims {
+        fun generateTestJwtClaims(): Claims {
             val jwtClaims = Jwts.claims().setSubject("local@test.com")
-            val (orgName, _, _) = Scope.parseScope(scope) ?: error("Malformed scope for test claims: $scope")
-            jwtClaims["organization"] = listOf("$oktaSenderGroupPrefix$orgName", oktaSystemAdminGroup)
+//            val (orgName, _, _) = Scope.parseScope(scope) ?: error("Malformed scope for test claims: $scope")
+//            jwtClaims["organization"] = listOf("$oktaSenderGroupPrefix$orgName", oktaSystemAdminGroup)
+            jwtClaims["organization"] = listOf(oktaSystemAdminGroup)
+            jwtClaims["scope"] = Scope.primeAdminScope
             return jwtClaims
         }
     }
