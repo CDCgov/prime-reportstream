@@ -42,21 +42,26 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
+      - name: Terraform init azurerm backend
+        uses: ahmedig/terraform-azurerm-backend@9ef835db31c52a0049bc60f295b869213e0fa580
+        with:
+          azure_credentials: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          resource_group_name: prime-data-hub-staging
+          container_name: terraformstate
+          storage_account_name: pdhstagingnewterraform
+          file_name: staging.terraform.tfstate
+          tf_working_directory: operations/app/terraform/vars/staging
+
       - name: Verify Terraform Formatting
         run: |
-          terraform -chdir=operations/app/terraform/vars/staging \
-            fmt -check -recursive ../../
-
-      - name: Import Terraform State
-        run: terraform -chdir=operations/app/terraform/vars/staging init -migrate-state
+          terraform fmt -check -recursive ../../
 
       - name: Validate All Terraform Modules
-        run: terraform -chdir=operations/app/terraform/vars/staging validate
+        run: terraform validate
 
       - name: Generate a Plan for All Terraform Modules
         run: |
-          terraform -chdir=operations/app/terraform/vars/staging plan \
-            -out ../../plan/staging-${{ github.run_id }}-${{ github.sha }}.tf
+          terraform -out ../../plan/staging-${{ github.run_id }}-${{ github.sha }}.tf
 
       - name: Upload Terraform Plan to Storage Account
         if: ${{ always() }} # We want to upload whatever part of the plan we have
