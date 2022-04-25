@@ -54,14 +54,16 @@ jobs:
 
       - name: Verify Terraform Formatting
         run: |
-          terraform fmt -check -recursive ../../
+          terraform -chdir=operations/app/terraform/vars/staging \
+            fmt -check -recursive ../../
 
       - name: Validate All Terraform Modules
-        run: terraform validate
+        run: terraform -chdir=operations/app/terraform/vars/staging validate
 
       - name: Generate a Plan for All Terraform Modules
         run: |
-          terraform plan -out=../../plan/staging-${{ github.run_id }}-${{ github.sha }}.tf
+          terraform -chdir=operations/app/terraform/vars/staging \
+            plan -out=../../plan/staging-${{ github.run_id }}-${{ github.sha }}.tf
 
       - name: Upload Terraform Plan to Storage Account
         if: ${{ always() }} # We want to upload whatever part of the plan we have
