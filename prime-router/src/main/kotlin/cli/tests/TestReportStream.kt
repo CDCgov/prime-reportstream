@@ -293,7 +293,8 @@ Examples:
             SftpcheckTest(),
             End2End(),
             Merge(),
-            WatersAuthTests(),
+            Server2ServerAuthTests(),
+            OktaAuthTests(),
             QualityFilter(),
             Hl7Null(),
             TooManyCols(),
@@ -753,6 +754,8 @@ abstract class CoolTest {
         const val historyTestOrgName = "historytest"
         val historyTestSender = settings.findSender("$historyTestOrgName.default")
             ?: error("Unable to find sender $historyTestOrgName.default")
+        val defaultIgnoreSender = settings.findSender("$orgName.default")
+            ?: error("Unable to find sender $orgName.default")
 
         fun initListOfGoodReceiversAndCounties() {
             allGoodReceivers = mutableListOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
