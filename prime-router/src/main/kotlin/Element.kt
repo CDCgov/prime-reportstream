@@ -599,7 +599,7 @@ data class Element(
                     // parse can fail if the phone number is not correct, which feels like bad behavior
                     // this then causes a report level failure, not an element level failure
                     val number = phoneNumberUtil.parse(cleanedValue, "US")
-                    if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
+                    if (!number.hasNationalNumber() || number.nationalNumber > 999999999999L)
                         InvalidPhoneMessage(cleanedValue, fieldMapping)
                     else
                         null
@@ -749,7 +749,7 @@ data class Element(
             }
             Type.TELEPHONE -> {
                 val number = phoneNumberUtil.parse(cleanedFormattedValue, "US")
-                if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
+                if (!number.hasNationalNumber() || number.nationalNumber > 999999999999L)
                     error("Invalid phone number '$cleanedFormattedValue' for $fieldMapping")
                 val nationalNumber = DecimalFormat("0000000000").format(number.nationalNumber)
                 "${nationalNumber}$phoneDelimiter${number.countryCode}$phoneDelimiter${number.extension}"

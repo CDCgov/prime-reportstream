@@ -398,9 +398,30 @@ internal class ElementTests {
         one.toNormalized("+1(555)-968-5052 x5555").run {
             assertThat(this).isEqualTo("5559685052:1:5555")
         }
-        // MX phone number
-        one.toNormalized("+52-65-8888-8888").run {
-            assertThat(this).isEqualTo("6588888888:52:")
+    }
+
+    @Test
+    fun `testToNormalizedIntenationalPhone`() {
+        val one = Element(
+            "a",
+            type = Element.Type.TELEPHONE,
+            csvFields = Element.csvFields("phone")
+        )
+
+        val arrayOfPhoneNumbersAndResults = arrayOf(
+            // Pair("+1-316-667-9400", "3166679400:1:"),   // US
+            // Pair("(230)7136595", "2307136595:1:"),  // US
+            Pair("+61 2 6214 5600", "0262145600:61:"), // AU
+            // Pair("613-688-5335", "6136885335:1:"),     // CA
+            // Pair("+1613-688-5335", "6136885335:1:"),     // CA
+            // Pair("+52 55 5080 2000", "5550802000:52:")   // MX
+        )
+
+        // Verify phone numbers
+        arrayOfPhoneNumbersAndResults.forEach { phRslt ->
+            one.toNormalized(phRslt.first).run {
+                assertThat(this).isEqualTo(phRslt.second)
+            }
         }
     }
 
