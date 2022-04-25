@@ -12,6 +12,13 @@ jobs:
     outputs:
       has_operations_change: ${{ steps.skip_check.outputs.operations }}
     steps:
+      - name: Check Out Changes
+        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
       - uses: dorny/paths-filter@v2
         id: skip_check
         with:
@@ -42,20 +49,27 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Terraform init azurerm backend
-        uses: ahmedig/terraform-azurerm-backend@9ef835db31c52a0049bc60f295b869213e0fa580
-        with:
-          azure_credentials: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-          resource_group_name: prime-data-hub-staging
-          container_name: terraformstate
-          storage_account_name: pdhstagingnewterraform
-          file_name: staging.terraform.tfstate
-          tf_working_directory: operations/app/terraform/vars/staging
+      - name: Prepare Terraform Environment
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+        run: | 
+          # Parse Azure secret into Terraform variables
+          $servicePrincipal = ($env:AZURE_CREDENTIALS | ConvertFrom-Json)
+          $env:ARM_CLIENT_ID = $servicePrincipal.clientId
+          $env:ARM_CLIENT_SECRET = $servicePrincipal.clientSecret
+          $env:ARM_SUBSCRIPTION_ID = $servicePrincipal.subscriptionId
+          $env:ARM_TENANT_ID = $servicePrincipal.tenantId
+          
+          # Save environment variable setup for subsequent steps
+          Get-ChildItem -Path Env: -Recurse -Include ARM_*,TF_VAR_* | ForEach-Object {Write-Output "$($_.Name)=$($_.Value)"} >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Migrate Terraform State
+        run: terraform -chdir=operations/app/terraform/vars/staging init -migrate-state
 
       - name: Verify Terraform Formatting
         run: |
-          terraform -chdir=operations/app/terraform/vars/staging \
-            fmt -check -recursive ../../
+          terraform -chdir=operations/app/terraform/vars/staging fmt -check -recursive ../../
 
       - name: Validate All Terraform Modules
         run: terraform -chdir=operations/app/terraform/vars/staging validate
@@ -63,7 +77,7 @@ jobs:
       - name: Generate a Plan for All Terraform Modules
         run: |
           terraform -chdir=operations/app/terraform/vars/staging \
-            plan -out=../../plan/staging-${{ github.run_id }}-${{ github.sha }}.tf
+            plan -out=../../../plan/staging-${{ github.run_id }}-${{ github.sha }}.output
 
       - name: Upload Terraform Plan to Storage Account
         if: ${{ always() }} # We want to upload whatever part of the plan we have
