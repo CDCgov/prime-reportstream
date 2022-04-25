@@ -15,6 +15,9 @@ jobs:
     outputs:
       has_operations_change: ${{ steps.skip_check.outputs.operations }}
     steps:
+      - name: Check Out Changes
+        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+
       - uses: dorny/paths-filter@v2
         id: skip_check
         with:
