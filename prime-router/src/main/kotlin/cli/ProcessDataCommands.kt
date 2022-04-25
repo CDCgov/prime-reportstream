@@ -45,7 +45,7 @@ sealed class InputClientInfo {
 
 /**
  * Command to process data in a variety of ways. Pass in a [metadataInstance]
- * and/or [fileSettingsInstance] to reuse this class programatically and make it run faster.
+ * and/or [fileSettingsInstance] to reuse this class programmatically and make it run faster.
  */
 class ProcessData(
     private val metadataInstance: Metadata? = null,
@@ -233,8 +233,15 @@ class ProcessData(
     }
 
     private fun handleReadResult(result: ReadResult): Report {
-        result.actionLogs.errors.forEach { echo(it.detail) }
-        result.actionLogs.warnings.forEach { echo(it.detail) }
+        /**
+         * Print the action [log].
+         */
+        fun printLog(log: ActionLog) {
+            val itemIndexStr = if (log.index != null) "INDEX=${log.index}, " else ""
+            echo("${log.type}: $itemIndexStr${log.detail.message}")
+        }
+        result.actionLogs.errors.forEach { printLog(it) }
+        result.actionLogs.warnings.forEach { printLog(it) }
         return result.report
     }
 
@@ -372,10 +379,10 @@ class ProcessData(
         val (schema, sender) = when (inputClientInfo) {
             is InputClientInfo.InputClient -> {
                 val clientName = (inputClientInfo as InputClientInfo.InputClient).clientName
-                val sender = fileSettings.findSender(clientName)
+                val sender = fileSettings.findSender(clientName) ?: error("Sender $clientName was not found")
                 Pair(
-                    sender?.let {
-                        metadata.findSchema(it.schemaName) ?: error("Schema $clientName is not found")
+                    sender.let {
+                        metadata.findSchema(it.schemaName) ?: error("Schema ${it.schemaName} was not found")
                     },
                     sender
                 )
@@ -383,7 +390,7 @@ class ProcessData(
             is InputClientInfo.InputSchema -> {
                 val inputSchema = (inputClientInfo as InputClientInfo.InputSchema).schemaName
                 val schName = inputSchema.lowercase()
-                metadata.findSchema(schName) ?: error("Schema $inputSchema is not found")
+                metadata.findSchema(schName) ?: error("Schema $inputSchema was not found")
                 // Get a random sender name that uses the provided schema, or null if no sender is found.
                 val sender = fileSettings.senders.filter { it.schemaName == schName }.randomOrNull()
                 Pair(metadata.findSchema(schName), sender)
