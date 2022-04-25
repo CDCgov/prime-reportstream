@@ -4,9 +4,6 @@ on:
   pull_request:
     branches:
       - master
-  push:
-    branches:
-      - josiahsiegel/terraform-revamp-validation
 
 jobs:
   pre_job:
@@ -14,10 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_operations_change: ${{ steps.skip_check.outputs.operations }}
-      env_name: staging
     steps:
       - name: Check Out Changes
         uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
 
       - uses: dorny/paths-filter@v2
         id: skip_check
