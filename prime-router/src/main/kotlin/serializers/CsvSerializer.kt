@@ -147,36 +147,27 @@ class CsvSerializer(val metadata: Metadata) : Logging {
     }
 
     /**
-     * Reads an internal format document (one that is in CSV, but matching the internal "kitchen sink" schema)
-     * and returns the Report object for the file.
-     * @param useDefaultsForMissing if a field is missing that the Report object expects, this instructs the
-     * function to use the default value provided by the schema (or empty string) if it doesn't exist. This was
-     * added because some older files might need to be reprocessed, and this allows that to happen without error
-     * due to a missing column
+     * Reads an internal format document from [input] using the schema [schemaName]and returns the Report object for
+     * the report for a given [destination]
+     * @param sources the list of sources for this report
+     * @param blobReportId the report ID
+     * @return the report
      */
     fun readInternal(
         schemaName: String,
         input: InputStream,
         sources: List<Source>,
         destination: Receiver? = null,
-        blobReportId: ReportId? = null,
-        useDefaultsForMissing: Boolean = false
+        blobReportId: ReportId? = null
     ): Report {
-        // find our schema
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
-        // get our rows
-        val rows = if (useDefaultsForMissing) {
-            // walk through the rows in the file with the header included
-            csvReader().readAllWithHeader(input).map {
-                // for each element name, if it doesn't exist in the map, then we add it with a default
-                // doing it this ways means that even if someone adds a new element in the middle of the schema
-                // (please don't), this should still be okay and it won't necessarily break
-                schema.elements.map { element ->
-                    it.getOrDefault(element.name, element.default ?: "")
-                }
+        val rows = csvReader().readAllWithHeader(input).map {
+            // For each element name, if it doesn't exist in the map, then we add it with a default.
+            // This is so we can add/remove fields/elements anywhere in a schema and not break the process step
+            // when a report has been queued and its schema changes before processing.
+            schema.elements.map { element ->
+                it.getOrDefault(element.name, element.default ?: "")
             }
-        } else {
-            csvReader().readAll(input).drop(1)
         }
         return Report(schema, rows, sources, destination, id = blobReportId, metadata = metadata)
     }

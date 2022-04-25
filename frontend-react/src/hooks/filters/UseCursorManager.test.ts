@@ -1,113 +1,116 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import useCursorManager from "./UseCursorManager";
+import useCursorManager, { CursorActionType } from "./UseCursorManager";
 
-describe("useCursorManager", () => {
+describe("Cursors", () => {
     test("Hook renders with default values", () => {
         const { result } = renderHook(() => useCursorManager());
 
-        expect(result.current.values.cursors).toEqual(
-            new Map<number, string>([[0, ""]])
-        );
-        expect(result.current.values.cursor).toBe("");
-        expect(result.current.values.currentIndex).toBe(0);
-        expect(result.current.values.hasPrev).toBe(false);
-        expect(result.current.values.hasNext).toBe(false);
+        expect(result.current.cursors).toEqual({
+            current: "",
+            next: "",
+            history: [],
+        });
+        expect(result.current.hasPrev).toBe(false);
+        expect(result.current.hasNext).toBe(false);
     });
 
     test("Hook renders with parameter value", () => {
         const { result } = renderHook(() => useCursorManager("one"));
 
-        expect(result.current.values.cursors).toEqual(
-            new Map<number, string>([[0, "one"]])
-        );
-        expect(result.current.values.cursor).toBe("one");
-    });
-
-    test("addNextCursor successfully appends map with cursor", () => {
-        const { result } = renderHook(() => useCursorManager());
-
-        act(() => {
-            result.current.controller.addNextCursor("test");
+        expect(result.current.cursors).toEqual({
+            current: "one",
+            next: "",
+            history: [],
         });
-
-        expect(result.current.values.cursors).toEqual(
-            new Map([
-                [0, ""],
-                [1, "test"],
-            ])
-        );
     });
 
-    test("Simulate receiving new cursors w/ duplicates", () => {
-        const { result } = renderHook(() => useCursorManager());
-        const response = ["123", "456", "789"];
-        const responseTwo = ["456", "789", "000"];
-
-        /* After first response, add cursors */
+    test("dispatch successfully adds next cursor", () => {
+        const { result } = renderHook(() => useCursorManager("one"));
         act(() => {
-            response.forEach((c: string) => {
-                result.current.controller.addNextCursor(c);
+            result.current.update({
+                type: CursorActionType.ADD_NEXT,
+                payload: "two",
             });
         });
+        expect(result.current.cursors).toEqual({
+            current: "one",
+            next: "two",
+            history: [],
+        });
+    });
 
-        expect(result.current.values.cursors).toEqual(
-            new Map<number, string>([
-                [0, ""],
-                [1, "123"],
-                [2, "456"],
-                [3, "789"],
-            ])
-        );
-        expect(result.current.values.hasNext).toBe(true);
-        expect(result.current.values.hasPrev).toBe(false);
-
-        /* Paging to the next page would mean you'd get two duplicate cursors and
-         * one NEW cursor in this array; this should only add the new cursor. */
+    test("dispatch successfully pages up", () => {
+        const { result } = renderHook(() => useCursorManager("one"));
         act(() => {
-            responseTwo.forEach((c: string) => {
-                result.current.controller.addNextCursor(c);
+            result.current.update({
+                type: CursorActionType.ADD_NEXT,
+                payload: "two",
+            });
+            result.current.update({ type: CursorActionType.PAGE_UP });
+            result.current.update({
+                type: CursorActionType.ADD_NEXT,
+                payload: "three",
+            });
+            result.current.update({ type: CursorActionType.PAGE_UP });
+        });
+        expect(result.current.cursors).toEqual({
+            current: "three",
+            next: "",
+            history: ["one", "two"],
+        });
+    });
+
+    test("dispatch successfully pages down", () => {
+        const { result } = renderHook(() => useCursorManager("one"));
+        act(() => {
+            result.current.update({
+                type: CursorActionType.ADD_NEXT,
+                payload: "two",
+            });
+            result.current.update({ type: CursorActionType.PAGE_UP });
+            result.current.update({
+                type: CursorActionType.ADD_NEXT,
+                payload: "three",
+            });
+            result.current.update({ type: CursorActionType.PAGE_UP });
+            result.current.update({ type: CursorActionType.PAGE_DOWN });
+            result.current.update({ type: CursorActionType.PAGE_DOWN });
+            result.current.update({
+                type: CursorActionType.ADD_NEXT,
+                payload: "two",
             });
         });
-
-        expect(result.current.values.cursors).toEqual(
-            new Map<number, string>([
-                [0, ""],
-                [1, "123"],
-                [2, "456"],
-                [3, "789"],
-                [4, "000"],
-            ])
-        );
-        expect(result.current.values.hasNext).toBe(true);
-        expect(result.current.values.hasPrev).toBe(false);
+        expect(result.current.cursors).toEqual({
+            current: "one",
+            next: "two",
+            history: [],
+        });
     });
 
-    test("Reset sets cursors back to original state", () => {
-        const { result } = renderHook(() => useCursorManager("first"));
-        act(() => result.current.controller.addNextCursor("second"));
-        expect(result.current.values.cursors).toEqual(
-            new Map([
-                [0, "first"],
-                [1, "second"],
-            ])
-        );
-        act(() => result.current.controller.reset());
-        expect(result.current.values.cursors).toEqual(new Map([[0, "first"]]));
-    });
-
-    test("Simulate selecting a new cursor", () => {
-        const { result } = renderHook(() => useCursorManager());
-        act(() => result.current.controller.addNextCursor("next cursor"));
-        act(() => result.current.controller.goTo(1));
-        expect(result.current.values.cursor).toBe("next cursor");
-    });
-
-    test("Simulate selecting an invalid cursor", () => {
-        const { result } = renderHook(() => useCursorManager());
-        act(() => result.current.controller.addNextCursor("next cursor"));
-        act(() => result.current.controller.goTo(33));
-        expect(result.current.values.cursor).toBe("");
-        expect(result.current.values.currentIndex).toBe(0);
+    test("dispatch successfully resets", () => {
+        const { result } = renderHook(() => useCursorManager("one"));
+        act(() => {
+            result.current.update({
+                type: CursorActionType.ADD_NEXT,
+                payload: "two",
+            });
+        });
+        expect(result.current.cursors).toEqual({
+            current: "one",
+            next: "two",
+            history: [],
+        });
+        act(() => {
+            result.current.update({
+                type: CursorActionType.RESET,
+                payload: "one",
+            });
+        });
+        expect(result.current.cursors).toEqual({
+            current: "one",
+            next: "",
+            history: [],
+        });
     });
 });
