@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - master
+  push:
+    branches:
+      - josiahsiegel/terraform-revamp-validation
 
 jobs:
   pre_job:
@@ -42,20 +45,23 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Terraform init azurerm backend
-        uses: ahmedig/terraform-azurerm-backend@9ef835db31c52a0049bc60f295b869213e0fa580
-        with:
-          azure_credentials: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-          resource_group_name: prime-data-hub-staging
-          container_name: terraformstate
-          storage_account_name: pdhstagingnewterraform
-          file_name: staging.terraform.tfstate
-          tf_working_directory: operations/app/terraform/vars/staging
+      - name: Prepare Terraform Environment
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+        run: | 
+          # Parse Azure secret into Terraform variables
+          $servicePrincipal = ($env:AZURE_CREDENTIALS | ConvertFrom-Json)
+          $env:ARM_CLIENT_ID = $servicePrincipal.clientId
+          $env:ARM_CLIENT_SECRET = $servicePrincipal.clientSecret
+          $env:ARM_SUBSCRIPTION_ID = $servicePrincipal.subscriptionId
+          $env:ARM_TENANT_ID = $servicePrincipal.tenantId
+
+      - name: Validate All Terraform Modules
+        run: terraform -chdir=operations/app/terraform/vars/staging init -migrate-state
 
       - name: Verify Terraform Formatting
         run: |
-          terraform -chdir=operations/app/terraform/vars/staging \
-            fmt -check -recursive ../../
+          terraform -chdir=operations/app/terraform/vars/staging fmt -check -recursive ../../
 
       - name: Validate All Terraform Modules
         run: terraform -chdir=operations/app/terraform/vars/staging validate
