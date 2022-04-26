@@ -26,7 +26,7 @@ jobs:
               - '.github/workflows/validate_terraform.yml'
 
   validate_terraform_yaml:
-    name: Validate Terraform YAML Formatting
+    name: Validate Terraform YAML
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
     environment: staging
