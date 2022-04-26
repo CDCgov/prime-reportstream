@@ -142,8 +142,7 @@ class CovidResultMetaDataFunction : Logging {
             schema.name,
             ByteArrayInputStream(bytes),
             emptyList(),
-            blobReportId = reportFile.reportId,
-            useDefaultsForMissing = true
+            blobReportId = reportFile.reportId
         )
     }
 

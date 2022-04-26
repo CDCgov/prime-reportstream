@@ -94,7 +94,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 defaultTasks("package")
 
 val ktorVersion = "1.6.8"
-val kotlinVersion = "1.6.10"
+val kotlinVersion = "1.6.20"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
