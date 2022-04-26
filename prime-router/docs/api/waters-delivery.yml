@@ -1,0 +1,68 @@
+openapi: "3.0.3"
+info:
+  title: ReportStream Delivery API
+  version: "1.0"
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+paths:
+  /api/waters/{organization}/deliveries:
+    get:
+      description: retrieve a list of reports available for download by a STLT
+      security:
+        - OktaAuth: [ ANONYMOUS ]
+      parameters:
+        - name: organization
+          in: path
+          description: receiver whose reports we want to see
+          required: true
+          schema:
+            type: string
+        - $ref: "./components/sort_and_filter.yml"
+      responses:
+        '200':
+          description: a list of AvailableReport objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailableReportsResponse'
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+        '404':
+          description: organization does not exist
+components:
+  schemas:
+    AvailableReportsResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/AvailableReport'
+    AvailableReport:
+      type: object
+      properties:
+        reportId:
+          description: the uuid for this report
+          type: string
+          format: uuid
+        dateSent:
+          description: when this report was sent
+          type: string
+          format: date-time
+        itemCount:
+          description: number of items/tests in the report
+          type: integer
+        bodyFormat:
+          description: file type of the report
+          type: string
+          enum: [CSV, HL7]
+        receivingOrg:
+          description: the name of the organization receiving the report
+          type: string
+        receivingOrgSvc:
+          description: service used by the organization
+          type: string
+        externalName:
+          description: the filename for the sent report
+          type: string
