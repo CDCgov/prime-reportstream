@@ -6,7 +6,7 @@ resource "azurerm_container_registry" "container_registry" {
 
   # Sonarcloud flag
   # Current used for app DOCKER_REGISTRY_SERVER_PASSWORD
-  admin_enabled                 = true
+  admin_enabled = true
   # Publish docker workflow runs docker login
   public_network_access_enabled = true
 
