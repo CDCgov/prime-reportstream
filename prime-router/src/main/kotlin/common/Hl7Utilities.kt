@@ -48,5 +48,33 @@ class Hl7Utilities {
             outSegments.add("FTS|1")
             return outSegments.joinToString("\r")
         }
+
+        /**
+         * Prepare the string for matching by throwing away non-searchable characters and spacing
+         */
+        fun canonicalizeSchoolName(schoolName: String): String {
+            val normalizeSchoolType = schoolName
+                .uppercase()
+                .replace("SCHOOL", "")
+                .replace("(H)", "HIGH")
+                .replace("(M)", "MIDDLE")
+                .replace("K-8", "K8")
+                .replace("K-12", "K12")
+                .replace("\\(E\\)|ELEM\\.|EL\\.".toRegex(), "ELEMENTARY")
+                .replace("ELEM\\s|ELEM$".toRegex(), "ELEMENTARY ")
+                .replace("SR HIGH", "SENIOR HIGH")
+                .replace("JR HIGH", "JUNIOR HIGH")
+
+            val possesive = normalizeSchoolType
+                .replace("\'S", "S")
+            val onlyLettersAndSpaces = possesive
+                .replace("[^A-Z0-9\\s]".toRegex(), " ")
+
+            // Throw away single letter words
+            return onlyLettersAndSpaces
+                .split(" ")
+                .filter { it.length > 1 }
+                .joinToString(" ")
+        }
     }
 }

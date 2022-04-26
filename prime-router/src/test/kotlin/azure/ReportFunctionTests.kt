@@ -23,6 +23,7 @@ import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.PrincipalLevel
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkClass
@@ -122,8 +123,7 @@ class ReportFunctionTests {
         every { timing1.maxReportCount } returns 1
         every { timing1.whenEmpty } returns Receiver.WhenEmpty()
 
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
         // does not matter what type of Sender it is for this test
         val sender = CovidSender("default", "simple_report", Sender.Format.CSV, schemaName = "one")
@@ -192,8 +192,7 @@ class ReportFunctionTests {
     @Test
     fun `test reportFunction 'report' endpoint for full ELR sender`() {
         // Setup
-//        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata()
+        val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val sender = FullELRSender("Test ELR Sender", "test", Sender.Format.HL7)
@@ -225,8 +224,7 @@ class ReportFunctionTests {
     @Test
     fun `test reportFunction 'report' endpoint`() {
         // Setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val sender = CovidSender("Test Sender", "test", Sender.Format.CSV, schemaName = "one")
 
@@ -256,8 +254,7 @@ class ReportFunctionTests {
     @Test
     fun `test reportFunction 'report' endpoint with no sender name`() {
         // Setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val sender = CovidSender("Test Sender", "test", Sender.Format.CSV, schemaName = "one")
 
@@ -286,8 +283,7 @@ class ReportFunctionTests {
     @Test
     fun `test reportFunction 'report' endpoint with unknown sender`() {
         // Setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)
@@ -317,8 +313,7 @@ class ReportFunctionTests {
     @Test
     fun `test addDuplicateLogs, duplicate file`() {
         // setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -343,8 +338,7 @@ class ReportFunctionTests {
     @Test
     fun `test addDuplicateLogs, all items dupe`() {
         // setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -370,8 +364,7 @@ class ReportFunctionTests {
     @Test
     fun `test addDuplicateLogs, duplicate item, no skipInvalidItems`() {
         // setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -496,8 +489,7 @@ class ReportFunctionTests {
     @Test
     fun `test processFunction duplicate override true to false`() {
         // setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)
@@ -543,8 +535,7 @@ class ReportFunctionTests {
     @Test
     fun `test processFunction when ActionLogs has an error`() {
         // setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
+        val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)

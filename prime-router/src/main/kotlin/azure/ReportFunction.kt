@@ -439,12 +439,10 @@ class ReportFunction(
             actionLogs.error(InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown sender"))
 
         // verify schema if the sender is a covidSender
-        var missingRequiredSchema = false
         var schema: Schema? = null
         if (sender != null && sender is CovidSender) {
             schema = workflowEngine.metadata.findSchema(sender.schemaName)
             if (schema == null) {
-                missingRequiredSchema = true
                 actionLogs.error(
                     InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
                 )
@@ -463,7 +461,7 @@ class ReportFunction(
             actionLogs.error(InvalidParamMessage("Expecting a post message with content"))
         }
 
-        if (sender == null || missingRequiredSchema || content.isEmpty() || actionLogs.hasErrors()) {
+        if (sender == null || content.isEmpty() || actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
 
