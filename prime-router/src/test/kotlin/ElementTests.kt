@@ -463,7 +463,8 @@ internal class ElementTests {
             "+61 491 578 888", // AU cell number
             "613-688-5335", // CA
             "+1613-688-5335", // CA
-            "+52 55 5080 2000" // MX
+            "+52 55 5080 2000", // MX
+            "(230)7136595", // US, but invalid area code, but pass it through anyway
         ).forEach {
             Element.checkPhoneNumber(it, it).run {
                 assertThat(this).isNull()
@@ -476,7 +477,6 @@ internal class ElementTests {
             "           ",
             "99999999999999999999999999999999999999999999999999999999999999",
             "9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9",
-            "(230)7136595", // US, but invalid area code
         ).forEach {
             Element.checkPhoneNumber(it, "test field").run {
                 assertThat(this).isNotNull()

@@ -1309,7 +1309,7 @@ class Hl7Serializer(
             // possibilities
             val regionCode = phoneNumberUtil.getRegionCodeForNumber(phone) ?: when (phone.countryCode) {
                 1 -> "US" // and CA and others in North America, but the phone number's invalid, so we're guessing now
-                52 -> "MX"
+                52 -> "MX" // Mexico
                 61 -> "AU" // Australia
                 else -> null
             }
