@@ -258,7 +258,6 @@ class SettingsFacade(
             else
                 db.fetchSetting(settingType, name, parentId = null, txn)
             if (current == null) return@transactReturning Pair(AccessResult.NOT_FOUND, errorJson("Item not found"))
-            // val settingMetadata = SettingMetadata(current.version + 1, claims.userName, OffsetDateTime.now())
 
             db.insertDeletedSettingAndChildren(current.settingId, claims.userName, OffsetDateTime.now(), txn)
             db.deactivateSettingAndChildren(current.settingId, txn)

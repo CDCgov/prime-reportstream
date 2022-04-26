@@ -3,7 +3,6 @@ package gov.cdc.prime.router
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import gov.cdc.prime.router.azure.SettingAPI
@@ -82,17 +81,6 @@ abstract class Sender(
                 throw IllegalArgumentException()
             }
         }
-    }
-
-    /**
-     * A sender with topic FULL_ELR will be processed using the full ELR pipeline (fhir engine), submissions
-     * from a sender with topic COVID_19 will be processed using the covid-19 pipeline.
-     */
-    enum class Topic {
-        @JsonProperty("full-elr")
-        FULL_ELR,
-        @JsonProperty("covid-19")
-        COVID_19
     }
 
     /**
