@@ -195,6 +195,7 @@ resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vn
 # Enable sticky slot settings
 # Done via a template due to a missing Terraform feature:
 # https://github.com/terraform-providers/terraform-provider-azurerm/issues/1440
+# ! Before apply, delete existing "functionapp_sticky_settings" deployment from RG
 resource "azurerm_template_deployment" "functionapp_sticky_settings" {
   name                = "functionapp_sticky_settings"
   resource_group_name = var.resource_group

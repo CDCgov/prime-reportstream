@@ -39,4 +39,11 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
       }
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      # Case does not apply correctly
+      log_analytics_workspace_id
+    ]
+  }
 }
