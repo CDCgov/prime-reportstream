@@ -6,6 +6,9 @@ resource "azurerm_application_insights" "metabase_insights" {
   resource_group_name = var.resource_group
   application_type    = "web"
 
+  # Sonarcloud flag
+  internet_ingestion_enabled = false
+
   tags = {
     environment = var.environment
   }

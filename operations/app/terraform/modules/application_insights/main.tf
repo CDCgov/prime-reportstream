@@ -10,6 +10,9 @@ resource "azurerm_application_insights" "app_insights" {
   application_type    = "web"
   workspace_id        = var.workspace_id
 
+  # Sonarcloud flag
+  internet_ingestion_enabled = false
+
   tags = {
     environment = var.environment
   }

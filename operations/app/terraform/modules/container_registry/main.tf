@@ -3,7 +3,10 @@ resource "azurerm_container_registry" "container_registry" {
   resource_group_name = var.resource_group
   location            = var.location
   sku                 = "Premium"
-  admin_enabled       = true
+
+  # Sonarcloud flag
+  admin_enabled       = false
+  public_network_access_enabled = false
 
   # network_rule_set {
   #   default_action = "Allow"
