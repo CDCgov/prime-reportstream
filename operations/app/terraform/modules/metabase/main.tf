@@ -5,6 +5,10 @@ resource "azurerm_app_service" "metabase" {
   app_service_plan_id = var.service_plan_id
   https_only          = true
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   site_config {
     ip_restriction {
       action                    = "Allow"

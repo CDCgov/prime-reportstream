@@ -65,6 +65,10 @@ resource "azurerm_container_group" "sftp_container" {
     }
   }
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   tags = {
     environment = var.environment
   }

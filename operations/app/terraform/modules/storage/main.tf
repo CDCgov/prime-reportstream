@@ -186,6 +186,10 @@ resource "azurerm_storage_account" "storage_public" {
     default_action = "Allow"
   }
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   lifecycle {
     prevent_destroy = false
   }

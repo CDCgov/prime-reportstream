@@ -8,6 +8,10 @@ resource "azurerm_container_registry" "container_registry" {
   admin_enabled                 = false
   public_network_access_enabled = false
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   # network_rule_set {
   #   default_action = "Allow"
 
