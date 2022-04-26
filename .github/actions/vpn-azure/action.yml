@@ -19,6 +19,9 @@ inputs:
     required: true
   env-name:
     required: true
+  tf-auth:
+    description: "Set Terraform auth env variables. True or False"
+    default: false
 
 runs:
   using: "composite"
@@ -65,3 +68,19 @@ runs:
     - uses: azure/login@v1
       with:
         creds: ${{ inputs.sp-creds }}
+
+    - name: Terraform Auth
+      if: inputs.env-name == 'true'
+      env:
+        AZURE_CREDENTIALS: ${{ inputs.sp-creds }}
+      run: |
+        # Parse Azure secret into Terraform variables
+        $servicePrincipal = ($env:AZURE_CREDENTIALS | ConvertFrom-Json)
+        $env:ARM_CLIENT_ID = $servicePrincipal.clientId
+        $env:ARM_CLIENT_SECRET = $servicePrincipal.clientSecret
+        $env:ARM_SUBSCRIPTION_ID = $servicePrincipal.subscriptionId
+        $env:ARM_TENANT_ID = $servicePrincipal.tenantId
+          
+        # Save environment variable setup for subsequent steps
+        Get-ChildItem -Path Env: -Recurse -Include ARM_* | ForEach-Object {Write-Output "$($_.Name)=$($_.Value)"} >> $env:GITHUB_ENV
+      shell: bash
