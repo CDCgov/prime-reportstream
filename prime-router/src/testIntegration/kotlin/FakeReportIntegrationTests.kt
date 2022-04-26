@@ -21,7 +21,7 @@ class FakeReportIntegrationTests {
             .startsWithIgnoreCase("county", county).findAllUnique("zipcode")
         // act
         val context = FakeReport.RowContext(
-            metadata::findLookupTable,
+            metadata,
             state,
             null,
             county
