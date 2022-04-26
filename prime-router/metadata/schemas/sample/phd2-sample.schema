@@ -1,6 +1,7 @@
 ---
 name: phd2-sample
 topic: sample
+trackingElement: specimen_id
 elements:
   - name: lab
     type: TEXT
