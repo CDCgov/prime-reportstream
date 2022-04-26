@@ -3,7 +3,7 @@ locals {
     "POSTGRES_USER"     = "${var.postgres_user}@${var.resource_prefix}-pgsql"
     "POSTGRES_PASSWORD" = var.postgres_pass
 
-    "PRIME_ENVIRONMENT" = (var.environment == "prod" ? "prod" : "test")
+    "PRIME_ENVIRONMENT" = var.environment
 
     "OKTA_baseUrl"  = var.okta_base_url
     "OKTA_redirect" = var.okta_redirect_url
