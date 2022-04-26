@@ -109,14 +109,13 @@ class ReportFunction(
         if (senderName.isBlank())
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
 
-        // Sender should eventually be obtained directly from who is authenticated
-        val sender = workflowEngine.settings.findSender(senderName)
-            ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown client")
-
         actionHistory.trackActionParams(request)
         try {
             val claims = AuthenticationStrategy.authenticate(request)
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+            val sender = workflowEngine.settings.findSender(senderName)
+                ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown client")
 
             // Do authorization based on org name in claim matching org name in client header
             if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {
