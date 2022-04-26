@@ -1,32 +1,52 @@
 import { useResource } from "rest-hooks";
 import { useEffect } from "react";
 
-import useFilterManager from "../../hooks/filters/UseFilterManager";
-import useCursorManager from "../../hooks/filters/UseCursorManager";
+import useFilterManager, {
+    cursorOrRange,
+} from "../../hooks/filters/UseFilterManager";
+import useCursorManager, {
+    CursorActionType,
+} from "../../hooks/filters/UseCursorManager";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
-
-import SubmissionFilters from "./SubmissionFilters";
-
-/* TODO: This component needs to be able to sort ASC and DESC
- *   while being properly paginated. */
+import TableFilters from "../../components/Table/TableFilters";
+import { RangeField } from "../../hooks/filters/UseDateRange";
 
 function SubmissionTable() {
     const filterManager = useFilterManager();
-    const cursorManager = useCursorManager(
-        filterManager.range.startRange.toISOString()
-    ); // First cursor set to StartRange on load
+    const {
+        cursors,
+        hasPrev,
+        hasNext,
+        update: updateCursors,
+    } = useCursorManager(filterManager.rangeSettings.start);
 
-    /* Our API call! Updates when any of the given state variables update */
+    /* Our API call! Updates when any of the given state variables update.
+     * The logical swap of cursors and range value is to account for which end of the
+     * range needs to update when paginating with a specific sort order.
+     *
+     * DESC -> Start [ -> ] End (Start uses cursor to increment towards end)
+     * ASC -> Start [ <- ] End (End uses cursor to increment towards start)
+     */
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
         {
             organization: getStoredOrg(),
-            cursor: cursorManager.values.cursor,
-            endCursor: filterManager.range.endRange.toISOString(),
-            pageSize: filterManager.pageSize.count + 1, // Pulls +1 to check for next page
-            sort: filterManager.sort.order,
+            cursor: cursorOrRange(
+                filterManager.sortSettings.order,
+                RangeField.START,
+                cursors.current,
+                filterManager.rangeSettings.start
+            ),
+            endCursor: cursorOrRange(
+                filterManager.sortSettings.order,
+                RangeField.END,
+                cursors.current,
+                filterManager.rangeSettings.end
+            ),
+            pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
+            sort: filterManager.sortSettings.order,
             showFailed: false, // No plans for this to be set to true
         }
     );
@@ -34,11 +54,15 @@ function SubmissionTable() {
     /* Effect to add next cursor whenever submissions returns a new array */
     useEffect(() => {
         const nextCursor =
-            submissions[filterManager.pageSize.count]?.timestamp || undefined;
+            submissions[filterManager.pageSettings.size]?.timestamp ||
+            undefined;
         if (nextCursor) {
-            cursorManager.controller.addNextCursor(nextCursor);
+            updateCursors({
+                type: CursorActionType.ADD_NEXT,
+                payload: nextCursor,
+            });
         }
-    }, [submissions, filterManager.pageSize.count, cursorManager.controller]);
+    }, [submissions, filterManager.pageSettings.size, updateCursors]);
 
     const transformDate = (s: string) => {
         return new Date(s).toLocaleString();
@@ -54,7 +78,7 @@ function SubmissionTable() {
         {
             dataAttr: "timestamp",
             columnHeader: "Date/time submitted",
-            // sortable: true,
+            sortable: true,
             transform: transformDate,
         },
         { dataAttr: "externalName", columnHeader: "File" },
@@ -73,14 +97,24 @@ function SubmissionTable() {
 
     return (
         <>
-            <SubmissionFilters
+            <TableFilters
                 filterManager={filterManager}
-                cursorManager={cursorManager}
+                cursorManager={{
+                    cursors,
+                    hasPrev,
+                    hasNext,
+                    update: updateCursors,
+                }}
             />
             <Table
                 config={submissionsConfig}
                 filterManager={filterManager}
-                cursorManager={cursorManager}
+                cursorManager={{
+                    cursors,
+                    hasPrev,
+                    hasNext,
+                    update: updateCursors,
+                }}
             />
         </>
     );
