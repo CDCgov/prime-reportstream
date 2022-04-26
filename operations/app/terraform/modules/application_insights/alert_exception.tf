@@ -27,7 +27,7 @@ resource "azurerm_monitor_metric_alert" "exception_alert_critical" {
   }
 
   tags = {
-    "environment" = var.environment
+    environment = var.environment
   }
 }
 
@@ -54,7 +54,7 @@ resource "azurerm_monitor_metric_alert" "exception_alert_error" {
   }
 
   tags = {
-    "environment" = var.environment
+    environment = var.environment
   }
 }
 
@@ -81,6 +81,6 @@ resource "azurerm_monitor_metric_alert" "exception_alert_warn" {
   }
 
   tags = {
-    "environment" = var.environment
+    environment = var.environment
   }
 }

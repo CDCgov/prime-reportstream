@@ -6,7 +6,7 @@ resource "azurerm_public_ip" "nat_gateway_ip" {
   sku                 = "Standard"
 
   lifecycle {
-    prevent_destroy = false #true
+    prevent_destroy = false
   }
 
   tags = {

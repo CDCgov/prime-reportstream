@@ -153,7 +153,7 @@ resource "azurerm_key_vault" "client_config" {
   }
 
   tags = {
-    "environment" = var.environment
+    environment = var.environment
   }
 }
 

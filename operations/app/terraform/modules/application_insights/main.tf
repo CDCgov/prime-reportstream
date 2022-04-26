@@ -32,7 +32,7 @@ resource "azurerm_monitor_action_group" "action_group" {
   }
 
   tags = {
-    "environment" = var.environment
+    environment = var.environment
   }
 }
 

@@ -38,7 +38,7 @@ resource "azurerm_postgresql_server" "postgres_server" {
   }
 
   tags = {
-    "environment" = var.environment
+    environment = var.environment
   }
 }
 
@@ -102,7 +102,7 @@ resource "azurerm_postgresql_server" "postgres_server_replica" {
   }
 
   tags = {
-    "environment" = var.environment
+    environment = var.environment
   }
 }
 
