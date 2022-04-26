@@ -29,7 +29,7 @@ jobs:
               - '.github/workflows/validate_terraform.yml'
 
   validate_terraform_yaml:
-    name: Validate Terraform YAML
+    name: Validate Terraform YAML Formatting
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
     environment: staging
@@ -40,9 +40,6 @@ jobs:
 
       - name: Verify Terraform Formatting
         run: terraform -chdir=operations/app/terraform/vars/staging fmt -check -recursive ../../
-
-      - name: Validate All Terraform Modules
-        run: terraform -chdir=operations/app/terraform/vars/staging validate
 
   generate_terraform_plan_staging:
     name: Generate Terraform Plan for Staging
@@ -67,13 +64,17 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
 
-      - name: Migrate Terraform State
-        run: terraform -input=false -chdir=operations/app/terraform/vars/staging init
+      - name: Initialize Terraform
+        run: terraform -chdir=operations/app/terraform/vars/staging init
+
+      - name: Validate All Terraform Modules
+        run: terraform -chdir=operations/app/terraform/vars/staging validate
 
       - name: Generate a Plan for All Terraform Modules
         run: |
-          terraform -input=false -chdir=operations/app/terraform/vars/staging \
-            plan -out=../../../plan/staging-${{ github.run_id }}-${{ github.sha }}.output
+          terraform -chdir=operations/app/terraform/vars/staging plan \
+            -out=../../../plan/staging-${{ github.run_id }}-${{ github.sha }}.output \
+            -input=false
 
       - name: Upload Terraform Plan to Storage Account
         if: ${{ always() }} # We want to upload whatever part of the plan we have
