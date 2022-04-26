@@ -121,7 +121,7 @@ Now you have the tools necessary to run the front-end application. Navigate into
 and use `yarn` to serve it on `localhost:3000`
 
 ```bash
-cd ../front-end-react
+cd ../frontend-react
 yarn
 yarn start:localdev
 ```
