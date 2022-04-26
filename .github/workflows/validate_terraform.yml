@@ -12,7 +12,7 @@ jobs:
     outputs:
       has_operations_change: ${{ steps.skip_check.outputs.operations }}
     steps:
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
         id: skip_check
         with:
           list-files: csv
