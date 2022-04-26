@@ -1,47 +1,56 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react-hooks";
 
-import useFilterManager from "./UseFilterManager";
+import useFilterManager, { cursorOrRange } from "./UseFilterManager";
+import { RangeField } from "./UseDateRange";
 
 describe("UseFilterManager", () => {
-    test("Renders with default FilterState", () => {
+    test("renders with default FilterState", () => {
         const { result } = renderHook(() => useFilterManager());
-        expect(result.current.range.endRange.toISOString()).toEqual(
-            "2000-01-01T00:00:00.000Z"
-        );
-        expect(result.current.sort.column).toEqual("");
-        expect(result.current.sort.order).toEqual("DESC");
-        expect(result.current.pageSize.count).toEqual(10);
+        expect(result.current.rangeSettings).toEqual({
+            start: "3000-01-01T00:00:00.000Z",
+            end: "2000-01-01T00:00:00.000Z",
+        });
+        expect(result.current.sortSettings).toEqual({
+            column: "",
+            order: "DESC",
+        });
+        expect(result.current.pageSettings).toEqual({
+            size: 10,
+            currentPage: 1,
+        });
     });
+});
 
-    test("FilterController functions update the state", () => {
-        const { result } = renderHook(() => useFilterManager());
-        act(() =>
-            result.current.range.set({
-                date1: "2999-01-01",
-                date2: "2020-01-01",
-            })
+describe("Helper functions", () => {
+    test("cursorOrRange", () => {
+        const rangeAsStart = cursorOrRange(
+            "ASC",
+            RangeField.START,
+            "cursor",
+            "range"
         );
-        expect(result.current.range.endRange.toISOString()).toEqual(
-            "2020-01-01T00:00:00.000Z"
+        const cursorAsStart = cursorOrRange(
+            "DESC",
+            RangeField.START,
+            "cursor",
+            "range"
         );
-        expect(result.current.range.startRange.toISOString()).toEqual(
-            "2999-01-01T00:00:00.000Z"
+        const rangeAsEnd = cursorOrRange(
+            "DESC",
+            RangeField.END,
+            "cursor",
+            "range"
+        );
+        const cursorAsEnd = cursorOrRange(
+            "ASC",
+            RangeField.END,
+            "cursor",
+            "range"
         );
 
-        act(() => result.current.sort.set("test", "DESC"));
-        expect(result.current.sort.column).toEqual("test");
-        expect(result.current.sort.order).toEqual("ASC");
-
-        act(() => result.current.pageSize.set(50));
-        expect(result.current.pageSize.count).toEqual(50);
-
-        act(() => result.current.clearAll());
-
-        expect(result.current.range.endRange.toISOString()).toEqual(
-            "2000-01-01T00:00:00.000Z"
-        );
-        expect(result.current.sort.column).toEqual("");
-        expect(result.current.sort.order).toEqual("DESC");
-        expect(result.current.pageSize.count).toEqual(10);
+        expect(rangeAsStart).toEqual("range");
+        expect(rangeAsEnd).toEqual("range");
+        expect(cursorAsStart).toEqual("cursor");
+        expect(cursorAsEnd).toEqual("cursor");
     });
 });

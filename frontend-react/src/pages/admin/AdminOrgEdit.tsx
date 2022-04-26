@@ -28,7 +28,11 @@ import {
     ConfirmSaveSettingModalRef,
 } from "../../components/Admin/CompareJsonModal";
 import { DisplayMeta } from "../../components/Admin/DisplayMeta";
-import { getErrorDetailFromResponse } from "../../utils/misc";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    VersionWarningType,
+} from "../../utils/misc";
 
 type AdminOrgEditProps = {
     orgname: string;
@@ -49,30 +53,42 @@ export function AdminOrgEdit({
     const { fetch: fetchController } = useController();
     const [loading, setLoading] = useState(false);
 
+    async function getLatestOrgResponse() {
+        const accessToken = getStoredOktaToken();
+        const organization = getStoredOrg();
+
+        const response = await fetch(
+            `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    Organization: organization!,
+                },
+            }
+        );
+
+        return await response.json();
+    }
+
     const ShowCompareConfirm = async () => {
         try {
             // fetch original version
             setLoading(true);
-            const accessToken = getStoredOktaToken();
-            const organization = getStoredOrg();
-
-            const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        Organization: organization!,
-                    },
-                }
-            );
-
-            const responseBody = await response.json();
+            const latestResponse = await getLatestOrgResponse();
             setOrgSettingsOldJson(
-                JSON.stringify(responseBody, jsonSortReplacer, 2)
+                JSON.stringify(latestResponse, jsonSortReplacer, 2)
             );
             setOrgSettingsNewJson(
                 JSON.stringify(orgSettings, jsonSortReplacer, 2)
             );
+
+            if (latestResponse?.meta?.version !== orgSettings?.meta?.version) {
+                showError(getVersionWarning(VersionWarningType.POPUP));
+                confirmModalRef?.current?.setWarning(
+                    getVersionWarning(VersionWarningType.FULL, latestResponse)
+                );
+                confirmModalRef?.current?.disableSave();
+            }
 
             confirmModalRef?.current?.showModal();
             setLoading(false);
@@ -87,6 +103,20 @@ export function AdminOrgEdit({
 
     const saveOrgData = async () => {
         try {
+            const latestResponse = await getLatestOrgResponse();
+            if (latestResponse.meta?.version !== orgSettings?.meta?.version) {
+                // refresh left-side panel in compare modal to make it obvious what has changed
+                setOrgSettingsOldJson(
+                    JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                );
+                showError(getVersionWarning(VersionWarningType.POPUP));
+                confirmModalRef?.current?.setWarning(
+                    getVersionWarning(VersionWarningType.FULL, latestResponse)
+                );
+                confirmModalRef?.current?.disableSave();
+                return false;
+            }
+
             const data = confirmModalRef?.current?.getEditedText();
             showAlertNotification("success", `Saving...`);
             await fetchController(
@@ -104,9 +134,7 @@ export function AdminOrgEdit({
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
             console.trace(e, errorDetail);
-            showError(
-                `Updating receiver '${orgname}' failed with: ${errorDetail}`
-            );
+            showError(`Updating org '${orgname}' failed with: ${errorDetail}`);
             return false;
         }
 
