@@ -186,6 +186,5 @@
         "minimist": "^1.2.6",
         "webpack": "^5.71.0"
     },
-    "resolutions": {
-    }
+    "resolutions": {}
 }
