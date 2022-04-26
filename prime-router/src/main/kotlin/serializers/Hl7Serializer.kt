@@ -1296,22 +1296,25 @@ class Hl7Serializer(
 
         /**
          * Validate phone number and return pair of region (US, CA, MX, AU) and phone number
-         * @param [phoneNumber] phone numner to validate.
+         * @param [phoneNumber] phone number to validate.
          * @return region (US, CA, MX, AU) and phone number if valid.  Otherwise, return null, null.
          */
         fun parsePhoneNumber(phoneNumber: String): Pair<String?, Phonenumber.PhoneNumber?> {
-            var phone = phoneNumberUtil.parse(phoneNumber, "US") // Assume US or CA in general
-            if (!phoneNumberUtil.isValidNumber(phone)) {
-                // Let us check for Mexico or Australia
-                if (phoneNumberUtil.isValidNumber(phoneNumberUtil.parse(phoneNumber, "MX")))
-                    phone = phoneNumberUtil.parse(phoneNumber, "MX")
-                else if (phoneNumberUtil.isValidNumber(phoneNumberUtil.parse(phoneNumber, "AU")))
-                    phone = phoneNumberUtil.parse(phoneNumber, "AU")
-                else
-                    return Pair(null, phone)
+            val phone = Element.tryParsePhoneNumber(phoneNumber) ?: Phonenumber.PhoneNumber().also {
+                it.rawInput = phoneNumber
+            }
+            // in most cases, the phone number util will get us the correct region code for the phone number
+            // but there are going to be cases where we have an invalid phone number and the `getRegionCodeForNumber`
+            // function will fail, so I've hardcoded in the saving throw to try and guess the three most likely
+            // possibilities
+            val regionCode = phoneNumberUtil.getRegionCodeForNumber(phone) ?: when (phone.countryCode) {
+                1 -> "US" // and CA and others in North America, but the phone number's invalid, so we're guessing now
+                52 -> "MX"
+                61 -> "AU" // Australia
+                else -> null
             }
 
-            return Pair(phoneNumberUtil.getRegionCodeForNumber(phone), phone)
+            return Pair(regionCode, phone)
         }
 
         fun setComponents(pathSpec: String, component1: String) {
@@ -1348,7 +1351,10 @@ class Hl7Serializer(
             // If it is North America phone number with country code = "+1" US & CA, code = +52 MX, and +61 AU
             // then we fill PID-13-6, 7
             val (region, _) = parsePhoneNumber("$country$areaCode$local")
-            if (arrayOf("US", "CA", "MX", "AU").contains(region)) {
+            // there are a lot of potential phone numbers that could start +1, and the google phone number
+            // library will return the correct country code based on region AND exchange, which could break
+            // this logic if the number is from say a Caribbean island
+            if (Element.phoneRegions.contains(region)) {
                 terser.set(buildComponent(pathSpec, 6), areaCode)
                 terser.set(buildComponent(pathSpec, 7), local)
             } else {

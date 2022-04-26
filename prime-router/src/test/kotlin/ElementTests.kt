@@ -401,14 +401,14 @@ internal class ElementTests {
     }
 
     @Test
-    fun `testToNormalizedIntenationalPhone`() {
+    fun `test To Normalized International Phone`() {
         val one = Element(
             "a",
             type = Element.Type.TELEPHONE,
             csvFields = Element.csvFields("phone")
         )
 
-        val arrayOfPhoneNumbersAndResults = arrayOf(
+        val arrayOfPhoneNumbersAndResults = listOf(
             // Pair("+1-316-667-9400", "3166679400:1:"),   // US
             // Pair("(230)7136595", "2307136595:1:"),  // US
             Pair("+61 2 6214 5600", "0262145600:61:"), // AU
@@ -418,9 +418,68 @@ internal class ElementTests {
         )
 
         // Verify phone numbers
-        arrayOfPhoneNumbersAndResults.forEach { phRslt ->
-            one.toNormalized(phRslt.first).run {
-                assertThat(this).isEqualTo(phRslt.second)
+        arrayOfPhoneNumbersAndResults.forEach { phoneNumberAndResult ->
+            one.toNormalized(phoneNumberAndResult.first).run {
+                assertThat(this).isEqualTo(phoneNumberAndResult.second)
+            }
+        }
+    }
+
+    @Test
+    fun `test try parse Phone Number`() {
+        listOf(
+            "+1-316-667-9400", // US
+            "(230)7136595", // US
+            "+61 2 6214 5600", // AU
+            "613-688-5335", // CA
+            "+1613-688-5335", // CA
+            "+52 55 5080 2000" // MX
+        ).forEach {
+            Element.tryParsePhoneNumber(it).run {
+                assertThat(this).isNotNull()
+            }
+        }
+
+        listOf(
+            "",
+            "abcdefghijk",
+            "           ",
+            "99999999999999999999999999999999999999999999999999999999999999",
+            "9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9",
+            null
+        ).forEach {
+            Element.tryParsePhoneNumber(it).run {
+                assertThat(this).isNull()
+            }
+        }
+    }
+
+    @Test
+    fun `test checkPhoneNumber method`() {
+        listOf(
+            "+1-316-667-9400", // US
+            "(717)531-0123", // US alternate formatting
+            "+61 2 9667 9111", // AU
+            "+61 491 578 888", // AU cell number
+            "613-688-5335", // CA
+            "+1613-688-5335", // CA
+            "+52 55 5080 2000" // MX
+        ).forEach {
+            Element.checkPhoneNumber(it, it).run {
+                assertThat(this).isNull()
+            }
+        }
+
+        listOf(
+            "",
+            "abcdefghijk",
+            "           ",
+            "99999999999999999999999999999999999999999999999999999999999999",
+            "9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9",
+            "(230)7136595", // US, but invalid area code
+        ).forEach {
+            Element.checkPhoneNumber(it, "test field").run {
+                assertThat(this).isNotNull()
             }
         }
     }
