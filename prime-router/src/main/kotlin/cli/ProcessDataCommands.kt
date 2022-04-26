@@ -270,8 +270,7 @@ class ProcessData(
                     csvSerializer.readInternal(
                         schema.name,
                         file.inputStream(),
-                        listOf(FileSource(file.nameWithoutExtension)),
-                        useDefaultsForMissing = true
+                        listOf(FileSource(file.nameWithoutExtension))
                     )
                 } else {
                     val result =
