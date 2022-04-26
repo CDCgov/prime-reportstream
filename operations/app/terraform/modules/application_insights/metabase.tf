@@ -8,6 +8,7 @@ resource "azurerm_application_insights" "metabase_insights" {
 
   # Sonarcloud flag
   internet_ingestion_enabled = false
+  internet_query_enabled     = false
 
   tags = {
     environment = var.environment
