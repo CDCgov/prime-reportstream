@@ -12,6 +12,9 @@ jobs:
     outputs:
       has_operations_change: ${{ steps.skip_check.outputs.operations }}
     steps:
+      - name: Check Out Changes
+        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+
       - uses: dorny/paths-filter@v2
         id: skip_check
         with:
@@ -20,28 +23,26 @@ jobs:
           filters: |
             operations:
               - 'operations/app/terraform/**'
+              - '.github/workflows/validate_terraform.yml'
 
   validate_terraform_yaml:
     name: Validate Terraform YAML
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
+    environment: staging
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: operations/app/terraform/vars/staging
     steps:
       - name: Check Out Changes
         uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
 
       - name: Verify Terraform Formatting
-        run: terraform fmt -check -recursive ../../
-
-      - name: Validate All Terraform Modules
-        run: terraform validate
+        run: terraform -chdir=operations/app/terraform/vars/staging fmt -check -recursive ../../
 
   generate_terraform_plan_staging:
     name: Generate Terraform Plan for Staging
-    needs: pre_job
+    needs: 
+      - pre_job
+      - validate_terraform_yaml
     if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
     environment: staging
     runs-on: ubuntu-latest
@@ -52,16 +53,25 @@ jobs:
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
+          env-name: staging
           tls-key: ${{ secrets.TLS_KEY }}
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: true
+
+      - name: Initialize Terraform
+        run: terraform -chdir=operations/app/terraform/vars/staging init
+
+      - name: Validate All Terraform Modules
+        run: terraform -chdir=operations/app/terraform/vars/staging validate
 
       - name: Generate a Plan for All Terraform Modules
-        working-directory: operations/app/terraform/vars/staging
-        run: terraform plan -out ../../plan/staging-${{ github.run_id }}-${{ github.sha }}.tf
+        run: |
+          terraform -chdir=operations/app/terraform/vars/staging plan \
+            -out=../../../plan/staging-${{ github.run_id }}-${{ github.sha }}.output \
+            -input=false
 
       - name: Upload Terraform Plan to Storage Account
         if: ${{ always() }} # We want to upload whatever part of the plan we have
