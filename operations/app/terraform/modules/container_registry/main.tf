@@ -5,8 +5,10 @@ resource "azurerm_container_registry" "container_registry" {
   sku                 = "Premium"
 
   # Sonarcloud flag
-  admin_enabled                 = false
-  public_network_access_enabled = false
+  # Current used for app DOCKER_REGISTRY_SERVER_PASSWORD
+  admin_enabled                 = true
+  # Publish docker workflow runs docker login
+  public_network_access_enabled = true
 
   identity {
     type = "SystemAssigned"
