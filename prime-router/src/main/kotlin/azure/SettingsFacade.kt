@@ -110,6 +110,11 @@ class SettingsFacade(
                 db.fetchSetting(settingType, name, parentId = null, txn)
         } ?: return null
         val result = mapper.readValue(setting.values.data(), clazz)
+        // Add the metadata
+        result.createdAt = setting.createdAt
+        result.createdBy = setting.createdBy
+        result.version = setting.version
+        result.meta = SettingsMetadata(setting.version, setting.createdBy, setting.createdAt)
         return result
     }
 
@@ -287,9 +292,26 @@ class SettingsFacade(
     }
 }
 
+/**
+ * Deprecated old meta from the settings table used for backwards compatibility.  This data used to be in the JSONB, but
+ * was replaced by columns in the database.
+ * @property version the setting version
+ * @property createdAt the time the setting was created
+ * @property createdBy the user that created the setting.
+ */
+data class SettingsMetadata(
+    val version: Int,
+    val createdBy: String,
+    val createdAt: OffsetDateTime
+)
+
 interface SettingAPI {
     val name: String
     val organizationName: String?
+    var version: Int?
+    var createdBy: String?
+    var createdAt: OffsetDateTime?
+    var meta: SettingsMetadata? // Deprecated
     fun consistencyErrorMessage(metadata: Metadata): String?
 }
 
@@ -302,6 +324,10 @@ class OrganizationAPI
     stateCode: String?,
     countyName: String?,
     filters: List<ReportStreamFilters>?,
+    override var version: Int? = null,
+    override var createdBy: String? = null,
+    override var createdAt: OffsetDateTime? = null,
+    override var meta: SettingsMetadata? = null // Deprecated
 ) : Organization(name, description, jurisdiction, stateCode.trimToNull(), countyName.trimToNull(), filters),
     SettingAPI {
     @get:JsonIgnore
@@ -326,6 +352,10 @@ class ReceiverAPI
     timing: Timing? = null,
     description: String = "",
     transport: TransportType? = null,
+    override var version: Int? = null,
+    override var createdBy: String? = null,
+    override var createdAt: OffsetDateTime? = null,
+    override var meta: SettingsMetadata? = null // Deprecated
 ) : Receiver(
     name,
     organizationName,
