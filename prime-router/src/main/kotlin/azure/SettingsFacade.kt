@@ -221,6 +221,11 @@ class SettingsFacade(
             }
 
             val settingResult = mapper.readValue(setting.values.data(), clazz)
+            if (settingResult is SettingAPI) {
+                settingResult.version = setting.version
+                settingResult.createdAt = setting.createdAt
+                settingResult.createdBy = setting.createdBy
+            }
 
             val outputJson = mapper.writeValueAsString(settingResult)
             Pair(accessResult, outputJson)
