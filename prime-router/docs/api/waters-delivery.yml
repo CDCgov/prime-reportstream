@@ -1,17 +1,32 @@
 openapi: "3.0.3"
 info:
   title: ReportStream Delivery API
+  description: This API reflects the point of view of the STLTs and provides lookup functionality
   version: "1.0"
   contact:
     name: USDS at Centers for Disease Control and Prevention
     url: https://open.cdc.gov
     email: usds@cdc.gov
+  license:
+    name: Creative Commons Zero v1.0 Universal
+    url: https://github.com/CDCgov/prime-reportstream/blob/master/LICENSE
+servers:
+  - url: https://prime.cdc.gov/api
+    description: Production server (uses live data)
+  - url: http://localhost:7071/api
+    description: Developer Environment
 paths:
   /api/waters/{organization}/deliveries:
     get:
-      description: retrieve a list of reports available for download by a STLT
+      operationId: getAvailableReports
+      summary: Get available reports for a STLT
+      description: Retrieve a list of reports available for download by a STLT
       security:
-        - OktaAuth: [ ANONYMOUS ]
+        - ApiKeyAuth: []
+        - OAuth2:
+            - read
+            - write
+        # - OktaAuth: [ ANONYMOUS ]
       parameters:
         - name: organization
           in: path
@@ -34,6 +49,8 @@ paths:
         '404':
           description: organization does not exist
 components:
+  securitySchemes:
+    $ref: "./components/security_schemes.yml"
   schemas:
     AvailableReportsResponse:
       type: array
