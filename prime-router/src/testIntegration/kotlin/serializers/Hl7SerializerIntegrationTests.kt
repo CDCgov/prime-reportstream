@@ -226,7 +226,6 @@ NTE|1|L|This is a final comment|RE"""
         val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
         val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
         val output = serializer.createMessage(testReport, 3)
-        println(output)
         val mcf = CanonicalModelClassFactory("2.5.1")
         context.modelClassFactory = mcf
         val parser = context.pipeParser
@@ -250,6 +249,39 @@ NTE|1|L|This is a final comment|RE"""
                 "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE-3"
             )
         ).isEqualTo("OOO-AAAAAA-EEEE-I-U-CCC") // ÔÔÔ-ÀÁÂÃÄÅ-ÈÉÊË-Î-Ù-ÇÇÇ
+    }
+
+    @Test
+    fun `test write a message that skips unicode to ASCII`() {
+        val inputStream = File("./src/test/unit_test_files/ca_test_file.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+        val hl7Config = createConfig(replaceUnicodeWithAscii = false)
+        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
+        val output = serializer.createMessage(testReport, 3)
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(output, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
+        val terser = Terser(hapiMsg)
+        // assert
+        assertThat(output).isNotNull()
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
+            )
+        ).isEqualTo("Ãny lab USA") // Ãny lab USA
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-11-4")).isEqualTo("ÇA") // ÇA
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-11-6")).isEqualTo("ÙSA") // ÙSA
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-5-4")).isEqualTo("ÎÎÎ") // ÎÎÎ
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE-3"
+            )
+        ).isEqualTo("ÔÔÔ-ÀÁÂÃÄÅ-ÈÉÊË-Î-Ù-ÇÇÇ") // ÔÔÔ-ÀÁÂÃÄÅ-ÈÉÊË-Î-Ù-ÇÇÇ
     }
 
     @Test
