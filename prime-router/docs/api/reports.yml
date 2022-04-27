@@ -35,7 +35,6 @@ paths:
               - CheckConnections # Health check
               - SendImmediately # Send the reports immediately, skip batching and timing
               - SkipSend # Validate and route but do not send reports. Data is kept in the hub.
-              - SkipInvalidItems # Send valid ones
           example: ValidatePayload
         - in: query
           name: default

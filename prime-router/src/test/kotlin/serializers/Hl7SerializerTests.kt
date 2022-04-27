@@ -29,6 +29,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import gov.cdc.prime.router.unittest.UnitTestUtils.createConfig
 import io.mockk.every
@@ -544,8 +545,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test canonicalSchoolName`() {
-        val settings = FileSettings("./settings")
-        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
+        val serializer = Hl7Utilities
 
         // Use NCES actual table values to test
         val senior = serializer.canonicalizeSchoolName("SHREWSBURY SR HIGH")

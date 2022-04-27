@@ -1,0 +1,45 @@
+openapi: "3.0.3"
+info:
+  title: ReportStream Token API
+  version: "1.0"
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+paths:
+  /api/token:
+    post:
+      description: generate a new token for the requested scope
+      security:
+        - OktaAuth: [ ANONYMOUS ]
+      parameters:
+        - name: client_assertion
+          in: path
+          description: signed JWT for the sender
+          required: true
+          schema:
+            type: string
+            format: verylong.signed.jwtstring
+        - name: scope
+          in: path
+          description: permissions for the auth token
+          required: true
+          schema:
+            type: string
+            format: org.sender.endpoint
+            example: strac.default.reports
+      requestBody:
+        description: empty body needed on post calls
+        content:
+          application/json: {}
+      responses:
+        '200':
+          description: the token was created and returned
+          # content:
+          #   application/json:
+          #     schema:
+          #       $ref: '#/components/schemas/TableVersionInfo'
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
