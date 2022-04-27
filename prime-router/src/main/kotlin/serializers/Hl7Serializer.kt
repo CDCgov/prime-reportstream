@@ -673,7 +673,6 @@ class Hl7Serializer(
             replaceValueAwithB, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps
         )
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
-
         return message
     }
 

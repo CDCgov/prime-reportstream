@@ -57,7 +57,7 @@ Below are the configuration features currently used in ReportStream (RS). These 
 
 - **truncateHl7Fields**: This will truncate any hl7 field to their hl7 spec. In this case, it will truncate OBX-23-1 to 50 characters.
 - **suppressHl7Fields**: This feature suppresses  all fields listed in the string. All listed fields will be blank in the output hl7 file.
-- **replaceValue**: The replaceValue feature will replace the value of the hl7 field with the specified value. In the example above, the output hl7 file with have `CDC PRIME - Atlanta,` in MSH-3-1.
+- **replaceValue**: The replaceValue feature will replace the value of the hl7 field with the specified value. In the example above, the output hl7 file will have `CDC PRIME - Atlanta,` in MSH-3-1.
 
 Note: Some features take multiple parameters and some can only take one. The ones that are Boolean for example, can only take `true` or `false`.
 
