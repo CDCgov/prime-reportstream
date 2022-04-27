@@ -615,7 +615,7 @@ class Report : Logging {
         // values in each row because quality synthetic data matters
         table.forEach {
             val context = FakeReport.RowContext(
-                metadata::findLookupTable,
+                metadata,
                 targetState,
                 schema.name,
                 targetCounty
@@ -873,8 +873,7 @@ class Report : Logging {
         return StringColumn.create(
             name,
             List(itemCount) {
-                // moved context into the list creator so we get many different values
-                val context = FakeReport.RowContext(metadata::findLookupTable, targetState, schema.name, targetCounty)
+                val context = FakeReport.RowContext(metadata, targetState, schema.name, targetCounty)
                 fakeDataService.getFakeValueForElement(element, context)
             }
         )

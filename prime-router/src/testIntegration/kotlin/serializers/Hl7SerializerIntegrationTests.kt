@@ -13,6 +13,7 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
@@ -92,6 +93,7 @@ NTE|1|L|This is a final comment|RE"""
         suppressNonNPI: Boolean = false,
         truncateHDNamespaceIds: Boolean = false,
         stripInvalidCharsRegex: String? = null,
+        replaceUnicodeWithAscii: Boolean = false
     ): Hl7Configuration {
         return Hl7Configuration(
             messageProfileId = "",
@@ -106,7 +108,8 @@ NTE|1|L|This is a final comment|RE"""
             truncateHl7Fields = truncateHl7Fields,
             suppressNonNPI = suppressNonNPI,
             truncateHDNamespaceIds = truncateHDNamespaceIds,
-            stripInvalidCharsRegex = stripInvalidCharsRegex
+            stripInvalidCharsRegex = stripInvalidCharsRegex,
+            replaceUnicodeWithAscii = replaceUnicodeWithAscii
         )
     }
 
@@ -214,6 +217,72 @@ NTE|1|L|This is a final comment|RE"""
             )
         ).isEqualTo("High Meadow")
         assertThat(output).isNotNull()
+    }
+
+    @Test
+    fun `test write a message converting unicode to ASCII`() {
+        val inputStream = File("./src/test/unit_test_files/ca_test_file.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+        val hl7Config = createConfig(replaceUnicodeWithAscii = true)
+        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
+        val output = serializer.createMessage(testReport, 3)
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(output, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
+        val terser = Terser(hapiMsg)
+        // assert
+        assertThat(output).isNotNull()
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
+            )
+        ).isEqualTo("Any lab USA") // Ãny lab USA
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-11-4")).isEqualTo("CA") // ÇA
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-11-6")).isEqualTo("USA") // ÙSA
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-5-4")).isEqualTo("III") // ÎÎÎ
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE-3"
+            )
+        ).isEqualTo("OOO-AAAAAA-EEEE-I-U-CCC") // ÔÔÔ-ÀÁÂÃÄÅ-ÈÉÊË-Î-Ù-ÇÇÇ
+    }
+
+    @Test
+    fun `test write a message that skips unicode to ASCII`() {
+        val inputStream = File("./src/test/unit_test_files/ca_test_file.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+        val hl7Config = createConfig(replaceUnicodeWithAscii = false)
+        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config)
+        val testReport = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
+        val output = serializer.createMessage(testReport, 3)
+        val mcf = CanonicalModelClassFactory("2.5.1")
+        context.modelClassFactory = mcf
+        val parser = context.pipeParser
+        // act
+        val reg = "[\r\n]".toRegex()
+        val cleanedMessage = reg.replace(output, "\r")
+        val hapiMsg = parser.parse(cleanedMessage)
+        val terser = Terser(hapiMsg)
+        // assert
+        assertThat(output).isNotNull()
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-23-1"
+            )
+        ).isEqualTo("Ãny lab USA") // Ãny lab USA
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-11-4")).isEqualTo("ÇA") // ÇA
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-11-6")).isEqualTo("ÙSA") // ÙSA
+        assertThat(terser.get("/PATIENT_RESULT/PATIENT/PID-5-4")).isEqualTo("ÎÎÎ") // ÎÎÎ
+        assertThat(
+            terser.get(
+                "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE-3"
+            )
+        ).isEqualTo("ÔÔÔ-ÀÁÂÃÄÅ-ÈÉÊË-Î-Ù-ÇÇÇ") // ÔÔÔ-ÀÁÂÃÄÅ-ÈÉÊË-Î-Ù-ÇÇÇ
     }
 
     @Test
@@ -680,7 +749,7 @@ NTE|1|L|This is a final comment|RE"""
 
         val uploadStream = File("./src/testIntegration/resources/serializers/csv-upload-test.csv").inputStream()
         val uploadSchema = "upload-covid-19"
-        val sender = Sender("default", "upload", Sender.Format.CSV, "covid-19", CustomerStatus.TESTING, uploadSchema)
+        val sender = CovidSender("default", "upload", Sender.Format.CSV, CustomerStatus.TESTING, uploadSchema)
         val testReport = csvSerializer.readExternal(uploadSchema, uploadStream, TestSource, sender).report
         val output = serializer.buildMessage(testReport, 0)
         val hapiMsg = parser.parse(output.toString())
