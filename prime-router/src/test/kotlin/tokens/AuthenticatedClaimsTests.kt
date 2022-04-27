@@ -11,7 +11,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Sender
 import org.junit.jupiter.api.Test
 
-class AuthenticationClaimsTests {
+class AuthenticatedClaimsTests {
 
     @Test
     fun `test constructor`() {
@@ -85,5 +85,14 @@ class AuthenticationClaimsTests {
         assertThat(claims.isPrimeAdmin).isTrue()
         assertThat(claims.isSenderOrgClaim).isTrue()
         assertThat(claims.organizationNameClaim).isEqualTo("myOrgName")
+    }
+
+    @Test
+    fun `test generateTestJwtClaims`() {
+        var jwtClaims = AuthenticatedClaims.generateTestJwtClaims()
+        assertThat(jwtClaims["scope"]).isEqualTo(Scope.primeAdminScope)
+        assertThat(jwtClaims.subject).isEqualTo("local@test.com")
+        var claims = AuthenticatedClaims(jwtClaims)
+        assertThat(claims.isPrimeAdmin).isTrue()
     }
 }
