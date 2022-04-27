@@ -211,6 +211,10 @@ class ProcessData(
         "--receiving-facility",
         help = "the receiving facility"
     )
+    private val includeNcesFacilities by option(
+        "--include-nces-facilities",
+        help = "matching zip codes to those in the NCES dataset."
+    ).flag(default = false)
 
     /**
      * A list of generated output files.
@@ -266,8 +270,7 @@ class ProcessData(
                     csvSerializer.readInternal(
                         schema.name,
                         file.inputStream(),
-                        listOf(FileSource(file.nameWithoutExtension)),
-                        useDefaultsForMissing = true
+                        listOf(FileSource(file.nameWithoutExtension))
                     )
                 } else {
                     val result =
@@ -414,7 +417,8 @@ class ProcessData(
                     (inputSource as InputSource.FakeSource).count,
                     FileSource("fake"),
                     targetStates,
-                    targetCounties
+                    targetCounties,
+                    includeNcesFacilities
                 )
             }
             else -> {
