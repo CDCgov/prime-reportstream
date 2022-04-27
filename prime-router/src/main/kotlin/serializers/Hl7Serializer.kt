@@ -29,6 +29,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.commons.lang3.StringUtils
@@ -995,37 +996,9 @@ class Hl7Serializer(
             searchValue = rawFacilityName,
             filterColumn = "LZIP",
             filterValue = zipCode,
-            canonicalize = { canonicalizeSchoolName(it) },
+            canonicalize = { Hl7Utilities.canonicalizeSchoolName(it) },
             commonWords = listOf("ELEMENTARY", "JUNIOR", "HIGH", "MIDDLE")
         )
-    }
-
-    /**
-     * Prepare the string for matching by throwing away non-searchable characters and spacing
-     */
-    internal fun canonicalizeSchoolName(schoolName: String): String {
-        val normalizeSchoolType = schoolName
-            .uppercase()
-            .replace("SCHOOL", "")
-            .replace("(H)", "HIGH")
-            .replace("(M)", "MIDDLE")
-            .replace("K-8", "K8")
-            .replace("K-12", "K12")
-            .replace("\\(E\\)|ELEM\\.|EL\\.".toRegex(), "ELEMENTARY")
-            .replace("ELEM\\s|ELEM$".toRegex(), "ELEMENTARY ")
-            .replace("SR HIGH", "SENIOR HIGH")
-            .replace("JR HIGH", "JUNIOR HIGH")
-
-        val possesive = normalizeSchoolType
-            .replace("\'S", "S")
-        val onlyLettersAndSpaces = possesive
-            .replace("[^A-Z0-9\\s]".toRegex(), " ")
-
-        // Throw away single letter words
-        return onlyLettersAndSpaces
-            .split(" ")
-            .filter { it.length > 1 }
-            .joinToString(" ")
     }
 
     private fun setComponentForTable(
