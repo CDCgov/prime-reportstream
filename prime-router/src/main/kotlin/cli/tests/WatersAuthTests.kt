@@ -3,7 +3,9 @@ package gov.cdc.prime.router.cli.tests
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.FullELRSender
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
@@ -52,13 +54,11 @@ class WatersAuthTests : CoolTest() {
      * 3. Create a fake report.
      */
     fun setup(environment: Environment) {
-        val newSender = Sender(
+        val newSender = FullELRSender(
             name = senderName,
             organizationName = organization,
             format = Sender.Format.CSV,
-            topic = "covid-19",
-            customerStatus = CustomerStatus.INACTIVE,
-            schemaName = "primedatainput/pdi-covid-19"
+            customerStatus = CustomerStatus.INACTIVE
         )
 
         // Convert from ReportStreamEnv to Settings.Environment.  todo consolidate these!
@@ -94,14 +94,14 @@ class WatersAuthTests : CoolTest() {
         // deserialize the written sender
         savedSender = jacksonObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .readValue(savedSenderJson, Sender::class.java)
+            .readValue(savedSenderJson, FullELRSender::class.java)
             ?: error("Unable to save sender")
 
         // create a fake report
-        fakeReportFile = FileUtilities.createFakeFile(
+        fakeReportFile = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            sender = savedSender,
+            sender = savedSender as CovidSender,
             count = 1,
             format = Report.Format.CSV,
             directory = System.getProperty("java.io.tmpdir"),
@@ -115,11 +115,10 @@ class WatersAuthTests : CoolTest() {
      * and store in on the database
      */
     private fun saveSendersKey(key: String, kid: String) {
-
         // associate a public key to the sender
         val publicKeyStr = SenderUtils.readPublicKeyPem(key)
         publicKeyStr.kid = kid
-        savedSender = Sender(savedSender, scope, publicKeyStr)
+        savedSender = savedSender.makeCopyWithNewScopeAndJwk(scope, publicKeyStr)
 
         // save the sender with the new key
         PutSenderSetting()

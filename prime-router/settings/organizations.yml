@@ -1928,6 +1928,11 @@
     - topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
   senders:
+    - name: ignore-full-elr      # Use this to test full-elr
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: inactive
+      format: HL7
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
       topic: covid-19

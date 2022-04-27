@@ -13,6 +13,7 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
@@ -748,7 +749,7 @@ NTE|1|L|This is a final comment|RE"""
 
         val uploadStream = File("./src/testIntegration/resources/serializers/csv-upload-test.csv").inputStream()
         val uploadSchema = "upload-covid-19"
-        val sender = Sender("default", "upload", Sender.Format.CSV, "covid-19", CustomerStatus.TESTING, uploadSchema)
+        val sender = CovidSender("default", "upload", Sender.Format.CSV, CustomerStatus.TESTING, uploadSchema)
         val testReport = csvSerializer.readExternal(uploadSchema, uploadStream, TestSource, sender).report
         val output = serializer.buildMessage(testReport, 0)
         val hapiMsg = parser.parse(output.toString())

@@ -229,3 +229,13 @@ variable "aad_group_postgres_admin" {
   description = "Azure Active Directory group id containing postgres db admins"
   default     = "f94409a9-12b1-4820-a1b6-e3e0a4fa282d"
 }
+
+
+##########
+## Storage Vars
+##########
+
+variable "delete_pii_storage_after_days" {
+  description = "Number of days after which we'll delete PII-related blobs from the storage account"
+  default     = 30
+}
