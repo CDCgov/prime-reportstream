@@ -6,6 +6,7 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.result.Result
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.HttpUtilities
@@ -70,10 +71,10 @@ class HistoryApiTest : CoolTest() {
         val counties = receivers.map { it.name }.joinToString(",")
         val fakeItemCount = receivers.size * options.items
         ugly("Starting $name test: Submitting ${options.submits} reports, each going to to $counties")
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            historyTestSender,
+            historyTestSender as CovidSender,
             fakeItemCount,
             receivingStates,
             counties,
