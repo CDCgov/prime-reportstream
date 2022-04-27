@@ -74,6 +74,7 @@ data class Hl7Configuration
     val suppressHl7Fields: String? = null,
     val suppressAoe: Boolean = false,
     val defaultAoeToUnknown: Boolean = false,
+    val replaceUnicodeWithAscii: Boolean = false,
     val useBlankInsteadOfUnknown: String? = null,
     val truncateHDNamespaceIds: Boolean = false,
     // Specify a list of HL7 fields that will be truncated at their HL7 max lengths
