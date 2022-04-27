@@ -2,6 +2,7 @@
 name: oh-covid-19
 topic: covid-19
 basedOn: covid-19
+trackingElement: message_id
 description: A schema for OH DOH to receive HL7 files
 elements:
   - name: sending_application
