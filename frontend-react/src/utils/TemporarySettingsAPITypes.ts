@@ -55,7 +55,7 @@ interface SenderAPI {
     topic: string;
     customerStatus: CustomerStatus;
     schemaName: string;
-    keys: Array<string>
+    // keys: Array<string>, (?)
     processingType: ProcessingType;
     allowDuplicates: boolean;
     meta?: SettingMetadata;
@@ -74,8 +74,8 @@ interface ReceiverAPI {
     processingModeFilter: ReportStreamFilters;
     reverseTheQualityFilter: boolean;
     deidentify: boolean;
-    // timing: any (?)
-    // transportType: any (?)
+    // timing: any, (?)
+    // transportType: any, (?)
     meta?: SettingMetadata;
 }
 
