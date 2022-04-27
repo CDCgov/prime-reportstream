@@ -117,10 +117,9 @@ class MapperTests {
         val eAValabama = ElementAndValue(Element(args[3]), "AL")
         val eAVtn = ElementAndValue(Element(args[4]), "TN")
 
-        // test equality else
+        // test equality else    ("OTC" != "Prescription")
         args = mutableListOf("==", "otc_flag", "comparisonValue", eAValabama.element.name, "ordering_provider_state")
-        // else case ("OTC" != "Prescription")
-        assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "TN") // else case
+        assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "TN") // 'else' case
 
         // test inequality operator
         args = mutableListOf("!=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
@@ -136,9 +135,8 @@ class MapperTests {
         assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "TN") // Else Clause!
 
         // make "comparisonValue" equal to "otc_flag"  ("OTC" == "OTC")
-        val eAVotc2 = ElementAndValue(Element(args[2]), "OTC") // set "comparisonValue" element's value to "OTC"
-        // test new equality ("OTC" == "OTC")
         args = mutableListOf("==", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        val eAVotc2 = ElementAndValue(Element(args[2]), "OTC") // set "comparisonValue" element's value to "OTC"
         assertEq(mapper, element, args, listOf(eAVotc, eAVotc2, eAValabama, eAVtn), "AL")
         // now that the otc_flag is equal to the comparisonValue, "<=" and ">=" will also return "AL"
 
@@ -178,7 +176,7 @@ class MapperTests {
         eAVotc = ElementAndValue(Element(args[1]), "22") // element otc_flag has .value "22"
         assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "TN") // else case 22 != 37
 
-        // again!  again!
+        // same values, different operator; different result
         args = listOf("<=", "otc_flag", "37", "patient_state", "ordering_provider_state")
         assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // 22 <= 37
 
@@ -201,6 +199,17 @@ class MapperTests {
         args = listOf("==", "otc_flag", "1700xx", "SweetHomeAlabama", "ordering_provider_state")
         eAVotc = ElementAndValue(Element(args[1]), "1700xx") // element otc_flag has .value "1700xx"
         assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "SweetHomeAlabama") // AL good!
+
+        // int AND float
+        args = listOf("==", "otc_flag", "2", "patient_state", "ordering_provider_state")
+        eAVotc = ElementAndValue(Element(args[1]), "2.0") // element otc_flag has .value "22"
+        assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // 2 == 2.0
+
+        // operator as a value of an element
+        args = listOf("op_elm", "otc_flag", "2", "patient_state", "ordering_provider_state")
+        eAVotc = ElementAndValue(Element(args[1]), "2.0") // element otc_flag has .value "22"
+        val eOpElm = ElementAndValue(Element(args[0]), ">=") // element op_elm has .value "=="
+        assertEq(mapper, element, args, listOf(eOpElm, eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // 2 == 2.0
     }
 
     @Test

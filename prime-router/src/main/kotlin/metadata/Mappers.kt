@@ -113,6 +113,18 @@ class MiddleInitialMapper : Mapper {
  *
  *
  */
+/**
+ * Based on the comparison operator (==,!=,<=,>=,<,>) in arg[0], compare value[1] to value[2]
+ * IF the comparison is true, THEN use value[3]; ELSE use value[4]
+ *
+ * Example call
+ *   - name: source_state
+ *      mapper: ifThenElse(==, otc_flag comparisonValue, patient_state, ordering_provider_state)
+ *
+ * CAUTION: Because this mapper allows every argument to either be an existing element's value OR
+ * a string literal, extra care must be used in typing the args list in the schema.  A misspelled
+ * or non-existent element name will be treated as a string literal, not an error.
+ */
 class IfThenElseMapper : Mapper {
     override val name = "ifThenElse"
 
@@ -149,24 +161,11 @@ class IfThenElseMapper : Mapper {
      * @return the Boolean result of properly applying the operator implied in op on val1 and val2
      */
     fun comp(op: String, val1: String, val2: String): Boolean {
-        val tVal1 = val1.toIntOrNull()
-        val tVal2 = val2.toIntOrNull()
-        if ((tVal1 != null) && (tVal2 != null)) { // only if both val1 and val2 are integer strings
-            return when (op) {
-                "==" -> (tVal1 == tVal2) // all Int comparisons
-                "!=" -> (tVal1 != tVal2)
-                ">=" -> (tVal1 >= tVal2)
-                "<=" -> (tVal1 <= tVal2)
-                "<" -> (tVal1 < tVal2)
-                ">" -> (tVal1 > tVal2)
-                else -> false
-            }
-        }
         val dVal1 = val1.toDoubleOrNull()
         val dVal2 = val2.toDoubleOrNull()
         if ((dVal1 != null) && (dVal2 != null)) { // only if both val1 and val2 are Double strings
             return when (op) {
-                "==" -> (dVal1 == dVal2) // all Double comparisons (should cover Float)
+                "==" -> (dVal1 == dVal2) // all Double comparisons (covers Float, Int)
                 "!=" -> (dVal1 != dVal2)
                 ">=" -> (dVal1 >= dVal2)
                 "<=" -> (dVal1 <= dVal2)
@@ -194,7 +193,7 @@ class IfThenElseMapper : Mapper {
     ): ElementResult {
         return if (
             comp(
-                args[0],
+                decodeArg(values, args[0]), // operator: string literal op OR element.value op
                 decodeArg(values, args[1]),
                 decodeArg(values, args[2])
             ) // see comp()
