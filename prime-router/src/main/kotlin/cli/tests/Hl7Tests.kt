@@ -24,7 +24,7 @@ class Hl7Ingest : CoolTest() {
         val receivers = allGoodReceivers
         val itemCount = options.items * receivers.size
         ugly("Starting $name Test: send ${sender.fullName} data to $allGoodCounties")
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             sender,
