@@ -94,7 +94,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 defaultTasks("package")
 
 val ktorVersion = "1.6.8"
-val kotlinVersion = "1.6.10"
+val kotlinVersion = "1.6.20"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -682,11 +682,11 @@ dependencies {
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.42.0")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.4.1")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2")
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")

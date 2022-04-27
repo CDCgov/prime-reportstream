@@ -1,4 +1,11 @@
-import { splitOn, getErrorDetailFromResponse } from "./misc";
+import OrgSettingsBaseResource from "../resources/OrgSettingsBaseResource";
+
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    splitOn,
+    VersionWarningType,
+} from "./misc";
 import { mockEvent } from "./TestUtils";
 
 test("splitOn test", () => {
@@ -27,4 +34,23 @@ const mockErrorEvent = mockEvent({
 test("getErrorDetailFromResponse test", async () => {
     const error = await getErrorDetailFromResponse(mockErrorEvent);
     expect(error).toBe("fail fail fail");
+});
+
+const objResource: OrgSettingsBaseResource = {
+    name: "test setting",
+    url: "http://localhost",
+    pk: () => "10101",
+    meta: {
+        version: 5,
+        createdBy: "test@example.com",
+        createdAt: "1/1/2000 00:00",
+    },
+};
+
+test("getVersionWarning test", async () => {
+    const fullWarning = getVersionWarning(VersionWarningType.FULL, objResource);
+    expect(fullWarning).toContain(objResource.meta?.createdBy);
+
+    const popupWarning = getVersionWarning(VersionWarningType.POPUP);
+    expect(popupWarning).toContain("WARNING!");
 });
