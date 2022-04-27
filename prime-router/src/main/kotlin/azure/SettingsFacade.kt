@@ -3,9 +3,9 @@ package gov.cdc.prime.router.azure
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
@@ -18,6 +18,7 @@ import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import org.apache.logging.log4j.kotlin.Logging
@@ -39,7 +40,7 @@ class SettingsFacade(
         BAD_REQUEST
     }
 
-    private val mapper = jacksonObjectMapper()
+    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     init {
         // Format OffsetDateTime as an ISO string
@@ -321,6 +322,7 @@ interface SettingAPI {
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class OrganizationAPI
 @JsonCreator constructor(
     name: String,
