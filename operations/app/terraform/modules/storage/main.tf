@@ -116,7 +116,7 @@ resource "azurerm_storage_management_policy" "retention_policy" {
   storage_account_id = azurerm_storage_account.storage_account.id
 
   rule {
-    name    = "30dayretention"
+    name    = "piiretention"
     enabled = true
 
     filters {
@@ -126,10 +126,10 @@ resource "azurerm_storage_management_policy" "retention_policy" {
 
     actions {
       base_blob {
-        delete_after_days_since_modification_greater_than = 30
+        delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
       }
       snapshot {
-        delete_after_days_since_creation_greater_than = 30
+        delete_after_days_since_creation_greater_than = var.delete_pii_storage_after_days
       }
       # Terraform does not appear to support deletion of versions
       # This needs to be manually checked in the policy and set to 60 days
