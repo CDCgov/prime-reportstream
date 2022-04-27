@@ -109,17 +109,12 @@ class MiddleInitialMapper : Mapper {
 }
 
 /**
- *
- *
- *
- */
-/**
  * Based on the comparison operator (==,!=,<=,>=,<,>) in arg[0], compare value[1] to value[2]
  * IF the comparison is true, THEN use value[3]; ELSE use value[4]
  *
  * Example call
  *   - name: source_state
- *      mapper: ifThenElse(==, otc_flag comparisonValue, patient_state, ordering_provider_state)
+ *      mapper: ifThenElse(==, otc_flag, comparisonValue, patient_state, ordering_provider_state)
  *
  * CAUTION: Because this mapper allows every argument to either be an existing element's value OR
  * a string literal, extra care must be used in typing the args list in the schema.  A misspelled
@@ -134,7 +129,7 @@ class IfThenElseMapper : Mapper {
     }
 
     /**
-     * Determines the true meaning of a mapper: (argument)
+     * Determines the meaning of a mapper: (argument)
      *
      * Determines if a mapperArg exists a List of <ElementAndValue>s.
      * If it does, the found element's .value is returned; otherwise, the argument itself is
