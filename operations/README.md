@@ -304,12 +304,17 @@ az login
 
 ## Using Terraform
 
-The vars directory is meant to contain all you need in order to run the deployment for the specific stage you wish to deploy. 
-For example, if you wish to deploy to stage you would do the following steps
+The vars directory is meant to contain all you need in order to run the deployment for the specific environment you wish to deploy. 
+For example, if you wish to deploy to staging you would do the following steps
 
-- Navigate to the `vars/dev` directory
+- Navigate to the `vars/staging` directory
 - Verify all variables in each .tf file are correct.
-- Run the following code snippet.
+- The first time, run `terraform init`
+- Ensure you're running the VPN for the environment, or add your IP address to:
+    - main storage account (e.g., pdhteststorageaccount)
+    - partner storage account (e.g., pdhtestpartner) and partner candidate storage account (e.g., pdhtestcandpartner)
+    - main key vault (e.g., pdhtest-keyvault)
+
 
 
 
