@@ -1,7 +1,7 @@
 
 ### Schema: sample/fed1-sample
 ### Topic: sample
-### Tracking Element: none
+### Tracking Element: (specimen_id)
 ### Base On: none
 ### Extends: none
 #### Description: none
