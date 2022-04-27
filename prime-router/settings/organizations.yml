@@ -1425,7 +1425,6 @@
         truncateHl7Fields: OBR-16-3, ORC-12-3, OBX-23-1, ORC-21-1
         truncateHDNamespaceIds: true
         cliaForOutOfStateTesting: CDPH000075
-        replaceUnicodeWithAscii: true
       transport:
         type: SFTP
         host: sftp
