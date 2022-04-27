@@ -55,7 +55,7 @@ docker ps
 
 ### Step 4 - Run support services
 
-ReportStream depends on set of services to be up before running main Azure service. These services include the following and are run automatically when starting ReportStream Dockerless:
+ReportStream depends on set of services to be up before running the main Azure service. The `cleanslate.sh` script starts a Postgres database but skips starting a few more that are otherwise started by default when `cleanslate.sh` start is run on a non-Apple processor:
 
 * Azurite - a simulator of Azure storage
 * Vault - a secret store
