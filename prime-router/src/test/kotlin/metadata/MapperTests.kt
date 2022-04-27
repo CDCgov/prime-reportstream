@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Metadata
@@ -35,7 +36,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "test",
+            "test", topic = "covid-19",
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
                 Element("c", type = Element.Type.TABLE, table = "test", tableColumn = "c")
@@ -61,7 +62,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "test",
+            "test", topic = "covid-19",
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
                 Element("b", type = Element.Type.TABLE, table = "test", tableColumn = "b"),
@@ -115,11 +116,10 @@ class MapperTests {
 
     @Test
     fun `test useSenderSetting`() {
-        val sender = Sender(
+        val sender = CovidSender(
             "senderName",
             "orgName",
             format = Sender.Format.CSV,
-            "covid-19",
             CustomerStatus.ACTIVE,
             "mySchemaName",
             keys = null,
@@ -139,7 +139,7 @@ class MapperTests {
             .isEqualTo("orgName.senderName")
         args = listOf("topic")
         assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
-            .isEqualTo("covid-19")
+            .isEqualTo("COVID_19")
         args = listOf("schemaName")
         assertThat(mapper.apply(elementA, args, emptyList(), sender).value)
             .isEqualTo("mySchemaName")
@@ -484,7 +484,7 @@ class MapperTests {
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(
-            "test", topic = "test",
+            "test", topic = "covid-19",
             elements = listOf(
                 Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
             )
@@ -636,7 +636,7 @@ class MapperTests {
     fun `test LookupSenderValuesetsMapper`() {
         val table = LookupTable.read("./src/test/resources/metadata/tables/sender_valuesets.csv")
         val schema = Schema(
-            "test", topic = "test",
+            "test", topic = "covid-19",
             elements = listOf(
                 Element(
                     "pregnant", type = Element.Type.TABLE, table = "sender_valuesets", tableColumn = "result",

@@ -682,6 +682,18 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(serializer.getHl7MaxLength("OBR-16-1-2", emptyTerser)).isNull()
     }
 
+    @Test
+    fun `test unicodeToAscii`() {
+        // arrange
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
+        val unicodeInput: String = "ÀÁÂÃÄÅ, ÈÉÊË, Î, Ô, Ù, Ç"
+        // act
+        val expectedValue: String = "AAAAAA, EEEE, I, O, U, C"
+        val actualValue: String = serializer.unicodeToAscii(unicodeInput)
+        // assert
+        assertThat(actualValue).isEqualTo(expectedValue)
+    }
     @Ignore // Test case works locally but not in github. Build issue seems to be the one affecting it in remote branch.
     @Test
     fun `test write a message with Receiver for VT with HD truncation and OBX-23-1 with 50 chars`() {
