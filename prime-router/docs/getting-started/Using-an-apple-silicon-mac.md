@@ -55,14 +55,17 @@ docker ps
 
 ### Step 4 - Run support services
 
-ReportStream depends on set of services to be up before running main Azure service. These services include the following
-and are run automatically when starting ReportStream Dockerless:
+ReportStream depends on set of services to be up before running main Azure service. These services include the following and are run automatically when starting ReportStream Dockerless:
 
 * Azurite - a simulator of Azure storage
 * Vault - a secret store
 * SFTP - an SFTP server
 * FTPS - an FTPS server
 * soap-webservice - SOAP web service emulator
+
+```bash
+docker-compose -f docker-compose.build.yml up --detach
+```
 
 You can take down these services by running `./gradlew composeDown` or `docker-compose down` command.
 For now, leave these services running and open up a new terminal session.
@@ -99,7 +102,7 @@ You should be able to run tests now to confirm that everything is working.
 ./gradlew testSmoke
 ```
 
-### Step 6 - Build Front-end
+### Step 8 - Build Front-end
 
 Our new React front-end is easy to get up and running on your machine. First, ensure the following dependencies
 installed:
@@ -131,7 +134,7 @@ yarn start:localdev
 The front-end application will run until you `Ctrl + C` to end the process in your terminal. Updates to the front-end
 render when a file's changes are saved, eliminating the need to rebuild and serve the project!
 
-### Step 7 - Test Front-end
+### Step 9 - Test Front-end
 
 If the window hasn't automatically opened, navigate to `http://localhost:3000`.
 You should be able to login and utilize the interface. To ensure the front-end is talking to the `prime-router` application,
