@@ -20,18 +20,6 @@ enum ProcessingType {
     ASYNC = "async",
 }
 
-enum SenderType {
-    TEST_MANUFACTURER = "testManufacturer",
-    DATA_AGGREGATOR = "dataAggregator",
-    FACILITY = "facility",
-    HOSPITAL_SYSTEM = "hospitalSystem",
-}
-
-enum PrimarySubmissionMethod {
-    AUTO = "automated",
-    MANUAL = "manual",
-}
-
 /* Alias can be updated with proper RS filter enum
  * once #4353 is complete */
 type ReportStreamFilter = Array<string>;
@@ -67,11 +55,9 @@ interface SenderAPI {
     topic: string;
     customerStatus: CustomerStatus;
     schemaName: string;
-    // keys: Array<string> (?)
+    keys: Array<string>
     processingType: ProcessingType;
     allowDuplicates: boolean;
-    senderType: SenderType;
-    primarySubmissionMethod: PrimarySubmissionMethod;
     meta?: SettingMetadata;
 }
 
@@ -98,8 +84,6 @@ export {
     Format,
     ProcessingType,
     CustomerStatus,
-    SenderType,
-    PrimarySubmissionMethod,
 };
 
 export type {
