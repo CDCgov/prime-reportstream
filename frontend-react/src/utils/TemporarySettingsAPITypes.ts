@@ -80,6 +80,7 @@ abstract class SampleObject {
     stringify() {
         return JSON.stringify(this);
     }
+    abstract getAllEnums?(): Map<string, string[]>;
 }
 
 class SampleFilterObject extends SampleObject {
@@ -88,6 +89,15 @@ class SampleFilterObject extends SampleObject {
     qualityFilter = [];
     routingFilter = [];
     processingModeFilter = [];
+
+    getAllEnums(): Map<string, string[]> {
+        return new Map<string, string[]>([
+            [
+                "Available Filters",
+                Array.from(Object.values(ReportStreamFilterDefinition)),
+            ],
+        ]);
+    }
 }
 
 class SampleJwkSet {
@@ -115,7 +125,7 @@ class SampleJwkSet {
     };
 }
 
-class SampleKeysObj extends SampleObject {
+class SampleKeysObj {
     listOfKeys = [new SampleJwkSet()];
     stringify(): string {
         return JSON.stringify(this.listOfKeys);
@@ -132,6 +142,14 @@ class SampleTimingObj extends SampleObject {
         action: EmptyOperation.NONE,
         onlyOncePerDay: true,
     };
+
+    getAllEnums(): Map<string, string[]> {
+        return new Map<string, string[]>([
+            ["operation", Array.from(Object.values(BatchOperation))],
+            ["timeZone", Array.from(Object.values(USTimeZone))],
+            ["whenEmpty.action", Array.from(Object.values(EmptyOperation))],
+        ]);
+    }
 }
 
 class SampleTranslationObj extends SampleObject {
@@ -140,6 +158,12 @@ class SampleTranslationObj extends SampleObject {
     nameFormat = "";
     receivingOrganization = "xx_phd";
     schemaName = "schema";
+
+    getAllEnums(): Map<string, string[]> {
+        return new Map<string, string[]>([
+            ["format", Array.from(Object.values(Format))],
+        ]);
+    }
 }
 
 export {
