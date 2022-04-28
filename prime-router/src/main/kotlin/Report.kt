@@ -14,11 +14,13 @@ import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
 import tech.tablesaw.selection.Selection
+import java.security.MessageDigest
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import javax.xml.bind.DatatypeConverter
 import kotlin.random.Random
 
 /**
@@ -53,8 +55,21 @@ enum class Options {
     ValidatePayload,
     CheckConnections,
     SkipSend,
-    SkipInvalidItems,
-    SendImmediately,
+    SendImmediately;
+
+    companion object {
+        /**
+         * Handles invalid values, which are technically not allowed in an enum. In this case if the [input]
+         *  is not one that is supported, it will be set to None
+         */
+        fun valueOfOrNone(input: String): Options {
+            return try {
+                valueOf(input)
+            } catch (ex: IllegalArgumentException) {
+                None
+            }
+        }
+    }
 }
 
 /**
@@ -163,6 +178,19 @@ class Report : Logging {
     val itemCount: Int get() = this.table.rowCount()
 
     /**
+     * The number of items that passed the jurisdictionalFilter for this report, prior to
+     * other filtering.  This is purely informational.   It is >= the actual number of items
+     * in the report.  This is only useful for reports created by the routing step.
+     * In all other cases, this value can be confusing, for example after batching has occurred.
+     * So in all other cases, we set it to null.
+     *
+     * Example usage: if during filtering 10 items passed the juris filter for Kentucky, but then only 3 passed
+     * the qualityFilter, the report created by routing (prior to batching)
+     * would have [itemCountBeforeQualFilter] = 10 and [itemCount] = 3.
+     */
+    var itemCountBeforeQualFilter: Int? = null
+
+    /**
      * The set of parent -> child lineage items associated with this report.
      * The items in *this* report are the *child* items.
      * There should be `itemCount` items in this List, or it should be null.
@@ -234,7 +262,8 @@ class Report : Logging {
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
         id: ReportId? = null, // If constructing from blob storage, must pass in its UUID here.  Otherwise null.
-        metadata: Metadata
+        metadata: Metadata,
+        itemCountBeforeQualFilter: Int? = null,
     ) {
         this.id = id ?: UUID.randomUUID()
         this.schema = schema
@@ -245,6 +274,7 @@ class Report : Logging {
         this.itemLineages = itemLineage
         this.table = createTable(schema, values)
         this.metadata = metadata
+        this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
 
     // Test source
@@ -255,7 +285,8 @@ class Report : Logging {
         destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
-        metadata: Metadata? = null
+        metadata: Metadata? = null,
+        itemCountBeforeQualFilter: Int? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -266,6 +297,7 @@ class Report : Logging {
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
         this.metadata = metadata ?: Metadata.getInstance()
+        this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
 
     constructor(
@@ -275,7 +307,8 @@ class Report : Logging {
         destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
-        metadata: Metadata
+        metadata: Metadata,
+        itemCountBeforeQualFilter: Int? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -286,6 +319,7 @@ class Report : Logging {
         this.itemLineages = itemLineage
         this.table = createTable(values)
         this.metadata = metadata
+        this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
 
     private constructor(
@@ -295,7 +329,8 @@ class Report : Logging {
         destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
-        metadata: Metadata? = null
+        metadata: Metadata? = null,
+        itemCountBeforeQualFilter: Int? = null,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -306,6 +341,7 @@ class Report : Logging {
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.metadata = metadata ?: Metadata.getInstance()
+        this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
 
     @Suppress("Destructure")
@@ -343,7 +379,8 @@ class Report : Logging {
             fromThisReport("copy"),
             destination ?: this.destination,
             bodyFormat ?: this.bodyFormat,
-            metadata = this.metadata
+            metadata = this.metadata,
+            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter,
         )
         copy.itemLineages = createOneToOneItemLineages(this, copy)
         copy.filteringResults.addAll(this.filteringResults)
@@ -439,7 +476,9 @@ class Report : Logging {
             this.schema,
             filteredTable,
             fromThisReport("filter: $filterFunctions"),
-            metadata = this.metadata
+            metadata = this.metadata,
+            // copy from previous filter; avoid losing info during filtering steps subsequent to quality filter.
+            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter
         )
         // Write same info to our logs that goes in the json response obj
         if (doLogging)
@@ -483,7 +522,8 @@ class Report : Logging {
             Table.create(columns),
             fromThisReport("deidentify"),
             itemLineage = this.itemLineages,
-            metadata = this.metadata
+            metadata = this.metadata,
+            itemCountBeforeQualFilter = this.itemCountBeforeQualFilter,
         )
     }
 
@@ -575,7 +615,7 @@ class Report : Logging {
         // values in each row because quality synthetic data matters
         table.forEach {
             val context = FakeReport.RowContext(
-                metadata::findLookupTable,
+                metadata,
                 targetState,
                 schema.name,
                 targetCounty
@@ -609,13 +649,17 @@ class Report : Logging {
         }
     }
 
+    /**
+     * Here 'mapping' means to tranform data from the current schema to a new schema per the rules in the [mapping].
+     * Not to be confused with our lower level [Mapper] concept.
+     */
     fun applyMapping(mapping: Translator.Mapping): Report {
         val pass1Columns = mapping.toSchema.elements.map { element -> buildColumnPass1(mapping, element) }
         val pass2Columns = mapping.toSchema.elements.map { element -> buildColumnPass2(mapping, element, pass1Columns) }
         val newTable = Table.create(pass2Columns)
         return Report(
             mapping.toSchema, newTable, fromThisReport("mapping"), itemLineage = itemLineages,
-            metadata = this.metadata
+            metadata = this.metadata, itemCountBeforeQualFilter = this.itemCountBeforeQualFilter
         )
     }
 
@@ -629,6 +673,7 @@ class Report : Logging {
             table.mapIndexed { idx, row ->
                 CovidResultMetadata().also {
                     it.messageId = row.getStringOrNull("message_id")
+                    it.previousMessageId = row.getStringOrNull("previous_message_id")
                     it.orderingProviderName = row.getStringOrNull("ordering_provider_first_name") +
                         " " + row.getStringOrNull("ordering_provider_last_name")
                     it.orderingProviderId = row.getStringOrNull("ordering_provider_id").trimToNull()
@@ -692,7 +737,8 @@ class Report : Logging {
                     )
                     it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.reportId = this.id
-                    it.reportIndex = idx
+                    // switched to 1-based index on items in Feb 2022
+                    it.reportIndex = idx + 1
                     // For sender ID, use first the provided ID and if not use the client ID.
                     it.senderId = row.getStringOrNull("sender_id").trimToNull()
                     if (it.senderId.isNullOrBlank()) {
@@ -827,13 +873,34 @@ class Report : Logging {
         return StringColumn.create(
             name,
             List(itemCount) {
-                // moved context into the list creator so we get many different values
-                val context = FakeReport.RowContext(metadata::findLookupTable, targetState, schema.name, targetCounty)
+                val context = FakeReport.RowContext(metadata, targetState, schema.name, targetCounty)
                 fakeDataService.getFakeValueForElement(element, context)
             }
         )
     }
 
+    /**
+     * Gets the item hash for a the [rowNum] of the report.
+     * @return the ByteArray hash.
+     */
+    fun getItemHashForRow(rowNum: Int): String {
+        // calculate and store item hash for deduplication purposes for the generated item
+        val row = this.table.row(rowNum)
+        var rawStr = ""
+        for (colNum in 0 until row.columnCount()) {
+            rawStr += row.getString(colNum)
+        }
+
+        val digest = MessageDigest
+            .getInstance("SHA-256")
+            .digest(rawStr.toByteArray())
+
+        return DatatypeConverter.printHexBinary(digest).uppercase()
+    }
+
+    /**
+     * Static functions for use in modifying and manipulating reports.
+     */
     companion object {
         fun merge(inputs: List<Report>): Report {
             if (inputs.isEmpty())
@@ -916,6 +983,14 @@ class Report : Logging {
             childReport: Report,
             childRowNum: Int
         ): ItemLineage {
+            // get the item hash to store for deduplication purposes. If a hash has already been generated
+            //  for a row, use that hash to represent the row itself, since translations will result in different
+            //  hash values
+            val itemHash = if (parentReport.itemLineages != null && parentReport.itemLineages!!.isNotEmpty())
+                parentReport.itemLineages!![parentRowNum].itemHash
+            else
+                parentReport.getItemHashForRow(parentRowNum)
+
             // Row numbers start at 0, but index need to start at 1
             val childIndex = childRowNum + 1
             val parentIndex = parentRowNum + 1
@@ -935,7 +1010,8 @@ class Report : Logging {
                     childIndex,
                     grandParentTrackingValue,
                     null,
-                    null
+                    null,
+                    itemHash
                 )
             } else {
                 val trackingElementValue =
@@ -948,7 +1024,8 @@ class Report : Logging {
                     childIndex,
                     trackingElementValue,
                     null,
-                    null
+                    null,
+                    itemHash
                 )
             }
         }
@@ -978,7 +1055,8 @@ class Report : Logging {
                         it.childIndex, // one-to-one mapping
                         it.trackingId,
                         it.transportResult,
-                        null
+                        null,
+                        it.itemHash
                     )
             }
             val retval = mutableListOf<ItemLineage>()

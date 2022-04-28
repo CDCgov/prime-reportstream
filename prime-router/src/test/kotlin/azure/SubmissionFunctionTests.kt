@@ -13,11 +13,16 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.tests.ExpectedSubmissionHistory
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.tokens.OktaAuthentication
+import gov.cdc.prime.router.tokens.TestDefaultJwt
+import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import org.junit.jupiter.api.TestInstance
+import java.time.Instant
 import java.time.OffsetDateTime
 import kotlin.test.Test
 
@@ -43,11 +48,23 @@ data class DetailSubmissionHistoryResponse(
     val sender: String?,
     val httpStatus: Int?,
     val externalName: String? = "",
+    val overallStatus: String,
 )
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SubmissionFunctionTests : Logging {
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
+
+    private val organizationName = "test-lab"
+    private val oktaClaimsOrganizationName = "DHSender_$organizationName"
+    private val otherOrganizationName = "test-lab-2"
+
+    private fun buildClaimsMap(organizationName: String): Map<String, Any> {
+        return mapOf(
+            "sub" to "test",
+            "organization" to listOf(organizationName)
+        )
+    }
 
     class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : SubmissionAccess {
 
@@ -233,6 +250,54 @@ class SubmissionFunctionTests : Logging {
         }
     }
 
+    private fun setUpAccessTests(organizationName: String): Pair<SubmissionFunction, MockHttpRequestMessage> {
+        val oktaAuth = spyk<OktaAuthentication>()
+        val claimsMap = buildClaimsMap(organizationName)
+
+        every { oktaAuth.decodeJwt(any()) } returns
+            TestDefaultJwt(
+                "a.b.c",
+                Instant.now(),
+                Instant.now().plusSeconds(60),
+                claimsMap
+            )
+
+        val httpRequestMessage = MockHttpRequestMessage()
+        httpRequestMessage.httpHeaders += mapOf("authorization" to "Bearer 111.222.333")
+
+        val submissionFunction = SubmissionFunction(
+            SubmissionsFacade(
+                TestSubmissionAccess(testData, mapper)
+            ),
+            oktaAuth
+        )
+        return Pair(submissionFunction, httpRequestMessage)
+    }
+
+    @Test
+    fun `test access user can view their org's submission history`() {
+        val (submissionFunction, httpRequestMessage) = setUpAccessTests(oktaClaimsOrganizationName)
+
+        val response = submissionFunction.getOrgSubmissions(httpRequestMessage, organizationName)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+    }
+
+    @Test
+    fun `test access user cannot view another org's submission history`() {
+        val (submissionFunction, httpRequestMessage) = setUpAccessTests(oktaClaimsOrganizationName)
+
+        val response = submissionFunction.getOrgSubmissions(httpRequestMessage, otherOrganizationName)
+        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+    }
+
+    @Test
+    fun `test access dhadmins can view all org's submission history`() {
+        val (submissionFunction, httpRequestMessage) = setUpAccessTests(oktaSystemAdminGroup)
+
+        val response = submissionFunction.getOrgSubmissions(httpRequestMessage, organizationName)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+    }
+
     @Test
     fun `test get report history`() {
         val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
@@ -275,6 +340,7 @@ class SubmissionFunctionTests : Logging {
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
+        assertThat(responseBody.overallStatus).isEqualTo(returnBody.overallStatus.toString())
 
         // Good uuid, but not a 'receive' step report.
         action.actionName = TaskAction.process

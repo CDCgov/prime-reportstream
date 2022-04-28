@@ -14,12 +14,16 @@ import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
+import gov.cdc.prime.router.DuplicateItemMessage
+import gov.cdc.prime.router.DuplicateSubmissionMessage
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -163,11 +167,10 @@ class ReportFunction(
         val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
         val httpStatus: HttpStatus =
             try {
-                val options = Options.valueOf(optionsText)
+                val options = Options.valueOfOrNone(optionsText)
                 val payloadName = extractPayloadName(request)
-                actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
-
                 // track the sending organization and client based on the header
+                actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
                 val validatedRequest = validateRequest(request)
                 val rawBody = validatedRequest.content.toByteArray()
 
@@ -177,37 +180,39 @@ class ReportFunction(
                 else
                     sender.allowDuplicates
 
-                // check if we are preventing duplicate files from the sender
-                if (!allowDuplicates) {
-                    // TODO this should be only calculated once and passed, but the underlying functions are called by
-                    //  receive (this), process, batch, send and those do *not* need to calculate it outside of the function
-                    //  so leaving it 2x calculating on receive for the time being.
-                    val digest = BlobAccess.sha256Digest(rawBody)
-
-                    // throws ActionError if there is a duplicate detected
-                    workflowEngine.verifyNoDuplicateFile(sender, digest, payloadName)
-                }
-
                 // Only process the report if we are not checking for connection or validation.
                 if (options != Options.CheckConnections && options != Options.ValidatePayload) {
-                    val (report, actionLogs) = workflowEngine.parseReport(
-                        sender,
+                    // TODO: Decision point - we will need to parse non-covid reports and only call parseCovidReport
+                    //  once we have verified the sender is a covid-specific sender
+                    // TODO: full ELR, See #5050
+                    val (report, actionLogs) = workflowEngine.parseCovidReport(
+                        // TODO: when the full ELR stuff is refactored out, ideally we would already know we
+                        //  have a CovidSender before reaching the point of parseCovidReport
+                        sender as CovidSender,
                         validatedRequest.content,
                         validatedRequest.defaults,
                     )
+
+                    // prevent duplicates if configured to not allow them
+                    if (!allowDuplicates) {
+                        doDuplicateDetection(
+                            report,
+                            actionLogs
+                        )
+                    }
 
                     val receivedBlobInfo = workflowEngine.recordReceivedReport(
                         report, rawBody, sender, actionHistory, payloadName
                     )
 
+                    // if there are any errors, kick this out.
+                    if (actionLogs.hasErrors()) {
+                        throw actionLogs.exception
+                    }
+
                     // Places a message on a queue for async testing of the fhir engine
                     // Only triggers if a feature flag is enabled
                     routeToFHIREngine(receivedBlobInfo, sender, workflowEngine.queue)
-
-                    // checks for errors from parseReport
-                    if (options != Options.SkipInvalidItems && actionLogs.hasErrors()) {
-                        throw actionLogs.exception
-                    }
 
                     actionHistory.trackLogs(actionLogs.logs)
 
@@ -227,6 +232,7 @@ class ReportFunction(
                             validatedRequest.routeTo,
                             actionHistory
                         )
+
                         actionHistory.trackLogs(routingWarnings)
                     }
 
@@ -273,8 +279,61 @@ class ReportFunction(
         // queue messages here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)
 
-        // TODO: having to build response twice in order to save it and then include a response with the resulting actionID
         return response
+    }
+
+    /**
+     * Checks the [report] rows looking for duplicates, and adds errors as needed
+     */
+    internal fun doDuplicateDetection(
+        report: Report,
+        actionLogs: ActionLogger
+    ) {
+        // keep list of hashes generated by this ingest to do same-file comparison
+        val generatedHashes = mutableListOf<String>()
+        val duplicateIndexes = mutableListOf<Int>()
+        for (rowNum in 0 until report.itemCount) {
+            var itemHash = report.getItemHashForRow(rowNum)
+            // check for duplicate item
+            val isDuplicate = generatedHashes.contains(itemHash) ||
+                workflowEngine.isDuplicateItem(itemHash)
+            if (isDuplicate) {
+                duplicateIndexes.add(rowNum + 1)
+            } else {
+                generatedHashes.add(itemHash)
+            }
+        }
+        // TODO Tech Debt: We need a more consistent way to handle 'trackingId'. Once we have one, we can
+        //  pass it in here to ensure a trackingId is returned in the response message
+        // sanity check - if all items are duplicate
+        if (duplicateIndexes.size == report.itemCount) {
+            addDuplicateLogs(actionLogs, null, null, null)
+        }
+        // add logs as needed
+        else {
+            duplicateIndexes.forEach {
+                addDuplicateLogs(actionLogs, null, it, null)
+            }
+        }
+    }
+
+    /**
+     * If a [rowNum] is passed, a DuplicateItemMessage with [message] is added to [actionLogs] as an error.
+     * If no [rowNum] is passed, a DuplicateFileMessage with [message] is added to [actionLogs] as an error.
+     * If a [trackingId] is passed, it will be used in the response message
+     */
+    internal fun addDuplicateLogs(
+        actionLogs: ActionLogger,
+        payloadName: String?,
+        rowNum: Int?,
+        trackingId: String?
+    ) {
+        if (rowNum != null) {
+            actionLogs.getItemLogger(rowNum, trackingId).error(DuplicateItemMessage())
+        } else {
+            // duplicate files are always an error, never a warning
+            actionLogs.error(DuplicateSubmissionMessage(payloadName))
+        }
     }
 
     /**
@@ -379,11 +438,16 @@ class ReportFunction(
         if (sender == null)
             actionLogs.error(InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown sender"))
 
-        val schema = workflowEngine.metadata.findSchema(sender?.schemaName ?: "")
-        if (sender != null && schema == null)
-            actionLogs.error(
-                InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
-            )
+        // verify schema if the sender is a covidSender
+        var schema: Schema? = null
+        if (sender != null && sender is CovidSender) {
+            schema = workflowEngine.metadata.findSchema(sender.schemaName)
+            if (schema == null) {
+                actionLogs.error(
+                    InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
+                )
+            }
+        }
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
@@ -397,7 +461,7 @@ class ReportFunction(
             actionLogs.error(InvalidParamMessage("Expecting a post message with content"))
         }
 
-        if (sender == null || schema == null || content.isEmpty() || actionLogs.hasErrors()) {
+        if (sender == null || content.isEmpty() || actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
 
@@ -409,15 +473,19 @@ class ReportFunction(
                     actionLogs.error(InvalidParamMessage("'$it' is not a valid default"))
                     return@mapNotNull null
                 }
-                val element = schema.findElement(parts[0])
-                if (element == null) {
-                    actionLogs.error(InvalidParamMessage("'${parts[0]}' is not a valid element name"))
-                    return@mapNotNull null
-                }
-                val error = element.checkForError(parts[1])
-                if (error != null) {
-                    actionLogs.error(InvalidParamMessage(error.message))
-                    return@mapNotNull null
+
+                // only CovidSenders will have a schema
+                if (sender is CovidSender && schema != null) {
+                    val element = schema.findElement(parts[0])
+                    if (element == null) {
+                        actionLogs.error(InvalidParamMessage("'${parts[0]}' is not a valid element name"))
+                        return@mapNotNull null
+                    }
+                    val error = element.checkForError(parts[1])
+                    if (error != null) {
+                        actionLogs.error(InvalidParamMessage(error.message))
+                        return@mapNotNull null
+                    }
                 }
                 Pair(parts[0], parts[1])
             }.toMap()

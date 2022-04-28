@@ -1,7 +1,10 @@
 {
-  "id" : "3d6f591d-84d0-4fb1-bf74-d9ba497b3df8",
-  "submissionId" : 1211,
-  "timestamp" : "2022-03-31T13:43:02.610Z",
+  "id" : "ade3fd00-ebbd-437d-bbd4-bd509647ec04",
+  "submissionId" : 267,
+  "overallStatus" : "Waiting to Deliver",
+  "timestamp" : "2022-04-11T20:43:02.424Z",
+  "plannedCompletionAt" : "2022-04-11T20:44:00.000Z",
+  "actualCompletionAt" : null,
   "sender" : "simple_report.default",
   "reportItemCount" : 14,
   "errorCount" : 0,
@@ -12,39 +15,35 @@
     "organization_id" : "oh-doh",
     "service" : "elr",
     "itemCount" : 0,
+    "itemCountBeforeQualityFiltering" : 2,
     "filteredReportRows" : [ "For oh-doh.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Ohio12", "For oh-doh.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Ohio11", "For oh-doh.elr, filter hasAtLeastOneOf[order_test_date, specimen_collection_date_time, test_result_date] filtered out item Ohio11", "For oh-doh.elr, filter hasValidDataFor[patient_dob] filtered out item Ohio12", "For oh-doh.elr, filter hasValidDataFor[patient_dob] filtered out item Ohio11" ],
     "filteredReportItems" : [ {
       "filterType" : "QUALITY_FILTER",
       "filterName" : "isValidCLIA",
-      "originalCount" : 2,
       "filteredTrackingElement" : "Ohio12",
       "filterArgs" : [ "testing_lab_clia", "reporting_facility_clia" ],
       "message" : "For oh-doh.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Ohio12"
     }, {
       "filterType" : "QUALITY_FILTER",
       "filterName" : "isValidCLIA",
-      "originalCount" : 2,
       "filteredTrackingElement" : "Ohio11",
       "filterArgs" : [ "testing_lab_clia", "reporting_facility_clia" ],
       "message" : "For oh-doh.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Ohio11"
     }, {
       "filterType" : "QUALITY_FILTER",
       "filterName" : "hasAtLeastOneOf",
-      "originalCount" : 2,
       "filteredTrackingElement" : "Ohio11",
       "filterArgs" : [ "order_test_date", "specimen_collection_date_time", "test_result_date" ],
       "message" : "For oh-doh.elr, filter hasAtLeastOneOf[order_test_date, specimen_collection_date_time, test_result_date] filtered out item Ohio11"
     }, {
       "filterType" : "QUALITY_FILTER",
       "filterName" : "hasValidDataFor",
-      "originalCount" : 2,
       "filteredTrackingElement" : "Ohio12",
       "filterArgs" : [ "patient_dob" ],
       "message" : "For oh-doh.elr, filter hasValidDataFor[patient_dob] filtered out item Ohio12"
     }, {
       "filterType" : "QUALITY_FILTER",
       "filterName" : "hasValidDataFor",
-      "originalCount" : 2,
       "filteredTrackingElement" : "Ohio11",
       "filterArgs" : [ "patient_dob" ],
       "message" : "For oh-doh.elr, filter hasValidDataFor[patient_dob] filtered out item Ohio11"
@@ -56,26 +55,24 @@
     "organization_id" : "hi-phd",
     "service" : "elr",
     "itemCount" : 2,
-    "sending_at" : "2022-03-31T13:44:00.000Z",
+    "itemCountBeforeQualityFiltering" : 5,
+    "sending_at" : "2022-04-11T20:44:00.000Z",
     "filteredReportRows" : [ "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii9", "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii7", "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii6" ],
     "filteredReportItems" : [ {
       "filterType" : "QUALITY_FILTER",
       "filterName" : "hasValidDataFor",
-      "originalCount" : 5,
       "filteredTrackingElement" : "Hawaii9",
       "filterArgs" : [ "specimen_type" ],
       "message" : "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii9"
     }, {
       "filterType" : "QUALITY_FILTER",
       "filterName" : "hasValidDataFor",
-      "originalCount" : 5,
       "filteredTrackingElement" : "Hawaii7",
       "filterArgs" : [ "specimen_type" ],
       "message" : "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii7"
     }, {
       "filterType" : "QUALITY_FILTER",
       "filterName" : "hasValidDataFor",
-      "originalCount" : 5,
       "filteredTrackingElement" : "Hawaii6",
       "filterArgs" : [ "specimen_type" ],
       "message" : "For hi-phd.elr, filter hasValidDataFor[specimen_type] filtered out item Hawaii6"
@@ -87,33 +84,30 @@
     "organization_id" : "ak-phd",
     "service" : "elr",
     "itemCount" : 2,
-    "sending_at" : "2022-03-31T13:44:00.000Z",
+    "itemCountBeforeQualityFiltering" : 5,
+    "sending_at" : "2022-04-11T20:44:00.000Z",
     "filteredReportRows" : [ "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska4", "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2", "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1", "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1" ],
     "filteredReportItems" : [ {
       "filterType" : "QUALITY_FILTER",
       "filterName" : "isValidCLIA",
-      "originalCount" : 5,
       "filteredTrackingElement" : "Alaska4",
       "filterArgs" : [ "testing_lab_clia", "reporting_facility_clia" ],
       "message" : "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska4"
     }, {
       "filterType" : "QUALITY_FILTER",
       "filterName" : "isValidCLIA",
-      "originalCount" : 5,
       "filteredTrackingElement" : "Alaska2",
       "filterArgs" : [ "testing_lab_clia", "reporting_facility_clia" ],
       "message" : "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska2"
     }, {
       "filterType" : "QUALITY_FILTER",
       "filterName" : "isValidCLIA",
-      "originalCount" : 5,
       "filteredTrackingElement" : "Alaska1",
       "filterArgs" : [ "testing_lab_clia", "reporting_facility_clia" ],
       "message" : "For ak-phd.elr, filter isValidCLIA[testing_lab_clia, reporting_facility_clia] filtered out item Alaska1"
     }, {
       "filterType" : "QUALITY_FILTER",
       "filterName" : "hasValidDataFor",
-      "originalCount" : 5,
       "filteredTrackingElement" : "Alaska1",
       "filterArgs" : [ "patient_dob" ],
       "message" : "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1"
@@ -125,7 +119,8 @@
     "organization_id" : "md-phd",
     "service" : "elr",
     "itemCount" : 2,
-    "sending_at" : "2022-03-31T13:44:00.000Z",
+    "itemCountBeforeQualityFiltering" : 2,
+    "sending_at" : "2022-04-11T20:44:00.000Z",
     "filteredReportRows" : [ ],
     "filteredReportItems" : [ ],
     "sentReports" : [ ],
