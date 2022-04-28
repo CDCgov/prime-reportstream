@@ -78,17 +78,26 @@ const getListOfEnumValues = (e: ReportStreamSettingsEnum): string[] => {
 
 abstract class SampleObject {
     stringify() {
-        return JSON.stringify(this);
+        return JSON.stringify(this, null, 6);
     }
-    abstract getAllEnums?(): Map<string, string[]>;
+    abstract getAllEnums(): Map<string, string[]>;
+    abstract description(): string;
 }
 
 class SampleFilterObject extends SampleObject {
-    topic = "";
-    jurisdictionalFilter = [];
-    qualityFilter = [];
-    routingFilter = [];
-    processingModeFilter = [];
+    filters = [
+        {
+            topic: "covid-19",
+            jurisdictionalFilter: [],
+            qualityFilter: [],
+            routingFilter: [],
+            processingModeFilter: [],
+        },
+    ];
+
+    stringify(): string {
+        return JSON.stringify(this.filters, null, 6);
+    }
 
     getAllEnums(): Map<string, string[]> {
         return new Map<string, string[]>([
@@ -97,6 +106,10 @@ class SampleFilterObject extends SampleObject {
                 Array.from(Object.values(ReportStreamFilterDefinition)),
             ],
         ]);
+    }
+
+    description(): string {
+        return "This field takes an array of filter objects (see object above).";
     }
 }
 
@@ -125,10 +138,16 @@ class SampleJwkSet {
     };
 }
 
-class SampleKeysObj {
+class SampleKeysObj extends SampleObject {
     listOfKeys = [new SampleJwkSet()];
     stringify(): string {
-        return JSON.stringify(this.listOfKeys);
+        return JSON.stringify(this.listOfKeys, null, 6);
+    }
+    getAllEnums(): Map<string, string[]> {
+        return new Map(); // Currently doesn't require any enums
+    }
+    description(): string {
+        return "This field takes an array of JwkSets (see above).";
     }
 }
 
@@ -150,6 +169,10 @@ class SampleTimingObj extends SampleObject {
             ["whenEmpty.action", Array.from(Object.values(EmptyOperation))],
         ]);
     }
+
+    description(): string {
+        return "This field takes a timing object (see above).";
+    }
 }
 
 class SampleTranslationObj extends SampleObject {
@@ -164,6 +187,10 @@ class SampleTranslationObj extends SampleObject {
             ["format", Array.from(Object.values(Format))],
         ]);
     }
+
+    description(): string {
+        return "This field takes a translation object (see above).";
+    }
 }
 
 export {
@@ -175,5 +202,6 @@ export {
     SampleKeysObj,
     SampleTranslationObj,
     SampleTimingObj,
+    SampleObject,
     getListOfEnumValues,
 };

@@ -33,6 +33,8 @@ import {
     getVersionWarning,
     VersionWarningType,
 } from "../../utils/misc";
+import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
+import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
 
 type AdminOrgEditProps = {
     orgname: string;
@@ -202,6 +204,11 @@ export function AdminOrgEdit({
                             <TextAreaComponent
                                 fieldname={"filters"}
                                 label={"Filters"}
+                                toolTip={
+                                    <ObjectTooltip
+                                        obj={new SampleFilterObject()}
+                                    />
+                                }
                                 defaultvalue={orgSettings.filters}
                                 defaultnullvalue="[]"
                                 savefunc={(v) => (orgSettings.filters = v)}

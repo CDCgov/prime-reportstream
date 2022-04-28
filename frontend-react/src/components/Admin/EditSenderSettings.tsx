@@ -17,6 +17,8 @@ import {
     getVersionWarning,
     VersionWarningType,
 } from "../../utils/misc";
+import { ObjectTooltip } from "../tooltips/ObjectTooltip";
+import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
 
 import { TextAreaComponent, TextInputComponent } from "./AdminFormEdit";
 import {
@@ -218,6 +220,7 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                 <TextAreaComponent
                     fieldname={"keys"}
                     label={"Keys"}
+                    toolTip={<ObjectTooltip obj={new SampleKeysObj()} />}
                     defaultvalue={orgSenderSettings.keys}
                     defaultnullvalue={""}
                     savefunc={(v) => (orgSenderSettings.keys = v)}

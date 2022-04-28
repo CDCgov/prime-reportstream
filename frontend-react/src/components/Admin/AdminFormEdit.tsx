@@ -15,12 +15,14 @@ export const TextInputComponent = (params: {
     defaultvalue: string | null;
     savefunc: (val: string) => void;
     disabled?: boolean;
+    toolTip?: JSX.Element;
 }): JSX.Element => {
     const key = params.fieldname;
     return (
         <Grid row>
             <Grid col={3}>
                 <Label htmlFor={params.fieldname}>{params.label}:</Label>
+                {params.toolTip ? params.toolTip : null}
             </Grid>
             <Grid col={9}>
                 <TextInput
@@ -46,6 +48,7 @@ export const TextAreaComponent = (params: {
     savefunc: (val: object) => void;
     defaultnullvalue: string | null;
     disabled?: boolean;
+    toolTip?: JSX.Element;
 }): JSX.Element => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -66,6 +69,7 @@ export const TextAreaComponent = (params: {
         <Grid row>
             <Grid col={3}>
                 <Label htmlFor={params.fieldname}>{params.label}:</Label>
+                {params.toolTip ? params.toolTip : null}
             </Grid>
             <Grid col={9}>
                 <Textarea

@@ -384,3 +384,15 @@ h3 img[src*="svg"] {
     word-break: break-all;
     max-width: 100vw;
 }
+
+.fixed-tooltip {
+    background: transparent;
+    color: black;
+    font-size: x-large;
+    padding: 0;
+}
+
+.fixed-tooltip:hover {
+    background: transparent;
+    color: black;
+}
