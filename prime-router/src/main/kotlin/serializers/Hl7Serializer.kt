@@ -13,6 +13,7 @@ import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
+import com.anyascii.AnyAscii
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -27,6 +28,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.commons.lang3.StringUtils
@@ -423,6 +425,9 @@ class Hl7Serializer(
         }
         val message = buildMessage(report, row, processingId)
         hapiContext.modelClassFactory = modelClassFactory
+        if (hl7Config?.replaceUnicodeWithAscii == true) {
+            return unicodeToAscii(hapiContext.pipeParser.encode(message))
+        }
         return hapiContext.pipeParser.encode(message)
     }
 
@@ -993,37 +998,9 @@ class Hl7Serializer(
             searchValue = rawFacilityName,
             filterColumn = "LZIP",
             filterValue = zipCode,
-            canonicalize = { canonicalizeSchoolName(it) },
+            canonicalize = { Hl7Utilities.canonicalizeSchoolName(it) },
             commonWords = listOf("ELEMENTARY", "JUNIOR", "HIGH", "MIDDLE")
         )
-    }
-
-    /**
-     * Prepare the string for matching by throwing away non-searchable characters and spacing
-     */
-    internal fun canonicalizeSchoolName(schoolName: String): String {
-        val normalizeSchoolType = schoolName
-            .uppercase()
-            .replace("SCHOOL", "")
-            .replace("(H)", "HIGH")
-            .replace("(M)", "MIDDLE")
-            .replace("K-8", "K8")
-            .replace("K-12", "K12")
-            .replace("\\(E\\)|ELEM\\.|EL\\.".toRegex(), "ELEMENTARY")
-            .replace("ELEM\\s|ELEM$".toRegex(), "ELEMENTARY ")
-            .replace("SR HIGH", "SENIOR HIGH")
-            .replace("JR HIGH", "JUNIOR HIGH")
-
-        val possesive = normalizeSchoolType
-            .replace("\'S", "S")
-        val onlyLettersAndSpaces = possesive
-            .replace("[^A-Z0-9\\s]".toRegex(), " ")
-
-        // Throw away single letter words
-        return onlyLettersAndSpaces
-            .split(" ")
-            .filter { it.length > 1 }
-            .joinToString(" ")
     }
 
     private fun setComponentForTable(
@@ -1766,6 +1743,21 @@ class Hl7Serializer(
         } else {
             hdFields.name
         }
+    }
+
+    /**
+     * Coverts unicode string to ASCII string if any special characters are found.
+     * This function takes a string parameter of unicode characters, checks to see if it has unicode special characters
+     * (À,Á,Â,Ã,Ä,Å,È,É,Ê,Ë,Î,Ô,Ù,Ç, and many more), converts it to a string representation of ASCII characters if any
+     * unicode special characters are found. AnyAscii is the open library that is used to perform this conversion.
+     * @param message the string to convert to ASCII string representation
+     * @return same string if no special characters are found or converted ASCII string if any special chars are found.
+     * @link https://github.com/anyascii/anyascii
+     */
+    internal fun unicodeToAscii(
+        message: String
+    ): String {
+        return AnyAscii.transliterate(message)
     }
 
     private fun formatEI(eiFields: Element.EIFields, separator: String = "^"): String {
