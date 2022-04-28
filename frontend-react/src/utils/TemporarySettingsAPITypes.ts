@@ -219,6 +219,26 @@ const sampleKeysObj: Array<JwkSet> = [
     },
 ];
 
+const sampleTimingObj: Timing = {
+    initialTime: "00:00",
+    maxReportCount: 365,
+    numberPerDay: 1,
+    operation: BatchOperation.MERGE,
+    timeZone: USTimeZone.ARIZONA,
+    whenEmpty: {
+        action: EmptyOperation.NONE,
+        onlyOncePerDay: true,
+    },
+};
+
+const sampleTranslationObj: TranslatorProperties = {
+    defaults: new Map<string, string>([["", ""]]),
+    format: Format.CSV,
+    nameFormat: "",
+    receivingOrganization: "xx_phd",
+    schemaName: "schema",
+};
+
 const getSampleValue = (field: ReportStreamFieldType): string => {
     switch (field) {
         case "boolean":
@@ -230,9 +250,9 @@ const getSampleValue = (field: ReportStreamFieldType): string => {
         case "keys":
             return JSON.stringify(sampleKeysObj);
         case "timing":
-            return ``;
+            return JSON.stringify(sampleTimingObj);
         case "translation":
-            return ``;
+            return JSON.stringify(sampleTranslationObj);
     }
 };
 
