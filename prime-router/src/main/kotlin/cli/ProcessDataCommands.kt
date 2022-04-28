@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomConfiguration
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DefaultValues
@@ -45,7 +46,7 @@ sealed class InputClientInfo {
 
 /**
  * Command to process data in a variety of ways. Pass in a [metadataInstance]
- * and/or [fileSettingsInstance] to reuse this class programmatically and make it run faster.
+ * and/or [fileSettingsInstance] to reuse this class programatically and make it run faster.
  */
 class ProcessData(
     private val metadataInstance: Metadata? = null,
@@ -211,6 +212,10 @@ class ProcessData(
         "--receiving-facility",
         help = "the receiving facility"
     )
+    private val includeNcesFacilities by option(
+        "--include-nces-facilities",
+        help = "matching zip codes to those in the NCES dataset."
+    ).flag(default = false)
 
     /**
      * A list of generated output files.
@@ -380,19 +385,27 @@ class ProcessData(
             is InputClientInfo.InputClient -> {
                 val clientName = (inputClientInfo as InputClientInfo.InputClient).clientName
                 val sender = fileSettings.findSender(clientName) ?: error("Sender $clientName was not found")
-                Pair(
-                    sender.let {
-                        metadata.findSchema(it.schemaName) ?: error("Schema ${it.schemaName} was not found")
-                    },
-                    sender
-                )
+                if (sender is CovidSender) {
+                    Pair(
+                        sender.let {
+                            metadata.findSchema(it.schemaName) ?: error("Schema ${it.schemaName} was not found")
+                        },
+                        sender
+                    )
+                } else {
+                    Pair(
+                        null, sender
+                    )
+                }
             }
             is InputClientInfo.InputSchema -> {
                 val inputSchema = (inputClientInfo as InputClientInfo.InputSchema).schemaName
                 val schName = inputSchema.lowercase()
                 metadata.findSchema(schName) ?: error("Schema $inputSchema was not found")
                 // Get a random sender name that uses the provided schema, or null if no sender is found.
-                val sender = fileSettings.senders.filter { it.schemaName == schName }.randomOrNull()
+                val sender = fileSettings.senders.filter {
+                    it is CovidSender && it.schemaName == schName
+                }.randomOrNull()
                 Pair(metadata.findSchema(schName), sender)
             }
             else -> {
@@ -420,7 +433,8 @@ class ProcessData(
                     (inputSource as InputSource.FakeSource).count,
                     FileSource("fake"),
                     targetStates,
-                    targetCounties
+                    targetCounties,
+                    includeNcesFacilities
                 )
             }
             else -> {
