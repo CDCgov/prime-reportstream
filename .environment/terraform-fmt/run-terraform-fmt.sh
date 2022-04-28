@@ -105,7 +105,7 @@ case "${SELECTED_RUNMODE?}" in
     RC=$?
     if [[ ${RC?} != 0 ]]; then
         error "(return code=${RC?}) Your Terraform files are not formatted."
-        error "Run \`terraform fmt -recursive\` or \`${0} --fix\` to comply with formatting requirements."
+        error "Run \`terraform fmt -recursive\`"
     fi
     ;;
 "${RUNMODE_FIX?}")
