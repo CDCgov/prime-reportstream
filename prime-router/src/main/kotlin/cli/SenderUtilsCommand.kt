@@ -6,7 +6,6 @@ import com.github.ajalt.clikt.parameters.options.required
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.SenderAPI
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.SenderUtils
@@ -71,14 +70,16 @@ class AddPublicKey : SettingCommand(
         jwk.kid = if (kid.isNullOrEmpty()) settingName else kid
 
         val origSenderJson = get(environment, oktaAccessToken, SettingType.SENDER, settingName)
-        val origSender = Sender(jsonMapper.readValue(origSenderJson, SenderAPI::class.java))
+        val origSender = jsonMapper.readValue(origSenderJson, Sender::class.java)
 
         if (!Scope.isValidScope(scope, origSender)) {
             echo("Sender full name in scope must match $settingName.  Instead got: $scope")
             return
         }
 
-        val newSender = Sender(origSender, scope, jwk)
+        // TODO: This is to support original functionality, may be able to just reassign scope and jwk on
+        //  origSender instead of creating a new one
+        val newSender = origSender.makeCopyWithNewScopeAndJwk(scope, jwk)
         val newSenderJson = jsonMapper.writeValueAsString(newSender)
 
         echo("*** Original Sender *** ")
