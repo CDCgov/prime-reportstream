@@ -44,3 +44,7 @@ variable "subnets" {
 variable "dns_zones" {
   description = "A set of all available dns zones"
 }
+
+variable "delete_pii_storage_after_days" {
+  description = "Number of days after which we'll delete PII-related blobs from the storage account"
+}
