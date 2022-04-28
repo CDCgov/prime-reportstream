@@ -57,6 +57,9 @@ abstract class TranslatorConfiguration(val type: String) : TranslatorProperties
  */
 data class Hl7Configuration
 @JsonCreator constructor(
+    //SchemaName is added here so that - by default covid 19 schema is used and
+    // if provided the input value is consumed.
+    override val schemaName: String = HL7_SCHEMA,
     // deprecated, please don't use
     val useTestProcessingMode: Boolean = false,
     val useBatchHeaders: Boolean = true,
@@ -151,8 +154,10 @@ data class Hl7Configuration
     @get:JsonIgnore
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
 
-    @get:JsonIgnore
-    override val schemaName: String get() = HL7_SCHEMA
+    //<editor-fold desc="Description">
+    /*@get:JsonIgnore
+    override val schemaName: String get() = HL7_SCHEMA */
+    //</editor-fold>
 
     @get:JsonIgnore
     override val defaults: Map<String, String> get() {
