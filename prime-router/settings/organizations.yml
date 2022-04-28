@@ -1910,7 +1910,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
