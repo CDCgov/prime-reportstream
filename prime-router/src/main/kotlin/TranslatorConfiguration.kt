@@ -57,7 +57,7 @@ abstract class TranslatorConfiguration(val type: String) : TranslatorProperties
  */
 data class Hl7Configuration
 @JsonCreator constructor(
-    override val  schemaName: String = HL7_SCHEMA,
+    override val schemaName: String = HL7_SCHEMA,
     // deprecated, please dont use.
     val useTestProcessingMode: Boolean = false,
     val useBatchHeaders: Boolean = true,
