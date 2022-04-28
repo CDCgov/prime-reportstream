@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.FullELRSender
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
@@ -424,13 +426,11 @@ class Server2ServerAuthTests : CoolTest() {
      * Utility function to attach a new sender to an existing organization.
      */
     fun createNewSenderForExistingOrg(senderName: String, orgName: String): Sender {
-        val newSender = Sender(
+        val newSender = FullELRSender(
             name = senderName,
             organizationName = orgName,
             format = Sender.Format.CSV,
-            topic = "covid-19",
-            customerStatus = CustomerStatus.INACTIVE,
-            schemaName = "primedatainput/pdi-covid-19"
+            customerStatus = CustomerStatus.INACTIVE
         )
 
         val oktaSettingAccessTok = OktaAuthTests.getOktaAccessTokOrLocal(settingsEnv) // ironic: still need okta
@@ -457,7 +457,7 @@ class Server2ServerAuthTests : CoolTest() {
         // deserialize the sender obj we got back from the API
         return jacksonObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .readValue(savedSenderJson, Sender::class.java)
+            .readValue(savedSenderJson, FullELRSender::class.java)
             ?: error("Unable to save sender")
     }
 
@@ -472,6 +472,7 @@ class Server2ServerAuthTests : CoolTest() {
         val publicKeyStr = SenderUtils.readPublicKeyPem(key)
         publicKeyStr.kid = kid
         val senderPlusNewKey = Sender(sender, scope, publicKeyStr)
+        savedSender = sender.makeCopyWithNewScopeAndJwk(scope, publicKeyStr)
 
         // save the sender with the new key
         PutSenderSetting()

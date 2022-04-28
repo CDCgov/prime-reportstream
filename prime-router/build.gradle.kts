@@ -94,7 +94,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 defaultTasks("package")
 
 val ktorVersion = "1.6.8"
-val kotlinVersion = "1.6.10"
+val kotlinVersion = "1.6.20"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -737,6 +737,7 @@ dependencies {
     implementation("org.apache.poi:poi:5.2.2")
     implementation("org.apache.poi:poi-ooxml:5.2.2")
     implementation("commons-io:commons-io: 2.11.0")
+    implementation("com.anyascii:anyascii:0.3.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
