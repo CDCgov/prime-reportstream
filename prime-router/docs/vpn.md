@@ -41,8 +41,24 @@ $ kill -${SIGNAL} $(cat "/tmp/${USER}/openvpn.pid")
 # On termination, openvpn will remove the PID file
 ```
 
+If you're not able to get connectivity to services in Azure after the VPN has started, and/or you see the message
+`Warning: /etc/resolv.conf is not a symbolic link to /run/resolvconf/resolv.conf.` you may need to give your
+systemd-based resolv.conf services a kick:
+
+```bash
+$ sudo dpkg-reconfigure resolvconf
+```
+
+This will walk you through a curses-based UI, just hit OK to everything. It'll tell you you need to reboot, and that may
+be true sometimes but it wasn't for me.
+
+More info on [this issue](https://github.com/pop-os/pop/issues/773).
+
+
 ## Windows
+
 ### VPN DNS Resolution
+
 There is an issue where the DNS server for the VPN adapter is not used when resolving hostnames.  This is due to the interface metric of the VPN loosing to the metric of your normal network adapter.  Run the following command to look up the IP of a server in the Azure environment and test if this is an issue .  For example:
 
 ```
@@ -54,6 +70,7 @@ nslookup pdhstaging-pgsql.postgres.database.azure.com
 should return an IP address in the 10.0.0.0/8 range which is in the range used by the VPN.  If you see an address outside of this 10.0.0.0/8 range then continue with the instructions here to fix this issue.
 
 To fix this issue:
+
 1. Open Control Panel as an administrator
 2. Choose Network and Internet, and then choose Network Connections.
 3. Right-click the TAP-Windows Adapter V9 tap adapter.

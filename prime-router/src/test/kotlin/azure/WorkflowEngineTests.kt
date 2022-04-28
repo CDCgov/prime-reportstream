@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
@@ -160,6 +161,7 @@ class WorkflowEngineTests {
         confirmVerified(accessSpy, blobMock, queueMock) // todo
     }
 
+    // TODO: Will need to copy this test for Full ELR senders once receiving full ELR is implemented (see #5051)
     @Test
     fun `test receiveReport`() {
         mockkObject(BlobAccess.Companion)
@@ -169,7 +171,7 @@ class WorkflowEngineTests {
         val settings = FileSettings()
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
         val actionHistory = mockk<ActionHistory>()
-        val sender = Sender("senderName", "org", Sender.Format.CSV, "covid-19", CustomerStatus.INACTIVE, one.name)
+        val sender = CovidSender("senderName", "org", Sender.Format.CSV, CustomerStatus.INACTIVE, one.name)
 
         every {
             BlobAccess.Companion.uploadBody(
