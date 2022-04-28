@@ -6,8 +6,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import gov.cdc.prime.router.azure.SettingAPI
+import gov.cdc.prime.router.azure.SettingsMetadata
 import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.JwkSet
+import java.time.OffsetDateTime
 
 /**
  * A `Sender` represents the agent that is sending reports to
@@ -47,7 +49,11 @@ abstract class Sender(
     val processingType: ProcessingType = ProcessingType.sync,
     val allowDuplicates: Boolean = true,
     val senderType: SenderType? = null,
-    val primarySubmissionMethod: PrimarySubmissionMethod? = null
+    val primarySubmissionMethod: PrimarySubmissionMethod? = null,
+    override var version: Int? = null,
+    override var createdBy: String? = null,
+    override var createdAt: OffsetDateTime? = null,
+    override var meta: SettingsMetadata? = null // Deprecated
 ) : SettingAPI {
 
     /**

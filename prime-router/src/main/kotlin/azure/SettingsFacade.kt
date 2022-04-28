@@ -3,9 +3,9 @@ package gov.cdc.prime.router.azure
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
@@ -18,6 +18,7 @@ import gov.cdc.prime.router.TranslatorConfiguration
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import org.apache.logging.log4j.kotlin.Logging
@@ -39,7 +40,7 @@ class SettingsFacade(
         BAD_REQUEST
     }
 
-    private val mapper = jacksonObjectMapper()
+    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     init {
         // Format OffsetDateTime as an ISO string
@@ -110,6 +111,11 @@ class SettingsFacade(
                 db.fetchSetting(settingType, name, parentId = null, txn)
         } ?: return null
         val result = mapper.readValue(setting.values.data(), clazz)
+        // Add the metadata
+        result.createdAt = setting.createdAt
+        result.createdBy = setting.createdBy
+        result.version = setting.version
+        result.meta = SettingsMetadata(setting.version, setting.createdBy, setting.createdAt)
         return result
     }
 
@@ -216,6 +222,11 @@ class SettingsFacade(
             }
 
             val settingResult = mapper.readValue(setting.values.data(), clazz)
+            if (settingResult is SettingAPI) {
+                settingResult.version = setting.version
+                settingResult.createdAt = setting.createdAt
+                settingResult.createdBy = setting.createdBy
+            }
 
             val outputJson = mapper.writeValueAsString(settingResult)
             Pair(accessResult, outputJson)
@@ -287,13 +298,31 @@ class SettingsFacade(
     }
 }
 
+/**
+ * Deprecated old meta from the settings table used for backwards compatibility.  This data used to be in the JSONB, but
+ * was replaced by columns in the database.
+ * @property version the setting version
+ * @property createdAt the time the setting was created
+ * @property createdBy the user that created the setting.
+ */
+data class SettingsMetadata(
+    val version: Int,
+    val createdBy: String,
+    val createdAt: OffsetDateTime
+)
+
 interface SettingAPI {
     val name: String
     val organizationName: String?
+    var version: Int?
+    var createdBy: String?
+    var createdAt: OffsetDateTime?
+    var meta: SettingsMetadata? // Deprecated
     fun consistencyErrorMessage(metadata: Metadata): String?
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class OrganizationAPI
 @JsonCreator constructor(
     name: String,
@@ -302,6 +331,10 @@ class OrganizationAPI
     stateCode: String?,
     countyName: String?,
     filters: List<ReportStreamFilters>?,
+    override var version: Int? = null,
+    override var createdBy: String? = null,
+    override var createdAt: OffsetDateTime? = null,
+    override var meta: SettingsMetadata? = null // Deprecated
 ) : Organization(name, description, jurisdiction, stateCode.trimToNull(), countyName.trimToNull(), filters),
 
     SettingAPI {
@@ -327,6 +360,10 @@ class ReceiverAPI
     timing: Timing? = null,
     description: String = "",
     transport: TransportType? = null,
+    override var version: Int? = null,
+    override var createdBy: String? = null,
+    override var createdAt: OffsetDateTime? = null,
+    override var meta: SettingsMetadata? = null // Deprecated
 ) : Receiver(
     name,
     organizationName,
