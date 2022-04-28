@@ -492,6 +492,17 @@
       schemaName: hl7/detect-covid-19
       format: HL7
 
+- name: signetic
+  description: Signetic
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: signetic
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/signetic-covid-19
+      format: HL7
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE

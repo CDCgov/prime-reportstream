@@ -1,0 +1,20 @@
+---
+name: signetic-covid-19
+description: Signetic schema
+topic: covid-19
+trackingElement: specimen_id
+extends: hl7/hl7-ingest-covid-19
+
+elements:
+  - name: sender_id
+    mapper: useSenderSetting(organizationName)
+
+    #changes "P" to "T" until out of testing mode
+  - name: processing_mode_code
+    altValues:
+      - code: D
+        display: D
+      - code: T
+        display: T
+      - code: T
+        display: P
