@@ -36,7 +36,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.6.10"
+    id("org.jetbrains.dokka") version "1.6.20"
     id("com.avast.gradle.docker-compose") version "0.15.2"
 }
 
