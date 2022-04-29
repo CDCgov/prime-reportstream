@@ -247,17 +247,6 @@
       schemaName: hl7/primary-covid-19
       format: HL7
 
-- name: hcintegrations
-  description: Healthcare Integrations
-  jurisdiction: FEDERAL
-  senders:
-    - name: default
-      organizationName: hcintegrations
-      topic: covid-19
-      customerStatus: active
-      schemaName: hl7/hcintegrations-covid-19
-      format: HL7
-
 - name: "naval-health-clinic-lemoore"
   description: "Naval Health Clinic - Lemoore"
   jurisdiction: "FEDERAL"
@@ -1899,7 +1888,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -1927,11 +1916,6 @@
     - topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
   senders:
-    - name: ignore-full-elr      # Use this to test full-elr
-      organizationName: ignore
-      topic: full-elr
-      customerStatus: inactive
-      format: HL7
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
       topic: covid-19
