@@ -1,23 +1,14 @@
-BasicAuth:
-  type: http
-  scheme: basic
-BearerAuth:
-  type: http
-  scheme: bearer
-ApiKeyAuth:
-  type: apiKey
-  in: header
-  name: X-API-Key
-OpenID:
-  type: openIdConnect
-  openIdConnectUrl: https://example.com/.well-known/openid-configuration
-OAuth2:
+OktaAuth:
   type: oauth2
   flows:
     authorizationCode:
-      authorizationUrl: https://example.com/oauth/authorize
-      tokenUrl: https://example.com/oauth/token
+      authorizationUrl: https://hhs-prime.okta.com/oauth/authorize
+      tokenUrl: https://hhs-prime.okta.com/oauth/token
       scopes:
-        read: Grants read access
-        write: Grants write access
-        admin: Grants access to admin operations
+        ANONYMOUS: Grants read access
+        FUNCTION: Grants write access to single org
+        ADMIN: Grants access to admin operations
+Server2Server: # aka two-legged aka fhirauth
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
