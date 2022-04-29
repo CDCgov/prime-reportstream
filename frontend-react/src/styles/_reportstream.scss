@@ -286,7 +286,7 @@ h3 img[src*="svg"] {
 
 .rs-compare-modal {
     max-width: calc(var(--rs-compare-modal-width));
-    height: var(--rs-compare-modal-height);
+    height: var(--rs-compare-modal-height + 12em);
     .usa-modal__main {
         width:100%;
         max-width:90em;
@@ -378,4 +378,9 @@ h3 img[src*="svg"] {
     color: #005ea2;
     overflow: visible !important;
     zoom: 0.5;
+}
+
+.rs-textarea-json-input {
+    word-break: break-all;
+    max-width: 100vw;
 }

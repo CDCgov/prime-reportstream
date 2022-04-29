@@ -75,3 +75,9 @@ clean:
 	sudo rm -rf build
 	sudo rm -rf .vault/env
 	docker volume prune
+
+.PHONY: cleanGitBranches
+cleanGitBranches: ## Cleans up old pruned git branches
+cleanGitBranches:
+	git fetch -p
+	for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D $branch; done

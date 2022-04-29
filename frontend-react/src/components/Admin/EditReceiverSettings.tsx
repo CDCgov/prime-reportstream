@@ -12,6 +12,11 @@ import {
 } from "../../contexts/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import Spinner from "../Spinner";
+import {
+    getErrorDetailFromResponse,
+    getVersionWarning,
+    VersionWarningType,
+} from "../../utils/misc";
 
 import {
     ConfirmSaveSettingModal,
@@ -51,35 +56,59 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
             useState("");
         const { invalidate } = useController();
 
+        async function getLatestReceiverResponse() {
+            const accessToken = getStoredOktaToken();
+            const organization = getStoredOrg();
+
+            const response = await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        Organization: organization!,
+                    },
+                }
+            );
+
+            return await response.json();
+        }
+
         const showCompareConfirm = async () => {
             try {
                 // fetch original version
                 setLoading(true);
-                const accessToken = getStoredOktaToken();
-                const organization = getStoredOrg();
-
-                const response = await fetch(
-                    `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                            Organization: organization!,
-                        },
-                    }
-                );
-                const responseBody = await response.json();
+                const latestResponse = await getLatestReceiverResponse();
                 setOrgReceiverSettingsOldJson(
-                    JSON.stringify(responseBody, jsonSortReplacer, 2)
+                    JSON.stringify(latestResponse, jsonSortReplacer, 2)
                 );
                 setOrgReceiverSettingsNewJson(
                     JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2)
                 );
 
-                confirmModalRef?.current?.toggleModal(undefined, true);
+                if (
+                    latestResponse?.meta?.version !==
+                    orgReceiverSettings?.meta?.version
+                ) {
+                    showError(getVersionWarning(VersionWarningType.POPUP));
+                    confirmModalRef?.current?.setWarning(
+                        getVersionWarning(
+                            VersionWarningType.FULL,
+                            latestResponse
+                        )
+                    );
+                    confirmModalRef?.current?.disableSave();
+                }
+
+                confirmModalRef?.current?.showModal();
                 setLoading(false);
-            } catch (e) {
+            } catch (e: any) {
                 setLoading(false);
-                console.error(e);
+                let errorDetail = await getErrorDetailFromResponse(e);
+                console.trace(e, errorDetail);
+                showError(
+                    `Reloading receiver '${receivername}' failed with: ${errorDetail}`
+                );
+                return false;
             }
         };
 
@@ -94,14 +123,34 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
 
         const saveReceiverData = async () => {
             try {
+                setLoading(true);
+
+                const latestResponse = await getLatestReceiverResponse();
+                if (
+                    latestResponse.meta?.version !==
+                    orgReceiverSettings?.meta?.version
+                ) {
+                    // refresh left-side panel in compare modal to make it obvious what has changed
+                    setOrgReceiverSettingsOldJson(
+                        JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                    );
+                    showError(getVersionWarning(VersionWarningType.POPUP));
+                    confirmModalRef?.current?.setWarning(
+                        getVersionWarning(
+                            VersionWarningType.FULL,
+                            latestResponse
+                        )
+                    );
+                    confirmModalRef?.current?.disableSave();
+                    return false;
+                }
+
                 const data = confirmModalRef?.current?.getEditedText();
 
                 const receivernamelocal =
                     action === "clone"
                         ? orgReceiverSettings.name
                         : receivername;
-
-                setLoading(true);
 
                 await fetchController(
                     OrgReceiverSettingsResource.update(),
@@ -115,12 +164,14 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     `Item '${receivername}' has been updated`
                 );
                 setLoading(false);
-                confirmModalRef?.current?.toggleModal(undefined, false);
+                confirmModalRef?.current?.hideModal();
                 history.goBack();
             } catch (e: any) {
-                console.trace(e);
+                setLoading(false);
+                let errorDetail = await getErrorDetailFromResponse(e);
+                console.trace(e, errorDetail);
                 showError(
-                    `Updating item '${receivername}' failed. ${e.toString()}`
+                    `Updating receiver '${receivername}' failed with: ${errorDetail}`
                 );
                 return false;
             }

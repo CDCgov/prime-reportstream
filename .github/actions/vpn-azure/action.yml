@@ -19,6 +19,9 @@ inputs:
     required: true
   env-name:
     required: true
+  tf-auth:
+    description: "Set Terraform auth env variables. True or False"
+    default: false
 
 runs:
   using: "composite"
@@ -51,7 +54,7 @@ runs:
         sudo apt install openvpn-systemd-resolved
       shell: bash
 
-    - uses: golfzaptw/action-connect-ovpn@2.0.1
+    - uses: golfzaptw/action-connect-ovpn@ac87cf86ad6d45eb238d327fb5f327296f446f13
       if: env.VPN_ENV
       id: connect_vpn
       with:
@@ -62,6 +65,22 @@ runs:
         USER_CRT: ${{ inputs.user-crt }}
         USER_KEY: ${{ inputs.user-key }}
 
-    - uses: azure/login@v1
+    - uses: azure/login@1f63701bf3e6892515f1b7ce2d2bf1708b46beaf
       with:
         creds: ${{ inputs.sp-creds }}
+
+    - name: Terraform Auth
+      if: inputs.tf-auth == 'true'
+      env:
+        AZURE_CREDENTIALS: ${{ inputs.sp-creds }}
+      run: |
+        # Parse Azure secret into Terraform variables
+        $servicePrincipal = ($env:AZURE_CREDENTIALS | ConvertFrom-Json)
+        $env:ARM_CLIENT_ID = $servicePrincipal.clientId
+        $env:ARM_CLIENT_SECRET = $servicePrincipal.clientSecret
+        $env:ARM_SUBSCRIPTION_ID = $servicePrincipal.subscriptionId
+        $env:ARM_TENANT_ID = $servicePrincipal.tenantId
+          
+        # Save environment variable setup for subsequent steps
+        Get-ChildItem -Path Env: -Recurse -Include ARM_* | ForEach-Object {Write-Output "$($_.Name)=$($_.Value)"} >> $env:GITHUB_ENV
+      shell: pwsh

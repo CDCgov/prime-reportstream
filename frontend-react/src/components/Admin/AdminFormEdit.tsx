@@ -30,6 +30,7 @@ export const TextInputComponent = (params: {
                     defaultValue={params.defaultvalue || ""}
                     data-testid={key}
                     maxLength={255}
+                    className="rs-textarea-json-input"
                     onChange={(e) => params.savefunc(e?.target?.value || "")}
                     disabled={params.disabled}
                 />
@@ -44,6 +45,7 @@ export const TextAreaComponent = (params: {
     defaultvalue: object;
     savefunc: (val: object) => void;
     defaultnullvalue: string | null;
+    disabled?: boolean;
 }): JSX.Element => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -72,6 +74,7 @@ export const TextAreaComponent = (params: {
                     name={key}
                     defaultValue={defaultValue}
                     data-testid={key}
+                    className="rs-textarea-json-input"
                     onBlur={(e) => {
                         const text =
                             e?.target?.value || (defaultnullvalue as string);
@@ -81,6 +84,7 @@ export const TextAreaComponent = (params: {
                             params.savefunc(result);
                         }
                     }}
+                    disabled={params.disabled}
                 />
             </Grid>
         </Grid>

@@ -3,7 +3,7 @@ import AuthResource from "./AuthResource";
 export interface MetaData {
     version: number;
     createdBy: string;
-    createdAt: Date;
+    createdAt: string;
 }
 
 /**
@@ -11,7 +11,7 @@ export interface MetaData {
  */
 export default abstract class OrgSettingsBaseResource extends AuthResource {
     name: string = "";
-    readonly meta: MetaData[] = [];
+    readonly meta: MetaData = { version: 0, createdBy: "", createdAt: "" };
 
     pk() {
         return this.name;

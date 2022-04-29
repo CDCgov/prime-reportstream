@@ -268,7 +268,7 @@ components:
           type: string
         submissions:
           type: "array"
-          items: 
+          items:
             $ref: '#/components/schemas/Submission'
 
     ItemRouting:

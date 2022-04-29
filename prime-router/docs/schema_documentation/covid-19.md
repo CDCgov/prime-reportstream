@@ -1,7 +1,7 @@
 
 ### Schema: covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: (message_id)
 ### Base On: none
 ### Extends: none
 #### Description: collection of standard elements, not an actual schema
@@ -551,6 +551,23 @@ The message profile identifer
 
 **Cardinality**: [0..1]
 
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+C|Record coming over is a correction and thus replaces a final result|HL7
+D|Deletes the OBX record|HL7
+F|Final results; Can only be changed with a corrected result|HL7
+I|Specimen in lab; results pending|HL7
+N|Not asked; used to affirmatively document that the observation identified in the OBX was not sought when the universal service ID in OBR-4 implies that it would be sought.|HL7
+O|Order detail description only (no result)|HL7
+P|Preliminary results|HL7
+R|Results entered -- not verified|HL7
+S|Partial results|HL7
+U|Results status change to final without retransmitting results already sent as ‘preliminary.’  E.g., radiology changes status from preliminary to final|HL7
+W|Post original as wrong, e.g., transmitted for wrong patient|HL7
+X|Results cannot be obtained for this observation|HL7
+
 ---
 
 **Name**: order_result_status
@@ -564,6 +581,24 @@ The message profile identifer
 **Default Value**: F
 
 **Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+A|Some, but not all, results available|HL7
+C|Corrected, final|HL7
+F|Final results|HL7
+I|No results available; specimen received, procedure incomplete|HL7
+M|Corrected, not final|HL7
+N|Procedure completed, results pending|HL7
+O|Order received; specimen not yet received|HL7
+P|Preliminary|HL7
+R|Results stored; not yet verified|HL7
+S|No results available; procedure scheduled, but not done|HL7
+X|No results available; Order canceled|HL7
+Y|No order on record for this test|HL7
+Z|No record of this patient|HL7
 
 ---
 
@@ -3597,6 +3632,49 @@ The reporting facility's name
 
 ---
 
+**Name**: residence_type
+
+**ReportStream Internal Name**: residence_type
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**LOINC Code**: 75617-1
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+22232009|Hospital|SNOMED_CT
+2081004|Hospital Ship|SNOMED_CT
+32074000|Long Term Care Hospital|SNOMED_CT
+224929004|Secure Hospital|SNOMED_CT
+42665001|Nursing Home|SNOMED_CT
+30629002|Retirement Home|SNOMED_CT
+74056004|Orphanage|SNOMED_CT
+722173008|Prison-based Care Site|SNOMED_CT
+20078004|Substance Abuse Treatment Center|SNOMED_CT
+257573002|Boarding House|SNOMED_CT
+224683003|Military Accommodation|SNOMED_CT
+284546000|Hospice|SNOMED_CT
+257628001|Hostel|SNOMED_CT
+310207003|Sheltered Housing|SNOMED_CT
+57656006|Penal Institution|SNOMED_CT
+285113009|Religious Institutional Residence|SNOMED_CT
+285141008|Work (environment)|SNOMED_CT
+32911000|Homeless|SNOMED_CT
+
+**Documentation**:
+
+Congregate Setting Residence Type?
+
+---
+
 **Name**: resident_congregate_setting
 
 **ReportStream Internal Name**: resident_congregate_setting
@@ -3686,7 +3764,7 @@ The name and OID for the application sending information to the receivers
 
 **Documentation**:
 
-The type of facility providing care (Hospital, Nursing Home, etc.).
+The type of facility providing care (Hospital, Nursing Home, etc.).  This is a CUSTOM internal field. DO NOT use this for the COVID AOE residence_type.
 
 ---
 
@@ -4284,11 +4362,6 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Format**: use value found in the Code column
 
-**HL7 Fields**
-
-- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
-- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
-
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -4645,11 +4718,9 @@ The postal code for the testing lab
 
 **ReportStream Internal Name**: value_type
 
-**Type**: CODE
+**Type**: ID
 
 **PII**: No
-
-**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 

@@ -1,0 +1,18 @@
+openapi: "3.0.3"
+info:
+  title: ReportStream Metadata API
+  description: "This is a stub to be completed when this API is reviewed"
+  version: "0.1"
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+paths:
+  /api/metadata/livd:
+    get:
+      description: get data from livd tables
+      security:
+        - OktaAuth: [ ANONYMOUS ]
+      responses:
+        '200':
+          description: success call

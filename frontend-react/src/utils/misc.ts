@@ -55,3 +55,40 @@ export const checkTextAreaJson = (
         return false;
     }
 };
+
+/**
+ * returns the error detail usually found in the "error" field of the JSON returned
+ * otherwise, just return the general exception detail
+ */
+export async function getErrorDetailFromResponse(e: any) {
+    let errorResponse = await e?.response?.json();
+    return errorResponse && errorResponse.error
+        ? errorResponse.error
+        : e.toString();
+}
+
+export enum VersionWarningType {
+    POPUP = "popup",
+    FULL = "full",
+}
+
+/**
+ * returns a customized message in the case of trying to edit the wrong version of a setting
+ * @param warningType either POPUP (for the toast notification) or FULL (for the red text on the compare modal itself)
+ * @param settings the resource object from which to use information helpful to the user
+ */
+export function getVersionWarning(
+    warningType: VersionWarningType,
+    settings: any = null
+): string {
+    switch (warningType) {
+        case VersionWarningType.POPUP:
+            return `WARNING! A newer version of this setting now exists in the database'`;
+        case VersionWarningType.FULL:
+            return `WARNING! A change has been made to the setting you're trying to update by 
+                    '${settings?.meta?.createdBy}'. Please coordinate with that user and return to update the setting 
+                    again, if needed`;
+    }
+
+    return "";
+}

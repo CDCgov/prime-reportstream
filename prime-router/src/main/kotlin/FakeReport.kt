@@ -2,10 +2,10 @@ package gov.cdc.prime.router
 
 import com.github.javafaker.Faker
 import com.github.javafaker.Name
+import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.ConcatenateMapper
 import gov.cdc.prime.router.metadata.ElementAndValue
-import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import gov.cdc.prime.router.metadata.Mappers
 import gov.cdc.prime.router.metadata.UseMapper
@@ -40,17 +40,21 @@ class FakeDataService : Logging {
                 element.nameContains("name_of_testing_lab") -> "Any lab USA"
                 element.nameContains("lab_name") -> "Any lab USA"
                 element.nameContains("sender_id") -> "${element.default}" // Allow the default to fill this in
-                element.nameContains("facility_name") -> "Any facility USA"
+                element.nameContains("facility_name") -> context.facilitiesName ?: "Any facility USA"
                 element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
                 element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
                 element.nameContains("result_format") -> "CWE"
                 element.nameContains("patient_preferred_language") -> randomChoice("ENG", "FRE", "SPA", "CHI", "KOR")
                 element.nameContains("patient_country") -> "USA"
-                element.nameContains("site_of_care") -> randomChoice(
-                    "airport", "assisted_living", "camp", "correctional_facility", "employer", "fqhc",
-                    "government_agency", "hospice", "hospital", "k12", "lab", "nursing_home", "other",
-                    "pharmacy", "primary_care", "shelter", "treatment_center", "university", "urgent_care"
-                )
+                element.nameContains("site_of_care") -> if (context.facilitiesName.isNullOrEmpty()) {
+                    randomChoice(
+                        "airport", "assisted_living", "camp", "correctional_facility", "employer", "fqhc",
+                        "government_agency", "hospice", "hospital", "lab", "nursing_home", "other",
+                        "pharmacy", "primary_care", "shelter", "treatment_center", "university", "urgent_care"
+                    )
+                } else {
+                    "k12"
+                }
                 element.nameContains("patient_age_and_units") -> {
                     val unit = randomChoice("months", "years", "days")
                     val value = when (unit) {
@@ -117,22 +121,27 @@ class FakeDataService : Logging {
         fun createFakeValueFromValueSet(element: Element): String {
             val altValues = element.altValues
             val valueSet = element.valueSetRef
-            // if the code defines alternate values in the schema we need to
-            // output them here
-            val possibleValues = if (altValues?.isNotEmpty() == true) {
-                altValues.map { it.code }.toTypedArray()
-            } else {
-                if (element.cardinality?.name == "ZERO_OR_ONE") {
-                    // Pick random code from the ValueSet.Value and add ""
-                    val code = valueSet?.values?.asSequence()?.shuffled()?.take(1)?.map { it.code }
-                        ?.toList()?.toTypedArray() ?: arrayOf("")
-                    code.plus("")
-                } else {
-                    valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
+            return when (element.name) {
+                "value_type" -> "CWE"
+                else -> {
+                    // if the code defines alternate values in the schema we need to
+                    // output them here
+                    val possibleValues = if (altValues?.isNotEmpty() == true) {
+                        altValues.map { it.code }.toTypedArray()
+                    } else {
+                        if (element.cardinality?.name == "ZERO_OR_ONE") {
+                            // Pick random code from the ValueSet.Value and add ""
+                            val code = valueSet?.values?.asSequence()?.shuffled()?.take(1)?.map { it.code }
+                                ?.toList()?.toTypedArray() ?: arrayOf("")
+                            code.plus("")
+                        } else {
+                            valueSet?.values?.map { it.code }?.toTypedArray() ?: arrayOf("")
+                        }
+                    }
+
+                    randomChoice(*possibleValues)
                 }
             }
-
-            return randomChoice(*possibleValues)
         }
 
         // code values typically come from valuesets, so we pass in the element
@@ -247,12 +256,14 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
     private val fakeDataService: FakeDataService = FakeDataService()
 
     class RowContext(
-        findLookupTable: (String) -> LookupTable? = { null },
+        val localMetadata: Metadata,
         reportState: String? = null,
         val schemaName: String? = null,
         reportCounty: String? = null,
+        includeNcesFacilities: Boolean = false,
         locale: Locale? = null
     ) {
+        val findLookupTable = localMetadata::findLookupTable
         val faker = if (locale == null) Faker() else Faker(locale)
         val patientName: Name = faker.name()
         val schoolName: String = faker.university().name()
@@ -287,6 +298,23 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
                     .isEqualTo("zipcode", zipCode).findAllUnique("city")
             )
         } ?: faker.address().city().toString()
+
+        // Do a lazy init because this table may never be used and it is large
+        private val ncesLookupTable = lazy {
+            localMetadata.findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
+        }
+
+        val facilitiesName: String? = if (includeNcesFacilities && !zipCode.isNullOrEmpty()) {
+            ncesLookupTable.value.lookupBestMatch(
+                lookupColumn = "SCHNAME",
+                searchColumn = "LZIP",
+                searchValue = zipCode,
+                canonicalize = { Hl7Utilities.canonicalizeSchoolName(it) },
+                commonWords = listOf("ELEMENTARY", "JUNIOR", "HIGH", "MIDDLE")
+            )
+        } else {
+            null
+        }
     }
 
     internal fun buildColumn(element: Element, context: RowContext): String {
@@ -334,8 +362,20 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         }
     }
 
-    private fun buildRow(schema: Schema, targetState: String? = null, targetCounty: String? = null): List<String> {
-        val context = RowContext(metadata::findLookupTable, targetState, schemaName = schema.name, targetCounty, locale)
+    private fun buildRow(
+        schema: Schema,
+        targetState: String? = null,
+        targetCounty: String? = null,
+        includeNcesFacilities: Boolean = false
+    ): List<String> {
+        val context = RowContext(
+            metadata,
+            targetState,
+            schemaName = schema.name,
+            targetCounty,
+            includeNcesFacilities,
+            locale
+        )
         return schema.elements.map {
             if (it.mapper.isNullOrEmpty())
                 buildColumn(it, context)
@@ -349,7 +389,8 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         count: Int = 10,
         source: Source,
         targetStates: String? = null,
-        targetCounties: String? = null
+        targetCounties: String? = null,
+        includeNcesFacilities: Boolean = false
     ): Report {
         val counties = targetCounties?.split(",")
         val states = if (targetStates.isNullOrEmpty()) {
@@ -359,7 +400,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
             targetStates.split(",")
         }
         val rows = (0 until count).map {
-            buildRow(schema, roundRobinChoice(states), roundRobinChoice(counties))
+            buildRow(schema, roundRobinChoice(states), roundRobinChoice(counties), includeNcesFacilities)
         }.toList()
         return Report(schema, rows, listOf(source), metadata = metadata)
     }
