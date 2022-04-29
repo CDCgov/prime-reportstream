@@ -20,7 +20,11 @@ import {
 import { ObjectTooltip } from "../tooltips/ObjectTooltip";
 import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
 
-import { TextAreaComponent, TextInputComponent } from "./AdminFormEdit";
+import {
+    DropdownComponent,
+    TextAreaComponent,
+    TextInputComponent,
+} from "./AdminFormEdit";
 import {
     ConfirmSaveSettingModal,
     ConfirmSaveSettingModalRef,
@@ -193,11 +197,12 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     savefunc={(v) => (orgSenderSettings.name = v)}
                     disabled={action === "edit"}
                 />
-                <TextInputComponent
+                <DropdownComponent
                     fieldname={"format"}
                     label={"Format"}
                     defaultvalue={orgSenderSettings.format}
                     savefunc={(v) => (orgSenderSettings.format = v)}
+                    valuesFrom={"format"}
                 />
                 <TextInputComponent
                     fieldname={"topic"}
@@ -205,11 +210,12 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     defaultvalue={orgSenderSettings.topic}
                     savefunc={(v) => (orgSenderSettings.topic = v)}
                 />
-                <TextInputComponent
+                <DropdownComponent
                     fieldname={"customerStatus"}
                     label={"Customer Status"}
                     defaultvalue={orgSenderSettings.customerStatus}
                     savefunc={(v) => (orgSenderSettings.customerStatus = v)}
+                    valuesFrom={"customerStatus"}
                 />
                 <TextInputComponent
                     fieldname={"schemaName"}
@@ -225,11 +231,12 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
                     defaultnullvalue={""}
                     savefunc={(v) => (orgSenderSettings.keys = v)}
                 />
-                <TextInputComponent
+                <DropdownComponent
                     fieldname={"processingType"}
                     label={"Processing Type"}
                     defaultvalue={orgSenderSettings.processingType}
                     savefunc={(v) => (orgSenderSettings.processingType = v)}
+                    valuesFrom={"processingType"}
                 />
                 <Grid row>
                     <Button
