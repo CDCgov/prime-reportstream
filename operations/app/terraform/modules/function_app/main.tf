@@ -66,11 +66,22 @@ locals {
 
   # Any settings provided implicitly by Azure that we don't want to swap
   sticky_slot_implicit_settings_names = tolist([
-    "AzureWebJobsStorage",
+    "AzureWebJobsStorage"
+  ])
+
+  # Any settings that we want to exclude from sticky settings
+  sticky_slot_exclude_settings_names = tolist([
+    "AzureWebJobs.emailScheduleEngine.Disabled",
+    "AzureWebJobs.send.Disabled"
   ])
 
   # Any setting not in the common list is therefore unique
-  sticky_slot_unique_settings_names = tolist(setsubtract(local.functionapp_slot_settings_names, keys(local.all_app_settings)))
+  sticky_slot_unique_settings_names = tolist(
+    setsubtract(
+      setsubtract(local.functionapp_slot_settings_names, keys(local.all_app_settings)),
+      local.sticky_slot_exclude_settings_names
+    )
+  )
 
   # Origin records
   cors_all = [
@@ -134,8 +145,7 @@ resource "azurerm_function_app" "function_app" {
   }
 
   app_settings = merge(local.all_app_settings, {
-    "POSTGRES_URL"                              = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
-    "AzureWebJobs.emailScheduleEngine.Disabled" = "1"
+    "POSTGRES_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
     # HHS Protect Storage Account
     "PartnerStorage" = var.sa_partner_connection_string
   })
@@ -160,7 +170,9 @@ resource "azurerm_function_app" "function_app" {
       app_settings["DOCKER_REGISTRY_SERVER_PASSWORD"],
       app_settings["POSTGRES_PASSWORD"],
       app_settings["POSTGRES_USER"],
-      app_settings["PartnerStorage"]
+      app_settings["PartnerStorage"],
+      app_settings["AzureWebJobs.send.Disabled"],
+      app_settings["AzureWebJobs.emailScheduleEngine.Disabled"]
     ]
   }
 }
@@ -196,12 +208,12 @@ resource "azurerm_app_service_virtual_network_swift_connection" "function_app_vn
 # Done via a template due to a missing Terraform feature:
 # https://github.com/terraform-providers/terraform-provider-azurerm/issues/1440
 # ! Before apply, delete existing "functionapp_sticky_settings" deployment from RG
-resource "azurerm_template_deployment" "functionapp_sticky_settings" {
+resource "azurerm_resource_group_template_deployment" "functionapp_sticky_settings" {
   name                = "functionapp_sticky_settings"
   resource_group_name = var.resource_group
   deployment_mode     = "Incremental"
 
-  template_body = <<DEPLOY
+  template_content = <<DEPLOY
 {
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
@@ -229,10 +241,14 @@ resource "azurerm_template_deployment" "functionapp_sticky_settings" {
 }
 DEPLOY
 
-  parameters = {
-    webAppName            = azurerm_function_app.function_app.name
-    stickyAppSettingNames = join(",", concat(local.sticky_slot_implicit_settings_names, local.sticky_slot_unique_settings_names))
-  }
+  parameters_content = jsonencode({
+    webAppName = {
+      value = azurerm_function_app.function_app.name
+    }
+    stickyAppSettingNames = {
+      value = join(",", concat(local.sticky_slot_implicit_settings_names, local.sticky_slot_unique_settings_names))
+    }
+  })
 
   depends_on = [
     azurerm_function_app.function_app,
