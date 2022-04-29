@@ -36,6 +36,7 @@ export const showAlertNotification = (
 };
 
 export const showError = (message: string) => {
+    // no-op to force build
     showAlertNotification("error", message);
     console.trace("ShowError", message);
 };
