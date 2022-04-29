@@ -8,6 +8,8 @@
 
 ## April 28, 2022
 
+### Added Server-to-Server Authentication Option the ReportStream History API
+
 This release contains further enhancements to the `api/waters/org/ORGNAME/submissions` and `api/waters/report/REPORTID/history` API endpoints.   The enhancement is that these endpoints can now be accessed both via a human-entered authentication (via username/password entry using our Okta interface), and now also by using our server-to-server _two-leggged_ authentication protocol.
 
 This means that automated senders can access those two APIs programmatically, with automated tools, rather than having to depend on a person to login and authenticate.   There are several steps involved in using the automated server-to-server authentication:
@@ -16,11 +18,10 @@ This means that automated senders can access those two APIs programmatically, wi
 3. ReportStream will confirm the signed token with the previously submitted public key, and respond with a 5-minute access token.
 4. Repeat steps 2 and 3 as often as needed.
 
-### For further information on server-to-server authentication
+#### For further information on ReportStream's Server-to-Server Authentication
 
 - See the [Token-based authentication section of the Programmer's Guilde](./ReportStream-Programmers-Guide-v2.1.docx)
 - See the [Token authentication Playbook](./playbooks/how-to-use-token-auth.md)
-
 
 ## April 12, 2022
 

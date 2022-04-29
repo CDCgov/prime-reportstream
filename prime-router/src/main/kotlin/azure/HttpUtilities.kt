@@ -263,7 +263,9 @@ class HttpUtilities {
         }
 
         /**
-         * Same as [postReportFile] but going to the new waters endpoint.
+         * Same as [postReportFile] but going to the waters endpoint.
+         * Sends a [file] from [sendingOrgClient] to the waters endpoint
+         * in the [environment].
          * [token] can be a valid server2server or okta token.
          */
         fun postReportFileToWatersApi(

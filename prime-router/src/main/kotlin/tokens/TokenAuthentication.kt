@@ -116,6 +116,8 @@ class TokenAuthentication : Logging {
      * makes this easy to test - can pass in a static test secret.
      * This does not need to be a public/private key.
      *
+     * @return the authenticated JWT Claims set if authentication and authorization were both successful.  Otherwise
+     * returns null.
      */
     fun checkAccessToken(accessToken: String?, requiredScope: String, lookup: ReportStreamSecretFinder): Claims? {
         val claims = authenticate(accessToken, lookup) ?: return null
@@ -128,6 +130,8 @@ class TokenAuthentication : Logging {
     /**
      * This confirms that [request]'s token is proper and authentic. This does not do authorization,
      * that is, it does not confirm that the claims authorize access to any particular scope.
+     *
+     * @return the authenticated JWT Claims set if authentication was both successful.  Otherwise returns null.
      */
     fun authenticate(request: HttpRequestMessage<String?>): Claims? {
         val accessToken = AuthenticationStrategy.getAccessToken(request)
@@ -141,6 +145,8 @@ class TokenAuthentication : Logging {
      * [lookup] is a call back to get the ReportStream secret used to sign the [accessToken].  Using a callback
      * makes this easy to test - can pass in a static test secret
      * This does not need to be a public/private key.
+     *
+     * @return the authenticated JWT Claims set if authentication was both successful.  Otherwise returns null.
      */
     fun authenticate(accessToken: String?, lookup: ReportStreamSecretFinder): Claims? {
         try {

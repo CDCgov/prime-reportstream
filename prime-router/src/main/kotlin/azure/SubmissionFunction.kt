@@ -9,8 +9,6 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
-import gov.cdc.prime.router.tokens.OktaAuthentication
-import gov.cdc.prime.router.tokens.PrincipalLevel
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
@@ -26,7 +24,6 @@ import java.util.UUID
 
 class SubmissionFunction(
     private val submissionsFacade: SubmissionsFacade = SubmissionsFacade.instance,
-    private val oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.USER),
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
     data class Parameters(

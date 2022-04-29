@@ -325,7 +325,6 @@ class SubmissionFunctionTests : Logging {
             )
         return SubmissionFunction(
             submissionsFacade = facade,
-            oktaAuthentication = oktaAuth,
             workflowEngine = engine
         )
     }
