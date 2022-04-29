@@ -23,7 +23,7 @@ jobs:
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
         id: skip_check
         with:
           list-files: csv
