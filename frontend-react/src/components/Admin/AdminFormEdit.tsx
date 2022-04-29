@@ -51,7 +51,6 @@ export const TextAreaComponent = (params: {
     toolTip?: JSX.Element;
 }): JSX.Element => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
-
     let defaultValue = JSON.stringify(params?.defaultvalue, undefined, 2);
     if (
         defaultValue === "null" ||
