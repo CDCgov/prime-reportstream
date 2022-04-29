@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.CovidSender
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.ReportId
@@ -253,7 +255,13 @@ class SubmissionFunctionTests : Logging {
 
         val metadata = Metadata(schema = Schema(name = "one", topic = "test"))
         val settings = MockSettings()
-        val sender = Sender("default", "simple_report", Sender.Format.CSV, "test", schemaName = "one")
+        val sender = CovidSender(
+            name = "default",
+            organizationName = "simple_report",
+            format = Sender.Format.CSV,
+            customerStatus = CustomerStatus.INACTIVE,
+            schemaName = "one"
+        )
         settings.senderStore[sender.fullName] = sender
         val engine = makeEngine(metadata, settings)
 
@@ -290,9 +298,21 @@ class SubmissionFunctionTests : Logging {
         val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
         val metadata = Metadata(schema = Schema(name = "one", topic = "test"))
         val settings = MockSettings()
-        val sender = Sender("default", organizationName, Sender.Format.CSV, "test", schemaName = "one")
+        val sender = CovidSender(
+            name = "default",
+            organizationName = organizationName,
+            format = Sender.Format.CSV,
+            customerStatus = CustomerStatus.INACTIVE,
+            schemaName = "one"
+        )
         settings.senderStore[sender.fullName] = sender
-        val sender2 = Sender("default", otherOrganizationName, Sender.Format.CSV, "test", schemaName = "one")
+        val sender2 = CovidSender(
+            name = "default",
+            organizationName = otherOrganizationName,
+            format = Sender.Format.CSV,
+            customerStatus = CustomerStatus.INACTIVE,
+            schemaName = "one"
+        )
         settings.senderStore[sender2.fullName] = sender2
         val engine = makeEngine(metadata, settings)
         mockkObject(OktaAuthentication.Companion)

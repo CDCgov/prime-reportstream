@@ -1,12 +1,10 @@
 package gov.cdc.prime.router.cli.tests
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.FullELRSender
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
@@ -19,6 +17,7 @@ import gov.cdc.prime.router.cli.OktaCommand
 import gov.cdc.prime.router.cli.PutSenderSetting
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
@@ -45,10 +44,11 @@ class OktaAuthTests : CoolTest() {
          */
         fun createFakeReport(sender: Sender): File {
             assert(sender.format == Sender.Format.CSV)
-            return FileUtilities.createFakeFile(
+            assert(sender is CovidSender)
+            return FileUtilities.createFakeCovidFile(
                 metadata,
                 settings,
-                sender = sender,
+                sender = sender as CovidSender,
                 count = 1,
                 format = Report.Format.CSV,
                 directory = System.getProperty("java.io.tmpdir"),
@@ -426,11 +426,12 @@ class Server2ServerAuthTests : CoolTest() {
      * Utility function to attach a new sender to an existing organization.
      */
     fun createNewSenderForExistingOrg(senderName: String, orgName: String): Sender {
-        val newSender = FullELRSender(
+        val newSender = CovidSender(
             name = senderName,
             organizationName = orgName,
             format = Sender.Format.CSV,
-            customerStatus = CustomerStatus.INACTIVE
+            customerStatus = CustomerStatus.INACTIVE,
+            schemaName = "primedatainput/pdi-covid-19"
         )
 
         val oktaSettingAccessTok = OktaAuthTests.getOktaAccessTokOrLocal(settingsEnv) // ironic: still need okta
@@ -455,10 +456,7 @@ class Server2ServerAuthTests : CoolTest() {
         )
 
         // deserialize the sender obj we got back from the API
-        return jacksonObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .readValue(savedSenderJson, FullELRSender::class.java)
-            ?: error("Unable to save sender")
+        return JacksonMapperUtilities.allowUnknownsMapper.readValue(savedSenderJson, CovidSender::class.java)
     }
 
     /**
@@ -471,8 +469,7 @@ class Server2ServerAuthTests : CoolTest() {
         // associate a public key to the sender
         val publicKeyStr = SenderUtils.readPublicKeyPem(key)
         publicKeyStr.kid = kid
-        val senderPlusNewKey = Sender(sender, scope, publicKeyStr)
-        savedSender = sender.makeCopyWithNewScopeAndJwk(scope, publicKeyStr)
+        val senderPlusNewKey = sender.makeCopyWithNewScopeAndJwk(scope, publicKeyStr)
 
         // save the sender with the new key
         PutSenderSetting()

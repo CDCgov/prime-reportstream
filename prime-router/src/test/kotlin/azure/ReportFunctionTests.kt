@@ -22,8 +22,6 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.DO_OKTA_AUTH
-import gov.cdc.prime.router.tokens.OktaAuthentication
-import gov.cdc.prime.router.tokens.PrincipalLevel
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every

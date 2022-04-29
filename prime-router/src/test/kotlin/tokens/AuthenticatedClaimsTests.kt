@@ -7,6 +7,7 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Sender
 import org.junit.jupiter.api.Test
@@ -72,11 +73,10 @@ class AuthenticatedClaimsTests {
         assertThat(claims.isSenderOrgClaim).isTrue()
         assertThat(claims.organizationNameClaim).isEqualTo("ignore")
 
-        val sender = Sender(
+        val sender = CovidSender(
             "mySenderName",
             "myOrgName",
             Sender.Format.CSV,
-            "covid-19",
             CustomerStatus.INACTIVE,
             "mySchema",
             keys = null
