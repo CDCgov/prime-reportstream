@@ -65,7 +65,7 @@ runs:
         USER_CRT: ${{ inputs.user-crt }}
         USER_KEY: ${{ inputs.user-key }}
 
-    - uses: azure/login@v1
+    - uses: azure/login@1f63701bf3e6892515f1b7ce2d2bf1708b46beaf
       with:
         creds: ${{ inputs.sp-creds }}
 
