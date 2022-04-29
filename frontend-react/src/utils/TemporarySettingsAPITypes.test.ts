@@ -17,7 +17,7 @@ describe("Settings API Types", () => {
             JSON.stringify({ title: "test" }, null, 6)
         );
         expect(obj.getAllEnums()).toEqual(
-            new Map([["format", ["text/csv", "application/hl7-v2"]]])
+            new Map([["format", ["CSV", "HL7"]]])
         );
         expect(obj.description()).toEqual("A test sample object");
     });
