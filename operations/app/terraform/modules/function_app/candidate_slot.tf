@@ -59,8 +59,7 @@ resource "azurerm_function_app_slot" "candidate" {
   }
 
   app_settings = merge(local.all_app_settings, {
-    "POSTGRES_URL"               = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub_candidate?sslmode=require"
-    "AzureWebJobs.send.Disabled" = "0"
+    "POSTGRES_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub_candidate?sslmode=require"
     # HHS Protect Storage Account
     "PartnerStorage" = var.primary_connection_string
   })
@@ -83,7 +82,9 @@ resource "azurerm_function_app_slot" "candidate" {
       app_settings["DOCKER_REGISTRY_SERVER_PASSWORD"],
       app_settings["POSTGRES_PASSWORD"],
       app_settings["POSTGRES_USER"],
-      app_settings["PartnerStorage"]
+      app_settings["PartnerStorage"],
+      app_settings["AzureWebJobs.send.Disabled"],
+      app_settings["AzureWebJobs.emailScheduleEngine.Disabled"]
     ]
   }
 }

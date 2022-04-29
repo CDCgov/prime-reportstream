@@ -141,8 +141,8 @@ If you've changed any terraform files in your commit we'll run
 `terraform fmt -check` against the directory of files. If any file's format is invalid 
 the pre-commit hook will fail. You may be able to fix the issues with:
 
-```
-$ .environment/terraform-fmt/run-terraform-fmt.sh --fix
+```bash
+$ terraform fmt -recursive
 ```
 
 ## Updating schema documentation
