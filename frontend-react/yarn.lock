@@ -1530,10 +1530,10 @@
   dependencies:
     "@babel/runtime" "^7.7.2"
 
-"@rest-hooks/rest@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/rest/-/rest-5.0.0.tgz#3f47a3708b0a4b4e1863b32e28b2a34a93f7610c"
-  integrity sha512-IrnIS2r4FUjpUrEXWkz7GadVAkvnsktTsL6cfn51MC2twSYUPa7yg9NNdOrA8Z12rmFimVeU7ROg+cRKLFgF0g==
+"@rest-hooks/rest@^5.0.1":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/rest/-/rest-5.0.1.tgz#c28ba31ff1b8128ae6c1acf071a518585ac1e962"
+  integrity sha512-2B0l9XmUG8iY9p7xu4CsPAxOqOop92yW9w7fpipsJlLayj2HOT71gIq+od1tTr2GlN99DAB/TdbFcwpwz3PB2w==
   dependencies:
     "@babel/runtime" "^7.7.2"
 

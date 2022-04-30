@@ -10,7 +10,7 @@ export default class AuthResource extends Resource {
         throw new Error("Method not implemented.");
     }
 
-    static useFetchInit = (init: RequestInit): RequestInit => {
+    static getFetchInit = (init: RequestInit): RequestInit => {
         const accessToken = getStoredOktaToken();
         const organization = getStoredOrg();
 
