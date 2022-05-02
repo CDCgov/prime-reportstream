@@ -22,6 +22,7 @@ import {
     getListOfEnumValues,
     SampleTimingObj,
     SampleTranslationObj,
+    SampleTransportObject,
 } from "../../utils/TemporarySettingsAPITypes";
 
 import {
@@ -321,6 +322,9 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                 <TextAreaComponent
                     fieldname={"transport"}
                     label={"Transport"}
+                    toolTip={
+                        <ObjectTooltip obj={new SampleTransportObject()} />
+                    }
                     defaultvalue={orgReceiverSettings.transport}
                     defaultnullvalue={null}
                     savefunc={(v) => (orgReceiverSettings.transport = v)}

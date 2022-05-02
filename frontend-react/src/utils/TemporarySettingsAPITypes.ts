@@ -57,6 +57,17 @@ enum USTimeZone {
     CHAMORRO = "Pacific/Guam",
 }
 
+enum FtpsProtocol {
+    SSL = "SSL",
+    TLS = "TLS",
+}
+
+enum GAENUUIDFormat {
+    PHONE_DATE = "PHONE_DATE",
+    REPORT_ID = "REPORT_ID",
+    WA_NOTIFY = "WA_NOTIFY",
+}
+
 type ReportStreamSettingsEnum =
     | "jurisdiction"
     | "format"
@@ -112,7 +123,7 @@ class SampleFilterObject extends SampleObject {
     }
 
     description(): string {
-        return "This field takes an array of filter objects (see object above).";
+        return "This field takes an array of filter objects (see object above). Click this tooltip to copy the sample value.";
     }
 }
 
@@ -150,7 +161,7 @@ class SampleKeysObj extends SampleObject {
         return new Map(); // Currently doesn't require any enums
     }
     description(): string {
-        return "This field takes an array of JwkSets (see above).";
+        return "This field takes an array of JwkSets (see above). Click this tooltip to copy the sample value.";
     }
 }
 
@@ -174,7 +185,7 @@ class SampleTimingObj extends SampleObject {
     }
 
     description(): string {
-        return "This field takes a timing object (see above).";
+        return "This field takes a timing object (see above). Click this tooltip to copy the sample value.";
     }
 }
 
@@ -192,7 +203,61 @@ class SampleTranslationObj extends SampleObject {
     }
 
     description(): string {
-        return "This field takes a translation object (see above).";
+        return "This field takes a translation object (see above). Click this tooltip to copy the sample value.";
+    }
+}
+
+class SampleTransportObject extends SampleObject {
+    SFTP = {
+        host: "",
+        port: "",
+        filePath: "",
+        credentialName: "",
+    };
+
+    Email = {
+        addresses: [""],
+        from: "",
+    };
+
+    BlobStore = {
+        storageName: "",
+        containerName: "",
+    };
+
+    AS2TransportType = {
+        receiverUrl: "",
+        receiverId: "",
+        senderId: "",
+        senderEmail: "",
+        mimeType: "",
+        contentDescription: "",
+    };
+
+    FTPS = {
+        host: "",
+        port: 0,
+        username: "",
+        password: "",
+        protocol: FtpsProtocol.SSL,
+        binaryTransfer: true,
+    };
+
+    GAEN = {
+        apiUrl: "",
+        uuidFormat: GAENUUIDFormat.REPORT_ID,
+        uuidIV: "",
+    };
+
+    getAllEnums(): Map<string, string[]> {
+        return new Map<string, string[]>([
+            ["FTPS.protocol", Array.from(Object.values(FtpsProtocol))],
+            ["GAEN.uuidFormat", Array.from(Object.values(GAENUUIDFormat))],
+        ]);
+    }
+
+    description(): string {
+        return "This field can take one of these TransportType objects.";
     }
 }
 
@@ -205,6 +270,7 @@ export {
     SampleKeysObj,
     SampleTranslationObj,
     SampleTimingObj,
+    SampleTransportObject,
     SampleObject,
     getListOfEnumValues,
 };
