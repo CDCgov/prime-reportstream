@@ -1,5 +1,5 @@
 # Terraform 
-We utilize terrform to describe the entire infrastructure for PRIME ReportStream. Any adjustments to the infrastructure should be done here so they are documented, and repeatable.
+We utilize terrform to define the entire infrastructure for PRIME ReportStream. Any adjustments to the infrastructure should be done here so they are documented, and repeatable.
 
 ## Versions
 
@@ -11,7 +11,7 @@ We assume the following infrastructure has already been deployed by CMS.
 - Resource Group for underlying infrastructure
 - VNETs - Redundant vnets for both East and West US as well as VNETS tied to a VPN.
 - VPN - A VPN that will connect to the VPN VNETs
-- Storage Account - Used to store the terraform tf state.
+- Storage Account - Used to store the Terraform tf state.
 - Application Key Vault - Prepopulated with the following secrets
   - _functionapp-postgres-user_: User for the postgresql hosted instance
   - _functionapp-postgres-pass_: Password for the postgresql hosted instance
@@ -19,7 +19,7 @@ We assume the following infrastructure has already been deployed by CMS.
 - 
 
 ## Layout
-The terraform code is layed out in the following folder structure. 
+The Terraform code is laid out in the following folder structure. 
 The base folder path is `/operations/app/terraform`
 ```
 operations/app/terraform
@@ -58,7 +58,7 @@ We utilize several custom modules that are as follows
 * database - Deploy our Postgresql database and replica
 * front_door - Spins up and configures Front Door
 * function_app - Creates our main function app
-* key_vault - Builds our terraform responsible key vaults
+* key_vault - Builds our Terraform responsible key vaults
 * log_analytics_workspace - Add a LAW for all log files for all resources.
 * metabase - App service for our metabase
 * nat_gateway - Our gateway for external traffic
@@ -70,14 +70,27 @@ We utilize several custom modules that are as follows
 ## DNS
 For testing in test, you may use the Azure DNS of 168.63.129.16. Typically though, we will want this set to the IP for the CDC DNS server. You can find more information related to that [here]
 
+## Merging
+Your Terraform work should use the following workflow. 
+1. Create a feature branch (i.e. `fml/2112/update-terraform-thing`)
+2. Once you believe your changes are working as desired _apply_ your changes to the *Test* environment to ensure they are working properly.
+3. Once you are comfortable that the correct changes are being made in *Test* please create a Pull Request to merge to the *Master* branch.
+4. On merge your work will be applied to *Staging* automatically. Please verify that your changes are correct.
+5. Finally, once *Test* and *Staging* are correct, merge you changes from *Master* to *Production*, they should be applied automatically.
+ 
+Environment | Branch   | Merge
+------------|----------|----------
+  Test      |Feature   | via PR
+ Staging    |Master    | Automatic
+ Production |production| Automatic
 
 ## Deploying
-A lot of work has been done to simplify the deployment of the infrastructure stack. Each folder inside the `vars` directory represents the state you want to add/update/destroy. Before you run any terraform commands, you will need to modify/verify the `variables.tf` file with the correct data. You will also need to authenticate the az command line application using your SU account.
+A lot of work has been done to simplify the deployment of the infrastructure stack. Each folder inside the `vars` directory represents the state you want to add/update/destroy. Before you run any Terraform commands, you will need to modify/verify the `variables.tf` file with the correct data. You will also need to authenticate the az command line application using your SU account.
 _Example:_
 ```sh
 az login --use-device-code
 ```
-Once your az cli has been authenticated, you can proceed with the terraform commands you wish to run. 
+Once your az cli has been authenticated, you can proceed with the Terraform commands you wish to run. 
 
 
 [//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
