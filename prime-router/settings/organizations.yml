@@ -478,7 +478,7 @@
       organizationName: xtrava
       topic: covid-19
       customerStatus: active
-      schemaName: direct/xtrava-covid-19
+      schemaName: direct/direct-otc-covid-19
       format: CSV
 
 - name: detect
@@ -1418,7 +1418,7 @@
         type: HL7
         useBatchHeaders: false
         receivingApplicationName: CDPH CA REDIE
-        receivingApplicationOID: 2.16.840.1.114222.4.3.3 .10.1.1
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.10.1.1
         receivingFacilityName: CDPH_CID
         receivingFacilityOID: 2.16.840.1.114222.4.1.214104
         suppressAoe: true
