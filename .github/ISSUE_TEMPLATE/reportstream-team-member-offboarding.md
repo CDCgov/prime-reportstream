@@ -15,10 +15,11 @@ Initially assign to team lead for person being offboarded.
 
 ## Engineering specific:
 - [ ] Change GitHub access level
+- [ ] Zenhub
 - [ ] Azure (CDC as a result of ActiveDirectory)
 - [ ] PagerDuty
 - [ ] Splunk
-- [ ] Docker
+- [ ] Docker Desktop license assignment
 
 ## General:
 - [ ] Revoke Okta accounts (Search for name, agency email, and contractor email)
