@@ -38,6 +38,7 @@ plugins {
     id("jacoco")
     id("org.jetbrains.dokka") version "1.6.20"
     id("com.avast.gradle.docker-compose") version "0.15.2"
+    id("org.sonarqube") version "3.0"
 }
 
 group = "gov.cdc.prime"
@@ -125,6 +126,14 @@ tasks.clean {
                 it.delete()
             }
         }
+    }
+}
+
+sonarqube {
+    properties {
+        property("sonar.projectKey", "CDCgov_prime-data-hub")
+        property("sonar.organization", "cdcgov")
+        property("sonar.host.url", "https://sonarcloud.io")
     }
 }
 
