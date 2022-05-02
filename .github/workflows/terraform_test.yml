@@ -61,12 +61,12 @@ jobs:
       
       - name: Terraform Validate
         id: validate
-        run: terraform validate -no-color -chdir=operations/app/terraform/vars/staging
+        run: terraform validate -no-color
 
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: terraform plan -no-color -input=false -chdir=operations/app/terraform/vars/staging
+        run: terraform plan -no-color -input=false
         continue-on-error: true
 
       - uses: actions/github-script@v6
