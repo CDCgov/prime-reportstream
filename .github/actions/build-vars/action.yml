@@ -17,6 +17,12 @@ outputs:
   prerelease:
     value: ${{ steps.prerelease_result.outputs.prerelease }}
     description: 'GitHub release or pre-release'
+  resource_group:
+    value: ${{ steps.azure_env.outputs.resource_group }}
+    description: 'Azure resource group name'
+  function_app:
+    value: ${{ steps.azure_env.outputs.function_app }}
+    description: 'Azure function app name'
 
 runs:
   using: "composite"
@@ -24,7 +30,9 @@ runs:
 
     - name: Set Build Environment - TEST
       id: build_test
-      if: github.ref == 'refs/heads/test'
+      if: |
+        github.ref != 'refs/heads/master' &&
+        github.ref != 'refs/heads/production'
       shell: bash
       run: echo "::set-output name=env_name::test"
 
@@ -70,6 +78,13 @@ runs:
         echo "::set-output name=version::\
         ${{ steps.build_staging.outputs.version }}\
         ${{ steps.build_prod.outputs.version }}"
+
+    - name: Set Azure environment
+      id: azure_env
+      shell: bash
+      run: |
+        echo "::set-output name=resource_group::prime-data-hub-${{ steps.build_result.outputs.env_name }}"
+        echo "::set-output name=function_app::pdh${{ steps.build_result.outputs.env_name }}-functionapp"
 
     - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
       id: backend_check

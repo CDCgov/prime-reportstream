@@ -4,14 +4,15 @@ In the event the project needs to shutdown quickly in the response to an inciden
 
 ## Disable a Function
 
-If the scope of the shutdown can be limited to one or more Azure Functions, [Functions can individually be disabled](https://docs.microsoft.com/en-us/azure/azure-functions/disable-function?tabs=portal).
+If the scope of the shutdown can be limited to one or more Azure Functions, Functions can individually be [disabled manually](https://docs.microsoft.com/en-us/azure/azure-functions/disable-function?tabs=portal) or via [workflow (job "disable_functions")](../../../.github/workflows/release.yml).
 
 ### From the CLI
 
-```
-az functionapp config appsettings set --name <FUNCTION_APP_NAME>
-                                      --resource-group <RESOURCE_GROUP_NAME>
-                                      --settings AzureWebJobs.<FUNCTION_NAME>.Disabled=true
+```sh
+az functionapp config appsettings set --name "<FUNCTION_APP_NAME>" \
+--resource-group "<RESOURCE_GROUP_NAME>" \
+--settings "AzureWebJobs.<FUNCTION_NAME>.Disabled=true" \
+--query '[?name==`AzureWebJobs.<FUNCTION_NAME>.Disabled`]'
 ```
 
 ### From the Azure Portal

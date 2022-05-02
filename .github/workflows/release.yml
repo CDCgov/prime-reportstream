@@ -6,6 +6,7 @@ on:
       - master
       - production
       - test
+      - josiahsiegel/disable-functions
 
 defaults:
   run:
@@ -20,6 +21,9 @@ jobs:
       version: ${{ steps.build_vars.outputs.version }}
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
       has_react_change: ${{ steps.build_vars.outputs.has_react_change }}
+      resource_group: ${{ steps.build_vars.outputs.resource_group }}
+      function_app: ${{ steps.build_vars.outputs.function_app }}
+      disable_functions: "[\"batch\",\"send\"]"
     steps:
       - name: Check out changes
         uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
@@ -28,10 +32,38 @@ jobs:
         id: build_vars
         uses: ./.github/actions/build-vars
 
+  disable_functions:
+    name: "Set function ${{ matrix.function }} disabled"
+    needs:
+      - pre_job
+    if: |
+      needs.pre_job.outputs.has_router_change == 'true' ||
+      needs.pre_job.outputs.has_react_change == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        function: ${{ fromJson(needs.pre_job.outputs.disable_functions) }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+
+      - uses: azure/login@1f63701bf3e6892515f1b7ce2d2bf1708b46beaf
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Disable function
+        uses: JosiahSiegel/disable-azure-function@e119d6cb1526e8c86baf58882be527a7b9ee3993
+        with:
+          function-app-name: ${{ needs.pre_job.outputs.function_app }}
+          resource-group-name: ${{ needs.pre_job.outputs.resource_group }}
+          function-name: ${{ matrix.function }}
+          disable: true
+
   build_release:
     name: "Release: Build Router"
     needs:
       - pre_job
+      - disable_functions
     if: needs.pre_job.outputs.has_router_change == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -47,6 +79,7 @@ jobs:
     name: "Release: Build Frontend (React)"
     needs:
       - pre_job
+      - disable_functions
     if: needs.pre_job.outputs.has_react_change == 'true'
     runs-on: ubuntu-latest
     defaults:
@@ -66,14 +99,16 @@ jobs:
 
   deploy_release:
     name: "Deploy Release: ${{ needs.pre_job.outputs.env_name }}"
+    # Run AFTER all build jobs
     needs:
       - pre_job
       - build_release
       - build_frontend_react_release
+    # ALWAYS run after builds, even if only one build is needed and succeeds
     if: |
-      always() && 
-      (needs.pre_job.outputs.has_router_change == 'true' ||
-      needs.pre_job.outputs.has_react_change == 'true')
+      always() &&
+      needs.build_release.result != 'failure' &&
+      needs.build_frontend_react_release.result != 'failure'
     environment: ${{ needs.pre_job.outputs.env_name }}
     concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
@@ -106,3 +141,34 @@ jobs:
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
           version: ${{ needs.pre_job.outputs.version }}
+
+  enable_functions:
+    name: "Set function ${{ matrix.function }} enabled"
+    # Run AFTER deploy job
+    needs:
+      - pre_job
+      - deploy_release
+    # Always run if disable_functions job was triggered
+    if: |
+      always() &&
+      (needs.pre_job.outputs.has_router_change == 'true' ||
+      needs.pre_job.outputs.has_react_change == 'true')
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        function: ${{ fromJson(needs.pre_job.outputs.disable_functions) }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+
+      - uses: azure/login@1f63701bf3e6892515f1b7ce2d2bf1708b46beaf
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Enable function
+        uses: JosiahSiegel/disable-azure-function@e119d6cb1526e8c86baf58882be527a7b9ee3993
+        with:
+          function-app-name: ${{ needs.pre_job.outputs.function_app }}
+          resource-group-name: ${{ needs.pre_job.outputs.resource_group }}
+          function-name: ${{ matrix.function }}
+          disable: false
