@@ -1,12 +1,6 @@
 name: Terraform Test
 
-#TODO: change to pull_request and appropriate branches
 on: push
-  
-#  pull_request:
-#  push:
-#    branches:
-#      - jmp/5311/terraform-workflow
 
 jobs:
   pre_job:
@@ -46,5 +40,5 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
 
-       - name: Perform Terraform Checks
-         uses: ./.github/actions/terraform-plan
+      - name: Perform Terraform Checks
+        uses: ./.github/actions/terraform-plan
