@@ -5,8 +5,8 @@ enum Jurisdiction {
 }
 
 enum Format {
-    CSV = "text/csv",
-    HL7 = "application/hl7-v2",
+    CSV = "CSV",
+    HL7 = "HL7",
 }
 
 enum CustomerStatus {
@@ -72,6 +72,7 @@ type ReportStreamSettingsEnum =
     | "jurisdiction"
     | "format"
     | "customerStatus"
+    | "processingType"
     | "reportStreamFilterDefinition";
 
 const getListOfEnumValues = (e: ReportStreamSettingsEnum): string[] => {
@@ -82,6 +83,8 @@ const getListOfEnumValues = (e: ReportStreamSettingsEnum): string[] => {
             return Array.from(Object.values(Format));
         case "jurisdiction":
             return Array.from(Object.values(Jurisdiction));
+        case "processingType":
+            return Array.from(Object.values(ProcessingType));
         case "reportStreamFilterDefinition":
             return Array.from(Object.values(ReportStreamFilterDefinition));
     }
@@ -271,3 +274,5 @@ export {
     SampleObject,
     getListOfEnumValues,
 };
+
+export type { ReportStreamSettingsEnum };

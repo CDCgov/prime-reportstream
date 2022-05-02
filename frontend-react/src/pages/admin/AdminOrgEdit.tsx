@@ -11,6 +11,7 @@ import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
 import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
 import {
+    DropdownComponent,
     TextAreaComponent,
     TextInputComponent,
 } from "../../components/Admin/AdminFormEdit";
@@ -177,11 +178,12 @@ export function AdminOrgEdit({
                                 defaultvalue={orgSettings.description}
                                 savefunc={(v) => (orgSettings.description = v)}
                             />
-                            <TextInputComponent
+                            <DropdownComponent
                                 fieldname={"jurisdiction"}
                                 label={"Jurisdiction"}
                                 defaultvalue={orgSettings.jurisdiction}
                                 savefunc={(v) => (orgSettings.jurisdiction = v)}
+                                valuesFrom={"jurisdiction"}
                             />
                             <TextInputComponent
                                 fieldname={"countyName"}

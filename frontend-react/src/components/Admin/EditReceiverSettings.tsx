@@ -30,6 +30,7 @@ import {
 } from "./CompareJsonModal";
 import {
     CheckboxComponent,
+    DropdownComponent,
     TextAreaComponent,
     TextInputComponent,
 } from "./AdminFormEdit";
@@ -214,11 +215,12 @@ export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
                     defaultvalue={orgReceiverSettings.topic}
                     savefunc={(v) => (orgReceiverSettings.topic = v)}
                 />
-                <TextInputComponent
+                <DropdownComponent
                     fieldname={"customerStatus"}
                     label={"Customer Status"}
                     defaultvalue={orgReceiverSettings.customerStatus}
                     savefunc={(v) => (orgReceiverSettings.customerStatus = v)}
+                    valuesFrom={"customerStatus"}
                 />
                 <TextInputComponent
                     fieldname={"description"}
