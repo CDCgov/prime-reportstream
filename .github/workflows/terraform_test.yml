@@ -24,7 +24,7 @@ jobs:
               - '.github/workflows/terraform_test.yml'
 
   validate_terraform_yaml:
-    name: Validate Terraform YAML
+    name: Validate Terraform
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
     environment: staging
@@ -49,21 +49,21 @@ jobs:
         with:
           terraform_version: 1.0.5
 
-      - name: Terraform Format
+      - name: Validate Terraform Formating
         id: fmt
         run: |
           cd operations/app/terraform
           terraform fmt  -check -recursive -no-color
           
-      - name: Terraform Init
+      - name: Run Terraform Init
         id: init
         run: terraform init
       
-      - name: Terraform Validate
+      - name: Run Terraform Validate
         id: validate
         run: terraform validate -no-color
 
-      - name: Terraform Plan
+      - name: Run Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
         run: terraform plan -no-color -input=false
@@ -102,6 +102,6 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
+#      - name: Terraform Apply
+#        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+#        run: terraform apply -auto-approve -input=false
