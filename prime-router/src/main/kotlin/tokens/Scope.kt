@@ -34,8 +34,8 @@ class Scope {
         }
 
         /**
-         * Is this [scope] string well-formed and has a valid DetailedScope,
-         * and the org portion of it matches the org of the [expectedSender]
+         * @return true if this [scope] string is well-formed and has a valid DetailedScope,
+         * and the org portion of it matches the org of the [expectedSender].  Otherwise, false.
          */
         fun isValidScope(scope: String, expectedSender: Sender): Boolean {
             if (!isValidScope(scope)) return false
@@ -48,7 +48,7 @@ class Scope {
         }
 
         /**
-         * Is this [scope] string well-formed and has a valid DetailedScope.
+         * @return true if this [scope] string is well-formed and has a valid DetailedScope.
          */
         fun isValidScope(scope: String): Boolean {
             if (!isWellFormedScope(scope)) return false
@@ -77,7 +77,7 @@ class Scope {
         }
 
         /**
-         * Returns true if the [scopeList], presumably from the claims, contains the desired [requiredScope].
+         * @return true if the [scopeList], presumably from the claims, contains the desired [requiredScope].
          * Otherwise false.
          */
         fun scopeListContainsScope(scopeList: String, requiredScope: String): Boolean {
