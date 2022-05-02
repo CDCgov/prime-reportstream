@@ -13,9 +13,9 @@ def generate_header(file):
 
 def generate_row(file, lab):
     now_str = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc, microsecond=0).isoformat()
-    id = random.randint(10000000, 99999999)
+    ident = random.randint(10000000, 99999999)
     file.write(
-        f'{lab},{faker.first_name()},{faker.last_name()},{random.choice(["AZ", "FL"])},{now_str},{id},{random.choice(["covid-19:pos", "covid-19:neg"])}\n')
+        f'{lab},{faker.first_name()},{faker.last_name()},{random.choice(["AZ", "FL"])},{now_str},{ident},{random.choice(["covid-19:pos", "covid-19:neg"])}\n')
 
 
 def generate_file(location, lab):

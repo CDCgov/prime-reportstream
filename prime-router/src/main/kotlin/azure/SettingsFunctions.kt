@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.PrincipalLevel
 import org.apache.logging.log4j.kotlin.Logging
@@ -99,7 +100,7 @@ class GetSenders(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
     ): HttpResponseMessage {
-        return getList(request, organizationName, SenderAPI::class.java)
+        return getList(request, organizationName, Sender::class.java)
     }
 }
 
@@ -119,7 +120,7 @@ class GetOneSender(
         @BindingName("organizationName") organizationName: String,
         @BindingName("senderName") senderName: String,
     ): HttpResponseMessage {
-        return getOne(request, senderName, SenderAPI::class.java, organizationName)
+        return getOne(request, senderName, Sender::class.java, organizationName)
     }
 }
 
@@ -142,7 +143,7 @@ class UpdateSender(
         return updateOne(
             request,
             senderName,
-            SenderAPI::class.java,
+            Sender::class.java,
             organizationName
         )
     }

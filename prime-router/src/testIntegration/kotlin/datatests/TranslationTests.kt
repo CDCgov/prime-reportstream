@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isTrue
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
@@ -237,7 +238,7 @@ class TranslationTests {
             format: Report.Format,
             result: CompareData.Result
         ): Report? {
-            val sender = settings.senders.filter { it.schemaName == schema.name }.randomOrNull()
+            val sender = settings.senders.filter { it is CovidSender && it.schemaName == schema.name }.randomOrNull()
             return try {
                 when (format) {
                     // Get a random sender name that uses the provided schema, or null if no sender is found.
