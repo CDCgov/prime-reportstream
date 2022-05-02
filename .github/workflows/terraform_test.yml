@@ -35,7 +35,6 @@ jobs:
     environment: staging
     runs-on: ubuntu-latest
     steps:
-    
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
