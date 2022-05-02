@@ -1,14 +1,18 @@
-OktaAuth:
+OAuth2:
   type: oauth2
   flows:
     authorizationCode:
       authorizationUrl: https://hhs-prime.okta.com/oauth/authorize
       tokenUrl: https://hhs-prime.okta.com/oauth/token
       scopes:
-        ANONYMOUS: Grants read access
-        FUNCTION: Grants write access to single org
-        ADMIN: Grants access to admin operations
+        user: Grants read access
+        org_admin: Grants write access to single org
+        system_admin: Grants access to admin operations
 Server2Server: # aka two-legged aka fhirauth
   type: http
   scheme: bearer
   bearerFormat: JWT
+ApiKeyAuth:
+  type: apiKey
+  in: header
+  name: x-functions-key
