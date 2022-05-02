@@ -57,15 +57,21 @@ jobs:
           
       - name: Run Terraform Init
         id: init
-        run: terraform init
+        run: |
+          cd operations/app/terraform
+          terraform init
       
       - name: Run Terraform Validate
         id: validate
-        run: terraform validate -no-color
+        run: |
+          cd operations/app/terraform
+          terraform validate -no-color
 
       - name: Run Terraform Plan
         id: plan
-        run: terraform plan -no-color -input=false
+        run: |
+          cd operations/app/terraform
+          terraform plan -no-color -input=false
         continue-on-error: true
 
       - uses: actions/github-script@v6
