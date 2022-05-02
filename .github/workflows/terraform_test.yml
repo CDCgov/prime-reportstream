@@ -51,11 +51,13 @@ jobs:
 
       - name: Terraform Format
         id: fmt
-        run: terraform fmt -chdir=operations/app/terraform/vars/staging -check -recursive ../..
-
+        run: |
+          cd operations/app/terraform
+          terraform fmt  -check -recursive -no-color
+          
       - name: Terraform Init
         id: init
-        run: terraform init -chdir=operations/app/terraform/vars/staging
+        run: terraform init
       
       - name: Terraform Validate
         id: validate
