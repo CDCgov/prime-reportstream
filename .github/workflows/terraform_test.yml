@@ -30,6 +30,9 @@ jobs:
     environment: staging
     runs-on: ubuntu-latest
     steps:
+      - name: Check Out Changes
+        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
