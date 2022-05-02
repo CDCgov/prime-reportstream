@@ -19,7 +19,7 @@ jobs:
           # Only proceed if path of terraform overhaul exists and/or contents are updated
           filters: |
             operations:
-              - 'operations/app/terraform/**'
+              - 'operations/app/terraform/vars/staging/**'
               - '.github/workflows/validate_terraform.yml'
               - '.github/workflows/terraform_test.yml'
 
@@ -52,25 +52,25 @@ jobs:
       - name: Validate Terraform Formating
         id: fmt
         run: |
-          cd operations/app/terraform
+          cd operations/app/terraform/vars/staging
           terraform fmt  -check -recursive -no-color
           
       - name: Run Terraform Init
         id: init
         run: |
-          cd operations/app/terraform
+          cd operations/app/terraform/vars/staging
           terraform init
       
       - name: Run Terraform Validate
         id: validate
         run: |
-          cd operations/app/terraform
+          cd operations/app/terraform/vars/staging
           terraform validate -no-color
 
       - name: Run Terraform Plan
         id: plan
         run: |
-          cd operations/app/terraform
+          cd operations/app/terraform/vars/staging
           terraform plan -no-color -input=false
         continue-on-error: true
 
