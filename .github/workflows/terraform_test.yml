@@ -1,0 +1,50 @@
+name: Terraform Test
+
+#TODO: change to pull_request and appropriate branches
+on:
+#  pull_request:
+  push:
+    branches:
+      - jmp/5311/terraform-workflow
+
+jobs:
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_operations_change: ${{ steps.skip_check.outputs.operations }}
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+
+      - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
+        id: skip_check
+        with:
+          list-files: csv
+          # Only proceed if path of terraform overhaul exists and/or contents are updated
+          filters: |
+            operations:
+              - 'operations/app/terraform/**'
+              - '.github/workflows/validate_terraform.yml'
+
+  validate_terraform_yaml:
+    name: Validate Terraform YAML
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
+    environment: staging
+    runs-on: ubuntu-latest
+    steps:
+    
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: staging
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: true
+
+       - name: Perform Terraform Checks
+         uses: ./.github/actions/terraform-plan
