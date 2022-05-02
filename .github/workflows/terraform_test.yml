@@ -21,6 +21,7 @@ jobs:
             operations:
               - 'operations/app/terraform/**'
               - '.github/workflows/validate_terraform.yml'
+              - '.github/workflows/terraform_test.yml'
 
   validate_terraform_yaml:
     name: Validate Terraform YAML
