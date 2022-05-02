@@ -6,7 +6,7 @@ import {
     TextInput,
     Dropdown,
 } from "@trussworks/react-uswds";
-import { PropsWithChildren, useRef } from "react";
+import { useRef } from "react";
 
 import { checkTextAreaJson } from "../../utils/misc";
 import {
@@ -125,17 +125,17 @@ export const CheckboxComponent = (params: {
     );
 };
 
-export const DropdownComponent = (
-    params: PropsWithChildren<{
-        fieldname: string;
-        label: string;
-        defaultvalue: string | undefined;
-        savefunc: (val: string) => void;
-        disabled?: boolean;
-        toolTip?: JSX.Element;
-        valuesFrom: ReportStreamSettingsEnum;
-    }>
-): JSX.Element => {
+export interface DropdownProps {
+    fieldname: string;
+    label: string;
+    defaultvalue: string | undefined;
+    savefunc: (val: string) => void;
+    disabled?: boolean;
+    toolTip?: JSX.Element;
+    valuesFrom: ReportStreamSettingsEnum;
+}
+
+export const DropdownComponent = (params: DropdownProps): JSX.Element => {
     const key = params.fieldname;
     return (
         <Grid row>
