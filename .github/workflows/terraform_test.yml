@@ -1,11 +1,12 @@
 name: Terraform Test
 
 #TODO: change to pull_request and appropriate branches
-on:
+on: push
+  
 #  pull_request:
-  push:
-    branches:
-      - jmp/5311/terraform-workflow
+#  push:
+#    branches:
+#      - jmp/5311/terraform-workflow
 
 jobs:
   pre_job:
