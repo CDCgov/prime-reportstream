@@ -77,8 +77,8 @@ class Scope {
         }
 
         /**
-         * @return true if the [scopeList], presumably from the claims, contains the desired [requiredScope].
-         * Otherwise false.
+         * @return true if the [scopeList], a space-separated list of scopes, presumably from the claims,
+         * contains the desired [requiredScope].  Otherwise false.
          */
         fun scopeListContainsScope(scopeList: String, requiredScope: String): Boolean {
             if (requiredScope.isBlank() || requiredScope.isEmpty()) return false

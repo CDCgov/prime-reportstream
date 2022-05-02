@@ -245,7 +245,7 @@ class HttpUtilities {
         /**
          * A generic function to POST a Prime ReportStream report File to a particular Prime Data Hub Environment,
          * as if from sendingOrgName.sendingOrgClientName.
-         * Returns Pair(Http response code, json response text)
+         * @return Pair(Http response code, json response text)
          */
         fun postReportFile(
             environment: Environment,
@@ -267,6 +267,7 @@ class HttpUtilities {
          * Sends a [file] from [sendingOrgClient] to the waters endpoint
          * in the [environment].
          * [token] can be a valid server2server or okta token.
+         * @return Pair(Http response code, json response text)
          */
         fun postReportFileToWatersApi(
             environment: Environment,
