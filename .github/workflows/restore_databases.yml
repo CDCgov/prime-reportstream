@@ -87,7 +87,7 @@ jobs:
           echo "SINK_BACKUP_STORAGE=pdh${{ env.SINK_ENV_NAME }}terraform" >> $GITHUB_ENV
 
       # Login to Azure
-      - uses: azure/login@v1
+      - uses: azure/login@85f8f212030075eee09f18b28b7e3c35d53b2fcf
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
