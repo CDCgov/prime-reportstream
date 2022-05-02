@@ -207,7 +207,7 @@ class SampleTranslationObj extends SampleObject {
     }
 }
 
-class SampleTransportTypes extends SampleObject {
+class SampleTransportObject extends SampleObject {
     SFTP = {
         host: "",
         port: "",
@@ -270,7 +270,7 @@ export {
     SampleKeysObj,
     SampleTranslationObj,
     SampleTimingObj,
-    SampleTransportTypes,
+    SampleTransportObject,
     SampleObject,
     getListOfEnumValues,
 };

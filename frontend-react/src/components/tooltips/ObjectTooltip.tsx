@@ -5,6 +5,7 @@ import {
     SampleKeysObj,
     SampleTimingObj,
     SampleTranslationObj,
+    SampleTransportObject,
 } from "../../utils/TemporarySettingsAPITypes";
 
 interface ObjectTooltipProps {
@@ -12,7 +13,8 @@ interface ObjectTooltipProps {
         | SampleTimingObj
         | SampleKeysObj
         | SampleTranslationObj
-        | SampleFilterObject;
+        | SampleFilterObject
+        | SampleTransportObject;
 }
 
 interface EnumTooltipProps {
