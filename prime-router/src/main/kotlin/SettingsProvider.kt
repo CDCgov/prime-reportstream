@@ -29,8 +29,10 @@ interface SettingsProvider {
 enum class CustomerStatus {
     @JsonProperty("inactive")
     INACTIVE,
+
     @JsonProperty("testing")
     TESTING,
+
     @JsonProperty("active")
     ACTIVE
 }
@@ -42,6 +44,7 @@ enum class CustomerStatus {
 enum class Topic {
     @JsonProperty("full-elr")
     FULL_ELR,
+
     @JsonProperty("covid-19")
     COVID_19
 }

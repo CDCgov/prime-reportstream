@@ -167,6 +167,24 @@ class SettingsFacade(
         return Pair(organization, receiver)
     }
 
+    fun findOrganizationsByReceiverStatus(
+        customerStatuses: List<CustomerStatus>,
+        txn: DataAccessTransaction?
+    ): List<Organization> {
+        val settings = db.fetchOrganizationsByReceiverStatus(customerStatuses, txn)
+        return settings.map {
+            val setting = mapper.readValue(it.values.data(), OrganizationAPI::class.java)
+            setting
+        }
+    }
+
+    fun findOrganizationsByReceiverStatusAsJson(
+        customerStatuses: List<CustomerStatus>,
+    ): String {
+        val list = findOrganizationsByReceiverStatus(customerStatuses, null)
+        return mapper.writeValueAsString(list)
+    }
+
     fun <T : SettingAPI> putSetting(
         name: String,
         json: String,
@@ -251,7 +269,7 @@ class SettingsFacade(
             return Triple(false, "Payload and path name do not match", null)
         if (input.organizationName != organizationName)
             return Triple(false, "Payload and path organization name do not match", null)
-        input.consistencyErrorMessage(metadata) ?.let { return Triple(false, it, null) }
+        input.consistencyErrorMessage(metadata)?.let { return Triple(false, it, null) }
         val normalizedJson = JSONB.valueOf(mapper.writeValueAsString(input))
         return Triple(true, null, normalizedJson)
     }
@@ -339,7 +357,9 @@ class OrganizationAPI
     SettingAPI {
     @get:JsonIgnore
     override val organizationName: String? = null
-    override fun consistencyErrorMessage(metadata: Metadata): String? { return this.consistencyErrorMessage() }
+    override fun consistencyErrorMessage(metadata: Metadata): String? {
+        return this.consistencyErrorMessage()
+    }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

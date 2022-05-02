@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
@@ -67,6 +68,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     constructor(
         dataSource: DataSource = commonDataSource
     ) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
+
     constructor(connection: Connection) : this(DSL.using(connection, SQLDialect.POSTGRES))
 
     fun checkConnection() {
@@ -569,6 +571,45 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 SETTING.ORGANIZATION_ID.eq(organizationId)
             )
             .orderBy(SETTING.SETTING_ID)
+            .fetch()
+            .into(Setting::class.java)
+    }
+
+    fun fetchOrganizationsByReceiverStatus(
+        customerStatuses: List<CustomerStatus>,
+        txn: DataAccessTransaction? = null
+    ): List<Setting> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        // TODO(mreifman): Figure out how to query customerStatus from the JSONB `values` column:
+        //        select *
+        //        from setting
+        //        where setting.type = 'ORGANIZATION'::public."setting_type"
+        //        and setting.setting_id in (
+        //            select
+        //                organization_id
+        //                from
+        //                setting
+        //                where
+        //                type = 'RECEIVER'::public."setting_type"
+        //            and
+        //            values ->> 'customerStatus' in ('active'))
+        //        order by
+        //            setting_id
+        //  This didn't work:
+        //        ctx.select()
+        //            .from(SETTING)
+        //            .where(SETTING.TYPE.eq(SettingType.ORGANIZATION))
+        //            .where(SETTING.SETTING_ID.in(
+        //                select(SETTING.ORGANIZATION_ID)
+        //                    .from(SETTING)
+        //                    .where(SETTING.TYPE.eq(SettingType.RECEIVER))
+        //                    .where(jsonValue(SETTING.VALUES, 'customerStatus').in(customerStatuses))
+        //            )
+
+        logger.debug("Reference $customerStatuses so the compiler is happy")
+        return ctx.select()
+            .from(SETTING)
+            .where(SETTING.TYPE.eq(SettingType.ORGANIZATION))
             .fetch()
             .into(Setting::class.java)
     }

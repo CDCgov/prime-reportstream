@@ -3,6 +3,7 @@ package gov.cdc.prime.router.azure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
@@ -90,10 +91,13 @@ class SettingFacadeTests {
         every {
             accessSpy.fetchSettings(SettingType.ORGANIZATION, txn = any())
         }.returns(listOf(testOrg))
-
         every {
             accessSpy.fetchSettings(SettingType.SENDER, txn = any())
         }.returns(listOf(defaultSender))
+
+        every {
+            accessSpy.fetchOrganizationsByReceiverStatus(listOf(CustomerStatus.ACTIVE), txn = any())
+        }.returns(listOf(testOrg))
     }
 
     private fun setupSenderDatabaseAccess() {
@@ -161,6 +165,16 @@ class SettingFacadeTests {
         setupOrgDatabaseAccess()
         val org = SettingsFacade(testMetadata(), accessSpy).findOrganization("foo")
         assertThat(org).isNull()
+    }
+
+    @Test
+    fun `get orgs by receiver status test`() {
+        setupOrgDatabaseAccess()
+        val list = SettingsFacade(testMetadata(), accessSpy).findOrganizationsByReceiverStatus(
+            listOf(CustomerStatus.ACTIVE), null
+        )
+        assertThat(list.first().name).isEqualTo("test")
+        assertThat(list.first().jurisdiction).isEqualTo(Organization.Jurisdiction.STATE)
     }
 
     @Test
