@@ -294,7 +294,6 @@ class SubmissionFunctionTests : Logging {
         oktaClaimsOrganizationName: String,
         facade: SubmissionsFacade,
     ): SubmissionFunction {
-        val oktaAuth = spyk<OktaAuthentication>()
         val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
         val metadata = Metadata(schema = Schema(name = "one", topic = "test"))
         val settings = MockSettings()
