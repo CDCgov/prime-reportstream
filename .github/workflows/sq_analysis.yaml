@@ -30,9 +30,9 @@ jobs:
       run: docker-compose -f docker-compose.postgres.yml up -d
     - name: Run our coverage tests
       run: ./gradlew jacocoTestReport
-    - name: Build Docker Terraform CLI
+    - name: Check for report file
       run: |
-        stat build/reports/jacoco/test/jacocoTestReport.xml
+        stat $PATH/prime-reportstream/prime-router/build/reports/jacoco/test/jacocoTestReport.xml
 
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@de2e56b42aa84d0b1c5b622644ac17e505c9a049
@@ -41,4 +41,4 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
         args: >
-          -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
+          -Dsonar.coverage.jacoco.xmlReportPaths=$PATH/prime-reportstream/prime-router/build/reports/jacoco/test/jacocoTestReport.xml
