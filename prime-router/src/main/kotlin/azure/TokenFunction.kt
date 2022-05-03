@@ -51,8 +51,9 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
         val actionHistory = ActionHistory(TaskAction.token_auth)
         actionHistory.trackActionParams(request)
         val senderKeyFinder = FindSenderKeyInSettings(scope, metadata)
-        val tokenAuthentication = TokenAuthentication(DatabaseJtiCache(workflowEngine.db))
-        val response = if (tokenAuthentication.checkSenderToken(clientAssertion, senderKeyFinder, actionHistory)) {
+        val tokenAuthentication = TokenAuthentication()
+        val jti = DatabaseJtiCache(workflowEngine.db)
+        val response = if (tokenAuthentication.checkSenderToken(clientAssertion, senderKeyFinder, jti, actionHistory)) {
             val token = tokenAuthentication.createAccessToken(scope, FindReportStreamSecretInVault(), actionHistory)
 
             // Per https://hl7.org/fhir/uv/bulkdata/authorization/index.html#issuing-access-tokens

@@ -7,9 +7,12 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.CovidSender
+import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Sender
 import org.junit.jupiter.api.Test
 
-class AuthenticationClaimsTests {
+class AuthenticatedClaimsTests {
 
     @Test
     fun `test constructor`() {
@@ -63,21 +66,33 @@ class AuthenticationClaimsTests {
     }
 
     @Test
-    fun `test TestClaims`() {
+    fun `test generateTestClaims`() {
         var claims = AuthenticatedClaims.generateTestClaims()
         assertThat(claims.userName).isNotNull()
         assertThat(claims.isPrimeAdmin).isTrue()
         assertThat(claims.isSenderOrgClaim).isTrue()
         assertThat(claims.organizationNameClaim).isEqualTo("ignore")
 
-        claims = AuthenticatedClaims.generateTestClaims("")
+        val sender = CovidSender(
+            "mySenderName",
+            "myOrgName",
+            Sender.Format.CSV,
+            CustomerStatus.INACTIVE,
+            "mySchema",
+            keys = null
+        )
+        claims = AuthenticatedClaims.generateTestClaims(sender)
         assertThat(claims.isPrimeAdmin).isTrue()
         assertThat(claims.isSenderOrgClaim).isTrue()
-        assertThat(claims.organizationNameClaim).isEqualTo("ignore")
+        assertThat(claims.organizationNameClaim).isEqualTo("myOrgName")
+    }
 
-        claims = AuthenticatedClaims.generateTestClaims("foo")
+    @Test
+    fun `test generateTestJwtClaims`() {
+        var jwtClaims = AuthenticatedClaims.generateTestJwtClaims()
+        assertThat(jwtClaims["scope"]).isEqualTo(Scope.primeAdminScope)
+        assertThat(jwtClaims.subject).isEqualTo("local@test.com")
+        var claims = AuthenticatedClaims(jwtClaims)
         assertThat(claims.isPrimeAdmin).isTrue()
-        assertThat(claims.isSenderOrgClaim).isTrue()
-        assertThat(claims.organizationNameClaim).isEqualTo("foo")
     }
 }
