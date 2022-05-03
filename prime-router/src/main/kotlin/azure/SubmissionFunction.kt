@@ -8,8 +8,9 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.tokens.OktaAuthentication
-import gov.cdc.prime.router.tokens.PrincipalLevel
+import gov.cdc.prime.router.tokens.AuthenticationStrategy
+import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.time.OffsetDateTime
@@ -23,7 +24,7 @@ import java.util.UUID
 
 class SubmissionFunction(
     private val submissionsFacade: SubmissionsFacade = SubmissionsFacade.instance,
-    private val oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.USER)
+    private val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
     data class Parameters(
         val sort: String,
@@ -82,44 +83,66 @@ class SubmissionFunction(
      * It does not assume the user belongs to a single Organization.  Rather, it uses
      * the organization in the URL path, after first confirming authorization to access that organization.
      */
-    @FunctionName("getOrgSubmissions")
-    fun getOrgSubmissions(
+    @FunctionName("getOrgSubmissionsList")
+    fun getOrgSubmissionsList(
         @HttpTrigger(
-            name = "getOrgSubmissions",
+            name = "getOrgSubmissionsList",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/org/{organization}/submissions"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organization") organization: String,
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, organization, true) {
-            try {
-                val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
-                    Parameters(request.queryParameters)
-                val sortOrder = try {
-                    SubmissionAccess.SortOrder.valueOf(qSortOrder)
-                } catch (e: IllegalArgumentException) {
-                    SubmissionAccess.SortOrder.DESC
-                }
+        try {
+            // Do authentication
+            val claims = AuthenticationStrategy.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
-                val sortColumn = try {
-                    SubmissionAccess.SortColumn.valueOf(qSortColumn)
-                } catch (e: IllegalArgumentException) {
-                    SubmissionAccess.SortColumn.CREATED_AT
-                }
-                val submissions = submissionsFacade.findSubmissionsAsJson(
-                    organization,
-                    sortOrder,
-                    sortColumn,
-                    resultsAfterDate,
-                    resultsBeforeDate,
-                    pageSize,
-                    showFailed
+            // Confirm the org name in the path is a sender in the system.
+            val sender = workflowEngine.settings.findSender(organization) // err if no default sender in settings in org
+                ?: return HttpUtilities.unauthorizedResponse(
+                    request, HttpUtilities.errorJson("Authentication Failed: $organization: unknown sender")
                 )
-                HttpUtilities.okResponse(request, submissions)
-            } catch (e: IllegalArgumentException) {
-                HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")
+
+            // Do authorization based on: org name in the path == org name in claim.  Or be a prime admin.
+            if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {
+                logger.warn(
+                    "Invalid Authorization for user ${claims.userName}:" +
+                        " ${request.httpMethod}:${request.uri.path}." +
+                        " ERR: Claim org is ${claims.organizationNameClaim} but client id is ${sender.organizationName}"
+                )
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
+            logger.info(
+                "Authorized request by org ${claims.organizationNameClaim}" +
+                    " to $sender/submissions endpoint via client id ${sender.organizationName}. "
+            )
+
+            val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
+                Parameters(request.queryParameters)
+            val sortOrder = try {
+                SubmissionAccess.SortOrder.valueOf(qSortOrder)
+            } catch (e: IllegalArgumentException) {
+                SubmissionAccess.SortOrder.DESC
+            }
+
+            val sortColumn = try {
+                SubmissionAccess.SortColumn.valueOf(qSortColumn)
+            } catch (e: IllegalArgumentException) {
+                SubmissionAccess.SortColumn.CREATED_AT
+            }
+            val submissions = submissionsFacade.findSubmissionsAsJson(
+                sender.organizationName,
+                sortOrder,
+                sortColumn,
+                resultsAfterDate,
+                resultsBeforeDate,
+                pageSize,
+                showFailed
+            )
+            return HttpUtilities.okResponse(request, submissions)
+        } catch (e: IllegalArgumentException) {
+            return HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")
         }
     }
 
@@ -127,10 +150,10 @@ class SubmissionFunction(
      * API endpoint to return history of a single report.
      * The [id] can be a valid UUID or a valid actionId (aka submissionId, to our users)
      */
-    @FunctionName("getReportHistory")
-    fun getReportHistory(
+    @FunctionName("getReportDetailedHistory")
+    fun getReportDetailedHistory(
         @HttpTrigger(
-            name = "getReportHistory",
+            name = "getReportDetailedHistory",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{id}/history"
@@ -138,11 +161,10 @@ class SubmissionFunction(
         @BindingName("id") id: String,
     ): HttpResponseMessage {
         try {
-            val claims = oktaAuthentication.authenticate(request)
-                ?: return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authenticationFailure)
+            // Do authentication
+            val claims = AuthenticationStrategy.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
             logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
-
-            // actionHistory?.trackUsername(claims.userName)  todo
 
             // Figure out whether we're dealing with an action_id or a report_id.
             val submissionId = id.toLongOrNull() // toLong a sacrifice can make a Null of the heart
@@ -158,14 +180,18 @@ class SubmissionFunction(
                 return HttpUtilities.notFoundResponse(request, "$id is not a submitted report")
             }
 
-            // Confirm these claims allow access to this Action
+            // Do Authorization.  Confirm these claims allow access to this Action
             if (!submissionsFacade.checkSenderAccessAuthorization(action, claims)) {
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
                         " ${request.httpMethod}:${request.uri.path}"
                 )
-                return HttpUtilities.unauthorizedResponse(request, OktaAuthentication.authorizationFailure)
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
+            logger.info(
+                "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
+            )
+
             val submission = submissionsFacade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)
             if (submission != null)
                 return HttpUtilities.okJSONResponse(request, submission)
