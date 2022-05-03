@@ -32,7 +32,7 @@ jobs:
       run: ./gradlew jacocoTestReport
     - name: Check for report file
       run: |
-        stat $GITHUB_WORKSPACE/prime-reportstream/prime-router/build/reports/jacoco/test/jacocoTestReport.xml
+        stat $GITHUB_WORKSPACE/prime-router/build/reports/jacoco/test/jacocoTestReport.xml
 
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@de2e56b42aa84d0b1c5b622644ac17e505c9a049
@@ -41,4 +41,4 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
         args: >
-          -Dsonar.coverage.jacoco.xmlReportPaths=$GITHUB_WORKSPACE/prime-reportstream/prime-router/build/reports/jacoco/test/jacocoTestReport.xml
+          -Dsonar.coverage.jacoco.xmlReportPaths=$GITHUB_WORKSPACE/prime-router/build/reports/jacoco/test/jacocoTestReport.xml
