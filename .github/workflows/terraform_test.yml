@@ -1,6 +1,10 @@
 name: Terraform Test
 
-on: push
+on:
+  push:
+    branches:
+      - jmp/5311/terraform-workflow
+  pull_request:
 
 jobs:
   pre_job:
