@@ -11,31 +11,31 @@ info:
     name: Creative Commons Zero v1.0 Universal
     url: https://github.com/CDCgov/prime-reportstream/blob/master/LICENSE
 servers:
-  - url: https://prime.cdc.gov/
+  - url: https://prime.cdc.gov
     description: Production server (uses live data)
-  - url: http://localhost:7071/
+  - url: http://localhost:7071
     description: Developer Environment
 paths:
-  /api/waters/{organization}/deliveries:
+  /api/waters/{reportId}/deliveries:
     get:
       operationId: getReportDetails
       summary: Get details for a single report and also list associated facilities
       description: Retrieve the details for a report and list facilities that contributed to that report
       security:
-        - OAUTH2: [ user ]
+        - OAuth2: [ user ]
         - Server2Server: []
       parameters:
-        - name: reportID
+        - name: reportId
           in: path
-          description: receiver whose reports we want to see
+          description: ID of report whose details we want to see
           required: true
           schema:
             type: string
-        - $ref: "https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/parameters/sortOrder"
-        - $ref: "https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/parameters/sortColumn"
-        - $ref: "https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/parameters/resultsAfterDate"
-        - $ref: "https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/parameters/resultsBeforeDate"
-        - $ref: "https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/parameters/pageSize"
+        - $ref: "https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortOrder"
+        - $ref: "https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortColumn"
+        - $ref: "https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/resultsAfterDate"
+        - $ref: "https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/resultsBeforeDate"
+        - $ref: "https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/pageSize"
       responses:
         '200':
           description: a report detail object which includes an array of facilities
