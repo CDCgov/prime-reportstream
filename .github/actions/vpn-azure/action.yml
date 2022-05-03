@@ -54,7 +54,7 @@ runs:
         sudo apt install openvpn-systemd-resolved
       shell: bash
 
-    - uses: golfzaptw/action-connect-ovpn@2.0.1
+    - uses: golfzaptw/action-connect-ovpn@ac87cf86ad6d45eb238d327fb5f327296f446f13
       if: env.VPN_ENV
       id: connect_vpn
       with:
@@ -65,7 +65,7 @@ runs:
         USER_CRT: ${{ inputs.user-crt }}
         USER_KEY: ${{ inputs.user-key }}
 
-    - uses: azure/login@v1
+    - uses: azure/login@1f63701bf3e6892515f1b7ce2d2bf1708b46beaf
       with:
         creds: ${{ inputs.sp-creds }}
 
