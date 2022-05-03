@@ -18,7 +18,7 @@ runs:
         echo >> $GITHUB_ENV DB_USER='prime'
         echo >> $GITHUB_ENV DB_PASSWORD='changeIT!'
 
-    - uses: gradle/wrapper-validation-action@v1
+    - uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
 
     - name: Spin up build containers
       working-directory: prime-router
@@ -36,7 +36,7 @@ runs:
       run: tar -czvf prime-router-build.tar.gz build
 
     - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action@v1
+      uses: EnricoMi/publish-unit-test-result-action@0ee9ecdb13bc5ce38c9e7527f2582942ced3b246
       # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
       if: >
         always() &&
@@ -47,7 +47,7 @@ runs:
         files: prime-router/build/test-results/test/**/*.xml
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router/prime-router-build.tar.gz

@@ -71,7 +71,7 @@ runs:
         ${{ steps.build_staging.outputs.version }}\
         ${{ steps.build_prod.outputs.version }}"
 
-    - uses: dorny/paths-filter@v2
+    - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
       id: backend_check
       with:
         list-files: csv
@@ -92,7 +92,7 @@ runs:
           echo "::set-output name=has_router_change::${{ steps.backend_check.outputs.router }}"
         fi
 
-    - uses: dorny/paths-filter@v2
+    - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
       id: frontend_check
       with:
         list-files: csv

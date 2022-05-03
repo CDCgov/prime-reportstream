@@ -65,6 +65,24 @@
             ]
         },
         {
+            "title": "## 📚 Documentation",
+            "labels": [
+                "instructions",
+                "documentation",
+                "document",
+                "docs",
+                "readme",
+                "playbook"
+            ]
+        },
+        {
+            "title": "## ⚓ Onboarding",
+            "labels": [
+                "onboarding",
+                "onboarding-ops"
+            ]
+        },
+        {
             "title": "## 🎲 Uncategorized",
             "labels": []
         }
