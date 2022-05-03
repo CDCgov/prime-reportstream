@@ -32,9 +32,8 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.azure.fhirProcessQueueName
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
-import gov.cdc.prime.router.tokens.OktaAuthentication
-import gov.cdc.prime.router.tokens.PrincipalLevel
-import gov.cdc.prime.router.tokens.TokenAuthentication
+import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 
 private const val CLIENT_PARAMETER = "client"
@@ -102,7 +101,7 @@ class ReportFunction(
      */
     @FunctionName("waters")
     @StorageAccount("AzureWebJobsStorage")
-    fun report(
+    fun submitToWaters(
         @HttpTrigger(
             name = "waters",
             methods = [HttpMethod.POST],
@@ -113,32 +112,28 @@ class ReportFunction(
         if (senderName.isBlank())
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
 
-        // Sender should eventually be obtained directly from who is authenticated
-        val sender = workflowEngine.settings.findSender(senderName)
-            ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
-
-        val authenticationStrategy = AuthenticationStrategy.authStrategy(
-            request.headers["authentication-type"],
-            PrincipalLevel.USER,
-            workflowEngine.db
-        )
-
+        actionHistory.trackActionParams(request)
         try {
-            actionHistory.trackActionParams(request)
+            val claims = AuthenticationStrategy.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
-            if (authenticationStrategy is OktaAuthentication) {
-                // The report is coming from a sender that is using Okta, so set "oktaSender" to true
-                return authenticationStrategy.checkAccess(request, sender.organizationName, true, actionHistory) {
-                    return@checkAccess processRequest(request, sender)
-                }
-            }
+            val sender = workflowEngine.settings.findSender(senderName)
+                ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown client")
 
-            if (authenticationStrategy is TokenAuthentication) {
-                val claims = authenticationStrategy.checkAccessToken(request, "${sender.fullName}.report")
-                    ?: return HttpUtilities.unauthorizedResponse(request)
-                logger.info("Claims for ${claims["sub"]} validated.  Beginning ingestReport.")
-                return processRequest(request, sender)
+            // Do authorization based on org name in claim matching org name in client header
+            if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {
+                logger.warn(
+                    "Invalid Authorization for user ${claims.userName}:" +
+                        " ${request.httpMethod}:${request.uri.path}." +
+                        " ERR: Claim org is ${claims.organizationNameClaim} but client id is ${sender.organizationName}"
+                )
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
+            logger.info(
+                "Authorized request by org ${claims.organizationNameClaim}" +
+                    " to submit data via client id ${sender.organizationName}.  Beginning to ingest report"
+            )
+            return processRequest(request, sender)
         } catch (ex: Exception) {
             if (ex.message != null)
                 logger.error(ex.message!!, ex)
@@ -146,7 +141,6 @@ class ReportFunction(
                 logger.error(ex)
             return HttpUtilities.internalErrorResponse(request)
         }
-        return HttpUtilities.bad(request, "Failed authorization")
     }
 
     /**
