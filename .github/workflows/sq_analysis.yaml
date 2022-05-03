@@ -17,12 +17,17 @@ jobs:
     - uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
       with:
         fetch-depth: 0
-    - name: Set up JDK 17
+    - name: Set up JDK 11
       uses: actions/setup-java@4fe61d24fe5472910b93bdeffb8aad49f979d862
       with:
-        java-version: '17'
+        java-version: '11'
         distribution: 'adopt'
         cache: 'gradle'
+
+    - uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+
+    - name: Spin up build containers
+      run: docker-compose -f docker-compose.postgres.yml up -d
     - name: Run our coverage tests
       run: ./gradlew jacocoTestReport
     # - name: Sonar analysis
