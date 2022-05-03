@@ -5,7 +5,9 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import java.io.ByteArrayInputStream
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.fail
@@ -187,20 +189,43 @@ class ReportTests {
         val one = Schema(
             name = "one",
             topic = "test",
-            elements = listOf(Element("a", pii = true), Element("b"))
+            elements = listOf(Element("a", pii = true), Element("b"), Element("patient_zip_code"))
         )
+
+        // Mock restricted_zip_code data
+        val patient_zip = """
+            patient_zip
+            036
+            059
+            102
+            203
+            205
+            369
+            556
+            692
+            821
+        """.trimIndent()
+
+        val restrictedZipTable = LookupTable.read(inputStream = ByteArrayInputStream(patient_zip.toByteArray()))
+        metadata.loadLookupTable("restricted_zip_code", restrictedZipTable)
 
         val oneReport = Report(
             schema = one,
-            values = listOf(listOf("a1", "b1"), listOf("a2", "b2")),
+            values = listOf(
+                listOf("a1", "b1", "55555"),
+                listOf("a2", "b2", "10266-1234"),
+                listOf("a3", "b3", "03266-1234")
+            ),
             source = TestSource,
             metadata = metadata
         )
 
         val oneDeidentified = oneReport.deidentify()
-        assertThat(oneDeidentified.itemCount).isEqualTo(2)
+        assertThat(oneDeidentified.itemCount).isEqualTo(2) // Check row count
         assertThat(oneDeidentified.getString(0, "a")).isEqualTo("")
         assertThat(oneDeidentified.getString(0, "b")).isEqualTo("b1")
+        assertThat(oneDeidentified.getString(0, "patient_zip_code")).isEqualTo("55500")
+        assertThat(oneDeidentified.getString(1, "patient_zip_code")).isEqualTo("00000-1234")
     }
 
     @Test
