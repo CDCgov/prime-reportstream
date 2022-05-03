@@ -44,7 +44,7 @@ class SubmissionsFacade(
         showFailed: Boolean
     ): String {
         val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize, showFailed)
-        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(result)
+        return mapper.writeValueAsString(result)
     }
 
     /**
