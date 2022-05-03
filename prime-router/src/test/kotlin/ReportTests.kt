@@ -221,7 +221,7 @@ class ReportTests {
         )
 
         val oneDeidentified = oneReport.deidentify()
-        assertThat(oneDeidentified.itemCount).isEqualTo(2) // Check row count
+        assertThat(oneDeidentified.itemCount).isEqualTo(3) // Check row count
         assertThat(oneDeidentified.getString(0, "a")).isEqualTo("")
         assertThat(oneDeidentified.getString(0, "b")).isEqualTo("b1")
         assertThat(oneDeidentified.getString(0, "patient_zip_code")).isEqualTo("55500")
