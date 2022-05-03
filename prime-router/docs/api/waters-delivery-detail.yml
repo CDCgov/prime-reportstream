@@ -42,7 +42,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeliveryDetails'
+                $ref: '#/components/schemas/DeliveryDetailSections'
         '400':
           description: bad request
         '401':
@@ -53,68 +53,71 @@ components:
   securitySchemes:
     $ref: "./components/security_schemes.yml"
   schemas:
-    DeliveryDetails:
-      sent:
-        description: the timestamp for this report was sent
-        type: string
-        format: date-time
-      via:
-        description: how the report was originally sent
-        type: string
-      total:
-        description: total number of reports
-        type: integer
-      fileType:
-        description: how the file is encoded
-        type: string
-      type:
-        description: defines if the report is "full ELR"
-        enum: [ELR]
-      reportId:
-        description: the uuid for this report
-        type: string
-        format: uuid
-      expires:
-        description: the timestamp for this report expires
-        type: string
-        format: date-time
-      sendingOrg:
-        description: the name of the organization sending the report
-        type: string
-      receivingOrg:
-        description: the name of the organization reciving the report
-        type: string
-      receivingOrgSvc: "elr-secondary",
-        description:
-        type: string
-      facilities:
-        description: list of facilities that contributed to the report
-        type: array
-        items:
+    DeliveryDetailSections:
+      type: object
+      properties:
+        DeliveryDetails:
+          type: object
+          properties:
+            sent:
+              description: the timestamp for this report was sent
+              type: string
+              format: date-time
+            via:
+              description: how the report was originally sent
+              type: string
+            total:
+              description: total number of reports
+              type: integer
+            fileType:
+              description: how the file is encoded
+              type: string
+            type:
+              description: defines if the report is "full ELR"
+              enum: [ELR]
+            reportId:
+              description: the uuid for this report
+              type: string
+              format: uuid
+            expires:
+              description: the timestamp for this report expires
+              type: string
+              format: date-time
+            sendingOrg:
+              description: the name of the organization sending the report
+              type: string
+            receivingOrg:
+              description: the name of the organization receiving the report
+              type: string
+            receivingOrgSvc:
+              description: what the receiving org is expecting to receive
+              type: string
+        facilities:
+          description: list of facilities that contributed to the report
+          type: array
+          items:
+            type: string
+        actions:
+          description: list of actions
+          type: array
+          items:
+            type: string
+        displayName:
+          description: what text to display to identify the type of report
           type: string
-      actions:
-        description: list of actions
-        type: array
-        items:
+        content:
+          description: the full content of the report
           type: string
-      displayName:
-        description: what text to display to identify the type of report
-        type: string
-      content:
-        description: the full content of the report
-        type: string
-      fileName:
-        description: the name of the file for the report
-        type: string
-      mimeType:
-        description: HTTP format for internet (web) media transport
-        type: string
-
-
-    FacilitiesList:
-      type: array
-      items:
-        $ref: '#/components/schemas/Facility'
+        fileName:
+          description: the name of the file for the report
+          type: string
+        mimeType:
+          description: HTTP format for internet (web) media transport
+          type: string
+        FacilitiesList:
+          type: array
+          items:
+            $ref: '#/components/schemas/Facility'
     Facility:
       type: object
       properties:
@@ -128,7 +131,7 @@ components:
           description: The CLIA number (10-digit alphanumeric) of the facility
           type: string
         positive:
-          description: the result (conclusion) of the test. 0 = negative
+          description: the result (conclusion) of the test. 0 = negative (good usually)
           type: integer
         total:
           description: number of facilities included in the object
