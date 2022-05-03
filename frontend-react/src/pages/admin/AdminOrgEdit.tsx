@@ -150,10 +150,9 @@ export function AdminOrgEdit({
             </Helmet>
             <section className="grid-container margin-bottom-5">
                 <h2 className="margin-bottom-0">
-                    <Suspense fallback={<Spinner />}>
-                        Org name:{" "}
-                        {match?.params?.orgname || "missing param 'orgname'"}
-                    </Suspense>
+                    {`Org name: ${
+                        match?.params?.orgname || "missing param 'orgname'"
+                    }`}
                 </h2>
             </section>
             <NetworkErrorBoundary
@@ -225,7 +224,6 @@ export function AdminOrgEdit({
                                 newjson={orgSettingsNewJson}
                             />
                         </GridContainer>
-
                         <br />
                     </section>
                     <OrgSenderTable orgname={orgname} />
