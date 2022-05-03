@@ -69,3 +69,17 @@ Grab just the `access_token` value you got back from step 3, and use it here for
 ```
 curl -H "authorization:bearer ???" -H "client:waters"  -H "content-type:text/csv" --data-binary "@./junk/waters.csv" "http://localhost:7071/api/waters"
 ```
+
+**Bonus Steps**
+
+To avoid cutting and pasting by hand, this glorious string of unixy gibberish will request a signed 5minute access token (Same as STEP 2 above), and then paste it into an environment variable called `$TOK`:
+
+```
+export TOK=$(./prime sender reqtoken --private-key my-es-keypair.pem --scope simple_report.default.report --name simple_report.default |  grep access_token | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
+```
+
+Which can then be used very simply like this (Same as STEP 3 above):
+
+```
+curl -H "authorization:bearer $TOK" -H "client:waters"  -H "content-type:text/csv" --data-binary "@./junk/waters.csv" "http://localhost:7071/api/waters"
+```

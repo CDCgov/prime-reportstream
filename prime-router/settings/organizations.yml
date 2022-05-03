@@ -1938,6 +1938,12 @@
     - topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
   senders:
+    - name: default
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      schemaName: primedatainput/pdi-covid-19
+      format: CSV
     - name: ignore-full-elr      # Use this to test full-elr
       organizationName: ignore
       topic: full-elr
