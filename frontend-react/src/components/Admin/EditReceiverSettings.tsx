@@ -273,7 +273,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     defaultvalue={orgReceiverSettings.externalName}
                     savefunc={(v) => (orgReceiverSettings.externalName = v)}
                 />
-                <Grid row>
+                <Grid row className="margin-top-2">
                     <Button
                         type="button"
                         onClick={async () =>
