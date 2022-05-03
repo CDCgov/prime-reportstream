@@ -1,37 +1,29 @@
-name: Terraform Test
+name: "Terraform"
 
-on: push
+on:
+  push:
+    branches:
+      - jmp/5311/terraform-workflow
+  pull_request:
 
 jobs:
-  pre_job:
-    name: Pre Job
+  terraform:
+    name: "Terraform"
     runs-on: ubuntu-latest
-    outputs:
-      has_operations_change: ${{ steps.skip_check.outputs.operations }}
     steps:
-      - name: Check Out Changes
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
-        id: skip_check
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
         with:
-          list-files: csv
-          # Only proceed if path of terraform overhaul exists and/or contents are updated
-          filters: |
-            operations:
-              - 'operations/app/terraform/vars/staging/**'
-              - '.github/workflows/validate_terraform.yml'
-              - '.github/workflows/terraform_test.yml'
+          terraform_version: 1.0.5
 
-  validate_terraform_yaml:
-    name: Validate Terraform
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
-    environment: staging
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check Out Changes
-        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+      - name: Terraform Format
+        id: fmt
+        run:  |
+          cd operations/app/terraform/vars/staging
+          terraform fmt -check
 
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
@@ -43,38 +35,28 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
-   
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: 1.0.5
 
-      - name: Validate Terraform Formating
-        id: fmt
-        run: |
-          cd operations/app/terraform/vars/staging
-          terraform fmt  -check -recursive -no-color
-          
-      - name: Run Terraform Init
+      - name: Terraform Init
         id: init
-        run: |
+        run:  |
           cd operations/app/terraform/vars/staging
           terraform init
       
-      - name: Run Terraform Validate
+      - name: Terraform Validate
         id: validate
-        run: |
+        run:  |
           cd operations/app/terraform/vars/staging
           terraform validate -no-color
 
-      - name: Run Terraform Plan
+      - name: Terraform Plan
         id: plan
-        run: |
+        run:  |
           cd operations/app/terraform/vars/staging
           terraform plan -no-color -input=false
         continue-on-error: true
 
       - uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
         env:
           PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         with:
@@ -95,7 +77,7 @@ jobs:
 
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
-            await github.rest.issues.createComment({
+            github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -105,7 +87,3 @@ jobs:
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
-
-#      - name: Terraform Apply
-#        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-#        run: terraform apply -auto-approve -input=false
