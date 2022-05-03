@@ -92,28 +92,28 @@ components:
             receivingOrgSvc:
               description: what the receiving org is expecting to receive
               type: string
-        facilities:
-          description: list of facilities that contributed to the report
-          type: array
-          items:
-            type: string
-        actions:
-          description: list of actions
-          type: array
-          items:
-            type: string
-        displayName:
-          description: what text to display to identify the type of report
-          type: string
-        content:
-          description: the full content of the report
-          type: string
-        fileName:
-          description: the name of the file for the report
-          type: string
-        mimeType:
-          description: HTTP format for internet (web) media transport
-          type: string
+            facilities:
+              description: list of facilities that contributed to the report
+              type: array
+              items:
+                type: string
+            actions:
+              description: list of actions
+              type: array
+              items:
+                type: string
+            displayName:
+              description: what text to display to identify the type of report
+              type: string
+            content:
+              description: the full content of the report
+              type: string
+            fileName:
+              description: the name of the file for the report
+              type: string
+            mimeType:
+              description: HTTP format for internet (web) media transport
+              type: string
         FacilitiesList:
           type: array
           items:
