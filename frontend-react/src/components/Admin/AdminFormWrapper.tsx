@@ -17,7 +17,7 @@ export function AdminFormWrapper({
             fallbackComponent={() => <ErrorPage type="page" />}
         >
             <section className="grid-container margin-bottom-5">
-                <h2 className="margin-bottom-0">{header}</h2>
+                {header}
             </section>
             <Suspense
                 fallback={

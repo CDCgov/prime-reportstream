@@ -3,6 +3,7 @@ import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useController, useResource } from "rest-hooks";
 import { RouteComponentProps, useHistory } from "react-router-dom";
 
+import Title from "../../components/Title";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
 import {
@@ -259,16 +260,15 @@ export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
     return (
         <AdminFormWrapper
             header={
-                <>
-                    {`Org name: ${
+                <Title
+                    preTitle={`Org name: ${
                         match?.params?.orgname || "missing param 'orgname'"
                     }`}
-                    <br />
-                    {`Sender name: ${
+                    title={`Sender name: ${
                         match?.params?.sendername ||
                         "missing param 'sendername'"
                     }`}
-                </>
+                />
             }
         >
             <EditSenderSettingsForm
