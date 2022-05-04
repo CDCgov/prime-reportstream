@@ -153,7 +153,6 @@ data class Hl7Configuration
     @get:JsonIgnore
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
 
-
     @get:JsonIgnore
     override val defaults: Map<String, String> get() {
         val receivingApplication = when {
