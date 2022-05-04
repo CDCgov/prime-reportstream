@@ -1,3 +1,6 @@
+/* All enums are case sensitive and created to match 1:1
+ * with an enum class in the prime-router project. */
+
 enum Jurisdiction {
     FEDERAL = "FEDERAL",
     STATE = "STATE",
