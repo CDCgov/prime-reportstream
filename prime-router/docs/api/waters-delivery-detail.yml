@@ -51,7 +51,10 @@ paths:
           description: organization does not exist
 components:
   securitySchemes:
-    $ref: "./components/security_schemes.yml"
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
+    Server2Server:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/Server2Server'
   schemas:
     DeliveryDetailSections:
       type: object
