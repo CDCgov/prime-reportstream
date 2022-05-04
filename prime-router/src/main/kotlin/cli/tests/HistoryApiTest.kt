@@ -197,7 +197,7 @@ class HistoryApiTest : CoolTest() {
                 mapOf("authentication-type" to "okta"),
                 listOf("pagesize" to options.submits),
                 bearer,
-                HttpStatus.UNAUTHORIZED,
+                HttpStatus.NOT_FOUND,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true,
