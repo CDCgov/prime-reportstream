@@ -214,18 +214,35 @@ class ReportTests {
             values = listOf(
                 listOf("a1", "b1", "55555"),
                 listOf("a2", "b2", "10266-1234"),
-                listOf("a3", "b3", "03266-1234")
+                listOf("a3", "b3", "03266-4567"),
+                listOf("a4", "b3", "03655"),
+                listOf("a5", "b5", "05926-9876"),
+                listOf("a6", "b6", "20345-1596"),
+                listOf("a7", "b7", "20589-7532"),
+                listOf("a8", "b8", "36947"),
+                listOf("a9", "b9", "55632-6478"),
+                listOf("a10", "b10", "69283-3298"),
+                listOf("a11", "b11", "82159")
             ),
             source = TestSource,
             metadata = metadata
         )
 
         val oneDeidentified = oneReport.deidentify()
-        assertThat(oneDeidentified.itemCount).isEqualTo(3) // Check row count
+        assertThat(oneDeidentified.itemCount).isEqualTo(11) // Check row count
         assertThat(oneDeidentified.getString(0, "a")).isEqualTo("")
         assertThat(oneDeidentified.getString(0, "b")).isEqualTo("b1")
         assertThat(oneDeidentified.getString(0, "patient_zip_code")).isEqualTo("55500")
-        assertThat(oneDeidentified.getString(1, "patient_zip_code")).isEqualTo("00000-1234")
+        assertThat(oneDeidentified.getString(1, "patient_zip_code")).isEqualTo("00000-1234") // 102
+        assertThat(oneDeidentified.getString(2, "patient_zip_code")).isEqualTo("03200-4567")
+        assertThat(oneDeidentified.getString(3, "patient_zip_code")).isEqualTo("00000") // 036
+        assertThat(oneDeidentified.getString(4, "patient_zip_code")).isEqualTo("00000-9876") // 059
+        assertThat(oneDeidentified.getString(5, "patient_zip_code")).isEqualTo("00000-1596") // 203
+        assertThat(oneDeidentified.getString(6, "patient_zip_code")).isEqualTo("00000-7532") // 205
+        assertThat(oneDeidentified.getString(7, "patient_zip_code")).isEqualTo("00000") // 369
+        assertThat(oneDeidentified.getString(8, "patient_zip_code")).isEqualTo("00000-6478") // 556
+        assertThat(oneDeidentified.getString(9, "patient_zip_code")).isEqualTo("00000-3298") // 692
+        assertThat(oneDeidentified.getString(10, "patient_zip_code")).isEqualTo("00000") // 821
     }
 
     @Test
