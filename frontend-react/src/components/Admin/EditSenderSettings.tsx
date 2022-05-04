@@ -213,7 +213,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                     defaultvalue={orgSenderSettings.processingType}
                     savefunc={(v) => (orgSenderSettings.processingType = v)}
                 />
-                <Grid row>
+                <Grid row className="margin-top-2">
                     <Button
                         type="button"
                         onClick={async () =>
