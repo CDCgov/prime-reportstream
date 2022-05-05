@@ -16,6 +16,13 @@ import {
     getVersionWarning,
     VersionWarningType,
 } from "../../utils/misc";
+import { EnumTooltip, ObjectTooltip } from "../tooltips/ObjectTooltip";
+import {
+    getListOfEnumValues,
+    SampleTimingObj,
+    SampleTranslationObj,
+    SampleTransportObject,
+} from "../../utils/TemporarySettingsAPITypes";
 
 import {
     ConfirmSaveSettingModal,
@@ -23,6 +30,7 @@ import {
 } from "./CompareJsonModal";
 import {
     CheckboxComponent,
+    DropdownComponent,
     TextAreaComponent,
     TextInputComponent,
 } from "./AdminFormEdit";
@@ -188,11 +196,12 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     defaultvalue={orgReceiverSettings.topic}
                     savefunc={(v) => (orgReceiverSettings.topic = v)}
                 />
-                <TextInputComponent
+                <DropdownComponent
                     fieldname={"customerStatus"}
                     label={"Customer Status"}
                     defaultvalue={orgReceiverSettings.customerStatus}
                     savefunc={(v) => (orgReceiverSettings.customerStatus = v)}
+                    valuesFrom={"customerStatus"}
                 />
                 <TextInputComponent
                     fieldname={"description"}
@@ -203,6 +212,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 <TextAreaComponent
                     fieldname={"translation"}
                     label={"Translation"}
+                    toolTip={<ObjectTooltip obj={new SampleTranslationObj()} />}
                     defaultvalue={orgReceiverSettings.translation}
                     defaultnullvalue={null}
                     savefunc={(v) => (orgReceiverSettings.translation = v)}
@@ -210,6 +220,13 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 <TextAreaComponent
                     fieldname={"jurisdictionalFilter"}
                     label={"Jurisdictional Filter"}
+                    toolTip={
+                        <EnumTooltip
+                            vals={getListOfEnumValues(
+                                "reportStreamFilterDefinition"
+                            )}
+                        />
+                    }
                     defaultvalue={orgReceiverSettings.jurisdictionalFilter}
                     defaultnullvalue="[]"
                     savefunc={(v) =>
@@ -219,6 +236,13 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 <TextAreaComponent
                     fieldname={"qualityFilter"}
                     label={"Quality Filter"}
+                    toolTip={
+                        <EnumTooltip
+                            vals={getListOfEnumValues(
+                                "reportStreamFilterDefinition"
+                            )}
+                        />
+                    }
                     defaultvalue={orgReceiverSettings.qualityFilter}
                     defaultnullvalue="[]"
                     savefunc={(v) => (orgReceiverSettings.qualityFilter = v)}
@@ -234,6 +258,13 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 <TextAreaComponent
                     fieldname={"routingFilter"}
                     label={"Routing Filter"}
+                    toolTip={
+                        <EnumTooltip
+                            vals={getListOfEnumValues(
+                                "reportStreamFilterDefinition"
+                            )}
+                        />
+                    }
                     defaultvalue={orgReceiverSettings.routingFilter}
                     defaultnullvalue="[]"
                     savefunc={(v) => (orgReceiverSettings.routingFilter = v)}
@@ -241,6 +272,13 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 <TextAreaComponent
                     fieldname={"processingModeFilter"}
                     label={"Processing Mode Filter"}
+                    toolTip={
+                        <EnumTooltip
+                            vals={getListOfEnumValues(
+                                "reportStreamFilterDefinition"
+                            )}
+                        />
+                    }
                     defaultvalue={orgReceiverSettings.processingModeFilter}
                     defaultnullvalue="[]"
                     savefunc={(v) =>
@@ -256,6 +294,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 <TextAreaComponent
                     fieldname={"timing"}
                     label={"Timing"}
+                    toolTip={<ObjectTooltip obj={new SampleTimingObj()} />}
                     defaultvalue={orgReceiverSettings.timing}
                     defaultnullvalue={null}
                     savefunc={(v) => (orgReceiverSettings.timing = v)}
@@ -263,6 +302,9 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 <TextAreaComponent
                     fieldname={"transport"}
                     label={"Transport"}
+                    toolTip={
+                        <ObjectTooltip obj={new SampleTransportObject()} />
+                    }
                     defaultvalue={orgReceiverSettings.transport}
                     defaultnullvalue={null}
                     savefunc={(v) => (orgReceiverSettings.transport = v)}
