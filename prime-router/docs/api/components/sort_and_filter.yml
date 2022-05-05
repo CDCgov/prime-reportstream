@@ -1,45 +1,34 @@
-openapi: "3.0.3"
-paths: {}
-info:
-  title: Sort and Filter Parameters
-  version: "1.0"
-  contact:
-    name: USDS at Centers for Disease Control and Prevention
-    url: https://open.cdc.gov
-    email: usds@cdc.gov
-components:
-  parameters:
-    sortOrder:
-      name: sortOrder
-      in: query
-      description: order to sort reports
-      schema:
-        type: string
-        enum: [ASC, DESC]
-        default: DESC
-    sortColumn:
-      name: sortColumn
-      in: query
-      description: column used as the basis for sorting
-      schema:
-        type: string
-    resultsAfterDate:
-      name: resultsAfterDate
-      in: query
-      description: only return reports from after the given date
-      schema:
-        type: string
-        format: date-time
-    resultsBeforeDate:
-      name: resultsBeforeDate
-      in: query
-      description: only return reports from before the given date
-      schema:
-        type: string
-        format: date-time
-    pageSize:
-      name: pageSize
-      in: query
-      description: number of results per page
-      schema:
-        type: integer
+sortOrder:
+  name: sortOrder
+  in: query
+  description: order to sort reports
+  schema:
+    type: string
+    enum: [ASC, DESC]
+    default: DESC
+sortColumn:
+  name: sortColumn
+  in: query
+  description: column used as the basis for sorting
+  schema:
+    type: string
+resultsAfterDate:
+  name: resultsAfterDate
+  in: query
+  description: only return reports from after the given date
+  schema:
+    type: string
+    format: date-time
+resultsBeforeDate:
+  name: resultsBeforeDate
+  in: query
+  description: only return reports from before the given date
+  schema:
+    type: string
+    format: date-time
+pageSize:
+  name: pageSize
+  in: query
+  description: number of results per page
+  schema:
+    type: integer

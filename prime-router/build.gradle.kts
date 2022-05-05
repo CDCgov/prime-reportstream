@@ -689,7 +689,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.17")
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.18")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.7.1")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.1")
     implementation("ca.uhn.hapi:hapi-base:2.3")
@@ -724,7 +724,6 @@ dependencies {
 
     implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.6")
-    implementation("com.auth0:java-jwt:3.18.3")
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     implementation("de.m3y.kformat:kformat:0.9")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
