@@ -47,6 +47,13 @@ export const GettingStartedTestingFacilities = () => {
         >
             CSV schema documentation
         </NavLink>,
+        <NavLink
+            to={`${url}/programmers-guide`}
+            activeClassName="usa-current"
+            className="usa-nav__link"
+        >
+            Programmer's Guide
+        </NavLink>,
     ];
 
     return (
