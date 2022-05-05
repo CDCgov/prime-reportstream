@@ -5,6 +5,7 @@ who:
   vars:
     orgName: MSH.4.1
     altId: MSH.4.2
+    contryCode: MSH.17
   constants:
     # Observation Organization needs an ADMIN purpose
     orgContactPurposeCode: "ADMIN"

@@ -47,7 +47,7 @@ district:
 
 country: 
      type: STRING
-     valueOf: XAD.6 | MSH.17
+     valueOf: XAD.6 | $contryCode
      expressionType: HL7Spec    
 
 use: 
