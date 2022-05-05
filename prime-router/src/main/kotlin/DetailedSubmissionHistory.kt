@@ -22,7 +22,7 @@ import java.time.OffsetDateTime
 @JsonPropertyOrder(
     value = [
         "id", "submissionId", "overallStatus", "timestamp", "plannedCompletionAt", "actualCompletionAt",
-        "sender", "reportItemCount", "errorCount", "warningCount",
+        "sender", "reportItemCount", "errorCount", "warningCount", "httpStatus", "destinations",
     ]
 )
 class DetailedSubmissionHistory(
