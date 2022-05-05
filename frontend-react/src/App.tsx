@@ -93,8 +93,7 @@ const App = () => {
                 <NetworkErrorBoundary
                     fallbackComponent={() => <ErrorPage type="page" />}
                 >
-                    {/*<DAPHeader env={process.env.REACT_APP_ENV?.toString()} />*/}
-                    <DAPHeader env={"production"} />
+                    <DAPHeader env={process.env.REACT_APP_ENV?.toString()} />
                     <GovBanner aria-label="Official government website" />
                     {context.values.org && context.values.senderName ? (
                         <SenderModeBanner />
