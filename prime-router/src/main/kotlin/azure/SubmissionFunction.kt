@@ -100,9 +100,7 @@ class SubmissionFunction(
 
             // Confirm the org name in the path is a sender in the system.
             val sender = workflowEngine.settings.findSender(organization) // err if no default sender in settings in org
-                ?: return HttpUtilities.unauthorizedResponse(
-                    request, HttpUtilities.errorJson("Authentication Failed: $organization: unknown sender")
-                )
+                ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream sender")
 
             // Do authorization based on: org name in the path == org name in claim.  Or be a prime admin.
             if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {
