@@ -19,7 +19,11 @@ import {
 import { ObjectTooltip } from "../tooltips/ObjectTooltip";
 import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
 
-import { TextAreaComponent, TextInputComponent, DropdownComponent } from "./AdminFormEdit";
+import {
+    TextAreaComponent,
+    TextInputComponent,
+    DropdownComponent,
+} from "./AdminFormEdit";
 import { AdminFormWrapper } from "./AdminFormWrapper";
 import {
     ConfirmSaveSettingModal,
