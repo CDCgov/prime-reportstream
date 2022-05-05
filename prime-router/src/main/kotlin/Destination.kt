@@ -8,6 +8,19 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import gov.cdc.prime.router.azure.WorkflowEngine
 import java.time.OffsetDateTime
 
+/**
+ * Represents the organizations that receive submitted reports from the point of view of a Submission.
+ *
+ * @param organizationId identifier for the organization that owns this destination
+ * @param service the service used by the organization (e.g. elr)
+ * @param filteredReportRows filters that were triggered by the contents of the report
+ * @param filteredReportItems more structured version of filteredReportRows
+ * @param sendingAt the time that this destination is next expecting to receive a report
+ * @param itemCount final number of tests available in the report received by the destination
+ * @param itemCountBeforeQualFilter total number of tests that were in the submitted report before any filtering
+ * @param sentReports logs of reports for this submission sent to this destination
+ * @param downloadedReports logs of reports for this submission downloaded for this destination
+ */
 @JsonPropertyOrder(
     value = [
         "organization", "organizationId", "service", "itemCount", "itemCountBeforeQualFilter", "sendingAt"

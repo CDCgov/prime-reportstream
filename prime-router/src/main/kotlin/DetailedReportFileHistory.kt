@@ -7,9 +7,15 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
 
 /**
- * uiytretyuijhgtretyu
+ * This class provides a detailed view for data in the `report_file` table and data from other related sources.
+ * Due to the large amount of data and logic used here, instead use ReportFileHistory for lists.
  *
- * @param actionId of the Submission is `action_id` from the `action` table
+ * @param actionId reference to the `action` table for the action that created this file
+ * @param actionName the type of action that created this report file
+ * @param createdAt when the file was created
+ * @param httpStatus response code for the user fetching this report file
+ * @param reports other reports that are related to this report file's action log
+ * @param logs container for logs generated throughout the fetching of this report file
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class DetailedReportFileHistory(
@@ -30,12 +36,12 @@ abstract class DetailedReportFileHistory(
     var id: String? = null
 
     /**
-     * Error log for the submission.
+     * Errors logged for this Report File.
      */
     val errors = mutableListOf<ConsolidatedActionLog>()
 
     /**
-     * Warning log for the submission.
+     * Warnings logged for this Report File.
      */
     val warnings = mutableListOf<ConsolidatedActionLog>()
 

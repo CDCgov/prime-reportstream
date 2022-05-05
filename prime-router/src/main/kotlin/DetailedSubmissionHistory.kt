@@ -257,7 +257,9 @@ class DetailedSubmissionHistory(
 
     /**
      * Runs the calculations for the overallStatus field so that it can be done during init.
-     * @returns The status from the Status enum that matches the current Submission state.
+     *
+     * @param realDestinations destinations where items have gone through and thus should be calculated
+     * @return The status from the Status enum that matches the current Submission state.
      */
     private fun calculateStatus(realDestinations: List<Destination>): Status {
         if (httpStatus != HttpStatus.OK.value() && httpStatus != HttpStatus.CREATED.value()) {
@@ -309,7 +311,9 @@ class DetailedSubmissionHistory(
 
     /**
      * Runs the calculations for the plannedCompletionAt field so that it can be done during init.
-     * @returns The timestamp that equals the max of all the sendingAt values for this Submission's Destinations
+     *
+     * @param realDestinations destinations where items have gone through and thus should be calculated
+     * @return The timestamp that equals the max of all the sendingAt values for this Submission's Destinations
      */
     private fun calculatePlannedCompletionAt(realDestinations: List<Destination>): OffsetDateTime? {
         if (overallStatus == Status.ERROR ||
@@ -323,8 +327,10 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * Runs the calculations for the overallStatus field so that it can be done during init.
-     * @returns The timestamp that equals the max createdAt of all sent and downloaded reports
+     * Runs the calculations for the actualCompletedAt field so that it can be done during init.
+     *
+     * @param realDestinations destinations where items have gone through and thus should be calculated
+     * @return The timestamp that equals the max createdAt of all sent and downloaded reports
      *     after it has been sent to all receivers
      */
     private fun calculateActualCompletionAt(realDestinations: List<Destination>): OffsetDateTime? {

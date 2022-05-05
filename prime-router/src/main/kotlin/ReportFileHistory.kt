@@ -8,9 +8,17 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.OffsetDateTime
 
 /**
- * jijijijkinokjnjkojnk
+ * This class provides a base structure for data reflected in the `report_file` table.
+ * When a report is sent, received, processed or downloaded, one of these entries is created.
+ * The small amount of data makes this ideal for lists.
  *
- * @param actionId of the Submission is `action_id` from the `action` table
+ * @param actionId reference to the `action` table for the action that created this file
+ * @param createdAt when the file was created
+ * @param httpStatus response code for the user fetching this report file
+ * @param externalName actual filename of the file
+ * @param reportId unique identifier for this specific report file
+ * @param schemaTopic the kind of data contained in the report (e.g. "covid-19")
+ * @param itemCount number of tests (data rows) contained in the report
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class ReportFileHistory(
