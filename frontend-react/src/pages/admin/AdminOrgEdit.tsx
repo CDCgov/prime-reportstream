@@ -6,6 +6,7 @@ import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
+import Title from "../../components/Title";
 import { ErrorPage } from "../error/ErrorPage";
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
@@ -151,13 +152,12 @@ export function AdminOrgEdit({
             <Helmet>
                 <title>Admin | Org Edit | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
-            <section className="grid-container margin-bottom-5">
-                <h2 className="margin-bottom-0">
-                    <Suspense fallback={<Spinner />}>
-                        Org name:{" "}
-                        {match?.params?.orgname || "missing param 'orgname'"}
-                    </Suspense>
-                </h2>
+            <section className="grid-container margin-top-3 margin-bottom-5">
+                <Title
+                    title={`Org name: ${
+                        match?.params?.orgname || "missing param 'orgname'"
+                    }`}
+                />
             </section>
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="message" />}
@@ -234,7 +234,6 @@ export function AdminOrgEdit({
                                 newjson={orgSettingsNewJson}
                             />
                         </GridContainer>
-
                         <br />
                     </section>
                     <OrgSenderTable orgname={orgname} />
