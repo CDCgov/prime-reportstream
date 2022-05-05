@@ -6,6 +6,23 @@
 - The ReportStream API is documented here: [Hub OpenApi Spec](./api)
 - More detailed changelog for individual releases: [Recent releases](https://github.com/CDCgov/prime-reportstream/releases)
 
+## April 28, 2022
+
+### Added Server-to-Server Authentication Option the ReportStream History API
+
+This release contains further enhancements to the `api/waters/org/ORGNAME/submissions` and `api/waters/report/REPORTID/history` API endpoints.   The enhancement is that these endpoints can now be accessed both via a human-entered authentication (via username/password entry using our Okta interface), and now also by using our server-to-server _two-leggged_ authentication protocol.
+
+This means that automated senders can access those two APIs programmatically, with automated tools, rather than having to depend on a person to login and authenticate.   There are several steps involved in using the automated server-to-server authentication:
+1. Submit your public key to ReportStream ahead of time.
+2. When you want to use the APIs, create a signed token using your private key.
+3. ReportStream will confirm the signed token with the previously submitted public key, and respond with a 5-minute access token.
+4. Repeat steps 2 and 3 as often as needed.
+
+#### For further information on ReportStream's Server-to-Server Authentication
+
+- See the [Token-based authentication section of the Programmer's Guilde](./ReportStream-Programmers-Guide-v2.1.docx)
+- See the [Token authentication Playbook](./playbooks/how-to-use-token-auth.md)
+
 ## April 12, 2022
 
 This release contains further enhancements to the json response to Report History GETs and report submission POSTs.

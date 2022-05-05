@@ -14,8 +14,6 @@ import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SigningKeyResolverAdapter
 import org.apache.logging.log4j.kotlin.Logging
-import java.lang.IllegalArgumentException
-import java.lang.RuntimeException
 import java.security.Key
 import java.time.OffsetDateTime
 import java.util.Date
@@ -31,7 +29,7 @@ import java.util.UUID
  *
  *
  */
-class TokenAuthentication(val jtiCache: JtiCache) : Logging {
+class TokenAuthentication : Logging {
     private val MAX_CLOCK_SKEW_SECONDS: Long = 60
     private val EXPIRATION_SECONDS = 300
 
@@ -50,6 +48,7 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
     fun checkSenderToken(
         jwsString: String,
         senderPublicKeyFinder: SigningKeyResolverAdapter,
+        jtiCache: JtiCache,
         actionHistory: ActionHistory? = null,
     ): Boolean {
         try {
@@ -109,27 +108,56 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
         return AccessToken(subject, token, "bearer", expiresInSeconds, expiresAtSeconds, scopeAuthorized)
     }
 
-    fun checkAccessToken(request: HttpRequestMessage<String?>, desiredScope: String): Claims? {
-        val bearerComponent = request.headers["authorization"]
-        if (bearerComponent == null) {
-            logger.error("Missing Authorization header.  AccessToken Unauthorized.")
-            return null
-        }
-        val accessToken = bearerComponent.split(" ")[1]
-        if (accessToken.isEmpty()) {
-            logger.error("Request has Authorization header but no token.  AccessToken Unauthorized")
-            return null
-        }
-        return checkAccessToken(accessToken, desiredScope, FindReportStreamSecretInVault())
+    /**
+     * This does both authentication and authorization.  That is, it confirms that the token is properly unexpired
+     * and signed by that secret, and that it contains the [requiredScope].
+     *
+     * [lookup] is a callback to get the ReportStream secret used to sign the [accessToken].  Using a callback
+     * makes this easy to test - can pass in a static test secret.
+     * This does not need to be a public/private key.
+     *
+     * @return the authenticated JWT Claims set if authentication and authorization were both successful.  Otherwise
+     * returns null.
+     */
+    fun checkAccessToken(accessToken: String?, requiredScope: String, lookup: ReportStreamSecretFinder): Claims? {
+        val claims = authenticate(accessToken, lookup) ?: return null
+        return if (authorized(claims, requiredScope))
+            claims
+        else
+            null
     }
 
     /**
-     * lookup is a call back to get the ReportStream secret used to sign the token.  Using a callback
+     * This confirms that [request]'s token is proper and authentic. This does not do authorization,
+     * that is, it does not confirm that the claims authorize access to any particular scope.
+     *
+     * @return the authenticated JWT Claims set if authentication was both successful.  Otherwise returns null.
+     */
+    fun authenticate(request: HttpRequestMessage<String?>): Claims? {
+        val accessToken = AuthenticationStrategy.getAccessToken(request)
+        return authenticate(accessToken, FindReportStreamSecretInVault())
+    }
+
+    /**
+     * This confirms that [accessToken] is properly unexpired and signed by that secret. This does not do authorization,
+     * that is, it does not confirm that the claims authorize access to any particular scope.
+     *
+     * [lookup] is a call back to get the ReportStream secret used to sign the [accessToken].  Using a callback
      * makes this easy to test - can pass in a static test secret
      * This does not need to be a public/private key.
+     *
+     * @return the authenticated JWT Claims set if authentication was both successful.  Otherwise returns null.
      */
-    fun checkAccessToken(accessToken: String, desiredScope: String, lookup: ReportStreamSecretFinder): Claims? {
+    fun authenticate(accessToken: String?, lookup: ReportStreamSecretFinder): Claims? {
         try {
+            if (AuthenticationStrategy.isLocal(accessToken)) {
+                return AuthenticatedClaims.generateTestJwtClaims()
+            } else {
+                if (accessToken.isNullOrEmpty()) {
+                    logger.error("Missing or bad format 'Authorization: Bearer <tok>' header. Not authenticated.")
+                    return null
+                }
+            }
             val secret = lookup.getReportStreamTokenSigningSecret()
             // Check the signature.  Throws JwtException on problems.
             val jws = Jwts.parserBuilder()
@@ -137,40 +165,53 @@ class TokenAuthentication(val jtiCache: JtiCache) : Logging {
                 .build()
                 .parseClaimsJws(accessToken)
             if (jws.body == null) {
-                logger.error("AccessToken check failed - no claims.  Unauthorized.")
+                logger.error("AccessToken check failed - no claims.  Not authenticated.")
                 return null
             }
             val subject = jws.body["sub"] as? String
             if (subject == null) {
-                logger.error("AccessToken missing subject.  Unauthorized.")
+                logger.error("AccessToken missing subject.  Not authenticated.")
                 return null
             } else {
                 logger.info("checking AccessToken $subject")
             }
             if (isExpiredToken(jws.body.expiration)) {
-                logger.error("AccessToken $subject expired.  Unauthorized.")
+                logger.error("AccessToken $subject expired.  Not authenticated.")
                 return null
             }
-            val scope = jws.body["scope"] as? String
-            if (scope == null) {
-                logger.error("Missing scope claim in AccessToken $subject.  Unauthorized.")
-                return null
-            }
-            if (!Scope.scopeListContainsScope(scope, desiredScope)) {
-                logger.error(
-                    "In AccessToken $subject," +
-                        " signed key has scope $scope, but requests $desiredScope. Unauthorized"
-                )
-                return null
-            }
-            logger.info("AccessToken $subject : validated.")
+            logger.info("AccessToken $subject : authenticated.")
             return jws.body
         } catch (ex: JwtException) {
-            logger.error("AccessToken Unauthorized: $ex")
+            logger.error("AccessToken not authenticated: $ex")
             return null
         } catch (exc: RuntimeException) {
-            logger.error("AccessToken Unauthorized: $exc")
+            logger.error("AccessToken not authenticated due to internal error: $exc")
             return null
+        }
+    }
+
+    /**
+     * Given a set of [claims],
+     * @return true if they authorize access to [requiredScope], return false otherwise.
+     */
+    fun authorized(claims: Claims, requiredScope: String): Boolean {
+        val scope = claims["scope"] as? String
+        if (scope == null) {
+            logger.error(
+                "Missing scope claim in AccessToken ${claims.subject} requesting $requiredScope.  Unauthorized."
+            )
+            return false
+        }
+        return when {
+            scope == Scope.primeAdminScope -> true
+            Scope.scopeListContainsScope(scope, requiredScope) -> true
+            else -> {
+                logger.error(
+                    "In AccessToken ${claims.subject}," +
+                        " signed key has scope $scope, but requests $requiredScope. Unauthorized."
+                )
+                false
+            }
         }
     }
 
