@@ -29,6 +29,7 @@ class DetailedSubmissionHistory(
     @JsonProperty("submissionId")
     actionId: Long,
     actionName: TaskAction,
+    @JsonProperty("timestamp")
     createdAt: OffsetDateTime,
     httpStatus: Int? = null,
     reports: MutableList<DetailReport>?,
