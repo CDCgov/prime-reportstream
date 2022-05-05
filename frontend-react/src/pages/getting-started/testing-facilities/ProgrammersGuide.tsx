@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
+import remarkToc from "remark-toc";
 
 import programmersGuidePath from "../../../content/programmers-guide.md";
 
@@ -20,6 +22,13 @@ export const ProgrammersGuide = () => {
 
     // console.log(md)
     return (
-        <ReactMarkdown children={markdownContent} remarkPlugins={[remarkGfm]} />
+        <ReactMarkdown
+            children={markdownContent}
+            remarkPlugins={[
+                remarkGfm,
+                [remarkToc, { heading: "contents", tight: true }],
+            ]}
+            rehypePlugins={[rehypeSlug]}
+        />
     );
 };

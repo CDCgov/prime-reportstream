@@ -2,6 +2,8 @@
 
 VERSION 2 .1 – MARCH 2022
 
+## Contents
+
 ## Introduction
 ReportStream is a free, open-source data platform that makes it easy for public health
 data to be transferred from testing facilities to public health departments.
