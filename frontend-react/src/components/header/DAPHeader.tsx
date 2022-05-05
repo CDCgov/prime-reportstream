@@ -9,17 +9,23 @@ const urlsForDAP = [
     "/terms-of-service",
 ];
 
-const useDAP = () => {
+export const useDAP = (env: string | undefined) => {
     const location = useLocation();
     let currentPathname = location.pathname;
 
-    return process.env.REACT_APP_ENV === "production" &&
+    return (
+        env === "production" &&
         (currentPathname === "/" ||
-            urlsForDAP.some((url) => currentPathname.startsWith(url)));
+            urlsForDAP.some((url) => currentPathname.startsWith(url)))
+    );
 };
 
-export const DAPHeader = () => {
-    if (!useDAP()) return <></>;
+export interface DAPHeaderProps {
+    env: string | undefined;
+}
+
+export const DAPHeader = (params: DAPHeaderProps) => {
+    if (!useDAP(params.env)) return <></>;
 
     return (
         <>
