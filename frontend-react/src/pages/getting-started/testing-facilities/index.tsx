@@ -13,6 +13,7 @@ import { FacilitiesOverview } from "./Overview";
 import { AccountRegistrationGuide } from "./AccountRegistrationGuide";
 import { CsvUploadGuide } from "./CsvUploadGuide";
 import { CsvSchemaDocumentation } from "./CsvSchemaDocumentation";
+import { ProgrammersGuide } from "./ProgrammersGuide";
 
 export const GettingStartedTestingFacilities = () => {
     let { path, url } = useRouteMatch();
@@ -90,6 +91,10 @@ export const GettingStartedTestingFacilities = () => {
                             <Route
                                 path={`${path}/csv-schema`}
                                 component={CsvSchemaDocumentation}
+                            />
+                            <Route
+                                path={`${path}/programmers-guide`}
+                                component={ProgrammersGuide}
                             />
                             {/* Handles any undefined route */}
                             <Route
