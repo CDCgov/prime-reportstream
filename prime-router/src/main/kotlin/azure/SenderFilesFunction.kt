@@ -86,8 +86,19 @@ class SenderFilesFunction(
      * Throws [IllegalArgumentException] if any parameter is invalid.
      */
     internal fun checkParameters(request: HttpRequestMessage<String?>): FunctionParameters {
+        val messageID = try {
+            request.queryParameters[MESSAGE_ID_PARAM]?.let { UUID.fromString(it) }
+        } catch (e: Exception) {
+            badRequest("Bad $MESSAGE_ID_PARAM parameter. Details: ${e.message}")
+        }
+        val covidResultMetadataRecord = if (messageID != null) dbAccess.fetchSingleMetadata(messageID) else null
+
         val reportId = try {
-            request.queryParameters[REPORT_ID_PARAM]?.let { UUID.fromString(it) }
+            if (messageID != null) {
+                covidResultMetadataRecord?.reportId
+            } else {
+                request.queryParameters[REPORT_ID_PARAM]?.let { UUID.fromString(it) }
+            }
         } catch (e: Exception) {
             badRequest("Bad $REPORT_ID_PARAM parameter. Details: ${e.message}")
         }
@@ -98,6 +109,9 @@ class SenderFilesFunction(
             badRequest("Bad $ONLY_REPORT_ITEMS parameter. Details: ${e.message}")
         }
         val offset = try {
+            if (messageID != null) {
+                covidResultMetadataRecord?.reportIndex
+            }
             request.queryParameters[OFFSET_PARAM]?.toInt() ?: 0
         } catch (e: Exception) {
             badRequest("Bad $OFFSET_PARAM parameter. Details: ${e.message}")
@@ -175,6 +189,8 @@ class SenderFilesFunction(
             val senderFormat = mapBodyFormatToSenderFormat(reportFile.bodyFormat!!)
             val body = if (parameters.onlyDestinationReportItems) {
                 cutContent(blob, senderFormat, senderIndices)
+            } else if (parameters.offset > 0) {
+                cutContent(blob, senderFormat, listOf(parameters.offset))
             } else {
                 blob
             }
@@ -223,6 +239,11 @@ class SenderFilesFunction(
     }
 
     companion object {
+        /**
+         * Query parameter for the report-id option
+         */
+        const val MESSAGE_ID_PARAM = "message-id"
+
         /**
          * Query parameter for the report-id option
          */
