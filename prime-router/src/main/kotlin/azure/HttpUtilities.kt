@@ -246,7 +246,7 @@ class HttpUtilities {
         /**
          * A generic function to POST a Prime ReportStream report File to a particular Prime Data Hub Environment,
          * as if from sendingOrgName.sendingOrgClientName.
-         * Returns Pair(Http response code, json response text)
+         * @return Pair(Http response code, json response text)
          */
         fun postReportFile(
             environment: Environment,
@@ -264,17 +264,20 @@ class HttpUtilities {
         }
 
         /**
-         * Same than #postReportFile but going to fhir enabled
-         * endpoint and sending the bearer token header
+         * Same as [postReportFile] but going to the waters endpoint.
+         * Sends a [file] from [sendingOrgClient] to the waters endpoint
+         * in the [environment].
+         * [token] can be a valid server2server or okta token.
+         * @return Pair(Http response code, json response text)
          */
-        fun postReportFileFhir(
+        fun postReportFileToWatersApi(
             environment: Environment,
             file: File,
             sendingOrgClient: Sender,
             token: String? = null
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
-            return postReportBytesToWatersAPI(environment, file.readBytes(), sendingOrgClient, token)
+            return postReportBytesToWatersApi(environment, file.readBytes(), sendingOrgClient, token)
         }
 
         /**
@@ -316,7 +319,7 @@ class HttpUtilities {
             return postHttp(urlBuilder.toString(), bytes, headers)
         }
 
-        fun postReportBytesToWatersAPI(
+        fun postReportBytesToWatersApi(
             environment: Environment,
             bytes: ByteArray,
             sendingOrgClient: Sender,

@@ -11,10 +11,17 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.FhirActionLogDetail
+import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.HttpException
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.UnsupportedMediaTypeException
+import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.cli.tests.CompareHl7Data
 import gov.cdc.prime.router.fhirengine.azure.http.extensions.contentType
@@ -30,9 +37,12 @@ import org.apache.logging.log4j.kotlin.Logging
 const val fhirQueueName = "fhir-raw-received"
 
 /**
- * Process will work through all the reports waiting in the 'process' queue
+ * Functions to execution and logging of FHIR translations
  */
-class FHIRFlowFunctions : Logging {
+class FHIRFlowFunctions(
+    private val workflowEngine: WorkflowEngine = WorkflowEngine(),
+    private val actionHistory: ActionHistory = ActionHistory(TaskAction.process)
+) : Logging {
     /**
      * An azure function for processing an HL7 message into of FHIR
      */
@@ -78,16 +88,30 @@ class FHIRFlowFunctions : Logging {
             }
         } catch (e: IllegalArgumentException) {
             responseBuilder.status(HttpStatus.BAD_REQUEST)
+            actionHistory.trackLogs(
+                ActionLog(InvalidReportMessage(e.stackTraceToString()), type = ActionLogLevel.error)
+            )
             e.message
         } catch (e: IllegalStateException) {
             responseBuilder.status(HttpStatus.BAD_REQUEST)
+            actionHistory.trackLogs(
+                ActionLog(InvalidReportMessage(e.stackTraceToString()), type = ActionLogLevel.error)
+            )
             e.message
         } catch (e: HttpException) {
             responseBuilder.status(e.code)
+            actionHistory.trackLogs(
+                ActionLog(InvalidReportMessage(e.stackTraceToString()), type = ActionLogLevel.error)
+            )
             e.message
         }
+
         responseBuilder.body(body)
-        return responseBuilder.build()
+        val response = responseBuilder.build()
+        actionHistory.trackActionRequestResponse(request, response)
+        workflowEngine.recordAction(actionHistory)
+
+        return response
     }
 
     /**
@@ -124,11 +148,27 @@ class FHIRFlowFunctions : Logging {
         val encodedResult = result.encode()
 
         val comparison = compare(String(blobContent), encodedResult)
+
+        val log: String
+        val type: ActionLogLevel
+
         if (!comparison.passed) {
-            logger.debug("Failed on message $message\n$comparison")
+            log = "Failed on message $message\n$comparison"
+            type = ActionLogLevel.error
         } else {
-            logger.debug("Successfully processed $message")
+            log = "Successfully processed $message"
+            type = ActionLogLevel.info
         }
+
+        logger.debug(log)
+
+        actionHistory.trackLogs(
+            ActionLog(FhirActionLogDetail(log), type = type)
+        )
+
+        actionHistory.trackActionParams(message)
+
+        workflowEngine.recordAction(actionHistory)
     }
 
     /**

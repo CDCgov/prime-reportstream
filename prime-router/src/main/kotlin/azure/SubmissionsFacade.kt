@@ -44,7 +44,7 @@ class SubmissionsFacade(
         showFailed: Boolean
     ): String {
         val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize, showFailed)
-        return mapper.writeValueAsString(result)
+        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(result)
     }
 
     /**
@@ -108,6 +108,8 @@ class SubmissionsFacade(
             it.enrichWithDescendants(relatedSubmissions)
         }
 
+        submission?.enrichWithSummary()
+
         return submission
     }
 
@@ -137,9 +139,10 @@ class SubmissionsFacade(
         return when {
             // Admins always get access
             claims.isPrimeAdmin -> true
-            // User has a sending organization claim, and that sendingOrg matches the action's sendingOrg
-            (claims.isSenderOrgClaim) &&
-                (action.sendingOrg == claims.organizationNameClaim) &&
+            // User has an organization claim that matches the action's sendingOrg
+            // No reason to also require that the org have (isSenderOrgClaim == true) because
+            // if they belong to the org that sent it, that's sufficient to say they have the right to see it.
+            (action.sendingOrg == claims.organizationNameClaim) &&
                 (!claims.organizationNameClaim.isNullOrBlank()) -> true
             else -> {
                 logger.error(
