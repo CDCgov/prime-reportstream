@@ -1,12 +1,54 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.fasterxml.jackson.annotation.JsonValue
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
+
+/**
+ * This class handles ReportFileHistory for Submissions from a sender.
+ *
+ * @param actionId reference to the `action` table for the action that created this file
+ * @param createdAt when the file was created
+ * @param httpStatus response code for the user fetching this report file
+ * @param externalName actual filename of the file
+ * @param reportId unique identifier for this specific report file
+ * @param schemaTopic the kind of data contained in the report (e.g. "covid-19")
+ * @param itemCount number of tests (data rows) contained in the report
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+class SubmissionHistory(
+    @JsonProperty("submissionId")
+    actionId: Long,
+    @JsonProperty("timestamp")
+    createdAt: OffsetDateTime,
+    @JsonProperty("sender")
+    val sendingOrg: String,
+    httpStatus: Int,
+    @JsonInclude(Include.NON_NULL)
+    externalName: String? = "",
+    @JsonProperty("id")
+    reportId: String? = null,
+    @JsonProperty("topic")
+    schemaTopic: String? = null,
+    @JsonProperty("reportItemCount")
+    itemCount: Int? = null
+) : ReportFileHistory(
+    actionId,
+    createdAt,
+    httpStatus,
+    externalName,
+    reportId,
+    schemaTopic,
+    itemCount,
+)
 
 /**
  * A `DetailedSubmissionHistory` represents the detailed life history of a submission of a message from a sender.
@@ -346,4 +388,60 @@ class DetailedSubmissionHistory(
 
         return sentReports.plus(downloadedReports).maxWithOrNull(compareBy { it.createdAt })?.createdAt
     }
+}
+
+/**
+ * Represents the organizations that receive submitted reports from the point of view of a Submission.
+ *
+ * @param organizationId identifier for the organization that owns this destination
+ * @param service the service used by the organization (e.g. elr)
+ * @param filteredReportRows filters that were triggered by the contents of the report
+ * @param filteredReportItems more structured version of filteredReportRows
+ * @param sendingAt the time that this destination is next expecting to receive a report
+ * @param itemCount final number of tests available in the report received by the destination
+ * @param itemCountBeforeQualFilter total number of tests that were in the submitted report before any filtering
+ * @param sentReports logs of reports for this submission sent to this destination
+ * @param downloadedReports logs of reports for this submission downloaded for this destination
+ */
+@JsonPropertyOrder(
+    value = [
+        "organization", "organizationId", "service", "itemCount", "itemCountBeforeQualFilter", "sendingAt"
+    ]
+)
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class Destination(
+    @JsonProperty("organization_id")
+    val organizationId: String,
+    val service: String,
+    val filteredReportRows: List<String>?,
+    val filteredReportItems: List<ReportStreamFilterResultForResponse>?,
+    @JsonProperty("sending_at")
+    @JsonInclude(Include.NON_NULL)
+    val sendingAt: OffsetDateTime?,
+    val itemCount: Int,
+    @JsonProperty("itemCountBeforeQualityFiltering")
+    val itemCountBeforeQualFilter: Int?,
+    var sentReports: MutableList<DetailReport> = mutableListOf(),
+    var downloadedReports: MutableList<DetailReport> = mutableListOf(),
+) {
+    val organization: String?
+        get() = WorkflowEngine.settingsProviderSingleton.findOrganizationAndReceiver(
+            "$organizationId.$service"
+        )?.let { (org, _) ->
+            org.description
+        }
+}
+
+/**
+ * Response use for the API for the filtered report items. This removes unneeded properties that exist in
+ * ReportStreamFilterResult. ReportStreamFilterResult is used to serialize and deserialize to/from the database.
+ *
+ * @param filterResult the filter result to use
+ */
+data class ReportStreamFilterResultForResponse(@JsonIgnore private val filterResult: ReportStreamFilterResult) {
+    val filterType = filterResult.filterType
+    val filterName = filterResult.filterName
+    val filteredTrackingElement = filterResult.filteredTrackingElement
+    val filterArgs = filterResult.filterArgs
+    val message = filterResult.message
 }
