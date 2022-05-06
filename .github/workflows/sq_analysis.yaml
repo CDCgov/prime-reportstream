@@ -3,8 +3,8 @@ on:
       types: [opened, synchronize, reopened]
   push:
     branches:
-      - acoushawk/add-sonarcloud-action
-      
+      - master
+
 name: Run Sunarcloud Scan
 jobs:
   sonarcloud:
