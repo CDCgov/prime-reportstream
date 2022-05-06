@@ -1,11 +1,10 @@
 on:
-  # Trigger analysis when pushing in master or pull requests, and when creating
-  # a pull request.
+  pull_request:
+      types: [opened, synchronize, reopened]
   push:
     branches:
       - acoushawk/add-sonarcloud-action
-  # pull_request:
-  #     types: [opened, synchronize, reopened]
+      
 name: Run Sunarcloud Scan
 jobs:
   sonarcloud:
@@ -23,8 +22,8 @@ jobs:
         node-version: 14
 
     - run: npm install
+
     - run: npm run test:ci
-    - run: ls coverage/
     
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@de2e56b42aa84d0b1c5b622644ac17e505c9a049
@@ -34,7 +33,7 @@ jobs:
       with:
         args: >
           -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
-          -Dsonar.sources=frontend-react/src
+          -Dsonar.sources=frontend-react/src,prime-router/src
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov
 
