@@ -11,7 +11,7 @@ paths:
     get:
       description: returns a list of simple submissions
       security:
-        - OktaAuth: [ ANONYMOUS ]
+        - OAuth2: [ user ]
       parameters:
         - name: organization
           in: path
@@ -29,6 +29,7 @@ paths:
                 $ref: '#/components/schemas/SubmissionHistoryList'
         '400':
           description: bad request
+
 components:
   schemas:
     SubmissionHistoryList:
@@ -61,3 +62,7 @@ components:
         reportItemCount:
           description: total number of individual reports sent to the Hub (in a csv, the number of data lines sent)
           type: integer
+
+  securitySchemes:
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
