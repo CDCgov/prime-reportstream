@@ -16,7 +16,7 @@ export const CsvSchemaDocumentation = () => {
             </Helmet>
             <section id="anchor-top">
                 <span className="text-base text-italic">
-                    Updated: February 18, 2022
+                    Updated: May 9, 2022
                 </span>
                 <h2 className="margin-top-0 ">
                     CSV schema documentation{" "}
@@ -128,7 +128,7 @@ export const CsvSchemaDocumentation = () => {
                     <li>
                         <a
                             id="standard-csv"
-                            href="/assets/csv/ReportStream-StandardCSV-ExampleData-20220218.csv"
+                            href={site.assets.standardCsv.path}
                             className="usa-link"
                         >
                             ReportStream standard CSV with example data
@@ -224,8 +224,8 @@ export const CsvSchemaDocumentation = () => {
                                                             Optional
                                                         </span>
                                                     )}
-                                                    {section.title ===
-                                                    "Ask on entry (AOE) data elements" ? (
+                                                    {!item.required &&
+                                                    item.requested ? (
                                                         <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-left-2 text-ttbottom">
                                                             Requested
                                                         </span>
