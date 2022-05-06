@@ -8,12 +8,13 @@ import {
 } from "react-router-dom";
 
 import { CODES, ErrorPage } from "../../error/ErrorPage";
+import { MarkdownContent } from "../../../components/MarkdownContent";
+import programmersGuidePath from "../../../content/programmers-guide.md";
 
 import { FacilitiesOverview } from "./Overview";
 import { AccountRegistrationGuide } from "./AccountRegistrationGuide";
 import { CsvUploadGuide } from "./CsvUploadGuide";
 import { CsvSchemaDocumentation } from "./CsvSchemaDocumentation";
-import { ProgrammersGuide } from "./ProgrammersGuide";
 
 export const GettingStartedTestingFacilities = () => {
     let { path, url } = useRouteMatch();
@@ -101,7 +102,11 @@ export const GettingStartedTestingFacilities = () => {
                             />
                             <Route
                                 path={`${path}/programmers-guide`}
-                                component={ProgrammersGuide}
+                                render={() => (
+                                    <MarkdownContent
+                                        markdownUrl={programmersGuidePath}
+                                    />
+                                )}
                             />
                             {/* Handles any undefined route */}
                             <Route

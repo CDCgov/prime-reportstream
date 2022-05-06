@@ -2,7 +2,7 @@
 
 VERSION 2 .1 – MARCH 2022
 
-## Contents
+## Table of contents
 
 ## Introduction
 ReportStream is a free, open-source data platform that makes it easy for public health
