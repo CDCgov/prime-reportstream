@@ -3,13 +3,13 @@ name: Terraform Test
 on:
   push:
     branches:
-      - test
+      - staging
   pull_request:
 
 jobs:
   pre_job:
     name: Pre Job
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-lastaging
     outputs:
       has_operations_change: ${{ steps.skip_check.outputs.operations }}
     steps:
@@ -23,16 +23,16 @@ jobs:
           # Only proceed if path of terraform overhaul exists and/or contents are updated
           filters: |
             operations:
-              - 'operations/app/terraform/vars/test/**'
+              - 'operations/app/terraform/vars/staging/**'
               - '.github/workflows/validate_terraform.yml'
-              - '.github/workflows/terraform_test.yml'
+              - '.github/workflows/terraform_staging.yml'
 
   validate_terraform_yaml:
     name: Validate Terraform
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
-    environment: test
-    runs-on: ubuntu-latest
+    environment: staging
+    runs-on: ubuntu-lastaging
     steps:
       - name: Check Out Changes
         uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
@@ -40,7 +40,7 @@ jobs:
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
-          env-name: test
+          env-name: staging
           tls-key: ${{ secrets.TLS_KEY }}
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
@@ -56,25 +56,25 @@ jobs:
       - name: Validate Terraform Formating
         id: fmt
         run: |
-          cd operations/app/terraform/vars/test
+          cd operations/app/terraform/vars/staging
           terraform fmt  -check -recursive -no-color
           
       - name: Run Terraform Init
         id: init
         run: |
-          cd operations/app/terraform/vars/test
+          cd operations/app/terraform/vars/staging
           terraform init
       
       - name: Run Terraform Validate
         id: validate
         run: |
-          cd operations/app/terraform/vars/test
+          cd operations/app/terraform/vars/staging
           terraform validate -no-color
 
       - name: Run Terraform Plan
         id: plan
         run: |
-          cd operations/app/terraform/vars/test
+          cd operations/app/terraform/vars/staging
           terraform plan -no-color -input=false
         continue-on-error: true
 
@@ -114,5 +114,5 @@ jobs:
 
 # Remarking out until I figured out why the previous action is failing
 #      - name: Terraform Apply
-#        if: github.ref == 'refs/heads/test' && github.event_name == 'push'
+#        if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
 #        run: terraform apply -auto-approve -input=false
