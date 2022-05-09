@@ -393,15 +393,15 @@ class DetailedSubmissionHistory(
 /**
  * Represents the organizations that receive submitted reports from the point of view of a Submission.
  *
- * @param organizationId identifier for the organization that owns this destination
- * @param service the service used by the organization (e.g. elr)
- * @param filteredReportRows filters that were triggered by the contents of the report
- * @param filteredReportItems more structured version of filteredReportRows
- * @param sendingAt the time that this destination is next expecting to receive a report
- * @param itemCount final number of tests available in the report received by the destination
- * @param itemCountBeforeQualFilter total number of tests that were in the submitted report before any filtering
- * @param sentReports logs of reports for this submission sent to this destination
- * @param downloadedReports logs of reports for this submission downloaded for this destination
+ * @property organizationId identifier for the organization that owns this destination
+ * @property service the service used by the organization (e.g. elr)
+ * @property filteredReportRows filters that were triggered by the contents of the report
+ * @property filteredReportItems more structured version of filteredReportRows
+ * @property sendingAt the time that this destination is next expecting to receive a report
+ * @property itemCount final number of tests available in the report received by the destination
+ * @property itemCountBeforeQualFilter total number of tests that were in the submitted report before any filtering
+ * @property sentReports logs of reports for this submission sent to this destination
+ * @property downloadedReports logs of reports for this submission downloaded for this destination
  */
 @JsonPropertyOrder(
     value = [
@@ -424,6 +424,9 @@ data class Destination(
     var sentReports: MutableList<DetailReport> = mutableListOf(),
     var downloadedReports: MutableList<DetailReport> = mutableListOf(),
 ) {
+    /**
+     * Finds the name for the organization based on the id provided.
+     */
     val organization: String?
         get() = WorkflowEngine.settingsProviderSingleton.findOrganizationAndReceiver(
             "$organizationId.$service"
@@ -439,9 +442,28 @@ data class Destination(
  * @param filterResult the filter result to use
  */
 data class ReportStreamFilterResultForResponse(@JsonIgnore private val filterResult: ReportStreamFilterResult) {
+    /**
+     * What kind of filter was triggered.
+     */
     val filterType = filterResult.filterType
+
+    /**
+     * What was the actual filter triggered.
+     */
     val filterName = filterResult.filterName
+
+    /**
+     * The name of the test that was filtered out.
+     */
     val filteredTrackingElement = filterResult.filteredTrackingElement
+
+    /**
+     * What specifically in the filter was triggered.
+     */
     val filterArgs = filterResult.filterArgs
+
+    /**
+     * Readable version of the various other properties this object has.
+     */
     val message = filterResult.message
 }
