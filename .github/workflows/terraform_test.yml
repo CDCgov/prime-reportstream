@@ -3,7 +3,7 @@ name: Terraform Test
 on:
   push:
     branches:
-      - jmp/5311/terraform-workflow
+      - test
   pull_request:
 
 jobs:
