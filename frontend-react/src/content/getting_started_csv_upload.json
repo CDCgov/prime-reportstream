@@ -18,7 +18,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Unique identifier",
                             "values": [
                                 ""
@@ -37,7 +36,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 ""
@@ -55,7 +53,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 ""
@@ -73,7 +70,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 ""
@@ -91,7 +87,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address, accepted value",
                             "values": [
                                 "ex: 1234 America Ln",
@@ -113,7 +108,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 ""
@@ -131,7 +125,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 ""
@@ -150,7 +143,6 @@
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "Two-character state abbreviation"
@@ -169,7 +161,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 ""
@@ -187,7 +178,6 @@
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "5 or 9 digit zip code",
                             "values": [
                                 "12345",
@@ -207,7 +197,6 @@
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "10-digit phone number",
                             "values": [
                                 "000-000-0000"
@@ -226,7 +215,6 @@
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy"
@@ -244,7 +232,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Accepted value",
                             "values": [
                                 "<code>M</code> or <code>Male</code>", 
@@ -267,7 +254,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Numeric or text accepted value",
                             "values": [
                                 "<code>1002-5</code> or <code>American Indian or Alaska Native</code>",
@@ -292,7 +278,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Numeric or text accepted value",
                             "values": [
                                 "<code>2135-2</code> or <code>Hispanic or Latino</code>",
@@ -312,7 +297,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "<code>eng</code> or <code>English</code>",
@@ -333,7 +317,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                             ],               
@@ -356,7 +339,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "Unique ID",
                             "values": [
                                 "ID12345-6789" 
@@ -374,7 +356,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "Unique identifier",
                             "values": [
                                 "<code>ID NOW</code>",
@@ -397,7 +378,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "LOINC code",
                             "values": [
                                 "94534-5",
@@ -421,7 +401,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Common values, SNOMED code",
                             "values": [
                                 "<code>Positive</code>",
@@ -446,7 +425,6 @@
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy HH:mm", "M/d/yyyy"
@@ -465,7 +443,6 @@
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy HH:mm", "M/d/yyyy"
@@ -484,7 +461,6 @@
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy HH:mm", "M/d/yyyy" 
@@ -503,7 +479,6 @@
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy HH:mm", "M/d/yyyy"
@@ -522,7 +497,6 @@
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy HH:mm", "M/d/yyyy" 
@@ -547,7 +521,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Common values, SNOMED code",
                             "values": [
                                 "<code>Nasal Swab</code>",
@@ -581,7 +554,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "Unique identifier",
                             "values": [
                                 "NPI example: 1013012657",
@@ -602,7 +574,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "" 
@@ -620,7 +591,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "" 
@@ -637,7 +607,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "" 
@@ -655,7 +624,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -673,7 +641,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -691,7 +658,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -709,7 +675,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "Two-character state abbreviation" 
@@ -745,7 +710,6 @@
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "10-digit phone number",
                             "values": [
                                 "000-000-0000"
@@ -769,7 +733,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "CLIA number",
                             "values": [
                                 "11D2030855" 
@@ -788,7 +751,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "" 
@@ -806,7 +768,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -824,7 +785,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -842,7 +802,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -860,7 +819,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "Two-character state abbreviation" 
@@ -896,7 +854,6 @@
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "10-digit phone number",
                             "values": [
                                 "000-000-0000"
@@ -920,7 +877,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Status",
                             "values": [
                                 "<code>Y</code> or <code>YES</code>",
@@ -940,7 +896,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Status",
                             "values": [
                                 "<code>Y</code> or <code>YES</code>",
@@ -960,7 +915,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Status",
                             "values": [
                                 "<code>Y</code> or <code>YES</code>",
@@ -980,7 +934,6 @@
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy"
@@ -998,7 +951,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Status",
                             "values": [
                                 "<code>Y</code> or <code>YES</code>",
@@ -1018,7 +970,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Status",
                             "values": [
                                 "<code>22232009</code> or <code>Hospital</code>",
@@ -1053,7 +1004,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Status",
                             "values": [
                                 "<code>Y</code> or <code>YES</code>",
@@ -1073,7 +1023,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Status",
                             "values": [
                                 "<code>Y</code> or <code>YES</code>",
@@ -1099,7 +1048,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "" 
@@ -1117,7 +1065,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -1135,7 +1082,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -1153,7 +1099,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -1171,7 +1116,6 @@
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "Two-character state abbreviation" 
@@ -1230,7 +1174,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "" 
@@ -1249,7 +1192,6 @@
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "<code>F</code> = Final result", 
