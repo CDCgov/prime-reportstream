@@ -22,8 +22,8 @@ export interface DAPHeaderProps {
 }
 
 export const DAPHeader = (params: DAPHeaderProps) => {
-    if (params.env === "") {
-        console.error("WARNING! params.env is empty");
+    if (params.env === "" || params.env === undefined) {
+        console.error("WARNING! params.env is empty or undefined");
     }
     if (!useDAP(params.env)) return <></>;
 
