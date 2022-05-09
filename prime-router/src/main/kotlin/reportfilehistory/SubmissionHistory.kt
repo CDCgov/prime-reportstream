@@ -186,6 +186,11 @@ class DetailedSubmissionHistory(
         }
     }
 
+    /**
+     * Enrich the submission history with various other related bits of history.
+     *
+     * @param descendants[] the various bits of DetailedSubmissionHistory that will be used to enrich
+     */
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
         check(descendants.distinctBy { it.actionId }.size == descendants.size)
         // Enforce an order on the enrichment:  process, send, download
@@ -202,9 +207,10 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * Enrich a parent detailed history with details from the process action
-     *
+     * Enrich a parent detailed history with details from the process action.
      * Add destinations, errors, and warnings, to the history details.
+     *
+     * @param descendant the history used for enriching
      */
     private fun enrichWithProcessAction(descendant: DetailedSubmissionHistory) {
         require(descendant.actionName == TaskAction.process) { "Must be a process action" }
@@ -214,16 +220,11 @@ class DetailedSubmissionHistory(
         warnings += descendant.warnings
     }
 
-    /*
-    private fun enrichWithBatchAction(descendant: DetailedSubmissionHistory) {
-        require(descendant.actionName == TaskAction.batch) { "Must be a process action" }
-    }
-    */
-
     /**
-     * Enrich a parent detailed history with details from the send action
-     *
+     * Enrich a parent detailed history with details from the send action.
      * Add sent report information to each destination present in the parent's historical details.
+     *
+     * @param descendant the history used for enriching
      */
     private fun enrichWithSendAction(descendant: DetailedSubmissionHistory) {
         require(descendant.actionName == TaskAction.send) { "Must be a send action" }
@@ -254,8 +255,9 @@ class DetailedSubmissionHistory(
 
     /**
      * Enrich a parent detailed history with details from the download action
-     *
      * Add download report information to each destination present in the parent's historical details.
+     *
+     * @param descendant the history used for enriching
      */
     private fun enrichWithDownloadAction(descendant: DetailedSubmissionHistory) {
         require(descendant.actionName == TaskAction.download) { "Must be a download action" }
@@ -301,7 +303,7 @@ class DetailedSubmissionHistory(
     /**
      * Runs the calculations for the overallStatus field so that it can be done during init.
      *
-     * @param realDestinations destinations where items have gone through and thus should be calculated
+     * @param realDestinations[] destinations where items have gone through and thus should be calculated
      * @return The status from the Status enum that matches the current Submission state.
      */
     private fun calculateStatus(realDestinations: List<Destination>): Status {
@@ -355,7 +357,7 @@ class DetailedSubmissionHistory(
     /**
      * Runs the calculations for the plannedCompletionAt field so that it can be done during init.
      *
-     * @param realDestinations destinations where items have gone through and thus should be calculated
+     * @param realDestinations[] destinations where items have gone through and thus should be calculated
      * @return The timestamp that equals the max of all the sendingAt values for this Submission's Destinations
      */
     private fun calculatePlannedCompletionAt(realDestinations: List<Destination>): OffsetDateTime? {
@@ -372,7 +374,7 @@ class DetailedSubmissionHistory(
     /**
      * Runs the calculations for the actualCompletedAt field so that it can be done during init.
      *
-     * @param realDestinations destinations where items have gone through and thus should be calculated
+     * @param realDestinations[] destinations where items have gone through and thus should be calculated
      * @return The timestamp that equals the max createdAt of all sent and downloaded reports
      *     after it has been sent to all receivers
      */
