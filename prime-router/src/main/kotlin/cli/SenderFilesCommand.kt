@@ -43,6 +43,10 @@ class SenderFilesCommand : CliktCommand(
         "--report-file-name", help = "File name of the receiver report", metavar = "file-name"
     )
 
+    private val messageIdArg by option(
+        "--message-id", help = "Message-id (uuid format) of the message", metavar = "message-id"
+    )
+
     private val offsetArg by option(
         "--offset", help = "The offset into the receiver report for the first item.", metavar = "index"
     )
@@ -139,6 +143,7 @@ class SenderFilesCommand : CliktCommand(
         val params = mutableListOf<Pair<String, String>>()
         reportIdArg?.let { params.add(SenderFilesFunction.REPORT_ID_PARAM to it) }
         reportFileNameArg?.let { params.add(SenderFilesFunction.REPORT_FILE_NAME_PARAM to it) }
+        messageIdArg?.let { params.add(SenderFilesFunction.MESSAGE_ID_PARAM to it) }
         offsetArg?.let { params.add(SenderFilesFunction.OFFSET_PARAM to it) }
         limitArg?.let { params.add(SenderFilesFunction.LIMIT_PARAM to it) }
         if (onlyReportItemsFlag) params.add(SenderFilesFunction.ONLY_REPORT_ITEMS to "true")

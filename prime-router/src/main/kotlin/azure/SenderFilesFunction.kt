@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.common.CsvUtilities
@@ -75,6 +76,7 @@ class SenderFilesFunction(
     data class FunctionParameters(
         val reportId: ReportId?,
         val reportFileName: String?,
+        val messageId: String?,
         val onlyDestinationReportItems: Boolean,
         val offset: Int,
         val limit: Int
@@ -86,15 +88,19 @@ class SenderFilesFunction(
      * Throws [IllegalArgumentException] if any parameter is invalid.
      */
     internal fun checkParameters(request: HttpRequestMessage<String?>): FunctionParameters {
-        val messageID = try {
-            request.queryParameters[MESSAGE_ID_PARAM]?.let { UUID.fromString(it) }
-        } catch (e: Exception) {
-            badRequest("Bad $MESSAGE_ID_PARAM parameter. Details: ${e.message}")
+        val messageId = request.queryParameters[MESSAGE_ID_PARAM]
+
+        var covidResultMetadataRecord: CovidResultMetadata? = null
+
+        if (messageId != null) {
+            covidResultMetadataRecord = dbAccess.fetchSingleMetadata(messageId)
+            if (covidResultMetadataRecord == null) {
+                badRequest("$MESSAGE_ID_PARAM not found in covid_result_metadata table.")
+            }
         }
-        val covidResultMetadataRecord = if (messageID != null) dbAccess.fetchSingleMetadata(messageID) else null
 
         val reportId = try {
-            if (messageID != null) {
+            if (messageId != null) {
                 covidResultMetadataRecord?.reportId
             } else {
                 request.queryParameters[REPORT_ID_PARAM]?.let { UUID.fromString(it) }
@@ -109,7 +115,7 @@ class SenderFilesFunction(
             badRequest("Bad $ONLY_REPORT_ITEMS parameter. Details: ${e.message}")
         }
         val offset = try {
-            if (messageID != null) {
+            if (messageId != null) {
                 covidResultMetadataRecord?.reportIndex
             }
             request.queryParameters[OFFSET_PARAM]?.toInt() ?: 0
@@ -128,6 +134,7 @@ class SenderFilesFunction(
         return FunctionParameters(
             reportId,
             reportFileName,
+            messageId,
             fullReport,
             offset,
             limit
@@ -144,9 +151,11 @@ class SenderFilesFunction(
      */
     internal fun processRequest(parameters: FunctionParameters): ProcessResult {
         val receiverReportFile = findOutputFile(parameters)
-        val senderItems = findSenderItems(receiverReportFile.reportId, parameters.offset, parameters.limit)
-        if (senderItems.isEmpty()) {
+        var senderItems = findSenderItems(receiverReportFile.reportId, parameters.offset, parameters.limit)
+        if (senderItems.isEmpty() && parameters.messageId == null) {
             notFound("No sender reports found for report: ${parameters.reportId}")
+        } else if (parameters.messageId != null) {
+            senderItems = listOf(SenderItems(parameters.reportId, parameters.offset, null, null))
         }
 
         val senderReports = downloadSenderReports(senderItems, parameters)

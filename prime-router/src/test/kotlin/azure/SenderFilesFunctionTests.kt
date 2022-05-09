@@ -110,7 +110,7 @@ class SenderFilesFunctionTests {
             A,B,C
             0,1,2
         """.trimIndent()
-        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, false, 0, 1)
+        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, null, false, 0, 1)
         val mockDbAccess = mockk<DatabaseAccess>()
         val mockBlobAccess = mockk<BlobAccess>()
         every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns listOf(
@@ -133,7 +133,7 @@ class SenderFilesFunctionTests {
         // Test that the case where the blob is deleted is handled as expected
         val receiverReportId: ReportId = UUID.randomUUID()
         val senderReportId: ReportId = UUID.randomUUID()
-        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, false, 0, 1)
+        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, null, false, 0, 1)
         val mockDbAccess = mockk<DatabaseAccess>()
         val mockBlobAccess = mockk<BlobAccess>()
         every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns listOf(
@@ -152,7 +152,7 @@ class SenderFilesFunctionTests {
         mockkObject(BlobAccess.Companion)
         val receiverReportId: ReportId = UUID.randomUUID()
         val senderReportId: ReportId = UUID.randomUUID()
-        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, false, 0, 1)
+        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, null, false, 0, 1)
         val mockDbAccess = mockk<DatabaseAccess>()
         val mockBlobAccess = mockk<BlobAccess>()
         every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns emptyList()

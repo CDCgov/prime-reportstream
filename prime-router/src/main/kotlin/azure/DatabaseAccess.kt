@@ -333,7 +333,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     fun fetchSingleMetadata(
-        messageID: UUID,
+        messageID: String,
         txn: DataAccessTransaction? = null
     ): CovidResultMetadata? {
         val ctx = if (txn != null) DSL.using(txn) else create
