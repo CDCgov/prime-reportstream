@@ -14,13 +14,13 @@ import java.util.UUID
  * When a report is sent, received, processed or downloaded, one of these entries is created.
  * The small amount of data makes this ideal for lists.
  *
- * @param actionId reference to the `action` table for the action that created this file
- * @param createdAt when the file was created
- * @param httpStatus response code for the user fetching this report file
- * @param externalName actual filename of the file
- * @param reportId unique identifier for this specific report file
- * @param schemaTopic the kind of data contained in the report (e.g. "covid-19")
- * @param itemCount number of tests (data rows) contained in the report
+ * @property actionId reference to the `action` table for the action that created this file
+ * @property createdAt when the file was created
+ * @property httpStatus response code for the user fetching this report file
+ * @property externalName actual filename of the file
+ * @property reportId unique identifier for this specific report file
+ * @property schemaTopic the kind of data contained in the report (e.g. "covid-19")
+ * @property itemCount number of tests (data rows) contained in the report
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class ReportFileHistory(
@@ -42,12 +42,12 @@ abstract class ReportFileHistory(
  * This class provides a detailed view for data in the `report_file` table and data from other related sources.
  * Due to the large amount of data and logic used here, instead use ReportFileHistory for lists.
  *
- * @param actionId reference to the `action` table for the action that created this file
- * @param actionName the type of action that created this report file
- * @param createdAt when the file was created
- * @param httpStatus response code for the user fetching this report file
- * @param reports other reports that are related to this report file's action log
- * @param logs container for logs generated throughout the fetching of this report file
+ * @property actionId reference to the `action` table for the action that created this file
+ * @property actionName the type of action that created this report file
+ * @property createdAt when the file was created
+ * @property httpStatus response code for the user fetching this report file
+ * @property reports other reports that are related to this report file's action log
+ * @property logs container for logs generated throughout the fetching of this report file
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class DetailedReportFileHistory(
@@ -152,17 +152,17 @@ abstract class DetailedReportFileHistory(
 /**
  * This is a container for various bits of report data used by DetailedReportFileHistory
  *
- * @param reportId unique identifier for this specific report
- * @param receivingOrg where is this report going?
- * @param receivingOrgSvc what service is receiving this report?
- * @param sendingOrg who sent this report?
- * @param sendingOrgClient what service did the sender use to send this report?
- * @param schemaTopic the kind of data contained in the report (e.g. "covid-19")
- * @param externalName actual filename of the report's file
- * @param createdAt when the report was created
- * @param nextActionAt when the report is next expected to send or process
- * @param itemCount number of tests (data rows) contained in the report
- * @param itemCountBeforeQualFilter number of tests that were submitted by the sender
+ * @property reportId unique identifier for this specific report
+ * @property receivingOrg where is this report going?
+ * @property receivingOrgSvc what service is receiving this report?
+ * @property sendingOrg who sent this report?
+ * @property sendingOrgClient what service did the sender use to send this report?
+ * @property schemaTopic the kind of data contained in the report (e.g. "covid-19")
+ * @property externalName actual filename of the report's file
+ * @property createdAt when the report was created
+ * @property nextActionAt when the report is next expected to send or process
+ * @property itemCount number of tests (data rows) contained in the report
+ * @property itemCountBeforeQualFilter number of tests that were submitted by the sender
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -188,7 +188,7 @@ data class DetailReport(
 
 /**
  * Consolidated action log class to be output to the API JSON response.
- * @param log the base log message to be consolidated
+ * @property log the base log message to be consolidated
  */
 @JsonInclude(Include.NON_NULL)
 class ConsolidatedActionLog(log: DetailActionLog) {
@@ -262,12 +262,12 @@ class ConsolidatedActionLog(log: DetailActionLog) {
 /**
  * Detail action log class used to read the data from the database.
  *
- * @param scope the level in which this log ocurred (e.g. report, item...)
- * @param reportId unique identifier for the report that owns this log
- * @param index position in the report of the item that caused this log
- * @param trackingId id for identifying the test this log is related to
- * @param type what kind of log is this? (e.g. filter, warning...)
- * @param detail additional information for this log
+ * @property scope the level in which this log ocurred (e.g. report, item...)
+ * @property reportId unique identifier for the report that owns this log
+ * @property index position in the report of the item that caused this log
+ * @property trackingId id for identifying the test this log is related to
+ * @property type what kind of log is this? (e.g. filter, warning...)
+ * @property detail additional information for this log
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)

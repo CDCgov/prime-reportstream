@@ -15,13 +15,14 @@ import java.time.OffsetDateTime
 /**
  * This class handles ReportFileHistory for Submissions from a sender.
  *
- * @param actionId reference to the `action` table for the action that created this file
- * @param createdAt when the file was created
- * @param httpStatus response code for the user fetching this report file
- * @param externalName actual filename of the file
- * @param reportId unique identifier for this specific report file
- * @param schemaTopic the kind of data contained in the report (e.g. "covid-19")
- * @param itemCount number of tests (data rows) contained in the report
+ * @property actionId reference to the `action` table for the action that created this file
+ * @property createdAt when the file was created
+ * @property sendingOrg the name of the organization that sent this submission
+ * @property httpStatus response code for the user fetching this report file
+ * @property externalName actual filename of the file
+ * @property reportId unique identifier for this specific report file
+ * @property schemaTopic the kind of data contained in the report (e.g. "covid-19")
+ * @property itemCount number of tests (data rows) contained in the report
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 class SubmissionHistory(
@@ -53,12 +54,12 @@ class SubmissionHistory(
 /**
  * A `DetailedSubmissionHistory` represents the detailed life history of a submission of a message from a sender.
  *
- * @param actionId of the Submission is `action_id` from the `action` table
- * @param actionName of the Submission is `action_name` from the `action` table
- * @param createdAt of the Submission is `created_at` from the the `action` table
- * @param httpStatus of the Submission is `http_status` from the the `action` table
- * @param reports of the Submission are the Reports related to the action from the `report_file` table
- * @param logs of the Submission are the Logs produced by the submission from the `action_log` table
+ * @property actionId of the Submission is `action_id` from the `action` table
+ * @property actionName of the Submission is `action_name` from the `action` table
+ * @property createdAt of the Submission is `created_at` from the the `action` table
+ * @property httpStatus of the Submission is `http_status` from the the `action` table
+ * @property reports of the Submission are the Reports related to the action from the `report_file` table
+ * @property logs of the Submission are the Logs produced by the submission from the `action_log` table
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder(
