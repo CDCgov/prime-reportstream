@@ -23,7 +23,7 @@ jobs:
           # Only proceed if path of terraform overhaul exists and/or contents are updated
           filters: |
             operations:
-              - 'operations/app/terraform/vars/staging/**'
+              - 'operations/app/terraform/vars/test/**'
               - '.github/workflows/validate_terraform.yml'
               - '.github/workflows/terraform_test.yml'
 
@@ -31,7 +31,7 @@ jobs:
     name: Validate Terraform
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
-    environment: staging
+    environment: test
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
@@ -40,7 +40,7 @@ jobs:
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
-          env-name: staging
+          env-name: test
           tls-key: ${{ secrets.TLS_KEY }}
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
@@ -56,25 +56,25 @@ jobs:
       - name: Validate Terraform Formating
         id: fmt
         run: |
-          cd operations/app/terraform/vars/staging
+          cd operations/app/terraform/vars/test
           terraform fmt  -check -recursive -no-color
           
       - name: Run Terraform Init
         id: init
         run: |
-          cd operations/app/terraform/vars/staging
+          cd operations/app/terraform/vars/test
           terraform init
       
       - name: Run Terraform Validate
         id: validate
         run: |
-          cd operations/app/terraform/vars/staging
+          cd operations/app/terraform/vars/test
           terraform validate -no-color
 
       - name: Run Terraform Plan
         id: plan
         run: |
-          cd operations/app/terraform/vars/staging
+          cd operations/app/terraform/vars/test
           terraform plan -no-color -input=false
         continue-on-error: true
 
@@ -111,6 +111,6 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
-#      - name: Terraform Apply
-#        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-#        run: terraform apply -auto-approve -input=false
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/test' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
