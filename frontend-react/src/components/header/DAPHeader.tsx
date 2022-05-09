@@ -2,22 +2,19 @@ import React from "react";
 import { Helmet } from "react-helmet";
 import { useLocation } from "react-router-dom";
 
-const urlsForDAP = [
-    "/login",
-    "/getting-started/",
-    "/how-it-works/",
-    "/terms-of-service",
-];
-
 export const useDAP = (env: string | undefined) => {
     const location = useLocation();
     let currentPathname = location.pathname;
 
-    return (
-        env === "production" &&
-        (currentPathname === "/" ||
-            urlsForDAP.some((url) => currentPathname.startsWith(url)))
-    );
+    /*
+        NOTE: we originally allowed all known public-facing pages at this point,
+        i.e. login, TOS and all the Getting Started and How it Works pages
+        but then found that these would not be triggered due this site being SPA (vs. static)
+        i.e. only on true page loads- visiting the site initially or manually refreshing a page
+        For now, we'll only track visits to the main homepage, and allow App Insights to track
+        more detailed analytics.
+     */
+    return env === "production" && currentPathname === "/";
 };
 
 export interface DAPHeaderProps {
