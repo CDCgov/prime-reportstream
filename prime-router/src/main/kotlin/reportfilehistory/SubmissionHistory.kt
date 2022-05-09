@@ -104,7 +104,8 @@ class DetailedSubmissionHistory(
      *     WAITING_TO_DELIVER - processed but yet to be sent to/downloaded by any receivers
      *     PARTIALLY_DELIVERED - processed, successfully sent to/downloaded by at least one receiver
      *     DELIVERED - processed, successfully sent to/downloaded by all receivers
-     * @todo For now, no "send error" type of state.
+     *
+     * For now, no "send error" type of state.
      *     If a send error occurs for example,
      *     it'll just sit in the waitingToDeliver or
      *     partiallyDelivered state until someone fixes it.
