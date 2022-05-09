@@ -109,8 +109,7 @@ jobs:
             })
 
       - name: Terraform Plan Status
-        if: github.event_name == 'pull_request'
-        if: steps.plan.outcome == 'failure'
+        if: github.event_name == 'pull_request' && steps.plan.outcome == 'failure'
         run: exit 1
 
 # Remarking out until I figured out why the previous action is failing
