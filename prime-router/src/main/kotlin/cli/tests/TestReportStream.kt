@@ -295,7 +295,8 @@ Examples:
             SftpcheckTest(),
             End2End(),
             Merge(),
-            WatersAuthTests(),
+            Server2ServerAuthTests(),
+            OktaAuthTests(),
             QualityFilter(),
             Hl7Null(),
             TooManyCols(),
@@ -349,7 +350,7 @@ abstract class CoolTest {
     /**
      * Stores a list of output messages instead of printing the messages to the console.
      */
-    private val outputMsgs = mutableListOf<String>()
+    val outputMsgs = mutableListOf<String>()
 
     abstract suspend fun run(
         environment: Environment,
@@ -769,8 +770,14 @@ abstract class CoolTest {
         lateinit var allGoodReceivers: MutableList<Receiver>
         lateinit var allGoodCounties: String
         const val historyTestOrgName = "historytest"
-        val historyTestSender = settings.findSender("$historyTestOrgName.default")
-            ?: error("Unable to find sender $historyTestOrgName.default")
+        val historyTestSender = (
+            settings.findSender("$historyTestOrgName.default")
+                ?: error("Unable to find sender $historyTestOrgName.default")
+            ) as CovidSender
+        val defaultIgnoreSender = (
+            settings.findSender("$orgName.default")
+                ?: error("Unable to find sender $orgName.default")
+            ) as CovidSender
 
         fun initListOfGoodReceiversAndCounties() {
             allGoodReceivers = mutableListOf(csvReceiver, hl7Receiver, hl7BatchReceiver, hl7NullReceiver)
