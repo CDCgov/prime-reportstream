@@ -14,7 +14,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
 
-class SubmissionTests {
+class SubmissionHistoryTests {
     @Test
     fun `tests consolidation of logs`() {
         fun createLogs(logs: List<DetailActionLog>): DetailedSubmissionHistory {
