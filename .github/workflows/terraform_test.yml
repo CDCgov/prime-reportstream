@@ -9,7 +9,7 @@ on:
 jobs:
   pre_job:
     name: Pre Job
-    runs-on: ubuntu-lastaging
+    runs-on: ubuntu-latest
     outputs:
       has_operations_change: ${{ steps.skip_check.outputs.operations }}
     steps:
@@ -32,7 +32,7 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
     environment: staging
-    runs-on: ubuntu-lastaging
+    runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
         uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
