@@ -66,7 +66,5 @@ runs:
       uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535
       with:
         name: static-website-react-${{ inputs.version }}
-        path: |
-          frontend-react/static-website-react.tar.gz
-          frontend-react/coverage/lcov.info
+        path: frontend-react/static-website-react.tar.gz
         retention-days: 1
