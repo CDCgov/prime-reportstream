@@ -78,7 +78,8 @@ jobs:
           terraform plan -no-color -input=false
         continue-on-error: true
 
-      - uses: actions/github-script@v6
+      - name: Update PR
+        uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         env:
           PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
@@ -108,9 +109,11 @@ jobs:
             })
 
       - name: Terraform Plan Status
+        if: github.event_name == 'pull_request'
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/test' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
+# Remarking out until I figured out why the previous action is failing
+#      - name: Terraform Apply
+#        if: github.ref == 'refs/heads/test' && github.event_name == 'push'
+#        run: terraform apply -auto-approve -input=false
