@@ -15,9 +15,9 @@ describe("UseDateRange", () => {
         const { result } = renderHook(() => useDateRange());
         act(() =>
             result.current.update({
-                type: RangeSettingsActionType.UPDATE_START,
+                type: RangeSettingsActionType.UPDATE_FROM,
                 payload: {
-                    start: new Date("2022-12-31").toISOString(),
+                    from: new Date("2022-12-31").toISOString(),
                 },
             })
         );
@@ -31,9 +31,9 @@ describe("UseDateRange", () => {
         const { result } = renderHook(() => useDateRange());
         act(() =>
             result.current.update({
-                type: RangeSettingsActionType.UPDATE_END,
+                type: RangeSettingsActionType.UPDATE_TO,
                 payload: {
-                    end: new Date("2022-01-01").toISOString(),
+                    to: new Date("2022-01-01").toISOString(),
                 },
             })
         );
@@ -47,9 +47,9 @@ describe("UseDateRange", () => {
         const { result } = renderHook(() => useDateRange());
         act(() =>
             result.current.update({
-                type: RangeSettingsActionType.UPDATE_END,
+                type: RangeSettingsActionType.UPDATE_TO,
                 payload: {
-                    end: new Date("2022-01-01").toISOString(),
+                    to: new Date("2022-01-01").toISOString(),
                 },
             })
         );
@@ -70,8 +70,8 @@ describe("UseDateRange", () => {
             result.current.update({
                 type: RangeSettingsActionType.RESET,
                 payload: {
-                    start: new Date("2022-12-31").toISOString(),
-                    end: new Date("2022-01-01").toISOString(),
+                    from: new Date("2022-12-31").toISOString(),
+                    to: new Date("2022-01-01").toISOString(),
                 },
             })
         );

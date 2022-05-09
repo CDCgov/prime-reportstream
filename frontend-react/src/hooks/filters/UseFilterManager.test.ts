@@ -25,25 +25,25 @@ describe("Helper functions", () => {
     test("cursorOrRange", () => {
         const rangeAsStart = cursorOrRange(
             "ASC",
-            RangeField.START,
+            RangeField.FROM,
             "cursor",
             "range"
         );
         const cursorAsStart = cursorOrRange(
             "DESC",
-            RangeField.START,
+            RangeField.FROM,
             "cursor",
             "range"
         );
         const rangeAsEnd = cursorOrRange(
             "DESC",
-            RangeField.END,
+            RangeField.TO,
             "cursor",
             "range"
         );
         const cursorAsEnd = cursorOrRange(
             "ASC",
-            RangeField.END,
+            RangeField.TO,
             "cursor",
             "range"
         );

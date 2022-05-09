@@ -16,6 +16,8 @@
 }
 
 .date-picker-container {
-    max-width: 225px;
+    display: flex;
+    /* Row-Reverse allows us to put the most recent date
+     first and historic date last like we've had it prior */
     margin-right: 32px;
 }
