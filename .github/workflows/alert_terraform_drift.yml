@@ -1,0 +1,86 @@
+name: Alert Terraform Drift
+
+on:
+  push:
+    branches:
+      - josiahsiegel/identify-tf-drift
+
+jobs:
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_operations_change: ${{ steps.skip_check.outputs.operations }}
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+
+      - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
+        id: skip_check
+        with:
+          list-files: csv
+          # Only proceed if path of terraform overhaul exists and/or contents are updated
+          filters: |
+            operations:
+              - 'operations/app/terraform/**'
+              - '.github/workflows/alert_terraform_drift.yml'
+
+  generate_terraform_plan:
+    name: Generate Terraform Plan for ${{ matrix.env }}
+    needs: 
+      - pre_job
+    if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        env: [staging, prod]
+    environment: ${{ matrix.env }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ matrix.env }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: true
+
+      - name: Initialize Terraform
+        run: terraform -chdir=operations/app/terraform/vars/${{ matrix.env }} init
+
+      - name: Validate All Terraform Modules
+        run: terraform -chdir=operations/app/terraform/vars/${{ matrix.env }} validate
+
+      - name: Collect Terraform stats
+        uses: josiahsiegel/terraform-stats@v1
+        id: stats1
+        with:
+          terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
+      - name: Get stats outputs
+        run: |
+          echo "terraform-version: ${{ steps.stats1.outputs.terraform-version }}"
+          echo "drift-count: ${{ steps.stats1.outputs.drift-count }}"
+          echo "resource-drifts: ${{ steps.stats1.outputs.resource-drifts }}"
+          echo "change-count: ${{ steps.stats1.outputs.change-count }}"
+          echo "resource-changes: ${{ steps.stats1.outputs.resource-changes }}"
+
+      #     echo "$PLAN_OUT" | sed -E 's/^([[:space:]]+)([-+])/\2\1/g' > plan.txt
+
+      # - name: Put Plan in Env Var
+      #   run: |
+      #     cat plan.txt
+      #     echo "===================="
+      #     PLAN=$(cat plan.txt)
+      #     echo "$PLAN"
+      #     echo "PLAN<<EOF" >> $GITHUB_ENV
+      #     echo "$PLAN" >> $GITHUB_ENV
+      #     echo "EOF" >> $GITHUB_ENV
+
+      # - name: Display plan
+      #   run: echo "${{ env.PLAN }}"
