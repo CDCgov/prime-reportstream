@@ -39,4 +39,3 @@ export const showError = (message: string) => {
     showAlertNotification("error", message);
     console.trace("ShowError", message);
 };
-// noop to trigger build
