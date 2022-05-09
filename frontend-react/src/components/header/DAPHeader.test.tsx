@@ -10,6 +10,7 @@ describe("Test useDAP for DAPHeader component", () => {
         expect(useDAP("production")).toBe(true);
         expect(useDAP("development")).toBe(false);
         expect(useDAP(undefined)).toBe(false);
+        expect(useDAP("")).toBe(false);
     });
 
     test("Check DAP for upload page (NOT public)", () => {
