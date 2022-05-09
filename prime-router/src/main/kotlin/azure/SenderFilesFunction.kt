@@ -150,12 +150,15 @@ class SenderFilesFunction(
      * Main logic of the Azure function. Useful for unit testing.
      */
     internal fun processRequest(parameters: FunctionParameters): ProcessResult {
-        val receiverReportFile = findOutputFile(parameters)
-        var senderItems = findSenderItems(receiverReportFile.reportId, parameters.offset, parameters.limit)
-        if (senderItems.isEmpty() && parameters.messageId == null) {
-            notFound("No sender reports found for report: ${parameters.reportId}")
-        } else if (parameters.messageId != null) {
+        var senderItems: List<SenderItems>
+        if (parameters.messageId != null) {
             senderItems = listOf(SenderItems(parameters.reportId, parameters.offset, null, null))
+        } else {
+            val receiverReportFile = findOutputFile(parameters)
+            senderItems = findSenderItems(receiverReportFile.reportId, parameters.offset, parameters.limit)
+            if (senderItems.isEmpty()) {
+                notFound("No sender reports found for report: ${parameters.reportId}")
+            }
         }
 
         val senderReports = downloadSenderReports(senderItems, parameters)
