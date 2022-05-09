@@ -618,7 +618,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     /** search for a setting and it children, insert a deleted setting for those found */
     fun insertDeletedSettingAndChildren(
         settingId: Int,
-        settingMetadata: SettingMetadata,
+        createdBy: String,
+        createdAt: OffsetDateTime,
         txn: DataAccessTransaction
     ) {
         DSL.using(txn)
@@ -643,8 +644,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                     DSL.value(true, SETTING.IS_DELETED),
                     DSL.value(false, SETTING.IS_ACTIVE),
                     SETTING.VERSION.plus(1),
-                    DSL.value(settingMetadata.createdBy, SETTING.CREATED_BY),
-                    DSL.value(settingMetadata.createdAt, SETTING.CREATED_AT)
+                    DSL.value(createdBy, SETTING.CREATED_BY),
+                    DSL.value(createdAt, SETTING.CREATED_AT)
                 )
                     .from(SETTING)
                     .where(
@@ -969,6 +970,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                     testData.map { td ->
                         CovidResultMetadataRecord().also { record ->
                             record.messageId = td.messageId?.take(METADATA_MAX_LENGTH)
+                            record.previousMessageId = td.previousMessageId?.take(METADATA_MAX_LENGTH)
                             record.reportId = td.reportId
                             record.reportIndex = td.reportIndex
                             record.orderingProviderName =

@@ -45,7 +45,7 @@ class FileSettingsTests {
                 receivers: 
                   - name: elr
                     organizationName: phd1
-                    topic: test
+                    topic: covid-19
                     customerStatus: active
                     jurisdictionalFilter: [ "matches(a, 1)"]
                     deidentify: false
@@ -61,7 +61,7 @@ class FileSettingsTests {
                 senders:
                   - name: sender
                     organizationName: phd1
-                    topic: topic
+                    topic: covid-19
                     customerStatus: active
                     schemaName: one
                     format: CSV
@@ -94,7 +94,7 @@ class FileSettingsTests {
                 countyName = null,
                 senders = listOf(),
                 receivers = listOf(
-                    Receiver("elr", "single", "topic", CustomerStatus.INACTIVE, "schema")
+                    Receiver("elr", "single", "covid-19", CustomerStatus.INACTIVE, "schema")
                 )
             )
         )
@@ -144,7 +144,7 @@ class FileSettingsTests {
         val org1 = DeepOrganization(
             "test", "test", Organization.Jurisdiction.FEDERAL, null, null,
             receivers = listOf(
-                Receiver("service1", "test", "topic1", CustomerStatus.INACTIVE, "schema1"),
+                Receiver("service1", "test", "covid-19", CustomerStatus.INACTIVE, "schema1"),
             )
         )
         val settings = FileSettings().also {
@@ -162,8 +162,8 @@ class FileSettingsTests {
         val org1 = DeepOrganization(
             "test", "test", Organization.Jurisdiction.FEDERAL, null, null,
             receivers = listOf(
-                Receiver("service1", "test", "topic1", CustomerStatus.INACTIVE, "schema1"),
-                Receiver("service1", "test", "topic1", CustomerStatus.INACTIVE, "schema1")
+                Receiver("service1", "test", "covid-19", CustomerStatus.INACTIVE, "schema1"),
+                Receiver("service1", "test", "covid-19", CustomerStatus.INACTIVE, "schema1")
             )
         )
         assertThat {
