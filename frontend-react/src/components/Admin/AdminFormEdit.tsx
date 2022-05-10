@@ -4,10 +4,15 @@ import {
     Label,
     Textarea,
     TextInput,
+    Dropdown,
 } from "@trussworks/react-uswds";
 import { useRef } from "react";
 
 import { checkTextAreaJson } from "../../utils/misc";
+import {
+    getListOfEnumValues,
+    ReportStreamSettingsEnum,
+} from "../../utils/TemporarySettingsAPITypes";
 
 export const TextInputComponent = (params: {
     fieldname: string;
@@ -15,12 +20,14 @@ export const TextInputComponent = (params: {
     defaultvalue: string | null;
     savefunc: (val: string) => void;
     disabled?: boolean;
+    toolTip?: JSX.Element;
 }): JSX.Element => {
     const key = params.fieldname;
     return (
         <Grid row>
             <Grid col={3}>
                 <Label htmlFor={params.fieldname}>{params.label}:</Label>
+                {params.toolTip ? params.toolTip : null}
             </Grid>
             <Grid col={9}>
                 <TextInput
@@ -30,7 +37,7 @@ export const TextInputComponent = (params: {
                     defaultValue={params.defaultvalue || ""}
                     data-testid={key}
                     maxLength={255}
-                    className="rs-textarea-json-input"
+                    className="rs-input"
                     onChange={(e) => params.savefunc(e?.target?.value || "")}
                     disabled={params.disabled}
                 />
@@ -46,9 +53,9 @@ export const TextAreaComponent = (params: {
     savefunc: (val: object) => void;
     defaultnullvalue: string | null;
     disabled?: boolean;
+    toolTip?: JSX.Element;
 }): JSX.Element => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
-
     let defaultValue = JSON.stringify(params?.defaultvalue, undefined, 2);
     if (
         defaultValue === "null" ||
@@ -66,6 +73,7 @@ export const TextAreaComponent = (params: {
         <Grid row>
             <Grid col={3}>
                 <Label htmlFor={params.fieldname}>{params.label}:</Label>
+                {params.toolTip ? params.toolTip : null}
             </Grid>
             <Grid col={9}>
                 <Textarea
@@ -74,7 +82,7 @@ export const TextAreaComponent = (params: {
                     name={key}
                     defaultValue={defaultValue}
                     data-testid={key}
-                    className="rs-textarea-json-input"
+                    className="rs-input"
                     onBlur={(e) => {
                         const text =
                             e?.target?.value || (defaultnullvalue as string);
@@ -112,6 +120,45 @@ export const CheckboxComponent = (params: {
                     label=""
                     onChange={(e) => params.savefunc(e?.target?.checked)}
                 />
+            </Grid>
+        </Grid>
+    );
+};
+
+export interface DropdownProps {
+    fieldname: string;
+    label: string;
+    defaultvalue: string | undefined;
+    savefunc: (val: string) => void;
+    disabled?: boolean;
+    toolTip?: JSX.Element;
+    valuesFrom: ReportStreamSettingsEnum;
+}
+
+export const DropdownComponent = (params: DropdownProps): JSX.Element => {
+    const key = params.fieldname;
+    return (
+        <Grid row>
+            <Grid col={3}>
+                <Label htmlFor={params.fieldname}>{params.label}:</Label>
+                {params.toolTip ? params.toolTip : null}
+            </Grid>
+            <Grid col={9}>
+                <Dropdown
+                    id={key}
+                    data-testid={key}
+                    name={key}
+                    defaultValue={params.defaultvalue}
+                    className="rs-input"
+                    onChange={(e) => params.savefunc(e?.target?.value)}
+                >
+                    <option value={""}>-- Please Select --</option>
+                    {getListOfEnumValues(params.valuesFrom).map((v) => (
+                        <option key={key + v} value={v}>
+                            {v}
+                        </option>
+                    ))}
+                </Dropdown>
             </Grid>
         </Grid>
     );

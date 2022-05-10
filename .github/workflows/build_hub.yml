@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: "Check out changes"
         uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
         id: skip_check
         with:
           list-files: csv
@@ -49,13 +49,13 @@ jobs:
       # - name: Install docker-compose
       #   run: apt-get update && apt-get --yes install docker-compose
       - name: Set up JDK 11
-        uses: actions/setup-java@f69f00b5e5324696b07f6b1c92f0470a6df00780
+        uses: actions/setup-java@4fe61d24fe5472910b93bdeffb8aad49f979d862
         with:
           java-version: '11'
           distribution: 'adopt'
           cache: 'gradle'
 
-      - uses: gradle/wrapper-validation-action@v1
+      - uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
 
       - name: Spin up build containers
         run: docker-compose -f docker-compose.postgres.yml up -d
@@ -64,7 +64,7 @@ jobs:
         run: ./gradlew package -Pshowtests
         
       - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
+        uses: EnricoMi/publish-unit-test-result-action@0ee9ecdb13bc5ce38c9e7527f2582942ced3b246
         # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
         if: >
           always() &&
@@ -92,7 +92,7 @@ jobs:
           docker-compose -f docker-compose.yml up -d prime_dev ftps sftp azurite
           
       - name: Give some time for the container to start
-        uses: juliangruber/sleep-action@v1
+        uses: juliangruber/sleep-action@1e243206ce103180af2f3ebbcab6437b52140789
         with:
           time: 30s
       
@@ -106,7 +106,7 @@ jobs:
         run: ./gradlew testIntegration -Pshowtests
 
       - name: Publish Integration Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
+        uses: EnricoMi/publish-unit-test-result-action@0ee9ecdb13bc5ce38c9e7527f2582942ced3b246
         # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
         if: >
           always() &&
@@ -128,7 +128,7 @@ jobs:
           
       - name: Dump docker logs
         if: always()
-        uses: jwalton/gh-docker-logs@v2.2.0
+        uses: jwalton/gh-docker-logs@a8cb5301950dd4d2b86619cd487b3b281526b178
         with:
           images: 'prime-router_prime_dev,vault'
 
@@ -202,13 +202,13 @@ jobs:
         uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
 
       - name: Set up JDK 11
-        uses: actions/setup-java@f69f00b5e5324696b07f6b1c92f0470a6df00780
+        uses: actions/setup-java@4fe61d24fe5472910b93bdeffb8aad49f979d862
         with:
           java-version: '11'
           distribution: 'adopt'
           cache: 'gradle'
 
-      - uses: gradle/wrapper-validation-action@v1
+      - uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
 
       - name: Spin up build containers
         run: docker-compose -f docker-compose.postgres.yml up -d

@@ -453,17 +453,26 @@ abstract class SettingCommand(
      * Echo verbose information to the console respecting the --silent and --verbose flag
      */
     fun verbose(message: String) {
-        if (verbose) TermUi.echo(message)
+        try {
+            if (verbose) TermUi.echo(message)
+        } catch (e: IllegalStateException) {
+            // ignore this error that can occur if directly calling SettingsCommands (e.g. put) rather than from cmdline
+        }
     }
 
     /**
      * Abort the program with the message
      */
     fun abort(message: String): Nothing {
-        if (silent)
-            throw ProgramResult(statusCode = 1)
-        else
+        try {
+            if (silent)
+                throw ProgramResult(statusCode = 1)
+            else
+                throw PrintMessage(message, error = true)
+        } catch (e: IllegalStateException) {
+            // The if (silent) test can cause this exception if directly calling SettingsCommands, and not from cmdline.
             throw PrintMessage(message, error = true)
+        }
     }
 
     /**

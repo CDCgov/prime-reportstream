@@ -58,7 +58,7 @@ runs:
       shell: bash
       run: echo "USE_DCT=true" >> $GITHUB_ENV
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@fb598a63ae348fa914e94cd0ff38f362e927b741
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router
@@ -73,7 +73,7 @@ runs:
       run: az acr login --name ${{ env.ACR_NAME }}
       shell: bash
 
-    - uses: Azure/get-keyvault-secrets@v1
+    - uses: Azure/get-keyvault-secrets@71857adb0104f2651bcd91bef5e55f3d6c28a16a
       if: env.USE_DCT == 'true'
       with:
         keyvault: ${{ env.KEY_VAULT }}

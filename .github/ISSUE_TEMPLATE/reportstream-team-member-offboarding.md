@@ -10,17 +10,25 @@ assignees: ''
 # Offboarding checklist
 
 Note: please do not put sensitive information here (issues are public)
+
+Initially assign to team lead for person being offboarded.
+
 ## Engineering specific:
 - [ ] Change GitHub access level
+- [ ] Zenhub
 - [ ] Azure (CDC as a result of ActiveDirectory)
 - [ ] PagerDuty
 - [ ] Splunk
-- [ ] Docker
+- [ ] Docker Desktop license assignment
 
 ## General:
-- [ ] Revoke Okta accounts (staging & prod)
-- [ ] Slack access
-- [ ] Metabase (staging & prod)
+- [ ] Revoke Okta accounts (Search for name, agency email, and contractor email)
+    - [ ] staging
+    - [ ] prod
+- [ ] Slack access to channels
+- [ ] Metabase
+    - [ ] staging
+    - [ ] prod
 - [ ] Office 365 (CDC as a result of ActiveDirectory)
 - [ ] Keybase
 - [ ] Mural

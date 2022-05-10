@@ -79,13 +79,5 @@ class SubmissionsFacadeTests {
         action = resetAction()
         action.sendingOrg = "UnhappyOrg" // mismatch sendingOrg
         assertThat(facade.checkSenderAccessAuthorization(action, claims)).isFalse()
-
-        // Error: Org matches, but its not a sending org.
-        val notSendingOrg: Map<String, Any> = mapOf(
-            "organization" to listOf("DHmyOrg"),
-            "sub" to "bob@bob.com"
-        )
-        claims = AuthenticatedClaims(notSendingOrg)
-        assertThat(facade.checkSenderAccessAuthorization(action, claims)).isFalse()
     }
 }
