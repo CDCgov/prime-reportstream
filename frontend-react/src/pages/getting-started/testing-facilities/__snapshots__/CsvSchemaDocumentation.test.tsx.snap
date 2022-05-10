@@ -1,9 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CsvSchemaDocumentationItem render a schema item 1`] = `
+exports[`CsvSchemaDocumentationItem renders a schema item 1`] = `
 <div>
   <h4
     class="font-body-md margin-bottom-2"
+    data-testid="header"
     id="doc-sample_item"
   >
     Sample Item
@@ -15,6 +16,7 @@ exports[`CsvSchemaDocumentationItem render a schema item 1`] = `
   </h4>
   <div
     class="margin-bottom-3"
+    data-testid="notes"
   />
   <div
     class="grid-row margin-bottom-05"
