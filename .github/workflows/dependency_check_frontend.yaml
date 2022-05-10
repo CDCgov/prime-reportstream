@@ -1,0 +1,49 @@
+name: Check For Unused Frontend Dependencies
+
+on:
+  schedule:
+    - cron: '0 8 1,15 * *' # At 8am on 1st and 15th of each month
+
+permissions:
+  contents: read
+  issues: write
+
+defaults:
+  run:
+    working-directory: frontend-react
+
+jobs:
+  create_issue:
+    runs-on: ubuntu-latest
+    container:
+      image: node:14-alpine
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
+      
+      - name: Install depcheck and run
+        id: depcheck
+        run: |
+          npm install depcheck typescript node-sass
+          node_modules/depcheck/bin/depcheck.js > output.log| true
+          cat output.log
+          export OUTPUT="$(cat output.log)"
+          OUTPUT="${OUTPUT//'%'/'%25'}"
+          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+          echo "::set-output name=output::$(echo "$OUTPUT")"
+
+      - name: Check if output is empty
+        id: check-output
+        if: "${{ steps.depcheck.outputs.output != 'No depcheck issue' }}"
+        run: echo "::set-output name=ticket::true"
+
+      - name: Create other issue from template
+        if: ${{ steps.check-output.outputs.ticket }}
+        uses: JasonEtco/create-an-issue@9e6213aec58987fa7d2f4deb8b256b99e63107a2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OUTPUT: ${{ steps.depcheck.outputs.output }}
+          DATE: ${{ steps.date.outputs.today }}
+        with:
+          filename: .github/ISSUE_TEMPLATE/dependency_template.md
