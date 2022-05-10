@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, DatePicker, Label } from "@trussworks/react-uswds";
+import { Button, DateRangePicker } from "@trussworks/react-uswds";
 
 import "../../pages/submissions/SubmissionPages.css";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
@@ -7,7 +7,11 @@ import {
     CursorActionType,
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
-import { RangeSettingsActionType } from "../../hooks/filters/UseDateRange";
+import {
+    FALLBACK_TO,
+    FALLBACK_FROM,
+    RangeSettingsActionType,
+} from "../../hooks/filters/UseDateRange";
 
 export enum StyleClass {
     CONTAINER = "grid-container filter-container",
@@ -40,61 +44,27 @@ const inclusiveDateString = (originalDate: string) => {
  * and will use the context to get these values.
  */
 function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
-    const FALLBACK_LOCAL_START = "2999-12-31";
-    const FALLBACK_LOCAL_END = "2020-01-01";
-
     /* Local state to hold values before pushing to context. Pushing to context
      * will trigger a re-render due to the API call fetching new data. We have local
      * state to hold these so updates don't render immediately after setting a filter */
-    const [localStartRange, setLocalStartRange] =
-        useState<string>(FALLBACK_LOCAL_START);
-    const [localEndRange, setLocalEndRange] =
-        useState<string>(FALLBACK_LOCAL_END);
+    const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM);
+    const [rangeTo, setRangeTo] = useState<string>(FALLBACK_TO);
 
     const updateRange = () => {
-        if (localStartRange && localEndRange) {
-            filterManager.updateRange({
-                type: RangeSettingsActionType.RESET,
-                payload: {
-                    start: new Date(
-                        inclusiveDateString(localStartRange)
-                    ).toISOString(),
-                    end: new Date(localEndRange).toISOString(),
-                },
-            });
-            cursorManager.update({
-                type: CursorActionType.RESET,
-                payload: new Date(
-                    inclusiveDateString(localStartRange)
-                ).toISOString(),
-            });
-        } else if (localStartRange && !localEndRange) {
-            filterManager.updateRange({
-                type: RangeSettingsActionType.UPDATE_START,
-                payload: {
-                    start: new Date(
-                        inclusiveDateString(localStartRange)
-                    ).toISOString(),
-                },
-            });
-            cursorManager.update({
-                type: CursorActionType.RESET,
-                payload: new Date(
-                    inclusiveDateString(localStartRange)
-                ).toISOString(),
-            });
-        } else if (!localStartRange && localEndRange) {
-            filterManager.updateRange({
-                type: RangeSettingsActionType.UPDATE_END,
-                payload: {
-                    end: new Date(localEndRange).toISOString(),
-                },
-            });
-            cursorManager.update({
-                type: CursorActionType.RESET,
-                payload: new Date(localEndRange).toISOString(),
-            });
-        }
+        filterManager.updateRange({
+            type: RangeSettingsActionType.RESET,
+            payload: {
+                from: new Date(rangeFrom).toISOString(),
+                to: new Date(inclusiveDateString(rangeTo)).toISOString(),
+            },
+        });
+        cursorManager.update({
+            type: CursorActionType.RESET,
+            payload:
+                filterManager.sortSettings.order === "DESC"
+                    ? new Date(inclusiveDateString(rangeTo)).toISOString()
+                    : new Date(rangeFrom).toISOString(),
+        });
     };
 
     /* Pushes local state to context and resets cursor to page 1 */
@@ -110,49 +80,36 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
         cursorManager.update({ type: CursorActionType.RESET });
 
         // Clear local state
-        setLocalStartRange(FALLBACK_LOCAL_START);
-        setLocalEndRange(FALLBACK_LOCAL_END);
+        setRangeFrom(FALLBACK_FROM);
+        setRangeTo(FALLBACK_TO);
     };
 
     return (
         <div data-testid="filter-container" className={StyleClass.CONTAINER}>
             <div className="grid-row display-flex flex-align-end">
-                <div className={StyleClass.DATE_CONTAINER}>
-                    <Label htmlFor="start-date" id="start-date-label">
-                        Submitted (Start Range)
-                    </Label>
-                    {/* BUG: Despite value being set to the local state, clearing it
-                     does not actually clear the displayed value. */}
-                    <DatePicker
-                        id="start-date"
-                        name="start-date-picker"
-                        placeholder="Start Date"
-                        value={localStartRange}
-                        onChange={(val) =>
+                <DateRangePicker
+                    className={StyleClass.DATE_CONTAINER}
+                    startDateLabel="From (Start Range):"
+                    startDatePickerProps={{
+                        id: "start-date",
+                        name: "start-date-picker",
+                        onChange: (val?: string) => {
                             val
-                                ? setLocalStartRange(val)
-                                : console.log("StartRange is undefined")
-                        }
-                    />
-                </div>
-                <div className={StyleClass.DATE_CONTAINER}>
-                    <Label htmlFor="start-date" id="start-date-label">
-                        Submitted (End Range)
-                    </Label>
-                    {/* BUG: Despite value being set to the local state, clearing it
-                     does not actually clear the displayed value. */}
-                    <DatePicker
-                        id="end-date"
-                        name="end-date-picker"
-                        placeholder="End Date"
-                        value={localEndRange}
-                        onChange={(val) =>
+                                ? setRangeFrom(val)
+                                : console.warn("Start Range is undefined");
+                        },
+                    }}
+                    endDateLabel="Until (End Range):"
+                    endDatePickerProps={{
+                        id: "end-date",
+                        name: "end-date-picker",
+                        onChange: (val?: string) => {
                             val
-                                ? setLocalEndRange(val)
-                                : console.log("EndRange is undefined")
-                        }
-                    />
-                </div>
+                                ? setRangeTo(val)
+                                : console.warn("Start Range is undefined");
+                        },
+                    }}
+                />
                 <div className="button-container">
                     <div className={StyleClass.DATE_CONTAINER}>
                         <Button
@@ -166,6 +123,7 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
                         <Button
                             onClick={() => clearAll()}
                             type={"button"}
+                            name="clear-button"
                             unstyled
                         >
                             Clear
