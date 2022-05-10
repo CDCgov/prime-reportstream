@@ -16,8 +16,14 @@ import {
     getVersionWarning,
     VersionWarningType,
 } from "../../utils/misc";
+import { ObjectTooltip } from "../tooltips/ObjectTooltip";
+import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
 
-import { TextAreaComponent, TextInputComponent } from "./AdminFormEdit";
+import {
+    TextAreaComponent,
+    TextInputComponent,
+    DropdownComponent,
+} from "./AdminFormEdit";
 import { AdminFormWrapper } from "./AdminFormWrapper";
 import {
     ConfirmSaveSettingModal,
@@ -176,11 +182,12 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                     savefunc={(v) => (orgSenderSettings.name = v)}
                     disabled={action === "edit"}
                 />
-                <TextInputComponent
+                <DropdownComponent
                     fieldname={"format"}
                     label={"Format"}
                     defaultvalue={orgSenderSettings.format}
                     savefunc={(v) => (orgSenderSettings.format = v)}
+                    valuesFrom={"format"}
                 />
                 <TextInputComponent
                     fieldname={"topic"}
@@ -188,11 +195,12 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                     defaultvalue={orgSenderSettings.topic}
                     savefunc={(v) => (orgSenderSettings.topic = v)}
                 />
-                <TextInputComponent
+                <DropdownComponent
                     fieldname={"customerStatus"}
                     label={"Customer Status"}
                     defaultvalue={orgSenderSettings.customerStatus}
                     savefunc={(v) => (orgSenderSettings.customerStatus = v)}
+                    valuesFrom={"customerStatus"}
                 />
                 <TextInputComponent
                     fieldname={"schemaName"}
@@ -203,15 +211,17 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                 <TextAreaComponent
                     fieldname={"keys"}
                     label={"Keys"}
+                    toolTip={<ObjectTooltip obj={new SampleKeysObj()} />}
                     defaultvalue={orgSenderSettings.keys}
                     defaultnullvalue={""}
                     savefunc={(v) => (orgSenderSettings.keys = v)}
                 />
-                <TextInputComponent
+                <DropdownComponent
                     fieldname={"processingType"}
                     label={"Processing Type"}
                     defaultvalue={orgSenderSettings.processingType}
                     savefunc={(v) => (orgSenderSettings.processingType = v)}
+                    valuesFrom={"processingType"}
                 />
                 <Grid row className="margin-top-2">
                     <Button
