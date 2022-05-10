@@ -223,7 +223,9 @@ class SenderFilesFunction(
                 ),
                 request = ReportFileMessage.Request(
                     reportId = senderItems.first().receiverReportId?.toString().orEmpty(),
-                    indices = senderItems.map { it.receiverReportIndex!! }
+                    receiverReportIndices = senderItems.map { it.receiverReportIndex },
+                    messageID = parameters.messageId.toString().orEmpty(),
+                    senderReportIndices = parameters.offset
                 )
             )
         }
