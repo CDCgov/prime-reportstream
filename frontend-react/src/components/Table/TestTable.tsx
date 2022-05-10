@@ -32,7 +32,7 @@ export const TestTable = () => {
         hasNext,
         hasPrev,
         update: updateCursors,
-    } = useCursorManager("firstCursor");
+    } = useCursorManager(filterManager.rangeSettings.to);
 
     /* Ensure there's at least 1 more cursor in the cursorMap
      * to test the Next/Prev buttons. In a real application
@@ -97,6 +97,7 @@ export const TestTable = () => {
         return (
             <ul>
                 <li>{`range: from ${filterManager.rangeSettings.from} to ${filterManager.rangeSettings.to}`}</li>
+                <li>{`cursor: ${cursors.current}`}</li>
             </ul>
         );
     };
