@@ -127,6 +127,7 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
                         <Button
                             onClick={() => clearAll()}
                             type={"button"}
+                            name="clear-button"
                             unstyled
                         >
                             Clear

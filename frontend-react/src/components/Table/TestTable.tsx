@@ -6,6 +6,7 @@ import useCursorManager, {
 import useFilterManager from "../../hooks/filters/UseFilterManager";
 
 import Table, { ColumnConfig, TableConfig } from "./Table";
+import TableFilters from "./TableFilters";
 
 const dummyRowOne = {
     one: "value one",
@@ -90,11 +91,38 @@ export const TestTable = () => {
         rows: fakeRows,
     };
 
+    /* To test internal state, since Enzyme isn't supported and RTL doesn't let you
+     * access it, you have to render it out and query the screen for exact text */
+    const StateTestRendering = () => {
+        return (
+            <ul>
+                <li>{`range: from ${filterManager.rangeSettings.from} to ${filterManager.rangeSettings.to}`}</li>
+            </ul>
+        );
+    };
+
     return (
-        <Table
-            config={config}
-            filterManager={filterManager}
-            cursorManager={{ cursors, hasNext, hasPrev, update: updateCursors }}
-        />
+        <>
+            <StateTestRendering />
+            <TableFilters
+                filterManager={filterManager}
+                cursorManager={{
+                    cursors,
+                    hasNext,
+                    hasPrev,
+                    update: updateCursors,
+                }}
+            />
+            <Table
+                config={config}
+                filterManager={filterManager}
+                cursorManager={{
+                    cursors,
+                    hasNext,
+                    hasPrev,
+                    update: updateCursors,
+                }}
+            />
+        </>
     );
 };

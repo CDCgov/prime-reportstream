@@ -1,4 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 
@@ -95,7 +96,44 @@ describe("Table, pagination button tests", () => {
     });
 });
 
-describe("Table, sort order tests", () => {
+describe("Table, filter integration tests", () => {
+    beforeEach(() => renderWithRouter(<TestTable />));
+    test("date range selection and clearing", () => {
+        /* Workaround to assert changing state */
+        const defaultState =
+            "range: from 2000-01-01T00:00:00.000Z to 3000-01-01T00:00:00.000Z";
+        expect(screen.getByText(/range:/)).toHaveTextContent(defaultState);
+
+        /* Borrowed some of this from Trussworks' own tests: their
+         * components are tricky to test. */
+        const datePickerButtons = screen.getAllByTestId("date-picker-button");
+        const startDatePickerButton = datePickerButtons[0];
+        const endDatePickerButton = datePickerButtons[1];
+
+        /* Select Start Date */
+        userEvent.click(startDatePickerButton);
+        const newStartDateButton = screen.getByText("21");
+        userEvent.click(newStartDateButton);
+
+        /* Select End Date */
+        userEvent.click(endDatePickerButton);
+        const newEndDateButton = screen.getByText("23");
+        userEvent.click(newEndDateButton);
+
+        const filterButton = screen.getByText("Filter");
+        userEvent.click(filterButton);
+
+        /* Assert the value of state in string has changed */
+        expect(screen.getByText(/range:/)).not.toHaveTextContent(defaultState);
+
+        const clearButton = screen.getByText("Clear");
+        userEvent.click(clearButton);
+
+        expect(screen.getByText(/range:/)).toHaveTextContent(defaultState);
+    });
+});
+
+describe("Table, sort order integration tests", () => {
     beforeEach(() => renderWithRouter(<TestTable />));
 
     test("Click header to sort", () => {
