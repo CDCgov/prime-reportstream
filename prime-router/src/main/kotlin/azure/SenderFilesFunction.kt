@@ -116,9 +116,10 @@ class SenderFilesFunction(
         }
         val offset = try {
             if (messageId != null) {
-                covidResultMetadataRecord?.reportIndex
+                covidResultMetadataRecord?.reportIndex ?: badRequest("No index set for message id: $MESSAGE_ID_PARAM.")
+            } else {
+                request.queryParameters[OFFSET_PARAM]?.toInt() ?: 0
             }
-            request.queryParameters[OFFSET_PARAM]?.toInt() ?: 0
         } catch (e: Exception) {
             badRequest("Bad $OFFSET_PARAM parameter. Details: ${e.message}")
         }
@@ -221,7 +222,7 @@ class SenderFilesFunction(
                     createdAt = reportFile.createdAt.toString()
                 ),
                 request = ReportFileMessage.Request(
-                    reportId = senderItems.first().receiverReportId.toString(),
+                    reportId = senderItems.first().receiverReportId?.toString().orEmpty(),
                     indices = senderItems.map { it.receiverReportIndex!! }
                 )
             )
