@@ -1306,7 +1306,35 @@ data class Element(
 
         /**
          * Given a nullable [cleanedValue] this method tries to parse a phone number in
-         * a safe way according to our four most common phone regions: US, Mexico, Canada, and Australia.
+         * a safe way according to our four most common phone regions as following:
+         *      "US",  // United states
+         *      "MX",  // Mexico
+         *      "CA",  // Canada
+         *      "AU", // Australia
+         *      "AG", // Antigua
+         *      "AI", // Anguilla
+         *      "AS", // American Samoa
+         *      "BB", // Barbados
+         *      "BM", // Bermuda
+         *      "BS", // Bahamas
+         *      "DM", // Dominica
+         *      "DO", // Dominican Republic
+         *      "GD", // Grenada
+         *      "GU", // Guam
+         *      "JM", // Jamaica
+         *      "KN", // St. Kitts and Nevis
+         *      "KY", // Cayman Islands
+         *      "LC", // St. Lucia
+         *      "MP", // Northern Mariana Islands
+         *      "MS", // Montserrat
+         *      "PR", // Puerto Rico
+         *      "SX", // Sint Maarten
+         *      "TC", // Turks and Caicos
+         *      "TT", // Trinidad and Tobago
+         *      "VC", // Saint Vincent and the Grenadines
+         *      "VG", // British Virgin Islands
+         *      "VI", // Virgin Islands
+         *      "UM", // US Minor Outlying Islands
          * If the number really can't be parsed at all (and the phoneNumberUtil is very lenient) then
          * it is almost certainly not a phone number, so return null
          */
