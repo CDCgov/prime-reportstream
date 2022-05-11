@@ -104,7 +104,7 @@ class HL7toFhirTranslator(private val messageEngine: HL7MessageEngine = defaultE
      * Obtain the message type for a given HL7 [message].
      * @return the message type
      */
-    private fun getMessageTemplateType(message: Message): String {
+    internal fun getMessageTemplateType(message: Message): String {
         val header = message.get("MSH")
         check(header is MSH)
         return header.messageType.msg1_MessageCode.value +
