@@ -101,7 +101,7 @@ class SenderFilesFunction(
 
         val reportId = try {
             if (messageId != null) {
-                covidResultMetadataRecord?.reportId ?: badRequest("No report ID found for message id: $MESSAGE_ID_PARAM.")
+                covidResultMetadataRecord?.reportId ?: badRequest("No reportID found for messageID: $MESSAGE_ID_PARAM.")
             } else {
                 request.queryParameters[REPORT_ID_PARAM]?.let { UUID.fromString(it) }
             }
