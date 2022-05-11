@@ -1,35 +1,13 @@
-name: Alert Terraform Drift
+name: Alert Terraform Changes
 
 on:
-  push:
-    branches:
-      - josiahsiegel/identify-tf-drift
+  workflow_dispatch:
+  schedule:
+    - cron: "0 12 * * *"
 
 jobs:
-  pre_job:
-    name: Pre Job
-    runs-on: ubuntu-latest
-    outputs:
-      has_operations_change: ${{ steps.skip_check.outputs.operations }}
-    steps:
-      - name: Check Out Changes
-        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
-
-      - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
-        id: skip_check
-        with:
-          list-files: csv
-          # Only proceed if path of terraform overhaul exists and/or contents are updated
-          filters: |
-            operations:
-              - 'operations/app/terraform/**'
-              - '.github/workflows/alert_terraform_drift.yml'
-
-  generate_terraform_plan:
-    name: Generate Terraform Plan for ${{ matrix.env }}
-    needs: 
-      - pre_job
-    if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
+  alert_tf_changes:
+    name: Check Terraform plan for ${{ matrix.env }}
     strategy:
       fail-fast: false
       matrix:
@@ -39,7 +17,6 @@ jobs:
     steps:
       - name: Check Out Changes
         uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
-
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -50,19 +27,17 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
-
       - name: Collect Terraform stats
-        uses: josiahsiegel/terraform-stats@b6efb4020500addfaad6600cb37e596b6b8220e0
+        uses: josiahsiegel/terraform-stats@64e3f3a7e4fb74408ab939c334f32f272ca7035d
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
-      - name: Get stats outputs
+      - name: Format outputs for slack
         run: |
-          echo "terraform-version: ${{ steps.stats1.outputs.terraform-version }}"
-          echo "drift-count: ${{ steps.stats1.outputs.drift-count }}"
-          echo "resource-drifts: ${{ steps.stats1.outputs.resource-drifts }}"
-          echo "change-count: ${{ steps.stats1.outputs.change-count }}"
-          echo "resource-changes: ${{ steps.stats1.outputs.resource-changes }}"
+          echo "resource-changes=$(echo '${{ steps.stats1.outputs.resource-changes }}' \
+            | sed 's/\"/\\\"/g')" >> $GITHUB_ENV
+          echo "resource-drifts=$(echo '${{ steps.stats1.outputs.resource-drifts }}' \
+            | sed 's/\"/\\\"/g')" >> $GITHUB_ENV
       - name: Send custom JSON data to Slack workflow
         id: slack
         uses: slackapi/slack-github-action@34c3fd73326693ef04728f8611669d918a2d781d
@@ -71,8 +46,8 @@ jobs:
             {
               "change-count": "${{ steps.stats1.outputs.change-count }}",
               "drift-count": "${{ steps.stats1.outputs.drift-count }}",
-              "resource-changes": "${{ steps.stats1.outputs.resource-changes }}",
-              "resource-drifts": "${{ steps.stats1.outputs.resource-drifts }}",
+              "resource-changes": "${{ env.resource-changes }}",
+              "resource-drifts": "${{ env.resource-drifts }}",
               "env": "prime-reportstream ${{ matrix.env }}"
             }
         env:
