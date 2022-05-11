@@ -38,14 +38,14 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
     fun `test get message template`() {
         val message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
         assertThat(message.size).isEqualTo(1)
-        assertThat(HL7toFhirTranslator().getMessageTemplateType(message[0])).isEqualTo("ORU_R01")
+        assertThat(HL7toFhirTranslator.getInstance().getMessageTemplateType(message[0])).isEqualTo("ORU_R01")
     }
 
     @Test
     fun `test get message model`() {
         var message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
         assertThat(message.size).isEqualTo(1)
-        val model = HL7toFhirTranslator().getHL7MessageModel(message[0])
+        val model = HL7toFhirTranslator.getInstance().getHL7MessageModel(message[0])
         assertThat(model).isNotNull()
         assertThat(model.messageName).isEqualTo("ORU_R01")
 
@@ -60,7 +60,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         """.trimIndent()
         message = HL7Reader(ActionLogger()).getMessages(unsupportedHL7)
         assertThat(message.size).isEqualTo(1)
-        assertThat { HL7toFhirTranslator().getHL7MessageModel(message[0]) }.isFailure()
+        assertThat { HL7toFhirTranslator.getInstance().getHL7MessageModel(message[0]) }.isFailure()
     }
 
     @Test
@@ -68,7 +68,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         // Note that FHIR content will be tested as an integration test
         val message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
         assertThat(message.size).isEqualTo(1)
-        val bundle = HL7toFhirTranslator().translate(message[0])
+        val bundle = HL7toFhirTranslator.getInstance().translate(message[0])
         assertThat(bundle).isNotNull()
         assertThat(bundle.type).isEqualTo(Bundle.BundleType.MESSAGE)
         assertThat(bundle.id).isNotEmpty()

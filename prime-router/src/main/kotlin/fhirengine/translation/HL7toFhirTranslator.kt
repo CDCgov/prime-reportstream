@@ -15,7 +15,7 @@ import org.hl7.fhir.r4.model.Coding
 /**
  * Translate an HL7 message to FHIR.
  */
-class HL7toFhirTranslator(private val messageEngine: HL7MessageEngine = defaultEngine) : Logging {
+class HL7toFhirTranslator internal constructor(private val messageEngine: HL7MessageEngine = defaultEngine) : Logging {
     companion object {
         init {
             // TODO Change to use the local classpath per documentation
