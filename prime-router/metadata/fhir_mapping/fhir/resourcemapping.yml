@@ -1,9 +1,3 @@
-#
-# (C) Copyright IBM Corp. 2020, 2021
-#
-# SPDX-License-Identifier: Apache-2.0
-#
-
 Patient: org.hl7.fhir.r4.model.Patient
 Encounter: org.hl7.fhir.r4.model.Encounter
 Observation: org.hl7.fhir.r4.model.Observation
