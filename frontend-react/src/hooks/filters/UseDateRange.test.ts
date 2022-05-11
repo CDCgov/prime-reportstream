@@ -6,40 +6,40 @@ describe("UseDateRange", () => {
     test("renders with default values", () => {
         const { result } = renderHook(() => useDateRange());
         expect(result.current.settings).toEqual({
-            start: "3000-01-01T00:00:00.000Z",
-            end: "2000-01-01T00:00:00.000Z",
+            to: "3000-01-01T00:00:00.000Z",
+            from: "2000-01-01T00:00:00.000Z",
         });
     });
 
-    test("dispatch can update start", () => {
+    test("dispatch can update From", () => {
         const { result } = renderHook(() => useDateRange());
         act(() =>
             result.current.update({
-                type: RangeSettingsActionType.UPDATE_START,
+                type: RangeSettingsActionType.UPDATE_FROM,
                 payload: {
-                    start: new Date("2022-12-31").toISOString(),
+                    from: new Date("2022-12-31").toISOString(),
                 },
             })
         );
         expect(result.current.settings).toEqual({
-            start: "2022-12-31T00:00:00.000Z",
-            end: "2000-01-01T00:00:00.000Z",
+            to: "3000-01-01T00:00:00.000Z",
+            from: "2022-12-31T00:00:00.000Z",
         });
     });
 
-    test("dispatch can update end", () => {
+    test("dispatch can update To", () => {
         const { result } = renderHook(() => useDateRange());
         act(() =>
             result.current.update({
-                type: RangeSettingsActionType.UPDATE_END,
+                type: RangeSettingsActionType.UPDATE_TO,
                 payload: {
-                    end: new Date("2022-01-01").toISOString(),
+                    to: new Date("2022-01-01").toISOString(),
                 },
             })
         );
         expect(result.current.settings).toEqual({
-            start: "3000-01-01T00:00:00.000Z",
-            end: "2022-01-01T00:00:00.000Z",
+            to: "2022-01-01T00:00:00.000Z",
+            from: "2000-01-01T00:00:00.000Z",
         });
     });
 
@@ -47,9 +47,9 @@ describe("UseDateRange", () => {
         const { result } = renderHook(() => useDateRange());
         act(() =>
             result.current.update({
-                type: RangeSettingsActionType.UPDATE_END,
+                type: RangeSettingsActionType.UPDATE_TO,
                 payload: {
-                    end: new Date("2022-01-01").toISOString(),
+                    to: new Date("2022-01-01").toISOString(),
                 },
             })
         );
@@ -59,8 +59,8 @@ describe("UseDateRange", () => {
             })
         );
         expect(result.current.settings).toEqual({
-            start: "3000-01-01T00:00:00.000Z",
-            end: "2000-01-01T00:00:00.000Z",
+            to: "3000-01-01T00:00:00.000Z",
+            from: "2000-01-01T00:00:00.000Z",
         });
     });
 
@@ -70,14 +70,14 @@ describe("UseDateRange", () => {
             result.current.update({
                 type: RangeSettingsActionType.RESET,
                 payload: {
-                    start: new Date("2022-12-31").toISOString(),
-                    end: new Date("2022-01-01").toISOString(),
+                    from: new Date("2022-12-31").toISOString(),
+                    to: new Date("2022-01-01").toISOString(),
                 },
             })
         );
         expect(result.current.settings).toEqual({
-            start: "2022-12-31T00:00:00.000Z",
-            end: "2022-01-01T00:00:00.000Z",
+            from: "2022-12-31T00:00:00.000Z",
+            to: "2022-01-01T00:00:00.000Z",
         });
     });
 });

@@ -1,0 +1,40 @@
+on:
+  pull_request:
+      types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - master
+
+name: Run Sunarcloud Scan
+jobs:
+  sonarcloud:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-react
+    steps:
+    - uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 14
+
+    - run: npm install
+
+    - run: npm run test:ci
+
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@de2e56b42aa84d0b1c5b622644ac17e505c9a049
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        args: >
+          -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
+          -Dsonar.coverage.exclusions=frontend-react/**/__mocks__/**,frontend-react/**/*.test.*
+          -Dsonar.sources=frontend-react/src,prime-router/src
+          -Dsonar.projectKey=CDCgov_prime-data-hub
+          -Dsonar.organization=cdcgov
+
