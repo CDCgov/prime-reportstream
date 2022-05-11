@@ -13,7 +13,7 @@
                             "name": "Patient ID",
                             "colHeader": "patient_id",
                             "required": false,
-                            "requested": false,
+                            "requested": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,

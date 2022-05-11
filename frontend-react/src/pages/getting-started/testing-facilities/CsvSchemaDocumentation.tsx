@@ -253,8 +253,8 @@ export const CsvSchemaDocumentation = () => {
                     </span>
                 </p>
                 <p>
-                    Fields are not required. If available, including this data
-                    is incredibly helpful to public health.
+                    Fields are not required by HHS, but the data is incredibly
+                    helpful to and, in some cases, required by jurisdictions.
                 </p>
                 <p>
                     <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-right-1 text-middle">
