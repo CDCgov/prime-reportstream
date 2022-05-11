@@ -1,11 +1,13 @@
 package gov.cdc.prime.router.fhirengine.utils
 
 import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.model.v251.segment.MSH
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidHL7Message
 import org.apache.logging.log4j.kotlin.Logging
+import java.util.Date
 
 /**
  * Converts raw HL7 data (message or batch) to HL7 message objects.
@@ -34,5 +36,18 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             actionLogger.error(InvalidHL7Message("Unable to find HL7 messages in provided data."))
             throw IllegalArgumentException("Empty Hl7 data")
         } else return messages
+    }
+
+    companion object {
+        /**
+         * Get the [message] timestamp from MSH-7.
+         * @return the timestamp or null if not specified
+         */
+        fun getMessageTimestamp(message: Message): Date? {
+            val timestamp = (message["MSH"] as MSH).msh7_DateTimeOfMessage
+            return if (!timestamp.isEmpty && !timestamp.ts1_Time.isEmpty) {
+                timestamp.ts1_Time.valueAsDate
+            } else null
+        }
     }
 }

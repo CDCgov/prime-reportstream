@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation
 
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v251.segment.MSH
+import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import io.github.linuxforhealth.fhir.FHIRContext
 import io.github.linuxforhealth.hl7.ConverterOptions
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
@@ -9,6 +10,7 @@ import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Coding
 
 /**
  * Translate an HL7 message to FHIR.
@@ -93,7 +95,9 @@ class HL7toFhirTranslator(private val messageEngine: HL7MessageEngine = defaultE
         // If timezone specification is needed it can be provided via a custom HL7MessageEngine with a custom FHIRContext that has the time zone ID set
 
         val messageModel = getHL7MessageModel(hl7Message)
-        return messageModel.convert(hl7Message, messageEngine)
+        val bundle = messageModel.convert(hl7Message, messageEngine)
+        enhanceBundleMetadata(bundle, hl7Message)
+        return bundle
     }
 
     /**
@@ -106,5 +110,21 @@ class HL7toFhirTranslator(private val messageEngine: HL7MessageEngine = defaultE
         return header.messageType.msg1_MessageCode.value +
             "_" +
             header.messageType.msg2_TriggerEvent.value
+    }
+
+    /**
+     * Enhance the [bundle] metadata with data from an [hl7Message].  This is not part of the library configuration.
+     */
+    private fun enhanceBundleMetadata(bundle: Bundle, hl7Message: Message) {
+        bundle.type = Bundle.BundleType.MESSAGE
+        // For bundles of type MESSAGE the timestamp is the time the HL7 was generated.
+        bundle.timestamp = HL7Reader.getMessageTimestamp(hl7Message)
+
+        // The HL7 message ID
+        val mshSegment = hl7Message["MSH"] as MSH
+        bundle.identifier.value = mshSegment.messageControlID.value
+
+        if (!mshSegment.security.isEmpty) bundle.meta.security =
+            listOf(Coding("", mshSegment.security.value, mshSegment.security.value))
     }
 }
