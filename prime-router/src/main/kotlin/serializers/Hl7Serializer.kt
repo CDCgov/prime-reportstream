@@ -14,6 +14,8 @@ import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import com.anyascii.AnyAscii
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import com.google.i18n.phonenumbers.Phonenumber
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -1269,6 +1271,29 @@ class Hl7Serializer(
         val extension = parts[2]
         val localWithDash = if (local.length == 7) "${local.slice(0..2)}-${local.slice(3..6)}" else local
 
+        /**
+         * Validate phone number and return pair of region (US, CA, MX, AU) and phone number
+         * @param [phoneNumber] phone number to validate.
+         * @return region (US, CA, MX, AU) and phone number if valid.  Otherwise, return null, null.
+         */
+        fun parsePhoneNumber(phoneNumber: String): Pair<String?, Phonenumber.PhoneNumber?> {
+            val phone = Element.tryParsePhoneNumber(phoneNumber) ?: Phonenumber.PhoneNumber().also {
+                it.rawInput = phoneNumber
+            }
+            // in most cases, the phone number util will get us the correct region code for the phone number
+            // but there are going to be cases where we have an invalid phone number and the `getRegionCodeForNumber`
+            // function will fail, so I've hardcoded in the saving throw to try and guess the three most likely
+            // possibilities
+            val regionCode = phoneNumberUtil.getRegionCodeForNumber(phone) ?: when (phone.countryCode) {
+                1 -> "US" // and CA and others in North America, but the phone number's invalid, so we're guessing now
+                52 -> "MX" // Mexico
+                61 -> "AU" // Australia
+                else -> null
+            }
+
+            return Pair(regionCode, phone)
+        }
+
         fun setComponents(pathSpec: String, component1: String) {
             // Note from the HL7 2.5.1 specification about components 1 and 2:
             // This component has been retained for backward compatibility only as of version 2.3.
@@ -1299,8 +1324,19 @@ class Hl7Serializer(
             // it's a phone
             terser.set(buildComponent(pathSpec, 3), "PH")
             terser.set(buildComponent(pathSpec, 5), country)
-            terser.set(buildComponent(pathSpec, 6), areaCode)
-            terser.set(buildComponent(pathSpec, 7), local)
+
+            // If it is North America phone number with country code = "+1" US & CA, code = +52 MX, and +61 AU
+            // then we fill PID-13-6, 7
+            val (region, _) = parsePhoneNumber("$country$areaCode$local")
+            // there are a lot of potential phone numbers that could start +1, and the google phone number
+            // library will return the correct country code based on region AND exchange, which could break
+            // this logic if the number is from say a Caribbean island
+            if (Element.phoneRegions.contains(region)) {
+                terser.set(buildComponent(pathSpec, 6), areaCode)
+                terser.set(buildComponent(pathSpec, 7), local)
+            } else {
+                terser.set(buildComponent(pathSpec, 12), "+$country$areaCode$local")
+            }
             if (extension.isNotEmpty()) terser.set(buildComponent(pathSpec, 8), extension)
         }
 
@@ -1947,6 +1983,8 @@ class Hl7Serializer(
         const val OBX_18_EQUIPMENT_UID_OID: String = "2.16.840.1.113883.3.3719"
         /** the default org name type code. defaults to "L" */
         const val DEFAULT_ORGANIZATION_NAME_TYPE_CODE: String = "L"
+
+        val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
 
         /*
         From the HL7 2.5.1 Ch 2A spec...
