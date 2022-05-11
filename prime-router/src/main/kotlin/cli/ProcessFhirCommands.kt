@@ -9,7 +9,7 @@ import com.github.ajalt.clikt.parameters.types.file
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
-import gov.cdc.prime.router.fhirengine.utils.FhirWriter
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.hl7.fhir.r4.model.Bundle
 
@@ -55,7 +55,8 @@ class ProcessFhirCommands : CliktCommand(
      */
     private fun outputResult(fhirResult: Bundle, actionLogger: ActionLogger) {
         // Pretty print the JSON output
-        val jsonObject = JacksonMapperUtilities.defaultMapper.readValue(FhirWriter.encode(fhirResult), Any::class.java)
+        val jsonObject = JacksonMapperUtilities.defaultMapper
+            .readValue(FhirTranscoder.encode(fhirResult), Any::class.java)
         val prettyText = JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
 
         // Write the output to the screen or a file.

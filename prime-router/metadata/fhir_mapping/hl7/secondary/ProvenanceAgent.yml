@@ -13,8 +13,3 @@ who:
     orgContactPurposeDisplay: "Administrative"
     orgContactPurposeText: "Organization Medical Director"
     orgIdSystem: http://terminology.hl7.org/CodeSystem/v2-0301
-
-type:
-  valueOf: datatype:CodeableConcept_var
-  expressionType: resource
-  vars:

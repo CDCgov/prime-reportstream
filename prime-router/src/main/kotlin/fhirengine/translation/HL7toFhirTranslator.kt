@@ -26,7 +26,7 @@ class HL7toFhirTranslator(private val messageEngine: HL7MessageEngine = defaultE
         /**
          * A Default set of message templates for HL7 -> FHIR translation
          */
-        private val defaultMessageTemplates: MutableMap<String, HL7MessageModel> =
+        internal val defaultMessageTemplates: MutableMap<String, HL7MessageModel> =
             ResourceReader.getInstance().messageTemplates
 
         /**
