@@ -24,8 +24,8 @@ Test Steps:
 - [ ] Database changes are submitted as a separate PR?
 - [ ] DevOps team has been notified if PR requires ops support?
 
-## Fixes
-- #issue - List GitHub issues this PR fixes
+## Linked Issues
+- Fixes #issue
 
 ## To Be Done
 *Create GitHub issues to track the work remaining, if any*
