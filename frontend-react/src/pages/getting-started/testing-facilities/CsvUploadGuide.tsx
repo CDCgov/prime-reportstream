@@ -90,7 +90,7 @@ export const CsvUploadGuide = () => {
                 <ul>
                     <li>
                         <a
-                            href="/assets/csv/ReportStream-StandardCSV-ExampleData-20220218.csv"
+                            href={site.assets.standardCsv.path}
                             className="usa-link"
                         >
                             ReportStream standard CSV with example data
@@ -115,7 +115,7 @@ export const CsvUploadGuide = () => {
                             If your jurisdiction already has a set format for
                             CSV, compare it to our{" "}
                             <a
-                                href="/assets/csv/ReportStream-StandardCSV-ExampleData-20220218.csv"
+                                href={site.assets.standardCsv.path}
                                 className="usa-link"
                             >
                                 standard CSV file

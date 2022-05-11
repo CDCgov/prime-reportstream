@@ -4,6 +4,86 @@ import DOMPurify from "dompurify";
 import site from "../../../content/site.json";
 import schema from "../../../content/getting_started_csv_upload.json";
 
+export type CsvSchemaItem = {
+    name: string;
+    colHeader: string;
+    required: boolean;
+    requested: boolean;
+    acceptedFormat: boolean;
+    acceptedValues: boolean;
+    acceptedExample: boolean;
+    valueType: string;
+    values: string[];
+    notes: string[];
+};
+
+type CsvSchemaItemProps = {
+    item: CsvSchemaItem;
+    className?: string;
+};
+
+export const CsvSchemaDocumentationItem: React.FC<CsvSchemaItemProps> = ({
+    item,
+    className,
+}) => {
+    return (
+        <div className={className}>
+            <h4
+                id={`doc-${item.colHeader}`}
+                className="font-body-md margin-bottom-2"
+                data-testId="header"
+            >
+                {item.name}
+                {item.required ? (
+                    <span className="text-normal bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">
+                        Required
+                    </span>
+                ) : (
+                    <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-left-2 text-ttbottom">
+                        Optional
+                    </span>
+                )}
+                {!item.required && item.requested && (
+                    <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-left-2 text-ttbottom">
+                        Requested
+                    </span>
+                )}
+            </h4>
+            <div data-testId="notes" className="margin-bottom-3">
+                {item.notes?.map((note, noteIndex) => (
+                    <p
+                        key={`${item.colHeader}-note-${noteIndex}`}
+                        dangerouslySetInnerHTML={{ __html: `${note}` }}
+                    />
+                ))}
+            </div>
+            <div className="grid-row margin-bottom-05">
+                <div className="grid-col-4 text-base">Column header</div>
+                <div className="grid-col-auto">{item.colHeader}</div>
+            </div>
+            <div className="grid-row margin-bottom-05 border-base-lighter border-top-1px padding-top-1">
+                <div className="grid-col-4 text-base">Value type</div>
+                <div className="grid-col-auto">{item.valueType}</div>
+            </div>
+            <div className="grid-row margin-bottom-05 border-base-lighter border-top-1px padding-top-1">
+                <div className="grid-col-4 text-base">
+                    {item.acceptedFormat && "Accepted format"}
+                    {item.acceptedValues && "Accepted value(s)"}
+                    {item.acceptedExample && "Example(s)"}
+                </div>
+                <ul className="grid-col-8 value-list">
+                    {item.values?.map((value, valueIndex) => (
+                        <li
+                            key={`${item.colHeader}-value-${valueIndex}`}
+                            dangerouslySetInnerHTML={{ __html: `${value}` }}
+                        />
+                    ))}
+                </ul>
+            </div>
+        </div>
+    );
+};
+
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const CsvSchemaDocumentation = () => {
     return (
@@ -16,7 +96,7 @@ export const CsvSchemaDocumentation = () => {
             </Helmet>
             <section id="anchor-top">
                 <span className="text-base text-italic">
-                    Updated: February 18, 2022
+                    Updated: May 9, 2022
                 </span>
                 <h2 className="margin-top-0 ">
                     CSV schema documentation{" "}
@@ -128,7 +208,7 @@ export const CsvSchemaDocumentation = () => {
                     <li>
                         <a
                             id="standard-csv"
-                            href="/assets/csv/ReportStream-StandardCSV-ExampleData-20220218.csv"
+                            href={site.assets.standardCsv.path}
                             className="usa-link"
                         >
                             ReportStream standard CSV with example data
@@ -173,8 +253,8 @@ export const CsvSchemaDocumentation = () => {
                     </span>
                 </p>
                 <p>
-                    Fields are not required. If available, including this data
-                    is incredibly helpful to public health.
+                    Fields are not required by HHS, but the data is incredibly
+                    helpful to and, in some cases, required by jurisdictions.
                 </p>
                 <p>
                     <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-right-1 text-middle">
@@ -204,97 +284,12 @@ export const CsvSchemaDocumentation = () => {
                                         {section.title}
                                     </h3>
 
-                                    {section.items?.map((item, itemIndex) => {
+                                    {section.items?.map((item) => {
                                         return (
-                                            <div
-                                                key={`item-${fieldIndex}-${sectionIndex}-${itemIndex}`}
+                                            <CsvSchemaDocumentationItem
+                                                item={item}
                                                 className="margin-top-8 rs-documentation__values"
-                                            >
-                                                <h4
-                                                    id={`doc-${item.colHeader}`}
-                                                    className="font-body-md margin-bottom-2"
-                                                >
-                                                    {item.name}
-                                                    {item.required ? (
-                                                        <span className="text-normal bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">
-                                                            Required
-                                                        </span>
-                                                    ) : (
-                                                        <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-left-2 text-ttbottom">
-                                                            Optional
-                                                        </span>
-                                                    )}
-                                                    {section.title ===
-                                                    "Ask on entry (AOE) data elements" ? (
-                                                        <span className="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-left-2 text-ttbottom">
-                                                            Requested
-                                                        </span>
-                                                    ) : null}
-                                                </h4>
-                                                <div className="margin-bottom-3">
-                                                    {item.notes?.map(
-                                                        (note, noteIndex) => {
-                                                            return (
-                                                                <p
-                                                                    key={`value-${fieldIndex}-${sectionIndex}-${itemIndex}-${noteIndex}`}
-                                                                    dangerouslySetInnerHTML={{
-                                                                        __html: `${note}`,
-                                                                    }}
-                                                                ></p>
-                                                            );
-                                                        }
-                                                    )}
-                                                </div>
-                                                <div className="grid-row margin-bottom-05">
-                                                    <div className="grid-col-4 text-base">
-                                                        Column header
-                                                    </div>
-                                                    <div className="grid-col-auto">
-                                                        {item.colHeader}
-                                                    </div>
-                                                </div>
-                                                <div className="grid-row margin-bottom-05 border-base-lighter border-top-1px padding-top-1">
-                                                    <div className="grid-col-4 text-base">
-                                                        Value type
-                                                    </div>
-                                                    <div className="grid-col-auto">
-                                                        {item.valueType}
-                                                    </div>
-                                                </div>
-                                                <div className="grid-row margin-bottom-05 border-base-lighter border-top-1px padding-top-1">
-                                                    <div className="grid-col-4 text-base">
-                                                        {item.acceptedFormat ? (
-                                                            <>Accepted format</>
-                                                        ) : null}
-                                                        {item.acceptedValues ? (
-                                                            <>
-                                                                Accepted
-                                                                value(s)
-                                                            </>
-                                                        ) : null}
-                                                        {item.acceptedExample ? (
-                                                            <>Example(s)</>
-                                                        ) : null}
-                                                    </div>
-                                                    <ul className="grid-col-8 value-list">
-                                                        {item.values?.map(
-                                                            (
-                                                                value,
-                                                                valueIndex
-                                                            ) => {
-                                                                return (
-                                                                    <li
-                                                                        key={`value-${fieldIndex}-${sectionIndex}-${itemIndex}-${valueIndex}`}
-                                                                        dangerouslySetInnerHTML={{
-                                                                            __html: `${value}`,
-                                                                        }}
-                                                                    ></li>
-                                                                );
-                                                            }
-                                                        )}
-                                                    </ul>
-                                                </div>
-                                            </div>
+                                            />
                                         );
                                     })}
                                 </div>
