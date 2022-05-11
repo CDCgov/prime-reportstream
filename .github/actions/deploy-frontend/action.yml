@@ -33,7 +33,7 @@ runs:
       run: echo "IMAGE_REPO=pdhprod" >> $GITHUB_ENV
 
     - name: Download Frontend Artifact (React)
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@fb598a63ae348fa914e94cd0ff38f362e927b741
       with:
         name: static-website-react-${{ inputs.version }}
         path: frontend-react

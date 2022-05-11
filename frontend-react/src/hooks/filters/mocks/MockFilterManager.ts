@@ -11,8 +11,8 @@ const fakeDispatch = <T>(): Dispatch<T> => {
 
 export const mockFilterManager = {
     rangeSettings: {
-        start: new Date("2022-01-01").toISOString(),
-        end: new Date("2022-12-31").toISOString(),
+        from: new Date("2022-01-01").toISOString(),
+        to: new Date("2022-12-31").toISOString(),
     },
     sortSettings: {
         column: "",

@@ -8,7 +8,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "http_response_time" {
   count = local.alerting_enabled
 
   name                = "${var.environment}-api-http-response"
-  description         = "${var.environment} network response >= 10000ms(10s)"
+  description         = "Median duration > 10 seconds"
   location            = var.location
   resource_group_name = var.resource_group
   severity            = 2
@@ -19,12 +19,20 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "http_response_time" {
 
   query = <<-QUERY
 requests
-| where duration >= 10000 and timestamp >= ago(5m)
+| summarize AggregatedValue = (percentile(duration, 50)) by bin(timestamp, 5m)
   QUERY
 
   trigger {
-    operator  = "GreaterThan"
-    threshold = 14
+    operator  = "GreaterThanOrEqual"
+    threshold = 10000
+
+    metric_trigger {
+      metric_trigger_type = "Consecutive"
+      operator            = "GreaterThan"
+      threshold           = 1
+      # metric_column is required
+      metric_column = "timestamp"
+    }
   }
 
   action {
