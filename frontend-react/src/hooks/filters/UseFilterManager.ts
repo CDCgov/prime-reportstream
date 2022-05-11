@@ -39,16 +39,16 @@ const cursorOrRange = (
     range: string
 ): string => {
     if (
-        (order === "ASC" && field === RangeField.START) ||
-        (order === "DESC" && field === RangeField.END)
-    ) {
-        return range;
-    }
-    if (
-        (order === "ASC" && field === RangeField.END) ||
-        (order === "DESC" && field === RangeField.START)
+        (order === "ASC" && field === RangeField.FROM) ||
+        (order === "DESC" && field === RangeField.TO)
     ) {
         return cursor;
+    }
+    if (
+        (order === "ASC" && field === RangeField.TO) ||
+        (order === "DESC" && field === RangeField.FROM)
+    ) {
+        return range;
     }
 
     return range; // fallback to just the range value
