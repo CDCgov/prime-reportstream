@@ -159,6 +159,15 @@ class SenderFilesFunctionTests {
         assertThat(functionParamsWithMessageID.limit).isGreaterThan(0)
         assertThat(functionParamsWithMessageID.offset).isEqualTo(1)
         verify(atLeast = 1) { mockRequestWithReportId.queryParameters }
+
+        // MessageID with no report id
+        val mockRequestWithMessageIdNoReportID = buildRequest(mapOf("message-id" to "1234"))
+        val senderFileFunctionNoReport = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
+        every { mockDbAccess.fetchSingleMetadata(any(), any()) } returns buildCovidResultMetadata(null)
+        assertThat {
+            senderFileFunctionNoReport.checkParameters(mockRequestWithMessageIdNoReportID)
+        }.isFailure()
+        verify(atLeast = 1) { mockRequestWithBadReportId.queryParameters }
     }
 
     @Test
