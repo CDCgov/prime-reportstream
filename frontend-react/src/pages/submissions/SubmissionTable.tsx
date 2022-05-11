@@ -20,7 +20,7 @@ function SubmissionTable() {
         hasPrev,
         hasNext,
         update: updateCursors,
-    } = useCursorManager(filterManager.rangeSettings.start);
+    } = useCursorManager(filterManager.rangeSettings.to);
 
     /* Our API call! Updates when any of the given state variables update.
      * The logical swap of cursors and range value is to account for which end of the
@@ -35,15 +35,15 @@ function SubmissionTable() {
             organization: getStoredOrg(),
             cursor: cursorOrRange(
                 filterManager.sortSettings.order,
-                RangeField.START,
+                RangeField.TO,
                 cursors.current,
-                filterManager.rangeSettings.start
+                filterManager.rangeSettings.to
             ),
             endCursor: cursorOrRange(
                 filterManager.sortSettings.order,
-                RangeField.END,
+                RangeField.FROM,
                 cursors.current,
-                filterManager.rangeSettings.end
+                filterManager.rangeSettings.from
             ),
             pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
             sort: filterManager.sortSettings.order,
