@@ -31,7 +31,7 @@ export const CsvSchemaDocumentationItem: React.FC<CsvSchemaItemProps> = ({
             <h4
                 id={`doc-${item.colHeader}`}
                 className="font-body-md margin-bottom-2"
-                data-testId="header"
+                data-testid="header"
             >
                 {item.name}
                 {item.required ? (
@@ -49,7 +49,7 @@ export const CsvSchemaDocumentationItem: React.FC<CsvSchemaItemProps> = ({
                     </span>
                 )}
             </h4>
-            <div data-testId="notes" className="margin-bottom-3">
+            <div data-testid="notes" className="margin-bottom-3">
                 {item.notes?.map((note, noteIndex) => (
                     <p
                         key={`${item.colHeader}-note-${noteIndex}`}
