@@ -1,6 +1,8 @@
 package gov.cdc.prime.router
 
+import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
+import com.google.i18n.phonenumbers.Phonenumber
 import gov.cdc.prime.router.Element.Cardinality.ONE
 import gov.cdc.prime.router.Element.Cardinality.ZERO_OR_ONE
 import gov.cdc.prime.router.common.Environment
@@ -9,7 +11,6 @@ import gov.cdc.prime.router.metadata.LIVDLookupMapper
 import gov.cdc.prime.router.metadata.LookupMapper
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
-import java.lang.Exception
 import java.text.DecimalFormat
 import java.time.DateTimeException
 import java.time.Instant
@@ -595,17 +596,7 @@ data class Element(
                 }
             }
             Type.TELEPHONE -> {
-                return try {
-                    // parse can fail if the phone number is not correct, which feels like bad behavior
-                    // this then causes a report level failure, not an element level failure
-                    val number = phoneNumberUtil.parse(cleanedValue, "US")
-                    if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
-                        InvalidPhoneMessage(cleanedValue, fieldMapping)
-                    else
-                        null
-                } catch (ex: Exception) {
-                    InvalidPhoneMessage(cleanedValue, fieldMapping)
-                }
+                return checkPhoneNumber(cleanedValue, fieldMapping)
             }
             Type.POSTAL_CODE -> {
                 // Let in all formats defined by http://www.dhl.com.tw/content/dam/downloads/tw/express/forms/postcode_formats.pdf
@@ -749,7 +740,7 @@ data class Element(
             }
             Type.TELEPHONE -> {
                 val number = phoneNumberUtil.parse(cleanedFormattedValue, "US")
-                if (!number.hasNationalNumber() || number.nationalNumber > 9999999999L)
+                if (!number.hasNationalNumber() || number.nationalNumber > 999999999999L)
                     error("Invalid phone number '$cleanedFormattedValue' for $fieldMapping")
                 val nationalNumber = DecimalFormat("0000000000").format(number.nationalNumber)
                 "${nationalNumber}$phoneDelimiter${number.countryCode}$phoneDelimiter${number.extension}"
@@ -1094,6 +1085,45 @@ data class Element(
         const val zipFiveToken = "\$zipFive"
         const val zipFivePlusFourToken = "\$zipFivePlusFour"
         const val usZipFormat = """^(\d{5})[- ]?(\d{4})?$"""
+        // a regex to check for the presence of only valid phone number characters. this will fail if
+        // someone passes through character values, like a name, or some other text info. this is not
+        // attempting to check and see if the number is properly formatted, just a short circuit to
+        // fail out on REALLY bad data
+        private val maybeAPhoneNumber = Regex("""[\d\(\)\+x\- ]+""")
+        // possible regions a phone number could be from. This is a wider list than we will we probably
+        // pull from, at least initially, because there are many more places in North America that use
+        // the +1 country code for international phone numbers, and therefore, our system could break if
+        // someone presents a number from the Caribbean and we're set up to allow it
+        val phoneRegions = listOf(
+            "US",
+            "MX",
+            "CA",
+            "AU", // Australia
+            "AG", // Antigua
+            "AI", // Anguilla
+            "AS", // American Samoa
+            "BB", // Barbados
+            "BM", // Bermuda
+            "BS", // Bahamas
+            "DM", // Dominica
+            "DO", // Dominican Republic
+            "GD", // Grenada
+            "GU", // Guam
+            "JM", // Jamaica
+            "KN", // St. Kitts and Nevis
+            "KY", // Cayman Islands
+            "LC", // St. Lucia
+            "MP", // Northern Mariana Islands
+            "MS", // Montserrat
+            "PR", // Puerto Rico
+            "SX", // Sint Maarten
+            "TC", // Turks and Caicos
+            "TT", // Trinidad and Tobago
+            "VC", // Saint Vincent and the Grenadines
+            "VG", // British Virgin Islands
+            "VI", // Virgin Islands
+            "UM", // US Minor Outlying Islands
+        )
 
         fun csvFields(name: String, format: String? = null): List<CsvField> {
             return listOf(CsvField(name, format))
@@ -1249,6 +1279,75 @@ data class Element(
                 // the regex didn't match, so return the original value we passed in
                 else -> value
             }
+        }
+
+        /**
+         * Given [cleanedValue] this method checks to see if it is possibly a phone number in a safe
+         * way without blowing up all the processing of rows in a report. If the phone number is probably
+         * valid it returns null, as the `checkForErrors` method would expect, otherwise it returns an
+         * InvalidPhoneMessage
+         */
+        fun checkPhoneNumber(cleanedValue: String, fieldMapping: String): InvalidPhoneMessage? {
+            // use a quick regex to see if the normalized value contains something other than our
+            // expected values, and also use the `isPossibleNumber` method our phone number util gives us
+            if (
+                maybeAPhoneNumber.matchEntire(cleanedValue) != null &&
+                phoneNumberUtil.isPossibleNumber(cleanedValue, "US")
+            ) {
+                // attempt to parse the number. if it is parseable then we can return null and move
+                // on with our work, otherwise, return an InvalidPhoneMessage
+                val phoneNumber = tryParsePhoneNumber(cleanedValue)
+                if (phoneNumber != null)
+                    return null
+            }
+            // all attempts have failed. bad number
+            return InvalidPhoneMessage(cleanedValue, fieldMapping)
+        }
+
+        /**
+         * Given a nullable [cleanedValue] this method tries to parse a phone number in
+         * a safe way according to our four most common phone regions as following:
+         *      "US",  // United states
+         *      "MX",  // Mexico
+         *      "CA",  // Canada
+         *      "AU", // Australia
+         *      "AG", // Antigua
+         *      "AI", // Anguilla
+         *      "AS", // American Samoa
+         *      "BB", // Barbados
+         *      "BM", // Bermuda
+         *      "BS", // Bahamas
+         *      "DM", // Dominica
+         *      "DO", // Dominican Republic
+         *      "GD", // Grenada
+         *      "GU", // Guam
+         *      "JM", // Jamaica
+         *      "KN", // St. Kitts and Nevis
+         *      "KY", // Cayman Islands
+         *      "LC", // St. Lucia
+         *      "MP", // Northern Mariana Islands
+         *      "MS", // Montserrat
+         *      "PR", // Puerto Rico
+         *      "SX", // Sint Maarten
+         *      "TC", // Turks and Caicos
+         *      "TT", // Trinidad and Tobago
+         *      "VC", // Saint Vincent and the Grenadines
+         *      "VG", // British Virgin Islands
+         *      "VI", // Virgin Islands
+         *      "UM", // US Minor Outlying Islands
+         * If the number really can't be parsed at all (and the phoneNumberUtil is very lenient) then
+         * it is almost certainly not a phone number, so return null
+         */
+        fun tryParsePhoneNumber(cleanedValue: String?): Phonenumber.PhoneNumber? {
+            for (region in phoneRegions) {
+                try {
+                    return phoneNumberUtil.parse(cleanedValue, region)
+                } catch (_: NumberParseException) {
+                    continue
+                }
+            }
+
+            return null
         }
     }
 }
