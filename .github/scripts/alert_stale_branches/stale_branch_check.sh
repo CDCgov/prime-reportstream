@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 _setArgs(){
   while [ "${1:-}" != "" ]; do
     case "$1" in

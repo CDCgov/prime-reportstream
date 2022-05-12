@@ -33,7 +33,7 @@ jobs:
             {
             "mergedtotal": "${{ steps.merged.outputs.MERGE_COUNT }}",
             "notmergedtotal": "${{ steps.notmerged.outputs.NOT_MERGE_COUNT }}",
-            "url": "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            "action_url": "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_STALE_BRANCHES}}
