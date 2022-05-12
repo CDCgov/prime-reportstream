@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.azure
 
+import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CovidSender
@@ -32,6 +34,7 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.test.Ignore
 
 class ReportFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -539,98 +542,100 @@ class ReportFunctionTests {
     //  in gitHub actions, and no one can figure out why as of 5/12/2022. These will need to be put back in
     //  for full test coverage at some point, but no one is currently using duplicate detection so there is
     //  no harm in commenting it out.
-//    // test duplicate override = false
-//    @Test
-//    fun `test processFunction duplicate override true to false`() {
-//        // setup
-//        val metadata = UnitTestUtils.simpleMetadata
-//        val settings = FileSettings().loadOrganizations(oneOrganization)
-//
-//        val engine = makeEngine(metadata, settings)
-//        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-//        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-//
-//        val sender = CovidSender(
-//            "Test Sender",
-//            "test",
-//            Sender.Format.CSV,
-//            schemaName =
-//            "one",
-//            allowDuplicates = true
-//        )
-//
-//        val req = MockHttpRequestMessage("test")
-//        req.parameters += mapOf(
-//            "allowDuplicate" to "false"
-//        )
-//
-//        val blobInfo = BlobAccess.BlobInfo(Report.Format.CSV, "test", ByteArray(0))
-//
-//        every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-//        every { actionHistory.insertAction(any()) } returns 0
-//        every { actionHistory.insertAll(any()) } returns Unit
-//        every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-//        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
-//        every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
-//        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
-//        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
-//        every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-//        every { actionHistory.action.actionId } returns 1
-//        every { actionHistory.action.sendingOrg } returns "Test Sender"
-//
-//        // act
-//        reportFunc.processRequest(req, sender)
-//
-//        // assert
-//        verify(exactly = 1) { reportFunc.doDuplicateDetection(any(), any()) }
-//    }
-//
-//    // test processFunction when an error is added to ActionLogs
-//    @Test
-//    fun `test processFunction when ActionLogs has an error`() {
-//        // setup
-//        val metadata = UnitTestUtils.simpleMetadata
-//        val settings = FileSettings().loadOrganizations(oneOrganization)
-//
-//        val engine = makeEngine(metadata, settings)
-//        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-//        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-//        val sender = CovidSender(
-//            "Test Sender",
-//            "test",
-//            Sender.Format.CSV,
-//            schemaName =
-//            "one",
-//            allowDuplicates = false
-//        )
-//        val blobInfo = BlobAccess.BlobInfo(Report.Format.CSV, "test", ByteArray(0))
-//
-//        val req = MockHttpRequestMessage(csvString_2Records)
-//
-//        every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest(
-//            csvString_2Records,
-//            sender = sender
-//        )
-//        every { actionHistory.insertAction(any()) } returns 0
-//        every { actionHistory.insertAll(any()) } returns Unit
-//
-//        every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-//        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
-//        every { actionHistory.action.actionId } returns 1
-//        every { actionHistory.action.sendingOrg } returns "Test Sender"
-//        every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
-//        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
-//        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
-//        every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-//
-//        every { accessSpy.isDuplicateItem(any(), any()) } returns true
-//
-//        // act
-//        var resp = reportFunc.processRequest(req, sender)
-//
-//        // assert
-//        verify(exactly = 2) { engine.isDuplicateItem(any()) }
-//        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
-//        assert(resp.status.equals(HttpStatus.BAD_REQUEST))
-//    }
+    // test duplicate override = false
+    @Ignore
+    @Test
+    fun `test processFunction duplicate override true to false`() {
+        // setup
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val reportFunc = spyk(ReportFunction(engine, actionHistory))
+
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.CSV,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+
+        val req = MockHttpRequestMessage("test")
+        req.parameters += mapOf(
+            "allowDuplicate" to "false"
+        )
+
+        val blobInfo = BlobAccess.BlobInfo(Report.Format.CSV, "test", ByteArray(0))
+
+        every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
+        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
+        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
+        every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
+        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
+        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
+        every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "Test Sender"
+
+        // act
+        reportFunc.processRequest(req, sender)
+
+        // assert
+        verify(exactly = 1) { reportFunc.doDuplicateDetection(any(), any()) }
+    }
+
+    // test processFunction when an error is added to ActionLogs
+    @Ignore
+    @Test
+    fun `test processFunction when ActionLogs has an error`() {
+        // setup
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val reportFunc = spyk(ReportFunction(engine, actionHistory))
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.CSV,
+            schemaName =
+            "one",
+            allowDuplicates = false
+        )
+        val blobInfo = BlobAccess.BlobInfo(Report.Format.CSV, "test", ByteArray(0))
+
+        val req = MockHttpRequestMessage(csvString_2Records)
+
+        every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest(
+            csvString_2Records,
+            sender = sender
+        )
+        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAll(any()) } returns Unit
+
+        every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
+        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "Test Sender"
+        every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
+        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
+        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
+        every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+
+        every { accessSpy.isDuplicateItem(any(), any()) } returns true
+
+        // act
+        var resp = reportFunc.processRequest(req, sender)
+
+        // assert
+        verify(exactly = 2) { engine.isDuplicateItem(any()) }
+        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+        assert(resp.status.equals(HttpStatus.BAD_REQUEST))
+    }
 }
