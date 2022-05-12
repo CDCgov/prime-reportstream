@@ -3,7 +3,7 @@ name: Alert Terraform Changes
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 12 * * *"
+    - cron: "21 12 * * *"
 
 jobs:
   alert_tf_changes:
