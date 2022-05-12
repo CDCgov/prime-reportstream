@@ -22,7 +22,7 @@ jobs:
       has_react_change: ${{ steps.build_vars.outputs.has_react_change }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Build vars
         id: build_vars
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Build backend
         uses: ./.github/actions/build-backend
@@ -54,7 +54,7 @@ jobs:
         working-directory: frontend-react
     steps:
       - name: Check out changes
-        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Build frontend
         uses: ./.github/actions/build-frontend
@@ -79,7 +79,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
