@@ -5,10 +5,10 @@ import useCursorManager, {
 } from "../../hooks/filters/UseCursorManager";
 import useFilterManager from "../../hooks/filters/UseFilterManager";
 
-import Table, { ColumnConfig, TableConfig } from "./Table";
+import Table, { ColumnConfig, DatasetAction, TableConfig } from "./Table";
 import TableFilters from "./TableFilters";
 
-const dummyRowOne = {
+const testDataRowOne = {
     one: "value one",
     two: "value two",
     three: "value three",
@@ -21,6 +21,11 @@ const dummyRowTwo = {
     two: "value two again",
     four: "test",
     five: "transform this",
+};
+
+// Exported for test purposes
+export const sampleCallback = () => {
+    console.log("Callback works!");
 };
 
 /* This component is specifically configured to help test the
@@ -50,9 +55,9 @@ export const TestTable = () => {
     const fakeRows = useMemo(() => {
         switch (filterManager.sortSettings.order) {
             case "ASC":
-                return [dummyRowOne, dummyRowTwo];
+                return [testDataRowOne, dummyRowTwo];
             case "DESC":
-                return [dummyRowTwo, dummyRowOne];
+                return [dummyRowTwo, testDataRowOne];
         }
     }, [filterManager.sortSettings.order]);
 
@@ -111,6 +116,11 @@ export const TestTable = () => {
         );
     };
 
+    const datasetAction: DatasetAction = {
+        label: "Test Action",
+        method: sampleCallback,
+    };
+
     return (
         <>
             <StateTestRendering />
@@ -126,6 +136,7 @@ export const TestTable = () => {
             <Table
                 title={"Test Table Title"}
                 legend={<Legend />}
+                datasetAction={datasetAction}
                 config={config}
                 filterManager={filterManager}
                 cursorManager={{

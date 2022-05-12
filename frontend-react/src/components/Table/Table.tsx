@@ -45,18 +45,44 @@ export interface TableConfig {
     rows: Array<TableRow>;
 }
 
+export interface DatasetAction {
+    label: string;
+    method: Function;
+}
+
 export interface TableProps {
     config: TableConfig;
     title?: string;
     legend?: ReactNode;
+    datasetAction?: DatasetAction;
     filterManager?: FilterManager;
     cursorManager?: CursorManager;
 }
+
+export interface LegendItem {
+    label: string;
+    value: string;
+}
+
+export const Legend = ({ items }: { items: LegendItem[] }) => {
+    const makeItem = (label: string, value: string) => (
+        <>
+            <b>{label}: </b>
+            <span>{value}</span>
+        </>
+    );
+    return (
+        <section>
+            {items.map((item) => makeItem(item.label, item.value))}
+        </section>
+    );
+};
 
 const Table = ({
     config,
     title,
     legend,
+    datasetAction,
     filterManager,
     cursorManager,
 }: TableProps) => {
@@ -162,6 +188,14 @@ const Table = ({
         }
     };
 
+    const DatasetActionButton = ({ label, method }: DatasetAction) => {
+        return (
+            <Button type={"button"} onClick={() => method()}>
+                {label}
+            </Button>
+        );
+    };
+
     /* Iterates each row, and then uses the key value from columns.keys()
      * to render each cell in the appropriate column. */
     const TableRows = () => {
@@ -227,9 +261,18 @@ const Table = ({
 
     return (
         <div className="grid-container margin-bottom-10">
+            <div className="grid-col-12 display-flex flex-align-end flex-justify-between">
+                <div className="grid-col-8 display-flex flex-column">
+                    {title ? <h2>{title}</h2> : null}
+                    {legend ? legend : null}
+                </div>
+                <div className="grid-col-2 display-flex flex-column">
+                    {datasetAction ? (
+                        <DatasetActionButton {...datasetAction} />
+                    ) : null}
+                </div>
+            </div>
             <div className="grid-col-12">
-                {title ? <h2>{title}</h2> : null}
-                {legend ? legend : null}
                 <table
                     className="usa-table usa-table--borderless prime-table"
                     aria-label="Submission history from the last 30 days"
