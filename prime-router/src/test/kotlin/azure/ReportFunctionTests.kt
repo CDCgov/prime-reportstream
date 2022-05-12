@@ -586,7 +586,7 @@ class ReportFunctionTests {
     // test processFunction when an error is added to ActionLogs
     @Test
     fun `test processFunction when ActionLogs has an error`() {
-        // setup
+        // setup steps
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
