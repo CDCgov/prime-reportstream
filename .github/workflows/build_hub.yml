@@ -22,7 +22,7 @@ jobs:
       has_router_change: ${{ steps.skip_check.outputs.router }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
         id: skip_check
         with:
@@ -43,13 +43,13 @@ jobs:
 
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
       # - name: Install docker-compose
       #   run: apt-get update && apt-get --yes install docker-compose
       - name: Set up JDK 11
-        uses: actions/setup-java@4fe61d24fe5472910b93bdeffb8aad49f979d862
+        uses: actions/setup-java@860f60056505705214d223b91ed7a30f173f6142
         with:
           java-version: '11'
           distribution: 'adopt'
@@ -199,10 +199,10 @@ jobs:
 
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Set up JDK 11
-        uses: actions/setup-java@4fe61d24fe5472910b93bdeffb8aad49f979d862
+        uses: actions/setup-java@860f60056505705214d223b91ed7a30f173f6142
         with:
           java-version: '11'
           distribution: 'adopt'
