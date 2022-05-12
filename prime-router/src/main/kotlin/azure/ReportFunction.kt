@@ -29,7 +29,8 @@ import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.azure.fhirProcessQueueName
+import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
@@ -259,7 +260,6 @@ class ReportFunction(
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .body(
                 JacksonMapperUtilities.allowUnknownsMapper
-                    .writerWithDefaultPrettyPrinter()
                     .writeValueAsString(submission)
             )
             .header(
@@ -287,7 +287,7 @@ class ReportFunction(
         val generatedHashes = mutableListOf<String>()
         val duplicateIndexes = mutableListOf<Int>()
         for (rowNum in 0 until report.itemCount) {
-            var itemHash = report.getItemHashForRow(rowNum)
+            val itemHash = report.getItemHashForRow(rowNum)
             // check for duplicate item
             val isDuplicate = generatedHashes.contains(itemHash) ||
                 workflowEngine.isDuplicateItem(itemHash)
@@ -340,7 +340,7 @@ class ReportFunction(
                     // limit to hl7
                     Report.Format.HL7 ->
                         queue.sendMessage(
-                            fhirQueueName,
+                            fhirProcessQueueName,
                             RawSubmission(
                                 blobInfo.blobUrl,
                                 BlobAccess.digestToString(blobInfo.digest),
