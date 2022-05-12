@@ -34,7 +34,6 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.test.Ignore
 
 class ReportFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -543,7 +542,7 @@ class ReportFunctionTests {
     //  for full test coverage at some point, but no one is currently using duplicate detection so there is
     //  no harm in commenting it out.
     // test duplicate override = false
-    @Ignore
+
     @Test
     fun `test processFunction duplicate override true to false`() {
         // setup
@@ -590,7 +589,7 @@ class ReportFunctionTests {
     }
 
     // test processFunction when an error is added to ActionLogs
-    @Ignore
+
     @Test
     fun `test processFunction when ActionLogs has an error`() {
         // setup
