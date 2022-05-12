@@ -15,13 +15,15 @@ jobs:
       - name: Check Out Changes
         uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
       - name: List Merged and Not Merged Branches
-        run: ./.github/scripts/stale_branch_check.sh --merged --notmerged
+        run: ./.github/scripts/alert_stale_branches/stale_branch_check.sh --merged --notmerged
         shell: bash
       - name: Get our Merged Count
-        run: echo "::set-output mergecount=$(./.github/scripts/stale_branch_check.sh --mergedcount)"
+        id: merged
+        run: echo "::set-output MERGE_COUNT=$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --mergedcount)"
         shell: bash
       - name: Get our Not Merged Count
-        run: echo "::set-output notmergecount=$(./.github/scripts/stale_branch_check.sh --notmergedcount)"
+        id: notmerged
+        run: echo "::set-output NOT_MERGE_COUNT=$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --notmergedcount)"
         shell: bash
       - name: Send output to slack
         id: slack
@@ -29,8 +31,8 @@ jobs:
         with:
           payload: |
             {
-            "mergedtotal": "Example text",
-            "notmergedtotal": "Example text"
+            "mergedtotal": ${{ steps.merged.outputs.MERGE_COUNT }},
+            "notmergedtotal": ${{ steps.notmerged.outputs.NOT_MERGE_COUNT }},
             "url": "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             }
         env:
