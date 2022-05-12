@@ -74,6 +74,26 @@ jobs:
           # This path is from the root of the repo as needed by the plugin
           files: prime-router/build/test-results/test/**/*.xml
 
+      - name: Tar Unit Test Results
+        working-directory: prime-router
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+        shell: bash
+        run: tar -czvf test-results.tar.gz build/test-results/test/
+
+      - name: Upload Unit Test Results
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+        uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535
+        with:
+          name: test-results_${{ github.sha }}.tar.gz
+          path: prime-router/test-results.tar.gz
+          retention-days: 3
+
       - name: Spin up vault
         timeout-minutes: 1
         run: |
