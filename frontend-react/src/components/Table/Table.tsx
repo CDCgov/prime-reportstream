@@ -20,6 +20,11 @@ export interface TableRow {
     [key: string]: any;
 }
 
+export interface ActionableColumn {
+    action: Function;
+    param?: string;
+}
+
 /* ColumnConfig tells the Table element how to render each column
  *
  * @property dataAttr: Name of the object attribute to be rendered in the column
@@ -32,6 +37,7 @@ export interface TableRow {
 export interface ColumnConfig {
     dataAttr: string;
     columnHeader: string;
+    actionable?: ActionableColumn;
     sortable?: boolean;
     link?: boolean;
     linkBasePath?: string;
@@ -138,7 +144,8 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
             // Render column value as NavLink
             return (
                 <NavLink
-                    to={`${columnConfig?.linkBasePath || ""}/${
+                    className="usa-link"
+                    to={`${columnConfig?.linkBasePath || ""}${
                         object[columnConfig?.linkAttr || columnConfig.dataAttr]
                     }`}
                 >
@@ -146,6 +153,20 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                         ? showMappedValue(columnConfig, object)
                         : displayValue}
                 </NavLink>
+            );
+        } else if (columnConfig.actionable) {
+            const { action, param } = columnConfig.actionable;
+            const doAction = () => {
+                if (param) return action(object[param]);
+                return action();
+            };
+            return (
+                <button
+                    className="usa-link bg-transparent border-transparent"
+                    onClick={() => doAction()}
+                >
+                    {displayValue}
+                </button>
             );
         } else {
             return columnConfig.valueMap
