@@ -12,6 +12,7 @@ import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
 import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
 import {
+    DropdownComponent,
     TextAreaComponent,
     TextInputComponent,
 } from "../../components/Admin/AdminFormEdit";
@@ -34,6 +35,8 @@ import {
     getVersionWarning,
     VersionWarningType,
 } from "../../utils/misc";
+import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
+import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
 
 type AdminOrgEditProps = {
     orgname: string;
@@ -175,11 +178,12 @@ export function AdminOrgEdit({
                                 defaultvalue={orgSettings.description}
                                 savefunc={(v) => (orgSettings.description = v)}
                             />
-                            <TextInputComponent
+                            <DropdownComponent
                                 fieldname={"jurisdiction"}
                                 label={"Jurisdiction"}
                                 defaultvalue={orgSettings.jurisdiction}
                                 savefunc={(v) => (orgSettings.jurisdiction = v)}
+                                valuesFrom={"jurisdiction"}
                             />
                             <TextInputComponent
                                 fieldname={"countyName"}
@@ -202,6 +206,11 @@ export function AdminOrgEdit({
                             <TextAreaComponent
                                 fieldname={"filters"}
                                 label={"Filters"}
+                                toolTip={
+                                    <ObjectTooltip
+                                        obj={new SampleFilterObject()}
+                                    />
+                                }
                                 defaultvalue={orgSettings.filters}
                                 defaultnullvalue="[]"
                                 savefunc={(v) => (orgSettings.filters = v)}
