@@ -40,7 +40,7 @@ class FHIRFlowFunctions(
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
-        logger.debug("Processing FHIR message: $message for the $dequeueCount time")
+        logger.debug("Processing message: $message for the $dequeueCount time")
         val messageContent = Message.deserialize(message)
         check(messageContent is RawSubmission) {
             "An unknown message was received by the FHIR Engine ${messageContent.javaClass.kotlin.qualifiedName}"
