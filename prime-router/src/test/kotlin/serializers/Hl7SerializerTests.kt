@@ -454,6 +454,61 @@ NTE|1|L|This is a final comment|RE"""
             hl7Field = "ORC-23",
             type = Element.Type.TELEPHONE
         )
+
+        // Invalid telephone
+        serializer.setTelephoneComponent(
+            mockTerser,
+            "5555555555:1:3333",
+            facilityPathSpec,
+            facilityElement,
+            Hl7Configuration.PhoneNumberFormatting.STANDARD
+        )
+
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-1", "(555)555-5555X3333")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-2", "WPN")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-3", "PH")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-5", "1")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-6", "555")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-7", "5555555")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-8", "3333")
+        }
+
+        // Valid telephone
+        serializer.setTelephoneComponent(
+            mockTerser,
+            "8002324636:1:3333",
+            facilityPathSpec,
+            facilityElement,
+            Hl7Configuration.PhoneNumberFormatting.STANDARD
+        )
+
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-1", "(800)232-4636X3333")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-2", "WPN")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-3", "PH")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-5", "1")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-6", "800")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-7", "2324636")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-8", "3333")
+        }
+    }
+
+    @Test
+    fun `testSetTelephoneComponentsValidatePhoneNumbers`() {
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+
+        val facilityPathSpec = serializer.formPathSpec("ORC-23")
+        val facilityElement = Element(
+            "ordering_facility_phone_number",
+            hl7Field = "ORC-23",
+            type = Element.Type.TELEPHONE
+        )
+
+        // Valid (MX) telephone
         serializer.setTelephoneComponent(
             mockTerser,
             "5555555555:1:3333",
