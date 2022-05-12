@@ -161,6 +161,7 @@ class ReportFunction(
         val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
         val httpStatus: HttpStatus =
             try {
+                logger.info("CLE TEST: This is a test")
                 val options = Options.valueOfOrNone(optionsText)
                 val payloadName = extractPayloadName(request)
                 // track the sending organization and client based on the header
