@@ -2,7 +2,7 @@ name: Scan Action Logs
 
 on:
   schedule:
-    - cron: "0 5 * * *" # 5am UTC
+    - cron: "52 5 * * *"
 
 jobs:
   scan_run_logs:
