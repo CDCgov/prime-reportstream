@@ -30,6 +30,9 @@ const clickFilterButton = () => {
 
 describe("Table, basic tests", () => {
     beforeEach(() => renderWithRouter(<TestTable />));
+    test("Title renders", () => {
+        expect(screen.getByText("Test Table Title")).toBeInTheDocument();
+    });
     test("Column names render", () => {
         const headerOne = screen.getByText("Column One");
         const headerTwo = screen.getByText("Column Two");

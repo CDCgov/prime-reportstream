@@ -115,6 +115,7 @@ export const TestTable = () => {
                 }}
             />
             <Table
+                title={"Test Table Title"}
                 config={config}
                 filterManager={filterManager}
                 cursorManager={{
