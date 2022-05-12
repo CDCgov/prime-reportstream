@@ -7,7 +7,7 @@ import {
     IconArrowDownward,
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
-import React from "react";
+import React, { ReactNode } from "react";
 
 import {
     CursorActionType,
@@ -48,11 +48,18 @@ export interface TableConfig {
 export interface TableProps {
     config: TableConfig;
     title?: string;
+    legend?: ReactNode;
     filterManager?: FilterManager;
     cursorManager?: CursorManager;
 }
 
-const Table = ({ config, title, filterManager, cursorManager }: TableProps) => {
+const Table = ({
+    config,
+    title,
+    legend,
+    filterManager,
+    cursorManager,
+}: TableProps) => {
     const renderArrow = () => {
         if (filterManager && filterManager.sortSettings.order === "ASC") {
             return <IconArrowUpward />;
@@ -222,6 +229,7 @@ const Table = ({ config, title, filterManager, cursorManager }: TableProps) => {
         <div className="grid-container margin-bottom-10">
             <div className="grid-col-12">
                 {title ? <h2>{title}</h2> : null}
+                {legend ? legend : null}
                 <table
                     className="usa-table usa-table--borderless prime-table"
                     aria-label="Submission history from the last 30 days"

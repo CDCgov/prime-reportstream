@@ -102,6 +102,15 @@ export const TestTable = () => {
         );
     };
 
+    const Legend = () => {
+        return (
+            <ul>
+                <li>Test legend item 1</li>
+                <li>Test legend item 2</li>
+            </ul>
+        );
+    };
+
     return (
         <>
             <StateTestRendering />
@@ -116,6 +125,7 @@ export const TestTable = () => {
             />
             <Table
                 title={"Test Table Title"}
+                legend={<Legend />}
                 config={config}
                 filterManager={filterManager}
                 cursorManager={{
