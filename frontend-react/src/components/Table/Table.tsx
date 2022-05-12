@@ -66,13 +66,13 @@ export interface LegendItem {
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
-        <>
-            <b>{label}: </b>
-            <span>{value}</span>
-        </>
+        <div className="display-flex">
+            <b>{`${label}:`}</b>
+            <span className="padding-left-05">{value}</span>
+        </div>
     );
     return (
-        <section>
+        <section className="display-flex flex-column">
             {items.map((item) => makeItem(item.label, item.value))}
         </section>
     );
@@ -196,6 +196,22 @@ const Table = ({
         );
     };
 
+    const TableInfo = () => {
+        return (
+            <div className="grid-col-12 display-flex flex-align-end flex-justify-between">
+                <div className="grid-col-8 display-flex flex-column">
+                    {title ? <h2>{title}</h2> : null}
+                    {legend ? legend : null}
+                </div>
+                <div className="grid-col-2 display-flex flex-column">
+                    {datasetAction ? (
+                        <DatasetActionButton {...datasetAction} />
+                    ) : null}
+                </div>
+            </div>
+        );
+    };
+
     /* Iterates each row, and then uses the key value from columns.keys()
      * to render each cell in the appropriate column. */
     const TableRows = () => {
@@ -261,20 +277,10 @@ const Table = ({
 
     return (
         <div className="grid-container margin-bottom-10">
-            <div className="grid-col-12 display-flex flex-align-end flex-justify-between">
-                <div className="grid-col-8 display-flex flex-column">
-                    {title ? <h2>{title}</h2> : null}
-                    {legend ? legend : null}
-                </div>
-                <div className="grid-col-2 display-flex flex-column">
-                    {datasetAction ? (
-                        <DatasetActionButton {...datasetAction} />
-                    ) : null}
-                </div>
-            </div>
+            <TableInfo />
             <div className="grid-col-12">
                 <table
-                    className="usa-table usa-table--borderless prime-table"
+                    className="usa-table usa-table--borderless usa-table--striped prime-table"
                     aria-label="Submission history from the last 30 days"
                 >
                     <thead>

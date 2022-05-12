@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet";
+import { useState } from "react";
 
 import Table, {
     ColumnConfig,
@@ -14,18 +15,6 @@ interface ValueSet {
     header: string;
     type: string;
 }
-const sampleValueSetArray: ValueSet[] = [
-    {
-        value: "Patient ID",
-        header: "patient_id",
-        type: "Unique identifier",
-    },
-    {
-        value: "Patient last name",
-        header: "patient_last_name",
-        type: "Text",
-    },
-];
 const sampleValueSetColumnConfig: ColumnConfig[] = [
     {
         dataAttr: "value",
@@ -40,18 +29,46 @@ const sampleValueSetColumnConfig: ColumnConfig[] = [
         columnHeader: "Value type",
     },
 ];
-
 /* END OF FAUX DATA AND STUFF TO BE REMOVED WHEN IMPLEMENTING THE API */
 
 const ValueSetsTable = () => {
+    /* This would be our API response as reactive state */
+    const [sampleValueSetArray, setSampleValueSetArray] = useState<ValueSet[]>([
+        {
+            value: "Patient ID",
+            header: "patient_id",
+            type: "Unique identifier",
+        },
+        {
+            value: "Patient last name",
+            header: "patient_last_name",
+            type: "Text",
+        },
+    ]);
+    /* We'd pass our config and our API response in this */
     const tableConfig: TableConfig = {
         columns: sampleValueSetColumnConfig,
         rows: sampleValueSetArray,
     };
-    const legendItems: LegendItem[] = [{ label: "Name", value: "HL00005" }];
+    /* These items, I'm assuming, are likely to be generated from API response data? */
+    const legendItems: LegendItem[] = [
+        { label: "Name", value: "HL00005" },
+        { label: "Version", value: "2.5.1" },
+        { label: "System", value: "HL7" },
+        { label: "Reference", value: "Make this linkable" },
+    ];
+    /* We make this action do what we need it to */
     const datasetActionItem: DatasetAction = {
-        label: "Console log",
-        method: () => console.log("Test"),
+        label: "Add item",
+        method: () =>
+            setSampleValueSetArray([
+                ...sampleValueSetArray,
+                {
+                    value: "New value",
+                    header: "new_value_header",
+                    type: "Text",
+                },
+            ]),
     };
     return (
         <Table
