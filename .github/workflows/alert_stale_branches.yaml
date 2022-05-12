@@ -1,0 +1,37 @@
+name: Alert Stale Branches
+on:
+  push:
+    branches:
+      - acoushawk/check-stale-branches
+
+env:
+  STALE_AGE: 6 months ago
+
+jobs:
+  alert_stale_branches:
+    name: Alert on Stale branches
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+      - name: List Merged and Not Merged Branches
+        run: ./.github/scripts/stale_branch_check.sh --merged --notmerged
+        shell: bash
+      - name: Get our Merged Count
+        run: echo "::set-output mergecount=$(./.github/scripts/stale_branch_check.sh --mergedcount)"
+        shell: bash
+      - name: Get our Not Merged Count
+        run: echo "::set-output notmergecount=$(./.github/scripts/stale_branch_check.sh --notmergedcount)"
+        shell: bash
+      - name: Send output to slack
+        id: slack
+        uses: slackapi/slack-github-action@34c3fd73326693ef04728f8611669d918a2d781d
+        with:
+          payload: |
+            {
+            "mergedtotal": "Example text",
+            "notmergedtotal": "Example text"
+            "url": "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_STALE_BRANCHES}}
