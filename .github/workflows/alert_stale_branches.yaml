@@ -31,8 +31,8 @@ jobs:
         with:
           payload: |
             {
-            "mergedtotal": ${{ steps.merged.outputs.MERGE_COUNT }},
-            "notmergedtotal": ${{ steps.notmerged.outputs.NOT_MERGE_COUNT }},
+            "mergedtotal": "${{ steps.merged.outputs.MERGE_COUNT }}",
+            "notmergedtotal": "${{ steps.notmerged.outputs.NOT_MERGE_COUNT }}",
             "url": "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             }
         env:
