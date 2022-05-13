@@ -21,11 +21,11 @@ jobs:
         shell: bash
       - name: Get our Merged Count
         id: merged
-        run: echo "::set-output MERGE_COUNT=$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --mergedcount)"
+        run: echo "::set-output name=MERGE_COUNT::$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --mergedcount)"
         shell: bash
       - name: Get our Not Merged Count
         id: notmerged
-        run: echo "::set-output NOT_MERGE_COUNT=$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --notmergedcount)"
+        run: echo "::set-output name=NOT_MERGE_COUNT::$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --notmergedcount)"
         shell: bash
       - name: Send output to slack
         id: slack
@@ -35,7 +35,7 @@ jobs:
             {
             "mergedtotal": "${{ steps.merged.outputs.MERGE_COUNT }}",
             "notmergedtotal": "${{ steps.notmerged.outputs.NOT_MERGE_COUNT }}",
-            "action_url": "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            "action_url": "${env.GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             }
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_STALE_BRANCHES}}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_STALE_BRANCHES }}
