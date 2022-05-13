@@ -8,7 +8,7 @@ import Table, { TableConfig } from "../../../components/Table/Table";
 import { getStoredOrg } from "../../../contexts/SessionStorageTools";
 
 import TableButtonGroup from "./TableButtonGroup";
-import { getReport } from "./ReportsUtils";
+import { getReportAndDownload } from "./ReportsUtils";
 
 /* 
     This is the main exported component from this file. It provides container styling,
@@ -34,7 +34,7 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
     };
 
     const handleFetchAndDownload = (id: string) => {
-        getReport(
+        getReportAndDownload(
             id,
             auth?.authState?.accessToken?.accessToken || "",
             organization || ""

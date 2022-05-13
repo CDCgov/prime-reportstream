@@ -9,14 +9,13 @@ import { historyServer } from "../../../__mocks__/HistoryMockServer";
 import ReportsTable from "./ReportsTable";
 import * as ReportUtilsModule from "./ReportsUtils";
 
-
 const mockMs = (additional?: number) =>
     additional ? 1652458218417 + additional : 1652458218417;
 const mockAPIData: ReportResource[] = [
     new ReportResource("1", mockMs(), mockMs(100000), 99, "CSV"),
 ];
 const mockFetchReport = jest
-    .spyOn(ReportUtilsModule, "getReport")
+    .spyOn(ReportUtilsModule, "getReportAndDownload")
     .mockImplementation(() => {
         return mockAPIData[0];
     });
