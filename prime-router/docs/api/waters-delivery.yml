@@ -67,23 +67,36 @@ components:
           description: the uuid for this report
           type: string
           format: uuid
-        dateSent:
+        sent:
           description: when this report was sent
           type: string
           format: date-time
-        itemCount:
-          description: number of items/tests in the report
+        expires:
+          description: expiration date for the report file
+          type: string
+          format: date-time
+        total:
+          description: number of tests in the report
           type: integer
-        bodyFormat:
+        fileName:
+          description: the filename for the delivered report
+          type: string
+        via:
           description: file type of the report
           type: string
-          enum: [CSV, HL7]
+          enum: [CSV, HL7, HL7_BATCH]
+        sendingOrg:
+          description: the name of the organization sending the report
+          type: string
         receivingOrg:
           description: the name of the organization receiving the report
           type: string
         receivingOrgSvc:
           description: service used by the organization
           type: string
-        externalName:
-          description: the filename for the sent report
+        displayName:
+          description: name of the file when it was initially submitted
+          type: string
+        mimeType:
+          description: identifier used by some applications to handle file types
           type: string
