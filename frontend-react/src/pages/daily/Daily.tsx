@@ -8,7 +8,7 @@ import { useOrgName } from "../../hooks/UseOrgName";
 import { ErrorPage } from "../error/ErrorPage";
 import Title from "../../components/Title";
 
-import TableReports from "./Table/TableReports";
+import ReportsTable from "./Table/ReportsTable";
 
 function Daily() {
     const orgName: string = useOrgName();
@@ -26,7 +26,7 @@ function Daily() {
                 fallbackComponent={() => <ErrorPage type="message" />}
             >
                 <Suspense fallback={<Spinner />}>
-                    <TableReports />
+                    <ReportsTable />
                 </Suspense>
             </NetworkErrorBoundary>
             <HipaaNotice />

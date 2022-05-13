@@ -20,9 +20,36 @@ export default class ReportResource extends AuthResource {
     readonly fileName: string = "";
     readonly mimeType: string = "";
 
+    constructor(
+        reportId?: string,
+        sent?: number,
+        expires?: number,
+        total?: number,
+        fileType?: string
+    ) {
+        super();
+        this.reportId = reportId || "";
+        this.sent = sent || 0;
+        this.expires = expires || 0;
+        this.total = total || 0;
+        this.fileType = fileType || "";
+    }
+
     pk() {
         return this.reportId;
     }
 
     static urlRoot = `${process.env.REACT_APP_BACKEND_URL}/api/history/report`;
+}
+
+export class TestReportResource extends ReportResource {
+    static make(
+        reportId: string,
+        sent: number,
+        expires: number,
+        total: number,
+        fileType: string
+    ) {
+        return new ReportResource(reportId, sent, expires, total, fileType);
+    }
 }

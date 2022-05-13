@@ -1,6 +1,5 @@
 import { useResource } from "rest-hooks";
 import { SetStateAction, useMemo, useState } from "react";
-import download from "downloadjs";
 import { useOktaAuth } from "@okta/okta-react";
 
 import { getUniqueReceiverSvc } from "../../../utils/ReportUtils";
@@ -9,13 +8,14 @@ import Table, { TableConfig } from "../../../components/Table/Table";
 import { getStoredOrg } from "../../../contexts/SessionStorageTools";
 
 import TableButtonGroup from "./TableButtonGroup";
+import { getReport } from "./ReportsUtils";
 
 /* 
     This is the main exported component from this file. It provides container styling,
     table headers, and applies the <TableData> component to the table that is created in this
     component.
 */
-function TableReports({ sortBy }: { sortBy?: string }) {
+function ReportsTable({ sortBy }: { sortBy?: string }) {
     const auth = useOktaAuth();
     const organization = getStoredOrg();
     const reports: ReportResource[] = useResource(ReportResource.list(), {
@@ -33,28 +33,12 @@ function TableReports({ sortBy }: { sortBy?: string }) {
         setChosen(chosen);
     };
 
-    const downloadReport = (id: string) => {
-        fetch(`${process.env.REACT_APP_BACKEND_URL}/api/history/report/${id}`, {
-            headers: {
-                Authorization: `Bearer ${
-                    auth.authState?.accessToken?.accessToken || ""
-                }`,
-                Organization: organization!!,
-            },
-        })
-            .then((res) => res.json())
-            .then((report) => {
-                // The filename to use for the download should not contain blob folders if present
-                let filename = decodeURIComponent(report.fileName);
-                let filenameStartIndex = filename.lastIndexOf("/");
-                if (
-                    filenameStartIndex >= 0 &&
-                    filename.length > filenameStartIndex + 1
-                )
-                    filename = filename.substring(filenameStartIndex + 1);
-                download(report.content, filename, report.mimetype);
-            })
-            .catch((error) => console.log(error));
+    const handleFetchAndDownload = (id: string) => {
+        getReport(
+            id,
+            auth?.authState?.accessToken?.accessToken || "",
+            organization || ""
+        );
     };
 
     const resultsTableConfig: TableConfig = {
@@ -87,7 +71,7 @@ function TableReports({ sortBy }: { sortBy?: string }) {
                 dataAttr: "fileType",
                 columnHeader: "File",
                 actionable: {
-                    action: downloadReport,
+                    action: handleFetchAndDownload,
                     param: "reportId",
                 },
             },
@@ -117,4 +101,4 @@ function TableReports({ sortBy }: { sortBy?: string }) {
     );
 }
 
-export default TableReports;
+export default ReportsTable;
