@@ -1,0 +1,15 @@
+who:
+  valueOf: resource/Organization
+  expressionType: reference
+  specs: MSH.4
+  vars:
+    orgName: MSH.4.1
+    altId: MSH.4.2
+    contryCode: MSH.17
+  constants:
+    # Observation Organization needs an ADMIN purpose
+    orgContactPurposeCode: "ADMIN"
+    orgContactPurposeSystemCode: "contactentity-type"
+    orgContactPurposeDisplay: "Administrative"
+    orgContactPurposeText: "Organization Medical Director"
+    orgIdSystem: http://terminology.hl7.org/CodeSystem/v2-0301
