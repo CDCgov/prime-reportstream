@@ -1,11 +1,9 @@
-name: Alert Stale Branches
-on:
-  push:
-    branches:
-      - acoushawk/check-stale-branches
+name: Alert Stale Branches Older Than 6 Months
 
-env:
-  STALE_AGE: 6 months ago
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "13 1 * * *"
 
 jobs:
   alert_stale_branches:
