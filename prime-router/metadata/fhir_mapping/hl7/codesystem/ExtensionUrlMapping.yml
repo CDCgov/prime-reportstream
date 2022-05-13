@@ -31,13 +31,36 @@
 # source-record-type
 - id: "source-record-type"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/source-record-type"
-#condition-assertedDate
+# condition-assertedDate
 - id: "condition-assertedDate"
   url: "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
-#processing ID
+# processing ID
 - id: "source-processing-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id"
+# source system identifier
 - id: "source-identifier-system"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-identifier-system"
+# source message profile ID
 - id: "source-message-profile-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id"
+# software binary identifier
+- id: "source-software-binary-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-binary-id"
+# software product information
+- id: "source-software-description"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-description"
+# software install date
+- id: "source-software-install-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-install-date"
+# software vendor organization
+- id: "source-software-vendor-org"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-vendor-org"
+# Organization name type
+- id: "organization-name-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
+# Organization assigning authority namespace ID
+- id: "assigning-authority-namespace-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"
+# Organization assigning authority universal ID
+- id: "assigning-authority-universal-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"
