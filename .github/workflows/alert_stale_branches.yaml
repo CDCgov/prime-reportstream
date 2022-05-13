@@ -3,7 +3,7 @@ name: Alert Stale Branches Older Than 6 Months
 on:
   workflow_dispatch:
   schedule:
-    - cron: "13 1 * * *"
+    - cron: "13 1 1 * *"
 
 jobs:
   alert_stale_branches:
