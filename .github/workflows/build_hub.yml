@@ -61,7 +61,7 @@ jobs:
         run: docker-compose -f docker-compose.postgres.yml up -d
 
       - name: Build Prime Router Package
-        run: ./gradlew package -Pshowtests
+        run: ./gradlew package -Pshowtests -d
         
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@0ee9ecdb13bc5ce38c9e7527f2582942ced3b246
