@@ -115,6 +115,7 @@ function SubmissionTable() {
                     hasNext,
                     update: updateCursors,
                 }}
+                enableEditableRows
             />
         </>
     );

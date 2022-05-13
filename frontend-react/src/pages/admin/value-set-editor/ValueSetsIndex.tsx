@@ -19,14 +19,17 @@ const sampleValueSetColumnConfig: ColumnConfig[] = [
     {
         dataAttr: "value",
         columnHeader: "Value",
+        editable: true,
     },
     {
         dataAttr: "header",
         columnHeader: "Column header",
+        editable: true,
     },
     {
         dataAttr: "type",
         columnHeader: "Value type",
+        editable: true,
     },
 ];
 /* END OF FAUX DATA AND STUFF TO BE REMOVED WHEN IMPLEMENTING THE API */
@@ -76,6 +79,7 @@ const ValueSetsTable = () => {
             legend={<Legend items={legendItems} />}
             datasetAction={datasetActionItem}
             config={tableConfig}
+            enableEditableRows
         />
     );
 };

@@ -7,7 +7,7 @@ import {
     IconArrowDownward,
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 
 import {
     CursorActionType,
@@ -38,6 +38,7 @@ export interface ColumnConfig {
     linkAttr?: string; // if no linkAttr is given, defaults to dataAttr
     valueMap?: Map<string | number, any>;
     transform?: Function;
+    editable?: boolean;
 }
 
 export interface TableConfig {
@@ -57,6 +58,7 @@ export interface TableProps {
     datasetAction?: DatasetAction;
     filterManager?: FilterManager;
     cursorManager?: CursorManager;
+    enableEditableRows?: boolean;
 }
 
 export interface LegendItem {
@@ -85,6 +87,7 @@ const Table = ({
     datasetAction,
     filterManager,
     cursorManager,
+    enableEditableRows,
 }: TableProps) => {
     const renderArrow = () => {
         if (filterManager && filterManager.sortSettings.order === "ASC") {
@@ -143,6 +146,10 @@ const Table = ({
                         );
                     }
                 })}
+                {enableEditableRows ? (
+                    // This extends the header bottom border to cover this column
+                    <th key={"edit"}>{""}</th>
+                ) : null}
             </tr>
         );
     };
@@ -161,7 +168,11 @@ const Table = ({
         }
     };
 
-    const renderRow = (object: TableRow, columnConfig: ColumnConfig) => {
+    const renderColumn = (
+        object: TableRow,
+        columnConfig: ColumnConfig,
+        editing?: boolean
+    ) => {
         let displayValue = object[columnConfig.dataAttr];
         // Transforms value if transform function is given
         if (columnConfig.transform) {
@@ -182,6 +193,8 @@ const Table = ({
                 </NavLink>
             );
         } else {
+            if (editing && columnConfig.editable)
+                return <input value={displayValue} />;
             return columnConfig.valueMap
                 ? showMappedValue(columnConfig, object)
                 : displayValue;
@@ -215,6 +228,7 @@ const Table = ({
     /* Iterates each row, and then uses the key value from columns.keys()
      * to render each cell in the appropriate column. */
     const TableRows = () => {
+        const [editing, setEditing] = useState<number | undefined>();
         return (
             <>
                 {config.rows.map((object, rowIndex) => {
@@ -228,9 +242,30 @@ const Table = ({
                         <tr key={rowIndex}>
                             {config.columns.map((colConfig, colIndex) => (
                                 <td key={`${rowIndex}:${colIndex}`}>
-                                    {renderRow(object, colConfig)}
+                                    {editing === rowIndex
+                                        ? renderColumn(object, colConfig, true)
+                                        : renderColumn(object, colConfig)}
                                 </td>
                             ))}
+                            {enableEditableRows ? (
+                                <td key={`${rowIndex}:EDIT`}>
+                                    <Button
+                                        type="button"
+                                        onClick={() => {
+                                            if (editing !== undefined) {
+                                                setEditing(undefined);
+                                                return;
+                                            }
+                                            setEditing(rowIndex);
+                                        }}
+                                    >
+                                        {editing !== undefined &&
+                                        editing === rowIndex
+                                            ? "Save"
+                                            : "Edit"}
+                                    </Button>
+                                </td>
+                            ) : null}
                         </tr>
                     );
                 })}
