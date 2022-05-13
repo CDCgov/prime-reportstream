@@ -19,12 +19,10 @@ const sampleValueSetColumnConfig: ColumnConfig[] = [
     {
         dataAttr: "value",
         columnHeader: "Value",
-        editable: true,
     },
     {
         dataAttr: "header",
         columnHeader: "Column header",
-        editable: true,
     },
     {
         dataAttr: "type",

@@ -194,7 +194,7 @@ const Table = ({
             );
         } else {
             if (editing && columnConfig.editable)
-                return <input value={displayValue} />;
+                return <input className="usa-input" value={displayValue} />;
             return columnConfig.valueMap
                 ? showMappedValue(columnConfig, object)
                 : displayValue;
