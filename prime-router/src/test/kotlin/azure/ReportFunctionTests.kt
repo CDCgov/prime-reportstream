@@ -627,7 +627,7 @@ class ReportFunctionTests {
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
 
-        every { accessSpy.isDuplicateItem(any(), any()) } returns true
+        every { accessSpy.isDuplicateItem(any()) } returns true
 
         // act
         var resp = reportFunc.processRequest(req, sender)
