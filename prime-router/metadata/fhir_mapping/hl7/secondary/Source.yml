@@ -1,9 +1,3 @@
-#
-# (C) Copyright IBM Corp. 2020
-#
-# SPDX-License-Identifier: Apache-2.0
-#
----
 name:
   type: STRING
   valueOf: MSH.3
@@ -13,3 +7,18 @@ endpoint:
   type: URL
   valueOf: MSH.24.2
   expressionType: HL7Spec
+
+extension_1:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $systemStr EQUALS $isoSystemStr
+  vars:
+    idStr: String, MSH.3.2
+    value: $oidUrlPrefix + MSH.3.2
+    systemStr: String, MSH.3.3
+  constants:
+    isoSystemStr: "ISO"
+    oidUrlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: String
+    urlValue: source-identifier-system
