@@ -1,0 +1,41 @@
+resourceType: MessageHeader
+
+id:
+  type: NAMED_UUID
+  valueOf: MSH.10
+  expressionType: HL7Spec
+
+eventCoding:
+    type: CODING_SYSTEM_V2
+    required: true
+    valueOf: MSH.9.2
+    expressionType: HL7Spec
+
+source:
+    valueOf: secondary/Source
+    expressionType: resource
+
+sender:
+  valueOf: resource/MessageSender
+  expressionType: reference
+  vars:
+    country: MSH.17
+
+destination:
+    valueOf: secondary/Destination
+    generateList: true
+    expressionType: resource
+
+extension_1:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: source-message-profile-id
+    valueCodeableConcept:
+      valueOf: datatype/Identifier_var
+      expressionType: resource
+      vars:
+        valueIn: String, MSH.21.1
+        systemId: String, MSH.21.2
