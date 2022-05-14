@@ -14,6 +14,7 @@ import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.DuplicateItemMessage
 import gov.cdc.prime.router.DuplicateSubmissionMessage
@@ -22,16 +23,17 @@ import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.azure.fhirProcessQueueName
+import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
-import gov.cdc.prime.router.tokens.OktaAuthentication
-import gov.cdc.prime.router.tokens.PrincipalLevel
-import gov.cdc.prime.router.tokens.TokenAuthentication
+import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 
 private const val CLIENT_PARAMETER = "client"
@@ -99,7 +101,7 @@ class ReportFunction(
      */
     @FunctionName("waters")
     @StorageAccount("AzureWebJobsStorage")
-    fun report(
+    fun submitToWaters(
         @HttpTrigger(
             name = "waters",
             methods = [HttpMethod.POST],
@@ -110,32 +112,28 @@ class ReportFunction(
         if (senderName.isBlank())
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
 
-        // Sender should eventually be obtained directly from who is authenticated
-        val sender = workflowEngine.settings.findSender(senderName)
-            ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
-
-        val authenticationStrategy = AuthenticationStrategy.authStrategy(
-            request.headers["authentication-type"],
-            PrincipalLevel.USER,
-            workflowEngine.db
-        )
-
+        actionHistory.trackActionParams(request)
         try {
-            actionHistory.trackActionParams(request)
+            val claims = AuthenticationStrategy.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
-            if (authenticationStrategy is OktaAuthentication) {
-                // The report is coming from a sender that is using Okta, so set "oktaSender" to true
-                return authenticationStrategy.checkAccess(request, sender.organizationName, true, actionHistory) {
-                    return@checkAccess processRequest(request, sender)
-                }
-            }
+            val sender = workflowEngine.settings.findSender(senderName)
+                ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown client")
 
-            if (authenticationStrategy is TokenAuthentication) {
-                val claims = authenticationStrategy.checkAccessToken(request, "${sender.fullName}.report")
-                    ?: return HttpUtilities.unauthorizedResponse(request)
-                logger.info("Claims for ${claims["sub"]} validated.  Beginning ingestReport.")
-                return processRequest(request, sender)
+            // Do authorization based on org name in claim matching org name in client header
+            if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {
+                logger.warn(
+                    "Invalid Authorization for user ${claims.userName}:" +
+                        " ${request.httpMethod}:${request.uri.path}." +
+                        " ERR: Claim org is ${claims.organizationNameClaim} but client id is ${sender.organizationName}"
+                )
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
+            logger.info(
+                "Authorized request by org ${claims.organizationNameClaim}" +
+                    " to submit data via client id ${sender.organizationName}.  Beginning to ingest report"
+            )
+            return processRequest(request, sender)
         } catch (ex: Exception) {
             if (ex.message != null)
                 logger.error(ex.message!!, ex)
@@ -143,7 +141,6 @@ class ReportFunction(
                 logger.error(ex)
             return HttpUtilities.internalErrorResponse(request)
         }
-        return HttpUtilities.bad(request, "Failed authorization")
     }
 
     /**
@@ -180,8 +177,13 @@ class ReportFunction(
 
                 // Only process the report if we are not checking for connection or validation.
                 if (options != Options.CheckConnections && options != Options.ValidatePayload) {
-                    val (report, actionLogs) = workflowEngine.parseReport(
-                        sender,
+                    // TODO: Decision point - we will need to parse non-covid reports and only call parseCovidReport
+                    //  once we have verified the sender is a covid-specific sender
+                    // TODO: full ELR, See #5050
+                    val (report, actionLogs) = workflowEngine.parseCovidReport(
+                        // TODO: when the full ELR stuff is refactored out, ideally we would already know we
+                        //  have a CovidSender before reaching the point of parseCovidReport
+                        sender as CovidSender,
                         validatedRequest.content,
                         validatedRequest.defaults,
                     )
@@ -258,7 +260,6 @@ class ReportFunction(
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .body(
                 JacksonMapperUtilities.allowUnknownsMapper
-                    .writerWithDefaultPrettyPrinter()
                     .writeValueAsString(submission)
             )
             .header(
@@ -286,7 +287,7 @@ class ReportFunction(
         val generatedHashes = mutableListOf<String>()
         val duplicateIndexes = mutableListOf<Int>()
         for (rowNum in 0 until report.itemCount) {
-            var itemHash = report.getItemHashForRow(rowNum)
+            val itemHash = report.getItemHashForRow(rowNum)
             // check for duplicate item
             val isDuplicate = generatedHashes.contains(itemHash) ||
                 workflowEngine.isDuplicateItem(itemHash)
@@ -339,7 +340,7 @@ class ReportFunction(
                     // limit to hl7
                     Report.Format.HL7 ->
                         queue.sendMessage(
-                            fhirQueueName,
+                            fhirProcessQueueName,
                             RawSubmission(
                                 blobInfo.blobUrl,
                                 BlobAccess.digestToString(blobInfo.digest),
@@ -431,11 +432,16 @@ class ReportFunction(
         if (sender == null)
             actionLogs.error(InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown sender"))
 
-        val schema = workflowEngine.metadata.findSchema(sender?.schemaName ?: "")
-        if (sender != null && schema == null)
-            actionLogs.error(
-                InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
-            )
+        // verify schema if the sender is a covidSender
+        var schema: Schema? = null
+        if (sender != null && sender is CovidSender) {
+            schema = workflowEngine.metadata.findSchema(sender.schemaName)
+            if (schema == null) {
+                actionLogs.error(
+                    InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
+                )
+            }
+        }
 
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
@@ -449,7 +455,7 @@ class ReportFunction(
             actionLogs.error(InvalidParamMessage("Expecting a post message with content"))
         }
 
-        if (sender == null || schema == null || content.isEmpty() || actionLogs.hasErrors()) {
+        if (sender == null || content.isEmpty() || actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
 
@@ -461,15 +467,19 @@ class ReportFunction(
                     actionLogs.error(InvalidParamMessage("'$it' is not a valid default"))
                     return@mapNotNull null
                 }
-                val element = schema.findElement(parts[0])
-                if (element == null) {
-                    actionLogs.error(InvalidParamMessage("'${parts[0]}' is not a valid element name"))
-                    return@mapNotNull null
-                }
-                val error = element.checkForError(parts[1])
-                if (error != null) {
-                    actionLogs.error(InvalidParamMessage(error.message))
-                    return@mapNotNull null
+
+                // only CovidSenders will have a schema
+                if (sender is CovidSender && schema != null) {
+                    val element = schema.findElement(parts[0])
+                    if (element == null) {
+                        actionLogs.error(InvalidParamMessage("'${parts[0]}' is not a valid element name"))
+                        return@mapNotNull null
+                    }
+                    val error = element.checkForError(parts[1])
+                    if (error != null) {
+                        actionLogs.error(InvalidParamMessage(error.message))
+                        return@mapNotNull null
+                    }
                 }
                 Pair(parts[0], parts[1])
             }.toMap()

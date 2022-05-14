@@ -16,6 +16,6 @@
 }
 
 .date-picker-container {
-    max-width: 225px;
+    display: flex;
     margin-right: 32px;
 }

@@ -91,9 +91,9 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                                             filterManager?.sortSettings
                                                 .order === "ASC"
                                                 ? filterManager?.rangeSettings
-                                                      .start
+                                                      .to
                                                 : filterManager?.rangeSettings
-                                                      .end,
+                                                      .from,
                                     });
                                 }}
                             >

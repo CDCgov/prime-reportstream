@@ -13,9 +13,9 @@ jobs:
       has_operations_change: ${{ steps.skip_check.outputs.operations }}
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
         id: skip_check
         with:
           list-files: csv
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Verify Terraform Formatting
         run: terraform -chdir=operations/app/terraform/vars/staging fmt -check -recursive ../../
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
@@ -70,8 +70,8 @@ jobs:
       - name: Generate a Plan for All Terraform Modules
         run: |
           terraform -chdir=operations/app/terraform/vars/staging plan \
-            -out=../../../plan/staging-${{ github.run_id }}-${{ github.sha }}.output \
-            -input=false
+            -out=../../../plan/staging-${{ github.run_id }}-${{ github.sha }}.json \
+            -input=false -lock-timeout=60s -json
 
       - name: Upload Terraform Plan to Storage Account
         if: ${{ always() }} # We want to upload whatever part of the plan we have

@@ -276,7 +276,8 @@ class UseSenderSettingMapper : Mapper {
                 args.size != 1 -> error("Schema Error for ${element.name}: useSenderSetting expects a single argument")
                 else -> {
                     try {
-                        val senderProperty = Sender::class.memberProperties.first {
+                        // get the member properties of the correct Sender subclass (or Sender itself if applicable)
+                        val senderProperty = sender.javaClass.kotlin.memberProperties.first {
                             it.name == args[0]
                         }
                         senderProperty.get(sender).toString()

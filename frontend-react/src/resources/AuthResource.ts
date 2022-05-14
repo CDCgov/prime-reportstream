@@ -20,6 +20,7 @@ export default class AuthResource extends Resource {
                 ...init.headers,
                 Authorization: `Bearer ${accessToken}`,
                 Organization: organization || "",
+                "authentication-type": "okta",
             },
         };
     };

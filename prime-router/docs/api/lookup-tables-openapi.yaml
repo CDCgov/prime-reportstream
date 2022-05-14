@@ -13,7 +13,7 @@ paths:
     get:
       description: Fetch the list lookup tables
       security:
-        - OktaAuth: [ ANONYMOUS ]
+        - OAuth2: [ user ]
       parameters:
         - name: showInactive
           in: query
@@ -39,7 +39,7 @@ paths:
       description: Create a new version of a lookup table.  First versions of a table
         are automatically activated.
       security:
-        - OktaAuth: [ SYSTEM_ADMIN ]
+        - OAuth2: [ system_admin ]
       parameters:
         - name: tableName
           in: path
@@ -72,7 +72,7 @@ paths:
     get:
       description: Fetch the contents of a specific version of a table
       security:
-        - OktaAuth: [ ANONYMOUS ]
+        - OAuth2: [ user ]
       parameters:
         - name: tableName
           in: path
@@ -110,7 +110,7 @@ paths:
     get:
       description: Fetch the version information of a specific version of a table
       security:
-        - OktaAuth: [ ANONYMOUS ]
+        - OAuth2: [ user ]
       parameters:
         - name: tableName
           in: path
@@ -148,7 +148,7 @@ paths:
     put:
       description: Activate a specific version of a table.  This endpoint does not take a request body.
       security:
-        - OktaAuth: [ SYSTEM_ADMIN ]
+        - OAuth2: [ system_admin ]
       parameters:
         - name: tableName
           in: path
@@ -196,7 +196,6 @@ components:
       description: A table version information
       type: array
       items:
-        type: object
         $ref: '#/components/schemas/TableVersionInfo'
 
     TableVersionInfo:
@@ -222,6 +221,5 @@ components:
           type: string
 
   securitySchemes:
-    OktaAuth:
-      type: http
-      scheme: bearer
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'

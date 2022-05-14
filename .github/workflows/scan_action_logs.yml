@@ -1,0 +1,26 @@
+name: Scan Action Logs
+
+on:
+  schedule:
+    - cron: "52 5 * * *"
+
+jobs:
+  scan_run_logs:
+    runs-on: ubuntu-latest
+    name: Scan repo run logs
+    steps:
+      - uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+      - name: Scan run logs
+        uses: josiahsiegel/runleaks@3d80ba4be37c53abde759a96489df829f3186670
+        id: scan
+        with:
+          github-token: ${{ secrets.RUNLEAKS_TOKEN }}
+          run-limit: 1000
+          min-days-old: 0
+          max-days-old: 2
+          patterns-path: ".github/runleaks/patterns.txt"
+          exclusions-path: ".github/runleaks/exclusions.txt"
+          fail-on-leak: true
+      - name: Get scan exceptions
+        if: steps.scan.outputs.count > 0
+        run: echo "${{ steps.scan.outputs.exceptions }}"

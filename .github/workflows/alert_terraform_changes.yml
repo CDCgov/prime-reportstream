@@ -1,0 +1,54 @@
+name: Alert Terraform Changes
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "21 12 * * *"
+
+jobs:
+  alert_tf_changes:
+    name: Check Terraform plan for ${{ matrix.env }}
+    strategy:
+      fail-fast: false
+      matrix:
+        env: [staging, prod]
+    environment: ${{ matrix.env }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ matrix.env }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: true
+      - name: Collect Terraform stats
+        uses: josiahsiegel/terraform-stats@64e3f3a7e4fb74408ab939c334f32f272ca7035d
+        id: stats1
+        with:
+          terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
+      - name: Format outputs for slack
+        run: |
+          echo "resource-changes=$(echo '${{ steps.stats1.outputs.resource-changes }}' \
+            | sed 's/\"/\\\"/g')" >> $GITHUB_ENV
+          echo "resource-drifts=$(echo '${{ steps.stats1.outputs.resource-drifts }}' \
+            | sed 's/\"/\\\"/g')" >> $GITHUB_ENV
+      - name: Send custom JSON data to Slack workflow
+        id: slack
+        uses: slackapi/slack-github-action@34c3fd73326693ef04728f8611669d918a2d781d
+        with:
+          payload: |
+            {
+              "change-count": "${{ steps.stats1.outputs.change-count }}",
+              "drift-count": "${{ steps.stats1.outputs.drift-count }}",
+              "resource-changes": "${{ env.resource-changes }}",
+              "resource-drifts": "${{ env.resource-drifts }}",
+              "env": "prime-reportstream ${{ matrix.env }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_DEVOPS }}

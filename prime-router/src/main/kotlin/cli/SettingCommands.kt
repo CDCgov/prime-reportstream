@@ -38,7 +38,6 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.OrganizationAPI
 import gov.cdc.prime.router.azure.ReceiverAPI
-import gov.cdc.prime.router.azure.SenderAPI
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.http.HttpStatus
@@ -166,7 +165,7 @@ abstract class SettingCommand(
                         val version = if (result.value.obj().has("version"))
                             result.value.obj().getInt("version")
                         else
-                            result.value.obj().getJSONObject("meta").getInt("version")
+                            "[unknown - legacy data]"
                         "Success. Setting $settingName at version $version"
                     }
                     HttpStatus.SC_CREATED -> "Success. Created $settingName\n"
@@ -415,7 +414,7 @@ abstract class SettingCommand(
                 Pair(organization.name, jsonMapper.writeValueAsString(organization))
             }
             SettingType.SENDER -> {
-                val sender = mapper.readValue(input, SenderAPI::class.java)
+                val sender = mapper.readValue(input, Sender::class.java)
                 Pair(sender.fullName, jsonMapper.writeValueAsString(sender))
             }
             SettingType.RECEIVER -> {
@@ -433,7 +432,7 @@ abstract class SettingCommand(
                 yamlMapper.writeValueAsString(organization)
             }
             SettingType.SENDER -> {
-                val sender = jsonMapper.readValue(output, SenderAPI::class.java)
+                val sender = jsonMapper.readValue(output, Sender::class.java)
                 return yamlMapper.writeValueAsString(sender)
             }
             SettingType.RECEIVER -> {
@@ -454,17 +453,26 @@ abstract class SettingCommand(
      * Echo verbose information to the console respecting the --silent and --verbose flag
      */
     fun verbose(message: String) {
-        if (verbose) TermUi.echo(message)
+        try {
+            if (verbose) TermUi.echo(message)
+        } catch (e: IllegalStateException) {
+            // ignore this error that can occur if directly calling SettingsCommands (e.g. put) rather than from cmdline
+        }
     }
 
     /**
      * Abort the program with the message
      */
     fun abort(message: String): Nothing {
-        if (silent)
-            throw ProgramResult(statusCode = 1)
-        else
+        try {
+            if (silent)
+                throw ProgramResult(statusCode = 1)
+            else
+                throw PrintMessage(message, error = true)
+        } catch (e: IllegalStateException) {
+            // The if (silent) test can cause this exception if directly calling SettingsCommands, and not from cmdline.
             throw PrintMessage(message, error = true)
+        }
     }
 
     /**
@@ -919,7 +927,7 @@ class GetMultipleSettings : SettingCommand(
         // get senders and receivers per org
         val deepOrganizations = organizations.map { org ->
             val sendersJson = getMany(environment, accessToken, SettingType.SENDER, org.name)
-            val orgSenders = jsonMapper.readValue(sendersJson, Array<SenderAPI>::class.java).map { Sender(it) }
+            val orgSenders = jsonMapper.readValue(sendersJson, Array<Sender>::class.java).map { it.makeCopy() }
             val receiversJson = getMany(environment, accessToken, SettingType.RECEIVER, org.name)
             val orgReceivers = jsonMapper.readValue(receiversJson, Array<ReceiverAPI>::class.java).map { Receiver(it) }
             DeepOrganization(org, orgSenders, orgReceivers)
