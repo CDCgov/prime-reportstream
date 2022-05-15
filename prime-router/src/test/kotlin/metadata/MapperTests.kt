@@ -106,11 +106,12 @@ class MapperTests {
         // test normal call  mapper: ifThenElse(<=, otc_flag comparisonValue, patient_state, ordering_provider_state)
         args = mutableListOf("<=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         val valNames = mapper.valueNames(element, args)
-        assertThat(valNames.count()).isEqualTo(4)
-        assertThat(valNames[0]).isEqualTo("otc_flag")
-        assertThat(valNames[1]).isEqualTo("comparisonValue")
-        assertThat(valNames[2]).isEqualTo("patient_state")
-        assertThat(valNames[3]).isEqualTo("ordering_provider_state")
+        assertThat(valNames.count()).isEqualTo(5)
+        assertThat(valNames[0]).isEqualTo("<=")
+        assertThat(valNames[1]).isEqualTo("otc_flag")
+        assertThat(valNames[2]).isEqualTo("comparisonValue")
+        assertThat(valNames[3]).isEqualTo("patient_state")
+        assertThat(valNames[4]).isEqualTo("ordering_provider_state")
 
         // In all these cases, think of "AL" as the "that's right" and "TN" as the "else case"
         val eAVotc = ElementAndValue(Element(args[1]), "OTC")
@@ -152,11 +153,12 @@ class MapperTests {
         val element = Element("test")
         var args = listOf("<=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         val valNames = mapper.valueNames(element, args)
-        assertThat(valNames.count()).isEqualTo(4)
-        assertThat(valNames[0]).isEqualTo("otc_flag")
-        assertThat(valNames[1]).isEqualTo("comparisonValue")
-        assertThat(valNames[2]).isEqualTo("patient_state")
-        assertThat(valNames[3]).isEqualTo("ordering_provider_state")
+        assertThat(valNames.count()).isEqualTo(5)
+        assertThat(valNames[0]).isEqualTo("<=")
+        assertThat(valNames[1]).isEqualTo("otc_flag")
+        assertThat(valNames[2]).isEqualTo("comparisonValue")
+        assertThat(valNames[3]).isEqualTo("patient_state")
+        assertThat(valNames[4]).isEqualTo("ordering_provider_state")
 
         var eAVotc = ElementAndValue(Element(args[1]), "OTC")
         var eAVpresc = ElementAndValue(Element(args[2]), "Prescription")
@@ -209,8 +211,8 @@ class MapperTests {
         // operator as a value of an element
         args = listOf("op_elm", "otc_flag", "2", "patient_state", "ordering_provider_state")
         eAVotc = ElementAndValue(Element(args[1]), "2.0") // element otc_flag has .value "22"
-        val eOpElm = ElementAndValue(Element(args[0]), ">=") // element op_elm has .value "=="
-        assertEq(mapper, element, args, listOf(eOpElm, eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // 2 == 2.0
+        val eOpElm = ElementAndValue(Element(args[0]), ">=") // element op_elm has .value ">="
+        assertEq(mapper, element, args, listOf(eOpElm, eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // 2 >= 2.0
     }
 
     @Test

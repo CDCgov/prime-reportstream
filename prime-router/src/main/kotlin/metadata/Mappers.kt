@@ -125,11 +125,11 @@ class IfThenElseMapper : Mapper {
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
         if (args.size != 5) error("Schema Error: Invalid number of arguments - 5 required")
-        return args.takeLast(4)
+        return args
     }
 
     /**
-     * Determines the meaning of a mapper: (argument)
+     * Determines the meaning of a mapper argument
      *
      * Determines if a mapperArg exists a List of <ElementAndValue>s.
      * If it does, the found element's .value is returned; otherwise, the argument itself is
@@ -142,7 +142,7 @@ class IfThenElseMapper : Mapper {
      * @return Either a passed-in Elements .value or the mapper argument as a string literal
      */
     private fun decodeArg(values: List<ElementAndValue>, mapperArg: String): String {
-        return values.find { it.element.name == mapperArg }?.value ?: mapperArg
+        return values.find { it.element.name.equals(mapperArg, ignoreCase = true) }?.value ?: mapperArg
     }
 
     /**
