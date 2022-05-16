@@ -1,0 +1,57 @@
+resourceType: Provenance
+id:
+  type: STRING
+  valueOf: "UUID.randomUUID()"
+  expressionType: JEXL
+
+target:
+  valueOf: datatype/Reference
+  generateList: true
+  expressionType: resource
+  specs: $DiagnosticReport
+
+recorded:
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: MSH.7
+
+occurredDateTime:
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: MSH.7
+
+agent:
+  valueOf: secondary/ProvenanceAgent
+  generateList: true
+  expressionType: resource
+
+entity:
+  valueOf: secondary/ProvenanceEntity
+  generateList: true
+  expressionType: resource
+
+activity_1:
+  valueOf: datatype/CodeableConcept_var
+  expressionType: resource
+  condition: $code NOT_NULL
+  vars:
+    display: MSH.9.3
+    code: MSH.9.2
+    system: SYSTEM_URL, $system_code
+  constants:
+    system_code: "v2-0003"
+
+activity_2:
+  valueOf: datatype/CodeableConcept_var
+  expressionType: resource
+  vars:
+    display: MSH.9.1 + $activityJoinChar + MSH.9.2
+    code: MSH.9.2
+    system: SYSTEM_URL, $system_code
+  constants:
+    activityJoinChar: "_"
+    system_code: "v2-0003"

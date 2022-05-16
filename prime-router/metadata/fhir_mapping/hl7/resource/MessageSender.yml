@@ -1,0 +1,33 @@
+resourceType: Organization
+
+id:
+  type: STRING
+  valueOf: UUID.randomUUID()
+  expressionType: JEXL
+
+name:
+  type: STRING
+  valueOf: MSH.4.1
+  expressionType: HL7Spec
+
+identifier:
+  valueOf: datatype/Identifier_Gen
+  condition: $idStr NOT_NULL && $systemStr EQUALS $isoSystemStr
+  generateList: true
+  expressionType: resource
+  vars:
+    idStr: String, MSH.3.2
+    id: $oidUrlPrefix + MSH.3.2
+    systemStr: String, MSH.3.3
+  constants:
+    isoSystemStr: "ISO"
+    oidUrlPrefix: "urn:oid:"
+
+address:
+  valueOf: datatype/Address
+  expressionType: resource
+  generateList: true
+  vars:
+    country: MSH.17
+
+
