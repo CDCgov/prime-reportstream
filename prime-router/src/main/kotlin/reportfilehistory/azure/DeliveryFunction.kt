@@ -59,8 +59,29 @@ class DeliveryFunction(
                     " to $sender/deliveries endpoint via client id ${sender.organizationName}. "
             )
 
+            val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
+                Parameters(request.queryParameters)
+
+            val sortOrder = try {
+                ReportFileAccess.SortOrder.valueOf(qSortOrder)
+            } catch (e: IllegalArgumentException) {
+                ReportFileAccess.SortOrder.DESC
+            }
+
+            val sortColumn = try {
+                ReportFileAccess.SortColumn.valueOf(qSortColumn)
+            } catch (e: IllegalArgumentException) {
+                ReportFileAccess.SortColumn.CREATED_AT
+            }
+
             val deliveries = deliveryFacade.findDeliveriesAsJson(
-                sender.organizationName
+                sender.organizationName,
+                sortOrder,
+                sortColumn,
+                resultsAfterDate,
+                resultsBeforeDate,
+                pageSize,
+                showFailed
             )
 
             return HttpUtilities.okResponse(request, deliveries)

@@ -1,43 +1,203 @@
 package gov.cdc.prime.router.azure
 
-import gov.cdc.prime.router.DeliveryHistory
+import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.ACTION_LOG
+import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import org.jooq.Condition
+import org.jooq.SelectFieldOrAsterisk
+import org.jooq.SortField
+import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 
-// interface DeliveryAccess {
-//     fun <T> fetchActions(
-//         receivingOrg: String,
-//         klass: Class<T>
-//     ): List<T>
-// }
 /**
  * Class to access lookup tables stored in the database.
  */
-class DatabaseDeliveryAccess() { // : DeliveryAccess
+class DatabaseDeliveryAccess(private val db: DatabaseAccess = WorkflowEngine.databaseAccessSingleton) :
+    ReportFileAccess {
+
     /**
-     * @param receivingOrg is the Organization Name returned from the Okta JWT Claim.
+     * @param organization is the Organization Name returned from the Okta JWT Claim.
+     * @param order sort the table in ASC or DESC order.
+     * @param sortColumn sort the table by specific column; default created_at.
+     * @param cursor is the OffsetDateTime of the last result in the previous list.
+     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
+     * @param limit is an Integer used for setting the number of results per page.
      * @return a list of results matching the SQL Query.
      */
-    // override fun <T> fetchActions(
-    fun <T> fetchActions(
-        // receivingOrg: String,
-        // klass: Class<T>
-        // ): List<T> {
-    ): List<DeliveryHistory> {
+    override fun <T> fetchActions(
+        organization: String,
+        order: ReportFileAccess.SortOrder,
+        sortColumn: ReportFileAccess.SortColumn,
+        cursor: OffsetDateTime?,
+        toEnd: OffsetDateTime?,
+        limit: Int,
+        showFailed: Boolean,
+        klass: Class<T>
+    ): List<T> {
+        val sortedColumn = createColumnSort(sortColumn, order)
+        val condition = createWhereCondition(organization, cursor, toEnd, showFailed)
+
+        return db.transactReturning { txn ->
+            val query = DSL.using(txn)
+                // Note the report file and action tables have columns with the same name, so we must specify what we need.
+                .select(
+                    ACTION.ACTION_ID, ACTION.CREATED_AT, ACTION.SENDING_ORG, ACTION.HTTP_STATUS,
+                    ACTION.EXTERNAL_NAME, REPORT_FILE.REPORT_ID, REPORT_FILE.SCHEMA_TOPIC, REPORT_FILE.ITEM_COUNT
+                )
+                .from(
+                    ACTION.join(REPORT_FILE).on(
+                        REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID)
+                            .and(
+                                REPORT_FILE.SENDING_ORG.eq(
+                                    ACTION.SENDING_ORG
+                                )
+                            )
+                    )
+                )
+                .where(condition)
+                .orderBy(sortedColumn)
+
+            /* This nullifies our selection if we're using the 'between'
+            *  where() statement returned from createWhereCondition()
+            *  For this, it's set to run only when a cursor is given
+            *  with no endCursor. */
+            if (cursor != null && toEnd == null) {
+                query.seek(cursor)
+            }
+            query.limit(limit)
+                .fetchInto(klass)
+        }
+    }
+
+    /**
+     * @param order sort the table in ASC or DESC order.
+     * @param sortColumn sort the table by specific column; default created_at.
+     * @return a jooq Condition statement to use in where().
+     */
+    private fun createColumnSort(
+        sortColumn: ReportFileAccess.SortColumn,
+        order: ReportFileAccess.SortOrder
+    ): SortField<OffsetDateTime> {
+        val column = when (sortColumn) {
+            /* Decides sort column by enum */
+            ReportFileAccess.SortColumn.CREATED_AT -> ACTION.CREATED_AT
+        }
+
+        val sortedColumn = when (order) {
+            /* Applies sort order by enum */
+            ReportFileAccess.SortOrder.ASC -> column.asc()
+            ReportFileAccess.SortOrder.DESC -> column.desc()
+        }
+
+        return sortedColumn
+    }
+
+    /**
+     * @param organization is the Organization Name returned from the Okta JWT Claim.
+     * @param cursor is the OffsetDateTime of the last result in the previous list.
+     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
+     * @return a jooq Condition statement to use in where().
+     */
+    private fun createWhereCondition(
+        organization: String,
+        cursor: OffsetDateTime? = null,
+        toEnd: OffsetDateTime? = null,
+        showFailed: Boolean
+    ): Condition {
+        val dateFilter: Condition = when (toEnd) {
+            null -> {
+                /* Only the end is given: all results between today and cutoff */
+                ACTION.ACTION_NAME.eq(TaskAction.receive)
+                    .and(ACTION.SENDING_ORG.eq(organization))
+            }
+            else -> {
+                /* Both given: all results between cursor and cutoff */
+                ACTION.ACTION_NAME.eq(TaskAction.receive)
+                    .and(ACTION.SENDING_ORG.eq(organization))
+                    .and(ACTION.CREATED_AT.between(toEnd, cursor))
+            }
+        }
+
+        val failedFilter: Condition = when (showFailed) {
+            true -> {
+                ACTION.HTTP_STATUS.between(200, 600)
+            }
+            false -> {
+                ACTION.HTTP_STATUS.between(200, 299)
+            }
+        }
+
+        return dateFilter.and(failedFilter)
+    }
+
+    fun <P, U> detailedSubmissionSelect(
+        reportsKlass: Class<P>,
+        logsKlass: Class<U>,
+    ): List<SelectFieldOrAsterisk> {
         return listOf(
-            DeliveryHistory(
-                922,
-                OffsetDateTime.parse("2022-04-19T18:04:26.534Z"),
-                "ca-dph",
-                "elr-secondary",
-                201,
-                null,
-                "b9f63105-bbed-4b41-b1ad-002a90f07e62",
-                "covid-19",
-                14,
-                "",
-                "primedatainput/pdi-covid-19",
-                "CSV"
-            ),
+            ACTION.asterisk(),
+            DSL.multiset(
+                DSL.select()
+                    .from(ACTION_LOG)
+                    .where(ACTION_LOG.ACTION_ID.eq(ACTION.ACTION_ID))
+            ).`as`("logs").convertFrom { r ->
+                r?.into(logsKlass)
+            },
+            DSL.multiset(
+                DSL.select()
+                    .from(REPORT_FILE)
+                    .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
+            ).`as`("reports").convertFrom { r ->
+                r?.into(reportsKlass)
+            },
         )
+    }
+
+    /**
+     * fetch the details of a single action
+     */
+    override fun <T, P, U> fetchAction(
+        organization: String,
+        actionId: Long,
+        klass: Class<T>,
+        reportsKlass: Class<P>,
+        logsKlass: Class<U>,
+    ): T? {
+        return db.transactReturning { txn ->
+            DSL.using(txn)
+                .select(detailedSubmissionSelect(reportsKlass, logsKlass))
+                .from(ACTION)
+                .where(
+                    ACTION.ACTION_NAME.eq(TaskAction.receive)
+                        .and(ACTION.SENDING_ORG.eq(organization))
+                        .and(ACTION.ACTION_ID.eq(actionId))
+                )
+                .fetchOne()?.into(klass)
+        }
+    }
+
+    /**
+     * Fetch the details of an actions relations (descendents)
+     *
+     * This is done through a recursive query on the report_lineage table
+     */
+    override fun <T, P, U> fetchRelatedActions(
+        actionId: Long,
+        klass: Class<T>,
+        reportsKlass: Class<P>,
+        logsKlass: Class<U>,
+    ): List<T> {
+        // val cte = reportDescendantExpression(actionId)
+        return db.transactReturning { txn ->
+            DSL.using(txn)
+                // .withRecursive(cte)
+                .selectDistinct(detailedSubmissionSelect(reportsKlass, logsKlass))
+                .from(ACTION)
+                // .join(cte)
+                // .on(ACTION.ACTION_ID.eq(cte.field("action_id", BIGINT)))
+                .where(ACTION.ACTION_ID.ne(actionId))
+                .fetchInto(klass)
+        }
     }
 }

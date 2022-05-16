@@ -9,7 +9,7 @@ import java.time.OffsetDateTime
  * Contains all business logic regarding deliveries and JSON serialization.
  */
 class DeliveryFacade(
-    // private val dbDeliveryAccess: DeliveryAccess = DatabaseDeliveryAccess(),
+    // private val dbDeliveryAccess: ReportFileAccess = DatabaseDeliveryAccess(),
     dbAccess: DatabaseAccess = WorkflowEngine.databaseAccessSingleton
 ) : ReportFileFacade(
     dbAccess,
@@ -25,10 +25,16 @@ class DeliveryFacade(
      * @return a String representation of an array of actions.
      */
     fun findDeliveriesAsJson(
-        organizationName: String
+        organizationName: String,
+        sortOrder: ReportFileAccess.SortOrder,
+        sortColumn: ReportFileAccess.SortColumn,
+        offset: OffsetDateTime?,
+        toEnd: OffsetDateTime?,
+        pageSize: Int,
+        showFailed: Boolean
     ): String {
-        val result = findDeliveries(organizationName)
-        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(result)
+        val result = findDeliveries(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize, showFailed)
+        return mapper.writeValueAsString(result)
     }
 
     /**
@@ -38,15 +44,30 @@ class DeliveryFacade(
      */
     private fun findDeliveries(
         organizationName: String,
+        sortOrder: ReportFileAccess.SortOrder,
+        sortColumn: ReportFileAccess.SortColumn,
+        offset: OffsetDateTime?,
+        toEnd: OffsetDateTime?,
+        pageSize: Int,
+        showFailed: Boolean
     ): List<DeliveryHistory> {
         require(organizationName.isNotBlank()) {
             "Invalid organization."
         }
+        require(pageSize > 0) {
+            "pageSize must be a positive integer."
+        }
 
-        // return dbDeliveryAccess.fetchActions(
+        // return dbSubmissionAccess.fetchActions(
         //     organizationName,
+        //     sortOrder,
+        //     sortColumn,
+        //     offset,
+        //     toEnd,
+        //     pageSize,
         //     DeliveryHistory::class.java
         // )
+
         return listOf(
             DeliveryHistory(
                 922,
@@ -83,8 +104,7 @@ class DeliveryFacade(
 
     companion object {
         val instance: DeliveryFacade by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
-            // DeliveryFacade(DatabaseDeliveryAccess())
-            DeliveryFacade()
+            DeliveryFacade(DatabaseDeliveryAccess())
         }
     }
 }

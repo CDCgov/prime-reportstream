@@ -14,53 +14,14 @@ import org.jooq.impl.SQLDataType.BIGINT
 import org.jooq.impl.SQLDataType.UUID
 import java.time.OffsetDateTime
 
-interface SubmissionAccess {
-    enum class SortOrder {
-        DESC,
-        ASC,
-    }
-
-    /* As sorting Submission results expands, we can add
-    * column names to this enum. Make sure the column you
-    * wish to sort by is indexed. */
-    enum class SortColumn {
-        CREATED_AT
-    }
-
-    fun <T> fetchActions(
-        sendingOrg: String,
-        order: SortOrder,
-        sortColumn: SortColumn,
-        cursor: OffsetDateTime? = null,
-        toEnd: OffsetDateTime? = null,
-        limit: Int = 10,
-        showFailed: Boolean,
-        klass: Class<T>
-    ): List<T>
-
-    fun <T, P, U> fetchAction(
-        sendingOrg: String,
-        submissionId: Long,
-        klass: Class<T>,
-        reportsKlass: Class<P>,
-        logsKlass: Class<U>,
-    ): T?
-
-    fun <T, P, U> fetchRelatedActions(
-        submissionId: Long,
-        klass: Class<T>,
-        reportsKlass: Class<P>,
-        logsKlass: Class<U>,
-    ): List<T>
-}
 /**
  * Class to access lookup tables stored in the database.
  */
 class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.databaseAccessSingleton) :
-    SubmissionAccess {
+    ReportFileAccess {
 
     /**
-     * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.
+     * @param organization is the Organization Name returned from the Okta JWT Claim.
      * @param order sort the table in ASC or DESC order.
      * @param sortColumn sort the table by specific column; default created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -69,9 +30,9 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * @return a list of results matching the SQL Query.
      */
     override fun <T> fetchActions(
-        sendingOrg: String,
-        order: SubmissionAccess.SortOrder,
-        sortColumn: SubmissionAccess.SortColumn,
+        organization: String,
+        order: ReportFileAccess.SortOrder,
+        sortColumn: ReportFileAccess.SortColumn,
         cursor: OffsetDateTime?,
         toEnd: OffsetDateTime?,
         limit: Int,
@@ -79,7 +40,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         klass: Class<T>
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, order)
-        val condition = createWhereCondition(sendingOrg, cursor, toEnd, showFailed)
+        val condition = createWhereCondition(organization, cursor, toEnd, showFailed)
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
                 // Note the report file and action tables have columns with the same name, so we must specify what we need.
@@ -118,31 +79,31 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * @return a jooq Condition statement to use in where().
      */
     private fun createColumnSort(
-        sortColumn: SubmissionAccess.SortColumn,
-        order: SubmissionAccess.SortOrder
+        sortColumn: ReportFileAccess.SortColumn,
+        order: ReportFileAccess.SortOrder
     ): SortField<OffsetDateTime> {
         val column = when (sortColumn) {
             /* Decides sort column by enum */
-            SubmissionAccess.SortColumn.CREATED_AT -> ACTION.CREATED_AT
+            ReportFileAccess.SortColumn.CREATED_AT -> ACTION.CREATED_AT
         }
 
         val sortedColumn = when (order) {
             /* Applies sort order by enum */
-            SubmissionAccess.SortOrder.ASC -> column.asc()
-            SubmissionAccess.SortOrder.DESC -> column.desc()
+            ReportFileAccess.SortOrder.ASC -> column.asc()
+            ReportFileAccess.SortOrder.DESC -> column.desc()
         }
 
         return sortedColumn
     }
 
     /**
-     * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.
+     * @param organization is the Organization Name returned from the Okta JWT Claim.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
      * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
      * @return a jooq Condition statement to use in where().
      */
     private fun createWhereCondition(
-        sendingOrg: String,
+        organization: String,
         cursor: OffsetDateTime? = null,
         toEnd: OffsetDateTime? = null,
         showFailed: Boolean
@@ -151,12 +112,12 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
             null -> {
                 /* Only the end is given: all results between today and cutoff */
                 ACTION.ACTION_NAME.eq(TaskAction.receive)
-                    .and(ACTION.SENDING_ORG.eq(sendingOrg))
+                    .and(ACTION.SENDING_ORG.eq(organization))
             }
             else -> {
                 /* Both given: all results between cursor and cutoff */
                 ACTION.ACTION_NAME.eq(TaskAction.receive)
-                    .and(ACTION.SENDING_ORG.eq(sendingOrg))
+                    .and(ACTION.SENDING_ORG.eq(organization))
                     .and(ACTION.CREATED_AT.between(toEnd, cursor))
             }
         }
@@ -200,8 +161,8 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * fetch the details of a single action
      */
     override fun <T, P, U> fetchAction(
-        sendingOrg: String,
-        submissionId: Long,
+        organization: String,
+        actionId: Long,
         klass: Class<T>,
         reportsKlass: Class<P>,
         logsKlass: Class<U>,
@@ -212,14 +173,14 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
                 .from(ACTION)
                 .where(
                     ACTION.ACTION_NAME.eq(TaskAction.receive)
-                        .and(ACTION.SENDING_ORG.eq(sendingOrg))
-                        .and(ACTION.ACTION_ID.eq(submissionId))
+                        .and(ACTION.SENDING_ORG.eq(organization))
+                        .and(ACTION.ACTION_ID.eq(actionId))
                 )
                 .fetchOne()?.into(klass)
         }
     }
 
-    private fun reportDescendantExpression(submissionId: Long): CommonTableExpression<*> {
+    private fun reportDescendantExpression(actionId: Long): CommonTableExpression<*> {
         return DSL.name("t").fields(
             "action_id",
             "child_report_id",
@@ -232,7 +193,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
                 REPORT_LINEAGE.PARENT_REPORT_ID,
             )
                 .from(REPORT_LINEAGE)
-                .where(REPORT_LINEAGE.ACTION_ID.eq(submissionId))
+                .where(REPORT_LINEAGE.ACTION_ID.eq(actionId))
                 .unionAll(
                     DSL.select(
                         REPORT_LINEAGE.ACTION_ID,
@@ -255,12 +216,12 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * This is done through a recursive query on the report_lineage table
      */
     override fun <T, P, U> fetchRelatedActions(
-        submissionId: Long,
+        actionId: Long,
         klass: Class<T>,
         reportsKlass: Class<P>,
         logsKlass: Class<U>,
     ): List<T> {
-        val cte = reportDescendantExpression(submissionId)
+        val cte = reportDescendantExpression(actionId)
         return db.transactReturning { txn ->
             DSL.using(txn)
                 .withRecursive(cte)
@@ -268,7 +229,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
                 .from(ACTION)
                 .join(cte)
                 .on(ACTION.ACTION_ID.eq(cte.field("action_id", BIGINT)))
-                .where(ACTION.ACTION_ID.ne(submissionId))
+                .where(ACTION.ACTION_ID.ne(actionId))
                 .fetchInto(klass)
         }
     }

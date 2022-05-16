@@ -80,12 +80,12 @@ class SubmissionFunctionTests : Logging {
         )
     }
 
-    class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : SubmissionAccess {
+    class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : ReportFileAccess {
 
         override fun <T> fetchActions(
-            sendingOrg: String,
-            order: SubmissionAccess.SortOrder,
-            sortColumn: SubmissionAccess.SortColumn,
+            organization: String,
+            order: ReportFileAccess.SortOrder,
+            sortColumn: ReportFileAccess.SortColumn,
             cursor: OffsetDateTime?,
             toEnd: OffsetDateTime?,
             limit: Int,
@@ -97,7 +97,7 @@ class SubmissionFunctionTests : Logging {
         }
 
         override fun <T, P, U> fetchAction(
-            sendingOrg: String,
+            organization: String,
             submissionId: Long,
             klass: Class<T>,
             reportsKlass: Class<P>,
@@ -122,7 +122,7 @@ class SubmissionFunctionTests : Logging {
         SubmissionHistory(
             actionId = 8,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
-            sendingOrg = "simple_report",
+            organization = "simple_report",
             httpStatus = 201,
             externalName = "testname.csv",
             reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
@@ -134,7 +134,7 @@ class SubmissionFunctionTests : Logging {
         SubmissionHistory(
             actionId = 7,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
-            sendingOrg = "simple_report",
+            organization = "simple_report",
             httpStatus = 400,
             externalName = "testname.csv",
             reportId = null,
@@ -401,7 +401,7 @@ class SubmissionFunctionTests : Logging {
         // Happy path with a good UUID
         val action = Action()
         action.actionId = 550
-        action.sendingOrg = organizationName
+        action.organization = organizationName
         action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID

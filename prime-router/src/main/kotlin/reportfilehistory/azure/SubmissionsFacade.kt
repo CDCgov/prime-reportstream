@@ -12,7 +12,7 @@ import java.time.OffsetDateTime
  * Contains all business logic regarding submissions and JSON serialization.
  */
 class SubmissionsFacade(
-    private val dbSubmissionAccess: SubmissionAccess = DatabaseSubmissionsAccess(),
+    private val dbSubmissionAccess: ReportFileAccess = DatabaseSubmissionsAccess(),
     dbAccess: DatabaseAccess = WorkflowEngine.databaseAccessSingleton
 ) : ReportFileFacade(
     dbAccess,
@@ -33,8 +33,8 @@ class SubmissionsFacade(
      */
     fun findSubmissionsAsJson(
         organizationName: String,
-        sortOrder: SubmissionAccess.SortOrder,
-        sortColumn: SubmissionAccess.SortColumn,
+        sortOrder: ReportFileAccess.SortOrder,
+        sortColumn: ReportFileAccess.SortColumn,
         offset: OffsetDateTime?,
         toEnd: OffsetDateTime?,
         pageSize: Int,
@@ -55,8 +55,8 @@ class SubmissionsFacade(
      */
     private fun findSubmissions(
         organizationName: String,
-        sortOrder: SubmissionAccess.SortOrder,
-        sortColumn: SubmissionAccess.SortColumn,
+        sortOrder: ReportFileAccess.SortOrder,
+        sortColumn: ReportFileAccess.SortColumn,
         offset: OffsetDateTime?,
         toEnd: OffsetDateTime?,
         pageSize: Int,
