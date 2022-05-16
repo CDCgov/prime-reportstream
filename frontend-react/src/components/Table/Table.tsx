@@ -161,6 +161,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
             <>
                 {config.rows.map((object, rowIndex) => {
                     // Caps page size when filterManager exists
+                    // TODO(mreifman): Pass in the list of results to display instead of trimming here.
                     if (
                         filterManager &&
                         rowIndex >= filterManager?.pageSettings.size

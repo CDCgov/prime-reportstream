@@ -1,6 +1,6 @@
 import { renderHook } from "@testing-library/react-hooks";
 
-import useFilterManager, { cursorOrRange } from "./UseFilterManager";
+import useFilterManager, { cursorOrRange, getRange } from "./UseFilterManager";
 import { RangeField } from "./UseDateRange";
 
 describe("UseFilterManager", () => {
@@ -22,6 +22,20 @@ describe("UseFilterManager", () => {
 });
 
 describe("Helper functions", () => {
+    test.only("getRange", () => {
+        const lowValue = "a";
+        const highValue = "z";
+
+        expect(getRange("ASC", lowValue, highValue)).toStrictEqual([
+            lowValue,
+            highValue,
+        ]);
+        expect(getRange("DESC", lowValue, highValue)).toStrictEqual([
+            highValue,
+            lowValue,
+        ]);
+    });
+
     test("cursorOrRange", () => {
         const rangeAsStart = cursorOrRange(
             "ASC",

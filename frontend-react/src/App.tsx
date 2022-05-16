@@ -21,7 +21,6 @@ import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { PERMISSIONS, permissionCheck } from "./utils/PermissionsUtils";
 import { Upload } from "./pages/Upload";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
-import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
 import Submissions from "./pages/submissions/Submissions";
@@ -55,7 +54,7 @@ const App = () => {
         history.push("/login");
     };
     const handleIdle = (): void => {
-        logout(OKTA_AUTH);
+        // logout(OKTA_AUTH);
     };
     const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
         // check if the user would have any data to receive via their organizations from the okta claim

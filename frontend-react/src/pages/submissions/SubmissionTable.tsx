@@ -1,4 +1,4 @@
-import { useResource } from "rest-hooks";
+import { useController, useResource } from "rest-hooks";
 import { useEffect } from "react";
 
 import useFilterManager, {
@@ -21,6 +21,14 @@ function SubmissionTable() {
         hasNext,
         update: updateCursors,
     } = useCursorManager(filterManager.rangeSettings.to);
+
+    // Test fetching results without useResource
+    const controller = useController();
+    const results: Promise<SubmissionsResource[]> = controller
+        .fetch(SubmissionsResource.list(), { test: "foo" })
+        .then((d) => d)
+        .catch((e) => console.log(e));
+    console.log(results);
 
     /* Our API call! Updates when any of the given state variables update.
      * The logical swap of cursors and range value is to account for which end of the
