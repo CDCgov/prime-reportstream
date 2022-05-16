@@ -1,0 +1,43 @@
+name: Alert Stale Branches Older Than 6 Months
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "13 1 1 * *"
+
+jobs:
+  alert_stale_branches:
+    name: Alert on Stale branches
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+        with:
+          fetch-depth: 0
+      - name: List Merged and Not Merged Branches
+        run: ./.github/scripts/alert_stale_branches/stale_branch_check.sh --merged --notmerged
+        shell: bash
+      - name: Get our Merged Count
+        id: merged
+        run: echo "::set-output name=MERGE_COUNT::$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --mergedcount)"
+        shell: bash
+      - name: Get our Not Merged Count
+        id: notmerged
+        run: echo "::set-output name=NOT_MERGE_COUNT::$(./.github/scripts/alert_stale_branches/stale_branch_check.sh --notmergedcount)"
+        shell: bash
+      - name: Get URL
+        id: url
+        run: echo "::set-output name=ACTION_URL::$(echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)"
+        shell: bash
+      - name: Send output to slack
+        id: slack
+        uses: slackapi/slack-github-action@34c3fd73326693ef04728f8611669d918a2d781d
+        with:
+          payload: |
+            {
+            "mergedtotal": "${{ steps.merged.outputs.MERGE_COUNT }}",
+            "notmergedtotal": "${{ steps.notmerged.outputs.NOT_MERGE_COUNT }}",
+            "action_url": "${{ steps.url.outputs.ACTION_URL }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_STALE_BRANCHES }}
