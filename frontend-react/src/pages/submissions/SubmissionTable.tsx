@@ -73,7 +73,7 @@ function SubmissionTable() {
             dataAttr: "id",
             columnHeader: "Report ID",
             link: true,
-            linkBasePath: "/submissions",
+            linkBasePath: "/submissions/",
         },
         {
             dataAttr: "timestamp",
