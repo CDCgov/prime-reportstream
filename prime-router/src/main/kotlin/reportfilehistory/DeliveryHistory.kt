@@ -1,9 +1,9 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import java.time.OffsetDateTime
 
 /**
@@ -19,22 +19,32 @@ import java.time.OffsetDateTime
  * @property itemCount number of tests (data rows) contained in the report
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder(
+    value = [
+        "deliveryId", "sent", "expires", "receivingOrg", "receivingOrgSvc", "httpStatus",
+        "reportId", "topic", "reportItemCount", "fileName",
+    ]
+)
 class DeliveryHistory(
     @JsonProperty("deliveryId")
     actionId: Long,
-    @JsonProperty("timestamp")
+    @JsonProperty("sent")
     createdAt: OffsetDateTime,
-    @JsonProperty("sender")
-    val sendingOrg: String,
+    val receivingOrg: String,
+    val receivingOrgSvc: String,
     httpStatus: Int,
-    @JsonInclude(Include.NON_NULL)
     externalName: String? = "",
-    @JsonProperty("id")
     reportId: String? = null,
     @JsonProperty("topic")
     schemaTopic: String? = null,
     @JsonProperty("reportItemCount")
-    itemCount: Int? = null
+    itemCount: Int? = null,
+    @JsonIgnore
+    val bodyUrl: String,
+    @JsonIgnore
+    val schemaName: String,
+    @JsonIgnore
+    val bodyFormat: String,
 ) : ReportFileHistory(
     actionId,
     createdAt,
@@ -43,4 +53,27 @@ class DeliveryHistory(
     reportId,
     schemaTopic,
     itemCount,
-)
+) {
+    @JsonIgnore
+    private val DAYS_TO_SHOW = 30L
+
+    /**
+     * j
+     */
+    val expires: OffsetDateTime get() {
+        return this.createdAt.plusDays(DAYS_TO_SHOW) // .toEpochSecond() * 1000
+    }
+
+    /**
+     * i
+     */
+    val fileName: String get() {
+        return Report.formExternalFilename(
+            this.bodyUrl,
+            ReportId.fromString(this.reportId),
+            this.schemaName,
+            Report.Format.safeValueOf(this.bodyFormat),
+            this.createdAt
+        )
+    }
+}
