@@ -1,11 +1,15 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.Report.Format
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.serializers.ReadResult
+import gov.cdc.prime.router.fhirengine.azure.elrProcessQueueName
+import gov.cdc.prime.router.fhirengine.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 
 /**
  * The base class for a 'receiver' type, currently just for COVID or full ELR submissions. This allows us a fan out
@@ -29,27 +33,6 @@ abstract class SubmissionReceiver(
         allowDuplicates: Boolean,
         rawBody: ByteArray,
         payloadName: String?
-    )
-
-    /**
-     * Sub step of validateAndMoveToProcessing. Takes in a [sender], [content] string, and [defaults].
-     * [returns] a ReadResult
-     */
-    internal abstract fun validateReport(
-        sender: Sender,
-        content: String,
-        defaults: Map<String, String>
-    ): ReadResult
-
-    /**
-     * Moves a submission to the next step in the pipeline for the submission type
-     */
-    internal abstract fun moveToProcessing(
-        isAsync: Boolean,
-        report: Report,
-        options: Options,
-        defaults: Map<String, String>,
-        routeTo: List<String>
     )
 
     companion object {
@@ -132,11 +115,8 @@ class CovidReceiver : SubmissionReceiver {
         payloadName: String?
     ) {
         // parse, check for parse errors
-        val (report, actionLogs) = this.validateReport(
-            sender,
-            content,
-            defaults
-        )
+
+        val (report, actionLogs) = this.workflowEngine.parseCovidReport(sender as CovidSender, content, defaults)
 
         // prevent duplicates if configured to not allow them
         if (!allowDuplicates) {
@@ -159,20 +139,6 @@ class CovidReceiver : SubmissionReceiver {
         actionHistory.trackLogs(actionLogs.logs)
 
         // send to next step
-        this.moveToProcessing(isAsync, report, options, defaults, routeTo)
-    }
-
-    override fun validateReport(sender: Sender, content: String, defaults: Map<String, String>): ReadResult {
-        return this.workflowEngine.parseCovidReport(sender as CovidSender, content, defaults)
-    }
-
-    override fun moveToProcessing(
-        isAsync: Boolean,
-        report: Report,
-        options: Options,
-        defaults: Map<String, String>,
-        routeTo: List<String>
-    ) {
         // call the correct processing function based on processing type
         if (isAsync) {
             processAsync(
@@ -205,7 +171,7 @@ class CovidReceiver : SubmissionReceiver {
             ?: error("Unable to process report ${report.id} because sender sources collection is empty.")
         val senderName = (senderSource as ClientSource).name
 
-        if (report.bodyFormat != Report.Format.INTERNAL) {
+        if (report.bodyFormat != Format.INTERNAL) {
             error("Processing a non internal report async.")
         }
 
@@ -217,6 +183,7 @@ class CovidReceiver : SubmissionReceiver {
             action = processEvent.eventAction
         )
         actionHistory.trackCreatedReport(processEvent, report, blobInfo)
+
         // add task to task table
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
     }
@@ -242,96 +209,53 @@ class ELRReceiver : SubmissionReceiver {
         rawBody: ByteArray,
         payloadName: String?
     ) {
-        // call Carlos' HL7 getMessage, check validation
+        val actionLogs = ActionLogger()
+
+        // check that our input is valid HL7. Additional validation will happen at a later step
+        val reader = HL7Reader(actionLogs)
+        val messages = reader.getMessages(content)
 
         // fake up a report with the required data (set schema to 'none')
+        val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
+        val report = Report(
+            Format.HL7,
+            sources,
+            Schema("None", Topic.FULL_ELR.toString()),
+            messages.size
+        )
 
         // dupe detection if needed
+        if (!allowDuplicates) {
+            doDuplicateDetection(
+                workflowEngine,
+                report,
+                actionLogs
+            )
+        }
 
-        // figure out 'record received'
+        // record that the submission was received
+         val blobInfo = workflowEngine.recordReceivedReport(
+            report, rawBody, sender, actionHistory, payloadName
+        )
 
-        // upload to blob store
+        // if there are any errors, kick this out.
+        if (actionLogs.hasErrors()) {
+            throw actionLogs.exception
+        }
 
         // track logs
+        actionHistory.trackLogs(actionLogs.logs)
 
-        // move to processing (stick in fhirQueue)
+        // add task to task table
+        val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
+        workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
 
-        // generate a rep
-
-        // TODO: THis is *NOT RIGHT* for ELR, this is just a copy of the covid receiver. Need to call
-        //  the HL7 utilities message parser, and make sure that errors are returns correctly
-//
-//        // parse, check for parse errors
-//        val (report, actionLogs) = this.parseReport(
-//            sender,
-//            content,
-//            defaults
-//        )
-//
-//        // ELR receivers must use async processing, we do not support sync processing for Full ELR
-//        if (!(sender is CovidSender || isAsync)) {
-//            actionLogs.error(UnsupportedProcessingTypeMessage())
-//        }
-//
-//        // prevent duplicates if configured to not allow them
-//        if (!allowDuplicates) {
-//            doDuplicateDetection(
-//                report,
-//                actionLogs
-//            )
-//        }
-// workflowEngine.recordReceivedReport(
-//            report, rawBody, sender, actionHistory, payloadName
-//        )
-//
-//        // if there are any errors, kick this out.
-//        if (actionLogs.hasErrors()) {
-//            throw actionLogs.exception
-//        }
-//
-//        actionHistory.trackLogs(actionLogs.logs)
-//
-//        // send to next step
-//        this.moveToProcessing(isAsync, report, options, defaults, routeTo)
-        TODO("Not yet implemented")
-    }
-
-    override fun validateReport(sender: Sender, content: String, defaults: Map<String, String>): ReadResult {
-        // TODO: This needs to verify it is HL& coming in, otherwise kick is back out
-        TODO("Not yet implemented")
-    }
-
-    override fun moveToProcessing(
-        isAsync: Boolean,
-        report: Report,
-        options: Options,
-        defaults: Map<String, String>,
-        routeTo: List<String>
-    ) {
-        TODO("Not yet implemented")
-
-        //        /**
-//         * Put a message on a queue to trigger the FHIR Engine pipeline for testing
-//         */
-//        private fun routeToFHIREngine(blobInfo: BlobAccess.BlobInfo, sender: Sender, queue: QueueAccess) {
-//            try {
-//                if (Environment.FeatureFlags.FHIR_ENGINE_TEST_PIPELINE.enabled())
-//                    when (blobInfo.format) {
-//                        // limit to hl7
-//                        Report.Format.HL7 ->
-//                            queue.sendMessage(
-//                                fhirQueueName,
-//                                RawSubmission(
-//                                    blobInfo.blobUrl,
-//                                    BlobAccess.digestToString(blobInfo.digest),
-//                                    sender.fullName
-//                                ).serialize()
-//                            )
-//                        else -> {}
-//                    }
-//            } catch (t: Throwable) {
-//                logger.error("Failed to queue message for FHIR Engine: No action required during testing phase\n$t")
-//            }
-//        }
+        // move to processing (stick in process-elr queue)
+        workflowEngine.queue.sendMessage(elrProcessQueueName,
+            RawSubmission(
+                blobInfo.blobUrl,
+                BlobAccess.digestToString(blobInfo.digest),
+                sender.fullName
+            ).serialize())
     }
 }

@@ -322,6 +322,31 @@ class Report : Logging {
         this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
 
+    /**
+     * Full ELR Report constructor for ingest
+     */
+    // TODO: should this be a method instead somewhere, since it is a use-case specific constructor?
+    //  in the companion object?
+    constructor(
+        bodyFormat: Format,
+        sources: List<Source>,
+        schema: Schema, // shouldn't even need a Schema here, but required for legacy reasons. Tech Debt?
+        itemCountBeforeQualFilter: Int,
+    ) {
+        this.id = UUID.randomUUID()
+        this.schema = schema
+        this.sources = sources
+        this.bodyFormat = bodyFormat
+        this.destination = null
+        this.createdDateTime = OffsetDateTime.now()
+        this.itemLineages = null
+        // we do not need the 'table' representation in this instance
+        this.table = createTable(emptyMap<String, List<String>>())
+        this.metadata = Metadata.getInstance()
+        this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
+        this.nextAction = TaskAction.process
+    }
+
     private constructor(
         schema: Schema,
         table: Table,

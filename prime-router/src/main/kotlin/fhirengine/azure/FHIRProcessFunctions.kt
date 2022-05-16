@@ -15,7 +15,7 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.apache.logging.log4j.kotlin.Logging
 
-const val fhirProcessQueueName = "fhir-raw-received"
+const val elrProcessQueueName = "process-elr"
 
 /**
  * Functions to execution and logging of FHIR translations.
@@ -35,7 +35,7 @@ class FHIRFlowFunctions(
     @FunctionName("process-fhir")
     @StorageAccount("AzureWebJobsStorage")
     fun process(
-        @QueueTrigger(name = "message", queueName = fhirProcessQueueName)
+        @QueueTrigger(name = "message", queueName = elrProcessQueueName)
         message: String,
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
