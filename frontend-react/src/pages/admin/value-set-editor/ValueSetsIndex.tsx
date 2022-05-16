@@ -15,21 +15,7 @@ interface ValueSet {
     header: string;
     type: string;
 }
-const sampleValueSetColumnConfig: ColumnConfig[] = [
-    {
-        dataAttr: "value",
-        columnHeader: "Value",
-    },
-    {
-        dataAttr: "header",
-        columnHeader: "Column header",
-    },
-    {
-        dataAttr: "type",
-        columnHeader: "Value type",
-        editable: true,
-    },
-];
+
 /* END OF FAUX DATA AND STUFF TO BE REMOVED WHEN IMPLEMENTING THE API */
 
 const ValueSetsTable = () => {
@@ -46,6 +32,21 @@ const ValueSetsTable = () => {
             type: "Text",
         },
     ]);
+    const sampleValueSetColumnConfig: ColumnConfig[] = [
+        {
+            dataAttr: "value",
+            columnHeader: "Value",
+        },
+        {
+            dataAttr: "header",
+            columnHeader: "Column header",
+        },
+        {
+            dataAttr: "type",
+            columnHeader: "Value type",
+            editable: true,
+        },
+    ];
     /* We'd pass our config and our API response in this */
     const tableConfig: TableConfig = {
         columns: sampleValueSetColumnConfig,
@@ -78,6 +79,7 @@ const ValueSetsTable = () => {
             datasetAction={datasetActionItem}
             config={tableConfig}
             enableEditableRows
+            editableCallback={(v: string) => console.log(v)}
         />
     );
 };

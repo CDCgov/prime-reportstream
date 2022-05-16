@@ -57,6 +57,14 @@ export interface DatasetAction {
     method: Function;
 }
 
+export interface ColumnProps {
+    rowIndex: number;
+    colIndex: number;
+    rowData: TableRow;
+    columnConfig: ColumnConfig;
+    editing?: boolean;
+}
+
 export interface TableProps {
     config: TableConfig;
     title?: string;
@@ -65,6 +73,7 @@ export interface TableProps {
     filterManager?: FilterManager;
     cursorManager?: CursorManager;
     enableEditableRows?: boolean;
+    editableCallback?: Function;
 }
 
 export interface LegendItem {
@@ -74,7 +83,7 @@ export interface LegendItem {
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
-        <div className="display-flex">
+        <div key={label} className="display-flex">
             <b>{`${label}:`}</b>
             <span className="padding-left-05">{value}</span>
         </div>
@@ -160,65 +169,82 @@ const Table = ({
         );
     };
 
-    const showMappedValue = (
-        columnConfig: ColumnConfig,
-        object: TableRow
-    ): string => {
+    const showMappedValue = (columnConfig: ColumnConfig, object: TableRow) => {
         if (columnConfig.valueMap) {
             return (
-                columnConfig.valueMap?.get(object[columnConfig.dataAttr]) ||
-                object[columnConfig.dataAttr]
+                (
+                    <span>
+                        {columnConfig.valueMap?.get(
+                            object[columnConfig.dataAttr]
+                        )}
+                    </span>
+                ) || <span>{object[columnConfig.dataAttr]}</span>
             );
         } else {
-            return object[columnConfig.dataAttr];
+            return <span>{object[columnConfig.dataAttr]}</span>;
         }
     };
 
-    const renderColumn = (
-        object: TableRow,
-        columnConfig: ColumnConfig,
-        editing?: boolean
-    ) => {
-        let displayValue = object[columnConfig.dataAttr];
-        // Transforms value if transform function is given
+    const Column = ({
+        rowIndex,
+        colIndex,
+        rowData,
+        columnConfig,
+        editing,
+    }: ColumnProps) => {
+        const tableData = (child: ReactNode) => (
+            <td key={`${rowIndex}:${colIndex}`}>{child}</td>
+        );
+
         if (columnConfig.transform) {
-            displayValue = columnConfig.transform(displayValue);
+            rowData[columnConfig.dataAttr] = columnConfig.transform(
+                rowData[columnConfig.dataAttr]
+            );
         }
 
         if (columnConfig.link) {
             // Render column value as NavLink
-            return (
+            return tableData(
                 <NavLink
                     className="usa-link"
                     to={`${columnConfig?.linkBasePath || ""}${
-                        object[columnConfig?.linkAttr || columnConfig.dataAttr]
+                        rowData[columnConfig?.linkAttr || columnConfig.dataAttr]
                     }`}
                 >
                     {columnConfig.valueMap
-                        ? showMappedValue(columnConfig, object)
-                        : displayValue}
+                        ? showMappedValue(columnConfig, rowData)
+                        : rowData[columnConfig.dataAttr]}
                 </NavLink>
             );
         } else if (columnConfig.actionable) {
             const { action, param } = columnConfig.actionable;
             const doAction = () => {
-                if (param) return action(object[param]);
+                if (param) return action(rowData[param]);
                 return action();
             };
-            return (
+            return tableData(
                 <button
                     className="usa-link bg-transparent border-transparent"
                     onClick={() => doAction()}
                 >
-                    {displayValue}
+                    {rowData[columnConfig.dataAttr]}
                 </button>
             );
         } else {
             if (editing && columnConfig.editable)
-                return <input className="usa-input" value={displayValue} />;
+                return tableData(
+                    <input
+                        className="usa-input"
+                        onChange={(event) =>
+                            (rowData[columnConfig.dataAttr] =
+                                event.target.value)
+                        }
+                        defaultValue={rowData[columnConfig.dataAttr]}
+                    />
+                );
             return columnConfig.valueMap
-                ? showMappedValue(columnConfig, object)
-                : displayValue;
+                ? tableData(showMappedValue(columnConfig, rowData))
+                : tableData(rowData[columnConfig.dataAttr]);
         }
     };
 
@@ -262,16 +288,19 @@ const Table = ({
                     return (
                         <tr key={rowIndex}>
                             {config.columns.map((colConfig, colIndex) => (
-                                <td key={`${rowIndex}:${colIndex}`}>
-                                    {editing === rowIndex
-                                        ? renderColumn(object, colConfig, true)
-                                        : renderColumn(object, colConfig)}
-                                </td>
+                                <Column
+                                    key={`${rowIndex}:${colIndex}:TOP`}
+                                    rowIndex={rowIndex}
+                                    colIndex={colIndex}
+                                    columnConfig={colConfig}
+                                    rowData={object}
+                                    editing={editing === rowIndex}
+                                />
                             ))}
                             {enableEditableRows ? (
                                 <td key={`${rowIndex}:EDIT`}>
                                     <Button
-                                        type="button"
+                                        type="submit"
                                         onClick={() => {
                                             if (editing !== undefined) {
                                                 setEditing(undefined);
