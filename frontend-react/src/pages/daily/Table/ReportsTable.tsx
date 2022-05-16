@@ -80,24 +80,22 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
     };
 
     return (
-        <section className="grid-container margin-top-5">
-            <div className="grid-col-12">
-                {
-                    /* Button group only shows when there is more than a single sender. */
-                    receiverSVCs.length > 1 ? (
-                        <TableButtonGroup
-                            senders={receiverSVCs}
-                            chosenCallback={handleCallback}
-                        />
-                    ) : null
-                }
-                <Table config={resultsTableConfig} />
-                {reports.filter((report) => report.receivingOrgSvc === chosen)
-                    .length === 0 ? (
-                    <p>No results</p>
-                ) : null}
-            </div>
-        </section>
+        <div className="grid-col-12">
+            {
+                /* Button group only shows when there is more than a single sender. */
+                receiverSVCs.length > 1 ? (
+                    <TableButtonGroup
+                        senders={receiverSVCs}
+                        chosenCallback={handleCallback}
+                    />
+                ) : null
+            }
+            <Table config={resultsTableConfig} />
+            {reports.filter((report) => report.receivingOrgSvc === chosen)
+                .length === 0 ? (
+                <p>No results</p>
+            ) : null}
+        </div>
     );
 }
 
