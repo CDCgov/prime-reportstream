@@ -64,7 +64,7 @@ describe("Table, basic tests", () => {
          * but the attributes we plug in don't have spaces to account
          * for */
         expect(linkInCell).toContainHTML(
-            '<a href="/test/value two">value two</a>'
+            '<a class="usa-link" href="/test/value two">value two</a>'
         );
     });
 
