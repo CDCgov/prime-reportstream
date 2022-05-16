@@ -537,17 +537,12 @@ class ReportFunctionTests {
     }
 
     /** processFunction tests **/
-
-    // TODO: These two test *should* be present, but while they succeed locally for everyone they do not run
-    //  in gitHub actions, and no one can figure out why as of 5/12/2022. These will need to be put back in
-    //  for full test coverage at some point, but no one is currently using duplicate detection so there is
-    //  no harm in commenting it out.
     // test duplicate override = false
-    @Ignore
     @Test
     fun `test processFunction duplicate override true to false`() {
         // setup
-        val metadata = UnitTestUtils.simpleMetadata
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)
@@ -590,11 +585,11 @@ class ReportFunctionTests {
     }
 
     // test processFunction when an error is added to ActionLogs
-    @Ignore
     @Test
     fun `test processFunction when ActionLogs has an error`() {
         // setup
-        val metadata = UnitTestUtils.simpleMetadata
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
         val engine = makeEngine(metadata, settings)

@@ -517,3 +517,18 @@ Run the following command to change the permissions for the folder:
 ```bash
 docker exec -it prime-router_sftp_1 chmod 777 /home/foo/upload
 ```
+## Unit test failing in GitHub actions, but succeeding locally
+1. A potential cause for this issue is a schema has not been loaded for a fresh remote build, while it was previously loaded for the local build. Resolve this issue by adding the missing schema to the unit test.
+    * This error was found by debugging [`parseCovidReport`](../../src/main/kotlin/azure/WorkflowEngine.kt#L868):
+        ```bash
+        Internal Error: invalid schema name 'one'
+        ```
+    * Changes made to resolve:
+        ```java
+        val metadata = UnitTestUtils.simpleMetadata
+        ```
+        to
+        ```java
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        ```
