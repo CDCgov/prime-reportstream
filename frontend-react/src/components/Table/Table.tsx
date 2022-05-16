@@ -81,20 +81,6 @@ export interface LegendItem {
     value: string;
 }
 
-export const Legend = ({ items }: { items: LegendItem[] }) => {
-    const makeItem = (label: string, value: string) => (
-        <div key={label} className="display-flex">
-            <b>{`${label}:`}</b>
-            <span className="padding-left-05">{value}</span>
-        </div>
-    );
-    return (
-        <section className="display-flex flex-column">
-            {items.map((item) => makeItem(item.label, item.value))}
-        </section>
-    );
-};
-
 const Table = ({
     config,
     title,
@@ -276,6 +262,8 @@ const Table = ({
      * to render each cell in the appropriate column. */
     const TableRows = () => {
         const [editing, setEditing] = useState<number | undefined>();
+        const editableRowButtonValue = (isEditing: boolean) =>
+            isEditing ? "Save" : "Edit";
         return (
             <>
                 {config.rows.map((object, rowIndex) => {
@@ -309,10 +297,9 @@ const Table = ({
                                             setEditing(rowIndex);
                                         }}
                                     >
-                                        {editing !== undefined &&
-                                        editing === rowIndex
-                                            ? "Save"
-                                            : "Edit"}
+                                        {editableRowButtonValue(
+                                            editing === rowIndex
+                                        )}
                                     </Button>
                                 </td>
                             ) : null}

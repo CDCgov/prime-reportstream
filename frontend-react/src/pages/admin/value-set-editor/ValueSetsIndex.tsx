@@ -1,10 +1,9 @@
 import { Helmet } from "react-helmet";
-import { useState } from "react";
+import React, { useState } from "react";
 
 import Table, {
     ColumnConfig,
     DatasetAction,
-    Legend,
     LegendItem,
     TableConfig,
 } from "../../../components/Table/Table";
@@ -16,10 +15,38 @@ interface ValueSet {
     type: string;
 }
 
+const Legend = ({ items }: { items: LegendItem[] }) => {
+    const makeItem = (label: string, value: string) => (
+        <div key={label} className="display-flex">
+            <b>{`${label}:`}</b>
+            <span className="padding-left-05">{value}</span>
+        </div>
+    );
+    return (
+        <section className="display-flex flex-column">
+            {items.map((item) => makeItem(item.label, item.value))}
+        </section>
+    );
+};
+const sampleValueSetColumnConfig: ColumnConfig[] = [
+    {
+        dataAttr: "value",
+        columnHeader: "Value",
+    },
+    {
+        dataAttr: "header",
+        columnHeader: "Column header",
+    },
+    {
+        dataAttr: "type",
+        columnHeader: "Value type",
+        editable: true,
+    },
+];
 /* END OF FAUX DATA AND STUFF TO BE REMOVED WHEN IMPLEMENTING THE API */
 
 const ValueSetsTable = () => {
-    /* This would be our API response as reactive state */
+    /* This would be replaced by our API response as reactive state (useResource) */
     const [sampleValueSetArray, setSampleValueSetArray] = useState<ValueSet[]>([
         {
             value: "Patient ID",
@@ -32,21 +59,6 @@ const ValueSetsTable = () => {
             type: "Text",
         },
     ]);
-    const sampleValueSetColumnConfig: ColumnConfig[] = [
-        {
-            dataAttr: "value",
-            columnHeader: "Value",
-        },
-        {
-            dataAttr: "header",
-            columnHeader: "Column header",
-        },
-        {
-            dataAttr: "type",
-            columnHeader: "Value type",
-            editable: true,
-        },
-    ];
     /* We'd pass our config and our API response in this */
     const tableConfig: TableConfig = {
         columns: sampleValueSetColumnConfig,
@@ -59,7 +71,7 @@ const ValueSetsTable = () => {
         { label: "System", value: "HL7" },
         { label: "Reference", value: "Make this linkable" },
     ];
-    /* We make this action do what we need it to */
+    /* We make this action do what we need it to to add an item */
     const datasetActionItem: DatasetAction = {
         label: "Add item",
         method: () =>
