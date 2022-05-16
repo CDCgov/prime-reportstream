@@ -1,8 +1,3 @@
-#
-# (C) Copyright IBM Corp. 2020, 2022
-#
-# SPDX-License-Identifier: Apache-2.0
-#
 # Used by most organizations
 # $orgIdValue would be missing because not passed in such as for IN1 / IN2 
 resourceType: Organization
