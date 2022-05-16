@@ -1,7 +1,12 @@
 package gov.cdc.prime.router.azure
 
 import assertk.assertThat
-import assertk.assertions.*
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
+import assertk.assertions.isGreaterThan
+import assertk.assertions.isInstanceOf
+import assertk.assertions.isNull
+import assertk.assertions.isNullOrEmpty
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.ReportId
@@ -19,7 +24,7 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.net.URI
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.UUID
 import kotlin.test.Test
 
 class SenderFilesFunctionTests {
