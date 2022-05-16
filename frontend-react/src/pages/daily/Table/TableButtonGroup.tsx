@@ -8,8 +8,8 @@ interface Props {
 
     /* REQUIRED
     A function passed in by the parent prop to sync chosen state
-    This can be seen in-use by <TableReports>. The chosen state in sync'd
-    and TableReports filters by the chosen sender */
+    This can be seen in-use by <ReportsTable>. The chosen state in sync'd
+    and ReportsTable filters by the chosen sender */
     chosenCallback: Function;
 }
 
@@ -22,32 +22,34 @@ function TableButtonGroup(props: Props) {
     const receiverSVCs: string[] = props.senders;
     const [chosen, setChosen] = useState(receiverSVCs[0]);
 
-    /* This sets both the <TableButtonGroup> AND <TableReports> chosen state variable */
+    /* This sets both the <TableButtonGroup> AND <ReportsTable> chosen state variable */
     const handleClick = (id: SetStateAction<string>) => {
         setChosen(id);
         props.chosenCallback(id);
     };
 
     return (
-        <ButtonGroup type="segmented">
-            {receiverSVCs.map((val) => {
-                return (
-                    <Button
-                        key={val}
-                        id={val}
-                        onClick={() => handleClick(val)}
-                        type="button"
-                        outline={val !== chosen}
-                    >
-                        {
-                            /* Accounting for the fact we have not been POSTing items with
-                            a sendingOrg property yet */
-                            val === "" ? "No Receiver SVC" : val
-                        }
-                    </Button>
-                );
-            })}
-        </ButtonGroup>
+        <div className="grid-container">
+            <ButtonGroup type="segmented">
+                {receiverSVCs.map((val) => {
+                    return (
+                        <Button
+                            key={val}
+                            id={val}
+                            onClick={() => handleClick(val)}
+                            type="button"
+                            outline={val !== chosen}
+                        >
+                            {
+                                /* Accounting for the fact we have not been POSTing items with
+                                a sendingOrg property yet */
+                                val === "" ? "No Receiver SVC" : val
+                            }
+                        </Button>
+                    );
+                })}
+            </ButtonGroup>
+        </div>
     );
 }
 
