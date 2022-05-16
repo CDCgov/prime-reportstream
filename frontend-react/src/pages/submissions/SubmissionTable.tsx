@@ -1,17 +1,15 @@
-import { useController, useResource } from "rest-hooks";
-import { useEffect } from "react";
+import { useController } from "rest-hooks";
+import { useEffect, useMemo } from "react";
 
-import useFilterManager, {
-    cursorOrRange,
-} from "../../hooks/filters/UseFilterManager";
-import useCursorManager, {
-    CursorActionType,
-} from "../../hooks/filters/UseCursorManager";
+import useFilterManager from "../../hooks/filters/UseFilterManager";
+import useCursorManager from "../../hooks/filters/UseCursorManager";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters from "../../components/Table/TableFilters";
-import { RangeField } from "../../hooks/filters/UseDateRange";
+import usePagination, { PaginationActionType } from "../../hooks/UsePagination";
+
+const cursorExtractor = (s: SubmissionsResource) => s.timestamp;
 
 function SubmissionTable() {
     const filterManager = useFilterManager();
@@ -22,55 +20,60 @@ function SubmissionTable() {
         update: updateCursors,
     } = useCursorManager(filterManager.rangeSettings.to);
 
-    // Test fetching results without useResource
-    const controller = useController();
-    const results: Promise<SubmissionsResource[]> = controller
-        .fetch(SubmissionsResource.list(), { test: "foo" })
-        .then((d) => d)
-        .catch((e) => console.log(e));
-    console.log(results);
+    const organization = getStoredOrg();
+    const pageSize = filterManager.pageSettings.size;
+    const startCursor = filterManager.selectedRange.start;
+    const endCursor = filterManager.selectedRange.end;
+    const sortOrder = filterManager.sortSettings.order;
 
-    /* Our API call! Updates when any of the given state variables update.
-     * The logical swap of cursors and range value is to account for which end of the
-     * range needs to update when paginating with a specific sort order.
-     *
-     * DESC -> Start [ -> ] End (Start uses cursor to increment towards end)
-     * ASC -> Start [ <- ] End (End uses cursor to increment towards start)
-     */
-    const submissions: SubmissionsResource[] = useResource(
-        SubmissionsResource.list(),
-        {
-            organization: getStoredOrg(),
-            cursor: cursorOrRange(
-                filterManager.sortSettings.order,
-                RangeField.TO,
-                cursors.current,
-                filterManager.rangeSettings.to
-            ),
-            endCursor: cursorOrRange(
-                filterManager.sortSettings.order,
-                RangeField.FROM,
-                cursors.current,
-                filterManager.rangeSettings.from
-            ),
-            pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
-            sort: filterManager.sortSettings.order,
-            showFailed: false, // No plans for this to be set to true
-        }
+    const paginationArgs = useMemo(
+        () => ({
+            startCursor,
+            pageSize,
+            cursorExtractor,
+        }),
+        [startCursor, pageSize]
     );
-
-    /* Effect to add next cursor whenever submissions returns a new array */
+    // TODO(mreifman): When the args change, what happens when the hook re-renders?
+    const { state: paginationState, dispatch: paginationDispatch } =
+        usePagination(paginationArgs);
+    const {
+        fetchStartCursor,
+        fetchCount,
+        resultsPage: submissions,
+    } = paginationState;
+    const { fetch } = useController();
     useEffect(() => {
-        const nextCursor =
-            submissions[filterManager.pageSettings.size]?.timestamp ||
-            undefined;
-        if (nextCursor) {
-            updateCursors({
-                type: CursorActionType.ADD_NEXT,
-                payload: nextCursor,
-            });
-        }
-    }, [submissions, filterManager.pageSettings.size, updateCursors]);
+        fetch(SubmissionsResource.list(), {
+            organization,
+            cursor: fetchStartCursor,
+            endCursor,
+            pageSize: fetchCount,
+            sort: sortOrder,
+            showFailed: false,
+        })
+            .then((d) => {
+                // TODO(mreifman): Figure out how to properly type the resolved value of the fetch.
+                paginationDispatch({
+                    type: PaginationActionType.SET_RESULTS,
+                    payload: d as SubmissionsResource[],
+                });
+            })
+            .catch((e) => console.log(e));
+    }, [
+        // TODO(mreifman): We don't want this effect to depend on the end cursor or sort order
+        fetch,
+        fetchStartCursor,
+        fetchCount,
+        paginationDispatch,
+    ]);
+
+    useEffect(() => {
+        paginationDispatch({
+            type: PaginationActionType.RESET,
+            payload: paginationArgs,
+        });
+    }, [paginationArgs, paginationDispatch]);
 
     const transformDate = (s: string) => {
         return new Date(s).toLocaleString();

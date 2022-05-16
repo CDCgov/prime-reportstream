@@ -77,12 +77,14 @@ interface PaginationState<T> {
     // Function for extracting the cursor value from a result in the paginated set.
     // TODO(mreifman): Is it a bad idea to put a function in this state?
     cursorExtractor: CursorExtractor<T>;
+    //
+    resultsPage: T[];
 }
 
 export enum PaginationActionType {
-    RESET,
-    SET_CURRENT_PAGE,
-    SET_RESULTS,
+    RESET = "RESET",
+    SET_CURRENT_PAGE = "SET_CURRENT_PAGE",
+    SET_RESULTS = "SET_RESULTS",
 }
 
 export type ResetPayload<T> = UsePaginationArgs<T>;
@@ -125,6 +127,8 @@ function setResultsReducer<T>(
             state.pageSize,
             state.currentPageNum
         ),
+        // TODO(mreifman): Add unit tests for resultsPage.
+        resultsPage: chunks[0] || [],
     };
 }
 
@@ -191,6 +195,7 @@ function getInitialState<T>({
         pageCursorMap: {},
         pageSize,
         cursorExtractor,
+        resultsPage: [],
     };
 }
 
