@@ -29,25 +29,27 @@ function TableButtonGroup(props: Props) {
     };
 
     return (
-        <ButtonGroup type="segmented">
-            {receiverSVCs.map((val) => {
-                return (
-                    <Button
-                        key={val}
-                        id={val}
-                        onClick={() => handleClick(val)}
-                        type="button"
-                        outline={val !== chosen}
-                    >
-                        {
-                            /* Accounting for the fact we have not been POSTing items with
-                            a sendingOrg property yet */
-                            val === "" ? "No Receiver SVC" : val
-                        }
-                    </Button>
-                );
-            })}
-        </ButtonGroup>
+        <div className="grid-container">
+            <ButtonGroup type="segmented">
+                {receiverSVCs.map((val) => {
+                    return (
+                        <Button
+                            key={val}
+                            id={val}
+                            onClick={() => handleClick(val)}
+                            type="button"
+                            outline={val !== chosen}
+                        >
+                            {
+                                /* Accounting for the fact we have not been POSTing items with
+                                a sendingOrg property yet */
+                                val === "" ? "No Receiver SVC" : val
+                            }
+                        </Button>
+                    );
+                })}
+            </ButtonGroup>
+        </div>
     );
 }
 
