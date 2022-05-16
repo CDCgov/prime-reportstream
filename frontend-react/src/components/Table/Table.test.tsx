@@ -1,8 +1,32 @@
 import { fireEvent, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 
 import { TestTable } from "./TestTable";
+
+const selectDatesFromRange = (dayOne: string, dayTwo: string) => {
+    /* Borrowed some of this from Trussworks' own tests: their
+     * components are tricky to test. */
+    const datePickerButtons = screen.getAllByTestId("date-picker-button");
+    const startDatePickerButton = datePickerButtons[0];
+    const endDatePickerButton = datePickerButtons[1];
+
+    /* Select Start Date */
+    userEvent.click(startDatePickerButton);
+    const newStartDateButton = screen.getByText(`${dayOne}`);
+    userEvent.click(newStartDateButton);
+
+    /* Select End Date */
+    userEvent.click(endDatePickerButton);
+    const newEndDateButton = screen.getByText(`${dayTwo}`);
+    userEvent.click(newEndDateButton);
+};
+
+const clickFilterButton = () => {
+    const filterButton = screen.getByText("Filter");
+    userEvent.click(filterButton);
+};
 
 describe("Table, basic tests", () => {
     beforeEach(() => renderWithRouter(<TestTable />));
@@ -95,7 +119,50 @@ describe("Table, pagination button tests", () => {
     });
 });
 
-describe("Table, sort order tests", () => {
+describe("Table, filter integration tests", () => {
+    beforeEach(() => renderWithRouter(<TestTable />));
+    test("date range selection and clearing", () => {
+        /* Workaround to assert changing state */
+        const defaultState =
+            "range: from 2000-01-01T00:00:00.000Z to 3000-01-01T00:00:00.000Z";
+        expect(screen.getByText(/range:/)).toHaveTextContent(defaultState);
+
+        selectDatesFromRange("20", "23");
+        clickFilterButton();
+
+        /* Assert the value of state in string has changed */
+        expect(screen.getByText(/range:/)).not.toHaveTextContent(defaultState);
+
+        const clearButton = screen.getByText("Clear");
+        userEvent.click(clearButton);
+
+        expect(screen.getByText(/range:/)).toHaveTextContent(defaultState);
+    });
+
+    test("cursor sets properly according to sort order", () => {
+        const defaultCursor = "cursor: 3000-01-01T00:00:00.000Z";
+        expect(screen.getByText(/cursor:/)).toHaveTextContent(defaultCursor);
+
+        selectDatesFromRange("10", "20");
+        clickFilterButton();
+
+        expect(screen.getByText(/cursor:/)).not.toHaveTextContent(
+            defaultCursor
+        );
+        // Checking for inclusive date
+        expect(screen.getByText(/cursor:/)).toHaveTextContent(/23:59:59.000Z/);
+
+        // Change sort order and repeat
+        userEvent.click(screen.getByText("Column Two"));
+        selectDatesFromRange("13", "23");
+        clickFilterButton();
+
+        // Checking for exclusive date
+        expect(screen.getByText(/cursor:/)).toHaveTextContent(/00:00.000Z/);
+    });
+});
+
+describe("Table, sort order integration tests", () => {
     beforeEach(() => renderWithRouter(<TestTable />));
 
     test("Click header to sort", () => {
