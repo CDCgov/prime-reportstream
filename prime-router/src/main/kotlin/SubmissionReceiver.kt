@@ -159,7 +159,7 @@ class CovidReceiver : SubmissionReceiver {
         }
     }
 
-    private fun processAsync(
+    internal fun processAsync(
         parsedReport: Report,
         options: Options,
         defaults: Map<String, String>,
@@ -234,7 +234,7 @@ class ELRReceiver : SubmissionReceiver {
         }
 
         // record that the submission was received
-         val blobInfo = workflowEngine.recordReceivedReport(
+        val blobInfo = workflowEngine.recordReceivedReport(
             report, rawBody, sender, actionHistory, payloadName
         )
 
@@ -251,11 +251,13 @@ class ELRReceiver : SubmissionReceiver {
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
 
         // move to processing (stick in process-elr queue)
-        workflowEngine.queue.sendMessage(elrProcessQueueName,
+        workflowEngine.queue.sendMessage(
+            elrProcessQueueName,
             RawSubmission(
                 blobInfo.blobUrl,
                 BlobAccess.digestToString(blobInfo.digest),
                 sender.fullName
-            ).serialize())
+            ).serialize()
+        )
     }
 }
