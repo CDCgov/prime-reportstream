@@ -23,7 +23,10 @@ const Legend = ({ items }: { items: LegendItem[] }) => {
         </div>
     );
     return (
-        <section className="display-flex flex-column">
+        <section
+            data-testid="table-legend"
+            className="display-flex flex-column"
+        >
             {items.map((item) => makeItem(item.label, item.value))}
         </section>
     );

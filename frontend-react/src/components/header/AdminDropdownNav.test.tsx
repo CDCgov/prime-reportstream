@@ -9,7 +9,7 @@ class TestLocalStorage {
 
     constructor(kvPairs?: Array<{ k: string; v: string }>) {
         if (kvPairs) {
-            kvPairs.map(({ k, v }) => this.store.set(k, v));
+            kvPairs.forEach(({ k, v }) => this.store.set(k, v));
         }
     }
 
