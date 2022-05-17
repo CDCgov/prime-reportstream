@@ -28,8 +28,10 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.unittest.UnitTestUtils.createConfig
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -52,34 +54,6 @@ import kotlin.test.assertEquals
 class Hl7SerializerTests {
     private val context = DefaultHapiContext()
     private val emptyTerser = Terser(ORU_R01())
-
-    private fun createConfig(
-        replaceValue: Map<String, String> = emptyMap(),
-        cliaForSender: Map<String, String> = emptyMap(),
-        cliaForOutOfStateTesting: String? = null,
-        truncateHl7Fields: String? = null,
-        suppressNonNPI: Boolean = false,
-        truncateHDNamespaceIds: Boolean = false,
-        convertPositiveDateTimeOffsetToNegative: Boolean = false,
-        useHighPrecisionHeaderDateTimeFormat: Boolean = false,
-    ): Hl7Configuration {
-        return Hl7Configuration(
-            messageProfileId = "",
-            receivingApplicationOID = "",
-            receivingApplicationName = "",
-            receivingFacilityName = "",
-            receivingFacilityOID = "",
-            receivingOrganization = "",
-            cliaForOutOfStateTesting = cliaForOutOfStateTesting,
-            cliaForSender = cliaForSender,
-            replaceValue = replaceValue,
-            truncateHl7Fields = truncateHl7Fields,
-            suppressNonNPI = suppressNonNPI,
-            truncateHDNamespaceIds = truncateHDNamespaceIds,
-            convertPositiveDateTimeOffsetToNegative = convertPositiveDateTimeOffsetToNegative,
-            useHighPrecisionHeaderDateTimeFormat = useHighPrecisionHeaderDateTimeFormat
-        )
-    }
 
     @Test
     fun `test XTN phone decoding`() {
@@ -231,7 +205,7 @@ class Hl7SerializerTests {
         val nowAsDate = Date.from(now.toInstant())
         val dateTimeElement = Element("field", hl7Field = "OBX-14", type = Element.Type.DATETIME)
         val warnings = mutableListOf<ActionLogDetail>()
-        val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(Element.datetimePattern)
+        val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(DateUtilities.datetimePattern)
         val dateFormatterNoTimeZone = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
 
         // Segment not found
@@ -333,7 +307,7 @@ class Hl7SerializerTests {
         val mockSegment = mockk<Segment>()
         val mockDT = mockk<DT>()
         val dateElement = Element("field", hl7Field = "OBX-14", type = Element.Type.DATE)
-        val dateFormatterDate = DateTimeFormatter.ofPattern(Element.datePattern)
+        val dateFormatterDate = DateTimeFormatter.ofPattern(DateUtilities.datePattern)
         val warnings = mutableListOf<ActionLogDetail>()
 
         every { mockTerser.getSegment(any()) } returns mockSegment
@@ -883,30 +857,6 @@ NTE|1|L|This is a final comment|RE"""
         assertEquals("sending_app", parts[2])
         assertEquals("receiving_app", parts[4])
         assertEquals("receiving_facility", parts[5])
-    }
-
-    @Test
-    fun `test now timestamp logic`() {
-        // arrange our regexes
-        // this regex checks for 12 digits, and then the offset sign, and then four more digits
-        val lowPrecisionTimeStampRegex = "^\\d{12}[-|+]\\d{4}".toRegex()
-        createConfig(
-            useHighPrecisionHeaderDateTimeFormat = false,
-            convertPositiveDateTimeOffsetToNegative = false
-        ).run {
-            val timestampValue = Hl7Serializer.nowTimestamp(this)
-            assertThat(lowPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
-        }
-
-        // this regex checks for 14 digits, then a period, three digits, and then the offset
-        val highPrecisionTimeStampRegex = "\\d{14}\\.\\d{3}[-|+]\\d{4}".toRegex()
-        createConfig(
-            useHighPrecisionHeaderDateTimeFormat = true,
-            convertPositiveDateTimeOffsetToNegative = false
-        ).run {
-            val timestampValue = Hl7Serializer.nowTimestamp(this)
-            assertThat(highPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
-        }
     }
 
     @Test
