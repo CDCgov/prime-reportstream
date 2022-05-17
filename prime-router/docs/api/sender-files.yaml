@@ -12,6 +12,8 @@ paths:
   /api/sender-files:
     get:
       description: For a specified report, trace each item's ancestry and retrieve the source files submitted by senders.
+      security:
+        - OAuth2: [ system_admin ]
       parameters:
         - in: query
           name: report-id
@@ -99,3 +101,7 @@ components:
         - schemaName
         - contentType
         - content
+
+  securitySchemes:
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'

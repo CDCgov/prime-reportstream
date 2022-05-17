@@ -1,18 +1,18 @@
 import { Dispatch, useReducer } from "react";
 
 enum RangeField {
-    START = "start",
-    END = "end",
+    FROM = "from",
+    TO = "to",
 }
 enum RangeSettingsActionType {
-    UPDATE_START = "update-start",
-    UPDATE_END = "update-end",
+    UPDATE_FROM = "update-from",
+    UPDATE_TO = "update-to",
     RESET = "reset",
 }
 
 interface RangeSettings {
-    start: string;
-    end: string;
+    from: string;
+    to: string;
 }
 interface RangeSettingsAction {
     type: RangeSettingsActionType;
@@ -30,33 +30,33 @@ const rangeReducer = (
 ): RangeSettings => {
     const { type, payload } = action;
     switch (type) {
-        case RangeSettingsActionType.UPDATE_START:
+        case RangeSettingsActionType.UPDATE_FROM:
             return {
                 ...state,
-                start: payload?.start || state.start,
+                from: payload?.from || state.from,
             };
-        case RangeSettingsActionType.UPDATE_END:
+        case RangeSettingsActionType.UPDATE_TO:
             return {
                 ...state,
-                end: payload?.end || state.end,
+                to: payload?.to || state.to,
             };
         case RangeSettingsActionType.RESET: // Can use this to manually set for edge cases
             return {
-                start: payload?.start || FALLBACK_START,
-                end: payload?.end || FALLBACK_END,
+                from: payload?.from || FALLBACK_FROM,
+                to: payload?.to || FALLBACK_TO,
             };
         default:
             return state;
     }
 };
 
-const FALLBACK_START = new Date("3000-01-01").toISOString();
-const FALLBACK_END = new Date("2000-01-01").toISOString();
+const FALLBACK_FROM = new Date("2000-01-01").toISOString();
+const FALLBACK_TO = new Date("3000-01-01").toISOString();
 
 const useDateRange = (): RangeFilter => {
     const [settings, dispatchRange] = useReducer(rangeReducer, {
-        start: FALLBACK_START,
-        end: FALLBACK_END,
+        from: FALLBACK_FROM,
+        to: FALLBACK_TO,
     });
 
     return {
@@ -66,5 +66,5 @@ const useDateRange = (): RangeFilter => {
 };
 
 export default useDateRange;
-export { RangeSettingsActionType, RangeField };
+export { RangeSettingsActionType, RangeField, FALLBACK_FROM, FALLBACK_TO };
 export type { RangeSettings, RangeSettingsAction };

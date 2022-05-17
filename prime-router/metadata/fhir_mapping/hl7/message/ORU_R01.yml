@@ -1,0 +1,14 @@
+resources:
+
+  - resourceName: MessageHeader
+    segment: MSH
+    resourcePath: resource/MessageHeader
+    repeats: false
+    isReferenced: false
+    additionalSegments: [SFT]
+
+  - resourceName: Provenance
+    segment: MSH
+    resourcePath: resource/Provenance
+
+# TODO Add more segments as we develop them
