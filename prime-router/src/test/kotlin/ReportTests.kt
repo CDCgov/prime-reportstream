@@ -226,7 +226,7 @@ class ReportTests {
                 listOf("0", "100", "202110300809", "30300102"), // Good age, ... don't care -> patient_age=100
                 // Bad age, good collect date, BAD DOB -> patient_age=null
                 listOf("1", ")@*", "202110300809-0501", "30300101"),
-                // Bad age, bad collect date, good dob -> patient_age=null
+                // Bad age, bad collect date, good dob -> patient_age=2
                 listOf("2", "_", "202110300809", "20190101"),
                 // Good age, bad collect date, bad dob -> patient_age=20
                 listOf("3", "20", "adfadf", "!@!*@(7"),
@@ -247,7 +247,7 @@ class ReportTests {
         assertThat(covidResultMetadata).isNotNull()
         assertThat(covidResultMetadata.get(0).patientAge).isEqualTo("100")
         assertThat(covidResultMetadata.get(1).patientAge).isNull()
-        assertThat(covidResultMetadata.get(2).patientAge).isNull()
+        assertThat(covidResultMetadata.get(2).patientAge).isEqualTo("2")
         assertThat(covidResultMetadata.get(3).patientAge).isEqualTo("20")
         assertThat(covidResultMetadata.get(4).patientAge).isEqualTo("2")
         assertThat(covidResultMetadata.get(5).patientAge).isEqualTo("10")
@@ -255,7 +255,7 @@ class ReportTests {
         assertThat(covidResultMetadata.get(7).patientAge).isNull()
 
         /**
-         * Test table with out patient_age
+         * Test table without patient_age
          */
         val twoWithoutAge = Schema(
             name = "one", topic = "test",
@@ -271,7 +271,7 @@ class ReportTests {
         val twoReport = Report(
             schema = twoWithoutAge,
             values = listOf(
-                listOf("0", "202110300809", "30300102"), // Bad speciment collection date -> patient_age=null
+                listOf("0", "202110300809", "30300102"), // Bad specimen collection date -> patient_age=null
                 listOf("1", "202110300809-0501", "30300101"), // good collect date, BAD DOB -> patient_age=null
                 listOf("2", "202110300809-0500", "20190101")
             ), // Bad age, good collect date, good dob -> patient_age=2
