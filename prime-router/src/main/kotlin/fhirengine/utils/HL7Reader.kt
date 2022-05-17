@@ -21,25 +21,25 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     fun getMessages(rawMessage: String): List<Message> {
         if (rawMessage.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
-            throw IllegalArgumentException("Empty Hl7 data")
         }
 
         val messages: MutableList<Message> = mutableListOf()
-        try {
-            val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream())
-            while (iterator.hasNext()) {
-                messages.add(iterator.next())
+        if (!actionLogger.hasErrors()) {
+            try {
+                val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream())
+                while (iterator.hasNext()) {
+                    messages.add(iterator.next())
+                }
+                // NOTE for batch hl7; should we be doing anything with the BHS and other headers
+            } catch (e: Hl7InputStreamMessageStringIterator.ParseFailureError) {
+                actionLogger.error(InvalidReportMessage("Unable to parse HL7 data."))
             }
-            // NOTE for batch hl7; should we be doing anything with the BHS and other headers
-        } catch (e: Hl7InputStreamMessageStringIterator.ParseFailureError) {
-            actionLogger.error(InvalidReportMessage("Unable to parse HL7 data."))
-            throw IllegalArgumentException("Cannot parse the message.", e)
-        }
 
-        if (messages.isEmpty()) {
-            actionLogger.error(InvalidReportMessage("Unable to find HL7 messages in provided data."))
-            throw IllegalArgumentException("Empty Hl7 data")
-        } else return messages
+            if (messages.isEmpty() && !actionLogger.hasErrors()) {
+                actionLogger.error(InvalidReportMessage("Unable to find HL7 messages in provided data."))
+            }
+        }
+        return messages
     }
 
     companion object {

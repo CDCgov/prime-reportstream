@@ -645,19 +645,22 @@ class SubmissionReceiverTests {
                 Options.None,
                 emptyList(),
                 true,
-                false,
+                true,
                 ByteArray(0),
                 "test.csv"
             )
-        } catch (ex: IllegalArgumentException) {
+        } catch (ex: ActionError) {
             exceptionThrown = true
         }
 
         // assert
         assertTrue(exceptionThrown)
 
-        verify(exactly = 0) {
+        verify(exactly = 1) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
+        }
+
+        verify(exactly = 0) {
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
             queueMock.sendMessage(elrProcessQueueName, any())

@@ -213,7 +213,7 @@ class ELRReceiver : SubmissionReceiver {
 
         // check that our input is valid HL7. Additional validation will happen at a later step
         val reader = HL7Reader(actionLogs)
-        val messages = reader.getMessages(content)
+        var messages = reader.getMessages(content)
 
         // fake up a report with the required data (set schema to 'none')
         val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
@@ -224,8 +224,8 @@ class ELRReceiver : SubmissionReceiver {
             messages.size
         )
 
-        // dupe detection if needed
-        if (!allowDuplicates) {
+        // dupe detection if needed, and if we have not already produced an error
+        if (!allowDuplicates && !actionLogs.hasErrors()) {
             doDuplicateDetection(
                 workflowEngine,
                 report,

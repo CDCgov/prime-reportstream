@@ -63,6 +63,12 @@ class FHIRFlowFunctions(
         logger.trace("Processing HL7 data for FHIR conversion.")
         try {
             val hl7messages = HL7Reader(actionLogger).getMessages(messageContent.downloadContent())
+
+            // this may need additoinal work in the future to ensure we are surfacing correct message(s)
+            if (actionLogger.hasErrors()) {
+                throw java.lang.IllegalArgumentException(actionLogger.errors[0].detail.message)
+            }
+
             val fhirBundles = hl7messages.map { message ->
                 HL7toFhirTranslator.getInstance().translate(message)
             }
