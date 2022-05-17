@@ -12,12 +12,11 @@
                         {
                             "name": "Patient ID",
                             "colHeader": "patient_id",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": true,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Unique identifier",
                             "values": [
                                 ""
@@ -30,12 +29,11 @@
                         {
                             "name": "Patient last name",
                             "colHeader": "patient_last_name",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 ""
@@ -47,12 +45,11 @@
                         {
                             "name": "Patient first name",
                             "colHeader": "patient_first_name",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 ""
@@ -64,12 +61,11 @@
                         {
                             "name": "Patient middle name",
                             "colHeader": "patient_middle_name",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 ""
@@ -81,12 +77,11 @@
                         {
                             "name": "Patient street address",
                             "colHeader": "patient_street",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address, accepted value",
                             "values": [
                                 "ex: 1234 America Ln",
@@ -102,12 +97,11 @@
                         {
                             "name": "Patient street address line 2",
                             "colHeader": "patient_street2",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 ""
@@ -119,12 +113,11 @@
                         {
                             "name": "Patient city",
                             "colHeader": "patient_city",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 ""
@@ -137,12 +130,11 @@
                         {
                             "name": "Patient state",
                             "colHeader": "patient_state",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "Two-character state abbreviation"
@@ -155,12 +147,11 @@
                         {
                             "name": "Patient county",
                             "colHeader": "patient_county",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 ""
@@ -172,12 +163,11 @@
                         {
                             "name": "Patient zip code",
                             "colHeader": "patient_zip_code",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "5 or 9 digit zip code",
                             "values": [
                                 "12345",
@@ -191,12 +181,11 @@
                         {
                             "name": "Patient phone number",
                             "colHeader": "patient_phone_number",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "10-digit phone number",
                             "values": [
                                 "000-000-0000"
@@ -209,12 +198,11 @@
                         {
                             "name": "Patient date of birth",
                             "colHeader": "patient_dob",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy"
@@ -226,12 +214,11 @@
                         {
                             "name": "Patient gender",
                             "colHeader": "patient_gender",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Accepted value",
                             "values": [
                                 "<code>M</code> or <code>Male</code>", 
@@ -248,12 +235,11 @@
                         {
                             "name": "Patient race",
                             "colHeader": "patient_race",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Numeric or text accepted value",
                             "values": [
                                 "<code>1002-5</code> or <code>American Indian or Alaska Native</code>",
@@ -272,12 +258,11 @@
                         {
                             "name": "Patient ethnicity",
                             "colHeader": "patient_ethnicity",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Numeric or text accepted value",
                             "values": [
                                 "<code>2135-2</code> or <code>Hispanic or Latino</code>",
@@ -291,12 +276,11 @@
                         {
                             "name": "Patient preferred language ",
                             "colHeader": "patient_preferred_language",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "<code>eng</code> or <code>English</code>",
@@ -311,12 +295,11 @@
                         {
                             "name": "Patient email",
                             "colHeader": "patient_email",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                             ],               
@@ -333,12 +316,11 @@
                         {
                             "name": "Accession number",
                             "colHeader": "accession_number ",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "Unique ID",
                             "values": [
                                 "ID12345-6789" 
@@ -350,12 +332,11 @@
                         {
                             "name": "Equipment model name",
                             "colHeader": "equipment_model_name",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "Unique identifier",
                             "values": [
                                 "<code>ID NOW</code>",
@@ -372,12 +353,11 @@
                         {
                             "name": "Test performed code",
                             "colHeader": "test_performed_code",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "LOINC code",
                             "values": [
                                 "94534-5",
@@ -395,12 +375,11 @@
                         {
                             "name": "Test result",
                             "colHeader": "test_result",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Common values, SNOMED code",
                             "values": [
                                 "<code>Positive</code>",
@@ -419,12 +398,11 @@
                         {
                             "name": "Order test date",
                             "colHeader": "order_test_date",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy HH:mm", "M/d/yyyy"
@@ -437,12 +415,11 @@
                         {
                             "name": "Specimen collection date",
                             "colHeader": "specimen_collection_date",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy HH:mm", "M/d/yyyy"
@@ -455,12 +432,11 @@
                         {
                             "name": "Testing lab specimen received date",
                             "colHeader": "testing_lab_specimen_received_date",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy HH:mm", "M/d/yyyy" 
@@ -473,12 +449,11 @@
                         {
                             "name": "Test result date",
                             "colHeader": "test_result_date",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy HH:mm", "M/d/yyyy"
@@ -491,12 +466,11 @@
                         {
                             "name": "Date result released",
                             "colHeader": "date_result_released",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy HH:mm", "M/d/yyyy" 
@@ -515,12 +489,11 @@
                         {
                             "name": "Specimen type",
                             "colHeader": "specimen_type",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Common values, SNOMED code",
                             "values": [
                                 "<code>Nasal Swab</code>",
@@ -548,12 +521,11 @@
                         {
                             "name": "Ordering provider ID",
                             "colHeader": "ordering_provider_id",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "Unique identifier",
                             "values": [
                                 "NPI example: 1013012657",
@@ -568,12 +540,11 @@
                         {
                             "name": "Ordering provider last name",
                             "colHeader": "ordering_provider_last_name",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "" 
@@ -585,12 +556,11 @@
                         {
                             "name": "Ordering provider first name",
                             "colHeader": "ordering_provider_first_name",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "" 
@@ -602,12 +572,11 @@
                         {
                             "name": "Ordering provider middle name",
                             "colHeader": "ordering_provider_middle_name",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "" 
@@ -619,12 +588,11 @@
                         {
                             "name": "Ordering provider street address",
                             "colHeader": "ordering_provider_street",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -636,12 +604,11 @@
                         {
                             "name": "Ordering provider street address line 2",
                             "colHeader": "ordering_provider_street2",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -653,12 +620,11 @@
                         {
                             "name": "Ordering provider city",
                             "colHeader": "ordering_provider_city",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -670,12 +636,11 @@
                         {
                             "name": "Ordering provider state",
                             "colHeader": "ordering_provider_state",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "Two-character state abbreviation" 
@@ -687,8 +652,8 @@
                         {
                             "name": "Ordering provider zip code",
                             "colHeader": "ordering_provider_zip_code",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
@@ -704,12 +669,11 @@
                         {
                             "name": "Ordering provider phone number",
                             "colHeader": "ordering_provider_phone_number",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "10-digit phone number",
                             "values": [
                                 "000-000-0000"
@@ -727,12 +691,11 @@
                         {
                             "name": "Testing lab CLIA number",
                             "colHeader": "testing_lab_clia",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "CLIA number",
                             "values": [
                                 "11D2030855" 
@@ -745,12 +708,11 @@
                         {
                             "name": "Testing lab name",
                             "colHeader": "testing_lab_name",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "" 
@@ -762,12 +724,11 @@
                         {
                             "name": "Testing lab street address",
                             "colHeader": "testing_lab_street",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -779,12 +740,11 @@
                         {
                             "name": "Testing lab street address line 2",
                             "colHeader": "testing_lab_street2",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -796,12 +756,11 @@
                         {
                             "name": "Testing lab city",
                             "colHeader": "testing_lab_city",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -813,12 +772,11 @@
                         {
                             "name": "Testing lab state",
                             "colHeader": "testing_lab_state",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": true,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "Two-character state abbreviation" 
@@ -830,8 +788,8 @@
                         {
                             "name": "Testing lab zip code",
                             "colHeader": "testing_lab_zip_code",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
@@ -847,12 +805,11 @@
                         {
                             "name": "Testing lab phone number",
                             "colHeader": "testing_lab_phone_number",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "10-digit phone number",
                             "values": [
                                 "000-000-0000"
@@ -870,12 +827,11 @@
                         {
                             "name": "Pregnant",
                             "colHeader": "pregnant",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": true,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Status",
                             "values": [
                                 "<code>Y</code> or <code>YES</code>",
@@ -889,12 +845,11 @@
                         {
                             "name": "Employed in healthcare",
                             "colHeader": "employed_in_healthcare",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": true,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Status",
                             "values": [
                                 "<code>Y</code> or <code>YES</code>",
@@ -908,12 +863,11 @@
                         {
                             "name": "Symptomatic for disease",
                             "colHeader": "symptomatic_for_disease",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": true,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Status",
                             "values": [
                                 "<code>Y</code> or <code>YES</code>",
@@ -927,12 +881,11 @@
                         {
                             "name": "Illness onset date",
                             "colHeader": "illness_onset_date",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": true,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Date",
                             "values": [
                                 "M/d/yyyy"
@@ -944,12 +897,11 @@
                         {
                             "name": "Resident congregate setting",
                             "colHeader": "resident_congregate_setting",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": true,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Status",
                             "values": [
                                 "<code>Y</code> or <code>YES</code>",
@@ -961,14 +913,46 @@
                             ]
                         },
                         {
-                            "name": "Hospitalized",
-                            "colHeader": "hospitalized",
-                            "colHeaderReportstream": "",            
+                            "name": "Residence type",
+                            "colHeader": "residence_type",
                             "required": false,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
+                            "valueType": "Status",
+                            "values": [
+                                "<code>22232009</code> or <code>Hospital</code>",
+                                "<code>2081004</code> or <code>Hospital Ship</code>",
+                                "<code>32074000</code> or <code>Long Term Care Hospital</code>",
+                                "<code>224929004</code> or <code>Secure Hospital</code>",
+                                "<code>42665001</code> or <code>Nursing Home</code>",
+                                "<code>30629002</code> or <code>Retirement Home</code>",
+                                "<code>74056004</code> or <code>Orphanage</code>",
+                                "<code>722173008</code> or <code>Prison-based Care Site</code>",
+                                "<code>20078004</code> or <code>Substance Abuse Treatment Center</code>",
+                                "<code>257573002</code> or <code>Boarding House</code>",
+                                "<code>224683003</code> or <code>Military Accommodation</code>",
+                                "<code>284546000</code> or <code>Hospice</code>",
+                                "<code>257628001</code> or <code>Hostel</code>",
+                                "<code>310207003</code> or <code>Sheltered Housing</code>",
+                                "<code>57656006</code> or <code>Penal Institution</code>",
+                                "<code>285113009</code> or <code>Religious Institutional Residence</code>",
+                                "<code>285141008</code> or <code>Work (environment)</code>",
+                                "<code>32911000</code> or <code>Homeless</code>"
+                            ],               
+                            "notes": [
+                                "If resident congregate setting is “Y” or “Yes,” then provide residence type. Enter one of the acceptable values exactly as displayed."
+                            ]
+                        },
+                        {
+                            "name": "Hospitalized",
+                            "colHeader": "hospitalized",
+                            "required": false,
+                            "requested": true,
+                            "acceptedFormat": false,
+                            "acceptedValues": true,
+                            "acceptedExample": false,
                             "valueType": "Status",
                             "values": [
                                 "<code>Y</code> or <code>YES</code>",
@@ -982,12 +966,11 @@
                         {
                             "name": "Intensive care unit",
                             "colHeader": "icu",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": true,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Status",
                             "values": [
                                 "<code>Y</code> or <code>YES</code>",
@@ -1007,12 +990,11 @@
                         {
                             "name": "Ordering facility name",
                             "colHeader": "ordering_facility_name",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "" 
@@ -1024,12 +1006,11 @@
                         {
                             "name": "Ordering facility street address",
                             "colHeader": "ordering_facility_street",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -1041,12 +1022,11 @@
                         {
                             "name": "Ordering facility street address line 2",
                             "colHeader": "ordering_facility_street2",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -1058,12 +1038,11 @@
                         {
                             "name": "Ordering facility city",
                             "colHeader": "ordering_facility_city ",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "" 
@@ -1075,12 +1054,11 @@
                         {
                             "name": "Ordering facility state",
                             "colHeader": "ordering_facility_state",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Address",
                             "values": [
                                 "Two-character state abbreviation" 
@@ -1092,8 +1070,8 @@
                         {
                             "name": "Ordering facility zip code",
                             "colHeader": "ordering_facility_zip_code",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
@@ -1109,8 +1087,8 @@
                         {
                             "name": "Ordering facility phone number",
                             "colHeader": "ordering_facility_phone_number",
-                            "colHeaderReportstream": "",            
                             "required": true,
+                            "requested": false,
                             "acceptedFormat": true,
                             "acceptedValues": false,
                             "acceptedExample": false,
@@ -1131,12 +1109,11 @@
                         {
                             "name": "Comment",
                             "colHeader": "comment",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": false,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "" 
@@ -1149,12 +1126,11 @@
                         {
                             "name": "Test result status",
                             "colHeader": "test_result_status ",
-                            "colHeaderReportstream": "",            
                             "required": false,
+                            "requested": false,
                             "acceptedFormat": false,
                             "acceptedValues": true,
                             "acceptedExample": false,
-                            "valueMessage": "",
                             "valueType": "Text",
                             "values": [
                                 "<code>F</code> = Final result", 
