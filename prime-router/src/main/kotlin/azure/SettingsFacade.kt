@@ -19,7 +19,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.common.StringUtilities.Companion.trimToNull
+import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.JSONB
@@ -336,6 +336,7 @@ class OrganizationAPI
     override var createdAt: OffsetDateTime? = null,
     override var meta: SettingsMetadata? = null // Deprecated
 ) : Organization(name, description, jurisdiction, stateCode.trimToNull(), countyName.trimToNull(), filters),
+
     SettingAPI {
     @get:JsonIgnore
     override val organizationName: String? = null
