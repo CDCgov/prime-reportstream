@@ -158,13 +158,11 @@ const Table = ({
     const showMappedValue = (columnConfig: ColumnConfig, object: TableRow) => {
         if (columnConfig.valueMap) {
             return (
-                (
-                    <span>
-                        {columnConfig.valueMap?.get(
-                            object[columnConfig.dataAttr]
-                        )}
-                    </span>
-                ) || <span>{object[columnConfig.dataAttr]}</span>
+                <span>
+                    {columnConfig.valueMap?.get(
+                        object[columnConfig.dataAttr]
+                    ) || object[columnConfig.dataAttr]}
+                </span>
             );
         } else {
             return <span>{object[columnConfig.dataAttr]}</span>;
