@@ -555,7 +555,7 @@ jooq {
                                     // Associate that custom type with your binding.
                                     .withBinding("gov.cdc.prime.router.ActionLogDetailBinding")
                                     // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
-                                    // 
+                                    //
                                     // If provided, both "includeExpressions" and "includeTypes" must match.
                                     .withIncludeExpression("action_log.detail")
                                     .withIncludeTypes("JSONB"),
@@ -731,6 +731,8 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-xml:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.2.1")
     implementation("it.skrape:skrapeit-http-fetcher:1.2.1")
     implementation("org.apache.poi:poi:5.2.2")
