@@ -8,6 +8,16 @@ endpoint:
   valueOf: MSH.24.2
   expressionType: HL7Spec
 
+version:
+  type: STRING
+  valueOf: SFT.2
+  expressionType: HL7Spec
+
+software:
+  type: STRING
+  valueOf: SFT.3
+  expressionType: HL7Spec
+
 extension_1:
   generateList: true
   valueOf: extension/Extension
@@ -20,5 +30,48 @@ extension_1:
   constants:
     isoSystemStr: "ISO"
     oidUrlPrefix: "urn:oid:"
-    KEY_NAME_SUFFIX: String
+    KEY_NAME_SUFFIX: Oid
     urlValue: source-identifier-system
+
+extension_2:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, SFT.4
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: source-software-binary-id
+
+extension_3:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, SFT.5
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: source-software-description
+
+extension_4:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: SFT.6, GeneralUtils.dateTimeWithZoneId(value,ZONEID)
+  constants:
+    KEY_NAME_SUFFIX: DateTime
+    urlValue: source-software-install-date
+
+extension_5:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "source-software-vendor-org"
+    valueReference:
+      valueOf: resource/Organization
+      expressionType: reference
+      specs: SFT.1
+
