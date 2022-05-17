@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -9,6 +8,7 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
@@ -65,8 +65,7 @@ class MetaDataFunction : Logging {
         val filters = request.queryParameters
         val rows = getLivdTable(filters) ?: return HttpUtilities.internalErrorResponse(request)
         logger.info("Found ${rows.count()} rows for LIVD table.")
-        val jsonMapper = jacksonObjectMapper()
-        val responseBody = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(rows)
+        val responseBody = JacksonMapperUtilities.defaultMapper.writeValueAsString(rows)
         // create response body
         return HttpUtilities.okResponse(request, responseBody)
     }
