@@ -3,7 +3,59 @@ import userEvent from "@testing-library/user-event";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 
+import Table, { ColumnConfig, TableConfig, TableRow } from "./Table";
 import { TestTable } from "./TestTable";
+
+/* Table generation tools */
+
+const getSetOfRows = (count: number) => {
+    const testRows: TableRow[] = [];
+    for (let i = 0; i < count; i++) {
+        testRows.push({
+            id: i,
+            item: `Item ${i}`,
+            linkableItem: `UUID-${i}`,
+            mappedItem: i,
+            transformedValue: i,
+            sortedColumn: i,
+        });
+    }
+    return testRows;
+};
+
+const makeConfigs = (sampleRow: TableRow): ColumnConfig[] => {
+    const sampleMapper = new Map<number, string>([[2, "Mapped Item"]]);
+    const transformFunc = (v: any) => {
+        return v === 9 ? "Transformed Value" : v;
+    };
+    const columnConfigs: ColumnConfig[] = [];
+    Object.keys(sampleRow).map((key) =>
+        columnConfigs.push({
+            dataAttr: key,
+            columnHeader: `${key[0].toUpperCase()}${key
+                .slice(1)
+                .toLowerCase()}`,
+            link: key.includes("link"),
+            linkBasePath: key.includes("link") ? "/base/" : undefined,
+            valueMap: key.includes("map") ? sampleMapper : undefined,
+            transform: key.includes("transform") ? transformFunc : undefined,
+            sortable: key.includes("sort"),
+            localSort: key.includes("sort"),
+        })
+    );
+    return columnConfigs;
+};
+
+const getTestConfig = (rowCount: number): TableConfig => {
+    const testRows: TableRow[] = getSetOfRows(rowCount);
+    const colConfigs: ColumnConfig[] = makeConfigs(testRows[0]);
+    return {
+        rows: testRows,
+        columns: colConfigs,
+    };
+};
+
+/* Reusable complex actions to keep tests clean */
 
 const selectDatesFromRange = (dayOne: string, dayTwo: string) => {
     /* Borrowed some of this from Trussworks' own tests: their
@@ -28,57 +80,49 @@ const clickFilterButton = () => {
     userEvent.click(filterButton);
 };
 
-describe("Table, basic tests", () => {
-    beforeEach(() => renderWithRouter(<TestTable />));
-    test("Column names render", () => {
-        const headerOne = screen.getByText("Column One");
-        const headerTwo = screen.getByText("Column Two");
+/* Sample components for test rendering */
 
-        expect(headerOne).toBeInTheDocument();
-        expect(headerTwo).toBeInTheDocument();
+const SimpleTable = () => <Table config={getTestConfig(10)} />;
+
+describe("Table, basic tests", () => {
+    test("Column names render", () => {
+        renderWithRouter(<SimpleTable />);
+        const idHeader = screen.getByText("Id");
+        const itemHeader = screen.getByText("Item");
+
+        expect(idHeader).toBeInTheDocument();
+        expect(itemHeader).toBeInTheDocument();
     });
 
     test("Row values render", () => {
-        const rowOne = screen.getByText("value two");
-        const rowTwo = screen.getByText("value two again");
-
-        expect(rowOne).toBeInTheDocument();
-        expect(rowTwo).toBeInTheDocument();
-    });
-
-    test("Rows render data in configured order", () => {
-        const allRows = screen.getAllByRole("row");
-        expect(allRows[2].firstChild).toHaveTextContent("value two");
-    });
-
-    test("Elements with no mapped column aren't rendered", () => {
-        expect(screen.queryByText("value three")).not.toBeInTheDocument();
+        renderWithRouter(<SimpleTable />);
+        expect(screen.getAllByRole("columnheader").length).toEqual(5);
+        expect(screen.getAllByRole("row").length).toEqual(11); // +1 for header row
+        expect(screen.getByText("Item 1")).toBeInTheDocument();
     });
 
     test("Link columns are rendered as links", () => {
-        const linkInCell = screen.getByText("value two");
-        /* This looks ugly but it's ensuring the VALUE at linkAttr
-         * (or dataAttr) is plugged into the href.
-         *
-         * "/test/value two" is the outcome with the test data
-         * but the attributes we plug in don't have spaces to account
-         * for */
+        renderWithRouter(<SimpleTable />);
+        const linkInCell = screen.getByText("UUID-1");
         expect(linkInCell).toContainHTML(
-            '<a class="usa-link" href="/test/value two">value two</a>'
+            '<a class="usa-link" href="/base/UUID-1">UUID-1</a>'
         );
     });
 
     test("Map columns use mapped value", () => {
-        const mappedElement = screen.getAllByRole("row")[1].children[3];
-        expect(mappedElement).toHaveTextContent("mapped value");
+        renderWithRouter(<SimpleTable />);
+        expect(screen.getByText("Mapped Item")).toBeInTheDocument();
     });
 
     test("Transform columns use transformed value", () => {
-        const transformedElements = screen.getAllByText("transformed");
-        expect(transformedElements).toHaveLength(2);
+        renderWithRouter(<SimpleTable />);
+        expect(screen.getByText("Transformed Value")).toBeInTheDocument();
     });
 });
 
+/* TODO:
+ *   Refactor these tests to use new functions instead of TestTable
+ * */
 describe("Table, pagination button tests", () => {
     beforeEach(() => renderWithRouter(<TestTable />));
 
@@ -119,6 +163,9 @@ describe("Table, pagination button tests", () => {
     });
 });
 
+/* TODO:
+ *   Refactor these tests to use new functions instead of TestTable
+ * */
 describe("Table, filter integration tests", () => {
     beforeEach(() => renderWithRouter(<TestTable />));
     test("date range selection and clearing", () => {
@@ -159,23 +206,5 @@ describe("Table, filter integration tests", () => {
 
         // Checking for exclusive date
         expect(screen.getByText(/cursor:/)).toHaveTextContent(/00:00.000Z/);
-    });
-});
-
-describe("Table, sort order integration tests", () => {
-    beforeEach(() => renderWithRouter(<TestTable />));
-
-    test("Click header to sort", () => {
-        // order: desc
-        let allRows = screen.getAllByRole("row");
-        expect(allRows[1].firstChild).toHaveTextContent("value two again");
-
-        // swap order
-        const columnOneHeader = screen.getByText("Column Two");
-        fireEvent.click(columnOneHeader);
-
-        // order: asc
-        allRows = screen.getAllByRole("row");
-        expect(allRows[1].firstChild).toHaveTextContent("value two");
     });
 });

@@ -109,9 +109,9 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
         }
     };
 
-    const swapSort = (config: ColumnConfig) => {
+    const swapSort = (currentColumn: ColumnConfig) => {
         // Update localSortFunc based on config.localSort
-        if (config.localSort) {
+        if (currentColumn.localSort) {
             filterManager?.updateSort({
                 type: SortSettingsActionType.APPLY_LOCAL_SORT,
                 payload: {
@@ -129,7 +129,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
         filterManager?.updateSort({
             type: SortSettingsActionType.CHANGE_COL,
             payload: {
-                column: config.dataAttr,
+                column: currentColumn.dataAttr,
             },
         });
         filterManager?.updateSort({
