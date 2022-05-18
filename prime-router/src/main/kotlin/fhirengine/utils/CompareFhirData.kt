@@ -9,7 +9,28 @@ import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.Resource
 import java.io.InputStream
 
-class CompareFhirData(val result: CompareData.Result = CompareData.Result()) : Logging {
+/**
+ * Compare two FHIR files.
+ * @property result object to contain the result of the comparison
+ * @property skippedProperties FHIR type path name for a property to ignore (e.g. Bundle.metadata)
+ * @property dynamicProperties FHIR type path name for a property to test, but ignore its value
+ */
+class CompareFhirData(
+    internal val result: CompareData.Result = CompareData.Result(),
+    private val skippedProperties: List<String> = defaultSkippedProperties,
+    private val dynamicProperties: List<String> = defaultDynamicProperties
+) : Logging {
+    /**
+     * Compare the data in the [actual] report to the data in the [expected] report.  This
+     * comparison steps through all the resources in the FHIR bundle and compares all the values in the
+     * existing properties.  Note that only resources that exist in the expected FHIR bundle are compared and
+     * all others that exist only in the actual are ignored.  Also note that resource/properties do not have to
+     * be in any specific order.
+     * @return the result for the comparison, with result.passed true if the comparison was successful
+     * Errors are generated when:
+     *  1. When a resource does not exist in the actual bundle
+     *  2. When a property is not the same.
+     */
     fun compare(
         expected: InputStream,
         actual: InputStream,
@@ -20,11 +41,14 @@ class CompareFhirData(val result: CompareData.Result = CompareData.Result()) : L
         val expectedBundle = FhirTranscoder.decode(expectedJson)
         val actualBundle = FhirTranscoder.decode(actualJson)
 
-        compareBundle(actualBundle, expectedBundle)
+        compareBundle(actualBundle, expectedBundle, result)
         return result
     }
 
-    private fun compareBundle(actualBundle: Bundle, expectedBundle: Bundle) {
+    /**
+     * Compare an [actualBundle] to an [expectedBundle] and provide the [result].
+     */
+    internal fun compareBundle(actualBundle: Bundle, expectedBundle: Bundle, result: CompareData.Result) {
         val resourcesToCompare = mutableMapOf<Resource, List<Base>>(expectedBundle to listOf(actualBundle))
 
         // Only use entries we want.
@@ -43,27 +67,31 @@ class CompareFhirData(val result: CompareData.Result = CompareData.Result()) : L
         // Compare all the resources.
         var isEqual = true
         resourcesToCompare.keys.forEach { expectedResource ->
-            println("Comparing ${expectedResource.fhirType()}...")
             val resourceMatches = resourcesToCompare[expectedResource]?.all { actualResource ->
                 logger.info("")
                 logger.info("Comparing ${expectedResource.fhirType()}...")
-                compareResource(actualResource, expectedResource, expectedResource.fhirType())
+                compareResource(actualResource, expectedResource, expectedResource.fhirType(), result)
             }
             logger.info("Resource ${expectedResource.fhirType()} matches = $resourceMatches")
             isEqual = isEqual && (resourceMatches ?: true)
         }
-        logger.info("FHIR bundles are ${if (isEqual) "IDENTICAL" else "DIFFERENT"}")
+        logger.debug("FHIR bundles are ${if (isEqual) "IDENTICAL" else "DIFFERENT"}")
+        result.passed = isEqual
     }
 
+    /**
+     * Compare an [actualResource] to an [expectedResource] and provide the [result].
+     * @param parentTypePath a string representing a type hirearchy for the parent of the given resource
+     * @param suppressOutput set false to not log comparison results
+     */
     private fun compareResource(
         actualResource: Base,
         expectedResource: Base,
         parentTypePath: String,
+        result: CompareData.Result,
         suppressOutput: Boolean = false
     ): Boolean {
         var isEqual = true
-
-        // logger.info("Comparing resource $thisTypePath ...")
         filterResourceProperties(expectedResource).forEach { expectedChild ->
             val actualChild = actualResource.getChildByName(expectedChild.name)
             if (actualChild != null) {
@@ -77,13 +105,15 @@ class CompareFhirData(val result: CompareData.Result = CompareData.Result()) : L
                         // Note that here we look for the first good match, and note we are comparing all values which
                         // we expect only one match.
                         actualValues.any { actualValue ->
-                            compareValue(actualValue, expectedValue, thisTypePath, actualValues.size > 1)
+                            compareValue(actualValue, expectedValue, thisTypePath, result, actualValues.size > 1)
                         }
                     }
+
                     if (!suppressOutput)
-                        if (!isPropertyEqual)
-                            logger.info("Property $thisTypePath does not match.")
-                        else logger.info("Property $thisTypePath matches.")
+                        if (!isPropertyEqual) {
+                            result.errors.add("Property $thisTypePath does not match.")
+                            logger.debug("Property $thisTypePath does not match.")
+                        } else logger.debug("Property $thisTypePath matches.")
                     isEqual = isEqual && isPropertyEqual
                 }
             } else isEqual = false
@@ -91,15 +121,30 @@ class CompareFhirData(val result: CompareData.Result = CompareData.Result()) : L
         return isEqual
     }
 
-    private fun compareReference(actualValue: Reference, expectedValue: Reference, thisTypePath: String): Boolean {
-        logger.info("Comparing expected reference ${expectedValue.reference} from type $thisTypePath ...")
-        return compareResource(actualValue.resource as Base, expectedValue.resource as Base, "")
+    /**
+     * Compare an [actualReference] to an [expectedReference] and provide the [result].
+     * @param thisTypePath a string representing a type hirearchy for the given value
+     */
+    private fun compareReference(
+        actualReference: Reference,
+        expectedReference: Reference,
+        thisTypePath: String,
+        result: CompareData.Result
+    ): Boolean {
+        logger.debug("Comparing expected reference ${expectedReference.reference} from type $thisTypePath ...")
+        return compareResource(actualReference.resource as Base, expectedReference.resource as Base, "", result)
     }
 
+    /**
+     * Compare an [actualValue] to an [expectedValue] and provide the [result].
+     * @param thisTypePath a string representing a type hirearchy for the given value
+     * @param suppressOutput set false to not log comparison results
+     */
     private fun compareValue(
         actualValue: Base,
         expectedValue: Base,
         thisTypePath: String = "",
+        result: CompareData.Result,
         suppressOutput: Boolean = false
     ): Boolean {
         return when {
@@ -107,14 +152,14 @@ class CompareFhirData(val result: CompareData.Result = CompareData.Result()) : L
             expectedValue.fhirType() != actualValue.fhirType() -> false
 
             // Dynamic values are only checked to exist
-            dynamicResourceProperties.contains(thisTypePath) -> true
+            dynamicProperties.contains(thisTypePath) -> true
 
             // References
             expectedValue.hasType("Reference") ->
-                compareReference(actualValue as Reference, expectedValue as Reference, thisTypePath)
+                compareReference(actualValue as Reference, expectedValue as Reference, thisTypePath, result)
 
             !expectedValue.isPrimitive ->
-                compareResource(actualValue, expectedValue, thisTypePath, suppressOutput)
+                compareResource(actualValue, expectedValue, thisTypePath, result, suppressOutput)
 
             // Use the built-in equals for anything else.
             else -> {
@@ -123,10 +168,14 @@ class CompareFhirData(val result: CompareData.Result = CompareData.Result()) : L
         }
     }
 
+    /**
+     * Filter the properties of a given [resource], so only the properties we want to compare are listed.
+     * @return the list of properties to compare.
+     */
     internal fun filterResourceProperties(resource: Base): List<Property> {
         return resource.children().filter {
             // Skip any properties to be ignored
-            val isSkipped = skippedResourceProperties.contains("${resource.fhirType()}.${it.name}")
+            val isSkipped = skippedProperties.contains("${resource.fhirType()}.${it.name}")
             // Skip any resource IDs
             val isResourceId = (resource.isResource && it.name == "id")
             // Skip the entry property of the bundle as those resources are handled elsewhere
@@ -135,17 +184,35 @@ class CompareFhirData(val result: CompareData.Result = CompareData.Result()) : L
         }
     }
 
+    /**
+     * Get the FHIR type path for a given [parentTypePath] and [valueName].  The FHIR type path
+     * is NOT the same as a FHIR path, and we use it to log the types we are comparing and to match types we want to
+     * ignore.  E.g. Bundle.meta.lastUpdated, Organization.name.
+     */
     internal fun getFhirTypePath(parentTypePath: String, valueName: String): String {
         val parentPath = if (parentTypePath.isNotBlank()) "$parentTypePath." else ""
         return parentPath + valueName
     }
 
     companion object {
-        private val skippedResourceProperties = emptyList<String>()
-        private val dynamicResourceProperties = listOf(
+        /**
+         * The list of properties that will not be tested.
+         */
+        private val defaultSkippedProperties = emptyList<String>()
+
+        /**
+         * The list of properties that have dynamic values and hence will only be tested to exist.
+         */
+        private val defaultDynamicProperties = listOf(
             "Bundle.timestamp",
             "Bundle.meta.lastUpdated",
         )
+
+        /**
+         * The list of bundle entries to test.  Do not include entries that are referenced in other resources listed
+         * here (e.g. Organization is part of MessageHeader and Provenance. If you add a resource that already referenced
+         * it will not break anything just generate more output.
+         */
         private val comparedBundleEntries = listOf(
             "MessageHeader", "Provenance", "Patient", "Encounter",
             "Observation", "Practitioner", "DiagnosticReport", "Specimen"
