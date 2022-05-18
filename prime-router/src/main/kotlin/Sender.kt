@@ -182,6 +182,10 @@ abstract class Sender(
             return newJwkSetList
         }
 
+        /**
+         * returns a tuple of the sender name split into parts, with the
+         * second part defaulted to 'default' if not provided
+         */
         fun parseFullName(fullName: String): Pair<String, String> {
             val splits = fullName.split(fullNameSeparator)
             return when (splits.size) {
@@ -191,6 +195,11 @@ abstract class Sender(
             }
         }
 
+        /**
+         * Given the full name for a sender, it makes sure it matches the format we would expect.
+         * For example, if the name of the sender is IGNORE, this would return IGNORE.default.
+         * If the name is IGNORE.default, it returns that directly
+         */
         fun canonicalizeFullName(fullName: String): String {
             val splits = fullName.split(fullNameSeparator)
             return when (splits.size) {
