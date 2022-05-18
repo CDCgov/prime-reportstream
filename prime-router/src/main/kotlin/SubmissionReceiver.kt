@@ -212,14 +212,16 @@ class ELRReceiver : SubmissionReceiver {
         val actionLogs = ActionLogger()
 
         // check that our input is valid HL7. Additional validation will happen at a later step
-        val reader = HL7Reader(actionLogs)
-        var messages = reader.getMessages(content)
+        var messages = HL7Reader(actionLogs).getMessages(content)
 
-        // fake up a report with the required data (set schema to 'none')
+        // create a Report for this incoming HL7 message to use for tracking in the database
         val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
         val report = Report(
             Format.HL7,
             sources,
+            // ELR submissions don't really have a 'schema' in the sense that we are using it, but it is a
+            //  non-nullable field and fits into our reporting. This also leaves the option to implement
+            //  schema-per-sender in the future if it is needed
             Schema("None", Topic.FULL_ELR.toString()),
             messages.size
         )

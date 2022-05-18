@@ -221,7 +221,6 @@ class ReportFunction(
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .body(
                 JacksonMapperUtilities.allowUnknownsMapper
-                    .writerWithDefaultPrettyPrinter()
                     .writeValueAsString(submission)
             )
             .header(

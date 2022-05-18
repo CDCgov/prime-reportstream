@@ -64,9 +64,8 @@ class FHIRFlowFunctions(
         try {
             val hl7messages = HL7Reader(actionLogger).getMessages(messageContent.downloadContent())
 
-            // this may need additional work in the future to ensure we are surfacing correct message(s)
             if (actionLogger.hasErrors()) {
-                throw java.lang.IllegalArgumentException(actionLogger.errors[0].detail.message)
+                throw java.lang.IllegalArgumentException(actionLogger.errors.joinToString("\n") { it.detail.message })
             }
 
             val fhirBundles = hl7messages.map { message ->

@@ -19,12 +19,10 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
      * @throws IllegalArgumentException if the raw data cannot be parsed or no messages were read
      */
     fun getMessages(rawMessage: String): List<Message> {
+        val messages: MutableList<Message> = mutableListOf()
         if (rawMessage.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
-        }
-
-        val messages: MutableList<Message> = mutableListOf()
-        if (!actionLogger.hasErrors()) {
+        } else {
             try {
                 val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream())
                 while (iterator.hasNext()) {
