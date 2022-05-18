@@ -160,9 +160,9 @@ class SenderFilesFunctionTests {
         assertThat(functionParamsWithMessageID.reportFileName).isNull()
         assertThat(functionParamsWithMessageID.reportId).isEqualTo(reportId)
         assertThat(functionParamsWithMessageID.messageId).isEqualTo("1234")
-        assertThat(functionParamsWithMessageID.onlyDestinationReportItems).isEqualTo(false)
+        assertThat(functionParamsWithMessageID.onlyDestinationReportItems).isEqualTo(true)
         assertThat(functionParamsWithMessageID.limit).isGreaterThan(0)
-        assertThat(functionParamsWithMessageID.offset).isEqualTo(1)
+        assertThat(functionParamsWithMessageID.offset).isEqualTo(0)
         verify(atLeast = 1) { mockRequestWithReportId.queryParameters }
 
         // MessageID with no report id

@@ -110,13 +110,17 @@ class SenderFilesFunction(
         }
         val reportFileName = request.queryParameters[REPORT_FILE_NAME_PARAM]?.replace("/", "%2F")
         val fullReport = try {
-            request.queryParameters[ONLY_REPORT_ITEMS]?.toBoolean() ?: false
+            if (messageId != null) {
+                true
+            } else {
+                request.queryParameters[ONLY_REPORT_ITEMS]?.toBoolean() ?: false
+            }
         } catch (e: Exception) {
             badRequest("Bad $ONLY_REPORT_ITEMS parameter. Details: ${e.message}")
         }
         val offset = try {
             if (messageId != null) {
-                covidResultMetadataRecord?.reportIndex ?: badRequest("No index set for message id: $MESSAGE_ID_PARAM.")
+                covidResultMetadataRecord?.reportIndex?.minus(1) ?: badRequest("Index not found: $MESSAGE_ID_PARAM.")
             } else {
                 request.queryParameters[OFFSET_PARAM]?.toInt() ?: 0
             }
@@ -202,8 +206,6 @@ class SenderFilesFunction(
             val senderFormat = mapBodyFormatToSenderFormat(reportFile.bodyFormat!!)
             val body = if (parameters.onlyDestinationReportItems) {
                 cutContent(blob, senderFormat, senderIndices)
-            } else if (parameters.offset > 0) {
-                cutContent(blob, senderFormat, listOf(parameters.offset))
             } else {
                 blob
             }
