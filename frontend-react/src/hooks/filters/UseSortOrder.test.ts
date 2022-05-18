@@ -8,6 +8,7 @@ describe("UseSortOrder", () => {
         expect(result.current.settings).toEqual({
             column: "",
             order: "DESC",
+            locally: false,
         });
     });
 
@@ -24,6 +25,7 @@ describe("UseSortOrder", () => {
         expect(result.current.settings).toEqual({
             column: "test",
             order: "DESC",
+            locally: false,
         });
     });
 
@@ -37,6 +39,24 @@ describe("UseSortOrder", () => {
         expect(result.current.settings).toEqual({
             column: "",
             order: "ASC",
+            locally: false,
+        });
+    });
+
+    test("dispatch sets and unsets localSortFunction", () => {
+        const { result } = renderHook(() => useSortOrder());
+        act(() =>
+            result.current.update({
+                type: SortSettingsActionType.APPLY_LOCAL_SORT,
+                payload: {
+                    locally: true,
+                },
+            })
+        );
+        expect(result.current.settings).toEqual({
+            column: "",
+            order: "DESC",
+            locally: true,
         });
     });
 
@@ -55,9 +75,18 @@ describe("UseSortOrder", () => {
                 type: SortSettingsActionType.SWAP_ORDER,
             })
         );
+        act(() =>
+            result.current.update({
+                type: SortSettingsActionType.APPLY_LOCAL_SORT,
+                payload: {
+                    locally: true,
+                },
+            })
+        );
         expect(result.current.settings).toEqual({
             column: "test",
             order: "ASC",
+            locally: true,
         });
         act(() =>
             result.current.update({
@@ -67,6 +96,7 @@ describe("UseSortOrder", () => {
         expect(result.current.settings).toEqual({
             column: "",
             order: "DESC",
+            locally: false,
         });
     });
 
@@ -78,12 +108,14 @@ describe("UseSortOrder", () => {
                 payload: {
                     column: "test",
                     order: "ASC",
+                    locally: true,
                 },
             })
         );
         expect(result.current.settings).toEqual({
             column: "test",
             order: "ASC",
+            locally: true,
         });
     });
 });

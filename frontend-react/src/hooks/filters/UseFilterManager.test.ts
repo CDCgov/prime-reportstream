@@ -13,6 +13,7 @@ describe("UseFilterManager", () => {
         expect(result.current.sortSettings).toEqual({
             column: "",
             order: "DESC",
+            locally: false,
         });
         expect(result.current.pageSettings).toEqual({
             size: 10,

@@ -6,6 +6,7 @@ import { getUniqueReceiverSvc } from "../../../utils/ReportUtils";
 import ReportResource from "../../../resources/ReportResource";
 import Table, { TableConfig } from "../../../components/Table/Table";
 import { getStoredOrg } from "../../../contexts/SessionStorageTools";
+import useFilterManager from "../../../hooks/filters/UseFilterManager";
 
 import TableButtonGroup from "./TableButtonGroup";
 import { getReportAndDownload } from "./ReportsUtils";
@@ -21,6 +22,7 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
     const reports: ReportResource[] = useResource(ReportResource.list(), {
         sortBy,
     });
+    const fm = useFilterManager();
     const receiverSVCs: string[] = Array.from(getUniqueReceiverSvc(reports));
     const [chosen, setChosen] = useState(receiverSVCs[0]);
     const filteredReports = useMemo(
@@ -52,6 +54,8 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
             {
                 dataAttr: "sent",
                 columnHeader: "Date Sent",
+                sortable: true,
+                localSort: true,
                 transform: (s: string) => {
                     return new Date(s).toLocaleString();
                 },
@@ -90,7 +94,7 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
                 ) : null}
             </div>
             <div className="grid-col-12">
-                <Table config={resultsTableConfig} />
+                <Table config={resultsTableConfig} filterManager={fm} />
             </div>
             <div className="grid-col-12">
                 {reports.filter((report) => report.receivingOrgSvc === chosen)
