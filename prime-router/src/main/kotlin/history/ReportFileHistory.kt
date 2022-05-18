@@ -1,10 +1,14 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.history
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.annotation.JsonProperty
+import gov.cdc.prime.router.ActionLogDetail
+import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.ActionLogScope
+import gov.cdc.prime.router.ItemActionLogDetail
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -58,9 +62,9 @@ abstract class DetailedReportFileHistory(
     val createdAt: OffsetDateTime,
     val httpStatus: Int? = null,
     @JsonIgnore
-    var reports: MutableList<DetailReport>?,
+    var reports: MutableList<DetailedReport>?,
     @JsonIgnore
-    var logs: List<DetailActionLog> = emptyList()
+    var logs: List<DetailedActionLog> = emptyList()
 ) {
     /**
      * The report ID.
@@ -166,7 +170,7 @@ abstract class DetailedReportFileHistory(
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class DetailReport(
+data class DetailedReport(
     val reportId: UUID,
     @JsonIgnore
     val receivingOrg: String?,
@@ -191,7 +195,7 @@ data class DetailReport(
  * @property log the base log message to be consolidated
  */
 @JsonInclude(Include.NON_NULL)
-class ConsolidatedActionLog(log: DetailActionLog) {
+class ConsolidatedActionLog(log: DetailedActionLog) {
     /**
      * The scope of the log.
      */
@@ -242,7 +246,7 @@ class ConsolidatedActionLog(log: DetailActionLog) {
     /**
      * Add an action detail [log] to this consolidated log.
      */
-    fun add(log: DetailActionLog) {
+    fun add(log: DetailedActionLog) {
         check(message == log.detail.message)
         if (indices != null && trackingIds != null) {
             indices.add(log.index)
@@ -254,7 +258,7 @@ class ConsolidatedActionLog(log: DetailActionLog) {
      * Tests if a detail action log [other] can be consolidated into this existing consolidated log.
      * @return true if the log can be consolidated, false otherwise
      */
-    fun canBeConsolidatedWith(other: DetailActionLog): Boolean {
+    fun canBeConsolidatedWith(other: DetailedActionLog): Boolean {
         return this.message == other.detail.message && this.scope == other.scope && this.type == other.type
     }
 }
@@ -271,7 +275,7 @@ class ConsolidatedActionLog(log: DetailActionLog) {
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class DetailActionLog(
+class DetailedActionLog(
     val scope: ActionLogScope,
     @JsonIgnore
     val reportId: UUID?,

@@ -1,4 +1,4 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.history
 
 import assertk.assertThat
 import assertk.assertions.isEmpty
@@ -9,6 +9,14 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.ActionLogScope
+import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.FieldPrecisionMessage
+import gov.cdc.prime.router.InvalidEquipmentMessage
+import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.InvalidTranslationMessage
+import gov.cdc.prime.router.MissingFieldMessage
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -17,7 +25,7 @@ import kotlin.test.Test
 class SubmissionHistoryTests {
     @Test
     fun `tests consolidation of logs`() {
-        fun createLogs(logs: List<DetailActionLog>): DetailedSubmissionHistory {
+        fun createLogs(logs: List<DetailedActionLog>): DetailedSubmissionHistory {
             return DetailedSubmissionHistory(
                 1, TaskAction.receive, OffsetDateTime.now(),
                 null, null, logs
@@ -31,49 +39,49 @@ class SubmissionHistoryTests {
         val itemLog2 = FieldPrecisionMessage("mapping", messageZ)
         val itemLog3 = MissingFieldMessage("mapping")
         val logMessages = listOf(
-            DetailActionLog(
+            DetailedActionLog(
                 ActionLogScope.report, null, null, null,
                 ActionLogLevel.warning, InvalidReportMessage(messageM)
             ),
-            DetailActionLog(
+            DetailedActionLog(
                 ActionLogScope.report, null, null, null,
                 ActionLogLevel.error, InvalidReportMessage(messageA)
             ),
-            DetailActionLog(
+            DetailedActionLog(
                 ActionLogScope.item, null, 1, null,
                 ActionLogLevel.error, itemLog1
             ),
-            DetailActionLog(
+            DetailedActionLog(
                 ActionLogScope.item, null, 3, null,
                 ActionLogLevel.error, itemLog2
             ),
-            DetailActionLog(
+            DetailedActionLog(
                 ActionLogScope.item, null, 2, null,
                 ActionLogLevel.error, itemLog3
             ),
-            DetailActionLog(
+            DetailedActionLog(
                 ActionLogScope.item, null, 2, "id2",
                 ActionLogLevel.error, itemLog1
             ),
-            DetailActionLog(
+            DetailedActionLog(
                 ActionLogScope.item, null, 3, "id3",
                 ActionLogLevel.error, itemLog1
             ),
-            DetailActionLog(
+            DetailedActionLog(
                 ActionLogScope.item, null, 4, null,
                 ActionLogLevel.warning, itemLog1
             ),
-            DetailActionLog(
+            DetailedActionLog(
                 ActionLogScope.item, null, 5, null,
                 ActionLogLevel.warning, itemLog2
             ),
-            DetailActionLog(
+            DetailedActionLog(
                 ActionLogScope.item, null, 9, "id9",
                 ActionLogLevel.warning, itemLog3
             )
         )
 
-        var rawLogs = emptyList<DetailActionLog>()
+        var rawLogs = emptyList<DetailedActionLog>()
         assertThat(createLogs(rawLogs).consolidateLogs()).isEmpty()
 
         // Test sorting by message
@@ -140,12 +148,12 @@ class SubmissionHistoryTests {
         // Same
         assertThat(
             ConsolidatedActionLog(
-                DetailActionLog(
+                DetailedActionLog(
                     ActionLogScope.item, null, 1, null,
                     ActionLogLevel.error, InvalidEquipmentMessage("mapping")
                 )
             ).canBeConsolidatedWith(
-                DetailActionLog(
+                DetailedActionLog(
                     ActionLogScope.item, null, 2, null,
                     ActionLogLevel.error, InvalidEquipmentMessage("mapping")
                 )
@@ -155,12 +163,12 @@ class SubmissionHistoryTests {
         // Different log level
         assertThat(
             ConsolidatedActionLog(
-                DetailActionLog(
+                DetailedActionLog(
                     ActionLogScope.item, null, 1, null,
                     ActionLogLevel.error, InvalidEquipmentMessage("mapping")
                 )
             ).canBeConsolidatedWith(
-                DetailActionLog(
+                DetailedActionLog(
                     ActionLogScope.item, null, 2, null,
                     ActionLogLevel.warning, InvalidEquipmentMessage("mapping")
                 )
@@ -170,12 +178,12 @@ class SubmissionHistoryTests {
         // Different message
         assertThat(
             ConsolidatedActionLog(
-                DetailActionLog(
+                DetailedActionLog(
                     ActionLogScope.item, null, 1, null,
                     ActionLogLevel.error, InvalidEquipmentMessage("mapping")
                 )
             ).canBeConsolidatedWith(
-                DetailActionLog(
+                DetailedActionLog(
                     ActionLogScope.item, null, 1, null,
                     ActionLogLevel.error, MissingFieldMessage("mapping")
                 )
@@ -185,12 +193,12 @@ class SubmissionHistoryTests {
         // Different message and log level
         assertThat(
             ConsolidatedActionLog(
-                DetailActionLog(
+                DetailedActionLog(
                     ActionLogScope.item, null, 1, null,
                     ActionLogLevel.error, InvalidEquipmentMessage("mapping")
                 )
             ).canBeConsolidatedWith(
-                DetailActionLog(
+                DetailedActionLog(
                     ActionLogScope.item, null, 1, null,
                     ActionLogLevel.warning, MissingFieldMessage("mapping")
                 )
@@ -200,12 +208,12 @@ class SubmissionHistoryTests {
         // Different scope
         assertThat(
             ConsolidatedActionLog(
-                DetailActionLog(
+                DetailedActionLog(
                     ActionLogScope.item, null, 1, null,
                     ActionLogLevel.error, InvalidEquipmentMessage("mapping")
                 )
             ).canBeConsolidatedWith(
-                DetailActionLog(
+                DetailedActionLog(
                     ActionLogScope.report, null, null, null,
                     ActionLogLevel.error, InvalidReportMessage("mapping")
                 )
@@ -215,12 +223,12 @@ class SubmissionHistoryTests {
         // Different scope, log level and message
         assertThat(
             ConsolidatedActionLog(
-                DetailActionLog(
+                DetailedActionLog(
                     ActionLogScope.translation, null, null, null,
                     ActionLogLevel.error, InvalidTranslationMessage("some other message")
                 )
             ).canBeConsolidatedWith(
-                DetailActionLog(
+                DetailedActionLog(
                     ActionLogScope.report, null, null, null,
                     ActionLogLevel.warning, InvalidReportMessage("mapping")
                 )
@@ -241,22 +249,22 @@ class SubmissionHistoryTests {
             assertThat(destinationCount).isEqualTo(0)
         }
 
-        val inputReport = DetailReport(
+        val inputReport = DetailedReport(
             UUID.randomUUID(), null, null, "org",
             "client", "topic", "externalName", null, null, 5, 7
         )
 
         var reports = listOf(
             inputReport,
-            DetailReport(
+            DetailedReport(
                 UUID.randomUUID(), "recvOrg1", "recvSvc1", null,
                 null, "topic", "otherExternalName1", null, null, 1, 1
             ),
-            DetailReport(
+            DetailedReport(
                 UUID.randomUUID(), "recvOrg2", "recvSvc2", null,
                 null, "topic", "otherExternalName2", null, null, 2, null
             ),
-            DetailReport(
+            DetailedReport(
                 UUID.randomUUID(), "recvOrg3", "recvSvc3", null,
                 null, "topic", "no item count dest", null, null, 0, null
             ),
@@ -274,7 +282,7 @@ class SubmissionHistoryTests {
         }
 
         val logs = listOf(
-            DetailActionLog(
+            DetailedActionLog(
                 ActionLogScope.item,
                 UUID.randomUUID(),
                 1,
@@ -332,7 +340,7 @@ class SubmissionHistoryTests {
         }
 
         var reports = listOf(
-            DetailReport(
+            DetailedReport(
                 UUID.randomUUID(), "recvOrg3", "recvSvc3", null, null,
                 "topic", "no item count dest", null, null, 0, null
             ),
@@ -353,12 +361,12 @@ class SubmissionHistoryTests {
         val tomorrow = OffsetDateTime.now().plusDays(1)
         val today = OffsetDateTime.now()
 
-        val inputReport = DetailReport(
+        val inputReport = DetailedReport(
             UUID.randomUUID(), null, null, "org", "client",
             "topic", "externalName", null, null, 3, null
         )
 
-        val latestReport = DetailReport(
+        val latestReport = DetailedReport(
             UUID.randomUUID(), "recvOrg2", "recvSvc2", null, null,
             "topic", "otherExternalName2", null, tomorrow, 2, null
         )
@@ -366,11 +374,11 @@ class SubmissionHistoryTests {
         reports = listOf(
             inputReport,
             latestReport,
-            DetailReport(
+            DetailedReport(
                 UUID.randomUUID(), "recvOrg1", "recvSvc1", null, null,
                 "topic", "otherExternalName1", null, today, 1, null
             ),
-            DetailReport(
+            DetailedReport(
                 UUID.randomUUID(), "recvOrg3", "recvSvc3", null, null,
                 "topic", "no item count dest", null, null, 0, null
             ),
@@ -388,7 +396,7 @@ class SubmissionHistoryTests {
         }
 
         val partiallyDelivered = listOf(
-            DetailReport(
+            DetailedReport(
                 UUID.randomUUID(), "recvOrg1", "recvSvc1", null, null,
                 "topic", "extname", null, null, 3, null
             ),
@@ -434,11 +442,11 @@ class SubmissionHistoryTests {
         }
 
         val deliveredReports = listOf(
-            DetailReport(
+            DetailedReport(
                 UUID.randomUUID(), "recvOrg1", "recvSvc1", null, null,
                 "topic", "otherExternalName1", null, null, 1, null
             ),
-            DetailReport(
+            DetailedReport(
                 UUID.randomUUID(), "recvOrg2", "recvSvc2", null, null,
                 "topic", "otherExternalName2", null, null, 2, null
             ),

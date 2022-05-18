@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.history.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -8,17 +8,21 @@ import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.SubmissionHistory
+import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.MockHttpRequestMessage
+import gov.cdc.prime.router.azure.MockSettings
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.tests.ExpectedSubmissionList
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import gov.cdc.prime.router.history.SubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -96,22 +100,18 @@ class SubmissionFunctionTests : Logging {
             return dataset as List<T>
         }
 
-        override fun <T, P, U> fetchAction(
+        override fun <T> fetchAction(
             sendingOrg: String,
             submissionId: Long,
-            klass: Class<T>,
-            reportsKlass: Class<P>,
-            logsKlass: Class<U>,
+            klass: Class<T>
         ): T? {
             @Suppress("UNCHECKED_CAST")
             return dataset.first() as T
         }
 
-        override fun <T, P, U> fetchRelatedActions(
+        override fun <T> fetchRelatedActions(
             submissionId: Long,
-            klass: Class<T>,
-            reportsKlass: Class<P>,
-            logsKlass: Class<U>,
+            klass: Class<T>
         ): List<T> {
             @Suppress("UNCHECKED_CAST")
             return dataset as List<T>
