@@ -28,6 +28,7 @@ test("groupToOrg", () => {
     const simpleReport = groupToOrg("simple_report");
     const malformedGroupName = groupToOrg("DHSender_test_org");
     const multipleUnderscoresName = groupToOrg("DHxx_yyy_phd");
+    const undefinedOrg = groupToOrg(undefined);
 
     expect(admins).toBe("PrimeAdmins");
     expect(ignoreWaters).toBe("ignore.ignore-waters");
@@ -35,6 +36,7 @@ test("groupToOrg", () => {
     expect(simpleReport).toBe("simple_report");
     expect(malformedGroupName).toBe("test_org");
     expect(multipleUnderscoresName).toBe("xx-yyy-phd");
+    expect(undefinedOrg).toBe("");
 });
 
 test("getOktaGroups", () => {
