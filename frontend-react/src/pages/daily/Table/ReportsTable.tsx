@@ -1,5 +1,5 @@
 import { useResource } from "rest-hooks";
-import { SetStateAction, useMemo, useState } from "react";
+import { SetStateAction, useEffect, useMemo, useState } from "react";
 import { useOktaAuth } from "@okta/okta-react";
 
 import { getUniqueReceiverSvc } from "../../../utils/ReportUtils";
@@ -7,6 +7,7 @@ import ReportResource from "../../../resources/ReportResource";
 import Table, { TableConfig } from "../../../components/Table/Table";
 import { getStoredOrg } from "../../../contexts/SessionStorageTools";
 import useFilterManager from "../../../hooks/filters/UseFilterManager";
+import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 
 import TableButtonGroup from "./TableButtonGroup";
 import { getReportAndDownload } from "./ReportsUtils";
@@ -42,6 +43,17 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
             organization || ""
         );
     };
+
+    /* We should make FilterManager configurable with defaults so we don't
+     * have tu useEffect to set it up */
+    useEffect(() => {
+        fm.updatePage({
+            type: PageSettingsActionType.SET_SIZE,
+            payload: {
+                size: 100,
+            },
+        });
+    }, []); // eslint-disable-line
 
     const resultsTableConfig: TableConfig = {
         columns: [
