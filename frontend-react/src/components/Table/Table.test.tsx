@@ -31,9 +31,8 @@ const makeConfigs = (sampleRow: TableRow): ColumnConfig[] => {
     const transformFunc = (v: any) => {
         return v === 9 ? "Transformed Value" : v;
     };
-    const columnConfigs: ColumnConfig[] = [];
-    Object.keys(sampleRow).map((key) =>
-        columnConfigs.push({
+    return Object.keys(sampleRow).map((key) => {
+        return {
             dataAttr: key,
             columnHeader: `${key[0].toUpperCase()}${key
                 .slice(1)
@@ -44,9 +43,8 @@ const makeConfigs = (sampleRow: TableRow): ColumnConfig[] => {
             transform: key.includes("transform") ? transformFunc : undefined,
             sortable: key.includes("sort") || key.includes("Sort"),
             localSort: key.includes("local"),
-        })
-    );
-    return columnConfigs;
+        } as ColumnConfig;
+    });
 };
 
 const getTestConfig = (rowCount: number): TableConfig => {
