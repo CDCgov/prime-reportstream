@@ -53,6 +53,7 @@ module "key_vault" {
   client_config_kv_name       = var.client_config_kv_name
   dns_vnet                    = var.dns_vnet
   dns_zones                   = module.network.dns_zones
+  admin_function_app          = module.function_app.admin_function_app
 }
 
 module "container_registry" {
