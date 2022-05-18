@@ -15,9 +15,10 @@ class CompareFhirData(val result: CompareData.Result = CompareData.Result()) : L
         actual: InputStream,
         result: CompareData.Result = CompareData.Result()
     ): CompareData.Result {
-
-        val expectedBundle = FhirTranscoder.decode(expected.bufferedReader().readText())
-        val actualBundle = FhirTranscoder.decode(actual.bufferedReader().readText())
+        val expectedJson = expected.bufferedReader().readText()
+        val actualJson = actual.bufferedReader().readText()
+        val expectedBundle = FhirTranscoder.decode(expectedJson)
+        val actualBundle = FhirTranscoder.decode(actualJson)
 
         compareBundle(actualBundle, expectedBundle)
         return result
@@ -79,8 +80,10 @@ class CompareFhirData(val result: CompareData.Result = CompareData.Result()) : L
                             compareValue(actualValue, expectedValue, thisTypePath, actualValues.size > 1)
                         }
                     }
-                    if (!suppressOutput && !isPropertyEqual)
-                        logger.info("Property $thisTypePath does not match.")
+                    if (!suppressOutput)
+                        if (!isPropertyEqual)
+                            logger.info("Property $thisTypePath does not match.")
+                        else logger.info("Property $thisTypePath matches.")
                     isEqual = isEqual && isPropertyEqual
                 }
             } else isEqual = false

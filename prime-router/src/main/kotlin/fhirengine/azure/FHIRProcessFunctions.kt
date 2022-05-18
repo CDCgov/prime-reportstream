@@ -23,7 +23,7 @@ const val fhirProcessQueueName = "fhir-raw-received"
  * @property actionHistory the action history tracker
  * @property actionLogger the action logger
  */
-class FHIRFlowFunctions(
+class FHIRProcessFunctions(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.process),
     private val actionLogger: ActionLogger = ActionLogger()
@@ -47,7 +47,7 @@ class FHIRFlowFunctions(
         }
 
         try {
-            processHL7(messageContent)
+            translateHL7(messageContent)
         } catch (e: Exception) {
             logger.error("Unknown error.", e)
         }
@@ -59,7 +59,7 @@ class FHIRFlowFunctions(
     /**
      * Process incoming HL7 data from a [messageContent] queue message.
      */
-    private fun processHL7(messageContent: RawSubmission) {
+    fun translateHL7(messageContent: RawSubmission) {
         logger.trace("Processing HL7 data for FHIR conversion.")
         try {
             val hl7messages = HL7Reader(actionLogger).getMessages(messageContent.downloadContent())
