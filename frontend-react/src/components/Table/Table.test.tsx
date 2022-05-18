@@ -2,9 +2,11 @@ import { fireEvent, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
+import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
 
-import Table, { ColumnConfig, TableConfig, TableRow } from "./Table";
 import { TestTable } from "./TestTable";
+import Table, { ColumnConfig, TableConfig, TableRow } from "./Table";
 
 /* Table generation tools */
 
@@ -18,6 +20,7 @@ const getSetOfRows = (count: number) => {
             mappedItem: i,
             transformedValue: i,
             sortedColumn: i,
+            locallySortedColumn: i,
         });
     }
     return testRows;
@@ -39,8 +42,8 @@ const makeConfigs = (sampleRow: TableRow): ColumnConfig[] => {
             linkBasePath: key.includes("link") ? "/base/" : undefined,
             valueMap: key.includes("map") ? sampleMapper : undefined,
             transform: key.includes("transform") ? transformFunc : undefined,
-            sortable: key.includes("sort"),
-            localSort: key.includes("sort"),
+            sortable: key.includes("sort") || key.includes("Sort"),
+            localSort: key.includes("local"),
         })
     );
     return columnConfigs;
@@ -81,8 +84,13 @@ const clickFilterButton = () => {
 };
 
 /* Sample components for test rendering */
-
+const mockSortUpdater = jest.spyOn(mockFilterManager, "updateSort");
 const SimpleTable = () => <Table config={getTestConfig(10)} />;
+const FilteredTable = () => {
+    return (
+        <Table config={getTestConfig(10)} filterManager={mockFilterManager} />
+    );
+};
 
 describe("Table, basic tests", () => {
     test("Column names render", () => {
@@ -96,7 +104,7 @@ describe("Table, basic tests", () => {
 
     test("Row values render", () => {
         renderWithRouter(<SimpleTable />);
-        expect(screen.getAllByRole("columnheader").length).toEqual(5);
+        expect(screen.getAllByRole("columnheader").length).toEqual(7);
         expect(screen.getAllByRole("row").length).toEqual(11); // +1 for header row
         expect(screen.getByText("Item 1")).toBeInTheDocument();
     });
@@ -117,6 +125,56 @@ describe("Table, basic tests", () => {
     test("Transform columns use transformed value", () => {
         renderWithRouter(<SimpleTable />);
         expect(screen.getByText("Transformed Value")).toBeInTheDocument();
+    });
+});
+
+describe("Sorting integration", () => {
+    test("(Locally) Sorting swaps on header click", () => {
+        renderWithRouter(<FilteredTable />);
+        const header = screen.getByText("Locallysortedcolumn");
+        // click header
+        fireEvent.click(header);
+        // assert calls for APPLY_LOCAL_SORT, CHANGE_COL, SWAP_ORDER
+        expect(mockSortUpdater).toHaveBeenCalledWith({
+            type: SortSettingsActionType.APPLY_LOCAL_SORT,
+            payload: {
+                locally: true,
+            },
+        });
+        expect(mockSortUpdater).toHaveBeenCalledWith({
+            type: SortSettingsActionType.CHANGE_COL,
+            payload: {
+                column: "locallySortedColumn",
+            },
+        });
+        expect(mockSortUpdater).toHaveBeenCalledWith({
+            type: SortSettingsActionType.SWAP_ORDER,
+        });
+        expect(mockSortUpdater).toHaveBeenCalledTimes(3);
+    });
+
+    test("(Server) Sorting swaps on header click", () => {
+        renderWithRouter(<FilteredTable />);
+        const header = screen.getByText("Sortedcolumn");
+        // click header
+        fireEvent.click(header);
+        // assert calls for APPLY_LOCAL_SORT, CHANGE_COL, SWAP_ORDER
+        expect(mockSortUpdater).toHaveBeenCalledWith({
+            type: SortSettingsActionType.APPLY_LOCAL_SORT,
+            payload: {
+                locally: false,
+            },
+        });
+        expect(mockSortUpdater).toHaveBeenCalledWith({
+            type: SortSettingsActionType.CHANGE_COL,
+            payload: {
+                column: "sortedColumn",
+            },
+        });
+        expect(mockSortUpdater).toHaveBeenCalledWith({
+            type: SortSettingsActionType.SWAP_ORDER,
+        });
+        expect(mockSortUpdater).toHaveBeenCalledTimes(3);
     });
 });
 
