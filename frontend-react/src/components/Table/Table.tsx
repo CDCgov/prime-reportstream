@@ -72,6 +72,9 @@ export interface ColumnProps {
 export interface TableProps {
     config: TableConfig;
     title?: string;
+    /* The Legend component is the responsibility
+     * of the parent to pass in, allowing it to be as
+     * versatile as possible */
     legend?: ReactNode;
     datasetAction?: DatasetAction;
     filterManager?: FilterManager;
@@ -229,6 +232,13 @@ const Table = ({
         if (hasFeature("action")) {
             // Make column value actionable
             const { action, param } = columnConfig.feature as ActionableColumn;
+
+            if (!rowData[param!!]) {
+                return console.warn(
+                    `The row attribute '${param}' could not be found`
+                );
+            }
+
             const doAction = () => {
                 if (param) return action(rowData[param]);
                 return action();
