@@ -7,7 +7,6 @@ import io.github.linuxforhealth.hl7.ConverterOptions
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.context.SimpleWorkerContext
-import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 
@@ -54,14 +53,5 @@ object FhirTranscoder : Logging {
      */
     fun decode(json: String, parser: IParser = defaultContext.newJsonParser()): Bundle {
         return parser.parseResource(Bundle::class.java, json)
-    }
-
-    /**
-     * Get a list of Resources from the [bundle] that match the FHIR [path].
-     * @return a list of resources
-     */
-    fun getByPath(bundle: Bundle, path: String): List<Base> {
-        defaultPathEngine.parse(path) // IS THIS NEEDED?
-        return defaultPathEngine.evaluate(bundle, path)
     }
 }
