@@ -690,7 +690,7 @@ dependencies {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.18")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.7.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-base:6.0.0")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.1")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
@@ -704,7 +704,7 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20220320")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
-    implementation("com.hierynomus:sshj:0.31.0")
+    implementation("com.hierynomus:sshj:0.33.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.commons:commons-lang3:3.12.0")
