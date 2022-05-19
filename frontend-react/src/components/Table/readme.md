@@ -140,6 +140,75 @@ handle the rendering for you.
 <Table config={submissionsConfig} />
 ```
 
+### Additional configuration
+
+In some cases, additional information or action is required alongside your table. For intance, if we have a table
+containing values in a set, and wish to add one to it, we need a `DatasetAction` to handle it for us. Or, if we are
+presenting this table to a user, perhaps a legend and title would help communicate the information better. We can 
+configure all of this through the `TableConfig` interface.
+
+#### Title
+
+Starting with the easiest, and most common use, a title is a great way of telling a user what the table is for. To
+add one, just add the `title` prop to your Table creation!
+
+```typescript jsx
+<Table title="Submissions History" config={submissionsConfig} />
+```
+
+#### Legend
+
+Because a legend's design need might be entirely unique table to table, we leave it to the parent to pass in
+a unique `<Legend>`. This prop is typed as a `ReactNode` so any UI element type _should_ work. 
+
+```typescript jsx
+const Legend = () => {
+    return(
+        <ul>
+            <li>Item 1: This</li>
+            <li>Item 2: That</li>
+            <li>Item 3: Everything Inbetween</li>
+        </ul>
+    )
+}
+
+<Table 
+    title="Submissions History" 
+    legend={<Legend />}
+    config={submissionsConfig} 
+/>
+```
+
+#### DatasetAction
+
+Lastly, if you need an action performed on the entire dataset displayed in the table, you can perform that
+through an optional `DatasetAction`, created and/or passed through props by the parent to render a button and
+have it perform the callback onClick. A common example might be adding an item to the dataset, or refreshing
+it.
+
+```typescript jsx
+const addItem = () => submissions.push({
+    attr1: "sample",
+    attr2: "value"
+});
+
+<Table 
+    title="Submissions History" 
+    legend={<Legend />}
+    datasetAction={{
+        label: "Add item",
+        method: addItem
+    }}
+    config={submissionsConfig} 
+/>
+```
+
+Here, you'll see an inline action object, but the `DatasetAction` interface takes a string label and a function as
+a method. 
+
+> It's important to note: right now, there's no way to pass parameters into this function when it's called
+from the table.
+
 # Add-ons
 
 ## Using the FilterManager & Filter UI
