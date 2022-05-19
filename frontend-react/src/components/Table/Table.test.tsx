@@ -37,8 +37,14 @@ const makeConfigs = (sampleRow: TableRow): ColumnConfig[] => {
             columnHeader: `${key[0].toUpperCase()}${key
                 .slice(1)
                 .toLowerCase()}`,
-            link: key.includes("link"),
-            linkBasePath: key.includes("link") ? "/base/" : undefined,
+            feature: key.includes("link")
+                ? {
+                      link: true,
+                      linkBasePath: "/base/",
+                  }
+                : {
+                      // TODO: Add actionable
+                  },
             valueMap: key.includes("map") ? sampleMapper : undefined,
             transform: key.includes("transform") ? transformFunc : undefined,
             sortable: key.includes("sort") || key.includes("Sort"),
@@ -91,6 +97,19 @@ const FilteredTable = () => {
 };
 
 describe("Table, basic tests", () => {
+    test("Title renders", () => {
+        renderWithRouter(<TestTable />);
+        expect(screen.getByText("Test Table Title")).toBeInTheDocument();
+    });
+    test("Legend renders", () => {
+        renderWithRouter(<TestTable />);
+        expect(screen.getAllByText(/Test legend/)).toHaveLength(2);
+    });
+    test("Dataset Action button renders", () => {
+        renderWithRouter(<TestTable />);
+        const button = screen.getByText("Test Action");
+        expect(button).toBeInTheDocument();
+    });
     test("Column names render", () => {
         renderWithRouter(<SimpleTable />);
         const idHeader = screen.getByText("Id");

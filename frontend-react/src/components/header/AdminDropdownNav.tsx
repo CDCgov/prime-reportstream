@@ -2,6 +2,8 @@ import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 
+import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
+
 export const AdminDropdownNav = () => {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -22,6 +24,13 @@ export const AdminDropdownNav = () => {
         <NavLink to="/admin/settings">Organization Settings</NavLink>,
         <NavLink to="/features">Feature Flags</NavLink>,
     ];
+
+    /* Move NavLink to the MenuItems array when releasing for Admins to use */
+    if (CheckFeatureFlag("value-sets")) {
+        adminMenuItems.push(
+            <NavLink to="/admin/value-sets">Value Sets</NavLink>
+        );
+    }
 
     return (
         <>

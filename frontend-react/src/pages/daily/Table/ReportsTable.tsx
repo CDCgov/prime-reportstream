@@ -60,8 +60,10 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
             {
                 dataAttr: "reportId",
                 columnHeader: "Report ID",
-                link: true,
-                linkBasePath: "/report-details?reportId=",
+                feature: {
+                    link: true,
+                    linkBasePath: "/report-details?reportId=",
+                },
             },
             {
                 dataAttr: "sent",
@@ -86,7 +88,7 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
             {
                 dataAttr: "fileType",
                 columnHeader: "File",
-                actionable: {
+                feature: {
                     action: handleFetchAndDownload,
                     param: "reportId",
                 },
