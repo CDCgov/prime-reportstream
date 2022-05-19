@@ -18,41 +18,6 @@ import org.jooq.impl.SQLDataType.BIGINT
 import org.jooq.impl.SQLDataType.UUID
 import java.time.OffsetDateTime
 
-interface SubmissionAccess {
-    enum class SortOrder {
-        DESC,
-        ASC,
-    }
-
-    /* As sorting Submission results expands, we can add
-    * column names to this enum. Make sure the column you
-    * wish to sort by is indexed. */
-    enum class SortColumn {
-        CREATED_AT
-    }
-
-    fun <T> fetchActions(
-        sendingOrg: String,
-        order: SortOrder,
-        sortColumn: SortColumn,
-        cursor: OffsetDateTime? = null,
-        toEnd: OffsetDateTime? = null,
-        limit: Int = 10,
-        showFailed: Boolean,
-        klass: Class<T>
-    ): List<T>
-
-    fun <T> fetchAction(
-        sendingOrg: String,
-        submissionId: Long,
-        klass: Class<T>
-    ): T?
-
-    fun <T> fetchRelatedActions(
-        submissionId: Long,
-        klass: Class<T>
-    ): List<T>
-}
 /**
  * Class to access lookup tables stored in the database.
  */
@@ -177,8 +142,8 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * fetch the details of a single action
      */
     override fun <T> fetchAction(
-        sendingOrg: String,
-        submissionId: Long,
+        organization: String,
+        actionId: Long,
         klass: Class<T>
     ): T? {
         return db.transactReturning { txn ->
@@ -200,10 +165,10 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * This is done through a recursive query on the report_lineage table
      */
     override fun <T> fetchRelatedActions(
-        submissionId: Long,
+        actionId: Long,
         klass: Class<T>
     ): List<T> {
-        val cte = reportDescendantExpression(submissionId)
+        val cte = reportDescendantExpression(actionId)
         return db.transactReturning { txn ->
             DSL.using(txn)
                 .withRecursive(cte)
@@ -211,7 +176,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
                 .from(ACTION)
                 .join(cte)
                 .on(ACTION.ACTION_ID.eq(cte.field("action_id", BIGINT)))
-                .where(ACTION.ACTION_ID.ne(submissionId))
+                .where(ACTION.ACTION_ID.ne(actionId))
                 .fetchInto(klass)
         }
     }
@@ -236,7 +201,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         )
     }
 
-    private fun reportDescendantExpression(submissionId: Long): CommonTableExpression<*> {
+    private fun reportDescendantExpression(actionId: Long): CommonTableExpression<*> {
         return DSL.name("t").fields(
             "action_id",
             "child_report_id",

@@ -1,9 +1,11 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.history
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
 import java.time.OffsetDateTime
 
 /**

@@ -12,7 +12,7 @@ import java.time.OffsetDateTime
  * Contains all business logic regarding submissions and JSON serialization.
  */
 class SubmissionsFacade(
-    private val dbSubmissionAccess: ReportFileAccess = DatabaseSubmissionsAccess(),
+    private val dbSubmissionAccess: DatabaseSubmissionsAccess = DatabaseSubmissionsAccess(),
     dbAccess: DatabaseAccess = WorkflowEngine.databaseAccessSingleton
 ) : ReportFileFacade(
     dbAccess,

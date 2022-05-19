@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.history.azure
 
 import java.time.OffsetDateTime
 
@@ -8,10 +8,9 @@ interface ReportFileAccess {
         ASC,
     }
 
-    /**
-     * As sorting expands, we can add column names to this enum.
-     * Make sure the column you wish to sort by is indexed.
-     */
+    /* As sorting Submission / Delivery results expands, we can add
+    * column names to this enum. Make sure the column you
+    * wish to sort by is indexed. */
     enum class SortColumn {
         CREATED_AT
     }
@@ -27,18 +26,14 @@ interface ReportFileAccess {
         klass: Class<T>
     ): List<T>
 
-    fun <T, P, U> fetchAction(
+    fun <T> fetchAction(
         organization: String,
         actionId: Long,
-        klass: Class<T>,
-        reportsKlass: Class<P>,
-        logsKlass: Class<U>,
+        klass: Class<T>
     ): T?
 
-    fun <T, P, U> fetchRelatedActions(
+    fun <T> fetchRelatedActions(
         actionId: Long,
-        klass: Class<T>,
-        reportsKlass: Class<P>,
-        logsKlass: Class<U>,
+        klass: Class<T>
     ): List<T>
 }

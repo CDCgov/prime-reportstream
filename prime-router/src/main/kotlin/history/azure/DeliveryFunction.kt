@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.history.azure
 
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -7,6 +7,8 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
@@ -59,7 +61,7 @@ class DeliveryFunction(
                     " to $sender/deliveries endpoint via client id ${sender.organizationName}. "
             )
 
-            val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
+            val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize) =
                 Parameters(request.queryParameters)
 
             val sortOrder = try {
@@ -80,8 +82,7 @@ class DeliveryFunction(
                 sortColumn,
                 resultsAfterDate,
                 resultsBeforeDate,
-                pageSize,
-                showFailed
+                pageSize
             )
 
             return HttpUtilities.okResponse(request, deliveries)
