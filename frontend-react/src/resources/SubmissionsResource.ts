@@ -1,3 +1,11 @@
+import {
+    Resource,
+    RestEndpoint,
+    RestFetch,
+    SchemaList,
+    AbstractInstanceType,
+} from "@rest-hooks/rest";
+
 import AuthResource from "./AuthResource";
 
 type SubmissionsResourceParams = {
@@ -28,6 +36,16 @@ export default class SubmissionsResource extends AuthResource {
         // falling back to using timestamp
         return `${this.timestamp} ${this.id}`;
     }
+
+    static list<T extends typeof Resource>(
+        this: T
+    ): RestEndpoint<RestFetch, SchemaList<AbstractInstanceType<T>>, undefined> {
+        return super.list();
+    }
+
+    // getCursor(): string {
+    //     return this.timestamp
+    // }
 
     static get key() {
         return "SubmissionsResource";

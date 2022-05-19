@@ -16,6 +16,8 @@ import {
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
 import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
 
+import Pagination, { PaginationProps } from "./Pagination";
+
 export interface TableRow {
     [key: string]: any;
 }
@@ -43,6 +45,7 @@ export interface ColumnConfig {
 export interface TableConfig {
     columns: Array<ColumnConfig>;
     rows: Array<TableRow>;
+    pagination?: PaginationProps;
 }
 
 export interface TableProps {
@@ -232,6 +235,7 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                         <TableRows />
                     </tbody>
                 </table>
+                {config.pagination && <Pagination {...config.pagination} />}
                 {cursorManager ? (
                     <PaginationButtons {...cursorManager} />
                 ) : null}

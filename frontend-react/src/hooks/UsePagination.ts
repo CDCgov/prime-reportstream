@@ -1,9 +1,12 @@
-import React, { useReducer } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 import chunk from "lodash.chunk";
 import range from "lodash.range";
 
-export const OVERFLOW_INDICATOR = Symbol("...");
-export type SlotItem = number | typeof OVERFLOW_INDICATOR;
+import {
+    PaginationProps,
+    SlotItem,
+    OVERFLOW_INDICATOR,
+} from "../components/Table/Pagination";
 
 // Helper function to determine the slots for the pagination component based on the current state
 // and a new set of results.
@@ -14,10 +17,11 @@ export function getSlotsForResultSet<T>(
 ): SlotItem[] {
     const numResultPages = chunk(results, pageSize).length;
     if (firstPageInResultSet < 4) {
-        if (numResultPages > 4) {
+        const totalKnownPages = firstPageInResultSet + numResultPages - 1;
+        if (totalKnownPages > 4) {
             return [1, 2, 3, 4, OVERFLOW_INDICATOR];
         }
-        return range(1, numResultPages + 1);
+        return range(1, totalKnownPages + 1);
     } else {
         if (firstPageInResultSet === 4 && numResultPages === 1) {
             return [1, 2, 3, 4];
@@ -59,6 +63,12 @@ function getFetchCount(currentPageNum: number, pageSize: number) {
 // A function that will return a cursor value for a resource in the paginated set.
 export type CursorExtractor<T> = (arg: T) => string;
 
+// A function that will resolve to a list of results give a start cursor and number of results.
+export type ResultsFetcher<T> = (
+    fetchStartCursor: string,
+    fetchCount: number
+) => Promise<T[]>;
+
 // TODO(mreifman): Determine how to easily present the state needed for the pagination UI.
 interface PaginationState<T> {
     // Current page of results being displayed in the UI.
@@ -76,22 +86,23 @@ interface PaginationState<T> {
     pageSize: number;
     // Function for extracting the cursor value from a result in the paginated set.
     // TODO(mreifman): Is it a bad idea to put a function in this state?
-    cursorExtractor: CursorExtractor<T>;
+    extractCursor: CursorExtractor<T>;
     //
     resultsPage: T[];
+    //
 }
 
-export enum PaginationActionType {
+enum PaginationActionType {
     RESET = "RESET",
     SET_CURRENT_PAGE = "SET_CURRENT_PAGE",
     SET_RESULTS = "SET_RESULTS",
 }
 
-export type ResetPayload<T> = UsePaginationArgs<T>;
-export type SetCurrentPagePayload = number;
-export type SetResultsPayload<T> = T[];
+type ResetPayload<T> = InitialStateArgs<T>;
+type SetCurrentPagePayload = number;
+type SetResultsPayload<T> = T[];
 
-export interface PaginationAction<T> {
+interface PaginationAction<T> {
     type: PaginationActionType;
     payload?: SetCurrentPagePayload | SetResultsPayload<T> | ResetPayload<T>;
 }
@@ -114,10 +125,11 @@ function setResultsReducer<T>(
     // Store the start cursors for the visible pages
     const chunks = chunk<T>(results, state.pageSize);
     chunks.forEach((c, i) => {
-        // Only consider whole pages
-        if (c.length === state.pageSize) {
-            state.pageCursorMap[i + 1] = state.cursorExtractor(c[0]);
+        // Skip the first page, which should keep the initial start cursor.
+        if (i === 0) {
+            return;
         }
+        state.pageCursorMap[i + 1] = state.extractCursor(c[0]);
     });
 
     return {
@@ -127,7 +139,6 @@ function setResultsReducer<T>(
             state.pageSize,
             state.currentPageNum
         ),
-        // TODO(mreifman): Add unit tests for resultsPage.
         resultsPage: chunks[0] || [],
     };
 }
@@ -169,21 +180,28 @@ function reducer<T>(
 }
 
 interface UsePaginationState<T> {
-    state: PaginationState<T>;
-    dispatch: React.Dispatch<PaginationAction<T>>;
+    resultsPage: T[];
+    paginationProps: PaginationProps;
 }
 
-interface UsePaginationArgs<T> {
+export interface UsePaginationProps<T> {
     startCursor: string;
     pageSize: number;
-    cursorExtractor: CursorExtractor<T>;
+    fetchResults: ResultsFetcher<T>;
+    extractCursor: CursorExtractor<T>;
+}
+
+interface InitialStateArgs<T> {
+    startCursor: string;
+    pageSize: number;
+    extractCursor: CursorExtractor<T>;
 }
 
 function getInitialState<T>({
     startCursor,
     pageSize,
-    cursorExtractor,
-}: UsePaginationArgs<T>): PaginationState<T> {
+    extractCursor,
+}: InitialStateArgs<T>): PaginationState<T> {
     const currentPageNum = 1;
     const fetchCount = getFetchCount(currentPageNum, pageSize);
 
@@ -192,22 +210,82 @@ function getInitialState<T>({
         currentPageNum,
         fetchCount,
         slots: [],
-        pageCursorMap: {},
+        pageCursorMap: {
+            1: startCursor,
+        },
         pageSize,
-        cursorExtractor,
+        extractCursor,
         resultsPage: [],
     };
 }
 
-function usePagination<T>(args: UsePaginationArgs<T>): UsePaginationState<T> {
-    // TODO(mreifman): If usePagination ends up doing nothing more than just calling useReducer,
-    // consider having components call useReducer directly.
+/*
+TODO: explore fetching needed pages in parallel?
+ */
+
+function usePagination<T>({
+    startCursor,
+    pageSize,
+    fetchResults,
+    extractCursor,
+}: UsePaginationProps<T>): UsePaginationState<T> {
     const [state, dispatch] = useReducer<
         PaginationReducer<PaginationState<T>, PaginationAction<T>>
-    >(reducer, getInitialState(args));
+    >(
+        reducer,
+        getInitialState({
+            startCursor,
+            pageSize,
+            extractCursor,
+        })
+    );
+
+    // Reset the state if any of the hook props change.
+    useEffect(() => {
+        dispatch({
+            type: PaginationActionType.RESET,
+            payload: {
+                startCursor,
+                pageSize,
+                extractCursor,
+            },
+        });
+    }, [fetchResults, pageSize, startCursor, extractCursor]);
+
+    // Fetch a new batch of results when the start cursor and count change.
+    const { fetchStartCursor, fetchCount } = state;
+    useEffect(() => {
+        // Effect callbacks are synchronous so we have to declare the async function inside.
+        async function doEffect() {
+            const results = await fetchResults(fetchStartCursor, fetchCount);
+            dispatch({
+                type: PaginationActionType.SET_RESULTS,
+                payload: results,
+            });
+        }
+        doEffect();
+    }, [fetchResults, fetchStartCursor, fetchCount]);
+
+    const setCurrentPage = useCallback(
+        (pageNum: number) => {
+            dispatch({
+                type: PaginationActionType.SET_CURRENT_PAGE,
+                payload: pageNum,
+            });
+        },
+        [dispatch]
+    );
+
+    // Assemble props for the pagination UI component.
+    const paginationProps: PaginationProps = {
+        slots: state.slots,
+        setCurrentPage,
+        currentPageNum: state.currentPageNum,
+    };
+
     return {
-        state,
-        dispatch,
+        resultsPage: state.resultsPage,
+        paginationProps,
     };
 }
 
