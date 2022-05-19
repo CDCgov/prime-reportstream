@@ -49,7 +49,7 @@ const groupToOrg = (group: string | undefined): string => {
             return group ? group.replace(senderPrefix, "") : "";
         case "receiver":
             // DHmd_phd -> md-phd
-            return group ? group.replace("DH", "").replace("_", "-") : "";
+            return group ? group.replace("DH", "").replace(/_/g, "-") : "";
         case "non-standard":
             // simple_report -> simple_report
             return group ? group : "";

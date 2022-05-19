@@ -39,6 +39,7 @@ import SenderModeBanner from "./components/SenderModeBanner";
 import { SessionStorageContext } from "./contexts/SessionStorageContext";
 import { AdminOrgNew } from "./pages/admin/AdminOrgNew";
 import { DAPHeader } from "./components/header/DAPHeader";
+import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -191,6 +192,10 @@ const App = () => {
                             <SecureRoute
                                 path="/features"
                                 component={FeatureFlagUIComponent}
+                            />
+                            <SecureRoute
+                                path={"/admin/value-sets"}
+                                component={ValueSetsIndex}
                             />
                             {/* Handles any undefined route */}
                             <Route

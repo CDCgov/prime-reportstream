@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import com.github.javafaker.Faker
 import com.github.javafaker.Name
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.metadata.ConcatenateMapper
@@ -10,7 +11,7 @@ import gov.cdc.prime.router.metadata.Mapper
 import gov.cdc.prime.router.metadata.Mappers
 import gov.cdc.prime.router.metadata.UseMapper
 import org.apache.logging.log4j.kotlin.Logging
-import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.util.Locale
 import java.util.Random
 import java.util.concurrent.TimeUnit
@@ -89,15 +90,25 @@ class FakeDataService : Logging {
                 element.nameContains("DOB") -> faker.date().birthday(0, 100)
                 else -> faker.date().past(10, TimeUnit.DAYS)
             }
-            val formatter = SimpleDateFormat(Element.datePattern)
-            return formatter.format(date)
+            // Faker returns an older style Java date, which we need to convert to an
+            // instance, and then also set to UTC, so we can then format it for our purposes.
+            // The Java date object is super hard to work with and brittle.
+            return date.toInstant().atZone(ZoneId.of("UTC")).let {
+                DateUtilities.getDateAsFormattedString(
+                    it,
+                    DateUtilities.datePattern
+                )
+            }
         }
 
         // creates a fake date time and then formats it
         fun createFakeDateTime(): String {
+            // Faker returns an older style Java date, which we need to convert to an
+            // instance, and then also set to UTC, so we can then format it for our purposes.
+            // The Java date object is super hard to work with and brittle.
             val date = faker.date().past(10, TimeUnit.DAYS)
-            val formatter = SimpleDateFormat(Element.datetimePattern)
-            return formatter.format(date)
+                .toInstant().atZone(ZoneId.of("UTC"))
+            return DateUtilities.getDateAsFormattedString(date, DateUtilities.datetimePattern)
         }
 
         // creates a fake phone number for the element
