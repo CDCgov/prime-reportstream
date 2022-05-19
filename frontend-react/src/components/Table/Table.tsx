@@ -25,6 +25,12 @@ export interface ActionableColumn {
     param?: string;
 }
 
+export interface LinkableColumn {
+    link: boolean;
+    linkBasePath?: string;
+    linkAttr?: string; // if no linkAttr is given, defaults to dataAttr
+}
+
 /* ColumnConfig tells the Table element how to render each column
  *
  * @property dataAttr: Name of the object attribute to be rendered in the column
@@ -34,14 +40,12 @@ export interface ActionableColumn {
  * @property linkAttr: the attribute to plug into the link url
  * @property valueMap: provides key/value pairs to map API values to UI values
  * @property transform: a function used to transform values within the column */
+type ColumnFeature = ActionableColumn | LinkableColumn;
 export interface ColumnConfig {
     dataAttr: string;
     columnHeader: string;
-    actionable?: ActionableColumn;
+    feature?: ColumnFeature;
     sortable?: boolean;
-    link?: boolean;
-    linkBasePath?: string;
-    linkAttr?: string; // if no linkAttr is given, defaults to dataAttr
     valueMap?: Map<string | number, any>;
     transform?: Function;
     editable?: boolean;
@@ -169,39 +173,62 @@ const Table = ({
         }
     };
 
-    const Column = ({
+    const ColumnData = ({
         rowIndex,
         colIndex,
         rowData,
         columnConfig,
         editing,
     }: ColumnProps) => {
+        // Easy-to-read way to transform value
+        const transform = (
+            transformFunc: Function,
+            transformVal: string | number
+        ) => {
+            return transformFunc(transformVal);
+        };
+        // Runtime type checking for ColumnFeature
+        const hasFeature = (attr: string): boolean => {
+            if (!columnConfig.feature) return false;
+            return Object.keys(columnConfig.feature).includes(attr);
+        };
+        // Editing state indicator
+        const isEditing = (): boolean =>
+            (editing && columnConfig.editable) || false;
+        // <td> wrapper w/ key
         const tableData = (child: ReactNode) => (
             <td key={`${rowIndex}:${colIndex}`}>{child}</td>
         );
 
+        let displayValue = rowData[columnConfig.dataAttr];
+
         if (columnConfig.transform) {
-            rowData[columnConfig.dataAttr] = columnConfig.transform(
+            displayValue = transform(
+                columnConfig.transform,
                 rowData[columnConfig.dataAttr]
             );
         }
 
-        if (columnConfig.link) {
+        if (hasFeature("link")) {
             // Render column value as NavLink
+            const feature = columnConfig?.feature as LinkableColumn;
             return tableData(
                 <NavLink
                     className="usa-link"
-                    to={`${columnConfig?.linkBasePath || ""}${
-                        rowData[columnConfig?.linkAttr || columnConfig.dataAttr]
+                    to={`${feature.linkBasePath || ""}${
+                        rowData[feature.linkAttr || columnConfig.dataAttr]
                     }`}
                 >
                     {columnConfig.valueMap
                         ? showMappedValue(columnConfig, rowData)
-                        : rowData[columnConfig.dataAttr]}
+                        : displayValue}
                 </NavLink>
             );
-        } else if (columnConfig.actionable) {
-            const { action, param } = columnConfig.actionable;
+        }
+
+        if (hasFeature("action")) {
+            // Make column value actionable
+            const { action, param } = columnConfig.feature as ActionableColumn;
             const doAction = () => {
                 if (param) return action(rowData[param]);
                 return action();
@@ -211,25 +238,33 @@ const Table = ({
                     className="usa-link bg-transparent border-transparent"
                     onClick={() => doAction()}
                 >
-                    {rowData[columnConfig.dataAttr]}
+                    {displayValue}
                 </button>
             );
-        } else {
-            if (editing && columnConfig.editable)
-                return tableData(
-                    <input
-                        className="usa-input"
-                        onChange={(event) =>
-                            (rowData[columnConfig.dataAttr] =
-                                event.target.value)
-                        }
-                        defaultValue={rowData[columnConfig.dataAttr]}
-                    />
-                );
-            return columnConfig.valueMap
-                ? tableData(showMappedValue(columnConfig, rowData))
-                : tableData(rowData[columnConfig.dataAttr]);
         }
+
+        if (isEditing()) {
+            // Make column value editable
+            return tableData(
+                <input
+                    className="usa-input"
+                    /* This directly updates the rowData object, NOT the
+                     * displayValue, which prevents multi-layer callbacks
+                     * being required. */
+                    onChange={(event) =>
+                        (rowData[columnConfig.dataAttr] = event.target.value)
+                    }
+                    /* This ensures the value seen in the edit field is
+                     * the same as the server-provided data, NOT the
+                     * displayed data (in case of transformation/map) */
+                    defaultValue={rowData[columnConfig.dataAttr]}
+                />
+            );
+        }
+
+        return columnConfig.valueMap
+            ? tableData(showMappedValue(columnConfig, rowData))
+            : tableData(displayValue);
     };
 
     const DatasetActionButton = ({ label, method }: DatasetAction) => {
@@ -274,7 +309,7 @@ const Table = ({
                     return (
                         <tr key={rowIndex}>
                             {config.columns.map((colConfig, colIndex) => (
-                                <Column
+                                <ColumnData
                                     key={`${rowIndex}:${colIndex}:TOP`}
                                     rowIndex={rowIndex}
                                     colIndex={colIndex}
