@@ -6,19 +6,12 @@ import io.github.linuxforhealth.fhir.FHIRContext
 import io.github.linuxforhealth.hl7.ConverterOptions
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
 import org.apache.logging.log4j.kotlin.Logging
-import org.hl7.fhir.r4.context.SimpleWorkerContext
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.utils.FHIRPathEngine
 
 /**
  * A set of behaviors and defaults for FHIR encoding and decoding.
  */
 object FhirTranscoder : Logging {
-    /**
-     * The FHIR default path engine.
-     */
-    private val defaultPathEngine = FHIRPathEngine(SimpleWorkerContext())
-
     /**
      * Build a HL7MessageEngine for converting HL7 -> FHIR with provided [options].
      * @return the message engine
