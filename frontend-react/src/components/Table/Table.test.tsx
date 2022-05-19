@@ -21,6 +21,7 @@ const getSetOfRows = (count: number) => {
             transformedValue: i,
             sortedColumn: i,
             locallySortedColumn: i,
+            editableColumn: i,
         });
     }
     return testRows;
@@ -49,6 +50,7 @@ const makeConfigs = (sampleRow: TableRow): ColumnConfig[] => {
             transform: key.includes("transform") ? transformFunc : undefined,
             sortable: key.includes("sort") || key.includes("Sort"),
             localSort: key.includes("local"),
+            editable: key.includes("edit"),
         } as ColumnConfig;
     });
 };
@@ -89,7 +91,20 @@ const clickFilterButton = () => {
 
 /* Sample components for test rendering */
 const mockSortUpdater = jest.spyOn(mockFilterManager, "updateSort");
-const SimpleTable = () => <Table config={getTestConfig(10)} />;
+const mockAction = jest.fn();
+const SimpleLegend = () => <span>Simple Legend</span>;
+const SimpleTable = () => (
+    <Table
+        config={getTestConfig(10)}
+        title={"Simple Table"}
+        legend={<SimpleLegend />}
+        datasetAction={{
+            label: "Test Action",
+            method: mockAction,
+        }}
+        enableEditableRows
+    />
+);
 const FilteredTable = () => {
     return (
         <Table config={getTestConfig(10)} filterManager={mockFilterManager} />
@@ -97,19 +112,19 @@ const FilteredTable = () => {
 };
 
 describe("Table, basic tests", () => {
-    test("Title renders", () => {
-        renderWithRouter(<TestTable />);
-        expect(screen.getByText("Test Table Title")).toBeInTheDocument();
+    test("Info renders", () => {
+        renderWithRouter(<SimpleTable />);
+        expect(screen.getByText("Test Action")).toBeInTheDocument();
+        expect(screen.getByText("Simple Legend")).toBeInTheDocument();
+        expect(screen.getByText("Simple Table")).toBeInTheDocument();
     });
-    test("Legend renders", () => {
-        renderWithRouter(<TestTable />);
-        expect(screen.getAllByText(/Test legend/)).toHaveLength(2);
+
+    test("DatasetAction fires onClick", () => {
+        renderWithRouter(<SimpleTable />);
+        fireEvent.click(screen.getByText("Test Action"));
+        expect(mockAction).toHaveBeenCalledTimes(1);
     });
-    test("Dataset Action button renders", () => {
-        renderWithRouter(<TestTable />);
-        const button = screen.getByText("Test Action");
-        expect(button).toBeInTheDocument();
-    });
+
     test("Column names render", () => {
         renderWithRouter(<SimpleTable />);
         const idHeader = screen.getByText("Id");
@@ -121,9 +136,16 @@ describe("Table, basic tests", () => {
 
     test("Row values render", () => {
         renderWithRouter(<SimpleTable />);
-        expect(screen.getAllByRole("columnheader").length).toEqual(7);
+        expect(screen.getAllByRole("columnheader").length).toEqual(9);
         expect(screen.getAllByRole("row").length).toEqual(11); // +1 for header row
         expect(screen.getByText("Item 1")).toBeInTheDocument();
+    });
+
+    test("Edit button column renders and operates", () => {
+        renderWithRouter(<SimpleTable />);
+        expect(screen.getAllByText("Edit").length).toEqual(10);
+        fireEvent.click(screen.getAllByText("Edit")[0]);
+        expect(screen.getAllByRole("textbox").length).toEqual(1);
     });
 
     test("Link columns are rendered as links", () => {
