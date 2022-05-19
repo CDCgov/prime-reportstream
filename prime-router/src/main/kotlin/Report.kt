@@ -178,7 +178,7 @@ class Report : Logging {
     /**
      * The number of items in the report
      */
-    val itemCount: Int get() = this.table.rowCount()
+    val itemCount: Int
 
     /**
      * The number of items that passed the jurisdictionalFilter for this report, prior to
@@ -276,6 +276,7 @@ class Report : Logging {
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.itemLineages = itemLineage
         this.table = createTable(schema, values)
+        this.itemCount = this.table.rowCount()
         this.metadata = metadata
         this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
@@ -299,6 +300,7 @@ class Report : Logging {
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
+        this.itemCount = this.table.rowCount()
         this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
@@ -321,6 +323,7 @@ class Report : Logging {
         this.createdDateTime = OffsetDateTime.now()
         this.itemLineages = itemLineage
         this.table = createTable(values)
+        this.itemCount = this.table.rowCount()
         this.metadata = metadata
         this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
@@ -334,7 +337,7 @@ class Report : Logging {
         bodyFormat: Format,
         sources: List<Source>,
         schema: Schema, // shouldn't even need a Schema here, but required for legacy reasons. Tech Debt?
-        itemCountBeforeQualFilter: Int,
+        numberOfMessages: Int,
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -345,8 +348,9 @@ class Report : Logging {
         this.itemLineages = null
         // we do not need the 'table' representation in this instance
         this.table = createTable(emptyMap<String, List<String>>())
+        this.itemCount = numberOfMessages
         this.metadata = Metadata.getInstance()
-        this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
+        this.itemCountBeforeQualFilter = numberOfMessages
         this.nextAction = TaskAction.process
     }
 
@@ -363,6 +367,7 @@ class Report : Logging {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.table = table
+        this.itemCount = this.table.rowCount()
         this.sources = sources
         this.destination = destination
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL

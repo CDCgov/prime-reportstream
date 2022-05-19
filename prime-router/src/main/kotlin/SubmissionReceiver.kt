@@ -222,7 +222,9 @@ class ELRReceiver : SubmissionReceiver {
             // ELR submissions don't really have a 'schema' in the sense that we are using it, but it is a
             //  non-nullable field and fits into our reporting. This also leaves the option to implement
             //  schema-per-sender in the future if it is needed
-            Schema("None", Topic.FULL_ELR.toString()),
+            // TODO TECH DEBT: Schema should be using the Topic enum instead of a string,
+            //  that is out of scope as of 5/19/22
+            Schema("None", Topic.FULL_ELR.json_val),
             messages.size
         )
 
