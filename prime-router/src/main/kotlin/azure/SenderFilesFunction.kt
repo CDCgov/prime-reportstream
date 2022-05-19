@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.common.CsvUtilities
@@ -75,6 +76,7 @@ class SenderFilesFunction(
     data class FunctionParameters(
         val reportId: ReportId?,
         val reportFileName: String?,
+        val messageId: String?,
         val onlyDestinationReportItems: Boolean,
         val offset: Int,
         val limit: Int
@@ -86,19 +88,42 @@ class SenderFilesFunction(
      * Throws [IllegalArgumentException] if any parameter is invalid.
      */
     internal fun checkParameters(request: HttpRequestMessage<String?>): FunctionParameters {
+        val messageId = request.queryParameters[MESSAGE_ID_PARAM]
+
+        var covidResultMetadataRecord: CovidResultMetadata? = null
+
+        if (messageId != null) {
+            covidResultMetadataRecord = dbAccess.fetchSingleMetadata(messageId)
+            if (covidResultMetadataRecord == null) {
+                badRequest("$MESSAGE_ID_PARAM not found in covid_result_metadata table.")
+            }
+        }
+
         val reportId = try {
-            request.queryParameters[REPORT_ID_PARAM]?.let { UUID.fromString(it) }
+            if (messageId != null) {
+                covidResultMetadataRecord?.reportId ?: badRequest("No reportID found for messageID: $MESSAGE_ID_PARAM.")
+            } else {
+                request.queryParameters[REPORT_ID_PARAM]?.let { UUID.fromString(it) }
+            }
         } catch (e: Exception) {
             badRequest("Bad $REPORT_ID_PARAM parameter. Details: ${e.message}")
         }
         val reportFileName = request.queryParameters[REPORT_FILE_NAME_PARAM]?.replace("/", "%2F")
         val fullReport = try {
-            request.queryParameters[ONLY_REPORT_ITEMS]?.toBoolean() ?: false
+            if (messageId != null) {
+                true
+            } else {
+                request.queryParameters[ONLY_REPORT_ITEMS]?.toBoolean() ?: false
+            }
         } catch (e: Exception) {
             badRequest("Bad $ONLY_REPORT_ITEMS parameter. Details: ${e.message}")
         }
         val offset = try {
-            request.queryParameters[OFFSET_PARAM]?.toInt() ?: 0
+            if (messageId != null) {
+                covidResultMetadataRecord?.reportIndex?.minus(1) ?: badRequest("Index not found: $MESSAGE_ID_PARAM.")
+            } else {
+                request.queryParameters[OFFSET_PARAM]?.toInt() ?: 0
+            }
         } catch (e: Exception) {
             badRequest("Bad $OFFSET_PARAM parameter. Details: ${e.message}")
         }
@@ -114,6 +139,7 @@ class SenderFilesFunction(
         return FunctionParameters(
             reportId,
             reportFileName,
+            messageId,
             fullReport,
             offset,
             limit
@@ -129,10 +155,15 @@ class SenderFilesFunction(
      * Main logic of the Azure function. Useful for unit testing.
      */
     internal fun processRequest(parameters: FunctionParameters): ProcessResult {
-        val receiverReportFile = findOutputFile(parameters)
-        val senderItems = findSenderItems(receiverReportFile.reportId, parameters.offset, parameters.limit)
-        if (senderItems.isEmpty()) {
-            notFound("No sender reports found for report: ${parameters.reportId}")
+        var senderItems: List<SenderItems>
+        if (parameters.messageId != null) {
+            senderItems = listOf(SenderItems(parameters.reportId, parameters.offset, null, null))
+        } else {
+            val receiverReportFile = findOutputFile(parameters)
+            senderItems = findSenderItems(receiverReportFile.reportId, parameters.offset, parameters.limit)
+            if (senderItems.isEmpty()) {
+                notFound("No sender reports found for report: ${parameters.reportId}")
+            }
         }
 
         val senderReports = downloadSenderReports(senderItems, parameters)
@@ -193,8 +224,10 @@ class SenderFilesFunction(
                     createdAt = reportFile.createdAt.toString()
                 ),
                 request = ReportFileMessage.Request(
-                    reportId = senderItems.first().receiverReportId.toString(),
-                    indices = senderItems.map { it.receiverReportIndex!! }
+                    reportId = senderItems.first().receiverReportId?.toString().orEmpty(),
+                    receiverReportIndices = senderItems.map { it.receiverReportIndex },
+                    messageID = parameters.messageId.toString().orEmpty(),
+                    senderReportIndices = parameters.offset
                 )
             )
         }
@@ -223,6 +256,11 @@ class SenderFilesFunction(
     }
 
     companion object {
+        /**
+         * Query parameter for the report-id option
+         */
+        const val MESSAGE_ID_PARAM = "message-id"
+
         /**
          * Query parameter for the report-id option
          */
