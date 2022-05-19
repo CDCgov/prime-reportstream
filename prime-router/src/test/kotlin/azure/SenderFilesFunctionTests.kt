@@ -6,10 +6,12 @@ import assertk.assertions.isFailure
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
+import assertk.assertions.isNullOrEmpty
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.common.JacksonMapperUtilities
@@ -71,6 +73,54 @@ class SenderFilesFunctionTests {
         )
     }
 
+    private fun buildCovidResultMetadata(reportId: UUID? = null, messageID: String? = null): CovidResultMetadata {
+        return CovidResultMetadata(
+            0,
+            reportId,
+            1,
+            messageID,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+        )
+    }
+
     @Test
     fun `test checkParameters`() {
         // Happy path
@@ -98,6 +148,31 @@ class SenderFilesFunctionTests {
             senderFileFunctions.checkParameters(mockRequestMissing)
         }.isFailure()
         verify(atLeast = 1) { mockRequestWithBadReportId.queryParameters }
+
+        // MessageID
+        val mockRequestWithMessageId = buildRequest(mapOf("message-id" to "1234"))
+
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val mockBlobAccess = mockk<BlobAccess>()
+        val senderFileFunction = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
+        every { mockDbAccess.fetchSingleMetadata(any(), any()) } returns buildCovidResultMetadata(reportId)
+        val functionParamsWithMessageID = senderFileFunction.checkParameters(mockRequestWithMessageId)
+        assertThat(functionParamsWithMessageID.reportFileName).isNull()
+        assertThat(functionParamsWithMessageID.reportId).isEqualTo(reportId)
+        assertThat(functionParamsWithMessageID.messageId).isEqualTo("1234")
+        assertThat(functionParamsWithMessageID.onlyDestinationReportItems).isEqualTo(true)
+        assertThat(functionParamsWithMessageID.limit).isGreaterThan(0)
+        assertThat(functionParamsWithMessageID.offset).isEqualTo(0)
+        verify(atLeast = 1) { mockRequestWithReportId.queryParameters }
+
+        // MessageID with no report id
+        val mockRequestWithMessageIdNoReportID = buildRequest(mapOf("message-id" to "1234"))
+        val senderFileFunctionNoReport = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
+        every { mockDbAccess.fetchSingleMetadata(any(), any()) } returns buildCovidResultMetadata(null)
+        assertThat {
+            senderFileFunctionNoReport.checkParameters(mockRequestWithMessageIdNoReportID)
+        }.isFailure()
+        verify(atLeast = 1) { mockRequestWithBadReportId.queryParameters }
     }
 
     @Test
@@ -110,7 +185,7 @@ class SenderFilesFunctionTests {
             A,B,C
             0,1,2
         """.trimIndent()
-        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, false, 0, 1)
+        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, null, false, 0, 1)
         val mockDbAccess = mockk<DatabaseAccess>()
         val mockBlobAccess = mockk<BlobAccess>()
         every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns listOf(
@@ -133,7 +208,7 @@ class SenderFilesFunctionTests {
         // Test that the case where the blob is deleted is handled as expected
         val receiverReportId: ReportId = UUID.randomUUID()
         val senderReportId: ReportId = UUID.randomUUID()
-        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, false, 0, 1)
+        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, null, false, 0, 1)
         val mockDbAccess = mockk<DatabaseAccess>()
         val mockBlobAccess = mockk<BlobAccess>()
         every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns listOf(
@@ -148,11 +223,38 @@ class SenderFilesFunctionTests {
     }
 
     @Test
+    fun `test processRequestWithMessageID`() {
+        mockkObject(BlobAccess.Companion)
+        // Happy path
+        val senderReportId: ReportId = UUID.randomUUID()
+        val messageId: String = UUID.randomUUID().toString()
+        val body = """
+            A,B,C
+            0,1,2
+        """.trimIndent()
+        val functionParams = SenderFilesFunction.FunctionParameters(senderReportId, null, messageId, false, 0, 1)
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val mockBlobAccess = mockk<BlobAccess>()
+        every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns listOf(
+            SenderItems(senderReportId, 0, null, 0)
+        )
+        every { BlobAccess.Companion.downloadBlob(any()) } returns body.toByteArray()
+        every { mockDbAccess.fetchReportFile(any(), any(), any()) } returns buildReportFile(senderReportId)
+        val senderFileFunctions = buildSenderFilesFunction(mockDbAccess, mockBlobAccess)
+        val result = senderFileFunctions.processRequest(functionParams)
+        val reportFileMessages = mapper.readValue(result.payload, Array<ReportFileMessage>::class.java)
+        assertThat(reportFileMessages[0].reportId).isEqualTo(senderReportId.toString())
+        assertThat(reportFileMessages[0].contentType).isEqualTo("text/csv")
+        assertThat(reportFileMessages[0].content.trim()).isEqualTo(body)
+        assertThat(reportFileMessages[0].request?.reportId).isNullOrEmpty()
+    }
+
+    @Test
     fun `test the case with no ancestors`() {
         mockkObject(BlobAccess.Companion)
         val receiverReportId: ReportId = UUID.randomUUID()
         val senderReportId: ReportId = UUID.randomUUID()
-        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, false, 0, 1)
+        val functionParams = SenderFilesFunction.FunctionParameters(receiverReportId, null, null, false, 0, 1)
         val mockDbAccess = mockk<DatabaseAccess>()
         val mockBlobAccess = mockk<BlobAccess>()
         every { mockDbAccess.fetchSenderItems(any(), any(), any()) } returns emptyList()
