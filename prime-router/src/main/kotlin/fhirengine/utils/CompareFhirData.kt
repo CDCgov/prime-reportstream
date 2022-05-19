@@ -61,6 +61,11 @@ class CompareFhirData(
             val matchingActualEntries = actualBundle.entry.filter {
                 it.resource.fhirType() == expectedEntry.resource.fhirType()
             }.map { it.resource }
+            if (matchingActualEntries.isEmpty()) {
+                result.errors
+                    .add("No matching actual entry resource found to compare to ${expectedEntry.resource.fhirType()}")
+                result.passed = false
+            }
             resourcesToCompare[expectedEntry.resource] = matchingActualEntries
         }
 
@@ -76,7 +81,6 @@ class CompareFhirData(
             isEqual = isEqual && (resourceMatches ?: true)
         }
         logger.debug("FHIR bundles are ${if (isEqual) "IDENTICAL" else "DIFFERENT"}")
-        result.passed = isEqual
     }
 
     /**
@@ -94,12 +98,12 @@ class CompareFhirData(
         var isEqual = true
         filterResourceProperties(expectedResource).forEach { expectedChild ->
             val actualChild = actualResource.getChildByName(expectedChild.name)
+            val thisTypePath = getFhirTypePath(parentTypePath, expectedChild.name)
             if (actualChild != null) {
                 val actualValues = actualChild.values
                 val expectedValues = expectedChild.values
                 // Skip any empty expected properties
                 if (expectedValues.isNotEmpty()) {
-                    val thisTypePath = getFhirTypePath(parentTypePath, expectedChild.name)
                     // Search for a value that is the same in the list of values
                     val isPropertyEqual = expectedValues.all { expectedValue ->
                         // Note that here we look for the first good match, and note we are comparing all values which
@@ -116,8 +120,14 @@ class CompareFhirData(
                         } else logger.debug("Property $thisTypePath matches.")
                     isEqual = isEqual && isPropertyEqual
                 }
-            } else isEqual = false
+            } else {
+                if (!suppressOutput) {
+                    result.errors.add("Property $thisTypePath does not match - different type.")
+                }
+                isEqual = false
+            }
         }
+        result.passed = result.passed and isEqual
         return isEqual
     }
 
