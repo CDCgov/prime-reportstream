@@ -234,9 +234,7 @@ const Table = ({
             const { action, param } = columnConfig.feature as ActionableColumn;
 
             if (!rowData[param!!]) {
-                return console.warn(
-                    `The row attribute '${param}' could not be found`
-                );
+                console.warn(`The row attribute '${param}' could not be found`);
             }
 
             const doAction = () => {
