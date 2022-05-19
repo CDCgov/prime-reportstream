@@ -250,6 +250,10 @@ class TranslationTests {
             }
         }
 
+        /**
+         * Translate an [hl7] to a FHIR bundle as JSON.
+         * @return a FHIR bundle as a JSON input stream
+         */
         private fun translateToFhir(hl7: InputStream): InputStream {
             val hl7messages = HL7Reader(ActionLogger()).getMessages(hl7.bufferedReader().readText())
             val fhirBundles = hl7messages.map { message ->
