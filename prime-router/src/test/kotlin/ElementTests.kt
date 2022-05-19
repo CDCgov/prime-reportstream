@@ -15,6 +15,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.size
 import assertk.assertions.startsWith
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.metadata.ConcatenateMapper
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
@@ -25,8 +26,6 @@ import gov.cdc.prime.router.metadata.NullMapper
 import gov.cdc.prime.router.metadata.TrimBlanksMapper
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.test.Test
@@ -124,13 +123,13 @@ internal class ElementTests {
         )
         // Iso formatted should work
         one.toNormalized("1998-03-30T12:00Z").run {
-            assertThat(this).isEqualTo("199803301200+0000")
+            assertThat(this).isEqualTo("19980330120000+0000")
         }
         one.toNormalized("199803300000+0000").run {
-            assertThat(this).isEqualTo("199803300000+0000")
+            assertThat(this).isEqualTo("19980330000000+0000")
         }
         one.toNormalized("20210908105903").run {
-            assertThat(this).startsWith("202109081059")
+            assertThat(this).startsWith("20210908105903+0000")
         }
         val two = Element(
             "a",
@@ -143,34 +142,24 @@ internal class ElementTests {
             o.replace(":", "")
         }
         two.toNormalized("19980330", "yyyyMMdd").run {
-            assertThat(this).isEqualTo("199803300000$offset")
+            assertThat(this).isEqualTo("19980330000000$offset")
         }
         val three = Element(
             "a",
             type = Element.Type.DATETIME,
         )
         three.toNormalized("2020-12-09", dateFormat).run {
-            assertThat(this).isEqualTo("202012090000$offset")
-        }
-        mapOf(
-            "20210908105903" to "20210908105903",
-            "199803300000+0000" to "19980330000000"
-        ).forEach {
-            val optionalDateTime = "[yyyyMMddHHmmssZ][yyyyMMddHHmmZ][yyyyMMddHHmmss]"
-            val df = DateTimeFormatter.ofPattern(optionalDateTime)
-            val ta = df.parseBest(it.key, OffsetDateTime::from, LocalDateTime::from, Instant::from)
-            val dt = LocalDateTime.from(ta)
-            assertThat(df.format(dt)).isEqualTo(it.value)
+            assertThat(this).isEqualTo("20201209000000$offset")
         }
         // edge cases
         one.toNormalized("1998-03-30T12:00Z ").run {
-            assertThat(this).isEqualTo("199803301200+0000")
+            assertThat(this).isEqualTo("19980330120000+0000")
         }
         one.toNormalized(" 1998-03-30T12:00Z").run {
-            assertThat(this).isEqualTo("199803301200+0000")
+            assertThat(this).isEqualTo("19980330120000+0000")
         }
         one.toNormalized(" 1998-03-30T12:00Z ").run {
-            assertThat(this).isEqualTo("199803301200+0000")
+            assertThat(this).isEqualTo("19980330120000+0000")
         }
         one.toNormalized("").run {
             assertThat(this).isEqualTo("")
@@ -185,11 +174,11 @@ internal class ElementTests {
             "19980330 09:35:00", "1998-03-30 9:35:00", "1998-03-30 09:35:00"
         )
         testTimes.forEach {
-            assertThat(one.toNormalized(it)).isEqualTo("199803300935-0600")
+            assertThat(one.toNormalized(it)).isEqualTo("19980330093500+0000")
         }
         testTimes = listOf("11/30/1998 16:35", "1998/11/30 16:35", "19981130 16:35:00", "1998-11-30 16:35:00")
         testTimes.forEach {
-            assertThat(one.toNormalized(it)).isEqualTo("199811301635-0600")
+            assertThat(one.toNormalized(it)).isEqualTo("19981130163500+0000")
         }
     }
 
@@ -234,114 +223,6 @@ internal class ElementTests {
         // Given datetime format and expect to return only date.
         two.toFormatted("20201203", "$dateFormat HH:mm:ss").run {
             assertThat(this).isEqualTo("2020-12-03 00:00:00")
-        }
-    }
-
-    @Test
-    fun `test getDate output format`() {
-        val two = Element(
-            "a",
-            type = Element.Type.DATE,
-        )
-
-        // Check LocalDate output formate
-        val localDate = LocalDate.parse("2020-12-01")
-        two.getDate(localDate, dateFormat).run {
-            assertThat(this).isEqualTo("2020-12-01")
-        }
-
-        // Check LocalDateTime output format.
-        val localDateTime = LocalDateTime.parse("2018-12-12T13:30:30")
-        two.getDate(localDateTime, "M/d/yyyy HH:nn").run {
-            assertThat(this).isEqualTo("12/12/2018 13:00")
-        }
-
-        // Check OffsetDateTime output format.
-        val offsetDateTime = OffsetDateTime.parse("2018-12-12T13:30:30+05:00")
-        two.getDate(offsetDateTime, "$dateFormat HH:mm:ss").run {
-            assertThat(this).isEqualTo("2018-12-12 13:30:30")
-        }
-
-        // Check OffsetDateTime output format.
-        val instant = Instant.parse("2020-12-03T13:30:30.000Z")
-        two.getDate(instant, dateFormat).run {
-            assertThat(this).isEqualTo("2020-12-03T13:30:30Z")
-        }
-
-        // now let's check some other date formats
-        val parser = DateTimeFormatter.ofPattern(
-            "[yyyy-MM-dd'T'HH:mm:ssZ]" +
-                "[yyyy-MM-dd'T'HH:mm:ssxxx]" +
-                "[yyyy-MM-dd'T'HH:mm:ssx]"
-        )
-        // Check OffsetDateTime output format.
-        listOf(
-            "2018-12-12T13:30:30+00:00",
-            "2018-12-12T13:30:30+00",
-            "2018-12-12T13:30:30+0000",
-        ).forEach { date ->
-            val odt = parser.parseBest(date, OffsetDateTime::from, Instant::from)
-            two.getDate(odt, "$dateFormat HH:mm:ss").run {
-                assertThat(this).isEqualTo("2018-12-12 13:30:30")
-            }
-            two.getDate(odt, "$dateFormat HH:mm:ssZZZ").run {
-                assertThat(this).isEqualTo("2018-12-12 13:30:30+0000")
-            }
-            // now check converting the date time to the negative offset
-            two.getDate(odt, "$dateFormat HH:mm:ssZZZ", true).run {
-                assertThat(this).isEqualTo("2018-12-12 13:30:30-0000")
-            }
-        }
-    }
-
-    @Test
-    fun `test convert positive zero offset to negative offset`() {
-        Element("a", type = Element.Type.DATE).run {
-            // all happy path tests
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+0000").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00-0000")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00-0000").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00-0000")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+00").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00-00")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+00:00").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00-00:00")
-            }
-            // non-zero offsets
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00-0400").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00-0400")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+12").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00+12")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+03:30").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00+03:30")
-            }
-            // some unhappy paths. Don't use these formats.
-            Element.convertPositiveOffsetToNegativeOffset("2022-01-05 08:00:00+").run {
-                assertThat(this).isEqualTo("2022-01-05 08:00:00+")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("2022+01+05 08:00:00").run {
-                assertThat(this).isEqualTo("2022+01+05 08:00:00")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("").run {
-                assertThat(this).isEqualTo("")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("     ").run {
-                assertThat(this).isEqualTo("     ")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("+0000").run {
-                assertThat(this).isEqualTo("+0000")
-            }
-            Element.convertPositiveOffsetToNegativeOffset("+0000 2022-01-05").run {
-                assertThat(this).isEqualTo("+0000 2022-01-05")
-            }
         }
     }
 
@@ -494,23 +375,23 @@ internal class ElementTests {
 
         // Test MMddyyyy, 12012021 format
         one.toNormalized("12012021").run {
-            assertThat(this).isEqualTo("202112010000-0600")
+            assertThat(this).isEqualTo("20211201000000+0000")
         }
         // Test M/d/yyyy,12/2/2021 format
         one.toNormalized("12/2/2021").run {
-            assertThat(this).isEqualTo("202112020000-0600")
+            assertThat(this).isEqualTo("20211202000000+0000")
         }
         // Test yyyy/M/d,2021/12/3
         one.toNormalized("2021/12/3").run {
-            assertThat(this).isEqualTo("202112030000-0600")
+            assertThat(this).isEqualTo("20211203000000+0000")
         }
         // Test M/d/yyyy HH:mm,12/4/2021 09:00
         one.toNormalized("12/4/2021 09:00").run {
-            assertThat(this).isEqualTo("202112040900-0600")
+            assertThat(this).isEqualTo("20211204090000+0000")
         }
         // Test yyyy/M/d HH:mm,2021/12/05 10:00
         one.toNormalized("2021/12/05 10:00").run {
-            assertThat(this).isEqualTo("202112051000-0600")
+            assertThat(this).isEqualTo("20211205100000+0000")
         }
     }
 
@@ -523,11 +404,26 @@ internal class ElementTests {
         )
 
         // Test wrong date = 50
-        assertThat { one.toNormalized("12502021") }.isFailure()
+        try {
+            one.toNormalized("12502021")
+        } catch (e: IllegalStateException) {
+            assertThat(e.message)
+                .isEqualTo("Invalid date time: '12502021' for format 'null' for element datetime (a)")
+        }
         // Test wrong month = 13
-        assertThat { one.toNormalized("13/2/2021") }.isFailure()
+        try {
+            one.toNormalized("13/2/2021")
+        } catch (e: IllegalStateException) {
+            assertThat(e.message)
+                .isEqualTo("Invalid date time: '13/2/2021' for format 'null' for element datetime (a)")
+        }
         // Test wrong year = abcd
-        assertThat { one.toNormalized("abcd/12/3") }.isFailure()
+        try {
+            one.toNormalized("abcd/12/3")
+        } catch (e: IllegalStateException) {
+            assertThat(e.message)
+                .isEqualTo("Invalid date time: 'abcd/12/3' for format 'null' for element datetime (a)")
+        }
     }
 
     @Test
@@ -772,16 +668,15 @@ internal class ElementTests {
             type = Element.Type.DATE,
             csvFields = Element.csvFields("date")
         )
-        assertThat(
-            date.toFormatted(date.toNormalized("20201220"))
-        ).isEqualTo(
-            "20201220"
-        )
-        assertThat(
-            date.toFormatted(date.toNormalized("2020-12-20"))
-        ).isEqualTo(
-            "20201220"
-        )
+        // loop some values and test them
+        mapOf(
+            "20201215073100-0800" to "20201215",
+            "20210604072500-0400" to "20210604",
+            "20201220" to "20201220",
+            "2020-12-20" to "20201220"
+        ).forEach {
+            assertThat(date.toFormatted(date.toNormalized(it.key))).isEqualTo(it.value)
+        }
 
         // normalize manually entered date use cases
         // "M/d/yyyy", "MMddyyyy", "yyyy/M/d", "M/d/yyyy HH:mm", "yyyy/M/d HH:mm"
@@ -827,16 +722,13 @@ internal class ElementTests {
             type = Element.Type.DATETIME,
             csvFields = Element.csvFields("datetime")
         )
-        assertThat(
-            datetime.toFormatted(datetime.toNormalized("202012200000+0000"))
-        ).isEqualTo(
-            "202012200000+0000"
-        )
-        assertThat(
-            datetime.toFormatted(datetime.toNormalized("2020-12-20T00:00Z"))
-        ).isEqualTo(
-            "202012200000+0000"
-        )
+        mapOf(
+            "20201215073100-0800" to "20201215073100-0800",
+            "202012200000+0000" to "20201220000000+0000",
+            "2020-12-20T00:00Z" to "20201220000000+0000"
+        ).forEach {
+            assertThat(datetime.toFormatted(datetime.toNormalized(it.key))).isEqualTo(it.value)
+        }
 
         val hd = Element(
             "a",
@@ -1020,7 +912,7 @@ internal class ElementTests {
             Element("j", Element.Type.TEXT, defaultOverridesValue = true), // 9   (null default)
         )
         val schema = Schema("one", "covid-19", elements)
-        val currentDate = LocalDate.now().format(Element.dateFormatter)
+        val currentDate = LocalDate.now().format(DateUtilities.dateFormatter)
         val mappedValues = mutableMapOf(
             elements[0].name to "TEST",
             elements[1].name to "",

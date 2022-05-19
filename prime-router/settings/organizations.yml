@@ -2313,6 +2313,75 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: HL7_BATCH_LOCAL_TIME_CONVERT
+      externalName: LocalTime HL7_BATCH
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
+      timeZone: PACIFIC
+      dateTimeFormat: LOCAL
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: HL7
+        format: HL7_BATCH
+        receivingApplicationName: IG-PACIFIC-LOCAL-TIME
+        convertDateTimesToReceiverLocalTime: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: HL7_BATCH_OFFSET_TIME_CONVERT
+      externalName: Offset HL7_BATCH
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
+      timeZone: PACIFIC
+      dateTimeFormat: OFFSET
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: HL7
+        format: HL7_BATCH
+        receivingApplicationName: IG-PACIFIC-OFFSET
+        convertDateTimesToReceiverLocalTime: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: HL7_BATCH_OFFSET_TIME_UTC
+      externalName: Offset UTC HL7_BATCH
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
+      timeZone: UTC
+      dateTimeFormat: OFFSET
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: HL7
+        format: HL7_BATCH
+        receivingApplicationName: IG-UTC-OFFSET
+        convertDateTimesToReceiverLocalTime: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
 - name: historytest
   description: FOR TESTING SUBMISSION HISTORY
