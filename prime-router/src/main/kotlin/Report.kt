@@ -338,6 +338,7 @@ class Report : Logging {
         sources: List<Source>,
         schema: Schema, // shouldn't even need a Schema here, but required for legacy reasons. Tech Debt?
         numberOfMessages: Int,
+        metadata: Metadata? = null
     ) {
         this.id = UUID.randomUUID()
         this.schema = schema
@@ -349,7 +350,7 @@ class Report : Logging {
         // we do not need the 'table' representation in this instance
         this.table = createTable(emptyMap<String, List<String>>())
         this.itemCount = numberOfMessages
-        this.metadata = Metadata.getInstance()
+        this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = numberOfMessages
         this.nextAction = TaskAction.process
     }

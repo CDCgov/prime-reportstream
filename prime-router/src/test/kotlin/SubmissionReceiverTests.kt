@@ -445,7 +445,8 @@ class SubmissionReceiverTests {
             true,
             true,
             ByteArray(0),
-            "test.csv"
+            "test.csv",
+            metadata
         )
 
         // assert
@@ -509,7 +510,8 @@ class SubmissionReceiverTests {
             false,
             false,
             ByteArray(0),
-            "test.csv"
+            "test.csv",
+            metadata
         )
 
         // assert
@@ -579,7 +581,8 @@ class SubmissionReceiverTests {
             true,
             false,
             ByteArray(0),
-            "test.csv"
+            "test.csv",
+            metadata
         )
 
         // assert
@@ -647,7 +650,8 @@ class SubmissionReceiverTests {
                 true,
                 true,
                 ByteArray(0),
-                "test.csv"
+                "test.csv",
+                metadata
             )
         } catch (ex: ActionError) {
             exceptionThrown = true

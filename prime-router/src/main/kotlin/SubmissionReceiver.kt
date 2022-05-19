@@ -32,7 +32,8 @@ abstract class SubmissionReceiver(
         isAsync: Boolean,
         allowDuplicates: Boolean,
         rawBody: ByteArray,
-        payloadName: String?
+        payloadName: String?,
+        metadata: Metadata? = null
     )
 
     companion object {
@@ -112,7 +113,8 @@ class CovidReceiver : SubmissionReceiver {
         isAsync: Boolean,
         allowDuplicates: Boolean,
         rawBody: ByteArray,
-        payloadName: String?
+        payloadName: String?,
+        metadata: Metadata?
     ) {
         // parse, check for parse errors
 
@@ -207,7 +209,8 @@ class ELRReceiver : SubmissionReceiver {
         isAsync: Boolean,
         allowDuplicates: Boolean,
         rawBody: ByteArray,
-        payloadName: String?
+        payloadName: String?,
+        metadata: Metadata?
     ) {
         val actionLogs = ActionLogger()
 
@@ -225,7 +228,8 @@ class ELRReceiver : SubmissionReceiver {
             // TODO TECH DEBT: Schema should be using the Topic enum instead of a string,
             //  that is out of scope as of 5/19/22
             Schema("None", Topic.FULL_ELR.json_val),
-            messages.size
+            messages.size,
+            metadata
         )
 
         // dupe detection if needed, and if we have not already produced an error
