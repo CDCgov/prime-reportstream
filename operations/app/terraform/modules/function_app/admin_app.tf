@@ -11,7 +11,7 @@ locals {
     # Path to functions parent directory
     # How to create functions:
     # VS Code Azure Functions extension > Create new project
-    functions_path             = "../../../functions/admin"
+    functions_path = "../../../functions/admin"
   }
   # Set all "Application Settings"
   # Add/remove to adjust dynamically
@@ -22,14 +22,18 @@ locals {
     WEBSITE_CONTENTOVERVNET            = 1
     SCM_DO_BUILD_DURING_DEPLOYMENT     = true
     WEBSITE_HTTPLOGGING_RETENTION_DAYS = 3
+    POSTGRES_HOST                      = "${var.resource_prefix}-pgsql.postgres.database.azure.com"
+    POSTGRES_USER                      = "@Microsoft.KeyVault(SecretUri=https://${var.resource_prefix}-app-config.vault.azure.net/secrets/functionapp-postgres-user)"
+    POSTGRES_PASSWORD                  = "@Microsoft.KeyVault(SecretUri=https://${var.resource_prefix}-app-config.vault.azure.net/secrets/functionapp-postgres-pass)"
   }
   # Set app configuration
   config = {
     use_32_bit_worker_process = false
     vnet_route_all_enabled    = true
-    always_on                 = false
+    # Deployments may fail if not always on
+    always_on                 = true
     environment               = var.environment
-    linux_fx_version          = "python|3.9"
+    linux_fx_version          = "PYTHON|3.9"
     FUNCTIONS_WORKER_RUNTIME  = "python"
   }
   # Set network configuration
@@ -99,9 +103,12 @@ resource "azurerm_function_app" "admin" {
 }
 
 resource "time_sleep" "wait_admin_function_app" {
-  depends_on = [azurerm_function_app.admin]
-
   create_duration = "2m"
+
+  depends_on = [azurerm_function_app.admin]
+  triggers = {
+    function_app = azurerm_function_app.admin.identity.0.principal_id
+  }
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "admin_function_app_vnet_integration" {

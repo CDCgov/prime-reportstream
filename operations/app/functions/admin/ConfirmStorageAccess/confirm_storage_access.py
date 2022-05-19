@@ -1,7 +1,6 @@
 from azure.storage.blob import ContainerClient
 from azure.identity import DefaultAzureCredential
 import azure.functions as func
-import os
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
@@ -32,6 +31,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         )
     else:
         return func.HttpResponse(
-            body='{"error":"Please pass an account and container name on the query string"}',
+            body='{"error":"Please pass account/container name on the query string"}',
             status_code=400,
         )

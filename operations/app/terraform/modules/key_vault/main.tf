@@ -198,7 +198,7 @@ resource "azurerm_key_vault_access_policy" "admin_functionapp_app_config" {
   tenant_id    = var.admin_function_app.identity[0].tenant_id
   object_id    = var.admin_function_app.identity[0].principal_id
 
-  secret_permissions = ["List"]
+  secret_permissions = ["Get", "List"]
 }
 
 resource "azurerm_key_vault_access_policy" "admin_functionapp_application" {
