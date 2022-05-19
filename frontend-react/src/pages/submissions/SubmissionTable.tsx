@@ -57,8 +57,10 @@ function SubmissionTable() {
         {
             dataAttr: "id",
             columnHeader: "Report ID",
-            link: true,
-            linkBasePath: "/submissions",
+            feature: {
+                link: true,
+                linkBasePath: "/submissions/",
+            },
         },
         {
             dataAttr: "timestamp",
@@ -101,6 +103,7 @@ function SubmissionTable() {
                     hasNext,
                     update: updateCursors,
                 }}
+                enableEditableRows
             />
         </>
     );
