@@ -20,6 +20,9 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.messages.ReportFileMessage
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.name
 
@@ -41,6 +44,10 @@ class SenderFilesCommand : CliktCommand(
 
     private val reportFileNameArg by option(
         "--report-file-name", help = "File name of the receiver report", metavar = "file-name"
+    )
+
+    private val messageIdArg by option(
+        "--message-id", help = "Message-id (uuid format) of the message", metavar = "message-id"
     )
 
     private val offsetArg by option(
@@ -139,6 +146,7 @@ class SenderFilesCommand : CliktCommand(
         val params = mutableListOf<Pair<String, String>>()
         reportIdArg?.let { params.add(SenderFilesFunction.REPORT_ID_PARAM to it) }
         reportFileNameArg?.let { params.add(SenderFilesFunction.REPORT_FILE_NAME_PARAM to it) }
+        messageIdArg?.let { params.add(SenderFilesFunction.MESSAGE_ID_PARAM to it) }
         offsetArg?.let { params.add(SenderFilesFunction.OFFSET_PARAM to it) }
         limitArg?.let { params.add(SenderFilesFunction.LIMIT_PARAM to it) }
         if (onlyReportItemsFlag) params.add(SenderFilesFunction.ONLY_REPORT_ITEMS to "true")
@@ -155,8 +163,21 @@ class SenderFilesCommand : CliktCommand(
             if (dirAndFileName.size != 3) error("Path of blob does not have 2 directories as expected")
             createDirectory(Path(outDirectory, dirAndFileName[0]))
             createDirectory(Path(outDirectory, dirAndFileName[0], dirAndFileName[1]))
+            var dateTimeDownload = ""
+            if (!messageIdArg.isNullOrEmpty()) {
+                dateTimeDownload = LocalDateTime.now().format(
+                    DateTimeFormatter.ofPattern(
+                        "yyyyMMddHHmmssSS"
+                    )
+                ).toString()
+            }
             saveFile(
-                Path(outDirectory, dirAndFileName[0], dirAndFileName[1], dirAndFileName[2]),
+                Path(
+                    outDirectory, dirAndFileName[0], dirAndFileName[1],
+                    dateTimeDownload
+                        .plus("_")
+                        .plus(dirAndFileName[2])
+                ),
                 reportFileMessage.content
             )
         }
@@ -181,12 +202,16 @@ class SenderFilesCommand : CliktCommand(
     }
 
     /**
-     * Save a file at the [filePath] Path with [content]. Respect the [overwrite] flag.
+     * Save a file at the [filePath] Path with [content]. Respect the [overwrite] flag or if [messageIdArg] is not
+     * blank. User may need multiple results from same file.
      */
     private fun saveFile(filePath: Path, content: String) {
-        if (!overwrite && Files.exists(filePath)) error("${filePath.fileName} already exists")
-        echo("Writing: $filePath")
-        Files.writeString(filePath, content)
+        if (!overwrite && Files.exists(filePath)) {
+            error("${filePath.fileName} already exists")
+        } else {
+            echo("Writing: $filePath")
+            Files.writeString(filePath, content)
+        }
     }
 
     /**
