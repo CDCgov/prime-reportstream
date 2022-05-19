@@ -1,10 +1,14 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.history.azure
 
+import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.ACTION_LOG
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.history.DetailedActionLog
+import gov.cdc.prime.router.history.DetailedReport
 import org.jooq.CommonTableExpression
 import org.jooq.Condition
 import org.jooq.SelectFieldOrAsterisk
@@ -14,6 +18,41 @@ import org.jooq.impl.SQLDataType.BIGINT
 import org.jooq.impl.SQLDataType.UUID
 import java.time.OffsetDateTime
 
+interface SubmissionAccess {
+    enum class SortOrder {
+        DESC,
+        ASC,
+    }
+
+    /* As sorting Submission results expands, we can add
+    * column names to this enum. Make sure the column you
+    * wish to sort by is indexed. */
+    enum class SortColumn {
+        CREATED_AT
+    }
+
+    fun <T> fetchActions(
+        sendingOrg: String,
+        order: SortOrder,
+        sortColumn: SortColumn,
+        cursor: OffsetDateTime? = null,
+        toEnd: OffsetDateTime? = null,
+        limit: Int = 10,
+        showFailed: Boolean,
+        klass: Class<T>
+    ): List<T>
+
+    fun <T> fetchAction(
+        sendingOrg: String,
+        submissionId: Long,
+        klass: Class<T>
+    ): T?
+
+    fun <T> fetchRelatedActions(
+        submissionId: Long,
+        klass: Class<T>
+    ): List<T>
+}
 /**
  * Class to access lookup tables stored in the database.
  */
@@ -134,42 +173,17 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         return dateFilter.and(failedFilter)
     }
 
-    fun <P, U> detailedSubmissionSelect(
-        reportsKlass: Class<P>,
-        logsKlass: Class<U>,
-    ): List<SelectFieldOrAsterisk> {
-        return listOf(
-            ACTION.asterisk(),
-            DSL.multiset(
-                DSL.select()
-                    .from(ACTION_LOG)
-                    .where(ACTION_LOG.ACTION_ID.eq(ACTION.ACTION_ID))
-            ).`as`("logs").convertFrom { r ->
-                r?.into(logsKlass)
-            },
-            DSL.multiset(
-                DSL.select()
-                    .from(REPORT_FILE)
-                    .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
-            ).`as`("reports").convertFrom { r ->
-                r?.into(reportsKlass)
-            },
-        )
-    }
-
     /**
      * fetch the details of a single action
      */
-    override fun <T, P, U> fetchAction(
-        organization: String,
-        actionId: Long,
-        klass: Class<T>,
-        reportsKlass: Class<P>,
-        logsKlass: Class<U>,
+    override fun <T> fetchAction(
+        sendingOrg: String,
+        submissionId: Long,
+        klass: Class<T>
     ): T? {
         return db.transactReturning { txn ->
             DSL.using(txn)
-                .select(detailedSubmissionSelect(reportsKlass, logsKlass))
+                .select(detailedSubmissionSelect())
                 .from(ACTION)
                 .where(
                     ACTION.ACTION_NAME.eq(TaskAction.receive)
@@ -180,7 +194,49 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         }
     }
 
-    private fun reportDescendantExpression(actionId: Long): CommonTableExpression<*> {
+    /**
+     * Fetch the details of an actions relations (descendents)
+     *
+     * This is done through a recursive query on the report_lineage table
+     */
+    override fun <T> fetchRelatedActions(
+        submissionId: Long,
+        klass: Class<T>
+    ): List<T> {
+        val cte = reportDescendantExpression(submissionId)
+        return db.transactReturning { txn ->
+            DSL.using(txn)
+                .withRecursive(cte)
+                .selectDistinct(detailedSubmissionSelect())
+                .from(ACTION)
+                .join(cte)
+                .on(ACTION.ACTION_ID.eq(cte.field("action_id", BIGINT)))
+                .where(ACTION.ACTION_ID.ne(submissionId))
+                .fetchInto(klass)
+        }
+    }
+
+    fun detailedSubmissionSelect(): List<SelectFieldOrAsterisk> {
+        return listOf(
+            ACTION.asterisk(),
+            DSL.multiset(
+                DSL.select()
+                    .from(ACTION_LOG)
+                    .where(ACTION_LOG.ACTION_ID.eq(ACTION.ACTION_ID))
+            ).`as`("logs").convertFrom { r ->
+                r?.into(DetailedActionLog::class.java)
+            },
+            DSL.multiset(
+                DSL.select()
+                    .from(REPORT_FILE)
+                    .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
+            ).`as`("reports").convertFrom { r ->
+                r?.into(DetailedReport::class.java)
+            },
+        )
+    }
+
+    private fun reportDescendantExpression(submissionId: Long): CommonTableExpression<*> {
         return DSL.name("t").fields(
             "action_id",
             "child_report_id",
@@ -208,29 +264,5 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
                         )
                 )
         )
-    }
-
-    /**
-     * Fetch the details of an actions relations (descendents)
-     *
-     * This is done through a recursive query on the report_lineage table
-     */
-    override fun <T, P, U> fetchRelatedActions(
-        actionId: Long,
-        klass: Class<T>,
-        reportsKlass: Class<P>,
-        logsKlass: Class<U>,
-    ): List<T> {
-        val cte = reportDescendantExpression(actionId)
-        return db.transactReturning { txn ->
-            DSL.using(txn)
-                .withRecursive(cte)
-                .selectDistinct(detailedSubmissionSelect(reportsKlass, logsKlass))
-                .from(ACTION)
-                .join(cte)
-                .on(ACTION.ACTION_ID.eq(cte.field("action_id", BIGINT)))
-                .where(ACTION.ACTION_ID.ne(actionId))
-                .fetchInto(klass)
-        }
     }
 }

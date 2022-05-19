@@ -1,4 +1,4 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.history
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -8,6 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.fasterxml.jackson.annotation.JsonValue
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
@@ -75,8 +78,8 @@ class DetailedSubmissionHistory(
     @JsonProperty("timestamp")
     createdAt: OffsetDateTime,
     httpStatus: Int? = null,
-    reports: MutableList<DetailReport>?,
-    logs: List<DetailActionLog> = emptyList()
+    reports: MutableList<DetailedReport>?,
+    logs: List<DetailedActionLog> = emptyList()
 ) : DetailedReportFileHistory(
     actionId,
     actionName,
@@ -425,8 +428,8 @@ data class Destination(
     val itemCount: Int,
     @JsonProperty("itemCountBeforeQualityFiltering")
     val itemCountBeforeQualFilter: Int?,
-    var sentReports: MutableList<DetailReport> = mutableListOf(),
-    var downloadedReports: MutableList<DetailReport> = mutableListOf(),
+    var sentReports: MutableList<DetailedReport> = mutableListOf(),
+    var downloadedReports: MutableList<DetailedReport> = mutableListOf(),
 ) {
     /**
      * Finds the name for the organization based on the id provided.

@@ -1,10 +1,10 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.history.azure
 
-import gov.cdc.prime.router.DetailActionLog
-import gov.cdc.prime.router.DetailReport
-import gov.cdc.prime.router.DetailedSubmissionHistory
-import gov.cdc.prime.router.SubmissionHistory
+import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import gov.cdc.prime.router.history.SubmissionHistory
 import java.time.OffsetDateTime
 
 /**
@@ -86,21 +86,16 @@ class SubmissionsFacade(
         organizationName: String,
         submissionId: Long,
     ): DetailedSubmissionHistory? {
-
         val submission = dbSubmissionAccess.fetchAction(
             organizationName,
             submissionId,
-            DetailedSubmissionHistory::class.java,
-            DetailReport::class.java,
-            DetailActionLog::class.java,
+            DetailedSubmissionHistory::class.java
         )
 
         submission?.let {
             val relatedSubmissions = dbSubmissionAccess.fetchRelatedActions(
                 submission.actionId,
-                DetailedSubmissionHistory::class.java,
-                DetailReport::class.java,
-                DetailActionLog::class.java,
+                DetailedSubmissionHistory::class.java
             )
             it.enrichWithDescendants(relatedSubmissions)
         }
@@ -112,7 +107,7 @@ class SubmissionsFacade(
 
     companion object {
         val instance: SubmissionsFacade by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
-            SubmissionsFacade(DatabaseSubmissionsAccess())
+            SubmissionsFacade()
         }
     }
 }
