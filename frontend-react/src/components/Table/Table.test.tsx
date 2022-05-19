@@ -30,6 +30,16 @@ const clickFilterButton = () => {
 
 describe("Table, basic tests", () => {
     beforeEach(() => renderWithRouter(<TestTable />));
+    test("Title renders", () => {
+        expect(screen.getByText("Test Table Title")).toBeInTheDocument();
+    });
+    test("Legend renders", () => {
+        expect(screen.getAllByText(/Test legend/)).toHaveLength(2);
+    });
+    test("Dataset Action button renders", () => {
+        const button = screen.getByText("Test Action");
+        expect(button).toBeInTheDocument();
+    });
     test("Column names render", () => {
         const headerOne = screen.getByText("Column One");
         const headerTwo = screen.getByText("Column Two");
