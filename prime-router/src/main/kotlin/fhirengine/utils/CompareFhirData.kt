@@ -84,7 +84,7 @@ class CompareFhirData(
      * @param parentTypePath a string representing a type hirearchy for the parent of the given resource
      * @param suppressOutput set false to not log comparison results
      */
-    private fun compareResource(
+    internal fun compareResource(
         actualResource: Base,
         expectedResource: Base,
         parentTypePath: String,
@@ -125,7 +125,7 @@ class CompareFhirData(
      * Compare an [actualReference] to an [expectedReference] and provide the [result].
      * @param thisTypePath a string representing a type hirearchy for the given value
      */
-    private fun compareReference(
+    internal fun compareReference(
         actualReference: Reference,
         expectedReference: Reference,
         thisTypePath: String,
@@ -140,7 +140,7 @@ class CompareFhirData(
      * @param thisTypePath a string representing a type hirearchy for the given value
      * @param suppressOutput set false to not log comparison results
      */
-    private fun compareValue(
+    internal fun compareValue(
         actualValue: Base,
         expectedValue: Base,
         thisTypePath: String = "",
@@ -184,16 +184,6 @@ class CompareFhirData(
         }
     }
 
-    /**
-     * Get the FHIR type path for a given [parentTypePath] and [valueName].  The FHIR type path
-     * is NOT the same as a FHIR path, and we use it to log the types we are comparing and to match types we want to
-     * ignore.  E.g. Bundle.meta.lastUpdated, Organization.name.
-     */
-    internal fun getFhirTypePath(parentTypePath: String, valueName: String): String {
-        val parentPath = if (parentTypePath.isNotBlank()) "$parentTypePath." else ""
-        return parentPath + valueName
-    }
-
     companion object {
         /**
          * The list of properties that will not be tested.
@@ -217,5 +207,16 @@ class CompareFhirData(
             "MessageHeader", "Provenance", "Patient", "Encounter",
             "Observation", "Practitioner", "DiagnosticReport", "Specimen"
         )
+
+        /**
+         * Get the FHIR type path for a given [parentTypePath] and [valueName].  The FHIR type path
+         * is NOT the same as a FHIR path, and we use it to log the types we are comparing and to match types we want to
+         * ignore.  E.g. Bundle.meta.lastUpdated, Organization.name.
+         */
+        internal fun getFhirTypePath(parentTypePath: String, valueName: String): String {
+            require(valueName.isNotBlank())
+            val parentPath = if (parentTypePath.isNotBlank()) "$parentTypePath." else ""
+            return parentPath + valueName
+        }
     }
 }
