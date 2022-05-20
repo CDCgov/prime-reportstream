@@ -123,6 +123,10 @@ class MapperTests {
         args = mutableListOf("==", "otc_flag", "comparisonValue", eAValabama.element.name, "ordering_provider_state")
         assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "TN") // 'else' case
 
+        // bad legal args
+        args = mutableListOf(">>", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        assertThat { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }.isFailure()
+
         // test inequality operator
         args = mutableListOf("!=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // 'then' case
@@ -131,9 +135,13 @@ class MapperTests {
         // "OTC" comes alphabetically before "Prescription", so it's "<="  (technically, "<")
         args = mutableListOf("<=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // That's right!
+        args = mutableListOf("<", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // That's right!
 
         // finally, test a 'failure' of the assumption that "Prescription" comes before "OTC" in the dictionary
         args = mutableListOf(">=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "TN") // Else Clause!
+        args = mutableListOf(">", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
         assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "TN") // Else Clause!
 
         // make "comparisonValue" equal to "otc_flag"  ("OTC" == "OTC")
@@ -141,6 +149,10 @@ class MapperTests {
         val eAVotc2 = ElementAndValue(Element(args[2]), "OTC") // set "comparisonValue" element's value to "OTC"
         assertEq(mapper, element, args, listOf(eAVotc, eAVotc2, eAValabama, eAVtn), "AL")
         // now that the otc_flag is equal to the comparisonValue, "<=" and ">=" will also return "AL"
+        args = mutableListOf("<=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        assertEq(mapper, element, args, listOf(eAVotc, eAVotc2, eAValabama, eAVtn), "AL")
+        args = mutableListOf(">=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
+        assertEq(mapper, element, args, listOf(eAVotc, eAVotc2, eAValabama, eAVtn), "AL")
 
         // test inequality else (now that they are equal, testing of != should return the else value (TN)
         args = mutableListOf("!=", "otc_flag", "comparisonValue", "patient_state", "ordering_provider_state")
@@ -182,16 +194,28 @@ class MapperTests {
         // same values, different operator; different result
         args = listOf("<=", "otc_flag", "37", "patient_state", "ordering_provider_state")
         assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // 22 <= 37
+        args = listOf("<", "otc_flag", "37", "patient_state", "ordering_provider_state") // <
+        assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // 22 < 37
 
         // float (this test actually caught a typo for me!)
         args = listOf("==", "otc_flag", "3.1415926536", "patient_state", "ordering_provider_state")
         eAVotc = ElementAndValue(Element(args[1]), "3.1415926536") // pi is pi
         assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // floating point
 
+        // !=
+        args = listOf("!=", "otc_flag", "3.1415", "patient_state", "ordering_provider_state")
+        assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // floating point
+
+        // ! !=
+        args = listOf("!=", "otc_flag", "3.1415926536", "patient_state", "ordering_provider_state")
+        assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "TN") // floating point
+
         // int not a string
-        args = listOf("<=", "otc_flag", "1700", "patient_state", "ordering_provider_state")
-        eAVotc = ElementAndValue(Element(args[1]), "22") // element otc_flag has .value "22"
-        assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // 22 <= 1700
+        args = listOf(">=", "otc_flag", "22", "patient_state", "ordering_provider_state")
+        eAVotc = ElementAndValue(Element(args[1]), "1700") // element otc_flag has .value "22"
+        assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") //  1700 >= 22
+        args = listOf(">", "otc_flag", "22", "patient_state", "ordering_provider_state")
+        assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") //  1700 > 22
 
         // string not an int
         args = listOf("<=", "otc_flag", "1700xx", "patient_state", "ordering_provider_state")
@@ -208,9 +232,14 @@ class MapperTests {
         eAVotc = ElementAndValue(Element(args[1]), "2.0") // element otc_flag has .value "22"
         assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // 2 == 2.0
 
+        // bad legal args
+        args = listOf(">>", "otc_flag", "2", "patient_state", "ordering_provider_state")
+        eAVotc = ElementAndValue(Element(args[1]), "2.0") // element otc_flag has .value "2.0"
+        assertThat { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }.isFailure()
+
         // operator as a value of an element
         args = listOf("op_elm", "otc_flag", "2", "patient_state", "ordering_provider_state")
-        eAVotc = ElementAndValue(Element(args[1]), "2.0") // element otc_flag has .value "22"
+        eAVotc = ElementAndValue(Element(args[1]), "2.0") // element otc_flag has .value "2.0"
         val eOpElm = ElementAndValue(Element(args[0]), ">=") // element op_elm has .value ">="
         assertEq(mapper, element, args, listOf(eOpElm, eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // 2 >= 2.0
     }

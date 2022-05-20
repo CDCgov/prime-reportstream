@@ -114,7 +114,7 @@ class MiddleInitialMapper : Mapper {
  *
  * Example call
  *   - name: source_state
- *      mapper: ifThenElse(==, otc_flag, comparisonValue, patient_state, ordering_provider_state)
+ *      mapper: ifThenElse(==, otc_flag, OTC, patient_state, ordering_provider_state)
  *
  * CAUTION: Because this mapper allows every argument to either be an existing element's value OR
  * a string literal, extra care must be used in typing the args list in the schema.  A misspelled
@@ -166,7 +166,7 @@ class IfThenElseMapper : Mapper {
                 "<=" -> (dVal1 <= dVal2)
                 "<" -> (dVal1 < dVal2)
                 ">" -> (dVal1 > dVal2)
-                else -> false
+                else -> error("ifThenElse Mapper Argument Error: not a valid operator: $op")
             }
         }
         return when (op) {
@@ -176,7 +176,7 @@ class IfThenElseMapper : Mapper {
             "<=" -> (val1 <= val2)
             "<" -> (val1 < val2)
             ">" -> (val1 > val2)
-            else -> false
+            else -> error("ifThenElse Mapper Argument Error: not a valid operator: $op")
         }
     } // comp(op, v1, v2):Boolean
 
@@ -188,7 +188,7 @@ class IfThenElseMapper : Mapper {
     ): ElementResult {
         return if (
             comp(
-                decodeArg(values, args[0]), // operator: string literal op OR element.value op
+                decodeArg(values, args[0]),
                 decodeArg(values, args[1]),
                 decodeArg(values, args[2])
             ) // see comp()
@@ -1023,7 +1023,7 @@ class NullMapper : Mapper {
 
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
-        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$*:^]*)\\x29").find(field)
+        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$*:^><=!]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
         val args = if (match.groupValues[2].isEmpty())
             emptyList()
