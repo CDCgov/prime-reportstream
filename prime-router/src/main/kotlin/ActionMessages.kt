@@ -170,3 +170,11 @@ class DuplicateItemMessage() : ActionLogDetail {
 class FhirActionLogDetail(
     override val message: String
 ) : GenericActionLogDetail(message, ActionLogScope.report)
+
+/**
+ * A return message for invalid processing type
+ */
+class UnsupportedProcessingTypeMessage() : ActionLogDetail {
+    override val scope = ActionLogScope.report
+    override val message = "Full ELR senders must be configured for async processing."
+}
