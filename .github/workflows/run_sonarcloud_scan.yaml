@@ -38,5 +38,3 @@ jobs:
           -Dsonar.sources=frontend-react/src,prime-router/src
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov
-          -Dsonar.verbose=true
-
