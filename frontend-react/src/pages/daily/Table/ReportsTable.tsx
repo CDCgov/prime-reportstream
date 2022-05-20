@@ -23,7 +23,12 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
     const reports: ReportResource[] = useResource(ReportResource.list(), {
         sortBy,
     });
-    const fm = useFilterManager();
+    const fm = useFilterManager({
+        sortDefaults: {
+            column: "sent",
+            locally: true,
+        },
+    });
     const receiverSVCs: string[] = Array.from(getUniqueReceiverSvc(reports));
     const [chosen, setChosen] = useState(receiverSVCs[0]);
     const filteredReports = useMemo(
@@ -44,8 +49,7 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
         );
     };
 
-    /* We should make FilterManager configurable with defaults so we don't
-     * have tu useEffect to set it up */
+    /* TODO: Extend FilterManagerDefaults to include pageSize defaults */
     useEffect(() => {
         fm.updatePage({
             type: PageSettingsActionType.SET_SIZE,
@@ -77,6 +81,8 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
             {
                 dataAttr: "expires",
                 columnHeader: "Expires",
+                sortable: true,
+                localSort: true,
                 transform: (s: string) => {
                     return new Date(s).toLocaleString();
                 },

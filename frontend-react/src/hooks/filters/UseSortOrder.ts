@@ -4,6 +4,7 @@ enum SortSettingsActionType {
     CHANGE_COL = "change-column",
     SWAP_ORDER = "swap-order",
     APPLY_LOCAL_SORT = "apply-local-sort",
+    SWAP_LOCAL_ORDER = "swap-local-order",
     RESET = "reset",
 }
 
@@ -17,6 +18,7 @@ interface SortSettings {
     column: string;
     order: SortOrder;
     locally: boolean;
+    localOrder: SortOrder;
 }
 interface SortFilter {
     settings: SortSettings;
@@ -44,22 +46,29 @@ export const sortSettingsReducer = (
                 ...state,
                 locally: payload?.locally || false,
             };
+        case SortSettingsActionType.SWAP_LOCAL_ORDER:
+            return {
+                ...state,
+                localOrder: state.localOrder === "ASC" ? "DESC" : "ASC",
+            };
         case SortSettingsActionType.RESET: // Also able to manually update settings
             return {
                 column: payload?.column || "",
                 order: payload?.order || "DESC",
                 locally: payload?.locally || false,
+                localOrder: payload?.localOrder || "DESC",
             };
         default:
             return state;
     }
 };
 
-const useSortOrder = (): SortFilter => {
+const useSortOrder = (options?: Partial<SortSettings>): SortFilter => {
     const [settings, dispatchSettings] = useReducer(sortSettingsReducer, {
-        column: "",
-        order: "DESC",
-        locally: false,
+        column: options?.column || "",
+        order: options?.order || "DESC",
+        locally: options?.locally || false,
+        localOrder: options?.localOrder || "DESC",
     });
 
     return {

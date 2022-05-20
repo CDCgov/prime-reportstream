@@ -187,7 +187,7 @@ describe("Sorting integration", () => {
             },
         });
         expect(mockSortUpdater).toHaveBeenCalledWith({
-            type: SortSettingsActionType.SWAP_ORDER,
+            type: SortSettingsActionType.SWAP_LOCAL_ORDER,
         });
         expect(mockSortUpdater).toHaveBeenCalledTimes(3);
     });
