@@ -31,10 +31,10 @@ locals {
     use_32_bit_worker_process = false
     vnet_route_all_enabled    = true
     # Deployments may fail if not always on
-    always_on                 = true
-    environment               = var.environment
-    linux_fx_version          = "PYTHON|3.9"
-    FUNCTIONS_WORKER_RUNTIME  = "python"
+    always_on                = true
+    environment              = var.environment
+    linux_fx_version         = "PYTHON|3.9"
+    FUNCTIONS_WORKER_RUNTIME = "python"
   }
   # Set network configuration
   network = {

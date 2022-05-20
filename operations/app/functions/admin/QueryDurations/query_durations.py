@@ -10,11 +10,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     password = os.getenv("POSTGRES_PASSWORD")
 
     if host and user and password:
-        # Update connection string information
-        host = host
         dbname = "postgres"
         user = f"{user}@{host}"
-        password = password
         sslmode = "require"
 
         conn_string = "host={0} user={1} dbname={2} password={3} sslmode={4}".format(host, user, dbname, password, sslmode)

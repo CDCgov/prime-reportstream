@@ -1,7 +1,6 @@
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 import azure.functions as func
-import os
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
