@@ -1,9 +1,7 @@
 package gov.cdc.prime.router.fhirengine.utils
 
 import assertk.assertThat
-import assertk.assertions.hasClass
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -21,7 +19,7 @@ class HL7ReaderTests {
 
         // Empty data
         val badData1 = ""
-        assertThat { hl7Reader.getMessages(badData1) }.isFailure().hasClass(IllegalArgumentException::class.java)
+        hl7Reader.getMessages(badData1)
         assertThat(actionLogger.hasErrors()).isTrue()
         actionLogger.logs.clear()
 
@@ -30,13 +28,13 @@ class HL7ReaderTests {
             a,b,c
             1,2,3
         """.trimIndent()
-        assertThat { hl7Reader.getMessages(badData2) }.isFailure().hasClass(IllegalArgumentException::class.java)
+        hl7Reader.getMessages(badData2)
         assertThat(actionLogger.hasErrors()).isTrue()
         actionLogger.logs.clear()
 
         // Some truncated HL7
         val badData3 = "MSH|^~\\&#|MEDITECH^2.16.840.1.114222.4.3.2.2.1.321.111^ISO|COCAA^1.2."
-        assertThat { hl7Reader.getMessages(badData3) }.isFailure().hasClass(IllegalArgumentException::class.java)
+        hl7Reader.getMessages(badData3)
         assertThat(actionLogger.hasErrors()).isTrue()
         actionLogger.logs.clear()
     }
