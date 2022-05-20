@@ -49,6 +49,7 @@ class CompareFhirData(
      * Compare an [actualBundle] to an [expectedBundle] and provide the [result].
      */
     internal fun compareBundle(actualBundle: Bundle, expectedBundle: Bundle, result: CompareData.Result) {
+        result.passed = true
         val resourcesToCompare = mutableMapOf<Resource, List<Base>>(expectedBundle to listOf(actualBundle))
 
         // Only use entries we want.
@@ -70,17 +71,16 @@ class CompareFhirData(
         }
 
         // Compare all the resources.
-        var isEqual = true
         resourcesToCompare.keys.forEach { expectedResource ->
             val resourceMatches = resourcesToCompare[expectedResource]?.all { actualResource ->
                 logger.info("")
                 logger.info("Comparing ${expectedResource.fhirType()}...")
                 compareResource(actualResource, expectedResource, expectedResource.fhirType(), result)
             }
+            result.passed = result.passed and (resourceMatches ?: true)
             logger.info("Resource ${expectedResource.fhirType()} matches = $resourceMatches")
-            isEqual = isEqual && (resourceMatches ?: true)
         }
-        logger.debug("FHIR bundles are ${if (isEqual) "IDENTICAL" else "DIFFERENT"}")
+        logger.debug("FHIR bundles are ${if (result.passed) "IDENTICAL" else "DIFFERENT"}")
     }
 
     /**
@@ -127,7 +127,6 @@ class CompareFhirData(
                 isEqual = false
             }
         }
-        result.passed = result.passed and isEqual
         return isEqual
     }
 

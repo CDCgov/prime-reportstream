@@ -155,38 +155,32 @@ class CompareFhirDataTests {
         // Expected has less than actual, but same data
         result = CompareData.Result()
         assertThat(comparator.compareResource(resourceA, resourceB, "", result)).isTrue()
-        assertThat(result.passed).isTrue()
         assertThat(result.errors).isEmpty()
 
         // Actual has less than expected, but same data
         result = CompareData.Result()
         assertThat(comparator.compareResource(resourceB, resourceA, "", result)).isFalse()
-        assertThat(result.passed).isFalse()
         assertThat(result.errors).isNotEmpty()
 
         // Expected has less than actual, but same data
         result = CompareData.Result()
         assertThat(comparator.compareResource(resourceA, resourceC, "", result)).isTrue()
-        assertThat(result.passed).isTrue()
         assertThat(result.errors).isEmpty()
 
         // Actual has less than expected, but same data
         result = CompareData.Result()
         assertThat(comparator.compareResource(resourceC, resourceA, "", result)).isFalse()
-        assertThat(result.passed).isFalse()
         assertThat(result.errors).isNotEmpty()
 
         // Actual has a primitive instead of a resource
         result = CompareData.Result()
         assertThat(comparator.compareResource(StringType("some string"), resourceA, "", result))
             .isFalse()
-        assertThat(result.passed).isFalse()
         assertThat(result.errors).isNotEmpty()
 
         // Test suppress output
         result = CompareData.Result()
         assertThat(comparator.compareResource(resourceC, resourceA, "", result, true)).isFalse()
-        assertThat(result.passed).isFalse()
         assertThat(result.errors).isEmpty()
     }
 
