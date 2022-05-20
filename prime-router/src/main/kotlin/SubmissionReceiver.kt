@@ -14,6 +14,8 @@ import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 /**
  * The base class for a 'receiver' type, currently just for COVID or full ELR submissions. This allows us a fan out
  * point to provide for different pipeline pathways for different submissions types.
+ * [workflowEngine] is the workflow engine to use. Mocked engine is passed in for testing
+ * [actionHistory] is the actionHistory to use. Mocked ActionHistory is passed in for testing
  */
 abstract class SubmissionReceiver(
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
@@ -22,6 +24,16 @@ abstract class SubmissionReceiver(
     /**
      * The main function that will be called from ReportFunction. Encapsulates all logic needed to validate
      * and send a submission to the next step in the pipeline, or return error messages to the user.
+     *
+     * [sender] the sender of the submission
+     * [content] string representation of the submission
+     * [defaults] defaults to apply
+     * [options] Options for processing, if any
+     * [routeTo] override for routing
+     * [isAsync] true if this will be processed async. ELR senders must have this set to true
+     * [allowDuplicates] If true will detect duplicates and return errors if there are any
+     * [payloadName] optional sender-determined name of the payload
+     * [metadata] metadata to use. Mocked metadata is passed in for testing
      */
     abstract fun validateAndMoveToProcessing(
         sender: Sender,
@@ -31,7 +43,6 @@ abstract class SubmissionReceiver(
         routeTo: List<String>,
         isAsync: Boolean,
         allowDuplicates: Boolean,
-        rawBody: ByteArray,
         payloadName: String?,
         metadata: Metadata? = null
     )
@@ -39,6 +50,9 @@ abstract class SubmissionReceiver(
     companion object {
         /**
          * Checks the [report] rows looking for duplicates, and adds errors as needed
+         * [workflowEngine] the workflow engine to use. Mocked for testing
+         * [report] the report to look at to find out if it contains duplicates
+         * [actionLogs] ActionLogger instance to use. Mocked for testing
          */
         internal fun doDuplicateDetection(
             workflowEngine: WorkflowEngine,
@@ -74,8 +88,8 @@ abstract class SubmissionReceiver(
         }
 
         /**
-         * If a [rowNum] is passed, a DuplicateItemMessage with [message] is added to [actionLogs] as an error.
-         * If no [rowNum] is passed, a DuplicateFileMessage with [message] is added to [actionLogs] as an error.
+         * If a [rowNum] is passed, a DuplicateItemMessage with [payloadName] is added to [actionLogs] as an error.
+         * If no [rowNum] is passed, a DuplicateFileMessage with [payloadName] is added to [actionLogs] as an error.
          * If a [trackingId] is passed, it will be used in the response message
          */
         internal fun addDuplicateLogs(
@@ -112,7 +126,6 @@ class CovidReceiver : SubmissionReceiver {
         routeTo: List<String>,
         isAsync: Boolean,
         allowDuplicates: Boolean,
-        rawBody: ByteArray,
         payloadName: String?,
         metadata: Metadata?
     ) {
@@ -130,7 +143,7 @@ class CovidReceiver : SubmissionReceiver {
         }
 
         workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
+            report, content.toByteArray(), sender, actionHistory, payloadName
         )
 
         // if there are any errors, kick this out.
@@ -161,6 +174,13 @@ class CovidReceiver : SubmissionReceiver {
         }
     }
 
+    /**
+     * Processes a non-ELR report into the async pipeline
+     * [parsedReport] The report to process
+     * [options] Processing options, if any
+     * [defaults] Defaults for missing values, if any
+     * [routeTo] Override routeTo value, if any
+     */
     internal fun processAsync(
         parsedReport: Report,
         options: Options,
@@ -208,7 +228,6 @@ class ELRReceiver : SubmissionReceiver {
         routeTo: List<String>,
         isAsync: Boolean,
         allowDuplicates: Boolean,
-        rawBody: ByteArray,
         payloadName: String?,
         metadata: Metadata?
     ) {
@@ -222,12 +241,6 @@ class ELRReceiver : SubmissionReceiver {
         val report = Report(
             Format.HL7,
             sources,
-            // ELR submissions don't really have a 'schema' in the sense that we are using it, but it is a
-            //  non-nullable field and fits into our reporting. This also leaves the option to implement
-            //  schema-per-sender in the future if it is needed
-            // TODO TECH DEBT: Schema should be using the Topic enum instead of a string,
-            //  that is out of scope as of 5/19/22
-            Schema("None", Topic.FULL_ELR.json_val),
             messages.size,
             metadata
         )
@@ -243,7 +256,7 @@ class ELRReceiver : SubmissionReceiver {
 
         // record that the submission was received
         val blobInfo = workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
+            report, content.toByteArray(), sender, actionHistory, payloadName
         )
 
         // if there are any errors, kick this out.

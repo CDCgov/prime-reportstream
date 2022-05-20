@@ -330,18 +330,20 @@ class Report : Logging {
 
     /**
      * Full ELR Report constructor for ingest
+     * [bodyFormat] is the format for this report. Should be HL7
+     * [sources] is the ClientSource or TestSource, where this data came from
+     * [numberOfMessages] how many incoming messages does this Report represent
+     * [metadata] is the metadata to use, mocked meta is passed in for testing
      */
-    // TODO: should this be a method instead somewhere, since it is a use-case specific constructor?
-    //  in the companion object?
     constructor(
         bodyFormat: Format,
         sources: List<Source>,
-        schema: Schema, // shouldn't even need a Schema here, but required for legacy reasons. Tech Debt?
         numberOfMessages: Int,
         metadata: Metadata? = null
     ) {
         this.id = UUID.randomUUID()
-        this.schema = schema
+        // ELR submissions do not need a schema, but it is required by the database to maintain legacy functionality
+        this.schema = Schema("None", Topic.FULL_ELR.json_val)
         this.sources = sources
         this.bodyFormat = bodyFormat
         this.destination = null
