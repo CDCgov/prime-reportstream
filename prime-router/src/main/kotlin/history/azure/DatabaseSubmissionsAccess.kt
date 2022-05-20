@@ -25,13 +25,16 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
     ReportFileAccess {
 
     /**
+     * Get multiple submissions based on a particular organization.
+     *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
      * @param order sort the table in ASC or DESC order.
      * @param sortColumn sort the table by specific column; default created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
      * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
      * @param limit is an Integer used for setting the number of results per page.
-     * @return a list of results matching the SQL Query.
+     * @param klass the class that the found data will be converted to.
+     * @return a list of submissions matching the SQL Query.
      */
     override fun <T> fetchActions(
         organization: String,
@@ -78,9 +81,11 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
     }
 
     /**
-     * @param order sort the table in ASC or DESC order.
+     * Add sorting elements to the DB query.
+     *
      * @param sortColumn sort the table by specific column; default created_at.
-     * @return a jooq Condition statement to use in where().
+     * @param order sort the table in ASC or DESC order.
+     * @return a jooq sorting statement.
      */
     private fun createColumnSort(
         sortColumn: ReportFileAccess.SortColumn,
@@ -101,9 +106,12 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
     }
 
     /**
+     * Add various filters to the DB query.
+     *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
      * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
+     * @param showFailed filter out submissions that failed to send.
      * @return a jooq Condition statement to use in where().
      */
     private fun createWhereCondition(
@@ -139,7 +147,12 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
     }
 
     /**
-     * fetch the details of a single action
+     * Fetch the details of a single submission.
+     *
+     * @param organization is the Organization Name returned from the Okta JWT Claim.
+     * @param actionId the action id attached to this submission.
+     * @param klass the class that the found data will be converted to.
+     * @return the submission matching the given query parameters, or null.
      */
     override fun <T> fetchAction(
         organization: String,
@@ -160,9 +173,12 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
     }
 
     /**
-     * Fetch the details of an actions relations (descendents)
+     * Fetch the details of an action's relations (descendents).
+     * This is done through a recursive query on the report_lineage table.
      *
-     * This is done through a recursive query on the report_lineage table
+     * @param actionId the action id attached to the action to find relations for.
+     * @param klass the class that the found data will be converted to.
+     * @return a list of descendants for the given action id.
      */
     override fun <T> fetchRelatedActions(
         actionId: Long,
@@ -181,6 +197,11 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         }
     }
 
+    /**
+     * Add logs and reports related to the submission being fetched.
+     *
+     * @return a jooq select statement adding additional DB columns.
+     */
     fun detailedSubmissionSelect(): List<SelectFieldOrAsterisk> {
         return listOf(
             ACTION.asterisk(),
@@ -201,6 +222,12 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         )
     }
 
+    /**
+     * Helper query used recursively to get the descendants of a submission.
+     *
+     * @param actionId the action id attached to the child submission to get details for.
+     * @return a jooq subquery finding the submission's descendants.
+     */
     private fun reportDescendantExpression(actionId: Long): CommonTableExpression<*> {
         return DSL.name("t").fields(
             "action_id",

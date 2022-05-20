@@ -24,8 +24,8 @@ abstract class ReportFileFunction(
         constructor(query: Map<String, String>) : this (
             extractSortOrder(query),
             extractSortCol(query),
-            extractCursor(query, "cursor"),
-            extractCursor(query, "endcursor"),
+            extractDateTime(query, "cursor"),
+            extractDateTime(query, "endcursor"),
             extractPageSize(query),
             extractShowFailed(query)
         )
@@ -39,7 +39,7 @@ abstract class ReportFileFunction(
                 return query.getOrDefault("sortcol", "default")
             }
 
-            fun extractCursor(query: Map<String, String>, name: String): OffsetDateTime? {
+            fun extractDateTime(query: Map<String, String>, name: String): OffsetDateTime? {
                 val cursor = query.get(name)
                 return if (cursor != null) {
                     try {
