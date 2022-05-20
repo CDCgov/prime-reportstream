@@ -205,6 +205,7 @@ const Table = ({
                     if (colConfig.sortable && filterManager) {
                         return (
                             <th
+                                className="rs-sortable-header"
                                 key={colConfig.columnHeader}
                                 onClick={() => {
                                     // Swaps the order and set column
