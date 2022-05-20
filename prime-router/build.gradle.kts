@@ -681,7 +681,7 @@ dependencies {
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.4.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.2") {
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.3") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2.2")
