@@ -2,6 +2,7 @@ package gov.cdc.prime.router.history.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.history.DeliveryHistory
 import io.mockk.every
 import io.mockk.mockk
@@ -11,7 +12,7 @@ import kotlin.test.Test
 class DeliveryFacadeTests {
     @Test
     fun `test findDeliveriesAsJson`() {
-        val mockDeliveryAccess = mockk<ReportFileAccess>()
+        val mockDeliveryAccess = mockk<DatabaseDeliveryAccess>()
         val mockDbAccess = mockk<DatabaseAccess>()
         val facade = DeliveryFacade(mockDeliveryAccess, mockDbAccess)
 
@@ -54,6 +55,7 @@ class DeliveryFacadeTests {
                 any(),
                 any(),
                 any(),
+                any(),
                 DeliveryHistory::class.java
             )
         } returns goodReturn
@@ -61,8 +63,8 @@ class DeliveryFacadeTests {
         assertThat(
             facade.findDeliveriesAsJson(
                 "ca-dph",
-                "ASC",
-                "CREATED_AT",
+                ReportFileAccess.SortOrder.ASC,
+                ReportFileAccess.SortColumn.CREATED_AT,
                 null,
                 null,
                 10

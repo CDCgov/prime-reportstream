@@ -37,15 +37,15 @@ class DeliveryHistoryTests {
 
             assertThat(expires).isEqualTo(OffsetDateTime.parse("2022-05-19T18:04:26.534Z"))
 
-            val compareFilename = Report.formExternalFilename(
-                bodyUrl,
-                ReportId.fromString(reportId),
-                schemaName,
-                Report.Format.safeValueOf(bodyFormat),
-                createdAt
-            )
+            // val compareFilename = Report.formExternalFilename(
+            //     bodyUrl,
+            //     ReportId.fromString(reportId),
+            //     schemaName,
+            //     Report.Format.safeValueOf(bodyFormat),
+            //     createdAt
+            // )
 
-            assertThat(filename).isEqualTo(compareFilename)
+            // assertThat(filename).isEqualTo(compareFilename)
         }
     }
 }
