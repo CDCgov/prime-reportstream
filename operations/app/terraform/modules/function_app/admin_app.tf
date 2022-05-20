@@ -23,8 +23,8 @@ locals {
     SCM_DO_BUILD_DURING_DEPLOYMENT     = true
     WEBSITE_HTTPLOGGING_RETENTION_DAYS = 3
     POSTGRES_HOST                      = "${var.resource_prefix}-pgsql.postgres.database.azure.com"
-    POSTGRES_USER                      = "@Microsoft.KeyVault(SecretUri=https://${var.resource_prefix}-app-config.vault.azure.net/secrets/functionapp-postgres-user)"
-    POSTGRES_PASSWORD                  = "@Microsoft.KeyVault(SecretUri=https://${var.resource_prefix}-app-config.vault.azure.net/secrets/functionapp-postgres-pass)"
+    POSTGRES_USER                      = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-postgres-user)"
+    POSTGRES_PASSWORD                  = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-postgres-pass)"
   }
   # Set app configuration
   config = {

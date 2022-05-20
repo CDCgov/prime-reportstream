@@ -142,6 +142,7 @@ module "function_app" {
   container_registry_admin_password = module.container_registry.container_registry_admin_password
   subnets                           = module.network.subnets
   application_key_vault_id          = module.key_vault.application_key_vault_id
+  app_config_key_vault_name         = module.key_vault.app_config_key_vault_name
   sa_partner_connection_string      = module.storage.sa_partner_connection_string
   client_config_key_vault_id        = module.key_vault.client_config_key_vault_id
   app_config_key_vault_id           = module.key_vault.app_config_key_vault_id
