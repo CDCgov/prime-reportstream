@@ -33,6 +33,8 @@ class ReportFileMessage(
 
     data class Request(
         val reportId: String = "",
-        val indices: List<Int> = emptyList()
+        val receiverReportIndices: List<Int>? = emptyList(),
+        val messageID: String = "",
+        val senderReportIndices: Int?,
     )
 }
