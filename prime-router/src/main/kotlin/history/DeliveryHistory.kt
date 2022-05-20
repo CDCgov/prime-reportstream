@@ -42,7 +42,7 @@ class DeliveryHistory(
     @JsonProperty("reportItemCount")
     itemCount: Int? = null,
     @JsonIgnore
-    val bodyUrl: String,
+    val bodyUrl: String? = null,
     @JsonIgnore
     val schemaName: String,
     @JsonIgnore

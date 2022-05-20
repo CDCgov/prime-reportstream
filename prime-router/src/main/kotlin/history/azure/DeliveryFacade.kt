@@ -11,7 +11,7 @@ import java.time.OffsetDateTime
  * Contains all business logic regarding deliveries and JSON serialization.
  */
 class DeliveryFacade(
-    private val dbDeliveryAccess: DatabaseDeliveryAccess = DatabaseDeliveryAccess(),
+    private val dbDeliveryAccess: ReportFileAccess = DatabaseDeliveryAccess(),
     dbAccess: DatabaseAccess = WorkflowEngine.databaseAccessSingleton
 ) : ReportFileFacade(
     dbAccess,
@@ -43,7 +43,7 @@ class DeliveryFacade(
      *
      * @return a List of Actions
      */
-    private fun findDeliveries(
+    fun findDeliveries(
         organizationName: String,
         sortOrder: ReportFileAccess.SortOrder,
         sortColumn: ReportFileAccess.SortColumn,

@@ -11,7 +11,7 @@ import kotlin.test.Test
 
 class DeliveryFacadeTests {
     @Test
-    fun `test findDeliveriesAsJson`() {
+    fun `test findDeliveries`() {
         val mockDeliveryAccess = mockk<DatabaseDeliveryAccess>()
         val mockDbAccess = mockk<DatabaseAccess>()
         val facade = DeliveryFacade(mockDeliveryAccess, mockDbAccess)
@@ -61,7 +61,7 @@ class DeliveryFacadeTests {
         } returns goodReturn
 
         assertThat(
-            facade.findDeliveriesAsJson(
+            facade.findDeliveries(
                 "ca-dph",
                 ReportFileAccess.SortOrder.ASC,
                 ReportFileAccess.SortColumn.CREATED_AT,

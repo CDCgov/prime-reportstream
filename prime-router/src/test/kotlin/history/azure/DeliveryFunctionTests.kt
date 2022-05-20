@@ -8,10 +8,13 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.MockHttpRequestMessage
+import gov.cdc.prime.router.azure.MockSettings
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -31,29 +34,6 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import kotlin.test.Test
 
-data class DeliveryUnitTestCase(
-    val headers: Map<String, String>,
-    val parameters: Map<String, String>,
-    val expectedResponse: ExpectedAPIResponse,
-    val name: String?
-)
-
-/**
- * Delivery list response from the API
- */
-data class ExpectedDeliveryList(
-    val deliveryId: Int,
-    val sent: OffsetDateTime,
-    val expires: OffsetDateTime,
-    val receivingOrg: String,
-    val receivingOrgSvc: String,
-    val httpStatus: Int,
-    val reportId: String,
-    val topic: String,
-    val reportItemCount: Int,
-    val fileName: String,
-)
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DeliveryFunctionTests : Logging {
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
@@ -68,7 +48,32 @@ class DeliveryFunctionTests : Logging {
             "organization" to listOf(organizationName)
         )
     }
+    data class ExpectedAPIResponse(
+        val status: HttpStatus,
+        val body: List<ExpectedDelivery>? = null
+    )
+    data class DeliveryUnitTestCase(
+        val headers: Map<String, String>,
+        val parameters: Map<String, String>,
+        val expectedResponse: ExpectedAPIResponse,
+        val name: String?
+    )
 
+    /**
+     * Delivery list response from the API
+     */
+    data class ExpectedDelivery(
+        val deliveryId: Int,
+        val sent: OffsetDateTime,
+        val expires: OffsetDateTime,
+        val receivingOrg: String,
+        val receivingOrgSvc: String,
+        val httpStatus: Int,
+        val reportId: String,
+        val topic: String,
+        val reportItemCount: Int,
+        val fileName: String,
+    )
     class TestDeliveryAccess(val dataset: List<DeliveryHistory>, val mapper: ObjectMapper) : ReportFileAccess {
 
         override fun <T> fetchActions(
@@ -87,7 +92,7 @@ class DeliveryFunctionTests : Logging {
 
         override fun <T> fetchAction(
             organization: String,
-            submissionId: Long,
+            actionId: Long,
             klass: Class<T>
         ): T? {
             @Suppress("UNCHECKED_CAST")
@@ -95,7 +100,7 @@ class DeliveryFunctionTests : Logging {
         }
 
         override fun <T> fetchRelatedActions(
-            submissionId: Long,
+            actionId: Long,
             klass: Class<T>
         ): List<T> {
             @Suppress("UNCHECKED_CAST")
@@ -105,24 +110,32 @@ class DeliveryFunctionTests : Logging {
 
     val testData = listOf(
         DeliveryHistory(
-            actionId = 8,
-            createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
-            organization = "simple_report",
+            actionId = 922,
+            createdAt = OffsetDateTime.parse("2022-04-19T18:04:26.534Z"),
+            receivingOrg = "ca-dph",
+            receivingOrgSvc = "elr-secondary",
             httpStatus = 201,
-            externalName = "testname.csv",
-            reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
+            externalName = null,
+            reportId = "b9f63105-bbed-4b41-b1ad-002a90f07e62",
             schemaTopic = "covid-19",
-            itemCount = 3,
+            itemCount = 14,
+            bodyUrl = null,
+            schemaName = "covid-19",
+            bodyFormat = "HL7_BATCH",
         ),
         DeliveryHistory(
-            actionId = 7,
-            createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
-            organization = "simple_report",
-            httpStatus = 400,
-            externalName = "testname.csv",
-            reportId = null,
-            schemaTopic = null,
-            itemCount = null,
+            actionId = 284,
+            createdAt = OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
+            receivingOrg = "ca-dph",
+            receivingOrgSvc = "elr-secondary",
+            httpStatus = 201,
+            externalName = null,
+            reportId = "c3c8e304-8eff-4882-9000-3645054a30b7",
+            schemaTopic = "covid-19",
+            itemCount = 1,
+            bodyUrl = null,
+            schemaName = "primedatainput/pdi-covid-19",
+            bodyFormat = "CSV"
         )
     )
 
@@ -142,9 +155,9 @@ class DeliveryFunctionTests : Logging {
     }
 
     @Test
-    fun `test list submissions`() {
+    fun `test list deliveries`() {
         val testCases = listOf(
-            SubmissionUnitTestCase(
+            DeliveryUnitTestCase(
                 mapOf("authorization" to "Bearer 111.222.333", "authentication-type" to "okta"),
                 emptyMap(),
                 ExpectedAPIResponse(
@@ -152,37 +165,41 @@ class DeliveryFunctionTests : Logging {
                 ),
                 "unauthorized"
             ),
-            SubmissionUnitTestCase(
+            DeliveryUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"), // no 'okta' auth-type, so this uses server2server auth
                 emptyMap(),
                 ExpectedAPIResponse(
                     HttpStatus.OK,
                     listOf(
-                        ExpectedSubmissionList(
-                            submissionId = 8,
-                            timestamp = OffsetDateTime.parse("2021-11-30T16:36:54.919Z"),
-                            sender = "simple_report",
+                        ExpectedDelivery(
+                            deliveryId = 922,
+                            sent = OffsetDateTime.parse("2022-04-19T18:04:26.534Z"),
+                            expires = OffsetDateTime.parse("2022-05-19T18:04:26.534Z"),
+                            receivingOrg = "ca-dph",
+                            receivingOrgSvc = "elr-secondary",
                             httpStatus = 201,
-                            externalName = "testname.csv",
-                            id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
+                            reportId = "b9f63105-bbed-4b41-b1ad-002a90f07e62",
                             topic = "covid-19",
-                            reportItemCount = 3
+                            reportItemCount = 14,
+                            fileName = "covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.hl7",
                         ),
-                        ExpectedSubmissionList(
-                            submissionId = 7,
-                            timestamp = OffsetDateTime.parse("2021-11-30T16:36:48.307Z"),
-                            sender = "simple_report",
-                            httpStatus = 400,
-                            externalName = "testname.csv",
-                            id = null,
-                            topic = null,
-                            reportItemCount = null
-                        )
+                        ExpectedDelivery(
+                            deliveryId = 284,
+                            sent = OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
+                            expires = OffsetDateTime.parse("2022-05-12T17:06:10.534Z"),
+                            receivingOrg = "ca-dph",
+                            receivingOrgSvc = "elr-secondary",
+                            httpStatus = 201,
+                            reportId = "c3c8e304-8eff-4882-9000-3645054a30b7",
+                            topic = "covid-19",
+                            reportItemCount = 1,
+                            fileName = "pdi-covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.csv",
+                        ),
                     )
                 ),
                 "simple success"
             ),
-            SubmissionUnitTestCase(
+            DeliveryUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads", "authentication-type" to "okta"),
                 mapOf("cursor" to "nonsense"),
                 ExpectedAPIResponse(
@@ -190,7 +207,7 @@ class DeliveryFunctionTests : Logging {
                 ),
                 "bad date"
             ),
-            SubmissionUnitTestCase(
+            DeliveryUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf("pagesize" to "-1"),
                 ExpectedAPIResponse(
@@ -198,7 +215,7 @@ class DeliveryFunctionTests : Logging {
                 ),
                 "bad pagesize"
             ),
-            SubmissionUnitTestCase(
+            DeliveryUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf("pagesize" to "fdas"),
                 ExpectedAPIResponse(
@@ -206,7 +223,7 @@ class DeliveryFunctionTests : Logging {
                 ),
                 "bad pagesize, garbage"
             ),
-            SubmissionUnitTestCase(
+            DeliveryUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf(
                     "pagesize" to "10",
@@ -218,7 +235,7 @@ class DeliveryFunctionTests : Logging {
                 ),
                 "good minimum params"
             ),
-            SubmissionUnitTestCase(
+            DeliveryUnitTestCase(
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf(
                     "pagesize" to "10",
@@ -247,34 +264,34 @@ class DeliveryFunctionTests : Logging {
         val engine = makeEngine(metadata, settings)
 
         testCases.forEach {
-            logger.info("Executing list submissions unit test ${it.name}")
+            logger.info("Executing list deliveries unit test ${it.name}")
             val httpRequestMessage = MockHttpRequestMessage()
             httpRequestMessage.httpHeaders += it.headers
             httpRequestMessage.parameters += it.parameters
             // Invoke
-            val response = SubmissionFunction(
-                SubmissionsFacade(TestSubmissionAccess(testData, mapper)),
+            val response = DeliveryFunction(
+                DeliveryFacade(TestDeliveryAccess(testData, mapper)),
                 workflowEngine = engine,
-            ).getOrgSubmissionsList(
+            ).getDeliveries(
                 httpRequestMessage,
                 "simple_report",
             )
             // Verify
             assertThat(response.status).isEqualTo(it.expectedResponse.status)
             if (response.status == HttpStatus.OK) {
-                val submissions: List<ExpectedSubmissionList> = mapper.readValue(response.body.toString())
+                val deliveries: List<ExpectedDelivery> = mapper.readValue(response.body.toString())
                 if (it.expectedResponse.body != null) {
-                    assertThat(submissions.size).isEqualTo(it.expectedResponse.body.size)
-                    assertThat(submissions).isEqualTo(it.expectedResponse.body)
+                    assertThat(deliveries.size).isEqualTo(it.expectedResponse.body.size)
+                    assertThat(deliveries).isEqualTo(it.expectedResponse.body)
                 }
             }
         }
     }
 
-    private fun setupSubmissionFunctionForTesting(
+    private fun setupDeliveryFunctionForTesting(
         oktaClaimsOrganizationName: String,
-        facade: SubmissionsFacade,
-    ): SubmissionFunction {
+        facade: DeliveryFacade,
+    ): DeliveryFunction {
         val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
         val metadata = Metadata(schema = Schema(name = "one", topic = "test"))
         val settings = MockSettings()
@@ -303,8 +320,8 @@ class DeliveryFunctionTests : Logging {
                 Instant.now().plusSeconds(60),
                 claimsMap
             )
-        return SubmissionFunction(
-            submissionsFacade = facade,
+        return DeliveryFunction(
+            deliveryFacade = facade,
             workflowEngine = engine
         )
     }
@@ -319,31 +336,31 @@ class DeliveryFunctionTests : Logging {
     }
 
     @Test
-    fun `test access user can view their org's submission history`() {
-        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
-        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, facade)
+    fun `test access user can view their org's delivery history`() {
+        val facade = DeliveryFacade(TestDeliveryAccess(testData, mapper))
+        val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
-        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
+        val response = deliveryFunction.getDeliveries(httpRequestMessage, organizationName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
     @Test
-    fun `test access user cannot view another org's submission history`() {
-        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
-        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, facade)
+    fun `test access user cannot view another org's delivery history`() {
+        val facade = DeliveryFacade(TestDeliveryAccess(testData, mapper))
+        val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
-        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, otherOrganizationName)
+        val response = deliveryFunction.getDeliveries(httpRequestMessage, otherOrganizationName)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
     @Test
-    fun `test access DHPrimeAdmins can view all org's submission history`() {
-        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
-        val submissionFunction = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, facade)
+    fun `test access DHPrimeAdmins can view all org's delivery history`() {
+        val facade = DeliveryFacade(TestDeliveryAccess(testData, mapper))
+        val deliveryFunction = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
-        var response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
+        var response = deliveryFunction.getDeliveries(httpRequestMessage, organizationName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
-        response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, otherOrganizationName)
+        response = deliveryFunction.getDeliveries(httpRequestMessage, otherOrganizationName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 }

@@ -44,31 +44,6 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import kotlin.test.Test
 
-data class ExpectedAPIResponse(
-    val status: HttpStatus,
-    val body: List<ExpectedSubmissionList>? = null
-)
-
-data class SubmissionUnitTestCase(
-    val headers: Map<String, String>,
-    val parameters: Map<String, String>,
-    val expectedResponse: ExpectedAPIResponse,
-    val name: String?
-)
-
-/**
- * Detail Submission History Response from the API.
- */
-data class DetailSubmissionHistoryResponse(
-    val submissionId: Long,
-    val id: String?,
-    val timestamp: OffsetDateTime,
-    val sender: String?,
-    val httpStatus: Int?,
-    val externalName: String? = "",
-    val overallStatus: String,
-)
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SubmissionFunctionTests : Logging {
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
@@ -83,6 +58,31 @@ class SubmissionFunctionTests : Logging {
             "organization" to listOf(organizationName)
         )
     }
+
+    data class ExpectedAPIResponse(
+        val status: HttpStatus,
+        val body: List<ExpectedSubmissionList>? = null
+    )
+
+    data class SubmissionUnitTestCase(
+        val headers: Map<String, String>,
+        val parameters: Map<String, String>,
+        val expectedResponse: ExpectedAPIResponse,
+        val name: String?
+    )
+
+    /**
+     * Detail Submission History Response from the API.
+     */
+    data class DetailSubmissionHistoryResponse(
+        val submissionId: Long,
+        val id: String?,
+        val timestamp: OffsetDateTime,
+        val sender: String?,
+        val httpStatus: Int?,
+        val externalName: String? = "",
+        val overallStatus: String,
+    )
 
     class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : ReportFileAccess {
 
@@ -101,8 +101,8 @@ class SubmissionFunctionTests : Logging {
         }
 
         override fun <T> fetchAction(
-            sendingOrg: String,
-            submissionId: Long,
+            organization: String,
+            actionId: Long,
             klass: Class<T>
         ): T? {
             @Suppress("UNCHECKED_CAST")
@@ -110,7 +110,7 @@ class SubmissionFunctionTests : Logging {
         }
 
         override fun <T> fetchRelatedActions(
-            submissionId: Long,
+            actionId: Long,
             klass: Class<T>
         ): List<T> {
             @Suppress("UNCHECKED_CAST")
@@ -122,26 +122,22 @@ class SubmissionFunctionTests : Logging {
         SubmissionHistory(
             actionId = 8,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
-            organization = "simple_report",
+            sendingOrg = "simple_report",
             httpStatus = 201,
             externalName = "testname.csv",
             reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
             schemaTopic = "covid-19",
             itemCount = 3,
-//                warningCount = 3,
-//                errorCount = 0
         ),
         SubmissionHistory(
             actionId = 7,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
-            organization = "simple_report",
+            sendingOrg = "simple_report",
             httpStatus = 400,
             externalName = "testname.csv",
             reportId = null,
             schemaTopic = null,
             itemCount = null,
-//                warningCount = 1,
-//                errorCount = 1
         )
     )
 
@@ -401,7 +397,7 @@ class SubmissionFunctionTests : Logging {
         // Happy path with a good UUID
         val action = Action()
         action.actionId = 550
-        action.organization = organizationName
+        action.sendingOrg = organizationName
         action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID

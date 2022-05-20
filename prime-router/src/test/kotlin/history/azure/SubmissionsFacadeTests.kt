@@ -17,7 +17,7 @@ import kotlin.test.Test
 class SubmissionsFacadeTests {
     @Test
     fun `test findDetailedSubmissionHistory`() {
-        val mockSubmissionAccess = mockk<ReportFileAccess>()
+        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
         val mockDbAccess = mockk<DatabaseAccess>()
         val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
         // Good return
@@ -48,7 +48,7 @@ class SubmissionsFacadeTests {
             action.httpStatus = 201
             return action
         }
-        val mockSubmissionAccess = mockk<ReportFileAccess>()
+        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
         val mockDbAccess = mockk<DatabaseAccess>()
         val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
 
