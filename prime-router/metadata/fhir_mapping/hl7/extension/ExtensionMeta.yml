@@ -15,7 +15,7 @@ extension_2:
   vars:
     value: String, MSH.10
   constants:
-    KEY_NAME_SUFFIX: String
+    KEY_NAME_SUFFIX: Id
     urlValue: source-record-id
 
 extension_3:

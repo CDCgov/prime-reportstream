@@ -27,6 +27,10 @@ export interface FilterManager {
     resetAll: () => void;
 }
 
+interface FilterManagerDefaults {
+    sortDefaults?: Partial<SortSettings>;
+}
+
 /* This helper can plug into your API call to allow for pagination
  * with both an ASC and DESC sort. The cursor will increment:
  *
@@ -54,9 +58,11 @@ const cursorOrRange = (
     return range; // fallback to just the range value
 };
 
-const useFilterManager = (): FilterManager => {
+const useFilterManager = (defaults?: FilterManagerDefaults): FilterManager => {
     const { settings: rangeSettings, update: updateRange } = useDateRange();
-    const { settings: sortSettings, update: updateSort } = useSortOrder();
+    const { settings: sortSettings, update: updateSort } = useSortOrder(
+        defaults?.sortDefaults
+    );
     const { settings: pageSettings, update: updatePage } = usePages();
 
     const resetAll = useCallback(() => {

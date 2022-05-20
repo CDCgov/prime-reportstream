@@ -13,24 +13,19 @@ import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.CovidReceiver
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
-import gov.cdc.prime.router.DuplicateItemMessage
-import gov.cdc.prime.router.DuplicateSubmissionMessage
+import gov.cdc.prime.router.ELRReceiver
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.fhirengine.azure.fhirProcessQueueName
-import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
@@ -167,7 +162,6 @@ class ReportFunction(
                 // track the sending organization and client based on the header
                 actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
                 val validatedRequest = validateRequest(request)
-                val rawBody = validatedRequest.content.toByteArray()
 
                 // if the override parameter is populated, use that, otherwise use the sender value
                 val allowDuplicates = if
@@ -177,60 +171,25 @@ class ReportFunction(
 
                 // Only process the report if we are not checking for connection or validation.
                 if (options != Options.CheckConnections && options != Options.ValidatePayload) {
-                    // TODO: Decision point - we will need to parse non-covid reports and only call parseCovidReport
-                    //  once we have verified the sender is a covid-specific sender
-                    // TODO: full ELR, See #5050
-                    val (report, actionLogs) = workflowEngine.parseCovidReport(
-                        // TODO: when the full ELR stuff is refactored out, ideally we would already know we
-                        //  have a CovidSender before reaching the point of parseCovidReport
-                        sender as CovidSender,
+                    val receiver =
+                        if (sender is CovidSender)
+                            CovidReceiver(workflowEngine, actionHistory)
+                        else
+                            ELRReceiver(workflowEngine, actionHistory)
+
+                    // send report on its way, either via the COVID pipeline or the full ELR pipeline
+                    receiver.validateAndMoveToProcessing(
+                        sender,
                         validatedRequest.content,
                         validatedRequest.defaults,
+                        options,
+                        validatedRequest.routeTo,
+                        isAsync,
+                        allowDuplicates,
+                        payloadName
                     )
 
-                    // prevent duplicates if configured to not allow them
-                    if (!allowDuplicates) {
-                        doDuplicateDetection(
-                            report,
-                            actionLogs
-                        )
-                    }
-
-                    val receivedBlobInfo = workflowEngine.recordReceivedReport(
-                        report, rawBody, sender, actionHistory, payloadName
-                    )
-
-                    // if there are any errors, kick this out.
-                    if (actionLogs.hasErrors()) {
-                        throw actionLogs.exception
-                    }
-
-                    // Places a message on a queue for async testing of the fhir engine
-                    // Only triggers if a feature flag is enabled
-                    routeToFHIREngine(receivedBlobInfo, sender, workflowEngine.queue)
-
-                    actionHistory.trackLogs(actionLogs.logs)
-
-                    // call the correct processing function based on processing type
-                    if (isAsync) {
-                        processAsync(
-                            report,
-                            options,
-                            validatedRequest.defaults,
-                            validatedRequest.routeTo
-                        )
-                    } else {
-                        val routingWarnings = workflowEngine.routeReport(
-                            report,
-                            options,
-                            validatedRequest.defaults,
-                            validatedRequest.routeTo,
-                            actionHistory
-                        )
-
-                        actionHistory.trackLogs(routingWarnings)
-                    }
-
+                    // return CREATED status, report submission was successful
                     HttpStatus.CREATED
                 } else HttpStatus.OK
             } catch (e: ActionError) {
@@ -277,84 +236,6 @@ class ReportFunction(
     }
 
     /**
-     * Checks the [report] rows looking for duplicates, and adds errors as needed
-     */
-    internal fun doDuplicateDetection(
-        report: Report,
-        actionLogs: ActionLogger
-    ) {
-        // keep list of hashes generated by this ingest to do same-file comparison
-        val generatedHashes = mutableListOf<String>()
-        val duplicateIndexes = mutableListOf<Int>()
-        for (rowNum in 0 until report.itemCount) {
-            val itemHash = report.getItemHashForRow(rowNum)
-            // check for duplicate item
-            val isDuplicate = generatedHashes.contains(itemHash) ||
-                workflowEngine.isDuplicateItem(itemHash)
-            if (isDuplicate) {
-                duplicateIndexes.add(rowNum + 1)
-            } else {
-                generatedHashes.add(itemHash)
-            }
-        }
-        // TODO Tech Debt: We need a more consistent way to handle 'trackingId'. Once we have one, we can
-        //  pass it in here to ensure a trackingId is returned in the response message
-        // sanity check - if all items are duplicate
-        if (duplicateIndexes.size == report.itemCount) {
-            addDuplicateLogs(actionLogs, null, null, null)
-        }
-        // add logs as needed
-        else {
-            duplicateIndexes.forEach {
-                addDuplicateLogs(actionLogs, null, it, null)
-            }
-        }
-    }
-
-    /**
-     * If a [rowNum] is passed, a DuplicateItemMessage with [message] is added to [actionLogs] as an error.
-     * If no [rowNum] is passed, a DuplicateFileMessage with [message] is added to [actionLogs] as an error.
-     * If a [trackingId] is passed, it will be used in the response message
-     */
-    internal fun addDuplicateLogs(
-        actionLogs: ActionLogger,
-        payloadName: String?,
-        rowNum: Int?,
-        trackingId: String?
-    ) {
-        if (rowNum != null) {
-            actionLogs.getItemLogger(rowNum, trackingId).error(DuplicateItemMessage())
-        } else {
-            // duplicate files are always an error, never a warning
-            actionLogs.error(DuplicateSubmissionMessage(payloadName))
-        }
-    }
-
-    /**
-     * Put a message on a queue to trigger the FHIR Engine pipeline for testing
-     */
-    private fun routeToFHIREngine(blobInfo: BlobAccess.BlobInfo, sender: Sender, queue: QueueAccess) {
-        try {
-            if (Environment.FeatureFlags.FHIR_ENGINE_TEST_PIPELINE.enabled())
-                when (blobInfo.format) {
-                    // limit to hl7
-                    Report.Format.HL7 ->
-                        queue.sendMessage(
-                            fhirProcessQueueName,
-                            RawSubmission(
-                                blobInfo.blobUrl,
-                                BlobAccess.digestToString(blobInfo.digest),
-                                sender.fullName
-                            ).serialize()
-                        )
-                    else -> {}
-                }
-        } catch (t: Throwable) {
-            logger.error("Failed to queue message for FHIR Engine: No action required during testing phase\n$t")
-        }
-    }
-
-    /**
      * Extract client header from request headers or query string parameters
      * @param request the http request message from the client
      */
@@ -385,34 +266,6 @@ class ReportFunction(
                 sender.processingType
             }
         }
-    }
-
-    private fun processAsync(
-        parsedReport: Report,
-        options: Options,
-        defaults: Map<String, String>,
-        routeTo: List<String>
-    ) {
-
-        val report = parsedReport.copy()
-        val sender = parsedReport.sources.firstOrNull()
-            ?: error("Unable to process report ${report.id} because sender sources collection is empty.")
-        val senderName = (sender as ClientSource).name
-
-        if (report.bodyFormat != Report.Format.INTERNAL) {
-            error("Processing a non internal report async.")
-        }
-
-        val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
-
-        val blobInfo = workflowEngine.blob.generateBodyAndUploadReport(
-            report,
-            senderName,
-            action = processEvent.eventAction
-        )
-        actionHistory.trackCreatedReport(processEvent, report, blobInfo)
-        // add task to task table
-        workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
     }
 
     internal fun validateRequest(request: HttpRequestMessage<String?>): ValidatedRequest {

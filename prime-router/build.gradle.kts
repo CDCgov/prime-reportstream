@@ -678,10 +678,10 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.1.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
-    implementation("tech.tablesaw:tablesaw-core:0.42.0")
+    implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.4.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.2") {
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.3") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2.2")
@@ -704,7 +704,7 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20220320")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
-    implementation("com.hierynomus:sshj:0.31.0")
+    implementation("com.hierynomus:sshj:0.33.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.commons:commons-lang3:3.12.0")

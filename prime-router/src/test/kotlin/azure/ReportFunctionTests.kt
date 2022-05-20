@@ -2,22 +2,17 @@ package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLog
-import gov.cdc.prime.router.ActionLogScope
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
-import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FullELRSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
@@ -34,7 +29,6 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.test.Ignore
 
 class ReportFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -361,236 +355,7 @@ class ReportFunctionTests {
         assert(res.statusCode == 400)
     }
 
-    /** addDuplicateLogs tests **/
-    // test addDuplicateLogs - duplicate file
-    @Test
-    fun `test addDuplicateLogs, duplicate file`() {
-        // setup
-        val metadata = UnitTestUtils.simpleMetadata
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-
-        val actionLogs = ActionLogger()
-
-        // act
-        reportFunc.addDuplicateLogs(
-            actionLogs,
-            "Duplicate file",
-            null,
-            null
-        )
-
-        // assert
-        assert(actionLogs.hasErrors())
-        assert(actionLogs.errors.size == 1)
-        assert(actionLogs.errors[0].scope == ActionLogScope.report)
-    }
-
-    @Test
-    fun `test addDuplicateLogs, all items dupe`() {
-        // setup
-        val metadata = UnitTestUtils.simpleMetadata
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-
-        val actionLogs = ActionLogger()
-
-        // act
-        reportFunc.addDuplicateLogs(
-            actionLogs,
-            "Duplicate submission",
-            null,
-            null
-        )
-
-        // assert
-        assert(actionLogs.hasErrors())
-        assert(actionLogs.errors.size == 1)
-        assert(actionLogs.errors[0].scope == ActionLogScope.report)
-    }
-
-    // test addDuplicateLogs - duplicate item, skipInvalid = false
-    @Test
-    fun `test addDuplicateLogs, duplicate item, no skipInvalidItems`() {
-        // setup
-        val metadata = UnitTestUtils.simpleMetadata
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-
-        val actionLogs = ActionLogger()
-
-        // act
-        reportFunc.addDuplicateLogs(
-            actionLogs,
-            "Duplicate item",
-            1,
-            null
-        )
-
-        // assert
-        assert(actionLogs.hasErrors())
-        assert(actionLogs.errors.size == 1)
-        assert(actionLogs.errors[0].scope == ActionLogScope.item)
-    }
-
-    /** doDuplicateDetection tests **/
-    // doDuplicateDetection, one item is duplicate
-    @Test
-    fun `test doDuplicateDetection, 2 records, one duplicate`() {
-        // setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val report = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-
-        val sender = CovidSender(
-            "Test Sender",
-            "test",
-            Sender.Format.CSV,
-            schemaName =
-            "one",
-            allowDuplicates = false
-        )
-        val actionLogs = ActionLogger()
-
-        every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest(
-            csvString_2Records,
-            sender = sender
-        )
-
-        every { engine.settings.findSender("Test Sender") } returns sender
-        // first call to isDuplicateItem is false, second is true
-        every { accessSpy.isDuplicateItem(any(), any()) }
-            .returns(false)
-            .andThen(true)
-
-        // act
-        reportFunc.doDuplicateDetection(
-            report,
-            actionLogs
-        )
-
-        // assert
-        verify(exactly = 2) {
-            engine.isDuplicateItem(any())
-        }
-        verify(exactly = 1) {
-            reportFunc.addDuplicateLogs(any(), any(), any(), any())
-        }
-    }
-
-    // doDuplicateDetection, all items are duplicate
-    @Test
-    fun `test doDuplicateDetection, 2 records, both duplicate (sanity check)`() {
-        // setup
-        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
-        val metadata = Metadata(schema = one)
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val report = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-
-        val sender = CovidSender(
-            "Test Sender",
-            "test",
-            Sender.Format.CSV,
-            schemaName =
-            "one",
-            allowDuplicates = false
-        )
-        val actionLogs = ActionLogger()
-
-        every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest(
-            csvString_2Records,
-            sender = sender
-        )
-
-        every { engine.settings.findSender("Test Sender") } returns sender
-        every { accessSpy.isDuplicateItem(any(), any()) } returns true
-
-        // act
-        reportFunc.doDuplicateDetection(
-            report,
-            actionLogs
-        )
-
-        // assert
-        verify(exactly = 1) {
-            reportFunc.addDuplicateLogs(any(), any(), any(), any())
-        }
-        verify(exactly = 2) {
-            engine.isDuplicateItem(any())
-        }
-        assert(actionLogs.hasErrors())
-    }
-
-    /** processFunction tests **/
-
-    // TODO: These two test *should* be present, but while they succeed locally for everyone they do not run
-    //  in gitHub actions, and no one can figure out why as of 5/12/2022. These will need to be put back in
-    //  for full test coverage at some point, but no one is currently using duplicate detection so there is
-    //  no harm in commenting it out.
-    // test duplicate override = false
-    @Ignore
-    @Test
-    fun `test processFunction duplicate override true to false`() {
-        // setup
-        val metadata = UnitTestUtils.simpleMetadata
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val reportFunc = spyk(ReportFunction(engine, actionHistory))
-
-        val sender = CovidSender(
-            "Test Sender",
-            "test",
-            Sender.Format.CSV,
-            schemaName =
-            "one",
-            allowDuplicates = true
-        )
-
-        val req = MockHttpRequestMessage("test")
-        req.parameters += mapOf(
-            "allowDuplicate" to "false"
-        )
-
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.CSV, "test", ByteArray(0))
-
-        every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest("test", sender = sender)
-        every { actionHistory.insertAction(any()) } returns 0
-        every { actionHistory.insertAll(any()) } returns Unit
-        every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
-        every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
-        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
-        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
-        every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { actionHistory.action.actionId } returns 1
-        every { actionHistory.action.sendingOrg } returns "Test Sender"
-
-        // act
-        reportFunc.processRequest(req, sender)
-
-        // assert
-        verify(exactly = 1) { reportFunc.doDuplicateDetection(any(), any()) }
-    }
-
     // test processFunction when an error is added to ActionLogs
-    @Ignore
     @Test
     fun `test processFunction when ActionLogs has an error`() {
         // setup
