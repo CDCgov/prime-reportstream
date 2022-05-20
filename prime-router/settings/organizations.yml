@@ -3294,8 +3294,11 @@
         suppressQstForAoe: true
         suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         replaceValueAwithB:
-          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO" ]
-          MSH-11-1: [ "*": "D" ]
+          MSH-3:
+          - PHX.ProviderReportingService: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          - Medasource: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          MSH-5: [ "*": "WADOHPHRED^2.16.840.1.113883.3.237.4.2^ISO" ]
+          MSH-6: [ "*": "dn1fro00^1.3.6.1.4.1.38630.2.1.1.19^ISO"  ]
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
         useOrderingFacilityName: ORGANIZATION_NAME
       timing:
@@ -3334,8 +3337,11 @@
         suppressQstForAoe: true
         suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         replaceValueAwithB:
-          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO" ]
-          MSH-11-1: [ "*": "D" ]
+          MSH-3:
+          - PHX.ProviderReportingService: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          - Medasource: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          MSH-5: [ "*": "WADOHPHRED^2.16.840.1.113883.3.237.4.2^ISO" ]
+          MSH-6: [ "*": "dn1fro00^1.3.6.1.4.1.38630.2.1.1.19^ISO"  ]
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
         useOrderingFacilityName: ORGANIZATION_NAME
       timing:
