@@ -7,6 +7,7 @@ import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 import { appQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
+import TelemetryProvider from "../telemetry-provider";
 
 interface AppWrapperProps {
     oktaAuth: OktaAuth;
@@ -21,14 +22,21 @@ export const AppWrapper = ({
     oktaHook,
 }: PropsWithChildren<AppWrapperProps>) => {
     return (
-        <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
-            <SessionProvider oktaHook={oktaHook}>
-                <QueryClientProvider client={appQueryClient}>
-                    <AuthorizedFetchProvider>
-                        <FeatureFlagProvider>{children}</FeatureFlagProvider>
-                    </AuthorizedFetchProvider>
-                </QueryClientProvider>
-            </SessionProvider>
-        </Security>
+        <TelemetryProvider>
+            <Security
+                oktaAuth={oktaAuth}
+                restoreOriginalUri={restoreOriginalUri}
+            >
+                <SessionProvider oktaHook={oktaHook}>
+                    <QueryClientProvider client={appQueryClient}>
+                        <AuthorizedFetchProvider>
+                            <FeatureFlagProvider>
+                                {children}
+                            </FeatureFlagProvider>
+                        </AuthorizedFetchProvider>
+                    </QueryClientProvider>
+                </SessionProvider>
+            </Security>
+        </TelemetryProvider>
     );
 };

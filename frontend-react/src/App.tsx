@@ -3,7 +3,7 @@ import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import { useOktaAuth } from "@okta/okta-react";
 import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +22,7 @@ import { AppWrapper } from "./components/AppWrapper";
 import { ErrorUnsupportedBrowser } from "./pages/error/legacy-content/ErrorUnsupportedBrowser";
 import { ErrorPage } from "./pages/error/ErrorPage";
 import config from "./config";
+import { ai, withInsights } from "./TelemetryService";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -69,6 +70,12 @@ const App = () => {
         onIdle: handleIdle,
         debounce: 500,
     });
+
+    // Initialize telemetry
+    useEffect(() => {
+        ai.initialize();
+        withInsights(console);
+    }, []);
 
     if (isIE) return <ErrorUnsupportedBrowser />;
     return (
