@@ -22,7 +22,7 @@ function getSavedFeatureFlags(): string[] {
     return saved.split("\t");
 }
 
-function addFeatureFlag(flag: string) {
+export function addFeatureFlag(flag: string) {
     const flagClean = flag.trim().toLowerCase();
     if (flagClean === "") {
         return;

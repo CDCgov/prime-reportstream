@@ -4,14 +4,14 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementResult
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.DateUtilities.asFormattedString
+import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import java.security.MessageDigest
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
-import java.util.Locale
 import javax.xml.bind.DatatypeConverter
 import kotlin.reflect.full.memberProperties
 
@@ -221,7 +221,7 @@ class UseMapper : Mapper {
                 when {
                     element.type == fromElement.type -> fromValue
                     element.type == Element.Type.DATE && fromElement.type == Element.Type.DATETIME -> {
-                        LocalDateTime.parse(fromValue, Element.datetimeFormatter).format(Element.dateFormatter)
+                        DateUtilities.parseDate(fromValue).asFormattedString(DateUtilities.datePattern)
                     }
                     element.type == Element.Type.TEXT -> fromValue
                     // TODO: Unchecked conversions should probably be removed, but the PIMA schema relies on this, right now.
@@ -671,8 +671,6 @@ class TimestampMapper : Mapper {
 }
 
 class DateTimeOffsetMapper : Mapper {
-    private val expandedDateTimeFormatPattern = "yyyyMMddHHmmss.SSSSZZZ"
-    private val formatter = DateTimeFormatter.ofPattern(expandedDateTimeFormatPattern)
     override val name = "offsetDateTime"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
@@ -687,18 +685,8 @@ class DateTimeOffsetMapper : Mapper {
     ): ElementResult {
         fun parseDateTime(value: String): OffsetDateTime {
             return try {
-                OffsetDateTime.parse(value)
-            } catch (e: DateTimeParseException) {
-                null
-            } ?: try {
-                val formatter = DateTimeFormatter.ofPattern(Element.datetimePattern, Locale.ENGLISH)
-                OffsetDateTime.parse(value, formatter)
-            } catch (e: DateTimeParseException) {
-                null
-            } ?: try {
-                val formatter = DateTimeFormatter.ofPattern(expandedDateTimeFormatPattern, Locale.ENGLISH)
-                OffsetDateTime.parse(value, formatter)
-            } catch (e: DateTimeParseException) {
+                DateUtilities.parseDate(value.trim()).toOffsetDateTime()
+            } catch (t: Throwable) {
                 error("Invalid date: '$value' for element '${element.name}'")
             }
         }
@@ -717,7 +705,7 @@ class DateTimeOffsetMapper : Mapper {
                     "year", "years" -> normalDate.plusYears(offsetValue)
                     else -> error("Unit passed into mapper is not valid: $unit")
                 }
-                formatter.format(adjustedDateTime)
+                DateUtilities.getDateAsFormattedString(adjustedDateTime)
             }
         )
     }

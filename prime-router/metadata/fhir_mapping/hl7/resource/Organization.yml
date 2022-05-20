@@ -1,0 +1,156 @@
+# Used by most organizations
+# $orgIdValue would be missing because not passed in such as for IN1 / IN2 
+resourceType: Organization
+id_1:
+  condition: $orgIdValue NULL
+  type: STRING
+  valueOf: UUID.randomUUID()
+  expressionType: JEXL
+
+# When there is IN1 / IN2 record but there is NO TENANT
+# $orgIdValue must be passed in to control which IN1 / IN2 is used, and prevent bleed
+id_2:
+  condition: $orgIdValue NOT_NULL && $TENANT NULL
+  type: VALID_ID
+  valueOf: $orgIdValue
+
+# When there is IN1 / IN2 record and there IS a TENANT
+# $orgIdValue must be passed in to control which IN1 / IN2 is used, and prevent bleed
+id_3:
+  condition: $orgIdValue NOT_NULL && $TENANT NOT_NULL
+  type: VALID_ID
+  valueOf: $orgIdWithTenantPrefix
+  vars:
+    orgIdWithTenantPrefix: $TENANT + $period + $orgIdValue
+  constants:
+    period: "." # period is constant used between concatention in $orgIdWithTenantPrefix
+
+# Used by most organizations
+identifier_1:
+  condition: $orgIdValue NULL
+  valueOf: datatype/Identifier_Gen
+  generateList: true
+  expressionType: resource
+  vars:
+    id: CWE.1 | XON.10 | XON.3
+    system: CWE.3
+
+# Used by IN1/Coverage (Insurance) organizations, which have a more complex identifier
+identifier_2:
+  condition: $orgIdValue NOT_NULL
+  valueOf: datatype/Identifier_var
+  generateList: true
+  expressionType: resource
+  vars:
+    valueIn: $orgIdValue
+    systemCX: $orgIdSystem
+    start: $orgIdStart
+    end: $orgIdEnd
+    code: $orgIdTypeCode
+    coding: $orgIdTypeCoding # $coding takes priority over $code
+
+# Must check for empty valueIn because coding could be set
+identifier_3:
+  condition: $valueIn NOT_NULL
+  valueOf: datatype/Identifier_var
+  generateList: true
+  expressionType: resource
+  vars:
+    valueIn: $orgCompanyPlanCode   # IN1.35 passed in from Coverage
+    # No CXsystem
+    # No code
+
+name_v1:
+  type: STRING
+  condition: $idValue NULL
+  valueOf: CWE.2 | XON.1 | $orgName
+  # NOTE FHIR does not require Organization.name, but we do
+  # for an unkown reason. This is documented in Issue #422
+  # When this is fixed, remove payor_2: orgName: String, IN2.25.1
+  required: true
+  expressionType: HL7Spec
+  vars:
+    idValue: CWE.1 | XON.10 | XON.3
+
+name_v2:
+  type: STRING
+  condition: $idValue NOT_NULL
+  valueOf: CWE.2 | XON.1
+  expressionType: HL7Spec
+  vars:
+    idValue: CWE.1 | XON.10 | XON.3
+
+alias:
+  type: STRING
+  valueOf: CWE.5
+  expressionType: HL7Spec
+
+address:
+  valueOf: datatype/Address
+  generateList: true
+  expressionType: resource
+  specs: $orgAddressXAD
+
+contact:
+  valueOf: secondary/Contact
+  generateList: true
+  expressionType: resource
+  specs: $orgContactXCN
+  vars:
+    # May be provided to create a purpose in the Contact element
+    code: $orgContactPurposeCode
+    system_code: $orgContactPurposeSystemCode
+    display: $orgContactPurposeDisplay
+    text: $orgContactPurposeText
+    contactPointXTN: $orgContactPointXTN
+
+type_1:
+  valueOf: datatype/CodeableConcept_var
+  generateList: true
+  expressionType: resource
+  vars:
+    code: String, XON.7
+    system: SYSTEM_URL, $systemCode
+  constants:
+    systemCode: "v2-0203"
+
+extension_1:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: organization-name-type
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept_var
+      expressionType: resource
+      vars:
+        code: String, XON.2
+        system: SYSTEM_URL, $systemCode
+      constants:
+        systemCode: "v2-0204"
+
+extension_2:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, XON.6.1
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: assigning-authority-namespace-id
+
+extension_3:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $systemStr EQUALS $isoSystemStr
+  vars:
+    idStr: String, XON.6.2
+    value: $oidUrlPrefix + XON.6.2
+    systemStr: String, XON.6.3
+  constants:
+    isoSystemStr: "ISO"
+    oidUrlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: Oid
+    urlValue: assigning-authority-universal-id
