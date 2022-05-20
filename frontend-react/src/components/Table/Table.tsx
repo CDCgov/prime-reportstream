@@ -1,20 +1,23 @@
 /* Makes row objects string-indexed */
 import {
     Button,
+    IconArrowDownward,
+    IconArrowUpward,
     IconNavigateBefore,
     IconNavigateNext,
-    IconArrowUpward,
-    IconArrowDownward,
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useMemo, useState } from "react";
 
 import {
     CursorActionType,
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
-import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
+import {
+    SortOrder,
+    SortSettingsActionType,
+} from "../../hooks/filters/UseSortOrder";
 
 export interface TableRow {
     [key: string]: any;
@@ -49,6 +52,7 @@ export interface ColumnConfig {
     valueMap?: Map<string | number, any>;
     transform?: Function;
     editable?: boolean;
+    localSort?: boolean;
 }
 
 export interface TableConfig {
@@ -97,53 +101,125 @@ const Table = ({
     cursorManager,
     enableEditableRows,
 }: TableProps) => {
+    /* memoizedRows is the source of truth for rendered table rows. If a local
+     * sort is applied, this function reactively sorts the rows passed in. If
+     * the sort column, order, or localSort value change in SortSettings,
+     * this reactively updates to account for that, too. */
+    const memoizedRows = useMemo(() => {
+        const column = filterManager?.sortSettings.column || "";
+        const locally = filterManager?.sortSettings.locally || false;
+        const localOrder = filterManager?.sortSettings.localOrder || "DESC";
+        const valueType = typeof config.rows[0][column];
+        if (locally) {
+            switch (valueType) {
+                case "string": {
+                    return config.rows.sort((a, b) =>
+                        localOrder === "ASC"
+                            ? a[column].localeCompare(b[column])
+                            : b[column].localeCompare(a[column])
+                    );
+                }
+                case "bigint":
+                case "number": {
+                    return config.rows.sort((a, b) =>
+                        localOrder === "ASC"
+                            ? a[column] - b[column]
+                            : b[column] - a[column]
+                    );
+                }
+            }
+        }
+        return config.rows;
+    }, [config.rows, filterManager?.sortSettings]);
     const renderArrow = () => {
-        if (filterManager && filterManager.sortSettings.order === "ASC") {
+        const { order, localOrder, locally } = filterManager?.sortSettings || {
+            order: "DESC",
+            locally: false,
+            localOrder: "DESC",
+        };
+
+        const isOrder = (sortOrder: SortOrder) =>
+            order === sortOrder || (locally && localOrder === sortOrder);
+
+        if (filterManager && isOrder("ASC")) {
             return <IconArrowUpward />;
-        } else if (
-            filterManager &&
-            filterManager.sortSettings.order === "DESC"
-        ) {
+        } else if (filterManager && isOrder("DESC")) {
             return <IconArrowDownward />;
         }
     };
+
+    const swapSort = (currentColumn: ColumnConfig) => {
+        if (currentColumn.localSort) {
+            // Sets local sort to true and swaps local sort order
+            filterManager?.updateSort({
+                type: SortSettingsActionType.APPLY_LOCAL_SORT,
+                payload: {
+                    locally: true,
+                },
+            });
+            filterManager?.updateSort({
+                type: SortSettingsActionType.SWAP_LOCAL_ORDER,
+            });
+        } else {
+            // Sets local sort to false and swaps the order
+            filterManager?.updateSort({
+                type: SortSettingsActionType.APPLY_LOCAL_SORT,
+                payload: {
+                    locally: false,
+                },
+            });
+            filterManager?.updateSort({
+                type: SortSettingsActionType.SWAP_ORDER,
+            });
+        }
+        filterManager?.updateSort({
+            type: SortSettingsActionType.CHANGE_COL,
+            payload: {
+                column: currentColumn.dataAttr,
+            },
+        });
+    };
+
+    const updateCursorForNetworkSort = () => {
+        /* IMPORTANT:
+         * The conditional presented in this call is measuring
+         * sortSettings.order BEFORE it's swapped (which we do
+         * above this). This is why the logic is backwards */
+        cursorManager?.update({
+            type: CursorActionType.RESET,
+            payload:
+                filterManager?.sortSettings.order === "ASC"
+                    ? filterManager?.rangeSettings.to
+                    : filterManager?.rangeSettings.from,
+        });
+    };
+
     /* Renders the header row of the table from columns.values() */
     const TableHeaders = () => {
+        const isSortedColumn = (colConfig: ColumnConfig) =>
+            colConfig.sortable &&
+            filterManager?.sortSettings.column === colConfig.dataAttr;
         return (
             <tr>
                 {config.columns?.map((colConfig) => {
                     if (colConfig.sortable && filterManager) {
                         return (
                             <th
+                                className="rs-sortable-header"
                                 key={colConfig.columnHeader}
                                 onClick={() => {
-                                    filterManager?.updateSort({
-                                        type: SortSettingsActionType.CHANGE_COL,
-                                        payload: {
-                                            column: colConfig.dataAttr,
-                                        },
-                                    });
-                                    filterManager?.updateSort({
-                                        type: SortSettingsActionType.SWAP_ORDER,
-                                    });
-                                    /* IMPORTANT:
-                                     * The conditional presented in this call is measuring
-                                     * sortSettings.order BEFORE it's swapped (which we do
-                                     * above this). This is why the logic is backwards */
-                                    cursorManager?.update({
-                                        type: CursorActionType.RESET,
-                                        payload:
-                                            filterManager?.sortSettings
-                                                .order === "ASC"
-                                                ? filterManager?.rangeSettings
-                                                      .to
-                                                : filterManager?.rangeSettings
-                                                      .from,
-                                    });
+                                    // Swaps the order and set column
+                                    swapSort(colConfig);
+                                    // Only updates cursor when NOT locally sorting
+                                    if (!colConfig.localSort) {
+                                        updateCursorForNetworkSort();
+                                    }
                                 }}
                             >
                                 {colConfig.columnHeader}
-                                {colConfig.sortable ? renderArrow() : null}
+                                {isSortedColumn(colConfig)
+                                    ? renderArrow()
+                                    : null}
                             </th>
                         );
                     } else {
@@ -307,7 +383,7 @@ const Table = ({
             isEditing ? "Save" : "Edit";
         return (
             <>
-                {config.rows.map((object, rowIndex) => {
+                {memoizedRows.map((object, rowIndex) => {
                     // Caps page size when filterManager exists
                     if (
                         filterManager &&
