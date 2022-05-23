@@ -1428,10 +1428,10 @@
       translation:
         type: HL7
         useBatchHeaders: false
-        receivingApplicationName: CDPH CA REDIE
-        receivingApplicationOID: 2.16.840.1.114222.4.3.3.10.1.1
-        receivingFacilityName: CDPH_CID
-        receivingFacilityOID: 2.16.840.1.114222.4.1.214104
+        replaceValueAwithB:
+          MSH-3: [ "*": "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO" ]
+          MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
+          MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
         suppressAoe: true
         truncateHl7Fields: OBR-16-3, ORC-12-3, OBX-23-1, ORC-21-1
         truncateHDNamespaceIds: true
@@ -1460,10 +1460,10 @@
         type: HL7
         useBatchHeaders: true
         truncateHDNamespaceIds: true
-        receivingApplicationName: CDPH CA REDIE
-        receivingApplicationOID: 2.16.840.1.114222.4.3.3 .10.1.1
-        receivingFacilityName: CDPH CA REDIE
-        receivingFacilityOID: 2.16.840.1.114222.4.3.3 .10.1.1
+        replaceValueAwithB:
+          MSH-3: [ "*": "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO" ]
+          MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
+          MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
         messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.10^ISO
         cliaForOutOfStateTesting: CDPH000076
       transport:

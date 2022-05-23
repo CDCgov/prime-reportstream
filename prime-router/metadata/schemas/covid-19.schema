@@ -825,9 +825,27 @@ elements:
 
   - name: message_profile_id
     type: EI
-    hl7Field: MSH-21
-    default: PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+    hl7Field: MSH-21-1
+    default: PHLabReport-NoAck
     documentation: The message profile identifer
+
+  - name: message_profile_id_namespace_id
+    type: TEXT
+    hl7Field: MSH-21-2
+    default: ELR_Receiver
+    documentation: The message profile identifer namespace id
+
+  - name: message_profile_id_universal_id
+    type: TEXT
+    hl7Field: MSH-21-3
+    default: 2.16.840.1.113883.9.11
+    documentation: The message profile identifer universal id
+
+  - name: message_profile_id_universal_id_type
+    type: TEXT
+    hl7Field: MSH-21-4
+    default: ISO
+    documentation: The message profile identifer universal id type
 
   # name: public_health_case_id
   # type: ID
@@ -1205,9 +1223,19 @@ elements:
 
   - name: testing_lab_id_assigner
     type: HD
-    mapper: ifPresent(testing_lab_clia, CLIA^2.16.840.1.113883.4.7^ISO)
-    hl7Field: OBX-23-6
+    mapper: ifPresent(testing_lab_clia, CLIA)
+    hl7Field: OBX-23-6-1
     documentation: This is the assigner of the CLIA for the testing lab. If the testing lab has a CLIA, this field will be filled in.
+
+  - name: testing_lab_id_universal_id
+    type: TEXT
+    mapper: ifPresent(testing_lab_clia, 2.16.840.1.113883.4.7)
+    hl7Field: OBX-23-6-2
+
+  - name: testing_lab_id_universal_id_type
+    type: TEXT
+    mapper: ifPresent(testing_lab_clia, ISO)
+    hl7Field: OBX-23-6-3
 
   - name: testing_lab_clia
     type: ID_CLIA
