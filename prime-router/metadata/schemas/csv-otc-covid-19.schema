@@ -78,12 +78,11 @@ elements:
 ################ Reporting Facility Info
     - name: reporting_facility_name
       cardinality: ONE
-      csvFields: [{name: reporting_facility_name }]
+      mapper: use(testing_lab_name)
 
     - name: reporting_facility_clia
       cardinality: ONE
-      csvFields: [{name: reporting_facility_clia}]
-
+      mapper: use(testing_lab_clia)
 
 ############### Set Other Miscellaneous Info; Assigning Authorities, etc
     - name: filler_clia
