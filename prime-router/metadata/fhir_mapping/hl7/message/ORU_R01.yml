@@ -5,7 +5,8 @@ resources:
     resourcePath: resource/MessageHeader
     repeats: false
     isReferenced: false
-    additionalSegments: [SFT]
+    additionalSegments:
+      - SFT
 
   - resourceName: Provenance
     segment: MSH
@@ -20,5 +21,18 @@ resources:
     additionalSegments:
       - .PD1
       - MSH
+
+  - resourceName: Observation
+    segment: .OBSERVATION.OBX
+    group: PATIENT_RESULT.ORDER_OBSERVATION
+    resourcePath: resource/Observation
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - .OBR
+      - .OBSERVATION.NTE
+      - .SPECIMEN.SPM
+      - MSH
+      - .PID
 
 # TODO Add more segments as we develop them
