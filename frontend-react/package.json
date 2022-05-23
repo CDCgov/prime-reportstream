@@ -48,6 +48,7 @@
         "compile-scss-dev": "sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps src/global.scss:src/content/generated/global.out.css",
         "watch-scss": "yarn compile-scss-dev && sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps -w src/global.scss:src/content/generated/global.out.css",
         "e2e": "cypress run",
+        "e2e:open": "cypress open",
         "test": "react-scripts test",
         "test:ci": "CI=true yarn test --coverage",
         "eject": "react-scripts eject",
@@ -57,8 +58,6 @@
         "lint:eslint:write": "eslint --fix \"src/**/*.{js,ts,jsx,tsx}\"",
         "lint:prettier": "prettier --check \"src/**/*.{js,ts,jsx,tsx}\"",
         "lint:prettier:write": "prettier --write \"src/**/*.{js,ts,jsx,tsx}\"",
-        "cypress-open": "./node_modules/.bin/cypress open",
-        "cypress-run": "./node_modules/.bin/cypress run",
         "yarn:show-outdated-packages": "yarn outdated",
         "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build"
     },
