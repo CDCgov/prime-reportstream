@@ -592,6 +592,7 @@ class SubmissionReceiverTests {
         }
     }
 
+    // comment for testing broken? build
     @Test
     fun `test ELR receiver validateAndMoveToProcessing, invalid hl7`() {
         // setup
