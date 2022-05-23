@@ -3670,7 +3670,7 @@
       organizationName: "mpbiomedicals"
       format: "CSV"
       topic: "covid-19"
-      customerStatus: "testing"
+      customerStatus: "active"
       schemaName: "csv-otc-covid-19"
       keys: null
       processingType: "sync"
