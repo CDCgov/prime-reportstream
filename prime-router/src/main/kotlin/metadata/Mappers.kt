@@ -158,6 +158,12 @@ class IfThenElseMapper : Mapper {
     fun comp(op: String, val1: String, val2: String): Boolean {
         val dVal1 = val1.toDoubleOrNull()
         val dVal2 = val2.toDoubleOrNull()
+        if ((dVal1 == null) && (dVal2 != null)) {
+            error("ifThenElse Type Mismatch Error: $val1 is not numeric")
+        }
+        if ((dVal1 != null) && (dVal2 == null)) {
+            error("ifThenElse Type Mismatch Error: $val2 is not numeric")
+        }
         if ((dVal1 != null) && (dVal2 != null)) { // only if both val1 and val2 are Double strings
             return when (op) {
                 "==" -> (dVal1 == dVal2) // all Double comparisons (covers Float, Int)

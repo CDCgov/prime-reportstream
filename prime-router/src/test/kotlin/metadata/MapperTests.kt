@@ -232,6 +232,16 @@ class MapperTests {
         eAVotc = ElementAndValue(Element(args[1]), "2.0") // element otc_flag has .value "22"
         assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "AL") // 2 == 2.0
 
+        // int AND string
+        args = listOf("==", "otc_flag", "2", "patient_state", "ordering_provider_state")
+        eAVotc = ElementAndValue(Element(args[1]), "Butterfly") // this should error, to save hours of debugging
+        assertThat { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }.isFailure()
+
+        // string AND int
+        args = listOf("==", "otc_flag", "Zebra", "patient_state", "ordering_provider_state")
+        eAVotc = ElementAndValue(Element(args[1]), "2") // this should error, to save hours of debugging
+        assertThat { mapper.apply(element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn)) }.isFailure()
+
         // bad legal args
         args = listOf(">>", "otc_flag", "2", "patient_state", "ordering_provider_state")
         eAVotc = ElementAndValue(Element(args[1]), "2.0") // element otc_flag has .value "2.0"
