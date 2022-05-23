@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isTrue
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import gov.cdc.prime.router.ActionError
+import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
@@ -12,6 +13,9 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
+import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.junit.jupiter.api.DynamicTest
@@ -93,10 +97,10 @@ class TranslationTests {
     data class TestConfig(
         val inputFile: String,
         val inputFormat: Report.Format,
-        val inputSchema: Schema,
+        val inputSchema: Schema?,
         val expectedFile: String,
         val expectedFormat: Report.Format,
-        val expectedSchema: Schema,
+        val expectedSchema: Schema?,
         val shouldPass: Boolean = true
     )
 
@@ -125,30 +129,34 @@ class TranslationTests {
                 // Make sure we have all the fields we need.
                 if (!it[ConfigColumns.INPUT_FILE.colName].isNullOrBlank() &&
                     !it[ConfigColumns.EXPECTED_FILE.colName].isNullOrBlank() &&
-                    !it[ConfigColumns.INPUT_SCHEMA.colName].isNullOrBlank() &&
-                    !it[ConfigColumns.OUTPUT_SCHEMA.colName].isNullOrBlank() &&
                     !it[ConfigColumns.OUTPUT_FORMAT.colName].isNullOrBlank()
                 ) {
-                    val inputSchema = metadata.findSchema(it[ConfigColumns.INPUT_SCHEMA.colName]!!)
-                    val expectedSchema = metadata.findSchema(it[ConfigColumns.OUTPUT_SCHEMA.colName]!!)
+                    val expectedFormat = Report.Format.safeValueOf(it[ConfigColumns.OUTPUT_FORMAT.colName])
+                    val inputSchema = if (!it[ConfigColumns.INPUT_SCHEMA.colName].isNullOrBlank())
+                        metadata.findSchema(it[ConfigColumns.INPUT_SCHEMA.colName]!!)
+                    else null
+                    val expectedSchema = if (!it[ConfigColumns.OUTPUT_SCHEMA.colName].isNullOrBlank())
+                        metadata.findSchema(it[ConfigColumns.OUTPUT_SCHEMA.colName]!!)
+                    else null
+
+                    if (expectedFormat != Report.Format.FHIR)
+                        if (inputSchema == null) {
+                            fail("Input schema $inputSchema was not found.")
+                        } else if (expectedSchema == null) {
+                            fail("Output schema $expectedSchema was not found.")
+                        }
                     val shouldPass = !it[ConfigColumns.RESULT.colName].isNullOrBlank() &&
                         it[ConfigColumns.RESULT.colName].equals("PASS", true)
 
-                    if (inputSchema != null && expectedSchema != null) {
-                        TestConfig(
-                            it[ConfigColumns.INPUT_FILE.colName]!!,
-                            getFormat(it[ConfigColumns.INPUT_FILE.colName]!!),
-                            inputSchema,
-                            it[ConfigColumns.EXPECTED_FILE.colName]!!,
-                            Report.Format.safeValueOf(it[ConfigColumns.OUTPUT_FORMAT.colName]),
-                            expectedSchema,
-                            shouldPass
-                        )
-                    } else if (inputSchema == null) {
-                        fail("Input schema $inputSchema was not found.")
-                    } else {
-                        fail("Output schema $expectedSchema was not found.")
-                    }
+                    TestConfig(
+                        it[ConfigColumns.INPUT_FILE.colName]!!,
+                        getFormat(it[ConfigColumns.INPUT_FILE.colName]!!),
+                        inputSchema,
+                        it[ConfigColumns.EXPECTED_FILE.colName]!!,
+                        expectedFormat,
+                        expectedSchema,
+                        shouldPass
+                    )
                 } else {
                     fail("One or more config columns in $configPathname are empty.")
                 }
@@ -171,6 +179,9 @@ class TranslationTests {
             File(filename).extension.uppercase() == "HL7" -> {
                 Report.Format.HL7
             }
+            File(filename).extension.uppercase() == "FHIR" -> {
+                Report.Format.FHIR
+            }
             else -> {
                 Report.Format.CSV
             }
@@ -189,10 +200,21 @@ class TranslationTests {
             val inputStream = this::class.java.getResourceAsStream(inputFile)
             val expectedStream = this::class.java.getResourceAsStream(expectedFile)
             if (inputStream != null && expectedStream != null) {
-                val inputReport = readReport(inputStream, config.inputSchema, config.inputFormat, result)
-                if (result.passed && inputReport != null) {
-                    val translatedReport = translateReport(inputReport, config)
-                    val actualStream = outputReport(translatedReport, config.expectedFormat)
+
+                if (result.passed) {
+                    val actualStream = if (config.expectedFormat == Report.Format.FHIR) {
+                        // Currently only supporting one HL7 message
+                        check(config.inputFormat == Report.Format.HL7)
+                        translateToFhir(inputStream)
+                    } else {
+                        check(config.inputSchema != null)
+                        check(config.expectedSchema != null)
+                        val inputReport = readReport(inputStream, config.inputSchema, config.inputFormat, result)
+                        if (inputReport != null) {
+                            val translatedReport = translateReport(inputReport, config)
+                            outputReport(translatedReport, config.expectedFormat)
+                        } else fail("Error reading input report.")
+                    }
                     result.merge(
                         CompareData().compare(
                             expectedStream, actualStream, config.expectedFormat,
@@ -226,6 +248,20 @@ class TranslationTests {
             } else {
                 fail("The file ${config.expectedFile} was not found.")
             }
+        }
+
+        /**
+         * Translate an [hl7] to a FHIR bundle as JSON.
+         * @return a FHIR bundle as a JSON input stream
+         */
+        private fun translateToFhir(hl7: InputStream): InputStream {
+            val hl7messages = HL7Reader(ActionLogger()).getMessages(hl7.bufferedReader().readText())
+            val fhirBundles = hl7messages.map { message ->
+                HL7toFhirTranslator.getInstance().translate(message)
+            }
+            check(fhirBundles.size == 1)
+            val fhirJson = FhirTranscoder.encode(fhirBundles[0])
+            return fhirJson.byteInputStream()
         }
 
         /**
@@ -305,6 +341,8 @@ class TranslationTests {
          * Translate an [report] based on the provided [config].
          */
         private fun translateReport(report: Report, config: TestConfig): Report {
+            check(config.expectedSchema != null)
+            check(config.inputSchema != null)
             val mapping = translator.buildMapping(
                 config.expectedSchema,
                 config.inputSchema,
