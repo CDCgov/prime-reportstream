@@ -8,6 +8,8 @@ describe("UseSortOrder", () => {
         expect(result.current.settings).toEqual({
             column: "",
             order: "DESC",
+            locally: false,
+            localOrder: "DESC",
         });
     });
 
@@ -24,10 +26,12 @@ describe("UseSortOrder", () => {
         expect(result.current.settings).toEqual({
             column: "test",
             order: "DESC",
+            locally: false,
+            localOrder: "DESC",
         });
     });
 
-    test("dispatch swaps order", () => {
+    test("dispatch swaps order (non-locally)", () => {
         const { result } = renderHook(() => useSortOrder());
         act(() =>
             result.current.update({
@@ -37,6 +41,41 @@ describe("UseSortOrder", () => {
         expect(result.current.settings).toEqual({
             column: "",
             order: "ASC",
+            locally: false,
+            localOrder: "DESC",
+        });
+    });
+
+    test("dispatch sets and unsets locally sort", () => {
+        const { result } = renderHook(() => useSortOrder());
+        act(() =>
+            result.current.update({
+                type: SortSettingsActionType.APPLY_LOCAL_SORT,
+                payload: {
+                    locally: true,
+                },
+            })
+        );
+        expect(result.current.settings).toEqual({
+            column: "",
+            order: "DESC",
+            locally: true,
+            localOrder: "DESC",
+        });
+    });
+
+    test("dispatch swaps order (non-locally)", () => {
+        const { result } = renderHook(() => useSortOrder());
+        act(() =>
+            result.current.update({
+                type: SortSettingsActionType.SWAP_LOCAL_ORDER,
+            })
+        );
+        expect(result.current.settings).toEqual({
+            column: "",
+            order: "DESC",
+            locally: false,
+            localOrder: "ASC",
         });
     });
 
@@ -55,9 +94,19 @@ describe("UseSortOrder", () => {
                 type: SortSettingsActionType.SWAP_ORDER,
             })
         );
+        act(() =>
+            result.current.update({
+                type: SortSettingsActionType.APPLY_LOCAL_SORT,
+                payload: {
+                    locally: true,
+                },
+            })
+        );
         expect(result.current.settings).toEqual({
             column: "test",
             order: "ASC",
+            locally: true,
+            localOrder: "DESC",
         });
         act(() =>
             result.current.update({
@@ -67,6 +116,8 @@ describe("UseSortOrder", () => {
         expect(result.current.settings).toEqual({
             column: "",
             order: "DESC",
+            locally: false,
+            localOrder: "DESC",
         });
     });
 
@@ -78,12 +129,16 @@ describe("UseSortOrder", () => {
                 payload: {
                     column: "test",
                     order: "ASC",
+                    locally: true,
+                    localOrder: "ASC",
                 },
             })
         );
         expect(result.current.settings).toEqual({
             column: "test",
             order: "ASC",
+            locally: true,
+            localOrder: "ASC",
         });
     });
 });
