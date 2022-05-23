@@ -107,3 +107,6 @@ gitleaks.log
 
 # CastleMock event files
 .environment/soap_service/soap/event/v1/**
+
+# Archived functions
+*function*.zip

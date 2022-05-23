@@ -128,8 +128,8 @@ class Report : Logging {
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
         CSV_SINGLE("csv", "text/csv", true),
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
-        HL7_BATCH("hl7", "application/hl7-v2"); // HL7 with BHS and FHS headers
-        // FHIR
+        HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
+        FHIR("fhir", "tbd"); // TODO determine a mime type when/if we receive FHIR
 
         companion object {
             // Default to CSV if weird or unknown
