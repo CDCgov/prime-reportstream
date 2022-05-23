@@ -91,6 +91,7 @@ class BlobAccess(
                 receivingFacilityReport
             )
             Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer?.write(report, outputStream)
+            else -> throw UnsupportedOperationException("Unsupported ${report.bodyFormat}")
         }
         val contentBytes = outputStream.toByteArray()
         return Pair(report.bodyFormat, contentBytes)
