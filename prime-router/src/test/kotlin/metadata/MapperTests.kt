@@ -661,6 +661,37 @@ class MapperTests {
     }
 
     @Test
+    fun `test LookupSenderAutomationValuesetsMapper`() {
+        val table = LookupTable
+            .read("./src/test/resources/metadata/tables/sender_automation_value_set_row.csv")
+        val schema = Schema(
+            "test",
+            topic = "covid-19",
+            elements = listOf(
+                Element(
+                    "gender",
+                    type = Element.Type.TABLE,
+                    table = "sender_automation_value_set_row",
+                    tableColumn = "code",
+                    mapperOverridesValue = true
+                )
+            )
+        )
+        val metadata = Metadata(
+            schema = schema,
+            table = table,
+            tableName = "sender_automation_value_set_row"
+        )
+
+        val lookupElement = metadata.findSchema("test")?.findElement("gender") ?: fail("")
+        val mapper = LookupSenderAutomationValuesetsMapper()
+        val args = listOf("1")
+        val elementAndValues = listOf(ElementAndValue(lookupElement, "Female"))
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("1"))
+        assertThat(mapper.apply(lookupElement, args, elementAndValues).value).isEqualTo("F")
+    }
+
+    @Test
     fun `test country mapper`() {
         val mapper = CountryMapper()
         val args = listOf("patient_zip_code")

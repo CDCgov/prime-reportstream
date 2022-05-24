@@ -16,6 +16,7 @@ import gov.cdc.prime.router.metadata.IfNotPresentMapper
 import gov.cdc.prime.router.metadata.IfPresentMapper
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
 import gov.cdc.prime.router.metadata.LookupMapper
+import gov.cdc.prime.router.metadata.LookupSenderAutomationValuesetsMapper
 import gov.cdc.prime.router.metadata.LookupSenderValuesetsMapper
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
@@ -75,7 +76,8 @@ class Metadata : Logging {
         NullMapper(),
         LookupSenderValuesetsMapper(),
         NpiLookupMapper(),
-        CountryMapper()
+        CountryMapper(),
+        LookupSenderAutomationValuesetsMapper()
     )
     private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),

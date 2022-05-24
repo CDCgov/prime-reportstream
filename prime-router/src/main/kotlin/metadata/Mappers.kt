@@ -433,6 +433,48 @@ class LookupSenderValuesetsMapper : Mapper {
 }
 
 /**
+ * The lookupSenderAutomationValuesetsMapper is used to lookup values from the
+ *      "sender_automation_value_set_row" table/csv
+ * The args for the mapper are:
+ *      args[0] --> senderAutomationValueSetId = the id of the sender automation value set from
+ *          sender_automation_value_set primary lookup field
+ * The mapper uses the above arguments + the question's answer to retrieve a row from the table
+ */
+class LookupSenderAutomationValuesetsMapper : Mapper {
+    override val name = "lookupSenderAutomationValuesetsMapper "
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        return ElementResult(
+            if (values.size != args.size) {
+                null
+            } else {
+                val lookupTable = element.tableRef
+                    ?: error("Schema Error: could not find table ${element.table}")
+                val tableFilter = lookupTable.FilterBuilder()
+                val senderAutomationValueSetId = args[0]
+                values.forEach {
+                    tableFilter
+                        .equalsIgnoreCase("sender_automation_value_set_id", senderAutomationValueSetId)
+                        .equalsIgnoreCase("display", it.value)
+                }
+                val lookupColumn = element.tableColumn
+                    ?: error("Schema Error: no tableColumn for element ${element.name}")
+                tableFilter.findSingleResult(lookupColumn)
+            }
+        )
+    }
+}
+
+/**
  * The NpiLookupMapper is a specific implementation of the lookupMapper and
  * thus no output values are present in this function. This function requires
  * the same lookup table configuration as lookupMapper.
