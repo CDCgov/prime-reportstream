@@ -1,5 +1,5 @@
 sortOrder:
-  name: sortOrder
+  name: sort
   in: query
   description: order to sort reports
   schema:
@@ -7,28 +7,34 @@ sortOrder:
     enum: [ASC, DESC]
     default: DESC
 sortColumn:
-  name: sortColumn
+  name: sortcol
   in: query
   description: column used as the basis for sorting
   schema:
     type: string
 resultsAfterDate:
-  name: resultsAfterDate
+  name: cursor
   in: query
   description: only return reports from after the given date
   schema:
     type: string
     format: date-time
 resultsBeforeDate:
-  name: resultsBeforeDate
+  name: endcursor
   in: query
   description: only return reports from before the given date
   schema:
     type: string
     format: date-time
 pageSize:
-  name: pageSize
+  name: pagesize
   in: query
   description: number of results per page
   schema:
     type: integer
+showFailed:
+  name: showfailed
+  in: query
+  description: include reports that failed to be sent or not
+  schema:
+    type: boolean
