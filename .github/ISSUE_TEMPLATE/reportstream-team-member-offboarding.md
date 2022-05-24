@@ -33,4 +33,5 @@ Initially assign to team lead for person being offboarded.
 - [ ] Keybase
 - [ ] Mural
 - [ ] Lucid Chart
+- [ ] SendGrid access
 - [ ] Any additional CDC-specific off-boarding (did they get a PIV?)
