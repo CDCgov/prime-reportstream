@@ -28,12 +28,12 @@ function SubmissionTable() {
 
     const { fetch: controllerFetch } = useController();
     const fetchResults = useCallback(
-        (fetchStartCursor: string, fetchCount: number) => {
+        (startCursor: string, numResults: number) => {
             return controllerFetch(SubmissionsResource.list(), {
                 organization,
-                cursor: fetchStartCursor,
+                cursor: startCursor,
                 endCursor,
-                pageSize: fetchCount,
+                pageSize: numResults,
                 sort: sortOrder,
                 showFailed: false,
             }) as unknown as Promise<SubmissionsResource[]>;
@@ -41,7 +41,7 @@ function SubmissionTable() {
         [organization, endCursor, sortOrder, controllerFetch]
     );
 
-    const { resultsPage: submissions, paginationProps } =
+    const { currentPageResults: submissions, paginationProps } =
         usePagination<SubmissionsResource>({
             startCursor,
             pageSize,

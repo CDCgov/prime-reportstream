@@ -6,12 +6,14 @@ export type SlotItem = number | typeof OVERFLOW_INDICATOR;
 
 export interface SlotContentProps {
     slotItem: SlotItem;
+    currentPageNum: number;
     setCurrentPage: (pageNum: number) => void;
 }
 
 const SlotContent: React.FC<SlotContentProps> = ({
-    slotItem,
+    currentPageNum,
     setCurrentPage,
+    slotItem,
 }) => {
     if (slotItem === OVERFLOW_INDICATOR) {
         return <span>OVERFLOW_INDICATOR</span>;
@@ -23,6 +25,7 @@ const SlotContent: React.FC<SlotContentProps> = ({
             onClick={() => setCurrentPage(slotItem as number)}
         >
             {slotItem}
+            {currentPageNum === slotItem && "*"}
         </Button>
     );
 };
@@ -33,12 +36,20 @@ export interface PaginationProps {
     currentPageNum: number;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ slots, setCurrentPage }) => {
+const Pagination: React.FC<PaginationProps> = ({
+    currentPageNum,
+    setCurrentPage,
+    slots,
+}) => {
     return (
         <ul>
-            {slots.map((s) => (
-                <li>
-                    <SlotContent slotItem={s} setCurrentPage={setCurrentPage} />
+            {slots.map((s, i) => (
+                <li key={`${String(s)}${i}`}>
+                    <SlotContent
+                        currentPageNum={currentPageNum}
+                        slotItem={s}
+                        setCurrentPage={setCurrentPage}
+                    />
                 </li>
             ))}
         </ul>
