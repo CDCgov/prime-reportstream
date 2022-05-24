@@ -116,6 +116,7 @@ class FileUtilities {
                     Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer.write(report, it)
                     Report.Format.HL7 -> hl7Serializer.write(report, it)
                     Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, it)
+                    else -> throw UnsupportedOperationException("Unsupported ${report.bodyFormat}")
                 }
             }
             return outputFile

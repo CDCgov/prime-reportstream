@@ -192,3 +192,19 @@ module "client_config_private_endpoint" {
   resource_prefix     = var.resource_prefix
   dns_zone            = var.dns_zones["vaultcore"].name
 }
+
+resource "azurerm_key_vault_access_policy" "admin_functionapp_app_config" {
+  key_vault_id = data.azurerm_key_vault.app_config.id
+  tenant_id    = var.admin_function_app.identity[0].tenant_id
+  object_id    = var.admin_function_app.identity[0].principal_id
+
+  secret_permissions = ["Get", "List"]
+}
+
+resource "azurerm_key_vault_access_policy" "admin_functionapp_application" {
+  key_vault_id = data.azurerm_key_vault.application.id
+  tenant_id    = var.admin_function_app.identity[0].tenant_id
+  object_id    = var.admin_function_app.identity[0].principal_id
+
+  secret_permissions = ["List"]
+}
