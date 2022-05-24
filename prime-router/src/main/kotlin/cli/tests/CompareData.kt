@@ -18,6 +18,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.fhirengine.utils.CompareFhirData
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -352,14 +353,16 @@ warnings: ${warnings.joinToString()}
         expected: InputStream,
         actual: InputStream,
         format: Report.Format,
-        schema: Schema,
+        schema: Schema?,
         result: Result = Result()
     ): Result {
-        if (format == Report.Format.HL7 || format == Report.Format.HL7_BATCH) {
-            result.merge(CompareHl7Data().compare(expected, actual))
-        } else {
-            result.merge(CompareCsvData().compare(expected, actual, schema))
+        check((format == Report.Format.CSV && schema != null) || format != Report.Format.CSV) { "Schema is required" }
+        val compareResult = when (format) {
+            Report.Format.HL7, Report.Format.HL7_BATCH -> CompareHl7Data().compare(expected, actual)
+            Report.Format.FHIR -> CompareFhirData().compare(expected, actual)
+            else -> CompareCsvData().compare(expected, actual, schema!!)
         }
+        result.merge(compareResult)
         return result
     }
 }
