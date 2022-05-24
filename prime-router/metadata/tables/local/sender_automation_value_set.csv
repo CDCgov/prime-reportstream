@@ -1,0 +1,7 @@
+id,name,system,referenceURL,reference,created_by,created_at
+1,gender,LOCAL,https://www.hhs.gov/sites/default/files/non-lab-based-covid19-test-reporting.pdf,"This maps multiple values to the ReportStream internal (M, F, U, O - Other, A - Ambiguous)", ,
+2,race,LOCAL,https://phinvads.cdc.gov/vads/ViewValueSet.action?id=B246B692-6DF8-E111-B875-001A4BE7FA90,Map multiple values for Race to the OMB Values to hl70005, ,
+3,ethnicity,LOCAL,https://www.hl7.org/fhir/v2/0189/index.html,Map multiple ethnicity values to RS internal values, ,
+4,yesno,LOCAL,https://www.hhs.gov/sites/default/files/non-lab-based-covid19-test-reporting.pdf,"This maps (YES,NO,UNK) to the ReportStream internal hl70136 (Y,N,UNK)", ,
+5,pregnant,SNOMED_CT,https://loinc.org/82810-3/,Multiple values are mapped to the Pregnancy SNOMED Codes, ,
+6,test_result,SNOMED_CT,https://www.hhs.gov/sites/default/files/hhs-guidance-implementation.pdf,This maps multiple values to the ReportStream internal codes which are SNOMED-CT codes, ,
