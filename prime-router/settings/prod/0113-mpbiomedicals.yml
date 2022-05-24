@@ -1,0 +1,17 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0113-mpbiomedicals.yml --env prod
+---
+- name: "mpbiomedicals"
+  description: "MP Biomedicals - CSV for OTC Results"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  senders:
+    - name: "default"
+      organizationName: "mpbiomedicals"
+      format: "CSV"
+      topic: "covid-19"
+      customerStatus: "active"
+      schemaName: "csv-otc-covid-19"
+      keys: null
+      processingType: "sync"
