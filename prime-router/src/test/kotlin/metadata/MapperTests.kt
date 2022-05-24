@@ -94,12 +94,35 @@ class MapperTests {
         ).isEqualTo(compVal)
     }
 
+    internal fun decodeArg(values: List<ElementAndValue>, mapperArg: String): String {
+        return values.find { it.element.name.equals(mapperArg, ignoreCase = true) }?.value ?: mapperArg
+    }
+
     @Test
-    fun `test IfThenElseMapper`() {
+    fun `test decodeArg`() {
+        val elementsAndValues = listOf(
+            ElementAndValue(Element("otc_flag"), "OTC"),
+            ElementAndValue(Element("comparison_value"), "Prescription")
+        )
+        // expected element value
+        assertThat(decodeArg(elementsAndValues, "otc_flag")).isEqualTo("OTC")
+        // well-formed non-existent element
+        assertThat(decodeArg(elementsAndValues, "other_element")).isEqualTo("other_element")
+        // empty list of elementAndValues
+        assertThat(decodeArg(listOf(), "otc_flag")).isEqualTo("otc_flag")
+        // string literal
+        assertThat(decodeArg(elementsAndValues, "George")).isEqualTo("George")
+        // numeric string literal
+        assertThat(decodeArg(elementsAndValues, "127")).isEqualTo("127")
+    }
+
+    @Test
+    fun `test basic element value functionality IfThenElseMapper`() {
         val mapper = IfThenElseMapper()
         val element = Element("test")
         var args = mutableListOf<String>()
-        while (args.count() < 11) { // test for zero to ten args passed - each should fail (skip testing 5)
+        // test for zero to ten args passed - each should fail (skip testing 5)
+        while (args.count() < 11) {
             if (args.count() != 5) assertThat { mapper.valueNames(element, args) }.isFailure()
             args.add("arg")
         }
@@ -119,7 +142,7 @@ class MapperTests {
         val eAValabama = ElementAndValue(Element(args[3]), "AL")
         val eAVtn = ElementAndValue(Element(args[4]), "TN")
 
-        // test equality else    ("OTC" != "Prescription")
+        // test 'else value' for ==    ("OTC" != "Prescription")
         args = mutableListOf("==", "otc_flag", "comparisonValue", eAValabama.element.name, "ordering_provider_state")
         assertEq(mapper, element, args, listOf(eAVotc, eAVpresc, eAValabama, eAVtn), "TN") // 'else' case
 

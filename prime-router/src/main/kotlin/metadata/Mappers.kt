@@ -141,7 +141,7 @@ class IfThenElseMapper : Mapper {
      * @param mapperArg one of the arguments from a schema elements mapper property
      * @return Either a passed-in Elements .value or the mapper argument as a string literal
      */
-    private fun decodeArg(values: List<ElementAndValue>, mapperArg: String): String {
+    internal fun decodeArg(values: List<ElementAndValue>, mapperArg: String): String {
         return values.find { it.element.name.equals(mapperArg, ignoreCase = true) }?.value ?: mapperArg
     }
 
@@ -184,7 +184,7 @@ class IfThenElseMapper : Mapper {
             ">" -> (val1 > val2)
             else -> error("ifThenElse Mapper Argument Error: not a valid operator: $op")
         }
-    } // comp(op, v1, v2):Boolean
+    }
 
     override fun apply(
         element: Element,
@@ -202,7 +202,7 @@ class IfThenElseMapper : Mapper {
             ElementResult(decodeArg(values, args[3])) else
             ElementResult(decodeArg(values, args[4])) // see decodeArg()
     }
-} // IfThenElseMapper()
+}
 
 /**
  * The args for the use mapper is a list of element names in order of priority.
