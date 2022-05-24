@@ -88,7 +88,7 @@ enum class Options {
  * Note that we can't guarantee the Sender is sending good unique trackingElement values.
  * Note that we are not tracking the index (aka rownum).  That's because the row numbers we get here are
  * not the ones in the data the user submitted -- because quality filtering is done after juris filtering,
- * which creates a brand new report with fewer rows.
+ * which creates a new report with fewer rows.
  */
 data class ReportStreamFilterResult(
     val receiverName: String,
@@ -231,7 +231,7 @@ class Report : Logging {
     var bodyURL: String = ""
 
     /**
-     * A indicator of what the nextAction on a report is, defaults to 'none'
+     * An indicator of what the nextAction on a report is, defaults to 'none'
      */
     var nextAction: TaskAction = TaskAction.none
 
@@ -264,7 +264,7 @@ class Report : Logging {
         destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
-        id: ReportId? = null, // If constructing from blob storage, must pass in its UUID here.  Otherwise null.
+        id: ReportId? = null, // If constructing from blob storage, must pass in its UUID here.  Otherwise, null.
         metadata: Metadata,
         itemCountBeforeQualFilter: Int? = null,
     ) {
@@ -559,10 +559,20 @@ class Report : Logging {
         }
     }
 
-    fun deidentify(): Report {
+    /**
+     * Return Report with PII columns transformed to [replacementValue] when a value is sent. Blank values should
+     * remain unchanged.
+     */
+    fun deidentify(replacementValue: String): Report {
         val columns = schema.elements.map {
             if (it.pii == true) {
-                buildEmptyColumn(it.name)
+                table.column(it.name)
+                    .asStringColumn()
+                    .set(
+                        table.column(it.name)
+                            .isNotMissing,
+                        replacementValue
+                    )
             } else {
                 table.column(it.name).copy()
             }
@@ -588,7 +598,7 @@ class Report : Logging {
     }
 
     // takes the data in the existing report and synthesizes different data from it
-    // the goal is to allow us to take real data in, move it around and scramble it so it's
+    // the goal is to allow us to take real data in, move it around and scramble it, so it's
     // not able to point back to the actual records
     fun synthesizeData(
         synthesizeStrategies: Map<String, SynthesizeStrategy> = emptyMap(),
@@ -700,7 +710,7 @@ class Report : Logging {
     }
 
     /**
-     * Here 'mapping' means to tranform data from the current schema to a new schema per the rules in the [mapping].
+     * Here 'mapping' means to transform data from the current schema to a new schema per the rules in the [mapping].
      * Not to be confused with our lower level [Mapper] concept.
      */
     fun applyMapping(mapping: Translator.Mapping): Report {
@@ -812,7 +822,7 @@ class Report : Logging {
      *      if patient_age is given then
      *          - validate it is not null, it is valid digit number, and not lesser than zero
      *      else
-     *          - the patient will be calculated using period.between patient date of birth and
+     *          - the patient will be calculated using period between patient date of birth and
      *          the specimen collection date.
      *  @param patient_age - input patient's age.
      *  @param patient_dob - input patient date of birth.
@@ -1166,7 +1176,7 @@ class Report : Logging {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
             val fileName = if (fileFormat == Format.INTERNAL || translationConfig == null) {
-                // This filenaming format is used for all INTERNAL files, and whenever there is no custom format.
+                // This file-naming format is used for all INTERNAL files, and whenever there is no custom format.
                 "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
             } else {
                 metadata.fileNameTemplates[nameFormat.lowercase()].run {
