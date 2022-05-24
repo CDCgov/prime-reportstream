@@ -64,3 +64,21 @@
 # Organization assigning authority universal ID
 - id: "assigning-authority-universal-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"
+# Organization assigning facility universal ID
+- id: "assigning-facility-universal-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"
+# Organization assigning facility namespace ID
+- id: "assigning-facility-namespace-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"
+# Last updated facility
+- id: "last-updated-facility-namespace-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id"
+# Last updated facility
+- id: "last-updated-facility-universal-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-universal-id"
+# Species code
+- id: "patient-animal"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-animal"
+# Ethnic group
+- id: "ethnic-group"
+  url: "http://terminology.hl7.org/ValueSet/v2-0189"
