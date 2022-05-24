@@ -1917,6 +1917,7 @@
         schemaName: "hhsprotect/hhsprotect-covid-19"
         format: "CSV"
       deidentify: true
+      deidentifiedValue: "<DEIDENTIFIED>"
       timing:
         operation: "MERGE"
         numberPerDay: 1440
@@ -3670,7 +3671,7 @@
       organizationName: "mpbiomedicals"
       format: "CSV"
       topic: "covid-19"
-      customerStatus: "testing"
+      customerStatus: "active"
       schemaName: "csv-otc-covid-19"
       keys: null
       processingType: "sync"

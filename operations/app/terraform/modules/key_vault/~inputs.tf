@@ -23,3 +23,7 @@ variable "subnets" {
 variable "dns_zones" {
   description = "A set of all available dns zones"
 }
+
+variable "admin_function_app" {
+  description = "Admin function app"
+}

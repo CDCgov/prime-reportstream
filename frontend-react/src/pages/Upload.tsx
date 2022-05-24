@@ -9,6 +9,7 @@ import {
 import { useResource } from "rest-hooks";
 import { useOktaAuth } from "@okta/okta-react";
 import moment from "moment";
+import { NavLink, useHistory } from "react-router-dom";
 
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
 import {
@@ -26,6 +27,7 @@ const REPORT_MAX_ITEM_COLUMNS = 2000;
 
 export const Upload = () => {
     const { authState } = useOktaAuth();
+    const history = useHistory();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fileInputResetValue, setFileInputResetValue] = useState(0);
     const [fileContent, setFileContent] = useState("");
@@ -257,6 +259,14 @@ export const Upload = () => {
                                 Your file has been successfully transmitted to
                                 the department of health.
                             </p>
+                            <p className="margin-top-0">
+                                <NavLink
+                                    to="/submissions"
+                                    className="text-no-underline"
+                                >
+                                    Review your file status in Submissions.
+                                </NavLink>
+                            </p>
                         </div>
                     </div>
                     <div>
@@ -362,19 +372,31 @@ export const Upload = () => {
                         required
                     />
                 </FormGroup>
-                <Button
-                    type="submit"
-                    disabled={isSubmitting || fileName.length === 0}
-                >
-                    {isSubmitting && (
-                        <span>
-                            <Spinner />
-                            <span>Processing file...</span>
-                        </span>
-                    )}
+                <div className="display-flex">
+                    <Button
+                        className={`${reportId && "flex-1 margin-right-3"}`}
+                        type="submit"
+                        disabled={isSubmitting || fileName.length === 0}
+                    >
+                        {isSubmitting && (
+                            <span>
+                                <Spinner />
+                                <span>Processing file...</span>
+                            </span>
+                        )}
 
-                    {!isSubmitting && <span>{buttonText}</span>}
-                </Button>
+                        {!isSubmitting && <span>{buttonText}</span>}
+                    </Button>
+                    {reportId && (
+                        <Button
+                            type="button"
+                            className="usa-button flex-1"
+                            onClick={() => history.push("/submissions")}
+                        >
+                            <span>Review Submissions</span>
+                        </Button>
+                    )}
+                </div>
             </Form>
         </div>
     );
