@@ -109,7 +109,10 @@ class CompareFhirData(
                         // Note that here we look for the first good match, and note we are comparing all values which
                         // we expect only one match.
                         actualValues.any { actualValue ->
-                            compareValue(actualValue, expectedValue, thisTypePath, result, actualValues.size > 1)
+                            compareValue(
+                                actualValue, expectedValue, thisTypePath, result,
+                                suppressOutput || actualValues.size > 1
+                            )
                         }
                     }
 
