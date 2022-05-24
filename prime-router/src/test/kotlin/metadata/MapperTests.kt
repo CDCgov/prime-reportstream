@@ -94,26 +94,23 @@ class MapperTests {
         ).isEqualTo(compVal)
     }
 
-    internal fun decodeArg(values: List<ElementAndValue>, mapperArg: String): String {
-        return values.find { it.element.name.equals(mapperArg, ignoreCase = true) }?.value ?: mapperArg
-    }
-
     @Test
     fun `test decodeArg`() {
+        val mapper = IfThenElseMapper()
         val elementsAndValues = listOf(
             ElementAndValue(Element("otc_flag"), "OTC"),
             ElementAndValue(Element("comparison_value"), "Prescription")
         )
         // expected element value
-        assertThat(decodeArg(elementsAndValues, "otc_flag")).isEqualTo("OTC")
+        assertThat(mapper.decodeArg(elementsAndValues, "otc_flag")).isEqualTo("OTC")
         // well-formed non-existent element
-        assertThat(decodeArg(elementsAndValues, "other_element")).isEqualTo("other_element")
+        assertThat(mapper.decodeArg(elementsAndValues, "other_element")).isEqualTo("other_element")
         // empty list of elementAndValues
-        assertThat(decodeArg(listOf(), "otc_flag")).isEqualTo("otc_flag")
+        assertThat(mapper.decodeArg(listOf(), "otc_flag")).isEqualTo("otc_flag")
         // string literal
-        assertThat(decodeArg(elementsAndValues, "George")).isEqualTo("George")
+        assertThat(mapper.decodeArg(elementsAndValues, "George")).isEqualTo("George")
         // numeric string literal
-        assertThat(decodeArg(elementsAndValues, "127")).isEqualTo("127")
+        assertThat(mapper.decodeArg(elementsAndValues, "127")).isEqualTo("127")
     }
 
     @Test

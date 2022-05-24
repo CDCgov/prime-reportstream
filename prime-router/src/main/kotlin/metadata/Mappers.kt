@@ -164,8 +164,8 @@ class IfThenElseMapper : Mapper {
         if ((dVal1 != null) && (dVal2 == null)) {
             error("ifThenElse Type Mismatch Error: $val2 is not numeric")
         }
-        if ((dVal1 != null) && (dVal2 != null)) { // only if both val1 and val2 are Double strings
-            return when (op) {
+        return if ((dVal1 != null) && (dVal2 != null)) { // only if both val1 and val2 are Double strings
+            when (op) {
                 "==" -> (dVal1 == dVal2) // all Double comparisons (covers Float, Int)
                 "!=" -> (dVal1 != dVal2)
                 ">=" -> (dVal1 >= dVal2)
@@ -174,15 +174,16 @@ class IfThenElseMapper : Mapper {
                 ">" -> (dVal1 > dVal2)
                 else -> error("ifThenElse Mapper Argument Error: not a valid operator: $op")
             }
-        }
-        return when (op) {
-            "==" -> (val1 == val2) // all string comparisons
-            "!=" -> (val1 != val2)
-            ">=" -> (val1 >= val2)
-            "<=" -> (val1 <= val2)
-            "<" -> (val1 < val2)
-            ">" -> (val1 > val2)
-            else -> error("ifThenElse Mapper Argument Error: not a valid operator: $op")
+        } else {
+            when (op) {
+                "==" -> (val1 == val2) // all string comparisons
+                "!=" -> (val1 != val2)
+                ">=" -> (val1 >= val2)
+                "<=" -> (val1 <= val2)
+                "<" -> (val1 < val2)
+                ">" -> (val1 > val2)
+                else -> error("ifThenElse Mapper Argument Error: not a valid operator: $op")
+            }
         }
     }
 
