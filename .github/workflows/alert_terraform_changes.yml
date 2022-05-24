@@ -36,9 +36,9 @@ jobs:
         if: steps.stats1.outputs.change-count > 0
         run: |
           echo "resource-changes=$(echo '${{ steps.stats1.outputs.resource-changes }}' \
-            | sed 's/\"/\\\"/g')" >> $GITHUB_ENV
+            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
           echo "resource-drifts=$(echo '${{ steps.stats1.outputs.resource-drifts }}' \
-            | sed 's/\"/\\\"/g')" >> $GITHUB_ENV
+            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
       - name: Send custom JSON data to Slack workflow
         if: steps.stats1.outputs.change-count > 0
         id: slack

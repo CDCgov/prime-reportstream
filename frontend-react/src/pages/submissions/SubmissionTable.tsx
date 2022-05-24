@@ -12,7 +12,12 @@ import usePagination from "../../hooks/UsePagination";
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
 function SubmissionTable() {
-    const filterManager = useFilterManager();
+    const filterManager = useFilterManager({
+        sortDefaults: {
+            column: "timestamp",
+            order: "DESC",
+        },
+    });
     const {
         cursors,
         hasPrev,
@@ -103,7 +108,6 @@ function SubmissionTable() {
                     hasNext,
                     update: updateCursors,
                 }}
-                enableEditableRows
             />
         </>
     );
