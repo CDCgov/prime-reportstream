@@ -2,7 +2,6 @@ package gov.cdc.prime.router.fhirengine.utils
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
@@ -15,11 +14,12 @@ class HL7ReaderTests {
     @Test
     fun `test decoding of bad HL7 messages`() {
         val actionLogger = ActionLogger()
-        val hl7Reader = HL7Reader(actionLogger)
+        val hl7Reader = HL7Reader()
 
         // Empty data
         val badData1 = ""
-        hl7Reader.getMessages(badData1)
+        val (_, errors) = hl7Reader.getMessages(badData1)
+        actionLogger.error(errors)
         assertThat(actionLogger.hasErrors()).isTrue()
         actionLogger.logs.clear()
 
@@ -28,21 +28,22 @@ class HL7ReaderTests {
             a,b,c
             1,2,3
         """.trimIndent()
-        hl7Reader.getMessages(badData2)
+        val (_, errors2) = hl7Reader.getMessages(badData2)
+        actionLogger.error(errors2)
         assertThat(actionLogger.hasErrors()).isTrue()
         actionLogger.logs.clear()
 
         // Some truncated HL7
         val badData3 = "MSH|^~\\&#|MEDITECH^2.16.840.1.114222.4.3.2.2.1.321.111^ISO|COCAA^1.2."
-        hl7Reader.getMessages(badData3)
+        val (_, errors3) = hl7Reader.getMessages(badData3)
+        actionLogger.error(errors3)
         assertThat(actionLogger.hasErrors()).isTrue()
         actionLogger.logs.clear()
     }
 
     @Test
     fun `test decoding of good HL7 messages`() {
-        val actionLogger = ActionLogger()
-        val hl7Reader = HL7Reader(actionLogger)
+        val hl7Reader = HL7Reader()
 
         val goodData1 = """
 MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
@@ -59,11 +60,14 @@ OBX|6|CWE|82810-3^Pregnant^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600||
 NTE|1|L|This is a note|RE
 SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600|202102090000-0600
         """.trimIndent()
-        var messages = hl7Reader.getMessages(goodData1)
-        assertThat(actionLogger.hasErrors()).isFalse()
+        val (messages, errors) = hl7Reader.getMessages(goodData1)
+        assertThat(errors.size).isEqualTo(0)
         assertThat(messages.size).isEqualTo(1)
-        actionLogger.logs.clear()
+    }
 
+    @Test
+    fun `test decoding of good HL7 messages - 2 messages`() {
+        val hl7Reader = HL7Reader()
         val goodData2 = """
 FHS|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|||202102101707-0500
 BHS|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|||202102101707-0500
@@ -92,15 +96,14 @@ SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT|||
 BTS|2
 FTS|1
         """.trimIndent()
-        messages = hl7Reader.getMessages(goodData2)
-        assertThat(actionLogger.hasErrors()).isFalse()
+        val (messages, errors) = hl7Reader.getMessages(goodData2)
+        assertThat(errors.size).isEqualTo(0)
         assertThat(messages.size).isEqualTo(2)
-        actionLogger.logs.clear()
     }
 
     @Test
     fun `test get message time stamp`() {
-        val hl7Reader = HL7Reader(ActionLogger())
+        val hl7Reader = HL7Reader()
 
         fun getTestMessage(timestampStr: String): Message {
             val rawData = """
@@ -111,7 +114,7 @@ ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85
 OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
 OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
             """.trimIndent()
-            val message = hl7Reader.getMessages(rawData)
+            val (message, _) = hl7Reader.getMessages(rawData)
             assertThat(message.size).isEqualTo(1)
             return message[0]
         }

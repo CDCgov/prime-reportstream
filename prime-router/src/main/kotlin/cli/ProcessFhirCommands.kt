@@ -41,7 +41,8 @@ class ProcessFhirCommands : CliktCommand(
         // Check on the extension of the file for supported operations
         when (inputFile.extension.uppercase()) {
             "HL7" -> {
-                val messages = HL7Reader(actionLogger).getMessages(contents)
+                val (messages, errors) = HL7Reader().getMessages(contents)
+                actionLogger.error(errors)
                 if (messages.size > 1) throw CliktError("Only one HL7 message is supported.")
                 val fhirBundle = HL7toFhirTranslator.getInstance().translate(messages[0])
                 outputResult(fhirBundle, actionLogger)

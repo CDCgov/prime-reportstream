@@ -118,15 +118,16 @@ class FHIREngine(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-        hl7Reader: HL7Reader = HL7Reader(actionLogger),
+        hl7Reader: HL7Reader = HL7Reader(),
         metadata: Metadata? = null
     ) {
         logger.trace("Processing HL7 data for FHIR conversion.")
         try {
             // get the hl7 from the blob store
-            val hl7messages = hl7Reader.getMessages(message.downloadContent())
+            val (hl7messages, hl7Errors) = hl7Reader.getMessages(message.downloadContent())
 
-            if (actionLogger.hasErrors()) {
+            if (hl7Errors.isNotEmpty()) {
+                actionLogger.error(hl7Errors)
                 throw java.lang.IllegalArgumentException(actionLogger.errors.joinToString("\n") { it.detail.message })
             }
 

@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.isTrue
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import gov.cdc.prime.router.ActionError
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
@@ -255,7 +254,7 @@ class TranslationTests {
          * @return a FHIR bundle as a JSON input stream
          */
         private fun translateToFhir(hl7: InputStream): InputStream {
-            val hl7messages = HL7Reader(ActionLogger()).getMessages(hl7.bufferedReader().readText())
+            val (hl7messages, _) = HL7Reader().getMessages(hl7.bufferedReader().readText())
             val fhirBundles = hl7messages.map { message ->
                 HL7toFhirTranslator.getInstance().translate(message)
             }

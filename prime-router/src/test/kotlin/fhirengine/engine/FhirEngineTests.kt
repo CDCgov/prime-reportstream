@@ -102,7 +102,7 @@ class FhirEngineTests {
         val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
-        val hL7Reader = spyk(HL7Reader(actionLogger))
+        val hL7Reader = spyk(HL7Reader())
 
         val engine = makeFhirEngine(metadata, settings)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))

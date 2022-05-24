@@ -237,7 +237,8 @@ class ELRReceiver : SubmissionReceiver {
         val actionLogs = ActionLogger()
 
         // check that our input is valid HL7. Additional validation will happen at a later step
-        var messages = HL7Reader(actionLogs).getMessages(content)
+        val (messages, errors) = HL7Reader().getMessages(content)
+        actionLogs.error(errors)
 
         // create a Report for this incoming HL7 message to use for tracking in the database
         val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))

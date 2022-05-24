@@ -6,7 +6,6 @@ import assertk.assertions.isFailure
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.hl7.fhir.r4.model.Bundle
@@ -30,18 +29,22 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
 
     @Test
     fun `test get message template`() {
-        val message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
+        val (message, _) = HL7Reader().getMessages(supportedHL7)
         assertThat(message.size).isEqualTo(1)
         assertThat(HL7toFhirTranslator.getInstance().getMessageTemplateType(message[0])).isEqualTo("ORU_R01")
     }
 
     @Test
     fun `test get message model`() {
-        var message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
+        var (message, _) = HL7Reader().getMessages(supportedHL7)
         assertThat(message.size).isEqualTo(1)
         val model = HL7toFhirTranslator.getInstance().getHL7MessageModel(message[0])
         assertThat(model).isNotNull()
         assertThat(model.messageName).isEqualTo("ORU_R01")
+    }
+
+    @Test
+    fun `test get message model - unsupported hl7 type`() {
 
         // Source: https://confluence.hl7.org/display/OO/v2+Sample+Messages
         val unsupportedHL7 = """
@@ -52,7 +55,7 @@ ORC|NW|ORD448811^NIST EHR|||||||20120628070100|||5742200012^Radon^Nicholas^^^^^^
 OBR|1|ORD448811^NIST EHR||1000^Hepatitis A  B  C Panel^99USL|||20120628070100|||||||||5742200012^Radon^Nicholas^^^^^^NPI^L^^^NPI
 DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         """.trimIndent()
-        message = HL7Reader(ActionLogger()).getMessages(unsupportedHL7)
+        val (message, _) = HL7Reader().getMessages(unsupportedHL7)
         assertThat(message.size).isEqualTo(1)
         assertThat { HL7toFhirTranslator.getInstance().getHL7MessageModel(message[0]) }.isFailure()
     }
@@ -60,7 +63,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
     @Test
     fun `test a quick translation to FHIR`() {
         // Note that FHIR content will be tested as an integration test
-        val message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
+        val (message, _) = HL7Reader().getMessages(supportedHL7)
         assertThat(message.size).isEqualTo(1)
         val bundle = HL7toFhirTranslator.getInstance().translate(message[0])
         assertThat(bundle).isNotNull()
