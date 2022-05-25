@@ -11,7 +11,10 @@ const isNotActive = (val: string): boolean => {
 
 const SenderModeBanner = (): ReactElement | null => {
     const session = useContext(SessionContext);
-    const status = useSenderMode(session.store.values.org, session.store.values.senderName);
+    const status = useSenderMode(
+        session.store.values.org,
+        session.store.values.senderName
+    );
     const path = "/getting-started/testing-facilities/overview";
 
     if (isNotActive(status)) {

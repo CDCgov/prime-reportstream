@@ -30,8 +30,8 @@ export interface MembershipState {
 }
 
 export interface MembershipController {
-    state: MembershipState,
-    dispatch: React.Dispatch<MembershipAction>
+    state: MembershipState;
+    dispatch: React.Dispatch<MembershipAction>;
 }
 
 interface MembershipAction {
