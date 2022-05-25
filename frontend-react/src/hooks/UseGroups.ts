@@ -1,5 +1,6 @@
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
+import { useOktaAuth } from "@okta/okta-react";
 
 import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
 
@@ -13,6 +14,7 @@ export enum MemberType {
 export enum MembershipActionType {
     SWITCH = "switch",
     UPDATE = "update",
+    ADMIN_OVERRIDE = "override",
 }
 
 interface MembershipSettings {
@@ -36,7 +38,7 @@ export interface MembershipController {
 interface MembershipAction {
     type: MembershipActionType;
     // Only need to pass name of an org to swap to
-    payload: string | AccessToken;
+    payload: string | AccessToken | Partial<MembershipSettings>;
 }
 
 export const getTypeOfGroup = (org: string) => {
@@ -65,7 +67,7 @@ export const getSettingsFromOrganization = (
     };
 };
 
-export const makeMembershipMap = (
+export const makeMembershipMapFromToken = (
     token: AccessToken
 ): Map<string, MembershipSettings> => {
     // Extracts claims from token
@@ -87,7 +89,8 @@ export const membershipsFromToken = (token: AccessToken): MembershipState => {
     if (!token?.claims) {
         return defaultState;
     }
-    const claimData: Map<string, MembershipSettings> = makeMembershipMap(token);
+    const claimData: Map<string, MembershipSettings> =
+        makeMembershipMapFromToken(token);
     // Catch anyone with no claim data
     if (!claimData.size) {
         return defaultState;
@@ -115,12 +118,31 @@ export const membershipReducer = (
             };
         case MembershipActionType.UPDATE:
             return membershipsFromToken(payload as AccessToken);
+        case MembershipActionType.ADMIN_OVERRIDE:
+            return {
+                ...state,
+                active: {
+                    ...state.active,
+                    ...(payload as MembershipSettings),
+                },
+            };
         default:
             return state;
     }
 };
 
 export const useGroups = (): MembershipController => {
+    const { authState } = useOktaAuth();
     const [state, dispatch] = useReducer(membershipReducer, defaultState);
+
+    useEffect(() => {
+        if (authState?.accessToken) {
+            dispatch({
+                type: MembershipActionType.UPDATE,
+                payload: authState.accessToken,
+            });
+        }
+    }, [authState]);
+
     return { state, dispatch };
 };
