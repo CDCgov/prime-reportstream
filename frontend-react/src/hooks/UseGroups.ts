@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 
 import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
@@ -82,7 +82,7 @@ const defaultState: MembershipState = {
     active: undefined,
     memberships: undefined,
 };
-export const membershipsFromAuth = (token: AccessToken): MembershipState => {
+export const membershipsFromToken = (token: AccessToken): MembershipState => {
     // One big undefined check to see if we have what we need for the next line
     if (!token?.claims) {
         return defaultState;
@@ -114,14 +114,35 @@ export const membershipReducer = (
                     state.memberships?.get(payload as string) || state.active,
             };
         case MembershipActionType.UPDATE:
-            return membershipsFromAuth(payload as AccessToken);
+            return membershipsFromToken(payload as AccessToken);
         default:
             return state;
     }
 };
 
+const fromStorage = <T>(key: string) => {
+    const storeVal = sessionStorage.getItem(key);
+    // Catch undefined value
+    if (!storeVal) {
+        return defaultState;
+    }
+    // Remove the item for safety
+    sessionStorage.removeItem(key);
+    // Return as type
+    return JSON.parse(storeVal) as T;
+};
+
 export const useGroups = (): MembershipController => {
-    const [state, dispatch] = useReducer(membershipReducer, defaultState);
+    const key = "memberships";
+    const [state, dispatch] = useReducer(
+        membershipReducer,
+        fromStorage<MembershipState>(key)
+    );
+
+    // Persists
+    useEffect(() => {
+        sessionStorage.setItem(key, JSON.stringify(state));
+    }, [state]);
 
     return { state, dispatch };
 };
