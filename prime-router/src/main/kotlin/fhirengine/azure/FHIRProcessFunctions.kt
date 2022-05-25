@@ -22,7 +22,7 @@ const val elrProcessQueueName = "process-elr"
  * @property actionHistory the action history tracker
  * @property actionLogger the action logger
  */
-class FHIRFlowFunctions(
+class FHIRProcessFunctions(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.process),
     private val actionLogger: ActionLogger = ActionLogger()

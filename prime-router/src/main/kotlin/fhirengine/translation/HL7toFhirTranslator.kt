@@ -2,9 +2,8 @@ package gov.cdc.prime.router.fhirengine.translation
 
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v251.segment.MSH
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
-import io.github.linuxforhealth.fhir.FHIRContext
-import io.github.linuxforhealth.hl7.ConverterOptions
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
 import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
@@ -32,22 +31,7 @@ class HL7toFhirTranslator internal constructor(private val messageEngine: HL7Mes
         /**
          * A default engine for translating HL7 -> FHIR
          */
-        private val defaultEngine = getMessageEngine()
-
-        /**
-         * Build a HL7MessageEngine for converting HL7 -> FHIR with provided [options].
-         * @return the message engine
-         */
-        internal fun getMessageEngine(options: ConverterOptions = ConverterOptions.SIMPLE_OPTIONS): HL7MessageEngine {
-            val context = FHIRContext(
-                options.isPrettyPrint,
-                options.isValidateResource,
-                options.properties,
-                options.zoneIdText
-            )
-
-            return HL7MessageEngine(context, options.bundleType)
-        }
+        private val defaultEngine = FhirTranscoder.getMessageEngine()
 
         /**
          * Singleton object
