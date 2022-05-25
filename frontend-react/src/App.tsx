@@ -36,7 +36,7 @@ import SubmissionDetails from "./pages/submissions/SubmissionDetails";
 import { NewSetting } from "./components/Admin/NewSetting";
 import { FeatureFlagUIComponent } from "./pages/misc/FeatureFlags";
 import SenderModeBanner from "./components/SenderModeBanner";
-import { SessionStorageContext } from "./contexts/SessionStorageContext";
+import { SessionContext } from "./contexts/SessionContext";
 import { AdminOrgNew } from "./pages/admin/AdminOrgNew";
 import { DAPHeader } from "./components/header/DAPHeader";
 import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
@@ -51,7 +51,7 @@ const App = () => {
         }'`
     );
     const history = useHistory();
-    const context = useContext(SessionStorageContext);
+    const context = useContext(SessionContext);
     const customAuthHandler = (): void => {
         history.push("/login");
     };

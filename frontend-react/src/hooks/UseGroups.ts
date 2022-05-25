@@ -1,5 +1,5 @@
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
-import { useReducer } from "react";
+import React, { useReducer } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 import { useOktaAuth } from "@okta/okta-react";
 
@@ -23,10 +23,15 @@ interface MembershipSettings {
     memberType: MemberType;
 }
 
-interface MembershipState {
+export interface MembershipState {
     active?: MembershipSettings;
     // Key is the OKTA group name, settings has parsedName
     memberships?: Map<string, MembershipSettings>;
+}
+
+export interface MembershipController {
+    state: MembershipState,
+    dispatch: React.Dispatch<MembershipAction>
 }
 
 interface MembershipAction {
@@ -115,7 +120,7 @@ export const membershipReducer = (
     }
 };
 
-export const useGroups = () => {
+export const useGroups = (): MembershipController => {
     const auth = useOktaAuth();
     const [state, dispatch] = useReducer(
         membershipReducer,

@@ -2,7 +2,7 @@ import { FC, ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 
-import SessionProvider from "../contexts/SessionStorageContext";
+import SessionProvider from "../contexts/SessionContext";
 
 /* 
     To create a custom renderer, you must create a functional
