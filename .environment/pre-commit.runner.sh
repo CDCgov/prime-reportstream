@@ -34,7 +34,7 @@ if [[ $DOCKER_RC -ne 0 ]]; then
   exit 1
 fi
 
-echo "> Running pre-commit hooks foo"
+echo "> Running pre-commit hooks"
 
 for item in ${CHECKS_TO_RUN[*]}; do
     echo "   - ${item?}"
