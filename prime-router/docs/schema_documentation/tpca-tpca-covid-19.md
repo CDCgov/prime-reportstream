@@ -693,7 +693,7 @@ unique id to track the usage of the message
 
 **PII**: No
 
-**Default Value**: PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+**Default Value**: PHLabReport-NoAck
 
 **Cardinality**: [0..1]
 
