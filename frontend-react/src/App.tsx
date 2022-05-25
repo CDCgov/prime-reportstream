@@ -53,7 +53,7 @@ const App = () => {
     const history = useHistory();
     const context = useContext(SessionStorageContext);
     const customAuthHandler = (): void => {
-        history.push('/login');
+        history.push("/login");
     };
     const handleIdle = (): void => {
         logout(OKTA_AUTH);
