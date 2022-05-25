@@ -12,14 +12,14 @@ object UnitTestUtils {
 
     /**
      * A new instance of a simple schema for testing. Note a new schema instance is created each time this
-     * simpleSchema variable is referenced, so unit tests do not interfere with each other.
+     * [simpleSchema] variable is referenced, so unit tests do not interfere with each other.
      */
     val simpleSchema get() =
         Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
 
     /**
      * A new instance of a simple metadata instance that does not use the real configuration. Note a new
-     * Metadata instance is created each time this simpleMetadata variable is referenced, so unit tests do not
+     * Metadata instance is created each time this [simpleMetadata] variable is referenced, so unit tests do not
      * interfere with each other.
      */
     val simpleMetadata get() = Metadata(simpleSchema)
