@@ -8,11 +8,11 @@ import OktaSignInWidget from "../components/OktaSignInWidget";
 import { getOktaGroups, parseOrgs } from "../utils/OrganizationUtils";
 import { setStoredOktaToken } from "../contexts/SessionStorageTools";
 import { oktaSignInConfig } from "../oktaConfig";
-import { SessionStorageContext } from "../contexts/SessionStorageContext";
+import { SessionContext } from "../contexts/SessionContext";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
-    const { updateSessionStorage } = useContext(SessionStorageContext);
+    const { updateSessionStorage } = useContext(SessionContext);
 
     const onSuccess = (tokens: Tokens | undefined) => {
         const parsedOrgs = parseOrgs(getOktaGroups(tokens?.accessToken));
