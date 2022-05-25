@@ -1,4 +1,4 @@
-import { createContext, FC } from "react";
+import { createContext, FC, useContext } from "react";
 
 import useSessionStorage, {
     SessionController,
@@ -30,5 +30,7 @@ const SessionProvider: FC = ({ children }) => {
         </SessionContext.Provider>
     );
 };
+
+export const useSessionContext = () => useContext(SessionContext);
 
 export default SessionProvider;
