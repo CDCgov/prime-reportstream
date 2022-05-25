@@ -294,6 +294,9 @@ describe("setCurrentPageReducer", () => {
                 5: "41",
                 6: "51",
                 7: "61",
+                8: "71",
+                9: "81",
+                10: "91",
             },
             pageResultsMap: {
                 1: [],
