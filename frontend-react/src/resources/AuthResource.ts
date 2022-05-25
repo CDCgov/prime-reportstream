@@ -6,6 +6,8 @@ import {
 } from "../contexts/SessionStorageTools";
 
 export default class AuthResource extends Resource {
+    static automaticValidation = 'warn' as const;
+
     pk(_parent?: any, _key?: string): string | undefined {
         throw new Error("Method not implemented.");
     }

@@ -106,9 +106,12 @@ const Table = ({
      * the sort column, order, or localSort value change in SortSettings,
      * this reactively updates to account for that, too. */
     const memoizedRows = useMemo(() => {
-        const column = filterManager?.sortSettings.column || "";
-        const locally = filterManager?.sortSettings.locally || false;
-        const localOrder = filterManager?.sortSettings.localOrder || "DESC";
+        if (!config?.rows.length) {
+            return [];
+        }
+        const column = filterManager?.sortSettings?.column || "";
+        const locally = filterManager?.sortSettings?.locally || false;
+        const localOrder = filterManager?.sortSettings?.localOrder || "DESC";
         const valueType = typeof config?.rows[0]?.[column];
         if (locally) {
             switch (valueType) {
