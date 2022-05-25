@@ -109,7 +109,7 @@ const Table = ({
         const column = filterManager?.sortSettings.column || "";
         const locally = filterManager?.sortSettings.locally || false;
         const localOrder = filterManager?.sortSettings.localOrder || "DESC";
-        const valueType = typeof config.rows[0][column];
+        const valueType = typeof config?.rows[0]?.[column];
         if (locally) {
             switch (valueType) {
                 case "string": {
