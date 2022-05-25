@@ -1917,6 +1917,7 @@
         schemaName: "hhsprotect/hhsprotect-covid-19"
         format: "CSV"
       deidentify: true
+      deidentifiedValue: "<DEIDENTIFIED>"
       timing:
         operation: "MERGE"
         numberPerDay: 1440
