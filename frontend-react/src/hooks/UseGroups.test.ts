@@ -1,36 +1,42 @@
-import { act, renderHook } from "@testing-library/react-hooks";
-import * as OktaAuth from "@okta/okta-react";
-import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
+import { act, renderHook, RenderResult } from "@testing-library/react-hooks";
 
-import { MembershipActionType, MemberType, useGroups } from "./UseGroups";
+import {
+    MembershipActionType,
+    MembershipController,
+    MemberType,
+    useGroups,
+} from "./UseGroups";
 
-const mockAuth = jest.spyOn(OktaAuth, "useOktaAuth");
+const mimicLoginWithGroups = (
+    result: RenderResult<MembershipController>,
+    groups: string[]
+) =>
+    act(() =>
+        result.current.dispatch({
+            type: MembershipActionType.UPDATE,
+            payload: {
+                claims: {
+                    //@ts-ignore
+                    organization: groups,
+                },
+            },
+        })
+    );
 
 describe("useGroups", () => {
     test("renders with default values", () => {
-        mockAuth.mockReturnValue({} as IOktaContext);
         const { result } = renderHook(() => useGroups());
         expect(result.current.state.memberships).toBeUndefined();
         expect(result.current.state.active).toBeUndefined();
     });
 
-    test("renders with parsed Okta groups", () => {
-        //@ts-ignore
-        mockAuth.mockReturnValue({
-            authState: {
-                accessToken: {
-                    claims: {
-                        //@ts-ignore
-                        organization: [
-                            "DHPrimeAdmins",
-                            "DHSender_ignore",
-                            "DHmd_phd",
-                        ],
-                    },
-                },
-            },
-        });
+    test("can be set with AccessToken", () => {
         const { result } = renderHook(() => useGroups());
+        mimicLoginWithGroups(result, [
+            "DHPrimeAdmins",
+            "DHSender_ignore",
+            "DHmd_phd",
+        ]);
         expect(result.current.state.active).toEqual({
             parsedName: "PrimeAdmins",
             memberType: MemberType.PRIME_ADMIN,
@@ -63,21 +69,12 @@ describe("useGroups", () => {
     });
 
     test("can swap active membership", () => {
-        mockAuth.mockReturnValue({
-            authState: {
-                accessToken: {
-                    claims: {
-                        //@ts-ignore
-                        organization: [
-                            "DHPrimeAdmins",
-                            "DHSender_ignore",
-                            "DHmd_phd",
-                        ],
-                    },
-                },
-            },
-        });
         const { result } = renderHook(() => useGroups());
+        mimicLoginWithGroups(result, [
+            "DHPrimeAdmins",
+            "DHSender_ignore",
+            "DHmd_phd",
+        ]);
         expect(result.current.state.active).toEqual({
             parsedName: "PrimeAdmins",
             memberType: MemberType.PRIME_ADMIN,

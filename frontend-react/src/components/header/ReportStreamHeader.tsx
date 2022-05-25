@@ -9,31 +9,36 @@ import {
 import { NavLink } from "react-router-dom";
 import { NetworkErrorBoundary } from "rest-hooks";
 
-import { PERMISSIONS, permissionCheck } from "../../utils/PermissionsUtils";
-import { getStoredOrg } from "../../contexts/SessionStorageTools";
+import { permissionCheck, PERMISSIONS } from "../../utils/PermissionsUtils";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
+import { useSessionContext } from "../../contexts/SessionContext";
+import { MemberType } from "../../hooks/UseGroups";
 
 import { SignInOrUser } from "./SignInOrUser";
 import { HowItWorksDropdown } from "./HowItWorksDropdown";
 import { AdminDropdownNav } from "./AdminDropdownNav";
 import { GettingStartedDropdown } from "./GettingStartedDropdown";
 
+const isOktaPreview =
+    `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
+const environment = `${process.env.REACT_APP_CLIENT_ENV}`;
+
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
+    const { memberships } = useSessionContext();
     const [expanded, setExpanded] = useState(false);
-    const organization = getStoredOrg();
+    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
+
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
-    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
-    const isOktaPreview =
-        `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
-    const environment = `${process.env.REACT_APP_CLIENT_ENV}`;
 
     if (authState && authState.isAuthenticated && authState.accessToken) {
         /* RECEIVERS ONLY */
         if (
-            permissionCheck(PERMISSIONS.RECEIVER, authState.accessToken) ||
-            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
+            // permissionCheck(PERMISSIONS.RECEIVER, authState.accessToken) ||
+            // permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
+            memberships.state.active?.memberType === MemberType.RECEIVER ||
+            memberships.state.active?.memberType === MemberType.PRIME_ADMIN
         ) {
             itemsMenu.push(
                 <NavLink
@@ -50,8 +55,10 @@ export const ReportStreamHeader = () => {
 
         /* SENDERS ONLY */
         if (
-            permissionCheck(PERMISSIONS.SENDER, authState.accessToken) ||
-            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
+            // permissionCheck(PERMISSIONS.SENDER, authState.accessToken) ||
+            // permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
+            memberships.state.active?.memberType === MemberType.SENDER ||
+            memberships.state.active?.memberType === MemberType.PRIME_ADMIN
         ) {
             itemsMenu.push(
                 <NavLink
@@ -76,7 +83,10 @@ export const ReportStreamHeader = () => {
         }
 
         /* ADMIN ONLY */
-        if (permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)) {
+        if (
+            // permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
+            memberships.state.active?.memberType === MemberType.PRIME_ADMIN
+        ) {
             itemsMenu.push(<AdminDropdownNav />);
         }
     }
@@ -120,7 +130,7 @@ export const ReportStreamHeader = () => {
                                 className="usa-button usa-button--outline usa-button--small padding-1"
                             >
                                 <span className="usa-breadcrumb padding-left-2 text-semibold text-no-wrap">
-                                    {organization}
+                                    {memberships.state.active?.parsedName || ""}
                                     <RightLeftArrows
                                         aria-hidden="true"
                                         role="img"

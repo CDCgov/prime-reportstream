@@ -96,7 +96,8 @@ const App = () => {
                 >
                     <DAPHeader env={process.env.REACT_APP_ENV?.toString()} />
                     <GovBanner aria-label="Official government website" />
-                    {context.values.org && context.values.senderName ? (
+                    {context.store.values.org &&
+                    context.store.values.senderName ? (
                         <SenderModeBanner />
                     ) : null}
                     <ReportStreamHeader />

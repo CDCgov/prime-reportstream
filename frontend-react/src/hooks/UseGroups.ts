@@ -1,7 +1,5 @@
-import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import React, { useReducer } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
-import { useOktaAuth } from "@okta/okta-react";
 
 import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
 
@@ -14,6 +12,7 @@ export enum MemberType {
 
 export enum MembershipActionType {
     SWITCH = "switch",
+    UPDATE = "update",
 }
 
 interface MembershipSettings {
@@ -37,7 +36,7 @@ export interface MembershipController {
 interface MembershipAction {
     type: MembershipActionType;
     // Only need to pass name of an org to swap to
-    payload: string;
+    payload: string | AccessToken;
 }
 
 export const getTypeOfGroup = (org: string) => {
@@ -83,14 +82,12 @@ const defaultState: MembershipState = {
     active: undefined,
     memberships: undefined,
 };
-export const membershipsFromAuth = (auth: IOktaContext): MembershipState => {
+export const membershipsFromAuth = (token: AccessToken): MembershipState => {
     // One big undefined check to see if we have what we need for the next line
-    if (!auth.authState?.accessToken?.claims) {
+    if (!token?.claims) {
         return defaultState;
     }
-    const claimData: Map<string, MembershipSettings> = makeMembershipMap(
-        auth.authState.accessToken
-    );
+    const claimData: Map<string, MembershipSettings> = makeMembershipMap(token);
     // Catch anyone with no claim data
     if (!claimData.size) {
         return defaultState;
@@ -113,19 +110,18 @@ export const membershipReducer = (
         case MembershipActionType.SWITCH:
             return {
                 ...state,
-                active: state.memberships?.get(payload) || state.active,
+                active:
+                    state.memberships?.get(payload as string) || state.active,
             };
+        case MembershipActionType.UPDATE:
+            return membershipsFromAuth(payload as AccessToken);
         default:
             return state;
     }
 };
 
 export const useGroups = (): MembershipController => {
-    const auth = useOktaAuth();
-    const [state, dispatch] = useReducer(
-        membershipReducer,
-        membershipsFromAuth(auth)
-    );
+    const [state, dispatch] = useReducer(membershipReducer, defaultState);
 
     return { state, dispatch };
 };
