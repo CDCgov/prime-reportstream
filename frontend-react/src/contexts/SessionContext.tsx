@@ -1,29 +1,31 @@
 import { createContext, FC } from "react";
 
 import useSessionStorage, {
-    SessionController
+    SessionController,
 } from "../hooks/UseSessionStorage";
-import {MembershipController, useGroups} from "../hooks/UseGroups";
+import { MembershipController, useGroups } from "../hooks/UseGroups";
 
 interface ISessionContext {
-    memberships: MembershipController
-    store: SessionController
+    memberships: MembershipController;
+    store: SessionController;
 }
 
 export const SessionContext = createContext<ISessionContext>({
     memberships: {} as MembershipController,
-    store: {} as SessionController
+    store: {} as SessionController,
 });
 
 const SessionProvider: FC = ({ children }) => {
     const store = useSessionStorage();
-    const memberships = useGroups()
+    const memberships = useGroups();
 
     return (
-        <SessionContext.Provider value={{
-            memberships: memberships,
-            store: store
-        }}>
+        <SessionContext.Provider
+            value={{
+                memberships: memberships,
+                store: store,
+            }}
+        >
             {children}
         </SessionContext.Provider>
     );
