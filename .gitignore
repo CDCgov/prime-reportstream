@@ -110,3 +110,7 @@ gitleaks.log
 
 # Archived functions
 *function*.zip
+
+# Cypress
+**/cypress/screenshots/
+**/cypress/videos/

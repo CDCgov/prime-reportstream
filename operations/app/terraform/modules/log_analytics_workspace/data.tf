@@ -33,6 +33,9 @@ locals {
     "storage_account" = {
       resource_id = var.storage_account_id
     },
+    "storage_account_blob" = {
+      resource_id = "${var.storage_account_id}/blobServices/default"
+    },
     "storage_public" = {
       resource_id = var.storage_public_id
     },
