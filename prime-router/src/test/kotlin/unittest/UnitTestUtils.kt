@@ -11,16 +11,18 @@ import gov.cdc.prime.router.Schema
 object UnitTestUtils {
 
     /**
-     * A simple schema for testing.
+     * A new instance of a simple schema for testing. Note a new schema instance is created each time this
+     * [simpleSchema] variable is referenced, so unit tests do not interfere with each other.
      */
-    val simpleSchema = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+    val simpleSchema get() =
+        Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
 
     /**
-     * A simple metadata instance that does not use the real configuration.
+     * A new instance of a simple metadata instance that does not use the real configuration. Note a new
+     * Metadata instance is created each time this [simpleMetadata] variable is referenced, so unit tests do not
+     * interfere with each other.
      */
-    val simpleMetadata by lazy {
-        Metadata(simpleSchema)
-    }
+    val simpleMetadata get() = Metadata(simpleSchema)
 
     /** returns a "mocked" hl7Config class */
     fun createConfig(
