@@ -51,8 +51,7 @@ runs:
       run: |
         echo "" >> .env.staging
         echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.staging
-        yarn lint:prettier
-        yarn lint:eslint
+        yarn lint
         yarn test:ci
         yarn build:staging
       shell: bash
