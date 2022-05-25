@@ -1,0 +1,249 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0114-hcintegrations-ca.yml --env staging
+---
+- name: "ca-dph"
+  description: "California Department of Public Health"
+  jurisdiction: "STATE"
+  stateCode: "CA"
+  countyName: null
+  filters: null
+  senders: []
+  receivers:
+  - name: "elr-test"
+    organizationName: "ca-dph"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      messageProfileId: null
+      replaceValue:
+        OBX-17-2: "OBX-17-9"
+        MSH-4-2: "CDPH000087"
+        OBX-23-1: "OBX-23-1,-,OBX-23-10"
+      replaceValueAwithB:
+        MSH-3: [ "*": "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO" ]
+        MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
+        MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: "OBX-17-1, OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4"
+      suppressAoe: true
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: "OBX-23-1, ORC-21-1, OBR-16-3, ORC-12-3, PID-5-1, PID-5-2,\
+        \ PID-5-3"
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender:
+        newport-childrens-hospital-ca: "CDPH000087"
+        covidclinic-org: "CDPH000087"
+        simple_report.default: "CDPH000085"
+        cadph-csvuploadertest: "CDPH000087"
+        vivature-tx: "CDPH000087"
+        corebiolabs-oh: "CDPH000087"
+        kern-county-phsd-ca: "CDPH000087"
+        sourcebioscience_ca: "CDPH000087"
+        ImageMover: "CDPH000077"
+        stemexpress-ca: "CDPH000087"
+        all-in-one-health-ca: "CDPH000087"
+        naval-health-clinic-lemoore: "CDPH000087"
+        sdilabs-ca: "CDPH000087"
+        warrior-dx-co: "CDPH000087"
+        hollywoodsmiles-ca: "CDPH000087"
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, CA, patient_state, CA)"
+    qualityFilter: []
+    routingFilter: []
+    processingModeFilter:
+    - "matches(processing_mode_code,T,D)"
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "09:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: null
+    externalName: "Test Feed"
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+  - name: "elr-secondary"
+    organizationName: "ca-dph"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB:
+        MSH-3: [ "*": "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO" ]
+        MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
+        MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: "OBX-23-1, ORC-21-1, OBR-16-3, ORC-12-3, PID-5-1, PID-5-2,\
+        \ PID-5-3"
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+    jurisdictionalFilter: []
+    qualityFilter: []
+    routingFilter: []
+    processingModeFilter: []
+    reverseTheQualityFilter: true
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "00:00"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<SFTP>
+      host: "172.17.6.20"
+      port: "22"
+      filePath: "./upload"
+      credentialName: null
+      type: "SFTP"
+    externalName: null
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+  - name: "elr"
+    organizationName: "ca-dph"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      messageProfileId: null
+      replaceValue:
+        OBX-17-2: "OBX-17-9"
+        OBX-23-1: "OBX-23-1,-,OBX-23-10"
+      replaceValueAwithB:
+        MSH-3: [ "*": "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO" ]
+        MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
+        MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: "OBX-17-1, OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4"
+      suppressAoe: true
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: "OBX-23-1, ORC-21-1, OBR-16-3, ORC-12-3, PID-5-1, PID-5-2,\
+        \ PID-5-3"
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: "CDPH000075"
+      cliaForSender:
+        newport-childrens-hospital-ca: "CDPH000087"
+        covidclinic-org: "CDPH000087"
+        simple_report.default: "CDPH000085"
+        cadph-csvuploadertest: "CDPH000087"
+        vivature-tx: "CDPH000087"
+        corebiolabs-oh: "CDPH000087"
+        kern-county-phsd-ca: "CDPH000087"
+        sourcebioscience_ca: "CDPH000087"
+        ImageMover: "CDPH000077"
+        stemexpress-ca: "CDPH000087"
+        all-in-one-health-ca: "CDPH000087"
+        naval-health-clinic-lemoore: "CDPH000087"
+        sdilabs-ca: "CDPH000087"
+        warrior-dx-co: "CDPH000087"
+        hollywoodsmiles-ca: "CDPH000087"
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, CA, patient_state, CA)"
+    qualityFilter:
+    - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+    - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+    - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob,ordering_provider_id)"
+    - "isValidCLIA(testing_lab_clia)"
+    routingFilter: []
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    deidentify: false
+    timing:
+      operation: "MERGE"
+      numberPerDay: 4
+      initialTime: "09:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: null
+    externalName: "Primary Feed"
+    timeZone: null
+    dateTimeFormat: "OFFSET"
