@@ -35,8 +35,6 @@ export const ReportStreamHeader = () => {
     if (authState && authState.isAuthenticated && authState.accessToken) {
         /* RECEIVERS ONLY */
         if (
-            // permissionCheck(PERMISSIONS.RECEIVER, authState.accessToken) ||
-            // permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
             memberships.state.active?.memberType === MemberType.RECEIVER ||
             memberships.state.active?.memberType === MemberType.PRIME_ADMIN
         ) {
@@ -55,8 +53,6 @@ export const ReportStreamHeader = () => {
 
         /* SENDERS ONLY */
         if (
-            // permissionCheck(PERMISSIONS.SENDER, authState.accessToken) ||
-            // permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
             memberships.state.active?.memberType === MemberType.SENDER ||
             memberships.state.active?.memberType === MemberType.PRIME_ADMIN
         ) {
@@ -83,10 +79,7 @@ export const ReportStreamHeader = () => {
         }
 
         /* ADMIN ONLY */
-        if (
-            // permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
-            memberships.state.active?.memberType === MemberType.PRIME_ADMIN
-        ) {
+        if (memberships.state.active?.memberType === MemberType.PRIME_ADMIN) {
             itemsMenu.push(<AdminDropdownNav />);
         }
     }

@@ -1,8 +1,14 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import * as OktaReact from "@okta/okta-react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
+import { AccessToken } from "@okta/okta-auth-js";
 
-import { MembershipActionType, MemberType, useGroups } from "./UseGroups";
+import {
+    MembershipActionType,
+    membershipsFromToken,
+    MemberType,
+    useGroups,
+} from "./UseGroups";
 
 const mockAuth = jest.spyOn(OktaReact, "useOktaAuth");
 
@@ -12,6 +18,21 @@ describe("useGroups", () => {
         const { result } = renderHook(() => useGroups());
         expect(result.current.state.memberships).toBeUndefined();
         expect(result.current.state.active).toBeUndefined();
+    });
+
+    test("accounts for non-standard groups", () => {
+        mockAuth.mockReturnValue({
+            authState: {
+                accessToken: {
+                    claims: {
+                        //@ts-ignore
+                        organization: ["NotYourStandardGroup"],
+                    },
+                },
+            },
+        });
+        const { result } = renderHook(() => useGroups());
+        expect(result.current.state.active?.memberType).toEqual("non-standard");
     });
 
     test("can be set with AccessToken", () => {
@@ -91,5 +112,71 @@ describe("useGroups", () => {
             parsedName: "md-phd",
             memberType: MemberType.RECEIVER,
         });
+    });
+
+    test("can override as admin", () => {
+        mockAuth.mockReturnValue({
+            authState: {
+                accessToken: {
+                    claims: {
+                        //@ts-ignore
+                        organization: ["DHPrimeAdmins"],
+                    },
+                },
+            },
+        });
+        const { result } = renderHook(() => useGroups());
+        expect(result.current.state.active).toEqual({
+            parsedName: "PrimeAdmins",
+            memberType: MemberType.PRIME_ADMIN,
+        });
+        act(() =>
+            result.current.dispatch({
+                type: MembershipActionType.ADMIN_OVERRIDE,
+                payload: {
+                    parsedName: "sender-org",
+                    memberType: MemberType.SENDER,
+                },
+            })
+        );
+        expect(result.current.state.active).toEqual({
+            parsedName: "sender-org",
+            memberType: MemberType.SENDER,
+        });
+    });
+});
+
+describe("membershipsFromToken extra coverage", () => {
+    test("can handle undefined token", () => {
+        const state = membershipsFromToken({} as AccessToken);
+        expect(state).toEqual({
+            active: undefined,
+            memberships: undefined,
+        });
+    });
+});
+
+describe("membershipReducer extra coverage", () => {
+    test("can handle bad request", () => {
+        mockAuth.mockReturnValue({
+            authState: {
+                accessToken: {
+                    claims: {
+                        //@ts-ignore
+                        organization: ["DHPrimeAdmins"],
+                    },
+                },
+            },
+        });
+        const { result } = renderHook(() => useGroups());
+
+        // bad switch
+        act(() =>
+            result.current.dispatch({
+                type: MembershipActionType.SWITCH,
+                payload: "org-does-not-exist",
+            })
+        );
+        expect(result.current.state.active?.parsedName).toEqual("PrimeAdmins");
     });
 });
