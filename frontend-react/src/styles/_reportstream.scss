@@ -404,3 +404,14 @@ h3 img[src*="svg"] {
 .rs-sortable-header:hover {
     cursor: pointer;
 }
+
+// Pagination
+.rs-pagination-no-button {
+  @include u-bg('white');
+  cursor: pointer;
+}
+
+.rs-pagination-arrow-button {
+  align-items: center;
+  display: inline-flex;
+}
