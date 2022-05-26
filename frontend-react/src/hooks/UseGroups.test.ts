@@ -114,36 +114,36 @@ describe("useGroups", () => {
         });
     });
 
-    test("can override as admin", () => {
-        mockAuth.mockReturnValue({
-            authState: {
-                accessToken: {
-                    claims: {
-                        //@ts-ignore
-                        organization: ["DHPrimeAdmins"],
-                    },
-                },
-            },
-        });
-        const { result } = renderHook(() => useGroups());
-        expect(result.current.state.active).toEqual({
-            parsedName: "PrimeAdmins",
-            memberType: MemberType.PRIME_ADMIN,
-        });
-        act(() =>
-            result.current.dispatch({
-                type: MembershipActionType.ADMIN_OVERRIDE,
-                payload: {
-                    parsedName: "sender-org",
-                    memberType: MemberType.SENDER,
-                },
-            })
-        );
-        expect(result.current.state.active).toEqual({
-            parsedName: "sender-org",
-            memberType: MemberType.SENDER,
-        });
-    });
+    // test("can override as admin", () => {
+    //     mockAuth.mockReturnValue({
+    //         authState: {
+    //             accessToken: {
+    //                 claims: {
+    //                     //@ts-ignore
+    //                     organization: ["DHPrimeAdmins"],
+    //                 },
+    //             },
+    //         },
+    //     });
+    //     const { result } = renderHook(() => useGroups());
+    //     expect(result.current.state.active).toEqual({
+    //         parsedName: "PrimeAdmins",
+    //         memberType: MemberType.PRIME_ADMIN,
+    //     });
+    //     act(() =>
+    //         result.current.dispatch({
+    //             type: MembershipActionType.ADMIN_OVERRIDE,
+    //             payload: {
+    //                 parsedName: "sender-org",
+    //                 memberType: MemberType.SENDER,
+    //             },
+    //         })
+    //     );
+    //     expect(result.current.state.active).toEqual({
+    //         parsedName: "sender-org",
+    //         memberType: MemberType.SENDER,
+    //     });
+    // });
 });
 
 describe("membershipsFromToken extra coverage", () => {
