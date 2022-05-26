@@ -1,0 +1,94 @@
+type_1:
+   valueOf: datatype/CodeableConcept
+   expressionType: resource
+   specs: CX.5 | $typeSegment
+   vars: 
+     # Because calculated system id's don't have text if there is a valid system, 
+     # see if there is a valid code and system as input to creating text in the CodeableConcept
+     identifierCoding: CODING_SYSTEM_V2_IDENTIFIER, CX.5 | $typeSegment
+
+type_2: # used in instance where objects are passed directly to the codeable concept instead of coming directly from a field
+  valueOf: datatype/CodeableConcept_var
+  generateList: true
+  expressionType: resource
+
+system_1: 
+     condition: $systemExists NOT_NULL
+     type: SYSTEM_ID
+     valueOf: CX.4 | CWE.4 |EI.2
+     expressionType: HL7Spec
+     vars:
+          systemExists: CX.4 | CWE.4 | EI.2
+
+# When a system is passed in, try looking it up.
+# If it doesn't resolve, create a system ID (urn:id:xxxx)
+system_2: 
+     condition: $systemID NOT_NULL
+     type: STRING
+     valueOf:  $systemLookup | $systemCreated 
+     expressionType: HL7Spec
+     vars: 
+          systemCreated: SYSTEM_ID, $systemID
+          systemLookup: SYSTEM_URL, $systemID
+    
+value: 
+     type: STRING
+     valueOf: CX.1 | CWE.1 | EI.1 | $value
+     expressionType: HL7Spec
+     required: true
+
+period:  
+    valueOf: datatype/Period
+    expressionType: resource
+    vars: 
+       start: CX.7 | CWE.7 | XCN.19
+       end: CX.8 | CWE.8 | XCN.20
+
+use:
+   condition: $mrgUse NOT_NULL
+   value: $mrgUse
+   vars:
+      mrgUse: $use
+
+extension_1:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $systemStr EQUALS $isoSystemStr
+  vars:
+    idStr: String, CX.4.2
+    value: $oidUrlPrefix + CX.4.2
+    systemStr: String, CX.4.3
+  constants:
+    isoSystemStr: "ISO"
+    oidUrlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: Oid
+    urlValue: assigning-authority-universal-id
+
+# Assigning facility OID
+extension_2:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $systemStr EQUALS $isoSystemStr
+  vars:
+    idStr: String, CX.6.2
+    value: $oidUrlPrefix + CX.6.2
+    systemStr: String, CX.6.3
+  constants:
+    isoSystemStr: "ISO"
+    oidUrlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: Oid
+    urlValue: assigning-authority-universal-id
+
+# Assigning facility namespace
+extension_3:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $value NOT_NULL
+  vars:
+    value: String, CX.6.1
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: assigning-facility-namespace-id
