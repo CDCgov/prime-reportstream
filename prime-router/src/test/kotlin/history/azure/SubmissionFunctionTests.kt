@@ -85,7 +85,6 @@ class SubmissionFunctionTests : Logging {
     )
 
     class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : ReportFileAccess {
-
         override fun <T> fetchActions(
             organization: String,
             order: ReportFileAccess.SortOrder,

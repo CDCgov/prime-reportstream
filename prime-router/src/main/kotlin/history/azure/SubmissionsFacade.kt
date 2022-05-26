@@ -27,7 +27,9 @@ class SubmissionsFacade(
      * @param sortOrder sort the table by date in ASC or DESC order.
      * @param sortColumn sort the table by a specific column; defaults to sorting by created_at.
      * @param offset String representation of an OffsetDateTime used for paginating results.
+     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
      * @param pageSize Int of items to return per page.
+     * @param showFailed whether or not to include actions that failed to be sent.
      *
      * @return a String representation of an array of actions.
      */
@@ -49,7 +51,9 @@ class SubmissionsFacade(
      * @param sortOrder sort the table by date in ASC or DESC order; defaults to DESC.
      * @param sortColumn sort the table by a specific column; defaults to sorting by CREATED_AT.
      * @param offset String representation of an OffsetDateTime used for paginating results.
+     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
      * @param pageSize Int of items to return per page.
+     * @param showFailed whether or not to include actions that failed to be sent.
      *
      * @return a List of Actions
      */

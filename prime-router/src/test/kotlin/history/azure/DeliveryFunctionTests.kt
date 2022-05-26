@@ -75,7 +75,6 @@ class DeliveryFunctionTests : Logging {
         val fileName: String,
     )
     class TestDeliveryAccess(val dataset: List<DeliveryHistory>, val mapper: ObjectMapper) : ReportFileAccess {
-
         override fun <T> fetchActions(
             organization: String,
             order: ReportFileAccess.SortOrder,
@@ -144,6 +143,10 @@ class DeliveryFunctionTests : Logging {
     val accessSpy = spyk(DatabaseAccess(connection))
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
+        // Report.formExternalFilename has some metadata shenanigans that need to be tested in a different place
+        mockkObject(Metadata.Companion)
+        every { Metadata.getInstance() } returns metadata
+
         return spyk(
             WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy).build()
         )
@@ -181,7 +184,7 @@ class DeliveryFunctionTests : Logging {
                             reportId = "b9f63105-bbed-4b41-b1ad-002a90f07e62",
                             topic = "covid-19",
                             reportItemCount = 14,
-                            fileName = "covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.hl7",
+                            fileName = "pdi-covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.csv",
                         ),
                         ExpectedDelivery(
                             deliveryId = 284,
@@ -193,7 +196,7 @@ class DeliveryFunctionTests : Logging {
                             reportId = "c3c8e304-8eff-4882-9000-3645054a30b7",
                             topic = "covid-19",
                             reportItemCount = 1,
-                            fileName = "pdi-covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.csv",
+                            fileName = "covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.hl7",
                         ),
                     )
                 ),
@@ -282,6 +285,7 @@ class DeliveryFunctionTests : Logging {
                 val deliveries: List<ExpectedDelivery> = mapper.readValue(response.body.toString())
                 if (it.expectedResponse.body != null) {
                     assertThat(deliveries.size).isEqualTo(it.expectedResponse.body.size)
+
                     assertThat(deliveries).isEqualTo(it.expectedResponse.body)
                 }
             }
@@ -320,6 +324,7 @@ class DeliveryFunctionTests : Logging {
                 Instant.now().plusSeconds(60),
                 claimsMap
             )
+
         return DeliveryFunction(
             deliveryFacade = facade,
             workflowEngine = engine

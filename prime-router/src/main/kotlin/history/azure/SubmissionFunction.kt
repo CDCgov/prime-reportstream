@@ -65,6 +65,7 @@ class SubmissionFunction(
 
             val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
                 Parameters(request.queryParameters)
+
             val sortOrder = try {
                 ReportFileAccess.SortOrder.valueOf(qSortOrder)
             } catch (e: IllegalArgumentException) {
@@ -76,6 +77,7 @@ class SubmissionFunction(
             } catch (e: IllegalArgumentException) {
                 ReportFileAccess.SortColumn.CREATED_AT
             }
+
             val submissions = submissionsFacade.findSubmissionsAsJson(
                 sender.organizationName,
                 sortOrder,
@@ -85,6 +87,7 @@ class SubmissionFunction(
                 pageSize,
                 showFailed
             )
+
             return HttpUtilities.okResponse(request, submissions)
         } catch (e: IllegalArgumentException) {
             return HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")

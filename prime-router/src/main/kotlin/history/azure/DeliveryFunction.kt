@@ -85,6 +85,12 @@ class DeliveryFunction(
                 pageSize
             )
 
+            // logger.info(" ${resultsAfterDate} ${pageSize} ${sortOrder}" +
+            //         " ${resultsBeforeDate}  ${sortOrder} ${sortColumn} ${deliveries} "
+            // )
+            // return HttpUtilities.badRequestResponse(request, "test")
+            // return HttpUtilities.okResponse(request, "test")
+
             return HttpUtilities.okResponse(request, deliveries)
         } catch (e: IllegalArgumentException) {
             return HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")

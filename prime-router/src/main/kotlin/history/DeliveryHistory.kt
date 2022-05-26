@@ -60,14 +60,14 @@ class DeliveryHistory(
     private val DAYS_TO_SHOW = 30L
 
     /**
-     * j
+     * The time that the report is expected to no longer be available.
      */
     val expires: OffsetDateTime get() {
-        return this.createdAt.plusDays(DAYS_TO_SHOW) // .toEpochSecond() * 1000
+        return this.createdAt.plusDays(DAYS_TO_SHOW)
     }
 
     /**
-     * i
+     * The actual download path for the file.
      */
     val fileName: String get() {
         return Report.formExternalFilename(
