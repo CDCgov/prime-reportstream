@@ -332,7 +332,7 @@ Is the patient employed in a high risk setting? This AOE question doesn't have a
 
 **ReportStream Internal Name**: file_created_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -536,6 +536,60 @@ unique id to track the usage of the message
 **Documentation**:
 
 The message profile identifer
+
+---
+
+**Name**: message_profile_id_namespace_id
+
+**ReportStream Internal Name**: message_profile_id_namespace_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: ELR_Receiver
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer namespace id
+
+---
+
+**Name**: message_profile_id_universal_id
+
+**ReportStream Internal Name**: message_profile_id_universal_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: 2.16.840.1.113883.9.11
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer universal id
+
+---
+
+**Name**: message_profile_id_universal_id_type
+
+**ReportStream Internal Name**: message_profile_id_universal_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: ISO
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer universal id type
 
 ---
 
@@ -4580,6 +4634,30 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 **Documentation**:
 
 This is the assigner of the CLIA for the testing lab. If the testing lab has a CLIA, this field will be filled in.
+
+---
+
+**Name**: testing_lab_id_universal_id
+
+**ReportStream Internal Name**: testing_lab_id_universal_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_id_universal_id_type
+
+**ReportStream Internal Name**: testing_lab_id_universal_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 
