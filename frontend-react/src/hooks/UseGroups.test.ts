@@ -2,11 +2,7 @@ import { act, renderHook } from "@testing-library/react-hooks";
 import * as OktaReact from "@okta/okta-react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 
-import {
-    MembershipActionType,
-    MemberType,
-    useGroups,
-} from "./UseGroups";
+import { MembershipActionType, MemberType, useGroups } from "./UseGroups";
 
 const mockAuth = jest.spyOn(OktaReact, "useOktaAuth");
 
