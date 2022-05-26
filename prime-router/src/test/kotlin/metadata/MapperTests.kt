@@ -871,9 +871,9 @@ class MapperTests {
 
         val lookupElement = metadata.findSchema("test")?.findElement("gender") ?: fail("")
         val mapper = LookupSenderAutomationValuesetsMapper()
-        val args = listOf("1")
+        val args = listOf("gender")
         val elementAndValues = listOf(ElementAndValue(lookupElement, "Female"))
-        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("1"))
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("gender"))
         assertThat(mapper.apply(lookupElement, args, elementAndValues).value).isEqualTo("F")
     }
 

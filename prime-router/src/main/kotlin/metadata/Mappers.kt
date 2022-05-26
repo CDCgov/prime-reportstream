@@ -560,7 +560,7 @@ class LookupSenderAutomationValuesetsMapper : Mapper {
                 val senderAutomationValueSetId = args[0]
                 values.forEach {
                     tableFilter
-                        .equalsIgnoreCase("sender_automation_value_set_id", senderAutomationValueSetId)
+                        .equalsIgnoreCase("name", senderAutomationValueSetId)
                         .equalsIgnoreCase("display", it.value)
                 }
                 val lookupColumn = element.tableColumn

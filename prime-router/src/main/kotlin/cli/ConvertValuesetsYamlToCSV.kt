@@ -96,11 +96,13 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
      * @return scrubbed cell content
      */
     private fun scrub(token: String?): String {
-        // wrap value in quotes if it contains a comma
-        var value = if (token?.contains(",") == true) "\"" + token + "\"" else token
+        if (token.isNullOrEmpty()) return ""
 
-        // finally, convert "null" to empty string
-        if (value.isNullOrEmpty()) value = ""
+        // wrap value in quotes if it contains a comma
+        var value = if (token.contains(",") == true) "\"" + token + "\"" else token
+
+        // strip "sender-automation/" prefix from name column
+        value = value.replace("sender-automation/", "")
 
         return value
     }
@@ -114,8 +116,8 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
         val savsOutput = StringBuilder()
         val savsValueOutput = StringBuilder()
         // header rows
-        savsOutput.appendLine("id,name,system,referenceURL,reference,created_by,created_at")
-        savsValueOutput.appendLine("id,sender_automation_value_set_id,code,display,version")
+        savsOutput.appendLine("name,system,referenceURL,reference,created_by,created_at")
+        savsValueOutput.appendLine("name,code,display,version")
 
         // detail rows
         val valueSets = readYaml(inputFile)
@@ -123,8 +125,7 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
         valueSets.forEach { valueSet ->
             id += 1
             savsOutput.appendLine(
-                "$id," +
-                    "${valueSet.name.replace("sender-automation/","")}," +
+                "${scrub(valueSet.name)}," +
                     "${valueSet.system}," +
                     "${valueSet.referenceUrl}," +
                     "${scrub(valueSet.reference)}, ,"
@@ -133,8 +134,7 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
             valueSet.values.forEach { value ->
                 valueId += 1
                 savsValueOutput.appendLine(
-                    "$valueId," +
-                        "$id," +
+                    "${scrub(valueSet.name)}," +
                         "${value.code}," +
                         "${scrub(value.display)}," +
                         (value.version ?: scrub(valueSet.version))
