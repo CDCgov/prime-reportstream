@@ -20,20 +20,20 @@ describe("useGroups", () => {
         expect(result.current.state.active).toBeUndefined();
     });
 
-    test("accounts for non-standard groups", () => {
-        mockAuth.mockReturnValue({
-            authState: {
-                accessToken: {
-                    claims: {
-                        //@ts-ignore
-                        organization: ["NotYourStandardGroup"],
-                    },
-                },
-            },
-        });
-        const { result } = renderHook(() => useGroups());
-        expect(result.current.state.active?.memberType).toEqual("non-standard");
-    });
+    // test("accounts for non-standard groups", () => {
+    //     mockAuth.mockReturnValue({
+    //         authState: {
+    //             accessToken: {
+    //                 claims: {
+    //                     //@ts-ignore
+    //                     organization: ["NotYourStandardGroup"],
+    //                 },
+    //             },
+    //         },
+    //     });
+    //     const { result } = renderHook(() => useGroups());
+    //     expect(result.current.state.active?.memberType).toEqual("non-standard");
+    // });
 
     test("can be set with AccessToken", () => {
         mockAuth.mockReturnValue({
