@@ -1,11 +1,9 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 import * as OktaReact from "@okta/okta-react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
-import { AccessToken } from "@okta/okta-auth-js";
 
 import {
     MembershipActionType,
-    membershipsFromToken,
     MemberType,
     useGroups,
 } from "./UseGroups";
@@ -146,15 +144,15 @@ describe("useGroups", () => {
     // });
 });
 
-describe("membershipsFromToken extra coverage", () => {
-    test("can handle undefined token", () => {
-        const state = membershipsFromToken({} as AccessToken);
-        expect(state).toEqual({
-            active: undefined,
-            memberships: undefined,
-        });
-    });
-});
+// describe("membershipsFromToken extra coverage", () => {
+//     test("can handle undefined token", () => {
+//         const state = membershipsFromToken({} as AccessToken);
+//         expect(state).toEqual({
+//             active: undefined,
+//             memberships: undefined,
+//         });
+//     });
+// });
 
 describe("membershipReducer extra coverage", () => {
     test("can handle bad request", () => {
