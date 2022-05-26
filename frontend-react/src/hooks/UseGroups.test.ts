@@ -150,27 +150,27 @@ describe("useGroups", () => {
 //     });
 // });
 
-describe("membershipReducer extra coverage", () => {
-    test("can handle bad request", () => {
-        mockAuth.mockReturnValue({
-            authState: {
-                accessToken: {
-                    claims: {
-                        //@ts-ignore
-                        organization: ["DHPrimeAdmins"],
-                    },
-                },
-            },
-        });
-        const { result } = renderHook(() => useGroups());
-
-        // bad switch
-        act(() =>
-            result.current.dispatch({
-                type: MembershipActionType.SWITCH,
-                payload: "org-does-not-exist",
-            })
-        );
-        expect(result.current.state.active?.parsedName).toEqual("PrimeAdmins");
-    });
-});
+// describe("membershipReducer extra coverage", () => {
+//     test("can handle bad request", () => {
+//         mockAuth.mockReturnValue({
+//             authState: {
+//                 accessToken: {
+//                     claims: {
+//                         //@ts-ignore
+//                         organization: ["DHPrimeAdmins"],
+//                     },
+//                 },
+//             },
+//         });
+//         const { result } = renderHook(() => useGroups());
+//
+//         // bad switch
+//         act(() =>
+//             result.current.dispatch({
+//                 type: MembershipActionType.SWITCH,
+//                 payload: "org-does-not-exist",
+//             })
+//         );
+//         expect(result.current.state.active?.parsedName).toEqual("PrimeAdmins");
+//     });
+// });
