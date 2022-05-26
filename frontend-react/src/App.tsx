@@ -40,6 +40,7 @@ import { SessionStorageContext } from "./contexts/SessionStorageContext";
 import { AdminOrgNew } from "./pages/admin/AdminOrgNew";
 import { DAPHeader } from "./components/header/DAPHeader";
 import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
+import BuiltForYouIndex from "./pages/made-for-you/BuiltForYouIndex";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -184,6 +185,11 @@ const App = () => {
                                 path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
                                 authorize={PERMISSIONS.PRIME_ADMIN}
                                 component={NewSetting}
+                            />
+                            <AuthorizedRoute
+                                path="/built-for-you"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={BuiltForYouIndex}
                             />
                             <SecureRoute
                                 path="/report-details"
