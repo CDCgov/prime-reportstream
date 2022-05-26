@@ -109,6 +109,103 @@ class MiddleInitialMapper : Mapper {
 }
 
 /**
+ * Based on the comparison operator (==,!=,<=,>=,<,>) in arg[0], compare value[1] to value[2]
+ * IF the comparison is true, THEN use value[3]; ELSE use value[4]
+ *
+ * Example call
+ *   - name: source_state
+ *      mapper: ifThenElse(==, otc_flag, OTC, patient_state, ordering_provider_state)
+ *
+ * CAUTION: Because this mapper allows every argument to either be an existing element's value OR
+ * a string literal, extra care must be used in typing the args list in the schema.  A misspelled
+ * or non-existent element name will be treated as a string literal, not an error.
+ */
+class IfThenElseMapper : Mapper {
+    override val name = "ifThenElse"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.size != 5) error("Schema Error: Invalid number of arguments - 5 required")
+        return args
+    }
+
+    /**
+     * Determines the meaning of a mapper argument
+     *
+     * Determines if a mapperArg exists a List of <ElementAndValue>s.
+     * If it does, the found element's .value is returned; otherwise, the argument itself is
+     * returned as a String literal.  This allows the mapper property of a schema to have literal
+     * arguments.  The downside is that misspelled or non-existent schema elements are treated
+     * as string literals.  Use with care.
+     *
+     * @param values the list of ElementAndValue objects passed to the apply function
+     * @param mapperArg one of the arguments from a schema elements mapper property
+     * @return Either a passed-in Elements .value or the mapper argument as a string literal
+     */
+    internal fun decodeArg(values: List<ElementAndValue>, mapperArg: String): String {
+        return values.find { it.element.name.equals(mapperArg, ignoreCase = true) }?.value ?: mapperArg
+    }
+
+    /**
+     * Compares two strings for equalities
+     *
+     * If BOTH strings are numeric ("12"), it compares them as numbers.
+     * Otherwise they are compared as string literals
+     * @param op a String which denotes a comparison
+     * @param val1 a String literal which is either numeric or not
+     * @param val2 a String literal which is either numeric or not
+     * @return the Boolean result of properly applying the operator implied in op on val1 and val2
+     */
+    fun comp(op: String, val1: String, val2: String): Boolean {
+        val dVal1 = val1.toDoubleOrNull()
+        val dVal2 = val2.toDoubleOrNull()
+        if ((dVal1 == null) && (dVal2 != null)) {
+            error("ifThenElse Type Mismatch Error: $val1 is not numeric")
+        }
+        if ((dVal1 != null) && (dVal2 == null)) {
+            error("ifThenElse Type Mismatch Error: $val2 is not numeric")
+        }
+        return if ((dVal1 != null) && (dVal2 != null)) { // only if both val1 and val2 are Double strings
+            when (op) {
+                "==" -> (dVal1 == dVal2) // all Double comparisons (covers Float, Int)
+                "!=" -> (dVal1 != dVal2)
+                ">=" -> (dVal1 >= dVal2)
+                "<=" -> (dVal1 <= dVal2)
+                "<" -> (dVal1 < dVal2)
+                ">" -> (dVal1 > dVal2)
+                else -> error("ifThenElse Mapper Argument Error: not a valid operator: $op")
+            }
+        } else {
+            when (op) {
+                "==" -> (val1 == val2) // all string comparisons
+                "!=" -> (val1 != val2)
+                ">=" -> (val1 >= val2)
+                "<=" -> (val1 <= val2)
+                "<" -> (val1 < val2)
+                ">" -> (val1 > val2)
+                else -> error("ifThenElse Mapper Argument Error: not a valid operator: $op")
+            }
+        }
+    }
+
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        return if (
+            comp(
+                decodeArg(values, args[0]),
+                decodeArg(values, args[1]),
+                decodeArg(values, args[2])
+            ) // see comp()
+        )
+            ElementResult(decodeArg(values, args[3])) else
+            ElementResult(decodeArg(values, args[4])) // see decodeArg()
+    }
+}
+
+/**
  * The args for the use mapper is a list of element names in order of priority.
  * The mapper will use the first with a value
  */
@@ -921,7 +1018,7 @@ class NullMapper : Mapper {
 
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
-        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$*:^]*)\\x29").find(field)
+        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$*:^><=!]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
         val args = if (match.groupValues[2].isEmpty())
             emptyList()
