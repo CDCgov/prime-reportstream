@@ -338,7 +338,7 @@ Is the patient employed in a high risk setting? This AOE question doesn't have a
 
 **ReportStream Internal Name**: file_created_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
