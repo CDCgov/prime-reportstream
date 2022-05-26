@@ -28,17 +28,18 @@ const useMarkdownDirectory = ({ fromDir, files }: UseMarkdownInit) => {
 
     useEffect(() => {
         let subscribed = true;
-        mdUrls.map(async (url) => {
+        mdUrls.forEach((url) => {
             // Stops from trying to set state when component tears down during
             // async fetch
-            if (!subscribed) return;
             fetch(url)
                 .then((response) => response.text())
                 .then((text) => {
-                    setMdFiles({
-                        type: "ADD",
-                        payload: text,
-                    });
+                    if (subscribed) {
+                        setMdFiles({
+                            type: "ADD",
+                            payload: text,
+                        });
+                    }
                 });
         });
         return () => {
