@@ -9,7 +9,7 @@ interface MockParams extends PathParams {
 }
 const testFile = (file: string) => `testFile: ${file}`;
 const mockNetworkHandlers = [
-    // Handles a POST /login request
+    // Mocks the get requests for useMarkdownDirectory
     rest.get<RestRequest<any, MockParams>>(
         "/testDir/:fileName",
         (req, res, ctx) => {
@@ -33,7 +33,8 @@ describe("UseMarkdownDirectory", () => {
                 files: ["testFile.md", "testFile2.md", "realFileOmg.md"],
             })
         );
-        await waitForNextUpdate({ timeout: 1000 * 60 });
+        await waitForNextUpdate();
+        // TODO: fight with the test runner on this stupid thing
         expect(result.current.mdFiles.length).toEqual(3);
         expect(result.current.mdFiles[0]).toEqual("testFile: testFile.md");
         expect(result.current.mdFiles[1]).toEqual("testFile: testFile2.md");
