@@ -33,7 +33,7 @@ describe("UseMarkdownDirectory", () => {
                 files: ["testFile.md", "testFile2.md", "realFileOmg.md"],
             })
         );
-        await waitForNextUpdate();
+        await waitForNextUpdate({ timeout: 1000 * 60 });
         expect(result.current.mdFiles.length).toEqual(3);
         expect(result.current.mdFiles[0]).toEqual("testFile: testFile.md");
         expect(result.current.mdFiles[1]).toEqual("testFile: testFile2.md");
