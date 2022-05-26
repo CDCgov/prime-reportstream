@@ -38,14 +38,23 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
     default location (prime-reportstream/prime-router/metadata/tables/local/)
     """
 ) {
+    /**
+     * Command line option to specify full path to input file (sender-automation.valuesets)
+     */
     protected val inputOption = option(
         "-i", "--input",
         help = "Input from file",
         metavar = "<file>"
     ).file(mustBeReadable = true).required()
 
+    /**
+     * Input file (typically sender-automation.valuesets)
+     */
     private val inputFile by inputOption
 
+    /**
+     * Mapper for parsing input file YAML
+     */
     val yamlMapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerModule(
         KotlinModule.Builder()
             .withReflectionCacheSize(512)
@@ -55,23 +64,37 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
             .configure(KotlinFeature.StrictNullChecks, false)
             .build()
     )
-
     init {
         yamlMapper.registerModule(JavaTimeModule())
         yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     }
 
+    /**
+     * Reads YAML from input file
+     * @param inputFile YAML-formatted input file
+     * @return list of ValueSet objects
+     */
     private fun readYaml(inputFile: File): List<ValueSet> {
         val input = readInput(inputFile)
         return yamlMapper.readValue(input)
     }
 
+    /**
+     * Reads string content from an input file
+     * @param inputFile YAML-formatted input file
+     * @return content as a string
+     */
     private fun readInput(inputFile: File): String {
         val input = String(inputFile.readBytes())
         if (input.isBlank()) return "Blank input"
         return input
     }
 
+    /**
+     * Cleans cell output before writing to CSV
+     * @param token potential cell content
+     * @return scrubbed cell content
+     */
     private fun scrub(token: String?): String {
         // wrap value in quotes if it contains a comma
         var value = if (token?.contains(",") == true) "\"" + token + "\"" else token
@@ -82,6 +105,9 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
         return value
     }
 
+    /**
+     * The actual work of converting sender-automation.valuesets to 2 CSV files
+     */
     override fun run() {
         TermUi.echo("Converting sender-automation.valuesets to CSV...")
 
