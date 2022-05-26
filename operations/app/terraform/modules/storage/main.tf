@@ -12,7 +12,7 @@ resource "azurerm_storage_account" "storage_account" {
 
   network_rules {
     default_action = "Deny"
-    bypass         = ["None"]
+    bypass         = ["AzureServices"]
 
     # ip_rules = sensitive(concat(
     #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),

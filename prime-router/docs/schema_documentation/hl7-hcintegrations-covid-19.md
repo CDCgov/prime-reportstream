@@ -539,6 +539,60 @@ The message profile identifer
 
 ---
 
+**Name**: message_profile_id_namespace_id
+
+**ReportStream Internal Name**: message_profile_id_namespace_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: ELR_Receiver
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer namespace id
+
+---
+
+**Name**: message_profile_id_universal_id
+
+**ReportStream Internal Name**: message_profile_id_universal_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: 2.16.840.1.113883.9.11
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer universal id
+
+---
+
+**Name**: message_profile_id_universal_id_type
+
+**ReportStream Internal Name**: message_profile_id_universal_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: ISO
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer universal id type
+
+---
+
 **Name**: observation_result_status
 
 **ReportStream Internal Name**: observation_result_status
@@ -3499,17 +3553,6 @@ Code | Display | System
 D|Debugging|HL7
 P|Production|HL7
 T|Training|HL7
-D|Debugging|HL7
-T|Training|HL7
-T|Training|HL7
-
-**Alt Value Sets**
-
-Code | Display | System
----- | ------- | ------
-D|D|HL7
-T|T|HL7
-T|P|HL7
 
 **Documentation**:
 
@@ -4576,6 +4619,30 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 **Documentation**:
 
 This is the assigner of the CLIA for the testing lab. If the testing lab has a CLIA, this field will be filled in.
+
+---
+
+**Name**: testing_lab_id_universal_id
+
+**ReportStream Internal Name**: testing_lab_id_universal_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_id_universal_id_type
+
+**ReportStream Internal Name**: testing_lab_id_universal_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 

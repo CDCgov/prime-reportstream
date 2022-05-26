@@ -163,6 +163,12 @@ elements:
 
   - name: message_profile_id
 
+  - name: message_profile_id_namespace_id
+
+  - name: message_profile_id_universal_id
+
+  - name: message_profile_id_universal_id_type
+
   - name: reference_range
 
   - name: abnormal_flag
@@ -222,6 +228,10 @@ elements:
   - name: testing_lab_id
 
   - name: testing_lab_id_assigner
+
+  - name: testing_lab_id_universal_id
+
+  - name: testing_lab_id_universal_id_type
 
   - name: testing_lab_clia
 
