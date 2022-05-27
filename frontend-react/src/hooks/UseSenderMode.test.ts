@@ -4,6 +4,7 @@ import { Sender } from "../network/api/OrgApi";
 import { orgServer } from "../__mocks__/OrganizationMockServer";
 
 import useSenderMode from "./UseSenderMode";
+import { waitFor } from "@testing-library/react";
 
 export const dummySender: Sender = {
     name: "testSender",
@@ -32,7 +33,8 @@ describe("useSenderMode", () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useSenderMode("testOrg", "testSender")
         );
-        await waitForNextUpdate();
-        expect(result.current).toEqual(dummySender.customerStatus);
+        await waitFor(() =>
+            expect(result.current).toEqual(dummySender.customerStatus)
+        );
     });
 });
