@@ -1,4 +1,5 @@
 import { renderHook } from "@testing-library/react-hooks";
+import { waitFor } from "@testing-library/react";
 
 import { Sender } from "../network/api/OrgApi";
 import { orgServer } from "../__mocks__/OrganizationMockServer";
@@ -29,10 +30,11 @@ describe("useSenderMode", () => {
     afterAll(() => orgServer.close());
 
     test("provides accurate sender mode", async () => {
-        const { result, waitForNextUpdate } = renderHook(() =>
+        const { result } = renderHook(() =>
             useSenderMode("testOrg", "testSender")
         );
-        await waitForNextUpdate();
-        expect(result.current).toEqual(dummySender.customerStatus);
+        await waitFor(() =>
+            expect(result.current).toEqual(dummySender.customerStatus)
+        );
     });
 });
