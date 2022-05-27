@@ -1,10 +1,10 @@
 import { renderHook } from "@testing-library/react-hooks";
+import { waitFor } from "@testing-library/react";
 
 import { Sender } from "../network/api/OrgApi";
 import { orgServer } from "../__mocks__/OrganizationMockServer";
 
 import useSenderMode from "./UseSenderMode";
-import { waitFor } from "@testing-library/react";
 
 export const dummySender: Sender = {
     name: "testSender",
@@ -30,7 +30,7 @@ describe("useSenderMode", () => {
     afterAll(() => orgServer.close());
 
     test("provides accurate sender mode", async () => {
-        const { result, waitForNextUpdate } = renderHook(() =>
+        const { result } = renderHook(() =>
             useSenderMode("testOrg", "testSender")
         );
         await waitFor(() =>
