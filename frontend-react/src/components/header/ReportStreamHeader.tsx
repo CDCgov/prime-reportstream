@@ -17,6 +17,7 @@ import { SignInOrUser } from "./SignInOrUser";
 import { HowItWorksDropdown } from "./HowItWorksDropdown";
 import { AdminDropdownNav } from "./AdminDropdownNav";
 import { GettingStartedDropdown } from "./GettingStartedDropdown";
+import { SupportDropdown } from "./SupportDropdown";
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
@@ -24,7 +25,7 @@ export const ReportStreamHeader = () => {
     const organization = getStoredOrg();
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
-    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
+    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />, <SupportDropdown />];
     const isOktaPreview =
         `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
     const environment = `${process.env.REACT_APP_CLIENT_ENV}`;

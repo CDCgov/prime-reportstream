@@ -27,6 +27,8 @@ import Spinner from "./components/Spinner";
 import Submissions from "./pages/submissions/Submissions";
 import { GettingStartedPublicHealthDepartments } from "./pages/getting-started/public-health-departments";
 import { GettingStartedTestingFacilities } from "./pages/getting-started/testing-facilities";
+import { SupportFaq } from "./pages/support/faq";
+import { SupportContact } from "./pages/support/contact";
 import { AdminMain } from "./pages/admin/AdminMain";
 import { AdminOrgEdit } from "./pages/admin/AdminOrgEdit";
 import { EditReceiverSettings } from "./components/Admin/EditReceiverSettings";
@@ -131,6 +133,14 @@ const App = () => {
                             <Route
                                 path="/getting-started/testing-facilities"
                                 component={GettingStartedTestingFacilities}
+                            />
+                            <Route
+                                path="/support/faq"
+                                component={SupportFaq}
+                            />
+                            <Route
+                                path="/contact"
+                                component={SupportContact}
                             />
                             <AuthorizedRoute
                                 path="/daily-data"
