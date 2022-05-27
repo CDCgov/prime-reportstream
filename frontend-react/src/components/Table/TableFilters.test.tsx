@@ -4,7 +4,7 @@ import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { mockCursorManager } from "../../hooks/filters/mocks/MockCursorManager";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 
-import TableFilters, { inclusiveDateString } from "./TableFilters";
+import TableFilters from "./TableFilters";
 
 describe("Rendering", () => {
     beforeEach(() => {
