@@ -33,11 +33,11 @@ describe("Rendering", () => {
     });
 });
 
-describe("Helper functions", () => {
-    test("inclusiveDate", () => {
-        const includedDate = new Date(
-            inclusiveDateString("2022-04-21")
-        ).toISOString();
-        expect(includedDate).toEqual("2022-04-21T23:59:59.000Z");
-    });
-});
+// describe("Helper functions", () => {
+//     test("inclusiveDate", () => {
+//         const includedDate = new Date(
+//             inclusiveDateString("2022-04-21")
+//         ).toISOString();
+//         expect(includedDate).toEqual("2022-04-21T23:59:59.000Z");
+//     });
+// });

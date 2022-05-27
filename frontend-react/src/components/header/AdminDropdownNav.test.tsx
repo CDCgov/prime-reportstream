@@ -40,6 +40,10 @@ jest.mock("../../pages/misc/FeatureFlags", () => ({
 }));
 
 describe("AdminDropdownNav", () => {
+    beforeEach(() => {
+        mockLocalStorage.clear();
+    });
+
     test("Admin menu expands and contracts on click and selection", () => {
         renderWithRouter(<AdminDropdownNav />);
         expect(screen.getByRole("button")).toHaveAttribute(
