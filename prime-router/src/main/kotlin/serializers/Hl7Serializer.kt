@@ -74,7 +74,6 @@ class Hl7Serializer(
     private val modelClassFactory: ModelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
     private val buildVersion: String
     private val buildDate: String
-
     init {
         val buildProperties = Properties()
         val propFileStream = this::class.java.classLoader.getResourceAsStream("build.properties")
