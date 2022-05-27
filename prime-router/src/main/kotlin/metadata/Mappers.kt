@@ -535,7 +535,7 @@ class LookupSenderValuesetsMapper : Mapper {
  * The args for the mapper are:
  *      args[0] --> valueSetName = the name of the sender automation value set
  *      args[1] --> (optional) version = the version of the valueSet value
- * The mapper uses the above arguments + the question's answer to retrieve a row from the table
+ * The mapper uses the above arguments to retrieve a row from the table
  */
 class LookupSenderAutomationValuesets : Mapper {
     override val name = "lookupSenderAutomationValuesets"
