@@ -107,7 +107,7 @@ valueQuantity_2:
     value: OBX.5.2
     unit: OBX.6.1
     code: OBX.6.1
-    comparator: OBX.5.1
+    comparator: STRING, OBX.5.1
     obx2: STRING, OBX.2
     separator: STRING, OBX.5.3
     resolvedSystem: SYSTEM_URL, OBX.6.3
