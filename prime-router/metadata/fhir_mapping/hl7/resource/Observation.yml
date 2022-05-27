@@ -99,19 +99,18 @@ valueQuantity_1:
     obx2: STRING, OBX.2
     resolvedSystem: SYSTEM_URL, OBX.6.3
 
-# TODO THIS ONE FIELD CRASHES THE LIBRARY. Fix when we get to this data
-#valueQuantity_2:
-#  valueOf: datatype/Quantity
-#  expressionType: resource
-#  condition: $obx2 EQUALS SN && $separator NULL
-#  vars:
-#    value: OBX.5.2
-#    unit: OBX.6.1
-#    code: OBX.6.1
-#    comparator: OBX.5.1
-#    obx2: STRING, OBX.2
-#    separator: STRING, OBX.5.3
-#    resolvedSystem: SYSTEM_URL, OBX.6.3
+valueQuantity_2:
+  valueOf: datatype/Quantity
+  expressionType: resource
+  condition: $obx2 EQUALS SN && $separator NULL
+  vars:
+    value: OBX.5.2
+    unit: OBX.6.1
+    code: OBX.6.1
+    comparator: OBX.5.1
+    obx2: STRING, OBX.2
+    separator: STRING, OBX.5.3
+    resolvedSystem: SYSTEM_URL, OBX.6.3
 
 valueQuantity_3:
   valueOf: datatype/Quantity
@@ -198,10 +197,9 @@ note_1:
 
 note_2:
   valueOf: datatype/Annotation
-  condition: $annotationText NOT_NULL
+  generateList: true
   expressionType: resource
-  vars:
-    annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '  \n')
+  specs: NTE
 
 bodySite:
   valueOf: datatype/CodeableConcept
