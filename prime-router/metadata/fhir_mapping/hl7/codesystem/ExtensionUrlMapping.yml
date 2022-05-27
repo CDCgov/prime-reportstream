@@ -115,3 +115,6 @@
 # Patient notes as Annotations
 - id: "patient-notes"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes"
+# Source of Comment
+- id: "source-of-comment"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-of-comment"
