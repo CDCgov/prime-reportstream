@@ -121,18 +121,14 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
 
         // detail rows
         val valueSets = readYaml(inputFile)
-        var id = 0
         valueSets.forEach { valueSet ->
-            id += 1
             savsOutput.appendLine(
                 "${scrub(valueSet.name)}," +
                     "${valueSet.system}," +
                     "${valueSet.referenceUrl}," +
                     "${scrub(valueSet.reference)}, ,"
             )
-            var valueId = 0
             valueSet.values.forEach { value ->
-                valueId += 1
                 savsValueOutput.appendLine(
                     "${scrub(valueSet.name)}," +
                         "${value.code}," +
