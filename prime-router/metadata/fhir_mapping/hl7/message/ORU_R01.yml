@@ -23,6 +23,7 @@ resources:
     repeats: false
     additionalSegments:
       - .PD1
+      - .NTE
       - MSH
 
   - resourceName: Encounter

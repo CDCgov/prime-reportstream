@@ -345,7 +345,12 @@ extension:
       constants:
         KEY_NAME_SUFFIX: String
         urlValue: mothersMaidenName
-
+    - valueOf: extension/ExtensionAnnotation
+      generateList: true
+      expressionType: resource
+      specs: NTE
+      constants:
+        urlValue: patient-notes
     - expressionType: nested
       expressionsMap:
         url:

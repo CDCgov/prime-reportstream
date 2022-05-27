@@ -112,3 +112,6 @@
 # Generic text
 - id: "text"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/text"
+# Patient notes as Annotations
+- id: "patient-notes"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes"
