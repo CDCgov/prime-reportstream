@@ -54,7 +54,7 @@
         "e2e": "cypress run",
         "e2e:open": "cypress open",
         "test": "react-scripts test",
-        "test:ci": "CI=true yarn test --listTests && yarn --verbose test --watchAll=false --runInBand=true --verbose=true --ci=true --maxConcurrency=1 --slowTestThreshold=60",
+        "test:ci": "CI=true yarn test --listTests && CI=true yarn --verbose test --watchAll=false --runInBand=true --verbose=true --ci=true --maxConcurrency=1 --slowTestThreshold=60",
         "eject": "react-scripts eject",
         "lint": "npm-run-all -p lint:eslint lint:prettier",
         "lint:write": "npm-run-all -p lint:eslint:write lint:prettier:write",
