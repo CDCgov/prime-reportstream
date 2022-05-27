@@ -80,6 +80,7 @@ class HL7toFhirTranslator internal constructor(private val messageEngine: HL7Mes
 
         val messageModel = getHL7MessageModel(hl7Message)
         val bundle = messageModel.convert(hl7Message, messageEngine)
+        requireNotNull(bundle) { "Unable to translate provided HL7 to FHIR, incompatable HL7" }
         enhanceBundleMetadata(bundle, hl7Message)
         return bundle
     }
