@@ -12,7 +12,7 @@ enum RSOrgType {
 
 /* New claims not present in UserClaims need tobe added via
  * this interface so UserClaims can implement the fields. */
-interface RSExtraClaims {
+interface RSExtraClaims extends Record<string, string | string[]> {
     organization: string[];
 }
 type RSUserClaims = UserClaims<RSExtraClaims>;
