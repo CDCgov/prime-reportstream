@@ -1,5 +1,4 @@
 import { ReactElement, useContext } from "react";
-import { IconWarning } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 
 import useSenderMode from "../hooks/UseSenderMode";
@@ -23,7 +22,14 @@ const SenderModeBanner = (): ReactElement | null => {
                 <header className="usa-banner__header bg-yellow">
                     <div className="usa-banner__inner">
                         <div className="grid-col-auto margin-right-1">
-                            <IconWarning />
+                            <svg
+                                className="usa-icon"
+                                aria-hidden="true"
+                                focusable="false"
+                                role="img"
+                            >
+                                <use xlinkHref="/assets/img/sprite.svg#warning" />
+                            </svg>
                         </div>
                         <div className="grid-col-fill tablet:grid-col-auto">
                             <b>Onboarding: </b> Your account is not yet sending
