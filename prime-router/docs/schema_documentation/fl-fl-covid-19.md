@@ -293,7 +293,7 @@ Is the patient employed in health care?
 
 **ReportStream Internal Name**: file_created_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
