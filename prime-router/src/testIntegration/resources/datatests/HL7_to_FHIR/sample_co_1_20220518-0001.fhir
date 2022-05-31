@@ -1,0 +1,431 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "489a4e65-e955-4daf-be47-996dfc72b1ba",
+  "meta" : {
+    "lastUpdated" : "2022-05-23T14:59:28.712-04:00",
+    "security" : [ {
+      "code" : "SECURITY",
+      "display" : "SECURITY"
+    } ]
+  },
+  "identifier" : {
+    "value" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+  },
+  "type" : "message",
+  "timestamp" : "2028-08-08T11:28:05.000-04:00",
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/88a50cd6-72bf-34a1-9025-708e7c29cc32",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "88a50cd6-72bf-34a1-9025-708e7c29cc32",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "eventCoding" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "R01",
+        "display" : "ORU/ACK - Unsolicited transmission of an observation message"
+      },
+      "destination" : [ {
+        "name" : "DCEED.ELR",
+        "endpoint" : "CDPHE"
+      } ],
+      "sender" : {
+        "reference" : "Organization/56eb0e0b-8b3d-4769-bdd8-a92ea2257963"
+      },
+      "source" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-vendor-org",
+          "valueReference" : {
+            "reference" : "Organization/9873f4ee-c874-4108-abd5-07ac2a85ea4a"
+          }
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-install-date",
+          "valueDateTime" : "2021-08-10"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-binary-id",
+          "valueString" : "20210810"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-identifier-system",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.3.2.2.1.321.111"
+        } ],
+        "name" : "MEDITECH",
+        "software" : "Laboratory Applicati",
+        "version" : "5.67"
+      }
+    }
+  }, {
+    "fullUrl" : "Organization/56eb0e0b-8b3d-4769-bdd8-a92ea2257963",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "56eb0e0b-8b3d-4769-bdd8-a92ea2257963",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "urn:oid:2.16.840.1.114222.4.3.2.2.1.321.111"
+      } ],
+      "name" : "COCAA",
+      "address" : [ {
+        "country" : "USA"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/9873f4ee-c874-4108-abd5-07ac2a85ea4a",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "9873f4ee-c874-4108-abd5-07ac2a85ea4a",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+        "valueOid" : "urn:oid:1.3.6.1.4.1.24310"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+        "valueString" : "MEDITECH"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "MEDITECH"
+      } ],
+      "type" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+          "code" : "XX"
+        } ]
+      } ],
+      "name" : "MEDITECH, Inc."
+    }
+  }, {
+    "fullUrl" : "Provenance/e0fb3a4d-39e0-43ce-92be-85b1764aca44",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "e0fb3a4d-39e0-43ce-92be-85b1764aca44",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "occurredDateTime" : "2028-08-08T09:28:05-06:00",
+      "recorded" : "2028-08-08T09:28:05-06:00",
+      "activity" : {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+          "code" : "R01",
+          "display" : "ORU_R01"
+        } ]
+      },
+      "agent" : [ {
+        "who" : {
+          "reference" : "Organization/99a7de9f-871c-4d08-8642-cd47f310b6ed"
+        }
+      } ],
+      "entity" : [ {
+        "role" : "source",
+        "what" : {
+          "reference" : "Device/5737d912-a712-4e87-bdc4-37e69167b611"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/99a7de9f-871c-4d08-8642-cd47f310b6ed",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "99a7de9f-871c-4d08-8642-cd47f310b6ed",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "name" : "COCAA",
+      "contact" : [ {
+        "purpose" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
+            "code" : "ADMIN",
+            "display" : "Administrative"
+          } ],
+          "text" : "Organization Medical Director"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Device/5737d912-a712-4e87-bdc4-37e69167b611",
+    "resource" : {
+      "resourceType" : "Device",
+      "id" : "5737d912-a712-4e87-bdc4-37e69167b611",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/NamingSystem/uri",
+            "code" : "2.16.840.1.114222.4.3.2.2.1.321.111",
+            "display" : "MEDITECH"
+          } ]
+        }
+      } ],
+      "deviceName" : [ {
+        "name" : "MEDITECH",
+        "type" : "user-friendly-name"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Patient/ebfd4005-4ed7-4049-982c-c85af06bf723",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "ebfd4005-4ed7-4049-982c-c85af06bf723",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "http://hl7.org/fhir/StructureDefinition/patient-religion",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v3-ReligiousAffiliation",
+            "display" : "Invalid input: code 'NOE' could not be mapped to values in system 'http://terminology.hl7.org/CodeSystem/v3-ReligiousAffiliation' with original display 'null' and version 'null'."
+          } ],
+          "text" : "Nonreligious"
+        }
+      }, {
+        "url" : "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v3-Race",
+            "version" : "L",
+            "code" : "2106-3"
+          } ],
+          "text" : "White"
+        }
+      }, {
+        "url" : "http://terminology.hl7.org/ValueSet/v2-0189",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "version" : "L",
+            "code" : "N"
+          } ],
+          "text" : "Not Hispanic or Latino"
+        }
+      }, {
+        "url" : "http://hl7.org/fhir/StructureDefinition/patient-animal",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://snomed.info/sct",
+            "version" : "L",
+            "code" : "337915000"
+          } ],
+          "text" : "Homo sapiens (organism)"
+        }
+      } ],
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.3.2.2.1.321.111"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "MR",
+            "display" : "Medical record number"
+          } ]
+        },
+        "system" : "urn:id:MEDITECH",
+        "value" : "100001"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.3.2.2.1.321.111"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "SS",
+            "display" : "Social Security number"
+          } ]
+        },
+        "system" : "urn:id:MEDITECH",
+        "value" : "285-64-4175"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.3.2.2.1.321.111"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PI",
+            "display" : "Patient internal identifier"
+          } ]
+        },
+        "system" : "urn:id:MEDITECH",
+        "value" : "X605236"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.3.2.2.1.321.111"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "AN",
+            "display" : "Account number"
+          } ]
+        },
+        "system" : "urn:id:MEDITECH",
+        "value" : "E40014904640"
+      } ],
+      "name" : [ {
+        "use" : "official",
+        "text" : "LONNIE BIERLY",
+        "family" : "BIERLY",
+        "given" : [ "LONNIE" ]
+      } ],
+      "telecom" : [ {
+        "system" : "phone",
+        "value" : "+1 303 693 0111",
+        "use" : "home"
+      }, {
+        "system" : "phone",
+        "value" : "+1 303 999 9999",
+        "use" : "work"
+      } ],
+      "gender" : "male",
+      "birthDate" : "1936-10-23",
+      "deceasedBoolean" : false,
+      "address" : [ {
+        "use" : "home",
+        "line" : [ "4673 ELM ST", "CHERRY CRK NURSING CTR" ],
+        "city" : "CAPITAN",
+        "state" : "NM",
+        "postalCode" : "80014",
+        "country" : "USA"
+      } ],
+      "maritalStatus" : {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+          "code" : "S",
+          "display" : "Never Married"
+        } ]
+      }
+    }
+  } ]
+}

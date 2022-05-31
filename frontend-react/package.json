@@ -12,12 +12,16 @@
         "@testing-library/user-event": "^13.5.0",
         "@trussworks/react-uswds": "^2.6.0",
         "@types/downloadjs": "^1.4.2",
+        "@types/lodash.chunk": "^4.2.7",
+        "@types/lodash.range": "^3.2.7",
         "@types/react": "^17.0.38",
         "@types/react-dom": "^17.0.5",
         "axios": "^0.26.0",
         "dompurify": "^2.3.4",
         "downloadjs": "^1.4.7",
         "env-cmd": "^10.1.0",
+        "lodash.chunk": "^4.2.0",
+        "lodash.range": "^3.2.0",
         "moment": "^2.29.1",
         "react": "^17.0.2",
         "react-device-detect": "^2.0.0",
@@ -47,17 +51,15 @@
         "compile-scss-prod": "sass --load-path=./node_modules/uswds/dist/scss --no-source-map --style=compressed --quiet src/global.scss:src/content/generated/global.out.css",
         "compile-scss-dev": "sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps src/global.scss:src/content/generated/global.out.css",
         "watch-scss": "yarn compile-scss-dev && sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps -w src/global.scss:src/content/generated/global.out.css",
+        "e2e": "cypress run",
+        "e2e:open": "cypress open",
         "test": "react-scripts test",
-        "test:ci": "CI=true yarn test --coverage",
+        "test:ci": "yarn test --clearCache && CI=true yarn --verbose test --coverage --verbose",
         "eject": "react-scripts eject",
-        "lint": "npm-run-all -p lint:eslint lint:prettier",
-        "lint:write": "npm-run-all -p lint:eslint:write lint:prettier:write",
+        "lint": "npm-run-all -p lint:eslint",
+        "lint:write": "npm-run-all -p lint:eslint:write",
         "lint:eslint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",
         "lint:eslint:write": "eslint --fix \"src/**/*.{js,ts,jsx,tsx}\"",
-        "lint:prettier": "prettier --check \"src/**/*.{js,ts,jsx,tsx}\"",
-        "lint:prettier:write": "prettier --write \"src/**/*.{js,ts,jsx,tsx}\"",
-        "cypress-open": "./node_modules/.bin/cypress open",
-        "cypress-run": "./node_modules/.bin/cypress run",
         "yarn:show-outdated-packages": "yarn outdated",
         "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build"
     },
@@ -65,9 +67,9 @@
         "parser": "@typescript-eslint/parser",
         "extends": [
             "react-app",
-            "prettier",
             "plugin:import/recommended",
-            "plugin:import/typescript"
+            "plugin:import/typescript",
+            "prettier"
         ],
         "env": {
             "browser": true,
@@ -89,6 +91,9 @@
             "import/newline-after-import": 1,
             "import/no-commonjs": 0,
             "import/no-named-as-default": 0,
+            "prettier/prettier": "error",
+            "arrow-body-style": "off",
+            "prefer-arrow-callback": "off",
             "unused-imports/no-unused-imports": "error",
             "unused-imports/no-unused-vars": [
                 "warn",
@@ -112,11 +117,13 @@
             {
                 "files": [
                     "**/__tests__/**/*.[jt]s?(x)",
-                    "**/?(*.)+(spec|test).[jt]s?(x)"
+                    "**/?(*.)+(spec|test).[jt]s?(x)",
+                    "**/cypress/**/*.[jt]s?(x)"
                 ],
                 "extends": [
                     "plugin:testing-library/react",
-                    "plugin:jest-dom/recommended"
+                    "plugin:jest-dom/recommended",
+                    "plugin:cypress/recommended"
                 ],
                 "rules": {
                     "testing-library/no-render-in-setup": [
@@ -138,7 +145,8 @@
         "plugins": [
             "testing-library",
             "unused-imports",
-            "jest-dom"
+            "jest-dom",
+            "prettier"
         ],
         "ignorePatterns": [
             "node_modules/",
@@ -158,6 +166,8 @@
         ]
     },
     "devDependencies": {
+        "@rest-hooks/test": "^7.3.1",
+        "@testing-library/cypress": "^8.0.2",
         "@testing-library/jest-dom": "^5.16.1",
         "@testing-library/react": "^12.1.2",
         "@testing-library/react-hooks": "^7.0.2",
@@ -168,10 +178,13 @@
         "@types/testing-library__jest-dom": "^5.14.2",
         "@typescript-eslint/eslint-plugin": "^5.9.1",
         "@typescript-eslint/parser": "^5.9.1",
+        "cypress": "^9.6.1",
         "eslint": "^8.12.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-config-react-app": "^7.0.0",
+        "eslint-plugin-cypress": "^2.12.1",
         "eslint-plugin-jest-dom": "^4.0.1",
+        "eslint-plugin-prettier": "^4.0.0",
         "eslint-plugin-testing-library": "^5.0.3",
         "eslint-plugin-unused-imports": "2.0.0",
         "jest-canvas-mock": "^2.3.1",

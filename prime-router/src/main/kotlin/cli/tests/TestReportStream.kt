@@ -350,7 +350,7 @@ abstract class CoolTest {
     /**
      * Stores a list of output messages instead of printing the messages to the console.
      */
-    private val outputMsgs = mutableListOf<String>()
+    val outputMsgs = mutableListOf<String>()
 
     abstract suspend fun run(
         environment: Environment,

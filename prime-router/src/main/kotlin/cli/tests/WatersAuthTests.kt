@@ -30,7 +30,8 @@ import java.util.UUID
 class OktaAuthTests : CoolTest() {
     override val name = "oktaauth"
     override val description = "Test Okta Authorization and Authentication of various waters endpoints"
-    override val status = TestStatus.DRAFT // Not SMOKE because it requires login to do settings stuff.  Can't automate
+    // Not SMOKE because it requires login to do settings stuff.  Can't automate.  Doesn't work on Staging.
+    override val status = TestStatus.DRAFT
 
     companion object {
         private const val accessTokenDummy = "dummy"
@@ -119,7 +120,8 @@ class OktaAuthTests : CoolTest() {
     }
 
     /**
-     * Run a suite of tests using local auth
+     * Run a suite of tests using local auth.
+     * Note these tests will always fail on Staging, since there's no such thing as local auth there.
      */
     private fun oktaLocalAuthTests(
         environment: Environment,
@@ -189,6 +191,7 @@ class OktaAuthTests : CoolTest() {
         val historyApiTest = HistoryApiTest()
         historyApiTest.outputToConsole = this.outputToConsole
         passed = passed and historyApiTest.runHistoryTestCases(testCases)
+        this.outputMsgs.addAll(historyApiTest.outputMsgs)
         return passed
     }
 
@@ -266,6 +269,7 @@ class OktaAuthTests : CoolTest() {
         val historyApiTest = HistoryApiTest()
         historyApiTest.outputToConsole = this.outputToConsole
         passed = passed and historyApiTest.runHistoryTestCases(testCases)
+        this.outputMsgs.addAll(historyApiTest.outputMsgs)
         return passed
     }
 
@@ -333,6 +337,7 @@ class OktaAuthTests : CoolTest() {
         val historyApiTest = HistoryApiTest()
         historyApiTest.outputToConsole = this.outputToConsole
         val passed = historyApiTest.runHistoryTestCases(testCases)
+        this.outputMsgs.addAll(historyApiTest.outputMsgs)
         if (!passed) {
             bad("One or more Okta PrimeAdmin tests failed. You might need to:  $advice")
         }
@@ -405,6 +410,7 @@ class OktaAuthTests : CoolTest() {
         val historyApiTest = HistoryApiTest()
         historyApiTest.outputToConsole = this.outputToConsole
         val passed = historyApiTest.runHistoryTestCases(testCases)
+        this.outputMsgs.addAll(historyApiTest.outputMsgs)
         if (!passed) {
             bad("One or more Okta PrimeAdmin tests failed. You might need to:  $advice")
         }
@@ -818,7 +824,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token1,
-                HttpStatus.UNAUTHORIZED,
+                HttpStatus.NOT_FOUND,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -840,7 +846,7 @@ class Server2ServerAuthTests : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to 1),
                 token1,
-                HttpStatus.UNAUTHORIZED,
+                HttpStatus.NOT_FOUND,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true
@@ -859,7 +865,9 @@ class Server2ServerAuthTests : CoolTest() {
         )
         val historyApiTest = HistoryApiTest()
         historyApiTest.outputToConsole = this.outputToConsole
-        return historyApiTest.runHistoryTestCases(testCases)
+        val passed = historyApiTest.runHistoryTestCases(testCases)
+        this.outputMsgs.addAll(historyApiTest.outputMsgs)
+        return passed
     }
 
     private fun server2ServerReportDetailsAuthTests(
@@ -947,7 +955,9 @@ class Server2ServerAuthTests : CoolTest() {
         )
         val historyApiTest = HistoryApiTest()
         historyApiTest.outputToConsole = this.outputToConsole
-        return historyApiTest.runHistoryTestCases(testCases)
+        val passed = historyApiTest.runHistoryTestCases(testCases)
+        this.outputMsgs.addAll(historyApiTest.outputMsgs)
+        return passed
     }
 }
 

@@ -332,6 +332,17 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .fetchInto(SenderItems::class.java)
     }
 
+    fun fetchSingleMetadata(
+        messageID: String,
+        txn: DataAccessTransaction? = null
+    ): CovidResultMetadata? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.selectFrom(Tables.COVID_RESULT_METADATA)
+            .where(Tables.COVID_RESULT_METADATA.MESSAGE_ID.eq(messageID.toString()))
+            .fetchOne()
+            ?.into(CovidResultMetadata::class.java)
+    }
+
     /** Returns null if report has no item-level lineage info tracked. */
     fun fetchItemLineagesForReport(
         reportId: ReportId,
