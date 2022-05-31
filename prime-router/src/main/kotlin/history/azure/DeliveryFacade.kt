@@ -44,7 +44,7 @@ class DeliveryFacade(
     }
 
     /**
-     * @param organizationName from JWT Claim.
+     * Serializes a list of Actions into a String.
      *
      * @param organizationName from JWT Claim.
      * @param sortOrder sort the table by date in ASC or DESC order.
@@ -73,70 +73,16 @@ class DeliveryFacade(
             "End date must be after start date."
         }
 
-        val delivery1 = DeliveryHistory(
-            284,
-            OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
-            "ca-dph",
-            "elr-secondary",
-            201,
-            null,
-            "c3c8e304-8eff-4882-9000-3645054a30b7",
-            "covid-19",
-            1,
-            "",
-            "covid-19",
-            "HL7_BATCH"
+        return dbDeliveryAccess.fetchActions(
+            organizationName,
+            sortOrder,
+            sortColumn,
+            offset,
+            toEnd,
+            pageSize,
+            false,
+            DeliveryHistory::class.java
         )
-
-        val delivery2 = DeliveryHistory(
-            922,
-            OffsetDateTime.parse("2022-04-19T18:04:26.534Z"),
-            "ca-dph",
-            "elr-secondary",
-            201,
-            null,
-            "b9f63105-bbed-4b41-b1ad-002a90f07e62",
-            "covid-19",
-            14,
-            "",
-            "primedatainput/pdi-covid-19",
-            "CSV"
-        )
-
-        var list = mutableListOf<DeliveryHistory>()
-
-        if (offset == null || offset.compareTo(OffsetDateTime.parse("2022-04-12T17:06:10.534Z")) <= 0) {
-            if (toEnd == null || toEnd.compareTo(OffsetDateTime.parse("2022-04-12T17:06:10.534Z")) >= 0) {
-                list.add(delivery1)
-            }
-        }
-
-        if (toEnd == null || toEnd.compareTo(OffsetDateTime.parse("2022-04-19T17:06:10.534Z")) >= 0) {
-            if (offset == null || offset.compareTo(OffsetDateTime.parse("2022-04-19T17:06:10.534Z")) <= 0) {
-                list.add(delivery2)
-            }
-        }
-
-        if (sortOrder == ReportFileAccess.SortOrder.DESC && sortColumn == ReportFileAccess.SortColumn.CREATED_AT) {
-            list = list.reversed().toMutableList()
-        }
-
-        if (pageSize == 1) {
-            list.removeLast()
-        }
-
-        return list
-
-        // return dbDeliveryAccess.fetchActions(
-        //     organizationName,
-        //     sortOrder,
-        //     sortColumn,
-        //     offset,
-        //     toEnd,
-        //     pageSize,
-        //     false,
-        //     DeliveryHistory::class.java
-        // )
     }
 
     companion object {

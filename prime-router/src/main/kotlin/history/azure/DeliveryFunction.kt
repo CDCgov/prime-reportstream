@@ -43,22 +43,22 @@ class DeliveryFunction(
             val claims = AuthenticationStrategy.authenticate(request)
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
-            // Confirm the org name in the path is a sender in the system.
-            val sender = workflowEngine.settings.findSender(organization) // err if no default sender in settings in org
-                ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream sender")
+            // Confirm the org name in the path is a receiver in the system.
+            val receiver = workflowEngine.settings.findReceiver(organization) // err if no default receiver in settings in org
+                ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream receiver")
 
             // Do authorization based on: org name in the path == org name in claim.  Or be a prime admin.
-            if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {
+            if ((claims.organizationNameClaim != receiver.organizationName) && !claims.isPrimeAdmin) {
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
                         " ${request.httpMethod}:${request.uri.path}." +
-                        " ERR: Claim org is ${claims.organizationNameClaim} but client id is ${sender.organizationName}"
+                        " ERR: Claim org is ${claims.organizationNameClaim} but client id is ${receiver.organizationName}"
                 )
                 return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
             logger.info(
                 "Authorized request by org ${claims.organizationNameClaim}" +
-                    " to $sender/deliveries endpoint via client id ${sender.organizationName}. "
+                    " to $receiver/deliveries endpoint via client id ${receiver.organizationName}. "
             )
 
             val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize) =
@@ -77,19 +77,13 @@ class DeliveryFunction(
             }
 
             val deliveries = deliveryFacade.findDeliveriesAsJson(
-                sender.organizationName,
+                receiver.organizationName,
                 sortOrder,
                 sortColumn,
                 resultsAfterDate,
                 resultsBeforeDate,
                 pageSize
             )
-
-            // logger.info(" ${resultsAfterDate} ${pageSize} ${sortOrder}" +
-            //         " ${resultsBeforeDate}  ${sortOrder} ${sortColumn} ${deliveries} "
-            // )
-            // return HttpUtilities.badRequestResponse(request, "test")
-            // return HttpUtilities.okResponse(request, "test")
 
             return HttpUtilities.okResponse(request, deliveries)
         } catch (e: IllegalArgumentException) {

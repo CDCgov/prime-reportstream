@@ -25,7 +25,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
     ReportFileAccess {
 
     /**
-     * Get multiple submissions based on a particular organization.
+     * Get multiple results based on a particular organization.
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
      * @param order sort the table in ASC or DESC order.
@@ -33,8 +33,9 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
      * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
      * @param limit is an Integer used for setting the number of results per page.
+     * @param showFailed whether or not to include actions that failed to be sent.
      * @param klass the class that the found data will be converted to.
-     * @return a list of submissions matching the SQL Query.
+     * @return a list of results matching the SQL Query.
      */
     override fun <T> fetchActions(
         organization: String,
@@ -174,7 +175,6 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
 
     /**
      * Fetch the details of an action's relations (descendents).
-     * This is done through a recursive query on the report_lineage table.
      *
      * @param actionId the action id attached to the action to find relations for.
      * @param klass the class that the found data will be converted to.

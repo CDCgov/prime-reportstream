@@ -43,7 +43,7 @@ interface ReportFileAccess {
      * Fetch a single (usually detailed) action of a specific type.
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
-     * @param submissionId the action id attached to this submission.
+     * @param actionId the action id attached to this submission.
      * @param klass the class that the found data will be converted to.
      * @return the submission matching the given query parameters, or null.
      */
@@ -56,7 +56,7 @@ interface ReportFileAccess {
     /**
      * Fetch the details of an action's relations (descendents).
      *
-     * @param submissionId the action id attached to the action to find relations for.
+     * @param actionId the action id attached to the action to find relations for.
      * @param klass the class that the found data will be converted to.
      * @return a list of descendants for the given action id.
      */
