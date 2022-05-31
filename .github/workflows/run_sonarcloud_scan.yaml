@@ -32,6 +32,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
         args: >
+          -Dsonar.cpd.exclusions=frontend-react/**/*.test.*
           -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
           -Dsonar.coverage.exclusions=frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*
           -Dsonar.sources=frontend-react/src,prime-router/src

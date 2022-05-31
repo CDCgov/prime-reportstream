@@ -42,5 +42,9 @@
     "azureFunctions.pythonVenv": ".venv",
     "azureFunctions.projectLanguage": "Python",
     "azureFunctions.projectRuntime": "~4",
-    "azureFunctions.projectSubpath": "operations/app/functions/admin"
+    "azureFunctions.projectSubpath": "operations/app/functions/admin",
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "git.enableCommitSigning": true
 }
