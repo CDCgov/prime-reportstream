@@ -4,6 +4,7 @@ import { renderWithRouter } from "../../utils/CustomRenderUtils";
 
 import { AdminDropdownNav } from "./AdminDropdownNav";
 
+/* TODO: Let's extract this */
 class TestLocalStorage {
     store: Map<string, string | string[]> = new Map();
 
