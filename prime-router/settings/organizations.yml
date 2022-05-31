@@ -796,7 +796,7 @@
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
         suppressNonNPI: true
-        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3, MSH-19-1, MSH-19-2, MSH-19-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
         convertPositiveDateTimeOffsetToNegative: true
@@ -831,7 +831,7 @@
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
         suppressNonNPI: true
-        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3, MSH-19-1, MSH-19-2, MSH-19-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
       timing:
@@ -868,7 +868,7 @@
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
         suppressNonNPI: true
-        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3, MSH-19-1, MSH-19-2, MSH-19-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
       timing:
@@ -968,7 +968,7 @@
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 36DSMP9999
         nameFormat: ohio
-        suppressHl7Fields: OBX-23-11
+        suppressHl7Fields: OBX-23-11, MSH-19-1, MSH-19-2, MSH-19-3
         # turn off UNK and ASKU for this field
         useBlankInsteadOfUnknown: patient_race
       timing:
