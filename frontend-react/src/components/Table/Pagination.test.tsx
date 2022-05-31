@@ -55,9 +55,7 @@ describe("Pagination", () => {
         },
     ])(
         "Handles Previous and Next links $description",
-        // The description argument is used in the test name so
-        // eslint-disable-next-line unused-imports/no-unused-vars
-        ({ description, slots, currentPageNum, expectedItems }) => {
+        ({ slots, currentPageNum, expectedItems }) => {
             const props: PaginationProps = {
                 slots: slots as SlotItem[],
                 currentPageNum,
@@ -73,7 +71,7 @@ describe("Pagination", () => {
         }
     );
 
-    test("Clicking on pagination items changes the page", () => {
+    test("Clicking on pagination items invokes the setCurrentPage callback", () => {
         const mockSetCurrentPage = jest.fn();
         const props: PaginationProps = {
             slots: [1, 2, 3],
@@ -98,7 +96,7 @@ describe("Pagination", () => {
         expect(mockSetCurrentPage).toHaveBeenLastCalledWith(3);
     });
 
-    test("Renders the expected markup for a component will all possible options", () => {
+    test("Renders the expected markup when the current page is between two other pages", () => {
         const props: PaginationProps = {
             slots: [1, OVERFLOW_INDICATOR, 6, 7, 8, 9, OVERFLOW_INDICATOR],
             currentPageNum: 7,

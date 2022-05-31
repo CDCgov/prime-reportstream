@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Pagination Renders the expected markup for a component will all possible options 1`] = `
+exports[`Pagination Renders the expected markup when the current page is between two other pages 1`] = `
 <DocumentFragment>
   <nav
     aria-label="Pagination"
