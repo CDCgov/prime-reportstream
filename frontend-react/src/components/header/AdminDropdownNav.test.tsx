@@ -31,13 +31,18 @@ class TestLocalStorage {
 }
 
 const mockLocalStorage = new TestLocalStorage();
-jest.mock("../../pages/misc/FeatureFlags", () => ({
-    CheckFeatureFlag: (feature: string) => {
-        return (
-            mockLocalStorage.getItem("featureFlags")?.includes(feature) || false
-        );
-    },
-}));
+jest.mock("../../pages/misc/FeatureFlags", () => {
+    const originalModule = jest.requireActual("../../pages/misc/FeatureFlags");
+    return {
+        ...originalModule,
+        CheckFeatureFlag: (feature: string) => {
+            return (
+                mockLocalStorage.getItem("featureFlags")?.includes(feature) ||
+                false
+            );
+        },
+    };
+});
 
 describe("AdminDropdownNav", () => {
     test("Admin menu expands and contracts on click and selection", () => {
