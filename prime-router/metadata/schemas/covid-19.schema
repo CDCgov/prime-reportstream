@@ -9,6 +9,7 @@
 #
 name: covid-19
 topic: covid-19
+trackingElement: message_id
 description: collection of standard elements, not an actual schema
 elements:
   - name: abnormal_flag
@@ -141,7 +142,7 @@ elements:
     hhsGuidanceField:
 
   - name: file_created_date
-    type: DATE
+    type: DATETIME
     natFlatFileField: File_created_date
     hhsGuidanceField:
     hl7Field: MSH-7
@@ -824,9 +825,27 @@ elements:
 
   - name: message_profile_id
     type: EI
-    hl7Field: MSH-21
-    default: PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+    hl7Field: MSH-21-1
+    default: PHLabReport-NoAck
     documentation: The message profile identifer
+
+  - name: message_profile_id_namespace_id
+    type: TEXT
+    hl7Field: MSH-21-2
+    default: ELR_Receiver
+    documentation: The message profile identifer namespace id
+
+  - name: message_profile_id_universal_id
+    type: TEXT
+    hl7Field: MSH-21-3
+    default: 2.16.840.1.113883.9.11
+    documentation: The message profile identifer universal id
+
+  - name: message_profile_id_universal_id_type
+    type: TEXT
+    hl7Field: MSH-21-4
+    default: ISO
+    documentation: The message profile identifer universal id type
 
   # name: public_health_case_id
   # type: ID
@@ -888,6 +907,16 @@ elements:
     hl7AOEQuestion: 95421-4
     documentation: Does the patient reside in a congregate care setting?
 
+  - name: residence_type
+    type: CODE
+    cardinality: ZERO_OR_ONE
+    valueSet: covid-19/residence_type
+    natFlatFileField: Residence_type
+    hhsGuidanceField: Residence type
+    hl7Field: AOE
+    hl7AOEQuestion: 75617-1
+    documentation: Congregate Setting Residence Type?
+
   - name: result_format
     type: TEXT
     default: CWE
@@ -907,7 +936,7 @@ elements:
   - name: site_of_care
     type: TEXT
     natFlatFileField: Site_of_care
-    documentation: The type of facility providing care (Hospital, Nursing Home, etc.).
+    documentation: The type of facility providing care (Hospital, Nursing Home, etc.).  This is a CUSTOM internal field. DO NOT use this for the COVID AOE residence_type.
 
   - name: specimen_collection_date_time
     type: DATETIME
@@ -1109,8 +1138,8 @@ elements:
     valueSet: hl70085
     natFlatFileField: Test_result_status
     hhsGuidanceField:
-    hl7Field: OBX-11-1
-    hl7OutputFields: [OBX-11-1, OBR-25-1]
+    hl7Field:
+    mapper: use(observation_result_status)
     documentation: |
       The test result status, which is different from the test result itself. Per the valueset, this indicates if
       the test result is in some intermediate status, is a correction, or is the final result.
@@ -1120,16 +1149,18 @@ elements:
     default: F
     natFlatFileField:
     hhsGuidanceField:
-    hl7Field: OBX-11
+    hl7Field: OBX-11-1
     valueSet: hl70085
+    mapper: use(test_result_status)
 
   - name: order_result_status
     type: ID
     default: F
     natFlatFileField: Order_result_status
     hhsGuidanceField:
-    hl7Field: OBR-25
+    hl7Field: OBR-25-1
     valueSet: hl70123
+    mapper: use(test_result_status)
 
   - name: test_result_sub_id
     type: ID
@@ -1192,9 +1223,19 @@ elements:
 
   - name: testing_lab_id_assigner
     type: HD
-    mapper: ifPresent(testing_lab_clia, CLIA^2.16.840.1.113883.4.7^ISO)
-    hl7Field: OBX-23-6
+    mapper: ifPresent(testing_lab_clia, CLIA)
+    hl7Field: OBX-23-6-1
     documentation: This is the assigner of the CLIA for the testing lab. If the testing lab has a CLIA, this field will be filled in.
+
+  - name: testing_lab_id_universal_id
+    type: TEXT
+    mapper: ifPresent(testing_lab_clia, 2.16.840.1.113883.4.7)
+    hl7Field: OBX-23-6-2
+
+  - name: testing_lab_id_universal_id_type
+    type: TEXT
+    mapper: ifPresent(testing_lab_clia, ISO)
+    hl7Field: OBX-23-6-3
 
   - name: testing_lab_clia
     type: ID_CLIA

@@ -1,7 +1,7 @@
 
 ### Schema: oh/oh-covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: (message_id)
 ### Base On: [covid-19](./covid-19.md)
 ### Extends: none
 #### Description: A schema for OH DOH to receive HL7 files
@@ -307,7 +307,7 @@ Is the patient employed in health care?
 
 **ReportStream Internal Name**: file_created_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -492,7 +492,7 @@ unique id to track the usage of the message
 
 **PII**: No
 
-**Default Value**: PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+**Default Value**: PHLabReport-NoAck
 
 **Cardinality**: [0..1]
 
@@ -2857,11 +2857,6 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 **PII**: No
 
 **Format**: use value found in the Code column
-
-**HL7 Fields**
-
-- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
-- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
 
 **Cardinality**: [0..1]
 

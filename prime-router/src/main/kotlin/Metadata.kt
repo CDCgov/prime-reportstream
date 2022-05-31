@@ -14,6 +14,7 @@ import gov.cdc.prime.router.metadata.HashMapper
 import gov.cdc.prime.router.metadata.IfNPIMapper
 import gov.cdc.prime.router.metadata.IfNotPresentMapper
 import gov.cdc.prime.router.metadata.IfPresentMapper
+import gov.cdc.prime.router.metadata.IfThenElseMapper
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
 import gov.cdc.prime.router.metadata.LookupMapper
 import gov.cdc.prime.router.metadata.LookupSenderValuesetsMapper
@@ -75,7 +76,8 @@ class Metadata : Logging {
         NullMapper(),
         LookupSenderValuesetsMapper(),
         NpiLookupMapper(),
-        CountryMapper()
+        CountryMapper(),
+        IfThenElseMapper()
     )
     private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),
@@ -88,6 +90,7 @@ class Metadata : Logging {
         AllowAll(),
         AllowNone(),
         IsValidCLIA(),
+        InDateInterval(),
     )
     private var valueSets = mapOf<String, ValueSet>()
     private val mapper = ObjectMapper(YAMLFactory()).registerModule(

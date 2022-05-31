@@ -6,7 +6,11 @@ import {
 } from "../contexts/SessionStorageTools";
 
 export default class AuthResource extends Resource {
-    pk(parent?: any, key?: string): string | undefined {
+    // Turn schema-mismatch errors (that break the app) into just console warnings.
+    // These happen when extra fields are returned that are not defined in the schema
+    static automaticValidation = "warn" as const;
+
+    pk(_parent?: any, _key?: string): string | undefined {
         throw new Error("Method not implemented.");
     }
 
@@ -20,6 +24,7 @@ export default class AuthResource extends Resource {
                 ...init.headers,
                 Authorization: `Bearer ${accessToken}`,
                 Organization: organization || "",
+                "authentication-type": "okta",
             },
         };
     };

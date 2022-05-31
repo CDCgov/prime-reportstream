@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Set Environment Variables
         # 86400: seconds in a 24h time-window
@@ -27,14 +27,14 @@ jobs:
           echo "Branch name: \"${BRANCH_NAME}\""
 
       - name: "Create branch '${{ env.BRANCH_NAME }}' to contain the changes for the deployment on ${{ env.DEPLOYMENT_DATE }}"
-        uses: peterjgrainger/action-create-branch@v2.1.0
+        uses: peterjgrainger/action-create-branch@c2800a3a9edbba2218da6861fa46496cf8f3195a
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           branch: "${{ env.BRANCH_NAME }}"
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
-        uses: k3rnels-actions/pr-update@v1
+        uses: k3rnels-actions/pr-update@30770d23738a80fe6a9b3c7cc6d58667065d1319
         id: pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

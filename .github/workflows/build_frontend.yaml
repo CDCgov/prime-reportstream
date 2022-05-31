@@ -19,11 +19,11 @@ jobs:
       version: ${{ steps.build_vars.outputs.version }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
         id: skip_check
         with:
           list-files: csv
@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Build frontend
         uses: ./.github/actions/build-frontend

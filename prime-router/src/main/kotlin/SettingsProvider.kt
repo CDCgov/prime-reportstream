@@ -34,3 +34,14 @@ enum class CustomerStatus {
     @JsonProperty("active")
     ACTIVE
 }
+
+/**
+ * A submission with topic FULL_ELR will be processed using the full ELR pipeline (fhir engine), submissions
+ * from a sender with topic COVID_19 will be processed using the covid-19 pipeline.
+ */
+enum class Topic(val json_val: String) {
+    @JsonProperty("full-elr")
+    FULL_ELR("full-elr"),
+    @JsonProperty("covid-19")
+    COVID_19("covid-19")
+}

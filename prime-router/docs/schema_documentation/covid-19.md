@@ -1,7 +1,7 @@
 
 ### Schema: covid-19
 ### Topic: covid-19
-### Tracking Element: none
+### Tracking Element: (message_id)
 ### Base On: none
 ### Extends: none
 #### Description: collection of standard elements, not an actual schema
@@ -332,7 +332,7 @@ Is the patient employed in a high risk setting? This AOE question doesn't have a
 
 **ReportStream Internal Name**: file_created_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -529,13 +529,67 @@ unique id to track the usage of the message
 
 **PII**: No
 
-**Default Value**: PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+**Default Value**: PHLabReport-NoAck
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
 The message profile identifer
+
+---
+
+**Name**: message_profile_id_namespace_id
+
+**ReportStream Internal Name**: message_profile_id_namespace_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: ELR_Receiver
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer namespace id
+
+---
+
+**Name**: message_profile_id_universal_id
+
+**ReportStream Internal Name**: message_profile_id_universal_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: 2.16.840.1.113883.9.11
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer universal id
+
+---
+
+**Name**: message_profile_id_universal_id_type
+
+**ReportStream Internal Name**: message_profile_id_universal_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: ISO
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer universal id type
 
 ---
 
@@ -3632,6 +3686,49 @@ The reporting facility's name
 
 ---
 
+**Name**: residence_type
+
+**ReportStream Internal Name**: residence_type
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**LOINC Code**: 75617-1
+
+**Cardinality**: [0..1]
+
+**Value Sets**
+
+Code | Display | System
+---- | ------- | ------
+22232009|Hospital|SNOMED_CT
+2081004|Hospital Ship|SNOMED_CT
+32074000|Long Term Care Hospital|SNOMED_CT
+224929004|Secure Hospital|SNOMED_CT
+42665001|Nursing Home|SNOMED_CT
+30629002|Retirement Home|SNOMED_CT
+74056004|Orphanage|SNOMED_CT
+722173008|Prison-based Care Site|SNOMED_CT
+20078004|Substance Abuse Treatment Center|SNOMED_CT
+257573002|Boarding House|SNOMED_CT
+224683003|Military Accommodation|SNOMED_CT
+284546000|Hospice|SNOMED_CT
+257628001|Hostel|SNOMED_CT
+310207003|Sheltered Housing|SNOMED_CT
+57656006|Penal Institution|SNOMED_CT
+285113009|Religious Institutional Residence|SNOMED_CT
+285141008|Work (environment)|SNOMED_CT
+32911000|Homeless|SNOMED_CT
+
+**Documentation**:
+
+Congregate Setting Residence Type?
+
+---
+
 **Name**: resident_congregate_setting
 
 **ReportStream Internal Name**: resident_congregate_setting
@@ -3721,7 +3818,7 @@ The name and OID for the application sending information to the receivers
 
 **Documentation**:
 
-The type of facility providing care (Hospital, Nursing Home, etc.).
+The type of facility providing care (Hospital, Nursing Home, etc.).  This is a CUSTOM internal field. DO NOT use this for the COVID AOE residence_type.
 
 ---
 
@@ -4319,11 +4416,6 @@ The result of the test performed. For IgG, IgM and CT results that give a numeri
 
 **Format**: use value found in the Code column
 
-**HL7 Fields**
-
-- [OBR-25-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.25.1)
-- [OBX-11-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.11.1)
-
 **Cardinality**: [0..1]
 
 **Value Sets**
@@ -4527,6 +4619,30 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 **Documentation**:
 
 This is the assigner of the CLIA for the testing lab. If the testing lab has a CLIA, this field will be filled in.
+
+---
+
+**Name**: testing_lab_id_universal_id
+
+**ReportStream Internal Name**: testing_lab_id_universal_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_id_universal_id_type
+
+**ReportStream Internal Name**: testing_lab_id_universal_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 

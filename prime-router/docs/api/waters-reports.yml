@@ -1,0 +1,264 @@
+openapi: "3.0.3"
+info:
+  title: ReportStream Reports API
+  version: "1.0"
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+paths:
+  /api/waters/reports:
+    post:
+      description: submit a report to be routed
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - name: processing
+          in: query
+          description: flag for processing the report in a different manner
+          schema:
+            type: string
+            enum: [ async ]
+      requestBody:
+        description: The public health information being routed
+        required: true
+        content:
+          text/csv:
+            schema:
+              type: string
+              format: hl7
+              example:
+                Patient_last_name,Patient_first_name
+                tests,Jordan
+      responses:
+        '200':
+          description: the detailed report history object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedSubmissionHistory'
+        '401':
+          description: unknown or invalid sender
+  /api/waters/report/{id}/history:
+    get:
+      description: return detailed history of a single submitted report
+      security:
+        - OAuth2: [ user ]
+      parameters:
+        - name: id
+          in: path
+          description: a valid UUID or actionId (aka submissionId)
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: the detailed report history object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedSubmissionHistory'
+        '401':
+          description: unauthorized
+        '404':
+          description: either there is no report with the given id or the report is not a submission
+        '500':
+          description: unable to fetch history due to Data Access Exception
+components:
+  schemas:
+    DetailedSubmissionHistory:
+      type: object
+      properties:
+        submissionId:
+          description: the row number for this report's action log
+          type: integer
+        timestamp:
+          description: the timestamp for this report submission
+          type: string
+          format: date-time
+        sender:
+          description: the name of the sender account
+          type: string
+        httpStatus:
+          description: response given to the sender upon submission
+          type: integer
+        id:
+          description: the uuid for this submission
+          type: string
+          format: uuid
+        topic:
+          description: the schema topic (e.g. COVID-19, Flu)
+          type: string
+        reportItemCount:
+          description: total number of individual reports sent to the Hub (in a csv, the number of data lines sent)
+          type: integer
+        overallStatus:
+          description: the step in the delivery process for a submission
+          type: string
+          enum:
+            - Error
+            - Received
+            - Not Delivering
+            - Waiting to Deliver
+            - Partially Delivered
+            - Delivered
+        plannedCompletionAt:
+          description: when this submission is expected to finish sending
+          type: string
+          format: date-time
+        actualCompletionAt:
+          description: marks the actual time this submission finished sending
+          type: string
+          format: date-time
+        errorCount:
+          description: total errors found during initial validation.  There may be multiple errors per item.
+          type: integer
+        warningCount:
+          description: total warnings found during initial validation.  There may be multiple warnings per item.
+          type: integer
+        destinations:
+          description: where the report is being sent to
+          type: array
+          items:
+            $ref: '#/components/schemas/Destination'
+        errors:
+          description: a list of errors in the report
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorWarningLog'
+        warnings:
+          description: a list of warnings in the report
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorWarningLog'
+        externalName:
+          description: the input report's external name
+          type: string
+        destinationCount:
+          description: total destinations recieving the report(s)
+          type: integer
+    Destination:
+      type: object
+      properties:
+        organization:
+          type: string
+          description: the name of the organization reciving the report
+        organization_id:
+          type: string
+          description: the organization id (i.e. {state abbreviation}-phd)
+        service:
+          type: string
+          description: the service used for delivering the report
+        itemCount:
+          type: integer
+          description: the number of items being sent to this destination
+        itemCountBeforeQualityFiltering:
+          type: integer
+          description: the number of items available for this destination prior to quality filtering
+        sending_at:
+          type: string
+          format: date-time
+          description: The time at which the report will be sent
+        filteredReportRows:
+          type: array
+          description: "Information about the rows filtered from the report due to quality."
+          items:
+            type: string
+        filteredReportItems:
+          description: list of the filtering actions that resulted in items being removed
+          type: array
+          items:
+            $ref: '#/components/schemas/FilteredReportItem'
+        sentReports:
+          description: reports that have been sent to this destination as part of the submission being looked at
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportLog'
+        downloadedReports:
+          description: reports for this destination that have been downloaded as part of the submission being looked at
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportLog'
+    FilteredReportItem:
+      type: object
+      properties:
+        filterType:
+          description: the filter type being used
+          type: string
+          enum:
+            - jurisdictionalFilter
+            - qualityFilter
+            - routingFilter
+            - processingModeFilter
+        filterName:
+          description: the name of the filter function that removed the rows
+          type: string
+          enum:
+            - filterByCounty
+            - matches
+            - doesNotMatch
+            - orEquals
+            - hasValidDataFor
+            - hasAtLeastOneOf
+            - atLeastOneHasValue
+            - allowAll
+            - allowNone
+            - isValidCLIA
+        filteredTrackingElement:
+          description: the trackingElement value of the items removed
+          type: string
+        filterArgs:
+          description: the arguments used in the filter function
+          type: array
+          items:
+            type: string
+        message:
+          description: user-friendly explanation of the filtering action
+          type: string
+    ReportLog:
+      type: object
+      properties:
+        reportId:
+          description: the uuid for this report
+          type: string
+          format: uuid
+        externalName:
+          description: name of the hl7 file version of this report
+          type: string
+        createdAt:
+          description: the time at which this report was sent/downloaded
+          type: string
+          format: date-time
+        itemCount:
+          description: number of items in this report
+          type: integer
+    ErrorWarningLog:
+      type: object
+      properties:
+        scope:
+          description: how wide-randing is this log?
+          type: string
+          enum:
+            - parameter
+            - report
+            - item
+        indices:
+          description: for item scope, list of the index of each log that hit this particular error/warning
+          type: array
+          items:
+            type: integer
+        trackingIds:
+          description: for item scope, list of tracking ids for matching logs
+          type: array
+          items:
+            type: string
+        field:
+          description: field that triggered the error/warning
+          type: string
+        message:
+          description: user-friendly explanation of the error/warning
+          type: string
+
+  securitySchemes:
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'

@@ -1,4 +1,4 @@
-import { fireEvent } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 
 import { render } from "../../utils/CustomRenderUtils";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
@@ -59,24 +59,23 @@ describe("EditSenderSettings", () => {
     beforeAll(() => settingsServer.listen());
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
+    beforeEach(() => {
+        const mockRouteComponentProps = {
+            history: {} as any,
+            location: {} as any,
+            match: {
+                params: {
+                    orgname: "abbott",
+                    sendername: "user1234",
+                    action: "edit",
+                },
+            } as any,
+        };
+        render(<EditSenderSettings {...mockRouteComponentProps} />);
+    });
 
-    const mockRouteComponentProps = {
-        history: {} as any,
-        location: {} as any,
-        match: {
-            params: {
-                orgname: "abbott",
-                sendername: "user1234",
-                action: "edit",
-            },
-        } as any,
-    };
-
-    test("should be able to edit keys field", async () => {
-        const container = render(
-            <EditSenderSettings {...mockRouteComponentProps} />
-        );
-        const keysField = container.getByTestId("keys");
+    test("should be able to edit keys field", () => {
+        const keysField = screen.getByTestId("keys");
 
         expect(keysField).toBeInTheDocument();
 
@@ -85,11 +84,8 @@ describe("EditSenderSettings", () => {
         expect(keysField).toHaveValue(testKeys);
     });
 
-    test("should be able to edit processing type field", async () => {
-        const container = render(
-            <EditSenderSettings {...mockRouteComponentProps} />
-        );
-        const processingTypeField = container.getByTestId("processingType");
+    test("should be able to edit processing type field", () => {
+        const processingTypeField = screen.getByTestId("processingType");
 
         expect(processingTypeField).toBeInTheDocument();
 

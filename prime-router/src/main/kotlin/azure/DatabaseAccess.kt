@@ -10,6 +10,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.EMAIL_SCHEDULE
+import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.JTI_CACHE
 import gov.cdc.prime.router.azure.db.Tables.RECEIVER_CONNECTION_CHECK_RESULTS
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
@@ -139,22 +140,21 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * Returns true if there is already a record in the report_file table that matches the passed in [senderName],
-     * [senderOrgName], and [digest]
+     * Returns true if there is already a record from the last 7 days
+     * in the item_lineage table that matches the passed in [itemHash]
+     * @return true if item is duplicate
      */
-    fun isDuplicateReportFile(
-        senderName: String,
-        senderOrgName: String,
-        digest: ByteArray,
+    fun isDuplicateItem(
+        itemHash: String,
         txn: DataAccessTransaction? = null
     ): Boolean {
         val ctx = if (txn != null) DSL.using(txn) else create
+        val weekAgo = OffsetDateTime.now().minusDays(7)
         return ctx
             .fetchExists(
-                ctx.selectFrom(REPORT_FILE)
-                    .where(REPORT_FILE.SENDING_ORG.eq(senderOrgName))
-                    .and(REPORT_FILE.SENDING_ORG_CLIENT.eq(senderName))
-                    .and(REPORT_FILE.BLOB_DIGEST.eq(digest))
+                ctx.selectFrom(ITEM_LINEAGE)
+                    .where(ITEM_LINEAGE.ITEM_HASH.eq(itemHash))
+                    .and(ITEM_LINEAGE.CREATED_AT.greaterOrEqual(weekAgo))
             )
     }
 
@@ -330,6 +330,17 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         return ctx
             .selectFrom(Routines.senderItems(receiverReportId, receiverReportIndex, limit))
             .fetchInto(SenderItems::class.java)
+    }
+
+    fun fetchSingleMetadata(
+        messageID: String,
+        txn: DataAccessTransaction? = null
+    ): CovidResultMetadata? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.selectFrom(Tables.COVID_RESULT_METADATA)
+            .where(Tables.COVID_RESULT_METADATA.MESSAGE_ID.eq(messageID.toString()))
+            .fetchOne()
+            ?.into(CovidResultMetadata::class.java)
     }
 
     /** Returns null if report has no item-level lineage info tracked. */
@@ -607,7 +618,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     /** search for a setting and it children, insert a deleted setting for those found */
     fun insertDeletedSettingAndChildren(
         settingId: Int,
-        settingMetadata: SettingMetadata,
+        createdBy: String,
+        createdAt: OffsetDateTime,
         txn: DataAccessTransaction
     ) {
         DSL.using(txn)
@@ -632,8 +644,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                     DSL.value(true, SETTING.IS_DELETED),
                     DSL.value(false, SETTING.IS_ACTIVE),
                     SETTING.VERSION.plus(1),
-                    DSL.value(settingMetadata.createdBy, SETTING.CREATED_BY),
-                    DSL.value(settingMetadata.createdAt, SETTING.CREATED_AT)
+                    DSL.value(createdBy, SETTING.CREATED_BY),
+                    DSL.value(createdAt, SETTING.CREATED_AT)
                 )
                     .from(SETTING)
                     .where(
@@ -958,6 +970,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                     testData.map { td ->
                         CovidResultMetadataRecord().also { record ->
                             record.messageId = td.messageId?.take(METADATA_MAX_LENGTH)
+                            record.previousMessageId = td.previousMessageId?.take(METADATA_MAX_LENGTH)
                             record.reportId = td.reportId
                             record.reportIndex = td.reportIndex
                             record.orderingProviderName =

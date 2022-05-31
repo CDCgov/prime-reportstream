@@ -28,7 +28,10 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.unittest.UnitTestUtils.createConfig
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -51,34 +54,6 @@ import kotlin.test.assertEquals
 class Hl7SerializerTests {
     private val context = DefaultHapiContext()
     private val emptyTerser = Terser(ORU_R01())
-
-    private fun createConfig(
-        replaceValue: Map<String, String> = emptyMap(),
-        cliaForSender: Map<String, String> = emptyMap(),
-        cliaForOutOfStateTesting: String? = null,
-        truncateHl7Fields: String? = null,
-        suppressNonNPI: Boolean = false,
-        truncateHDNamespaceIds: Boolean = false,
-        convertPositiveDateTimeOffsetToNegative: Boolean = false,
-        useHighPrecisionHeaderDateTimeFormat: Boolean = false,
-    ): Hl7Configuration {
-        return Hl7Configuration(
-            messageProfileId = "",
-            receivingApplicationOID = "",
-            receivingApplicationName = "",
-            receivingFacilityName = "",
-            receivingFacilityOID = "",
-            receivingOrganization = "",
-            cliaForOutOfStateTesting = cliaForOutOfStateTesting,
-            cliaForSender = cliaForSender,
-            replaceValue = replaceValue,
-            truncateHl7Fields = truncateHl7Fields,
-            suppressNonNPI = suppressNonNPI,
-            truncateHDNamespaceIds = truncateHDNamespaceIds,
-            convertPositiveDateTimeOffsetToNegative = convertPositiveDateTimeOffsetToNegative,
-            useHighPrecisionHeaderDateTimeFormat = useHighPrecisionHeaderDateTimeFormat
-        )
-    }
 
     @Test
     fun `test XTN phone decoding`() {
@@ -230,7 +205,7 @@ class Hl7SerializerTests {
         val nowAsDate = Date.from(now.toInstant())
         val dateTimeElement = Element("field", hl7Field = "OBX-14", type = Element.Type.DATETIME)
         val warnings = mutableListOf<ActionLogDetail>()
-        val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(Element.datetimePattern)
+        val dateFormatterWithTimeZone = DateTimeFormatter.ofPattern(DateUtilities.datetimePattern)
         val dateFormatterNoTimeZone = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
 
         // Segment not found
@@ -332,7 +307,7 @@ class Hl7SerializerTests {
         val mockSegment = mockk<Segment>()
         val mockDT = mockk<DT>()
         val dateElement = Element("field", hl7Field = "OBX-14", type = Element.Type.DATE)
-        val dateFormatterDate = DateTimeFormatter.ofPattern(Element.datePattern)
+        val dateFormatterDate = DateTimeFormatter.ofPattern(DateUtilities.datePattern)
         val warnings = mutableListOf<ActionLogDetail>()
 
         every { mockTerser.getSegment(any()) } returns mockSegment
@@ -453,6 +428,61 @@ NTE|1|L|This is a final comment|RE"""
             hl7Field = "ORC-23",
             type = Element.Type.TELEPHONE
         )
+
+        // Invalid telephone
+        serializer.setTelephoneComponent(
+            mockTerser,
+            "5555555555:1:3333",
+            facilityPathSpec,
+            facilityElement,
+            Hl7Configuration.PhoneNumberFormatting.STANDARD
+        )
+
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-1", "(555)555-5555X3333")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-2", "WPN")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-3", "PH")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-5", "1")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-6", "555")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-7", "5555555")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-8", "3333")
+        }
+
+        // Valid telephone
+        serializer.setTelephoneComponent(
+            mockTerser,
+            "8002324636:1:3333",
+            facilityPathSpec,
+            facilityElement,
+            Hl7Configuration.PhoneNumberFormatting.STANDARD
+        )
+
+        verify {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-1", "(800)232-4636X3333")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-2", "WPN")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-3", "PH")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-5", "1")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-6", "800")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-7", "2324636")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-8", "3333")
+        }
+    }
+
+    @Test
+    fun `testSetTelephoneComponentsValidatePhoneNumbers`() {
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
+        val mockTerser = mockk<Terser>()
+        every { mockTerser.set(any(), any()) } returns Unit
+
+        val facilityPathSpec = serializer.formPathSpec("ORC-23")
+        val facilityElement = Element(
+            "ordering_facility_phone_number",
+            hl7Field = "ORC-23",
+            type = Element.Type.TELEPHONE
+        )
+
+        // Valid (MX) telephone
         serializer.setTelephoneComponent(
             mockTerser,
             "5555555555:1:3333",
@@ -570,8 +600,7 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test canonicalSchoolName`() {
-        val settings = FileSettings("./settings")
-        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
+        val serializer = Hl7Utilities
 
         // Use NCES actual table values to test
         val senior = serializer.canonicalizeSchoolName("SHREWSBURY SR HIGH")
@@ -708,6 +737,18 @@ NTE|1|L|This is a final comment|RE"""
         assertThat(serializer.getHl7MaxLength("OBR-16-1-2", emptyTerser)).isNull()
     }
 
+    @Test
+    fun `test unicodeToAscii`() {
+        // arrange
+        val settings = FileSettings("./settings")
+        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
+        val unicodeInput: String = "ÀÁÂÃÄÅ, ÈÉÊË, Î, Ô, Ù, Ç"
+        // act
+        val expectedValue: String = "AAAAAA, EEEE, I, O, U, C"
+        val actualValue: String = serializer.unicodeToAscii(unicodeInput)
+        // assert
+        assertThat(actualValue).isEqualTo(expectedValue)
+    }
     @Ignore // Test case works locally but not in github. Build issue seems to be the one affecting it in remote branch.
     @Test
     fun `test write a message with Receiver for VT with HD truncation and OBX-23-1 with 50 chars`() {
@@ -819,31 +860,7 @@ NTE|1|L|This is a final comment|RE"""
     }
 
     @Test
-    fun `test now timestamp logic`() {
-        // arrange our regexes
-        // this regex checks for 12 digits, and then the offset sign, and then four more digits
-        val lowPrecisionTimeStampRegex = "^\\d{12}[-|+]\\d{4}".toRegex()
-        createConfig(
-            useHighPrecisionHeaderDateTimeFormat = false,
-            convertPositiveDateTimeOffsetToNegative = false
-        ).run {
-            val timestampValue = Hl7Serializer.nowTimestamp(this)
-            assertThat(lowPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
-        }
-
-        // this regex checks for 14 digits, then a period, three digits, and then the offset
-        val highPrecisionTimeStampRegex = "\\d{14}\\.\\d{3}[-|+]\\d{4}".toRegex()
-        createConfig(
-            useHighPrecisionHeaderDateTimeFormat = true,
-            convertPositiveDateTimeOffsetToNegative = false
-        ).run {
-            val timestampValue = Hl7Serializer.nowTimestamp(this)
-            assertThat(highPrecisionTimeStampRegex.containsMatchIn(timestampValue)).isTrue()
-        }
-    }
-
-    @Test
-    fun `test organization yml replaceValueAwithB setting field`() {
+    fun `testOrganizationYmlReplaceValueAwithBUsingTerserSettingField`() {
         val oneOrganization = DeepOrganization(
             "phd", "test", Organization.Jurisdiction.FEDERAL,
             receivers = listOf(Receiver("elr", "phd", "topic", CustomerStatus.INACTIVE, "one"))
@@ -852,33 +869,121 @@ NTE|1|L|This is a final comment|RE"""
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val serializer = Hl7Serializer(metadata, settings)
-        val arrayistValues = arrayListOf(
-            mapOf("" to "Unknow"),
-            mapOf("Crona" to "Joe"),
-            mapOf("Bode" to "John;@:,")
-        )
-        val replaceValueAwithB: Map<String, Any>? = mapOf("ORC-12-2" to arrayistValues)
-        val orderingProviderLastName = Element(
-            "ordering_provider_last_name",
-            type = Element.Type.PERSON_NAME,
-            hl7Field = "ORC-12-2",
-            hl7OutputFields = listOf("ORC-12-2", "OBR-16-2")
+
+        val message = ORU_R01()
+        message.initQuickstart(Hl7Serializer.MESSAGE_CODE, Hl7Serializer.MESSAGE_TRIGGER_EVENT, "T")
+        val terser = Terser(message)
+
+        val pathORC = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-2"
+        val pathOBX31 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-1"
+        val pathOBX32 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-2"
+        val pathOBX33 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-3"
+        val pathSPM = "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
+
+        // Set known values
+        terser.set("MSH-3", "PHX.ProviderReportingService")
+        terser.set("MSH-11-1", "P")
+        terser.set(pathOBX31, "94534-5")
+        terser.set(pathOBX32, "SARS Old String")
+        terser.set(pathOBX33, "LN")
+
+        terser.set("$pathSPM-2-1-1", "1234567")
+        terser.set("$pathSPM-2-1-2", "WASHINGTON TEST SITE")
+        terser.set("$pathSPM-2-1-3", "123456789")
+        terser.set("$pathSPM-2-1-4", "NPI")
+
+        terser.set("$pathSPM-2-2-1", "2345678")
+        terser.set("$pathSPM-2-2-2", "NEW YORK TEST SITE")
+        terser.set("$pathSPM-2-2-3", "234567890")
+        terser.set("$pathSPM-2-2-4", "NPI")
+
+        val msh3_ValuePair = arrayListOf(mapOf("*" to "CDC PRIME - Atlanta^2.16.840.1.114222.4.1.237821^ISO"))
+        val msh11_1_Values = arrayListOf(mapOf("*" to "D"))
+        val unKnownValuePair = arrayListOf(mapOf("*" to "Unknown"))
+        val obxValuePair = arrayListOf(mapOf("*" to "OBX31^OBX32^OBX33"))
+        val spmValuePair = arrayListOf(mapOf("*" to "646&Wichita TEST SITE&123&NPI"))
+
+        val replaceValueAwithB: Map<String, Any>? = mapOf(
+            "MSH-3" to msh3_ValuePair,
+            "MSH-11-1" to msh11_1_Values,
+            // Note for the value=""/blank/null/empty is same as the valude is not in HL7 file.
+            // .. Hl7Serializer.kt will not set to any value.  Therefore,
+            // .. if replaceValueAwithB contains:
+            // ..   ORC-12-2: ["*":"unKnow"], it will add "unKnown" value to the component
+            "ORC-12-2" to unKnownValuePair,
+            "OBX-3" to obxValuePair,
+            "SPM-2" to spmValuePair
         )
 
-        assertThat(
-            replaceValueAwithB?.let {
-                serializer.replaceValueAwithB(orderingProviderLastName, it, "")
-            }
-        ).isEqualTo("Unknow")
-        assertThat(
-            replaceValueAwithB?.let {
-                serializer.replaceValueAwithB(orderingProviderLastName, it, "Crona")
-            }
-        ).isEqualTo("Joe")
-        assertThat(
-            replaceValueAwithB?.let {
-                serializer.replaceValueAwithB(orderingProviderLastName, it, "Bode")
-            }
-        ).isEqualTo("John;@:,")
+        replaceValueAwithB?.let {
+            serializer.replaceValueAwithBUsingTerser(
+                replaceValueAwithB, terser,
+                message.patienT_RESULT.ordeR_OBSERVATION.observationReps
+            )
+
+            assertThat(terser.get("MSH-3-1")).isEqualTo("CDC PRIME - Atlanta")
+            assertThat(terser.get("MSH-3-2")).isEqualTo("2.16.840.1.114222.4.1.237821")
+            assertThat(terser.get("MSH-3-3")).isEqualTo("ISO")
+            assertThat(terser.get("MSH-11-1")).isEqualTo("D")
+
+            assertThat(terser.get(pathORC)).isEqualTo("Unknown")
+
+            assertThat(terser.get(pathOBX31)).isEqualTo("OBX31")
+            assertThat(terser.get(pathOBX32)).isEqualTo("OBX32")
+            assertThat(terser.get(pathOBX33)).isEqualTo("OBX33")
+
+            assertThat(terser.get("$pathSPM-2-1-1")).isEqualTo("646")
+            assertThat(terser.get("$pathSPM-2-1-2")).isEqualTo("Wichita TEST SITE")
+            assertThat(terser.get("$pathSPM-2-1-3")).isEqualTo("123")
+            assertThat(terser.get("$pathSPM-2-1-4")).isEqualTo("NPI")
+
+            assertThat(terser.get("$pathSPM-2-2-1")).isEqualTo("2345678")
+            assertThat(terser.get("$pathSPM-2-2-2")).isEqualTo("NEW YORK TEST SITE")
+            assertThat(terser.get("$pathSPM-2-2-3")).isEqualTo("234567890")
+            assertThat(terser.get("$pathSPM-2-2-4")).isEqualTo("NPI")
+        }
+
+        // Test case for exact match
+        val arrayistValuesReplace = arrayListOf(
+            mapOf(
+                "PHX.ProviderReportingService" to
+                    "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+            )
+        )
+
+        // Reset
+        terser.set("MSH-3", "PHX.ProviderReportingService")
+        terser.set("MSH-11-1", "P")
+        val replaceValueAwithBReplace = mapOf("MSH-3" to arrayistValuesReplace)
+        replaceValueAwithB?.let {
+            serializer.replaceValueAwithBUsingTerser(
+                replaceValueAwithBReplace, terser,
+                message.patienT_RESULT.ordeR_OBSERVATION.observationReps
+            )
+            assertThat(terser.get("MSH-3-1")).isEqualTo("CDC PRIME - Atlanta, Georgia (Dekalb)")
+            assertThat(terser.get("MSH-3-2")).isEqualTo("2.16.840.1.114222.4.1.237821")
+            assertThat(terser.get("MSH-3-3")).isEqualTo("ISO")
+            assertThat(terser.get("MSH-11-1")).isEqualTo("P") // Still since we did have it in the replace list
+            assertThat(terser.get(pathORC)).isEqualTo("Unknown") // Left over from above terser modification.
+        }
+
+        // Test case exact match But not replace since the value in terser and new is NOT match.
+        val arrayistValues = arrayListOf(
+            mapOf(
+                "PHX.ProviderReportingService" to
+                    "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+            )
+        )
+
+        // Reset
+        terser.set("MSH-3", "Don't replace me")
+        val arrayistValuesNotReplace = mapOf("MSH-3" to arrayistValues)
+        replaceValueAwithB?.let {
+            serializer.replaceValueAwithBUsingTerser(
+                arrayistValuesNotReplace, terser,
+                message.patienT_RESULT.ordeR_OBSERVATION.observationReps
+            )
+            assertThat(terser.get("MSH-3-1")).isEqualTo("Don't replace me")
+        }
     }
 }

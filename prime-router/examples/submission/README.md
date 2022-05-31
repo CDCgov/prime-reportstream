@@ -1,4 +1,4 @@
-## Example Submission with Interesting Response
+## Example 1:  Submission with Interesting Response
 
 This example is meant to represent a variety of warning messages and filtering messages.
 
@@ -12,13 +12,13 @@ Run your local reportstream.
 Then, using your favority POSTal system, submit something like this:
 
 ```
-curl -X POST -H "client:simple_report" -H "Content-Type: text/csv"  --data-binary "@./examples/submission/simple_report_example.csv" "http://localhost:7071/api/reports" | python -mjson.tool
+curl -X POST -H "client:simple_report" -H "Content-Type: text/csv"  --data-binary "@./examples/submission/simple_report_example.csv" "http://localhost:7071/api/reports"
 ```
 
 Then you can grab the "id" from the json response, and submit it to the Histor API.  Here's an example History API request
 
 ```
-curl -H "client:simple_report" -H "authorization:bearer 123" "http://localhost:7071/api/history/simple_report/report/d44b1d7c-2974-4663-a929-0ef83004b32f" | python -mjson.tool
+curl "http://localhost:7071/api/waters/report/d44b1d7c-2974-4663-a929-0ef83004b32f/history"
 ```
 
 ### Structure of the simple_report_example.csv 
@@ -32,6 +32,23 @@ My initial basic design of this file:
 - I'm using the 2 rows of OH to show a case where ALL the rows get filtered out.
 - Since I think Maryland is a happy state, and has the coolest flag, I'm using the 2 rows of MD to show a happy path case with no warnings, and no filtering.
 - Totally feel free to mess with this file to make it generate other interesting example json.  
+
+## Example 2:  Example of a duplicate submission
+
+This example is meant to show the errors you get when you submit duplicate rows.
+
+### How to generate the json response
+
+```
+curl -X POST -H "client:ignore.no-duplicates" -H "Content-Type: text/csv"  --data-binary "@./examples/submission/duplicate.csv" "http://localhost:7071/api/reports"
+```
+
+You can also change a bit of data in one of the rows and resubmit the file again, as above.  This should result in a row being in error as well.
+
+
+### Structure of the duplicate.csv 
+
+There are two identical rows.
 
 
 ### How to generate the three .json example files
@@ -68,6 +85,7 @@ Wait another minute or longer (so the data flows all the way to sftp) and run th
 curl "localhost:7071/api/waters/report/1211/history" > examples/submission/example3-complete-response.json
 ```
 
+Be sure to do a `git diff` to confirm that the changes you expected are in the files.    If not, you may need to run it again, because its just so slow the first time you run it.
 
 
 

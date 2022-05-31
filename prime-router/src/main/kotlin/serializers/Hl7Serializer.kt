@@ -13,6 +13,9 @@ import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
+import com.anyascii.AnyAscii
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import com.google.i18n.phonenumbers.Phonenumber
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -27,9 +30,12 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.ValueSet
+import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.DateUtilities.formatDateTimeForReceiver
+import gov.cdc.prime.router.common.Hl7Utilities
+import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
-import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
@@ -68,7 +74,6 @@ class Hl7Serializer(
     private val modelClassFactory: ModelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
     private val buildVersion: String
     private val buildDate: String
-    private val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss.SSSSZZZ")
 
     init {
         val buildProperties = Properties()
@@ -414,7 +419,6 @@ class Hl7Serializer(
     }
 
     fun createMessage(report: Report, row: Int): String {
-
         val hl7Config = report.destination?.translation as? Hl7Configuration?
         val processingId = if (hl7Config?.useTestProcessingMode == true) {
             "T"
@@ -423,6 +427,9 @@ class Hl7Serializer(
         }
         val message = buildMessage(report, row, processingId)
         hapiContext.modelClassFactory = modelClassFactory
+        if (hl7Config?.replaceUnicodeWithAscii == true) {
+            return unicodeToAscii(hapiContext.pipeParser.encode(message))
+        }
         return hapiContext.pipeParser.encode(message)
     }
 
@@ -468,7 +475,7 @@ class Hl7Serializer(
         var aoeSequence = 1
         var nteSequence = 0
         val terser = Terser(message)
-        setLiterals(terser)
+        setLiterals(terser, report)
         // we are going to set up overrides for the elements in the collection if the valueset
         // needs to be overriden
         val reportElements = if (hl7Config?.valueSetOverrides.isNullOrEmpty()) {
@@ -503,14 +510,11 @@ class Hl7Serializer(
         // serialize the rest of the elements
         reportElements.forEach { element ->
             val value = report.getString(row, element.name).let {
-                replaceValueAwithB(
-                    element, replaceValueAwithB,
-                    if (it.isNullOrEmpty() || it == "null") {
-                        element.default ?: ""
-                    } else {
-                        stripInvalidCharactersRegex?.replace(it, "") ?: it
-                    }
-                )
+                if (it.isNullOrEmpty() || it == "null") {
+                    element.default ?: ""
+                } else {
+                    stripInvalidCharactersRegex?.replace(it, "") ?: it
+                }
             }.trim()
 
             if (suppressedFields.contains(element.hl7Field) && element.hl7OutputFields.isNullOrEmpty())
@@ -541,19 +545,32 @@ class Hl7Serializer(
                 }
             } else if (element.hl7Field == "AOE" && element.type == Element.Type.NUMBER && !suppressAoe) {
                 if (value.isNotBlank()) {
-                    val units = hl7Report.getString(row, "${element.name}_units")
-                    val date = hl7Report.getString(row, "specimen_collection_date_time") ?: ""
-                    setAOE(terser, element, aoeSequence++, date, value, hl7Report, row, units, suppressQst)
+                    val units = report.getString(row, "${element.name}_units")
+                    // cast to local time if the receiver wants it done
+                    val date = report.getString(row, "specimen_collection_date_time").let {
+                        if (it == null) {
+                            ""
+                        } else {
+                            DateUtilities.parseDate(it).formatDateTimeForReceiver(report)
+                        }
+                    }
+                    setAOE(terser, element, aoeSequence++, date, value, report, row, units, suppressQst)
                 }
             } else if (element.hl7Field == "AOE" && !suppressAoe) {
+                // cast to local time if the receiver wants it done
+                val date = report.getString(row, "specimen_collection_date_time").let {
+                    if (it == null) {
+                        ""
+                    } else {
+                        DateUtilities.parseDate(it).formatDateTimeForReceiver(report)
+                    }
+                }
                 if (value.isNotBlank()) {
-                    val date = hl7Report.getString(row, "specimen_collection_date_time") ?: ""
-                    setAOE(terser, element, aoeSequence++, date, value, hl7Report, row, suppressQst = suppressQst)
+                    setAOE(terser, element, aoeSequence++, date, value, report, row, suppressQst = suppressQst)
                 } else {
                     // if the value is null but we're defaulting
                     if (hl7Config?.defaultAoeToUnknown == true) {
-                        val date = hl7Report.getString(row, "specimen_collection_date_time") ?: ""
-                        setAOE(terser, element, aoeSequence++, date, "UNK", hl7Report, row, suppressQst = suppressQst)
+                        setAOE(terser, element, aoeSequence++, date, "UNK", report, row, suppressQst = suppressQst)
                     }
                 }
             } else if (element.hl7Field == "ORC-21-1") {
@@ -568,13 +585,14 @@ class Hl7Serializer(
             } else if (element.hl7Field == "NTE-3" && value.isNotBlank()) {
                 setNote(terser, nteSequence++, value)
             } else if (element.hl7Field == "MSH-7") {
+                // put the created date time into local time if the receiver wants it done
                 setComponent(
                     terser,
                     element,
                     "MSH-7",
                     repeat = null,
-                    value = formatter.format(hl7Report.createdDateTime),
-                    hl7Report
+                    value = report.createdDateTime.formatDateTimeForReceiver(report),
+                    report
                 )
             } else if (element.hl7Field == "MSH-11") {
                 setComponent(terser, element, "MSH-11", repeat = null, processingId, hl7Report)
@@ -600,12 +618,14 @@ class Hl7Serializer(
         }
 
         convertTimestampToDateTimeFields.forEach {
+            // convert to local date time before converting if the receiver wants it so
             val pathSpec = formPathSpec(it)
             val tsValue = terser.get(pathSpec)
             if (!tsValue.isNullOrEmpty()) {
                 try {
-                    val dtFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-                    val parsedDate = OffsetDateTime.parse(tsValue, formatter).format(dtFormatter)
+                    val parsedDate = DateUtilities
+                        .parseDate(tsValue)
+                        .formatDateTimeForReceiver(DateUtilities.DateTimeFormat.LOCAL, report)
                     terser.set(pathSpec, parsedDate)
                 } catch (_: Exception) {
                     // for now do nothing
@@ -667,6 +687,9 @@ class Hl7Serializer(
             }
         }
 
+        replaceValueAwithBUsingTerser(
+            replaceValueAwithB, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps
+        )
         replaceValue(replaceValue, terser, message.patienT_RESULT.ordeR_OBSERVATION.observationReps)
         return message
     }
@@ -777,37 +800,82 @@ class Hl7Serializer(
     }
 
     /**
-     * Loop through all [replaceValueMap] key value pairs to find the hl7Field
-     * if found, we check the value A is equal to the value need to replace.
-     * if so, we replace with value B.
-     * if all obove is not met, we return the same valueArg.
+     * The function goes through each segment in [replaceValueAwithBMap]
+     * (SEGMENT: ["componentToReplace0": "newComponent0", "componentToReplace1": "newComponent1", ... ].
+     * It will replace the componentInMessageX with the newCompomentX if and only if the componentToReplaceX is
+     * equal to the componentInMassage or old component.  If the componentToReplaceX is "*", it will replace
+     * regardless.
+     * @param replaceValueAwithBMap - String (SEGMENT: ["componentToReplace0": "newComponent0", ... ].
+     * @param terser - message that contains HL7 to be working on.
+     * @param observationRepeats - number of OBX segment.
+     *
+     * To understand the logic, you can follow in the Unit Test Hl7Serializer::
      */
-    fun replaceValueAwithB(
-        elementArg: Element,
+    fun replaceValueAwithBUsingTerser(
         replaceValueAwithBMap: Map<String, Any>,
-        valueArg: String
-    ): String {
+        terser: Terser,
+        observationRepeats: Int
+    ) {
 
-        replaceValueAwithBMap.forEach { element ->
+        replaceValueAwithBMap.forEach segment@{ segment ->
+            // Scan through segment(s)
             @Suppress("UNCHECKED_CAST")
-            (element.value as ArrayList<Map<String, String>>).forEach { pairs ->
-                if (elementArg.hl7Field == element.key) {
-                    if (pairs.keys.first().trim() == valueArg) {
-                        return pairs.values.first().trim()
+            (segment.value as ArrayList<Map<String, String>>).forEach valuePairs@{ pairs ->
+                val pathSpec = formPathSpec(segment.key)
+                val componentInMessage = try {
+                    terser.get(pathSpec)
+                } catch (e: Exception) {
+                    return@segment
+                }
+
+                // Get new components separate by ^ (second value of the value pair)
+                val components = pairs.values.first().trim().split("^")
+
+                // OBX segment can repeat. All repeats need to be looped
+                if (segment.key.length >= 3 && segment.key.substring(0, 3) == "OBX") {
+                    for (i in 0..observationRepeats.minus(1)) {
+                        val pathOBXSpec = formPathSpec(segment.key, i)
+                        val valueInOBXMessage = terser.get(pathOBXSpec)
+                        if (valueInOBXMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
+                            var obxComponentRep = 1
+                            components.forEach { obxComponent ->
+                                val obxSubComponents = obxComponent.split("&")
+                                if (obxSubComponents.size > 1) {
+                                    // If there is subComponent separate by &, we need to handle them.
+                                    var obxSubComponentRep = 1
+                                    obxSubComponents.forEach { obxSubComponent ->
+                                        terser.set("$pathSpec-$obxComponentRep-$obxSubComponentRep", obxSubComponent)
+                                        obxSubComponentRep++
+                                    }
+                                } else {
+                                    terser.set("$pathOBXSpec-$obxComponentRep", obxComponent)
+                                }
+                                obxComponentRep++
+                            }
+                        }
                     }
                 } else {
-                    elementArg.hl7OutputFields?.forEach { outField ->
-                        if (outField.trim() == element.key) {
-                            if (pairs.keys.first().trim() == valueArg) {
-                                return pairs.values.first().trim()
+                    // Replace value if exact key from setting equal to key in message OR always replace
+                    if (componentInMessage == pairs.keys.first().trim() || "*" == pairs.keys.first().trim()) {
+                        var componentRep = 1
+                        components.forEach { component ->
+                            val subComponents = component.split("&")
+                            if (subComponents.size > 1) {
+                                // If there is subComponent separate by &, we need to handle them.
+                                var suComponentRep = 1
+                                subComponents.forEach { subComponent ->
+                                    terser.set("$pathSpec-$componentRep-$suComponentRep", subComponent)
+                                    suComponentRep++
+                                }
+                            } else {
+                                terser.set("$pathSpec-$componentRep", component)
                             }
+                            componentRep++
                         }
                     }
                 }
             }
         }
-
-        return valueArg
     }
 
     /**
@@ -892,9 +960,7 @@ class Hl7Serializer(
 
             // Override with organization name if available
             Hl7Configuration.OrderingFacilityName.ORGANIZATION_NAME -> {
-                val organizationName = StringUtils.trimToNull(
-                    report.getString(row, "organization_name")
-                ) ?: rawFacilityName
+                val organizationName = report.getString(row, "organization_name").trimToNull() ?: rawFacilityName
                 setPlainOrderingFacility(terser, organizationName)
             }
         }
@@ -948,37 +1014,9 @@ class Hl7Serializer(
             searchValue = rawFacilityName,
             filterColumn = "LZIP",
             filterValue = zipCode,
-            canonicalize = { canonicalizeSchoolName(it) },
+            canonicalize = { Hl7Utilities.canonicalizeSchoolName(it) },
             commonWords = listOf("ELEMENTARY", "JUNIOR", "HIGH", "MIDDLE")
         )
-    }
-
-    /**
-     * Prepare the string for matching by throwing away non-searchable characters and spacing
-     */
-    internal fun canonicalizeSchoolName(schoolName: String): String {
-        val normalizeSchoolType = schoolName
-            .uppercase()
-            .replace("SCHOOL", "")
-            .replace("(H)", "HIGH")
-            .replace("(M)", "MIDDLE")
-            .replace("K-8", "K8")
-            .replace("K-12", "K12")
-            .replace("\\(E\\)|ELEM\\.|EL\\.".toRegex(), "ELEMENTARY")
-            .replace("ELEM\\s|ELEM$".toRegex(), "ELEMENTARY ")
-            .replace("SR HIGH", "SENIOR HIGH")
-            .replace("JR HIGH", "JUNIOR HIGH")
-
-        val possesive = normalizeSchoolType
-            .replace("\'S", "S")
-        val onlyLettersAndSpaces = possesive
-            .replace("[^A-Z0-9\\s]".toRegex(), " ")
-
-        // Throw away single letter words
-        return onlyLettersAndSpaces
-            .split(" ")
-            .filter { it.length > 1 }
-            .joinToString(" ")
     }
 
     private fun setComponentForTable(
@@ -1050,48 +1088,74 @@ class Hl7Serializer(
         val pathSpec = formPathSpec(hl7Field, repeat)
 
         // All components should be trimmed and not blank.
-        val trimmedValue = value.trim()
-        if (trimmedValue.isBlank()) return
+        val trimmedValue = value.trimToNull() ?: return
 
         when (element.type) {
-            Element.Type.ID_CLIA -> setCliaComponent(terser, value, hl7Field, hl7Config)
-            Element.Type.HD -> setHDComponent(terser, value, pathSpec, hl7Field, hl7Config)
-            Element.Type.EI -> setEIComponent(terser, value, pathSpec, hl7Field, hl7Config)
-            Element.Type.CODE -> setCodeComponent(terser, value, pathSpec, element.valueSet, element.valueSetRef)
-            Element.Type.TELEPHONE -> setTelephoneComponent(terser, value, pathSpec, element, phoneNumberFormatting)
-            Element.Type.EMAIL -> setEmailComponent(terser, value, element, hl7Config)
-            Element.Type.POSTAL_CODE -> setPostalComponent(terser, value, pathSpec, element)
+            Element.Type.ID_CLIA -> setCliaComponent(terser, trimmedValue, hl7Field, hl7Config)
+            Element.Type.HD -> setHDComponent(terser, trimmedValue, pathSpec, hl7Field, hl7Config)
+            Element.Type.EI -> setEIComponent(terser, trimmedValue, pathSpec, hl7Field, hl7Config)
+            Element.Type.CODE -> setCodeComponent(
+                terser,
+                trimmedValue,
+                pathSpec,
+                element.valueSet,
+                element.valueSetRef
+            )
+            Element.Type.TELEPHONE -> setTelephoneComponent(
+                terser,
+                trimmedValue,
+                pathSpec,
+                element,
+                phoneNumberFormatting
+            )
+            Element.Type.EMAIL -> setEmailComponent(terser, trimmedValue, element, hl7Config)
+            Element.Type.POSTAL_CODE -> setPostalComponent(terser, trimmedValue, pathSpec, element)
             Element.Type.DATE, Element.Type.DATETIME -> setDateTimeComponent(
                 terser,
-                value,
+                trimmedValue,
                 pathSpec,
                 hl7Field,
-                hl7Config
+                report,
+                element
             )
             else -> {
-                val truncatedValue = trimAndTruncateValue(value, hl7Field, hl7Config, terser)
+                val truncatedValue = trimAndTruncateValue(trimmedValue, hl7Field, hl7Config, terser)
                 terser.set(pathSpec, truncatedValue)
             }
         }
     }
 
+    /** takes a value and does date time conversions on it in order to display it */
     internal fun setDateTimeComponent(
         terser: Terser,
         value: String,
         pathSpec: String,
         hl7Field: String,
-        hl7Config: Hl7Configuration?
+        report: Report,
+        element: Element
     ) {
+        // get our configuration
+        val hl7Config = report.destination?.translation as? Hl7Configuration
         // first allow the truncation to happen, so we carry that logic on down
         val truncatedValue = trimAndTruncateValue(value, hl7Field, hl7Config, terser)
-        // if we need to convert the offset do it now
-        if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
-            // we need to convert the offset on date and date time to a negative offset if
-            // that is what the receiver needs
-            terser.set(pathSpec, Element.convertPositiveOffsetToNegativeOffset(truncatedValue))
-        } else {
+        // if the value can't be parsed as a date, then we just pass through the value
+        // we do this because there's a chance a date field could be set to `UNK` or
+        // some other value and we want to preserve data like that
+        if (!DateUtilities.tryParse(truncatedValue)) {
             terser.set(pathSpec, truncatedValue)
+            return
         }
+        // if the type is date, then we need to force the format to YYYYMMDD only or
+        // HL7 parsing will fail, otherwise it's going to use the default format
+        val parsedValue = if (element.type == Element.Type.DATE) {
+            DateUtilities
+                .parseDate(truncatedValue)
+                .formatDateTimeForReceiver(DateUtilities.DateTimeFormat.DATE_ONLY, report)
+        } else {
+            DateUtilities.parseDate(truncatedValue).formatDateTimeForReceiver(report)
+        }
+        // set the value, formatted for the receivers
+        terser.set(pathSpec, parsedValue)
     }
 
     /**
@@ -1247,6 +1311,29 @@ class Hl7Serializer(
         val extension = parts[2]
         val localWithDash = if (local.length == 7) "${local.slice(0..2)}-${local.slice(3..6)}" else local
 
+        /**
+         * Validate phone number and return pair of region (US, CA, MX, AU) and phone number
+         * @param [phoneNumber] phone number to validate.
+         * @return region (US, CA, MX, AU) and phone number if valid.  Otherwise, return null, null.
+         */
+        fun parsePhoneNumber(phoneNumber: String): Pair<String?, Phonenumber.PhoneNumber?> {
+            val phone = Element.tryParsePhoneNumber(phoneNumber) ?: Phonenumber.PhoneNumber().also {
+                it.rawInput = phoneNumber
+            }
+            // in most cases, the phone number util will get us the correct region code for the phone number
+            // but there are going to be cases where we have an invalid phone number and the `getRegionCodeForNumber`
+            // function will fail, so I've hardcoded in the saving throw to try and guess the three most likely
+            // possibilities
+            val regionCode = phoneNumberUtil.getRegionCodeForNumber(phone) ?: when (phone.countryCode) {
+                1 -> "US" // and CA and others in North America, but the phone number's invalid, so we're guessing now
+                52 -> "MX" // Mexico
+                61 -> "AU" // Australia
+                else -> null
+            }
+
+            return Pair(regionCode, phone)
+        }
+
         fun setComponents(pathSpec: String, component1: String) {
             // Note from the HL7 2.5.1 specification about components 1 and 2:
             // This component has been retained for backward compatibility only as of version 2.3.
@@ -1277,8 +1364,19 @@ class Hl7Serializer(
             // it's a phone
             terser.set(buildComponent(pathSpec, 3), "PH")
             terser.set(buildComponent(pathSpec, 5), country)
-            terser.set(buildComponent(pathSpec, 6), areaCode)
-            terser.set(buildComponent(pathSpec, 7), local)
+
+            // If it is North America phone number with country code = "+1" US & CA, code = +52 MX, and +61 AU
+            // then we fill PID-13-6, 7
+            val (region, _) = parsePhoneNumber("$country$areaCode$local")
+            // there are a lot of potential phone numbers that could start +1, and the google phone number
+            // library will return the correct country code based on region AND exchange, which could break
+            // this logic if the number is from say a Caribbean island
+            if (Element.phoneRegions.contains(region)) {
+                terser.set(buildComponent(pathSpec, 6), areaCode)
+                terser.set(buildComponent(pathSpec, 7), local)
+            } else {
+                terser.set(buildComponent(pathSpec, 12), "+$country$areaCode$local")
+            }
             if (extension.isNotEmpty()) terser.set(buildComponent(pathSpec, 8), extension)
         }
 
@@ -1391,10 +1489,10 @@ class Hl7Serializer(
             }
             else -> setComponent(terser, element, "OBX-5", aoeRep, value, report)
         }
-
-        val rawObx19Value = report.getString(row, "test_result_date")
-        val obx19Value = if (rawObx19Value != null && hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
-            Element.convertPositiveOffsetToNegativeOffset(rawObx19Value)
+        // convert to local date time if that's what the receiver wants
+        val rawObx19Value = report.getString(row, "test_result_date").trimToNull()
+        val obx19Value = if (rawObx19Value != null && rawObx19Value.uppercase() != "UNK") {
+            DateUtilities.parseDate(rawObx19Value).formatDateTimeForReceiver(report)
         } else {
             rawObx19Value
         }
@@ -1468,26 +1566,28 @@ class Hl7Serializer(
         terser.set(formPathSpec("NTE-4-7", nteRep), HL7_SPEC_VERSION)
     }
 
-    private fun setLiterals(terser: Terser) {
+    /** set literal values in the HL7 */
+    private fun setLiterals(terser: Terser, report: Report) {
         // Value that NIST requires (although # is not part of 2.5.1)
         terser.set("MSH-12", HL7_SPEC_VERSION)
+        // todo: we will need to update this when we start accepting ACKs
         terser.set("MSH-15", "NE")
         terser.set("MSH-16", "NE")
         terser.set("MSH-17", "USA")
+        // todo: update this in case we convert a message to ASCII
         terser.set("MSH-18", "UNICODE UTF-8")
-        terser.set("MSH-19", "")
+        // our primary message language is English
+        terser.set("MSH-19-1", "ENG")
+        terser.set("MSH-19-2", "English")
+        terser.set("MSH-19-3", "ISO")
         terser.set("MSH-20", "")
-        /*
-        terser.set("MSH-21-1", "PHLabReport-NoAck")
-        terser.set("MSH-21-2", "ELR_Receiver")
-        terser.set("MSH-21-3", "2.16.840.1.113883.9.11")
-        terser.set("MSH-21-4", "ISO")
-         */
         terser.set("SFT-1", SOFTWARE_VENDOR_ORGANIZATION)
         terser.set("SFT-2", buildVersion)
         terser.set("SFT-3", SOFTWARE_PRODUCT_NAME)
         terser.set("SFT-4", buildVersion)
-        terser.set("SFT-6", buildDate)
+        // convert to local date time if the receiver wants it so. this makes it no longer
+        // a literal, but it will live here for now
+        terser.set("SFT-6", DateUtilities.parseDate(buildDate).formatDateTimeForReceiver(report))
         terser.set("/PATIENT_RESULT/PATIENT/PID-1", "1")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-1", "RE")
         terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBR-1", "1")
@@ -1504,7 +1604,6 @@ class Hl7Serializer(
      * @return the new truncation limit or starting limit if no special characters are found
      */
     internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int?): Int? {
-
         return if (truncationLimit != null) {
             val regex = "[&^~|]".toRegex()
             val endIndex = min(value.length, truncationLimit)
@@ -1610,7 +1709,6 @@ class Hl7Serializer(
         receivingApplicationReportIn: String? = null,
         receivingFacilityReportIn: String? = null
     ): String {
-
         val sendingApplicationReport = sendingApplicationReportIn
             ?: (report.getString(0, "sending_application") ?: "")
         val receivingApplicationReport = receivingApplicationReportIn
@@ -1654,17 +1752,33 @@ class Hl7Serializer(
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
-            nowTimestamp(hl7Config) +
+            getNowTimestamp(report) +
             hl7SegmentDelimiter +
             "BHS|$encodingCharacters|" +
             "$sendingApp|" +
             "$sendingFacility|" +
             "$receivingApp|" +
             "$receivingFacility|" +
-            nowTimestamp(hl7Config) +
+            getNowTimestamp(report) +
             hl7SegmentDelimiter
     }
 
+    /**
+     * helper method that gets the now timestamp for the report for the header segments
+     */
+    private fun getNowTimestamp(report: Report): String {
+        val hl7Config = report.destination?.translation as? Hl7Configuration
+        return DateUtilities.nowTimestamp(
+            report.getTimeZoneForReport(),
+            report.destination?.dateTimeFormat,
+            hl7Config?.convertPositiveDateTimeOffsetToNegative,
+            hl7Config?.useHighPrecisionHeaderDateTimeFormat
+        )
+    }
+
+    /**
+     * Creates the footers for the report
+     */
     private fun createFooters(report: Report): String {
         return "BTS|${report.itemCount}$hl7SegmentDelimiter" +
             "FTS|1$hl7SegmentDelimiter"
@@ -1723,6 +1837,21 @@ class Hl7Serializer(
         }
     }
 
+    /**
+     * Coverts unicode string to ASCII string if any special characters are found.
+     * This function takes a string parameter of unicode characters, checks to see if it has unicode special characters
+     * (À,Á,Â,Ã,Ä,Å,È,É,Ê,Ë,Î,Ô,Ù,Ç, and many more), converts it to a string representation of ASCII characters if any
+     * unicode special characters are found. AnyAscii is the open library that is used to perform this conversion.
+     * @param message the string to convert to ASCII string representation
+     * @return same string if no special characters are found or converted ASCII string if any special chars are found.
+     * @link https://github.com/anyascii/anyascii
+     */
+    internal fun unicodeToAscii(
+        message: String
+    ): String {
+        return AnyAscii.transliterate(message)
+    }
+
     private fun formatEI(eiFields: Element.EIFields, separator: String = "^"): String {
         return if (eiFields.namespace != null && eiFields.universalId != null && eiFields.universalIdSystem != null) {
             "${eiFields.name}$separator${eiFields.namespace}" +
@@ -1739,7 +1868,6 @@ class Hl7Serializer(
      * @return the phone number or empty string
      */
     internal fun decodeHl7TelecomData(terser: Terser, element: Element, hl7Field: String): String {
-
         /**
          * Extract a phone number from a value [xtnValue] of an XTN HL7 field.
          * @return a normalized phone number or empty if no phone number was found
@@ -1850,7 +1978,7 @@ class Hl7Serializer(
                     // Now check to see if we have all the precision we want
                     when (element.type) {
                         Element.Type.DATETIME -> {
-                            valueString = DateTimeFormatter.ofPattern(Element.datetimePattern)
+                            valueString = DateTimeFormatter.ofPattern(DateUtilities.datetimePattern)
                                 .format(OffsetDateTime.ofInstant(dtm, ZoneId.of("Z")))
                             val r = Regex("^[A-Z]+\\[[0-9]{12,}\\.?[0-9]{0,4}[+-][0-9]{4}]\$")
                             if (!r.matches(rawValue)) {
@@ -1858,13 +1986,14 @@ class Hl7Serializer(
                                     FieldPrecisionMessage(
                                         element.fieldMapping,
                                         "Timestamp for $hl7Field - ${element.name} should provide more " +
-                                            "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ"
+                                            "precision. Should be formatted as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ. " +
+                                            "Received '$rawValue'"
                                     )
                                 )
                             }
                         }
                         Element.Type.DATE -> {
-                            valueString = DateTimeFormatter.ofPattern(Element.datePattern)
+                            valueString = DateTimeFormatter.ofPattern(DateUtilities.datePattern)
                                 .format(OffsetDateTime.ofInstant(dtm, ZoneId.of("Z")))
                             // Note that some schema fields of type date could be derived from HL7 date time fields
                             val r = Regex("^[A-Z]+\\[[0-9]{8,}.*")
@@ -1910,6 +2039,8 @@ class Hl7Serializer(
         const val OBX_18_EQUIPMENT_UID_OID: String = "2.16.840.1.113883.3.3719"
         /** the default org name type code. defaults to "L" */
         const val DEFAULT_ORGANIZATION_NAME_TYPE_CODE: String = "L"
+
+        val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
 
         /*
         From the HL7 2.5.1 Ch 2A spec...
@@ -1982,27 +2113,6 @@ class Hl7Serializer(
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
             Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
-        }
-
-        /**
-         * Given an hl7Configuration, this will take find the current date time and output it to a
-         * specific format depending on the configuration of the receiver
-         */
-        fun nowTimestamp(hl7Config: Hl7Configuration? = null): String {
-            // get the current time stamp
-            val timestamp = OffsetDateTime.now(ZoneId.systemDefault())
-            // if the receiver wants a higher precision date time formatter, then we get the right one
-            val formatter: DateTimeFormatter = if (hl7Config?.useHighPrecisionHeaderDateTimeFormat == true) {
-                Element.highPrecisionDateTimeFormatter
-            } else {
-                Element.datetimeFormatter
-            }
-            // use the formatter here to output the now timestamp
-            return if (hl7Config?.convertPositiveDateTimeOffsetToNegative == true) {
-                Element.convertPositiveOffsetToNegativeOffset(formatter.format(timestamp))
-            } else {
-                formatter.format(timestamp)
-            }
         }
     }
 }

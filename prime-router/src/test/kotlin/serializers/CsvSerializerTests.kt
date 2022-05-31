@@ -251,11 +251,11 @@ class CsvSerializerTests {
         val csvConverter = CsvSerializer(Metadata(schema = one))
         val result = csvConverter.readExternal("one", ByteArrayInputStream(csv.toByteArray()), TestSource)
         assertThat(result.actionLogs.hasErrors()).isFalse()
-        assertThat(result.report.getString(0, 1)).isEqualTo("202112010000-0600")
-        assertThat(result.report.getString(1, 1)).isEqualTo("202112020000-0600")
-        assertThat(result.report.getString(2, 1)).isEqualTo("202112030000-0600")
-        assertThat(result.report.getString(3, 1)).isEqualTo("202112040900-0600")
-        assertThat(result.report.getString(4, 1)).isEqualTo("202112051000-0600")
+        assertThat(result.report.getString(0, 1)).isEqualTo("20211201000000+0000")
+        assertThat(result.report.getString(1, 1)).isEqualTo("20211202000000+0000")
+        assertThat(result.report.getString(2, 1)).isEqualTo("20211203000000+0000")
+        assertThat(result.report.getString(3, 1)).isEqualTo("20211204090000+0000")
+        assertThat(result.report.getString(4, 1)).isEqualTo("20211205100000+0000")
     }
 
     @Test
@@ -593,5 +593,48 @@ class CsvSerializerTests {
             result = serializer.readExternal(schema.name, hl7Data, TestSource)
         }
         assertThat(err.details).isNotEmpty()
+    }
+
+    @Test
+    fun `test schema changes do not affect reading`() {
+        val schema = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(
+                Element("a", csvFields = Element.csvFields("a")),
+                Element("c", csvFields = Element.csvFields("c"))
+            )
+        )
+        val serializer = CsvSerializer(Metadata(schema))
+
+        // Internal CSV with extra fields.
+        var internalCsv = """
+            a,b,c
+            a1,b1,c1
+            a2,b2,c2
+        """.trimIndent()
+        var report = serializer.readInternal(
+            schema.name, ByteArrayInputStream(internalCsv.toByteArray()),
+            emptyList()
+        )
+        assertThat(report.itemCount).isEqualTo(2)
+        assertThat(report.getString(0, "a")).isEqualTo("a1")
+        assertThat(report.getString(0, "c")).isEqualTo("c1")
+        assertThat(report.getString(1, "c")).isEqualTo("c2")
+
+        // Internal CSV with fewer fields.
+        internalCsv = """
+            c
+            c1
+            c2
+        """.trimIndent()
+        report = serializer.readInternal(
+            schema.name, ByteArrayInputStream(internalCsv.toByteArray()),
+            emptyList()
+        )
+        assertThat(report.itemCount).isEqualTo(2)
+        assertThat(report.getString(0, "a")).isEqualTo("")
+        assertThat(report.getString(0, "c")).isEqualTo("c1")
+        assertThat(report.getString(1, "c")).isEqualTo("c2")
     }
 }
