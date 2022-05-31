@@ -1,13 +1,14 @@
-import {useEffect, useMemo, useState} from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
-import {orgApi, Sender} from "../network/api/OrgApi";
-import {useSessionContext} from "../contexts/SessionContext";
-import {MemberType} from "./UseGroups";
+import { orgApi, Sender } from "../network/api/OrgApi";
+import { useSessionContext } from "../contexts/SessionContext";
+
+import { MemberType } from "./UseGroups";
 
 const useSenderMode = (defaultOrg?: string, defaultSender?: string): string => {
     const [status, setStatus] = useState<string>("active");
-    const { memberships } = useSessionContext()
+    const { memberships } = useSessionContext();
     const endpoint = useMemo(() => {
         if (defaultOrg && defaultSender) {
             return orgApi.getSenderDetail(defaultOrg, defaultSender);
@@ -20,7 +21,10 @@ const useSenderMode = (defaultOrg?: string, defaultSender?: string): string => {
          * changes state in the .then() call. On teardown, this will
          * be set to false and the state will not attempt to update. */
         let isSubscribed = true;
-        if (endpoint && memberships.state.active?.memberType === MemberType.SENDER) {
+        if (
+            endpoint &&
+            memberships.state.active?.memberType === MemberType.SENDER
+        ) {
             axios
                 .get<Sender>(endpoint.url, endpoint)
                 .then((res) =>
