@@ -63,7 +63,7 @@ export const AdminDropdown = () => {
     ];
     if (CheckFeatureFlag("value-sets"))
         PAGES.push(makeNonStaticOption("Value Sets", "value-sets"));
-    return <DropdownNav label={"Admin"} root={"admin"} directories={PAGES} />;
+    return <DropdownNav label={"Admin"} root={"/admin"} directories={PAGES} />;
 };
 
 export const GettingStartedDropdown = () => {
