@@ -12,10 +12,14 @@ import { NetworkErrorBoundary } from "rest-hooks";
 import { PERMISSIONS, permissionCheck } from "../../utils/PermissionsUtils";
 import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
-import { BUILT_FOR_YOU } from "../../pages/built-for-you/BuiltForYouIndex";
+import { BuiltForYouDropdown } from "../../pages/built-for-you/BuiltForYouIndex";
 
 import { SignInOrUser } from "./SignInOrUser";
-import DropdownNav, { makeNonStaticOption } from "./DropdownNav";
+import {
+    AdminDropdown,
+    GettingStartedDropdown,
+    HowItWorksDropdown,
+} from "./DropdownNav";
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
@@ -24,38 +28,9 @@ export const ReportStreamHeader = () => {
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
     let itemsMenu = [
-        <DropdownNav
-            label="Getting Started"
-            root="/getting-started"
-            directories={[
-                makeNonStaticOption(
-                    "Public health departments",
-                    "public-health-departments/overview"
-                ),
-                makeNonStaticOption(
-                    "Testing facilities",
-                    "testing-facilities/overview"
-                ),
-            ]}
-        />,
-        <DropdownNav
-            label="How It Works"
-            root="/how-it-works"
-            directories={[
-                makeNonStaticOption("About", "about"),
-                makeNonStaticOption("Where we're live", "where-were-live"),
-                makeNonStaticOption(
-                    "System and settings",
-                    "system-and-settings"
-                ),
-                makeNonStaticOption("Security practices", "security-practices"),
-            ]}
-        />,
-        <DropdownNav
-            label="Built For You"
-            root="/built-for-you"
-            directories={BUILT_FOR_YOU}
-        />,
+        <GettingStartedDropdown />,
+        <HowItWorksDropdown />,
+        <BuiltForYouDropdown />,
     ];
     const isOktaPreview =
         `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
@@ -109,19 +84,7 @@ export const ReportStreamHeader = () => {
 
         /* ADMIN ONLY */
         if (permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)) {
-            itemsMenu.push(
-                <DropdownNav
-                    label={"Admin"}
-                    root={"admin"}
-                    directories={[
-                        makeNonStaticOption(
-                            "Organization Settings",
-                            "settings"
-                        ),
-                        makeNonStaticOption("Feature Flags", "features"),
-                    ]}
-                />
-            );
+            itemsMenu.push(<AdminDropdown />);
         }
     }
 

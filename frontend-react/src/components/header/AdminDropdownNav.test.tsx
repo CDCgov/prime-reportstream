@@ -3,18 +3,7 @@ import React from "react";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 
-import DropdownNav, { makeNonStaticOption } from "./DropdownNav";
-
-const AdminDropdownNav = () => (
-    <DropdownNav
-        label={"Admin"}
-        root={"admin"}
-        directories={[
-            makeNonStaticOption("Organization Settings", "settings"),
-            makeNonStaticOption("Feature Flags", "features"),
-        ]}
-    />
-);
+import { AdminDropdown } from "./DropdownNav";
 
 class TestLocalStorage {
     store: Map<string, string | string[]> = new Map();
@@ -53,7 +42,7 @@ jest.mock("../../pages/misc/FeatureFlags", () => ({
 
 describe("AdminDropdownNav", () => {
     test("Admin menu expands and contracts on click and selection", () => {
-        renderWithRouter(<AdminDropdownNav />);
+        renderWithRouter(<AdminDropdown />);
         expect(screen.getByRole("button")).toHaveAttribute(
             "aria-expanded",
             "false"
@@ -71,7 +60,7 @@ describe("AdminDropdownNav", () => {
     });
 
     test("Current admin pages", () => {
-        renderWithRouter(<AdminDropdownNav />);
+        renderWithRouter(<AdminDropdown />);
         const settings = screen.getByText("Organization Settings");
         const featureFlags = screen.getByText("Feature Flags");
 
@@ -80,7 +69,7 @@ describe("AdminDropdownNav", () => {
     });
 
     test("Flagged admin pages are hidden", () => {
-        renderWithRouter(<AdminDropdownNav />);
+        renderWithRouter(<AdminDropdown />);
         const queryForNavItem = screen.queryByText("Value Sets");
 
         // Assert they're hidden without flag
@@ -90,10 +79,10 @@ describe("AdminDropdownNav", () => {
     test("Flagged admin pages are shown when flag is set", () => {
         mockLocalStorage.setItem("featureFlags", ["value-sets"]);
 
-        renderWithRouter(<AdminDropdownNav />);
+        renderWithRouter(<AdminDropdown />);
         const queryForNavItem = screen.queryByText("Value Sets");
 
-        // Assert they're hidden without flag
+        // Assert not hidden
         expect(queryForNavItem).toBeInTheDocument();
     });
 });

@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 
 import { MarkdownDirectory } from "../Markdown/MarkdownDirectory";
+import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 
 type NonStaticOption = Omit<MarkdownDirectory, "files">;
 interface DropdownNavProps {
@@ -52,6 +53,53 @@ const DropdownNav = ({ label, root, directories }: DropdownNavProps) => {
                 onClick={(): void => setIsOpen(false)}
             />
         </>
+    );
+};
+
+export const AdminDropdown = () => {
+    let PAGES = [
+        makeNonStaticOption("Organization Settings", "settings"),
+        makeNonStaticOption("Feature Flags", "features"),
+    ];
+    if (CheckFeatureFlag("value-sets"))
+        PAGES.push(makeNonStaticOption("Value Sets", "value-sets"));
+    return <DropdownNav label={"Admin"} root={"admin"} directories={PAGES} />;
+};
+
+export const GettingStartedDropdown = () => {
+    return (
+        <DropdownNav
+            label="Getting Started"
+            root="/getting-started"
+            directories={[
+                makeNonStaticOption(
+                    "Public health departments",
+                    "public-health-departments/overview"
+                ),
+                makeNonStaticOption(
+                    "Testing facilities",
+                    "testing-facilities/overview"
+                ),
+            ]}
+        />
+    );
+};
+
+export const HowItWorksDropdown = () => {
+    return (
+        <DropdownNav
+            label="How It Works"
+            root="/how-it-works"
+            directories={[
+                makeNonStaticOption("About", "about"),
+                makeNonStaticOption("Where we're live", "where-were-live"),
+                makeNonStaticOption(
+                    "System and settings",
+                    "system-and-settings"
+                ),
+                makeNonStaticOption("Security practices", "security-practices"),
+            ]}
+        />
     );
 };
 
