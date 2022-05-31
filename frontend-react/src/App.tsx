@@ -40,7 +40,7 @@ import { SessionStorageContext } from "./contexts/SessionStorageContext";
 import { AdminOrgNew } from "./pages/admin/AdminOrgNew";
 import { DAPHeader } from "./components/header/DAPHeader";
 import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
-import BuiltForYouIndex from "./pages/made-for-you/BuiltForYouIndex";
+import BuiltForYouIndex from "./pages/built-for-you/BuiltForYouIndex";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
