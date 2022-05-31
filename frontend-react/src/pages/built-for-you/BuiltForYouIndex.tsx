@@ -1,13 +1,13 @@
-import { NavLink, Route, Switch, useRouteMatch } from "react-router-dom";
-import { SideNav } from "@trussworks/react-uswds";
+import { Route, Switch, useRouteMatch } from "react-router-dom";
 
 import { MarkdownDirectory } from "../../components/Markdown/MarkdownDirectory";
 import { CODES, ErrorPage } from "../error/ErrorPage";
-import { MarkdownContent } from "../../components/Markdown/MarkdownContent";
+import GeneratedSideNav from "../../components/Markdown/GeneratedSideNav";
 /* Markdown files must be imported as modules and passed along to the
  * MarkdownContent component through props. */
 import may2022 from "../../content/built-for-you/2022-may.md";
 import june2022 from "../../content/built-for-you/2022-june.md";
+import DirectoryAsPage from "../../components/Markdown/DirectoryAsPage";
 
 /* This controls the content for Built For You! To add a directory:
  *
@@ -20,36 +20,6 @@ const DIRECTORIES = [
     new MarkdownDirectory("May 2022", "may-2022", [may2022]),
 ];
 
-const GeneratedSideNav = () => {
-    const navItems = DIRECTORIES.map((dir) => (
-        <NavLink
-            to={dir.slug}
-            activeClassName="usa-current"
-            className="usa-nav__link"
-        >
-            {dir.title}
-        </NavLink>
-    ));
-    return <SideNav items={navItems} />;
-};
-
-/* Renders all files on a page for a directory */
-const BuiltForYouMarkdown = ({
-    directory,
-}: {
-    directory: MarkdownDirectory;
-}) => {
-    return (
-        <>
-            {directory.files.map((file) => (
-                /* Because file != typeof string but this is what our spike showed us works. */
-                // @ts-ignore
-                <MarkdownContent markdownUrl={file} />
-            ))}
-        </>
-    );
-};
-
 /* Houses the routing and layout for Built For You */
 const BuiltForYouIndex = () => {
     let { path } = useRouteMatch();
@@ -58,7 +28,7 @@ const BuiltForYouIndex = () => {
         <section className="grid-container tablet:margin-top-6 margin-bottom-5">
             <div className="grid-row grid-gap">
                 <section className="tablet:grid-col-4 margin-bottom-6">
-                    <GeneratedSideNav />
+                    <GeneratedSideNav directories={DIRECTORIES} />
                 </section>
                 <section className="tablet:grid-col-8 usa-prose rs-documentation">
                     <Switch>
@@ -68,7 +38,7 @@ const BuiltForYouIndex = () => {
                                 key={dir.slug}
                                 path={`${path}/${dir.slug}`}
                                 render={() => (
-                                    <BuiltForYouMarkdown directory={dir} />
+                                    <DirectoryAsPage directory={dir} />
                                 )}
                             />
                         ))}
