@@ -82,3 +82,15 @@
 # Ethnic group
 - id: "ethnic-group"
   url: "http://terminology.hl7.org/ValueSet/v2-0189"
+# Ethnic group
+- id: "location-point-of-care"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/location-point-of-care"
+# Encounter financial class
+- id: "financial-class"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/financial-class"
+# Encounter servicing facility
+- id: "servicing-facility"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/servicing-facility"
+# Encounter account status
+- id: "account-status"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/account-status"
