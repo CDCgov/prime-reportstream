@@ -1,74 +1,45 @@
-import { useResource } from "rest-hooks";
-import { useEffect } from "react";
+import { NetworkErrorBoundary, useResource } from "rest-hooks";
+import { Suspense, useEffect } from "react";
 
+import Spinner from "../../components/Spinner";
+import { ErrorPage } from "../error/ErrorPage";
+import { RangeField } from "../../hooks/filters/UseDateRange";
 import useFilterManager, {
     cursorOrRange,
+    FilterManager,
+    FilterManagerDefaults,
 } from "../../hooks/filters/UseFilterManager";
 import useCursorManager, {
     CursorActionType,
+    CursorManager,
 } from "../../hooks/filters/UseCursorManager";
-import SubmissionsResource from "../../resources/SubmissionsResource";
-import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters from "../../components/Table/TableFilters";
-import { RangeField } from "../../hooks/filters/UseDateRange";
+import { getStoredOrg } from "../../contexts/SessionStorageTools";
+import {
+    CheckFeatureFlag,
+    FeatureFlagName,
+} from "../../pages/misc/FeatureFlags";
+import SubmissionsResource from "../../resources/SubmissionsResource";
 
-function SubmissionTable() {
-    const filterManager = useFilterManager({
-        sortDefaults: {
-            column: "timestamp",
-            order: "DESC",
-        },
-    });
-    const {
-        cursors,
-        hasPrev,
-        hasNext,
-        update: updateCursors,
-    } = useCursorManager(filterManager.rangeSettings.to);
+const filterManagerDefaults: FilterManagerDefaults = {
+    sortDefaults: {
+        column: "timestamp",
+        order: "DESC",
+    },
+};
 
-    /* Our API call! Updates when any of the given state variables update.
-     * The logical swap of cursors and range value is to account for which end of the
-     * range needs to update when paginating with a specific sort order.
-     *
-     * DESC -> Start [ -> ] End (Start uses cursor to increment towards end)
-     * ASC -> Start [ <- ] End (End uses cursor to increment towards start)
-     */
-    const submissions: SubmissionsResource[] = useResource(
-        SubmissionsResource.list(),
-        {
-            organization: getStoredOrg(),
-            cursor: cursorOrRange(
-                filterManager.sortSettings.order,
-                RangeField.TO,
-                cursors.current,
-                filterManager.rangeSettings.to
-            ),
-            endCursor: cursorOrRange(
-                filterManager.sortSettings.order,
-                RangeField.FROM,
-                cursors.current,
-                filterManager.rangeSettings.from
-            ),
-            pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
-            sort: filterManager.sortSettings.order,
-            showFailed: false, // No plans for this to be set to true
-        }
-    );
+interface SubmissionTableContentProps {
+    cursorManager: CursorManager;
+    filterManager: FilterManager;
+    submissions: SubmissionsResource[];
+}
 
-    /* Effect to add next cursor whenever submissions returns a new array */
-    useEffect(() => {
-        const nextCursor =
-            submissions[filterManager.pageSettings.size]?.timestamp ||
-            undefined;
-        if (nextCursor) {
-            updateCursors({
-                type: CursorActionType.ADD_NEXT,
-                payload: nextCursor,
-            });
-        }
-    }, [submissions, filterManager.pageSettings.size, updateCursors]);
-
+const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
+    cursorManager,
+    filterManager,
+    submissions,
+}) => {
     const transformDate = (s: string) => {
         return new Date(s).toLocaleString();
     };
@@ -106,24 +77,88 @@ function SubmissionTable() {
         <>
             <TableFilters
                 filterManager={filterManager}
-                cursorManager={{
-                    cursors,
-                    hasPrev,
-                    hasNext,
-                    update: updateCursors,
-                }}
+                cursorManager={cursorManager}
             />
             <Table
                 config={submissionsConfig}
                 filterManager={filterManager}
-                cursorManager={{
-                    cursors,
-                    hasPrev,
-                    hasNext,
-                    update: updateCursors,
-                }}
+                cursorManager={cursorManager}
             />
         </>
+    );
+};
+
+function SubmissionTableWithCursorManager() {
+    const filterManager = useFilterManager(filterManagerDefaults);
+    const cursorManager = useCursorManager(filterManager.rangeSettings.to);
+
+    /* Our API call! Updates when any of the given state variables update.
+     * The logical swap of cursors and range value is to account for which end of the
+     * range needs to update when paginating with a specific sort order.
+     *
+     * DESC -> Start [ -> ] End (Start uses cursor to increment towards end)
+     * ASC -> Start [ <- ] End (End uses cursor to increment towards start)
+     */
+    const submissions: SubmissionsResource[] = useResource(
+        SubmissionsResource.list(),
+        {
+            organization: getStoredOrg(),
+            cursor: cursorOrRange(
+                filterManager.sortSettings.order,
+                RangeField.TO,
+                cursorManager.cursors.current,
+                filterManager.rangeSettings.to
+            ),
+            endCursor: cursorOrRange(
+                filterManager.sortSettings.order,
+                RangeField.FROM,
+                cursorManager.cursors.current,
+                filterManager.rangeSettings.from
+            ),
+            pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
+            sort: filterManager.sortSettings.order,
+            showFailed: false, // No plans for this to be set to true
+        }
+    );
+
+    /* Effect to add next cursor whenever submissions returns a new array */
+    const updateCursor = cursorManager.update;
+    useEffect(() => {
+        const nextCursor =
+            submissions[filterManager.pageSettings.size]?.timestamp ||
+            undefined;
+        if (nextCursor) {
+            updateCursor({
+                type: CursorActionType.ADD_NEXT,
+                payload: nextCursor,
+            });
+        }
+    }, [submissions, filterManager.pageSettings.size, updateCursor]);
+
+    return (
+        <SubmissionTableContent
+            cursorManager={cursorManager}
+            filterManager={filterManager}
+            submissions={submissions}
+        />
+    );
+}
+
+function SubmissionTable() {
+    const isNumberedPaginationOn = CheckFeatureFlag(
+        FeatureFlagName.NUMBERED_PAGINATION
+    );
+    return (
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorPage type="message" />}
+        >
+            <Suspense fallback={<Spinner />}>
+                {isNumberedPaginationOn && <div>TK</div>}
+                {!isNumberedPaginationOn && (
+                    <SubmissionTableWithCursorManager />
+                )}
+            </Suspense>
+        </NetworkErrorBoundary>
     );
 }
 
