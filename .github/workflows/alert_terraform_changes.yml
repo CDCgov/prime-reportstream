@@ -28,7 +28,7 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
       - name: Collect Terraform stats
-        uses: josiahsiegel/terraform-stats@64e3f3a7e4fb74408ab939c334f32f272ca7035d
+        uses: josiahsiegel/terraform-stats@bce66bdcc53b547ee328f1c383890eede85db5ae
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
