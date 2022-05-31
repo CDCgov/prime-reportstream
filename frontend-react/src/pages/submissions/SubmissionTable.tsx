@@ -1,6 +1,8 @@
-import { useResource } from "rest-hooks";
-import { useEffect } from "react";
+import { NetworkErrorBoundary, useResource } from "rest-hooks";
+import { Suspense, useEffect } from "react";
 
+import Spinner from "../../components/Spinner";
+import { ErrorPage } from "../error/ErrorPage";
 import { RangeField } from "../../hooks/filters/UseDateRange";
 import useFilterManager, {
     cursorOrRange,
@@ -143,10 +145,21 @@ function SubmissionTableWithCursorManager() {
 }
 
 function SubmissionTable() {
-    if (CheckFeatureFlag(FeatureFlagName.NUMBERED_PAGINATION)) {
-        return <div>TK</div>;
-    }
-    return <SubmissionTableWithCursorManager />;
+    const isNumberedPaginationOn = CheckFeatureFlag(
+        FeatureFlagName.NUMBERED_PAGINATION
+    );
+    return (
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorPage type="message" />}
+        >
+            <Suspense fallback={<Spinner />}>
+                {isNumberedPaginationOn && <div>TK</div>}
+                {!isNumberedPaginationOn && (
+                    <SubmissionTableWithCursorManager />
+                )}
+            </Suspense>
+        </NetworkErrorBoundary>
+    );
 }
 
 export default SubmissionTable;
