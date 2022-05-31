@@ -41,13 +41,11 @@ const BuiltForYouMarkdown = ({
 }) => {
     return (
         <>
-            {
-                //@ts-ignore because file != typeof string but this is what our
-                // spike showed us works.
-                directory.files.map((file) => (
-                    <MarkdownContent markdownUrl={file} />
-                ))
-            }
+            {directory.files.map((file) => (
+                /* Because file != typeof string but this is what our spike showed us works. */
+                // @ts-ignore
+                <MarkdownContent markdownUrl={file} />
+            ))}
         </>
     );
 };
