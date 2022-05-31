@@ -152,7 +152,8 @@ function SubmissionTableWithNumberedPagination() {
     const slots: SlotItem[] = [1, 2, 3, 4, 5, 6, OVERFLOW_INDICATOR];
     const currentPageNum = 2;
     return (
-        <div>
+        <>
+            <div>TK</div>
             <Pagination
                 currentPageNum={currentPageNum}
                 setCurrentPage={(p: number) =>
@@ -160,7 +161,7 @@ function SubmissionTableWithNumberedPagination() {
                 }
                 slots={slots}
             />
-        </div>
+        </>
     );
 }
 
