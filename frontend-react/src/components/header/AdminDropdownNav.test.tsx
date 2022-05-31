@@ -1,8 +1,20 @@
 import { fireEvent, screen } from "@testing-library/react";
+import React from "react";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 
-import { AdminDropdownNav } from "./AdminDropdownNav";
+import DropdownNav, { makeNonStaticOption } from "./DropdownNav";
+
+const AdminDropdownNav = () => (
+    <DropdownNav
+        label={"Admin"}
+        root={"admin"}
+        directories={[
+            makeNonStaticOption("Organization Settings", "settings"),
+            makeNonStaticOption("Feature Flags", "features"),
+        ]}
+    />
+);
 
 class TestLocalStorage {
     store: Map<string, string | string[]> = new Map();

@@ -196,7 +196,7 @@ const App = () => {
                                 component={Details}
                             />
                             <SecureRoute
-                                path="/features"
+                                path="/admin/features"
                                 component={FeatureFlagUIComponent}
                             />
                             <SecureRoute

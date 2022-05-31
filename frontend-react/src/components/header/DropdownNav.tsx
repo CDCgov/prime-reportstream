@@ -1,16 +1,28 @@
-import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 
-import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
+import { MarkdownDirectory } from "../Markdown/MarkdownDirectory";
 
-export const AdminDropdownNav = () => {
+type NonStaticOption = Omit<MarkdownDirectory, "files">;
+interface DropdownNavProps {
+    label: string;
+    root: string;
+    directories: MarkdownDirectory[] | NonStaticOption[];
+}
+
+export const makeNonStaticOption = (
+    title: string,
+    slug: string
+): NonStaticOption => {
+    return { title, slug };
+};
+
+const DropdownNav = ({ label, root, directories }: DropdownNavProps) => {
     const [isOpen, setIsOpen] = useState(false);
-
     /* Used since setIsOpen cannot be directly called in useEffect */
     const handleClick = () => setIsOpen(false);
-    /* INFO
-       This has to be down on "mouseup" not "mousedown" otherwise clicking
+    /* This has to be down on "mouseup" not "mousedown" otherwise clicking
        any link in the list will result in the menu closing without registering
        the click on the link; thus, you're not directed to the page desired */
     useEffect(() => {
@@ -19,36 +31,28 @@ export const AdminDropdownNav = () => {
             document.body.removeEventListener("mouseup", handleClick);
         };
     }, []);
-
-    const adminMenuItems = [
-        <NavLink to="/admin/settings">Organization Settings</NavLink>,
-        <NavLink to="/features">Feature Flags</NavLink>,
-    ];
-
-    /* Move NavLink to the MenuItems array when releasing for Admins to use */
-    if (CheckFeatureFlag("value-sets")) {
-        adminMenuItems.push(
-            <NavLink to="/admin/value-sets">Value Sets</NavLink>
-        );
-    }
-
+    const MENU = directories.map((dir) => (
+        <NavLink to={`${root}/${dir.slug}`}>{dir.title}</NavLink>
+    ));
     return (
         <>
             <NavDropDownButton
-                menuId="adminDropdown"
+                menuId={root}
                 onToggle={(): void => {
                     setIsOpen(!isOpen);
                 }}
                 isOpen={isOpen}
-                label="Admin"
+                label={label}
                 isCurrent={isOpen}
             />
             <Menu
-                items={adminMenuItems}
+                items={MENU}
                 isOpen={isOpen}
-                id="adminDropdown"
+                id={root}
                 onClick={(): void => setIsOpen(false)}
             />
         </>
     );
 };
+
+export default DropdownNav;
