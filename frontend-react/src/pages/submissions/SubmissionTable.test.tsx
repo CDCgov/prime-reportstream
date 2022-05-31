@@ -19,6 +19,7 @@ const { addFeatureFlag, removeFeatureFlag } = _exportForTesting;
 // rest-hooks (see https://resthooks.io/docs/guides/unit-testing-components) but
 // since it conflicts with our current approach to use jest.mock, this helper
 // can't be in a shared location util we update existing tests.
+// See https://github.com/CDCgov/prime-reportstream/issues/5623
 const renderWithResolver = (ui: ReactElement, fixtures: Fixture[]) =>
     renderWithRouter(
         <CacheProvider>
