@@ -1,18 +1,16 @@
 import { createContext, FC, useContext } from "react";
 
-import useSessionStorage, {
-    SessionController,
-} from "../hooks/UseSessionStorage";
+import useSessionStorage, { StoreController } from "../hooks/UseSessionStorage";
 import { MembershipController, useGroups } from "../hooks/UseGroups";
 
 interface ISessionContext {
     memberships: MembershipController;
-    store: SessionController;
+    store: StoreController;
 }
 
 export const SessionContext = createContext<ISessionContext>({
     memberships: {} as MembershipController,
-    store: {} as SessionController,
+    store: {} as StoreController,
 });
 
 const SessionProvider: FC = ({ children }) => {

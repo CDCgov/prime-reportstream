@@ -2,17 +2,18 @@ import React, { useContext } from "react";
 import { Link, Redirect } from "react-router-dom";
 import { useOktaAuth } from "@okta/okta-react";
 import { SiteAlert } from "@trussworks/react-uswds";
-import { Tokens } from "@okta/okta-auth-js";
+import { AccessToken, Tokens } from "@okta/okta-auth-js";
 
 import OktaSignInWidget from "../components/OktaSignInWidget";
 import { getOktaGroups, parseOrgs } from "../utils/OrganizationUtils";
 import { setStoredOktaToken } from "../contexts/SessionStorageTools";
 import { oktaSignInConfig } from "../oktaConfig";
 import { SessionContext } from "../contexts/SessionContext";
+import { MembershipActionType } from "../hooks/UseGroups";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
-    const { store } = useContext(SessionContext);
+    const { store, memberships } = useContext(SessionContext);
 
     const onSuccess = (tokens: Tokens | undefined) => {
         const parsedOrgs = parseOrgs(getOktaGroups(tokens?.accessToken));
@@ -22,6 +23,10 @@ export const Login = () => {
             // Sets admins to `ignore` org
             org: newOrg === "PrimeAdmins" ? "ignore" : newOrg,
             senderName: newSender,
+        });
+        memberships.dispatch({
+            type: MembershipActionType.UPDATE,
+            payload: tokens?.accessToken || ({} as AccessToken),
         });
         setStoredOktaToken(tokens?.accessToken?.accessToken || "");
         oktaAuth.handleLoginRedirect(tokens);

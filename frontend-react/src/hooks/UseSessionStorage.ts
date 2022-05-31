@@ -12,14 +12,14 @@ export interface SessionStore {
     senderName?: string;
 }
 
-export interface SessionController {
+export interface StoreController {
     values: SessionStore;
     updateSessionStorage: (p: Partial<SessionStore>) => void;
 }
 
 const isNotEmpty = (s: string): boolean => s.length > 0;
 
-const useSessionStorage = (): SessionController => {
+const useSessionStorage = (): StoreController => {
     const [values, setValues] = useState<SessionStore>({
         org: getStoredOrg(),
         senderName: getStoredSenderName(),

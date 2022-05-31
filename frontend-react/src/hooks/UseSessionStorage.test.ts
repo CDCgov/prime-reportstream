@@ -5,7 +5,7 @@ import {
     getStoredSenderName,
 } from "../contexts/SessionStorageTools";
 
-import useSessionStorage, { SessionController } from "./UseSessionStorage";
+import useSessionStorage, { StoreController } from "./UseSessionStorage";
 
 describe("useSessionStorage", () => {
     test("default values", () => {
@@ -16,7 +16,7 @@ describe("useSessionStorage", () => {
     });
 
     test("updates values in state and sessionStorage", async () => {
-        const { result } = renderHook<null, SessionController>(() => {
+        const { result } = renderHook<null, StoreController>(() => {
             return useSessionStorage();
         });
         act(() => {
