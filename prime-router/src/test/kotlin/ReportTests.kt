@@ -224,7 +224,6 @@ class ReportTests {
                 listOf("a10", "b10", "69283-3298"),
                 listOf("a11", "b11", "82159")
             ),
-            // values = listOf(listOf("a1", "b1"), listOf("", "b2")),
             source = TestSource,
             metadata = metadata
         )
