@@ -52,11 +52,6 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = WorkflowEngine.dat
                 .from(
                     ACTION.join(REPORT_FILE).on(
                         REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID)
-                        // .and(
-                        //     REPORT_FILE.SENDING_ORG.eq(
-                        //         ACTION.SENDING_ORG
-                        //     )
-                        // )
                     )
                 )
                 .where(condition)
