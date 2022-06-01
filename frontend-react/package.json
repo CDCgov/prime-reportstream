@@ -54,7 +54,7 @@
         "e2e": "cypress run",
         "e2e:open": "cypress open",
         "test": "react-scripts test",
-        "test:ci": "CI=true yarn --verbose test --coverage --runInBand=true",
+        "test:ci": "CI=true yarn --verbose test --coverage --runInBand=true ./src/hooks/UseGroups.test.ts",
         "eject": "react-scripts eject",
         "lint": "npm-run-all -p lint:eslint",
         "lint:write": "npm-run-all -p lint:eslint:write",
