@@ -24,10 +24,13 @@ const StaticPageFromDirectories = ({
                         {/* SubRouter for /built-for-you */}
                         {directories.map((dir) => (
                             <Route
-                                key={dir.slug}
+                                key={`${dir.slug}-route`}
                                 path={`${path}/${dir.slug}`}
                                 render={() => (
-                                    <DirectoryAsPage directory={dir} />
+                                    <DirectoryAsPage
+                                        key={`${dir.slug}-dir-as-page`}
+                                        directory={dir}
+                                    />
                                 )}
                             />
                         ))}

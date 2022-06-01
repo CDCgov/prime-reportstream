@@ -4,13 +4,13 @@ import { MarkdownContent } from "./MarkdownContent";
 
 const DirectoryAsPage = ({ directory }: { directory: MarkdownDirectory }) => {
     return (
-        <>
-            {directory.files.map((file) => (
+        <div>
+            {directory.files.map((file, idx) => (
                 /* Because file != typeof string but this is what our spike showed us works. */
                 // @ts-ignore
-                <MarkdownContent markdownUrl={file} />
+                <MarkdownContent key={idx} markdownUrl={file} />
             ))}
-        </>
+        </div>
     );
 };
 

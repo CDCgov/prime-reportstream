@@ -67,6 +67,11 @@
         "yarn:show-outdated-packages": "yarn outdated",
         "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build"
     },
+    "jest": {
+        "transformIgnorePatterns": [
+            "[/\\\\]node_modules[/\\\\](?!(react-markdown|vfile|vfile-message|markdown-table|unist-.*|unified|bail|is-plain-obj|trough|remark-.*|rehype-.*|html-void-elements|hast-util-.*|zwitch|hast-to-hyperscript|hastscript|web-namespaces|mdast-util-.*|escape-string-regexp|micromark.*|decode-named-character-reference|character-entities|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens|pretty-bytes|ccount|mdast-util-gfm|gemoji)).+\\.(js|jsx|mjs|cjs|ts|tsx)$"
+        ]
+    },
     "eslintConfig": {
         "parser": "@typescript-eslint/parser",
         "extends": [
