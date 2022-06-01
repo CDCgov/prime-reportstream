@@ -25,6 +25,7 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.metadata.LookupTable
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 import kotlin.test.assertFailsWith
 import kotlin.test.fail
@@ -93,7 +95,8 @@ NTE|1|L|This is a final comment|RE"""
         suppressNonNPI: Boolean = false,
         truncateHDNamespaceIds: Boolean = false,
         stripInvalidCharsRegex: String? = null,
-        replaceUnicodeWithAscii: Boolean = false
+        replaceUnicodeWithAscii: Boolean = false,
+        useBatchHeaders: Boolean = false
     ): Hl7Configuration {
         return Hl7Configuration(
             messageProfileId = "",
@@ -109,7 +112,8 @@ NTE|1|L|This is a final comment|RE"""
             suppressNonNPI = suppressNonNPI,
             truncateHDNamespaceIds = truncateHDNamespaceIds,
             stripInvalidCharsRegex = stripInvalidCharsRegex,
-            replaceUnicodeWithAscii = replaceUnicodeWithAscii
+            replaceUnicodeWithAscii = replaceUnicodeWithAscii,
+            useBatchHeaders = useBatchHeaders
         )
     }
 
@@ -283,6 +287,22 @@ NTE|1|L|This is a final comment|RE"""
                 "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE-3"
             )
         ).isEqualTo("ÔÔÔ-ÀÁÂÃÄÅ-ÈÉÊË-Î-Ù-ÇÇÇ") // ÔÔÔ-ÀÁÂÃÄÅ-ÈÉÊË-Î-Ù-ÇÇÇ
+    }
+
+    @Test
+    fun `test zip code logic`() {
+        val inputStream = File("./src/test/unit_test_files/ca_test_file.csv").inputStream()
+        val schema = "primedatainput/pdi-covid-19"
+        val hl7Config = createConfig(useBatchHeaders = true)
+        val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config, deidentify = true)
+        val deidentifiedInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
+        val testReport = translator.translateByReceiver(deidentifiedInput, receiver)
+        val output = serializer.buildMessage(testReport, 0)
+        val actual = output.patienT_RESULT.patient.pid.pid11_PatientAddress[0].zipOrPostalCode
+        val expected = "93900"
+        val orderingProvider = output.patienT_RESULT.ordeR_OBSERVATION.orc.getOrderingProvider(0)
+        assertThat(orderingProvider.identifierTypeCode.value).isEqualTo("NPI")
+        assertThat(actual.value).isEqualTo(expected)
     }
 
     @Test
