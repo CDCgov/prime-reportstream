@@ -1,0 +1,216 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Pagination Renders the expected markup when the current page is between two other pages 1`] = `
+<DocumentFragment>
+  <nav
+    aria-label="Pagination"
+    class="usa-pagination"
+  >
+    <ul
+      class="usa-pagination__list"
+    >
+      <li
+        class="usa-pagination__item usa-pagination__arrow"
+      >
+        <button
+          aria-label="Previous page"
+          class="usa-button usa-button--unstyled rs-pagination-arrow-button usa-pagination__previous-page"
+          data-testid="button"
+          type="button"
+        >
+          <svg
+            class="usa-icon"
+            focusable="false"
+            height="1em"
+            role="img"
+            viewBox="0 0 24 24"
+            width="1em"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 0h24v24H0z"
+              fill="none"
+            />
+            <path
+              d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"
+            />
+          </svg>
+          <span
+            class="usa-pagination__link-text"
+          >
+            Previous
+          </span>
+        </button>
+      </li>
+      <li
+        class="usa-pagination__item usa-pagination__page-no"
+      >
+        <button
+          aria-label="Page 1"
+          class="usa-pagination__button rs-pagination-no-button"
+        >
+          1
+        </button>
+      </li>
+      <li
+        class="usa-pagination__item usa-pagination__overflow"
+        role="presentation"
+      >
+        <span>
+          …
+        </span>
+      </li>
+      <li
+        class="usa-pagination__item usa-pagination__page-no"
+      >
+        <button
+          aria-label="Page 6"
+          class="usa-pagination__button rs-pagination-no-button"
+        >
+          6
+        </button>
+      </li>
+      <li
+        class="usa-pagination__item usa-pagination__page-no"
+      >
+        <button
+          aria-current="page"
+          aria-label="Page 7"
+          class="usa-pagination__button rs-pagination-no-button usa-current"
+        >
+          7
+        </button>
+      </li>
+      <li
+        class="usa-pagination__item usa-pagination__page-no"
+      >
+        <button
+          aria-label="Page 8"
+          class="usa-pagination__button rs-pagination-no-button"
+        >
+          8
+        </button>
+      </li>
+      <li
+        class="usa-pagination__item usa-pagination__page-no"
+      >
+        <button
+          aria-label="Page 9"
+          class="usa-pagination__button rs-pagination-no-button"
+        >
+          9
+        </button>
+      </li>
+      <li
+        class="usa-pagination__item usa-pagination__overflow"
+        role="presentation"
+      >
+        <span>
+          …
+        </span>
+      </li>
+      <li
+        class="usa-pagination__item usa-pagination__arrow"
+      >
+        <button
+          aria-label="Next page"
+          class="usa-button usa-button--unstyled rs-pagination-arrow-button usa-pagination__next-page"
+          data-testid="button"
+          type="button"
+        >
+          <span
+            class="usa-pagination__link-text"
+          >
+            Next
+          </span>
+          <svg
+            class="usa-icon"
+            focusable="false"
+            height="1em"
+            role="img"
+            viewBox="0 0 24 24"
+            width="1em"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 0h24v24H0z"
+              fill="none"
+            />
+            <path
+              d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"
+            />
+          </svg>
+        </button>
+      </li>
+    </ul>
+  </nav>
+</DocumentFragment>
+`;
+
+exports[`Pagination Renders the expected markup when the current page is the last page 1`] = `
+<DocumentFragment>
+  <nav
+    aria-label="Pagination"
+    class="usa-pagination"
+  >
+    <ul
+      class="usa-pagination__list"
+    >
+      <li
+        class="usa-pagination__item usa-pagination__arrow"
+      >
+        <button
+          aria-label="Previous page"
+          class="usa-button usa-button--unstyled rs-pagination-arrow-button usa-pagination__previous-page"
+          data-testid="button"
+          type="button"
+        >
+          <svg
+            class="usa-icon"
+            focusable="false"
+            height="1em"
+            role="img"
+            viewBox="0 0 24 24"
+            width="1em"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 0h24v24H0z"
+              fill="none"
+            />
+            <path
+              d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"
+            />
+          </svg>
+          <span
+            class="usa-pagination__link-text"
+          >
+            Previous
+          </span>
+        </button>
+      </li>
+      <li
+        class="usa-pagination__item usa-pagination__page-no"
+      >
+        <button
+          aria-label="Page 1"
+          class="usa-pagination__button rs-pagination-no-button"
+        >
+          1
+        </button>
+      </li>
+      <li
+        class="usa-pagination__item usa-pagination__page-no"
+      >
+        <button
+          aria-current="page"
+          aria-label="last page, Page 2"
+          class="usa-pagination__button rs-pagination-no-button usa-current"
+        >
+          2
+        </button>
+      </li>
+    </ul>
+  </nav>
+</DocumentFragment>
+`;

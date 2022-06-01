@@ -1,9 +1,7 @@
-import { Suspense } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary } from "rest-hooks";
 
 import { useOrgName } from "../../hooks/UseOrgName";
-import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
 import HipaaNotice from "../../components/HipaaNotice";
 import Title from "../../components/Title";
@@ -23,13 +21,7 @@ function Submissions() {
             <section className="grid-container margin-top-5">
                 <Title title="COVID-19" preTitle={orgName} />
             </section>
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="message" />}
-            >
-                <Suspense fallback={<Spinner />}>
-                    <SubmissionTable />
-                </Suspense>
-            </NetworkErrorBoundary>
+            <SubmissionTable />
             <HipaaNotice />
         </NetworkErrorBoundary>
     );
