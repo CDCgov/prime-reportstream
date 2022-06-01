@@ -84,6 +84,7 @@ runs:
             - 'operations/**'
             - '.github/actions/build-backend/action.yml'
             - '.github/actions/deploy-backend/action.yml'
+            - '.github/workflows/build_hub.yml'
           frontend_react:
             - 'frontend-react/**'
             - 'operations/**'
