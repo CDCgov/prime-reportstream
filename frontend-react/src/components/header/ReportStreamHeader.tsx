@@ -9,9 +9,13 @@ import {
 import { NavLink } from "react-router-dom";
 import { NetworkErrorBoundary } from "rest-hooks";
 
-import { PERMISSIONS, permissionCheck } from "../../utils/PermissionsUtils";
+import { permissionCheck, PERMISSIONS } from "../../utils/PermissionsUtils";
 import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
+import {
+    CheckFeatureFlag,
+    FeatureFlagName,
+} from "../../pages/misc/FeatureFlags";
 import { BuiltForYouDropdown } from "../../pages/built-for-you/BuiltForYouIndex";
 
 import { SignInOrUser } from "./SignInOrUser";
@@ -27,14 +31,14 @@ export const ReportStreamHeader = () => {
     const organization = getStoredOrg();
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
-    let itemsMenu = [
-        <GettingStartedDropdown />,
-        <HowItWorksDropdown />,
-        <BuiltForYouDropdown />,
-    ];
+    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
     const isOktaPreview =
         `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
     const environment = `${process.env.REACT_APP_CLIENT_ENV}`;
+
+    if (CheckFeatureFlag(FeatureFlagName.BUILT_FOR_YOU)) {
+        itemsMenu.push(<BuiltForYouDropdown />);
+    }
 
     if (authState && authState.isAuthenticated && authState.accessToken) {
         /* RECEIVERS ONLY */

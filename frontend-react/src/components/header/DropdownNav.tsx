@@ -60,6 +60,7 @@ export const AdminDropdown = () => {
     let PAGES = [
         makeNonStaticOption("Organization Settings", "settings"),
         makeNonStaticOption("Feature Flags", "features"),
+        makeNonStaticOption("Guides", "guides/create-markdown-pages"),
     ];
     if (CheckFeatureFlag("value-sets"))
         PAGES.push(makeNonStaticOption("Value Sets", "value-sets"));
