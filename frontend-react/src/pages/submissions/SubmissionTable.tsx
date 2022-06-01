@@ -156,7 +156,7 @@ function SubmissionTableWithNumberedPagination() {
             <div>TK</div>
             <Pagination
                 currentPageNum={currentPageNum}
-                setCurrentPage={(p: number) =>
+                setSelectedPage={(p: number) =>
                     console.log("Set current page:", p)
                 }
                 slots={slots}
