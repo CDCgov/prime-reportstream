@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
-import { useOktaAuth } from "@okta/okta-react";
+// import { useOktaAuth } from "@okta/okta-react";
 
 import { getOktaGroups, groupToOrg } from "../utils/OrganizationUtils";
 
@@ -132,17 +132,19 @@ export const membershipReducer = (
 };
 
 export const useGroups = (): MembershipController => {
-    const { authState } = useOktaAuth();
+    // const { authState } = useOktaAuth();
     const [state, dispatch] = useReducer(membershipReducer, defaultState);
 
     useEffect(() => {
-        if (authState?.accessToken) {
-            dispatch({
-                type: MembershipActionType.UPDATE,
-                payload: authState.accessToken,
-            });
-        }
-    }, [authState]);
+        // if (authState?.accessToken) {
+        dispatch({
+            type: MembershipActionType.UPDATE,
+            // payload: authState.accessToken,
+            payload: "",
+        });
+        // }
+    }, []);
+    // }, [authState]);
 
     return { state, dispatch };
 };
