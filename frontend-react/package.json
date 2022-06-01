@@ -17,6 +17,7 @@
         "@types/react": "^17.0.38",
         "@types/react-dom": "^17.0.5",
         "axios": "^0.26.0",
+        "classnames": "^2.3.1",
         "dompurify": "^2.3.4",
         "downloadjs": "^1.4.7",
         "env-cmd": "^10.1.0",
