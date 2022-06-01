@@ -1,26 +1,36 @@
-import { createContext, FC } from "react";
+import { createContext, FC, useContext } from "react";
 
 import useSessionStorage, {
     SessionController,
-    SessionStore,
 } from "../hooks/UseSessionStorage";
+import { MembershipController, useGroups } from "../hooks/UseGroups";
 
-export const SessionStorageContext = createContext<SessionController>({
-    values: {},
-    updateSessionStorage: (store: Partial<SessionStore>) => {
-        // Never gets called, just used store to please the linter
-        console.log(`${store}`);
-    },
+interface ISessionContext {
+    memberships: MembershipController;
+    store: SessionController;
+}
+
+export const SessionContext = createContext<ISessionContext>({
+    memberships: {} as MembershipController,
+    store: {} as SessionController,
 });
 
 const SessionProvider: FC = ({ children }) => {
-    const payload = useSessionStorage();
+    const store = useSessionStorage();
+    const memberships = useGroups();
 
     return (
-        <SessionStorageContext.Provider value={payload}>
+        <SessionContext.Provider
+            value={{
+                memberships: memberships,
+                store: store,
+            }}
+        >
             {children}
-        </SessionStorageContext.Provider>
+        </SessionContext.Provider>
     );
 };
+
+export const useSessionContext = () => useContext(SessionContext);
 
 export default SessionProvider;

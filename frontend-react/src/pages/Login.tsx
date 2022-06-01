@@ -8,17 +8,17 @@ import OktaSignInWidget from "../components/OktaSignInWidget";
 import { getOktaGroups, parseOrgs } from "../utils/OrganizationUtils";
 import { setStoredOktaToken } from "../contexts/SessionStorageTools";
 import { oktaSignInConfig } from "../oktaConfig";
-import { SessionStorageContext } from "../contexts/SessionStorageContext";
+import { SessionContext } from "../contexts/SessionStorageContext";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
-    const { updateSessionStorage } = useContext(SessionStorageContext);
+    const { store } = useContext(SessionContext);
 
     const onSuccess = (tokens: Tokens | undefined) => {
         const parsedOrgs = parseOrgs(getOktaGroups(tokens?.accessToken));
         const newOrg = parsedOrgs[0]?.org || "";
         const newSender = parsedOrgs[0]?.senderName || undefined;
-        updateSessionStorage({
+        store.updateSessionStorage({
             // Sets admins to `ignore` org
             org: newOrg === "PrimeAdmins" ? "ignore" : newOrg,
             senderName: newSender,
