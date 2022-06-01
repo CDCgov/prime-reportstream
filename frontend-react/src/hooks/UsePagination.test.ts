@@ -420,6 +420,7 @@ describe("usePagination", () => {
             6,
             OVERFLOW_INDICATOR,
         ]);
+        expect(result.current.isLoading).toBe(true);
 
         await waitForNextUpdate();
         expect(mockFetchResults).toHaveBeenLastCalledWith("61", 21);
@@ -433,6 +434,7 @@ describe("usePagination", () => {
             8,
             OVERFLOW_INDICATOR,
         ]);
+        expect(result.current.isLoading).toBe(false);
 
         // The current page of results is still from the first fetch. The second
         // fetch was needed to extend the pagination, not get the results for

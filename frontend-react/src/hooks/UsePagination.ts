@@ -271,6 +271,7 @@ function reducer<T>(
 
 interface UsePaginationState<T> {
     currentPageResults: T[];
+    isLoading: boolean;
     paginationProps?: PaginationProps;
 }
 
@@ -385,6 +386,7 @@ function usePagination<T>({
 
     return {
         currentPageResults,
+        isLoading: state.isLoading,
         paginationProps,
     };
 }
