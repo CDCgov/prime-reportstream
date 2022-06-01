@@ -847,6 +847,252 @@ class MapperTests {
     }
 
     @Test
+    fun `test LookupSenderAutomationValuesetsMapper`() {
+        val table = LookupTable
+            .read("./src/test/resources/metadata/tables/sender_automation_value_set_row.csv")
+        val schema = Schema(
+            "test",
+            topic = "covid-19",
+            elements = listOf(
+                Element(
+                    "gender",
+                    type = Element.Type.TABLE,
+                    table = "sender_automation_value_set_row",
+                    tableColumn = "code",
+                    mapperOverridesValue = true
+                ),
+                Element(
+                    "test_result",
+                    type = Element.Type.TABLE,
+                    table = "sender_automation_value_set_row",
+                    tableColumn = "code",
+                    mapperOverridesValue = true
+                ),
+                Element(
+                    "no_table",
+                    type = Element.Type.TABLE,
+                    tableColumn = "code",
+                    mapperOverridesValue = true
+                ),
+                Element(
+                    "no_column",
+                    type = Element.Type.TABLE,
+                    table = "sender_automation_value_set_row",
+                    mapperOverridesValue = true
+                ),
+                Element(
+                    "wrong_column",
+                    type = Element.Type.TABLE,
+                    table = "sender_automation_value_set_row",
+                    tableColumn = "wrong",
+                    mapperOverridesValue = true
+                )
+            )
+        )
+        val metadata = Metadata(
+            schema = schema,
+            table = table,
+            tableName = "sender_automation_value_set_row"
+        )
+
+        // it should look up an element without a version specified
+        val lookupElementGender = metadata.findSchema("test")?.findElement("gender") ?: fail("")
+        val mapper = LookupSenderAutomationValuesets()
+        val argsGender = listOf("gender")
+        val elementAndValuesGender = listOf(ElementAndValue(lookupElementGender, "Female"))
+        assertThat(mapper.valueNames(lookupElementGender, argsGender)).isEqualTo(listOf("gender"))
+        assertThat(mapper.apply(lookupElementGender, argsGender, elementAndValuesGender).value).isEqualTo("F")
+
+        // it should look up an element without a version specified but other rows of the same valueset have a version
+        val lookupElementTestResult = metadata.findSchema("test")?.findElement("test_result") ?: fail("")
+        val argsTestResult = listOf("test_result")
+        val elementAndValuesTestResult = listOf(
+            ElementAndValue(
+                lookupElementTestResult,
+                "Specimen unsatisfactory for evaluation"
+            )
+        )
+        assertThat(mapper.valueNames(lookupElementTestResult, argsTestResult))
+            .isEqualTo(
+                listOf(
+                    "test_result"
+                )
+            )
+        assertThat(
+            mapper
+                .apply(
+                    lookupElementTestResult,
+                    argsTestResult,
+                    elementAndValuesTestResult
+                ).value
+        )
+            .isEqualTo("125154007")
+
+        // it should look up an element with a version specified
+        val lookupElementTestResultVersion = metadata.findSchema("test")?.findElement("test_result") ?: fail("")
+        val argsTestResultVersion = listOf("test_result", "20200309")
+        val elementAndValuesTestResultVersion = listOf(
+            ElementAndValue(
+                lookupElementTestResultVersion,
+                "Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder)"
+            )
+        )
+        assertThat(mapper.valueNames(lookupElementTestResultVersion, argsTestResultVersion))
+            .isEqualTo(listOf("test_result", "20200309"))
+
+        assertThat(
+            mapper
+                .apply(
+                    lookupElementTestResultVersion,
+                    argsTestResultVersion,
+                    elementAndValuesTestResultVersion
+                ).value
+        )
+            .isEqualTo("840539006")
+
+        // it should return null and an error in the ElementResult if there is a mismatch of version and display
+        val lookupElementTestResultMisVersionDisplay =
+            metadata.findSchema("test")?.findElement("test_result") ?: fail("")
+        val argsTestResultVersionMisVersionDisplay = listOf("test_result", "20200309")
+        val elementAndValuesTestResultMisVersionDisplay = listOf(
+            ElementAndValue(
+                lookupElementTestResultMisVersionDisplay,
+                "Specimen unsatisfactory for evaluation"
+            )
+        )
+        assertThat(mapper.valueNames(lookupElementTestResultMisVersionDisplay, argsTestResultVersionMisVersionDisplay))
+            .isEqualTo(listOf("test_result", "20200309"))
+
+        val elementResultMisVersionDisplay = mapper
+            .apply(
+                lookupElementTestResultMisVersionDisplay,
+                argsTestResultVersionMisVersionDisplay,
+                elementAndValuesTestResultMisVersionDisplay
+            )
+
+        assertThat(
+            elementResultMisVersionDisplay.value
+        )
+            .isEqualTo(null)
+
+        assertThat(
+            elementResultMisVersionDisplay.errors[0].message
+        ).contains("no value for element")
+
+        // it should return null and an error in the ElementResult if there is a mismatch of display
+        val lookupElementTestResultMisDisplay =
+            metadata.findSchema("test")?.findElement("test_result") ?: fail("")
+        val argsTestResultVersionMisDisplay = listOf("test_result")
+        val elementAndValuesTestResultMisDisplay = listOf(
+            ElementAndValue(
+                lookupElementTestResultMisDisplay,
+                "This display does not exist"
+            )
+        )
+        assertThat(mapper.valueNames(lookupElementTestResultMisDisplay, argsTestResultVersionMisDisplay))
+            .isEqualTo(listOf("test_result"))
+
+        val elementResultMisDisplay = mapper
+            .apply(
+                lookupElementTestResultMisDisplay,
+                argsTestResultVersionMisDisplay,
+                elementAndValuesTestResultMisDisplay
+            )
+        assertThat(
+            elementResultMisDisplay.value
+        )
+            .isEqualTo(null)
+
+        assertThat(
+            elementResultMisDisplay.errors[0].message
+        ).contains("no value for element")
+
+        // it should return null and an error in the ElementResult if there is no table name in Element
+        val lookupElementTestResultWrongTable =
+            metadata.findSchema("test")?.findElement("no_table") ?: fail("")
+        val argsTestResultVersionWrongTable = listOf("no_table", "20200309")
+        val elementAndValuesTestResultWrongTable = listOf(
+            ElementAndValue(
+                lookupElementTestResultWrongTable,
+                "It shouldn't even use this value"
+            )
+        )
+        assertThat(mapper.valueNames(lookupElementTestResultWrongTable, argsTestResultVersionWrongTable))
+            .isEqualTo(listOf("no_table", "20200309"))
+
+        val elementResultWrongTable = mapper
+            .apply(
+                lookupElementTestResultWrongTable,
+                argsTestResultVersionWrongTable,
+                elementAndValuesTestResultWrongTable
+            )
+        assertThat(
+            elementResultWrongTable.value
+        )
+            .isEqualTo(null)
+
+        assertThat(
+            elementResultWrongTable.errors[0].message
+        ).contains("Schema Error: could not find table")
+
+        // it should return null and an error in the ElementResult if there is no column name in Element
+        val lookupElementTestResultNoColumn =
+            metadata.findSchema("test")?.findElement("no_column") ?: fail("")
+        val argsTestResultVersionNoColumn = listOf("no_column", "20200309")
+        val elementAndValuesTestResultNoColumn = listOf(
+            ElementAndValue(
+                lookupElementTestResultNoColumn,
+                "It shouldn't even use this value"
+            )
+        )
+        assertThat(mapper.valueNames(lookupElementTestResultNoColumn, argsTestResultVersionNoColumn))
+            .isEqualTo(listOf("no_column", "20200309"))
+
+        val elementResultNoColumn = mapper
+            .apply(
+                lookupElementTestResultNoColumn,
+                argsTestResultVersionNoColumn,
+                elementAndValuesTestResultNoColumn
+            )
+        assertThat(
+            elementResultNoColumn.value
+        )
+            .isEqualTo(null)
+
+        assertThat(
+            elementResultNoColumn.errors[0].message
+        ).contains("Schema Error: no tableColumn for element")
+
+        // it should return null and an error in the ElementResult if there is a wrong column name in Element
+        val lookupElementTestResultWrongColumn =
+            metadata.findSchema("test")?.findElement("wrong_column") ?: fail("")
+        val argsTestResultVersionWrongColumn = listOf("wrong_column", "20200309")
+        val elementAndValuesTestResultWrongColumn = listOf(
+            ElementAndValue(
+                lookupElementTestResultWrongColumn,
+                "It shouldn't even use this value"
+            )
+        )
+        assertThat(mapper.valueNames(lookupElementTestResultWrongColumn, argsTestResultVersionWrongColumn))
+            .isEqualTo(listOf("wrong_column", "20200309"))
+
+        val elementResultWrongColumn = mapper
+            .apply(
+                lookupElementTestResultWrongColumn,
+                argsTestResultVersionWrongColumn,
+                elementAndValuesTestResultWrongColumn
+            )
+        assertThat(
+            elementResultWrongColumn.value
+        )
+            .isEqualTo(null)
+
+        assertThat(
+            elementResultWrongColumn.errors[0].message
+        ).contains("Schema Error: no tableColumn named ${lookupElementTestResultWrongColumn.tableColumn}")
+    }
+
+    @Test
     fun `test country mapper`() {
         val mapper = CountryMapper()
         val args = listOf("patient_zip_code")
