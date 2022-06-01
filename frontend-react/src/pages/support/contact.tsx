@@ -1,65 +1,40 @@
-import { SideNav } from "@trussworks/react-uswds";
-import {
-    NavLink,
-    useRouteMatch
-} from "react-router-dom";
+import { Helmet } from "react-helmet";
+import DOMPurify from "dompurify";
+
+import site from "../../content/site.json";
 
 export const SupportContact = () => {
-    let { path, url } = useRouteMatch();
-
-    var itemsMenu = [
-        <NavLink
-            to={`${url}/overview`}
-            activeClassName="usa-current"
-            className="usa-nav__link"
-        >
-            Overview
-        </NavLink>,
-        <NavLink
-            to={`${url}/account-registration-guide`}
-            activeClassName="usa-current"
-            className="usa-nav__link"
-        >
-            Account registration guide
-        </NavLink>,
-        <NavLink
-            to={`${url}/csv-upload-guide`}
-            activeClassName="usa-current"
-            className="usa-nav__link"
-        >
-            CSV upload guide
-        </NavLink>,
-        <NavLink
-            to={`${url}/csv-schema`}
-            activeClassName="usa-current"
-            className="usa-nav__link"
-        >
-            CSV schema documentation
-        </NavLink>,
-    ];
-
     return (
         <>
-            <section className="border-bottom border-base-lighter margin-bottom-6">
-                <div className="grid-container">
-                    <div className="grid-row grid-gap">
-                        <div className="tablet:grid-col-12 margin-bottom-05">
-                            <h1 className="text-ink">
-                                
-                                    Contact
-                                
-                            </h1>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section className="grid-container margin-bottom-5">
+            <Helmet>
+                <title>Contact | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
+
+            <section className="grid-container tablet:margin-top-6 margin-bottom-5">
                 <div className="grid-row grid-gap">
-                    <div className="tablet:grid-col-4 margin-bottom-6">
-                        <SideNav items={itemsMenu} />
+
+                    <div className="tablet:grid-col-8">
+                        
+                        <h1 className="margin-top-0">Contact us</h1>
+                        <h2 className="usa-intro text-base">Want to get in touch with ReportStream? Email us at <a href={"mailto:" + DOMPurify.sanitize(site.orgs.RS.email)} className="usa-link">{site.orgs.RS.email}</a>.</h2>
+
                     </div>
-                    <div className="tablet:grid-col-8 usa-prose">
-                        Contact
+
+                    <div className="tablet:grid-col-8  margin-top-4 padding-top-2 border-top border-base-lighter usa-prose rs-documentation measure-5">
+
+                        <h3>Interested in partnering with ReportStream?</h3>
+                        <p>Read our getting started guides for <a className="usa-link" href="/getting-started/public-health-departments/overview">public health departments</a> and <a className="usa-link" href="/getting-started/testing-facilities/overview">organizations and testing facilities</a>.</p>
+                        <p>To learn more, or to begin the account registration process, email us at <a href={"mailto:" + DOMPurify.sanitize(site.orgs.RS.email)} className="usa-link">{site.orgs.RS.email}</a>.</p>
+                        
+                        <h3>Have a problem with a data you're trying to send or receive?</h3>
+                        <p>Read our guides for sending data <a className="usa-link" href="/getting-started/public-health-departments/elr-checklist">via API (ELR)</a> or <a className="usa-link" href="/getting-started/testing-facilities/csv-upload-guide">via CSV upload</a>. For all other issues, contact us at <a href={"mailto:" + DOMPurify.sanitize(site.orgs.RS.email)}
+                    className="usa-link">{site.orgs.RS.email}</a>.</p>
+          
+                        <h3>Need something else?</h3>
+                        <p>For quick answers to common questions, read our <a className="usa-link" href="/support/faq">frequently asked questions</a>.</p>
+                        <p>If you have another question, issue, or bug to report, we’re happy to help. Email us at <a href={"mailto:" + DOMPurify.sanitize(site.orgs.RS.email)}
+                    className="usa-link">{site.orgs.RS.email}</a>.</p>
+
                     </div>
                 </div>
             </section>
