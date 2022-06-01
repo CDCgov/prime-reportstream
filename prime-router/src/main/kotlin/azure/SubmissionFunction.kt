@@ -17,6 +17,9 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
 import java.util.UUID
 
+// for readability only
+typealias SubmissionResultFilter = SubmissionAccess.SubmissionResultFilter
+
 /**
  * Submissions API
  * Returns a list of Actions from `public.action`.
@@ -26,24 +29,25 @@ class SubmissionFunction(
     private val submissionsFacade: SubmissionsFacade = SubmissionsFacade.instance,
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
+
     data class Parameters(
         val sort: String,
         val sortColumn: String,
         val cursor: OffsetDateTime?,
         val endCursor: OffsetDateTime?,
         val pageSize: Int,
-        val showFailed: Boolean
+        val filterResult: SubmissionResultFilter,
     ) {
-        constructor(query: Map<String, String>) : this (
+        constructor(query: Map<String, String>) : this(
             extractSortOrder(query),
             extractSortCol(query),
             extractCursor(query, "cursor"),
             extractCursor(query, "endcursor"),
             extractPageSize(query),
-            extractShowFailed(query)
+            extractResultFilter(query)
         )
 
-        companion object {
+        companion object ParamsParser { // ParamsParser name is for unit tests
             fun extractSortOrder(query: Map<String, String>): String {
                 return query.getOrDefault("sort", "DESC")
             }
@@ -69,10 +73,20 @@ class SubmissionFunction(
                 return size
             }
 
-            fun extractShowFailed(query: Map<String, String>): Boolean {
-                return when (query.getOrDefault("showfailed", "true")) {
-                    "false" -> false
-                    else -> true
+            fun extractResultFilter(query: Map<String, String>): SubmissionResultFilter {
+                val filterparam = query["resultfilter"]
+                val oldshowfailed = query["showfailed"]
+                return if (!filterparam.isNullOrBlank()) {
+                    // map param back to enum
+                    SubmissionResultFilter.fromCgiParam(filterparam)
+                } else if (!oldshowfailed.isNullOrBlank()) {
+                    when (oldshowfailed) {
+                        "false" -> SubmissionResultFilter.ALL
+                        else -> SubmissionResultFilter.ONLY_SUCCESSFUL
+                    }
+                } else {
+                    // both params missing default to something reasonable
+                    SubmissionResultFilter.ONLY_SUCCESSFUL
                 }
             }
         }
@@ -99,24 +113,33 @@ class SubmissionFunction(
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
             // Confirm the org name in the path is a sender in the system.
-            val sender = workflowEngine.settings.findSender(organization) // err if no default sender in settings in org
-                ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream sender")
+            // exception: if prime admin and organization is "*" (ALL ORGS)
+            val organizationName = when (claims.isPrimeAdmin && organization == "*") {
+                true -> "*" // means "all orgs"
+                else ->
+                    // err if no default sender in settings in org
+                    workflowEngine.settings.findSender(organization)?.organizationName
+                        ?: return HttpUtilities.notFoundResponse(
+                            request,
+                            "$organization: unknown ReportStream sender"
+                        )
+            }
 
             // Do authorization based on: org name in the path == org name in claim.  Or be a prime admin.
-            if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {
+            if ((claims.organizationNameClaim != organizationName) && !claims.isPrimeAdmin) {
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
                         " ${request.httpMethod}:${request.uri.path}." +
-                        " ERR: Claim org is ${claims.organizationNameClaim} but client id is ${sender.organizationName}"
+                        " ERR: Claim org is ${claims.organizationNameClaim} but client id is $organizationName"
                 )
                 return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
             logger.info(
                 "Authorized request by org ${claims.organizationNameClaim}" +
-                    " to $sender/submissions endpoint via client id ${sender.organizationName}. "
+                    " to sender/submissions endpoint via client id $organizationName. "
             )
 
-            val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
+            val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, filterResult) =
                 Parameters(request.queryParameters)
             val sortOrder = try {
                 SubmissionAccess.SortOrder.valueOf(qSortOrder)
@@ -130,13 +153,13 @@ class SubmissionFunction(
                 SubmissionAccess.SortColumn.CREATED_AT
             }
             val submissions = submissionsFacade.findSubmissionsAsJson(
-                sender.organizationName,
+                organizationName,
                 sortOrder,
                 sortColumn,
                 resultsAfterDate,
                 resultsBeforeDate,
                 pageSize,
-                showFailed
+                filterResult
             )
             return HttpUtilities.okResponse(request, submissions)
         } catch (e: IllegalArgumentException) {

@@ -21,7 +21,7 @@ class RequeueFunction : Logging {
         @HttpTrigger(
             name = "requeue",
             methods = [HttpMethod.POST],
-            authLevel = AuthorizationLevel.FUNCTION,
+            authLevel = AuthorizationLevel.ADMIN,
             route = "requeue/send"
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {

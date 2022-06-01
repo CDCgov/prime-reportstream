@@ -1,7 +1,9 @@
 package gov.cdc.prime.router.azure
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
@@ -89,7 +91,7 @@ class SubmissionFunctionTests : Logging {
             cursor: OffsetDateTime?,
             toEnd: OffsetDateTime?,
             limit: Int,
-            showFailed: Boolean,
+            filterResult: SubmissionAccess.SubmissionResultFilter,
             klass: Class<T>
         ): List<T> {
             @Suppress("UNCHECKED_CAST")
@@ -364,6 +366,100 @@ class SubmissionFunctionTests : Logging {
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, otherOrganizationName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
+    }
+
+    @Test
+    fun `test SubmissionResultFilter parser - are cgi params converted correctly`() {
+        // basic matching works
+        assertThat(SubmissionResultFilter.fromCgiParam("all")).isEqualTo(SubmissionResultFilter.ALL)
+        assertThat(SubmissionResultFilter.fromCgiParam("successOnly")).isEqualTo(
+            SubmissionResultFilter.ONLY_SUCCESSFUL
+        )
+        assertThat(SubmissionResultFilter.fromCgiParam("failedOnly")).isEqualTo(
+            SubmissionResultFilter.ONLY_FAILED
+        )
+
+        // case insensitive works
+        assertThat(SubmissionResultFilter.fromCgiParam("All")).isEqualTo(
+            SubmissionResultFilter.ALL
+        )
+        assertThat(SubmissionResultFilter.fromCgiParam("successonly")).isEqualTo(
+            SubmissionResultFilter.ONLY_SUCCESSFUL
+        )
+        assertThat(SubmissionResultFilter.fromCgiParam("FailedOnly")).isEqualTo(
+            SubmissionResultFilter.ONLY_FAILED
+        )
+
+        // invalid values fail to All
+        val DEFAULT_RESULT = SubmissionResultFilter.ONLY_SUCCESSFUL
+
+        assertThat(SubmissionResultFilter.fromCgiParam("")).isEqualTo(
+            DEFAULT_RESULT
+        )
+
+        // invalid values fail to All
+        assertThat(SubmissionResultFilter.fromCgiParam("Failed")).isEqualTo(
+            DEFAULT_RESULT
+        )
+    }
+
+    @Test
+    fun `test SubmissionFunction parsing Parameters`() {
+        // test successful parsing the parameters passed in via the url
+
+        // check defaults with all missing params - empty map
+        SubmissionFunction.Parameters(mapOf()).run {
+            // run is for scoping only so the result isn't mistakenly used somewhere else in function
+            assertThat(this.cursor).isNull()
+            assertThat(this.endCursor).isNull()
+            assertThat(this.sort).isEqualTo(SubmissionAccess.SortOrder.DESC.toString())
+            assertThat(this.filterResult).isEqualTo(SubmissionAccess.SubmissionResultFilter.ONLY_SUCCESSFUL)
+        }
+
+        // check basic success that are NOT defaults
+        val START_CURSOR_DATE_STR = "2020-11-12T01:23:45.678Z"
+        val END_CURSOR_DATE_STR = "2022-09-10T11:12:13.145Z"
+
+        mapOf(
+            "sort" to SubmissionAccess.SortOrder.ASC.toString(),
+            "sortcol" to SubmissionAccess.SortColumn.CREATED_AT.toString(),
+            "cursor" to START_CURSOR_DATE_STR,
+            "endcursor" to END_CURSOR_DATE_STR,
+            "pagesize" to "50",
+            "resultfilter" to "all",
+            "showfailed" to "true", // obsolete so should be ignored if resultfilter available
+        ).run {
+            val result = SubmissionFunction.Parameters(this)
+            assertThat(result.cursor.toString()).isEqualTo(START_CURSOR_DATE_STR)
+            assertThat(result.endCursor.toString()).isEqualTo(END_CURSOR_DATE_STR)
+            assertThat(result.pageSize).isEqualTo(50)
+            assertThat(result.filterResult).isEqualTo(SubmissionAccess.SubmissionResultFilter.ALL)
+        }
+
+        mapOf(
+            "showfailed" to "false", // obsolete but backwards compatible
+        ).run {
+            val result = SubmissionFunction.Parameters(this)
+            assertThat(result.filterResult).isEqualTo(SubmissionAccess.SubmissionResultFilter.ALL)
+        }
+    }
+
+    @Test
+    fun `test admin access ACROSS multiple orgs submission history`() {
+        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
+        val submissionFunction = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, facade)
+        val httpRequestMessage = setupHttpRequestMessageForTesting()
+        var response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, "*")
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+    }
+
+    @Test
+    fun `test NON-admin access ACROSS multiple orgs submission history fails`() {
+        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
+        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, facade)
+        val httpRequestMessage = setupHttpRequestMessageForTesting()
+        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, "*")
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
     }
 
     @Test

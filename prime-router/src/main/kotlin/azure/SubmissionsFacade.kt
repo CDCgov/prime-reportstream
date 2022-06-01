@@ -31,6 +31,7 @@ class SubmissionsFacade(
      * @param sortColumn sort the table by a specific column; defaults to sorting by created_at.
      * @param offset String representation of an OffsetDateTime used for paginating results.
      * @param pageSize Int of items to return per page.
+     * @param filterResult SubmissionResultFilter ternary enum (only_success|only_fail|all)
      *
      * @return a String representation of an array of actions.
      */
@@ -41,9 +42,17 @@ class SubmissionsFacade(
         offset: OffsetDateTime?,
         toEnd: OffsetDateTime?,
         pageSize: Int,
-        showFailed: Boolean
+        filterResult: SubmissionAccess.SubmissionResultFilter
     ): String {
-        val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize, showFailed)
+        val result = findSubmissions(
+            organizationName,
+            sortOrder,
+            sortColumn,
+            offset,
+            toEnd,
+            pageSize,
+            filterResult
+        )
         return mapper.writeValueAsString(result)
     }
 
@@ -53,6 +62,7 @@ class SubmissionsFacade(
      * @param sortColumn sort the table by a specific column; defaults to sorting by CREATED_AT.
      * @param offset String representation of an OffsetDateTime used for paginating results.
      * @param pageSize Int of items to return per page.
+     * @param filterResult SubmissionResultFilter ternary enum (only_success|only_fail|all)
      *
      * @return a List of Actions
      */
@@ -63,7 +73,7 @@ class SubmissionsFacade(
         offset: OffsetDateTime?,
         toEnd: OffsetDateTime?,
         pageSize: Int,
-        showFailed: Boolean
+        filterResult: SubmissionAccess.SubmissionResultFilter
     ): List<SubmissionHistory> {
         require(organizationName.isNotBlank()) {
             "Invalid organization."
@@ -72,17 +82,16 @@ class SubmissionsFacade(
             "pageSize must be a positive integer."
         }
 
-        val submissions = dbSubmissionAccess.fetchActions(
+        return dbSubmissionAccess.fetchActions(
             organizationName,
             sortOrder,
             sortColumn,
             offset,
             toEnd,
             pageSize,
-            showFailed,
+            filterResult,
             SubmissionHistory::class.java
         )
-        return submissions
     }
 
     fun findDetailedSubmissionHistory(

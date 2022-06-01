@@ -27,6 +27,28 @@ interface SubmissionAccess {
         CREATED_AT
     }
 
+    /**
+     * Enumeration used to filter submission.
+     * ternary value: &resultfilter='all'|'successOnly'|'failedOnly'
+     * CONST(string) don't match to decouple cgi params strings from code.
+     *
+     * @property ALL No filter, return all matches
+     * @property ONLY_SUCCESSFUL Return only successfully delivered submissions
+     * @property ONLY_FAILED Return only failed delivered submissions
+     */
+    enum class SubmissionResultFilter(val cgiparam: String) {
+        ALL("all"),
+        ONLY_SUCCESSFUL("successOnly"), // default
+        ONLY_FAILED("failedOnly");
+
+        companion object Parser {
+            fun fromCgiParam(cgiparam: String) =
+                SubmissionResultFilter.values()
+                    .find { it.cgiparam.equals(cgiparam, ignoreCase = true) }
+                    ?: SubmissionResultFilter.ONLY_SUCCESSFUL
+        }
+    }
+
     fun <T> fetchActions(
         sendingOrg: String,
         order: SortOrder,
@@ -34,7 +56,7 @@ interface SubmissionAccess {
         cursor: OffsetDateTime? = null,
         toEnd: OffsetDateTime? = null,
         limit: Int = 10,
-        showFailed: Boolean,
+        filterResult: SubmissionResultFilter = SubmissionResultFilter.ALL,
         klass: Class<T>
     ): List<T>
 
@@ -53,6 +75,7 @@ interface SubmissionAccess {
         logsKlass: Class<U>,
     ): List<T>
 }
+
 /**
  * Class to access lookup tables stored in the database.
  */
@@ -66,6 +89,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
      * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
      * @param limit is an Integer used for setting the number of results per page.
+     * @param filterResult SubmissionResultFilter ternary enum (only_success|only_fail|all)
      * @return a list of results matching the SQL Query.
      */
     override fun <T> fetchActions(
@@ -75,17 +99,25 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         cursor: OffsetDateTime?,
         toEnd: OffsetDateTime?,
         limit: Int,
-        showFailed: Boolean,
+        filterResult: SubmissionAccess.SubmissionResultFilter,
         klass: Class<T>
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, order)
-        val condition = createWhereCondition(sendingOrg, cursor, toEnd, showFailed)
+        val condition = createWhereCondition(sendingOrg, cursor, toEnd, filterResult)
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
                 // Note the report file and action tables have columns with the same name, so we must specify what we need.
                 .select(
-                    ACTION.ACTION_ID, ACTION.CREATED_AT, ACTION.SENDING_ORG, ACTION.HTTP_STATUS,
-                    ACTION.EXTERNAL_NAME, REPORT_FILE.REPORT_ID, REPORT_FILE.SCHEMA_TOPIC, REPORT_FILE.ITEM_COUNT
+                    ACTION.ACTION_ID,
+                    ACTION.CREATED_AT,
+                    ACTION.SENDING_ORG,
+                    ACTION.HTTP_STATUS,
+                    ACTION.EXTERNAL_NAME,
+                    REPORT_FILE.REPORT_ID,
+                    REPORT_FILE.SCHEMA_TOPIC,
+                    REPORT_FILE.ITEM_COUNT,
+                    REPORT_FILE.RECEIVING_ORG,
+                    REPORT_FILE.BODY_FORMAT,
                 )
                 .from(
                     ACTION.join(REPORT_FILE).on(
@@ -139,38 +171,44 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
      * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
+     * @param filterResult SubmissionResultFilter ternary enum (only_success|only_fail|all)
      * @return a jooq Condition statement to use in where().
      */
     private fun createWhereCondition(
         sendingOrg: String,
         cursor: OffsetDateTime? = null,
         toEnd: OffsetDateTime? = null,
-        showFailed: Boolean
+        filterResult: SubmissionResultFilter = SubmissionResultFilter.ALL,
     ): Condition {
-        val dateFilter: Condition = when (toEnd) {
-            null -> {
-                /* Only the end is given: all results between today and cutoff */
-                ACTION.ACTION_NAME.eq(TaskAction.receive)
-                    .and(ACTION.SENDING_ORG.eq(sendingOrg))
+        val dateFilter: Condition = ACTION.ACTION_NAME.eq(TaskAction.receive)
+
+        when (sendingOrg) {
+            "*" -> {
+                /* admin only option to look across all orgs (restriction is enforced by callers)
+                   Would be nice to be able to enforce at this level. Renamed to include Admin
+                   to help call attention to this */
             }
             else -> {
-                /* Both given: all results between cursor and cutoff */
-                ACTION.ACTION_NAME.eq(TaskAction.receive)
-                    .and(ACTION.SENDING_ORG.eq(sendingOrg))
-                    .and(ACTION.CREATED_AT.between(toEnd, cursor))
+                dateFilter.and(ACTION.SENDING_ORG.eq(sendingOrg))
             }
         }
 
-        val failedFilter: Condition = when (showFailed) {
-            true -> {
-                ACTION.HTTP_STATUS.between(200, 600)
+        if (toEnd != null && cursor != null) {
+            /* Both given: all results between cursor and cutoff */
+            dateFilter.and(ACTION.CREATED_AT.between(toEnd, cursor))
+        }
+
+        when (filterResult) {
+            SubmissionResultFilter.ALL -> {}
+            SubmissionResultFilter.ONLY_FAILED -> {
+                dateFilter.and(ACTION.HTTP_STATUS.between(300, 600))
             }
-            false -> {
-                ACTION.HTTP_STATUS.between(200, 299)
+            SubmissionResultFilter.ONLY_SUCCESSFUL -> {
+                dateFilter.and(ACTION.HTTP_STATUS.between(200, 299))
             }
         }
 
-        return dateFilter.and(failedFilter)
+        return dateFilter
     }
 
     fun <P, U> detailedSubmissionSelect(
