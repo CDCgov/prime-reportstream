@@ -54,14 +54,12 @@
         "e2e": "cypress run",
         "e2e:open": "cypress open",
         "test": "react-scripts test",
-        "test:ci": "CI=true yarn test --coverage",
+        "test:ci": "yarn test --clearCache && CI=true yarn --verbose test --coverage --verbose",
         "eject": "react-scripts eject",
-        "lint": "npm-run-all -p lint:eslint lint:prettier",
-        "lint:write": "npm-run-all -p lint:eslint:write lint:prettier:write",
+        "lint": "npm-run-all -p lint:eslint",
+        "lint:write": "npm-run-all -p lint:eslint:write",
         "lint:eslint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",
         "lint:eslint:write": "eslint --fix \"src/**/*.{js,ts,jsx,tsx}\"",
-        "lint:prettier": "prettier --check \"src/**/*.{js,ts,jsx,tsx}\"",
-        "lint:prettier:write": "prettier --write \"src/**/*.{js,ts,jsx,tsx}\"",
         "yarn:show-outdated-packages": "yarn outdated",
         "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build"
     },
@@ -69,9 +67,9 @@
         "parser": "@typescript-eslint/parser",
         "extends": [
             "react-app",
-            "prettier",
             "plugin:import/recommended",
-            "plugin:import/typescript"
+            "plugin:import/typescript",
+            "prettier"
         ],
         "env": {
             "browser": true,
@@ -93,6 +91,9 @@
             "import/newline-after-import": 1,
             "import/no-commonjs": 0,
             "import/no-named-as-default": 0,
+            "prettier/prettier": "error",
+            "arrow-body-style": "off",
+            "prefer-arrow-callback": "off",
             "unused-imports/no-unused-imports": "error",
             "unused-imports/no-unused-vars": [
                 "warn",
@@ -144,7 +145,8 @@
         "plugins": [
             "testing-library",
             "unused-imports",
-            "jest-dom"
+            "jest-dom",
+            "prettier"
         ],
         "ignorePatterns": [
             "node_modules/",
@@ -164,6 +166,7 @@
         ]
     },
     "devDependencies": {
+        "@rest-hooks/test": "^7.3.1",
         "@testing-library/cypress": "^8.0.2",
         "@testing-library/jest-dom": "^5.16.1",
         "@testing-library/react": "^12.1.2",
@@ -181,6 +184,7 @@
         "eslint-config-react-app": "^7.0.0",
         "eslint-plugin-cypress": "^2.12.1",
         "eslint-plugin-jest-dom": "^4.0.1",
+        "eslint-plugin-prettier": "^4.0.0",
         "eslint-plugin-testing-library": "^5.0.3",
         "eslint-plugin-unused-imports": "2.0.0",
         "jest-canvas-mock": "^2.3.1",

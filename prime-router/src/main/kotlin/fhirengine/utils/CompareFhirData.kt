@@ -72,13 +72,15 @@ class CompareFhirData(
 
         // Compare all the resources.
         resourcesToCompare.keys.forEach { expectedResource ->
-            val resourceMatches = resourcesToCompare[expectedResource]?.all { actualResource ->
-                logger.info("")
-                logger.info("Comparing ${expectedResource.fhirType()}...")
+            logger.info("Comparing ${expectedResource.fhirType()}...")
+            logger.debug("Expected ID: ${expectedResource.id}")
+            val resourceMatches = resourcesToCompare[expectedResource]?.any { actualResource ->
+                logger.debug("Comparing to actual ID: ${actualResource.idBase}")
                 compareResource(actualResource, expectedResource, expectedResource.fhirType(), result)
             }
             result.passed = result.passed and (resourceMatches ?: true)
             logger.info("Resource ${expectedResource.fhirType()} matches = $resourceMatches")
+            logger.info("")
         }
         logger.debug("FHIR bundles are ${if (result.passed) "IDENTICAL" else "DIFFERENT"}")
     }
