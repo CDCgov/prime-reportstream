@@ -142,7 +142,7 @@ elements:
     hhsGuidanceField:
 
   - name: file_created_date
-    type: DATE
+    type: DATETIME
     natFlatFileField: File_created_date
     hhsGuidanceField:
     hl7Field: MSH-7
