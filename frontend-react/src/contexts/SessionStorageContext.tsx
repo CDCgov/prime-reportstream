@@ -1,9 +1,9 @@
-import { createContext, FC, useContext } from "react";
+import { createContext, FC, useContext, useReducer } from "react";
 
 import useSessionStorage, {
     SessionController,
 } from "../hooks/UseSessionStorage";
-import { MembershipController, useGroups } from "../hooks/UseGroups";
+import { MembershipController /* useGroups */ } from "../hooks/UseGroups";
 
 interface ISessionContext {
     memberships: MembershipController;
@@ -17,12 +17,16 @@ export const SessionContext = createContext<ISessionContext>({
 
 const SessionProvider: FC = ({ children }) => {
     const store = useSessionStorage();
-    const memberships = useGroups();
+    // const memberships = useGroups();
+    const [fakeMemberState, fakeMemberDispatch] = useReducer(() => ({}), {});
 
     return (
         <SessionContext.Provider
             value={{
-                memberships: memberships,
+                memberships: {
+                    state: fakeMemberState,
+                    dispatch: fakeMemberDispatch,
+                },
                 store: store,
             }}
         >
