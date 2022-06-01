@@ -15,6 +15,10 @@ import useCursorManager, {
 } from "../../hooks/filters/UseCursorManager";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters from "../../components/Table/TableFilters";
+import Pagination, {
+    OVERFLOW_INDICATOR,
+    SlotItem,
+} from "../../components/Table/Pagination";
 import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import {
     CheckFeatureFlag,
@@ -144,6 +148,23 @@ function SubmissionTableWithCursorManager() {
     );
 }
 
+function SubmissionTableWithNumberedPagination() {
+    const slots: SlotItem[] = [1, 2, 3, 4, 5, 6, OVERFLOW_INDICATOR];
+    const currentPageNum = 2;
+    return (
+        <>
+            <div>TK</div>
+            <Pagination
+                currentPageNum={currentPageNum}
+                setCurrentPage={(p: number) =>
+                    console.log("Set current page:", p)
+                }
+                slots={slots}
+            />
+        </>
+    );
+}
+
 function SubmissionTable() {
     const isNumberedPaginationOn = CheckFeatureFlag(
         FeatureFlagName.NUMBERED_PAGINATION
@@ -153,7 +174,9 @@ function SubmissionTable() {
             fallbackComponent={() => <ErrorPage type="message" />}
         >
             <Suspense fallback={<Spinner />}>
-                {isNumberedPaginationOn && <div>TK</div>}
+                {isNumberedPaginationOn && (
+                    <SubmissionTableWithNumberedPagination />
+                )}
                 {!isNumberedPaginationOn && (
                     <SubmissionTableWithCursorManager />
                 )}

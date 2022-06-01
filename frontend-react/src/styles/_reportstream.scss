@@ -411,4 +411,13 @@ pre {
     white-space: pre-wrap;
     padding: 1.33rem;
     border-radius: 1rem;
+
+.rs-pagination-no-button {
+  @include u-bg('white');
+  cursor: pointer;
+}
+
+.rs-pagination-arrow-button {
+  align-items: center;
+  display: inline-flex;
 }

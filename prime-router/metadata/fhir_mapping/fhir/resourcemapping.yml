@@ -18,3 +18,4 @@ Device: org.hl7.fhir.r4.model.Device
 Coverage: org.hl7.fhir.r4.model.Coverage
 RelatedPerson: org.hl7.fhir.r4.model.RelatedPerson
 Provenance: org.hl7.fhir.r4.model.Provenance
+Location: org.hl7.fhir.r4.model.Location
