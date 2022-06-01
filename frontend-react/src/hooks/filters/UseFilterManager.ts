@@ -84,3 +84,4 @@ const useFilterManager = (defaults?: FilterManagerDefaults): FilterManager => {
 
 export default useFilterManager;
 export { cursorOrRange };
+export type { FilterManagerDefaults };

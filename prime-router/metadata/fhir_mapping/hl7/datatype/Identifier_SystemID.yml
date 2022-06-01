@@ -81,8 +81,23 @@ extension_2:
     KEY_NAME_SUFFIX: Oid
     urlValue: assigning-authority-universal-id
 
-# Assigning facility namespace
 extension_3:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $systemStr EQUALS $isoSystemStr
+  vars:
+    idStr: String, XCN.9.2
+    value: $oidUrlPrefix + XCN.9.2
+    systemStr: String, XCN.9.3
+  constants:
+    isoSystemStr: "ISO"
+    oidUrlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: Oid
+    urlValue: assigning-authority-universal-id
+
+# Assigning facility namespace
+extension_4:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
