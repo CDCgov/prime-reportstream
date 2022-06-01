@@ -73,6 +73,12 @@ class FHIRFlowFunctions(
             }
             // TODO instrument the rest of the pipeline.
             logger.info("Received ${fhirBundles.size} FHIR bundles.")
+
+            // add report_file
+
+            // add task
+            // add action
+            // put in pipeline for next step (batch)
         } catch (e: IllegalArgumentException) {
             logger.error(e)
             actionLogger.error(InvalidReportMessage(e.message ?: ""))
