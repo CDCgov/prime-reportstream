@@ -84,7 +84,7 @@ const PaginationArrow: React.FC<PaginationArrowProps> = ({
 
 export interface PaginationProps {
     slots: SlotItem[];
-    setCurrentPage: (pageNum: number) => void;
+    setSelectedPage: (pageNum: number) => void;
     currentPageNum: number;
     label?: string;
 }

@@ -7,8 +7,9 @@ import usePagination, {
     CursorExtractor,
     getSlots,
     PaginationState,
+    ProcessResultsPayload,
     UsePaginationProps,
-    setCurrentPageReducer,
+    setSelectedPageReducer,
     processResultsReducer,
 } from "./UsePagination";
 
@@ -175,16 +176,24 @@ describe("processResultsReducer", () => {
         const state: PaginationState<SampleRecord> = {
             currentPageNum: 1,
             extractCursor,
+            isLoading: true,
             pageSize: 10,
             pageCursorMap: { 1: "0" },
             pageResultsMap: {},
-            fetchStartPageNum: 1,
-            fetchNumResults: 61,
-            fetchStartCursor: "0",
         };
         const results = createSampleRecords(61);
-        expect(processResultsReducer(state, results)).toStrictEqual({
+        const payload: ProcessResultsPayload<SampleRecord> = {
+            results,
+            requestConfig: {
+                selectedPageNum: 1,
+                startPageNum: 1,
+                numResults: 61,
+                startCursor: "0",
+            },
+        };
+        expect(processResultsReducer(state, payload)).toStrictEqual({
             ...state,
+            isLoading: false,
             pageResultsMap: {
                 1: results.slice(0, 10),
                 2: results.slice(10, 20),
@@ -210,16 +219,24 @@ describe("processResultsReducer", () => {
         const state: PaginationState<SampleRecord> = {
             currentPageNum: 1,
             extractCursor,
+            isLoading: true,
             pageSize: 10,
             pageCursorMap: { 1: "0" },
             pageResultsMap: {},
-            fetchStartPageNum: 1,
-            fetchNumResults: 61,
-            fetchStartCursor: "0",
         };
         const results = createSampleRecords(30);
-        expect(processResultsReducer(state, results)).toStrictEqual({
+        const payload: ProcessResultsPayload<SampleRecord> = {
+            results,
+            requestConfig: {
+                selectedPageNum: 1,
+                startPageNum: 1,
+                numResults: 61,
+                startCursor: "0",
+            },
+        };
+        expect(processResultsReducer(state, payload)).toStrictEqual({
             ...state,
+            isLoading: false,
             pageResultsMap: {
                 1: results.slice(0, 10),
                 2: results.slice(10, 20),
@@ -235,31 +252,33 @@ describe("processResultsReducer", () => {
     });
 });
 
-describe("setCurrentPageReducer", () => {
+describe("setSelectedPageReducer", () => {
     test("with no stored data", () => {
         const state: PaginationState<SampleRecord> = {
             currentPageNum: 1,
             extractCursor,
+            isLoading: false,
             pageSize: 10,
             pageCursorMap: { 1: "0" },
             pageResultsMap: {},
-            fetchStartPageNum: 1,
-            fetchNumResults: 61,
-            fetchStartCursor: "0",
         };
-        expect(setCurrentPageReducer(state, 1)).toStrictEqual({
+        expect(setSelectedPageReducer(state, 1)).toStrictEqual({
             ...state,
-            currentPageNum: 1,
-            fetchNumResults: 61,
-            fetchStartCursor: "0",
-            fetchStartPageNum: 1,
-        });
+            isLoading: true,
+            requestConfig: {
+                numResults: 61,
+                startCursor: "0",
+                startPageNum: 1,
+                selectedPageNum: 1,
+            },
+        } as PaginationState<SampleRecord>);
     });
 
     test("when some of the data has been fetched", () => {
         const state: PaginationState<SampleRecord> = {
             currentPageNum: 1,
             extractCursor,
+            isLoading: false,
             pageSize: 10,
             pageCursorMap: {
                 1: "0",
@@ -272,19 +291,23 @@ describe("setCurrentPageReducer", () => {
             },
             pageResultsMap: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
         };
-        expect(setCurrentPageReducer(state, 6)).toStrictEqual({
+        expect(setSelectedPageReducer(state, 6)).toStrictEqual({
             ...state,
-            currentPageNum: 6,
-            fetchNumResults: 21,
-            fetchStartCursor: "61",
-            fetchStartPageNum: 7,
-        });
+            isLoading: true,
+            requestConfig: {
+                numResults: 21,
+                startCursor: "61",
+                startPageNum: 7,
+                selectedPageNum: 6,
+            },
+        } as PaginationState<SampleRecord>);
     });
 
     test("when all of the data has been fetched", () => {
         const state: PaginationState<SampleRecord> = {
             currentPageNum: 7,
             extractCursor,
+            isLoading: false,
             pageSize: 10,
             pageCursorMap: {
                 1: "0",
@@ -312,10 +335,11 @@ describe("setCurrentPageReducer", () => {
             },
             finalPageNum: 10,
         };
-        expect(setCurrentPageReducer(state, 10)).toStrictEqual({
+        expect(setSelectedPageReducer(state, 10)).toStrictEqual({
             ...state,
             currentPageNum: 10,
-        });
+            requestConfig: undefined,
+        } as PaginationState<SampleRecord>);
     });
 });
 
@@ -339,7 +363,8 @@ describe("usePagination", () => {
             extractCursor,
         });
         await waitForNextUpdate();
-        // The request on the first page should check for the presence of up to seven pages.
+        // The request on the first page should check for the presence of up to
+        // seven pages.
         expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
         expect(result.current.paginationProps).toBeUndefined();
         expect(result.current.currentPageResults).toStrictEqual([]);
@@ -355,7 +380,8 @@ describe("usePagination", () => {
             extractCursor,
         });
         await waitForNextUpdate();
-        // The request on the first page should check for the presence of up to seven pages.
+        // The request on the first page should check for the presence of up to
+        // seven pages.
         expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
         expect(result.current.paginationProps?.currentPageNum).toBe(1);
         expect(result.current.paginationProps?.slots).toStrictEqual([
@@ -381,8 +407,20 @@ describe("usePagination", () => {
         });
         await waitForNextUpdate();
         act(() => {
-            result.current.paginationProps?.setCurrentPage(6);
+            result.current.paginationProps?.setSelectedPage(6);
         });
+        // The current page and slots should not update until the fetch resolves
+        expect(result.current.paginationProps?.currentPageNum).toBe(1);
+        expect(result.current.paginationProps?.slots).toStrictEqual([
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            OVERFLOW_INDICATOR,
+        ]);
+
         await waitForNextUpdate();
         expect(mockFetchResults).toHaveBeenLastCalledWith("61", 21);
         expect(result.current.paginationProps?.currentPageNum).toBe(6);
@@ -396,8 +434,9 @@ describe("usePagination", () => {
             OVERFLOW_INDICATOR,
         ]);
 
-        // The current page of results is still from the first fetch. The second fetch was needed to
-        // extend the pagination, not get the results for the current page.
+        // The current page of results is still from the first fetch. The second
+        // fetch was needed to extend the pagination, not get the results for
+        // the current page.
         expect(result.current.currentPageResults).toStrictEqual(
             results1.slice(50, 60)
         );
@@ -415,13 +454,16 @@ describe("usePagination", () => {
             extractCursor,
         });
 
-        // Wait for the fetch promise to resolve, then check the slots and move to the next page.
+        // Wait for the fetch promise to resolve, then check the slots and move
+        // to the next page.
         await waitForNextUpdate();
         expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
         expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
         act(() => {
-            result.current.paginationProps?.setCurrentPage(2);
+            result.current.paginationProps?.setSelectedPage(2);
         });
+        // The current page should update right away since we don't need to
+        // fetch any more results.
         expect(result.current.paginationProps?.currentPageNum).toBe(2);
 
         // Rerender with a new start cursor.
@@ -432,8 +474,8 @@ describe("usePagination", () => {
             extractCursor,
         });
         await waitForNextUpdate();
-        // After a reset, the fetch count should reflect an initial request, which needs to check
-        // for the presence of up to five pages.
+        // After a reset, the fetch count should reflect an initial request,
+        // which needs to check for the presence of up to five pages.
         expect(mockFetchResults).toHaveBeenLastCalledWith("9999", 61);
         expect(result.current.paginationProps?.currentPageNum).toBe(1);
     });
@@ -458,13 +500,13 @@ describe("usePagination", () => {
         // Set the results and move to the second page.
         await waitForNextUpdate();
         act(() => {
-            result.current.paginationProps?.setCurrentPage(2);
+            result.current.paginationProps?.setSelectedPage(2);
         });
         expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
         expect(result.current.paginationProps?.currentPageNum).toBe(2);
 
-        // Rerender with a new fetch results callback to create the list request parameters, e.g. when the sort
-        // order changes.
+        // Rerender with a new fetch results callback to create the list request
+        // parameters, e.g. when the sort order changes.
         rerender({
             ...initialProps,
             fetchResults: mockFetchResults2,
