@@ -1,0 +1,100 @@
+name: Deploy Terraform
+
+on:
+  push:
+    branches:
+      - master
+      - production
+
+jobs:
+  pre_job:
+    name: Set Build Environment
+    concurrency: 
+      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.build_vars.outputs.env_name }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
+  confirm_changes:
+    name: Check Terraform Stats - ${{ needs.pre_job.outputs.env_name }}
+    concurrency: 
+      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+      cancel-in-progress: true
+    needs:
+      - pre_job
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    runs-on: ubuntu-latest
+    outputs:
+      change_count: ${{ steps.stats1.outputs.change-count }}
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: true
+      - name: Collect Terraform stats
+        uses: josiahsiegel/terraform-stats@bce66bdcc53b547ee328f1c383890eede85db5ae
+        id: stats1
+        with:
+          terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+
+  approve_deploy:
+    name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
+    concurrency: 
+      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+      cancel-in-progress: true
+    needs:
+      - pre_job
+      - confirm_changes
+    if: needs.confirm_changes.outputs.change_count > '0'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.pre_job.outputs.env_name }}_terraform
+    steps:
+      - name: Echo change count
+        run: echo ${{ needs.confirm_changes.outputs.change_count }}
+
+  run_deploy:
+    name: Run Deploy - ${{ needs.pre_job.outputs.env_name }}
+    concurrency: 
+      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+      cancel-in-progress: true
+    needs:
+      - pre_job
+      - approve_deploy
+    if: needs.confirm_changes.outputs.change_count > '0'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    defaults:
+      run:
+        working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: true
+      - name: Run Terraform
+        run: |
+          terraform init -input=false
+          terraform apply -input=false -no-color -lock-timeout=120s -auto-approve

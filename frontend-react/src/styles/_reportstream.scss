@@ -396,3 +396,22 @@ h3 img[src*="svg"] {
     background: transparent;
     color: #005ea2;
 }
+
+.flex-justify-between {
+    justify-content: space-between;
+}
+
+.rs-sortable-header:hover {
+    cursor: pointer;
+}
+
+// Pagination
+.rs-pagination-no-button {
+  @include u-bg('white');
+  cursor: pointer;
+}
+
+.rs-pagination-arrow-button {
+  align-items: center;
+  display: inline-flex;
+}

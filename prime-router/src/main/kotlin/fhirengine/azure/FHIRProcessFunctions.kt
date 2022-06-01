@@ -9,7 +9,6 @@ import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.fhirengine.engine.Message
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
@@ -23,7 +22,7 @@ const val elrProcessQueueName = "process-elr"
  * @property actionHistory the action history tracker
  * @property actionLogger the action logger
  */
-class FHIRFlowFunctions(
+class FHIRProcessFunctions(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.process),
     private val actionLogger: ActionLogger = ActionLogger()
@@ -41,19 +40,20 @@ class FHIRFlowFunctions(
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
         logger.debug("Processing message: $message for the $dequeueCount time")
-        val messageContent = Message.deserialize(message)
-        check(messageContent is RawSubmission) {
-            "An unknown message was received by the FHIR Engine ${messageContent.javaClass.kotlin.qualifiedName}"
-        }
-
-        try {
-            processHL7(messageContent)
-        } catch (e: Exception) {
-            logger.error("Unknown error.", e)
-        }
-        actionHistory.trackActionParams(message)
-        actionHistory.trackLogs(actionLogger.logs)
-        workflowEngine.recordAction(actionHistory)
+        // TODO: This will be part of 4824 and does not work yet.
+//        val messageContent = Message.deserialize(message)
+//        check(messageContent is RawSubmission) {
+//            "An unknown message was received by the FHIR Engine ${messageContent.javaClass.kotlin.qualifiedName}"
+//        }
+//
+//        try {
+//            processHL7(messageContent)
+//        } catch (e: Exception) {
+//            logger.error("Unknown error.", e)
+//        }
+//        actionHistory.trackActionParams(message)
+//        actionHistory.trackLogs(actionLogger.logs)
+//        workflowEngine.recordAction(actionHistory)
     }
 
     /**

@@ -219,10 +219,6 @@ class ELRReceiver : SubmissionReceiver {
         val report = Report(
             Format.HL7,
             sources,
-            // ELR submissions don't really have a 'schema' in the sense that we are using it, but it is a
-            //  non-nullable field and fits into our reporting. This also leaves the option to implement
-            //  schema-per-sender in the future if it is needed
-            Schema("None", Topic.FULL_ELR.toString()),
             messages.size
         )
 

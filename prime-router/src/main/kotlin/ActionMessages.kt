@@ -172,7 +172,7 @@ class FhirActionLogDetail(
 ) : GenericActionLogDetail(message, ActionLogScope.report)
 
 /**
- * A [message] for invalid processing type
+ * A return message for invalid processing type
  */
 class UnsupportedProcessingTypeMessage() : ActionLogDetail {
     override val scope = ActionLogScope.report
