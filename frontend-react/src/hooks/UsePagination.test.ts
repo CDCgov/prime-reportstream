@@ -172,23 +172,96 @@ describe("getSlots", () => {
 });
 
 describe("processResultsReducer", () => {
-    test("with all of the requested results", () => {
-        const state: PaginationState<SampleRecord> = {
+    function getInitialState(): PaginationState<SampleRecord> {
+        return {
             currentPageNum: 1,
             extractCursor,
+            isCursorInclusive: false,
             isLoading: true,
             pageSize: 10,
             pageCursorMap: { 1: "0" },
             pageResultsMap: {},
+        };
+    }
+
+    test("with all of the requested results", () => {
+        const state: PaginationState<SampleRecord> = getInitialState();
+        const results = createSampleRecords(61);
+        const payload: ProcessResultsPayload<SampleRecord> = {
+            results,
+            requestConfig: {
+                selectedPageNum: 1,
+                cursorPageNum: 1,
+                numResults: 61,
+                cursor: "0",
+            },
+        };
+        expect(processResultsReducer(state, payload)).toStrictEqual({
+            ...state,
+            isLoading: false,
+            pageResultsMap: {
+                1: results.slice(0, 10),
+                2: results.slice(10, 20),
+                3: results.slice(20, 30),
+                4: results.slice(30, 40),
+                5: results.slice(40, 50),
+                6: results.slice(50, 60),
+            },
+            pageCursorMap: {
+                1: "0",
+                2: "10",
+                3: "20",
+                4: "30",
+                5: "40",
+                6: "50",
+                7: "60",
+            },
+            finalPageNum: undefined,
+        });
+    });
+
+    test("with fewer than the requested number of results", () => {
+        const state: PaginationState<SampleRecord> = getInitialState();
+        const results = createSampleRecords(30);
+        const payload: ProcessResultsPayload<SampleRecord> = {
+            results,
+            requestConfig: {
+                selectedPageNum: 1,
+                cursorPageNum: 1,
+                numResults: 61,
+                cursor: "0",
+            },
+        };
+        expect(processResultsReducer(state, payload)).toStrictEqual({
+            ...state,
+            isLoading: false,
+            pageResultsMap: {
+                1: results.slice(0, 10),
+                2: results.slice(10, 20),
+                3: results.slice(20),
+            },
+            pageCursorMap: {
+                1: "0",
+                2: "10",
+                3: "20",
+            },
+            finalPageNum: 3,
+        });
+    });
+
+    test("stores inclusive cursors from the first result on the page", () => {
+        const state: PaginationState<SampleRecord> = {
+            ...getInitialState(),
+            isCursorInclusive: true,
         };
         const results = createSampleRecords(61);
         const payload: ProcessResultsPayload<SampleRecord> = {
             results,
             requestConfig: {
                 selectedPageNum: 1,
-                startPageNum: 1,
+                cursorPageNum: 1,
                 numResults: 61,
-                startCursor: "0",
+                cursor: "0",
             },
         };
         expect(processResultsReducer(state, payload)).toStrictEqual({
@@ -214,42 +287,6 @@ describe("processResultsReducer", () => {
             finalPageNum: undefined,
         });
     });
-
-    test("with fewer than the requested number of results", () => {
-        const state: PaginationState<SampleRecord> = {
-            currentPageNum: 1,
-            extractCursor,
-            isLoading: true,
-            pageSize: 10,
-            pageCursorMap: { 1: "0" },
-            pageResultsMap: {},
-        };
-        const results = createSampleRecords(30);
-        const payload: ProcessResultsPayload<SampleRecord> = {
-            results,
-            requestConfig: {
-                selectedPageNum: 1,
-                startPageNum: 1,
-                numResults: 61,
-                startCursor: "0",
-            },
-        };
-        expect(processResultsReducer(state, payload)).toStrictEqual({
-            ...state,
-            isLoading: false,
-            pageResultsMap: {
-                1: results.slice(0, 10),
-                2: results.slice(10, 20),
-                3: results.slice(20),
-            },
-            pageCursorMap: {
-                1: "0",
-                2: "11",
-                3: "21",
-            },
-            finalPageNum: 3,
-        });
-    });
 });
 
 describe("setSelectedPageReducer", () => {
@@ -257,6 +294,7 @@ describe("setSelectedPageReducer", () => {
         const state: PaginationState<SampleRecord> = {
             currentPageNum: 1,
             extractCursor,
+            isCursorInclusive: false,
             isLoading: false,
             pageSize: 10,
             pageCursorMap: { 1: "0" },
@@ -267,8 +305,8 @@ describe("setSelectedPageReducer", () => {
             isLoading: true,
             requestConfig: {
                 numResults: 61,
-                startCursor: "0",
-                startPageNum: 1,
+                cursor: "0",
+                cursorPageNum: 1,
                 selectedPageNum: 1,
             },
         } as PaginationState<SampleRecord>);
@@ -278,16 +316,17 @@ describe("setSelectedPageReducer", () => {
         const state: PaginationState<SampleRecord> = {
             currentPageNum: 1,
             extractCursor,
+            isCursorInclusive: false,
             isLoading: false,
             pageSize: 10,
             pageCursorMap: {
                 1: "0",
-                2: "11",
-                3: "21",
-                4: "31",
-                5: "41",
-                6: "51",
-                7: "61",
+                2: "10",
+                3: "20",
+                4: "30",
+                5: "40",
+                6: "50",
+                7: "60",
             },
             pageResultsMap: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
         };
@@ -296,10 +335,36 @@ describe("setSelectedPageReducer", () => {
             isLoading: true,
             requestConfig: {
                 numResults: 21,
-                startCursor: "61",
-                startPageNum: 7,
+                cursor: "60",
+                cursorPageNum: 7,
                 selectedPageNum: 6,
             },
+        } as PaginationState<SampleRecord>);
+    });
+
+    test("when going to a previous page", () => {
+        const state: PaginationState<SampleRecord> = {
+            currentPageNum: 5,
+            extractCursor,
+            isCursorInclusive: false,
+            isLoading: false,
+            pageSize: 10,
+            pageCursorMap: {
+                1: "0",
+                2: "10",
+                3: "20",
+                4: "30",
+                5: "40",
+                6: "50",
+                7: "60",
+                8: "70",
+            },
+            pageResultsMap: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] },
+        };
+        expect(setSelectedPageReducer(state, 4)).toStrictEqual({
+            ...state,
+            currentPageNum: 4,
+            requestConfig: undefined,
         } as PaginationState<SampleRecord>);
     });
 
@@ -307,19 +372,20 @@ describe("setSelectedPageReducer", () => {
         const state: PaginationState<SampleRecord> = {
             currentPageNum: 7,
             extractCursor,
+            isCursorInclusive: false,
             isLoading: false,
             pageSize: 10,
             pageCursorMap: {
                 1: "0",
-                2: "11",
-                3: "21",
-                4: "31",
-                5: "41",
-                6: "51",
-                7: "61",
-                8: "71",
-                9: "81",
-                10: "91",
+                2: "10",
+                3: "20",
+                4: "30",
+                5: "40",
+                6: "50",
+                7: "60",
+                8: "70",
+                9: "80",
+                10: "90",
             },
             pageResultsMap: {
                 1: [],
@@ -358,6 +424,7 @@ describe("usePagination", () => {
         const mockFetchResults = jest.fn().mockResolvedValueOnce([]);
         const { result, waitForNextUpdate } = doRenderHook({
             startCursor: "0",
+            isCursorInclusive: false,
             pageSize: 10,
             fetchResults: mockFetchResults,
             extractCursor,
@@ -375,6 +442,7 @@ describe("usePagination", () => {
         const mockFetchResults = jest.fn().mockResolvedValueOnce(results);
         const { result, waitForNextUpdate } = doRenderHook({
             startCursor: "0",
+            isCursorInclusive: false,
             pageSize: 10,
             fetchResults: mockFetchResults,
             extractCursor,
@@ -401,6 +469,7 @@ describe("usePagination", () => {
             .mockResolvedValueOnce(results2);
         const { result, waitForNextUpdate } = doRenderHook({
             startCursor: "0",
+            isCursorInclusive: false,
             pageSize: 10,
             fetchResults: mockFetchResults,
             extractCursor,
@@ -423,7 +492,7 @@ describe("usePagination", () => {
         expect(result.current.isLoading).toBe(true);
 
         await waitForNextUpdate();
-        expect(mockFetchResults).toHaveBeenLastCalledWith("61", 21);
+        expect(mockFetchResults).toHaveBeenLastCalledWith("60", 21);
         expect(result.current.paginationProps?.currentPageNum).toBe(6);
         expect(result.current.paginationProps?.slots).toStrictEqual([
             1,
@@ -451,6 +520,7 @@ describe("usePagination", () => {
             .mockResolvedValueOnce(createSampleRecords(11));
         const { result, rerender, waitForNextUpdate } = doRenderHook({
             startCursor: "0",
+            isCursorInclusive: false,
             pageSize: 10,
             fetchResults: mockFetchResults,
             extractCursor,
@@ -471,6 +541,7 @@ describe("usePagination", () => {
         // Rerender with a new start cursor.
         rerender({
             startCursor: "9999",
+            isCursorInclusive: false,
             pageSize: 10,
             fetchResults: mockFetchResults,
             extractCursor,
@@ -492,6 +563,7 @@ describe("usePagination", () => {
             .mockResolvedValueOnce(createSampleRecords(1));
         const initialProps = {
             startCursor: "1",
+            isCursorInclusive: false,
             pageSize: 10,
             fetchResults: mockFetchResults1,
             extractCursor,

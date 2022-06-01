@@ -17,7 +17,13 @@ import usePages, {
     PageSettingsActionType,
 } from "./UsePages";
 
+type Range = {
+    start: string;
+    end: string;
+};
+
 export interface FilterManager {
+    selectedRange: Range;
     rangeSettings: RangeSettings;
     sortSettings: SortSettings;
     pageSettings: PageSettings;
@@ -58,6 +64,17 @@ const cursorOrRange = (
     return range; // fallback to just the range value
 };
 
+const getRange = (
+    order: SortOrder,
+    lowValue: string,
+    highValue: string
+): Range => {
+    if (order === "ASC") {
+        return { start: lowValue, end: highValue };
+    }
+    return { start: highValue, end: lowValue };
+};
+
 const useFilterManager = (defaults?: FilterManagerDefaults): FilterManager => {
     const { settings: rangeSettings, update: updateRange } = useDateRange();
     const { settings: sortSettings, update: updateSort } = useSortOrder(
@@ -71,7 +88,14 @@ const useFilterManager = (defaults?: FilterManagerDefaults): FilterManager => {
         updatePage({ type: PageSettingsActionType.RESET });
     }, [updatePage, updateRange, updateSort]);
 
+    const selectedRange = getRange(
+        sortSettings.order,
+        rangeSettings.from,
+        rangeSettings.to
+    );
+
     return {
+        selectedRange,
         rangeSettings,
         sortSettings,
         pageSettings,
@@ -83,5 +107,5 @@ const useFilterManager = (defaults?: FilterManagerDefaults): FilterManager => {
 };
 
 export default useFilterManager;
-export { cursorOrRange };
+export { cursorOrRange, getRange };
 export type { FilterManagerDefaults };
