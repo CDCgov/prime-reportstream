@@ -568,7 +568,6 @@ class Report : Logging {
             if (it.name == "patient_zip_code") {
                 buildRestritedZipCode(it.name)
             } else if (it.pii == true) {
-            if (it.pii == true) {
                 table.column(it.name)
                     .asStringColumn()
                     .set(
