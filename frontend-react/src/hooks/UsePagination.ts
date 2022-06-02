@@ -96,26 +96,23 @@ export interface RequestConfig {
 
 // Internal state for the hook.
 export interface PaginationState<T> {
+    // See UsePaginationProps
+    extractCursor: CursorExtractor<T>;
+    // See UsePaginationProps
+    isCursorInclusive: boolean;
     // Current page of results being displayed in the UI.
     currentPageNum: number;
-    // Function for extracting the cursor value from a result in the paginated
-    // set.
-    extractCursor: CursorExtractor<T>;
     // The final page number of the paginated set or undefined if the end of the
     // set has not been reached.
     finalPageNum?: number;
-    // Whether the cursor value in requests is inclusive. If true, a page's
-    // cursor is taken from the first result on the page, otherwise it's taken
-    // from the last result on the previous page.
-    isCursorInclusive: boolean;
+    // Whether there is a in-flight request for more results.
+    isLoading: boolean;
     // Map of page numbers to the cursor of the first item on the page.
     pageCursorMap: Record<number, string>;
     // Map of page numbers to the list of results on each page.
     pageResultsMap: Record<number, T[]>;
     // Number of items on a page of results in the UI.
     pageSize: number;
-    // Whether there is a in-flight request for more results.
-    isLoading: boolean;
     // Optional set of parameters for requesting a new batch of results.
     requestConfig?: RequestConfig;
 }
