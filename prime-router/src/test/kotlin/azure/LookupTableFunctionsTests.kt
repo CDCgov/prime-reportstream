@@ -54,7 +54,7 @@ class LookupTableFunctionsTests {
         every { mockResponse.statusCode } returns 200
         every { mockResponse.getHeader(any()) } returns ""
         // arrange our mock request builder
-        every { mockRequestBuilder.build() } returns mockResponse
+        every { mockRequestBuilder.build() } answers { callOriginal() }
         every { mockRequestBuilder.body(any()) } answers { callOriginal() }
         every { mockRequestBuilder.header(any(), any()) } answers { callOriginal() }
         every { mockRequestBuilder.status(any()) } answers { callOriginal() }
@@ -62,7 +62,7 @@ class LookupTableFunctionsTests {
         // arrange our mock request
         every { mockRequest.headers } returns mapOf(HttpHeaders.AUTHORIZATION.lowercase() to "Bearer dummy")
         every { mockRequest.uri } returns URI.create("http://localhost:7071/api/lookuptables")
-        every { mockRequest.createResponseBuilder(any()) } returns mockRequestBuilder
+        every { mockRequest.createResponseBuilder(any()) } answers { createResponseBuilder() }
     }
 
     /**
