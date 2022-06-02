@@ -12,7 +12,7 @@ export const SupportFaq = () => {
                     <div className="tablet:grid-col-8 usa-prose">
                         <section>
                             <h1 className="margin-top-0">
-                                Frequently asked questions (FAQ){" "}
+                                Frequently asked questions{" "}
                             </h1>
 
                             <div className="margin-top-6 border-top border-base-lighter usa-prose">
@@ -26,17 +26,17 @@ export const SupportFaq = () => {
                             </p>
 
                             <h2 className="margin-top-4">
-                                Where does ReportStream work?
+                                Where can you use ReportStream?
                             </h2>
                             <p>
                                 ReportStream is currently live or getting set up
-                                in jurisdictions across the United States.
-                                Here's a{" "}
+                                in jurisdictions across the United States. Take
+                                a look at the complete{" "}
                                 <a
                                     className="usa-link"
                                     href="/how-it-works/where-were-live"
                                 >
-                                    map and list of where we're live
+                                    list of ReportStream partners
                                 </a>
                                 .
                             </p>
@@ -133,8 +133,8 @@ export const SupportFaq = () => {
                             </h2>
                             <p>
                                 If you forgot your password, follow the
-                                instructions under "Need help signing in?" on
-                                the login page at{" "}
+                                instructions under the "Need help signing in?"
+                                link on the login page at{" "}
                                 <NavLink
                                     to="/login"
                                     key="login"
@@ -147,8 +147,8 @@ export const SupportFaq = () => {
                             <p>
                                 If you want to update your password, log out of
                                 the application and follow the instructions
-                                under "Need help signing in?" on the login page
-                                at{" "}
+                                under the "Need help signing in?" link on the
+                                login page at{" "}
                                 <NavLink
                                     to="/login"
                                     key="login"
@@ -263,8 +263,16 @@ export const SupportFaq = () => {
                                 SimpleReport?{" "}
                             </h2>
                             <p>
-                                ReportStream and SimpleReport are sister
-                                projects under the{" "}
+                                ReportStream and{" "}
+                                <a
+                                    className="usa-link"
+                                    href="https://simplereport.gov"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    SimpleReport
+                                </a>{" "}
+                                are sister projects under the{" "}
                                 <a
                                     className="usa-link"
                                     href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html"
