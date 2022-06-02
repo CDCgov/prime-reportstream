@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure
 
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -369,7 +368,7 @@ class SubmissionFunctionTests : Logging {
     }
 
     @Test
-    fun `test SubmissionResultFilter parser - are cgi params converted correctly`() {
+    fun `test SubmissionResultFilter parser are cgi params converted correctly`() {
         // basic matching works
         assertThat(SubmissionResultFilter.fromCgiParam("all")).isEqualTo(SubmissionResultFilter.ALL)
         assertThat(SubmissionResultFilter.fromCgiParam("successOnly")).isEqualTo(
@@ -391,15 +390,15 @@ class SubmissionFunctionTests : Logging {
         )
 
         // invalid values fail to All
-        val DEFAULT_RESULT = SubmissionResultFilter.ONLY_SUCCESSFUL
+        val defaultResult = SubmissionResultFilter.ONLY_SUCCESSFUL
 
         assertThat(SubmissionResultFilter.fromCgiParam("")).isEqualTo(
-            DEFAULT_RESULT
+            defaultResult
         )
 
         // invalid values fail to All
         assertThat(SubmissionResultFilter.fromCgiParam("Failed")).isEqualTo(
-            DEFAULT_RESULT
+            defaultResult
         )
     }
 
@@ -417,21 +416,21 @@ class SubmissionFunctionTests : Logging {
         }
 
         // check basic success that are NOT defaults
-        val START_CURSOR_DATE_STR = "2020-11-12T01:23:45.678Z"
-        val END_CURSOR_DATE_STR = "2022-09-10T11:12:13.145Z"
+        val startCursorDateStr = "2020-11-12T01:23:45.678Z"
+        val endCursorDateStr = "2022-09-10T11:12:13.145Z"
 
         mapOf(
             "sort" to SubmissionAccess.SortOrder.ASC.toString(),
             "sortcol" to SubmissionAccess.SortColumn.CREATED_AT.toString(),
-            "cursor" to START_CURSOR_DATE_STR,
-            "endcursor" to END_CURSOR_DATE_STR,
+            "cursor" to startCursorDateStr,
+            "endcursor" to endCursorDateStr,
             "pagesize" to "50",
             "resultfilter" to "all",
             "showfailed" to "true", // obsolete so should be ignored if resultfilter available
         ).run {
             val result = SubmissionFunction.Parameters(this)
-            assertThat(result.cursor.toString()).isEqualTo(START_CURSOR_DATE_STR)
-            assertThat(result.endCursor.toString()).isEqualTo(END_CURSOR_DATE_STR)
+            assertThat(result.cursor.toString()).isEqualTo(startCursorDateStr)
+            assertThat(result.endCursor.toString()).isEqualTo(endCursorDateStr)
             assertThat(result.pageSize).isEqualTo(50)
             assertThat(result.filterResult).isEqualTo(SubmissionAccess.SubmissionResultFilter.ALL)
         }
