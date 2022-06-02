@@ -1,8 +1,10 @@
-import { FC, ReactElement } from "react";
+import { FC, ReactElement, useReducer } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
+import useSessionStorage from "../hooks/UseSessionStorage";
+import { SessionContext } from "../contexts/SessionStorageContext";
 
-import SessionProvider from "../contexts/SessionStorageContext";
+// import SessionProvider from "../contexts/SessionStorageContext";
 
 /* 
     To create a custom renderer, you must create a functional
@@ -21,9 +23,25 @@ const RouterWrapper: FC = ({ children }) => {
 };
 
 const SessionWrapper: FC = ({ children }) => {
+    const [fakeMemberState, fakeMemberDispatch] = useReducer(() => ({}), {});
+    const store = useSessionStorage();
+
+    const FakeSessionProvider: FC = () => (
+        <SessionContext.Provider
+            value={{
+                memberships: {
+                    state: fakeMemberState,
+                    dispatch: fakeMemberDispatch,
+                },
+                store,
+            }}
+        >
+            {children}
+        </SessionContext.Provider>
+    );
     return (
         <RouterWrapper>
-            <SessionProvider>{children}</SessionProvider>
+            <FakeSessionProvider>{children}</FakeSessionProvider>
         </RouterWrapper>
     );
 };
