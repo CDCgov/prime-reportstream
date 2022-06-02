@@ -14,29 +14,43 @@ abstract class ReportFileFunction(
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
     data class Parameters(
-        val sortDir: SubmissionAccess.SortOrder,
+        val sortDir: SubmissionAccess.SortDir,
         val sortColumn: SubmissionAccess.SortColumn,
         val cursor: OffsetDateTime,
+        val since: OffsetDateTime?,
+        val until: OffsetDateTime?,
         val pageSize: Int,
         val showFailed: Boolean
     ) {
         constructor(query: Map<String, String>) : this (
-            sortDir = extractSortOrder(query),
+            sortDir = extractSortDir(query),
             sortColumn = extractSortCol(query),
-            extractDateTime(query, "cursor"),
-            extractPageSize(query),
-            extractShowFailed(query)
+            cursor = extractDateTime(query, "cursor"),
+            since = extractDateTime(query, "since"),
+            until = extractDateTime(query, "until"),
+            pageSize = extractPageSize(query),
+            showFailed = extractShowFailed(query)
         )
 
         companion object {
-            fun extractSortOrder(query: Map<String, String>): SubmissionAccess.SortOrder {
+            /**
+             * Convert sorting direction from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
+            fun extractSortDir(query: Map<String, String>): SubmissionAccess.SortDir {
                 val sort = query["sort"]
                 return if (sort == null)
-                    SubmissionAccess.SortOrder.DESC
+                    SubmissionAccess.SortDir.DESC
                 else
-                    SubmissionAccess.SortOrder.valueOf(sort)
+                    SubmissionAccess.SortDir.valueOf(sort)
             }
 
+            /**
+             * Convert sorting column from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
             fun extractSortCol(query: Map<String, String>): SubmissionAccess.SortColumn {
                 val col = query["sortcol"]
                 return if (col == null)
@@ -45,6 +59,11 @@ abstract class ReportFileFunction(
                     SubmissionAccess.SortColumn.valueOf(col)
             }
 
+            /**
+             * Convert date time fields from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
             fun extractDateTime(query: Map<String, String>, name: String): OffsetDateTime {
                 val dt = query[name]
                 return if (dt != null) {
@@ -56,12 +75,22 @@ abstract class ReportFileFunction(
                 } else OffsetDateTime.now()
             }
 
+            /**
+             * Convert page size from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
             fun extractPageSize(query: Map<String, String>): Int {
                 val size = query.getOrDefault("pagesize", "50").toInt()
                 require(size > 0) { "Page size must be a positive integer" }
                 return size
             }
 
+            /**
+             * Convert show failed from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
             fun extractShowFailed(query: Map<String, String>): Boolean {
                 return query["showfailed"]?.toBoolean() ?: false
             }

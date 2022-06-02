@@ -88,9 +88,11 @@ class SubmissionFunctionTests : Logging {
 
         override fun <T> fetchActions(
             sendingOrg: String,
-            sortDir: SubmissionAccess.SortOrder,
+            sortDir: SubmissionAccess.SortDir,
             sortColumn: SubmissionAccess.SortColumn,
             cursor: OffsetDateTime,
+            since: OffsetDateTime?,
+            until: OffsetDateTime?,
             pageSize: Int,
             showFailed: Boolean,
             klass: Class<T>
@@ -117,7 +119,7 @@ class SubmissionFunctionTests : Logging {
         }
     }
 
-    val testData = listOf(
+    private val testData = listOf(
         SubmissionHistory(
             actionId = 8,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
@@ -144,9 +146,9 @@ class SubmissionFunctionTests : Logging {
         )
     )
 
-    val dataProvider = MockDataProvider { emptyArray<MockResult>() }
+    private val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
-    val accessSpy = spyk(DatabaseAccess(connection))
+    private val accessSpy = spyk(DatabaseAccess(connection))
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
@@ -229,7 +231,7 @@ class SubmissionFunctionTests : Logging {
                 mapOf(
                     "pagesize" to "10",
                     "cursor" to "2021-11-30T16:36:48.307Z",
-                    "sort" to "ASC"
+                    "sortDir" to "ASC"
                 ),
                 ExpectedAPIResponse(
                     HttpStatus.OK
@@ -240,10 +242,10 @@ class SubmissionFunctionTests : Logging {
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf(
                     "pagesize" to "10",
-                    "cursor" to "2021-11-30T16:36:54.307109Z",
-                    "endCursor" to "2021-11-30T16:36:53.919104Z",
+                    "since" to "2021-11-30T16:36:54.307109Z",
+                    "until" to "2021-11-30T16:36:53.919104Z",
                     "sortCol" to "CREATED_AT",
-                    "sort" to "ASC"
+                    "sortDir" to "ASC"
                 ),
                 ExpectedAPIResponse(
                     HttpStatus.OK
@@ -287,6 +289,9 @@ class SubmissionFunctionTests : Logging {
                 }
             }
         }
+    }
+
+    fun `test list params`() {
     }
 
     private fun setupSubmissionFunctionForTesting(

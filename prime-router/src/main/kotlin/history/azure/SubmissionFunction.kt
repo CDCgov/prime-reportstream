@@ -69,6 +69,8 @@ class SubmissionFunction(
                 params.sortDir,
                 params.sortColumn,
                 params.cursor,
+                params.since,
+                params.until,
                 params.pageSize,
                 params.showFailed
             )

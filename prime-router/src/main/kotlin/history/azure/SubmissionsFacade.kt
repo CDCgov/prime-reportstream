@@ -24,39 +24,47 @@ class SubmissionsFacade(
      * Serializes a list of Actions into a String.
      *
      * @param organizationName from JWT Claim.
-     * @param sortOrder sort the table by date in ASC or DESC order.
+     * @param sortDir sort the table by date in ASC or DESC order.
      * @param sortColumn sort the table by a specific column; defaults to sorting by created_at.
-     * @param offset String representation of an OffsetDateTime used for paginating results.
+     * @param cursor is the OffsetDateTime of the last result in the previous list.
+     * @param since is the OffsetDateTime minimum date to get results for.
+     * @param until is the OffsetDateTime maximum date to get results for.
      * @param pageSize Int of items to return per page.
      *
      * @return a String representation of an array of actions.
      */
     fun findSubmissionsAsJson(
         organizationName: String,
-        sortOrder: SubmissionAccess.SortOrder,
+        sortDir: SubmissionAccess.SortDir,
         sortColumn: SubmissionAccess.SortColumn,
         cursor: OffsetDateTime,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
         pageSize: Int,
         showFailed: Boolean
     ): String {
-        val result = findSubmissions(organizationName, sortOrder, sortColumn, cursor, pageSize, showFailed)
+        val result = findSubmissions(organizationName, sortDir, sortColumn, cursor, since, until, pageSize, showFailed)
         return mapper.writeValueAsString(result)
     }
 
     /**
      * @param organizationName from JWT Claim.
-     * @param sortOrder sort the table by date in ASC or DESC order; defaults to DESC.
+     * @param sortDir sort the table by date in ASC or DESC order; defaults to DESC.
      * @param sortColumn sort the table by a specific column; defaults to sorting by CREATED_AT.
-     * @param offset String representation of an OffsetDateTime used for paginating results.
+     * @param cursor is the OffsetDateTime of the last result in the previous list.
+     * @param since is the OffsetDateTime minimum date to get results for.
+     * @param until is the OffsetDateTime maximum date to get results for.
      * @param pageSize Int of items to return per page.
      *
      * @return a List of Actions
      */
     private fun findSubmissions(
         organizationName: String,
-        sortOrder: SubmissionAccess.SortOrder,
+        sortDir: SubmissionAccess.SortDir,
         sortColumn: SubmissionAccess.SortColumn,
         cursor: OffsetDateTime,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
         pageSize: Int,
         showFailed: Boolean
     ): List<SubmissionHistory> {
@@ -66,9 +74,11 @@ class SubmissionsFacade(
 
         return dbSubmissionAccess.fetchActions(
             organizationName,
-            sortOrder,
+            sortDir,
             sortColumn,
             cursor,
+            since,
+            until,
             pageSize,
             showFailed,
             SubmissionHistory::class.java

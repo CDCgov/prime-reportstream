@@ -18,8 +18,14 @@ import org.jooq.impl.SQLDataType.BIGINT
 import org.jooq.impl.SQLDataType.UUID
 import java.time.OffsetDateTime
 
+/**
+ * Interface for classes that deal with submission data
+ */
 interface SubmissionAccess {
-    enum class SortOrder {
+    /**
+     * Values that results can be sorted by.
+     */
+    enum class SortDir {
         DESC,
         ASC,
     }
@@ -44,9 +50,11 @@ interface SubmissionAccess {
      */
     fun <T> fetchActions(
         sendingOrg: String,
-        sortDir: SortOrder,
+        sortDir: SortDir,
         sortColumn: SortColumn,
         cursor: OffsetDateTime,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
         pageSize: Int,
         showFailed: Boolean,
         klass: Class<T>
@@ -91,21 +99,25 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * @param sortDir sort the table in ASC or DESC order.
      * @param sortColumn sort the table by specific column; default created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
+     * @param since is the OffsetDateTime minimum date to get results for.
+     * @param until is the OffsetDateTime maximum date to get results for.
      * @param pageSize is an Integer used for setting the number of results per page.
      * @param klass the class that the found data will be converted to.
      * @return a list of submissions matching the SQL Query.
      */
     override fun <T> fetchActions(
         sendingOrg: String,
-        sortDir: SubmissionAccess.SortOrder,
+        sortDir: SubmissionAccess.SortDir,
         sortColumn: SubmissionAccess.SortColumn,
         cursor: OffsetDateTime,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
         pageSize: Int,
         showFailed: Boolean,
         klass: Class<T>
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
-        val whereClause = createWhereCondition(sendingOrg, showFailed)
+        val whereClause = createWhereCondition(sendingOrg, since, until, showFailed)
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
                 // Note the report file and action tables have columns with the same name, so we must specify what we need.
@@ -141,7 +153,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      */
     private fun createColumnSort(
         sortColumn: SubmissionAccess.SortColumn,
-        order: SubmissionAccess.SortOrder
+        order: SubmissionAccess.SortDir
     ): SortField<OffsetDateTime> {
         val column = when (sortColumn) {
             /* Decides sort column by enum */
@@ -150,8 +162,8 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
 
         val sortDirection = when (order) {
             /* Applies sort order by enum */
-            SubmissionAccess.SortOrder.ASC -> column.asc()
-            SubmissionAccess.SortOrder.DESC -> column.desc()
+            SubmissionAccess.SortDir.ASC -> column.asc()
+            SubmissionAccess.SortDir.DESC -> column.desc()
         }
 
         return sortDirection
@@ -161,15 +173,37 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * Add various filters to the DB query.
      *
      * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.
+     * @param since is the OffsetDateTime minimum date to get results for.
+     * @param until is the OffsetDateTime maximum date to get results for.
      * @param showFailed filter out submissions that failed to send.
      * @return a jooq Condition statement to use in where().
      */
     private fun createWhereCondition(
         sendingOrg: String,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
         showFailed: Boolean
     ): Condition {
         var senderFilter = ACTION.ACTION_NAME.eq(TaskAction.receive)
             .and(ACTION.SENDING_ORG.eq(sendingOrg))
+
+        val sinceFilter: Condition? = when (since) {
+            null -> {
+                null
+            }
+            else -> {
+                ACTION.CREATED_AT.ge(since)
+            }
+        }
+
+        val untilFilter: Condition? = when (until) {
+            null -> {
+                null
+            }
+            else -> {
+                ACTION.CREATED_AT.le(until)
+            }
+        }
 
         val failedFilter: Condition = when (showFailed) {
             true -> {
@@ -180,7 +214,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
             }
         }
 
-        return senderFilter.and(failedFilter)
+        return senderFilter.and(sinceFilter).and(untilFilter).and(failedFilter)
     }
 
     /**
