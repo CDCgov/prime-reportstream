@@ -88,7 +88,7 @@ Configuration for interface "OpenVPN TAP-Windows6"
     IP Address:                           192.168.10.5
     Subnet Prefix:                        192.168.10.0/24 (mask 255.255.255.0)
     InterfaceMetric:                      1
-    DNS servers configured through DHCP:  10.0.2.5
+    DNS servers configured through DHCP:  10.0.2.4
     Register with which suffix:           Primary only
     WINS servers configured through DHCP: None
 ```
