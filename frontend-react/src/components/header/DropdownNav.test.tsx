@@ -1,8 +1,13 @@
 import { fireEvent, screen } from "@testing-library/react";
+import React from "react";
 
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 
-import { AdminDropdownNav } from "./AdminDropdownNav";
+import {
+    HowItWorksDropdown,
+    GettingStartedDropdown,
+    AdminDropdown,
+} from "./DropdownNav";
 
 class TestLocalStorage {
     store: Map<string, string | string[]> = new Map();
@@ -44,9 +49,49 @@ jest.mock("../../pages/misc/FeatureFlags", () => {
     };
 });
 
+test("How It Works Dropdown", () => {
+    renderWithRouter(<HowItWorksDropdown />);
+    expect(screen.getByText("About")).toBeInTheDocument();
+    expect(screen.getByText("Where we're live")).toBeInTheDocument();
+    expect(screen.getByText("System and settings")).toBeInTheDocument();
+    expect(screen.getByText("Security practices")).toBeInTheDocument();
+
+    expect(screen.getByText("About")).toHaveAttribute(
+        "href",
+        "/how-it-works/about"
+    );
+    expect(screen.getByText("Where we're live")).toHaveAttribute(
+        "href",
+        "/how-it-works/where-were-live"
+    );
+    expect(screen.getByText("System and settings")).toHaveAttribute(
+        "href",
+        "/how-it-works/system-and-settings"
+    );
+    expect(screen.getByText("Security practices")).toHaveAttribute(
+        "href",
+        "/how-it-works/security-practices"
+    );
+});
+
+test("Getting Started Dropdown", () => {
+    renderWithRouter(<GettingStartedDropdown />);
+    expect(screen.getByText("Public health departments")).toBeInTheDocument();
+    expect(screen.getByText("Testing facilities")).toBeInTheDocument();
+
+    expect(screen.getByText("Public health departments")).toHaveAttribute(
+        "href",
+        "/getting-started/public-health-departments/overview"
+    );
+    expect(screen.getByText("Testing facilities")).toHaveAttribute(
+        "href",
+        "/getting-started/testing-facilities/overview"
+    );
+});
+
 describe("AdminDropdownNav", () => {
     test("Admin menu expands and contracts on click and selection", () => {
-        renderWithRouter(<AdminDropdownNav />);
+        renderWithRouter(<AdminDropdown />);
         expect(screen.getByRole("button")).toHaveAttribute(
             "aria-expanded",
             "false"
@@ -64,7 +109,7 @@ describe("AdminDropdownNav", () => {
     });
 
     test("Current admin pages", () => {
-        renderWithRouter(<AdminDropdownNav />);
+        renderWithRouter(<AdminDropdown />);
         const settings = screen.getByText("Organization Settings");
         const featureFlags = screen.getByText("Feature Flags");
 
@@ -73,7 +118,7 @@ describe("AdminDropdownNav", () => {
     });
 
     test("Flagged admin pages are hidden", () => {
-        renderWithRouter(<AdminDropdownNav />);
+        renderWithRouter(<AdminDropdown />);
         const queryForNavItem = screen.queryByText("Value Sets");
 
         // Assert they're hidden without flag
@@ -83,10 +128,10 @@ describe("AdminDropdownNav", () => {
     test("Flagged admin pages are shown when flag is set", () => {
         mockLocalStorage.setItem("featureFlags", ["value-sets"]);
 
-        renderWithRouter(<AdminDropdownNav />);
+        renderWithRouter(<AdminDropdown />);
         const queryForNavItem = screen.queryByText("Value Sets");
 
-        // Assert they're hidden without flag
+        // Assert not hidden
         expect(queryForNavItem).toBeInTheDocument();
     });
 });
