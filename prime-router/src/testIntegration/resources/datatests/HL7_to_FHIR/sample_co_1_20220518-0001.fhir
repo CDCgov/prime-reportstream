@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "d9aec351-e0c9-4fa4-bc16-5b570cfeb25e",
+  "id" : "0b9493ed-8113-44cd-ad27-42ba75c5c1ad",
   "meta" : {
-    "lastUpdated" : "2022-05-31T09:45:47.876-04:00",
+    "lastUpdated" : "2022-06-02T09:51:54.650-04:00",
     "security" : [ {
       "code" : "SECURITY",
       "display" : "SECURITY"
@@ -45,13 +45,13 @@
         "endpoint" : "CDPHE"
       } ],
       "sender" : {
-        "reference" : "Organization/01e36c57-28f6-40a4-a9ea-b0621dc2d094"
+        "reference" : "Organization/56c7dbea-5313-4fff-9859-51e0b192eba3"
       },
       "source" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-vendor-org",
           "valueReference" : {
-            "reference" : "Organization/8d4c85bb-90ce-4fd1-9ca5-1e8a49bfee28"
+            "reference" : "Organization/b31a2fc4-21ce-4a81-8817-ff6d3523d977"
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-install-date",
@@ -69,10 +69,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/01e36c57-28f6-40a4-a9ea-b0621dc2d094",
+    "fullUrl" : "Organization/56c7dbea-5313-4fff-9859-51e0b192eba3",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "01e36c57-28f6-40a4-a9ea-b0621dc2d094",
+      "id" : "56c7dbea-5313-4fff-9859-51e0b192eba3",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -99,10 +99,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/8d4c85bb-90ce-4fd1-9ca5-1e8a49bfee28",
+    "fullUrl" : "Organization/b31a2fc4-21ce-4a81-8817-ff6d3523d977",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "8d4c85bb-90ce-4fd1-9ca5-1e8a49bfee28",
+      "id" : "b31a2fc4-21ce-4a81-8817-ff6d3523d977",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -147,10 +147,10 @@
       "name" : "MEDITECH, Inc."
     }
   }, {
-    "fullUrl" : "Provenance/bb999935-b3bb-4b55-9ba2-ed5335a0061e",
+    "fullUrl" : "Provenance/eb64125a-dd18-4949-80b8-6ea414a3a69a",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "bb999935-b3bb-4b55-9ba2-ed5335a0061e",
+      "id" : "eb64125a-dd18-4949-80b8-6ea414a3a69a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -178,22 +178,28 @@
         } ]
       },
       "agent" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "author"
+          } ]
+        },
         "who" : {
-          "reference" : "Organization/b1b00a60-baa2-4b03-8e45-fe005ef7b599"
+          "reference" : "Organization/567b361b-7c6d-4810-838d-9b1a87f2899c"
         }
       } ],
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/58420b22-b227-4293-9b1a-d428f0495560"
+          "reference" : "Device/dfb17e9d-0d64-48de-8346-4c17041849b3"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/b1b00a60-baa2-4b03-8e45-fe005ef7b599",
+    "fullUrl" : "Organization/567b361b-7c6d-4810-838d-9b1a87f2899c",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "b1b00a60-baa2-4b03-8e45-fe005ef7b599",
+      "id" : "567b361b-7c6d-4810-838d-9b1a87f2899c",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -224,10 +230,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Device/58420b22-b227-4293-9b1a-d428f0495560",
+    "fullUrl" : "Device/dfb17e9d-0d64-48de-8346-4c17041849b3",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "58420b22-b227-4293-9b1a-d428f0495560",
+      "id" : "dfb17e9d-0d64-48de-8346-4c17041849b3",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -260,10 +266,3789 @@
       } ]
     }
   }, {
-    "fullUrl" : "Patient/3ff9bc64-813f-4eb3-840e-ce896013c356",
+    "fullUrl" : "Observation/50e74423-cda2-4f8a-bc48-d7305c53a3bd",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "50e74423-cda2-4f8a-bc48-d7305c53a3bd",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.1-"
+      } ],
+      "status" : "corrected",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "600-7"
+        } ],
+        "text" : "Bacteria identified in Blood by Culture"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "performer" : [ {
+        "reference" : "Organization/b64cf569-9778-4c41-b9d4-9d0fed84d94d"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/b64cf569-9778-4c41-b9d4-9d0fed84d94d",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "b64cf569-9778-4c41-b9d4-9d0fed84d94d",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "name" : "ROSE MEDICAL CENTER (MCOE)",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "4567 E. NINTH AVENUE" ],
+        "city" : "DENVER",
+        "district" : "S",
+        "state" : "CO",
+        "postalCode" : "80220",
+        "country" : "USA"
+      } ],
+      "contact" : [ {
+        "purpose" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
+            "code" : "ADMIN",
+            "display" : "Administrative"
+          } ],
+          "text" : "Organization Medical Director"
+        },
+        "name" : {
+          "use" : "official",
+          "text" : "Dr. Shalini Chahal",
+          "family" : "Chahal",
+          "given" : [ "Shalini" ],
+          "prefix" : [ "Dr." ],
+          "suffix" : [ "MD" ]
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Observation/f040740d-5056-4bca-b528-cec41c74d381",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "f040740d-5056-4bca-b528-cec41c74d381",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.1-"
+      } ],
+      "status" : "corrected",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "600-7"
+        } ],
+        "text" : "Bacteria identified in Blood by Culture"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "performer" : [ {
+        "reference" : "Organization/2af7ba4b-8b7c-4ba2-a8b2-5537f837299b"
+      } ],
+      "valueCodeableConcept" : {
+        "coding" : [ {
+          "code" : "782959008"
+        } ],
+        "text" : "Vancomycin resistant Enterococcus raffinosus"
+      }
+    }
+  }, {
+    "fullUrl" : "Organization/2af7ba4b-8b7c-4ba2-a8b2-5537f837299b",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "2af7ba4b-8b7c-4ba2-a8b2-5537f837299b",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "name" : "ROSE MEDICAL CENTER (MCOE)",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "4567 E. NINTH AVENUE" ],
+        "city" : "DENVER",
+        "district" : "MD",
+        "state" : "CO",
+        "postalCode" : "80220",
+        "country" : "USA"
+      } ],
+      "contact" : [ {
+        "purpose" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
+            "code" : "ADMIN",
+            "display" : "Administrative"
+          } ],
+          "text" : "Organization Medical Director"
+        },
+        "name" : {
+          "use" : "official",
+          "text" : "Dr. Shalini Chahal",
+          "family" : "Chahal",
+          "given" : [ "Shalini" ],
+          "prefix" : [ "Dr." ],
+          "suffix" : [ "MD" ]
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Observation/ec245852-fcfd-4d1f-a834-63e8d2c534c4",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "ec245852-fcfd-4d1f-a834-63e8d2c534c4",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.1-"
+      } ],
+      "status" : "corrected",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "600-7"
+        } ],
+        "text" : "Bacteria identified in Blood by Culture"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "performer" : [ {
+        "reference" : "Organization/2fdba1a7-fc60-4962-adba-94ee1484afac"
+      } ],
+      "valueCodeableConcept" : {
+        "coding" : [ {
+          "code" : "53326005"
+        } ],
+        "text" : "Candida albicans"
+      },
+      "note" : [ {
+        "text" : "***THIS IS AN URGENT RESULT***  \n***** Test Results Called To And Verbally Read Back  \nBy: RICHARD DDI7840 *****  \n(Date: 08/08/21 Time: 1511 Called BY AMLB.IF.)  \n******************************  \n**THIS IS A CORRECTED REPORT**  \n******************************  \n  \nOriginal report of  ALPHA STRP,NOT ENTEROC.OR PNEU  \nhas been revised to ENTEROCOCCUS SPECIES (GRP D).   \n  \n***** Test Results Called To And Verbally Read Back  \nBy: LISA WSJ9135 AT AURORA MICROBIOLOGY *****  \n(Date: 08/06/21 Time: 0945 Called BY AMLB.LJ1.)"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/2fdba1a7-fc60-4962-adba-94ee1484afac",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "2fdba1a7-fc60-4962-adba-94ee1484afac",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "name" : "ROSE MEDICAL CENTER (MCOE)",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "4567 E. NINTH AVENUE" ],
+        "city" : "DENVER",
+        "district" : "MD",
+        "state" : "CO",
+        "postalCode" : "80220",
+        "country" : "USA"
+      } ],
+      "contact" : [ {
+        "purpose" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
+            "code" : "ADMIN",
+            "display" : "Administrative"
+          } ],
+          "text" : "Organization Medical Director"
+        },
+        "name" : {
+          "use" : "official",
+          "text" : "Dr. Shalini Chahal",
+          "family" : "Chahal",
+          "given" : [ "Shalini" ],
+          "prefix" : [ "Dr." ],
+          "suffix" : [ "MD" ]
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Observation/22b0b57e-b39f-4079-8aff-f59ce01693ee",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "22b0b57e-b39f-4079-8aff-f59ce01693ee",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.2-"
+      } ],
+      "status" : "corrected",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "600-7"
+        } ],
+        "text" : "Bacteria identified in Blood by Culture"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00"
+    }
+  }, {
+    "fullUrl" : "Observation/2a45bd1a-0ef0-44c2-82c5-56623876688f",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "2a45bd1a-0ef0-44c2-82c5-56623876688f",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.2-"
+      } ],
+      "status" : "corrected",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "code" : "MBCPCR"
+        } ],
+        "text" : "BLOOD CULTURE PCR"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueString" : "GRAM POSITIVE PCR; NO TARGETS DETECTED (SEE COMMENT)"
+    }
+  }, {
+    "fullUrl" : "Observation/42a8363e-32b3-494e-8689-9de982d21903",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "42a8363e-32b3-494e-8689-9de982d21903",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.2-"
+      } ],
+      "status" : "corrected",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "code" : "MPOSBC"
+        } ],
+        "text" : "BLOOD CULTURE GRAM STAIN"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueString" : "GRAM POSITIVE COCCI IN PAIRS",
+      "interpretation" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0078",
+          "code" : "A",
+          "display" : "Abnormal"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Observation/008402e8-44a7-42dd-a0d3-68a65cfb0f0d",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "008402e8-44a7-42dd-a0d3-68a65cfb0f0d",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.2-"
+      } ],
+      "status" : "corrected",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "code" : "MPOSBC"
+        } ],
+        "text" : "BLOOD CULTURE GRAM STAIN"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueString" : "ANAEROBIC BOTTLE"
+    }
+  }, {
+    "fullUrl" : "Observation/40f4a509-ed1c-49f9-87e9-0db00d9e7e1a",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "40f4a509-ed1c-49f9-87e9-0db00d9e7e1a",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.2-"
+      } ],
+      "status" : "corrected",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "code" : "MPOSBC"
+        } ],
+        "text" : "BLOOD CULTURE GRAM STAIN"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueString" : "YEAST",
+      "interpretation" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0078",
+          "code" : "A",
+          "display" : "Abnormal"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Observation/cb1821b5-9053-4a53-923b-ae043ec189a4",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "cb1821b5-9053-4a53-923b-ae043ec189a4",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.2-"
+      } ],
+      "status" : "corrected",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "code" : "MPOSBC"
+        } ],
+        "text" : "BLOOD CULTURE GRAM STAIN"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueString" : "AEROBIC BOTTLE"
+    }
+  }, {
+    "fullUrl" : "Observation/87ed10d7-48b8-4f4a-a829-4eb779b08841",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "87ed10d7-48b8-4f4a-a829-4eb779b08841",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.2-"
+      } ],
+      "status" : "corrected",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "600-7"
+        } ],
+        "text" : "Bacteria identified in Blood by Culture"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueCodeableConcept" : {
+        "coding" : [ {
+          "code" : "POSITIVE"
+        } ],
+        "text" : "POSITIVE"
+      },
+      "note" : [ {
+        "text" : "Nucleic acid test for the detection of Staphylococcus spp.,  \nS. aureus, S. epidermidis, S. lugdunensis, Streptococcus  \nspp., S. pneumoniae, S. pyogenes, S. agalactiae,  \nS. anginosus group, Enterococcus faecalis, Enterococcus  \nfaecium, mec-A mediated methicillin resistance, and  \nvanA/vanB mediated Vancomycin resistance was performed and  \nwas NEGATIVE for all targets tested.  \n  \n*****CORRECTED REPORT*****  \nPrevious report of  was incorrect.  \nThe correct report of YEAST PRESENT ON GRAM STAIN  \nwas called  and texted to ALLISON CABRERA  \nDate:08/08/28 Time:0613 Called by:ELB.RMH  \n  \nCritical result called to and read back by:RN LIBBY HILL  \nLocation:ICU on 08/06/21 at 1136 by ELB.HC  \n  \nCritical result called to and read back by:HANNAH STEVENS RN  \nLocation:ICUB on 08/02/28 at 2201 by ELB.MS3"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Observation/31e1bfe1-2af1-4c57-8ff0-50ac8d7a70f0",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "31e1bfe1-2af1-4c57-8ff0-50ac8d7a70f0",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.3-"
+      } ],
+      "status" : "final",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "77202-0"
+        } ],
+        "text" : "Laboratory comment [Text] in Report Narrative"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueCodeableConcept" : {
+        "coding" : [ {
+          "code" : "COM"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Observation/cc90aedc-2256-4952-9af5-91d1fa29f518",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "cc90aedc-2256-4952-9af5-91d1fa29f518",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.3-"
+      } ],
+      "status" : "final",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "77202-0"
+        } ],
+        "text" : "Laboratory comment [Text] in Report Narrative"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueString" : "This is a rapid molecular assay that simultaneously detects"
+    }
+  }, {
+    "fullUrl" : "Observation/11e97042-df8c-4bbd-83e5-1ecf05e5f945",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "11e97042-df8c-4bbd-83e5-1ecf05e5f945",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.3-"
+      } ],
+      "status" : "final",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "77202-0"
+        } ],
+        "text" : "Laboratory comment [Text] in Report Narrative"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueString" : "and identifies the following gram-positive organisms:"
+    }
+  }, {
+    "fullUrl" : "Observation/e15e7cc1-66fe-4637-b23d-6e856ec5e7fc",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "e15e7cc1-66fe-4637-b23d-6e856ec5e7fc",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.3-"
+      } ],
+      "status" : "final",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "77202-0"
+        } ],
+        "text" : "Laboratory comment [Text] in Report Narrative"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00"
+    }
+  }, {
+    "fullUrl" : "Observation/61a086a7-b76f-44d7-8dcf-b5217bfa0527",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "61a086a7-b76f-44d7-8dcf-b5217bfa0527",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.3-"
+      } ],
+      "status" : "final",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "77202-0"
+        } ],
+        "text" : "Laboratory comment [Text] in Report Narrative"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueString" : "Staphylococcus spp.          Streptococcus pyogenes"
+    }
+  }, {
+    "fullUrl" : "Observation/434fe0e5-5490-4947-ae87-2318979e9d57",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "434fe0e5-5490-4947-ae87-2318979e9d57",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.3-"
+      } ],
+      "status" : "final",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "77202-0"
+        } ],
+        "text" : "Laboratory comment [Text] in Report Narrative"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueString" : "Staphylococcus aureus        Streptococcus agalactiae"
+    }
+  }, {
+    "fullUrl" : "Observation/006a756c-c63f-4293-9663-caa43b722d4d",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "006a756c-c63f-4293-9663-caa43b722d4d",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.3-"
+      } ],
+      "status" : "final",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "77202-0"
+        } ],
+        "text" : "Laboratory comment [Text] in Report Narrative"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueString" : "Staphylococcus epidermidis   Streptococcus anginosus group"
+    }
+  }, {
+    "fullUrl" : "Observation/e35faca6-5449-4dc7-88fe-7c60221f8882",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "e35faca6-5449-4dc7-88fe-7c60221f8882",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.3-"
+      } ],
+      "status" : "final",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "77202-0"
+        } ],
+        "text" : "Laboratory comment [Text] in Report Narrative"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueString" : "Staphylococcus lugdunensis   Streptococcus faecalis"
+    }
+  }, {
+    "fullUrl" : "Observation/10901d78-6b3b-4eff-b221-4a1de27fe7eb",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "10901d78-6b3b-4eff-b221-4a1de27fe7eb",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.3-"
+      } ],
+      "status" : "final",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "77202-0"
+        } ],
+        "text" : "Laboratory comment [Text] in Report Narrative"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueString" : "Streptococcus spp.           Enterococcus faecium"
+    }
+  }, {
+    "fullUrl" : "Observation/394a193e-91d0-4872-805e-57e91a2e0a2c",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "394a193e-91d0-4872-805e-57e91a2e0a2c",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.3-"
+      } ],
+      "status" : "final",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "77202-0"
+        } ],
+        "text" : "Laboratory comment [Text] in Report Narrative"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "valueString" : "Streptococcus pneumoniae     "
+    }
+  }, {
+    "fullUrl" : "Observation/abebe75e-908f-48d2-9388-7f85d39dcd85",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "abebe75e-908f-48d2-9388-7f85d39dcd85",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.4-"
+      } ],
+      "status" : "preliminary",
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "35788-9"
+        } ],
+        "text" : "DAPTOmycin [Susceptibility] by Minimum inhibitory concentration (MIC)"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-07T16:36:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "performer" : [ {
+        "reference" : "Organization/1036d103-ec35-4841-bb48-bbdd933fc488"
+      } ],
+      "interpretation" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0078",
+          "code" : "S",
+          "display" : "Susceptible"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1036d103-ec35-4841-bb48-bbdd933fc488",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1036d103-ec35-4841-bb48-bbdd933fc488",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "name" : "ROSE MEDICAL CENTER (MCOE)",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "4567 E. NINTH AVENUE" ],
+        "city" : "DENVER",
+        "district" : "S",
+        "state" : "CO",
+        "postalCode" : "80220",
+        "country" : "USA"
+      } ],
+      "contact" : [ {
+        "purpose" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
+            "code" : "ADMIN",
+            "display" : "Administrative"
+          } ],
+          "text" : "Organization Medical Director"
+        },
+        "name" : {
+          "use" : "official",
+          "text" : "Dr. Shalini Chahal",
+          "family" : "Chahal",
+          "given" : [ "Shalini" ],
+          "prefix" : [ "Dr." ],
+          "suffix" : [ "MD" ]
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Observation/7030eb97-e5b7-411a-83ad-71f94533f962",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "7030eb97-e5b7-411a-83ad-71f94533f962",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.5-"
+      } ],
+      "status" : "preliminary",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "28-1"
+        } ],
+        "text" : "Ampicillin [Susceptibility] by Minimum inhibitory concentration (MIC)"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-07T16:36:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "performer" : [ {
+        "reference" : "Organization/def6c66c-3352-4de8-82bd-1e1901085f72"
+      } ],
+      "interpretation" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0078",
+          "code" : "R",
+          "display" : "Resistant"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/def6c66c-3352-4de8-82bd-1e1901085f72",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "def6c66c-3352-4de8-82bd-1e1901085f72",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "name" : "ROSE MEDICAL CENTER (MCOE)",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "4567 E. NINTH AVENUE" ],
+        "city" : "DENVER",
+        "district" : "R",
+        "state" : "CO",
+        "postalCode" : "80220",
+        "country" : "USA"
+      } ],
+      "contact" : [ {
+        "purpose" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
+            "code" : "ADMIN",
+            "display" : "Administrative"
+          } ],
+          "text" : "Organization Medical Director"
+        },
+        "name" : {
+          "use" : "official",
+          "text" : "Dr. Shalini Chahal",
+          "family" : "Chahal",
+          "given" : [ "Shalini" ],
+          "prefix" : [ "Dr." ],
+          "suffix" : [ "MD" ]
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Observation/39f63ce3-1da2-46e9-8043-51c5269f60cf",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "39f63ce3-1da2-46e9-8043-51c5269f60cf",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.5-"
+      } ],
+      "status" : "preliminary",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "7018-5"
+        } ],
+        "text" : "Gentamicin.high potency [Susceptibility] by Minimum inhibitory concentration (MIC)"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-07T16:36:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "performer" : [ {
+        "reference" : "Organization/6b28d396-10dc-423b-b4ea-2671994a9836"
+      } ],
+      "valueString" : "SYN-S",
+      "interpretation" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0078",
+          "code" : "S",
+          "display" : "Susceptible"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/6b28d396-10dc-423b-b4ea-2671994a9836",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "6b28d396-10dc-423b-b4ea-2671994a9836",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "name" : "ROSE MEDICAL CENTER (MCOE)",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "4567 E. NINTH AVENUE" ],
+        "city" : "DENVER",
+        "district" : "S",
+        "state" : "CO",
+        "postalCode" : "80220",
+        "country" : "USA"
+      } ],
+      "contact" : [ {
+        "purpose" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
+            "code" : "ADMIN",
+            "display" : "Administrative"
+          } ],
+          "text" : "Organization Medical Director"
+        },
+        "name" : {
+          "use" : "official",
+          "text" : "Dr. Shalini Chahal",
+          "family" : "Chahal",
+          "given" : [ "Shalini" ],
+          "prefix" : [ "Dr." ],
+          "suffix" : [ "MD" ]
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Observation/9dc91860-a939-43e5-aa73-3ad2c7e11070",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "9dc91860-a939-43e5-aa73-3ad2c7e11070",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.5-"
+      } ],
+      "status" : "preliminary",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "29254-0"
+        } ],
+        "text" : "Linezolid [Susceptibility] by Minimum inhibitory concentration (MIC)"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-07T16:36:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "performer" : [ {
+        "reference" : "Organization/e877699c-06fd-48b4-a774-a37ac4ee81f7"
+      } ],
+      "interpretation" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0078",
+          "code" : "S",
+          "display" : "Susceptible"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/e877699c-06fd-48b4-a774-a37ac4ee81f7",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "e877699c-06fd-48b4-a774-a37ac4ee81f7",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "name" : "ROSE MEDICAL CENTER (MCOE)",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "4567 E. NINTH AVENUE" ],
+        "city" : "DENVER",
+        "district" : "S",
+        "state" : "CO",
+        "postalCode" : "80220",
+        "country" : "USA"
+      } ],
+      "contact" : [ {
+        "purpose" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
+            "code" : "ADMIN",
+            "display" : "Administrative"
+          } ],
+          "text" : "Organization Medical Director"
+        },
+        "name" : {
+          "use" : "official",
+          "text" : "Dr. Shalini Chahal",
+          "family" : "Chahal",
+          "given" : [ "Shalini" ],
+          "prefix" : [ "Dr." ],
+          "suffix" : [ "MD" ]
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Observation/7958f80e-d329-46e0-95a2-0a232ddb42a5",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "7958f80e-d329-46e0-95a2-0a232ddb42a5",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.5-"
+      } ],
+      "status" : "preliminary",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "6933-6"
+        } ],
+        "text" : "Streptomycin.high potency [Susceptibility] by Minimum inhibitory concentration (MIC)"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-07T16:36:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "performer" : [ {
+        "reference" : "Organization/01aee4fb-aab9-4a86-adb6-6ef0cc64a9f9"
+      } ],
+      "valueString" : "SYN-S",
+      "interpretation" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0078",
+          "code" : "S",
+          "display" : "Susceptible"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/01aee4fb-aab9-4a86-adb6-6ef0cc64a9f9",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "01aee4fb-aab9-4a86-adb6-6ef0cc64a9f9",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "name" : "ROSE MEDICAL CENTER (MCOE)",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "4567 E. NINTH AVENUE" ],
+        "city" : "DENVER",
+        "district" : "S",
+        "state" : "CO",
+        "postalCode" : "80220",
+        "country" : "USA"
+      } ],
+      "contact" : [ {
+        "purpose" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
+            "code" : "ADMIN",
+            "display" : "Administrative"
+          } ],
+          "text" : "Organization Medical Director"
+        },
+        "name" : {
+          "use" : "official",
+          "text" : "Dr. Shalini Chahal",
+          "family" : "Chahal",
+          "given" : [ "Shalini" ],
+          "prefix" : [ "Dr." ],
+          "suffix" : [ "MD" ]
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Observation/9c452ce4-da4e-4282-aa9c-40bf5f70d22d",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "9c452ce4-da4e-4282-aa9c-40bf5f70d22d",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "21:AA:B0029251S.5-"
+      } ],
+      "status" : "preliminary",
+      "category" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code" : "laboratory",
+          "display" : "Laboratory"
+        } ]
+      } ],
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "19000-9"
+        } ],
+        "text" : "Vancomycin [Susceptibility]"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectiveDateTime" : "2028-08-07T16:36:01-06:00",
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "performer" : [ {
+        "reference" : "Organization/fd79048d-8e28-4ac3-939e-c4b8449121cc"
+      } ],
+      "interpretation" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0078",
+          "code" : "R",
+          "display" : "Resistant"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/fd79048d-8e28-4ac3-939e-c4b8449121cc",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "fd79048d-8e28-4ac3-939e-c4b8449121cc",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "name" : "ROSE MEDICAL CENTER (MCOE)",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "4567 E. NINTH AVENUE" ],
+        "city" : "DENVER",
+        "district" : "R",
+        "state" : "CO",
+        "postalCode" : "80220",
+        "country" : "USA"
+      } ],
+      "contact" : [ {
+        "purpose" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
+            "code" : "ADMIN",
+            "display" : "Administrative"
+          } ],
+          "text" : "Organization Medical Director"
+        },
+        "name" : {
+          "use" : "official",
+          "text" : "Dr. Shalini Chahal",
+          "family" : "Chahal",
+          "given" : [ "Shalini" ],
+          "prefix" : [ "Dr." ],
+          "suffix" : [ "MD" ]
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Specimen/4a945da8-c5e1-4783-967b-5619ca430d90",
+    "resource" : {
+      "resourceType" : "Specimen",
+      "id" : "4a945da8-c5e1-4783-967b-5619ca430d90",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "09339017"
+      } ],
+      "type" : {
+        "coding" : [ {
+          "code" : "119297000"
+        } ],
+        "text" : "Blood specimen"
+      },
+      "receivedTime" : "2021-08-04T00:18:00-06:00",
+      "collection" : {
+        "bodySite" : {
+          "coding" : [ {
+            "code" : "RA"
+          } ],
+          "text" : "RIGHT ARM"
+        }
+      }
+    }
+  }, {
+    "fullUrl" : "Specimen/0660c6db-48df-42be-8810-5537083228b5",
+    "resource" : {
+      "resourceType" : "Specimen",
+      "id" : "0660c6db-48df-42be-8810-5537083228b5",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "09339017"
+      } ],
+      "type" : {
+        "coding" : [ {
+          "code" : "119297000"
+        } ],
+        "text" : "Blood specimen"
+      },
+      "receivedTime" : "2021-08-04T00:18:00-06:00",
+      "collection" : {
+        "bodySite" : {
+          "coding" : [ {
+            "code" : "RA"
+          } ],
+          "text" : "RIGHT ARM"
+        }
+      }
+    }
+  }, {
+    "fullUrl" : "Specimen/300d821e-d5c9-4f87-9d4b-37a25fb8d107",
+    "resource" : {
+      "resourceType" : "Specimen",
+      "id" : "300d821e-d5c9-4f87-9d4b-37a25fb8d107",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "09339017"
+      } ],
+      "type" : {
+        "coding" : [ {
+          "code" : "119297000"
+        } ],
+        "text" : "Blood specimen"
+      },
+      "receivedTime" : "2021-08-04T00:18:00-06:00",
+      "collection" : {
+        "bodySite" : {
+          "coding" : [ {
+            "code" : "RA"
+          } ],
+          "text" : "RIGHT ARM"
+        }
+      }
+    }
+  }, {
+    "fullUrl" : "Specimen/b6dae059-faa1-4fef-88b3-eb5ff9e357e3",
+    "resource" : {
+      "resourceType" : "Specimen",
+      "id" : "b6dae059-faa1-4fef-88b3-eb5ff9e357e3",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "09339017"
+      } ],
+      "type" : {
+        "coding" : [ {
+          "code" : "119303007"
+        } ],
+        "text" : "Microbial isolate"
+      },
+      "receivedTime" : "2021-08-04T00:18:00-06:00",
+      "collection" : {
+        "bodySite" : {
+          "coding" : [ {
+            "code" : "RA"
+          } ],
+          "text" : "RIGHT ARM"
+        }
+      }
+    }
+  }, {
+    "fullUrl" : "DiagnosticReport/15422b38-6430-4085-86bc-e2bdeeebd662",
+    "resource" : {
+      "resourceType" : "DiagnosticReport",
+      "id" : "15422b38-6430-4085-86bc-e2bdeeebd662",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "http://terminology.hl7.org/CodeSystem/v2-0121",
+        "valueString" : "N"
+      } ],
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "20280808092805-0600"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.1",
+        "value" : "21:AA:B0029251S.1"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PLAC",
+            "display" : "Placer Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.1",
+        "value" : "09339017"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN",
+            "display" : "Placer Group Number"
+          } ]
+        },
+        "system" : "urn:id:M12776123",
+        "value" : "21:AA:B0029251S"
+      } ],
+      "basedOn" : [ {
+        "reference" : "ServiceRequest/997b6dcc-13b1-4d5d-966b-89aed62ced8a"
+      } ],
+      "status" : "preliminary",
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "600-7"
+        } ],
+        "text" : "Bacteria identified in Blood by Culture"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectivePeriod" : {
+        "start" : "2028-08-02T02:52:01-06:00",
+        "end" : "2028-08-02T02:52:01-06:00"
+      },
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "specimen" : [ {
+        "reference" : "Specimen/4a945da8-c5e1-4783-967b-5619ca430d90"
+      } ],
+      "result" : [ {
+        "reference" : "Observation/50e74423-cda2-4f8a-bc48-d7305c53a3bd"
+      }, {
+        "reference" : "Observation/f040740d-5056-4bca-b528-cec41c74d381"
+      }, {
+        "reference" : "Observation/ec245852-fcfd-4d1f-a834-63e8d2c534c4"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/de69e111-13f8-4879-80b5-3a104f291926",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "de69e111-13f8-4879-80b5-3a104f291926",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "name" : "RML"
+    }
+  }, {
+    "fullUrl" : "Practitioner/63974515-ccb5-4507-8d2c-0af30abb53df",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "63974515-ccb5-4507-8d2c-0af30abb53df",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number",
+        "valueContactPoint" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
+            "valueString" : "Hospital Line"
+          } ],
+          "system" : "phone",
+          "value" : "+1 303 436 2727",
+          "use" : "work"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/de69e111-13f8-4879-80b5-3a104f291926"
+        }
+      } ],
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "NPI",
+            "display" : "National provider identifier"
+          } ]
+        },
+        "system" : "http://hl7.org/fhir/sid/us-npi",
+        "value" : "1871759365"
+      } ],
+      "name" : [ {
+        "use" : "official",
+        "text" : "Christopher Beau Willison",
+        "family" : "Willison",
+        "given" : [ "Christopher", "Beau" ],
+        "suffix" : [ "MD" ]
+      } ],
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "5600 S Quebec St #312A" ],
+        "city" : "Greenwood Village",
+        "district" : "MD",
+        "state" : "CO",
+        "postalCode" : "80111",
+        "country" : "USA"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/fbb9d639-062f-4344-9971-b2b8313456dd",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "fbb9d639-062f-4344-9971-b2b8313456dd",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+        "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+        "valueString" : "TMCA, SOUTH CAMPUS"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "06D0055551"
+      } ],
+      "type" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+          "code" : "XX"
+        } ]
+      } ],
+      "name" : "TMCA, SOUTH CAMPUS",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "1501 S. POTOMAC" ],
+        "city" : "AURORA",
+        "district" : "MD",
+        "state" : "CO",
+        "postalCode" : "80012",
+        "country" : "USA"
+      } ],
+      "contact" : [ {
+        "telecom" : [ {
+          "system" : "phone",
+          "value" : "+1 303 695 2653",
+          "use" : "work"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "PractitionerRole/192940d9-33d1-4280-b8f0-d4414b17e100",
+    "resource" : {
+      "resourceType" : "PractitionerRole",
+      "id" : "192940d9-33d1-4280-b8f0-d4414b17e100",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "practitioner" : {
+        "reference" : "Practitioner/63974515-ccb5-4507-8d2c-0af30abb53df"
+      },
+      "organization" : {
+        "reference" : "Organization/fbb9d639-062f-4344-9971-b2b8313456dd"
+      }
+    }
+  }, {
+    "fullUrl" : "ServiceRequest/997b6dcc-13b1-4d5d-966b-89aed62ced8a",
+    "resource" : {
+      "resourceType" : "ServiceRequest",
+      "id" : "997b6dcc-13b1-4d5d-966b-89aed62ced8a",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
+        "valueString" : "TMCA, SOUTH CAMPUS"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0119",
+            "code" : "RE"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "VN",
+            "display" : "Visit number"
+          } ]
+        },
+        "value" : "20280808092805-0600"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN",
+            "display" : "Placer Group Number"
+          } ]
+        },
+        "system" : "urn:id:M12776123",
+        "value" : "21:AA:B0029251S"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PLAC",
+            "display" : "Placer Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.1",
+        "value" : "09339017"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.1",
+        "value" : "21:AA:B0029251S.1"
+      } ],
+      "status" : "unknown",
+      "intent" : "order",
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "600-7"
+        } ],
+        "text" : "Bacteria identified in Blood by Culture"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "occurrenceDateTime" : "2021-08-03T23:50:00Z",
+      "authoredOn" : "2028-08-08T09:28:00Z",
+      "requester" : {
+        "reference" : "PractitionerRole/192940d9-33d1-4280-b8f0-d4414b17e100"
+      },
+      "reasonCode" : [ {
+        "coding" : [ {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "version" : "I10",
+          "code" : "R6521"
+        } ],
+        "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+      } ],
+      "note" : [ {
+        "text" : "  \nCritical result called to and read back by:CLAIRE HCE7362  \nLocation:ICUB on 08/08/21 at 1539 by ELB.RM  \nCritical result called to and read back by:CLAIRE HCE7362  \nLocation:ICUB on 08/08/21 at 1050 by ELB.SMX"
+      } ]
+    }
+  }, {
+    "fullUrl" : "DiagnosticReport/dfa8fb1c-dffe-46f0-aedf-55aa5f52d198",
+    "resource" : {
+      "resourceType" : "DiagnosticReport",
+      "id" : "dfa8fb1c-dffe-46f0-aedf-55aa5f52d198",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "http://terminology.hl7.org/CodeSystem/v2-0121",
+        "valueString" : "N"
+      } ],
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "20280808092805-0600"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.2",
+        "value" : "21:AA:B0029251S.2"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PLAC",
+            "display" : "Placer Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.2",
+        "value" : "09339017"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN",
+            "display" : "Placer Group Number"
+          } ]
+        },
+        "system" : "urn:id:M12776123",
+        "value" : "21:AA:B0029251S"
+      } ],
+      "basedOn" : [ {
+        "reference" : "ServiceRequest/e883d4da-dcf6-429f-9499-af2241766c0a"
+      } ],
+      "status" : "preliminary",
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "600-7"
+        } ],
+        "text" : "Bacteria identified in Blood by Culture"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectivePeriod" : {
+        "start" : "2028-08-02T02:52:01-06:00",
+        "end" : "2028-08-02T02:52:01-06:00"
+      },
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "specimen" : [ {
+        "reference" : "Specimen/0660c6db-48df-42be-8810-5537083228b5"
+      } ],
+      "result" : [ {
+        "reference" : "Observation/22b0b57e-b39f-4079-8aff-f59ce01693ee"
+      }, {
+        "reference" : "Observation/2a45bd1a-0ef0-44c2-82c5-56623876688f"
+      }, {
+        "reference" : "Observation/42a8363e-32b3-494e-8689-9de982d21903"
+      }, {
+        "reference" : "Observation/008402e8-44a7-42dd-a0d3-68a65cfb0f0d"
+      }, {
+        "reference" : "Observation/40f4a509-ed1c-49f9-87e9-0db00d9e7e1a"
+      }, {
+        "reference" : "Observation/cb1821b5-9053-4a53-923b-ae043ec189a4"
+      }, {
+        "reference" : "Observation/87ed10d7-48b8-4f4a-a829-4eb779b08841"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/117eaa94-da8a-4cfb-b401-3ed5a5365c6b",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "117eaa94-da8a-4cfb-b401-3ed5a5365c6b",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "name" : "RML"
+    }
+  }, {
+    "fullUrl" : "Practitioner/a45f2783-3059-483c-ae16-dc5cbd62815b",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "a45f2783-3059-483c-ae16-dc5cbd62815b",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number",
+        "valueContactPoint" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
+            "valueString" : "Hospital Line"
+          } ],
+          "system" : "phone",
+          "value" : "+1 303 436 2727",
+          "use" : "work"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/117eaa94-da8a-4cfb-b401-3ed5a5365c6b"
+        }
+      } ],
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "NPI",
+            "display" : "National provider identifier"
+          } ]
+        },
+        "system" : "http://hl7.org/fhir/sid/us-npi",
+        "value" : "1871759365"
+      } ],
+      "name" : [ {
+        "use" : "official",
+        "text" : "Christopher Beau Willison",
+        "family" : "Willison",
+        "given" : [ "Christopher", "Beau" ],
+        "suffix" : [ "MD" ]
+      } ],
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "5600 S Quebec St #312A" ],
+        "city" : "Greenwood Village",
+        "district" : "MD",
+        "state" : "CO",
+        "postalCode" : "80111",
+        "country" : "USA"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/91353dff-7e49-4ce5-a628-4a39fc5dedf8",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "91353dff-7e49-4ce5-a628-4a39fc5dedf8",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+        "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+        "valueString" : "TMCA, SOUTH CAMPUS"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "06D0055551"
+      } ],
+      "type" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+          "code" : "XX"
+        } ]
+      } ],
+      "name" : "TMCA, SOUTH CAMPUS",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "1501 S. POTOMAC" ],
+        "city" : "AURORA",
+        "district" : "MD",
+        "state" : "CO",
+        "postalCode" : "80012",
+        "country" : "USA"
+      } ],
+      "contact" : [ {
+        "telecom" : [ {
+          "system" : "phone",
+          "value" : "+1 303 695 2653",
+          "use" : "work"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "PractitionerRole/fac25175-457a-4493-a14d-8d67feb779ce",
+    "resource" : {
+      "resourceType" : "PractitionerRole",
+      "id" : "fac25175-457a-4493-a14d-8d67feb779ce",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "practitioner" : {
+        "reference" : "Practitioner/a45f2783-3059-483c-ae16-dc5cbd62815b"
+      },
+      "organization" : {
+        "reference" : "Organization/91353dff-7e49-4ce5-a628-4a39fc5dedf8"
+      }
+    }
+  }, {
+    "fullUrl" : "ServiceRequest/e883d4da-dcf6-429f-9499-af2241766c0a",
+    "resource" : {
+      "resourceType" : "ServiceRequest",
+      "id" : "e883d4da-dcf6-429f-9499-af2241766c0a",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
+        "valueString" : "TMCA, SOUTH CAMPUS"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0119",
+            "code" : "RE"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "VN",
+            "display" : "Visit number"
+          } ]
+        },
+        "value" : "20280808092805-0600"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN",
+            "display" : "Placer Group Number"
+          } ]
+        },
+        "system" : "urn:id:M12776123",
+        "value" : "21:AA:B0029251S"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PLAC",
+            "display" : "Placer Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.2",
+        "value" : "09339017"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.2",
+        "value" : "21:AA:B0029251S.2"
+      } ],
+      "status" : "unknown",
+      "intent" : "order",
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "600-7"
+        } ],
+        "text" : "Bacteria identified in Blood by Culture"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "occurrenceDateTime" : "2021-08-03T23:50:00Z",
+      "authoredOn" : "2028-08-08T09:28:00Z",
+      "requester" : {
+        "reference" : "PractitionerRole/fac25175-457a-4493-a14d-8d67feb779ce"
+      },
+      "reasonCode" : [ {
+        "coding" : [ {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "version" : "I10",
+          "code" : "R6521"
+        } ],
+        "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+      } ],
+      "note" : [ {
+        "text" : "  \nCritical result called to and read back by:CLAIRE HCE7362  \nLocation:ICUB on 08/08/21 at 1539 by ELB.RM  \nCritical result called to and read back by:CLAIRE HCE7362  \nLocation:ICUB on 08/08/21 at 1050 by ELB.SMX"
+      } ]
+    }
+  }, {
+    "fullUrl" : "DiagnosticReport/4321255c-3416-48b2-b706-76cb9f790118",
+    "resource" : {
+      "resourceType" : "DiagnosticReport",
+      "id" : "4321255c-3416-48b2-b706-76cb9f790118",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "http://terminology.hl7.org/CodeSystem/v2-0121",
+        "valueString" : "N"
+      } ],
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "20280808092805-0600"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.3",
+        "value" : "21:AA:B0029251S.3"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PLAC",
+            "display" : "Placer Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.3",
+        "value" : "09339017"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN",
+            "display" : "Placer Group Number"
+          } ]
+        },
+        "system" : "urn:id:M12776123",
+        "value" : "21:AA:B0029251S"
+      } ],
+      "basedOn" : [ {
+        "reference" : "ServiceRequest/1f5ae5a3-8972-4abf-9605-a143a1528bce"
+      } ],
+      "status" : "preliminary",
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "77202-0"
+        } ],
+        "text" : "Laboratory comment [Text] in Report Narrative"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectivePeriod" : {
+        "start" : "2028-08-02T02:52:01-06:00",
+        "end" : "2028-08-02T02:52:01-06:00"
+      },
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "specimen" : [ {
+        "reference" : "Specimen/300d821e-d5c9-4f87-9d4b-37a25fb8d107"
+      } ],
+      "result" : [ {
+        "reference" : "Observation/31e1bfe1-2af1-4c57-8ff0-50ac8d7a70f0"
+      }, {
+        "reference" : "Observation/cc90aedc-2256-4952-9af5-91d1fa29f518"
+      }, {
+        "reference" : "Observation/11e97042-df8c-4bbd-83e5-1ecf05e5f945"
+      }, {
+        "reference" : "Observation/e15e7cc1-66fe-4637-b23d-6e856ec5e7fc"
+      }, {
+        "reference" : "Observation/61a086a7-b76f-44d7-8dcf-b5217bfa0527"
+      }, {
+        "reference" : "Observation/434fe0e5-5490-4947-ae87-2318979e9d57"
+      }, {
+        "reference" : "Observation/006a756c-c63f-4293-9663-caa43b722d4d"
+      }, {
+        "reference" : "Observation/e35faca6-5449-4dc7-88fe-7c60221f8882"
+      }, {
+        "reference" : "Observation/10901d78-6b3b-4eff-b221-4a1de27fe7eb"
+      }, {
+        "reference" : "Observation/394a193e-91d0-4872-805e-57e91a2e0a2c"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Location/aa52c472-665c-4b67-b13a-48c370c7f2b5",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "aa52c472-665c-4b67-b13a-48c370c7f2b5",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "name" : "RML"
+    }
+  }, {
+    "fullUrl" : "Practitioner/e2608754-f383-4a8b-97a6-69eae2368d3e",
+    "resource" : {
+      "resourceType" : "Practitioner",
+      "id" : "e2608754-f383-4a8b-97a6-69eae2368d3e",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number",
+        "valueContactPoint" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
+            "valueString" : "Hospital Line"
+          } ],
+          "system" : "phone",
+          "value" : "+1 303 436 2727",
+          "use" : "work"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/aa52c472-665c-4b67-b13a-48c370c7f2b5"
+        }
+      } ],
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "NPI",
+            "display" : "National provider identifier"
+          } ]
+        },
+        "system" : "http://hl7.org/fhir/sid/us-npi",
+        "value" : "1871759365"
+      } ],
+      "name" : [ {
+        "use" : "official",
+        "text" : "Christopher Beau Willison",
+        "family" : "Willison",
+        "given" : [ "Christopher", "Beau" ],
+        "suffix" : [ "MD" ]
+      } ],
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "5600 S Quebec St #312A" ],
+        "city" : "Greenwood Village",
+        "district" : "MD",
+        "state" : "CO",
+        "postalCode" : "80111",
+        "country" : "USA"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/cec36167-2ae0-439c-9f93-2e00fda3a2df",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "cec36167-2ae0-439c-9f93-2e00fda3a2df",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
+        "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+        "valueString" : "TMCA, SOUTH CAMPUS"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+            "code" : "L"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "value" : "06D0055551"
+      } ],
+      "type" : [ {
+        "coding" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+          "code" : "XX"
+        } ]
+      } ],
+      "name" : "TMCA, SOUTH CAMPUS",
+      "address" : [ {
+        "use" : "work",
+        "line" : [ "1501 S. POTOMAC" ],
+        "city" : "AURORA",
+        "district" : "MD",
+        "state" : "CO",
+        "postalCode" : "80012",
+        "country" : "USA"
+      } ],
+      "contact" : [ {
+        "telecom" : [ {
+          "system" : "phone",
+          "value" : "+1 303 695 2653",
+          "use" : "work"
+        } ]
+      } ]
+    }
+  }, {
+    "fullUrl" : "PractitionerRole/4dbe524f-f6f6-4371-ba45-93d3bd052c32",
+    "resource" : {
+      "resourceType" : "PractitionerRole",
+      "id" : "4dbe524f-f6f6-4371-ba45-93d3bd052c32",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "practitioner" : {
+        "reference" : "Practitioner/e2608754-f383-4a8b-97a6-69eae2368d3e"
+      },
+      "organization" : {
+        "reference" : "Organization/cec36167-2ae0-439c-9f93-2e00fda3a2df"
+      }
+    }
+  }, {
+    "fullUrl" : "ServiceRequest/1f5ae5a3-8972-4abf-9605-a143a1528bce",
+    "resource" : {
+      "resourceType" : "ServiceRequest",
+      "id" : "1f5ae5a3-8972-4abf-9605-a143a1528bce",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
+        "valueString" : "TMCA, SOUTH CAMPUS"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0119",
+            "code" : "RE"
+          } ]
+        }
+      } ],
+      "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "VN",
+            "display" : "Visit number"
+          } ]
+        },
+        "value" : "20280808092805-0600"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PGN",
+            "display" : "Placer Group Number"
+          } ]
+        },
+        "system" : "urn:id:M12776123",
+        "value" : "21:AA:B0029251S"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+          "valueOid" : "urn:oid:2.16.840.1.114222.4.1.144"
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "PLAC",
+            "display" : "Placer Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.3",
+        "value" : "09339017"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.3",
+        "value" : "21:AA:B0029251S.3"
+      } ],
+      "status" : "unknown",
+      "intent" : "order",
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "77202-0"
+        } ],
+        "text" : "Laboratory comment [Text] in Report Narrative"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "occurrenceDateTime" : "2021-08-03T23:50:00Z",
+      "authoredOn" : "2028-08-08T09:28:00Z",
+      "requester" : {
+        "reference" : "PractitionerRole/4dbe524f-f6f6-4371-ba45-93d3bd052c32"
+      },
+      "reasonCode" : [ {
+        "coding" : [ {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "version" : "I10",
+          "code" : "R6521"
+        } ],
+        "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+      } ],
+      "note" : [ {
+        "text" : "  \nCritical result called to and read back by:CLAIRE HCE7362  \nLocation:ICUB on 08/08/21 at 1539 by ELB.RM  \nCritical result called to and read back by:CLAIRE HCE7362  \nLocation:ICUB on 08/08/21 at 1050 by ELB.SMX"
+      } ]
+    }
+  }, {
+    "fullUrl" : "DiagnosticReport/df71ba7a-8919-4e86-8d3e-5caf13266047",
+    "resource" : {
+      "resourceType" : "DiagnosticReport",
+      "id" : "df71ba7a-8919-4e86-8d3e-5caf13266047",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "20280808092805-0600"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.4",
+        "value" : "21:AA:B0029251S.4"
+      } ],
+      "basedOn" : [ {
+        "reference" : "ServiceRequest/7419e6e4-7305-45eb-b4df-680a0ba950e6"
+      } ],
+      "status" : "preliminary",
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "50545-3"
+        } ],
+        "text" : "Bacterial susceptibility panel by Minimum inhibitory concentration (MIC)"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectivePeriod" : {
+        "start" : "2028-08-07T16:36:01-06:00",
+        "end" : "2028-08-07T16:36:01-06:00"
+      },
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "result" : [ {
+        "reference" : "Observation/abebe75e-908f-48d2-9388-7f85d39dcd85"
+      } ]
+    }
+  }, {
+    "fullUrl" : "PractitionerRole/df227f63-c92d-49e4-b681-b04faaa3496a",
+    "resource" : {
+      "resourceType" : "PractitionerRole",
+      "id" : "df227f63-c92d-49e4-b681-b04faaa3496a",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      }
+    }
+  }, {
+    "fullUrl" : "ServiceRequest/7419e6e4-7305-45eb-b4df-680a0ba950e6",
+    "resource" : {
+      "resourceType" : "ServiceRequest",
+      "id" : "7419e6e4-7305-45eb-b4df-680a0ba950e6",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "VN",
+            "display" : "Visit number"
+          } ]
+        },
+        "value" : "20280808092805-0600"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.4",
+        "value" : "21:AA:B0029251S.4"
+      } ],
+      "status" : "unknown",
+      "intent" : "order",
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "version" : "L",
+          "code" : "50545-3"
+        } ],
+        "text" : "Bacterial susceptibility panel by Minimum inhibitory concentration (MIC)"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "occurrenceDateTime" : "2028-08-07T16:36:01-06:00",
+      "requester" : {
+        "reference" : "PractitionerRole/df227f63-c92d-49e4-b681-b04faaa3496a"
+      },
+      "reasonCode" : [ {
+        "coding" : [ {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "version" : "I10",
+          "code" : "R6521"
+        } ],
+        "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+      } ]
+    }
+  }, {
+    "fullUrl" : "DiagnosticReport/85f37432-a30d-4e15-b494-8f21d2922150",
+    "resource" : {
+      "resourceType" : "DiagnosticReport",
+      "id" : "85f37432-a30d-4e15-b494-8f21d2922150",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "20280808092805-0600"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.5",
+        "value" : "21:AA:B0029251S.5"
+      } ],
+      "basedOn" : [ {
+        "reference" : "ServiceRequest/45c1547a-4b07-4a87-bf8e-5134ae81759d"
+      } ],
+      "status" : "preliminary",
+      "code" : {
+        "coding" : [ {
+          "code" : "VGP-75"
+        } ],
+        "text" : "VITEK2 AST-GP75"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "encounter" : {
+        "reference" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c"
+      },
+      "effectivePeriod" : {
+        "start" : "2028-08-07T16:36:01-06:00",
+        "end" : "2028-08-07T16:36:01-06:00"
+      },
+      "issued" : "2021-08-10T06:25:00-06:00",
+      "specimen" : [ {
+        "reference" : "Specimen/b6dae059-faa1-4fef-88b3-eb5ff9e357e3"
+      } ],
+      "result" : [ {
+        "reference" : "Observation/7030eb97-e5b7-411a-83ad-71f94533f962"
+      }, {
+        "reference" : "Observation/39f63ce3-1da2-46e9-8043-51c5269f60cf"
+      }, {
+        "reference" : "Observation/9dc91860-a939-43e5-aa73-3ad2c7e11070"
+      }, {
+        "reference" : "Observation/7958f80e-d329-46e0-95a2-0a232ddb42a5"
+      }, {
+        "reference" : "Observation/9c452ce4-da4e-4282-aa9c-40bf5f70d22d"
+      } ]
+    }
+  }, {
+    "fullUrl" : "PractitionerRole/47183a1a-dadc-4002-ae1f-47f76fb19e4e",
+    "resource" : {
+      "resourceType" : "PractitionerRole",
+      "id" : "47183a1a-dadc-4002-ae1f-47f76fb19e4e",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      }
+    }
+  }, {
+    "fullUrl" : "ServiceRequest/45c1547a-4b07-4a87-bf8e-5134ae81759d",
+    "resource" : {
+      "resourceType" : "ServiceRequest",
+      "id" : "45c1547a-4b07-4a87-bf8e-5134ae81759d",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
+          "valueString" : "COCAA"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+      },
+      "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "VN",
+            "display" : "Visit number"
+          } ]
+        },
+        "value" : "20280808092805-0600"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "FILL",
+            "display" : "Filler Identifier"
+          } ]
+        },
+        "system" : "urn:id:M12776123.5",
+        "value" : "21:AA:B0029251S.5"
+      } ],
+      "status" : "unknown",
+      "intent" : "order",
+      "code" : {
+        "coding" : [ {
+          "code" : "VGP-75"
+        } ],
+        "text" : "VITEK2 AST-GP75"
+      },
+      "subject" : {
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
+      },
+      "occurrenceDateTime" : "2028-08-07T16:36:01-06:00",
+      "requester" : {
+        "reference" : "PractitionerRole/47183a1a-dadc-4002-ae1f-47f76fb19e4e"
+      },
+      "reasonCode" : [ {
+        "coding" : [ {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "version" : "I10",
+          "code" : "R6521"
+        } ],
+        "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "3ff9bc64-813f-4eb3-840e-ce896013c356",
+      "id" : "2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -404,6 +4189,10 @@
         "value" : "+1 303 693 0111",
         "use" : "home"
       }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
+          "valueString" : "Business"
+        } ],
         "system" : "phone",
         "value" : "+1 303 999 9999",
         "use" : "work"
@@ -428,10 +4217,10 @@
       }
     }
   }, {
-    "fullUrl" : "Encounter/b284eca9-5106-40e3-a1ce-f0fb8883872c",
+    "fullUrl" : "Encounter/7d31bb4e-13fa-4a8e-8dc4-24caa85a413c",
     "resource" : {
       "resourceType" : "Encounter",
-      "id" : "b284eca9-5106-40e3-a1ce-f0fb8883872c",
+      "id" : "7d31bb4e-13fa-4a8e-8dc4-24caa85a413c",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -488,7 +4277,7 @@
         } ]
       },
       "subject" : {
-        "reference" : "Patient/3ff9bc64-813f-4eb3-840e-ce896013c356"
+        "reference" : "Patient/2ada8a4e-3e0c-4406-b4a1-0f1b3c63dcbc"
       },
       "participant" : [ {
         "type" : [ {
@@ -499,7 +4288,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/9434f75e-c300-4681-a85a-cee8c1518895"
+          "reference" : "Practitioner/b08600e0-00d0-41e1-a62a-3c1a8619bb68"
         }
       }, {
         "type" : [ {
@@ -510,7 +4299,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/f9847679-6134-431d-bfd0-61821db19651"
+          "reference" : "Practitioner/5d807bb2-fd0d-47a0-8fd9-83c34af638f1"
         }
       }, {
         "type" : [ {
@@ -521,7 +4310,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/d47c0ee4-2152-4ea7-ba19-838e52eb2249"
+          "reference" : "Practitioner/25834737-edba-4bee-8468-8117a80ed31f"
         }
       }, {
         "type" : [ {
@@ -532,7 +4321,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/41436f3e-c4ee-4409-b7ba-23b38f808599"
+          "reference" : "Practitioner/36383cee-4631-490c-b68b-8b3f7806963c"
         }
       }, {
         "type" : [ {
@@ -543,7 +4332,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/60a37261-c9f4-47dd-bba7-60302078fff9"
+          "reference" : "Practitioner/2fe7d8e8-17c9-43aa-b68e-34506b99849a"
         }
       }, {
         "type" : [ {
@@ -554,7 +4343,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/74971fa8-4113-4ea3-a197-d18a2eed1b5b"
+          "reference" : "Practitioner/968882eb-c002-4a2d-bdaf-56b26d8fb283"
         }
       } ],
       "period" : {
@@ -574,16 +4363,39 @@
       },
       "location" : [ {
         "location" : {
-          "reference" : "Location/c089cb69-0d09-4ce4-9743-b3c6409c76ed"
+          "reference" : "Location/18217d2b-391d-4914-9ee4-8d03f011da53"
         },
         "status" : "active"
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/9434f75e-c300-4681-a85a-cee8c1518895",
+    "fullUrl" : "Location/8d15247f-d729-45ff-8dd4-6bdcd47ca1d0",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "8d15247f-d729-45ff-8dd4-6bdcd47ca1d0",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/b08600e0-00d0-41e1-a62a-3c1a8619bb68",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "9434f75e-c300-4681-a85a-cee8c1518895",
+      "id" : "b08600e0-00d0-41e1-a62a-3c1a8619bb68",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -601,6 +4413,17 @@
           "valueString" : "2.5.1"
         } ]
       },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number",
+        "valueContactPoint" : {
+          "system" : "phone"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/8d15247f-d729-45ff-8dd4-6bdcd47ca1d0"
+        }
+      } ],
       "identifier" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
@@ -624,10 +4447,33 @@
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/f9847679-6134-431d-bfd0-61821db19651",
+    "fullUrl" : "Location/2c863dc4-770c-4966-b6df-50bf96160ad5",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "2c863dc4-770c-4966-b6df-50bf96160ad5",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/5d807bb2-fd0d-47a0-8fd9-83c34af638f1",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "f9847679-6134-431d-bfd0-61821db19651",
+      "id" : "5d807bb2-fd0d-47a0-8fd9-83c34af638f1",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -645,6 +4491,17 @@
           "valueString" : "2.5.1"
         } ]
       },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number",
+        "valueContactPoint" : {
+          "system" : "phone"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/2c863dc4-770c-4966-b6df-50bf96160ad5"
+        }
+      } ],
       "identifier" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
@@ -668,10 +4525,33 @@
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/d47c0ee4-2152-4ea7-ba19-838e52eb2249",
+    "fullUrl" : "Location/24b76fbe-1b31-4dc9-a02b-752a84476fa7",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "24b76fbe-1b31-4dc9-a02b-752a84476fa7",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/25834737-edba-4bee-8468-8117a80ed31f",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "d47c0ee4-2152-4ea7-ba19-838e52eb2249",
+      "id" : "25834737-edba-4bee-8468-8117a80ed31f",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -689,6 +4569,17 @@
           "valueString" : "2.5.1"
         } ]
       },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number",
+        "valueContactPoint" : {
+          "system" : "phone"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/24b76fbe-1b31-4dc9-a02b-752a84476fa7"
+        }
+      } ],
       "identifier" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
@@ -712,10 +4603,33 @@
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/41436f3e-c4ee-4409-b7ba-23b38f808599",
+    "fullUrl" : "Location/6c1014f2-3411-46ff-bb0c-fdd1f08f565a",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "6c1014f2-3411-46ff-bb0c-fdd1f08f565a",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/36383cee-4631-490c-b68b-8b3f7806963c",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "41436f3e-c4ee-4409-b7ba-23b38f808599",
+      "id" : "36383cee-4631-490c-b68b-8b3f7806963c",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -733,6 +4647,17 @@
           "valueString" : "2.5.1"
         } ]
       },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number",
+        "valueContactPoint" : {
+          "system" : "phone"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/6c1014f2-3411-46ff-bb0c-fdd1f08f565a"
+        }
+      } ],
       "identifier" : [ {
         "type" : {
           "coding" : [ {
@@ -752,10 +4677,33 @@
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/60a37261-c9f4-47dd-bba7-60302078fff9",
+    "fullUrl" : "Location/c4d91219-148a-4fc9-be5c-e2b1a62257ca",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "c4d91219-148a-4fc9-be5c-e2b1a62257ca",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/2fe7d8e8-17c9-43aa-b68e-34506b99849a",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "60a37261-c9f4-47dd-bba7-60302078fff9",
+      "id" : "2fe7d8e8-17c9-43aa-b68e-34506b99849a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -773,6 +4721,17 @@
           "valueString" : "2.5.1"
         } ]
       },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number",
+        "valueContactPoint" : {
+          "system" : "phone"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/c4d91219-148a-4fc9-be5c-e2b1a62257ca"
+        }
+      } ],
       "identifier" : [ {
         "type" : {
           "coding" : [ {
@@ -792,10 +4751,33 @@
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/74971fa8-4113-4ea3-a197-d18a2eed1b5b",
+    "fullUrl" : "Location/020e4a23-2097-4023-88f5-c340f732cde5",
+    "resource" : {
+      "resourceType" : "Location",
+      "id" : "020e4a23-2097-4023-88f5-c340f732cde5",
+      "meta" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
+          "valueCodeableConcept" : {
+            "coding" : [ {
+              "system" : "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html",
+              "code" : "P"
+            } ]
+          }
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
+          "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
+        }, {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Practitioner/968882eb-c002-4a2d-bdaf-56b26d8fb283",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "74971fa8-4113-4ea3-a197-d18a2eed1b5b",
+      "id" : "968882eb-c002-4a2d-bdaf-56b26d8fb283",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -813,6 +4795,17 @@
           "valueString" : "2.5.1"
         } ]
       },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number",
+        "valueContactPoint" : {
+          "system" : "phone"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
+        "valueReference" : {
+          "reference" : "Location/020e4a23-2097-4023-88f5-c340f732cde5"
+        }
+      } ],
       "identifier" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
@@ -836,10 +4829,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/c089cb69-0d09-4ce4-9743-b3c6409c76ed",
+    "fullUrl" : "Location/18217d2b-391d-4914-9ee4-8d03f011da53",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "c089cb69-0d09-4ce4-9743-b3c6409c76ed",
+      "id" : "18217d2b-391d-4914-9ee4-8d03f011da53",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",

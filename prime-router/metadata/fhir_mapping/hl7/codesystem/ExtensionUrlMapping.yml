@@ -58,6 +58,9 @@
 # Organization name type
 - id: "organization-name-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
+# Entering organization
+- id: "entering-organization"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization"
 # Organization assigning authority namespace ID
 - id: "assigning-authority-namespace-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"

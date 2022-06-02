@@ -189,3 +189,15 @@ extension_1:
       constants:
         system: v2-0119
 
+extension_2:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: entering-organization
+    valueString:
+      type: STRING
+      valueOf: ORC.17.1 | ORC.17.9 | ORC.17.2
+      expressionType: HL7Spec
+
