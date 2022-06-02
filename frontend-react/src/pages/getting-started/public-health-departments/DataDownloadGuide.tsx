@@ -202,7 +202,7 @@ export const DataDownloadGuide = () => {
                         If you forgot your password, follow the instructions
                         under "Need help signing in?" on the login page at{" "}
                         <NavLink to="/login" key="login" className="usa-link">
-                            reportsream.cdc.gov/login
+                            reportstream.cdc.gov/login
                         </NavLink>
                         .
                     </li>
