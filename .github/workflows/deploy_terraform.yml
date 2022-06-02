@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       env_name: ${{ steps.build_vars.outputs.env_name }}
+      tf_change: ${{ steps.build_vars.outputs.has_terraform_change }}
     steps:
       - name: Check out changes
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
@@ -24,6 +25,7 @@ jobs:
 
   confirm_changes:
     name: Check Terraform Stats - ${{ needs.pre_job.outputs.env_name }}
+    if: ${{ needs.pre_job.outputs.tf_change == 'true' }}
     concurrency: 
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
@@ -47,10 +49,11 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
       - name: Collect Terraform stats
-        uses: josiahsiegel/terraform-stats@bce66bdcc53b547ee328f1c383890eede85db5ae
+        uses: josiahsiegel/terraform-stats@56fee0a5fc6f2c118a8a4992603054c78a1379ad
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+          terraform-version: 1.1.9
 
   approve_deploy:
     name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
@@ -94,6 +97,11 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@17d4c9b8043b238f6f35641cdd8433da1e6f3867
+        with:
+          terraform_version: 1.1.9
+          terraform_wrapper: false
       - name: Run Terraform
         run: |
           terraform init -input=false
