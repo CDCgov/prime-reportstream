@@ -311,7 +311,7 @@ class DateUtilitiesTests {
         val easternParsedDate = DateUtilities.parseDate(easternTimeStampValue) as OffsetDateTime
         val pacificParsedDate = DateUtilities.parseDate(pacificTimeStampValue) as OffsetDateTime
         val duration = Duration.between(pacificParsedDate.toLocalDateTime(), easternParsedDate.toLocalDateTime())
-        assertThat(duration.toHours()).isBetween(3, 4)
+        assertThat(duration.toHours()).isBetween(2, 4)
     }
 
     @Test

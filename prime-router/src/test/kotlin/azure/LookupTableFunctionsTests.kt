@@ -8,13 +8,16 @@ import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
+import com.microsoft.azure.functions.HttpStatusType
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import gov.cdc.prime.router.azure.http.extensions.contentType
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import io.mockk.Runs
 import io.mockk.clearMocks
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
-import io.mockk.spyk
 import io.mockk.verify
 import org.jooq.JSONB
 import org.jooq.exception.DataAccessException
@@ -38,11 +41,28 @@ class LookupTableFunctionsTests {
      */
     private val mapper = JacksonMapperUtilities.defaultMapper
 
+    /**
+     * Our mock for the request builder functionality
+     */
+    private val mockRequestBuilder = mockk<HttpResponseMessage.Builder>()
+    private val mockResponse = mockk<HttpResponseMessage>()
     @BeforeAll
     fun initDependencies() {
+        // arrange our mock response
+        every { mockResponse.body } returns ""
+        every { mockResponse.status } returns HttpStatusType.custom(200)
+        every { mockResponse.statusCode } returns 200
+        every { mockResponse.getHeader(any()) } returns ""
+        // arrange our mock request builder
+        every { mockRequestBuilder.build() } returns mockResponse
+        every { mockRequestBuilder.body(any()) } answers { callOriginal() }
+        every { mockRequestBuilder.header(any(), any()) } answers { callOriginal() }
+        every { mockRequestBuilder.status(any()) } answers { callOriginal() }
+        every { mockRequestBuilder.contentType(any()) } just Runs
+        // arrange our mock request
         every { mockRequest.headers } returns mapOf(HttpHeaders.AUTHORIZATION.lowercase() to "Bearer dummy")
         every { mockRequest.uri } returns URI.create("http://localhost:7071/api/lookuptables")
-        every { mockRequest.createResponseBuilder(any()) } returns spyk<HttpResponseMessage.Builder>()
+        every { mockRequest.createResponseBuilder(any()) } returns mockRequestBuilder
     }
 
     /**
