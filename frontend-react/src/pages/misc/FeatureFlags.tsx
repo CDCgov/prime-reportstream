@@ -11,6 +11,11 @@ import {
 
 import { showAlertNotification } from "../../components/AlertNotifications";
 
+export enum FeatureFlagName {
+    NUMBERED_PAGINATION = "numbered-pagination",
+    VALUE_SETS_ADMIN = "value-sets",
+}
+
 /* feature flags are just and array of strings saved into a single localStorage variable */
 const LOCALSTORAGE_KEY = "featureFlags";
 
