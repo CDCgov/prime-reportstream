@@ -32,7 +32,7 @@ const DropdownNav = ({ label, root, directories }: DropdownNavProps) => {
             document.body.removeEventListener("mouseup", handleClick);
         };
     }, []);
-    const MENU = directories.map((dir) => (
+    const navMenu = directories.map((dir) => (
         <NavLink to={`${root}/${dir.slug}`}>{dir.title}</NavLink>
     ));
     return (
@@ -47,7 +47,7 @@ const DropdownNav = ({ label, root, directories }: DropdownNavProps) => {
                 isCurrent={isOpen}
             />
             <Menu
-                items={MENU}
+                items={navMenu}
                 isOpen={isOpen}
                 id={root}
                 onClick={(): void => setIsOpen(false)}
@@ -57,14 +57,14 @@ const DropdownNav = ({ label, root, directories }: DropdownNavProps) => {
 };
 
 export const AdminDropdown = () => {
-    let PAGES = [
+    const pages = [
         makeNonStaticOption("Organization Settings", "settings"),
         makeNonStaticOption("Feature Flags", "features"),
         makeNonStaticOption("Guides", "guides/create-markdown-pages"),
     ];
     if (CheckFeatureFlag("value-sets"))
-        PAGES.push(makeNonStaticOption("Value Sets", "value-sets"));
-    return <DropdownNav label={"Admin"} root={"/admin"} directories={PAGES} />;
+        pages.push(makeNonStaticOption("Value Sets", "value-sets"));
+    return <DropdownNav label={"Admin"} root={"/admin"} directories={pages} />;
 };
 
 export const GettingStartedDropdown = () => {

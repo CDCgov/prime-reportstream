@@ -11,7 +11,7 @@ const StaticPageFromDirectories = ({
 }: {
     directories: MarkdownDirectory[];
 }) => {
-    let { path } = useRouteMatch();
+    const { path } = useRouteMatch();
 
     return (
         <section className="grid-container tablet:margin-top-6 margin-bottom-5">

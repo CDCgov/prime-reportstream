@@ -19,7 +19,7 @@ export const BUILT_FOR_YOU: MarkdownDirectory[] = [
 
 This is an example of our new Built For You set of static pages. Because we 
 want to use side-navigation to segment content by month, we set up our directories 
-to be labeled by month. The best practice for slugs is to match the title in a url-frindly 
+to be labeled by month. The best practice for slugs is to match the title in a url-friendly 
 way. Lastly the array of files.
 
 ### Adding files
@@ -71,6 +71,8 @@ to the url _after_ the `root`.
 ```
 https://reportstream.cdc.gov/{root}/{slug}
 ```
+
+Once created, you'll need to add this to the `ReportStreamHeader` component.
 
 ## Add the `Route`
 
