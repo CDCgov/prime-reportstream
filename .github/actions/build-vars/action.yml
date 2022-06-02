@@ -27,13 +27,17 @@ runs:
 
     - name: Set Build Environment - TEST
       id: build_test
-      if: github.ref == 'refs/heads/test'
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'test') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'test')
       shell: bash
       run: echo "::set-output name=env_name::test"
 
     - name: Set Build Environment - STAGING
       id: build_staging
-      if: github.ref == 'refs/heads/master'
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'master') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'master')
       shell: bash
       run: |
         echo "::set-output name=env_name::staging"
@@ -42,7 +46,9 @@ runs:
 
     - name: Set Build Environment - PROD
       id: build_prod
-      if: github.ref == 'refs/heads/production'
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'production') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'production')
       shell: bash
       run: |
         echo "::set-output name=env_name::prod"
