@@ -14,6 +14,7 @@ import java.security.MessageDigest
 
 /**
  * Class to access lookup tables stored in the database.
+ * comment to touch file to force rebuild/retest
  */
 class DatabaseLookupTableAccess(private val db: DatabaseAccess = DatabaseAccess()) {
     /**
