@@ -63,27 +63,14 @@ class SubmissionFunction(
                     " to $sender/submissions endpoint via client id ${sender.organizationName}. "
             )
 
-            val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize, showFailed) =
-                Parameters(request.queryParameters)
-            val sortOrder = try {
-                SubmissionAccess.SortOrder.valueOf(qSortOrder)
-            } catch (e: IllegalArgumentException) {
-                SubmissionAccess.SortOrder.DESC
-            }
-
-            val sortColumn = try {
-                SubmissionAccess.SortColumn.valueOf(qSortColumn)
-            } catch (e: IllegalArgumentException) {
-                SubmissionAccess.SortColumn.CREATED_AT
-            }
+            val params = Parameters(request.queryParameters)
             val submissions = submissionsFacade.findSubmissionsAsJson(
                 sender.organizationName,
-                sortOrder,
-                sortColumn,
-                resultsAfterDate,
-                resultsBeforeDate,
-                pageSize,
-                showFailed
+                params.sortDir,
+                params.sortColumn,
+                params.cursor,
+                params.pageSize,
+                params.showFailed
             )
             return HttpUtilities.okResponse(request, submissions)
         } catch (e: IllegalArgumentException) {

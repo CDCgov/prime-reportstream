@@ -35,12 +35,11 @@ class SubmissionsFacade(
         organizationName: String,
         sortOrder: SubmissionAccess.SortOrder,
         sortColumn: SubmissionAccess.SortColumn,
-        offset: OffsetDateTime?,
-        toEnd: OffsetDateTime?,
+        cursor: OffsetDateTime,
         pageSize: Int,
         showFailed: Boolean
     ): String {
-        val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize, showFailed)
+        val result = findSubmissions(organizationName, sortOrder, sortColumn, cursor, pageSize, showFailed)
         return mapper.writeValueAsString(result)
     }
 
@@ -57,29 +56,23 @@ class SubmissionsFacade(
         organizationName: String,
         sortOrder: SubmissionAccess.SortOrder,
         sortColumn: SubmissionAccess.SortColumn,
-        offset: OffsetDateTime?,
-        toEnd: OffsetDateTime?,
+        cursor: OffsetDateTime,
         pageSize: Int,
         showFailed: Boolean
     ): List<SubmissionHistory> {
         require(organizationName.isNotBlank()) {
             "Invalid organization."
         }
-        require(pageSize > 0) {
-            "pageSize must be a positive integer."
-        }
 
-        val submissions = dbSubmissionAccess.fetchActions(
+        return dbSubmissionAccess.fetchActions(
             organizationName,
             sortOrder,
             sortColumn,
-            offset,
-            toEnd,
+            cursor,
             pageSize,
             showFailed,
             SubmissionHistory::class.java
         )
-        return submissions
     }
 
     fun findDetailedSubmissionHistory(

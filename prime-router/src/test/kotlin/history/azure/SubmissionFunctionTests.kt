@@ -88,11 +88,10 @@ class SubmissionFunctionTests : Logging {
 
         override fun <T> fetchActions(
             sendingOrg: String,
-            order: SubmissionAccess.SortOrder,
+            sortDir: SubmissionAccess.SortOrder,
             sortColumn: SubmissionAccess.SortColumn,
-            cursor: OffsetDateTime?,
-            toEnd: OffsetDateTime?,
-            limit: Int,
+            cursor: OffsetDateTime,
+            pageSize: Int,
             showFailed: Boolean,
             klass: Class<T>
         ): List<T> {

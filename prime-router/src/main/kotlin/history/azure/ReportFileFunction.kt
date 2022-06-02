@@ -14,53 +14,56 @@ abstract class ReportFileFunction(
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
     data class Parameters(
-        val sort: String,
-        val sortColumn: String,
-        val cursor: OffsetDateTime?,
-        val endCursor: OffsetDateTime?,
+        val sortDir: SubmissionAccess.SortOrder,
+        val sortColumn: SubmissionAccess.SortColumn,
+        val cursor: OffsetDateTime,
         val pageSize: Int,
         val showFailed: Boolean
     ) {
         constructor(query: Map<String, String>) : this (
-            extractSortOrder(query),
-            extractSortCol(query),
+            sortDir = extractSortOrder(query),
+            sortColumn = extractSortCol(query),
             extractDateTime(query, "cursor"),
-            extractDateTime(query, "endcursor"),
             extractPageSize(query),
             extractShowFailed(query)
         )
 
         companion object {
-            fun extractSortOrder(query: Map<String, String>): String {
-                return query.getOrDefault("sort", "DESC")
+            fun extractSortOrder(query: Map<String, String>): SubmissionAccess.SortOrder {
+                val sort = query["sort"]
+                return if (sort == null)
+                    SubmissionAccess.SortOrder.DESC
+                else
+                    SubmissionAccess.SortOrder.valueOf(sort)
             }
 
-            fun extractSortCol(query: Map<String, String>): String {
-                return query.getOrDefault("sortcol", "default")
+            fun extractSortCol(query: Map<String, String>): SubmissionAccess.SortColumn {
+                val col = query["sortcol"]
+                return if (col == null)
+                    SubmissionAccess.SortColumn.CREATED_AT
+                else
+                    SubmissionAccess.SortColumn.valueOf(col)
             }
 
-            fun extractDateTime(query: Map<String, String>, name: String): OffsetDateTime? {
-                val cursor = query.get(name)
-                return if (cursor != null) {
+            fun extractDateTime(query: Map<String, String>, name: String): OffsetDateTime {
+                val dt = query[name]
+                return if (dt != null) {
                     try {
-                        OffsetDateTime.parse(cursor)
+                        OffsetDateTime.parse(dt)
                     } catch (e: DateTimeParseException) {
                         throw IllegalArgumentException("\"$name\" must be a valid datetime")
                     }
-                } else null
+                } else OffsetDateTime.now()
             }
 
             fun extractPageSize(query: Map<String, String>): Int {
-                val size = query.getOrDefault("pagesize", "10").toIntOrNull()
-                require(size != null) { "pageSize must be a positive integer" }
+                val size = query.getOrDefault("pagesize", "50").toInt()
+                require(size > 0) { "Page size must be a positive integer" }
                 return size
             }
 
             fun extractShowFailed(query: Map<String, String>): Boolean {
-                return when (query.getOrDefault("showfailed", "true")) {
-                    "false" -> false
-                    else -> true
-                }
+                return query["showfailed"]?.toBoolean() ?: false
             }
         }
     }

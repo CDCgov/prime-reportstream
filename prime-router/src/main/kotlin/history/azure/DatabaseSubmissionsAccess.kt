@@ -35,21 +35,19 @@ interface SubmissionAccess {
      * Get multiple results based on a particular organization.
      *
      * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.
-     * @param order sort the table in ASC or DESC order.
+     * @param sortDir sort the table in ASC or DESC order.
      * @param sortColumn sort the table by specific column; default created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
-     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
-     * @param limit is an Integer used for setting the number of results per page.
+     * @param pageSize is an Integer used for setting the number of results per page.
      * @param klass the class that the found data will be converted to.
      * @return a list of results matching the SQL Query.
      */
     fun <T> fetchActions(
         sendingOrg: String,
-        order: SortOrder,
+        sortDir: SortOrder,
         sortColumn: SortColumn,
-        cursor: OffsetDateTime? = null,
-        toEnd: OffsetDateTime? = null,
-        limit: Int = 10,
+        cursor: OffsetDateTime,
+        pageSize: Int,
         showFailed: Boolean,
         klass: Class<T>
     ): List<T>
@@ -90,26 +88,24 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * Get multiple submissions based on a particular organization.
      *
      * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.
-     * @param order sort the table in ASC or DESC order.
+     * @param sortDir sort the table in ASC or DESC order.
      * @param sortColumn sort the table by specific column; default created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
-     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
-     * @param limit is an Integer used for setting the number of results per page.
+     * @param pageSize is an Integer used for setting the number of results per page.
      * @param klass the class that the found data will be converted to.
      * @return a list of submissions matching the SQL Query.
      */
     override fun <T> fetchActions(
         sendingOrg: String,
-        order: SubmissionAccess.SortOrder,
+        sortDir: SubmissionAccess.SortOrder,
         sortColumn: SubmissionAccess.SortColumn,
-        cursor: OffsetDateTime?,
-        toEnd: OffsetDateTime?,
-        limit: Int,
+        cursor: OffsetDateTime,
+        pageSize: Int,
         showFailed: Boolean,
         klass: Class<T>
     ): List<T> {
-        val sortedColumn = createColumnSort(sortColumn, order)
-        val condition = createWhereCondition(sendingOrg, cursor, toEnd, showFailed)
+        val sortedColumn = createColumnSort(sortColumn, sortDir)
+        val whereClause = createWhereCondition(sendingOrg, showFailed)
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
                 // Note the report file and action tables have columns with the same name, so we must specify what we need.
@@ -127,17 +123,11 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
                             )
                     )
                 )
-                .where(condition)
+                .where(whereClause)
                 .orderBy(sortedColumn)
 
-            /* This nullifies our selection if we're using the 'between'
-            *  where() statement returned from createWhereCondition()
-            *  For this, it's set to run only when a cursor is given
-            *  with no endCursor. */
-            if (cursor != null && toEnd == null) {
-                query.seek(cursor)
-            }
-            query.limit(limit)
+            query.seek(cursor)
+                .limit(pageSize)
                 .fetchInto(klass)
         }
     }
@@ -158,43 +148,28 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
             SubmissionAccess.SortColumn.CREATED_AT -> ACTION.CREATED_AT
         }
 
-        val sortedColumn = when (order) {
+        val sortDirection = when (order) {
             /* Applies sort order by enum */
             SubmissionAccess.SortOrder.ASC -> column.asc()
             SubmissionAccess.SortOrder.DESC -> column.desc()
         }
 
-        return sortedColumn
+        return sortDirection
     }
 
     /**
      * Add various filters to the DB query.
      *
      * @param sendingOrg is the Organization Name returned from the Okta JWT Claim.
-     * @param cursor is the OffsetDateTime of the last result in the previous list.
-     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
      * @param showFailed filter out submissions that failed to send.
      * @return a jooq Condition statement to use in where().
      */
     private fun createWhereCondition(
         sendingOrg: String,
-        cursor: OffsetDateTime? = null,
-        toEnd: OffsetDateTime? = null,
         showFailed: Boolean
     ): Condition {
-        val dateFilter: Condition = when (toEnd) {
-            null -> {
-                /* Only the end is given: all results between today and cutoff */
-                ACTION.ACTION_NAME.eq(TaskAction.receive)
-                    .and(ACTION.SENDING_ORG.eq(sendingOrg))
-            }
-            else -> {
-                /* Both given: all results between cursor and cutoff */
-                ACTION.ACTION_NAME.eq(TaskAction.receive)
-                    .and(ACTION.SENDING_ORG.eq(sendingOrg))
-                    .and(ACTION.CREATED_AT.between(toEnd, cursor))
-            }
-        }
+        var senderFilter = ACTION.ACTION_NAME.eq(TaskAction.receive)
+            .and(ACTION.SENDING_ORG.eq(sendingOrg))
 
         val failedFilter: Condition = when (showFailed) {
             true -> {
@@ -205,7 +180,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
             }
         }
 
-        return dateFilter.and(failedFilter)
+        return senderFilter.and(failedFilter)
     }
 
     /**
