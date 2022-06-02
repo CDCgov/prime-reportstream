@@ -530,6 +530,86 @@ class LookupSenderValuesetsMapper : Mapper {
 }
 
 /**
+ * The lookupSenderAutomationValuesetsMapper is used to lookup values from the
+ *      "sender_automation_value_set_row" table/csv
+ * The args for the mapper are:
+ *      args[0] --> valueSetName = the name of the sender automation value set
+ *      args[1] --> (optional) version = the version of the valueSet value
+ * The mapper uses the above arguments to retrieve a row from the table
+ */
+class LookupSenderAutomationValuesets : Mapper {
+    override val name = "lookupSenderAutomationValuesets"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        val lookupTable = element.tableRef
+            ?: return ElementResult(
+                null,
+                mutableListOf(
+                    InvalidReportMessage(
+                        "Schema Error: could not find table ${element.table}"
+                    )
+                )
+            )
+        val lookupColumn = element.tableColumn
+            ?: return ElementResult(
+                null,
+                mutableListOf(
+                    InvalidReportMessage(
+                        "Schema Error: no tableColumn for element ${element.name}"
+                    )
+                )
+            )
+
+        if (!element.tableRef.hasColumn(lookupColumn)) {
+            return ElementResult(
+                null,
+                mutableListOf(
+                    InvalidReportMessage(
+                        "Schema Error: no tableColumn named $lookupColumn for element ${element.name}"
+                    )
+                )
+            )
+        }
+
+        val tableFilter = lookupTable.FilterBuilder()
+        val valueSetName = args[0]
+        var version = ""
+        if (args.size > 1) {
+            version = args[1]
+        }
+
+        tableFilter
+            .equalsIgnoreCase("name", valueSetName)
+            .equalsIgnoreCase("version", version)
+            .equalsIgnoreCase("display", values[0].value)
+
+        val value = tableFilter.findSingleResult(lookupColumn)
+            ?: return ElementResult(
+                null,
+                mutableListOf(
+                    InvalidReportMessage(
+                        "Schema Error: no value for element ${element.name} with " +
+                            "value set name of $valueSetName " +
+                            "display value ${values[0].value} " +
+                            "and version ${version.ifEmpty { "[no version specified]" }}"
+                    )
+                )
+            )
+
+        return ElementResult(value)
+    }
+}
+
+/**
  * The NpiLookupMapper is a specific implementation of the lookupMapper and
  * thus no output values are present in this function. This function requires
  * the same lookup table configuration as lookupMapper.

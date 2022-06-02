@@ -17,6 +17,7 @@
         "@types/react": "^17.0.38",
         "@types/react-dom": "^17.0.5",
         "axios": "^0.26.0",
+        "classnames": "^2.3.1",
         "dompurify": "^2.3.4",
         "downloadjs": "^1.4.7",
         "env-cmd": "^10.1.0",
@@ -54,7 +55,7 @@
         "e2e": "cypress run",
         "e2e:open": "cypress open",
         "test": "react-scripts test",
-        "test:ci": "CI=true yarn test --coverage",
+        "test:ci": "yarn test --clearCache && CI=true yarn --verbose test --coverage --verbose",
         "eject": "react-scripts eject",
         "lint": "npm-run-all -p lint:eslint",
         "lint:write": "npm-run-all -p lint:eslint:write",
@@ -166,6 +167,7 @@
         ]
     },
     "devDependencies": {
+        "@rest-hooks/test": "^7.3.1",
         "@testing-library/cypress": "^8.0.2",
         "@testing-library/jest-dom": "^5.16.1",
         "@testing-library/react": "^12.1.2",
