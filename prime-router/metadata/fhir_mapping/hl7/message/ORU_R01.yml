@@ -22,6 +22,16 @@ resources:
       - .PD1
       - MSH
 
+  - resourceName: Encounter
+    segment: .PV1
+    group: PATIENT_RESULT.PATIENT.VISIT
+    resourcePath: resource/Encounter
+    isReferenced: true
+    repeats: false
+    additionalSegments:
+      - .PV2
+      - MSH
+
   - resourceName: Observation
     segment: .OBSERVATION.OBX
     group: PATIENT_RESULT.ORDER_OBSERVATION
