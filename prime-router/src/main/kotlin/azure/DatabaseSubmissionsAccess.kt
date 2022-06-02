@@ -199,7 +199,9 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         }
 
         when (filterResult) {
-            SubmissionResultFilter.ALL -> { } // No action for ALL
+            SubmissionResultFilter.ALL -> {
+                // No action for ALL
+            }
             SubmissionResultFilter.ONLY_FAILED -> {
                 dateFilter.and(ACTION.HTTP_STATUS.between(300, 600))
             }
