@@ -82,7 +82,7 @@ export function getSlots(
     ];
 }
 
-export interface RequestConfig {
+interface RequestConfig {
     // Number of results to fetch when more results are needed to display the
     // pagination or page of results.
     numResults: number;
