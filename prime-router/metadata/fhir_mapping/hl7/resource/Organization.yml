@@ -144,13 +144,12 @@ extension_3:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
-  condition: $idStr NOT_NULL && $systemStr EQUALS $isoSystemStr
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
   vars:
     idStr: String, XON.6.2
     value: $oidUrlPrefix + XON.6.2
     systemStr: String, XON.6.3
   constants:
-    isoSystemStr: "ISO"
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
     urlValue: assigning-authority-universal-id
