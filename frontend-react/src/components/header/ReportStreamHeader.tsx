@@ -25,7 +25,11 @@ export const ReportStreamHeader = () => {
     const organization = getStoredOrg();
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
-    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />, <SupportDropdown />];
+    let itemsMenu = [
+        <GettingStartedDropdown />,
+        <HowItWorksDropdown />,
+        <SupportDropdown />,
+    ];
     const isOktaPreview =
         `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
     const environment = `${process.env.REACT_APP_CLIENT_ENV}`;

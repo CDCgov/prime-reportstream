@@ -19,12 +19,8 @@ const SupportDropdown = () => {
     }, []);
 
     const testMenuItems = [
-        <NavLink to="/support/faq">
-            FAQ
-        </NavLink>,
-        <NavLink to="/contact">
-            Contact
-        </NavLink>,
+        <NavLink to="/support/faq">FAQ</NavLink>,
+        <NavLink to="/contact">Contact</NavLink>,
     ];
 
     return (

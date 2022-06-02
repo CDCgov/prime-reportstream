@@ -134,14 +134,8 @@ const App = () => {
                                 path="/getting-started/testing-facilities"
                                 component={GettingStartedTestingFacilities}
                             />
-                            <Route
-                                path="/support/faq"
-                                component={SupportFaq}
-                            />
-                            <Route
-                                path="/contact"
-                                component={SupportContact}
-                            />
+                            <Route path="/support/faq" component={SupportFaq} />
+                            <Route path="/contact" component={SupportContact} />
                             <AuthorizedRoute
                                 path="/daily-data"
                                 authorize={PERMISSIONS.RECEIVER}
