@@ -14,6 +14,7 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import io.mockk.verify
 import org.jooq.JSONB
 import org.jooq.exception.DataAccessException
@@ -41,6 +42,7 @@ class LookupTableFunctionsTests {
     fun initDependencies() {
         every { mockRequest.headers } returns mapOf(HttpHeaders.AUTHORIZATION.lowercase() to "Bearer dummy")
         every { mockRequest.uri } returns URI.create("http://localhost:7071/api/lookuptables")
+        every { mockRequest.createResponseBuilder(any()) } returns spyk<HttpResponseMessage.Builder>()
     }
 
     /**
