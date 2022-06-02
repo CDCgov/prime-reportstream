@@ -28,10 +28,11 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
       - name: Collect Terraform stats
-        uses: josiahsiegel/terraform-stats@bce66bdcc53b547ee328f1c383890eede85db5ae
+        uses: josiahsiegel/terraform-stats@56fee0a5fc6f2c118a8a4992603054c78a1379ad
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
+          terraform-version: 1.1.9
       - name: Format outputs for slack
         if: steps.stats1.outputs.change-count > 0
         run: |
