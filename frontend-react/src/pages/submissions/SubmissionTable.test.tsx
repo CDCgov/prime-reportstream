@@ -78,7 +78,7 @@ describe("SubmissionTable", () => {
                         {
                             cursor: "3000-01-01T00:00:00.000Z",
                             endCursor: "2000-01-01T00:00:00.000Z",
-                            pageSize: 31,
+                            pageSize: 61,
                             sort: "DESC",
                             showFailed: false,
                         },

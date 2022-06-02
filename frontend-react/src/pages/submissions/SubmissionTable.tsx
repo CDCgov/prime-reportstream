@@ -163,10 +163,10 @@ function SubmissionTableWithNumberedPagination() {
     const { fetch: controllerFetch } = useController();
     const fetchResults = useCallback(
         (currentCursor: string, numResults: number) => {
-            // The `cursor` and `endCursor` parameters are always the respective
-            // high and low values of the range. When the results are in
+            // The `cursor` and `endCursor` parameters are always the high and
+            // low values of the range, respectively. When the results are in
             // descending order we move the high value and keep the low value
-            // constant; in ascending order, we keep the high value constant and
+            // constant; in ascending order we keep the high value constant and
             // move the low value.
             const cursor = sortOrder === "DESC" ? currentCursor : rangeTo;
             const endCursor = sortOrder === "DESC" ? rangeFrom : currentCursor;
@@ -188,7 +188,7 @@ function SubmissionTableWithNumberedPagination() {
         sortOrder === "DESC"
             ? filterManager.rangeSettings.to
             : filterManager.rangeSettings.from;
-    // The request range is treated  as the interval [from, to).
+    // The API treats the request range as the interval [from, to).
     // When we move the `endCursor` value in ascending requests, the cursor is
     // inclusive: the request will return results whose cursor values are >= the
     // cursor.

@@ -83,12 +83,11 @@ export function getSlots(
 }
 
 interface RequestConfig {
-    // Number of results to fetch when more results are needed to display the
-    // pagination or page of results.
+    // Number of results to fetch.
     numResults: number;
     // Cursor to include in a request for results.
     cursor: string;
-    // Page number corresponding to the cursor in a request for more results.
+    // Page number corresponding to the cursor in a request for results.
     cursorPageNum: number;
     // Page number selection that initiated the request.
     selectedPageNum: number;
@@ -105,7 +104,7 @@ export interface PaginationState<T> {
     // The final page number of the paginated set or undefined if the end of the
     // set has not been reached.
     finalPageNum?: number;
-    // Whether there is a in-flight request for more results.
+    // Whether there is a in-flight request for results.
     isLoading: boolean;
     // Map of page numbers to the cursor of the first item on the page.
     pageCursorMap: Record<number, string>;
