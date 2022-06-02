@@ -1,4 +1,4 @@
-FROM centos:centos8.3.2011
+FROM centos:centos8.4.2105
 
 # Install Git (required for referencing Terraform modules)
 RUN yum -y install git
