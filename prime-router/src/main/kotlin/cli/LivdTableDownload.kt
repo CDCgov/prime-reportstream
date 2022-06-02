@@ -192,7 +192,7 @@ class LivdTableDownload : CliktCommand(
         }
 
         val fileInputStream = FileInputStream(inputfile)
-        val workbook: Workbook = XSSFWorkbook(fileInputStream)
+        val workbook: Workbook = XSSFWorkbook(inputfile)
         fileInputStream.close()
 
         val outputfile = File.createTempFile(
@@ -208,12 +208,14 @@ class LivdTableDownload : CliktCommand(
         val rowStart = sheet.firstRowNum // Get starting row number
         val rowEnd = sheet.lastRowNum // Get ending row number
 
+        val lastColumn: Short = sheet.getRow(0).lastCellNum
+
         // Start scan each row of the sheet.
         for (rowNum in rowStart until rowEnd + 1) {
             val row: Row = sheet.getRow(rowNum) ?: continue // Skip the empty row.
 
             // Scan each column of the sheet
-            val lastColumn: Short = row.lastCellNum
+
             for (cn in 0 until lastColumn) {
                 var delimiterChar = ","
                 if (cn + 1 == lastColumn.toInt()) delimiterChar = "" // Use blank delimiter after the last column
@@ -271,7 +273,8 @@ class LivdTableDownload : CliktCommand(
      */
     private fun mergeLivdSupplementalTable(rawLivdFile: File): File {
         // First load both tables
-        val rawLivdReaderOptions = CsvReadOptions.builder(rawLivdFile).columnTypesToDetect(listOf(ColumnType.STRING))
+        val rawLivdReaderOptions = CsvReadOptions.builder(rawLivdFile)
+            .columnTypesToDetect(listOf(ColumnType.STRING, ColumnType.BOOLEAN))
             .build()
         val rawLivdTable = Table.read().usingOptions(rawLivdReaderOptions)
             .sortAscendingOn(LivdTableColumns.MANUFACTURER.colName, LivdTableColumns.MODEL.colName)
