@@ -213,19 +213,3 @@ jobs:
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest
-          
-  linting:
-    name: Check Linting
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deprecated step always succeeds
-        run: true
-        
-  docs:
-    # Deprecated job.  Check schema docs was moved to build_router job
-    name: Check Docs
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Deprecated step"
-        run: true
-
