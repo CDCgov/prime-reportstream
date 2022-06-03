@@ -1304,6 +1304,7 @@ class Hl7Serializer(
         element: Element,
         phoneNumberFormatting: Hl7Configuration.PhoneNumberFormatting
     ) {
+        if (value.isEmpty()) return
         val parts = value.split(Element.phoneDelimiter)
         val areaCode = parts[0].substring(0, 3)
         val local = parts[0].substring(3)

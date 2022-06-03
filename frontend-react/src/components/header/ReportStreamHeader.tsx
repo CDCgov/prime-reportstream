@@ -9,14 +9,21 @@ import {
 import { NavLink } from "react-router-dom";
 import { NetworkErrorBoundary } from "rest-hooks";
 
-import { PERMISSIONS, permissionCheck } from "../../utils/PermissionsUtils";
+import { permissionCheck, PERMISSIONS } from "../../utils/PermissionsUtils";
 import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
+import {
+    CheckFeatureFlag,
+    FeatureFlagName,
+} from "../../pages/misc/FeatureFlags";
+import { BuiltForYouDropdown } from "../../pages/built-for-you/BuiltForYouIndex";
 
 import { SignInOrUser } from "./SignInOrUser";
-import { HowItWorksDropdown } from "./HowItWorksDropdown";
-import { AdminDropdownNav } from "./AdminDropdownNav";
-import { GettingStartedDropdown } from "./GettingStartedDropdown";
+import {
+    AdminDropdown,
+    GettingStartedDropdown,
+    HowItWorksDropdown,
+} from "./DropdownNav";
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
@@ -28,6 +35,10 @@ export const ReportStreamHeader = () => {
     const isOktaPreview =
         `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
     const environment = `${process.env.REACT_APP_CLIENT_ENV}`;
+
+    if (CheckFeatureFlag(FeatureFlagName.BUILT_FOR_YOU)) {
+        itemsMenu.push(<BuiltForYouDropdown />);
+    }
 
     if (authState && authState.isAuthenticated && authState.accessToken) {
         /* RECEIVERS ONLY */
@@ -77,7 +88,7 @@ export const ReportStreamHeader = () => {
 
         /* ADMIN ONLY */
         if (permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)) {
-            itemsMenu.push(<AdminDropdownNav />);
+            itemsMenu.push(<AdminDropdown />);
         }
     }
 

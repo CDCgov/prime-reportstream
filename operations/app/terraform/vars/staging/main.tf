@@ -194,36 +194,38 @@ module "metabase" {
 ##########
 
 module "log_analytics_workspace" {
-  source                     = "../../modules/log_analytics_workspace"
-  environment                = var.environment
-  resource_group             = var.resource_group
-  resource_prefix            = var.resource_prefix
-  location                   = var.location
-  service_plan_id            = module.app_service_plan.service_plan_id
-  container_registry_id      = module.container_registry.container_registry_id
-  postgres_server_id         = module.database.postgres_server_id
-  application_key_vault_id   = module.key_vault.application_key_vault_id
-  app_config_key_vault_id    = module.key_vault.app_config_key_vault_id
-  client_config_key_vault_id = module.key_vault.client_config_key_vault_id
-  function_app_id            = module.function_app.function_app_id
-  front_door_id              = module.front_door.front_door_id
-  nat_gateway_id             = module.nat_gateway.nat_gateway_id
-  primary_vnet_id            = module.network.primary_vnet_id
-  replica_vnet_id            = module.network.replica_vnet_id
-  storage_account_id         = module.storage.storage_account_id
-  storage_public_id          = module.storage.storage_public_id
-  storage_partner_id         = module.storage.storage_partner_id
+  source                        = "../../modules/log_analytics_workspace"
+  environment                   = var.environment
+  resource_group                = var.resource_group
+  resource_prefix               = var.resource_prefix
+  location                      = var.location
+  service_plan_id               = module.app_service_plan.service_plan_id
+  container_registry_id         = module.container_registry.container_registry_id
+  postgres_server_id            = module.database.postgres_server_id
+  application_key_vault_id      = module.key_vault.application_key_vault_id
+  app_config_key_vault_id       = module.key_vault.app_config_key_vault_id
+  client_config_key_vault_id    = module.key_vault.client_config_key_vault_id
+  function_app_id               = module.function_app.function_app_id
+  front_door_id                 = module.front_door.front_door_id
+  nat_gateway_id                = module.nat_gateway.nat_gateway_id
+  primary_vnet_id               = module.network.primary_vnet_id
+  replica_vnet_id               = module.network.replica_vnet_id
+  storage_account_id            = module.storage.storage_account_id
+  storage_public_id             = module.storage.storage_public_id
+  storage_partner_id            = module.storage.storage_partner_id
+  action_group_businesshours_id = module.application_insights.action_group_businesshours_id
 }
 
 module "application_insights" {
-  source             = "../../modules/application_insights"
-  environment        = var.environment
-  resource_group     = var.resource_group
-  resource_prefix    = var.resource_prefix
-  location           = var.location
-  is_metabase_env    = var.is_metabase_env
-  pagerduty_url      = data.azurerm_key_vault_secret.pagerduty_url.value
-  postgres_server_id = module.database.postgres_server_id
-  service_plan_id    = module.app_service_plan.service_plan_id
-  workspace_id       = module.log_analytics_workspace.law_id
+  source                      = "../../modules/application_insights"
+  environment                 = var.environment
+  resource_group              = var.resource_group
+  resource_prefix             = var.resource_prefix
+  location                    = var.location
+  is_metabase_env             = var.is_metabase_env
+  pagerduty_url               = data.azurerm_key_vault_secret.pagerduty_url.value
+  pagerduty_businesshours_url = data.azurerm_key_vault_secret.pagerduty_businesshours_url.value
+  postgres_server_id          = module.database.postgres_server_id
+  service_plan_id             = module.app_service_plan.service_plan_id
+  workspace_id                = module.log_analytics_workspace.law_id
 }
