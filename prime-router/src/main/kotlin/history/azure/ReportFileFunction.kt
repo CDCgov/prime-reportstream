@@ -16,7 +16,7 @@ abstract class ReportFileFunction(
     data class Parameters(
         val sortDir: SubmissionAccess.SortDir,
         val sortColumn: SubmissionAccess.SortColumn,
-        val cursor: OffsetDateTime,
+        val cursor: OffsetDateTime?,
         val since: OffsetDateTime?,
         val until: OffsetDateTime?,
         val pageSize: Int,
@@ -64,7 +64,7 @@ abstract class ReportFileFunction(
              * @param query Incoming query params
              * @return converted params
              */
-            fun extractDateTime(query: Map<String, String>, name: String): OffsetDateTime {
+            fun extractDateTime(query: Map<String, String>, name: String): OffsetDateTime? {
                 val dt = query[name]
                 return if (dt != null) {
                     try {
@@ -72,7 +72,7 @@ abstract class ReportFileFunction(
                     } catch (e: DateTimeParseException) {
                         throw IllegalArgumentException("\"$name\" must be a valid datetime")
                     }
-                } else OffsetDateTime.now()
+                } else null
             }
 
             /**

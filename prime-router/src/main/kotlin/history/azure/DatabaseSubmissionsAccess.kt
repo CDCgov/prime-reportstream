@@ -52,7 +52,7 @@ interface SubmissionAccess {
         sendingOrg: String,
         sortDir: SortDir,
         sortColumn: SortColumn,
-        cursor: OffsetDateTime,
+        cursor: OffsetDateTime?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         pageSize: Int,
@@ -109,7 +109,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         sendingOrg: String,
         sortDir: SubmissionAccess.SortDir,
         sortColumn: SubmissionAccess.SortColumn,
-        cursor: OffsetDateTime,
+        cursor: OffsetDateTime?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         pageSize: Int,
@@ -138,8 +138,11 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
                 .where(whereClause)
                 .orderBy(sortedColumn)
 
-            query.seek(cursor)
-                .limit(pageSize)
+            if (cursor != null) {
+                query.seek(cursor)
+            }
+
+            query.limit(pageSize)
                 .fetchInto(klass)
         }
     }
@@ -187,22 +190,12 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         var senderFilter = ACTION.ACTION_NAME.eq(TaskAction.receive)
             .and(ACTION.SENDING_ORG.eq(sendingOrg))
 
-        val sinceFilter: Condition? = when (since) {
-            null -> {
-                null
-            }
-            else -> {
-                ACTION.CREATED_AT.ge(since)
-            }
+        if (since != null) {
+            senderFilter = senderFilter.and(ACTION.CREATED_AT.ge(since))
         }
 
-        val untilFilter: Condition? = when (until) {
-            null -> {
-                null
-            }
-            else -> {
-                ACTION.CREATED_AT.le(until)
-            }
+        if (until != null) {
+            senderFilter = senderFilter.and(ACTION.CREATED_AT.le(until))
         }
 
         val failedFilter: Condition = when (showFailed) {
@@ -214,7 +207,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
             }
         }
 
-        return senderFilter.and(sinceFilter).and(untilFilter).and(failedFilter)
+        return senderFilter.and(failedFilter)
     }
 
     /**
