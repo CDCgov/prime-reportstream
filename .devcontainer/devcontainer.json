@@ -27,7 +27,7 @@
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
 	"features": {
-		"terraform": "latest",
+		"terraform": "1.1",
 		"github-cli": "latest",
 		"azure-cli": "latest",
 		"java": "11",
