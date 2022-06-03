@@ -1,12 +1,12 @@
 sortDir:
-  name: sortDir
+  name: sortdir
   in: query
   description: direction in which to sort reports
   schema:
     type: string
     enum: [ASC, DESC]
     default: DESC
-sortColumn:
+sortCol:
   name: sortcol
   in: query
   description: column used as the basis for sorting
