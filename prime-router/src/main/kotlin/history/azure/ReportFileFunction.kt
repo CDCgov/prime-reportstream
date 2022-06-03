@@ -13,54 +13,86 @@ import java.util.UUID
 abstract class ReportFileFunction(
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
-    data class Parameters(
-        val sort: String,
-        val sortColumn: String,
+    data class HistoryApiParameters(
+        val sortDir: ReportFileAccess.SortDir,
+        val sortColumn: ReportFileAccess.SortColumn,
         val cursor: OffsetDateTime?,
-        val endCursor: OffsetDateTime?,
+        val since: OffsetDateTime?,
+        val until: OffsetDateTime?,
         val pageSize: Int,
         val showFailed: Boolean
     ) {
         constructor(query: Map<String, String>) : this (
-            extractSortOrder(query),
-            extractSortCol(query),
-            extractDateTime(query, "cursor"),
-            extractDateTime(query, "endcursor"),
-            extractPageSize(query),
-            extractShowFailed(query)
+            sortDir = extractSortDir(query),
+            sortColumn = extractSortCol(query),
+            cursor = extractDateTime(query, "cursor"),
+            since = extractDateTime(query, "since"),
+            until = extractDateTime(query, "until"),
+            pageSize = extractPageSize(query),
+            showFailed = extractShowFailed(query)
         )
 
         companion object {
-            fun extractSortOrder(query: Map<String, String>): String {
-                return query.getOrDefault("sort", "DESC")
+            /**
+             * Convert sorting direction from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
+            fun extractSortDir(query: Map<String, String>): ReportFileAccess.SortDir {
+                val sort = query["sort"]
+                return if (sort == null)
+                    ReportFileAccess.SortDir.DESC
+                else
+                    ReportFileAccess.SortDir.valueOf(sort)
             }
 
-            fun extractSortCol(query: Map<String, String>): String {
-                return query.getOrDefault("sortcol", "default")
+            /**
+             * Convert sorting column from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
+            fun extractSortCol(query: Map<String, String>): ReportFileAccess.SortColumn {
+                val col = query["sortcol"]
+                return if (col == null)
+                    ReportFileAccess.SortColumn.CREATED_AT
+                else
+                    ReportFileAccess.SortColumn.valueOf(col)
             }
 
+            /**
+             * Convert date time fields from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
             fun extractDateTime(query: Map<String, String>, name: String): OffsetDateTime? {
-                val cursor = query.get(name)
-                return if (cursor != null) {
+                val dt = query[name]
+                return if (dt != null) {
                     try {
-                        OffsetDateTime.parse(cursor)
+                        OffsetDateTime.parse(dt)
                     } catch (e: DateTimeParseException) {
                         throw IllegalArgumentException("\"$name\" must be a valid datetime")
                     }
                 } else null
             }
 
+            /**
+             * Convert page size from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
             fun extractPageSize(query: Map<String, String>): Int {
-                val size = query.getOrDefault("pagesize", "10").toIntOrNull()
-                require(size != null) { "pageSize must be a positive integer" }
+                val size = query.getOrDefault("pagesize", "50").toInt()
+                require(size > 0) { "Page size must be a positive integer" }
                 return size
             }
 
+            /**
+             * Convert show failed from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
             fun extractShowFailed(query: Map<String, String>): Boolean {
-                return when (query.getOrDefault("showfailed", "true")) {
-                    "false" -> false
-                    else -> true
-                }
+                return query["showfailed"]?.toBoolean() ?: false
             }
         }
     }

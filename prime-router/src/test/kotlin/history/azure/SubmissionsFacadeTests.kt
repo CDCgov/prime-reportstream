@@ -1,7 +1,9 @@
 package gov.cdc.prime.router.history.azure
 
 import assertk.assertThat
+import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -15,6 +17,39 @@ import java.time.OffsetDateTime
 import kotlin.test.Test
 
 class SubmissionsFacadeTests {
+    @Test
+    fun `test organization validation`() {
+        val mockSubmissionAccess = mockk<ReportFileAccess>()
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
+
+        assertThat {
+            facade.findSubmissionsAsJson(
+                "",
+                ReportFileAccess.SortDir.ASC,
+                ReportFileAccess.SortColumn.CREATED_AT,
+                null,
+                null,
+                null,
+                10,
+                true
+            )
+        }.isFailure().hasMessage("Invalid organization.")
+
+        assertThat {
+            facade.findSubmissionsAsJson(
+                "  \t\n",
+                ReportFileAccess.SortDir.ASC,
+                ReportFileAccess.SortColumn.CREATED_AT,
+                null,
+                null,
+                null,
+                10,
+                true
+            )
+        }.isFailure().hasMessage("Invalid organization.")
+    }
+
     @Test
     fun `test findDetailedSubmissionHistory`() {
         val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()

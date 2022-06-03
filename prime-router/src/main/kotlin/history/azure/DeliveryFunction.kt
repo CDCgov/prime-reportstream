@@ -47,7 +47,7 @@ class DeliveryFunction(
             val receiver = workflowEngine.settings.findReceiver(organization) // err if no default receiver in settings in org
                 ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream receiver")
 
-            // Do authorization based on: org name in the path == org name in claim.  Or be a prime admin.
+            // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.
             if ((claims.organizationNameClaim != receiver.organizationName) && !claims.isPrimeAdmin) {
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
@@ -61,28 +61,16 @@ class DeliveryFunction(
                     " to $receiver/deliveries endpoint via client id ${receiver.organizationName}. "
             )
 
-            val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize) =
-                Parameters(request.queryParameters)
-
-            val sortOrder = try {
-                ReportFileAccess.SortOrder.valueOf(qSortOrder)
-            } catch (e: IllegalArgumentException) {
-                ReportFileAccess.SortOrder.DESC
-            }
-
-            val sortColumn = try {
-                ReportFileAccess.SortColumn.valueOf(qSortColumn)
-            } catch (e: IllegalArgumentException) {
-                ReportFileAccess.SortColumn.CREATED_AT
-            }
+            val params = HistoryApiParameters(request.queryParameters)
 
             val deliveries = deliveryFacade.findDeliveriesAsJson(
                 receiver.organizationName,
-                sortOrder,
-                sortColumn,
-                resultsAfterDate,
-                resultsBeforeDate,
-                pageSize
+                params.sortDir,
+                params.sortColumn,
+                params.cursor,
+                params.since,
+                params.until,
+                params.pageSize
             )
 
             return HttpUtilities.okResponse(request, deliveries)

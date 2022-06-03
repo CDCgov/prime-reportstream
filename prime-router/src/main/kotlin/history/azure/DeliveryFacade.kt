@@ -22,63 +22,68 @@ class DeliveryFacade(
     /**
      * Serializes a list of Actions into a String.
      *
-     * @param organizationName from JWT Claim.
-     * @param sortOrder sort the table by date in ASC or DESC order.
+     * @param organization from JWT Claim.
+     * @param sortDir sort the table by date in ASC or DESC order.
      * @param sortColumn sort the table by a specific column; defaults to sorting by created_at.
-     * @param offset String representation of an OffsetDateTime used for paginating results.
-     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
+     * @param cursor is the OffsetDateTime of the last result in the previous list.
+     * @param since is the OffsetDateTime minimum date to get results for.
+     * @param until is the OffsetDateTime maximum date to get results for.
      * @param pageSize Int of items to return per page.
      *
      * @return a String representation of an array of actions.
      */
     fun findDeliveriesAsJson(
-        organizationName: String,
-        sortOrder: ReportFileAccess.SortOrder,
+        organization: String,
+        sortDir: ReportFileAccess.SortDir,
         sortColumn: ReportFileAccess.SortColumn,
-        offset: OffsetDateTime?,
-        toEnd: OffsetDateTime?,
+        cursor: OffsetDateTime?,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
         pageSize: Int
     ): String {
-        val result = findDeliveries(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize)
+        val result = findDeliveries(organization, sortDir, sortColumn, cursor, since, until, pageSize)
         return mapper.writeValueAsString(result)
     }
 
     /**
-     * Serializes a list of Actions into a String.
+     * Find deliveries based on parameters.
      *
-     * @param organizationName from JWT Claim.
-     * @param sortOrder sort the table by date in ASC or DESC order.
-     * @param sortColumn sort the table by a specific column; defaults to sorting by created_at.
-     * @param offset String representation of an OffsetDateTime used for paginating results.
-     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
+     * @param organization from JWT Claim.
+     * @param sortDir sort the table by date in ASC or DESC order; defaults to DESC.
+     * @param sortColumn sort the table by a specific column; defaults to sorting by CREATED_AT.
+     * @param cursor is the OffsetDateTime of the last result in the previous list.
+     * @param since is the OffsetDateTime minimum date to get results for.
+     * @param until is the OffsetDateTime maximum date to get results for.
      * @param pageSize Int of items to return per page.
      *
      * @return a List of Actions
      */
     fun findDeliveries(
-        organizationName: String,
-        sortOrder: ReportFileAccess.SortOrder,
+        organization: String,
+        sortDir: ReportFileAccess.SortDir,
         sortColumn: ReportFileAccess.SortColumn,
-        offset: OffsetDateTime?,
-        toEnd: OffsetDateTime?,
+        cursor: OffsetDateTime?,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
         pageSize: Int
     ): List<DeliveryHistory> {
-        require(organizationName.isNotBlank()) {
+        require(organization.isNotBlank()) {
             "Invalid organization."
         }
         require(pageSize > 0) {
             "pageSize must be a positive integer."
         }
-        require(offset == null || toEnd == null || toEnd > offset) {
+        require(since == null || until == null || until > since) {
             "End date must be after start date."
         }
 
         return dbDeliveryAccess.fetchActions(
-            organizationName,
-            sortOrder,
+            organization,
+            sortDir,
             sortColumn,
-            offset,
-            toEnd,
+            cursor,
+            since,
+            until,
             pageSize,
             false,
             DeliveryHistory::class.java

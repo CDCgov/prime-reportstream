@@ -28,27 +28,30 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * Get multiple results based on a particular organization.
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
-     * @param order sort the table in ASC or DESC order.
+     * @param sortDir sort the table in ASC or DESC order.
      * @param sortColumn sort the table by specific column; default created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
-     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
-     * @param limit is an Integer used for setting the number of results per page.
-     * @param showFailed whether or not to include actions that failed to be sent.
+     * @param since is the OffsetDateTime that dictates how far back returned results date.
+     * @param until is the OffsetDateTime that dictates how recently returned results date.
+     * @param pageSize is an Integer used for setting the number of results per page.
+     * @param showFailed whether to include actions that failed to be sent.
      * @param klass the class that the found data will be converted to.
      * @return a list of results matching the SQL Query.
      */
     override fun <T> fetchActions(
         organization: String,
-        order: ReportFileAccess.SortOrder,
+        sortDir: ReportFileAccess.SortDir,
         sortColumn: ReportFileAccess.SortColumn,
         cursor: OffsetDateTime?,
-        toEnd: OffsetDateTime?,
-        limit: Int,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
+        pageSize: Int,
         showFailed: Boolean,
         klass: Class<T>
     ): List<T> {
-        val sortedColumn = createColumnSort(sortColumn, order)
-        val condition = createWhereCondition(organization, cursor, toEnd, showFailed)
+        val sortedColumn = createColumnSort(sortColumn, sortDir)
+        val whereClause = createWhereCondition(organization, since, until, showFailed)
+
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
                 // Note the report file and action tables have columns with the same name, so we must specify what we need.
@@ -66,17 +69,14 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
                             )
                     )
                 )
-                .where(condition)
+                .where(whereClause)
                 .orderBy(sortedColumn)
 
-            /* This nullifies our selection if we're using the 'between'
-            *  where() statement returned from createWhereCondition()
-            *  For this, it's set to run only when a cursor is given
-            *  with no endCursor. */
-            if (cursor != null && toEnd == null) {
+            if (cursor != null) {
                 query.seek(cursor)
             }
-            query.limit(limit)
+
+            query.limit(pageSize)
                 .fetchInto(klass)
         }
     }
@@ -85,54 +85,51 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * Add sorting elements to the DB query.
      *
      * @param sortColumn sort the table by specific column; default created_at.
-     * @param order sort the table in ASC or DESC order.
+     * @param sortDir sort the table in ASC or DESC order.
      * @return a jooq sorting statement.
      */
     private fun createColumnSort(
         sortColumn: ReportFileAccess.SortColumn,
-        order: ReportFileAccess.SortOrder
+        sortDir: ReportFileAccess.SortDir
     ): SortField<OffsetDateTime> {
         val column = when (sortColumn) {
             /* Decides sort column by enum */
             ReportFileAccess.SortColumn.CREATED_AT -> ACTION.CREATED_AT
         }
 
-        val sortedColumn = when (order) {
+        val sortDirection = when (sortDir) {
             /* Applies sort order by enum */
-            ReportFileAccess.SortOrder.ASC -> column.asc()
-            ReportFileAccess.SortOrder.DESC -> column.desc()
+            ReportFileAccess.SortDir.ASC -> column.asc()
+            ReportFileAccess.SortDir.DESC -> column.desc()
         }
 
-        return sortedColumn
+        return sortDirection
     }
 
     /**
      * Add various filters to the DB query.
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
-     * @param cursor is the OffsetDateTime of the last result in the previous list.
-     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
+     * @param since is the OffsetDateTime that dictates how far back returned results date.
+     * @param until is the OffsetDateTime that dictates how recently returned results date.
      * @param showFailed filter out submissions that failed to send.
      * @return a jooq Condition statement to use in where().
      */
     private fun createWhereCondition(
         organization: String,
-        cursor: OffsetDateTime? = null,
-        toEnd: OffsetDateTime? = null,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
         showFailed: Boolean
     ): Condition {
-        val dateFilter: Condition = when (toEnd) {
-            null -> {
-                /* Only the end is given: all results between today and cutoff */
-                ACTION.ACTION_NAME.eq(TaskAction.receive)
-                    .and(ACTION.SENDING_ORG.eq(organization))
-            }
-            else -> {
-                /* Both given: all results between cursor and cutoff */
-                ACTION.ACTION_NAME.eq(TaskAction.receive)
-                    .and(ACTION.SENDING_ORG.eq(organization))
-                    .and(ACTION.CREATED_AT.between(toEnd, cursor))
-            }
+        var senderFilter = ACTION.ACTION_NAME.eq(TaskAction.receive)
+            .and(ACTION.SENDING_ORG.eq(organization))
+
+        if (since != null) {
+            senderFilter = senderFilter.and(ACTION.CREATED_AT.ge(since))
+        }
+
+        if (until != null) {
+            senderFilter = senderFilter.and(ACTION.CREATED_AT.lt(until))
         }
 
         val failedFilter: Condition = when (showFailed) {
@@ -144,7 +141,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
             }
         }
 
-        return dateFilter.and(failedFilter)
+        return senderFilter.and(failedFilter)
     }
 
     /**
@@ -174,7 +171,8 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
     }
 
     /**
-     * Fetch the details of an action's relations (descendents).
+     * Fetch the details of an action's relations (descendants).
+     * This is done through a recursive query on the report_lineage table.
      *
      * @param actionId the action id attached to the action to find relations for.
      * @param klass the class that the found data will be converted to.
@@ -226,7 +224,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * Helper query used recursively to get the descendants of a submission.
      *
      * @param actionId the action id attached to the child submission to get details for.
-     * @return a jooq subquery finding the submission's descendants.
+     * @return a jooq sub-query finding the submission's descendants.
      */
     private fun reportDescendantExpression(actionId: Long): CommonTableExpression<*> {
         return DSL.name("t").fields(

@@ -58,14 +58,16 @@ class DeliveryFacadeTests {
                 any(),
                 any(),
                 any(),
+                any(),
                 DeliveryHistory::class.java
             )
         } returns goodReturn
 
         val deliveries = facade.findDeliveries(
             "ca-dph",
-            ReportFileAccess.SortOrder.ASC,
+            ReportFileAccess.SortDir.ASC,
             ReportFileAccess.SortColumn.CREATED_AT,
+            null,
             null,
             null,
             10
