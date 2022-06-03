@@ -1,6 +1,12 @@
 package gov.cdc.prime.router.history.azure
 
+import com.microsoft.azure.functions.HttpRequestMessage
+import com.microsoft.azure.functions.HttpResponseMessage
+import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.tokens.AuthenticationStrategy
+import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
@@ -13,6 +19,42 @@ import java.util.UUID
 abstract class ReportFileFunction(
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
+    abstract fun userOrgName(organization: String): String?
+
+    abstract fun historyAsJson(request: HttpRequestMessage<String?>, userOrgName: String): String
+
+    fun getListByOrg(
+        request: HttpRequestMessage<String?>,
+        organization: String,
+    ): HttpResponseMessage {
+        try {
+            // Do authentication
+            val claims = AuthenticationStrategy.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+            val userOrgName = this.userOrgName(organization)
+                ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream user")
+
+            // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.
+            if ((claims.organizationNameClaim != userOrgName) && !claims.isPrimeAdmin) {
+                logger.warn(
+                    "Invalid Authorization for user ${claims.userName}:" +
+                        " ${request.httpMethod}:${request.uri.path}." +
+                        " ERR: Claim org is ${claims.organizationNameClaim} but client id is $userOrgName"
+                )
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
+            logger.info(
+                "Authorized request by org ${claims.organizationNameClaim}" +
+                    " to via client id $userOrgName."
+            )
+
+            return HttpUtilities.okResponse(request, this.historyAsJson(request, userOrgName))
+        } catch (e: IllegalArgumentException) {
+            return HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")
+        }
+    }
+
     data class HistoryApiParameters(
         val sortDir: ReportFileAccess.SortDir,
         val sortColumn: ReportFileAccess.SortColumn,
