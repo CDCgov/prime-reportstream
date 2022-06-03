@@ -25,7 +25,6 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
-import gov.cdc.prime.router.metadata.LookupTable
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -33,7 +32,6 @@ import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 import kotlin.test.assertFailsWith
 import kotlin.test.fail
@@ -291,18 +289,41 @@ NTE|1|L|This is a final comment|RE"""
 
     @Test
     fun `test zip code logic`() {
+        // arrange
         val inputStream = File("./src/test/unit_test_files/ca_test_file.csv").inputStream()
         val schema = "primedatainput/pdi-covid-19"
         val hl7Config = createConfig(useBatchHeaders = true)
         val receiver = Receiver("mock", "ca-phd", "covid-19", translation = hl7Config, deidentify = true)
-        val deidentifiedInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
-        val testReport = translator.translateByReceiver(deidentifiedInput, receiver)
-        val output = serializer.buildMessage(testReport, 0)
-        val actual = output.patienT_RESULT.patient.pid.pid11_PatientAddress[0].zipOrPostalCode
+        val rawInput = csvSerializer.readExternal(schema, inputStream, listOf(TestSource), receiver).report
+        var deidentifiedTestReport = translator.translateByReceiver(rawInput, receiver)
+        val singleOutput = serializer.buildMessage(deidentifiedTestReport, 0)
+        assertThat(singleOutput).isNotNull()
+        // act
+        val actual = singleOutput.patienT_RESULT.patient.pid.pid11_PatientAddress[0].zipOrPostalCode
         val expected = "93900"
-        val orderingProvider = output.patienT_RESULT.ordeR_OBSERVATION.orc.getOrderingProvider(0)
-        assertThat(orderingProvider.identifierTypeCode.value).isEqualTo("NPI")
+        println("\ntest zip code logic:")
+        print(" testing single report...")
+        // assert
         assertThat(actual.value).isEqualTo(expected)
+        println(" done")
+        // arrange
+        val outputStream = ByteArrayOutputStream()
+        serializer.writeBatch(deidentifiedTestReport, outputStream)
+        val batchOutput = outputStream.toString(StandardCharsets.UTF_8)
+        assertThat(batchOutput).isNotNull()
+        // act
+        val mappedMessage = serializer.convertBatchMessagesToMap(batchOutput, covid19Schema)
+        val mappedValues = mappedMessage.mappedRows
+        assertThat(mappedValues.containsKey("patient_city")).isTrue()
+        val patientZipCode = mappedValues.get("patient_zip_code")
+        print(" testing batch report...")
+        // assert
+        assertThat(patientZipCode?.get(0) ?: "Null value").isEqualTo("93900") // 93923
+        assertThat(patientZipCode?.get(1) ?: "Null value").isEqualTo("00000") // 03611
+        assertThat(patientZipCode?.get(2) ?: "Null value").isEqualTo("00000") // 05912-1423
+        assertThat(patientZipCode?.get(3) ?: "Null value").isEqualTo("00000") // 10263
+        assertThat(patientZipCode?.get(4) ?: "Null value").isEqualTo("95500") // 95531
+        println(" done\n")
     }
 
     @Test
