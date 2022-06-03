@@ -13,7 +13,7 @@ import java.util.UUID
 abstract class ReportFileFunction(
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
-    data class Parameters(
+    data class HistoryApiParameters(
         val sortDir: SubmissionAccess.SortDir,
         val sortColumn: SubmissionAccess.SortColumn,
         val cursor: OffsetDateTime?,

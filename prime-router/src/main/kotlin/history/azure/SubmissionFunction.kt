@@ -63,7 +63,7 @@ class SubmissionFunction(
                     " to $sender/submissions endpoint via client id ${sender.organizationName}. "
             )
 
-            val params = Parameters(request.queryParameters)
+            val params = HistoryApiParameters(request.queryParameters)
             val submissions = submissionsFacade.findSubmissionsAsJson(
                 sender.organizationName,
                 params.sortDir,
