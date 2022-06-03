@@ -33,7 +33,7 @@ resource "azurerm_monitor_metric_alert" "availability_alert" {
 
 resource "azurerm_monitor_metric_alert" "availability_alert_warning" {
   count               = local.alerting_enabled
-  name                = "${var.resource_prefix}-availability_alert"
+  name                = "${var.resource_prefix}-availability-alert-warning"
   description         = "Degraded Availability"
   resource_group_name = var.resource_group
   scopes              = [azurerm_application_insights.app_insights.id]

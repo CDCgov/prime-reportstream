@@ -5,9 +5,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_fatal" {
   resource_group_name = var.resource_group
 
   action {
-    action_group           = []
-    email_subject          = "Email Header"
-    custom_webhook_payload = "{}"
+    action_group = [var.action_group_businesshours_id]
   }
   data_source_id = azurerm_log_analytics_workspace.law.id
   description    = "Found FATAL-ALERT in FunctionApp logs"
@@ -17,13 +15,19 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_fatal" {
   FunctionAppLogs
   | where Message contains 'FATAL-ALERT' and not(Message contains 'co-phd.elr-test')
   QUERY
-  //query_type = "Number"
-  throttling  = 60
-  severity    = 2
-  frequency   = 5
-  time_window = 5
+  throttling     = 60
+  severity       = 2
+  frequency      = 5
+  time_window    = 5
   trigger {
     operator  = "GreaterThanOrEqual"
     threshold = 1
+
+    metric_trigger {
+      metric_column       = "_ResourceId"
+      metric_trigger_type = "Total"
+      operator            = "GreaterThanOrEqual"
+      threshold           = 1
+    }
   }
 }
