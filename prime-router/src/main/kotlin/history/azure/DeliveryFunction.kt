@@ -44,7 +44,8 @@ class DeliveryFunction(
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
             // Confirm the org name in the path is a receiver in the system.
-            val receiver = workflowEngine.settings.findReceiver(organization) // err if no default receiver in settings in org
+            // err if no default receiver in settings in org
+            val receiver = workflowEngine.settings.findReceiver(organization)
                 ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream receiver")
 
             // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.
@@ -52,7 +53,8 @@ class DeliveryFunction(
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
                         " ${request.httpMethod}:${request.uri.path}." +
-                        " ERR: Claim org is ${claims.organizationNameClaim} but client id is ${receiver.organizationName}"
+                        " ERR: Claim org is ${claims.organizationNameClaim}" +
+                        " but client id is ${receiver.organizationName}"
                 )
                 return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
