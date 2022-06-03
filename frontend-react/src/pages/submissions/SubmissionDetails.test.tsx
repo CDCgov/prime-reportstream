@@ -1,12 +1,17 @@
+import { ReactElement, Suspense } from "react";
+import { CacheProvider, NetworkErrorBoundary } from "rest-hooks";
+import { Fixture, MockResolver } from "@rest-hooks/test";
 import { MatcherFunction, screen } from "@testing-library/react";
 
 import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 
-import SubmissionDetails, {
+import {
     DestinationItem,
     DetailItem,
+    SubmissionCrumbs,
+    SubmissionDetailsContent,
 } from "./SubmissionDetails";
 
 /*
@@ -23,25 +28,47 @@ const timeRegex: RegExp = /\d{1,2}:\d{2}/;
 const mockData: ActionDetailsResource = new TestResponse(
     ResponseType.ACTION_DETAIL
 ).data;
-jest.mock("rest-hooks", () => ({
-    useResource: () => {
-        return mockData;
-    },
-    /* Must return children when mocking, otherwise nothing inside renders */
-    NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {
-        return <>{children}</>;
-    },
-}));
 
-describe("SubmissionDetails", () => {
+const renderWithResolver = (ui: ReactElement, fixtures: Fixture[]) =>
+    renderWithRouter(
+        <CacheProvider>
+            <NetworkErrorBoundary>
+                <Suspense fallback="suspended in test render">
+                    <MockResolver fixtures={fixtures}>{ui}</MockResolver>
+                </Suspense>
+            </NetworkErrorBoundary>
+        </CacheProvider>
+    );
+
+describe("SubmissionCrumbs", () => {
+    const testActionId = "test-action-id";
     beforeEach(() => {
-        renderWithRouter(<SubmissionDetails />);
+        renderWithRouter(<SubmissionCrumbs actionId={testActionId} />);
     });
 
     test("renders crumb nav to Submissions list", () => {
         const submissionCrumb = screen.getByRole("link");
         expect(submissionCrumb).toBeInTheDocument();
         expect(submissionCrumb).toHaveTextContent("Submissions");
+    });
+});
+
+describe("SubmissionDetailsContent", () => {
+    const testActionId = "test-action-id";
+    const fixtures: Fixture[] = [
+        {
+            endpoint: ActionDetailsResource.detail(),
+            args: [{ actionId: testActionId }],
+            error: false,
+            response: mockData,
+        },
+    ];
+
+    beforeEach(() => {
+        renderWithResolver(
+            <SubmissionDetailsContent actionId={testActionId} />,
+            fixtures
+        );
     });
 
     test("renders without error", async () => {
@@ -89,12 +116,12 @@ describe("SubmissionDetails", () => {
         }
     });
 
-    test("Filename conditionally shows in title", () => {
+    test("Filename conditionally shows in title", async () => {
         /* 
             TODO: How can we use the object and not static strings to
             check for substrings like this??
         */
-        const title = screen.getByText(/SubmissionDetails Unit Test/);
+        const title = await screen.findByText(/SubmissionDetails Unit Test/);
         expect(title).toBeInTheDocument();
     });
 });

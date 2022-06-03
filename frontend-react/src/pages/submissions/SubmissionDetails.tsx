@@ -81,16 +81,16 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
     );
 }
 
-/*
-    The page component showcasing details about a submission to the
-    sender
+interface SubmissionDetailsContentProps {
+    // The id tracking the ActionLog object containing the information to
+    // display. Used to call the API.
+    actionId: string;
+}
 
-    @param actionId - the id tracking the ActionLog object containing
-    the information to display. Used to call the API.
-*/
-function SubmissionDetailsContent() {
+export function SubmissionDetailsContent({
+    actionId,
+}: SubmissionDetailsContentProps) {
     const organization = getStoredOrg();
-    const { actionId } = useParams<SubmissionDetailsProps>();
     const actionDetails: ActionDetailsResource = useResource(
         ActionDetailsResource.detail(),
         { actionId, organization }
@@ -139,24 +139,35 @@ function SubmissionDetailsContent() {
     }
 }
 
+interface SubmissionCrumbsProps {
+    actionId: string;
+}
+
+export function SubmissionCrumbs({ actionId }: SubmissionCrumbsProps) {
+    const crumbs: CrumbConfig[] = [
+        { label: "Submissions", path: "/submissions" },
+        { label: `Details: ${actionId}` },
+    ];
+    return <Crumbs crumbList={crumbs} />;
+}
+
 /*
     For a component to use the Suspense and NEB fallbacks, it must be nested within
     the according tags, hence this wrapper.
 */
 function SubmissionDetails() {
     const { actionId } = useParams<SubmissionDetailsProps>();
-    const crumbs: CrumbConfig[] = [
-        { label: "Submissions", path: "/submissions" },
-        { label: `Details: ${actionId}` },
-    ];
+    if (!actionId) {
+        return null;
+    }
     return (
         <>
-            <Crumbs crumbList={crumbs} />
+            <SubmissionCrumbs actionId={actionId} />
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="page" />}
             >
                 <Suspense fallback={<Spinner size="fullpage" />}>
-                    <SubmissionDetailsContent />
+                    <SubmissionDetailsContent actionId={actionId} />
                 </Suspense>
             </NetworkErrorBoundary>
         </>
