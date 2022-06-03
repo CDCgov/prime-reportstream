@@ -49,6 +49,8 @@ class SubmissionsFacade(
     }
 
     /**
+     * Find submissions based on various parameters.
+     *
      * @param organization from JWT Claim.
      * @param sortDir sort the table by date in ASC or DESC order; defaults to DESC.
      * @param sortColumn sort the table by a specific column; defaults to sorting by CREATED_AT.

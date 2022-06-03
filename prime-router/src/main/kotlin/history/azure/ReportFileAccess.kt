@@ -3,7 +3,10 @@ package gov.cdc.prime.router.history.azure
 import java.time.OffsetDateTime
 
 interface ReportFileAccess {
-    enum class SortOrder {
+    /**
+     * Values that results can be sorted by.
+     */
+    enum class SortDir {
         DESC,
         ASC,
     }
@@ -19,22 +22,24 @@ interface ReportFileAccess {
      * Get multiple results based on a particular organization.
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
-     * @param order sort the table in ASC or DESC order.
+     * @param sortDir sort the table in ASC or DESC order.
      * @param sortColumn sort the table by specific column; default created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
-     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
-     * @param limit is an Integer used for setting the number of results per page.
-     * @param showFailed whether or not to include actions that failed to be sent.
+     * @param since is the OffsetDateTime that dictates how far back returned results date.
+     * @param until is the OffsetDateTime that dictates how recently returned results date.
+     * @param pageSize is an Integer used for setting the number of results per page.
+     * @param showFailed whether to include actions that failed to be sent.
      * @param klass the class that the found data will be converted to.
      * @return a list of results matching the SQL Query.
      */
     fun <T> fetchActions(
         organization: String,
-        order: SortOrder,
+        sortDir: SortDir,
         sortColumn: SortColumn,
-        cursor: OffsetDateTime? = null,
-        toEnd: OffsetDateTime? = null,
-        limit: Int = 10,
+        cursor: OffsetDateTime?,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
+        pageSize: Int,
         showFailed: Boolean,
         klass: Class<T>
     ): List<T>
@@ -43,7 +48,7 @@ interface ReportFileAccess {
      * Fetch a single (usually detailed) action of a specific type.
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
-     * @param submissionId the action id attached to this submission.
+     * @param actionId the action id attached to this submission.
      * @param klass the class that the found data will be converted to.
      * @return the submission matching the given query parameters, or null.
      */
@@ -54,9 +59,9 @@ interface ReportFileAccess {
     ): T?
 
     /**
-     * Fetch the details of an action's relations (descendents).
+     * Fetch the details of an action's relations (descendants).
      *
-     * @param submissionId the action id attached to the action to find relations for.
+     * @param actionId the action id attached to the action to find relations for.
      * @param klass the class that the found data will be converted to.
      * @return a list of descendants for the given action id.
      */

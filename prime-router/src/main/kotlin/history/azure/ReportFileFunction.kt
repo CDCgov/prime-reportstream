@@ -14,8 +14,8 @@ abstract class ReportFileFunction(
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
     data class Parameters(
-        val sortDir: SubmissionAccess.SortDir,
-        val sortColumn: SubmissionAccess.SortColumn,
+        val sortDir: ReportFileAccess.SortDir,
+        val sortColumn: ReportFileAccess.SortColumn,
         val cursor: OffsetDateTime?,
         val since: OffsetDateTime?,
         val until: OffsetDateTime?,
@@ -38,12 +38,12 @@ abstract class ReportFileFunction(
              * @param query Incoming query params
              * @return converted params
              */
-            fun extractSortDir(query: Map<String, String>): SubmissionAccess.SortDir {
+            fun extractSortDir(query: Map<String, String>): ReportFileAccess.SortDir {
                 val sort = query["sort"]
                 return if (sort == null)
-                    SubmissionAccess.SortDir.DESC
+                    ReportFileAccess.SortDir.DESC
                 else
-                    SubmissionAccess.SortDir.valueOf(sort)
+                    ReportFileAccess.SortDir.valueOf(sort)
             }
 
             /**
@@ -51,12 +51,12 @@ abstract class ReportFileFunction(
              * @param query Incoming query params
              * @return converted params
              */
-            fun extractSortCol(query: Map<String, String>): SubmissionAccess.SortColumn {
+            fun extractSortCol(query: Map<String, String>): ReportFileAccess.SortColumn {
                 val col = query["sortcol"]
                 return if (col == null)
-                    SubmissionAccess.SortColumn.CREATED_AT
+                    ReportFileAccess.SortColumn.CREATED_AT
                 else
-                    SubmissionAccess.SortColumn.valueOf(col)
+                    ReportFileAccess.SortColumn.valueOf(col)
             }
 
             /**

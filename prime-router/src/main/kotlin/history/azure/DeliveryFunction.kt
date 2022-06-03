@@ -47,7 +47,7 @@ class DeliveryFunction(
             val sender = workflowEngine.settings.findSender(organization) // err if no default sender in settings in org
                 ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream sender")
 
-            // Do authorization based on: org name in the path == org name in claim.  Or be a prime admin.
+            // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.
             if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
@@ -61,35 +61,17 @@ class DeliveryFunction(
                     " to $sender/deliveries endpoint via client id ${sender.organizationName}. "
             )
 
-            val (qSortOrder, qSortColumn, resultsAfterDate, resultsBeforeDate, pageSize) =
-                Parameters(request.queryParameters)
-
-            val sortOrder = try {
-                ReportFileAccess.SortOrder.valueOf(qSortOrder)
-            } catch (e: IllegalArgumentException) {
-                ReportFileAccess.SortOrder.DESC
-            }
-
-            val sortColumn = try {
-                ReportFileAccess.SortColumn.valueOf(qSortColumn)
-            } catch (e: IllegalArgumentException) {
-                ReportFileAccess.SortColumn.CREATED_AT
-            }
+            val params = Parameters(request.queryParameters)
 
             val deliveries = deliveryFacade.findDeliveriesAsJson(
                 sender.organizationName,
-                sortOrder,
-                sortColumn,
-                resultsAfterDate,
-                resultsBeforeDate,
-                pageSize
+                params.sortDir,
+                params.sortColumn,
+                params.cursor,
+                params.since,
+                params.until,
+                params.pageSize
             )
-
-            // logger.info(" ${resultsAfterDate} ${pageSize} ${sortOrder}" +
-            //         " ${resultsBeforeDate}  ${sortOrder} ${sortColumn} ${deliveries} "
-            // )
-            // return HttpUtilities.badRequestResponse(request, "test")
-            // return HttpUtilities.okResponse(request, "test")
 
             return HttpUtilities.okResponse(request, deliveries)
         } catch (e: IllegalArgumentException) {

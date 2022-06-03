@@ -74,14 +74,19 @@ class DeliveryFunctionTests : Logging {
         val reportItemCount: Int,
         val fileName: String,
     )
-    class TestDeliveryAccess(val dataset: List<DeliveryHistory>, val mapper: ObjectMapper) : ReportFileAccess {
+
+    class TestDeliveryAccess(
+        private val dataset: List<DeliveryHistory>,
+        val mapper: ObjectMapper
+    ) : ReportFileAccess {
         override fun <T> fetchActions(
             organization: String,
-            order: ReportFileAccess.SortOrder,
+            sortDir: ReportFileAccess.SortDir,
             sortColumn: ReportFileAccess.SortColumn,
             cursor: OffsetDateTime?,
-            toEnd: OffsetDateTime?,
-            limit: Int,
+            since: OffsetDateTime?,
+            until: OffsetDateTime?,
+            pageSize: Int,
             showFailed: Boolean,
             klass: Class<T>
         ): List<T> {

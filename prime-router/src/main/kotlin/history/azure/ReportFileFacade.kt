@@ -12,7 +12,7 @@ import java.util.UUID
  * Contains all business logic regarding submissions and JSON serialization.
  */
 abstract class ReportFileFacade(
-    internal val dbAccess: DatabaseAccess = WorkflowEngine.databaseAccessSingleton
+    private val dbAccess: DatabaseAccess = WorkflowEngine.databaseAccessSingleton
 ) : Logging {
     /**
      * @return a single Action associated with this [reportId]
