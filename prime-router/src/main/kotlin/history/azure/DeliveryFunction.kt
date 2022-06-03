@@ -61,7 +61,7 @@ class DeliveryFunction(
                     " to $sender/deliveries endpoint via client id ${sender.organizationName}. "
             )
 
-            val params = Parameters(request.queryParameters)
+            val params = HistoryApiParameters(request.queryParameters)
 
             val deliveries = deliveryFacade.findDeliveriesAsJson(
                 sender.organizationName,
