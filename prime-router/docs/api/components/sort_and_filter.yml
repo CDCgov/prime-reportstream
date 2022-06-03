@@ -39,9 +39,3 @@ pageSize:
   description: number of results per page
   schema:
     type: integer
-showFailed:
-  name: showfailed
-  in: query
-  description: include reports that failed to be sent or not
-  schema:
-    type: boolean
