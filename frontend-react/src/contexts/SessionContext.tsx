@@ -1,4 +1,5 @@
-import { createContext, FC, useContext } from "react";
+import { createContext, useContext } from "react";
+import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 
 import useSessionStorage, {
     SessionController,
@@ -10,19 +11,32 @@ interface ISessionContext {
     store: SessionController;
 }
 
+export type OktaHook = () => IOktaContext;
+
+interface ISessionProviderProps {
+    oktaHook: OktaHook;
+}
+
 export const SessionContext = createContext<ISessionContext>({
     memberships: {} as MembershipController,
     store: {} as SessionController,
 });
 
-const SessionProvider: FC = ({ children }) => {
+// accepts `oktaHook` as a paremeter in order to allow mocking of this provider's okta based
+// behavior for testing. In non test cases this hook will be the `useOktaAuth` hook from
+// `okta-react`
+const SessionProvider = ({
+    children,
+    oktaHook,
+}: React.PropsWithChildren<ISessionProviderProps>) => {
+    const { authState } = oktaHook();
     const store = useSessionStorage();
-    const memberships = useGroups();
+    const memberships = useGroups(authState?.accessToken);
 
     return (
         <SessionContext.Provider
             value={{
-                memberships: memberships,
+                memberships,
                 store: store,
             }}
         >

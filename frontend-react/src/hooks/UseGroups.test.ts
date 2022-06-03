@@ -1,56 +1,44 @@
 import { act, renderHook } from "@testing-library/react-hooks";
-import * as OktaReact from "@okta/okta-react";
-import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
-import { AccessToken } from "@okta/okta-auth-js";
+
+import { mockToken } from "../utils/TestUtils";
 
 import {
+    MemberType,
     MembershipActionType,
     membershipsFromToken,
-    MemberType,
     useGroups,
 } from "./UseGroups";
 
-const mockAuth = jest.spyOn(OktaReact, "useOktaAuth");
-
 describe("useGroups", () => {
     test("renders with default values", () => {
-        mockAuth.mockReturnValue({} as IOktaContext);
-        const { result } = renderHook(() => useGroups());
+        const { result } = renderHook(() => useGroups(undefined));
         expect(result.current.state.memberships).toBeUndefined();
         expect(result.current.state.active).toBeUndefined();
     });
 
     test("accounts for non-standard groups", () => {
-        mockAuth.mockReturnValue({
-            authState: {
-                accessToken: {
-                    claims: {
-                        //@ts-ignore
-                        organization: ["NotYourStandardGroup"],
-                    },
-                },
+        const fakeToken = {
+            claims: {
+                //@ts-ignore
+                organization: ["NotYourStandardGroup"],
+                sub: "", // necessary to pass type check
             },
-        });
-        const { result } = renderHook(() => useGroups());
+        };
+        const token = mockToken(fakeToken);
+        const { result } = renderHook(() => useGroups(token));
         expect(result.current.state.active?.memberType).toEqual("non-standard");
     });
 
     test("can be set with AccessToken", () => {
-        mockAuth.mockReturnValue({
-            authState: {
-                accessToken: {
-                    claims: {
-                        //@ts-ignore
-                        organization: [
-                            "DHPrimeAdmins",
-                            "DHSender_ignore",
-                            "DHmd_phd",
-                        ],
-                    },
-                },
+        const fakeToken = {
+            claims: {
+                //@ts-ignore
+                organization: ["DHPrimeAdmins", "DHSender_ignore", "DHmd_phd"],
+                sub: "", // necessary to pass type check
             },
-        });
-        const { result } = renderHook(() => useGroups());
+        };
+
+        const { result } = renderHook(() => useGroups(mockToken(fakeToken)));
         expect(result.current.state.active).toEqual({
             parsedName: "PrimeAdmins",
             memberType: MemberType.PRIME_ADMIN,
@@ -83,21 +71,14 @@ describe("useGroups", () => {
     });
 
     test("can swap active membership", () => {
-        mockAuth.mockReturnValue({
-            authState: {
-                accessToken: {
-                    claims: {
-                        //@ts-ignore
-                        organization: [
-                            "DHPrimeAdmins",
-                            "DHSender_ignore",
-                            "DHmd_phd",
-                        ],
-                    },
-                },
+        const fakeToken = {
+            claims: {
+                //@ts-ignore
+                organization: ["DHPrimeAdmins", "DHSender_ignore", "DHmd_phd"],
+                sub: "",
             },
-        });
-        const { result } = renderHook(() => useGroups());
+        };
+        const { result } = renderHook(() => useGroups(mockToken(fakeToken)));
         expect(result.current.state.active).toEqual({
             parsedName: "PrimeAdmins",
             memberType: MemberType.PRIME_ADMIN,
@@ -115,17 +96,14 @@ describe("useGroups", () => {
     });
 
     test("can override as admin", () => {
-        mockAuth.mockReturnValue({
-            authState: {
-                accessToken: {
-                    claims: {
-                        //@ts-ignore
-                        organization: ["DHPrimeAdmins"],
-                    },
-                },
+        const fakeToken = {
+            claims: {
+                //@ts-ignore
+                organization: ["DHPrimeAdmins"],
+                sub: "",
             },
-        });
-        const { result } = renderHook(() => useGroups());
+        };
+        const { result } = renderHook(() => useGroups(mockToken(fakeToken)));
         expect(result.current.state.active).toEqual({
             parsedName: "PrimeAdmins",
             memberType: MemberType.PRIME_ADMIN,
@@ -148,7 +126,7 @@ describe("useGroups", () => {
 
 describe("membershipsFromToken extra coverage", () => {
     test("can handle undefined token", () => {
-        const state = membershipsFromToken({} as AccessToken);
+        const state = membershipsFromToken(mockToken());
         expect(state).toEqual({
             active: undefined,
             memberships: undefined,
@@ -158,17 +136,14 @@ describe("membershipsFromToken extra coverage", () => {
 
 describe("membershipReducer extra coverage", () => {
     test("can handle bad request", () => {
-        mockAuth.mockReturnValue({
-            authState: {
-                accessToken: {
-                    claims: {
-                        //@ts-ignore
-                        organization: ["DHPrimeAdmins"],
-                    },
-                },
+        const fakeToken = {
+            claims: {
+                //@ts-ignore
+                organization: ["DHPrimeAdmins"],
+                sub: "",
             },
-        });
-        const { result } = renderHook(() => useGroups());
+        };
+        const { result } = renderHook(() => useGroups(mockToken(fakeToken)));
 
         // bad switch
         act(() =>
