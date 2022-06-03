@@ -1,14 +1,15 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.history.azure
 
 import assertk.assertThat
+import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.DetailActionLog
-import gov.cdc.prime.router.DetailReport
-import gov.cdc.prime.router.DetailedSubmissionHistory
+import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import io.mockk.every
 import io.mockk.mockk
@@ -16,6 +17,39 @@ import java.time.OffsetDateTime
 import kotlin.test.Test
 
 class SubmissionsFacadeTests {
+    @Test
+    fun `test organization validation`() {
+        val mockSubmissionAccess = mockk<SubmissionAccess>()
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
+
+        assertThat {
+            facade.findSubmissionsAsJson(
+                "",
+                SubmissionAccess.SortDir.ASC,
+                SubmissionAccess.SortColumn.CREATED_AT,
+                null,
+                null,
+                null,
+                10,
+                true
+            )
+        }.isFailure().hasMessage("Invalid organization.")
+
+        assertThat {
+            facade.findSubmissionsAsJson(
+                "  \t\n",
+                SubmissionAccess.SortDir.ASC,
+                SubmissionAccess.SortColumn.CREATED_AT,
+                null,
+                null,
+                null,
+                10,
+                true
+            )
+        }.isFailure().hasMessage("Invalid organization.")
+    }
+
     @Test
     fun `test findDetailedSubmissionHistory`() {
         val mockSubmissionAccess = mockk<SubmissionAccess>()
@@ -28,16 +62,12 @@ class SubmissionsFacadeTests {
         )
         every {
             mockSubmissionAccess.fetchAction(
-                any(), any(), DetailedSubmissionHistory::class.java,
-                DetailReport::class.java,
-                DetailActionLog::class.java
+                any(), any(), DetailedSubmissionHistory::class.java
             )
         } returns goodReturn
         every {
             mockSubmissionAccess.fetchRelatedActions(
-                550, DetailedSubmissionHistory::class.java,
-                DetailReport::class.java,
-                DetailActionLog::class.java
+                550, DetailedSubmissionHistory::class.java
             )
         } returns emptyList()
         assertThat(facade.findDetailedSubmissionHistory("org", 550)).isEqualTo(goodReturn)

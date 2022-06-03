@@ -11,8 +11,35 @@ resource "azurerm_monitor_metric_alert" "availability_alert" {
   resource_group_name = var.resource_group
   scopes              = [azurerm_application_insights.app_insights.id]
   window_size         = "PT1H"
-  frequency           = "PT1M"
+  frequency           = "PT15M"
   severity            = 0
+
+  criteria {
+    metric_namespace = "microsoft.insights/components"
+    metric_name      = "availabilityResults/availabilityPercentage"
+    aggregation      = "Average"
+    operator         = "LessThan"
+    threshold        = 95
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.action_group[0].id
+  }
+
+  tags = {
+    environment = var.environment
+  }
+}
+
+resource "azurerm_monitor_metric_alert" "availability_alert_warning" {
+  count               = local.alerting_enabled
+  name                = "${var.resource_prefix}-availability-alert-warning"
+  description         = "Degraded Availability"
+  resource_group_name = var.resource_group
+  scopes              = [azurerm_application_insights.app_insights.id]
+  window_size         = "PT1H"
+  frequency           = "PT15M"
+  severity            = 2
 
   criteria {
     metric_namespace = "microsoft.insights/components"
