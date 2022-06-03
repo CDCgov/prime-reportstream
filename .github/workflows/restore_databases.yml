@@ -301,7 +301,7 @@ jobs:
         if: |
           needs.pre_job.outputs.sink_env_name != 'prod' &&
           (${{ matrix.db }} == 'prime_data_hub' || ${{ matrix.db }} == 'prime_data_hub_candidate')
-        uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
           name: clean_output_${{ matrix.db }}
           path: clean_output_${{ matrix.db }}.html

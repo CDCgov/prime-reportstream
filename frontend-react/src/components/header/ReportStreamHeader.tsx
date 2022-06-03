@@ -13,11 +13,20 @@ import { permissionCheck, PERMISSIONS } from "../../utils/PermissionsUtils";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseGroups";
+import { getStoredOrg } from "../../contexts/SessionStorageTools";
+import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
+import {
+    CheckFeatureFlag,
+    FeatureFlagName,
+} from "../../pages/misc/FeatureFlags";
+import { BuiltForYouDropdown } from "../../pages/built-for-you/BuiltForYouIndex";
 
 import { SignInOrUser } from "./SignInOrUser";
-import { HowItWorksDropdown } from "./HowItWorksDropdown";
-import { AdminDropdownNav } from "./AdminDropdownNav";
-import { GettingStartedDropdown } from "./GettingStartedDropdown";
+import {
+    AdminDropdown,
+    GettingStartedDropdown,
+    HowItWorksDropdown,
+} from "./DropdownNav";
 
 const isOktaPreview =
     `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
@@ -31,6 +40,10 @@ export const ReportStreamHeader = () => {
 
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
+
+    if (CheckFeatureFlag(FeatureFlagName.BUILT_FOR_YOU)) {
+        itemsMenu.push(<BuiltForYouDropdown />);
+    }
 
     if (authState && authState.isAuthenticated && authState.accessToken) {
         /* RECEIVERS ONLY */

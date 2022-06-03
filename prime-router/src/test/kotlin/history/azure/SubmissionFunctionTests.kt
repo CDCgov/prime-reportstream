@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.azure
+package gov.cdc.prime.router.history.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -8,17 +8,21 @@ import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.SubmissionHistory
+import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.MockHttpRequestMessage
+import gov.cdc.prime.router.azure.MockSettings
+import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.cli.tests.ExpectedSubmissionList
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import gov.cdc.prime.router.history.SubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -84,11 +88,12 @@ class SubmissionFunctionTests : Logging {
 
         override fun <T> fetchActions(
             sendingOrg: String,
-            order: SubmissionAccess.SortOrder,
+            sortDir: SubmissionAccess.SortDir,
             sortColumn: SubmissionAccess.SortColumn,
             cursor: OffsetDateTime?,
-            toEnd: OffsetDateTime?,
-            limit: Int,
+            since: OffsetDateTime?,
+            until: OffsetDateTime?,
+            pageSize: Int,
             showFailed: Boolean,
             klass: Class<T>
         ): List<T> {
@@ -96,29 +101,25 @@ class SubmissionFunctionTests : Logging {
             return dataset as List<T>
         }
 
-        override fun <T, P, U> fetchAction(
+        override fun <T> fetchAction(
             sendingOrg: String,
             submissionId: Long,
-            klass: Class<T>,
-            reportsKlass: Class<P>,
-            logsKlass: Class<U>,
+            klass: Class<T>
         ): T? {
             @Suppress("UNCHECKED_CAST")
             return dataset.first() as T
         }
 
-        override fun <T, P, U> fetchRelatedActions(
+        override fun <T> fetchRelatedActions(
             submissionId: Long,
-            klass: Class<T>,
-            reportsKlass: Class<P>,
-            logsKlass: Class<U>,
+            klass: Class<T>
         ): List<T> {
             @Suppress("UNCHECKED_CAST")
             return dataset as List<T>
         }
     }
 
-    val testData = listOf(
+    private val testData = listOf(
         SubmissionHistory(
             actionId = 8,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
@@ -145,9 +146,9 @@ class SubmissionFunctionTests : Logging {
         )
     )
 
-    val dataProvider = MockDataProvider { emptyArray<MockResult>() }
+    private val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
-    val accessSpy = spyk(DatabaseAccess(connection))
+    private val accessSpy = spyk(DatabaseAccess(connection))
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
@@ -230,7 +231,7 @@ class SubmissionFunctionTests : Logging {
                 mapOf(
                     "pagesize" to "10",
                     "cursor" to "2021-11-30T16:36:48.307Z",
-                    "sort" to "ASC"
+                    "sortDir" to "ASC"
                 ),
                 ExpectedAPIResponse(
                     HttpStatus.OK
@@ -241,10 +242,10 @@ class SubmissionFunctionTests : Logging {
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf(
                     "pagesize" to "10",
-                    "cursor" to "2021-11-30T16:36:54.307109Z",
-                    "endCursor" to "2021-11-30T16:36:53.919104Z",
+                    "since" to "2021-11-30T16:36:54.307109Z",
+                    "until" to "2021-11-30T16:36:53.919104Z",
                     "sortCol" to "CREATED_AT",
-                    "sort" to "ASC"
+                    "sortDir" to "ASC"
                 ),
                 ExpectedAPIResponse(
                     HttpStatus.OK
@@ -288,6 +289,9 @@ class SubmissionFunctionTests : Logging {
                 }
             }
         }
+    }
+
+    fun `test list params`() {
     }
 
     private fun setupSubmissionFunctionForTesting(
@@ -441,5 +445,19 @@ class SubmissionFunctionTests : Logging {
         responseBody = mapper.readValue(response.body.toString())
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
         assertThat(responseBody.sender).isEqualTo(returnBody.sender)
+
+        // bad actionId, Not found
+        val badActionId = "24601"
+        action.actionName = TaskAction.receive
+        every { mockSubmissionFacade.fetchAction(any()) } returns null
+        response = function.getReportDetailedHistory(mockRequest, badActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // empty actionId, Not found
+        val emptyActionId = ""
+        action.actionName = TaskAction.receive
+        every { mockSubmissionFacade.fetchAction(any()) } returns null
+        response = function.getReportDetailedHistory(mockRequest, emptyActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
     }
 }

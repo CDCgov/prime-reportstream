@@ -87,3 +87,9 @@ variable "storage_partner_id" {
   type        = string
   description = "Storage Partner resource id"
 }
+
+
+variable "action_group_businesshours_id" {
+  type        = string
+  description = "Businesshours action group resource id"
+}
