@@ -429,6 +429,22 @@ NTE|1|L|This is a final comment|RE"""
             type = Element.Type.TELEPHONE
         )
 
+        // InValid empty or blank telephone
+        serializer.setTelephoneComponent(
+            mockTerser,
+            "",
+            facilityPathSpec,
+            facilityElement,
+            Hl7Configuration.PhoneNumberFormatting.STANDARD
+        )
+
+        // Verify following methods never been called
+        verify(exactly = 0) {
+            mockTerser.set(any(), any())
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-2", "WPN")
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION/ORC-23-3", "PH")
+        }
+
         // Invalid telephone
         serializer.setTelephoneComponent(
             mockTerser,
