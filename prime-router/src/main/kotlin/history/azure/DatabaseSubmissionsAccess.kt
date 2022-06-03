@@ -195,7 +195,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         }
 
         if (until != null) {
-            senderFilter = senderFilter.and(ACTION.CREATED_AT.le(until))
+            senderFilter = senderFilter.and(ACTION.CREATED_AT.lt(until))
         }
 
         val failedFilter: Condition = when (showFailed) {
