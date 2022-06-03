@@ -80,7 +80,8 @@ class SubmissionFunctionTests : Logging {
         )
     }
 
-    class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : SubmissionAccess {
+    class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) :
+        SubmissionAccess {
 
         override fun <T> fetchActions(
             sendingOrg: String,
@@ -151,7 +152,8 @@ class SubmissionFunctionTests : Logging {
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
-            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy).build()
+            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings)
+                .databaseAccess(accessSpy).build()
         )
     }
 
@@ -281,7 +283,8 @@ class SubmissionFunctionTests : Logging {
             // Verify
             assertThat(response.status).isEqualTo(it.expectedResponse.status)
             if (response.status == HttpStatus.OK) {
-                val submissions: List<ExpectedSubmissionList> = mapper.readValue(response.body.toString())
+                val submissions: List<ExpectedSubmissionList> =
+                    mapper.readValue(response.body.toString())
                 if (it.expectedResponse.body != null) {
                     assertThat(submissions.size).isEqualTo(it.expectedResponse.body.size)
                     assertThat(submissions).isEqualTo(it.expectedResponse.body)
@@ -338,35 +341,6 @@ class SubmissionFunctionTests : Logging {
     }
 
     @Test
-    fun `test access user can view their org's submission history`() {
-        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
-        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, facade)
-        val httpRequestMessage = setupHttpRequestMessageForTesting()
-        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
-        assertThat(response.status).isEqualTo(HttpStatus.OK)
-    }
-
-    @Test
-    fun `test access user cannot view another org's submission history`() {
-        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
-        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, facade)
-        val httpRequestMessage = setupHttpRequestMessageForTesting()
-        val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, otherOrganizationName)
-        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
-    }
-
-    @Test
-    fun `test access DHPrimeAdmins can view all org's submission history`() {
-        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
-        val submissionFunction = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, facade)
-        val httpRequestMessage = setupHttpRequestMessageForTesting()
-        var response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
-        assertThat(response.status).isEqualTo(HttpStatus.OK)
-        response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, otherOrganizationName)
-        assertThat(response.status).isEqualTo(HttpStatus.OK)
-    }
-
-    @Test
     fun `test get report detail history`() {
         val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
         val mockRequest = MockHttpRequestMessage()
@@ -405,11 +379,17 @@ class SubmissionFunctionTests : Logging {
         action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any()) } returns returnBody
+        every {
+            mockSubmissionFacade.findDetailedSubmissionHistory(
+                any(),
+                any()
+            )
+        } returns returnBody
         every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
-        var responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
+        var responseBody: DetailSubmissionHistoryResponse =
+            mapper.readValue(response.body.toString())
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
         assertThat(responseBody.overallStatus).isEqualTo(returnBody.overallStatus.toString())
 
@@ -427,19 +407,64 @@ class SubmissionFunctionTests : Logging {
 
         // Good actionId, but Not authorized
         every { mockSubmissionFacade.fetchAction(any()) } returns action
-        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
+        every {
+            mockSubmissionFacade.checkSenderAccessAuthorization(
+                any(),
+                any()
+            )
+        } returns false // not authorized
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
         // Happy path with a good actionId
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockSubmissionFacade.fetchAction(any()) } returns action
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any()) } returns returnBody
+        every {
+            mockSubmissionFacade.findDetailedSubmissionHistory(
+                any(),
+                any()
+            )
+        } returns returnBody
         every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         responseBody = mapper.readValue(response.body.toString())
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
         assertThat(responseBody.sender).isEqualTo(returnBody.sender)
+    }
+
+    @Test
+    fun `test access user cannot view another org's submission history`() {
+        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
+        val submissionFunction =
+            setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, facade)
+        val httpRequestMessage = setupHttpRequestMessageForTesting()
+        val response =
+            submissionFunction.getOrgSubmissionsList(httpRequestMessage, otherOrganizationName)
+        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+    }
+
+    @Test
+    fun `test access DHPrimeAdmins can view all org's submission history`() {
+        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
+        val submissionFunction = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, facade)
+        val httpRequestMessage = setupHttpRequestMessageForTesting()
+        var response =
+            submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        response =
+            submissionFunction.getOrgSubmissionsList(httpRequestMessage, otherOrganizationName)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+    }
+
+    @Test
+    fun `test access user can view their org's submission history`() {
+        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
+        val submissionFunction =
+            setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, facade)
+        val httpRequestMessage = setupHttpRequestMessageForTesting()
+        val response =
+            submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 }
