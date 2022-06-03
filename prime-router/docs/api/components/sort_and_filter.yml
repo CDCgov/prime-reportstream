@@ -1,28 +1,35 @@
-sortOrder:
-  name: sortOrder
+sortDir:
+  name: sortdir
   in: query
-  description: order to sort reports
+  description: direction in which to sort reports
   schema:
     type: string
     enum: [ASC, DESC]
     default: DESC
-sortColumn:
-  name: sortColumn
+sortCol:
+  name: sortcol
   in: query
   description: column used as the basis for sorting
   schema:
     type: string
-resultsAfterDate:
-  name: resultsAfterDate
+cursor:
+  name: cursor
   in: query
-  description: only return reports from after the given date
+  description: used by cursor-based pagination to determine the position on the results
   schema:
     type: string
     format: date-time
-resultsBeforeDate:
-  name: resultsBeforeDate
+since:
+  name: since
   in: query
-  description: only return reports from before the given date
+  description: only return results from after the given date
+  schema:
+    type: string
+    format: date-time
+until:
+  name: until
+  in: query
+  description: only return results from before the given date
   schema:
     type: string
     format: date-time

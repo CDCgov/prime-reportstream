@@ -6,7 +6,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.output.TermUi.echo
 import com.google.common.base.CharMatcher
 import gov.cdc.prime.router.CovidSender
-import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
 import gov.cdc.prime.router.Receiver
@@ -19,6 +18,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.SystemExitCodes
+import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import kotlinx.coroutines.delay
 import org.jooq.exception.DataAccessException
 import java.io.File
