@@ -19,18 +19,13 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs:
-      has_router_change: ${{ steps.skip_check.outputs.router }}
+      has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-      - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
-        id: skip_check
-        with:
-          list-files: csv
-          filters: |
-            router:
-              - 'prime-router/**'
-              - '.github/workflows/build_hub.yml'
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
 
   build_router:
     name: Build Router
@@ -218,19 +213,3 @@ jobs:
 
       - name: Build Docker Image
         run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest
-          
-  linting:
-    name: Check Linting
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deprecated step always succeeds
-        run: true
-        
-  docs:
-    # Deprecated job.  Check schema docs was moved to build_router job
-    name: Check Docs
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Deprecated step"
-        run: true
-
