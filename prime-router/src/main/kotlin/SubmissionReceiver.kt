@@ -248,13 +248,18 @@ class ELRReceiver : SubmissionReceiver {
         val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
 
-        // move to processing (stick in process-elr queue)
+        // move to processing (send to <elrProcessQueueName> queue)
         workflowEngine.queue.sendMessage(
             elrProcessQueueName,
             RawSubmission(
+                report.id,
                 blobInfo.blobUrl,
                 BlobAccess.digestToString(blobInfo.digest),
-                sender.fullName
+                sender.fullName,
+                // TODO: do we need these here? Will need to figure out how to serialize/deserialize
+//                options,
+//                defaults,
+//                routeTo
             ).serialize()
         )
     }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.BlobAccess
 import java.util.Base64
 
@@ -45,15 +46,20 @@ abstract class Message {
 }
 
 /**
- * The Message representation of a raw submission to the system
+ * The Message representation of a raw submission to the system, tracking the [reportId], [blobUrl],
+ * and [sender]. A [digest] is also provided for checksum verification.
  *
- * Models the url where the blob is stored, an digest of the blob for validation and the sender name
+ * TODO: Need to determine if options, defaults and routeTo need to be supported
  */
 @JsonTypeName("raw")
 data class RawSubmission(
+    val reportId: ReportId,
     val blobURL: String,
     val digest: String,
     val sender: String,
+//    val options: Options,
+//    val defaults: Map<String, String>,
+//    val routeTo: List<String>,
 ) : Message() {
     /**
      * Download the file associated with a RawSubmission message
