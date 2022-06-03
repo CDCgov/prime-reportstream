@@ -1,6 +1,5 @@
 import React, { useEffect, useReducer } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
-import { useOktaAuth } from "@okta/okta-react";
 
 import { getOktaGroups, groupToOrg } from "../utils/OrganizationUtils";
 
@@ -131,18 +130,21 @@ export const membershipReducer = (
     }
 };
 
-export const useGroups = (): MembershipController => {
-    const { authState } = useOktaAuth();
+export const useGroups = (
+    token: AccessToken | undefined
+): MembershipController => {
     const [state, dispatch] = useReducer(membershipReducer, defaultState);
 
+    // need to make sure this doesn't run on an infinite loop in a real world situation
+    // may need to drill down on the dependency array if it does
     useEffect(() => {
-        if (authState?.accessToken) {
+        if (token) {
             dispatch({
                 type: MembershipActionType.UPDATE,
-                payload: authState.accessToken,
+                payload: token,
             });
         }
-    }, [authState]);
+    }, [token?.claims]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return { state, dispatch };
 };

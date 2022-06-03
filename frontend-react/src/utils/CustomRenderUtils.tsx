@@ -2,7 +2,11 @@ import { FC, ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 
-import SessionProvider from "../contexts/SessionStorageContext";
+import SessionProvider, {
+    BasicOktaHook,
+} from "../contexts/SessionStorageContext";
+
+import { mockToken } from "./TestUtils";
 
 /* 
     To create a custom renderer, you must create a functional
@@ -20,10 +24,19 @@ const RouterWrapper: FC = ({ children }) => {
     return <BrowserRouter>{children}</BrowserRouter>;
 };
 
+const fakeOktaHook: BasicOktaHook = () => ({
+    authState: {
+        accessToken: mockToken(),
+    },
+    oktaAuth: {},
+});
+
 const SessionWrapper: FC = ({ children }) => {
     return (
         <RouterWrapper>
-            <SessionProvider>{children}</SessionProvider>
+            <SessionProvider oktaHook={fakeOktaHook}>
+                {children}
+            </SessionProvider>
         </RouterWrapper>
     );
 };

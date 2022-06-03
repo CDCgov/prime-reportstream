@@ -1,7 +1,12 @@
 import { GovBanner } from "@trussworks/react-uswds";
 import { Route, Switch, useHistory } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
-import { LoginCallback, SecureRoute, Security } from "@okta/okta-react";
+import {
+    LoginCallback,
+    SecureRoute,
+    Security,
+    useOktaAuth,
+} from "@okta/okta-react";
 import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
 import React, { Suspense } from "react";
@@ -91,7 +96,7 @@ const App = () => {
             onAuthRequired={customAuthHandler}
             restoreOriginalUri={restoreOriginalUri}
         >
-            <SessionProvider>
+            <SessionProvider oktaHook={useOktaAuth}>
                 <Suspense fallback={<Spinner size={"fullpage"} />}>
                     <NetworkErrorBoundary
                         fallbackComponent={() => <ErrorPage type="page" />}
