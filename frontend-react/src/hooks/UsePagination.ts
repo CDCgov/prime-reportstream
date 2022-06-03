@@ -16,7 +16,7 @@ export type CursorExtractor<T> = (arg: T) => string;
 // A function that will resolve to a list of results give a start cursor and
 // number of results.
 export type ResultsFetcher<T> = (
-    startCursor: string,
+    cursor: string,
     numResults: number
 ) => Promise<T[]>;
 
@@ -83,36 +83,35 @@ export function getSlots(
 }
 
 interface RequestConfig {
-    // Number of results to fetch when more results are needed to display the
-    // pagination or page of results.
+    // Number of results to fetch.
     numResults: number;
-    // Start cursor for fetching more results.
-    startCursor: string;
-    // Page number corresponding to the start cursor in a request for more
-    // results.
-    startPageNum: number;
+    // Cursor to include in a request for results.
+    cursor: string;
+    // Page number corresponding to the cursor in a request for results.
+    cursorPageNum: number;
     // Page number selection that initiated the request.
     selectedPageNum: number;
 }
 
 // Internal state for the hook.
 export interface PaginationState<T> {
+    // See UsePaginationProps
+    extractCursor: CursorExtractor<T>;
+    // See UsePaginationProps
+    isCursorInclusive: boolean;
     // Current page of results being displayed in the UI.
     currentPageNum: number;
-    // Function for extracting the cursor value from a result in the paginated
-    // set.
-    extractCursor: CursorExtractor<T>;
     // The final page number of the paginated set or undefined if the end of the
     // set has not been reached.
     finalPageNum?: number;
+    // Whether there is a in-flight request for results.
+    isLoading: boolean;
     // Map of page numbers to the cursor of the first item on the page.
     pageCursorMap: Record<number, string>;
     // Map of page numbers to the list of results on each page.
     pageResultsMap: Record<number, T[]>;
     // Number of items on a page of results in the UI.
     pageSize: number;
-    // Whether there is a in-flight request for more results.
-    isLoading: boolean;
     // Optional set of parameters for requesting a new batch of results.
     requestConfig?: RequestConfig;
 }
@@ -150,8 +149,14 @@ export function processResultsReducer<T>(
     state: PaginationState<T>,
     { results, requestConfig }: ProcessResultsPayload<T>
 ): PaginationState<T> {
-    const { numResults, startPageNum, selectedPageNum } = requestConfig;
-    const { extractCursor, pageSize, pageCursorMap, pageResultsMap } = state;
+    const { numResults, cursorPageNum, selectedPageNum } = requestConfig;
+    const {
+        extractCursor,
+        isCursorInclusive,
+        pageSize,
+        pageCursorMap,
+        pageResultsMap,
+    } = state;
 
     // Determine the number of whole pages we requested data for. Ignoring the
     // remainder accounts for a dangling result, which we use as an indicator of
@@ -161,25 +166,43 @@ export function processResultsReducer<T>(
 
     const resultPages = chunk(results, pageSize);
     resultPages.forEach((resultsPage, i) => {
-        const pageNum = startPageNum + i;
-        // Store cursors for all known pages.
-        // Don't store the cursor for Page 1, which retains the argument value
-        // passed to the hook.
-        if (pageNum > 1) {
-            pageCursorMap[pageNum] = extractCursor(resultsPage[0]);
-        }
-        const isVisiblePage = i < numTargetWholePages;
-        if (isVisiblePage) {
-            // Store results only for visible pages.
-            pageResultsMap[pageNum] = resultsPage;
+        const pageNum = cursorPageNum + i;
 
-            // This page number is the final page if:
-            // a) is a visible page and it has fewer than pageSize results or
-            // b) it is the last chunk in the returned results.
-            const isIncompletePage = resultsPage.length < pageSize;
-            const isLastChunk = i === resultPages.length - 1;
-            if (isIncompletePage || isLastChunk) {
-                finalPageNum = pageNum;
+        const isTargetWholePage = i < numTargetWholePages;
+        const isIncompletePage = resultsPage.length < pageSize;
+        const isLastChunk = i === resultPages.length - 1;
+        // This page number is the final page if it is:
+        // a) a page for which we might get a full page of results AND
+        // b) it has fewer than pageSize results OR is the last chunk in the
+        //    returned results.
+        const isFinalPage =
+            isTargetWholePage && (isIncompletePage || isLastChunk);
+        if (isFinalPage) {
+            finalPageNum = pageNum;
+        }
+
+        // Store results for whole pages only.
+        if (isTargetWholePage) {
+            pageResultsMap[pageNum] = resultsPage;
+        }
+
+        // Store the cursor for the page
+        if (isCursorInclusive) {
+            // When the cursor is inclusive, a page's cursor is from the first
+            // result on the page.
+            // Don't overwrite the cursor from Page 1, which needs to retain the
+            // initial value passed to the hook.
+            if (pageNum > 1) {
+                pageCursorMap[pageNum] = extractCursor(resultsPage[0]);
+            }
+        } else {
+            // When the cursor is exclusive, a page's cursor is from the
+            // last result on the previous page.
+            // Since we're looking to the next page, don't process the last
+            // chunk.
+            if (!isLastChunk) {
+                const lastResult = resultsPage[resultsPage.length - 1];
+                pageCursorMap[pageNum + 1] = extractCursor(lastResult);
             }
         }
     });
@@ -207,14 +230,9 @@ export function setSelectedPageReducer<T>(
     // The last page to fetch is the last page number in the slots, excluding
     // an overflow indicator in the last slot.
     const slotNumbers = slots.filter((s) => Number.isInteger(s)) as number[];
-    const endPage = slotNumbers.pop();
-    if (!endPage) {
-        return {
-            ...state,
-            currentPageNum: selectedPageNum,
-            requestConfig: undefined,
-        };
-    }
+    // The slots will always contain at least one number so we can safely cast
+    // the last page as not undefined.
+    const lastSlotPage = slotNumbers.pop() as number;
 
     const fetchedPageNumbers = Object.keys(state.pageResultsMap).map((k) =>
         parseInt(k)
@@ -223,7 +241,7 @@ export function setSelectedPageReducer<T>(
         fetchedPageNumbers.length > 0 ? Math.max(...fetchedPageNumbers) : 0;
 
     // We already have all the data that we need.
-    if (lastFetchedPage === endPage) {
+    if (lastFetchedPage >= lastSlotPage) {
         return {
             ...state,
             currentPageNum: selectedPageNum,
@@ -231,20 +249,20 @@ export function setSelectedPageReducer<T>(
         };
     }
 
-    const numTargetWholePages = endPage - lastFetchedPage;
+    const numTargetWholePages = lastSlotPage - lastFetchedPage;
     // Add one more result than the total needed for the whole pages as an
     // indicator for whether there is a subsequent page.
     const numResults = numTargetWholePages * state.pageSize + 1;
-    const startPageNum = lastFetchedPage + 1;
-    const startCursor = state.pageCursorMap[startPageNum];
+    const cursorPageNum = lastFetchedPage + 1;
+    const cursor = state.pageCursorMap[cursorPageNum];
 
     return {
         ...state,
         isLoading: true,
         requestConfig: {
             numResults,
-            startCursor,
-            startPageNum,
+            cursor,
+            cursorPageNum,
             selectedPageNum,
         },
     };
@@ -276,10 +294,19 @@ function reducer<T>(
 
 // Input parameters to the hook.
 export interface UsePaginationProps<T> {
-    startCursor: string;
-    pageSize: number;
-    fetchResults: ResultsFetcher<T>;
+    // Whether the cursor value in requests is inclusive. If true, a page's
+    // cursor is taken from the first result on the page, otherwise it's taken
+    // from the last result on the previous page.
+    isCursorInclusive: boolean;
+    // Function for extracting the cursor value from a result in the paginated
+    // set.
     extractCursor: CursorExtractor<T>;
+    // Callback function for fetching results.
+    fetchResults: ResultsFetcher<T>;
+    // Number of items on a page of results in the UI.
+    pageSize: number;
+    // Initial cursor for the paginated set.
+    startCursor: string;
 }
 
 // Output state object from the hook.
@@ -292,6 +319,7 @@ interface UsePaginationState<T> {
 // Arguments need to initialize the hook's internal state.
 interface InitialStateArgs<T> {
     startCursor: string;
+    isCursorInclusive: boolean;
     pageSize: number;
     extractCursor: CursorExtractor<T>;
 }
@@ -299,6 +327,7 @@ interface InitialStateArgs<T> {
 // Creates an initial internal state for the hook.
 function getInitialState<T>({
     startCursor,
+    isCursorInclusive,
     pageSize,
     extractCursor,
 }: InitialStateArgs<T>): PaginationState<T> {
@@ -306,6 +335,7 @@ function getInitialState<T>({
     return {
         currentPageNum,
         extractCursor,
+        isCursorInclusive,
         isLoading: false,
         pageCursorMap: {
             1: startCursor,
@@ -319,6 +349,7 @@ function getInitialState<T>({
 // extracted from the items in the set.
 function usePagination<T>({
     startCursor,
+    isCursorInclusive,
     pageSize,
     fetchResults,
     extractCursor,
@@ -329,6 +360,7 @@ function usePagination<T>({
         reducer,
         getInitialState({
             startCursor,
+            isCursorInclusive,
             pageSize,
             extractCursor,
         })
@@ -340,11 +372,12 @@ function usePagination<T>({
             type: PaginationActionType.RESET,
             payload: {
                 startCursor,
+                isCursorInclusive,
                 pageSize,
                 extractCursor,
             },
         });
-    }, [fetchResults, pageSize, startCursor, extractCursor]);
+    }, [fetchResults, pageSize, startCursor, extractCursor, isCursorInclusive]);
 
     // Fetch a new batch of results when the fetch parameters change.
     const { requestConfig } = state;
@@ -358,7 +391,7 @@ function usePagination<T>({
                 return;
             }
             const results = await fetchResults(
-                requestConfig.startCursor,
+                requestConfig.cursor,
                 requestConfig.numResults
             );
             dispatch({
