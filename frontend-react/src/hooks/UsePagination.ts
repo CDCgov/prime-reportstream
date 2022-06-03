@@ -102,8 +102,8 @@ export interface PaginationState<T> {
     // Function for extracting the cursor value from a result in the paginated
     // set.
     extractCursor: CursorExtractor<T>;
-    // The last page number of results when the upper bound of the paginated set
-    // is reached.
+    // The final page number of the paginated set or undefined if the end of the
+    // set has not been reached.
     finalPageNum?: number;
     // Map of page numbers to the cursor of the first item on the page.
     pageCursorMap: Record<number, string>;
@@ -193,16 +193,19 @@ export function processResultsReducer<T>(
     };
 }
 
-// Updates the current page and the fetch parameters needed for requesting a new
-// batch of results.
-// TODO: s/current/selected?
+// Handles the user's selection of a page. If no new results are needed to
+// render the slots, this reducer immediately updates the current page with the
+// selected page value. If more results are needed, this reducer does not update
+// the current page, and instead creates a request config to trigger the
+// fetching of a new batch of results.
 export function setSelectedPageReducer<T>(
     state: PaginationState<T>,
     selectedPageNum: number
 ): PaginationState<T> {
     const slots = getSlots(selectedPageNum, state.finalPageNum);
 
-    // The last page to fetch is the last visible page number in the slots.
+    // The last page to fetch is the last page number in the slots, excluding
+    // an overflow indicator in the last slot.
     const slotNumbers = slots.filter((s) => Number.isInteger(s)) as number[];
     const endPage = slotNumbers.pop();
     if (!endPage) {
@@ -229,6 +232,8 @@ export function setSelectedPageReducer<T>(
     }
 
     const numTargetWholePages = endPage - lastFetchedPage;
+    // Add one more result than the total needed for the whole pages as an
+    // indicator for whether there is a subsequent page.
     const numResults = numTargetWholePages * state.pageSize + 1;
     const startPageNum = lastFetchedPage + 1;
     const startCursor = state.pageCursorMap[startPageNum];
@@ -269,12 +274,7 @@ function reducer<T>(
     }
 }
 
-interface UsePaginationState<T> {
-    currentPageResults: T[];
-    isLoading: boolean;
-    paginationProps?: PaginationProps;
-}
-
+// Input parameters to the hook.
 export interface UsePaginationProps<T> {
     startCursor: string;
     pageSize: number;
@@ -282,12 +282,21 @@ export interface UsePaginationProps<T> {
     extractCursor: CursorExtractor<T>;
 }
 
+// Output state object from the hook.
+interface UsePaginationState<T> {
+    currentPageResults: T[];
+    isLoading: boolean;
+    paginationProps?: PaginationProps;
+}
+
+// Arguments need to initialize the hook's internal state.
 interface InitialStateArgs<T> {
     startCursor: string;
     pageSize: number;
     extractCursor: CursorExtractor<T>;
 }
 
+// Creates an initial internal state for the hook.
 function getInitialState<T>({
     startCursor,
     pageSize,
@@ -306,6 +315,8 @@ function getInitialState<T>({
     };
 }
 
+// Hook for paginating through a set of results by means of a cursor values
+// extracted from the items in the set.
 function usePagination<T>({
     startCursor,
     pageSize,
