@@ -28,7 +28,7 @@ export enum FilterName {
 
 interface SubmissionFilterProps {
     filterManager: FilterManager;
-    cursorManager: CursorManager;
+    cursorManager?: CursorManager;
 }
 
 /* This helper ensures start range values are inclusive
@@ -58,13 +58,14 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
                 to: new Date(inclusiveDateString(rangeTo)).toISOString(),
             },
         });
-        cursorManager.update({
-            type: CursorActionType.RESET,
-            payload:
-                filterManager.sortSettings.order === "DESC"
-                    ? new Date(inclusiveDateString(rangeTo)).toISOString()
-                    : new Date(rangeFrom).toISOString(),
-        });
+        cursorManager &&
+            cursorManager.update({
+                type: CursorActionType.RESET,
+                payload:
+                    filterManager.sortSettings.order === "DESC"
+                        ? new Date(inclusiveDateString(rangeTo)).toISOString()
+                        : new Date(rangeFrom).toISOString(),
+            });
     };
 
     /* Pushes local state to context and resets cursor to page 1 */
@@ -77,7 +78,7 @@ function TableFilters({ filterManager, cursorManager }: SubmissionFilterProps) {
     const clearAll = () => {
         // Clears manager state
         filterManager.resetAll();
-        cursorManager.update({ type: CursorActionType.RESET });
+        cursorManager && cursorManager.update({ type: CursorActionType.RESET });
 
         // Clear local state
         setRangeFrom(FALLBACK_FROM);
