@@ -90,7 +90,7 @@ class SubmissionFunctionTests : Logging {
             sendingOrg: String,
             sortDir: SubmissionAccess.SortDir,
             sortColumn: SubmissionAccess.SortColumn,
-            cursor: OffsetDateTime,
+            cursor: OffsetDateTime?,
             since: OffsetDateTime?,
             until: OffsetDateTime?,
             pageSize: Int,
