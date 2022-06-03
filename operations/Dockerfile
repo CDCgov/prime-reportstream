@@ -1,5 +1,5 @@
 ARG TERRAFORM_VERSION
-FROM hashicorp/terraform:`echo ${TERRAFORM_VERSION} | sed 's/-[0-9]$//'`
+FROM hashicorp/terraform:${TERRAFORM_VERSION}
 
 ARG AZURE_CLI_VERSION
 RUN \
