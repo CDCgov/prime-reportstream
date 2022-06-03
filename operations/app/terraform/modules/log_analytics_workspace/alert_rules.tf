@@ -15,19 +15,13 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_fatal" {
   FunctionAppLogs
   | where Message contains 'FATAL-ALERT' and not(Message contains 'co-phd.elr-test')
   QUERY
-  throttling     = 60
+  throttling     = 120
   severity       = 2
-  frequency      = 5
-  time_window    = 5
+  frequency      = 15
+  time_window    = 30
+
   trigger {
     operator  = "GreaterThanOrEqual"
     threshold = 1
-
-    metric_trigger {
-      metric_column       = "_ResourceId"
-      metric_trigger_type = "Total"
-      operator            = "GreaterThanOrEqual"
-      threshold           = 1
-    }
   }
 }
