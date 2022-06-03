@@ -23,67 +23,68 @@ class SubmissionsFacade(
     /**
      * Serializes a list of Actions into a String.
      *
-     * @param organizationName from JWT Claim.
-     * @param sortOrder sort the table by date in ASC or DESC order.
+     * @param organization from JWT Claim.
+     * @param sortDir sort the table by date in ASC or DESC order.
      * @param sortColumn sort the table by a specific column; defaults to sorting by created_at.
-     * @param offset String representation of an OffsetDateTime used for paginating results.
-     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
+     * @param cursor is the OffsetDateTime of the last result in the previous list.
+     * @param since is the OffsetDateTime minimum date to get results for.
+     * @param until is the OffsetDateTime maximum date to get results for.
      * @param pageSize Int of items to return per page.
-     * @param showFailed whether or not to include actions that failed to be sent.
+     * @param showFailed whether to include actions that failed to be sent.
      *
      * @return a String representation of an array of actions.
      */
     fun findSubmissionsAsJson(
-        organizationName: String,
-        sortOrder: ReportFileAccess.SortOrder,
+        organization: String,
+        sortDir: ReportFileAccess.SortDir,
         sortColumn: ReportFileAccess.SortColumn,
-        offset: OffsetDateTime?,
-        toEnd: OffsetDateTime?,
+        cursor: OffsetDateTime?,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
         pageSize: Int,
         showFailed: Boolean
     ): String {
-        val result = findSubmissions(organizationName, sortOrder, sortColumn, offset, toEnd, pageSize, showFailed)
+        val result = findSubmissions(organization, sortDir, sortColumn, cursor, since, until, pageSize, showFailed)
         return mapper.writeValueAsString(result)
     }
 
     /**
-     * @param organizationName from JWT Claim.
-     * @param sortOrder sort the table by date in ASC or DESC order; defaults to DESC.
+     * @param organization from JWT Claim.
+     * @param sortDir sort the table by date in ASC or DESC order; defaults to DESC.
      * @param sortColumn sort the table by a specific column; defaults to sorting by CREATED_AT.
-     * @param offset String representation of an OffsetDateTime used for paginating results.
-     * @param toEnd is the OffsetDateTime that dictates how far back returned results date.
+     * @param cursor is the OffsetDateTime of the last result in the previous list.
+     * @param since is the OffsetDateTime minimum date to get results for.
+     * @param until is the OffsetDateTime maximum date to get results for.
      * @param pageSize Int of items to return per page.
-     * @param showFailed whether or not to include actions that failed to be sent.
+     * @param showFailed whether to include actions that failed to be sent.
      *
      * @return a List of Actions
      */
     private fun findSubmissions(
-        organizationName: String,
-        sortOrder: ReportFileAccess.SortOrder,
+        organization: String,
+        sortDir: ReportFileAccess.SortDir,
         sortColumn: ReportFileAccess.SortColumn,
-        offset: OffsetDateTime?,
-        toEnd: OffsetDateTime?,
+        cursor: OffsetDateTime?,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
         pageSize: Int,
         showFailed: Boolean
     ): List<SubmissionHistory> {
-        require(organizationName.isNotBlank()) {
+        require(organization.isNotBlank()) {
             "Invalid organization."
         }
-        require(pageSize > 0) {
-            "pageSize must be a positive integer."
-        }
 
-        val submissions = dbSubmissionAccess.fetchActions(
-            organizationName,
-            sortOrder,
+        return dbSubmissionAccess.fetchActions(
+            organization,
+            sortDir,
             sortColumn,
-            offset,
-            toEnd,
+            cursor,
+            since,
+            until,
             pageSize,
             showFailed,
             SubmissionHistory::class.java
         )
-        return submissions
     }
 
     fun findDetailedSubmissionHistory(

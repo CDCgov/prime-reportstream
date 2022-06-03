@@ -84,14 +84,18 @@ class SubmissionFunctionTests : Logging {
         val overallStatus: String,
     )
 
-    class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : ReportFileAccess {
+    class TestSubmissionAccess(
+        private val dataset: List<SubmissionHistory>,
+        val mapper: ObjectMapper
+    ) : ReportFileAccess {
         override fun <T> fetchActions(
             organization: String,
-            order: ReportFileAccess.SortOrder,
+            sortDir: ReportFileAccess.SortDir,
             sortColumn: ReportFileAccess.SortColumn,
             cursor: OffsetDateTime?,
-            toEnd: OffsetDateTime?,
-            limit: Int,
+            since: OffsetDateTime?,
+            until: OffsetDateTime?,
+            pageSize: Int,
             showFailed: Boolean,
             klass: Class<T>
         ): List<T> {
@@ -117,7 +121,7 @@ class SubmissionFunctionTests : Logging {
         }
     }
 
-    val testData = listOf(
+    private val testData = listOf(
         SubmissionHistory(
             actionId = 8,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
@@ -140,9 +144,9 @@ class SubmissionFunctionTests : Logging {
         )
     )
 
-    val dataProvider = MockDataProvider { emptyArray<MockResult>() }
+    private val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
-    val accessSpy = spyk(DatabaseAccess(connection))
+    private val accessSpy = spyk(DatabaseAccess(connection))
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
@@ -225,7 +229,7 @@ class SubmissionFunctionTests : Logging {
                 mapOf(
                     "pagesize" to "10",
                     "cursor" to "2021-11-30T16:36:48.307Z",
-                    "sort" to "ASC"
+                    "sortDir" to "ASC"
                 ),
                 ExpectedAPIResponse(
                     HttpStatus.OK
@@ -236,10 +240,10 @@ class SubmissionFunctionTests : Logging {
                 mapOf("authorization" to "Bearer fdafads"),
                 mapOf(
                     "pagesize" to "10",
-                    "cursor" to "2021-11-30T16:36:54.307109Z",
-                    "endCursor" to "2021-11-30T16:36:53.919104Z",
+                    "since" to "2021-11-30T16:36:54.307109Z",
+                    "until" to "2021-11-30T16:36:53.919104Z",
                     "sortCol" to "CREATED_AT",
-                    "sort" to "ASC"
+                    "sortDir" to "ASC"
                 ),
                 ExpectedAPIResponse(
                     HttpStatus.OK
@@ -436,5 +440,19 @@ class SubmissionFunctionTests : Logging {
         responseBody = mapper.readValue(response.body.toString())
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
         assertThat(responseBody.sender).isEqualTo(returnBody.sender)
+
+        // bad actionId, Not found
+        val badActionId = "24601"
+        action.actionName = TaskAction.receive
+        every { mockSubmissionFacade.fetchAction(any()) } returns null
+        response = function.getReportDetailedHistory(mockRequest, badActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // empty actionId, Not found
+        val emptyActionId = ""
+        action.actionName = TaskAction.receive
+        every { mockSubmissionFacade.fetchAction(any()) } returns null
+        response = function.getReportDetailedHistory(mockRequest, emptyActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
     }
 }
