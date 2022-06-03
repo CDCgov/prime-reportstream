@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
@@ -48,6 +49,7 @@ class DeliveryFunctionTests : Logging {
             "organization" to listOf(organizationName)
         )
     }
+
     data class ExpectedAPIResponse(
         val status: HttpStatus,
         val body: List<ExpectedDelivery>? = null
@@ -189,7 +191,7 @@ class DeliveryFunctionTests : Logging {
                             reportId = "b9f63105-bbed-4b41-b1ad-002a90f07e62",
                             topic = "covid-19",
                             reportItemCount = 14,
-                            fileName = "pdi-covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.csv",
+                            fileName = "covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.hl7",
                         ),
                         ExpectedDelivery(
                             deliveryId = 284,
@@ -201,7 +203,7 @@ class DeliveryFunctionTests : Logging {
                             reportId = "c3c8e304-8eff-4882-9000-3645054a30b7",
                             topic = "covid-19",
                             reportItemCount = 1,
-                            fileName = "covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.hl7",
+                            fileName = "pdi-covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.csv",
                         ),
                     )
                 ),
@@ -269,6 +271,14 @@ class DeliveryFunctionTests : Logging {
             schemaName = "one"
         )
         settings.senderStore[sender.fullName] = sender
+        val receiver = Receiver(
+            "elr-secondary",
+            organizationName,
+            "elr",
+            CustomerStatus.TESTING,
+            "schema1",
+        )
+        settings.receiverStore[receiver.fullName] = receiver
         val engine = makeEngine(metadata, settings)
 
         testCases.forEach {
@@ -282,7 +292,7 @@ class DeliveryFunctionTests : Logging {
                 workflowEngine = engine,
             ).getDeliveries(
                 httpRequestMessage,
-                "simple_report",
+                "$organizationName.elr-secondary",
             )
             // Verify
             assertThat(response.status).isEqualTo(it.expectedResponse.status)
@@ -320,6 +330,25 @@ class DeliveryFunctionTests : Logging {
             schemaName = "one"
         )
         settings.senderStore[sender2.fullName] = sender2
+
+        val receiver = Receiver(
+            "elr-secondary",
+            organizationName,
+            "elr",
+            CustomerStatus.TESTING,
+            "schema1",
+        )
+        settings.receiverStore[receiver.fullName] = receiver
+
+        val receiver2 = Receiver(
+            "otherName",
+            otherOrganizationName,
+            "elr",
+            CustomerStatus.TESTING,
+            "schema1",
+        )
+        settings.receiverStore[receiver2.fullName] = receiver2
+
         val engine = makeEngine(metadata, settings)
         mockkObject(OktaAuthentication.Companion)
         every { OktaAuthentication.Companion.decodeJwt(any()) } returns
@@ -350,7 +379,8 @@ class DeliveryFunctionTests : Logging {
         val facade = DeliveryFacade(TestDeliveryAccess(testData, mapper))
         val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
-        val response = deliveryFunction.getDeliveries(httpRequestMessage, organizationName)
+        val response = deliveryFunction.getDeliveries(httpRequestMessage, "$organizationName.elr-secondary")
+
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
@@ -359,7 +389,7 @@ class DeliveryFunctionTests : Logging {
         val facade = DeliveryFacade(TestDeliveryAccess(testData, mapper))
         val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
-        val response = deliveryFunction.getDeliveries(httpRequestMessage, otherOrganizationName)
+        val response = deliveryFunction.getDeliveries(httpRequestMessage, "$otherOrganizationName.elr-secondary")
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
@@ -368,9 +398,7 @@ class DeliveryFunctionTests : Logging {
         val facade = DeliveryFacade(TestDeliveryAccess(testData, mapper))
         val deliveryFunction = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
-        var response = deliveryFunction.getDeliveries(httpRequestMessage, organizationName)
-        assertThat(response.status).isEqualTo(HttpStatus.OK)
-        response = deliveryFunction.getDeliveries(httpRequestMessage, otherOrganizationName)
+        val response = deliveryFunction.getDeliveries(httpRequestMessage, "$organizationName.elr-secondary")
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 }
