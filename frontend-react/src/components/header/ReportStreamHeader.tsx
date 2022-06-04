@@ -13,8 +13,6 @@ import { permissionCheck, PERMISSIONS } from "../../utils/PermissionsUtils";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseGroups";
-import { getStoredOrg } from "../../contexts/SessionStorageTools";
-import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
 import {
     CheckFeatureFlag,
     FeatureFlagName,
@@ -93,7 +91,7 @@ export const ReportStreamHeader = () => {
 
         /* ADMIN ONLY */
         if (memberships.state.active?.memberType === MemberType.PRIME_ADMIN) {
-            itemsMenu.push(<AdminDropdownNav />);
+            itemsMenu.push(<AdminDropdown />);
         }
     }
 
