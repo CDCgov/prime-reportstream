@@ -62,7 +62,12 @@ jobs:
 
       - name: Build Prime Router Package
         run: ./gradlew package -Pshowtests
-        
+
+      - name: Report Kotlin Code Coverage
+        working-directory: prime-router
+        shell: bash
+        run: ./gradlew sonar
+       
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@1fa26b2a644f2dbd9dd819195f0be6a83d47f6f8
         # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
