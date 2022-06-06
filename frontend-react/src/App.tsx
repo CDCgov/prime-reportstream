@@ -23,7 +23,7 @@ import { TermsOfService } from "./pages/TermsOfService";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
 import { oktaAuthConfig } from "./oktaConfig";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
-import { PERMISSIONS, permissionCheck } from "./utils/PermissionsUtils";
+import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
 import { Upload } from "./pages/Upload";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import { logout } from "./utils/UserUtils";
@@ -68,6 +68,18 @@ const App = () => {
         // check if the user would have any data to receive via their organizations from the okta claim
         // direct them to the /upload page if they do not have an organization that receives data
         const authState = OKTA_AUTH.authStateManager._authState;
+        if (
+            authState?.accessToken &&
+            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
+        ) {
+            history.replace(
+                toRelativeUrl(
+                    `${window.location.origin}/admin/settings`,
+                    window.location.origin
+                )
+            );
+            return;
+        }
         if (
             authState?.accessToken &&
             permissionCheck(PERMISSIONS.SENDER, authState.accessToken)
