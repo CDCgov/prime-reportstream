@@ -28,7 +28,6 @@ import tech.tablesaw.api.Table
 import tech.tablesaw.io.csv.CsvReadOptions
 import tech.tablesaw.selection.Selection
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.URL
 
@@ -202,7 +201,7 @@ class LivdTableDownload : CliktCommand(
         // Get the LOINC Mapping sheet
         val sheet: Sheet = workbook.getSheet(sheetName)
             ?: error("Sheet \"$sheetName\" doesn't exist in the $inputfile file.")
-        workbook.close()
+
         val rowStart = sheet.firstRowNum // Get starting row number
         val rowEnd = sheet.lastRowNum // Get ending row number
 
@@ -256,6 +255,9 @@ class LivdTableDownload : CliktCommand(
             }
             data.append(System.lineSeparator()) // End of each row
         }
+
+        // close workbook to avoid leaving handle open
+        workbook.close()
 
         // Write to CSV file.
         fileOutputStream.write(data.toString().toByteArray())
