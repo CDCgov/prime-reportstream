@@ -40,13 +40,12 @@ extension_4:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
-  condition: $idStr NOT_NULL && $systemStr EQUALS $isoSystemStr
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
   vars:
     idStr: String, PID.34.2
     value: $oidUrlPrefix + PID.34.2
     systemStr: String, PID.34.3
   constants:
-    isoSystemStr: "ISO"
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
     urlValue: last-updated-facility-universal-id
