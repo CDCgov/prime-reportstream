@@ -47,7 +47,7 @@ class FHIRProcessFunctions(
         }
 
         try {
-            fhirEngine.processHL7(messageContent, actionLogger, actionHistory, workflowEngine)
+            fhirEngine.processHL7(messageContent, actionLogger, actionHistory)
         } catch (e: Exception) {
             logger.error("Unknown error.", e)
         }

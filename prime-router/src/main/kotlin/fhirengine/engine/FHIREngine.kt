@@ -12,12 +12,13 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
-import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
-import org.apache.logging.log4j.kotlin.Logging
+import gov.cdc.prime.router.serializers.CsvSerializer
+import gov.cdc.prime.router.serializers.Hl7Serializer
 
 const val elrTranslateQueueName = "elr-fhir-translate"
 
@@ -31,11 +32,74 @@ const val elrTranslateQueueName = "elr-fhir-translate"
  */
 class FHIREngine(
     val metadata: Metadata = Metadata.getInstance(),
-    val settings: SettingsProvider = WorkflowEngine.settingsProviderSingleton,
-    val db: DatabaseAccess = WorkflowEngine.databaseAccessSingleton,
+    val settings: SettingsProvider = this.settingsProviderSingleton,
+    val db: DatabaseAccess = this.databaseAccessSingleton,
     val blob: BlobAccess = BlobAccess(),
-    val queue: QueueAccess = QueueAccess,
-) : Logging {
+    queue: QueueAccess = QueueAccess,
+) : BaseEngine(queue) {
+
+    /**
+     * Custom builder for Workflow engine
+     */
+    data class Builder(
+        var metadata: Metadata? = null,
+        var settingsProvider: SettingsProvider? = null,
+        var databaseAccess: DatabaseAccess? = null,
+        var blobAccess: BlobAccess? = null,
+        var queueAccess: QueueAccess? = null,
+        var hl7Serializer: Hl7Serializer? = null,
+        var csvSerializer: CsvSerializer? = null
+    ) {
+        /**
+         * Set the metadata instance.
+         * @return the modified workflow engine
+         */
+        fun metadata(metadata: Metadata) = apply { this.metadata = metadata }
+
+        /**
+         * Set the settings provider instance.
+         * @return the modified workflow engine
+         */
+        fun settingsProvider(settingsProvider: SettingsProvider) = apply { this.settingsProvider = settingsProvider }
+
+        /**
+         * Set the database access instance.
+         * @return the modified workflow engine
+         */
+        fun databaseAccess(databaseAccess: DatabaseAccess) = apply { this.databaseAccess = databaseAccess }
+
+        /**
+         * Set the blob access instance.
+         * @return the modified workflow engine
+         */
+        fun blobAccess(blobAccess: BlobAccess) = apply { this.blobAccess = blobAccess }
+
+        /**
+         * Set the queue access instance.
+         * @return the modified workflow engine
+         */
+        fun queueAccess(queueAccess: QueueAccess) = apply { this.queueAccess = queueAccess }
+
+        /**
+         * Build the fhir engine instance.
+         * @return the fhir engine instance
+         */
+        fun build(): FHIREngine {
+            settingsProvider = if (metadata != null) {
+                settingsProvider ?: getSettingsProvider(metadata!!)
+            } else {
+                settingsProvider ?: settingsProviderSingleton
+            }
+
+            return FHIREngine(
+                metadata ?: Metadata.getInstance(),
+                settingsProvider!!,
+                databaseAccess ?: databaseAccessSingleton,
+                blobAccess ?: BlobAccess(),
+                queueAccess ?: QueueAccess
+            )
+        }
+    }
 
     /**
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
@@ -47,12 +111,12 @@ class FHIREngine(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-        workflowEngine: WorkflowEngine
+        hl7Reader: HL7Reader = HL7Reader(actionLogger)
     ) {
         logger.trace("Processing HL7 data for FHIR conversion.")
         try {
             // get the hl7 from the blob store
-            val hl7messages = HL7Reader(actionLogger).getMessages(message.downloadContent())
+            val hl7messages = hl7Reader.getMessages(message.downloadContent())
 
             if (actionLogger.hasErrors()) {
                 throw java.lang.IllegalArgumentException(actionLogger.errors.joinToString("\n") { it.detail.message })
@@ -101,10 +165,6 @@ class FHIREngine(
                     Options.None,
                     emptyMap<String, String>(),
                     emptyList<String>()
-                    // TODO: determine if we need to support these parameters for full ELR
-//                        message.options,
-//                        message.defaults,
-//                        message.routeTo
                 )
 
                 // upload to blobstore
@@ -128,18 +188,16 @@ class FHIREngine(
                     translateEvent
                 )
 
+                Options.None
+
                 // move to translation (send to <elrTranslateQueueName> queue)
-                workflowEngine.queue.sendMessage(
+                this.queue.sendMessage(
                     elrTranslateQueueName,
                     RawSubmission(
                         report.id,
                         blobInfo.blobUrl,
                         BlobAccess.digestToString(blobInfo.digest),
                         message.sender
-                        // TODO: do we need these here? Will need to figure out how to serialize/deserialize
-                        // options,
-                        // defaults,
-                        // routeTo
                     ).serialize()
                 )
             }
