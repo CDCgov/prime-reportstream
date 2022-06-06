@@ -7,8 +7,9 @@ import usePagination, {
     CursorExtractor,
     getSlots,
     PaginationState,
+    ProcessResultsPayload,
     UsePaginationProps,
-    setCurrentPageReducer,
+    setSelectedPageReducer,
     processResultsReducer,
 } from "./UsePagination";
 
@@ -171,20 +172,101 @@ describe("getSlots", () => {
 });
 
 describe("processResultsReducer", () => {
-    test("with all of the requested results", () => {
-        const state: PaginationState<SampleRecord> = {
+    function getInitialState(): PaginationState<SampleRecord> {
+        return {
             currentPageNum: 1,
             extractCursor,
+            isCursorInclusive: false,
+            isLoading: true,
             pageSize: 10,
             pageCursorMap: { 1: "0" },
             pageResultsMap: {},
-            fetchStartPageNum: 1,
-            fetchNumResults: 61,
-            fetchStartCursor: "0",
+        };
+    }
+
+    test("with all of the requested results", () => {
+        const state: PaginationState<SampleRecord> = getInitialState();
+        const results = createSampleRecords(61);
+        const payload: ProcessResultsPayload<SampleRecord> = {
+            results,
+            requestConfig: {
+                selectedPageNum: 1,
+                cursorPageNum: 1,
+                numResults: 61,
+                cursor: "0",
+            },
+        };
+        expect(processResultsReducer(state, payload)).toStrictEqual({
+            ...state,
+            isLoading: false,
+            pageResultsMap: {
+                1: results.slice(0, 10),
+                2: results.slice(10, 20),
+                3: results.slice(20, 30),
+                4: results.slice(30, 40),
+                5: results.slice(40, 50),
+                6: results.slice(50, 60),
+            },
+            pageCursorMap: {
+                1: "0",
+                2: "10",
+                3: "20",
+                4: "30",
+                5: "40",
+                6: "50",
+                7: "60",
+            },
+            finalPageNum: undefined,
+        });
+    });
+
+    test("with fewer than the requested number of results", () => {
+        const state: PaginationState<SampleRecord> = getInitialState();
+        const results = createSampleRecords(30);
+        const payload: ProcessResultsPayload<SampleRecord> = {
+            results,
+            requestConfig: {
+                selectedPageNum: 1,
+                cursorPageNum: 1,
+                numResults: 61,
+                cursor: "0",
+            },
+        };
+        expect(processResultsReducer(state, payload)).toStrictEqual({
+            ...state,
+            isLoading: false,
+            pageResultsMap: {
+                1: results.slice(0, 10),
+                2: results.slice(10, 20),
+                3: results.slice(20),
+            },
+            pageCursorMap: {
+                1: "0",
+                2: "10",
+                3: "20",
+            },
+            finalPageNum: 3,
+        });
+    });
+
+    test("stores inclusive cursors from the first result on the page", () => {
+        const state: PaginationState<SampleRecord> = {
+            ...getInitialState(),
+            isCursorInclusive: true,
         };
         const results = createSampleRecords(61);
-        expect(processResultsReducer(state, results)).toStrictEqual({
+        const payload: ProcessResultsPayload<SampleRecord> = {
+            results,
+            requestConfig: {
+                selectedPageNum: 1,
+                cursorPageNum: 1,
+                numResults: 61,
+                cursor: "0",
+            },
+        };
+        expect(processResultsReducer(state, payload)).toStrictEqual({
             ...state,
+            isLoading: false,
             pageResultsMap: {
                 1: results.slice(0, 10),
                 2: results.slice(10, 20),
@@ -205,98 +287,105 @@ describe("processResultsReducer", () => {
             finalPageNum: undefined,
         });
     });
-
-    test("with fewer than the requested number of results", () => {
-        const state: PaginationState<SampleRecord> = {
-            currentPageNum: 1,
-            extractCursor,
-            pageSize: 10,
-            pageCursorMap: { 1: "0" },
-            pageResultsMap: {},
-            fetchStartPageNum: 1,
-            fetchNumResults: 61,
-            fetchStartCursor: "0",
-        };
-        const results = createSampleRecords(30);
-        expect(processResultsReducer(state, results)).toStrictEqual({
-            ...state,
-            pageResultsMap: {
-                1: results.slice(0, 10),
-                2: results.slice(10, 20),
-                3: results.slice(20),
-            },
-            pageCursorMap: {
-                1: "0",
-                2: "11",
-                3: "21",
-            },
-            finalPageNum: 3,
-        });
-    });
 });
 
-describe("setCurrentPageReducer", () => {
+describe("setSelectedPageReducer", () => {
     test("with no stored data", () => {
         const state: PaginationState<SampleRecord> = {
             currentPageNum: 1,
             extractCursor,
+            isCursorInclusive: false,
+            isLoading: false,
             pageSize: 10,
             pageCursorMap: { 1: "0" },
             pageResultsMap: {},
-            fetchStartPageNum: 1,
-            fetchNumResults: 61,
-            fetchStartCursor: "0",
         };
-        expect(setCurrentPageReducer(state, 1)).toStrictEqual({
+        expect(setSelectedPageReducer(state, 1)).toStrictEqual({
             ...state,
-            currentPageNum: 1,
-            fetchNumResults: 61,
-            fetchStartCursor: "0",
-            fetchStartPageNum: 1,
-        });
+            isLoading: true,
+            requestConfig: {
+                numResults: 61,
+                cursor: "0",
+                cursorPageNum: 1,
+                selectedPageNum: 1,
+            },
+        } as PaginationState<SampleRecord>);
     });
 
     test("when some of the data has been fetched", () => {
         const state: PaginationState<SampleRecord> = {
             currentPageNum: 1,
             extractCursor,
+            isCursorInclusive: false,
+            isLoading: false,
             pageSize: 10,
             pageCursorMap: {
                 1: "0",
-                2: "11",
-                3: "21",
-                4: "31",
-                5: "41",
-                6: "51",
-                7: "61",
+                2: "10",
+                3: "20",
+                4: "30",
+                5: "40",
+                6: "50",
+                7: "60",
             },
             pageResultsMap: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
         };
-        expect(setCurrentPageReducer(state, 6)).toStrictEqual({
+        expect(setSelectedPageReducer(state, 6)).toStrictEqual({
             ...state,
-            currentPageNum: 6,
-            fetchNumResults: 21,
-            fetchStartCursor: "61",
-            fetchStartPageNum: 7,
-        });
+            isLoading: true,
+            requestConfig: {
+                numResults: 21,
+                cursor: "60",
+                cursorPageNum: 7,
+                selectedPageNum: 6,
+            },
+        } as PaginationState<SampleRecord>);
+    });
+
+    test("when going to a previous page", () => {
+        const state: PaginationState<SampleRecord> = {
+            currentPageNum: 5,
+            extractCursor,
+            isCursorInclusive: false,
+            isLoading: false,
+            pageSize: 10,
+            pageCursorMap: {
+                1: "0",
+                2: "10",
+                3: "20",
+                4: "30",
+                5: "40",
+                6: "50",
+                7: "60",
+                8: "70",
+            },
+            pageResultsMap: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] },
+        };
+        expect(setSelectedPageReducer(state, 4)).toStrictEqual({
+            ...state,
+            currentPageNum: 4,
+            requestConfig: undefined,
+        } as PaginationState<SampleRecord>);
     });
 
     test("when all of the data has been fetched", () => {
         const state: PaginationState<SampleRecord> = {
             currentPageNum: 7,
             extractCursor,
+            isCursorInclusive: false,
+            isLoading: false,
             pageSize: 10,
             pageCursorMap: {
                 1: "0",
-                2: "11",
-                3: "21",
-                4: "31",
-                5: "41",
-                6: "51",
-                7: "61",
-                8: "71",
-                9: "81",
-                10: "91",
+                2: "10",
+                3: "20",
+                4: "30",
+                5: "40",
+                6: "50",
+                7: "60",
+                8: "70",
+                9: "80",
+                10: "90",
             },
             pageResultsMap: {
                 1: [],
@@ -312,10 +401,11 @@ describe("setCurrentPageReducer", () => {
             },
             finalPageNum: 10,
         };
-        expect(setCurrentPageReducer(state, 10)).toStrictEqual({
+        expect(setSelectedPageReducer(state, 10)).toStrictEqual({
             ...state,
             currentPageNum: 10,
-        });
+            requestConfig: undefined,
+        } as PaginationState<SampleRecord>);
     });
 });
 
@@ -334,12 +424,14 @@ describe("usePagination", () => {
         const mockFetchResults = jest.fn().mockResolvedValueOnce([]);
         const { result, waitForNextUpdate } = doRenderHook({
             startCursor: "0",
+            isCursorInclusive: false,
             pageSize: 10,
             fetchResults: mockFetchResults,
             extractCursor,
         });
         await waitForNextUpdate();
-        // The request on the first page should check for the presence of up to seven pages.
+        // The request on the first page should check for the presence of up to
+        // seven pages.
         expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
         expect(result.current.paginationProps).toBeUndefined();
         expect(result.current.currentPageResults).toStrictEqual([]);
@@ -350,12 +442,14 @@ describe("usePagination", () => {
         const mockFetchResults = jest.fn().mockResolvedValueOnce(results);
         const { result, waitForNextUpdate } = doRenderHook({
             startCursor: "0",
+            isCursorInclusive: false,
             pageSize: 10,
             fetchResults: mockFetchResults,
             extractCursor,
         });
         await waitForNextUpdate();
-        // The request on the first page should check for the presence of up to seven pages.
+        // The request on the first page should check for the presence of up to
+        // seven pages.
         expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
         expect(result.current.paginationProps?.currentPageNum).toBe(1);
         expect(result.current.paginationProps?.slots).toStrictEqual([
@@ -375,16 +469,30 @@ describe("usePagination", () => {
             .mockResolvedValueOnce(results2);
         const { result, waitForNextUpdate } = doRenderHook({
             startCursor: "0",
+            isCursorInclusive: false,
             pageSize: 10,
             fetchResults: mockFetchResults,
             extractCursor,
         });
         await waitForNextUpdate();
         act(() => {
-            result.current.paginationProps?.setCurrentPage(6);
+            result.current.paginationProps?.setSelectedPage(6);
         });
+        // The current page and slots should not update until the fetch resolves
+        expect(result.current.paginationProps?.currentPageNum).toBe(1);
+        expect(result.current.paginationProps?.slots).toStrictEqual([
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            OVERFLOW_INDICATOR,
+        ]);
+        expect(result.current.isLoading).toBe(true);
+
         await waitForNextUpdate();
-        expect(mockFetchResults).toHaveBeenLastCalledWith("61", 21);
+        expect(mockFetchResults).toHaveBeenLastCalledWith("60", 21);
         expect(result.current.paginationProps?.currentPageNum).toBe(6);
         expect(result.current.paginationProps?.slots).toStrictEqual([
             1,
@@ -395,9 +503,11 @@ describe("usePagination", () => {
             8,
             OVERFLOW_INDICATOR,
         ]);
+        expect(result.current.isLoading).toBe(false);
 
-        // The current page of results is still from the first fetch. The second fetch was needed to
-        // extend the pagination, not get the results for the current page.
+        // The current page of results is still from the first fetch. The second
+        // fetch was needed to extend the pagination, not get the results for
+        // the current page.
         expect(result.current.currentPageResults).toStrictEqual(
             results1.slice(50, 60)
         );
@@ -410,30 +520,35 @@ describe("usePagination", () => {
             .mockResolvedValueOnce(createSampleRecords(11));
         const { result, rerender, waitForNextUpdate } = doRenderHook({
             startCursor: "0",
+            isCursorInclusive: false,
             pageSize: 10,
             fetchResults: mockFetchResults,
             extractCursor,
         });
 
-        // Wait for the fetch promise to resolve, then check the slots and move to the next page.
+        // Wait for the fetch promise to resolve, then check the slots and move
+        // to the next page.
         await waitForNextUpdate();
         expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
         expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
         act(() => {
-            result.current.paginationProps?.setCurrentPage(2);
+            result.current.paginationProps?.setSelectedPage(2);
         });
+        // The current page should update right away since we don't need to
+        // fetch any more results.
         expect(result.current.paginationProps?.currentPageNum).toBe(2);
 
         // Rerender with a new start cursor.
         rerender({
             startCursor: "9999",
+            isCursorInclusive: false,
             pageSize: 10,
             fetchResults: mockFetchResults,
             extractCursor,
         });
         await waitForNextUpdate();
-        // After a reset, the fetch count should reflect an initial request, which needs to check
-        // for the presence of up to five pages.
+        // After a reset, the fetch count should reflect an initial request,
+        // which needs to check for the presence of up to five pages.
         expect(mockFetchResults).toHaveBeenLastCalledWith("9999", 61);
         expect(result.current.paginationProps?.currentPageNum).toBe(1);
     });
@@ -448,6 +563,7 @@ describe("usePagination", () => {
             .mockResolvedValueOnce(createSampleRecords(1));
         const initialProps = {
             startCursor: "1",
+            isCursorInclusive: false,
             pageSize: 10,
             fetchResults: mockFetchResults1,
             extractCursor,
@@ -458,13 +574,13 @@ describe("usePagination", () => {
         // Set the results and move to the second page.
         await waitForNextUpdate();
         act(() => {
-            result.current.paginationProps?.setCurrentPage(2);
+            result.current.paginationProps?.setSelectedPage(2);
         });
         expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
         expect(result.current.paginationProps?.currentPageNum).toBe(2);
 
-        // Rerender with a new fetch results callback to create the list request parameters, e.g. when the sort
-        // order changes.
+        // Rerender with a new fetch results callback to create the list request
+        // parameters, e.g. when the sort order changes.
         rerender({
             ...initialProps,
             fetchResults: mockFetchResults2,

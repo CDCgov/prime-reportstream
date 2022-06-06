@@ -405,7 +405,14 @@ h3 img[src*="svg"] {
     cursor: pointer;
 }
 
-// Pagination
+pre {
+    background: rgba(201, 201, 201, 0.47);
+    color: black;
+    white-space: pre-wrap;
+    padding: 1.33rem;
+    border-radius: 1rem;
+}
+
 .rs-pagination-no-button {
   @include u-bg('white');
   cursor: pointer;
