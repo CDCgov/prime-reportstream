@@ -11,6 +11,9 @@ resources:
   - resourceName: Provenance
     segment: MSH
     resourcePath: resource/Provenance
+    additionalSegments:
+      - ORC
+
 
   - resourceName: Patient
     segment: .PID
@@ -44,5 +47,30 @@ resources:
       - .SPECIMEN.SPM
       - MSH
       - .PID
+
+  - resourceName: Specimen
+    segment: .SPECIMEN.SPM
+    group: PATIENT_RESULT.ORDER_OBSERVATION
+    resourcePath: resource/Specimen
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - .OBSERVATION.OBX
+      - .OBSERVATION.NTE
+      - MSH
+
+  - resourceName: DiagnosticReport
+    segment: .OBR
+    group: PATIENT_RESULT.ORDER_OBSERVATION
+    resourcePath: resource/DiagnosticReport
+    repeats: true
+    additionalSegments:
+      - .ORC
+      - .NTE
+      - .OBSERVATION.OBX
+      - MSH
+      - PATIENT_RESULT.PATIENT.PID
+      - PATIENT_RESULT.PATIENT.VISIT.PV1
+      # NOTE:  PID and PV1 are passed because they are used by the created Service Request
 
 # TODO Add more segments as we develop them

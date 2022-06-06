@@ -1,6 +1,6 @@
 openapi: "3.0.3"
 info:
-  title: ReportStream Organizations API
+  title: ReportStream Submissions API
   version: "1.0"
   contact:
     name: USDS at Centers for Disease Control and Prevention
@@ -19,7 +19,17 @@ paths:
           required: true
           schema:
             type: string
-        - $ref: "./components/sort_and_filter.yml"
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortColumn'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/cursor'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/since'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/until'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/pageSize'
+        - name: showFailed
+          in: query
+          description: whether or not to show submissions that failed delivery
+          schema:
+            type: boolean
       responses:
         '200':
           description: a list of submission history objects
