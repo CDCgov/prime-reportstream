@@ -14,6 +14,9 @@ outputs:
   has_react_change:
     value: ${{ steps.frontend_change_result.outputs.has_react_change }}
     description: 'For non-prod, do not build if no changes'
+  has_terraform_change:
+    value: ${{ steps.filter.outputs.terraform }}
+    description: 'Check if terraform changes. true or false'
   prerelease:
     value: ${{ steps.prerelease_result.outputs.prerelease }}
     description: 'GitHub release or pre-release'
@@ -24,13 +27,17 @@ runs:
 
     - name: Set Build Environment - TEST
       id: build_test
-      if: github.ref == 'refs/heads/test'
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'test') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'test')
       shell: bash
       run: echo "::set-output name=env_name::test"
 
     - name: Set Build Environment - STAGING
       id: build_staging
-      if: github.ref == 'refs/heads/master'
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'master') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'master')
       shell: bash
       run: |
         echo "::set-output name=env_name::staging"
@@ -39,7 +46,9 @@ runs:
 
     - name: Set Build Environment - PROD
       id: build_prod
-      if: github.ref == 'refs/heads/production'
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'production') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'production')
       shell: bash
       run: |
         echo "::set-output name=env_name::prod"
@@ -72,7 +81,7 @@ runs:
         ${{ steps.build_prod.outputs.version }}"
 
     - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
-      id: backend_check
+      id: filter
       with:
         list-files: csv
         filters: |
@@ -81,6 +90,16 @@ runs:
             - 'operations/**'
             - '.github/actions/build-backend/action.yml'
             - '.github/actions/deploy-backend/action.yml'
+            - '.github/workflows/build_hub.yml'
+          frontend_react:
+            - 'frontend-react/**'
+            - 'operations/**'
+            - '.github/actions/build-frontend/action.yml'
+            - '.github/actions/deploy-frontend/action.yml'
+          terraform:
+            - 'operations/app/terraform/**'
+            - '.github/workflows/validate_terraform.yml'
+            - '.github/workflows/deploy_terraform.yml'
 
     - name: Force backend change if prod
       id: backend_change_result
@@ -89,19 +108,8 @@ runs:
         if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' ]]; then
           echo "::set-output name=has_router_change::true"
         else
-          echo "::set-output name=has_router_change::${{ steps.backend_check.outputs.router }}"
+          echo "::set-output name=has_router_change::${{ steps.filter.outputs.router }}"
         fi
-
-    - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
-      id: frontend_check
-      with:
-        list-files: csv
-        filters: |
-          frontend_react:
-            - 'frontend-react/**'
-            - 'operations/**'
-            - '.github/actions/build-frontend/action.yml'
-            - '.github/actions/deploy-frontend/action.yml'
 
     - name: Front frontend change if prod
       id: frontend_change_result
@@ -110,5 +118,5 @@ runs:
         if [[ '${{ steps.build_result.outputs.env_name }}' == 'prod' ]]; then
           echo "::set-output name=has_react_change::true"
         else
-          echo "::set-output name=has_react_change::${{ steps.frontend_check.outputs.frontend_react }}"
+          echo "::set-output name=has_react_change::${{ steps.filter.outputs.frontend_react }}"
         fi
