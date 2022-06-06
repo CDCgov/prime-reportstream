@@ -22,13 +22,12 @@ extension_1:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
-  condition: $idStr NOT_NULL && $systemStr EQUALS $isoSystemStr
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
   vars:
     idStr: String, MSH.3.2
     value: $oidUrlPrefix + MSH.3.2
     systemStr: String, MSH.3.3
   constants:
-    isoSystemStr: "ISO"
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
     urlValue: source-identifier-system

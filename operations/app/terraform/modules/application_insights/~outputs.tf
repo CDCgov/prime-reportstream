@@ -21,3 +21,7 @@ output "metabase_app_id" {
 output "metabase_connection_string" {
   value = var.is_metabase_env ? azurerm_application_insights.metabase_insights[0].connection_string : null
 }
+
+output "action_group_businesshours_id" {
+  value = local.action_group_businesshours_id
+}

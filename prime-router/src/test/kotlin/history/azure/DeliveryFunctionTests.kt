@@ -341,7 +341,7 @@ class DeliveryFunctionTests : Logging {
         settings.receiverStore[receiver.fullName] = receiver
 
         val receiver2 = Receiver(
-            "otherName",
+            "test-lab-2",
             otherOrganizationName,
             "elr",
             CustomerStatus.TESTING,
@@ -380,7 +380,6 @@ class DeliveryFunctionTests : Logging {
         val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         val response = deliveryFunction.getDeliveries(httpRequestMessage, "$organizationName.elr-secondary")
-
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
@@ -389,7 +388,7 @@ class DeliveryFunctionTests : Logging {
         val facade = DeliveryFacade(TestDeliveryAccess(testData, mapper))
         val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
-        val response = deliveryFunction.getDeliveries(httpRequestMessage, "$otherOrganizationName.elr-secondary")
+        val response = deliveryFunction.getDeliveries(httpRequestMessage, "test-lab-2.test-lab-2")
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
