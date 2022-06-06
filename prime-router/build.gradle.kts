@@ -223,6 +223,20 @@ testlogger {
     }
 }
 
+tasks.sonarqube {
+    dependsOn(tasks.jacocoTestReport)
+    // sonar's plugin defers to the allprojects block for its configuration
+    project.allprojects {
+        extensions.configure<org.sonarqube.gradle.SonarQubeExtension>() {
+            properties {
+                property("sonar.projectKey", "CDCgov_prime-data-hub")
+                property("sonar.organization", "cdcgov")
+                property("sonar.host.url", "https://sonarcloud.io")
+                property("sonar.coverage.exclusions", "prime-router/src/test")
+            }
+        }
+    }
+}
 // Add the testIntegration tests
 sourceSets.create("testIntegration") {
     java.srcDir("src/testIntegration/kotlin")
