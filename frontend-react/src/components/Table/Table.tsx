@@ -9,6 +9,7 @@ import {
 import { NavLink } from "react-router-dom";
 import React, { ReactNode, useMemo, useState } from "react";
 
+import Pagination, { PaginationProps } from "../../components/Table/Pagination";
 import {
     CursorActionType,
     CursorManager,
@@ -83,6 +84,7 @@ export interface TableProps {
     datasetAction?: DatasetAction;
     filterManager?: FilterManager;
     cursorManager?: CursorManager;
+    paginationProps?: PaginationProps;
     enableEditableRows?: boolean;
     editableCallback?: Function;
 }
@@ -99,6 +101,7 @@ const Table = ({
     datasetAction,
     filterManager,
     cursorManager,
+    paginationProps,
     enableEditableRows,
 }: TableProps) => {
     /* memoizedRows is the source of truth for rendered table rows. If a local
@@ -482,9 +485,8 @@ const Table = ({
                         <TableRows />
                     </tbody>
                 </table>
-                {cursorManager ? (
-                    <PaginationButtons {...cursorManager} />
-                ) : null}
+                {cursorManager && <PaginationButtons {...cursorManager} />}
+                {paginationProps && <Pagination {...paginationProps} />}
             </div>
         </div>
     );

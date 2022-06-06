@@ -1,4 +1,4 @@
-package gov.cdc.prime.router
+package gov.cdc.prime.router.history
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -8,75 +8,95 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.fasterxml.jackson.annotation.JsonValue
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
-import java.util.UUID
+
+/**
+ * This class handles ReportFileHistory for Submissions from a sender.
+ *
+ * @property actionId reference to the `action` table for the action that created this file
+ * @property createdAt when the file was created
+ * @property sendingOrg the name of the organization that sent this submission
+ * @property httpStatus response code for the user fetching this report file
+ * @property externalName actual filename of the file
+ * @property reportId unique identifier for this specific report file
+ * @property schemaTopic the kind of data contained in the report (e.g. "covid-19")
+ * @property itemCount number of tests (data rows) contained in the report
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+class SubmissionHistory(
+    @JsonProperty("submissionId")
+    actionId: Long,
+    @JsonProperty("timestamp")
+    createdAt: OffsetDateTime,
+    @JsonProperty("sender")
+    val sendingOrg: String,
+    httpStatus: Int,
+    @JsonInclude(Include.NON_NULL)
+    externalName: String? = "",
+    @JsonProperty("id")
+    reportId: String? = null,
+    @JsonProperty("topic")
+    schemaTopic: String? = null,
+    @JsonProperty("reportItemCount")
+    itemCount: Int? = null
+) : ReportFileHistory(
+    actionId,
+    createdAt,
+    httpStatus,
+    externalName,
+    reportId,
+    schemaTopic,
+    itemCount,
+)
 
 /**
  * A `DetailedSubmissionHistory` represents the detailed life history of a submission of a message from a sender.
  *
- * @param actionId of the Submission is `action_id` from the `action` table
- * @param actionName of the Submission is `action_name` from the `action` table
- * @param createdAt of the Submission is `created_at` from the the `action` table
- * @param httpStatus of the Submission is `http_status` from the the `action` table
- * @param reports of the Submission are the Reports related to the action from the `report_file` table
- * @param logs of the Submission are the Logs produced by the submission from the `action_log` table
+ * @property actionId of the Submission is `action_id` from the `action` table
+ * @property actionName of the Submission is `action_name` from the `action` table
+ * @property createdAt of the Submission is `created_at` from the the `action` table
+ * @property httpStatus of the Submission is `http_status` from the the `action` table
+ * @property reports of the Submission are the Reports related to the action from the `report_file` table
+ * @property logs of the Submission are the Logs produced by the submission from the `action_log` table
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder(
     value = [
         "id", "submissionId", "overallStatus", "timestamp", "plannedCompletionAt", "actualCompletionAt",
-        "sender", "reportItemCount", "errorCount", "warningCount",
+        "sender", "reportItemCount", "errorCount", "warningCount", "httpStatus", "destinations",
     ]
 )
 class DetailedSubmissionHistory(
     @JsonProperty("submissionId")
-    val actionId: Long,
-    @JsonIgnore
-    val actionName: TaskAction,
+    actionId: Long,
+    actionName: TaskAction,
     @JsonProperty("timestamp")
-    val createdAt: OffsetDateTime,
-    val httpStatus: Int? = null,
-    @JsonIgnore
-    var reports: MutableList<DetailReport>?,
-    @JsonIgnore
-    var logs: List<DetailActionLog> = emptyList()
+    createdAt: OffsetDateTime,
+    httpStatus: Int? = null,
+    reports: MutableList<DetailedReport>?,
+    logs: List<DetailedActionLog> = emptyList()
+) : DetailedReportFileHistory(
+    actionId,
+    actionName,
+    createdAt,
+    httpStatus,
+    reports,
+    logs,
 ) {
-    /**
-     * The report ID.
-     */
-    var id: String? = null
-
     /**
      * The destinations.
      */
     var destinations = mutableListOf<Destination>()
 
     /**
-     * Error log for the submission.
-     */
-    val errors = mutableListOf<ConsolidatedActionLog>()
-
-    /**
-     * Warning log for the submission.
-     */
-    val warnings = mutableListOf<ConsolidatedActionLog>()
-
-    /**
-     * The schema topic.
-     */
-    var topic: String? = null
-
-    /**
      * The sender of the input report.
      */
     var sender: String? = null
-
-    /**
-     * The input report's external name.
-     */
-    var externalName: String? = null
 
     /**
      * The step in the delivery process for a submission
@@ -87,7 +107,8 @@ class DetailedSubmissionHistory(
      *     WAITING_TO_DELIVER - processed but yet to be sent to/downloaded by any receivers
      *     PARTIALLY_DELIVERED - processed, successfully sent to/downloaded by at least one receiver
      *     DELIVERED - processed, successfully sent to/downloaded by all receivers
-     * @todo For now, no "send error" type of state.
+     *
+     * For now, no "send error" type of state.
      *     If a send error occurs for example,
      *     it'll just sit in the waitingToDeliver or
      *     partiallyDelivered state until someone fixes it.
@@ -125,26 +146,11 @@ class DetailedSubmissionHistory(
     var actualCompletionAt: OffsetDateTime? = null
 
     /**
-     * The number of warnings.  Note this is not the number of consolidated warnings.
-     */
-    val warningCount = logs.count { it.type == ActionLogLevel.warning }
-
-    /**
-     * The number of errors.  Note this is not the number of consolidated errors.
-     */
-    val errorCount = logs.count { it.type == ActionLogLevel.error }
-
-    /**
      * Number of destinations that actually had/will have data sent to.
      */
     val destinationCount: Int get() {
         return destinations.filter { it.itemCount != 0 }.size
     }
-
-    /**
-     * Number of report items.
-     */
-    var reportItemCount: Int? = null
 
     init {
         reports?.forEach { report ->
@@ -182,10 +188,13 @@ class DetailedSubmissionHistory(
                 topic = report.schemaTopic
             }
         }
-        errors.addAll(consolidateLogs(ActionLogLevel.error))
-        warnings.addAll(consolidateLogs(ActionLogLevel.warning))
     }
 
+    /**
+     * Enrich the submission history with various other related bits of history.
+     *
+     * @param descendants[] the various bits of DetailedSubmissionHistory that will be used to enrich
+     */
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
         check(descendants.distinctBy { it.actionId }.size == descendants.size)
         // Enforce an order on the enrichment:  process, send, download
@@ -202,9 +211,10 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * Enrich a parent detailed history with details from the process action
-     *
+     * Enrich a parent detailed history with details from the process action.
      * Add destinations, errors, and warnings, to the history details.
+     *
+     * @param descendant the history used for enriching
      */
     private fun enrichWithProcessAction(descendant: DetailedSubmissionHistory) {
         require(descendant.actionName == TaskAction.process) { "Must be a process action" }
@@ -214,16 +224,11 @@ class DetailedSubmissionHistory(
         warnings += descendant.warnings
     }
 
-    /*
-    private fun enrichWithBatchAction(descendant: DetailedSubmissionHistory) {
-        require(descendant.actionName == TaskAction.batch) { "Must be a process action" }
-    }
-    */
-
     /**
-     * Enrich a parent detailed history with details from the send action
-     *
+     * Enrich a parent detailed history with details from the send action.
      * Add sent report information to each destination present in the parent's historical details.
+     *
+     * @param descendant the history used for enriching
      */
     private fun enrichWithSendAction(descendant: DetailedSubmissionHistory) {
         require(descendant.actionName == TaskAction.send) { "Must be a send action" }
@@ -254,8 +259,9 @@ class DetailedSubmissionHistory(
 
     /**
      * Enrich a parent detailed history with details from the download action
-     *
      * Add download report information to each destination present in the parent's historical details.
+     *
+     * @param descendant the history used for enriching
      */
     private fun enrichWithDownloadAction(descendant: DetailedSubmissionHistory) {
         require(descendant.actionName == TaskAction.download) { "Must be a download action" }
@@ -299,49 +305,10 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * Consolidate the [logs] filtered by an optional [filterBy] action level, so to list similar messages once
-     * with a list of items they relate to.
-     * @return the consolidated list of logs
-     */
-    internal fun consolidateLogs(filterBy: ActionLogLevel? = null):
-        List<ConsolidatedActionLog> {
-        val consolidatedList = mutableListOf<ConsolidatedActionLog>()
-
-        // First filter the logs and sort by the message.  This first sorting can take care of sorting old messages
-        // that contain index numbers like "Report 3: xxxx"
-        val filteredList = when (filterBy) {
-            null -> logs
-            else -> logs.filter { it.type == filterBy }
-        }.sortedBy { it.detail.message }
-        // Now order the list so that logs contain first non-item messages, then item messages, and item messages
-        // are sorted by index.
-        val orderedList = (
-            filteredList.filter { it.scope != ActionLogScope.item }.sortedBy { it.scope } +
-                filteredList.filter { it.scope == ActionLogScope.item }.sortedBy { it.index }
-            ).toMutableList()
-        // Now consolidate the list
-        while (orderedList.isNotEmpty()) {
-            // Grab the first log.
-            val consolidatedLog = ConsolidatedActionLog(orderedList.first())
-            orderedList.removeFirst()
-            // Now find similar logs and consolidate it.  Note by using the iterator we can delete on the fly.
-            with(orderedList.iterator()) {
-                forEach { log ->
-                    if (consolidatedLog.canBeConsolidatedWith(log)) {
-                        consolidatedLog.add(log)
-                        remove()
-                    }
-                }
-            }
-            consolidatedList.add(consolidatedLog)
-        }
-
-        return consolidatedList
-    }
-
-    /**
      * Runs the calculations for the overallStatus field so that it can be done during init.
-     * @returns The status from the Status enum that matches the current Submission state.
+     *
+     * @param realDestinations[] destinations where items have gone through and thus should be calculated
+     * @return The status from the Status enum that matches the current Submission state.
      */
     private fun calculateStatus(realDestinations: List<Destination>): Status {
         if (httpStatus != HttpStatus.OK.value() && httpStatus != HttpStatus.CREATED.value()) {
@@ -393,7 +360,9 @@ class DetailedSubmissionHistory(
 
     /**
      * Runs the calculations for the plannedCompletionAt field so that it can be done during init.
-     * @returns The timestamp that equals the max of all the sendingAt values for this Submission's Destinations
+     *
+     * @param realDestinations[] destinations where items have gone through and thus should be calculated
+     * @return The timestamp that equals the max of all the sendingAt values for this Submission's Destinations
      */
     private fun calculatePlannedCompletionAt(realDestinations: List<Destination>): OffsetDateTime? {
         if (overallStatus == Status.ERROR ||
@@ -407,8 +376,10 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * Runs the calculations for the overallStatus field so that it can be done during init.
-     * @returns The timestamp that equals the max createdAt of all sent and downloaded reports
+     * Runs the calculations for the actualCompletedAt field so that it can be done during init.
+     *
+     * @param realDestinations[] destinations where items have gone through and thus should be calculated
+     * @return The timestamp that equals the max createdAt of all sent and downloaded reports
      *     after it has been sent to all receivers
      */
     private fun calculateActualCompletionAt(realDestinations: List<Destination>): OffsetDateTime? {
@@ -427,128 +398,18 @@ class DetailedSubmissionHistory(
 }
 
 /**
- * Consolidated action log class to be output to the API JSON response.
- * @param log the base log message to be consolidated
+ * Represents the organizations that receive submitted reports from the point of view of a Submission.
+ *
+ * @property organizationId identifier for the organization that owns this destination
+ * @property service the service used by the organization (e.g. elr)
+ * @property filteredReportRows filters that were triggered by the contents of the report
+ * @property filteredReportItems more structured version of filteredReportRows
+ * @property sendingAt the time that this destination is next expecting to receive a report
+ * @property itemCount final number of tests available in the report received by the destination
+ * @property itemCountBeforeQualFilter total number of tests that were in the submitted report before any filtering
+ * @property sentReports logs of reports for this submission sent to this destination
+ * @property downloadedReports logs of reports for this submission downloaded for this destination
  */
-@JsonInclude(Include.NON_NULL)
-class ConsolidatedActionLog(log: DetailActionLog) {
-    /**
-     * The scope of the log.
-     */
-    val scope: ActionLogScope
-
-    /**
-     * The list of indices for item logs. An index can be null if there was no index provided with the log.
-     */
-    val indices: MutableList<Int?>?
-
-    /**
-     * The list of tracking IDs for item logs. A tracking ID can be null if there was no ID provided with the log.
-     */
-    val trackingIds: MutableList<String?>?
-
-    /**
-     * The log level.
-     */
-    @JsonIgnore
-    val type: ActionLogLevel
-
-    /**
-     * The field mapping for item logs.
-     */
-    val field: String?
-
-    /**
-     * The log message.
-     */
-    val message: String
-
-    init {
-        scope = log.scope
-        type = log.type
-        message = log.detail.message
-        if (log.detail.scope == ActionLogScope.item) {
-            field = if (log.detail is ItemActionLogDetail) log.detail.fieldMapping else null
-            indices = mutableListOf()
-            trackingIds = mutableListOf()
-        } else {
-            indices = null
-            trackingIds = null
-            field = null
-        }
-        add(log)
-    }
-
-    /**
-     * Add an action detail [log] to this consolidated log.
-     */
-    fun add(log: DetailActionLog) {
-        check(message == log.detail.message)
-        if (indices != null && trackingIds != null) {
-            indices.add(log.index)
-            trackingIds.add(log.trackingId)
-        }
-    }
-
-    /**
-     * Tests if a detail action log [other] can be consolidated into this existing consolidated log.
-     * @return true if the log can be consolidated, false otherwise
-     */
-    fun canBeConsolidatedWith(other: DetailActionLog): Boolean {
-        return this.message == other.detail.message && this.scope == other.scope && this.type == other.type
-    }
-}
-
-/**
- * Detail action log class used to read the data from the database.
- */
-@JsonInclude(Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-class DetailActionLog(
-    val scope: ActionLogScope,
-    @JsonIgnore
-    val reportId: UUID?,
-    val index: Int?,
-    val trackingId: String?,
-    val type: ActionLogLevel,
-    val detail: ActionLogDetail,
-)
-
-@JsonInclude(Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class DetailReport(
-    val reportId: UUID,
-    @JsonIgnore
-    val receivingOrg: String?,
-    @JsonIgnore
-    val receivingOrgSvc: String?,
-    @JsonIgnore
-    val sendingOrg: String?,
-    @JsonIgnore
-    val sendingOrgClient: String?,
-    @JsonIgnore
-    val schemaTopic: String?,
-    val externalName: String?,
-    val createdAt: OffsetDateTime?,
-    val nextActionAt: OffsetDateTime?,
-    val itemCount: Int,
-    @JsonIgnore
-    val itemCountBeforeQualFilter: Int?,
-)
-
-/**
- * Response use for the API for the filtered report items. This removes unneeded properties that exist in
- * ReportStreamFilterResult. ReportStreamFilterResult is used to serialize and deserialize to/from the database.
- * @param filterResult the filter result to use
- */
-data class ReportStreamFilterResultForResponse(@JsonIgnore private val filterResult: ReportStreamFilterResult) {
-    val filterType = filterResult.filterType
-    val filterName = filterResult.filterName
-    val filteredTrackingElement = filterResult.filteredTrackingElement
-    val filterArgs = filterResult.filterArgs
-    val message = filterResult.message
-}
-
 @JsonPropertyOrder(
     value = [
         "organization", "organizationId", "service", "itemCount", "itemCountBeforeQualFilter", "sendingAt"
@@ -567,9 +428,12 @@ data class Destination(
     val itemCount: Int,
     @JsonProperty("itemCountBeforeQualityFiltering")
     val itemCountBeforeQualFilter: Int?,
-    var sentReports: MutableList<DetailReport> = mutableListOf(),
-    var downloadedReports: MutableList<DetailReport> = mutableListOf(),
+    var sentReports: MutableList<DetailedReport> = mutableListOf(),
+    var downloadedReports: MutableList<DetailedReport> = mutableListOf(),
 ) {
+    /**
+     * Finds the name for the organization based on the id provided.
+     */
     val organization: String?
         get() = WorkflowEngine.settingsProviderSingleton.findOrganizationAndReceiver(
             "$organizationId.$service"
@@ -578,36 +442,35 @@ data class Destination(
         }
 }
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-class SubmissionHistory(
-    @JsonProperty("submissionId")
-    val actionId: Long,
-    @JsonProperty("timestamp")
-    val createdAt: OffsetDateTime,
-    @JsonProperty("sender")
-    val sendingOrg: String,
-    val httpStatus: Int,
-    @JsonInclude(Include.NON_NULL)
-    val externalName: String? = "",
-    @JsonIgnore
-    val reportId: String? = null,
-    @JsonIgnore
-    val schemaTopic: String? = null,
-    @JsonIgnore
-    val itemCount: Int? = null
-) {
+/**
+ * Response use for the API for the filtered report items. This removes unneeded properties that exist in
+ * ReportStreamFilterResult. ReportStreamFilterResult is used to serialize and deserialize to/from the database.
+ *
+ * @param filterResult the filter result to use
+ */
+data class ReportStreamFilterResultForResponse(@JsonIgnore private val filterResult: ReportStreamFilterResult) {
     /**
-     * The report ID.
+     * What kind of filter was triggered.
      */
-    val id = reportId
+    val filterType = filterResult.filterType
 
     /**
-     * The topic.
+     * What was the actual filter triggered.
      */
-    val topic = schemaTopic
+    val filterName = filterResult.filterName
 
     /**
-     * The number of items in the report.
+     * The name of the test that was filtered out.
      */
-    val reportItemCount = itemCount
+    val filteredTrackingElement = filterResult.filteredTrackingElement
+
+    /**
+     * What specifically in the filter was triggered.
+     */
+    val filterArgs = filterResult.filterArgs
+
+    /**
+     * Readable version of the various other properties this object has.
+     */
+    val message = filterResult.message
 }

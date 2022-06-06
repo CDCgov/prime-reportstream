@@ -27,28 +27,28 @@ const renderWithResolver = (ui: ReactElement, fixtures: Fixture[]) =>
         </CacheProvider>
     );
 
-const fixtures: Fixture[] = [
-    {
-        endpoint: SubmissionsResource.list(),
-        args: [
-            {
-                cursor: "3000-01-01T00:00:00.000Z",
-                endCursor: "2000-01-01T00:00:00.000Z",
-                pageSize: 11,
-                sort: "DESC",
-                showFailed: false,
-            },
-        ],
-        error: false,
-        response: [
-            { submissionId: 0 },
-            { submissionId: 1 },
-        ] as SubmissionsResource[],
-    },
-];
-
 describe("SubmissionTable", () => {
     test("renders a table with the returned resources", async () => {
+        const fixtures: Fixture[] = [
+            {
+                endpoint: SubmissionsResource.list(),
+                args: [
+                    {
+                        cursor: "3000-01-01T00:00:00.000Z",
+                        endCursor: "2000-01-01T00:00:00.000Z",
+                        pageSize: 11,
+                        sort: "DESC",
+                        showFailed: false,
+                    },
+                ],
+                error: false,
+                response: [
+                    { submissionId: 0 },
+                    { submissionId: 1 },
+                ] as SubmissionsResource[],
+            },
+        ];
+
         renderWithResolver(<SubmissionTable />, fixtures);
 
         const filter = await screen.findByTestId("filter-container");
@@ -71,10 +71,41 @@ describe("SubmissionTable", () => {
         });
 
         test("renders a placeholder", async () => {
+            const fixtures: Fixture[] = [
+                {
+                    endpoint: SubmissionsResource.list(),
+                    args: [
+                        {
+                            cursor: "3000-01-01T00:00:00.000Z",
+                            endCursor: "2000-01-01T00:00:00.000Z",
+                            pageSize: 61,
+                            sort: "DESC",
+                            showFailed: false,
+                        },
+                    ],
+                    error: false,
+                    response: [
+                        { submissionId: 0 },
+                        { submissionId: 1 },
+                    ] as SubmissionsResource[],
+                },
+            ];
+
             renderWithResolver(<SubmissionTable />, fixtures);
 
-            const tk = await screen.findByText("TK");
-            expect(tk).toBeInTheDocument();
+            const pagination = await screen.findByLabelText(
+                /submissions pagination/i
+            );
+            expect(pagination).toBeInTheDocument();
+
+            const filter = await screen.findByTestId("filter-container");
+            expect(filter).toBeInTheDocument();
+
+            const rowGroups = screen.getAllByRole("rowgroup");
+            expect(rowGroups).toHaveLength(2);
+            const tBody = rowGroups[1];
+            const rows = within(tBody).getAllByRole("row");
+            expect(rows).toHaveLength(2);
         });
     });
 });
