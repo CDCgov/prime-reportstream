@@ -1,0 +1,24 @@
+resourceType: PractitionerRole
+id:
+  type: STRING
+  valueOf: 'UUID.randomUUID()'
+  expressionType: JEXL
+
+practitioner:
+  condition: $orderingProvider NOT_NULL
+  valueOf: resource/Practitioner
+  expressionType: reference
+  specs: $orderingProvider
+  vars:
+    referenceDisplay: PERSON_DISPLAY_NAME, $orderingProvider
+    contactSpec: $callbackNumber
+    addressSpec: $orderingProviderAddress
+
+organization:
+  condition: $orderingProvider NOT_NULL
+  valueOf: resource/Organization
+  expressionType: reference
+  specs: $orderingFacilityName
+  vars:
+    orgAddressXAD: $orderingFacilityAddress
+    orgContactPointXTN: $orderingFacilityPhone

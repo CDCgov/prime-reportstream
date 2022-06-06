@@ -59,3 +59,7 @@ identifier_2:
   generateList: true
   vars:
     value: $room
+
+name:
+  type: STRING
+  valueOf: $name

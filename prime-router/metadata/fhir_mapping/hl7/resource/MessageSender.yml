@@ -12,7 +12,7 @@ name:
 
 identifier:
   valueOf: datatype/Identifier_Gen
-  condition: $idStr NOT_NULL && $systemStr EQUALS $isoSystemStr
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
   generateList: true
   expressionType: resource
   vars:
@@ -20,7 +20,6 @@ identifier:
     id: $oidUrlPrefix + MSH.3.2
     systemStr: String, MSH.3.3
   constants:
-    isoSystemStr: "ISO"
     oidUrlPrefix: "urn:oid:"
 
 address:
