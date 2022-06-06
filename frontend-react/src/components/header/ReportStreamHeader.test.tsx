@@ -1,8 +1,11 @@
 import * as OktaReact from "@okta/okta-react";
-import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import { screen } from "@testing-library/react";
+import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 
 import { renderWithSession } from "../../utils/CustomRenderUtils";
+import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
+import { ISessionContext } from "../../contexts/SessionContext";
+import { MemberType } from "../../hooks/UseGroups";
 
 import { ReportStreamHeader } from "./ReportStreamHeader";
 
@@ -22,6 +25,7 @@ jest.mock("./SignInOrUser", () => ({
 describe("ReportStreamHeader", () => {
     test("renders without errors", () => {
         mockAuth.mockReturnValue({} as IOktaContext);
+        mockSessionContext.mockReturnValue({} as ISessionContext);
         renderWithSession(<ReportStreamHeader />);
     });
 
@@ -39,6 +43,17 @@ describe("ReportStreamHeader", () => {
                     claims: {
                         //@ts-ignore
                         organization: ["DHPrimeAdmins"],
+                    },
+                },
+            },
+        });
+        mockSessionContext.mockReturnValue({
+            //@ts-ignore
+            memberships: {
+                state: {
+                    active: {
+                        memberType: MemberType.PRIME_ADMIN,
+                        parsedName: "PrimeAdmins",
                     },
                 },
             },
@@ -68,6 +83,17 @@ describe("ReportStreamHeader", () => {
                 },
             },
         });
+        mockSessionContext.mockReturnValue({
+            //@ts-ignore
+            memberships: {
+                state: {
+                    active: {
+                        memberType: MemberType.SENDER,
+                        parsedName: "ignore",
+                    },
+                },
+            },
+        });
         renderWithSession(<ReportStreamHeader />);
         expect(screen.queryByText("Daily data")).not.toBeInTheDocument();
         expect(screen.getByText("Upload")).toBeInTheDocument();
@@ -87,7 +113,18 @@ describe("ReportStreamHeader", () => {
                 accessToken: {
                     claims: {
                         //@ts-ignore
-                        organization: ["DHmd_phd"],
+                        organization: ["DHignore"],
+                    },
+                },
+            },
+        });
+        mockSessionContext.mockReturnValue({
+            //@ts-ignore
+            memberships: {
+                state: {
+                    active: {
+                        memberType: MemberType.RECEIVER,
+                        parsedName: "ignore",
                     },
                 },
             },

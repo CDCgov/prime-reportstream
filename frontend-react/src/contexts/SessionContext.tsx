@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import React, { createContext, useContext } from "react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 
 import useSessionStorage, {
@@ -6,12 +6,12 @@ import useSessionStorage, {
 } from "../hooks/UseSessionStorage";
 import { MembershipController, useGroups } from "../hooks/UseGroups";
 
-interface ISessionContext {
+export interface ISessionContext {
     memberships: MembershipController;
     store: SessionController;
 }
 
-export type OktaHook = () => IOktaContext;
+export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
 
 interface ISessionProviderProps {
     oktaHook: OktaHook;

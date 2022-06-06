@@ -16,7 +16,7 @@ interface RSExtraClaims {
     organization: string[];
 }
 type RSUserClaims = UserClaims<RSExtraClaims>;
-const toRSClaims = (claims: UserClaims): RSUserClaims => {
+export const toRSClaims = (claims: UserClaims): RSUserClaims => {
     return claims as RSUserClaims;
 };
 
