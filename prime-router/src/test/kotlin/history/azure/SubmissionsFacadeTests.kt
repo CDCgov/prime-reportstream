@@ -19,15 +19,15 @@ import kotlin.test.Test
 class SubmissionsFacadeTests {
     @Test
     fun `test organization validation`() {
-        val mockSubmissionAccess = mockk<SubmissionAccess>()
+        val mockSubmissionAccess = mockk<ReportFileAccess>()
         val mockDbAccess = mockk<DatabaseAccess>()
         val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
 
         assertThat {
             facade.findSubmissionsAsJson(
                 "",
-                SubmissionAccess.SortDir.ASC,
-                SubmissionAccess.SortColumn.CREATED_AT,
+                ReportFileAccess.SortDir.ASC,
+                ReportFileAccess.SortColumn.CREATED_AT,
                 null,
                 null,
                 null,
@@ -39,8 +39,8 @@ class SubmissionsFacadeTests {
         assertThat {
             facade.findSubmissionsAsJson(
                 "  \t\n",
-                SubmissionAccess.SortDir.ASC,
-                SubmissionAccess.SortColumn.CREATED_AT,
+                ReportFileAccess.SortDir.ASC,
+                ReportFileAccess.SortColumn.CREATED_AT,
                 null,
                 null,
                 null,
@@ -52,7 +52,7 @@ class SubmissionsFacadeTests {
 
     @Test
     fun `test findDetailedSubmissionHistory`() {
-        val mockSubmissionAccess = mockk<SubmissionAccess>()
+        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
         val mockDbAccess = mockk<DatabaseAccess>()
         val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
         // Good return
@@ -83,7 +83,7 @@ class SubmissionsFacadeTests {
             action.httpStatus = 201
             return action
         }
-        val mockSubmissionAccess = mockk<SubmissionAccess>()
+        val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()
         val mockDbAccess = mockk<DatabaseAccess>()
         val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
 
