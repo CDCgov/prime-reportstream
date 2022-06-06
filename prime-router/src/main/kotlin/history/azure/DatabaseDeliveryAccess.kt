@@ -20,6 +20,7 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = WorkflowEngine.dat
      * Get multiple results based on a particular organization.
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
+     * @param orgSuffix is a specifier for an organization, such as the client or service used to send/receive
      * @param sortDir sort the table in ASC or DESC order.
      * @param sortColumn sort the table by specific column; default created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -32,6 +33,7 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = WorkflowEngine.dat
      */
     override fun <T> fetchActions(
         organization: String,
+        orgSuffix: String?,
         sortDir: ReportFileAccess.SortDir,
         sortColumn: ReportFileAccess.SortColumn,
         cursor: OffsetDateTime?,
@@ -42,7 +44,7 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = WorkflowEngine.dat
         klass: Class<T>
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
-        val whereClause = createWhereCondition(organization, since, until, showFailed)
+        val whereClause = createWhereCondition(organization, orgSuffix, since, until, showFailed)
 
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
@@ -98,6 +100,7 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = WorkflowEngine.dat
      * Add various filters to the DB query.
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
+     * @param orgSuffix is a specifier for an organization, such as the client or service used to send/receive
      * @param since is the OffsetDateTime that dictates how far back returned results date.
      * @param until is the OffsetDateTime that dictates how recently returned results date.
      * @param showFailed filter out submissions that failed to send.
@@ -105,12 +108,17 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = WorkflowEngine.dat
      */
     private fun createWhereCondition(
         organization: String,
+        orgSuffix: String?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         showFailed: Boolean
     ): Condition {
         var senderFilter = ACTION.ACTION_NAME.eq(TaskAction.receive)
-            .and(ACTION.SENDING_ORG.eq(organization))
+            .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
+
+        if (orgSuffix != null) {
+            senderFilter = senderFilter.and(REPORT_FILE.RECEIVING_ORG_SVC.eq(orgSuffix))
+        }
 
         if (since != null) {
             senderFilter = senderFilter.and(ACTION.CREATED_AT.ge(since))

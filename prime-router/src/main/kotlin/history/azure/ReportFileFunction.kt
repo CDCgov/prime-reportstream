@@ -81,7 +81,7 @@ abstract class ReportFileFunction(
              * @return converted params
              */
             fun extractSortDir(query: Map<String, String>): ReportFileAccess.SortDir {
-                val sort = query["sort"]
+                val sort = query["sortdir"]
                 return if (sort == null)
                     ReportFileAccess.SortDir.DESC
                 else

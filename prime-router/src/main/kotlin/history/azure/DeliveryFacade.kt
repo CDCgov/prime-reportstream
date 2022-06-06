@@ -23,6 +23,7 @@ class DeliveryFacade(
      * Serializes a list of Actions into a String.
      *
      * @param organization from JWT Claim.
+     * @param receivingOrgSvc is a specifier for the receiving organization's service.
      * @param sortDir sort the table by date in ASC or DESC order.
      * @param sortColumn sort the table by a specific column; defaults to sorting by created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -34,6 +35,7 @@ class DeliveryFacade(
      */
     fun findDeliveriesAsJson(
         organization: String,
+        receivingOrgSvc: String?,
         sortDir: ReportFileAccess.SortDir,
         sortColumn: ReportFileAccess.SortColumn,
         cursor: OffsetDateTime?,
@@ -41,7 +43,7 @@ class DeliveryFacade(
         until: OffsetDateTime?,
         pageSize: Int
     ): String {
-        val result = findDeliveries(organization, sortDir, sortColumn, cursor, since, until, pageSize)
+        val result = findDeliveries(organization, receivingOrgSvc, sortDir, sortColumn, cursor, since, until, pageSize)
         return mapper.writeValueAsString(result)
     }
 
@@ -49,6 +51,7 @@ class DeliveryFacade(
      * Find deliveries based on parameters.
      *
      * @param organization from JWT Claim.
+     * @param receivingOrgSvc is a specifier for the receiving organization's service.
      * @param sortDir sort the table by date in ASC or DESC order; defaults to DESC.
      * @param sortColumn sort the table by a specific column; defaults to sorting by CREATED_AT.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -60,6 +63,7 @@ class DeliveryFacade(
      */
     fun findDeliveries(
         organization: String,
+        receivingOrgSvc: String?,
         sortDir: ReportFileAccess.SortDir,
         sortColumn: ReportFileAccess.SortColumn,
         cursor: OffsetDateTime?,
@@ -79,6 +83,7 @@ class DeliveryFacade(
 
         return dbDeliveryAccess.fetchActions(
             organization,
+            receivingOrgSvc,
             sortDir,
             sortColumn,
             cursor,
