@@ -51,7 +51,7 @@ abstract class ReportFileFunction(
 
             return HttpUtilities.okResponse(request, this.historyAsJson(request, userOrgName))
         } catch (e: IllegalArgumentException) {
-            return HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")
+            return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
         }
     }
 
