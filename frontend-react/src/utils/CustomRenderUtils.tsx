@@ -24,11 +24,8 @@ const RouterWrapper: FC = ({ children }) => {
     return <BrowserRouter>{children}</BrowserRouter>;
 };
 
-// this, for now, is a static mock function for `useOktaAuth`
-// TODO: make this mock dynamic so that we can customize return values
-// for use in a wider variety of test scenarios.
-// one possibility would be to allow options to pass from renderWithSession into
-// a wrapper function that could customize the behavior of the mock within the SessionWrapper
+/* Use this to generate fake useOktaAuth() hooks to pass into renderWithSession
+ * This serves as our way of mocking different token, auth, and claims values */
 export const makeOktaHook = (_init?: Partial<IOktaContext>): OktaHook => {
     return () => ({
         authState: {
