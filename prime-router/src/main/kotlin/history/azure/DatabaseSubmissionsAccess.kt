@@ -25,7 +25,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
     ReportFileAccess {
 
     /**
-     * Get multiple results based on a particular organization.
+     * Get multiple submissions based on a particular organization.
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
      * @param orgSuffix is a specifier for an organization, such as the client or service used to send/receive
@@ -129,7 +129,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
             .and(ACTION.SENDING_ORG.eq(organization))
 
         if (orgSuffix != null) {
-            senderFilter = senderFilter.and(ACTION.SENDING_ORG_CLIENT.ge(orgSuffix))
+            senderFilter = senderFilter.and(ACTION.SENDING_ORG_CLIENT.eq(orgSuffix))
         }
 
         if (since != null) {

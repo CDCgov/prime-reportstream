@@ -23,6 +23,13 @@ abstract class ReportFileFunction(
 
     abstract fun historyAsJson(request: HttpRequestMessage<String?>, userOrgName: String): String
 
+    /**
+     * Get a list of reports for a given organization.
+     *
+     * @param request HTML request body.
+     * @param organization Name of the organization sending or receiving this report.
+     * @return JSON of the report list or errors.
+     */
     fun getListByOrg(
         request: HttpRequestMessage<String?>,
         organization: String,

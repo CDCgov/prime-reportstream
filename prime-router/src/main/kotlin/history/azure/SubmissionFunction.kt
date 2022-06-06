@@ -34,7 +34,7 @@ class SubmissionFunction(
 
         return submissionsFacade.findSubmissionsAsJson(
             userOrgName,
-            null, // currently sending org client is not used but the functionality is there
+            null, // currently, sending org client is not used but the functionality is there
             params.sortDir,
             params.sortColumn,
             params.cursor,
