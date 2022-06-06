@@ -380,7 +380,45 @@ h3 img[src*="svg"] {
     zoom: 0.5;
 }
 
-.rs-textarea-json-input {
+.rs-input {
     word-break: break-all;
     max-width: 100vw;
+}
+
+.fixed-tooltip {
+    background: transparent;
+    color: #005ea2;
+    font-size: large;
+    padding: 0;
+}
+
+.fixed-tooltip:hover {
+    background: transparent;
+    color: #005ea2;
+}
+
+.flex-justify-between {
+    justify-content: space-between;
+}
+
+.rs-sortable-header:hover {
+    cursor: pointer;
+}
+
+pre {
+    background: rgba(201, 201, 201, 0.47);
+    color: black;
+    white-space: pre-wrap;
+    padding: 1.33rem;
+    border-radius: 1rem;
+}
+
+.rs-pagination-no-button {
+  @include u-bg('white');
+  cursor: pointer;
+}
+
+.rs-pagination-arrow-button {
+  align-items: center;
+  display: inline-flex;
 }

@@ -4,14 +4,14 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementResult
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.DateUtilities.asFormattedString
+import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import java.security.MessageDigest
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
-import java.util.Locale
 import javax.xml.bind.DatatypeConverter
 import kotlin.reflect.full.memberProperties
 
@@ -109,6 +109,103 @@ class MiddleInitialMapper : Mapper {
 }
 
 /**
+ * Based on the comparison operator (==,!=,<=,>=,<,>) in arg[0], compare value[1] to value[2]
+ * IF the comparison is true, THEN use value[3]; ELSE use value[4]
+ *
+ * Example call
+ *   - name: source_state
+ *      mapper: ifThenElse(==, otc_flag, OTC, patient_state, ordering_provider_state)
+ *
+ * CAUTION: Because this mapper allows every argument to either be an existing element's value OR
+ * a string literal, extra care must be used in typing the args list in the schema.  A misspelled
+ * or non-existent element name will be treated as a string literal, not an error.
+ */
+class IfThenElseMapper : Mapper {
+    override val name = "ifThenElse"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        if (args.size != 5) error("Schema Error: Invalid number of arguments - 5 required")
+        return args
+    }
+
+    /**
+     * Determines the meaning of a mapper argument
+     *
+     * Determines if a mapperArg exists a List of <ElementAndValue>s.
+     * If it does, the found element's .value is returned; otherwise, the argument itself is
+     * returned as a String literal.  This allows the mapper property of a schema to have literal
+     * arguments.  The downside is that misspelled or non-existent schema elements are treated
+     * as string literals.  Use with care.
+     *
+     * @param values the list of ElementAndValue objects passed to the apply function
+     * @param mapperArg one of the arguments from a schema elements mapper property
+     * @return Either a passed-in Elements .value or the mapper argument as a string literal
+     */
+    internal fun decodeArg(values: List<ElementAndValue>, mapperArg: String): String {
+        return values.find { it.element.name.equals(mapperArg, ignoreCase = true) }?.value ?: mapperArg
+    }
+
+    /**
+     * Compares two strings for equalities
+     *
+     * If BOTH strings are numeric ("12"), it compares them as numbers.
+     * Otherwise they are compared as string literals
+     * @param op a String which denotes a comparison
+     * @param val1 a String literal which is either numeric or not
+     * @param val2 a String literal which is either numeric or not
+     * @return the Boolean result of properly applying the operator implied in op on val1 and val2
+     */
+    fun comp(op: String, val1: String, val2: String): Boolean {
+        val dVal1 = val1.toDoubleOrNull()
+        val dVal2 = val2.toDoubleOrNull()
+        if ((dVal1 == null) && (dVal2 != null)) {
+            error("ifThenElse Type Mismatch Error: $val1 is not numeric")
+        }
+        if ((dVal1 != null) && (dVal2 == null)) {
+            error("ifThenElse Type Mismatch Error: $val2 is not numeric")
+        }
+        return if ((dVal1 != null) && (dVal2 != null)) { // only if both val1 and val2 are Double strings
+            when (op) {
+                "==" -> (dVal1 == dVal2) // all Double comparisons (covers Float, Int)
+                "!=" -> (dVal1 != dVal2)
+                ">=" -> (dVal1 >= dVal2)
+                "<=" -> (dVal1 <= dVal2)
+                "<" -> (dVal1 < dVal2)
+                ">" -> (dVal1 > dVal2)
+                else -> error("ifThenElse Mapper Argument Error: not a valid operator: $op")
+            }
+        } else {
+            when (op) {
+                "==" -> (val1 == val2) // all string comparisons
+                "!=" -> (val1 != val2)
+                ">=" -> (val1 >= val2)
+                "<=" -> (val1 <= val2)
+                "<" -> (val1 < val2)
+                ">" -> (val1 > val2)
+                else -> error("ifThenElse Mapper Argument Error: not a valid operator: $op")
+            }
+        }
+    }
+
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        return if (
+            comp(
+                decodeArg(values, args[0]),
+                decodeArg(values, args[1]),
+                decodeArg(values, args[2])
+            ) // see comp()
+        )
+            ElementResult(decodeArg(values, args[3])) else
+            ElementResult(decodeArg(values, args[4])) // see decodeArg()
+    }
+}
+
+/**
  * The args for the use mapper is a list of element names in order of priority.
  * The mapper will use the first with a value
  */
@@ -131,7 +228,7 @@ class UseMapper : Mapper {
                 when {
                     element.type == fromElement.type -> fromValue
                     element.type == Element.Type.DATE && fromElement.type == Element.Type.DATETIME -> {
-                        LocalDateTime.parse(fromValue, Element.datetimeFormatter).format(Element.dateFormatter)
+                        DateUtilities.parseDate(fromValue).asFormattedString(DateUtilities.datePattern)
                     }
                     element.type == Element.Type.TEXT -> fromValue
                     // TODO: Unchecked conversions should probably be removed, but the PIMA schema relies on this, right now.
@@ -433,6 +530,86 @@ class LookupSenderValuesetsMapper : Mapper {
 }
 
 /**
+ * The lookupSenderAutomationValuesetsMapper is used to lookup values from the
+ *      "sender_automation_value_set_row" table/csv
+ * The args for the mapper are:
+ *      args[0] --> valueSetName = the name of the sender automation value set
+ *      args[1] --> (optional) version = the version of the valueSet value
+ * The mapper uses the above arguments to retrieve a row from the table
+ */
+class LookupSenderAutomationValuesets : Mapper {
+    override val name = "lookupSenderAutomationValuesets"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        val lookupTable = element.tableRef
+            ?: return ElementResult(
+                null,
+                mutableListOf(
+                    InvalidReportMessage(
+                        "Schema Error: could not find table ${element.table}"
+                    )
+                )
+            )
+        val lookupColumn = element.tableColumn
+            ?: return ElementResult(
+                null,
+                mutableListOf(
+                    InvalidReportMessage(
+                        "Schema Error: no tableColumn for element ${element.name}"
+                    )
+                )
+            )
+
+        if (!element.tableRef.hasColumn(lookupColumn)) {
+            return ElementResult(
+                null,
+                mutableListOf(
+                    InvalidReportMessage(
+                        "Schema Error: no tableColumn named $lookupColumn for element ${element.name}"
+                    )
+                )
+            )
+        }
+
+        val tableFilter = lookupTable.FilterBuilder()
+        val valueSetName = args[0]
+        var version = ""
+        if (args.size > 1) {
+            version = args[1]
+        }
+
+        tableFilter
+            .equalsIgnoreCase("name", valueSetName)
+            .equalsIgnoreCase("version", version)
+            .equalsIgnoreCase("display", values[0].value)
+
+        val value = tableFilter.findSingleResult(lookupColumn)
+            ?: return ElementResult(
+                null,
+                mutableListOf(
+                    InvalidReportMessage(
+                        "Schema Error: no value for element ${element.name} with " +
+                            "value set name of $valueSetName " +
+                            "display value ${values[0].value} " +
+                            "and version ${version.ifEmpty { "[no version specified]" }}"
+                    )
+                )
+            )
+
+        return ElementResult(value)
+    }
+}
+
+/**
  * The NpiLookupMapper is a specific implementation of the lookupMapper and
  * thus no output values are present in this function. This function requires
  * the same lookup table configuration as lookupMapper.
@@ -581,8 +758,6 @@ class TimestampMapper : Mapper {
 }
 
 class DateTimeOffsetMapper : Mapper {
-    private val expandedDateTimeFormatPattern = "yyyyMMddHHmmss.SSSSZZZ"
-    private val formatter = DateTimeFormatter.ofPattern(expandedDateTimeFormatPattern)
     override val name = "offsetDateTime"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
@@ -597,18 +772,8 @@ class DateTimeOffsetMapper : Mapper {
     ): ElementResult {
         fun parseDateTime(value: String): OffsetDateTime {
             return try {
-                OffsetDateTime.parse(value)
-            } catch (e: DateTimeParseException) {
-                null
-            } ?: try {
-                val formatter = DateTimeFormatter.ofPattern(Element.datetimePattern, Locale.ENGLISH)
-                OffsetDateTime.parse(value, formatter)
-            } catch (e: DateTimeParseException) {
-                null
-            } ?: try {
-                val formatter = DateTimeFormatter.ofPattern(expandedDateTimeFormatPattern, Locale.ENGLISH)
-                OffsetDateTime.parse(value, formatter)
-            } catch (e: DateTimeParseException) {
+                DateUtilities.parseDate(value.trim()).toOffsetDateTime()
+            } catch (t: Throwable) {
                 error("Invalid date: '$value' for element '${element.name}'")
             }
         }
@@ -627,7 +792,7 @@ class DateTimeOffsetMapper : Mapper {
                     "year", "years" -> normalDate.plusYears(offsetValue)
                     else -> error("Unit passed into mapper is not valid: $unit")
                 }
-                formatter.format(adjustedDateTime)
+                DateUtilities.getDateAsFormattedString(adjustedDateTime)
             }
         )
     }
@@ -933,7 +1098,7 @@ class NullMapper : Mapper {
 
 object Mappers {
     fun parseMapperField(field: String): Pair<String, List<String>> {
-        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$*:^]*)\\x29").find(field)
+        val match = Regex("([a-zA-Z0-9]+)\\x28([a-z, \\x2E_\\x2DA-Z0-9?&$*:^><=!]*)\\x29").find(field)
             ?: error("Mapper field $field does not parse")
         val args = if (match.groupValues[2].isEmpty())
             emptyList()

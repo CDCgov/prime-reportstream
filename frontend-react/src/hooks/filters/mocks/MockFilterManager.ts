@@ -6,17 +6,20 @@ import { SortSettingsAction } from "../UseSortOrder";
 import { PageSettingsAction } from "../UsePages";
 
 const fakeDispatch = <T>(): Dispatch<T> => {
-    return (v: T) => console.log(v);
+    return (_v: T) => {
+        console.log(_v);
+    };
 };
 
 export const mockFilterManager = {
     rangeSettings: {
-        start: new Date("2022-01-01").toISOString(),
-        end: new Date("2022-12-31").toISOString(),
+        from: new Date("2022-01-01").toISOString(),
+        to: new Date("2022-12-31").toISOString(),
     },
     sortSettings: {
         column: "",
         order: "DESC",
+        locally: false,
     },
     pageSettings: {
         size: 10,

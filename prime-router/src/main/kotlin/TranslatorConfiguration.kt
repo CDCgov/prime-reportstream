@@ -60,7 +60,6 @@ data class Hl7Configuration
     // SchemaName is added here so that - by default covid 19 schema is used and
     // if provided the input value is consumed.
     override val schemaName: String = HL7_SCHEMA,
-    // deprecated, please don't use
     val useTestProcessingMode: Boolean = false,
     val useBatchHeaders: Boolean = true,
     val receivingApplicationName: String?,
@@ -106,6 +105,11 @@ data class Hl7Configuration
     // lets us strip chars we don't want showing up in the outbound message
     // this should really be done on the sender side, but it lives here for now
     val stripInvalidCharsRegex: String? = null,
+    // A flag to control flipping a receiver to get the dates in their HL7 message converted
+    // to their local time zone. If this is true, then we will convert all date time values
+    // we have to the local date time for the receiver. If we do not have the time, and it's not
+    // clear if we are dealing with a timezone offset, then we will not convert it.
+    val convertDateTimesToReceiverLocalTime: Boolean? = false,
     /**
      * Some receivers need a higher precision batch and file header date time
      * value, so I am adding the option here for those who need it
@@ -154,11 +158,6 @@ data class Hl7Configuration
 
     @get:JsonIgnore
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
-
-    // <editor-fold desc="Description">
-    /*@get:JsonIgnore
-    override val schemaName: String get() = HL7_SCHEMA */
-    // </editor-fold>
 
     @get:JsonIgnore
     override val defaults: Map<String, String> get() {

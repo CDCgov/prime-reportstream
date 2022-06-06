@@ -1,0 +1,71 @@
+extension_1:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, MSH.12.1
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: source-data-model-version
+
+extension_2:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, MSH.10
+  constants:
+    KEY_NAME_SUFFIX: Id
+    urlValue: source-record-id
+
+extension_3:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: source-processing-id
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept_var
+      expressionType: resource
+      vars:
+        system: SYSTEM_URL, $system_code
+        code: String, MSH.11
+        display: $NULL
+      constants:
+        system_code: "source-processing-id-system"
+
+# Patient las update facility universal ID
+extension_4:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
+  vars:
+    idStr: String, PID.34.2
+    value: $oidUrlPrefix + PID.34.2
+    systemStr: String, PID.34.3
+  constants:
+    oidUrlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: Oid
+    urlValue: last-updated-facility-universal-id
+
+# Patient las update facility namespace
+extension_5:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $value NOT_NULL
+  vars:
+    value: String, PID.34.1
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: last-updated-facility-namespace-id
+
+# Patient last updated
+lastUpdated:
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: PID.33

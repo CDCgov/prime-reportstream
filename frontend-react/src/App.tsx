@@ -38,6 +38,10 @@ import { FeatureFlagUIComponent } from "./pages/misc/FeatureFlags";
 import SenderModeBanner from "./components/SenderModeBanner";
 import { SessionStorageContext } from "./contexts/SessionStorageContext";
 import { AdminOrgNew } from "./pages/admin/AdminOrgNew";
+import { DAPHeader } from "./components/header/DAPHeader";
+import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
+import BuiltForYouIndex from "./pages/built-for-you/BuiltForYouIndex";
+import InternalUserGuides from "./pages/admin/InternalUserGuides";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -92,6 +96,7 @@ const App = () => {
                 <NetworkErrorBoundary
                     fallbackComponent={() => <ErrorPage type="page" />}
                 >
+                    <DAPHeader env={process.env.REACT_APP_ENV?.toString()} />
                     <GovBanner aria-label="Official government website" />
                     {context.values.org && context.values.senderName ? (
                         <SenderModeBanner />
@@ -128,6 +133,10 @@ const App = () => {
                             <Route
                                 path="/getting-started/testing-facilities"
                                 component={GettingStartedTestingFacilities}
+                            />
+                            <Route
+                                path="/built-for-you"
+                                component={BuiltForYouIndex}
                             />
                             <AuthorizedRoute
                                 path="/daily-data"
@@ -182,13 +191,22 @@ const App = () => {
                                 authorize={PERMISSIONS.PRIME_ADMIN}
                                 component={NewSetting}
                             />
+                            <AuthorizedRoute
+                                path="/admin/guides"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={InternalUserGuides}
+                            />
                             <SecureRoute
                                 path="/report-details"
                                 component={Details}
                             />
                             <SecureRoute
-                                path="/features"
+                                path="/admin/features"
                                 component={FeatureFlagUIComponent}
+                            />
+                            <SecureRoute
+                                path={"/admin/value-sets"}
+                                component={ValueSetsIndex}
                             />
                             {/* Handles any undefined route */}
                             <Route

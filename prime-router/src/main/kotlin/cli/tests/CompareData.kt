@@ -15,12 +15,13 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.fhirengine.utils.CompareFhirData
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
-import java.time.OffsetDateTime
-import java.time.format.DateTimeParseException
 
 /**
  * Uses test data provided via a configuration file, sends the data to the API, then checks the response,
@@ -352,14 +353,16 @@ warnings: ${warnings.joinToString()}
         expected: InputStream,
         actual: InputStream,
         format: Report.Format,
-        schema: Schema,
+        schema: Schema?,
         result: Result = Result()
     ): Result {
-        if (format == Report.Format.HL7 || format == Report.Format.HL7_BATCH) {
-            result.merge(CompareHl7Data().compare(expected, actual))
-        } else {
-            result.merge(CompareCsvData().compare(expected, actual, schema))
+        check((format == Report.Format.CSV && schema != null) || format != Report.Format.CSV) { "Schema is required" }
+        val compareResult = when (format) {
+            Report.Format.HL7, Report.Format.HL7_BATCH -> CompareHl7Data().compare(expected, actual)
+            Report.Format.FHIR -> CompareFhirData().compare(expected, actual)
+            else -> CompareCsvData().compare(expected, actual, schema!!)
         }
+        result.merge(compareResult)
         return result
     }
 }
@@ -728,17 +731,17 @@ class CompareCsvData {
 
                 // If there is an expected value then compare it.
                 if (expectedValue.isNotBlank()) {
-
                     // For date/time values, the string has timezone offsets that can differ per environment, so
                     // compare the numeric value instead of just the string
                     if (schema.elements[j].type != null &&
-                        schema.elements[j].type == Element.Type.DATETIME && actualValue.isNotBlank()
+                        schema.elements[j].type == Element.Type.DATETIME &&
+                        actualValue.isNotBlank()
                     ) {
                         try {
                             val expectedTime =
-                                OffsetDateTime.parse(expectedValue, Element.datetimeFormatter).toEpochSecond()
+                                DateUtilities.parseDate(expectedValue).toOffsetDateTime().toEpochSecond()
                             val actualTime =
-                                OffsetDateTime.parse(actualValue, Element.datetimeFormatter).toEpochSecond()
+                                DateUtilities.parseDate(actualValue).toOffsetDateTime().toEpochSecond()
                             if (expectedTime != actualTime) {
                                 result.errors.add(
                                     "Date time value does not match in report $actualRowNum " +
@@ -747,7 +750,7 @@ class CompareCsvData {
                                 )
                                 passed = false
                             }
-                        } catch (e: DateTimeParseException) {
+                        } catch (e: Throwable) {
                             // This is not a true date/time since it was not parse, probably a date.  Compare as strings.
                             if (actualValue != expectedValue) {
                                 result.errors.add(

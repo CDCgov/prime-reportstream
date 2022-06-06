@@ -1,0 +1,19 @@
+type:
+  valueOf: datatype/CodeableConcept_var
+  expressionType: resource
+  vars:
+    code: $participantType
+  constants:
+    system: provenance-participant-type
+
+who_1:
+  condition: $orgSpec NOT_NULL
+  valueOf: resource/Organization
+  expressionType: reference
+  specs: $orgSpec
+
+who_2:
+  condition: $practitionerSpec NOT_NULL
+  valueOf: resource/Practitioner
+  expressionType: reference
+  specs: $practitionerSpec

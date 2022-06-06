@@ -7,13 +7,13 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.result.Result
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.DetailedSubmissionHistory
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.OktaCommand
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import java.net.HttpURLConnection
 import java.time.OffsetDateTime
 
@@ -183,7 +183,7 @@ class HistoryApiTest : CoolTest() {
             HistoryApiTestCase(
                 "simple history API happy path test",
                 "${environment.url}/api/waters/org/$historyTestOrgName/submissions",
-                emptyMap(),
+                mapOf("authentication-type" to "okta"),
                 listOf("pagesize" to options.submits),
                 bearer,
                 HttpStatus.OK,
@@ -194,10 +194,10 @@ class HistoryApiTest : CoolTest() {
             HistoryApiTestCase(
                 "no such organization",
                 "${environment.url}/api/waters/org/gobblegobble/submissions",
-                emptyMap(),
+                mapOf("authentication-type" to "okta"),
                 listOf("pagesize" to options.submits),
                 bearer,
-                HttpStatus.UNAUTHORIZED,
+                HttpStatus.NOT_FOUND,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true,
@@ -208,7 +208,7 @@ class HistoryApiTest : CoolTest() {
                 HistoryApiTestCase(
                     "bad bearer token - TESTED ON STAGING, NOT TESTED ON LOCAL",
                     "${environment.url}/api/waters/org/$historyTestOrgName/submissions",
-                    emptyMap(),
+                    mapOf("authentication-type" to "okta"),
                     listOf("pagesize" to options.submits),
                     bearer + "x",
                     HttpStatus.UNAUTHORIZED,
