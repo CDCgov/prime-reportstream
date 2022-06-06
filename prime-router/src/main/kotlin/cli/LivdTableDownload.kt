@@ -191,9 +191,7 @@ class LivdTableDownload : CliktCommand(
             error("$inputfile is unsupported since it is not Excel xlsx format file.")
         }
 
-        val fileInputStream = FileInputStream(inputfile)
         val workbook: Workbook = XSSFWorkbook(inputfile)
-        fileInputStream.close()
 
         val outputfile = File.createTempFile(
             livdSARSCov2FilenamePrefix, "_orig.csv",
@@ -204,7 +202,7 @@ class LivdTableDownload : CliktCommand(
         // Get the LOINC Mapping sheet
         val sheet: Sheet = workbook.getSheet(sheetName)
             ?: error("Sheet \"$sheetName\" doesn't exist in the $inputfile file.")
-
+        workbook.close()
         val rowStart = sheet.firstRowNum // Get starting row number
         val rowEnd = sheet.lastRowNum // Get ending row number
 
@@ -274,7 +272,7 @@ class LivdTableDownload : CliktCommand(
     private fun mergeLivdSupplementalTable(rawLivdFile: File): File {
         // First load both tables
         val rawLivdReaderOptions = CsvReadOptions.builder(rawLivdFile)
-            .columnTypesToDetect(listOf(ColumnType.STRING, ColumnType.BOOLEAN))
+            .columnTypesToDetect(listOf(ColumnType.STRING))
             .build()
         val rawLivdTable = Table.read().usingOptions(rawLivdReaderOptions)
             .sortAscendingOn(LivdTableColumns.MANUFACTURER.colName, LivdTableColumns.MODEL.colName)
