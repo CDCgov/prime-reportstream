@@ -357,6 +357,7 @@ class ReceiverAPI
     processingModeFilter: ReportStreamFilter = emptyList(),
     reverseTheQualityFilter: Boolean = false,
     deidentify: Boolean = false,
+    deidentifiedValue: String = "",
     timing: Timing? = null,
     description: String = "",
     transport: TransportType? = null,
@@ -376,6 +377,7 @@ class ReceiverAPI
     processingModeFilter,
     reverseTheQualityFilter,
     deidentify,
+    deidentifiedValue,
     timing,
     description,
     transport

@@ -23,6 +23,7 @@ import java.time.ZoneId
  * @param processingModeFilter defines the filters that is normally set to remove test and debug data.
  * @param reverseTheQualityFilter If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
  * @param deidentify transform
+ * @param deidentifiedValue is the replacement value for PII fields
  * @param timing defines how to delay reports to the org. If null, then send immediately
  * @param description of the receiver
  * @param transport that the org wishes to receive
@@ -42,6 +43,7 @@ open class Receiver(
     val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
     val deidentify: Boolean = false,
+    val deidentifiedValue: String = "",
     val timing: Timing? = null,
     val description: String = "",
     val transport: TransportType? = null,
@@ -94,6 +96,7 @@ open class Receiver(
         copy.processingModeFilter,
         copy.reverseTheQualityFilter,
         copy.deidentify,
+        copy.deidentifiedValue,
         copy.timing,
         copy.description,
         copy.transport,

@@ -1,0 +1,29 @@
+status_1:
+  type: STRING
+  condition: $patientClass EQUALS $patientClassPlanned
+  value: planned
+  vars:
+    patientClass: String, PV1.2.1
+  constants:
+    patientClassPlanned: P
+
+status_2:
+  type: STRING
+  condition: $patientClass NOT_EQUALS $patientClassPlanned
+  value: active
+  vars:
+    patientClass: String, PV1.2.1
+  constants:
+    patientClassPlanned: P
+
+location:
+  valueOf: resource/Location
+  expressionType: reference
+  specs: PV1.3
+  vars:
+    poc: String, PL.1
+    bed: String, PL.3
+    room: String, PL.2
+    facility: String, PL.4
+  constants:
+    locationJoinChar: ","

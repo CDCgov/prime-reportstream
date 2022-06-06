@@ -5,10 +5,44 @@ resources:
     resourcePath: resource/MessageHeader
     repeats: false
     isReferenced: false
-    additionalSegments: [SFT]
+    additionalSegments:
+      - SFT
 
   - resourceName: Provenance
     segment: MSH
     resourcePath: resource/Provenance
+
+  - resourceName: Patient
+    segment: .PID
+    group: PATIENT_RESULT.PATIENT
+    resourcePath: resource/Patient
+    isReferenced: true
+    repeats: false
+    additionalSegments:
+      - .PD1
+      - MSH
+
+  - resourceName: Encounter
+    segment: .PV1
+    group: PATIENT_RESULT.PATIENT.VISIT
+    resourcePath: resource/Encounter
+    isReferenced: true
+    repeats: false
+    additionalSegments:
+      - .PV2
+      - MSH
+
+  - resourceName: Observation
+    segment: .OBSERVATION.OBX
+    group: PATIENT_RESULT.ORDER_OBSERVATION
+    resourcePath: resource/Observation
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - .OBR
+      - .OBSERVATION.NTE
+      - .SPECIMEN.SPM
+      - MSH
+      - .PID
 
 # TODO Add more segments as we develop them

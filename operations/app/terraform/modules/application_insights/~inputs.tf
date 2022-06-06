@@ -24,6 +24,7 @@ variable "is_metabase_env" {
 }
 
 variable "pagerduty_url" {}
+variable "pagerduty_businesshours_url" {}
 variable "postgres_server_id" {}
 variable "service_plan_id" {}
 
