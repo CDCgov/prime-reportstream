@@ -933,19 +933,10 @@ class Report : Logging {
             // Assuming zip format is xxxxx-yyyy
             val zipCode = it.toString().split("-")
             val value = zipCode[0].dropLast(2)
-            if (zipCode.size > 1) {
-                val secondZip = zipCode[1]
-                if (restricted_zip?.dataRows?.contains(listOf(value)) == true) {
-                    setString(row++, name, "00000-$secondZip")
-                } else {
-                    setString(row++, name, (value + "00-$secondZip"))
-                }
+            if (restricted_zip?.dataRows?.contains(listOf(value)) == true) {
+                setString(row++, name, "00000")
             } else {
-                if (restricted_zip?.dataRows?.contains(listOf(value)) == true) {
-                    setString(row++, name, "00000")
-                } else {
-                    setString(row++, name, (value + "00"))
-                }
+                setString(row++, name, (value + "00"))
             }
         }
         return table.column(name).copy() as StringColumn

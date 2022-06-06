@@ -233,15 +233,15 @@ class ReportTests {
         assertThat(oneDeidentified.getString(0, "a")).isEqualTo("")
         assertThat(oneDeidentified.getString(0, "b")).isEqualTo("b1")
         assertThat(oneDeidentified.getString(0, "patient_zip_code")).isEqualTo("55500")
-        assertThat(oneDeidentified.getString(1, "patient_zip_code")).isEqualTo("00000-1234") // 102
-        assertThat(oneDeidentified.getString(2, "patient_zip_code")).isEqualTo("03200-4567")
+        assertThat(oneDeidentified.getString(1, "patient_zip_code")).isEqualTo("00000") // 102
+        assertThat(oneDeidentified.getString(2, "patient_zip_code")).isEqualTo("03200")
         assertThat(oneDeidentified.getString(3, "patient_zip_code")).isEqualTo("00000") // 036
-        assertThat(oneDeidentified.getString(4, "patient_zip_code")).isEqualTo("00000-9876") // 059
-        assertThat(oneDeidentified.getString(5, "patient_zip_code")).isEqualTo("00000-1596") // 203
-        assertThat(oneDeidentified.getString(6, "patient_zip_code")).isEqualTo("00000-7532") // 205
+        assertThat(oneDeidentified.getString(4, "patient_zip_code")).isEqualTo("00000") // 059
+        assertThat(oneDeidentified.getString(5, "patient_zip_code")).isEqualTo("00000") // 203
+        assertThat(oneDeidentified.getString(6, "patient_zip_code")).isEqualTo("00000") // 205
         assertThat(oneDeidentified.getString(7, "patient_zip_code")).isEqualTo("00000") // 369
-        assertThat(oneDeidentified.getString(8, "patient_zip_code")).isEqualTo("00000-6478") // 556
-        assertThat(oneDeidentified.getString(9, "patient_zip_code")).isEqualTo("00000-3298") // 692
+        assertThat(oneDeidentified.getString(8, "patient_zip_code")).isEqualTo("00000") // 556
+        assertThat(oneDeidentified.getString(9, "patient_zip_code")).isEqualTo("00000") // 692
         assertThat(oneDeidentified.getString(10, "patient_zip_code")).isEqualTo("00000") // 821
 
         val two = Schema(
