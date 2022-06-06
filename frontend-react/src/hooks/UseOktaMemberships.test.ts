@@ -9,7 +9,7 @@ import {
     useOktaMemberships,
 } from "./UseOktaMemberships";
 
-describe("useGroups", () => {
+describe("useOktaMemberships", () => {
     test("renders with default values", () => {
         const { result } = renderHook(() => useOktaMemberships(undefined));
         expect(result.current.state.memberships).toBeUndefined();

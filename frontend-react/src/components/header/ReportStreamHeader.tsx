@@ -118,6 +118,10 @@ export const ReportStreamHeader = () => {
                     onToggleMobileNav={toggleMobileNav}
                     mobileExpanded={expanded}
                 >
+                    {/* PERMISSIONS REFACTOR
+                     This needs to be directly checking the token for admin permissions because
+                     an admin with an active membership that is NOT an admin membership type still
+                     needs to be able to see and use this */}
                     {permissionCheck(
                         PERMISSIONS.PRIME_ADMIN,
                         authState?.accessToken

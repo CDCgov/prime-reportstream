@@ -25,7 +25,7 @@ export const SessionContext = createContext<ISessionContext>({
     store: {} as SessionController,
 });
 
-// accepts `oktaHook` as a paremeter in order to allow mocking of this provider's okta based
+// accepts `oktaHook` as a parameter in order to allow mocking of this provider's okta based
 // behavior for testing. In non test cases this hook will be the `useOktaAuth` hook from
 // `okta-react`
 const SessionProvider = ({

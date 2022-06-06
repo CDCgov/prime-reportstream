@@ -16,7 +16,7 @@ export enum MembershipActionType {
     ADMIN_OVERRIDE = "override",
 }
 
-interface MembershipSettings {
+export interface MembershipSettings {
     // The org header value
     parsedName: string;
     // The type of membership
@@ -34,7 +34,7 @@ export interface MembershipController {
     dispatch: React.Dispatch<MembershipAction>;
 }
 
-interface MembershipAction {
+export interface MembershipAction {
     type: MembershipActionType;
     // Only need to pass name of an org to swap to
     payload: string | AccessToken | Partial<MembershipSettings>;

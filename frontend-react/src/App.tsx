@@ -68,6 +68,7 @@ const App = () => {
         // check if the user would have any data to receive via their organizations from the okta claim
         // direct them to the /upload page if they do not have an organization that receives data
         const authState = OKTA_AUTH.authStateManager._authState;
+        /* PERMISSIONS REFACTOR: Redirect URL should be determined by active membership type */
         if (
             authState?.accessToken &&
             permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)

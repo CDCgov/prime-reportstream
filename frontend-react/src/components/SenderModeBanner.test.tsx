@@ -7,7 +7,8 @@ import {
 } from "../contexts/SessionStorageTools";
 import { makeOktaHook, renderWithSession } from "../utils/CustomRenderUtils";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
-import { MemberType } from "../hooks/UseOktaMemberships";
+import { MembershipController, MemberType } from "../hooks/UseOktaMemberships";
+import { SessionController } from "../hooks/UseSessionStorage";
 
 import SenderModeBanner from "./SenderModeBanner";
 
@@ -22,7 +23,6 @@ describe("SenderModeBanner", () => {
 
     test("renders when sender is testing", async () => {
         mockSessionContext.mockReturnValue({
-            //@ts-ignore
             memberships: {
                 state: {
                     active: {
@@ -30,7 +30,13 @@ describe("SenderModeBanner", () => {
                         parsedName: "ignore",
                     },
                 },
-            },
+            } as MembershipController,
+            store: {
+                values: {
+                    org: "testOrg",
+                    senderName: "testSender",
+                },
+            } as SessionController,
         });
         renderWithSession(
             <SenderModeBanner />,
