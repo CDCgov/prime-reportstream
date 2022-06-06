@@ -54,13 +54,12 @@ extension_1:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
-  condition: $idStr NOT_NULL && $systemStr EQUALS $isoSystemStr
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
   vars:
     idStr: String, CX.4.2
     value: $oidUrlPrefix + CX.4.2
     systemStr: String, CX.4.3
   constants:
-    isoSystemStr: "ISO"
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
     urlValue: assigning-authority-universal-id
@@ -70,13 +69,12 @@ extension_2:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
-  condition: $idStr NOT_NULL && $systemStr EQUALS $isoSystemStr
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
   vars:
     idStr: String, CX.6.2
     value: $oidUrlPrefix + CX.6.2
     systemStr: String, CX.6.3
   constants:
-    isoSystemStr: "ISO"
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
     urlValue: assigning-authority-universal-id
@@ -85,13 +83,12 @@ extension_3:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
-  condition: $idStr NOT_NULL && $systemStr EQUALS $isoSystemStr
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
   vars:
     idStr: String, XCN.9.2
     value: $oidUrlPrefix + XCN.9.2
     systemStr: String, XCN.9.3
   constants:
-    isoSystemStr: "ISO"
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
     urlValue: assigning-authority-universal-id

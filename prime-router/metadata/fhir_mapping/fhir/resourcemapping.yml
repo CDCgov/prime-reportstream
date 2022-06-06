@@ -4,6 +4,7 @@ Observation: org.hl7.fhir.r4.model.Observation
 AllergyIntolerance: org.hl7.fhir.r4.model.AllergyIntolerance
 Condition: org.hl7.fhir.r4.model.Condition
 Practitioner: org.hl7.fhir.r4.model.Practitioner
+PractitionerRole: org.hl7.fhir.r4.model.PractitionerRole
 DiagnosticReport: org.hl7.fhir.r4.model.DiagnosticReport
 Immunization: org.hl7.fhir.r4.model.Immunization
 Organization: org.hl7.fhir.r4.model.Organization
