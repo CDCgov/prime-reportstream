@@ -20,7 +20,6 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "types": [
-      "hookrouter",
       "jest",
       "cypress",
       "@testing-library/cypress"

@@ -201,7 +201,7 @@ class LivdTableDownload : CliktCommand(
         // Get the LOINC Mapping sheet
         val sheet: Sheet = workbook.getSheet(sheetName)
             ?: error("Sheet \"$sheetName\" doesn't exist in the $inputfile file.")
-
+        workbook.close()
         val rowStart = sheet.firstRowNum // Get starting row number
         val rowEnd = sheet.lastRowNum // Get ending row number
 

@@ -16,7 +16,7 @@ interface RSExtraClaims {
     organization: string[];
 }
 type RSUserClaims = UserClaims<RSExtraClaims>;
-const toRSClaims = (claims: UserClaims): RSUserClaims => {
+export const toRSClaims = (claims: UserClaims): RSUserClaims => {
     return claims as RSUserClaims;
 };
 
@@ -28,7 +28,7 @@ const getOktaGroups = (accessToken: AccessToken | undefined): string[] => {
 
 /* Converts Okta group names to their respective organization name
  * counterparts that we store in the RS database */
-const groupToOrg = (group: string | undefined): string => {
+const parseOrgName = (group: string | undefined): string => {
     const senderPrefix = `${PERMISSIONS.SENDER}_`;
     const isStandardGroup = group?.startsWith("DH");
     const isSenderGroup = group?.startsWith(senderPrefix);
@@ -83,7 +83,7 @@ const getRSOrgs = (
                 return oktaGroups;
         }
     };
-    return filterGroups().map((group) => groupToOrg(group));
+    return filterGroups().map((group) => parseOrgName(group));
 };
 
 function parseOrgs(orgs: Array<string>): Array<Partial<SessionStore>> {
@@ -93,18 +93,18 @@ function parseOrgs(orgs: Array<string>): Array<Partial<SessionStore>> {
         if (org.includes(PERMISSIONS.SENDER)) {
             const sender = org.split(".");
             return {
-                org: groupToOrg(sender[0]),
+                org: parseOrgName(sender[0]),
                 senderName: sender[1] || "default",
             };
         } else {
             return {
-                org: groupToOrg(org),
+                org: parseOrgName(org),
                 senderName: undefined,
             };
         }
     });
 }
 
-export { RSOrgType, getOktaGroups, groupToOrg, getRSOrgs, parseOrgs };
+export { RSOrgType, getOktaGroups, parseOrgName, getRSOrgs, parseOrgs };
 
 export type { RSUserClaims };
