@@ -5,18 +5,12 @@ import {
     setStoredSenderName,
     setStoredOrg,
 } from "../contexts/SessionStorageTools";
-import { renderWithSession } from "../utils/CustomRenderUtils";
+import { makeOktaHook, renderWithSession } from "../utils/CustomRenderUtils";
+import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
+import { MembershipController, MemberType } from "../hooks/UseOktaMemberships";
+import { SessionController } from "../hooks/UseSessionStorage";
 
 import SenderModeBanner from "./SenderModeBanner";
-
-jest.mock("@okta/okta-react", () => ({
-    useOktaAuth: () => {
-        const authState = {
-            isAuthenticated: true,
-        };
-        return { authState: authState };
-    },
-}));
 
 describe("SenderModeBanner", () => {
     beforeAll(() => {
@@ -28,7 +22,30 @@ describe("SenderModeBanner", () => {
     afterAll(() => orgServer.close());
 
     test("renders when sender is testing", async () => {
-        renderWithSession(<SenderModeBanner />);
+        mockSessionContext.mockReturnValue({
+            memberships: {
+                state: {
+                    active: {
+                        memberType: MemberType.SENDER,
+                        parsedName: "ignore",
+                    },
+                },
+            } as MembershipController,
+            store: {
+                values: {
+                    org: "testOrg",
+                    senderName: "testSender",
+                },
+            } as SessionController,
+        });
+        renderWithSession(
+            <SenderModeBanner />,
+            makeOktaHook({
+                authState: {
+                    isAuthenticated: true,
+                },
+            })
+        );
         const text = await screen.findByText("Learn more about onboarding.");
         expect(text).toBeInTheDocument();
     });
