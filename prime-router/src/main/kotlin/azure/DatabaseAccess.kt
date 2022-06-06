@@ -1007,6 +1007,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                                 td.testingLabState?.take(METADATA_MAX_LENGTH)
                             record.patientAge = td.patientAge
                             record.patientCounty = td.patientCounty?.take(METADATA_MAX_LENGTH)
+                            record.patientCountry = td.patientCountry?.take(METADATA_MAX_LENGTH)
                             record.patientEthnicity = td.patientEthnicity
                             record.patientEthnicityCode = td.patientEthnicityCode
                             record.patientGender = td.patientGender
