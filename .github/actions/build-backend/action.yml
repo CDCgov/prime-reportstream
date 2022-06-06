@@ -30,6 +30,11 @@ runs:
       shell: bash
       run: ./gradlew package -x fatjar -Pshowtests
 
+    - name: Report Kotlin Code Coverage
+      working-directory: prime-router
+      shell: bash
+      run: ./gradlew sonar
+
     - name: Tar router files
       working-directory: prime-router
       shell: bash
