@@ -2971,7 +2971,7 @@
         useBatchHeaders: true
       timing:
         operation: MERGE
-        numberPerDay: 1440 # Every minute
+        numberPerDay: 1440 # Every min
         initialTime: 00:00
         timeZone: EASTERN
       transport:
