@@ -130,7 +130,7 @@ export const membershipReducer = (
     }
 };
 
-export const useGroups = (
+export const useOktaMemberships = (
     token: AccessToken | undefined
 ): MembershipController => {
     const [state, dispatch] = useReducer(membershipReducer, defaultState);

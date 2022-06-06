@@ -6,12 +6,12 @@ import {
     MemberType,
     MembershipActionType,
     membershipsFromToken,
-    useGroups,
-} from "./UseGroups";
+    useOktaMemberships,
+} from "./UseOktaMemberships";
 
 describe("useGroups", () => {
     test("renders with default values", () => {
-        const { result } = renderHook(() => useGroups(undefined));
+        const { result } = renderHook(() => useOktaMemberships(undefined));
         expect(result.current.state.memberships).toBeUndefined();
         expect(result.current.state.active).toBeUndefined();
     });
@@ -25,7 +25,7 @@ describe("useGroups", () => {
             },
         };
         const token = mockToken(fakeToken);
-        const { result } = renderHook(() => useGroups(token));
+        const { result } = renderHook(() => useOktaMemberships(token));
         expect(result.current.state.active?.memberType).toEqual("non-standard");
     });
 
@@ -38,7 +38,9 @@ describe("useGroups", () => {
             },
         };
 
-        const { result } = renderHook(() => useGroups(mockToken(fakeToken)));
+        const { result } = renderHook(() =>
+            useOktaMemberships(mockToken(fakeToken))
+        );
         expect(result.current.state.active).toEqual({
             parsedName: "PrimeAdmins",
             memberType: MemberType.PRIME_ADMIN,
@@ -78,7 +80,9 @@ describe("useGroups", () => {
                 sub: "",
             },
         };
-        const { result } = renderHook(() => useGroups(mockToken(fakeToken)));
+        const { result } = renderHook(() =>
+            useOktaMemberships(mockToken(fakeToken))
+        );
         expect(result.current.state.active).toEqual({
             parsedName: "PrimeAdmins",
             memberType: MemberType.PRIME_ADMIN,
@@ -103,7 +107,9 @@ describe("useGroups", () => {
                 sub: "",
             },
         };
-        const { result } = renderHook(() => useGroups(mockToken(fakeToken)));
+        const { result } = renderHook(() =>
+            useOktaMemberships(mockToken(fakeToken))
+        );
         expect(result.current.state.active).toEqual({
             parsedName: "PrimeAdmins",
             memberType: MemberType.PRIME_ADMIN,
@@ -143,7 +149,9 @@ describe("membershipReducer extra coverage", () => {
                 sub: "",
             },
         };
-        const { result } = renderHook(() => useGroups(mockToken(fakeToken)));
+        const { result } = renderHook(() =>
+            useOktaMemberships(mockToken(fakeToken))
+        );
 
         // bad switch
         act(() =>

@@ -5,7 +5,7 @@ import { orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
 import useSenderMode from "./UseSenderMode";
-import { MemberType } from "./UseGroups";
+import { MemberType } from "./UseOktaMemberships";
 
 export const dummySender: Sender = {
     name: "testSender",

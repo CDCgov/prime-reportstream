@@ -4,7 +4,10 @@ import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import useSessionStorage, {
     SessionController,
 } from "../hooks/UseSessionStorage";
-import { MembershipController, useGroups } from "../hooks/UseGroups";
+import {
+    MembershipController,
+    useOktaMemberships,
+} from "../hooks/UseOktaMemberships";
 
 export interface ISessionContext {
     memberships: MembershipController;
@@ -31,7 +34,7 @@ const SessionProvider = ({
 }: React.PropsWithChildren<ISessionProviderProps>) => {
     const { authState } = oktaHook();
     const store = useSessionStorage();
-    const memberships = useGroups(authState?.accessToken);
+    const memberships = useOktaMemberships(authState?.accessToken);
 
     return (
         <SessionContext.Provider

@@ -14,7 +14,10 @@ import { Helmet } from "react-helmet";
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { getStoredOrg, setStoredOrg } from "../../contexts/SessionStorageTools";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { MembershipActionType, MemberType } from "../../hooks/UseGroups";
+import {
+    MembershipActionType,
+    MemberType,
+} from "../../hooks/UseOktaMemberships";
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(

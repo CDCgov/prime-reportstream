@@ -9,7 +9,7 @@ import { getOktaGroups, parseOrgs } from "../utils/OrganizationUtils";
 import { setStoredOktaToken } from "../contexts/SessionStorageTools";
 import { oktaSignInConfig } from "../oktaConfig";
 import { useSessionContext } from "../contexts/SessionContext";
-import { MembershipActionType } from "../hooks/UseGroups";
+import { MembershipActionType } from "../hooks/UseOktaMemberships";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();

@@ -4,7 +4,7 @@ import axios from "axios";
 import { orgApi, Sender } from "../network/api/OrgApi";
 import { useSessionContext } from "../contexts/SessionContext";
 
-import { MemberType } from "./UseGroups";
+import { MemberType } from "./UseOktaMemberships";
 
 const useSenderMode = (defaultOrg?: string, defaultSender?: string): string => {
     const [status, setStatus] = useState<string>("active");
