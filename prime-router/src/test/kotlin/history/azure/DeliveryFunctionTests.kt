@@ -5,7 +5,6 @@ import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.microsoft.azure.functions.HttpStatus
-import com.sun.el.parser.AstBracketSuffix
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
@@ -84,7 +83,7 @@ class DeliveryFunctionTests : Logging {
     ) : ReportFileAccess {
         override fun <T> fetchActions(
             organization: String,
-            orgSuffix: String,
+            orgSuffix: String?,
             sortDir: ReportFileAccess.SortDir,
             sortColumn: ReportFileAccess.SortColumn,
             cursor: OffsetDateTime?,
