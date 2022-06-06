@@ -20,11 +20,30 @@ import org.jooq.exception.DataAccessException
  * Returns a list of Actions from `public.action`.
  */
 class SubmissionFunction(
-    private val submissionsFacade: SubmissionsFacade = SubmissionsFacade.instance,
+    val submissionsFacade: SubmissionsFacade = SubmissionsFacade.instance,
     workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : ReportFileFunction(
     workflowEngine,
 ) {
+    override fun userOrgName(organization: String): String? {
+        return workflowEngine.settings.findSender(organization)?.organizationName
+    }
+
+    override fun historyAsJson(request: HttpRequestMessage<String?>, userOrgName: String): String {
+        val params = HistoryApiParameters(request.queryParameters)
+
+        return submissionsFacade.findSubmissionsAsJson(
+            userOrgName,
+            params.sortDir,
+            params.sortColumn,
+            params.cursor,
+            params.since,
+            params.until,
+            params.pageSize,
+            params.showFailed,
+        )
+    }
+
     /**
      * This endpoint is meant for use by either an Admin or a User.
      * It does not assume the user belongs to a single Organization.  Rather, it uses
@@ -40,44 +59,7 @@ class SubmissionFunction(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organization") organization: String,
     ): HttpResponseMessage {
-        try {
-            // Do authentication
-            val claims = AuthenticationStrategy.authenticate(request)
-                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-
-            // Confirm the org name in the path is a sender in the system.
-            val sender = workflowEngine.settings.findSender(organization) // err if no default sender in settings in org
-                ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream sender")
-
-            // Do authorization based on: org name in the path == org name in claim.  Or be a prime admin.
-            if ((claims.organizationNameClaim != sender.organizationName) && !claims.isPrimeAdmin) {
-                logger.warn(
-                    "Invalid Authorization for user ${claims.userName}:" +
-                        " ${request.httpMethod}:${request.uri.path}." +
-                        " ERR: Claim org is ${claims.organizationNameClaim} but client id is ${sender.organizationName}"
-                )
-                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
-            }
-            logger.info(
-                "Authorized request by org ${claims.organizationNameClaim}" +
-                    " to $sender/submissions endpoint via client id ${sender.organizationName}. "
-            )
-
-            val params = HistoryApiParameters(request.queryParameters)
-            val submissions = submissionsFacade.findSubmissionsAsJson(
-                sender.organizationName,
-                params.sortDir,
-                params.sortColumn,
-                params.cursor,
-                params.since,
-                params.until,
-                params.pageSize,
-                params.showFailed
-            )
-            return HttpUtilities.okResponse(request, submissions)
-        } catch (e: IllegalArgumentException) {
-            return HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")
-        }
+        return this.getListByOrg(request, organization)
     }
 
     /**
@@ -127,10 +109,10 @@ class SubmissionFunction(
             )
 
             val submission = submissionsFacade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)
-            if (submission != null)
-                return HttpUtilities.okJSONResponse(request, submission)
+            return if (submission != null)
+                HttpUtilities.okJSONResponse(request, submission)
             else
-                return HttpUtilities.notFoundResponse(request, "Submission $submissionId was not found.")
+                HttpUtilities.notFoundResponse(request, "Submission $submissionId was not found.")
         } catch (e: DataAccessException) {
             logger.error("Unable to fetch history for submission ID $id", e)
             return HttpUtilities.internalErrorResponse(request)
