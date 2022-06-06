@@ -40,6 +40,12 @@ suffix_2:
      generateList: true
      valueOf: XCN.7
      expressionType: HL7Spec
+
+suffix_3:
+  type: STRING
+  generateList: true
+  valueOf: XCN.21
+  expressionType: HL7Spec
      
 period:
     valueOf: datatype/Period

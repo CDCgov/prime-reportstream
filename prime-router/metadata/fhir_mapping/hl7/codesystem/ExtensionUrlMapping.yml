@@ -58,16 +58,22 @@
 # Organization name type
 - id: "organization-name-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
+# Entering organization
+- id: "entering-organization"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization"
 # Organization assigning authority namespace ID
 - id: "assigning-authority-namespace-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"
 # Organization assigning authority universal ID
 - id: "assigning-authority-universal-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"
-# Organization assigning facility universal ID
+# Assigning facility
+- id: "assigning-facility"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility"
+# Assigning facility universal ID
 - id: "assigning-facility-universal-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"
-# Organization assigning facility namespace ID
+# Assigning facility namespace ID
 - id: "assigning-facility-namespace-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"
 # Last updated facility
@@ -94,3 +100,15 @@
 # Encounter account status
 - id: "account-status"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/account-status"
+# Universal ID
+- id: "universal-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id"
+# Service request order control
+- id: "order-control"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control"
+# Callback number
+- id: "callback-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number"
+# Generic text
+- id: "text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/text"

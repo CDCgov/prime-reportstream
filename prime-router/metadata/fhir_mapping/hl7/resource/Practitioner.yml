@@ -1,0 +1,56 @@
+resourceType: Practitioner
+id:
+  type: STRING
+  valueOf: 'UUID.randomUUID()'
+  expressionType: JEXL
+
+# The FHIR practitioner resource doesn't have any required fields.
+# However we do not want empty practitioner resources.
+# Thefore wherever Practitioner is referenced make sure to verify the value is NOT_NULL.
+identifier_1:
+    valueOf: datatype/Identifier_SystemID 
+    generateList: true
+    expressionType: resource
+    specs: XCN | CNN| NDL | PPN
+    vars:
+      systemID: XCN.9 | CNN.9 | NDL.9 | PPN.9
+      value: XCN.1 | CNN.1 | NDL.1 | PPN.1
+      typeSegment: XCN.13
+
+name: 
+    specs: XCN | XCN | CNN | NDL | PPN
+    valueOf: datatype/HumanName
+    generateList: true
+    expressionType: resource
+
+address:
+  valueOf: datatype/Address
+  expressionType: resource
+  generateList: true
+  specs: $addressSpec
+
+extension_1:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "assigning-facility"
+    valueReference:
+      valueOf: resource/Location
+      expressionType: reference
+      vars:
+        name: String, XCN.14.1
+
+extension_2:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "callback-number"
+    valueContactPoint:
+      valueOf: datatype/ContactPoint
+      expressionType: resource
+      specs: $contactSpec
+  
