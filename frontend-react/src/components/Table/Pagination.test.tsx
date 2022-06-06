@@ -59,7 +59,7 @@ describe("Pagination", () => {
             const props: PaginationProps = {
                 slots: slots as SlotItem[],
                 currentPageNum,
-                setCurrentPage: jest.fn(),
+                setSelectedPage: jest.fn(),
             };
             render(<Pagination {...props} />);
 
@@ -71,36 +71,36 @@ describe("Pagination", () => {
         }
     );
 
-    test("Clicking on pagination items invokes the setCurrentPage callback", () => {
-        const mockSetCurrentPage = jest.fn();
+    test("Clicking on pagination items invokes the setSelectedPage callback", () => {
+        const mockSetSelectedPage = jest.fn();
         const props: PaginationProps = {
             slots: [1, 2, 3],
             currentPageNum: 2,
-            setCurrentPage: mockSetCurrentPage,
+            setSelectedPage: mockSetSelectedPage,
         };
         render(<Pagination {...props} />);
 
         fireEvent.click(screen.getByText("Previous"));
-        expect(mockSetCurrentPage).toHaveBeenLastCalledWith(1);
+        expect(mockSetSelectedPage).toHaveBeenLastCalledWith(1);
 
         fireEvent.click(screen.getByText("1"));
-        expect(mockSetCurrentPage).toHaveBeenLastCalledWith(1);
+        expect(mockSetSelectedPage).toHaveBeenLastCalledWith(1);
 
         fireEvent.click(screen.getByText("2"));
-        expect(mockSetCurrentPage).toHaveBeenLastCalledWith(2);
+        expect(mockSetSelectedPage).toHaveBeenLastCalledWith(2);
 
         fireEvent.click(screen.getByText("3"));
-        expect(mockSetCurrentPage).toHaveBeenLastCalledWith(3);
+        expect(mockSetSelectedPage).toHaveBeenLastCalledWith(3);
 
         fireEvent.click(screen.getByText("Next"));
-        expect(mockSetCurrentPage).toHaveBeenLastCalledWith(3);
+        expect(mockSetSelectedPage).toHaveBeenLastCalledWith(3);
     });
 
     test("Renders the expected markup when the current page is between two other pages", () => {
         const props: PaginationProps = {
             slots: [1, OVERFLOW_INDICATOR, 6, 7, 8, 9, OVERFLOW_INDICATOR],
             currentPageNum: 7,
-            setCurrentPage: jest.fn(),
+            setSelectedPage: jest.fn(),
         };
         const { asFragment } = render(<Pagination {...props} />);
         expect(asFragment()).toMatchSnapshot();
@@ -110,7 +110,7 @@ describe("Pagination", () => {
         const props: PaginationProps = {
             slots: [1, 2],
             currentPageNum: 2,
-            setCurrentPage: jest.fn(),
+            setSelectedPage: jest.fn(),
         };
         const { asFragment } = render(<Pagination {...props} />);
         expect(asFragment()).toMatchSnapshot();
