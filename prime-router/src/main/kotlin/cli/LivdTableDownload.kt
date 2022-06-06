@@ -370,7 +370,7 @@ class LivdTableDownload : CliktCommand(
     }
 
     /**
-     * Updates the LIVD lookup table name [livdLookupTable] of CSV file.  It setups PRIME CLI Lookup Table Create
+     * Updates the LIVD lookup table name [livdLookupTable] of CSV file to set up PRIME CLI Lookup Table Create
      * Command line options.  And then, it calls the create lookup table command to create the new version of lookup
      * table.  Note, it always creates the new version regardless since it uses -f option.
      */
