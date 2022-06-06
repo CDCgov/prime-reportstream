@@ -191,9 +191,7 @@ class LivdTableDownload : CliktCommand(
             error("$inputfile is unsupported since it is not Excel xlsx format file.")
         }
 
-        val fileInputStream = FileInputStream(inputfile)
-        val workbook: Workbook = XSSFWorkbook(fileInputStream)
-        fileInputStream.close()
+        val workbook: Workbook = XSSFWorkbook(inputfile)
 
         val outputfile = File.createTempFile(
             livdSARSCov2FilenamePrefix, "_orig.csv",
@@ -204,16 +202,18 @@ class LivdTableDownload : CliktCommand(
         // Get the LOINC Mapping sheet
         val sheet: Sheet = workbook.getSheet(sheetName)
             ?: error("Sheet \"$sheetName\" doesn't exist in the $inputfile file.")
-
+        workbook.close()
         val rowStart = sheet.firstRowNum // Get starting row number
         val rowEnd = sheet.lastRowNum // Get ending row number
+
+        val lastColumn: Short = sheet.getRow(0).lastCellNum
 
         // Start scan each row of the sheet.
         for (rowNum in rowStart until rowEnd + 1) {
             val row: Row = sheet.getRow(rowNum) ?: continue // Skip the empty row.
 
             // Scan each column of the sheet
-            val lastColumn: Short = row.lastCellNum
+
             for (cn in 0 until lastColumn) {
                 var delimiterChar = ","
                 if (cn + 1 == lastColumn.toInt()) delimiterChar = "" // Use blank delimiter after the last column
@@ -271,7 +271,8 @@ class LivdTableDownload : CliktCommand(
      */
     private fun mergeLivdSupplementalTable(rawLivdFile: File): File {
         // First load both tables
-        val rawLivdReaderOptions = CsvReadOptions.builder(rawLivdFile).columnTypesToDetect(listOf(ColumnType.STRING))
+        val rawLivdReaderOptions = CsvReadOptions.builder(rawLivdFile)
+            .columnTypesToDetect(listOf(ColumnType.STRING))
             .build()
         val rawLivdTable = Table.read().usingOptions(rawLivdReaderOptions)
             .sortAscendingOn(LivdTableColumns.MANUFACTURER.colName, LivdTableColumns.MODEL.colName)
@@ -367,7 +368,7 @@ class LivdTableDownload : CliktCommand(
     }
 
     /**
-     * Updates the LIVD lookup table name [livdLookupTable] of CSV file.  It setups PRIME CLI Lookup Table Create
+     * Updates the LIVD lookup table name [livdLookupTable] of CSV file to set up PRIME CLI Lookup Table Create
      * Command line options.  And then, it calls the create lookup table command to create the new version of lookup
      * table.  Note, it always creates the new version regardless since it uses -f option.
      */
