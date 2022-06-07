@@ -59,6 +59,7 @@ class DeliveryFacadeTests {
                 any(),
                 any(),
                 any(),
+                any(),
                 DeliveryHistory::class.java
             )
         } returns goodReturn

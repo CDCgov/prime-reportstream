@@ -90,6 +90,7 @@ class SubmissionFunctionTests : Logging {
     ) : ReportFileAccess {
         override fun <T> fetchActions(
             organization: String,
+            orgSuffix: String?,
             sortDir: ReportFileAccess.SortDir,
             sortColumn: ReportFileAccess.SortColumn,
             cursor: OffsetDateTime?,
