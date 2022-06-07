@@ -1,10 +1,10 @@
 
-### Schema: hl7/signetic-covid-19
+### Schema: hl7/hl7-ingest-covid-19-training
 ### Topic: covid-19
 ### Tracking Element: (specimen_id)
 ### Base On: none
 ### Extends: [hl7/hl7-ingest-covid-19](./hl7-hl7-ingest-covid-19.md)
-#### Description: Signetic schema
+#### Description: Schema for ingesting HL7 messages - forces training mode
 
 ---
 
