@@ -36,6 +36,9 @@ elements:
     hl7Field: PID-3-4
     hl7OutputFields: [ PID-3-6-2 ]
 
+  - name: patient_ethnicity
+    valueSet: sender-automation/ethnicity
+
   - name: message_profile_id
     hl7Field: MSH-21
     default: ""

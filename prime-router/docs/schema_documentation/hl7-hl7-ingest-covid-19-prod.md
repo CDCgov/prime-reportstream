@@ -1,10 +1,10 @@
 
-### Schema: hl7/signetic-covid-19
+### Schema: hl7/hl7-ingest-covid-19-prod
 ### Topic: covid-19
 ### Tracking Element: (specimen_id)
 ### Base On: none
 ### Extends: [hl7/hl7-ingest-covid-19](./hl7-hl7-ingest-covid-19.md)
-#### Description: Signetic schema
+#### Description: HL7 schema - default production schema using sender settings for sender_id
 
 ---
 
@@ -3572,17 +3572,6 @@ Code | Display | System
 D|Debugging|HL7
 P|Production|HL7
 T|Training|HL7
-D|Debugging|HL7
-T|Training|HL7
-T|Training|HL7
-
-**Alt Value Sets**
-
-Code | Display | System
----- | ------- | ------
-D|D|HL7
-T|T|HL7
-T|P|HL7
 
 **Documentation**:
 
