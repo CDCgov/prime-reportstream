@@ -44,31 +44,6 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import kotlin.test.Test
 
-data class ExpectedAPIResponse(
-    val status: HttpStatus,
-    val body: List<ExpectedSubmissionList>? = null
-)
-
-data class SubmissionUnitTestCase(
-    val headers: Map<String, String>,
-    val parameters: Map<String, String>,
-    val expectedResponse: ExpectedAPIResponse,
-    val name: String?
-)
-
-/**
- * Detail Submission History Response from the API.
- */
-data class DetailSubmissionHistoryResponse(
-    val submissionId: Long,
-    val id: String?,
-    val timestamp: OffsetDateTime,
-    val sender: String?,
-    val httpStatus: Int?,
-    val externalName: String? = "",
-    val overallStatus: String,
-)
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SubmissionFunctionTests : Logging {
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
@@ -84,12 +59,39 @@ class SubmissionFunctionTests : Logging {
         )
     }
 
-    class TestSubmissionAccess(val dataset: List<SubmissionHistory>, val mapper: ObjectMapper) : SubmissionAccess {
+    data class ExpectedAPIResponse(
+        val status: HttpStatus,
+        val body: List<ExpectedSubmissionList>? = null
+    )
 
+    data class SubmissionUnitTestCase(
+        val headers: Map<String, String>,
+        val parameters: Map<String, String>,
+        val expectedResponse: ExpectedAPIResponse,
+        val name: String?
+    )
+
+    /**
+     * Detail Submission History Response from the API.
+     */
+    data class DetailSubmissionHistoryResponse(
+        val submissionId: Long,
+        val id: String?,
+        val timestamp: OffsetDateTime,
+        val sender: String?,
+        val httpStatus: Int?,
+        val externalName: String? = "",
+        val overallStatus: String,
+    )
+
+    class TestSubmissionAccess(
+        private val dataset: List<SubmissionHistory>,
+        val mapper: ObjectMapper
+    ) : ReportFileAccess {
         override fun <T> fetchActions(
-            sendingOrg: String,
-            sortDir: SubmissionAccess.SortDir,
-            sortColumn: SubmissionAccess.SortColumn,
+            organization: String,
+            sortDir: ReportFileAccess.SortDir,
+            sortColumn: ReportFileAccess.SortColumn,
             cursor: OffsetDateTime?,
             since: OffsetDateTime?,
             until: OffsetDateTime?,
@@ -102,8 +104,8 @@ class SubmissionFunctionTests : Logging {
         }
 
         override fun <T> fetchAction(
-            sendingOrg: String,
-            submissionId: Long,
+            organization: String,
+            actionId: Long,
             klass: Class<T>
         ): T? {
             @Suppress("UNCHECKED_CAST")
@@ -111,7 +113,7 @@ class SubmissionFunctionTests : Logging {
         }
 
         override fun <T> fetchRelatedActions(
-            submissionId: Long,
+            actionId: Long,
             klass: Class<T>
         ): List<T> {
             @Suppress("UNCHECKED_CAST")
@@ -129,8 +131,6 @@ class SubmissionFunctionTests : Logging {
             reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
             schemaTopic = "covid-19",
             itemCount = 3,
-//                warningCount = 3,
-//                errorCount = 0
         ),
         SubmissionHistory(
             actionId = 7,
@@ -141,8 +141,6 @@ class SubmissionFunctionTests : Logging {
             reportId = null,
             schemaTopic = null,
             itemCount = null,
-//                warningCount = 1,
-//                errorCount = 1
         )
     )
 
@@ -289,9 +287,6 @@ class SubmissionFunctionTests : Logging {
                 }
             }
         }
-    }
-
-    fun `test list params`() {
     }
 
     private fun setupSubmissionFunctionForTesting(
