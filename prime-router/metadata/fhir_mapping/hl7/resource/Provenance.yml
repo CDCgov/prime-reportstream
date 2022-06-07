@@ -24,10 +24,34 @@ occurredDateTime:
   vars:
     dateTimeIn: MSH.7
 
-agent:
+agent_1:
+  #  condition: $orgName NOT_NULL
   valueOf: secondary/ProvenanceAgent
   generateList: true
   expressionType: resource
+  vars:
+    orgName: MSH.4.1
+    altId: MSH.4.2
+    contryCode: MSH.17
+    orgSpec: MSH.4
+  constants:
+    participantType: "author"
+    # Observation Organization needs an ADMIN purpose
+    orgContactPurposeCode: "ADMIN"
+    orgContactPurposeSystemCode: "contactentity-type"
+    orgContactPurposeDisplay: "Administrative"
+    orgContactPurposeText: "Organization Medical Director"
+    orgIdSystem: http://terminology.hl7.org/CodeSystem/v2-0301
+
+agent_2:
+  condition: $practitionerSpec NOT_NULL
+  valueOf: secondary/ProvenanceAgent
+  generateList: true
+  expressionType: resource
+  vars:
+    practitionerSpec: ORC.12
+  constants:
+    participantType: "author"
 
 entity:
   valueOf: secondary/ProvenanceEntity
