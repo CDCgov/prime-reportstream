@@ -598,15 +598,40 @@
         initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
         timeZone: EASTERN
 
-- name: "co-phd"
-  description: "Colorado Department of Public Health and Environment"
-  jurisdiction: "STATE"
-  stateCode: "CO"
+- name: co-phd
+  description: Colorado Department of Public Health and Environment
+  jurisdiction: STATE
+  stateCode: CO
   receivers:
-    - name: "elr"
-      organizationName: "co-phd"
-      topic: "covid-19"
+    - name: elr
+      organizationName: co-phd
+      topic: covid-19
       customerStatus: active
+      jurisdictionalFilter:
+        - "orEquals(patient_state, CO, ordering_facility_state, CO)"
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: COPHD
+        receivingApplicationOID: 2.16.840.1.114222.4.3.4.34.1.1
+        receivingFacilityName: COPHD
+        receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: elr-secondary
+      organizationName: co-phd
+      topic: covid-19
+      customerStatus: active
+      reverseTheQualityFilter: true
       jurisdictionalFilter:
         - "orEquals(patient_state, CO, ordering_facility_state, CO)"
       translation:
