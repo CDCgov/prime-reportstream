@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.history.azure
 
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.history.DeliveryHistory
@@ -66,6 +65,7 @@ class DeliveryFacadeTests {
 
         val deliveries = facade.findDeliveries(
             "ca-dph",
+            "elr",
             ReportFileAccess.SortDir.ASC,
             ReportFileAccess.SortColumn.CREATED_AT,
             null,
