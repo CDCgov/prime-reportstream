@@ -565,7 +565,9 @@ class Report : Logging {
      */
     fun deidentify(replacementValue: String): Report {
         val columns = schema.elements.map {
-            if (it.pii == true) {
+            if (it.name == "patient_zip_code") {
+                buildRestritedZipCode(it.name)
+            } else if (it.pii == true) {
                 table.column(it.name)
                     .asStringColumn()
                     .set(
@@ -753,6 +755,7 @@ class Report : Logging {
                     it.testingLabPostalCode = row.getStringOrNull("testing_lab_zip_code").trimToNull()
                     it.testingLabState = row.getStringOrNull("testing_lab_state").trimToNull()
                     it.patientCounty = row.getStringOrNull("patient_county").trimToNull()
+                    it.patientCountry = row.getStringOrNull("patient_country").trimToNull()
                     it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
                     it.patientEthnicity = if (it.patientEthnicityCode != null) {
                         metadata.findValueSet("hl70189") ?.toDisplayFromCode(it.patientEthnicityCode)
@@ -921,6 +924,23 @@ class Report : Logging {
 
     private fun buildEmptyColumn(name: String): StringColumn {
         return StringColumn.create(name, List(itemCount) { "" })
+    }
+
+    private fun buildRestritedZipCode(name: String): StringColumn {
+        val restricted_zip = metadata.findLookupTable("restricted_zip_code")
+        var row = 0
+
+        table.column(name).forEach {
+            // Assuming zip format is xxxxx-yyyy
+            val zipCode = it.toString().split("-")
+            val value = zipCode[0].dropLast(2)
+            if (restricted_zip?.dataRows?.contains(listOf(value)) == true) {
+                setString(row++, name, "00000")
+            } else {
+                setString(row++, name, (value + "00"))
+            }
+        }
+        return table.column(name).copy() as StringColumn
     }
 
     private fun buildFakedColumn(
