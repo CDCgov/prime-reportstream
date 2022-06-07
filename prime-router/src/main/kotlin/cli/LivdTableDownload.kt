@@ -28,7 +28,6 @@ import tech.tablesaw.api.Table
 import tech.tablesaw.io.csv.CsvReadOptions
 import tech.tablesaw.selection.Selection
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.URL
 
