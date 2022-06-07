@@ -1,0 +1,53 @@
+import { primeApiConfig } from "../config";
+
+import { Api } from "./Api";
+
+export interface ValueSet {
+    name: string;
+    createdBy: string;
+    createdAt: string;
+    system: string;
+}
+
+export interface ValueSetRow {
+    name: string;
+    code: string;
+    display: string;
+    version: number;
+}
+
+export interface LookupTableList {
+    lookupTableVersionId: number;
+    tableName: string;
+    tableVersion: number;
+    isActive: boolean;
+    createdBy: string;
+    createdAt: string;
+    tableSha256Checksum: string;
+}
+
+export enum LookupTables {
+    VALUE_SET = "sender_automation_value_set",
+    VALUE_SET_ROW = "sender_automation_value_set_row",
+}
+
+class LookupTableApi extends Api {
+    getTableList = () => {
+        return this.configure<LookupTableList[]>({
+            method: "GET",
+            url: `${this.basePath}/list?showInactive=true`,
+        });
+    };
+
+    getTableData = <T extends unknown>(version: number, tableName: string) => {
+        return this.configure<T>({
+            method: "GET",
+            url: `${this.basePath}/${tableName}/${version}/content`,
+        });
+    };
+}
+
+export const lookupTableApi = new LookupTableApi(
+    primeApiConfig,
+    "lookuptables"
+);
