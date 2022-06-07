@@ -10,8 +10,9 @@ import { NavLink } from "react-router-dom";
 import { NetworkErrorBoundary } from "rest-hooks";
 
 import { permissionCheck, PERMISSIONS } from "../../utils/PermissionsUtils";
-import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
+import { useSessionContext } from "../../contexts/SessionContext";
+import { MemberType } from "../../hooks/UseOktaMemberships";
 import {
     CheckFeatureFlag,
     FeatureFlagName,
@@ -25,16 +26,18 @@ import {
     HowItWorksDropdown,
 } from "./DropdownNav";
 
+const isOktaPreview =
+    `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
+const environment = `${process.env.REACT_APP_CLIENT_ENV}`;
+
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
+    const { memberships } = useSessionContext();
     const [expanded, setExpanded] = useState(false);
-    const organization = getStoredOrg();
+    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
+
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
-    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
-    const isOktaPreview =
-        `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
-    const environment = `${process.env.REACT_APP_CLIENT_ENV}`;
 
     if (CheckFeatureFlag(FeatureFlagName.BUILT_FOR_YOU)) {
         itemsMenu.push(<BuiltForYouDropdown />);
@@ -43,8 +46,8 @@ export const ReportStreamHeader = () => {
     if (authState && authState.isAuthenticated && authState.accessToken) {
         /* RECEIVERS ONLY */
         if (
-            permissionCheck(PERMISSIONS.RECEIVER, authState.accessToken) ||
-            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
+            memberships.state.active?.memberType === MemberType.RECEIVER ||
+            memberships.state.active?.memberType === MemberType.PRIME_ADMIN
         ) {
             itemsMenu.push(
                 <NavLink
@@ -61,8 +64,8 @@ export const ReportStreamHeader = () => {
 
         /* SENDERS ONLY */
         if (
-            permissionCheck(PERMISSIONS.SENDER, authState.accessToken) ||
-            permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
+            memberships.state.active?.memberType === MemberType.SENDER ||
+            memberships.state.active?.memberType === MemberType.PRIME_ADMIN
         ) {
             itemsMenu.push(
                 <NavLink
@@ -87,7 +90,7 @@ export const ReportStreamHeader = () => {
         }
 
         /* ADMIN ONLY */
-        if (permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)) {
+        if (memberships.state.active?.memberType === MemberType.PRIME_ADMIN) {
             itemsMenu.push(<AdminDropdown />);
         }
     }
@@ -115,6 +118,10 @@ export const ReportStreamHeader = () => {
                     onToggleMobileNav={toggleMobileNav}
                     mobileExpanded={expanded}
                 >
+                    {/* PERMISSIONS REFACTOR
+                     This needs to be directly checking the token for admin permissions because
+                     an admin with an active membership that is NOT an admin membership type still
+                     needs to be able to see and use this */}
                     {permissionCheck(
                         PERMISSIONS.PRIME_ADMIN,
                         authState?.accessToken
@@ -131,7 +138,7 @@ export const ReportStreamHeader = () => {
                                 className="usa-button usa-button--outline usa-button--small padding-1"
                             >
                                 <span className="usa-breadcrumb padding-left-2 text-semibold text-no-wrap">
-                                    {organization}
+                                    {memberships.state.active?.parsedName || ""}
                                     <RightLeftArrows
                                         aria-hidden="true"
                                         role="img"

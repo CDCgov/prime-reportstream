@@ -34,7 +34,7 @@ until:
     type: string
     format: date-time
 pageSize:
-  name: pageSize
+  name: pagesize
   in: query
   description: number of results per page
   schema:

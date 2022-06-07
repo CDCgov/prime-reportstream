@@ -753,6 +753,7 @@ class Report : Logging {
                     it.testingLabPostalCode = row.getStringOrNull("testing_lab_zip_code").trimToNull()
                     it.testingLabState = row.getStringOrNull("testing_lab_state").trimToNull()
                     it.patientCounty = row.getStringOrNull("patient_county").trimToNull()
+                    it.patientCountry = row.getStringOrNull("patient_country").trimToNull()
                     it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
                     it.patientEthnicity = if (it.patientEthnicityCode != null) {
                         metadata.findValueSet("hl70189") ?.toDisplayFromCode(it.patientEthnicityCode)

@@ -19,6 +19,8 @@ export const AuthorizedRoute = ({
         <SecureRoute
             {...rest}
             render={(props) => {
+                /* PERMISSIONS REFACTOR: This should use memberships for
+                 * access checking */
                 if (
                     authState?.accessToken &&
                     (adminOverride ||
