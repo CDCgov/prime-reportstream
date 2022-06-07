@@ -18,6 +18,7 @@ import {
     FeatureFlagName,
 } from "../../pages/misc/FeatureFlags";
 import { BuiltForYouDropdown } from "../../pages/built-for-you/BuiltForYouIndex";
+import { SupportDropdown } from "../../pages/support/SupportIndex";
 
 import { SignInOrUser } from "./SignInOrUser";
 import {
@@ -34,7 +35,11 @@ export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
     const { memberships } = useSessionContext();
     const [expanded, setExpanded] = useState(false);
-    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
+    let itemsMenu = [
+        <GettingStartedDropdown />,
+        <HowItWorksDropdown />,
+        <SupportDropdown />,
+    ];
 
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);

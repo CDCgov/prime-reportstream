@@ -32,8 +32,6 @@ import Spinner from "./components/Spinner";
 import Submissions from "./pages/submissions/Submissions";
 import { GettingStartedPublicHealthDepartments } from "./pages/getting-started/public-health-departments";
 import { GettingStartedTestingFacilities } from "./pages/getting-started/testing-facilities";
-import { SupportFaq } from "./pages/support/faq";
-import { SupportContact } from "./pages/support/contact";
 import { AdminMain } from "./pages/admin/AdminMain";
 import { AdminOrgEdit } from "./pages/admin/AdminOrgEdit";
 import { EditReceiverSettings } from "./components/Admin/EditReceiverSettings";
@@ -48,6 +46,7 @@ import { DAPHeader } from "./components/header/DAPHeader";
 import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
 import SessionProvider from "./contexts/SessionContext";
 import BuiltForYouIndex from "./pages/built-for-you/BuiltForYouIndex";
+import SupportIndex from "./pages/support/SupportIndex";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
@@ -157,6 +156,10 @@ const App = () => {
                                 <Route
                                     path="/built-for-you"
                                     component={BuiltForYouIndex}
+                                />
+                                <Route
+                                    path="/support"
+                                    component={SupportIndex}
                                 />
                                 <AuthorizedRoute
                                     path="/daily-data"
