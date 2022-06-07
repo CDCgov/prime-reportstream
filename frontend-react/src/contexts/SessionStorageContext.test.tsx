@@ -5,15 +5,17 @@ import { orgServer } from "../__mocks__/OrganizationMockServer";
 import { renderWithSession } from "../utils/CustomRenderUtils";
 
 import { setStoredOrg, setStoredSenderName } from "./SessionStorageTools";
-import { SessionStorageContext } from "./SessionStorageContext";
+import { SessionContext } from "./SessionContext";
 
 const TestComponent = () => {
-    const { values } = useContext(SessionStorageContext);
+    const { memberships, store } = useContext(SessionContext);
 
     return (
         <>
-            <div>{values.org}</div>
-            <div>{values.senderName}</div>
+            <div>{store.values.org}</div>
+            <div>{store.values.senderName}</div>
+            <div>{memberships.state.active?.parsedName || ""}</div>
+            <div>{memberships.state.active?.memberType || ""}</div>
         </>
     );
 };
