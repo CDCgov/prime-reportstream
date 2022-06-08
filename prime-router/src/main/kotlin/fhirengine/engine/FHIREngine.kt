@@ -40,6 +40,13 @@ class FHIREngine(
 
     /**
      * Custom builder for Workflow engine
+     * [metadata] mockable metadata
+     * [settingsProvider] mockable settingsProvider
+     * [databaseAccess] mockable data access class
+     * [blobAccess] mockable blob storage access class
+     * [queueAccess] mockable azure queue access class
+     * [hl7Serializer] legacy pipeline hl7 serializer
+     * [csvSerializer] legacy pipeline csv serializer
      */
     data class Builder(
         var metadata: Metadata? = null,
@@ -103,9 +110,8 @@ class FHIREngine(
 
     /**
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
-     * [workflowEngine] is used for some underlying functionality that should be pulled out into a base class
-     * at some point (tech debt).
-     * [actionHistory] and [actionLogger] ensure all activities are logged
+     * [actionHistory] and [actionLogger] ensure all activities are logged.
+     * [hl7Reader] converts a string message into HL7 and ensures it is valid
      */
     fun processHL7(
         message: RawSubmission,
@@ -127,7 +133,7 @@ class FHIREngine(
                 HL7toFhirTranslator.getInstance().translate(it)
             }
 
-            logger.info("Received ${fhirBundles.size} FHIR bundles.")
+            logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
 
             actionHistory.trackExistingInputReport(message.reportId)
 
@@ -208,8 +214,11 @@ class FHIREngine(
     }
 
     /**
-     * Inserts a 'translate' task into the task table for the [report] in question. This is just a passthrough function
+     * Inserts a 'translate' task into the task table for the [report] in question. This is just a pass-through function
      * but is present here for proper separation of layers and testing. This may need to be modified in the future.
+     * The task will track the [report] in the [format] specified and knows it is located at [reportUrl].
+     * [nextAction] specifies what is going to happen next for this report
+     *
      */
     private fun insertTranslateTask(
         report: Report,

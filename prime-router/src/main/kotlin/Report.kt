@@ -334,6 +334,7 @@ class Report : Logging {
      * [sources] is the ClientSource or TestSource, where this data came from
      * [numberOfMessages] how many incoming messages does this Report represent
      * [metadata] is the metadata to use, mocked meta is passed in for testing
+     * [itemLineage] itemlineages for this report to track parent/child reports
      */
     constructor(
         bodyFormat: Format,
