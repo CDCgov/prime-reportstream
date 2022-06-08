@@ -1,4 +1,4 @@
-import { primeApiConfig } from "../config";
+// import { primeApiConfig } from "../config";
 
 import { Api } from "./Api";
 
@@ -58,4 +58,4 @@ class OrgApi extends Api {
     };
 }
 
-export const orgApi = new OrgApi(primeApiConfig, "settings/organizations");
+export const orgApi = new OrgApi("settings/organizations");
