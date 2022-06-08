@@ -1,13 +1,13 @@
 package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.common.BaseEngine
 import java.time.OffsetDateTime
 
 /**
  * Class to access lookup tables stored in the database.
  */
-class DatabaseDeliveryAccess(private val db: DatabaseAccess = WorkflowEngine.databaseAccessSingleton) :
+class DatabaseDeliveryAccess(private val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) :
     ReportFileAccess {
 
     /**
