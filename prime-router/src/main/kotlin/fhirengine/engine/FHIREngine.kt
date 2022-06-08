@@ -112,12 +112,14 @@ class FHIREngine(
      * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
      * [actionHistory] and [actionLogger] ensure all activities are logged.
      * [hl7Reader] converts a string message into HL7 and ensures it is valid
+     * [metadata] will usually be null; mocked metadata can be passed in for unit tests
      */
     fun processHL7(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-        hl7Reader: HL7Reader = HL7Reader(actionLogger)
+        hl7Reader: HL7Reader = HL7Reader(actionLogger),
+        metadata: Metadata? = null
     ) {
         logger.trace("Processing HL7 data for FHIR conversion.")
         try {
@@ -146,7 +148,8 @@ class FHIREngine(
                     fhirBundles.size,
                     itemLineage = listOf(
                         ItemLineage()
-                    )
+                    ),
+                    metadata = metadata
                 )
 
                 // create item lineage

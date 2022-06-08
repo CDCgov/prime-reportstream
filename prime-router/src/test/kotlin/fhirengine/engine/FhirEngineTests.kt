@@ -114,14 +114,13 @@ class FhirEngineTests {
         every { message.downloadContent() }.returns(valid_hl7)
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-//        every { actionHistory.trackCreatedReport(any(), any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
 
         // act
-        engine.processHL7(message, actionLogger, actionHistory, hL7Reader)
+        engine.processHL7(message, actionLogger, actionHistory, hL7Reader, metadata)
 
         // assert
         verify(exactly = 1) {

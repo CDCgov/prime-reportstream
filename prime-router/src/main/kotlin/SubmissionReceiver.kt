@@ -34,6 +34,7 @@ abstract class SubmissionReceiver(
      * [allowDuplicates] If true will detect duplicates and return errors if there are any
      * [rawBody] the byteArray representing the incoming submission
      * [payloadName] optional sender-determined name of the payload
+     * [metadata] mockable metadata to use in report creation
      */
     abstract fun validateAndMoveToProcessing(
         sender: Sender,
@@ -44,7 +45,8 @@ abstract class SubmissionReceiver(
         isAsync: Boolean,
         allowDuplicates: Boolean,
         rawBody: ByteArray,
-        payloadName: String?
+        payloadName: String?,
+        metadata: Metadata? = null
     )
 
     companion object {
@@ -126,7 +128,8 @@ class CovidReceiver : SubmissionReceiver {
         isAsync: Boolean,
         allowDuplicates: Boolean,
         rawBody: ByteArray,
-        payloadName: String?
+        payloadName: String?,
+        metadata: Metadata?
     ) {
         // parse, check for parse errors
 
@@ -228,7 +231,8 @@ class ELRReceiver : SubmissionReceiver {
         isAsync: Boolean,
         allowDuplicates: Boolean,
         rawBody: ByteArray,
-        payloadName: String?
+        payloadName: String?,
+        metadata: Metadata?
     ) {
         val actionLogs = ActionLogger()
 
@@ -240,7 +244,8 @@ class ELRReceiver : SubmissionReceiver {
         val report = Report(
             Format.HL7,
             sources,
-            messages.size
+            messages.size,
+            metadata = metadata
         )
 
         // dupe detection if needed, and if we have not already produced an error
