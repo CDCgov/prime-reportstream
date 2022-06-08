@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
 import java.time.OffsetDateTime
@@ -12,7 +12,7 @@ import java.time.OffsetDateTime
  */
 class DeliveryFacade(
     private val dbDeliveryAccess: ReportFileAccess = DatabaseDeliveryAccess(),
-    dbAccess: DatabaseAccess = WorkflowEngine.databaseAccessSingleton
+    dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton
 ) : ReportFileFacade(
     dbAccess,
 ) {
