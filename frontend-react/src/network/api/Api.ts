@@ -1,25 +1,17 @@
 import { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
 
+import { registerApi } from "../Apis";
+
 /* Type alias for CRUD ops that I wish to allow */
 export type HTTPMethod = "POST" | "GET" | "PATCH" | "DELETE";
 
-const API_ROOT = `${process.env.REACT_APP_BACKEND_URL}/api`;
-
-const Apis: Api[] = [];
+export const API_ROOT = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 /* Overriding the `method` property with my own type. */
 export interface EndpointConfig<T> extends AxiosRequestConfig<T> {
     method: HTTPMethod;
     url: string;
 }
-
-// update auth / session info for all registered APIs
-// to be run whenever auth or session information is updated in the application
-export const updateApiSessions = (headers: AxiosRequestHeaders) => {
-    console.log("!!! updating APIS", Apis);
-    Apis.forEach((api) => api.updateSession(headers));
-    console.log("!!! updated APIS", Apis);
-};
 
 /* An Api houses methods that return super.configure(params),
  * known as EndpointConfigs. Each Api instance also contains methods that will
@@ -59,8 +51,7 @@ export class Api {
     }
 
     register() {
-        Apis.push(this);
-        console.log("!!! registering an api", Apis);
+        registerApi(this);
     }
 
     deregister() {

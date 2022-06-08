@@ -3,7 +3,7 @@
  * it if you can think of a better spot. */
 
 import { AxiosRequestHeaders } from "axios";
-import { updateApiSessions } from "../network/api/Api";
+import { updateApiSessions } from "../network/Apis";
 
 const headersFromStoredSession = (): AxiosRequestHeaders => ({
     Authorization: `Bearer ${getStoredOktaToken() || ""}`,
