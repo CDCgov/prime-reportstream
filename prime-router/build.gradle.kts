@@ -36,7 +36,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.6.20"
+    id("org.jetbrains.dokka") version "1.6.21"
     id("com.avast.gradle.docker-compose") version "0.15.2"
 }
 
@@ -737,6 +737,8 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:5.2.2")
     implementation("commons-io:commons-io: 2.11.0")
     implementation("com.anyascii:anyascii:0.3.1")
+// force jsoup since skrapeit-html-parser@1.2.1 has not updated
+    implementation("org.jsoup:jsoup:1.14.2")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
