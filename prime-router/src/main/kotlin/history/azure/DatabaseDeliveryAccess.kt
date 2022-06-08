@@ -1,10 +1,10 @@
 package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.BaseEngine
 import org.jooq.Condition
 import org.jooq.SortField
 import org.jooq.impl.DSL
@@ -13,7 +13,7 @@ import java.time.OffsetDateTime
 /**
  * Class to access lookup tables stored in the database.
  */
-class DatabaseDeliveryAccess(private val db: DatabaseAccess = WorkflowEngine.databaseAccessSingleton) :
+class DatabaseDeliveryAccess(private val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) :
     ReportFileAccess {
 
     /**

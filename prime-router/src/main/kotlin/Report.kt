@@ -334,12 +334,14 @@ class Report : Logging {
      * [sources] is the ClientSource or TestSource, where this data came from
      * [numberOfMessages] how many incoming messages does this Report represent
      * [metadata] is the metadata to use, mocked meta is passed in for testing
+     * [itemLineage] itemlineages for this report to track parent/child reports
      */
     constructor(
         bodyFormat: Format,
         sources: List<Source>,
         numberOfMessages: Int,
-        metadata: Metadata? = null
+        metadata: Metadata? = null,
+        itemLineage: List<ItemLineage>? = null,
     ) {
         this.id = UUID.randomUUID()
         // ELR submissions do not need a schema, but it is required by the database to maintain legacy functionality
@@ -348,7 +350,7 @@ class Report : Logging {
         this.bodyFormat = bodyFormat
         this.destination = null
         this.createdDateTime = OffsetDateTime.now()
-        this.itemLineages = null
+        this.itemLineages = itemLineage
         // we do not need the 'table' representation in this instance
         this.table = createTable(emptyMap<String, List<String>>())
         this.itemCount = numberOfMessages
