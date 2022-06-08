@@ -258,6 +258,17 @@
       schemaName: hl7/hcintegrations-covid-19
       format: HL7
 
+- name: intrivo
+  description: Intrivo
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: intrivo
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
 - name: "naval-health-clinic-lemoore"
   description: "Naval Health Clinic - Lemoore"
   jurisdiction: "FEDERAL"
