@@ -1,11 +1,18 @@
-import { Api, ApiConfig, EndpointConfig } from "./Api";
+import { Api, EndpointConfig } from "./Api";
 
-const config = new ApiConfig({
-    root: `${process.env.REACT_APP_BACKEND_URL}/api`,
+const fakeRoot = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const fakeHeaders = {
     headers: {
         Authorization: "Bearer [token]",
     },
-});
+};
+
+// const config = new ApiConfig({
+//     root: `${process.env.REACT_APP_BACKEND_URL}/api`,
+//     headers: {
+//         Authorization: "Bearer [token]",
+//     },
+// });
 
 type ApiItem = string | string[];
 class TestApi extends Api {
@@ -17,16 +24,7 @@ class TestApi extends Api {
         });
     }
 }
-const testApi = new TestApi(config, "test");
-
-describe("ApiConfig", () => {
-    test("Constructor assigns properties", () => {
-        expect(config.root).toEqual(`${process.env.REACT_APP_BACKEND_URL}/api`);
-        expect(config.headers).toEqual({
-            Authorization: "Bearer [token]",
-        });
-    });
-});
+const testApi = new TestApi("test");
 
 describe("Api", () => {
     test("Constructor assigns properties", () => {
