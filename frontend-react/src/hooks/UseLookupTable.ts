@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 import {
@@ -16,16 +16,12 @@ export const generateUseLookupTable =
 const useLookupTable = <T extends unknown>(tableName: string): ValueSet[] => {
     const [valueSetArray, setValueSetArray] = useState<ValueSet[]>([]);
 
-    const endpoint = useMemo(() => {
-        return lookupTableApi.getTableList();
-    }, []);
-
     let GetLatestVersion = async function GetLatestVersion(): Promise<number> {
         let response;
         try {
-            response = await axios
-                .get<LookupTableList[]>(endpoint.url, endpoint)
-                .then((response) => response.data);
+            response = await axios(lookupTableApi.getTableList()).then(
+                (response) => response.data
+            );
 
             let filteredBody: LookupTableList[] = response.filter(
                 (tv: LookupTableList) =>
