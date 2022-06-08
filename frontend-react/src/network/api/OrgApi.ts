@@ -1,5 +1,3 @@
-// import { primeApiConfig } from "../config";
-
 import { Api } from "./Api";
 
 export interface Sender {

@@ -3,6 +3,7 @@
  * it if you can think of a better spot. */
 
 import { AxiosRequestHeaders } from "axios";
+
 import { updateApiSessions } from "../network/Apis";
 
 const headersFromStoredSession = (): AxiosRequestHeaders => ({

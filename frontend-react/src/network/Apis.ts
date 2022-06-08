@@ -15,12 +15,9 @@ const apis: ReportStreamApi[] = [];
 // update auth / session info for all registered APIs
 // to be run whenever auth or session information is updated in the application
 export const updateApiSessions = (headers: AxiosRequestHeaders) => {
-    console.log("!!! updating APIS", apis);
     apis.forEach((api) => api.updateSession(headers));
-    console.log("!!! updated APIS", apis);
 };
 
 export const registerApi = (api: ReportStreamApi) => {
     apis.push(api);
-    console.log("!!! registering an api", apis);
 };
