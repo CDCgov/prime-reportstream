@@ -1,17 +1,21 @@
-import { FC, ReactElement } from "react";
+import { FC, PropsWithChildren, ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
+import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
+import { OktaAuth } from "@okta/okta-auth-js";
 
-import SessionProvider from "../contexts/SessionStorageContext";
+import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 
-/* 
+import { mockToken } from "./TestUtils";
+
+/*
     To create a custom renderer, you must create a functional
     component and a custom render function.
 
     @see: https://testing-library.com/docs/react-testing-library/setup/#custom-render
 */
 
-/* 
+/*
     Use `renderWithRouter()` from this module as our standard
     renderer across most tests. This will prevent hitting the
     React error when rendering for unit tests.
@@ -20,13 +24,31 @@ const RouterWrapper: FC = ({ children }) => {
     return <BrowserRouter>{children}</BrowserRouter>;
 };
 
-const SessionWrapper: FC = ({ children }) => {
-    return (
-        <RouterWrapper>
-            <SessionProvider>{children}</SessionProvider>
-        </RouterWrapper>
-    );
+/* Use this to generate fake useOktaAuth() hooks to pass into renderWithSession
+ * This serves as our way of mocking different token, auth, and claims values */
+export const makeOktaHook = (_init?: Partial<IOktaContext>): OktaHook => {
+    return () => ({
+        authState: {
+            accessToken: mockToken(),
+            ..._init?.authState,
+        },
+        oktaAuth: {
+            ..._init?.oktaAuth,
+        } as OktaAuth,
+    });
 };
+
+const SessionWrapper =
+    (mockOkta: OktaHook) =>
+    ({ children }: PropsWithChildren<{}>) => {
+        return (
+            <RouterWrapper>
+                <SessionProvider oktaHook={mockOkta}>
+                    {children}
+                </SessionProvider>
+            </RouterWrapper>
+        );
+    };
 
 const renderWithRouter = (
     ui: ReactElement,
@@ -35,8 +57,13 @@ const renderWithRouter = (
 
 const renderWithSession = (
     ui: ReactElement,
+    oktaHook?: OktaHook,
     options?: Omit<RenderOptions, "wrapper">
-) => render(ui, { wrapper: SessionWrapper, ...options });
+) =>
+    render(ui, {
+        wrapper: SessionWrapper(oktaHook || makeOktaHook()),
+        ...options,
+    });
 
 export * from "@testing-library/react";
 export { renderWithRouter };

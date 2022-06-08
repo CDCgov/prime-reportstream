@@ -57,8 +57,9 @@ abstract class TranslatorConfiguration(val type: String) : TranslatorProperties
  */
 data class Hl7Configuration
 @JsonCreator constructor(
+    // SchemaName is added here so that - by default covid 19 schema is used and
+    // if provided the input value is consumed.
     override val schemaName: String = HL7_SCHEMA,
-    // deprecated, please dont use.
     val useTestProcessingMode: Boolean = false,
     val useBatchHeaders: Boolean = true,
     val receivingApplicationName: String?,
