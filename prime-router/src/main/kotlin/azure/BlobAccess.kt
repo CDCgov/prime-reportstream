@@ -128,6 +128,7 @@ class BlobAccess(
                 Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName"
                 Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName"
                 Event.EventAction.PROCESS -> "process/$subfolderNameChecked$reportName"
+                Event.EventAction.TRANSLATE -> "translate/$subfolderNameChecked$reportName"
                 else -> "other/$subfolderNameChecked$reportName"
             }
             val digest = sha256Digest(blobBytes)
