@@ -40,7 +40,7 @@ class LookupTableApi extends Api {
         });
     };
 
-    getTableData = <T extends unknown>(version: number, tableName: string) => {
+    getTableData = <T>(version: number, tableName: string) => {
         return this.configure<T>({
             method: "GET",
             url: `${this.basePath}/${tableName}/${version}/content`,

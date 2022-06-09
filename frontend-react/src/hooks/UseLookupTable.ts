@@ -9,7 +9,7 @@ import {
 } from "../network/api/LookupTableApi";
 
 export const generateUseLookupTable =
-    <T extends unknown>(tableName: LookupTables) =>
+    <T>(tableName: LookupTables) =>
     () => {
         return useLookupTable<T>(tableName);
     };
@@ -42,7 +42,7 @@ export async function GetLatestVersion(
     }
 }
 
-export async function GetLatestData<T extends unknown>(
+export async function GetLatestData<T>(
     version: number,
     tableName: string
 ): Promise<T | T[]> {
@@ -57,7 +57,7 @@ export async function GetLatestData<T extends unknown>(
     }
 }
 
-export const getSenderAutomationData = async <T extends unknown>(
+export const getSenderAutomationData = async <T>(
     tableName: LookupTables
 ): Promise<any[]> => {
     const version: number = await GetLatestVersion(tableName);
@@ -82,9 +82,7 @@ export const getSenderAutomationData = async <T extends unknown>(
     );
 };
 
-const useLookupTable = <T extends unknown>(
-    tableName: LookupTables
-): ValueSet[] => {
+const useLookupTable = <T>(tableName: LookupTables): ValueSet[] => {
     const [valueSetArray, setValueSetArray] = useState<ValueSet[]>([]);
 
     useEffect(() => {
