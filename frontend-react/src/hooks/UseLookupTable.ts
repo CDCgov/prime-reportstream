@@ -89,8 +89,7 @@ const useLookupTable = <T>(tableName: LookupTables): ValueSet[] => {
         getSenderAutomationData<T>(tableName).then((results) => {
             setValueSetArray(results);
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [tableName]);
 
     return valueSetArray;
 };
