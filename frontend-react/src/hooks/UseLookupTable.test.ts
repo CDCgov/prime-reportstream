@@ -5,8 +5,8 @@ import { LookupTables, ValueSet } from "../network/api/LookupTableApi";
 
 import useLookupTable, {
     generateUseLookupTable,
-    GetLatestData,
-    GetLatestVersion,
+    getLatestData,
+    getLatestVersion,
     getSenderAutomationData,
 } from "./UseLookupTable";
 
@@ -16,12 +16,12 @@ describe("test all hooks and methods", () => {
     afterAll(() => lookupTableServer.close());
 
     test("test GetLatestVersion", async () => {
-        let version = await GetLatestVersion(LookupTables.VALUE_SET);
+        let version = await getLatestVersion(LookupTables.VALUE_SET);
         expect(version).toEqual(2);
     });
 
     test("test GetLatestData", async () => {
-        let data = (await GetLatestData<ValueSet>(
+        let data = (await getLatestData<ValueSet>(
             2,
             LookupTables.VALUE_SET
         )) as ValueSet[];

@@ -14,7 +14,7 @@ export const generateUseLookupTable =
         return useLookupTable<T>(tableName);
     };
 
-export async function GetLatestVersion(
+export async function getLatestVersion(
     tableName: LookupTables
 ): Promise<number> {
     let response;
@@ -42,7 +42,7 @@ export async function GetLatestVersion(
     }
 }
 
-export async function GetLatestData<T>(
+export async function getLatestData<T>(
     version: number,
     tableName: string
 ): Promise<T | T[]> {
@@ -60,12 +60,12 @@ export async function GetLatestData<T>(
 export const getSenderAutomationData = async <T>(
     tableName: LookupTables
 ): Promise<any[]> => {
-    const version: number = await GetLatestVersion(tableName);
+    const version: number = await getLatestVersion(tableName);
     if (version === undefined) {
         console.error("DANGER! no version was found");
         return [];
     }
-    const data: T | any[] = await GetLatestData<T[]>(version, tableName);
+    const data: T | any[] = await getLatestData<T[]>(version, tableName);
 
     return data.map(
         (set: {
