@@ -465,7 +465,7 @@ tasks.register("quickPackage") {
  * Docker services needed for running Dockerless
  */
 dockerCompose {
-    projectName = "prime-router"
+    setProjectName("prime-router") // replace with [projectName = "prime-router"] on the next docker compose update
     useComposeFiles.addAll("docker-compose.yml")
     startedServices.addAll("sftp", "ftps", "soap-webservice", "vault", "azurite")
     stopContainers.set(false)
@@ -555,7 +555,6 @@ jooq {
                                     // Associate that custom type with your binding.
                                     .withBinding("gov.cdc.prime.router.ActionLogDetailBinding")
                                     // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
-                                    // 
                                     // If provided, both "includeExpressions" and "includeTypes" must match.
                                     .withIncludeExpression("action_log.detail")
                                     .withIncludeTypes("JSONB"),
