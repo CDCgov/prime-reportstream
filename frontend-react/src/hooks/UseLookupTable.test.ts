@@ -10,15 +10,6 @@ import useLookupTable, {
     getSenderAutomationData,
 } from "./UseLookupTable";
 
-jest.mock("@okta/okta-react", () => ({
-    useOktaAuth: () => {
-        const authState = {
-            isAuthenticated: true,
-        };
-        return { authState: authState };
-    },
-}));
-
 describe("test all hooks and methods", () => {
     beforeAll(() => lookupTableServer.listen());
     afterEach(() => lookupTableServer.resetHandlers());
