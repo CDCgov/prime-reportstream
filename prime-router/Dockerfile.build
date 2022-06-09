@@ -40,7 +40,7 @@ RUN rm Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
 #
 # STAGE 2: Build the actual container that does the build
 #
-FROM debian:buster AS builder
+FROM debian:bullseye AS builder
 ARG JAVA_VERSION=11
 
 # Get the unpacked gradle binaries from the downloader stage
