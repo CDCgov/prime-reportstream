@@ -16,7 +16,7 @@ export interface ValueSetRow {
     version: number;
 }
 
-export interface LookupTableList {
+export interface LookupTable {
     lookupTableVersionId: number;
     tableName: string;
     tableVersion: number;
@@ -33,9 +33,10 @@ export enum LookupTables {
 
 class LookupTableApi extends Api {
     getTableList = () => {
-        return this.configure<LookupTableList[]>({
+        return this.configure<LookupTable[]>({
             method: "GET",
-            url: `${this.basePath}/list?showInactive=true`,
+            url: `${this.basePath}/list`,
+            params: { showInactive: true },
         });
     };
 
