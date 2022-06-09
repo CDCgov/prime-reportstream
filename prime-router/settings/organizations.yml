@@ -602,20 +602,28 @@
   description: Colorado Department of Public Health and Environment
   jurisdiction: STATE
   stateCode: CO
+  filters:
+    jurisdictionalFilter:
+      - "orEquals(patient_state, CO, ordering_facility_state, CO)"
   receivers:
     - name: elr
       organizationName: co-phd
       topic: covid-19
       customerStatus: active
-      jurisdictionalFilter:
-        - "orEquals(patient_state, CO, ordering_facility_state, CO)"
       translation:
         type: HL7
         useBatchHeaders: true
-        receivingApplicationName: COPHD
-        receivingApplicationOID: 2.16.840.1.114222.4.3.4.34.1.1
-        receivingFacilityName: COPHD
-        receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
+        receivingApplicationName: CO-ELR
+          receivingFacilityName: CO
+          replaceValueAwithB:
+            MSH-6:
+              - '*': "CO"
+            MSH-5:
+              - '*': "CO-ELR"
+            MSH-3:
+              - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          reportingFacilityName: CDC PRIME
+          reportingFacilityId: 11D2030855
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -632,15 +640,20 @@
       topic: covid-19
       customerStatus: active
       reverseTheQualityFilter: true
-      jurisdictionalFilter:
-        - "orEquals(patient_state, CO, ordering_facility_state, CO)"
       translation:
         type: HL7
         useBatchHeaders: true
-        receivingApplicationName: COPHD
-        receivingApplicationOID: 2.16.840.1.114222.4.3.4.34.1.1
-        receivingFacilityName: COPHD
-        receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
+        receivingApplicationName: CO-ELR
+          receivingFacilityName: CO
+          replaceValueAwithB:
+            MSH-6:
+              - '*': "CO"
+            MSH-5:
+              - '*': "CO-ELR"
+            MSH-3:
+              - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          reportingFacilityName: CDC PRIME
+          reportingFacilityId: 11D2030855
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -652,6 +665,38 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: elr-test
+        organizationName: co-phd
+        topic: covid-19
+        customerStatus: active
+        reverseTheQualityFilter: false
+        processingModeFilter:
+          - "matches(processing_mode_code,T,D)"
+        translation:
+          type: HL7
+          useBatchHeaders: true
+          receivingApplicationName: CO-ELR
+            receivingFacilityName: CO
+            replaceValueAwithB:
+              MSH-6:
+                - '*': "CO"
+              MSH-5:
+                - '*': "CO-ELR"
+              MSH-3:
+                - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+            reportingFacilityName: CDC PRIME
+            reportingFacilityId: 11D2030855
+        timing:
+          operation: MERGE
+          numberPerDay: 1440 # Every minute
+          initialTime: 00:00
+          timeZone: CENTRAL
+        transport:
+          type: SFTP
+          host: sftp
+          port: 22
+          filePath: ./upload
+          credentialName: DEFAULT-SFTP
 
 - name: "co-routt-county-phd"
   description: "Routt County Public Health Department"
