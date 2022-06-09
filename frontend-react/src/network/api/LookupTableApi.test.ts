@@ -5,7 +5,8 @@ describe("Lookuptable API", () => {
         const endpoint = lookupTableApi.getTableList();
         expect(endpoint).toEqual({
             method: "GET",
-            url: `${process.env.REACT_APP_BACKEND_URL}/api/lookuptables/list?showInactive=true`,
+            url: `${process.env.REACT_APP_BACKEND_URL}/api/lookuptables/list`,
+            params: { showInactive: true },
             headers: {
                 Authorization: "Bearer ",
                 Organization: "",
