@@ -83,7 +83,7 @@ class DeliveryFunctionTests : Logging {
     ) : ReportFileAccess {
         override fun <T> fetchActions(
             organization: String,
-            orgSuffix: String?,
+            orgService: String?,
             sortDir: ReportFileAccess.SortDir,
             sortColumn: ReportFileAccess.SortColumn,
             cursor: OffsetDateTime?,
