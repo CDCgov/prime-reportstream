@@ -58,7 +58,7 @@ abstract class ReportFileFunction(
 
             return HttpUtilities.okResponse(request, this.historyAsJson(request, userOrgName))
         } catch (e: IllegalArgumentException) {
-            return HttpUtilities.badRequestResponse(request, e.message ?: "Invalid Request")
+            return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
         }
     }
 
@@ -88,7 +88,7 @@ abstract class ReportFileFunction(
              * @return converted params
              */
             fun extractSortDir(query: Map<String, String>): ReportFileAccess.SortDir {
-                val sort = query["sort"]
+                val sort = query["sortdir"]
                 return if (sort == null)
                     ReportFileAccess.SortDir.DESC
                 else

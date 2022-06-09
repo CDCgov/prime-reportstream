@@ -19,8 +19,16 @@ class DeliveryFunction(
 ) : ReportFileFunction(
     workflowEngine,
 ) {
+    /**
+     * Authorization and shared logic uses the organization name without the service
+     * We store the service name here to pass to the facade
+     */
+    var receivingOrgSvc: String? = null
+
     override fun userOrgName(organization: String): String? {
-        return workflowEngine.settings.findReceiver(organization)?.organizationName
+        val receiver = workflowEngine.settings.findReceiver(organization)
+        receivingOrgSvc = receiver?.name
+        return receiver?.organizationName
     }
 
     override fun historyAsJson(request: HttpRequestMessage<String?>, userOrgName: String): String {
@@ -28,6 +36,7 @@ class DeliveryFunction(
 
         return deliveryFacade.findDeliveriesAsJson(
             userOrgName,
+            receivingOrgSvc,
             params.sortDir,
             params.sortColumn,
             params.cursor,

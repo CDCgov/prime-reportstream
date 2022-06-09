@@ -26,6 +26,7 @@ class SubmissionsFacadeTests {
         assertThat {
             facade.findSubmissionsAsJson(
                 "",
+                null,
                 ReportFileAccess.SortDir.ASC,
                 ReportFileAccess.SortColumn.CREATED_AT,
                 null,
@@ -39,6 +40,7 @@ class SubmissionsFacadeTests {
         assertThat {
             facade.findSubmissionsAsJson(
                 "  \t\n",
+                null,
                 ReportFileAccess.SortDir.ASC,
                 ReportFileAccess.SortColumn.CREATED_AT,
                 null,

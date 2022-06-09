@@ -1702,22 +1702,41 @@ The patient's drivers license number
 
 Code | Display | System
 ---- | ------- | ------
-H|Hispanic or Latino|HL7
-N|Non Hispanic or Latino|HL7
-U|Unknown|HL7
-H|Hispanic or Latino|HL7
-N|Non Hispanic or Latino|HL7
-U|Unknown|HL7
-U|Unknown|HL7
+H|Hispanic or Latino|LOCAL
+H|Hispanic|LOCAL
+H|Latino|LOCAL
+H|Mex. Amer./Hispanic|LOCAL
+H|2135-2|LOCAL
+H|H|LOCAL
+N|Non Hispanic or Latino|LOCAL
+N|Non-Hispanic or Latino|LOCAL
+N|Non Hispanic|LOCAL
+N|Non-Hispanic|LOCAL
+N|Not Hispanic or Latino|LOCAL
+N|Not Hispanic|LOCAL
+N|2186-5|LOCAL
+N|N|LOCAL
+U|Unknown|LOCAL
+U|U|LOCAL
+U|UNK|LOCAL
+U|Black|LOCAL
+U|White|LOCAL
+U|African American|LOCAL
+U|NULL|LOCAL
+U|Patient Declines|LOCAL
+H|Hispanic or Latino|LOCAL
+N|Non Hispanic or Latino|LOCAL
+U|Unknown|LOCAL
+U|Unknown|LOCAL
 
 **Alt Value Sets**
 
 Code | Display | System
 ---- | ------- | ------
-H|2135-2|HL7
-N|2186-5|HL7
-U|UNK|HL7
-U|ASKU|HL7
+H|2135-2|LOCAL
+N|2186-5|LOCAL
+U|UNK|LOCAL
+U|ASKU|LOCAL
 
 **Documentation**:
 

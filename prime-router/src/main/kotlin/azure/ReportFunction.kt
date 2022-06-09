@@ -163,6 +163,7 @@ class ReportFunction(
                 // track the sending organization and client based on the header
                 actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
                 val validatedRequest = validateRequest(request)
+                val rawBody = validatedRequest.content.toByteArray()
 
                 // if the override parameter is populated, use that, otherwise use the sender value
                 val allowDuplicates = if
@@ -187,6 +188,7 @@ class ReportFunction(
                         validatedRequest.routeTo,
                         isAsync,
                         allowDuplicates,
+                        rawBody,
                         payloadName
                     )
 

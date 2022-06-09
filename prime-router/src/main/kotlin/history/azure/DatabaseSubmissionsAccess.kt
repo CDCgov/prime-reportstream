@@ -1,12 +1,12 @@
 package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.ACTION_LOG
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
 import org.jooq.CommonTableExpression
@@ -21,13 +21,14 @@ import java.time.OffsetDateTime
 /**
  * Class to access lookup tables stored in the database.
  */
-class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.databaseAccessSingleton) :
+class DatabaseSubmissionsAccess(private val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) :
     ReportFileAccess {
 
     /**
      * Get multiple submissions based on a particular organization.
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
+     * @param orgService is a specifier for an organization, such as the client or service used to send/receive
      * @param sortDir sort the table in ASC or DESC order.
      * @param sortColumn sort the table by specific column; default created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -40,6 +41,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      */
     override fun <T> fetchActions(
         organization: String,
+        orgService: String?,
         sortDir: ReportFileAccess.SortDir,
         sortColumn: ReportFileAccess.SortColumn,
         cursor: OffsetDateTime?,
@@ -50,7 +52,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
         klass: Class<T>
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
-        val whereClause = createWhereCondition(organization, since, until, showFailed)
+        val whereClause = createWhereCondition(organization, orgService, since, until, showFailed)
 
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
@@ -85,19 +87,19 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * Add sorting elements to the DB query.
      *
      * @param sortColumn sort the table by specific column; default created_at.
-     * @param order sort the table in ASC or DESC order.
+     * @param sortDir sort the table in ASC or DESC order.
      * @return a jooq sorting statement.
      */
     private fun createColumnSort(
         sortColumn: ReportFileAccess.SortColumn,
-        order: ReportFileAccess.SortDir
+        sortDir: ReportFileAccess.SortDir
     ): SortField<OffsetDateTime> {
         val column = when (sortColumn) {
             /* Decides sort column by enum */
             ReportFileAccess.SortColumn.CREATED_AT -> ACTION.CREATED_AT
         }
 
-        val sortDirection = when (order) {
+        val sortDirection = when (sortDir) {
             /* Applies sort order by enum */
             ReportFileAccess.SortDir.ASC -> column.asc()
             ReportFileAccess.SortDir.DESC -> column.desc()
@@ -110,6 +112,7 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      * Add various filters to the DB query.
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
+     * @param orgService is a specifier for an organization, such as the client or service used to send/receive
      * @param since is the OffsetDateTime that dictates how far back returned results date.
      * @param until is the OffsetDateTime that dictates how recently returned results date.
      * @param showFailed filter out submissions that failed to send.
@@ -117,12 +120,17 @@ class DatabaseSubmissionsAccess(private val db: DatabaseAccess = WorkflowEngine.
      */
     private fun createWhereCondition(
         organization: String,
+        orgService: String?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         showFailed: Boolean
     ): Condition {
         var senderFilter = ACTION.ACTION_NAME.eq(TaskAction.receive)
             .and(ACTION.SENDING_ORG.eq(organization))
+
+        if (orgService != null) {
+            senderFilter = senderFilter.and(ACTION.SENDING_ORG_CLIENT.eq(orgService))
+        }
 
         if (since != null) {
             senderFilter = senderFilter.and(ACTION.CREATED_AT.ge(since))

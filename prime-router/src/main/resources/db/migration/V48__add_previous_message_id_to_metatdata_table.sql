@@ -15,4 +15,4 @@
  */
 
 ALTER TABLE covid_result_metadata
-    ADD previous_message_id VARCHAR(512) NULL;
+    ADD previous_message_id VARCHAR(512) NULL
