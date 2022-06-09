@@ -22,6 +22,7 @@ interface ReportFileAccess {
      * Get multiple results based on a particular organization.
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
+     * @param orgService is a specifier for an organization, such as the client or service used to send/receive
      * @param sortDir sort the table in ASC or DESC order.
      * @param sortColumn sort the table by specific column; default created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -34,6 +35,7 @@ interface ReportFileAccess {
      */
     fun <T> fetchActions(
         organization: String,
+        orgService: String?,
         sortDir: SortDir,
         sortColumn: SortColumn,
         cursor: OffsetDateTime?,
