@@ -11,8 +11,8 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.ReportStreamFilterResult
-import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.BaseEngine
 import java.time.OffsetDateTime
 
 /**
@@ -435,7 +435,7 @@ data class Destination(
      * Finds the name for the organization based on the id provided.
      */
     val organization: String?
-        get() = WorkflowEngine.settingsProviderSingleton.findOrganizationAndReceiver(
+        get() = BaseEngine.settingsProviderSingleton.findOrganizationAndReceiver(
             "$organizationId.$service"
         )?.let { (org, _) ->
             org.description

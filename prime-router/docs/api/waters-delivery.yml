@@ -18,7 +18,7 @@ servers:
 paths:
   /waters/{organization}/deliveries:
     get:
-      operationId: getAvailableReports
+      operationId: getDeliveries
       summary: Get available reports for a STLT
       description: Retrieve a list of reports available for download by a STLT
       security:
@@ -32,7 +32,7 @@ paths:
           schema:
             type: string
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortColumn'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/cursor'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/since'
         - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/until'
@@ -43,7 +43,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AvailableReportsResponse'
+                $ref: '#/components/schemas/GetDeliveriesResponse'
         '400':
           description: bad request
         '401':
@@ -57,34 +57,43 @@ components:
     Server2Server:
       $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/Server2Server'
   schemas:
-    AvailableReportsResponse:
+    GetDeliveriesResponse:
       type: array
       items:
-        $ref: '#/components/schemas/AvailableReport'
-    AvailableReport:
+        $ref: '#/components/schemas/Delivery'
+    Delivery:
       type: object
       properties:
-        reportId:
-          description: the uuid for this report
-          type: string
-          format: uuid
-        dateSent:
+        deliveryId:
+          description: the row number for this report's action log
+          type: integer
+        sent:
           description: when this report was sent
           type: string
           format: date-time
-        itemCount:
-          description: number of items/tests in the report
-          type: integer
-        bodyFormat:
-          description: file type of the report
+        expires:
+          description: expiration date for the report file
           type: string
-          enum: [CSV, HL7]
+          format: date-time
         receivingOrg:
           description: the name of the organization receiving the report
           type: string
         receivingOrgSvc:
           description: service used by the organization
           type: string
-        externalName:
-          description: the filename for the sent report
+        httpStatus:
+          description: response given to the sender upon submission
+          type: integer
+        reportId:
+          description: the uuid for this report
+          type: string
+          format: uuid
+        topic:
+          description: the schema topic (e.g. COVID-19, Flu)
+          type: string
+        reportItemCount:
+          description: number of tests in the report
+          type: integer
+        fileName:
+          description: the filename for the delivered report
           type: string

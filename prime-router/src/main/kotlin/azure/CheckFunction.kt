@@ -11,6 +11,7 @@ import com.microsoft.azure.functions.annotation.TimerTrigger
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.transport.SftpTransport
 import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.RemoteResourceInfo
@@ -91,7 +92,7 @@ class CheckFunction : Logging {
                     return HttpUtilities.badRequestResponse(request, "Test upload file exceeds 100K size limit")
                 }
             }
-            val settings = WorkflowEngine.settingsProviderSingleton
+            val settings = BaseEngine.settingsProviderSingleton
             if (receiverFullName == "all") {
                 if (!testAllTransports(settings.receivers, sftpFile, responseBody)) {
                     httpStatus = HttpStatus.INTERNAL_SERVER_ERROR // everything bombed.
@@ -129,8 +130,8 @@ class CheckFunction : Logging {
         ) timerInfo: String,
     ) {
         logger.info("Staring scheduled check of remote receiver connections. Schedule is set to $timerInfo")
-        val settings = WorkflowEngine.settingsProviderSingleton
-        val db = WorkflowEngine.databaseAccessSingleton
+        val settings = BaseEngine.settingsProviderSingleton
+        val db = BaseEngine.databaseAccessSingleton
         settings.receivers.forEach {
             logger.info("Checking connection for ${it.organizationName}-${it.name}")
             // create the response body

@@ -1,7 +1,7 @@
 import {
     getOktaGroups,
     getRSOrgs,
-    groupToOrg,
+    parseOrgName,
     parseOrgs,
     RSOrgType,
     RSUserClaims,
@@ -22,13 +22,13 @@ const goodAccessToken = mockToken({
 });
 
 test("groupToOrg", () => {
-    const admins = groupToOrg("DHPrimeAdmins");
-    const ignoreWaters = groupToOrg("DHSender_ignore.ignore-waters");
-    const mdPhd = groupToOrg("DHmd_phd");
-    const simpleReport = groupToOrg("simple_report");
-    const malformedGroupName = groupToOrg("DHSender_test_org");
-    const multipleUnderscoresName = groupToOrg("DHxx_yyy_phd");
-    const undefinedOrg = groupToOrg(undefined);
+    const admins = parseOrgName("DHPrimeAdmins");
+    const ignoreWaters = parseOrgName("DHSender_ignore.ignore-waters");
+    const mdPhd = parseOrgName("DHmd_phd");
+    const simpleReport = parseOrgName("simple_report");
+    const malformedGroupName = parseOrgName("DHSender_test_org");
+    const multipleUnderscoresName = parseOrgName("DHxx_yyy_phd");
+    const undefinedOrg = parseOrgName(undefined);
 
     expect(admins).toBe("PrimeAdmins");
     expect(ignoreWaters).toBe("ignore.ignore-waters");
