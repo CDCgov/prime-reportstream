@@ -37,7 +37,7 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.6.20"
-    id("com.avast.gradle.docker-compose") version "0.15.2"
+    id("com.avast.gradle.docker-compose") version "0.16.4"
 }
 
 group = "gov.cdc.prime"
