@@ -1,0 +1,24 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0117-update-simplereport-add-csvuploader.yml --env prod
+---
+- name: simple_report
+  description: PRIME's POC testing app
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: primedatainput/pdi-covid-19
+      format: CSV
+    - name: hl7test
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/test-covid-19
+      format: HL7
+    - name: csvuploader
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: primedatainput/pdi-covid-19
+      format: CSV
