@@ -71,7 +71,7 @@ export const getSenderAutomationData = async <T>(
 ): Promise<any[]> => {
     const version: number = await getLatestVersion(tableName);
     if (version === undefined) {
-        console.error("DANGER! no version was found");
+        showError("DANGER! no version was found");
         return [];
     }
     const data: T | any[] = await getLatestData<T[]>(version, tableName);

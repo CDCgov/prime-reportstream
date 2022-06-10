@@ -16,12 +16,12 @@ describe("test all hooks and methods", () => {
     afterAll(() => lookupTableServer.close());
 
     test("getLatestVersion returns expected version", async () => {
-        let version = await getLatestVersion(LookupTables.VALUE_SET);
+        const version = await getLatestVersion(LookupTables.VALUE_SET);
         expect(version).toEqual(2);
     });
 
     test("getLatestData returns expected data", async () => {
-        let data = (await getLatestData<ValueSet>(
+        const data = (await getLatestData<ValueSet>(
             2,
             LookupTables.VALUE_SET
         )) as ValueSet[];
@@ -29,7 +29,7 @@ describe("test all hooks and methods", () => {
     });
 
     test("getSenderAutomationData returns expected number of rows", async () => {
-        let data = await getSenderAutomationData<ValueSet>(
+        const data = await getSenderAutomationData<ValueSet>(
             LookupTables.VALUE_SET
         );
         expect(data.length).toEqual(3);
