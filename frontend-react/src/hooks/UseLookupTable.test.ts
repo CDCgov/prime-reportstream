@@ -15,12 +15,12 @@ describe("test all hooks and methods", () => {
     afterEach(() => lookupTableServer.resetHandlers());
     afterAll(() => lookupTableServer.close());
 
-    test("test GetLatestVersion", async () => {
+    test("getLatestVersion returns expected version", async () => {
         let version = await getLatestVersion(LookupTables.VALUE_SET);
         expect(version).toEqual(2);
     });
 
-    test("test GetLatestData", async () => {
+    test("getLatestData returns expected data", async () => {
         let data = (await getLatestData<ValueSet>(
             2,
             LookupTables.VALUE_SET
@@ -28,14 +28,14 @@ describe("test all hooks and methods", () => {
         expect(data[0].name).toEqual(LookupTables.VALUE_SET);
     });
 
-    test("test getSenderAutomationData", async () => {
+    test("getSenderAutomationData returns expected number of rows", async () => {
         let data = await getSenderAutomationData<ValueSet>(
             LookupTables.VALUE_SET
         );
         expect(data.length).toEqual(3);
     });
 
-    test("test useLookupTable hook", async () => {
+    test("useLookupTable hook returns expected number of rows", async () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useLookupTable<ValueSet>(LookupTables.VALUE_SET)
         );
@@ -43,7 +43,7 @@ describe("test all hooks and methods", () => {
         expect(result.current.length).toEqual(3);
     });
 
-    test("test generateUseLookupTable hook", async () => {
+    test("generateUseLookupTable hook returns expected number of rows", async () => {
         const generatedHook = generateUseLookupTable<ValueSet>(
             LookupTables.VALUE_SET
         );
