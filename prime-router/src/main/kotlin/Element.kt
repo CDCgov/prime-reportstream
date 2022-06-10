@@ -910,7 +910,7 @@ data class Element(
         // someone passes through character values, like a name, or some other text info. this is not
         // attempting to check and see if the number is properly formatted, just a short circuit to
         // fail out on REALLY bad data
-        private val maybeAPhoneNumber = Regex("""[\d\(\)\+x\- ]+""")
+        private val maybeAPhoneNumber = Regex("""[\d\(\)\+((x)?(ext.)?(#)?)\- ]+""")
         // possible regions a phone number could be from. This is a wider list than we will we probably
         // pull from, at least initially, because there are many more places in North America that use
         // the +1 country code for international phone numbers, and therefore, our system could break if
