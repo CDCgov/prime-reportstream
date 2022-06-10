@@ -1,17 +1,20 @@
-import { ReactElement, useContext } from "react";
+import { ReactElement } from "react";
 import { IconWarning } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
 
 import useSenderMode from "../hooks/UseSenderMode";
-import { SessionStorageContext } from "../contexts/SessionStorageContext";
+import { useSessionContext } from "../contexts/SessionContext";
 
 const isNotActive = (val: string): boolean => {
     return val === "testing" || val === "inactive";
 };
 
 const SenderModeBanner = (): ReactElement | null => {
-    const session = useContext(SessionStorageContext);
-    const status = useSenderMode(session.values.org, session.values.senderName);
+    const session = useSessionContext();
+    const status = useSenderMode(
+        session.store.values.org,
+        session.store.values.senderName
+    );
     const path = "/getting-started/testing-facilities/overview";
 
     if (isNotActive(status)) {

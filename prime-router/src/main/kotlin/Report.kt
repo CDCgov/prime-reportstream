@@ -88,7 +88,7 @@ enum class Options {
  * Note that we can't guarantee the Sender is sending good unique trackingElement values.
  * Note that we are not tracking the index (aka rownum).  That's because the row numbers we get here are
  * not the ones in the data the user submitted -- because quality filtering is done after juris filtering,
- * which creates a brand new report with fewer rows.
+ * which creates a new report with fewer rows.
  */
 data class ReportStreamFilterResult(
     val receiverName: String,
@@ -128,8 +128,8 @@ class Report : Logging {
         CSV("csv", "text/csv"), // A CSV format the follows the csvFields
         CSV_SINGLE("csv", "text/csv", true),
         HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
-        HL7_BATCH("hl7", "application/hl7-v2"); // HL7 with BHS and FHS headers
-        // FHIR
+        HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
+        FHIR("fhir", "tbd"); // TODO determine a mime type when/if we receive FHIR
 
         companion object {
             // Default to CSV if weird or unknown
@@ -178,7 +178,7 @@ class Report : Logging {
     /**
      * The number of items in the report
      */
-    val itemCount: Int get() = this.table.rowCount()
+    val itemCount: Int
 
     /**
      * The number of items that passed the jurisdictionalFilter for this report, prior to
@@ -231,7 +231,7 @@ class Report : Logging {
     var bodyURL: String = ""
 
     /**
-     * A indicator of what the nextAction on a report is, defaults to 'none'
+     * An indicator of what the nextAction on a report is, defaults to 'none'
      */
     var nextAction: TaskAction = TaskAction.none
 
@@ -264,7 +264,7 @@ class Report : Logging {
         destination: Receiver? = null,
         bodyFormat: Format? = null,
         itemLineage: List<ItemLineage>? = null,
-        id: ReportId? = null, // If constructing from blob storage, must pass in its UUID here.  Otherwise null.
+        id: ReportId? = null, // If constructing from blob storage, must pass in its UUID here.  Otherwise, null.
         metadata: Metadata,
         itemCountBeforeQualFilter: Int? = null,
     ) {
@@ -276,6 +276,7 @@ class Report : Logging {
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
         this.itemLineages = itemLineage
         this.table = createTable(schema, values)
+        this.itemCount = this.table.rowCount()
         this.metadata = metadata
         this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
@@ -299,6 +300,7 @@ class Report : Logging {
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
+        this.itemCount = this.table.rowCount()
         this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
     }
@@ -321,8 +323,40 @@ class Report : Logging {
         this.createdDateTime = OffsetDateTime.now()
         this.itemLineages = itemLineage
         this.table = createTable(values)
+        this.itemCount = this.table.rowCount()
         this.metadata = metadata
         this.itemCountBeforeQualFilter = itemCountBeforeQualFilter
+    }
+
+    /**
+     * Full ELR Report constructor for ingest
+     * [bodyFormat] is the format for this report. Should be HL7
+     * [sources] is the ClientSource or TestSource, where this data came from
+     * [numberOfMessages] how many incoming messages does this Report represent
+     * [metadata] is the metadata to use, mocked meta is passed in for testing
+     * [itemLineage] itemlineages for this report to track parent/child reports
+     */
+    constructor(
+        bodyFormat: Format,
+        sources: List<Source>,
+        numberOfMessages: Int,
+        metadata: Metadata? = null,
+        itemLineage: List<ItemLineage>? = null,
+    ) {
+        this.id = UUID.randomUUID()
+        // ELR submissions do not need a schema, but it is required by the database to maintain legacy functionality
+        this.schema = Schema("None", Topic.FULL_ELR.json_val)
+        this.sources = sources
+        this.bodyFormat = bodyFormat
+        this.destination = null
+        this.createdDateTime = OffsetDateTime.now()
+        this.itemLineages = itemLineage
+        // we do not need the 'table' representation in this instance
+        this.table = createTable(emptyMap<String, List<String>>())
+        this.itemCount = numberOfMessages
+        this.metadata = metadata ?: Metadata.getInstance()
+        this.itemCountBeforeQualFilter = numberOfMessages
+        this.nextAction = TaskAction.process
     }
 
     private constructor(
@@ -338,6 +372,7 @@ class Report : Logging {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.table = table
+        this.itemCount = this.table.rowCount()
         this.sources = sources
         this.destination = destination
         this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
@@ -526,10 +561,22 @@ class Report : Logging {
         }
     }
 
-    fun deidentify(): Report {
+    /**
+     * Return Report with PII columns transformed to [replacementValue] when a value is sent. Blank values should
+     * remain unchanged.
+     */
+    fun deidentify(replacementValue: String): Report {
         val columns = schema.elements.map {
-            if (it.pii == true) {
-                buildEmptyColumn(it.name)
+            if (it.name == "patient_zip_code") {
+                buildRestritedZipCode(it.name)
+            } else if (it.pii == true) {
+                table.column(it.name)
+                    .asStringColumn()
+                    .set(
+                        table.column(it.name)
+                            .isNotMissing,
+                        replacementValue
+                    )
             } else {
                 table.column(it.name).copy()
             }
@@ -555,7 +602,7 @@ class Report : Logging {
     }
 
     // takes the data in the existing report and synthesizes different data from it
-    // the goal is to allow us to take real data in, move it around and scramble it so it's
+    // the goal is to allow us to take real data in, move it around and scramble it, so it's
     // not able to point back to the actual records
     fun synthesizeData(
         synthesizeStrategies: Map<String, SynthesizeStrategy> = emptyMap(),
@@ -667,7 +714,7 @@ class Report : Logging {
     }
 
     /**
-     * Here 'mapping' means to tranform data from the current schema to a new schema per the rules in the [mapping].
+     * Here 'mapping' means to transform data from the current schema to a new schema per the rules in the [mapping].
      * Not to be confused with our lower level [Mapper] concept.
      */
     fun applyMapping(mapping: Translator.Mapping): Report {
@@ -710,6 +757,7 @@ class Report : Logging {
                     it.testingLabPostalCode = row.getStringOrNull("testing_lab_zip_code").trimToNull()
                     it.testingLabState = row.getStringOrNull("testing_lab_state").trimToNull()
                     it.patientCounty = row.getStringOrNull("patient_county").trimToNull()
+                    it.patientCountry = row.getStringOrNull("patient_country").trimToNull()
                     it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
                     it.patientEthnicity = if (it.patientEthnicityCode != null) {
                         metadata.findValueSet("hl70189") ?.toDisplayFromCode(it.patientEthnicityCode)
@@ -779,7 +827,7 @@ class Report : Logging {
      *      if patient_age is given then
      *          - validate it is not null, it is valid digit number, and not lesser than zero
      *      else
-     *          - the patient will be calculated using period.between patient date of birth and
+     *          - the patient will be calculated using period between patient date of birth and
      *          the specimen collection date.
      *  @param patient_age - input patient's age.
      *  @param patient_dob - input patient date of birth.
@@ -878,6 +926,23 @@ class Report : Logging {
 
     private fun buildEmptyColumn(name: String): StringColumn {
         return StringColumn.create(name, List(itemCount) { "" })
+    }
+
+    private fun buildRestritedZipCode(name: String): StringColumn {
+        val restricted_zip = metadata.findLookupTable("restricted_zip_code")
+        var row = 0
+
+        table.column(name).forEach {
+            // Assuming zip format is xxxxx-yyyy
+            val zipCode = it.toString().split("-")
+            val value = zipCode[0].dropLast(2)
+            if (restricted_zip?.dataRows?.contains(listOf(value)) == true) {
+                setString(row++, name, "00000")
+            } else {
+                setString(row++, name, (value + "00"))
+            }
+        }
+        return table.column(name).copy() as StringColumn
     }
 
     private fun buildFakedColumn(
@@ -1133,7 +1198,7 @@ class Report : Logging {
             val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val nameSuffix = fileFormat?.ext ?: Format.CSV.ext
             val fileName = if (fileFormat == Format.INTERNAL || translationConfig == null) {
-                // This filenaming format is used for all INTERNAL files, and whenever there is no custom format.
+                // This file-naming format is used for all INTERNAL files, and whenever there is no custom format.
                 "${Schema.formBaseName(schemaName)}-$id-${formatter.format(createdDateTime)}"
             } else {
                 metadata.fileNameTemplates[nameFormat.lowercase()].run {

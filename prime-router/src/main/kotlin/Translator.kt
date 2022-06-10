@@ -270,7 +270,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         // Transform reports
         var transformed = toReport
         if (receiver.deidentify)
-            transformed = transformed.deidentify()
+            transformed = transformed.deidentify(receiver.deidentifiedValue)
         val copy = transformed.copy(destination = receiver, bodyFormat = receiver.format)
         copy.filteringResults.addAll(input.filteringResults)
         return copy

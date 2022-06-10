@@ -5,10 +5,72 @@ resources:
     resourcePath: resource/MessageHeader
     repeats: false
     isReferenced: false
-    additionalSegments: [SFT]
+    additionalSegments:
+      - SFT
 
   - resourceName: Provenance
     segment: MSH
     resourcePath: resource/Provenance
+    additionalSegments:
+      - ORC
+
+
+  - resourceName: Patient
+    segment: .PID
+    group: PATIENT_RESULT.PATIENT
+    resourcePath: resource/Patient
+    isReferenced: true
+    repeats: false
+    additionalSegments:
+      - .PD1
+      - MSH
+
+  - resourceName: Encounter
+    segment: .PV1
+    group: PATIENT_RESULT.PATIENT.VISIT
+    resourcePath: resource/Encounter
+    isReferenced: true
+    repeats: false
+    additionalSegments:
+      - .PV2
+      - MSH
+
+  - resourceName: Observation
+    segment: .OBSERVATION.OBX
+    group: PATIENT_RESULT.ORDER_OBSERVATION
+    resourcePath: resource/Observation
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - .OBR
+      - .OBSERVATION.NTE
+      - .SPECIMEN.SPM
+      - MSH
+      - .PID
+
+  - resourceName: Specimen
+    segment: .SPECIMEN.SPM
+    group: PATIENT_RESULT.ORDER_OBSERVATION
+    resourcePath: resource/Specimen
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - .OBSERVATION.OBX
+      - .OBSERVATION.NTE
+      - MSH
+
+  - resourceName: DiagnosticReport
+    segment: .OBR
+    group: PATIENT_RESULT.ORDER_OBSERVATION
+    resourcePath: resource/DiagnosticReport
+    repeats: true
+    additionalSegments:
+      - .ORC
+      - .NTE
+      - .OBSERVATION.OBX
+      - MSH
+      - PATIENT_RESULT.PATIENT.PID
+      - PATIENT_RESULT.PATIENT.VISIT.PV1
+      # NOTE:  PID and PV1 are passed because they are used by the created Service Request
 
 # TODO Add more segments as we develop them

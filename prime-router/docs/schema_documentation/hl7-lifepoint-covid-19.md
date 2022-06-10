@@ -338,7 +338,7 @@ Is the patient employed in a high risk setting? This AOE question doesn't have a
 
 **ReportStream Internal Name**: file_created_date
 
-**Type**: DATE
+**Type**: DATETIME
 
 **PII**: No
 
@@ -542,6 +542,60 @@ unique id to track the usage of the message
 **Documentation**:
 
 The message profile identifer
+
+---
+
+**Name**: message_profile_id_namespace_id
+
+**ReportStream Internal Name**: message_profile_id_namespace_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: ELR_Receiver
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer namespace id
+
+---
+
+**Name**: message_profile_id_universal_id
+
+**ReportStream Internal Name**: message_profile_id_universal_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: 2.16.840.1.113883.9.11
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer universal id
+
+---
+
+**Name**: message_profile_id_universal_id_type
+
+**ReportStream Internal Name**: message_profile_id_universal_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: ISO
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The message profile identifer universal id type
 
 ---
 
@@ -1654,22 +1708,41 @@ The patient's drivers license number
 
 Code | Display | System
 ---- | ------- | ------
-H|Hispanic or Latino|HL7
-N|Non Hispanic or Latino|HL7
-U|Unknown|HL7
-H|Hispanic or Latino|HL7
-N|Non Hispanic or Latino|HL7
-U|Unknown|HL7
-U|Unknown|HL7
+H|Hispanic or Latino|LOCAL
+H|Hispanic|LOCAL
+H|Latino|LOCAL
+H|Mex. Amer./Hispanic|LOCAL
+H|2135-2|LOCAL
+H|H|LOCAL
+N|Non Hispanic or Latino|LOCAL
+N|Non-Hispanic or Latino|LOCAL
+N|Non Hispanic|LOCAL
+N|Non-Hispanic|LOCAL
+N|Not Hispanic or Latino|LOCAL
+N|Not Hispanic|LOCAL
+N|2186-5|LOCAL
+N|N|LOCAL
+U|Unknown|LOCAL
+U|U|LOCAL
+U|UNK|LOCAL
+U|Black|LOCAL
+U|White|LOCAL
+U|African American|LOCAL
+U|NULL|LOCAL
+U|Patient Declines|LOCAL
+H|Hispanic or Latino|LOCAL
+N|Non Hispanic or Latino|LOCAL
+U|Unknown|LOCAL
+U|Unknown|LOCAL
 
 **Alt Value Sets**
 
 Code | Display | System
 ---- | ------- | ------
-H|2135-2|HL7
-N|2186-5|HL7
-U|UNK|HL7
-U|ASKU|HL7
+H|2135-2|LOCAL
+N|2186-5|LOCAL
+U|UNK|LOCAL
+U|ASKU|LOCAL
 
 **Documentation**:
 
@@ -4584,6 +4657,30 @@ Typically this will be the same as the `testing_lab_clia`, but potentially could
 **Documentation**:
 
 This is the assigner of the CLIA for the testing lab. If the testing lab has a CLIA, this field will be filled in.
+
+---
+
+**Name**: testing_lab_id_universal_id
+
+**ReportStream Internal Name**: testing_lab_id_universal_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_id_universal_id_type
+
+**ReportStream Internal Name**: testing_lab_id_universal_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 
