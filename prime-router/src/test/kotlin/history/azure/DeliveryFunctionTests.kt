@@ -49,6 +49,7 @@ class DeliveryFunctionTests : Logging {
             "organization" to listOf(organizationName)
         )
     }
+
     data class ExpectedAPIResponse(
         val status: HttpStatus,
         val body: List<ExpectedDelivery>? = null
@@ -82,6 +83,7 @@ class DeliveryFunctionTests : Logging {
     ) : ReportFileAccess {
         override fun <T> fetchActions(
             organization: String,
+            orgService: String?,
             sortDir: ReportFileAccess.SortDir,
             sortColumn: ReportFileAccess.SortColumn,
             cursor: OffsetDateTime?,
@@ -190,7 +192,7 @@ class DeliveryFunctionTests : Logging {
                             reportId = "b9f63105-bbed-4b41-b1ad-002a90f07e62",
                             topic = "covid-19",
                             reportItemCount = 14,
-                            fileName = "pdi-covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.csv",
+                            fileName = "covid-19-b9f63105-bbed-4b41-b1ad-002a90f07e62-20220419180426.hl7",
                         ),
                         ExpectedDelivery(
                             deliveryId = 284,
@@ -202,7 +204,7 @@ class DeliveryFunctionTests : Logging {
                             reportId = "c3c8e304-8eff-4882-9000-3645054a30b7",
                             topic = "covid-19",
                             reportItemCount = 1,
-                            fileName = "covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.hl7",
+                            fileName = "pdi-covid-19-c3c8e304-8eff-4882-9000-3645054a30b7-20220412170610.csv",
                         ),
                     )
                 ),
@@ -347,6 +349,7 @@ class DeliveryFunctionTests : Logging {
             "schema1",
         )
         settings.receiverStore[receiver2.fullName] = receiver2
+
         val engine = makeEngine(metadata, settings)
         mockkObject(OktaAuthentication.Companion)
         every { OktaAuthentication.Companion.decodeJwt(any()) } returns

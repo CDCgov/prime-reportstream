@@ -1,7 +1,13 @@
 package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
+import org.jooq.Condition
+import org.jooq.SortField
+import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 
 /**
@@ -11,7 +17,10 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = BaseEngine.databas
     ReportFileAccess {
 
     /**
+     * Get multiple results based on a particular organization.
+     *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
+     * @param orgService is a specifier for an organization, such as the client or service used to send/receive
      * @param sortDir sort the table in ASC or DESC order.
      * @param sortColumn sort the table by specific column; default created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -24,6 +33,7 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = BaseEngine.databas
      */
     override fun <T> fetchActions(
         organization: String,
+        orgService: String?,
         sortDir: ReportFileAccess.SortDir,
         sortColumn: ReportFileAccess.SortColumn,
         cursor: OffsetDateTime?,
@@ -33,8 +43,101 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = BaseEngine.databas
         showFailed: Boolean,
         klass: Class<T>
     ): List<T> {
-        println("$organization $sortDir $sortColumn $cursor $since $until $pageSize $showFailed $klass")
-        return emptyList()
+        val sortedColumn = createColumnSort(sortColumn, sortDir)
+        val whereClause = createWhereCondition(organization, orgService, since, until, showFailed)
+
+        return db.transactReturning { txn ->
+            val query = DSL.using(txn)
+                // Note the report file and action tables have columns with the same name, so we must specify what we need.
+                .select(
+                    ACTION.ACTION_ID, ACTION.CREATED_AT, REPORT_FILE.RECEIVING_ORG, REPORT_FILE.RECEIVING_ORG_SVC,
+                    ACTION.HTTP_STATUS, ACTION.EXTERNAL_NAME, REPORT_FILE.REPORT_ID, REPORT_FILE.SCHEMA_TOPIC,
+                    REPORT_FILE.ITEM_COUNT, REPORT_FILE.BODY_URL, REPORT_FILE.SCHEMA_NAME, REPORT_FILE.BODY_FORMAT
+                )
+                .from(
+                    ACTION.join(REPORT_FILE).on(
+                        REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID)
+                    )
+                )
+                .where(whereClause)
+                .orderBy(sortedColumn)
+
+            if (cursor != null) {
+                query.seek(cursor)
+            }
+
+            query.limit(pageSize)
+                .fetchInto(klass)
+        }
+    }
+
+    /**
+     * Add sorting elements to the DB query.
+     *
+     * @param sortColumn sort the table by specific column; default created_at.
+     * @param sortDir sort the table in ASC or DESC order.
+     * @return a jooq sorting statement.
+     */
+    private fun createColumnSort(
+        sortColumn: ReportFileAccess.SortColumn,
+        sortDir: ReportFileAccess.SortDir
+    ): SortField<OffsetDateTime> {
+        val column = when (sortColumn) {
+            /* Decides sort column by enum */
+            ReportFileAccess.SortColumn.CREATED_AT -> ACTION.CREATED_AT
+        }
+
+        val sortedColumn = when (sortDir) {
+            /* Applies sort order by enum */
+            ReportFileAccess.SortDir.ASC -> column.asc()
+            ReportFileAccess.SortDir.DESC -> column.desc()
+        }
+
+        return sortedColumn
+    }
+
+    /**
+     * Add various filters to the DB query.
+     *
+     * @param organization is the Organization Name returned from the Okta JWT Claim.
+     * @param orgService is a specifier for an organization, such as the client or service used to send/receive
+     * @param since is the OffsetDateTime that dictates how far back returned results date.
+     * @param until is the OffsetDateTime that dictates how recently returned results date.
+     * @param showFailed filter out submissions that failed to send.
+     * @return a jooq Condition statement to use in where().
+     */
+    private fun createWhereCondition(
+        organization: String,
+        orgService: String?,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
+        showFailed: Boolean
+    ): Condition {
+        var senderFilter = ACTION.ACTION_NAME.eq(TaskAction.receive)
+            .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
+
+        if (orgService != null) {
+            senderFilter = senderFilter.and(REPORT_FILE.RECEIVING_ORG_SVC.eq(orgService))
+        }
+
+        if (since != null) {
+            senderFilter = senderFilter.and(ACTION.CREATED_AT.ge(since))
+        }
+
+        if (until != null) {
+            senderFilter = senderFilter.and(ACTION.CREATED_AT.lt(until))
+        }
+
+        val failedFilter: Condition = when (showFailed) {
+            true -> {
+                ACTION.HTTP_STATUS.between(200, 600)
+            }
+            false -> {
+                ACTION.HTTP_STATUS.between(200, 299)
+            }
+        }
+
+        return senderFilter.and(failedFilter)
     }
 
     /**
