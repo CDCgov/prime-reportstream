@@ -243,20 +243,6 @@ extension_6:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: result-reported
-    valueDateTime:
-      type: STRING
-      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-      expressionType: JEXL
-      vars:
-        dateTimeIn: OBR.22
-
-extension_7:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
       value: result-status
     valueCodeableConcept:
       valueOf: datatype/CodeableConcept_var

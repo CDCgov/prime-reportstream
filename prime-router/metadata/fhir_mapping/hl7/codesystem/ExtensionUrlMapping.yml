@@ -133,3 +133,6 @@
 # Result status
 - id: "result-status"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status"
+# Response flag
+- id: "response-flag"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/response-flag"
