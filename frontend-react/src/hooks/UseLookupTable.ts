@@ -7,6 +7,7 @@ import {
     ValueSet,
     LookupTables,
 } from "../network/api/LookupTableApi";
+import { showError } from "../components/AlertNotifications";
 
 export const generateUseLookupTable =
     <T>(tableName: LookupTables) =>
@@ -37,7 +38,11 @@ export async function getLatestVersion(
         )[0];
 
         return table?.tableVersion;
-    } catch (error) {
+    } catch (e: any) {
+        console.trace(e);
+        showError(
+            `An error occurred while retrieving the latest version: ${e.toString()}`
+        );
         return -1;
     }
 }
@@ -52,8 +57,12 @@ export async function getLatestData<T>(
         return await axios
             .get<T>(endpointHeader.url, endpointHeader)
             .then((response) => response.data);
-    } catch (error) {
-        return [];
+    } catch (e: any) {
+        console.trace(e);
+        showError(
+            `An error occurred while retrieving the latest data: ${e.toString()}`
+        );
+        return await new Promise<T[] | T>(() => Promise.resolve());
     }
 }
 
