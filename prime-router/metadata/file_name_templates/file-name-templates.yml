@@ -113,5 +113,5 @@
   upperCase: true
   elements:
     - IDOH_CDCSR_
-    - createdDate("MMddyyyyHHmmss")
+    - createdDate(MMddyyyyHHmmss)
 
