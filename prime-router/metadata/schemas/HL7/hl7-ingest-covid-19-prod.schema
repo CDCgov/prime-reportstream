@@ -1,0 +1,10 @@
+---
+name: hl7-ingest-covid-19-prod
+description: HL7 schema - default production schema using sender settings for sender_id
+topic: covid-19
+trackingElement: specimen_id
+extends: hl7/hl7-ingest-covid-19
+
+elements:
+  - name: sender_id
+    mapper: useSenderSetting(organizationName)

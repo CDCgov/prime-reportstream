@@ -1,0 +1,13 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0115-intrivo.yml --env staging
+---
+- name: intrivo
+  description: Intrivo
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: intrivo
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
