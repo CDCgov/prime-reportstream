@@ -62,7 +62,7 @@ export async function getLatestData<T>(
         showError(
             `An error occurred while retrieving the latest data: ${e.toString()}`
         );
-        return new Promise<T[] | T>(() => Promise.resolve());
+        return [];
     }
 }
 
