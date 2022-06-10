@@ -44,6 +44,7 @@ import SenderModeBanner from "./components/SenderModeBanner";
 import { AdminOrgNew } from "./pages/admin/AdminOrgNew";
 import { DAPHeader } from "./components/header/DAPHeader";
 import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
+import ValueSetsDetail from "./pages/admin/value-set-editor/ValueSetsDetail";
 import SessionProvider from "./contexts/SessionContext";
 import BuiltForYouIndex from "./pages/built-for-you/BuiltForYouIndex";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
@@ -221,6 +222,10 @@ const App = () => {
                                 <SecureRoute
                                     path="/admin/features"
                                     component={FeatureFlagUIComponent}
+                                />
+                                <SecureRoute
+                                    path={"/admin/value-sets/:valueSetName"}
+                                    component={ValueSetsDetail}
                                 />
                                 <SecureRoute
                                     path={"/admin/value-sets"}
