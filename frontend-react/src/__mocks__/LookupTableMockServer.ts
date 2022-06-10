@@ -34,7 +34,7 @@ const handlers = [
     rest.get(tableList.url, (_req, res, ctx) => {
         return res(ctx.json(lookupTables), ctx.status(200));
     }),
-    rest.get(tableData.url, (req, res, ctx) => {
+    rest.get(tableData.url, (_req, res, ctx) => {
         return res(ctx.json(lookupTableData), ctx.status(200));
     }),
 ];
