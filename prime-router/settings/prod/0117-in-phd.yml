@@ -15,9 +15,9 @@
         schemaName: "covid-19"
         useTestProcessingMode: false
         useBatchHeaders: true
-        receivingApplicationName: null
+        receivingApplicationName: IN-ELR
         receivingApplicationOID: null
-        receivingFacilityName: null
+        receivingFacilityName: IDOH
         receivingFacilityOID: null
         messageProfileId: null
         replaceValue: {}
@@ -25,7 +25,7 @@
         reportingFacilityName: null
         reportingFacilityId: null
         reportingFacilityIdType: null
-        suppressQstForAoe: false
+        suppressQstForAoe: true
         suppressHl7Fields: null
         suppressAoe: false
         defaultAoeToUnknown: false
