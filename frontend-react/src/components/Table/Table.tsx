@@ -7,7 +7,7 @@ import {
     IconNavigateNext,
 } from "@trussworks/react-uswds";
 import { NavLink } from "react-router-dom";
-import React, { ReactNode, useMemo, useState } from "react";
+import React, { ReactNode, useMemo, useState, useCallback } from "react";
 
 import Pagination, { PaginationProps } from "../../components/Table/Pagination";
 import {
@@ -72,6 +72,7 @@ export interface ColumnProps {
     rowData: TableRow;
     columnConfig: ColumnConfig;
     editing?: boolean;
+    setUpdatedRow?: (value: any, field: string) => void;
 }
 
 export interface TableProps {
@@ -86,7 +87,7 @@ export interface TableProps {
     cursorManager?: CursorManager;
     paginationProps?: PaginationProps;
     enableEditableRows?: boolean;
-    editableCallback?: Function;
+    editableCallback?: (row: TableRow | null) => Promise<void>;
 }
 
 export interface LegendItem {
@@ -103,6 +104,7 @@ const Table = ({
     cursorManager,
     paginationProps,
     enableEditableRows,
+    editableCallback = () => Promise.resolve(),
 }: TableProps) => {
     /* memoizedRows is the source of truth for rendered table rows. If a local
      * sort is applied, this function reactively sorts the rows passed in. If
@@ -264,6 +266,7 @@ const Table = ({
         rowData,
         columnConfig,
         editing,
+        setUpdatedRow = () => {},
     }: ColumnProps) => {
         // Easy-to-read way to transform value
         const transform = (
@@ -285,13 +288,11 @@ const Table = ({
             <td key={`${rowIndex}:${colIndex}`}>{child}</td>
         );
 
-        let displayValue = rowData[columnConfig.dataAttr];
+        const field = columnConfig.dataAttr;
+        let displayValue = rowData[field];
 
         if (columnConfig.transform) {
-            displayValue = transform(
-                columnConfig.transform,
-                rowData[columnConfig.dataAttr]
-            );
+            displayValue = transform(columnConfig.transform, rowData[field]);
         }
 
         if (hasFeature("link")) {
@@ -301,7 +302,7 @@ const Table = ({
                 <NavLink
                     className="usa-link"
                     to={`${feature.linkBasePath || ""}${
-                        rowData[feature.linkAttr || columnConfig.dataAttr]
+                        rowData[feature.linkAttr || field]
                     }`}
                 >
                     {columnConfig.valueMap
@@ -338,16 +339,13 @@ const Table = ({
             return tableData(
                 <input
                     className="usa-input"
-                    /* This directly updates the rowData object, NOT the
-                     * displayValue, which prevents multi-layer callbacks
-                     * being required. */
-                    onChange={(event) =>
-                        (rowData[columnConfig.dataAttr] = event.target.value)
-                    }
+                    onChange={(event) => {
+                        setUpdatedRow(event.target.value, field);
+                    }}
                     /* This ensures the value seen in the edit field is
                      * the same as the server-provided data, NOT the
                      * displayed data (in case of transformation/map) */
-                    defaultValue={rowData[columnConfig.dataAttr]}
+                    defaultValue={displayValue}
                 />
             );
         }
@@ -385,8 +383,43 @@ const Table = ({
      * to render each cell in the appropriate column. */
     const TableRows = () => {
         const [editing, setEditing] = useState<number | undefined>();
+        const [updatedRow, setUpdatedRow] = useState<TableRow | null>(null);
+
         const editableRowButtonValue = (isEditing: boolean) =>
             isEditing ? "Save" : "Edit";
+
+        const updateRow = (value: unknown, field: string) => {
+            if (editing === undefined) {
+                console.error("Editing not enabled?");
+                return;
+            }
+            const rowToUpdate = memoizedRows[editing];
+            const rowValues = { ...rowToUpdate };
+            rowValues[field] = value;
+            setUpdatedRow(rowValues);
+        };
+
+        const saveRowOrSetEditing = useCallback(
+            (rowIndex) => {
+                // if we are in edit mode, and the row being edited matches the
+                // row of the button being clicked, then we want to save
+                if (editing !== undefined && editing === rowIndex) {
+                    // but if there are no changes to save, just back out of editing
+                    if (!updatedRow) {
+                        console.log("No changes to save");
+                        setEditing(undefined);
+                        return;
+                    }
+                    return editableCallback(updatedRow).then(() => {
+                        setEditing(undefined);
+                    });
+                }
+                // otherwise, enable editing mode for this row
+                setEditing(rowIndex);
+            },
+            [editing, updatedRow]
+        );
+
         return (
             <>
                 {memoizedRows.map((object, rowIndex) => {
@@ -406,19 +439,16 @@ const Table = ({
                                     columnConfig={colConfig}
                                     rowData={object}
                                     editing={editing === rowIndex}
+                                    setUpdatedRow={updateRow}
                                 />
                             ))}
                             {enableEditableRows ? (
                                 <td key={`${rowIndex}:EDIT`}>
                                     <Button
                                         type="submit"
-                                        onClick={() => {
-                                            if (editing !== undefined) {
-                                                setEditing(undefined);
-                                                return;
-                                            }
-                                            setEditing(rowIndex);
-                                        }}
+                                        onClick={() =>
+                                            saveRowOrSetEditing(rowIndex)
+                                        }
                                     >
                                         {editableRowButtonValue(
                                             editing === rowIndex
