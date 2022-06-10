@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
 import org.apache.logging.log4j.kotlin.logger
 import java.time.OffsetDateTime
@@ -49,7 +50,7 @@ class BatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine(
             )
             actionHistory.trackActionParams(message)
             backstopTime = OffsetDateTime.now().minusMinutes(
-                WorkflowEngine.getBatchLookbackMins(
+                BaseEngine.getBatchLookbackMins(
                     receiver.timing?.numberPerDay ?: 1, NUM_BATCH_RETRIES
                 )
             )
