@@ -223,12 +223,14 @@ const App = () => {
                                     path="/admin/features"
                                     component={FeatureFlagUIComponent}
                                 />
-                                <SecureRoute
+                                <AuthorizedRoute
                                     path={"/admin/value-sets/:valueSetName"}
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={ValueSetsDetail}
                                 />
-                                <SecureRoute
+                                <AuthorizedRoute
                                     path={"/admin/value-sets"}
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={ValueSetsIndex}
                                 />
                                 {/* Handles any undefined route */}
