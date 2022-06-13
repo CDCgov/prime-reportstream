@@ -161,7 +161,8 @@
         ],
         "ignorePatterns": [
             "node_modules/",
-            "build/"
+            "build/",
+            "src/reportWebVitals.js"
         ]
     },
     "browserslist": {
