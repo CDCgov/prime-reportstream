@@ -4,7 +4,6 @@ import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CovidSender
-import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
@@ -22,7 +21,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
@@ -34,7 +33,6 @@ import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.transport.SoapTransport
-import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
@@ -55,14 +53,14 @@ class WorkflowEngine(
     val csvSerializer: CsvSerializer = csvSerializerSingleton,
     val db: DatabaseAccess = databaseAccessSingleton,
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer),
-    val queue: QueueAccess = QueueAccess,
+    queue: QueueAccess = QueueAccess,
     val translator: Translator = Translator(metadata, settings),
     val sftpTransport: SftpTransport = SftpTransport(),
     val as2Transport: AS2Transport = AS2Transport(),
     val ftpsTransport: FTPSTransport = FTPSTransport(),
     val soapTransport: SoapTransport = SoapTransport(),
     val gaenTransport: GAENTransport = GAENTransport()
-) : Logging {
+) : BaseEngine(queue) {
 
     /**
      * Custom builder for Workflow engine
@@ -791,68 +789,6 @@ class WorkflowEngine(
         db.updateTask(
             reportId, nextEventAction.toTaskAction(), nextActionAt, retryToken, finishedField(currentEventAction), txn
         )
-    }
-
-    companion object {
-        /**
-         * These are all potentially heavy weight objects that
-         * should only be created once.
-         */
-        val databaseAccessSingleton: DatabaseAccess by lazy {
-            DatabaseAccess()
-        }
-
-        val settingsProviderSingleton: SettingsProvider by lazy {
-            getSettingsProvider(Metadata.getInstance())
-        }
-
-        private val csvSerializerSingleton: CsvSerializer by lazy {
-            CsvSerializer(Metadata.getInstance())
-        }
-
-        private val hl7SerializerSingleton: Hl7Serializer by lazy {
-            Hl7Serializer(Metadata.getInstance(), settingsProviderSingleton)
-        }
-
-        /**
-         * Get a settings provider for a given [metadata] instance.
-         * @return a settings provider
-         */
-        private fun getSettingsProvider(metadata: Metadata): SettingsProvider {
-            val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
-            val settingsEnabled: String? = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
-            return if (settingsEnabled == null || settingsEnabled.equals("true", ignoreCase = true)) {
-                SettingsFacade(metadata, databaseAccessSingleton)
-            } else {
-                val ext = "-${Environment.get().toString().lowercase()}"
-                FileSettings("$baseDir/settings", orgExt = ext)
-            }
-        }
-
-        /**
-         * Always find tasks at least this old.  This covers for  extended downtime due to a crash,
-         * as well as for 25 hour days etc.
-         */
-        const val BATCH_LOOKBACK_PADDING_MINS: Long = 180 // 3 hours
-
-        /**
-         * BatchFunction uses a backstop time to prevent it from processing too-old records.
-         * We also use this to prevent it from retrying unrecoverable batches over and over.
-         * So the backstop time is based on the frequency of batching for that receiver,
-         * as found in the receiver's [Receiver.Timing.numberPerDay].
-         *
-         * Note the effect of the padding is that for frequent batching, we'll actually allow
-         * more than [minNumRetries] retries.
-         *
-         * Calculation is done in minutes.
-         */
-        fun getBatchLookbackMins(numberBatchesPerDay: Int, minNumRetries: Int): Long {
-            val frequencyMins = if (numberBatchesPerDay > 0)
-                1440 / numberBatchesPerDay
-            else
-                1440
-            return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS)
-        }
     }
 
     // 1. detect format and get serializer

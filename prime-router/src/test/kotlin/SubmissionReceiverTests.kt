@@ -442,9 +442,10 @@ class SubmissionReceiverTests {
             emptyMap(),
             Options.None,
             emptyList(),
-            isAsync = true,
-            allowDuplicates = true,
-            payloadName = "test.csv",
+            true,
+            true,
+            ByteArray(0),
+            "test.csv",
             metadata = metadata
         )
 
@@ -506,9 +507,10 @@ class SubmissionReceiverTests {
             emptyMap(),
             Options.None,
             emptyList(),
-            isAsync = false,
-            allowDuplicates = false,
-            payloadName = "test.csv",
+            false,
+            false,
+            ByteArray(0),
+            "test.csv",
             metadata = metadata
         )
 
@@ -576,9 +578,10 @@ class SubmissionReceiverTests {
             emptyMap(),
             Options.None,
             emptyList(),
-            isAsync = true,
-            allowDuplicates = false,
-            payloadName = "test.csv",
+            true,
+            false,
+            ByteArray(0),
+            "test.csv",
             metadata = metadata
         )
 
@@ -644,9 +647,10 @@ class SubmissionReceiverTests {
                 emptyMap(),
                 Options.None,
                 emptyList(),
-                isAsync = true,
-                allowDuplicates = true,
-                payloadName = "test.csv",
+                true,
+                true,
+                ByteArray(0),
+                "test.csv",
                 metadata = metadata
             )
         } catch (ex: ActionError) {

@@ -26,6 +26,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
@@ -162,6 +163,7 @@ class ReportFunction(
                 // track the sending organization and client based on the header
                 actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
                 val validatedRequest = validateRequest(request)
+                val rawBody = validatedRequest.content.toByteArray()
 
                 // if the override parameter is populated, use that, otherwise use the sender value
                 val allowDuplicates = if
@@ -186,6 +188,7 @@ class ReportFunction(
                         validatedRequest.routeTo,
                         isAsync,
                         allowDuplicates,
+                        rawBody,
                         payloadName
                     )
 

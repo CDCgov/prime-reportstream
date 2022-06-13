@@ -5,6 +5,7 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.StorageAccount
 import com.microsoft.azure.functions.annotation.TimerTrigger
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import kotlin.math.ceil
@@ -67,7 +68,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
     internal fun determineQueueMessageCount(receiver: Receiver, txn: DataAccessTransaction?): Pair<Int, Boolean> {
         // Calculate how far to look back based on how often this receiver batches.
         val backstopTime = OffsetDateTime.now().minusMinutes(
-            WorkflowEngine.getBatchLookbackMins(
+            BaseEngine.getBatchLookbackMins(
                 receiver.timing?.numberPerDay ?: 1, NUM_BATCH_RETRIES
             )
         )

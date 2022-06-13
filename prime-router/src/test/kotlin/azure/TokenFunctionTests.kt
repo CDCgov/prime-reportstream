@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.tokens.AccessToken
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Jwk
@@ -69,8 +70,8 @@ class TokenFunctionTests {
 
         val dataProvider = MockDataProvider { arrayOf<MockResult>(MockResult(0, null)) }
         val connection = MockConnection(dataProvider)
-        mockkObject(WorkflowEngine.Companion)
-        every { WorkflowEngine.Companion.databaseAccessSingleton } returns DatabaseAccess(connection)
+        mockkObject(BaseEngine.Companion)
+        every { BaseEngine.Companion.databaseAccessSingleton } returns DatabaseAccess(connection)
 
         mockkConstructor(DatabaseJtiCache::class)
         every { anyConstructed<DatabaseJtiCache>().isJTIOk(any(), any()) } returns true
