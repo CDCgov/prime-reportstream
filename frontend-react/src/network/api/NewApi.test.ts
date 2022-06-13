@@ -3,7 +3,7 @@ import {
     ApiBaseUrls,
     buildEndpointUrl,
     createAxiosConfig,
-} from "./scratch_API";
+} from "./NewApi";
 
 const MyApi: API = {
     baseUrl: ApiBaseUrls.HISTORY,

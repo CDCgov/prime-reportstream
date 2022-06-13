@@ -29,6 +29,11 @@ export interface RSRequestConfig extends AxiosRequestConfig {
     method: Method;
     headers: RSRequestHeaders;
 }
+/* Prevents overriding RSRequestConfig values */
+export type AdvancedConfig = Omit<
+    AxiosRequestConfig,
+    "url" | "method" | "headers"
+>;
 /* Safe endpoint extraction */
 const extractEndpoint = (api: API, key: string): Endpoint => {
     const endpoint: Endpoint | undefined = api.endpoints.get(key);
@@ -45,7 +50,7 @@ export const createAxiosConfig = <P extends RSUrlParams>(
     organization?: string,
     parameters?: P,
     // Allows us to use more of AxiosRequestConfig if we want
-    advancedConfig?: Omit<AxiosRequestConfig, "url" | "method" | "headers">
+    advancedConfig?: AdvancedConfig
 ): RSRequestConfig => {
     return {
         url: buildEndpointUrl(api, endpointKey, parameters),
