@@ -187,23 +187,35 @@ class CompareFhirData(
                             compareResource(expectedValue, actualsOfSameType, parentIdPath, propertyTypePath)
 
                         // Use the built-in equals for anything else.
-                        else -> {
-                            val primitiveResult = CompareData.Result()
-                            primitiveResult.passed = actualValues.any {
-                                expectedValue.equalsDeep(it)
-                            }
-                            if (!primitiveResult.passed) {
-                                val msg = "FAILED: Property $expectedIdPath $propertyTypePath did not match"
-                                primitiveResult.errors.add(msg)
-                            } else logger.trace("MATCH: Property $expectedIdPath $propertyTypePath matches")
-                            primitiveResult
-                        }
+                        else -> comparePrimitive(expectedValue, actualValues, expectedIdPath, propertyTypePath)
                     }
                     result.merge(valueResult)
                 }
-            }
+            } else if (expectedProperty.isPrimitive)
+                result.merge(comparePrimitive(expectedProperty, listOf(actualProperty), expectedIdPath, parentTypePath))
         }
         return result
+    }
+
+    internal fun comparePrimitive(
+        expectedPrimitive: Base,
+        actualPrimitive: List<Base>,
+        primitiveIdPath: String,
+        primitiveTypePath: String
+    ): CompareData.Result {
+        val primitiveResult = CompareData.Result()
+
+        primitiveResult.passed = actualPrimitive.any {
+            // Dynamic values are only checked to exist
+            if (dynamicProperties.contains(primitiveTypePath)) true
+            else expectedPrimitive.equalsDeep(it)
+        }
+
+        if (!primitiveResult.passed) {
+            val msg = "FAILED: Property $primitiveIdPath $primitiveTypePath did not match"
+            primitiveResult.errors.add(msg)
+        } else logger.trace("MATCH: Property $primitiveIdPath $primitiveTypePath matches")
+        return primitiveResult
     }
 
     /**
@@ -291,7 +303,8 @@ class CompareFhirData(
                     "$parentIdPath->${resource.fhirType()}(${resource.url.substringAfterLast("/")})"
                 parentIdPath == resource.idBase -> parentIdPath
                 resource.isResource ->
-                    if (parentIdPath.isBlank()) resource.idBase else "$parentIdPath->${resource.idBase}"
+                    if (parentIdPath.isBlank()) resource.idBase ?: ""
+                    else "$parentIdPath->${resource.idBase}"
                 else -> parentIdPath
             }
         }
