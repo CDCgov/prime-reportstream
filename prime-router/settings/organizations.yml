@@ -18,6 +18,12 @@
       customerStatus: active
       schemaName: hl7/test-covid-19
       format: HL7
+    - name: csvuploader
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
 
 - name: waters
   description: Test Sender from Waters
