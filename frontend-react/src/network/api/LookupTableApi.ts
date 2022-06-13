@@ -1,5 +1,3 @@
-import { primeApiConfig } from "../config";
-
 import { Api } from "./Api";
 
 export interface ValueSet {
@@ -48,7 +46,4 @@ class LookupTableApi extends Api {
     };
 }
 
-export const lookupTableApi = new LookupTableApi(
-    primeApiConfig,
-    "lookuptables"
-);
+export const lookupTableApi = new LookupTableApi("lookuptables");
