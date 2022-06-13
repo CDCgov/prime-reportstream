@@ -10,7 +10,7 @@ import Table, {
 import { generateUseLookupTable } from "../../../hooks/UseLookupTable";
 import { LookupTables, ValueSet } from "../../../network/api/LookupTableApi";
 
-const Legend = ({ items }: { items: LegendItem[] }) => {
+export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
         <div key={label} className="display-flex">
             <b>{`${label}:`}</b>
