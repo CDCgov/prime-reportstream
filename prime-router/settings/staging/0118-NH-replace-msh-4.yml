@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0117-NH-replace-msh-3-5-6-21.yml
+# ./prime multiple-settings set --env staging --input ./settings/staging/0117-NH-replace-msh-4.yml
 ---
 - name: "nh-dphs"
   description: "New Hampshire Division of Public Health Services"
