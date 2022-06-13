@@ -7,10 +7,7 @@ describe("Lookuptable API", () => {
             method: "GET",
             url: `${process.env.REACT_APP_BACKEND_URL}/api/lookuptables/list`,
             params: { showInactive: true },
-            headers: {
-                Authorization: "Bearer ",
-                Organization: "",
-            },
+            headers: {},
             responseType: "json",
         });
     });
@@ -24,10 +21,7 @@ describe("Lookuptable API", () => {
         expect(endpointValueSet).toEqual({
             method: "GET",
             url: `${process.env.REACT_APP_BACKEND_URL}/api/lookuptables/${LookupTables.VALUE_SET}/1/content`,
-            headers: {
-                Authorization: "Bearer ",
-                Organization: "",
-            },
+            headers: {},
             responseType: "json",
         });
 
@@ -39,10 +33,7 @@ describe("Lookuptable API", () => {
         expect(endpointValueSetRow).toEqual({
             method: "GET",
             url: `${process.env.REACT_APP_BACKEND_URL}/api/lookuptables/${LookupTables.VALUE_SET_ROW}/1/content`,
-            headers: {
-                Authorization: "Bearer ",
-                Organization: "",
-            },
+            headers: {},
             responseType: "json",
         });
     });

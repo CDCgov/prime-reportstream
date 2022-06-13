@@ -6,10 +6,7 @@ describe("Organization API", () => {
         expect(endpoint).toEqual({
             method: "GET",
             url: `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations`,
-            headers: {
-                Authorization: "Bearer ",
-                Organization: "",
-            },
+            headers: {},
             responseType: "json",
         });
     });
@@ -19,10 +16,7 @@ describe("Organization API", () => {
         expect(endpoint).toEqual({
             method: "GET",
             url: `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/test`,
-            headers: {
-                Authorization: "Bearer ",
-                Organization: "",
-            },
+            headers: {},
             responseType: "json",
         });
     });
@@ -32,10 +26,7 @@ describe("Organization API", () => {
         expect(endpoint).toEqual({
             method: "GET",
             url: `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/test/senders/testSender`,
-            headers: {
-                Authorization: "Bearer ",
-                Organization: "",
-            },
+            headers: {},
             responseType: "json",
         });
     });
