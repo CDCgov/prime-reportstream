@@ -16,7 +16,7 @@ servers:
   - url: http://localhost:7071/api
     description: Developer Environment
 paths:
-  /waters/{organization}/deliveries:
+  /waters/{organization}.{service}/deliveries:
     get:
       operationId: getDeliveries
       summary: Get available reports for a STLT
@@ -27,7 +27,13 @@ paths:
       parameters:
         - name: organization
           in: path
-          description: receiver whose reports we want to see
+          description: receiver whose deliveries we want to see
+          required: true
+          schema:
+            type: string
+        - name: service
+          in: path
+          description: service of the receiver to get deliveries for
           required: true
           schema:
             type: string
@@ -50,7 +56,7 @@ paths:
           description: unauthorized
         '404':
           description: organization does not exist
-  /waters/{reportId}/deliveries:
+  /waters/deliveries/{deliveryId}/history:
     get:
       operationId: getDeliveryDetails
       summary: Get exampled details for a single report
@@ -72,14 +78,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeliveryDetails'
+                $ref: '#/components/schemas/Delivery'
         '400':
           description: bad request
         '401':
           description: unauthorized
         '404':
           description: report does not exist
-  /waters/{reportId}/facilities:
+  /waters/deliveries/{deliveryId}/facilities:
     get:
       operationId: getDeliveryFacilities
       summary: Get facilities for a single report
@@ -155,47 +161,11 @@ components:
         fileName:
           description: the filename for the delivered report
           type: string
-    DeliveryDetails:
-      type: object
-      properties:
-        sent:
-          description: the timestamp for this report was sent
-          type: string
-          format: date-time
-        via:
-          description: how the report was originally sent
-          type: string
-        total:
-          description: total number of reports
-          type: integer
         fileType:
-          description: how the file is encoded
-          type: string
-        type:
-          description: defines if the report is "full ELR"
-          enum: [ELR]
-        reportId:
-          description: the uuid for this report
-          type: string
-          format: uuid
-        expires:
-          description: the timestamp for this report expires
-          type: string
-          format: date-time
-        sendingOrg:
-          description: the name of the organization sending the report
-          type: string
-        receivingOrg:
-          description: the name of the organization receiving the report
-          type: string
-        receivingOrgSvc:
-          description: what the receiving org is expecting to receive
+          description: format in which the report was originally sent
           type: string
         displayName:
           description: what text to display to identify the type of report
-          type: string
-        fileName:
-          description: the name of the file for the report
           type: string
     FacilitiesList:
       type: array

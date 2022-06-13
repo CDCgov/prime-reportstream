@@ -5,7 +5,6 @@
   "fileType": "HL7_BATCH",
   "type": "ELR",
   "reportId": "14e1ee83-687f-4d92-85cb-db685f8a8a03",
-  "expires": 1657300322000,
   "sendingOrg": "",
   "receivingOrg": "hi-phd",
   "receivingOrgSvc": "elr",

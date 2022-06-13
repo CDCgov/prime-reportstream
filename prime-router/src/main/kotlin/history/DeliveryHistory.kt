@@ -13,7 +13,8 @@ import java.time.OffsetDateTime
  *
  * @property actionId reference to the `action` table for the action that created this file
  * @property createdAt when the file was created
- * @property sendingOrg the name of the organization that sent this submission
+ * @property receivingOrg the name of the organization that's receiving this submission
+ * @property receivingOrgSvc the name of the organization's service that's receiving this submission
  * @property httpStatus response code for the user fetching this report file
  * @property externalName actual filename of the file
  * @property reportId unique identifier for this specific report file
@@ -24,7 +25,7 @@ import java.time.OffsetDateTime
 @JsonPropertyOrder(
     value = [
         "deliveryId", "sent", "expires", "receivingOrg", "receivingOrgSvc", "httpStatus",
-        "reportId", "topic", "reportItemCount", "fileName",
+        "reportId", "topic", "reportItemCount", "fileName", "fileType", "displayName",
     ]
 )
 class DeliveryHistory(
@@ -45,7 +46,7 @@ class DeliveryHistory(
     val bodyUrl: String? = null,
     @JsonIgnore
     val schemaName: String,
-    @JsonIgnore
+    @JsonProperty("fileType")
     val bodyFormat: String,
 ) : ReportFileHistory(
     actionId,
@@ -77,5 +78,12 @@ class DeliveryHistory(
             Report.Format.safeValueOf(this.bodyFormat),
             this.createdAt
         )
+    }
+
+    /**
+     * User-friendly name to describe this report file.
+     */
+    val displayName: String get() {
+        return if (externalName.isNullOrBlank()) receivingOrgSvc else externalName
     }
 }
