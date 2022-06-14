@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 
@@ -8,10 +8,12 @@ import Table, {
     LegendItem,
     TableConfig,
 } from "../../../components/Table/Table";
+import { generateUseLookupTable } from "../../../hooks/UseLookupTable";
+import { LookupTables, ValueSetRow } from "../../../network/api/LookupTableApi";
 
 import { Legend } from "./ValueSetsIndex";
 
-const valueSetColumns: ColumnConfig[] = [
+const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
         dataAttr: "display",
         columnHeader: "Display",
@@ -34,37 +36,44 @@ const valueSetColumns: ColumnConfig[] = [
     },
 ];
 
-const defaultValueSetRows = [
-    {
-        display: "American Indian or Alaska Native",
-        code: "1002-5",
-        version: "2.5.1",
-        system: "HL7",
-    },
-    {
-        display: "Asian",
-        code: "2028-9",
-        version: "2.5.4",
-        system: "Name of org",
-    },
-    {
-        display: "Black or African American",
-        code: "2054-5",
-        version: "2.3.0",
-        system: "HL7",
-    },
-];
+// const defaultValueSetRows = [
+//     {
+//         display: "American Indian or Alaska Native",
+//         code: "1002-5",
+//         version: "2.5.1",
+//         system: "HL7",
+//     },
+//     {
+//         display: "Asian",
+//         code: "2028-9",
+//         version: "2.5.4",
+//         system: "Name of org",
+//     },
+//     {
+//         display: "Black or African American",
+//         code: "2054-5",
+//         version: "2.3.0",
+//         system: "HL7",
+//     },
+// ];
 
-/* END OF FAUX DATA AND STUFF TO BE REMOVED WHEN IMPLEMENTING THE API */
-
+const createUseValueSetsRowTable = (valueSetName: string) => {
+    return generateUseLookupTable<ValueSetRow>(
+        LookupTables.VALUE_SET_ROW,
+        valueSetName
+    );
+};
 const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
-    /* This would be replaced by our API response as reactive state (useResource) */
+    const useValueSetsRowTable = useMemo(
+        () => createUseValueSetsRowTable(valueSetName),
+        [valueSetName]
+    );
+    const valueSetRowArray = useValueSetsRowTable();
     // const [sampleValueSetRows, setSampleValueSetRows] = useState<ValueSet[]>(defaultValueSetRows);
 
-    /* We'd pass our config and our API response in this */
     const tableConfig: TableConfig = {
-        columns: valueSetColumns,
-        rows: defaultValueSetRows,
+        columns: valueSetDetailColumnConfig,
+        rows: valueSetRowArray,
     };
     /* These items, I'm assuming, are likely to be generated from API response data? */
     const legendItems: LegendItem[] = [

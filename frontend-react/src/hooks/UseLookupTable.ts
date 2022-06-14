@@ -4,15 +4,14 @@ import axios from "axios";
 import {
     lookupTableApi,
     LookupTable,
-    ValueSet,
     LookupTables,
 } from "../network/api/LookupTableApi";
 import { showError } from "../components/AlertNotifications";
 
 export const generateUseLookupTable =
-    <T>(tableName: LookupTables) =>
+    <T>(tableName: LookupTables, dataSetName: string | null = null) =>
     () => {
-        return useLookupTable<T>(tableName);
+        return useLookupTable<T>(tableName, dataSetName);
     };
 
 export async function getLatestVersion(
@@ -91,14 +90,76 @@ export const getSenderAutomationData = async <T>(
     );
 };
 
-const useLookupTable = <T>(tableName: LookupTables): ValueSet[] => {
-    const [valueSetArray, setValueSetArray] = useState<ValueSet[]>([]);
+export const getSenderAutomationDataRows = async <T>(
+    tableName: LookupTables,
+    dataSetName: string | null = null
+): Promise<any[]> => {
+    debugger;
+    const version: number = await getLatestVersion(tableName);
+    if (version === undefined) {
+        showError("DANGER! no version was found");
+        return [];
+    }
+    let data: T | any[] = await getLatestData<T[]>(version, tableName);
+
+    if (dataSetName !== null)
+        data = data
+            .filter((f) => f.name === dataSetName)
+            .map(
+                // (set: {
+                //     name: string;
+                //     system: string;
+                //     createdBy: string;
+                //     createdAt: string;
+                // }) => ({
+                //     name: set.name,
+                //     system: set.system,
+                //     createdBy: set.createdBy,
+                //     createdAt: set.createdAt,
+                // })
+                (set: {
+                    display: string;
+                    code: string;
+                    version: string;
+                    system: string;
+                }) => ({
+                    display: set.display,
+                    code: set.code,
+                    version: set.version,
+                    system: set.system,
+                })
+            );
+    else
+        data = data.map(
+            (set: {
+                name: string;
+                system: string;
+                createdBy: string;
+                createdAt: string;
+            }) => ({
+                name: set.name,
+                system: set.system,
+                createdBy: set.createdBy,
+                createdAt: set.createdAt,
+            })
+        );
+
+    return data;
+};
+
+const useLookupTable = <T>(
+    tableName: LookupTables,
+    dataSetName: string | null = null
+): T[] => {
+    const [valueSetArray, setValueSetArray] = useState<T[]>([]);
 
     useEffect(() => {
-        getSenderAutomationData<T>(tableName).then((results) => {
-            setValueSetArray(results);
-        });
-    }, [tableName]);
+        getSenderAutomationDataRows<T>(tableName, dataSetName).then(
+            (results) => {
+                setValueSetArray(results);
+            }
+        );
+    }, [dataSetName, tableName]);
 
     return valueSetArray;
 };
