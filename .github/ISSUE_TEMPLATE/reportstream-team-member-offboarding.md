@@ -23,14 +23,16 @@ Initially assign to team lead for person being offboarded.
 
 ## General Access:
 - [ ] Revoke Okta accounts (Search for name, agency email, and contractor email)
-    - [ ] staging
-    - [ ] prod
+  - [ ] staging
+  - [ ] prod
 - [ ] Slack access to channels
 - [ ] Metabase
-    - [ ] staging
-    - [ ] prod
+  - [ ] staging
+  - [ ] prod
 - [ ] Office 365 (CDC as a result of ActiveDirectory)
 - [ ] Keybase
+  - [ ] VPN creditials in `/prime_dev_ops/vpn` (revoke?)
+  - [ ] Access to keybase itself
 - [ ] Mural
 - [ ] Lucid Chart
 - [ ] SendGrid access
@@ -39,4 +41,6 @@ Initially assign to team lead for person being offboarded.
 ## Workflow:
 - [ ] Reassign any github issues
 - [ ] Verify no open git PRs
-- [ ] Delete any old, open branches (may be work in progress)
+- [ ] Delete any old, open branches (maybe work in progress)
+- [ ] Set Away message in CDC Outlook saying they've left and who to contact instead. 
+This is required since it takes time for CDC to deactivate their account.
