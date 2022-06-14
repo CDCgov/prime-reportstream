@@ -94,7 +94,7 @@ const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
     };
     return (
         <Table
-            title="ReportStream Value Sets"
+            title="ReportStream Core Values"
             legend={<Legend items={legendItems} />}
             datasetAction={datasetActionItem}
             config={tableConfig}
@@ -123,7 +123,7 @@ const ValueSetsDetailHeader = ({
         <>
             <h1>{valueSetName}</h1>
             <p>
-                File will fail if numberic values or test values are not entered
+                File will fail if numeric values or test values are not entered
                 using accepted values or field is left blank.
             </p>
             <p>
@@ -150,7 +150,7 @@ const ValueSetsDetail = () => {
     return (
         <>
             <Helmet>
-                <title>Value Sets | Admin | {valueSetName}</title>
+                <title>{`Value Sets | Admin | ${valueSetName}`}</title>
             </Helmet>
             <section className="grid-container">
                 <ValueSetsDetailHeader

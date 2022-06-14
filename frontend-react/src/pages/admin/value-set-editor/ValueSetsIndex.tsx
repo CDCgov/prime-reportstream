@@ -29,6 +29,10 @@ const valueSetColumnConfig: ColumnConfig[] = [
     {
         dataAttr: "name",
         columnHeader: "Valueset Name",
+        feature: {
+            link: true,
+            linkBasePath: "value-sets/",
+        },
     },
     {
         dataAttr: "system",
@@ -58,7 +62,6 @@ const ValueSetsTable = () => {
         <Table
             title="ReportStream Value Sets"
             config={tableConfig}
-            enableEditableRows
             editableCallback={(v: string) => console.log(v)}
         />
     );

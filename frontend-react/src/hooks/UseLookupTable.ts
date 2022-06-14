@@ -94,57 +94,28 @@ export const getSenderAutomationDataRows = async <T>(
     tableName: LookupTables,
     dataSetName: string | null = null
 ): Promise<any[]> => {
-    debugger;
     const version: number = await getLatestVersion(tableName);
     if (version === undefined) {
         showError("DANGER! no version was found");
         return [];
     }
-    let data: T | any[] = await getLatestData<T[]>(version, tableName);
+    const data: T | any[] = await getLatestData<T[]>(version, tableName);
 
-    if (dataSetName !== null)
-        data = data
-            .filter((f) => f.name === dataSetName)
-            .map(
-                // (set: {
-                //     name: string;
-                //     system: string;
-                //     createdBy: string;
-                //     createdAt: string;
-                // }) => ({
-                //     name: set.name,
-                //     system: set.system,
-                //     createdBy: set.createdBy,
-                //     createdAt: set.createdAt,
-                // })
-                (set: {
-                    display: string;
-                    code: string;
-                    version: string;
-                    system: string;
-                }) => ({
-                    display: set.display,
-                    code: set.code,
-                    version: set.version,
-                    system: set.system,
-                })
-            );
-    else
-        data = data.map(
+    return data
+        .filter((f) => f.name === dataSetName)
+        .map(
             (set: {
-                name: string;
+                display: string;
+                code: string;
+                version: string;
                 system: string;
-                createdBy: string;
-                createdAt: string;
             }) => ({
-                name: set.name,
+                display: set.display,
+                code: set.code,
+                version: set.version,
                 system: set.system,
-                createdBy: set.createdBy,
-                createdAt: set.createdAt,
             })
         );
-
-    return data;
 };
 
 const useLookupTable = <T>(
@@ -154,11 +125,18 @@ const useLookupTable = <T>(
     const [valueSetArray, setValueSetArray] = useState<T[]>([]);
 
     useEffect(() => {
-        getSenderAutomationDataRows<T>(tableName, dataSetName).then(
-            (results) => {
-                setValueSetArray(results);
-            }
-        );
+        let promiseResult: Promise<any[]>;
+        if (dataSetName !== null) {
+            promiseResult = getSenderAutomationDataRows<T>(
+                tableName,
+                dataSetName
+            );
+        } else {
+            promiseResult = getSenderAutomationData<T>(tableName);
+        }
+        promiseResult.then((results) => {
+            setValueSetArray(results);
+        });
     }, [dataSetName, tableName]);
 
     return valueSetArray;
