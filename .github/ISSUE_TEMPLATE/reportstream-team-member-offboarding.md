@@ -23,14 +23,16 @@ Initially assign to team lead for person being offboarded.
 
 ## General Access:
 - [ ] Revoke Okta accounts (Search for name, agency email, and contractor email)
-    - [ ] staging
-    - [ ] prod
+  - [ ] staging
+  - [ ] prod
 - [ ] Slack access to channels
 - [ ] Metabase
-    - [ ] staging
-    - [ ] prod
+  - [ ] staging
+  - [ ] prod
 - [ ] Office 365 (CDC as a result of ActiveDirectory)
 - [ ] Keybase
+  - [ ] VPN creditials in `/prime_dev_ops/vpn` (revoke?)
+  - [ ] Access to keybase itself
 - [ ] Mural
 - [ ] Lucid Chart
 - [ ] SendGrid access
