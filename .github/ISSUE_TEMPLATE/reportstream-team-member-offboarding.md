@@ -39,4 +39,6 @@ Initially assign to team lead for person being offboarded.
 ## Workflow:
 - [ ] Reassign any github issues
 - [ ] Verify no open git PRs
-- [ ] Delete any old, open branches (may be work in progress)
+- [ ] Delete any old, open branches (maybe work in progress)
+- [ ] Set Away message in CDC Outlook saying they've left and who to contact instead. 
+This is required since it takes time for CDC to deactivate their account.
