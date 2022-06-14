@@ -41,8 +41,9 @@ class FhirTranscoderTests {
         assertTrue { isValidJSONObject(encodedBundle) }
 
         // Ensure contains id and type
-        assertThat(encodedBundle).contains("\"id\":\"${testBundle.id}\"")
-        assertThat(encodedBundle).contains("\"type\":\"${testBundle.type.name.lowercase()}\"")
+        val jsonObj = JSONObject(encodedBundle)
+        assertThat(jsonObj.get("id") == testBundle.id)
+        assertThat(jsonObj.get("type") == testBundle.type.name.lowercase())
     }
 
     @Test
@@ -55,6 +56,7 @@ class FhirTranscoderTests {
         assertThat(decodedBundle.id == "someid")
         assertThat(decodedBundle.type == Bundle.BundleType.MESSAGE)
     }
+
     @Test
     fun `test encoding and decoding combination`() {
         // Create test FHIR Bundle
@@ -66,7 +68,7 @@ class FhirTranscoderTests {
 
         val encodedBundle = FhirTranscoder.encode(testBundle)
         val decodedBundle = FhirTranscoder.decode(encodedBundle)
-        // Ensure the decode output is the same as the encoded input
+        // Ensure the decoded output is the same as the input pre-encode
         assertThat(decodedBundle).isNotNull()
         assertThat(decodedBundle == testBundle)
     }
