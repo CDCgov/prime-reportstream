@@ -36,27 +36,6 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
     },
 ];
 
-// const defaultValueSetRows = [
-//     {
-//         display: "American Indian or Alaska Native",
-//         code: "1002-5",
-//         version: "2.5.1",
-//         system: "HL7",
-//     },
-//     {
-//         display: "Asian",
-//         code: "2028-9",
-//         version: "2.5.4",
-//         system: "Name of org",
-//     },
-//     {
-//         display: "Black or African American",
-//         code: "2054-5",
-//         version: "2.3.0",
-//         system: "HL7",
-//     },
-// ];
-
 const createUseValueSetsRowTable = (valueSetName: string) => {
     return generateUseLookupTable<ValueSetRow>(
         LookupTables.VALUE_SET_ROW,
