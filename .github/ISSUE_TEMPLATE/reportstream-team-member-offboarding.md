@@ -21,7 +21,7 @@ Initially assign to team lead for person being offboarded.
 - [ ] Splunk
 - [ ] Docker Desktop license assignment
 
-## General:
+## General Access:
 - [ ] Revoke Okta accounts (Search for name, agency email, and contractor email)
     - [ ] staging
     - [ ] prod
@@ -35,3 +35,8 @@ Initially assign to team lead for person being offboarded.
 - [ ] Lucid Chart
 - [ ] SendGrid access
 - [ ] Any additional CDC-specific off-boarding (did they get a PIV?)
+
+## Workflow:
+- [ ] Reassign any github issues
+- [ ] Verify no open git PRs
+- [ ] Delete any old, open branches (may be work in progress)
