@@ -1,5 +1,6 @@
-import AuthResource from "./AuthResource";
 import { formatDate } from "../utils/misc";
+
+import AuthResource from "./AuthResource";
 
 export class AdmSendFailuresResource extends AuthResource {
     /* the unique id for the action */

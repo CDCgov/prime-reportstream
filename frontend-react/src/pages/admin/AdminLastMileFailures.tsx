@@ -1,7 +1,8 @@
 import { NetworkErrorBoundary } from "rest-hooks";
-import { ErrorPage } from "../error/ErrorPage";
 import { Helmet } from "react-helmet";
 import { Suspense } from "react";
+
+import { ErrorPage } from "../error/ErrorPage";
 import Spinner from "../../components/Spinner";
 import HipaaNotice from "../../components/HipaaNotice";
 import { AdminLastMileFailuresTable } from "../../components/Admin/AdminLastMileFailuresTable";

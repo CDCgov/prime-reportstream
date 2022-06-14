@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import { useResource } from "rest-hooks";
 import {
     Button,
@@ -12,6 +11,8 @@ import {
     Table,
     TextInput,
 } from "@trussworks/react-uswds";
+
+import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import { formatDate } from "../../utils/misc";
 import { showAlertNotification, showError } from "../AlertNotifications";
 import { getStoredOktaToken } from "../../contexts/SessionStorageTools";
