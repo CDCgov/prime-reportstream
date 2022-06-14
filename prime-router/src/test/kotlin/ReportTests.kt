@@ -5,7 +5,9 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import java.io.ByteArrayInputStream
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.fail
@@ -184,26 +186,84 @@ class ReportTests {
 
     @Test
     fun `test deidentify`() {
-        val one = Schema(
+        var one = Schema(
+            name = "one",
+            topic = "test",
+            elements = listOf(Element("a", pii = true), Element("b"), Element("patient_zip_code"))
+        )
+
+        // Mock restricted_zip_code data
+        val patient_zip = """
+            patient_zip
+            036
+            059
+            102
+            203
+            205
+            369
+            556
+            692
+            821
+        """.trimIndent()
+
+        val restrictedZipTable = LookupTable.read(inputStream = ByteArrayInputStream(patient_zip.toByteArray()))
+        metadata.loadLookupTable("restricted_zip_code", restrictedZipTable)
+
+        var oneReport = Report(
+            schema = one,
+            values = listOf(
+                listOf("a1", "b1", "55555"),
+                listOf("a2", "b2", "10266-1234"),
+                listOf("a3", "b3", "03266-4567"),
+                listOf("a4", "b3", "03655"),
+                listOf("a5", "b5", "05926-9876"),
+                listOf("a6", "b6", "20345-1596"),
+                listOf("a7", "b7", "20589-7532"),
+                listOf("a8", "b8", "36947"),
+                listOf("a9", "b9", "55632-6478"),
+                listOf("a10", "b10", "69283-3298"),
+                listOf("a11", "b11", "82159")
+            ),
+            source = TestSource,
+            metadata = metadata
+        )
+
+        val oneDeidentified = oneReport.deidentify("")
+        assertThat(oneDeidentified.itemCount).isEqualTo(11) // Check row count
+        assertThat(oneDeidentified.getString(0, "a")).isEqualTo("")
+        assertThat(oneDeidentified.getString(0, "b")).isEqualTo("b1")
+        assertThat(oneDeidentified.getString(0, "patient_zip_code")).isEqualTo("55500")
+        assertThat(oneDeidentified.getString(1, "patient_zip_code")).isEqualTo("00000") // 102
+        assertThat(oneDeidentified.getString(2, "patient_zip_code")).isEqualTo("03200")
+        assertThat(oneDeidentified.getString(3, "patient_zip_code")).isEqualTo("00000") // 036
+        assertThat(oneDeidentified.getString(4, "patient_zip_code")).isEqualTo("00000") // 059
+        assertThat(oneDeidentified.getString(5, "patient_zip_code")).isEqualTo("00000") // 203
+        assertThat(oneDeidentified.getString(6, "patient_zip_code")).isEqualTo("00000") // 205
+        assertThat(oneDeidentified.getString(7, "patient_zip_code")).isEqualTo("00000") // 369
+        assertThat(oneDeidentified.getString(8, "patient_zip_code")).isEqualTo("00000") // 556
+        assertThat(oneDeidentified.getString(9, "patient_zip_code")).isEqualTo("00000") // 692
+        assertThat(oneDeidentified.getString(10, "patient_zip_code")).isEqualTo("00000") // 821
+
+        val two = Schema(
             name = "one",
             topic = "test",
             elements = listOf(Element("a", pii = true), Element("b"))
         )
 
-        val oneReport = Report(
-            schema = one,
+        val twoReport = Report(
+            schema = two,
             values = listOf(listOf("a1", "b1"), listOf("", "b2")),
             source = TestSource,
             metadata = metadata
         )
 
-        val oneDeidentified = oneReport.deidentify("TEST")
-        assertThat(oneDeidentified.itemCount).isEqualTo(2)
-        assertThat(oneDeidentified.getString(0, "a")).isEqualTo("TEST")
-        assertThat(oneDeidentified.getString(1, "a")).isEqualTo("")
-        assertThat(oneDeidentified.getString(0, "b")).isEqualTo("b1")
+        val twoDeidentified = twoReport.deidentify("TEST")
+        assertThat(twoDeidentified.itemCount).isEqualTo(2)
+        assertThat(twoDeidentified.getString(0, "a")).isEqualTo("TEST")
+        assertThat(twoDeidentified.getString(1, "a")).isEqualTo("")
+        assertThat(twoDeidentified.getString(0, "b")).isEqualTo("b1")
 
-        val oneDeidentifiedBlank = oneReport.deidentify("")
+        val oneDeidentifiedBlank = twoReport.deidentify("")
         assertThat(oneDeidentifiedBlank.itemCount).isEqualTo(2)
         assertThat(oneDeidentifiedBlank.getString(0, "a")).isEqualTo("")
         assertThat(oneDeidentifiedBlank.getString(1, "a")).isEqualTo("")

@@ -1,4 +1,5 @@
 type_1:
+   condition: $identifierCoding NOT_NULL
    valueOf: datatype/CodeableConcept
    expressionType: resource
    specs: CX.5 | $typeSegment

@@ -99,13 +99,13 @@ export const FacilitiesOverview = () => {
                         <p>
                             For more information, read the&nbsp;
                             <a
-                                href="/assets/pdf/ReportStream-Programmers-Guide-v2.1.pdf"
+                                href="/assets/pdf/ReportStream-Programmers-Guide-v2.2.pdf"
                                 className="usa-link"
                                 rel="noopener noreferrer"
                                 target="_blank"
                             >
                                 ReportStream programmer's guide for testing
-                                facilities and senders (PDF, updated March 2022)
+                                facilities and senders (PDF, updated June 2022)
                             </a>
                         </p>
                     </li>

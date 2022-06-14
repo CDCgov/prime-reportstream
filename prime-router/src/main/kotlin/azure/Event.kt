@@ -23,7 +23,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         PROCESS_WARNING, // when an attempt at a process action fails, but will be retried
         PROCESS_ERROR, // when an attempt at a process action fails permanently
         RECEIVE,
-        TRANSLATE, // Deprecated
+        TRANSLATE,
         BATCH,
         SEND,
         WIPE, // Deprecated
@@ -161,7 +161,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
 }
 
 /**
- * An event that goes on and is read off of the 'process' queue.
+ * An event that goes on and is read off of an azure queue.
  * @param reportId The report ID to be processed
  * @param options Options passed in on the initial call
  * @param defaults Defaults passed in on the initial call

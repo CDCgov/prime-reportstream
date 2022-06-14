@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import org.apache.logging.log4j.kotlin.Logging
 import java.util.UUID
@@ -12,7 +12,7 @@ import java.util.UUID
  * Contains all business logic regarding submissions and JSON serialization.
  */
 abstract class ReportFileFacade(
-    private val dbAccess: DatabaseAccess = WorkflowEngine.databaseAccessSingleton
+    private val dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton
 ) : Logging {
     /**
      * @return a single Action associated with this [reportId]

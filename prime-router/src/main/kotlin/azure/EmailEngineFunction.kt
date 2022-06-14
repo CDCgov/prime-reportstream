@@ -30,6 +30,7 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.azure.db.enums.SettingType
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.secrets.SecretHelper
 import gov.cdc.prime.router.tokens.oktaMembershipClaim
 import gov.cdc.prime.router.tokens.oktaSubjectClaim
@@ -79,7 +80,7 @@ class EmailScheduleEngine {
         var ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
 
         if (!user.isNullOrEmpty()) {
-            val id = WorkflowEngine.databaseAccessSingleton.insertEmailSchedule(request.body, user)
+            val id = BaseEngine.databaseAccessSingleton.insertEmailSchedule(request.body, user)
             ret.status(HttpStatus.CREATED)
             ret.body("$id")
         }
@@ -104,7 +105,7 @@ class EmailScheduleEngine {
         var ret = request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
 
         if (!user.isNullOrEmpty()) {
-            val id = WorkflowEngine.databaseAccessSingleton.deleteEmailSchedule(scheduleId)
+            val id = BaseEngine.databaseAccessSingleton.deleteEmailSchedule(scheduleId)
             ret.status(HttpStatus.OK)
             ret.body("$id")
         }
@@ -133,7 +134,7 @@ class EmailScheduleEngine {
 
         // get the schedules to fire
         val schedulesToFire: Iterable<EmailSchedule> =
-            WorkflowEngine.databaseAccessSingleton
+            BaseEngine.databaseAccessSingleton
                 .fetchEmailSchedules()
                 .map { mapper.readValue<EmailSchedule>(it) }
                 .filter { shouldFire(it) }

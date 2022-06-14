@@ -3,7 +3,6 @@ package gov.cdc.prime.router.fhirengine.utils
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
@@ -12,8 +11,10 @@ import io.mockk.spyk
 import io.mockk.verify
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Coding
+import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.Organization
+import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.StringType
 import java.time.Instant
@@ -25,10 +26,53 @@ import kotlin.test.Test
 class CompareFhirDataTests {
     @Test
     fun `test get FHIR type path`() {
-        assertThat(CompareFhirData.getFhirTypePath("", "value")).isEqualTo("value")
-        assertThat(CompareFhirData.getFhirTypePath("parent", "value")).isEqualTo("parent.value")
-        assertThat { CompareFhirData.getFhirTypePath("parent", "") }.isFailure()
-        assertThat { CompareFhirData.getFhirTypePath("", "") }.isFailure()
+        val resourceA = Organization()
+        resourceA.name = "nameA"
+        resourceA.alias = listOf(StringType("aliasA"))
+
+        assertThat(CompareFhirData.getFhirTypePath("", resourceA))
+            .isEqualTo("Organization")
+        assertThat(CompareFhirData.getFhirTypePath("parent", resourceA))
+            .isEqualTo("parent.Organization")
+    }
+
+    @Test
+    fun `test get FHIR ID path`() {
+        val resourceA = Organization()
+        resourceA.id = UUID.randomUUID().toString()
+        resourceA.name = "nameA"
+
+        val resourceB = Patient()
+        resourceB.id = UUID.randomUUID().toString()
+        resourceB.active = true
+
+        val extensionC = Extension()
+        val extensionName = "some-extension-name"
+        extensionC.url = "https://dummy.com/uri/$extensionName"
+
+        val notResourceD = Coding()
+        notResourceD.code = "somecode"
+
+        assertThat(CompareFhirData.getFhirIdPath("", resourceA))
+            .isEqualTo(resourceA.id)
+        assertThat(CompareFhirData.getFhirIdPath("parent", resourceA))
+            .isEqualTo("parent->${resourceA.id}")
+
+        // Test that the parent is just one ID and it matches
+        assertThat(CompareFhirData.getFhirIdPath(resourceA.id, resourceA))
+            .isEqualTo(resourceA.id)
+
+        // Test the parent is different
+        assertThat(CompareFhirData.getFhirIdPath(resourceB.id, resourceA))
+            .isEqualTo("${resourceB.id}->${resourceA.id}")
+
+        // Not a resource
+        assertThat(CompareFhirData.getFhirIdPath(resourceA.id, notResourceD))
+            .isEqualTo(resourceA.id)
+
+        // An extension
+        assertThat(CompareFhirData.getFhirIdPath(resourceA.id, extensionC))
+            .isEqualTo("${resourceA.id}->Extension($extensionName)")
     }
 
     @Test
@@ -56,7 +100,7 @@ class CompareFhirDataTests {
     }
 
     @Test
-    fun `test compare value`() {
+    fun `test compare property`() {
         val actualBundleA = Bundle()
         actualBundleA.type = Bundle.BundleType.MESSAGE
         actualBundleA.id = "someid"
@@ -76,61 +120,105 @@ class CompareFhirDataTests {
         var comparator = spyk(CompareFhirData(dynamicProperties = listOf("Bundle.timestamp")))
 
         // Dissimilar types
-        assertThat(
-            comparator.compareValue(
-                actualBundleA.getChildByName("type").values[0],
-                expectedBundle.getChildByName("timestamp").values[0],
-                "Bundle.type", result = CompareData.Result()
-            )
-        ).isFalse()
+
+        var result = comparator.compareProperties(
+            actualBundleA.getChildByName("type").values[0],
+            expectedBundle.getChildByName("timestamp").values[0],
+            "someid", "Bundle.type"
+        )
+        assertThat(result.passed).isFalse()
+
+        result = comparator.compareProperties(
+            actualBundleA.getChildByName("type").values[0],
+            expectedBundle.getChildByName("type").values[0],
+            "someid", "Bundle.type"
+        )
+        assertThat(result.passed).isFalse()
 
         // Dynamic types
-        assertThat(
-            comparator.compareValue(
-                actualBundleA.getChildByName("timestamp").values[0],
-                expectedBundle.getChildByName("timestamp").values[0], "Bundle.timestamp",
-                result = CompareData.Result()
-            )
-        ).isTrue()
+        comparator = spyk(CompareFhirData(dynamicProperties = listOf("Bundle.type")))
+        result = comparator.compareProperties(
+            actualBundleA.getChildByName("type").values[0],
+            expectedBundle.getChildByName("type").values[0],
+            "someid", "Bundle.type"
+        )
+        assertThat(result.passed).isTrue()
 
         // References
         comparator = spyk(CompareFhirData())
         val reference = Reference()
         reference.resource = Organization()
-        comparator.compareValue(
-            reference,
-            reference,
-            result = CompareData.Result()
+        val extension = Extension()
+        extension.url = "http://some/url"
+        extension.setValue(reference)
+
+        comparator.compareProperties(
+            extension,
+            extension,
+            "Extension(url)", "Extension"
         )
-        verify(exactly = 1) { comparator.compareReference(reference, reference, any(), any()) }
+        verify(exactly = 1) { comparator.compareReference(reference, listOf(reference), any(), any()) }
 
         // Resources
         comparator = spyk(CompareFhirData())
         val messageHeader = MessageHeader()
         messageHeader.source = MessageHeader.MessageSourceComponent()
         messageHeader.source.name = "name"
-        comparator.compareValue(
+        comparator.compareProperties(
             messageHeader,
             messageHeader,
-            result = CompareData.Result()
+            "someid", "MessageHeader"
         )
-        verify(exactly = 1) { comparator.compareResource(messageHeader, messageHeader, any(), any()) }
+        verify(exactly = 1) {
+            comparator.compareResource(messageHeader.source, listOf(messageHeader.source), any(), any())
+        }
 
         // Primitive type
-        assertThat(
-            comparator.compareValue(
+        result =
+            comparator.compareProperties(
                 actualBundleA.getChildByName("type").values[0],
                 expectedBundle.getChildByName("type").values[0],
-                "Bundle.type", result = CompareData.Result()
+                "", "Bundle.type"
             )
-        ).isFalse()
-        assertThat(
-            comparator.compareValue(
+        assertThat(result.passed).isFalse()
+        result =
+            comparator.compareProperties(
                 actualBundleB.getChildByName("type").values[0],
                 expectedBundle.getChildByName("type").values[0],
-                "Bundle.type", result = CompareData.Result()
+                "", "Bundle.type"
             )
-        ).isTrue()
+        assertThat(result.passed).isTrue()
+    }
+
+    @Test
+    fun `test compare primitive`() {
+        val actualBundle = Bundle()
+        actualBundle.type = Bundle.BundleType.COLLECTION
+        actualBundle.id = "someid"
+
+        val expectedBundle = Bundle()
+        expectedBundle.type = Bundle.BundleType.COLLECTION
+        expectedBundle.id = "someotherid"
+
+        assertThat(actualBundle.getChildByName("type").values[0].isPrimitive)
+
+        val comparator = spyk(CompareFhirData(dynamicProperties = listOf("Bundle.timestamp")))
+
+        var result =
+            comparator.compareProperties(
+                actualBundle.getChildByName("type").values[0],
+                expectedBundle.getChildByName("type").values[0],
+                "", "Bundle.type"
+            )
+        assertThat(result.passed).isTrue()
+
+        result =
+            comparator.compareProperties(
+                actualBundle.getChildByName("id").values[0],
+                expectedBundle.getChildByName("id").values[0],
+                "", "Bundle.id"
+            )
+        assertThat(result.passed).isFalse()
     }
 
     @Test
@@ -147,41 +235,34 @@ class CompareFhirDataTests {
         val resourceC = Organization()
 
         // Identical resources
-        var result = CompareData.Result()
-        assertThat(comparator.compareResource(resourceA, resourceA, "", result)).isTrue()
+        var result = comparator.compareResource(resourceA, listOf(resourceA), "", "Organization")
         assertThat(result.passed).isTrue()
         assertThat(result.errors).isEmpty()
 
         // Expected has less than actual, but same data
-        result = CompareData.Result()
-        assertThat(comparator.compareResource(resourceA, resourceB, "", result)).isTrue()
-        assertThat(result.errors).isEmpty()
+        result = comparator.compareResource(resourceA, listOf(resourceB), "", "Organization")
+        assertThat(result.passed).isFalse()
+        assertThat(result.errors).isNotEmpty()
 
         // Actual has less than expected, but same data
-        result = CompareData.Result()
-        assertThat(comparator.compareResource(resourceB, resourceA, "", result)).isFalse()
-        assertThat(result.errors).isNotEmpty()
+        result = comparator.compareResource(resourceB, listOf(resourceA), "", "Organization")
+        assertThat(result.passed).isTrue()
+        assertThat(result.errors).isEmpty()
 
         // Expected has less than actual, but same data
-        result = CompareData.Result()
-        assertThat(comparator.compareResource(resourceA, resourceC, "", result)).isTrue()
-        assertThat(result.errors).isEmpty()
+        result = comparator.compareResource(resourceA, listOf(resourceC), "", "Organization")
+        assertThat(result.passed).isFalse()
+        assertThat(result.errors).isNotEmpty()
 
         // Actual has less than expected, but same data
-        result = CompareData.Result()
-        assertThat(comparator.compareResource(resourceC, resourceA, "", result)).isFalse()
-        assertThat(result.errors).isNotEmpty()
+        result = comparator.compareResource(resourceC, listOf(resourceA), "", "Organization")
+        assertThat(result.passed).isTrue()
+        assertThat(result.errors).isEmpty()
 
         // Actual has a primitive instead of a resource
-        result = CompareData.Result()
-        assertThat(comparator.compareResource(StringType("some string"), resourceA, "", result))
-            .isFalse()
+        result = comparator.compareResource(StringType("some string"), listOf(resourceA), "", "")
+        assertThat(result.passed).isFalse()
         assertThat(result.errors).isNotEmpty()
-
-        // Test suppress output
-        result = CompareData.Result()
-        assertThat(comparator.compareResource(resourceC, resourceA, "", result, true)).isFalse()
-        assertThat(result.errors).isEmpty()
     }
 
     @Test
