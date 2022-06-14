@@ -1619,6 +1619,7 @@
         suppressHl7Fields: ORC-23-1,ORC-14-1,OBR-17-1,OBX-18-1, OBX-18-2, OBX-18-3, PID-13-1
         replaceValueAwithB:
           MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO" ]
+          MSH-4: [ "*": "CDC PRIME^11D2030855^CLIA" ]
           MSH-5: [ "*": "NH_ELR^2.16.840.1.114222.4.3.2.2.3.600.4^ISO" ]
           MSH-6: [ "*": "NH_DHHS^2.16.840.1.114222.4.1.3669^ISO" ]
           MSH-21: [ "*": "PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO" ]
