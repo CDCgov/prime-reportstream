@@ -1,0 +1,12 @@
+# Run this:  ./prime multiple-settings set --input ./settings/staging/0117-update-simplereport-add-csvuploader.yml --env staging
+---
+- name: simple_report
+  description: PRIME's POC testing app
+  jurisdiction: FEDERAL
+  senders:
+    - name: csvuploader
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
