@@ -33,8 +33,8 @@ export interface RSRequestConfig extends AxiosRequestConfig {
     headers: RSRequestHeaders;
 }
 /* Prevents overriding RSRequestConfig values */
-export type AdvancedConfig = Omit<
-    AxiosRequestConfig,
+export type AdvancedConfig<D> = Omit<
+    AxiosRequestConfig<D>,
     "url" | "method" | "headers"
 >;
 
@@ -90,7 +90,7 @@ export const buildEndpointUrl = <P extends RSUrlParams>(
 };
 
 /* Handles generating the config from parameters */
-export const createRequestConfig = <P extends RSUrlParams>(
+export const createRequestConfig = <P extends RSUrlParams, D = any>(
     api: API,
     endpointKey: string,
     method: Method,
@@ -98,7 +98,7 @@ export const createRequestConfig = <P extends RSUrlParams>(
     organization?: string,
     parameters?: P,
     // Allows us to use more of AxiosRequestConfig if we want
-    advancedConfig?: AdvancedConfig
+    advancedConfig?: AdvancedConfig<D>
 ): RSRequestConfig => {
     const url = buildEndpointUrl(api, endpointKey, parameters);
     if (url === "") console.warn(`Looks like your url didn't parse!`);
