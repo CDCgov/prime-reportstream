@@ -85,7 +85,10 @@ const ValueSetsTable = () => {
             datasetAction={datasetActionItem}
             config={tableConfig}
             enableEditableRows
-            editableCallback={(v: string) => console.log(v)}
+            editableCallback={(row) => {
+                console.log("!!! saving row", row);
+                return Promise.resolve();
+            }}
         />
     );
 };

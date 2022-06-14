@@ -43,6 +43,7 @@ extension_1:
         name: String, XCN.14.1
 
 extension_2:
+  condition: $contactSpec NOT_NULL
   generateList: true
   expressionType: nested
   expressionsMap:
