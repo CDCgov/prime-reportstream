@@ -6,8 +6,7 @@ import {
     IconNavigateBefore,
     IconNavigateNext,
 } from "@trussworks/react-uswds";
-import { NavLink } from "react-router-dom";
-import React, { ReactNode, useMemo, useState } from "react";
+import React, { ReactNode, useMemo } from "react";
 
 import Pagination, { PaginationProps } from "../../components/Table/Pagination";
 import {
@@ -20,13 +19,7 @@ import {
     SortSettingsActionType,
 } from "../../hooks/filters/UseSortOrder";
 
-// each table row will be a map keyed off the dataAttr value of
-// a column from the column config from the same tableConfig.
-// values will largely be assumed to be primitive values, or values
-// to be passed into a transform function defined in the column config
-export interface TableRow {
-    [key: string]: any;
-}
+import { TableRows } from "./TableRows";
 
 export interface ActionableColumn {
     action: Function;
@@ -37,6 +30,14 @@ export interface LinkableColumn {
     link: boolean;
     linkBasePath?: string;
     linkAttr?: string; // if no linkAttr is given, defaults to dataAttr
+}
+
+// each table row will be a map keyed off the dataAttr value of
+// a column from the column config from the same tableConfig.
+// values will largely be assumed to be primitive values, or values
+// to be passed into a transform function defined in the column config
+export interface TableRow {
+    [key: string]: any;
 }
 
 /* ColumnConfig tells the Table element how to render each column
@@ -70,13 +71,7 @@ export interface DatasetAction {
     method: Function;
 }
 
-export interface ColumnProps {
-    rowIndex: number;
-    colIndex: number;
-    rowData: TableRow;
-    columnConfig: ColumnConfig;
-    editing?: boolean;
-}
+export type RowSideEffect = (row: TableRow | null) => Promise<void>;
 
 export interface TableProps {
     config: TableConfig;
@@ -90,7 +85,7 @@ export interface TableProps {
     cursorManager?: CursorManager;
     paginationProps?: PaginationProps;
     enableEditableRows?: boolean;
-    editableCallback?: Function;
+    editableCallback?: RowSideEffect;
 }
 
 export interface LegendItem {
@@ -107,6 +102,7 @@ const Table = ({
     cursorManager,
     paginationProps,
     enableEditableRows,
+    editableCallback = () => Promise.resolve(),
 }: TableProps) => {
     /* memoizedRows is the source of truth for rendered table rows. If a local
      * sort is applied, this function reactively sorts the rows passed in. If
@@ -248,125 +244,6 @@ const Table = ({
         );
     };
 
-    const showMappedValue = (columnConfig: ColumnConfig, object: TableRow) => {
-        if (columnConfig.valueMap) {
-            return (
-                <span>
-                    {columnConfig.valueMap?.get(
-                        object[columnConfig.dataAttr]
-                    ) || object[columnConfig.dataAttr]}
-                </span>
-            );
-        } else {
-            return <span>{object[columnConfig.dataAttr]}</span>;
-        }
-    };
-
-    // renders display for a single data field
-    const ColumnData = ({
-        rowIndex,
-        colIndex,
-        rowData,
-        columnConfig,
-        editing,
-    }: ColumnProps) => {
-        // Util functions
-        // TODO: move these functions outside of the render
-
-        // Easy-to-read way to transform value
-        const transform = (
-            transformFunc: Function,
-            transformVal: string | number
-        ) => {
-            return transformFunc(transformVal);
-        };
-        // Runtime type checking for ColumnFeature
-        const hasFeature = (attr: string): boolean => {
-            if (!columnConfig.feature) return false;
-            return Object.keys(columnConfig.feature).includes(attr);
-        };
-        // Editing state indicator
-        const isEditing = (): boolean =>
-            (editing && columnConfig.editable) || false;
-        // <td> wrapper w/ key
-        const tableData = (child: ReactNode) => (
-            <td key={`${rowIndex}:${colIndex}`}>{child}</td>
-        );
-
-        // indexes into rowData map based on the column's dataAttr value
-        let displayValue = rowData[columnConfig.dataAttr];
-
-        // apply a field value transform if supplied
-        if (columnConfig.transform) {
-            displayValue = transform(
-                columnConfig.transform,
-                rowData[columnConfig.dataAttr]
-            );
-        }
-
-        if (hasFeature("link")) {
-            // Render column value as NavLink
-            const feature = columnConfig?.feature as LinkableColumn;
-            return tableData(
-                <NavLink
-                    className="usa-link"
-                    to={`${feature.linkBasePath || ""}${
-                        rowData[feature.linkAttr || columnConfig.dataAttr]
-                    }`}
-                >
-                    {columnConfig.valueMap
-                        ? showMappedValue(columnConfig, rowData)
-                        : displayValue}
-                </NavLink>
-            );
-        }
-
-        if (hasFeature("action")) {
-            // Make column value actionable
-            const { action, param } = columnConfig.feature as ActionableColumn;
-
-            if (!rowData[param!!]) {
-                console.warn(`The row attribute '${param}' could not be found`);
-            }
-
-            const doAction = () => {
-                if (param) return action(rowData[param]);
-                return action();
-            };
-            return tableData(
-                <button
-                    className="usa-link bg-transparent border-transparent"
-                    onClick={() => doAction()}
-                >
-                    {displayValue}
-                </button>
-            );
-        }
-
-        if (isEditing()) {
-            // Make column value editable
-            return tableData(
-                <input
-                    className="usa-input"
-                    /* This directly updates the rowData object, NOT the
-                     * displayValue, which prevents multi-layer callbacks
-                     * being required. */
-                    onChange={(event) =>
-                        (rowData[columnConfig.dataAttr] = event.target.value)
-                    }
-                    /* This ensures the value seen in the edit field is
-                     * the same as the server-provided data, NOT the
-                     * displayed data (in case of transformation/map) */
-                    defaultValue={rowData[columnConfig.dataAttr]}
-                />
-            );
-        }
-
-        return columnConfig.valueMap
-            ? tableData(showMappedValue(columnConfig, rowData))
-            : tableData(displayValue);
-    };
-
     const DatasetActionButton = ({ label, method }: DatasetAction) => {
         return (
             <Button type={"button"} onClick={() => method()}>
@@ -388,58 +265,6 @@ const Table = ({
                     ) : null}
                 </div>
             </div>
-        );
-    };
-
-    /* Iterates each row, and then uses the key value from columns.keys()
-     * to render each cell in the appropriate column. */
-    const TableRows = () => {
-        const [editing, setEditing] = useState<number | undefined>();
-        const editableRowButtonValue = (isEditing: boolean) =>
-            isEditing ? "Save" : "Edit";
-        return (
-            <>
-                {memoizedRows.map((object, rowIndex) => {
-                    // Caps page size when filterManager exists
-                    if (
-                        filterManager &&
-                        rowIndex >= filterManager?.pageSettings.size
-                    )
-                        return null;
-                    return (
-                        <tr key={rowIndex}>
-                            {config.columns.map((colConfig, colIndex) => (
-                                <ColumnData
-                                    key={`${rowIndex}:${colIndex}:TOP`}
-                                    rowIndex={rowIndex}
-                                    colIndex={colIndex}
-                                    columnConfig={colConfig}
-                                    rowData={object}
-                                    editing={editing === rowIndex}
-                                />
-                            ))}
-                            {enableEditableRows ? (
-                                <td key={`${rowIndex}:EDIT`}>
-                                    <Button
-                                        type="submit"
-                                        onClick={() => {
-                                            if (editing !== undefined) {
-                                                setEditing(undefined);
-                                                return;
-                                            }
-                                            setEditing(rowIndex);
-                                        }}
-                                    >
-                                        {editableRowButtonValue(
-                                            editing === rowIndex
-                                        )}
-                                    </Button>
-                                </td>
-                            ) : null}
-                        </tr>
-                    );
-                })}
-            </>
         );
     };
 
@@ -492,7 +317,13 @@ const Table = ({
                         <TableHeaders />
                     </thead>
                     <tbody className="font-mono-2xs">
-                        <TableRows />
+                        <TableRows
+                            rows={memoizedRows}
+                            onSave={editableCallback}
+                            enableEditableRows={enableEditableRows}
+                            filterManager={filterManager}
+                            columns={config.columns}
+                        />
                     </tbody>
                 </table>
                 {cursorManager && <PaginationButtons {...cursorManager} />}
