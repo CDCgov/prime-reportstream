@@ -50,6 +50,16 @@ describe("Api interfaces", () => {
         );
     });
 
+    test("buildEndpointUrl: invalid endpoint key", () => {
+        /* Endpoint does not exist */
+        buildEndpointUrl<{ id: number }>(MyApi, "detailSpelledWrong", {
+            id: 123,
+        });
+        expect(mockConsoleError).toHaveBeenCalledWith(
+            "You must provide a valid endpoint key: detailSpelledWrong not found"
+        );
+    });
+
     test("createAxiosConfig: basic config", () => {
         const baseConfig = createAxiosConfig(MyApi, "list", "GET");
         expect(baseConfig).toEqual({
