@@ -62,7 +62,10 @@ const ValueSetsTable = () => {
         <Table
             title="ReportStream Value Sets"
             config={tableConfig}
-            editableCallback={(v: string) => console.log(v)}
+            editableCallback={(row) => {
+                console.log("!!! saving row", row);
+                return Promise.resolve();
+            }}
         />
     );
 };
