@@ -197,6 +197,11 @@ class CompareFhirData(
         return result
     }
 
+    /**
+     * Compare a FHIR primitive value of [actualPrimitive] to an [expectedPrimitive] and provide the result.
+     * [primitiveTypePath] is the type path of the parent resource and [primitiveIdPath] is the ID path of the parent resource.
+     * @return the comparison result
+     */
     internal fun comparePrimitive(
         expectedPrimitive: Base,
         actualPrimitive: List<Base>,
