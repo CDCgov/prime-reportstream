@@ -16,6 +16,7 @@ module "init" {
   app_config_kv_name          = var.app_config_kv_name
   client_config_kv_name       = var.client_config_kv_name
   dns_vnet                    = var.dns_vnet
+  network                     = var.network
 }
 
 ##########

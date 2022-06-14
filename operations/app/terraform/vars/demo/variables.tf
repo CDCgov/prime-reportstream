@@ -54,11 +54,51 @@ variable "network" {
   default = {
     "East-vnet" = {
       "address_space"           = "172.17.8.0/25"
-      "dns_servers"             = ["172.17.0.135"]
+      "dns_servers"             = "172.17.0.135"
       "location"                = "East Us"
       "nsg_prefix"              = "eastus-"
       "network_security_groups" = ["private", "public", "container", "endpoint"]
-      "subnets"                 = ["public", "private", "container", "endpoint"]
+      subnet_nsg_details = {
+        public = {
+          nsg = "public"
+        }
+        container = {
+          nsg = "public"
+        }
+        private = {
+          nsg = "private"
+        }
+        endpoint = {
+          nsg = "private"
+        }
+      }
+      "subnets" = ["public", "private", "container", "endpoint"]
+      subnet_details = {
+        public = {
+          address_prefix     = "172.17.8.0/28"
+          security_group     = "public"
+          service_endpoints  = ["Microsoft.ContainerRegistry", "Microsoft.Storage", "Microsoft.Sql", "Microsoft.Web", "Microsoft.KeyVault"]
+          service_delegation = ["Microsoft.Web/serverFarms"]
+        }
+        container = {
+          address_prefix     = "172.17.8.16/28"
+          security_group     = "public"
+          service_endpoints  = ["Microsoft.Storage", "Microsoft.KeyVault"]
+          service_delegation = ["Microsoft.ContainerInstance/containerGroups"]
+        }
+        private = {
+          address_prefix     = "172.17.8.32/28"
+          security_group     = "private"
+          service_endpoints  = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault"]
+          service_delegation = ["Microsoft.Web/serverFarms"]
+        }
+        endpoint = {
+          address_prefix     = "172.17.8.64/27"
+          security_group     = "private"
+          service_endpoints  = ["Microsoft.Storage", "Microsoft.KeyVault"]
+          service_delegation = []
+        }
+      }
       "subnet_cidrs" = [
         {
           name     = "public"
@@ -85,6 +125,46 @@ variable "network" {
       "subnets"                 = ["public", "private", "container", "endpoint"]
       "nsg_prefix"              = "westus-"
       "network_security_groups" = ["private", "public", "container", "endpoint"]
+      subnet_nsg_details = {
+        public = {
+          nsg = "public"
+        }
+        container = {
+          nsg = "public"
+        }
+        private = {
+          nsg = "private"
+        }
+        endpoint = {
+          nsg = "private"
+        }
+      }
+      subnet_details = {
+        public = {
+          address_prefix     = "172.17.8.128/28"
+          security_group     = "public"
+          service_endpoints  = ["Microsoft.ContainerRegistry", "Microsoft.Storage", "Microsoft.Sql", "Microsoft.Web", "Microsoft.KeyVault"]
+          service_delegation = ["Microsoft.Web/serverFarms"]
+        }
+        container = {
+          address_prefix     = "172.17.8.144/28"
+          security_group     = "public"
+          service_endpoints  = ["Microsoft.Storage", "Microsoft.KeyVault"]
+          service_delegation = ["Microsoft.ContainerInstance/containerGroups"]
+        }
+        private = {
+          address_prefix     = "172.17.8.160/28"
+          security_group     = "private"
+          service_endpoints  = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault"]
+          service_delegation = ["Microsoft.Web/serverFarms"]
+        }
+        endpoint = {
+          address_prefix     = "172.17.8.192/27"
+          security_group     = "private"
+          service_endpoints  = ["Microsoft.Storage", "Microsoft.KeyVault"]
+          service_delegation = []
+        }
+      }
       "subnet_cidrs" = [
         {
           name     = "public"
@@ -105,12 +185,55 @@ variable "network" {
       ]
     },
     "vnet" = {
-      "address_space"           = "10.0.0.0/16"
-      "dns_server"              = [""]
-      "location"                = "East Us"
-      "subnets"                 = ["public", "private", "container", "endpoint", "GatewaySubnet"]
+      "address_space" = "10.0.0.0/16"
+      "dns_server"    = [""]
+      "location"      = "East Us"
+      "subnets"       = ["public", "private", "container", "endpoint", "GatewaySubnet"]
+      subnet_details = {
+        public = {
+          address_prefix     = "10.0.1.0/24"
+          security_group     = "public"
+          service_endpoints  = ["Microsoft.ContainerRegistry", "Microsoft.Storage", "Microsoft.Sql", "Microsoft.Web", "Microsoft.KeyVault"]
+          service_delegation = ["Microsoft.Web/serverFarms"]
+        }
+        container = {
+          address_prefix     = "10.0.2.0/24"
+          security_group     = "public"
+          service_endpoints  = ["Microsoft.Storage", "Microsoft.KeyVault"]
+          service_delegation = ["Microsoft.ContainerInstance/containerGroups"]
+        }
+        private = {
+          address_prefix     = "10.0.3.0/24"
+          security_group     = "private"
+          service_endpoints  = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault"]
+          service_delegation = ["Microsoft.Web/serverFarms"]
+        }
+        endpoint = {
+          address_prefix     = "10.0.5.0/24"
+          security_group     = ""
+          service_endpoints  = ["Microsoft.Storage", "Microsoft.KeyVault"]
+          service_delegation = []
+        }
+        GatewaySubnet = {
+          address_prefix     = "10.0.4.0/24"
+          security_group     = ""
+          service_endpoints  = []
+          service_delegation = []
+        }
+      }
       "nsg_prefix"              = ""
       "network_security_groups" = ["private", "public", "container"]
+      subnet_nsg_details = {
+        public = {
+          nsg = "public"
+        }
+        container = {
+          nsg = "public"
+        }
+        private = {
+          nsg = "private"
+        }
+      }
       "subnet_cidrs" = [
         {
           name     = "GatewaySubnet"
@@ -139,12 +262,28 @@ variable "network" {
       ]
     },
     "vnet-peer" = {
-      "address_space"           = "10.1.0.0/16"
-      "dns_servers"             = [""]
-      "location"                = "West Us"
-      "subnets"                 = ["private", "endpoint"]
+      "address_space" = "10.1.0.0/16"
+      "dns_servers"   = [""]
+      "location"      = "West Us"
+      "subnets"       = ["private", "endpoint"]
+      subnet_details = {
+        private = {
+          address_prefix     = "10.1.3.0/24"
+          security_group     = ""
+          service_endpoints  = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault"]
+          service_delegation = ["Microsoft.Web/serverFarms"]
+        }
+        endpoint = {
+          address_prefix     = "10.1.5.0/24"
+          security_group     = ""
+          service_endpoints  = ["Microsoft.Storage", "Microsoft.KeyVault"]
+          service_delegation = []
+        }
+      }
       "nsg_prefix"              = ""
       "network_security_groups" = [""]
+      subnet_nsg_details = {
+      }
       "subnet_cidrs" = [
         {
           name     = "public"
