@@ -37,7 +37,7 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.6.20"
-    id("com.avast.gradle.docker-compose") version "0.15.2"
+    id("com.avast.gradle.docker-compose") version "0.16.4"
 }
 
 group = "gov.cdc.prime"
@@ -465,7 +465,8 @@ tasks.register("quickPackage") {
  * Docker services needed for running Dockerless
  */
 dockerCompose {
-    projectName = "prime-router"
+//    projectName = "prime-router" // docker-composer has this setter broken as of 0.16.4
+    setProjectName("prime-router") // this is a workaround for the broken setter for projectName
     useComposeFiles.addAll("docker-compose.yml")
     startedServices.addAll("sftp", "ftps", "soap-webservice", "vault", "azurite")
     stopContainers.set(false)
@@ -555,7 +556,6 @@ jooq {
                                     // Associate that custom type with your binding.
                                     .withBinding("gov.cdc.prime.router.ActionLogDetailBinding")
                                     // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
-                                    // 
                                     // If provided, both "includeExpressions" and "includeTypes" must match.
                                     .withIncludeExpression("action_log.detail")
                                     .withIncludeTypes("JSONB"),
@@ -724,7 +724,7 @@ dependencies {
 
     implementation("commons-net:commons-net:3.8.0")
     implementation("com.cronutils:cron-utils:9.1.6")
-    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("de.m3y.kformat:kformat:0.9")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
     implementation("io.ktor:ktor-client-core:$ktorVersion")

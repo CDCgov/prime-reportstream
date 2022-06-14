@@ -3,19 +3,14 @@ import React, { useState } from "react";
 
 import Table, {
     ColumnConfig,
-    DatasetAction,
     LegendItem,
     TableConfig,
+    DatasetAction,
 } from "../../../components/Table/Table";
+import { generateUseLookupTable } from "../../../hooks/UseLookupTable";
+import { LookupTables, ValueSet } from "../../../network/api/LookupTableApi";
 
-/* FAUX DATA AND STUFF TO BE REMOVED WHEN IMPLEMENTING THE API */
-interface ValueSet {
-    value: string;
-    header: string;
-    type: string;
-}
-
-const Legend = ({ items }: { items: LegendItem[] }) => {
+export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
         <div key={label} className="display-flex">
             <b>{`${label}:`}</b>
@@ -31,41 +26,36 @@ const Legend = ({ items }: { items: LegendItem[] }) => {
         </section>
     );
 };
-const sampleValueSetColumnConfig: ColumnConfig[] = [
+const valueSetColumnConfig: ColumnConfig[] = [
     {
-        dataAttr: "value",
-        columnHeader: "Value",
+        dataAttr: "name",
+        columnHeader: "Valueset Name",
     },
     {
-        dataAttr: "header",
-        columnHeader: "Column header",
+        dataAttr: "system",
+        columnHeader: "System",
     },
     {
-        dataAttr: "type",
-        columnHeader: "Value type",
-        editable: true,
+        dataAttr: "createdBy",
+        columnHeader: "Created By",
+    },
+    {
+        dataAttr: "createdAt",
+        columnHeader: "Created At",
     },
 ];
-/* END OF FAUX DATA AND STUFF TO BE REMOVED WHEN IMPLEMENTING THE API */
+const useValueSetsTable = generateUseLookupTable<ValueSet>(
+    LookupTables.VALUE_SET
+);
 
 const ValueSetsTable = () => {
-    /* This would be replaced by our API response as reactive state (useResource) */
-    const [sampleValueSetArray, setSampleValueSetArray] = useState<ValueSet[]>([
-        {
-            value: "Patient ID",
-            header: "patient_id",
-            type: "Unique identifier",
-        },
-        {
-            value: "Patient last name",
-            header: "patient_last_name",
-            type: "Text",
-        },
-    ]);
-    /* We'd pass our config and our API response in this */
+    const valueSetArray = useValueSetsTable();
+
+    const [, setValueSet] = useState<ValueSet[]>([]);
+
     const tableConfig: TableConfig = {
-        columns: sampleValueSetColumnConfig,
-        rows: sampleValueSetArray,
+        columns: valueSetColumnConfig,
+        rows: valueSetArray,
     };
     /* These items, I'm assuming, are likely to be generated from API response data? */
     const legendItems: LegendItem[] = [
@@ -77,13 +67,14 @@ const ValueSetsTable = () => {
     /* We make this action do what we need it to to add an item */
     const datasetActionItem: DatasetAction = {
         label: "Add item",
-        method: () =>
-            setSampleValueSetArray([
-                ...sampleValueSetArray,
+        method: async () =>
+            setValueSet([
+                ...valueSetArray,
                 {
-                    value: "New value",
-                    header: "new_value_header",
-                    type: "Text",
+                    name: "",
+                    system: "",
+                    createdAt: "",
+                    createdBy: "",
                 },
             ]),
     };
