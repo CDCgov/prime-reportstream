@@ -10,9 +10,8 @@
 
 
 /*
- * Add previous messages id to the table. In instances where a corrected message is sent, the message id of
- * original message is sent in this field and represents the accession number.
+ * Update patient country for covid metadata table.
  */
 
 ALTER TABLE covid_result_metadata
-    ADD previous_message_id VARCHAR(512) NULL;
+    ADD patient_country VARCHAR(512) NULL;

@@ -3,15 +3,21 @@ import { useResource } from "rest-hooks";
 import {
     Button,
     ButtonGroup,
+    Dropdown,
     Label,
     Table,
     TextInput,
 } from "@trussworks/react-uswds";
-import { useHistory, NavLink } from "react-router-dom";
+import { NavLink, useHistory } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { getStoredOrg, setStoredOrg } from "../../contexts/SessionStorageTools";
+import { useSessionContext } from "../../contexts/SessionContext";
+import {
+    MembershipActionType,
+    MemberType,
+} from "../../hooks/UseOktaMemberships";
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(
@@ -21,13 +27,25 @@ export function OrgsTable() {
     const [filter, setFilter] = useState("");
     const currentOrg = getStoredOrg();
     const history = useHistory();
+    const { memberships } = useSessionContext();
 
     const handleSelectOrgClick = (orgName: string) => {
         setStoredOrg(orgName);
-        if (window.location.pathname.includes("/report-details")) {
-            history.push("/daily-data");
-        }
-        window.location.reload();
+        memberships.dispatch({
+            type: MembershipActionType.ADMIN_OVERRIDE,
+            payload: {
+                parsedName: orgName,
+            },
+        });
+    };
+
+    const handleSetUserType = (type: MemberType) => {
+        memberships.dispatch({
+            type: MembershipActionType.ADMIN_OVERRIDE,
+            payload: {
+                memberType: type,
+            },
+        });
     };
 
     const handleEditOrgClick = (orgName: string) => {
@@ -91,6 +109,27 @@ export function OrgsTable() {
                             autoFocus
                             onChange={(evt) => setFilter(evt.target.value)}
                         />
+                    </div>
+                    <div className="flex-fill margin-x-2">
+                        <Label
+                            className="font-sans-xs usa-label"
+                            htmlFor="input-filter"
+                        >
+                            Mimic user type:
+                        </Label>
+                        <Dropdown
+                            name="user-type-select"
+                            defaultValue={memberships.state.active?.memberType}
+                            className="rs-input"
+                            onChange={(e) =>
+                                handleSetUserType(e.target.value as MemberType)
+                            }
+                            id="user-type-select"
+                        >
+                            {Object.values(MemberType).map((type) => (
+                                <option>{type}</option>
+                            ))}
+                        </Dropdown>
                     </div>
                     <NavLink
                         to={"/admin/new/org"}
