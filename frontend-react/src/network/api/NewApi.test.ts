@@ -5,6 +5,8 @@ import {
     createAxiosConfig,
 } from "./NewApi";
 
+const mockConsoleWarn = jest.spyOn(global.console, "warn");
+const mockConsoleError = jest.spyOn(global.console, "error");
 const MyApi: API = {
     baseUrl: ApiBaseUrls.HISTORY,
     endpoints: new Map(),
@@ -79,5 +81,18 @@ describe("Api interfaces", () => {
                 organization: "ORGANIZATION",
             },
         });
+    });
+
+    test("createAxiosConfig: url didn't parse", () => {
+        mockConsoleWarn.mockReturnValue();
+
+        createAxiosConfig(MyApi, "detail", "GET", "TOKEN", "ORGANIZATION");
+
+        expect(mockConsoleWarn).toHaveBeenCalledWith(
+            "Looks like your url didn't parse!"
+        );
+        expect(mockConsoleError).toHaveBeenCalledWith(
+            "Parameters are required for detail: /test/:id"
+        );
     });
 });

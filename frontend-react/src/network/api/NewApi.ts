@@ -52,8 +52,10 @@ export const createAxiosConfig = <P extends RSUrlParams>(
     // Allows us to use more of AxiosRequestConfig if we want
     advancedConfig?: AdvancedConfig
 ): RSRequestConfig => {
+    const url = buildEndpointUrl(api, endpointKey, parameters);
+    if (url === "") console.warn(`Looks like your url didn't parse!`);
     return {
-        url: buildEndpointUrl(api, endpointKey, parameters),
+        url: url,
         method: method,
         headers: {
             "authentication-type": "okta",
@@ -76,10 +78,12 @@ export const buildEndpointUrl = <P extends RSUrlParams>(
     parameters?: P
 ): string => {
     try {
+        /* Will throw on failure */
         const endpoint = extractEndpoint(api, endpointKey);
         /* Slashes NOT built in! declare urls with leading slash */
         const construct = (endpointUrl: string) =>
             `${process.env.REACT_APP_BACKEND_URL}${api.baseUrl}${endpointUrl}`;
+        /* Checks for params by looking for the colon as an indicator */
         if (endpoint.url.includes(":")) {
             if (parameters === undefined) {
                 throw Error(
@@ -103,8 +107,8 @@ export const buildEndpointUrl = <P extends RSUrlParams>(
         } else {
             return construct(endpoint.url);
         }
-    } catch (e) {
-        console.error(e);
+    } catch (e: any) {
+        console.error(e.message);
         return "";
     }
 };
