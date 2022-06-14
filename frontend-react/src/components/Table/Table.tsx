@@ -20,6 +20,10 @@ import {
     SortSettingsActionType,
 } from "../../hooks/filters/UseSortOrder";
 
+// each table row will be a map keyed off the dataAttr value of
+// a column from the column config from the same tableConfig.
+// values will largely be assumed to be primitive values, or values
+// to be passed into a transform function defined in the column config
 export interface TableRow {
     [key: string]: any;
 }
@@ -258,6 +262,7 @@ const Table = ({
         }
     };
 
+    // renders display for a single data field
     const ColumnData = ({
         rowIndex,
         colIndex,
@@ -265,6 +270,9 @@ const Table = ({
         columnConfig,
         editing,
     }: ColumnProps) => {
+        // Util functions
+        // TODO: move these functions outside of the render
+
         // Easy-to-read way to transform value
         const transform = (
             transformFunc: Function,
@@ -285,8 +293,10 @@ const Table = ({
             <td key={`${rowIndex}:${colIndex}`}>{child}</td>
         );
 
+        // indexes into rowData map based on the column's dataAttr value
         let displayValue = rowData[columnConfig.dataAttr];
 
+        // apply a field value transform if supplied
         if (columnConfig.transform) {
             displayValue = transform(
                 columnConfig.transform,
