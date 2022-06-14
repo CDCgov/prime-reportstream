@@ -6,7 +6,7 @@ import {
     IconNavigateBefore,
     IconNavigateNext,
 } from "@trussworks/react-uswds";
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode, useMemo, useCallback, useState } from "react";
 
 import Pagination, { PaginationProps } from "../../components/Table/Pagination";
 import {
@@ -93,6 +93,14 @@ export interface LegendItem {
     value: string;
 }
 
+// const createRowForColumns = (columns: ColumnConfig[]) => {
+//     return columns.reduce((acc, column) => {
+//         const { dataAttr } = column;
+//         acc[dataAttr] = undefined;
+//         return acc;
+//     }, {} as TableRow);
+// };
+
 const Table = ({
     config,
     title,
@@ -104,6 +112,8 @@ const Table = ({
     enableEditableRows,
     editableCallback = () => Promise.resolve(),
 }: TableProps) => {
+    const [rowToEdit, setRowToEdit] = useState<number>();
+
     /* memoizedRows is the source of truth for rendered table rows. If a local
      * sort is applied, this function reactively sorts the rows passed in. If
      * the sort column, order, or localSort value change in SortSettings,
@@ -137,6 +147,13 @@ const Table = ({
         }
         return config.rows;
     }, [config.rows, filterManager?.sortSettings]);
+
+    const addRow = useCallback(() => {
+        // const newRow = createRowForColumns(config.columns);
+        // memoizedRows.push(newRow);
+        setRowToEdit(memoizedRows.length);
+    }, [memoizedRows, setRowToEdit, rowToEdit]);
+
     const renderArrow = () => {
         const { order, localOrder, locally } = filterManager?.sortSettings || {
             order: "DESC",
@@ -245,6 +262,16 @@ const Table = ({
     };
 
     const DatasetActionButton = ({ label, method }: DatasetAction) => {
+        // TODO: disable this button if a new row is currently under edit?
+        // ATM the flow is something like:
+        // * Table component tells TableRows that a new row is under edit
+        // * TableRows controls editing
+        // * when editing is complete, reports back that editing is done, returning control,
+        // potentially to Table
+        // I foresee trouble in the current setup if we allow for local and parental
+        // control of which row is under edit at the same time. We could also find another
+        // solution to this problem and make sure control is passed in a way that doesn't
+        // cause problems.
         return (
             <Button type={"button"} onClick={() => method()}>
                 {label}
@@ -261,7 +288,10 @@ const Table = ({
                 </div>
                 <div className="grid-col-2 display-flex flex-column">
                     {datasetAction ? (
-                        <DatasetActionButton {...datasetAction} />
+                        <DatasetActionButton
+                            label={datasetAction.label}
+                            method={addRow}
+                        />
                     ) : null}
                 </div>
             </div>
@@ -323,6 +353,8 @@ const Table = ({
                             enableEditableRows={enableEditableRows}
                             filterManager={filterManager}
                             columns={config.columns}
+                            rowToEdit={rowToEdit}
+                            setRowToEdit={setRowToEdit}
                         />
                     </tbody>
                 </table>
