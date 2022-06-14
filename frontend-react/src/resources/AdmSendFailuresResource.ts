@@ -32,12 +32,18 @@ export class AdmSendFailuresResource extends AuthResource {
         return `${this.urlRoot}?days_back=${params.days_to_show}`;
     }
 
+    /**
+     * Used by filter edit box ui to show only matched elements.
+     * Allows some data to be excluded or cleaned up
+     * @param search {string}
+     */
     filterMatch(search: string | null): boolean {
         if (!search) {
             // no search returns EVERYTHING
             return true;
         }
-        // combine all the search terms, split into words, prefix match
+        // combine all elements to be searched.
+        // Date is search as it is displayed AND original timestamp
         const datestr = formatDate(this.failedAt);
         const fullstr =
             `${this.reportId} ${this.receiver} ${this.fileName} ${this.actionResult} ${this.bodyUrl} ${datestr} ${this.failedAt}`.toLowerCase();
