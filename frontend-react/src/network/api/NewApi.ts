@@ -2,8 +2,7 @@ import { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
 
 /* Available APIs from the RS API */
 export enum ApiBaseUrls {
-    HISTORY = "/api/history", // SAMPLE
-    LOOKUP_TABLES = "/api/lookuptables",
+    TEST = "/api/test", // SAMPLE
 }
 export type AvailableMethods = Method[];
 export interface Endpoint {
@@ -91,7 +90,7 @@ export const buildEndpointUrl = <P extends RSUrlParams>(
 };
 
 /* Handles generating the config from parameters */
-export const createAxiosConfig = <P extends RSUrlParams>(
+export const createRequestConfig = <P extends RSUrlParams>(
     api: API,
     endpointKey: string,
     method: Method,

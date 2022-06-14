@@ -2,13 +2,13 @@ import {
     API,
     ApiBaseUrls,
     buildEndpointUrl,
-    createAxiosConfig,
+    createRequestConfig,
 } from "./NewApi";
 
 const mockConsoleWarn = jest.spyOn(global.console, "warn");
 const mockConsoleError = jest.spyOn(global.console, "error");
 const MyApi: API = {
-    baseUrl: ApiBaseUrls.HISTORY,
+    baseUrl: ApiBaseUrls.TEST,
     endpoints: new Map(),
 };
 
@@ -25,7 +25,7 @@ describe("Api interfaces", () => {
     test("buildEndpointUrl: happy path", () => {
         /* URL without parameters */
         const listURL = buildEndpointUrl(MyApi, "list");
-        expect(listURL).toEqual("https://test.prime.cdc.gov/api/history/test");
+        expect(listURL).toEqual("https://test.prime.cdc.gov/api/test/test");
 
         /* URL with parameters */
         const detailUrlWithId = buildEndpointUrl<{ id: number }>(
@@ -34,7 +34,7 @@ describe("Api interfaces", () => {
             { id: 123 }
         );
         expect(detailUrlWithId).toEqual(
-            "https://test.prime.cdc.gov/api/history/test/123"
+            "https://test.prime.cdc.gov/api/test/test/123"
         );
     });
 
@@ -46,7 +46,7 @@ describe("Api interfaces", () => {
             { idSpelledWrong: 123 }
         );
         expect(detailUrlWithoutId).toEqual(
-            "https://test.prime.cdc.gov/api/history/test/:id"
+            "https://test.prime.cdc.gov/api/test/test/:id"
         );
     });
 
@@ -61,9 +61,9 @@ describe("Api interfaces", () => {
     });
 
     test("createAxiosConfig: basic config", () => {
-        const baseConfig = createAxiosConfig(MyApi, "list", "GET");
+        const baseConfig = createRequestConfig(MyApi, "list", "GET");
         expect(baseConfig).toEqual({
-            url: "https://test.prime.cdc.gov/api/history/test",
+            url: "https://test.prime.cdc.gov/api/test/test",
             method: "GET",
             headers: {
                 "authentication-type": "okta",
@@ -74,7 +74,7 @@ describe("Api interfaces", () => {
     });
 
     test("createAxiosConfig: with auth and params", () => {
-        const configWithAuth = createAxiosConfig<{ id: number }>(
+        const configWithAuth = createRequestConfig<{ id: number }>(
             MyApi,
             "detail",
             "GET",
@@ -83,7 +83,7 @@ describe("Api interfaces", () => {
             { id: 123 }
         );
         expect(configWithAuth).toEqual({
-            url: "https://test.prime.cdc.gov/api/history/test/123",
+            url: "https://test.prime.cdc.gov/api/test/test/123",
             method: "GET",
             headers: {
                 "authentication-type": "okta",
@@ -96,7 +96,7 @@ describe("Api interfaces", () => {
     test("createAxiosConfig: url didn't parse", () => {
         mockConsoleWarn.mockReturnValue();
 
-        createAxiosConfig(MyApi, "detail", "GET", "TOKEN", "ORGANIZATION");
+        createRequestConfig(MyApi, "detail", "GET", "TOKEN", "ORGANIZATION");
 
         expect(mockConsoleWarn).toHaveBeenCalledWith(
             "Looks like your url didn't parse!"
