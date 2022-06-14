@@ -1,6 +1,7 @@
 import OrgSettingsBaseResource from "../resources/OrgSettingsBaseResource";
 
 import {
+    formatDate,
     getErrorDetailFromResponse,
     getVersionWarning,
     splitOn,
@@ -53,4 +54,12 @@ test("getVersionWarning test", async () => {
 
     const popupWarning = getVersionWarning(VersionWarningType.POPUP);
     expect(popupWarning).toContain("WARNING!");
+});
+
+test("formatDate test", () => {
+    expect(formatDate("2022-06-12T22:22:53.833Z")).toBe(
+        "Sun, 6/12/2022, 3:22 PM"
+    );
+    console.error = jest.fn(); // we KNOW the next call complains with a console.error(). don't let it stop the test
+    expect(formatDate("bad date")).toBe("bad date");
 });
