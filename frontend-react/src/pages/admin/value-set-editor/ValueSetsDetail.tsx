@@ -90,11 +90,10 @@ const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
             datasetAction={datasetActionItem}
             config={tableConfig}
             enableEditableRows
-            editableCallback={() =>
-                console.log(
-                    "!!! this is not implemented in table yet, so you will not see this log"
-                )
-            }
+            editableCallback={(row) => {
+                console.log("!!! saving row", row);
+                return Promise.resolve();
+            }}
         />
     );
 };
