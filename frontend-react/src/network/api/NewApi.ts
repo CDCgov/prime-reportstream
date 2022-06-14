@@ -21,6 +21,10 @@ export interface API {
     baseUrl: ApiBaseUrls;
     endpoints: EndpointMap;
 }
+/* Allows us to access them via string: params["id"] */
+export interface RSUrlParams {
+    [key: string]: any;
+}
 /* Make some headers required */
 export interface RSRequestHeaders extends AxiosRequestHeaders {}
 /* Make some fields required or overwrite types */
@@ -34,6 +38,7 @@ export type AdvancedConfig = Omit<
     AxiosRequestConfig,
     "url" | "method" | "headers"
 >;
+
 /* Safe endpoint extraction */
 const extractEndpoint = (api: API, key: string): Endpoint => {
     const endpoint: Endpoint | undefined = api.endpoints.get(key);
@@ -41,35 +46,7 @@ const extractEndpoint = (api: API, key: string): Endpoint => {
         throw Error(`You must provide a valid endpoint key: ${key} not found`);
     return endpoint;
 };
-/* Handles generating the config from parameters */
-export const createAxiosConfig = <P extends RSUrlParams>(
-    api: API,
-    endpointKey: string,
-    method: Method,
-    token?: string,
-    organization?: string,
-    parameters?: P,
-    // Allows us to use more of AxiosRequestConfig if we want
-    advancedConfig?: AdvancedConfig
-): RSRequestConfig => {
-    const url = buildEndpointUrl(api, endpointKey, parameters);
-    if (url === "") console.warn(`Looks like your url didn't parse!`);
-    return {
-        url: url,
-        method: method,
-        headers: {
-            "authentication-type": "okta",
-            authorization: `Bearer ${token || ""}`,
-            organization: `${organization || ""}`,
-        },
-        ...advancedConfig,
-    };
-};
 
-/* Allows us to access them via string: params["id"] */
-export interface RSUrlParams {
-    [key: string]: any;
-}
 /* Called from consumer hook to build URL. Parameters for endpoints should be passed
  * through the consumer hook and into this function when building the URL. */
 export const buildEndpointUrl = <P extends RSUrlParams>(
@@ -111,4 +88,29 @@ export const buildEndpointUrl = <P extends RSUrlParams>(
         console.error(e.message);
         return "";
     }
+};
+
+/* Handles generating the config from parameters */
+export const createAxiosConfig = <P extends RSUrlParams>(
+    api: API,
+    endpointKey: string,
+    method: Method,
+    token?: string,
+    organization?: string,
+    parameters?: P,
+    // Allows us to use more of AxiosRequestConfig if we want
+    advancedConfig?: AdvancedConfig
+): RSRequestConfig => {
+    const url = buildEndpointUrl(api, endpointKey, parameters);
+    if (url === "") console.warn(`Looks like your url didn't parse!`);
+    return {
+        url: url,
+        method: method,
+        headers: {
+            "authentication-type": "okta",
+            authorization: `Bearer ${token || ""}`,
+            organization: `${organization || ""}`,
+        },
+        ...advancedConfig,
+    };
 };
