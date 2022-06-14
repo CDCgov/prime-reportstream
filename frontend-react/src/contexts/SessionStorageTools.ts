@@ -2,6 +2,15 @@
  * right, but by no means is it a context. Feel free to move
  * it if you can think of a better spot. */
 
+import { AxiosRequestHeaders } from "axios";
+
+import { updateApiSessions } from "../network/Apis";
+
+const headersFromStoredSession = (): AxiosRequestHeaders => ({
+    Authorization: `Bearer ${getStoredOktaToken() || ""}`,
+    Organization: getStoredOrg() || "",
+});
+
 export enum GLOBAL_STORAGE_KEYS {
     GLOBAL_BASE = "global-context-",
     GLOBAL_ORG = "global-context-org",
@@ -18,6 +27,7 @@ export function getStoredOktaToken(): string | undefined {
 
 export function setStoredOktaToken(value: string) {
     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN, value);
+    updateApiSessions(headersFromStoredSession());
 }
 
 export function getStoredOrg(): string | undefined {
@@ -26,6 +36,7 @@ export function getStoredOrg(): string | undefined {
 
 export function setStoredOrg(val: string) {
     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, val);
+    updateApiSessions(headersFromStoredSession());
 }
 
 export function getStoredSenderName(): string | undefined {

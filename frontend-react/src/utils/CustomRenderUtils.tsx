@@ -65,6 +65,20 @@ const renderWithSession = (
         ...options,
     });
 
+// render an element with parent wrapper other than a div
+// used to silence testing library errors when wrapping elements
+// that should not be children of divs (such as <td> etc)
+export const renderWithCustomWrapper = (
+    ui: ReactElement,
+    wrapperType: string
+) => {
+    return render(ui, {
+        container: document.body.appendChild(
+            document.createElement(wrapperType)
+        ),
+    });
+};
+
 export * from "@testing-library/react";
 export { renderWithRouter };
 export { renderWithSession };
