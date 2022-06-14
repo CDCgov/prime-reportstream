@@ -8,7 +8,7 @@ describe("ValueSetsDetail tests", () => {
     test("Renders with no errors", () => {
         renderWithRouter(<ValueSetsDetail />);
         const headers = screen.getAllByRole("columnheader");
-        const title = screen.getByText("ReportStream Value Sets");
+        const title = screen.getByText("ReportStream Core Values");
         const legend = screen.getByTestId("table-legend");
         const datasetActionButton = screen.getByText("Add item");
         const rows = screen.getAllByRole("row");
