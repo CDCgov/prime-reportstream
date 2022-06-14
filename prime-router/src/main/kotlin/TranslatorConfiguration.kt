@@ -76,8 +76,6 @@ data class Hl7Configuration
     val suppressAoe: Boolean = false,
     val defaultAoeToUnknown: Boolean = false,
     val replaceUnicodeWithAscii: Boolean = false,
-    // This flag allows the raw phone number string to be displayed in ORC23-1 even if it fails the validation filter
-    val allowInvalidPhoneNumbers: Boolean = false,
     val useBlankInsteadOfUnknown: String? = null,
     val truncateHDNamespaceIds: Boolean = false,
     // Specify a list of HL7 fields that will be truncated at their HL7 max lengths
