@@ -1,26 +1,66 @@
 import { Method } from "axios";
 import { useMemo } from "react";
 
-import { API, createRequestConfig } from "../../network/api/NewApi";
+import {
+    AdvancedConfig,
+    API,
+    createRequestConfig,
+} from "../../network/api/NewApi";
 import { useSessionContext } from "../../contexts/SessionContext";
+import { Newable } from "../../utils/UsefulTypes";
 
-const useEndpoint = (api: API, endpointKey: string, method: Method) => {
+import useRequestConfig, { RequestHookResponse } from "./UseRequestConfig";
+
+interface EndpointHookResponse<D> extends Omit<RequestHookResponse<D>, "data"> {
+    data: D | D[] | undefined;
+}
+
+const passesObjCompare = <D = object>(obj1: D, obj2: Newable<D>) => {
+    const obj1Keys = Object.keys(obj1);
+    const obj2Keys = Object.keys(obj2);
+    const clear1 = obj1Keys.every((key: string) => obj2Keys.includes(key));
+    const clear2 = obj2Keys.every((key: string) => obj1Keys.includes(key));
+    return clear1 && clear2;
+};
+
+const useEndpoint = <P, D>(
+    api: API<D>,
+    endpointKey: string,
+    method: Method,
+    parameters?: P,
+    advancedConfig?: AdvancedConfig<D>
+): EndpointHookResponse<D> => {
     const { oktaToken, memberships } = useSessionContext();
-    const requestConfig = useMemo(() => {
-        return createRequestConfig(
+    const { data, loading, error } = useRequestConfig<D | D[]>(
+        createRequestConfig(
             api,
             endpointKey,
             method,
             oktaToken?.accessToken,
-            memberships.state.active?.parsedName
-        );
-    }, [
-        api,
-        endpointKey,
-        memberships.state.active?.parsedName,
-        method,
-        oktaToken?.accessToken,
-    ]);
+            memberships.state.active?.parsedName,
+            parameters,
+            advancedConfig
+        )
+    );
+    const typeCheckedData = useMemo(() => {
+        if (data && data instanceof Array) {
+            return data.map((item: D) => {
+                const args = Object.values(item);
+                return new api.resource(...args);
+            });
+        } else if (data && passesObjCompare(data, api.resource)) {
+            // TODO: Data that isn't an array never populates `data`
+            //  so we never arrive in this block.
+            const args = Object.values(data);
+            return new api.resource(...args);
+        }
+    }, [api.resource, data]);
+
+    return {
+        data: typeCheckedData,
+        loading,
+        error,
+    };
 };
 
 export default useEndpoint;

@@ -16,6 +16,9 @@ export type Newable<T = {}> = new (...args: any[]) => T;
  *
  * example: MyObjectError extends SimpleError { ... }
  * example: a return type of MyObject | SimpleError  */
-export interface SimpleError {
+export class SimpleError {
     message: string;
+    constructor(message: string) {
+        this.message = message;
+    }
 }

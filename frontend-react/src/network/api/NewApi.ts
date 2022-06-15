@@ -100,7 +100,7 @@ export const endpointHasMethod = (
     return canAccessMethod;
 };
 
-/* Handles generating the config from parameters */
+/* Handles generating the config from inputs with checks in the middle */
 export const createRequestConfig = <P extends StringIndexed, D = any>(
     api: API,
     endpointKey: string,
