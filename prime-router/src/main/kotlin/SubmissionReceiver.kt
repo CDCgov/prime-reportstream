@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import ca.uhn.hl7v2.model.v251.segment.MSH
 import gov.cdc.prime.router.Report.Format
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
@@ -261,6 +262,21 @@ class ELRReceiver : SubmissionReceiver {
         val blobInfo = workflowEngine.recordReceivedReport(
             report, rawBody, sender, actionHistory, payloadName
         )
+
+        // check for valid message type
+        for (message in messages) {
+            val header = message.get("MSH")
+            check(header is MSH)
+            val messageType = header.messageType.msg1_MessageCode.value +
+                "_" +
+                header.messageType.msg2_TriggerEvent.value
+
+            // TODO: This may need to be a configurable value in the future, if we ever support message types other
+            //  than ORU_RO1. As of 6/15/2022 multiple message type support is out of scope
+            if (messageType != "ORU_R01") {
+                throw IllegalArgumentException("Ignoring unsupported HL7 message type $messageType")
+            }
+        }
 
         // if there are any errors, kick this out.
         if (actionLogs.hasErrors()) {
