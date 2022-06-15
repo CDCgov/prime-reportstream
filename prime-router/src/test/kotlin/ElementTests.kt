@@ -355,9 +355,9 @@ internal class ElementTests {
             "(874) 951-2157 # 8562", // US with extension
             "+52 (213)478 9621 x 548", // MX with extension
             "(310)852-9654ext.4562", // US extension variant
-            "(310)852-9654ext4562", // US extension variant
-            "(310)852-9654#4562", // US extension variant
-            "(310)852-9654x4562", // US extension variant
+            "(946)451-7653ext1254", // US extension variant
+            "(213)353-4836#852", // US extension variant
+            "(661)187-6589x7328", // US extension variant
         ).forEach {
             Element.checkPhoneNumber(it, it).run {
                 assertThat(this).isNull()
@@ -370,6 +370,11 @@ internal class ElementTests {
             "           ",
             "99999999999999999999999999999999999999999999999999999999999999",
             "9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9",
+            "(213)353-4836#", // Phone with # for extension but without extension number
+            "(568)785-6521ext.", // Phone with ext. for extension but without extension number
+            "(625)354-1039x", // Phone with x for extension but without extension number
+            "(710)104-75621485", // Phone without #, ext., ext, or x but with extension number
+            "(710)104-7562 1485", // Phone without #, ext., ext, or x but with extension number variant
         ).forEach {
             Element.checkPhoneNumber(it, "test field").run {
                 assertThat(this).isNotNull()
