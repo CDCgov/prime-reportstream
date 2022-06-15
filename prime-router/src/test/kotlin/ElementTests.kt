@@ -354,6 +354,10 @@ internal class ElementTests {
             "(818) 265-7536 ext. 5264", // US with extension
             "(874) 951-2157 # 8562", // US with extension
             "+52 (213)478 9621 x 548", // MX with extension
+            "(310)852-9654ext.4562", // US extension variant
+            "(310)852-9654ext4562", // US extension variant
+            "(310)852-9654#4562", // US extension variant
+            "(310)852-9654x4562", // US extension variant
         ).forEach {
             Element.checkPhoneNumber(it, it).run {
                 assertThat(this).isNull()

@@ -911,7 +911,7 @@ data class Element(
         // attempting to check and see if the number is properly formatted, just a short circuit to
         // fail out on REALLY bad data
         private val maybeAPhoneNumber = Regex(
-            """(\+\d{1,4}\s?-?)?\(?(\d{1,3})\)?\s?-?(\d{3,4})\s?-?(\d{3,4})\s?((x)?(ext.)?(#)?\s?\d+)?"""
+            """(\+\d{1,4}(\s|-)?)?\(?(\d{1,3})\)?(\s|-)?(\d{3,4})(\s|-)?(\d{3,4})(\s|-)?((x|ext\.|ext|#)(\s|-)?\d+)?"""
         )
         // possible regions a phone number could be from. This is a wider list than we will we probably
         // pull from, at least initially, because there are many more places in North America that use
