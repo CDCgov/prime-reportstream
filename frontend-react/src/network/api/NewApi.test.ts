@@ -1,25 +1,8 @@
-import {
-    API,
-    ApiBaseUrls,
-    buildEndpointUrl,
-    createRequestConfig,
-} from "./NewApi";
+import { buildEndpointUrl, createRequestConfig } from "./NewApi";
+import { MyApi } from "./test-tools/MockApi";
 
 const mockConsoleWarn = jest.spyOn(global.console, "warn");
 const mockConsoleError = jest.spyOn(global.console, "error");
-const MyApi: API = {
-    baseUrl: ApiBaseUrls.TEST,
-    endpoints: new Map(),
-};
-
-MyApi.endpoints.set("list", {
-    url: "/test",
-    methods: ["GET"],
-});
-MyApi.endpoints.set("detail", {
-    url: "/test/:id",
-    methods: ["GET", "PUT"],
-});
 
 describe("Api interfaces", () => {
     test("buildEndpointUrl: happy path", () => {
@@ -30,7 +13,7 @@ describe("Api interfaces", () => {
         /* URL with parameters */
         const detailUrlWithId = buildEndpointUrl<{ id: number }>(
             MyApi,
-            "detail",
+            "itemById",
             { id: 123 }
         );
         expect(detailUrlWithId).toEqual(
@@ -42,7 +25,7 @@ describe("Api interfaces", () => {
         /* URL with bad params */
         const detailUrlWithoutId = buildEndpointUrl<{ idSpelledWrong: number }>(
             MyApi,
-            "detail",
+            "itemById",
             { idSpelledWrong: 123 }
         );
         expect(detailUrlWithoutId).toEqual(
@@ -52,11 +35,11 @@ describe("Api interfaces", () => {
 
     test("buildEndpointUrl: invalid endpoint key", () => {
         /* Endpoint does not exist */
-        buildEndpointUrl<{ id: number }>(MyApi, "detailSpelledWrong", {
+        buildEndpointUrl<{ id: number }>(MyApi, "itemByIdSpelledWrong", {
             id: 123,
         });
         expect(mockConsoleError).toHaveBeenCalledWith(
-            "You must provide a valid endpoint key: detailSpelledWrong not found"
+            "You must provide a valid endpoint key: itemByIdSpelledWrong not found"
         );
     });
 
@@ -76,7 +59,7 @@ describe("Api interfaces", () => {
     test("createAxiosConfig: with auth and params", () => {
         const configWithAuth = createRequestConfig<{ id: number }>(
             MyApi,
-            "detail",
+            "itemById",
             "GET",
             "TOKEN",
             "ORGANIZATION",
@@ -96,13 +79,13 @@ describe("Api interfaces", () => {
     test("createAxiosConfig: url didn't parse", () => {
         mockConsoleWarn.mockReturnValue();
 
-        createRequestConfig(MyApi, "detail", "GET", "TOKEN", "ORGANIZATION");
+        createRequestConfig(MyApi, "itemById", "GET", "TOKEN", "ORGANIZATION");
 
         expect(mockConsoleWarn).toHaveBeenCalledWith(
             "Looks like your url didn't parse!"
         );
         expect(mockConsoleError).toHaveBeenCalledWith(
-            "Parameters are required for detail: /test/:id"
+            "Parameters are required for itemById: /test/:id"
         );
     });
 });

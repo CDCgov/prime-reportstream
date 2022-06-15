@@ -15,8 +15,10 @@ export interface Endpoint {
  *   ["org", { url: "/organization/:id", methods: [GET, UPDATE] }]
  * ]) */
 export type EndpointMap = Map<string, Endpoint>;
+type Constructor<T = {}> = new (...args: any[]) => T;
 /* Declaration of an API */
-export interface API {
+export interface API<T = {}> {
+    resource: Constructor<T>;
     baseUrl: ApiBaseUrls;
     endpoints: EndpointMap;
 }

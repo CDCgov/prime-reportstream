@@ -2,40 +2,17 @@ import { renderHook } from "@testing-library/react-hooks";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import {
-    API,
-    ApiBaseUrls,
-    createRequestConfig,
-    RSRequestConfig,
-} from "../../network/api/NewApi";
+import { createRequestConfig, RSRequestConfig } from "../../network/api/NewApi";
+import { MyApi, MyApiItem } from "../../network/api/test-tools/MockApi";
 
 import useRequestConfig from "./UseRequestConfig";
-
-interface MyApiItem {
-    testField: string;
-}
-const makeApiItem = (s: string) => ({ testField: s });
-const MyApi: API = {
-    baseUrl: ApiBaseUrls.TEST,
-    endpoints: new Map(),
-};
-
-MyApi.endpoints.set("list", {
-    url: "/test",
-    methods: ["GET"],
-});
-
-MyApi.endpoints.set("itemById", {
-    url: "/test/:id",
-    methods: ["POST", "PUT", "PATCH", "DELETE"],
-});
 
 const handlers = [
     /* Returns a list of two fake api items */
     rest.get("https://test.prime.cdc.gov/api/test/test", (req, res, ctx) => {
         return res(
             ctx.status(200),
-            ctx.json([makeApiItem("1"), makeApiItem("2")])
+            ctx.json([new MyApiItem("1"), new MyApiItem("2")])
         );
     }),
     /* Returns a single item by id */
@@ -47,7 +24,7 @@ const handlers = [
             } else {
                 //@ts-ignore
                 const { id } = req.params || "0";
-                return res(ctx.status(200), ctx.json(makeApiItem(id)));
+                return res(ctx.status(200), ctx.json(new MyApiItem(id)));
             }
         }
     ),
@@ -60,7 +37,7 @@ const handlers = [
             } else {
                 //@ts-ignore
                 const { id } = req.params || "0";
-                return res(ctx.status(200), ctx.json(makeApiItem(id)));
+                return res(ctx.status(200), ctx.json(new MyApiItem(id)));
             }
         }
     ),
@@ -73,7 +50,7 @@ const handlers = [
             } else {
                 //@ts-ignore
                 const { id } = req.params || "0";
-                return res(ctx.status(200), ctx.json(makeApiItem(id)));
+                return res(ctx.status(200), ctx.json(new MyApiItem(id)));
             }
         }
     ),
@@ -145,7 +122,7 @@ describe("useRequestConfig", () => {
         expect(result.current.data).toEqual({ testField: "4" });
     });
 
-    test("takes PATCH config and returns created object", async () => {
+    test("takes PATCH config and returns updated object", async () => {
         const config = createRequestConfig<{ id: number }, MyApiItem>(
             MyApi,
             "itemById",
@@ -162,7 +139,7 @@ describe("useRequestConfig", () => {
         expect(result.current.data).toEqual({ testField: "4" });
     });
 
-    test("takes PATCH config and returns created object", async () => {
+    test("takes DELETE config and returns nothing", async () => {
         const config = createRequestConfig<{ id: number }, MyApiItem>(
             MyApi,
             "itemById",
