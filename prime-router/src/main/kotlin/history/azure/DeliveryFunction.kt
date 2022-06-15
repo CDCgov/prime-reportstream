@@ -114,8 +114,8 @@ class DeliveryFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/deliveries/{deliveryId}/history"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("id") id: String,
+        @BindingName("deliveryId") deliveryId: String,
     ): HttpResponseMessage {
-        return this.getDetailedView(request, id)
+        return this.getDetailedView(request, deliveryId)
     }
 }
