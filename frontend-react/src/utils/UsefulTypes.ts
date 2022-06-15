@@ -11,3 +11,11 @@ export interface StringIndexed<T = any> {
  *
  * example: Newable<MyClass> returns an instance of MyClass */
 export type Newable<T = {}> = new (...args: any[]) => T;
+/* Useful for when a function catches errors and could possibly
+ * return something other than the desired object type
+ *
+ * example: MyObjectError extends SimpleError { ... }
+ * example: a return type of MyObject | SimpleError  */
+export interface SimpleError {
+    message: string;
+}

@@ -2,7 +2,11 @@ import { renderHook } from "@testing-library/react-hooks";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import { createRequestConfig, RSRequestConfig } from "../../network/api/NewApi";
+import {
+    createRequestConfig,
+    endpointHasMethod,
+    RSRequestConfig,
+} from "../../network/api/NewApi";
 import { MyApi, MyApiItem } from "../../network/api/test-tools/MockApi";
 
 import useRequestConfig, {
@@ -75,7 +79,7 @@ describe("useRequestConfig", () => {
             "GET",
             "TOKEN",
             "ORGANIZATION"
-        );
+        ) as RSRequestConfig;
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem[]>(config)
         );
@@ -95,7 +99,7 @@ describe("useRequestConfig", () => {
             "ORGANIZATION",
             { id: 3 },
             { data: { testField: "3" } }
-        );
+        ) as RSRequestConfig;
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
@@ -112,7 +116,7 @@ describe("useRequestConfig", () => {
             "ORGANIZATION",
             { id: 4 },
             { data: { testField: "4" } }
-        );
+        ) as RSRequestConfig;
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
@@ -129,7 +133,7 @@ describe("useRequestConfig", () => {
             "ORGANIZATION",
             { id: 4 },
             { data: { testField: "4" } }
-        );
+        ) as RSRequestConfig;
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
@@ -145,7 +149,7 @@ describe("useRequestConfig", () => {
             "TOKEN",
             "ORGANIZATION",
             { id: 4 }
-        );
+        ) as RSRequestConfig;
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
@@ -161,7 +165,7 @@ describe("useRequestConfig", () => {
             "",
             "ORGANIZATION",
             { id: 4 }
-        );
+        ) as RSRequestConfig;
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
@@ -179,7 +183,7 @@ describe("useRequestConfig", () => {
             "",
             "ORGANIZATION",
             { id: 4 }
-        );
+        ) as RSRequestConfig;
         const { result } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
@@ -207,7 +211,7 @@ test("hasData", () => {
         "TOKEN",
         "ORGANIZATION",
         { id: 4 }
-    );
+    ) as RSRequestConfig;
     expect(hasData(config)).toBeFalsy();
     config.data = new MyApiItem("4");
     expect(hasData(config)).toBeTruthy();
@@ -216,4 +220,11 @@ test("hasData", () => {
 test("deletesData", () => {
     expect(deletesData("DELETE")).toBeTruthy();
     expect(deletesData("GET")).toBeFalsy();
+});
+
+test("endpointHasMethod", () => {
+    const result = endpointHasMethod(MyApi, "itemById", "GET");
+    expect(result).toBeTruthy();
+    const badResult = () => endpointHasMethod(MyApi, "itemById", "OPTIONS");
+    expect(badResult).toThrowError("Method OPTIONS cannot be used by itemById");
 });

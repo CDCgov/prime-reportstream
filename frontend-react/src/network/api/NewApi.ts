@@ -1,6 +1,6 @@
 import { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
 
-import { Newable, StringIndexed } from "../../utils/UsefulTypes";
+import { Newable, SimpleError, StringIndexed } from "../../utils/UsefulTypes";
 
 export type AvailableMethods = Method[];
 export interface Endpoint {
@@ -84,6 +84,22 @@ export const buildEndpointUrl = <P extends StringIndexed>(
     }
 };
 
+/* Case insensitive way of checking if an endpoint contains a method.
+ * example: "GET" === "get" || "GET" === "GET" */
+export const endpointHasMethod = (
+    api: API,
+    endpointKey: string,
+    method: Method
+) => {
+    const endpoint = extractEndpoint(api, endpointKey);
+    const canAccessMethod = endpoint.methods
+        .map((m) => m.toUpperCase())
+        .includes(method.toUpperCase());
+    if (!canAccessMethod)
+        throw Error(`Method ${method} cannot be used by ${endpointKey}`);
+    return canAccessMethod;
+};
+
 /* Handles generating the config from parameters */
 export const createRequestConfig = <P extends StringIndexed, D = any>(
     api: API,
@@ -94,17 +110,23 @@ export const createRequestConfig = <P extends StringIndexed, D = any>(
     parameters?: P,
     // Allows us to use more of AxiosRequestConfig if we want
     advancedConfig?: AdvancedConfig<D>
-): RSRequestConfig => {
-    const url = buildEndpointUrl(api, endpointKey, parameters);
-    if (url === "") console.warn(`Looks like your url didn't parse!`);
-    return {
-        url: url,
-        method: method,
-        headers: {
-            "authentication-type": "okta",
-            authorization: `Bearer ${token || ""}`,
-            organization: `${organization || ""}`,
-        },
-        ...advancedConfig,
-    };
+): RSRequestConfig | SimpleError => {
+    try {
+        const url = buildEndpointUrl(api, endpointKey, parameters);
+        endpointHasMethod(api, endpointKey, method);
+        return {
+            url: url,
+            method: method,
+            headers: {
+                "authentication-type": "okta",
+                authorization: `Bearer ${token || ""}`,
+                organization: `${organization || ""}`,
+            },
+            ...advancedConfig,
+        };
+    } catch (e: any) {
+        return {
+            message: e.message,
+        };
+    }
 };

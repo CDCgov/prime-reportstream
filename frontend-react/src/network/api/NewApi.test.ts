@@ -78,12 +78,7 @@ describe("Api interfaces", () => {
 
     test("createAxiosConfig: url didn't parse", () => {
         mockConsoleWarn.mockReturnValue();
-
         createRequestConfig(MyApi, "itemById", "GET", "TOKEN", "ORGANIZATION");
-
-        expect(mockConsoleWarn).toHaveBeenCalledWith(
-            "Looks like your url didn't parse!"
-        );
         expect(mockConsoleError).toHaveBeenCalledWith(
             "Parameters are required for itemById: /test/:id"
         );
