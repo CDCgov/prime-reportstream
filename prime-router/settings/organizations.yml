@@ -3002,6 +3002,14 @@
       translation:
         type: HL7
         useBatchHeaders: true
+        receivingApplicationName: MOELR
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.36
+        receivingFacilityName: MODHSS
+        receivingFacilityOID: 2.16.840.1.114222.4.3.2.2.1.163
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        suppressQstForAoe: true
+        truncateHDNamespaceIds: true
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
