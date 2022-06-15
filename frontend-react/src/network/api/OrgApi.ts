@@ -1,5 +1,3 @@
-import { primeApiConfig } from "../config";
-
 import { Api } from "./Api";
 
 export interface Sender {
@@ -58,4 +56,4 @@ class OrgApi extends Api {
     };
 }
 
-export const orgApi = new OrgApi(primeApiConfig, "settings/organizations");
+export const orgApi = new OrgApi("settings/organizations");
