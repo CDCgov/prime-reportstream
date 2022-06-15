@@ -5,7 +5,11 @@ import { setupServer } from "msw/node";
 import { createRequestConfig, RSRequestConfig } from "../../network/api/NewApi";
 import { MyApi, MyApiItem } from "../../network/api/test-tools/MockApi";
 
-import useRequestConfig from "./UseRequestConfig";
+import useRequestConfig, {
+    deletesData,
+    hasData,
+    needsData,
+} from "./UseRequestConfig";
 
 const mockConsoleError = jest.spyOn(global.console, "error");
 
@@ -188,4 +192,28 @@ describe("useRequestConfig", () => {
             "This call requires data to be passed in"
         );
     });
+});
+
+test("needsData", () => {
+    expect(needsData("GET")).toBeFalsy();
+    expect(needsData("POST")).toBeTruthy();
+});
+
+test("hasData", () => {
+    const config = createRequestConfig<{ id: number }, MyApiItem>(
+        MyApi,
+        "itemById",
+        "POST",
+        "TOKEN",
+        "ORGANIZATION",
+        { id: 4 }
+    );
+    expect(hasData(config)).toBeFalsy();
+    config.data = new MyApiItem("4");
+    expect(hasData(config)).toBeTruthy();
+});
+
+test("deletesData", () => {
+    expect(deletesData("DELETE")).toBeTruthy();
+    expect(deletesData("GET")).toBeFalsy();
 });

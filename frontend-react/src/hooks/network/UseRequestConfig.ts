@@ -7,14 +7,14 @@ interface RequestHookResponse<D> {
     data: D | undefined;
     loading: boolean;
     error: string;
-    //TODO: Add error type in here. Axios errors?
 }
 
 const DataSentRequest = ["POST", "PATCH", "PUT"];
-const needsData = (reqType: Method) =>
+export const needsData = (reqType: Method) =>
     DataSentRequest.includes(reqType.toUpperCase());
-const hasData = (req: RSRequestConfig): boolean => req.data !== undefined;
-const deletesData = (reqType: Method) =>
+export const hasData = (req: RSRequestConfig): boolean =>
+    req.data !== undefined;
+export const deletesData = (reqType: Method) =>
     reqType === "delete" || reqType === "DELETE";
 const typedAxiosCall = <T>(config: RSRequestConfig): AxiosPromise<T> => {
     switch (config.method) {
@@ -45,7 +45,7 @@ const useRequestConfig = <D>(
 ): RequestHookResponse<D> => {
     const [data, setData] = useState<D | undefined>();
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState(""); //TODO: Type error
+    const [error, setError] = useState<string>("");
 
     /* Fetches the data whenever the config passed in is changed.
      * To trigger a re-call, use the API controller provided from
@@ -82,7 +82,10 @@ const useRequestConfig = <D>(
                 });
         };
         try {
+            /* Pre-fetch validator(s). Could be useful to extend this
+             * feature in the future. */
             validDataSentThrough();
+            /* API fetch */
             fetchAndStoreData();
         } catch (e: any) {
             console.error(e.message);
