@@ -6,6 +6,7 @@ import { RSRequestConfig } from "../../network/api/NewApi";
 interface RequestHookResponse<D> {
     data: D | undefined;
     loading: boolean;
+    error: string;
     //TODO: Add error type in here. Axios errors?
 }
 
@@ -49,29 +50,33 @@ const useRequestConfig = <D>(
      * useApi(). */
     useEffect(() => {
         setLoading(true);
-        if (needsData(config.method) && !hasData(config)) {
-            setData(undefined);
-            setLoading(false);
-            setError("This call requires data to be passed in");
-        }
-        typedAxiosCall<D>(config)
-            .then((res) => res.data)
-            .then((data) => {
-                /* TODO: Instead of setting data with res.data, run it through
-                 *   a generator that uses the API.resource to generate objects from
-                 *   the returned items. This will be our runtime type safety. */
-                setData(data);
+        try {
+            if (needsData(config.method) && !hasData(config)) {
+                setData(undefined);
                 setLoading(false);
-            })
-            .catch((e: any) => {
-                console.error(e);
-                setError(e.message);
-            });
+                throw Error("This call requires data to be passed in");
+            }
+            typedAxiosCall<D>(config)
+                .then((res) => res.data)
+                .then((data) => {
+                    // TODO: Use data at useApi level to generate objects for runtime safety
+                    setData(data);
+                    setLoading(false);
+                })
+                .catch((e: any) => {
+                    setError(e.message);
+                });
+            // Still need .catch()?
+        } catch (e: any) {
+            console.error(e.message);
+            setError(e.message);
+        }
     }, [config]);
 
     return {
         data,
         loading,
+        error,
     };
 };
 

@@ -1,4 +1,4 @@
-import { API, ApiBaseUrls } from "../NewApi";
+import { API } from "../NewApi";
 
 export class MyApiItem {
     testField: string;
@@ -9,7 +9,7 @@ export class MyApiItem {
 
 export const MyApi: API<MyApiItem> = {
     resource: MyApiItem,
-    baseUrl: ApiBaseUrls.TEST,
+    baseUrl: "/api/test",
     endpoints: new Map([
         [
             "list",

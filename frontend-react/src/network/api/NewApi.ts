@@ -1,25 +1,19 @@
 import { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
 
-/* Available APIs from the RS API */
-export enum ApiBaseUrls {
-    TEST = "/api/test", // SAMPLE
-}
 export type AvailableMethods = Method[];
 export interface Endpoint {
     url: string;
     methods: AvailableMethods;
 }
-/* Name your endpoints:
- * e.g. new Map([
- *   ["allOrgs", { url: "/organization", methods [GET] }],
- *   ["org", { url: "/organization/:id", methods: [GET, UPDATE] }]
- * ]) */
+/* Name your endpoints! */
 export type EndpointMap = Map<string, Endpoint>;
+/* This lets us pass resource classes in. It's checking that something
+ * is "newable" */
 type Constructor<T = {}> = new (...args: any[]) => T;
 /* Declaration of an API */
 export interface API<T = {}> {
-    resource: Constructor<T>;
-    baseUrl: ApiBaseUrls;
+    resource: Constructor<T>; // Resource class
+    baseUrl: string;
     endpoints: EndpointMap;
 }
 /* Allows us to access them via string: params["id"] */

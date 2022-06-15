@@ -154,4 +154,20 @@ describe("useRequestConfig", () => {
         await waitForNextUpdate();
         expect(result.current.data).toEqual(undefined);
     });
+
+    test("catches server errors", async () => {
+        const config = createRequestConfig<{ id: number }, MyApiItem>(
+            MyApi,
+            "itemById",
+            "DELETE",
+            "",
+            "ORGANIZATION",
+            { id: 4 }
+        );
+        const { result, waitForNextUpdate } = renderHook(() =>
+            useRequestConfig<MyApiItem>(config)
+        );
+        await waitForNextUpdate();
+        expect(result.current.error).toEqual("Unauthorized");
+    });
 });
