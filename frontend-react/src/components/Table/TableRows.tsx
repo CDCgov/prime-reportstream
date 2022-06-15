@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { Button } from "@trussworks/react-uswds";
 
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
@@ -28,7 +28,6 @@ interface TableRowProps {
     isNew: boolean;
 }
 
-// what if this takes an `isNew` prop, and based on that we set everything editable?
 const TableRow = ({
     rowIndex,
     columns,
@@ -96,6 +95,7 @@ export const TableRows = ({
     setRowToEdit,
     rowToEdit,
 }: TableRowsProps) => {
+    console.log("!!! rowToEdit", rowToEdit);
     // tracks data changes to row currently being edited
     // TODO: build proper loading state
     const [updatedRow, setUpdatedRow] = useState<TableRowData | null>(null);
@@ -153,15 +153,16 @@ export const TableRows = ({
         [rowToEdit, rows.length]
     );
 
-    // decouple the rows we are displaying from the rows that have been fetched from the database to allow
-    // easier editing. see useEffect below
+    // decouple the rows we are displaying from the rows that have been persisted to allow
+    // easier editing
     const rowsToDisplay = useMemo(() => {
         if (!addingNewRow) {
             return [...rows];
         }
+        // if the row is currently under edit, use that row, otherwise create a blank one
         const newRow = updatedRow || createBlankRowForColumns(columns);
         return [...rows].concat([newRow]);
-    }, [rows, addingNewRow, updatedRow]);
+    }, [rows, addingNewRow, updatedRow, columns]);
 
     return (
         <>

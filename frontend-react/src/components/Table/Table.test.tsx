@@ -331,13 +331,17 @@ describe("TableRows", () => {
         const fakeRows = getSetOfRows(2, false);
         const fakeColumns = makeConfigs(fakeRows[0]);
         const fakeSave = jest.fn(() => Promise.resolve());
-        renderWithCustomWrapper(
+        const fakeRowSetter = jest.fn();
+
+        const { rerender } = renderWithCustomWrapper(
             <TableRows
                 rows={fakeRows}
                 onSave={fakeSave}
                 enableEditableRows={true}
                 filterManager={mockFilterManager}
                 columns={fakeColumns}
+                setRowToEdit={fakeRowSetter}
+                rowToEdit={undefined}
             />,
             "tbody"
         );
@@ -347,6 +351,23 @@ describe("TableRows", () => {
         const firstButton = screen.getAllByText("Edit")[0];
         expect(firstButton).toBeInTheDocument();
         userEvent.click(firstButton);
+        expect(fakeRowSetter).toHaveBeenCalled();
+        expect(fakeRowSetter).toHaveBeenCalledWith(0);
+
+        // `rowToEdit` state is managed in the parent component
+        // as we've confirmed that the state setter has been called with 0,
+        // we can rerender with that state value passed in to check the next step
+        rerender(
+            <TableRows
+                rows={fakeRows}
+                onSave={fakeSave}
+                enableEditableRows={true}
+                filterManager={mockFilterManager}
+                columns={fakeColumns}
+                setRowToEdit={fakeRowSetter}
+                rowToEdit={0}
+            />
+        );
 
         // click save
         const saveButton = screen.getAllByText("Save")[0];
@@ -361,13 +382,17 @@ describe("TableRows", () => {
         const fakeRows = getSetOfRows(2, false);
         const fakeColumns = makeConfigs(fakeRows[0]);
         const fakeSave = jest.fn(() => Promise.resolve());
-        renderWithCustomWrapper(
+        const fakeRowSetter = jest.fn();
+
+        const { rerender } = renderWithCustomWrapper(
             <TableRows
                 rows={fakeRows}
                 onSave={fakeSave}
                 enableEditableRows={true}
                 filterManager={mockFilterManager}
                 columns={fakeColumns}
+                setRowToEdit={fakeRowSetter}
+                rowToEdit={undefined}
             />,
             "tbody"
         );
@@ -377,6 +402,23 @@ describe("TableRows", () => {
         const firstButton = screen.getAllByText("Edit")[0];
         expect(firstButton).toBeInTheDocument();
         userEvent.click(firstButton);
+        expect(fakeRowSetter).toHaveBeenCalled();
+        expect(fakeRowSetter).toHaveBeenCalledWith(0);
+
+        // `rowToEdit` state is managed in the parent component
+        // as we've confirmed that the state setter has been called with 0,
+        // we can rerender with that state value passed in to check the next step
+        rerender(
+            <TableRows
+                rows={fakeRows}
+                onSave={fakeSave}
+                enableEditableRows={true}
+                filterManager={mockFilterManager}
+                columns={fakeColumns}
+                setRowToEdit={fakeRowSetter}
+                rowToEdit={0}
+            />
+        );
 
         // click second edit button
         // note: at this point the first button will be a save button, as save has been
@@ -393,13 +435,17 @@ describe("TableRows", () => {
         const fakeRows = getSetOfRows(1, false);
         const fakeColumns = makeConfigs(fakeRows[0]);
         const fakeSave = jest.fn(() => Promise.resolve());
-        renderWithCustomWrapper(
+        const fakeRowSetter = jest.fn();
+
+        const { rerender } = renderWithCustomWrapper(
             <TableRows
                 rows={fakeRows}
                 onSave={fakeSave}
                 enableEditableRows={true}
                 filterManager={mockFilterManager}
                 columns={fakeColumns}
+                setRowToEdit={fakeRowSetter}
+                rowToEdit={undefined}
             />,
             "tbody"
         );
@@ -409,6 +455,23 @@ describe("TableRows", () => {
         const editButton = screen.getByText("Edit");
         expect(editButton).toBeInTheDocument();
         userEvent.click(editButton);
+        expect(fakeRowSetter).toHaveBeenCalled();
+        expect(fakeRowSetter).toHaveBeenCalledWith(0);
+
+        // `rowToEdit` state is managed in the parent component
+        // as we've confirmed that the state setter has been called with 0,
+        // we can rerender with that state value passed in to check the next step
+        rerender(
+            <TableRows
+                rows={fakeRows}
+                onSave={fakeSave}
+                enableEditableRows={true}
+                filterManager={mockFilterManager}
+                columns={fakeColumns}
+                setRowToEdit={fakeRowSetter}
+                rowToEdit={0}
+            />
+        );
 
         // update value
         // this assumes that an input is being rendered by `ColumnData`

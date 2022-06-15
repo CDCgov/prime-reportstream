@@ -71,6 +71,10 @@ export interface DatasetAction {
     method: Function;
 }
 
+export interface DatasetActionProps extends DatasetAction {
+    currentlyEditing: boolean;
+}
+
 export type RowSideEffect = (row: TableRow | null) => Promise<void>;
 
 export interface TableProps {
@@ -92,14 +96,6 @@ export interface LegendItem {
     label: string;
     value: string;
 }
-
-// const createRowForColumns = (columns: ColumnConfig[]) => {
-//     return columns.reduce((acc, column) => {
-//         const { dataAttr } = column;
-//         acc[dataAttr] = undefined;
-//         return acc;
-//     }, {} as TableRow);
-// };
 
 const Table = ({
     config,
@@ -149,10 +145,8 @@ const Table = ({
     }, [config.rows, filterManager?.sortSettings]);
 
     const addRow = useCallback(() => {
-        // const newRow = createRowForColumns(config.columns);
-        // memoizedRows.push(newRow);
         setRowToEdit(memoizedRows.length);
-    }, [memoizedRows, setRowToEdit, rowToEdit]);
+    }, [memoizedRows, setRowToEdit]);
 
     const renderArrow = () => {
         const { order, localOrder, locally } = filterManager?.sortSettings || {
@@ -261,7 +255,11 @@ const Table = ({
         );
     };
 
-    const DatasetActionButton = ({ label, method }: DatasetAction) => {
+    const DatasetActionButton = ({
+        label,
+        method,
+        currentlyEditing,
+    }: DatasetActionProps) => {
         // TODO: disable this button if a new row is currently under edit?
         // ATM the flow is something like:
         // * Table component tells TableRows that a new row is under edit
@@ -273,7 +271,11 @@ const Table = ({
         // solution to this problem and make sure control is passed in a way that doesn't
         // cause problems.
         return (
-            <Button type={"button"} onClick={() => method()}>
+            <Button
+                type={"button"}
+                onClick={() => method()}
+                disabled={currentlyEditing}
+            >
                 {label}
             </Button>
         );
@@ -290,7 +292,8 @@ const Table = ({
                     {datasetAction ? (
                         <DatasetActionButton
                             label={datasetAction.label}
-                            method={addRow}
+                            method={datasetAction.method || addRow}
+                            currentlyEditing={!!rowToEdit}
                         />
                     ) : null}
                 </div>
