@@ -112,3 +112,27 @@
 # Generic text
 - id: "text"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/text"
+# Alternate identifier
+- id: "alternate-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier"
+# Alternate version
+- id: "alternate-version"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version"
+# Collector identifier
+- id: "collector-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier"
+# Clinical information
+- id: "clinical-information"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/clinical-information"
+# Placer field
+- id: "placer-field"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field"
+# Results reported or changes
+- id: "result-reported"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/result-reported"
+# Result status
+- id: "result-status"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status"
+# Response flag
+- id: "response-flag"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/response-flag"
