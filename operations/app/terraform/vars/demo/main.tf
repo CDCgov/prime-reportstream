@@ -130,6 +130,7 @@ module "storage" {
   dns_vnet                      = var.dns_vnet
   dns_zones                     = module.network.dns_zones
   delete_pii_storage_after_days = var.delete_pii_storage_after_days
+  temp_env                      = var.temp_env
 }
 
 
@@ -189,6 +190,7 @@ module "sftp_container" {
   location              = var.location
   use_cdc_managed_vnet  = var.use_cdc_managed_vnet
   sa_primary_access_key = module.storage.sa_primary_access_key
+  dns_zones             = module.network.dns_zones
 }
 
 module "metabase" {

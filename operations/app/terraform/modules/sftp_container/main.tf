@@ -79,6 +79,10 @@ resource "azurerm_container_group" "sftp_container" {
       container[0].volume[0],
     ]
   }
+
+  depends_on = [
+    azurerm_storage_share.sftp_share
+  ]
 }
 
 resource "azurerm_storage_share" "sftp_share" {
@@ -90,7 +94,7 @@ resource "azurerm_private_dns_a_record" "sftp_prime_local" {
   name = "sftp"
 
   resource_group_name = var.resource_group
-  zone_name           = data.azurerm_private_dns_zone.prime_local.name
+  zone_name           = var.dns_zones["prime"].name
 
   records = [
     azurerm_container_group.sftp_container.ip_address,

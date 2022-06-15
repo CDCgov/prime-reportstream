@@ -5,20 +5,12 @@ variable "terraform_object_id" {
   default     = "4d81288c-27a3-4df8-b776-c9da8e688bc7"
 }
 
-variable "tf_secrets_vault" {
-  default = "pdhdemo-keyvault"
-}
+variable "tf_secrets_vault" {}
 
-variable "environment" {
-  default = "demo"
-}
-variable "resource_group" {
-  default = "prime-data-hub-demo"
-}
+variable "environment" {}
+variable "resource_group" {}
 
-variable "resource_prefix" {
-  default = "pdhdemo"
-}
+variable "resource_prefix" {}
 variable "location" {
   default = "eastus"
 }
@@ -38,12 +30,14 @@ variable "https_cert_names" {
 variable "okta_base_url" {
   default = "hhs-prime.oktapreview.com"
 }
-variable "okta_redirect_url" {
-  default = "https://demo.prime.cdc.gov/download"
-}
+variable "okta_redirect_url" {}
 variable "aad_object_keyvault_admin" {
   default = "3c17896c-ff94-4298-a719-aaac248aa2c8"
 } # Group or individual user id
+variable "temp_env" {
+  default     = true
+  description = "Is a temporary environment. true or false"
+}
 
 ###################
 ## Network Variables
@@ -326,19 +320,15 @@ variable "app_size" {
 ##################
 
 variable "use_cdc_managed_vnet" {
-  default = false
+  default = true
 }
 variable "app_config_kv_name" {
-  default     = "pdhdemo-appconfig"
   description = "The keyvault used for application specific secrets."
 }
 variable "application_kv_name" {
-  default     = "pdhdemo-keyvault"
   description = "The keyvault used for the entire application as a whole."
 }
-variable "client_config_kv_name" {
-  default = "pdhdemo-clientconfig"
-}
+variable "client_config_kv_name" {}
 variable "terraform_caller_ip_address" {
   type    = list(string)
   default = ["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191"]
@@ -384,7 +374,6 @@ variable "aad_group_postgres_admin" {
   description = "Azure Active Directory group id containing postgres db admins"
   default     = "f94409a9-12b1-4820-a1b6-e3e0a4fa282d"
 }
-
 
 ##########
 ## Storage Vars

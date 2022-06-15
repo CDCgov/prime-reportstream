@@ -168,6 +168,7 @@ module "sftp_container" {
   location              = var.location
   use_cdc_managed_vnet  = var.use_cdc_managed_vnet
   sa_primary_access_key = module.storage.sa_primary_access_key
+  dns_zones             = module.network.dns_zones
 }
 
 module "metabase" {

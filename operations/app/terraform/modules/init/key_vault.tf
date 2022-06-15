@@ -43,8 +43,7 @@ resource "azurerm_key_vault" "init" {
   enabled_for_deployment          = true
   enabled_for_disk_encryption     = true
   enabled_for_template_deployment = true
-  purge_protection_enabled        = true
-  soft_delete_retention_days      = 7
+  purge_protection_enabled        = false
 
   network_acls {
     bypass         = "AzureServices"
@@ -59,18 +58,21 @@ resource "azurerm_key_vault" "init" {
     prevent_destroy = false
     ignore_changes = [
       # Temp ignore ip_rules during tf development
-      network_acls[0].ip_rules,
-      access_policy
+      network_acls[0].ip_rules
     ]
   }
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = var.aad_object_keyvault_admin
+    // CT-PRIMEReportStream-AZ-Owners
+    object_id = "52fe06f4-9717-4beb-9b7a-e05b6bdd2f0f"
 
     key_permissions = [
       "Create",
       "Get",
+      "List",
+      "Delete",
+      "Purge"
     ]
 
     secret_permissions = [
@@ -110,6 +112,6 @@ resource "azurerm_key_vault_key" "init" {
     "sign",
     "unwrapKey",
     "verify",
-    "wrapKey",
+    "wrapKey"
   ]
 }

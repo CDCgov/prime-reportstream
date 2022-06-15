@@ -125,14 +125,15 @@ resource "azurerm_storage_management_policy" "retention_policy" {
     }
 
     actions {
-      base_blob {
-        delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
+      dynamic "base_blob" {
+        for_each = var.temp_env == false ? ["enabled"] : []
+        content {
+          delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
+        }
       }
       snapshot {
         delete_after_days_since_creation_greater_than = var.delete_pii_storage_after_days
       }
-      # Terraform does not appear to support deletion of versions
-      # This needs to be manually checked in the policy and set to 60 days
     }
   }
 
@@ -287,14 +288,15 @@ resource "azurerm_storage_management_policy" "storage_partner_retention_policy" 
     }
 
     actions {
-      base_blob {
-        delete_after_days_since_modification_greater_than = 30
+      dynamic "base_blob" {
+        for_each = var.temp_env == false ? ["enabled"] : []
+        content {
+          delete_after_days_since_modification_greater_than = 30
+        }
       }
       snapshot {
         delete_after_days_since_creation_greater_than = 30
       }
-      # Terraform does not appear to support deletion of versions
-      # This needs to be manually checked in the policy and set to 60 days
     }
   }
 

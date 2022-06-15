@@ -23,6 +23,8 @@ variable "use_cdc_managed_vnet" {
   description = "If the environment should be deployed to the CDC managed VNET"
 }
 
-variable "sa_primary_access_key" {
+variable "sa_primary_access_key" {}
 
+variable "dns_zones" {
+  description = "A set of all available dns zones"
 }
