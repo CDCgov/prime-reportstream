@@ -36,12 +36,15 @@ export async function getLatestVersion(
                 b["tableVersion"] - a["tableVersion"]
         )[0];
 
+        if (table?.tableVersion === undefined) {
+            showError(`ERROR! No version of table '${tableName}' was found!`);
+            return -1;
+        }
+
         return table?.tableVersion;
     } catch (e: any) {
         console.trace(e);
-        showError(
-            `An error occurred while retrieving the latest version: ${e.toString()}`
-        );
+        showError(e.toString());
         return -1;
     }
 }
@@ -58,9 +61,7 @@ export async function getLatestData<T>(
             .then((response) => response.data);
     } catch (e: any) {
         console.trace(e);
-        showError(
-            `An error occurred while retrieving the latest data: ${e.toString()}`
-        );
+        showError(e.toString());
         return [];
     }
 }
@@ -69,10 +70,8 @@ export const getSenderAutomationData = async <T>(
     tableName: LookupTables
 ): Promise<any[]> => {
     const version: number = await getLatestVersion(tableName);
-    if (version === undefined) {
-        showError("DANGER! no version was found");
-        return [];
-    }
+    if (version === -1) return []; // no version found (or other error occurred)
+
     const data: T | any[] = await getLatestData<T[]>(version, tableName);
 
     return data.map(
@@ -95,10 +94,8 @@ export const getSenderAutomationDataRows = async <T>(
     dataSetName: string | null = null
 ): Promise<any[]> => {
     const version: number = await getLatestVersion(tableName);
-    if (version === undefined) {
-        showError("DANGER! no version was found");
-        return [];
-    }
+    if (version === -1) return []; // no version found (or other error occurred)
+
     const data: T | any[] = await getLatestData<T[]>(version, tableName);
 
     return data
