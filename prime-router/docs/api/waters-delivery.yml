@@ -59,7 +59,7 @@ paths:
   /waters/deliveries/{deliveryId}/history:
     get:
       operationId: getDeliveryDetails
-      summary: Get exampled details for a single report
+      summary: Get expanded details for a single report
       description: Retrieve the details for a report, including easily fetched relations
       security:
         - OAuth2: [ user ]
