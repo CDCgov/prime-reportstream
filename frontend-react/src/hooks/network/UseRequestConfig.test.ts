@@ -7,6 +7,8 @@ import { MyApi, MyApiItem } from "../../network/api/test-tools/MockApi";
 
 import useRequestConfig from "./UseRequestConfig";
 
+const mockConsoleError = jest.spyOn(global.console, "error");
+
 const handlers = [
     /* Returns a list of two fake api items */
     rest.get("https://test.prime.cdc.gov/api/test/test", (req, res, ctx) => {
@@ -16,49 +18,41 @@ const handlers = [
         );
     }),
     /* Returns a single item by id */
-    rest.post<RSRequestConfig, {}, MyApiItem>(
+    rest.post<RSRequestConfig, {}, MyApiItem | any>(
         "https://test.prime.cdc.gov/api/test/test/:id",
         (req, res, ctx) => {
-            if (!req.headers.get("authorization")?.includes("TOKEN")) {
-                return res(ctx.status(401));
-            } else {
-                //@ts-ignore
-                const { id } = req.params || "0";
-                return res(ctx.status(200), ctx.json(new MyApiItem(id)));
-            }
+            //@ts-ignore
+            const { id } = req.params || "0";
+            return res(ctx.status(200), ctx.json(new MyApiItem(id)));
         }
     ),
 
     rest.put<RSRequestConfig, {}, MyApiItem>(
         "https://test.prime.cdc.gov/api/test/test/:id",
         (req, res, ctx) => {
-            if (!req.headers.get("authorization")?.includes("TOKEN")) {
-                return res(ctx.status(401));
-            } else {
-                //@ts-ignore
-                const { id } = req.params || "0";
-                return res(ctx.status(200), ctx.json(new MyApiItem(id)));
-            }
+            //@ts-ignore
+            const { id } = req.params || "0";
+            return res(ctx.status(200), ctx.json(new MyApiItem(id)));
         }
     ),
 
     rest.patch<RSRequestConfig, {}, MyApiItem>(
         "https://test.prime.cdc.gov/api/test/test/:id",
         (req, res, ctx) => {
-            if (!req.headers.get("authorization")?.includes("TOKEN")) {
-                return res(ctx.status(401));
-            } else {
-                //@ts-ignore
-                const { id } = req.params || "0";
-                return res(ctx.status(200), ctx.json(new MyApiItem(id)));
-            }
+            //@ts-ignore
+            const { id } = req.params || "0";
+            return res(ctx.status(200), ctx.json(new MyApiItem(id)));
         }
     ),
 
-    rest.delete<RSRequestConfig, {}, MyApiItem>(
+    rest.delete<RSRequestConfig, {}, MyApiItem | any>(
         "https://test.prime.cdc.gov/api/test/test/:id",
         (req, res, ctx) => {
-            return res(ctx.status(200));
+            if (!req.headers.get("authorization")?.includes("TOKEN")) {
+                return res(ctx.status(401));
+            } else {
+                return res(ctx.status(200));
+            }
         }
     ),
 ];
@@ -168,6 +162,30 @@ describe("useRequestConfig", () => {
             useRequestConfig<MyApiItem>(config)
         );
         await waitForNextUpdate();
-        expect(result.current.error).toEqual("Unauthorized");
+        expect(result.current.error).toEqual(
+            "Request failed with status code 401"
+        );
+    });
+
+    test("catches local errors", async () => {
+        const config = createRequestConfig<{ id: number }, MyApiItem>(
+            MyApi,
+            "itemById",
+            "POST",
+            "",
+            "ORGANIZATION",
+            { id: 4 }
+        );
+        const { result } = renderHook(() =>
+            useRequestConfig<MyApiItem>(config)
+        );
+        expect(result.current.data).toBeUndefined();
+        expect(result.current.loading).toBeFalsy();
+        expect(result.current.error).toEqual(
+            "This call requires data to be passed in"
+        );
+        expect(mockConsoleError).toHaveBeenCalledWith(
+            "This call requires data to be passed in"
+        );
     });
 });

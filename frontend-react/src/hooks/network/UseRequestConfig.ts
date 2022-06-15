@@ -14,6 +14,8 @@ const DataSentRequest = ["POST", "PATCH", "PUT"];
 const needsData = (reqType: Method) =>
     DataSentRequest.includes(reqType.toUpperCase());
 const hasData = (req: RSRequestConfig): boolean => req.data !== undefined;
+const deletesData = (reqType: Method) =>
+    reqType === "delete" || reqType === "DELETE";
 const typedAxiosCall = <T>(config: RSRequestConfig): AxiosPromise<T> => {
     switch (config.method) {
         case "POST":
@@ -59,17 +61,27 @@ const useRequestConfig = <D>(
             typedAxiosCall<D>(config)
                 .then((res) => res.data)
                 .then((data) => {
-                    // TODO: Use data at useApi level to generate objects for runtime safety
-                    setData(data);
-                    setLoading(false);
+                    /* This is pretty opinionated on how WE handle deletes.
+                     * It might benefit from a refactor later on. */
+                    if (deletesData(config.method)) {
+                        setData(undefined);
+                        setLoading(false);
+                    } else {
+                        // TODO: Use API.resource to generate objects for runtime safety
+                        setData(data);
+                        setLoading(false);
+                    }
                 })
+                /* Verified that this catch call is necessary, the catch
+                 * block below doesn't handle this Promise */
                 .catch((e: any) => {
                     setError(e.message);
                 });
-            // Still need .catch()?
         } catch (e: any) {
             console.error(e.message);
+            setData(undefined);
             setError(e.message);
+            setLoading(false);
         }
     }, [config]);
 
