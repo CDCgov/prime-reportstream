@@ -372,6 +372,7 @@ internal class ElementTests {
             "9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9",
             "(213)353-4836#", // Phone with # for extension but without extension number
             "(568)785-6521ext.", // Phone with ext. for extension but without extension number
+            "(568)785-6521 ext.", // Phone with ext. for extension but without extension number variant
             "(625)354-1039x", // Phone with x for extension but without extension number
             "(710)104-75621485", // Phone without #, ext., ext, or x but with extension number
             "(710)104-7562 1485", // Phone without #, ext., ext, or x but with extension number variant
