@@ -19,14 +19,7 @@ import {
     SortOrder,
     SortSettingsActionType,
 } from "../../hooks/filters/UseSortOrder";
-
-// each table row will be a map keyed off the dataAttr value of
-// a column from the column config from the same tableConfig.
-// values will largely be assumed to be primitive values, or values
-// to be passed into a transform function defined in the column config
-export interface TableRow {
-    [key: string]: any;
-}
+import { StringIndexed } from "../../utils/UsefulTypes";
 
 export interface ActionableColumn {
     action: Function;
@@ -62,7 +55,7 @@ export interface ColumnConfig {
 
 export interface TableConfig {
     columns: Array<ColumnConfig>;
-    rows: Array<TableRow>;
+    rows: Array<StringIndexed>;
 }
 
 export interface DatasetAction {
@@ -73,7 +66,7 @@ export interface DatasetAction {
 export interface ColumnProps {
     rowIndex: number;
     colIndex: number;
-    rowData: TableRow;
+    rowData: StringIndexed;
     columnConfig: ColumnConfig;
     editing?: boolean;
 }
@@ -248,7 +241,10 @@ const Table = ({
         );
     };
 
-    const showMappedValue = (columnConfig: ColumnConfig, object: TableRow) => {
+    const showMappedValue = (
+        columnConfig: ColumnConfig,
+        object: StringIndexed
+    ) => {
         if (columnConfig.valueMap) {
             return (
                 <span>

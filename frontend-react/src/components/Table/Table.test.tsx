@@ -4,14 +4,15 @@ import userEvent from "@testing-library/user-event";
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
+import { StringIndexed } from "../../utils/UsefulTypes";
 
 import { TestTable } from "./TestTable";
-import Table, { ColumnConfig, TableConfig, TableRow } from "./Table";
+import Table, { ColumnConfig, TableConfig } from "./Table";
 
 /* Table generation tools */
 
 const getSetOfRows = (count: number) => {
-    const testRows: TableRow[] = [];
+    const testRows: StringIndexed[] = [];
     for (let i = 0; i < count; i++) {
         testRows.push({
             id: i,
@@ -27,7 +28,7 @@ const getSetOfRows = (count: number) => {
     return testRows;
 };
 
-const makeConfigs = (sampleRow: TableRow): ColumnConfig[] => {
+const makeConfigs = (sampleRow: StringIndexed): ColumnConfig[] => {
     const sampleMapper = new Map<number, string>([[2, "Mapped Item"]]);
     const transformFunc = (v: any) => {
         return v === 9 ? "Transformed Value" : v;
@@ -56,7 +57,7 @@ const makeConfigs = (sampleRow: TableRow): ColumnConfig[] => {
 };
 
 const getTestConfig = (rowCount: number): TableConfig => {
-    const testRows: TableRow[] = getSetOfRows(rowCount);
+    const testRows: StringIndexed[] = getSetOfRows(rowCount);
     const colConfigs: ColumnConfig[] = makeConfigs(testRows[0]);
     return {
         rows: testRows,

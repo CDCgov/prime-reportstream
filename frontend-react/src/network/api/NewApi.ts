@@ -1,5 +1,7 @@
 import { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
 
+import { Newable, StringIndexed } from "../../utils/UsefulTypes";
+
 export type AvailableMethods = Method[];
 export interface Endpoint {
     url: string;
@@ -7,21 +9,18 @@ export interface Endpoint {
 }
 /* Name your endpoints! */
 export type EndpointMap = Map<string, Endpoint>;
-/* This lets us pass resource classes in. It's checking that something
- * is "newable" */
-type Constructor<T = {}> = new (...args: any[]) => T;
+
 /* Declaration of an API */
 export interface API<T = {}> {
-    resource: Constructor<T>; // Resource class
+    resource: Newable<T>; // Resource class
     baseUrl: string;
     endpoints: EndpointMap;
 }
-/* Allows us to access them via string: params["id"] */
-export interface RSUrlParams {
-    [key: string]: any;
-}
+
 /* Make some headers required */
-export interface RSRequestHeaders extends AxiosRequestHeaders {}
+export interface RSRequestHeaders extends AxiosRequestHeaders {
+    /* TODO: Required headers. */
+}
 /* Make some fields required or overwrite types */
 export interface RSRequestConfig extends AxiosRequestConfig {
     url: string;
@@ -44,7 +43,7 @@ const extractEndpoint = (api: API, key: string): Endpoint => {
 
 /* Called from consumer hook to build URL. Parameters for endpoints should be passed
  * through the consumer hook and into this function when building the URL. */
-export const buildEndpointUrl = <P extends RSUrlParams>(
+export const buildEndpointUrl = <P extends StringIndexed>(
     api: API,
     endpointKey: string,
     parameters?: P
@@ -86,7 +85,7 @@ export const buildEndpointUrl = <P extends RSUrlParams>(
 };
 
 /* Handles generating the config from parameters */
-export const createRequestConfig = <P extends RSUrlParams, D = any>(
+export const createRequestConfig = <P extends StringIndexed, D = any>(
     api: API,
     endpointKey: string,
     method: Method,
