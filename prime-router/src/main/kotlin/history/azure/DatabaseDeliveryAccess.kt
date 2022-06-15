@@ -1,11 +1,15 @@
 package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.history.DetailedActionLog
+import gov.cdc.prime.router.history.DetailedReport
 import org.jooq.Condition
+import org.jooq.SelectFieldOrAsterisk
 import org.jooq.SortField
 import org.jooq.impl.DSL
 import java.time.OffsetDateTime
@@ -69,6 +73,31 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = BaseEngine.databas
             query.limit(pageSize)
                 .fetchInto(klass)
         }
+    }
+
+    /**
+     * Select columns for delivery
+     *
+     * @return a jooq select statement for the columns used on deliveries.
+     */
+    private fun deliverySelect(): List<SelectFieldOrAsterisk> {
+        return listOf(
+            ACTION.asterisk(),
+            DSL.multiset(
+                DSL.select()
+                    .from(Tables.ACTION_LOG)
+                    .where(Tables.ACTION_LOG.ACTION_ID.eq(ACTION.ACTION_ID))
+            ).`as`("logs").convertFrom { r ->
+                r?.into(DetailedActionLog::class.java)
+            },
+            DSL.multiset(
+                DSL.select()
+                    .from(REPORT_FILE)
+                    .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
+            ).`as`("reports").convertFrom { r ->
+                r?.into(DetailedReport::class.java)
+            },
+        )
     }
 
     /**
@@ -153,8 +182,17 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = BaseEngine.databas
         actionId: Long,
         klass: Class<T>
     ): T? {
-        println("$organization $actionId $klass")
-        return null
+        return db.transactReturning { txn ->
+            DSL.using(txn)
+                .select(deliverySelect())
+                .from(ACTION)
+                .where(
+                    ACTION.ACTION_NAME.eq(TaskAction.receive)
+                        .and(ACTION.SENDING_ORG.eq(organization))
+                        .and(ACTION.ACTION_ID.eq(actionId))
+                )
+                .fetchOne()?.into(klass)
+        }
     }
 
     /**

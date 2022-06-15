@@ -7,7 +7,9 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 
 /**
  * Deliveries API
@@ -17,6 +19,7 @@ class DeliveryFunction(
     val deliveryFacade: DeliveryFacade = DeliveryFacade.instance,
     workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : ReportFileFunction(
+    deliveryFacade,
     workflowEngine,
 ) {
     /**
@@ -25,12 +28,25 @@ class DeliveryFunction(
      */
     var receivingOrgSvc: String? = null
 
+    /**
+     * Get the correct name for an organization receiver based on the name.
+     *
+     * @param organization Name of organization and service
+     * @return Name for the organization
+     */
     override fun userOrgName(organization: String): String? {
         val receiver = workflowEngine.settings.findReceiver(organization)
         receivingOrgSvc = receiver?.name
         return receiver?.organizationName
     }
 
+    /**
+     * Get a list of delivery history
+     *
+     * @param request HTTP Request params
+     * @param userOrgName Name of the organization
+     * @return json list of deliveries
+     */
     override fun historyAsJson(request: HttpRequestMessage<String?>, userOrgName: String): String {
         val params = HistoryApiParameters(request.queryParameters)
 
@@ -47,9 +63,28 @@ class DeliveryFunction(
     }
 
     /**
+     * Get expanded details for a single report
+     *
+     * @param request HTTP Request params
+     * @param action Action from which the data for the delivery is loaded
+     * @return
+     */
+    override fun singleDetailedHistory(request: HttpRequestMessage<String?>, action: Action): HttpResponseMessage {
+        val submission = deliveryFacade.findDetailedDeliveryHistory(action.sendingOrg, action.actionId)
+        return if (submission != null)
+            HttpUtilities.okJSONResponse(request, submission)
+        else
+            HttpUtilities.notFoundResponse(request, "Submission ${action.actionId} was not found.")
+    }
+
+    /**
      * This endpoint is meant for use by either an Admin or a User.
      * It does not assume the user belongs to a single Organization.  Rather, it uses
      * the organization in the URL path, after first confirming authorization to access that organization.
+     *
+     * @param request HTTP Request params
+     * @param organization Name of organization and service
+     * @return json list of deliveries
      */
     @FunctionName("getDeliveries")
     fun getDeliveries(
@@ -62,5 +97,25 @@ class DeliveryFunction(
         @BindingName("organization") organization: String,
     ): HttpResponseMessage {
         return this.getListByOrg(request, organization)
+    }
+
+    /**
+     * Get expanded details for a single report
+     *
+     * @param request HTTP Request params
+     * @param id Report or Delivery id
+     * @return json formatted delivery
+     */
+    @FunctionName("getDeliveryDetails")
+    fun getDeliveryDetails(
+        @HttpTrigger(
+            name = "getDeliveryDetails",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "waters/deliveries/{deliveryId}/history"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("id") id: String,
+    ): HttpResponseMessage {
+        return this.getDetailedView(request, id)
     }
 }

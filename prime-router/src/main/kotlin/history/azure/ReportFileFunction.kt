@@ -4,10 +4,13 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
+import org.jooq.exception.DataAccessException
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
 import java.util.UUID
@@ -17,11 +20,14 @@ import java.util.UUID
  * Returns a list of Actions from `public.action`.
  */
 abstract class ReportFileFunction(
+    private val reportFileFacade: ReportFileFacade,
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
     abstract fun userOrgName(organization: String): String?
 
     abstract fun historyAsJson(request: HttpRequestMessage<String?>, userOrgName: String): String
+
+    abstract fun singleDetailedHistory(request: HttpRequestMessage<String?>, action: Action): HttpResponseMessage
 
     /**
      * Get a list of reports for a given organization.
@@ -59,6 +65,61 @@ abstract class ReportFileFunction(
             return HttpUtilities.okResponse(request, this.historyAsJson(request, userOrgName))
         } catch (e: IllegalArgumentException) {
             return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
+        }
+    }
+
+    /**
+     * TODO
+     *
+     * @param request
+     * @param id
+     * @return
+     */
+    fun getDetailedView(
+        request: HttpRequestMessage<String?>,
+        id: String,
+    ): HttpResponseMessage {
+        try {
+            // Do authentication
+            val claims = AuthenticationStrategy.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+            logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
+
+            // Figure out whether we're dealing with an action_id or a report_id.
+            val actionId = id.toLongOrNull() // toLong a sacrifice can make a Null of the heart
+            val action = if (actionId == null) {
+                val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
+                reportFileFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
+            } else {
+                reportFileFacade.fetchAction(actionId) ?: error("No such actionId $actionId")
+            }
+
+            // Confirm this is actually a submission.
+            if (action.sendingOrg == null || action.actionName != TaskAction.receive) {
+                return HttpUtilities.notFoundResponse(request, "$id is not a submitted report")
+            }
+
+            // Do Authorization.  Confirm these claims allow access to this Action
+            if (!reportFileFacade.checkSenderAccessAuthorization(action, claims)) {
+                logger.warn(
+                    "Invalid Authorization for user ${claims.userName}:" +
+                        " ${request.httpMethod}:${request.uri.path}"
+                )
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
+            logger.info(
+                "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
+            )
+
+            return this.singleDetailedHistory(request, action)
+        } catch (e: DataAccessException) {
+            logger.error("Unable to fetch history for ID $id", e)
+            return HttpUtilities.internalErrorResponse(request)
+        } catch (ex: IllegalStateException) {
+            logger.error(ex)
+            // Errors above are actionId or UUID not found errors.
+            return HttpUtilities.notFoundResponse(request, ex.message)
         }
     }
 
@@ -152,7 +213,7 @@ abstract class ReportFileFunction(
      * @param str
      * @return a valid UUID, or null if this [str] cannot be parsed into a valid UUID.
      */
-    fun toUuidOrNull(str: String): UUID? {
+    private fun toUuidOrNull(str: String): UUID? {
         return try {
             UUID.fromString(str)
         } catch (e: IllegalArgumentException) {
