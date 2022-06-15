@@ -143,8 +143,8 @@ requester:
   valueOf: resource/PractitionerRole
   expressionType: reference
   vars:
-    orderingProvider: ORC.12
-    callbackNumber: ORC.14
+    orderingProvider: ORC.12 | OBR.16
+    callbackNumber: ORC.14 | OBR.17
     orderingFacilityName: ORC.21
     orderingFacilityAddress: ORC.22
     orderingFacilityPhone: ORC.23
@@ -200,4 +200,56 @@ extension_2:
       type: STRING
       valueOf: ORC.17.1 | ORC.17.9 | ORC.17.2
       expressionType: HL7Spec
+
+extension_3:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: collector-identifier
+    valueReference:
+      valueOf: resource/Practitioner
+      expressionType: reference
+      specs: OBR.10
+
+extension_4:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: clinical-information
+    valueString:
+      type: STRING
+      valueOf: OBR.13
+      expressionType: HL7Spec
+
+extension_5:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: placer-field
+    valueString:
+      type: STRING
+      valueOf: OBR.18
+      expressionType: HL7Spec
+
+extension_6:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: result-status
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept_var
+      expressionType: resource
+      vars:
+        system: SYSTEM_URL, $system_code
+        code: String, OBR.25
+      constants:
+        system_code: "v2-0123"
 
