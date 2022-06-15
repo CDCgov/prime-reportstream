@@ -52,12 +52,15 @@ const useRequestConfig = <D>(
      * useApi(). */
     useEffect(() => {
         setLoading(true);
-        try {
+        const validDataSentThrough = () => {
+            // TODO: Use API.resource for runtime type safety
             if (needsData(config.method) && !hasData(config)) {
                 setData(undefined);
                 setLoading(false);
                 throw Error("This call requires data to be passed in");
             }
+        };
+        const fetchAndStoreData = () => {
             typedAxiosCall<D>(config)
                 .then((res) => res.data)
                 .then((data) => {
@@ -77,6 +80,10 @@ const useRequestConfig = <D>(
                 .catch((e: any) => {
                     setError(e.message);
                 });
+        };
+        try {
+            validDataSentThrough();
+            fetchAndStoreData();
         } catch (e: any) {
             console.error(e.message);
             setData(undefined);
