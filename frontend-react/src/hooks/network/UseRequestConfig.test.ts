@@ -13,6 +13,7 @@ import useRequestConfig, {
     deletesData,
     hasData,
     needsData,
+    needsTrigger,
 } from "./UseRequestConfig";
 
 const mockConsoleError = jest.spyOn(global.console, "error");
@@ -225,6 +226,11 @@ test("hasData", () => {
 test("deletesData", () => {
     expect(deletesData("DELETE")).toBeTruthy();
     expect(deletesData("GET")).toBeFalsy();
+});
+
+test("needsTrigger", () => {
+    expect(needsTrigger("GET")).toBeFalsy();
+    expect(needsTrigger("DELETE")).toBeTruthy();
 });
 
 test("endpointHasMethod", () => {

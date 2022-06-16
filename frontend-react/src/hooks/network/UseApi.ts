@@ -15,9 +15,9 @@ interface EndpointHookResponse<D> extends Omit<RequestHookResponse<D>, "data"> {
     data: D | D[] | undefined;
 }
 
-const passesObjCompare = <D = object>(obj1: D, obj2: Newable<D>) => {
+export const passesObjCompare = (obj1: any, obj2: Newable<any>) => {
     const obj1Keys = Object.keys(obj1);
-    const obj2Keys = Object.keys(obj2);
+    const obj2Keys = Object.keys(new obj2(Object.values(obj1)));
     const clear1 = obj1Keys.every((key: string) => obj2Keys.includes(key));
     const clear2 = obj2Keys.every((key: string) => obj1Keys.includes(key));
     return clear1 && clear2;
@@ -31,7 +31,7 @@ const useEndpoint = <P, D>(
     advancedConfig?: AdvancedConfig<D>
 ): EndpointHookResponse<D> => {
     const { oktaToken, memberships } = useSessionContext();
-    const { data, loading, error } = useRequestConfig<D | D[]>(
+    const { data, loading, error, trigger } = useRequestConfig<D | D[]>(
         createRequestConfig(
             api,
             endpointKey,
@@ -60,6 +60,7 @@ const useEndpoint = <P, D>(
         data: typeCheckedData,
         loading,
         error,
+        trigger,
     };
 };
 

@@ -9,8 +9,9 @@ import {
 } from "../UseOktaMemberships";
 import { SessionController } from "../UseSessionStorage";
 import { MyApi, MyApiItem } from "../../network/api/test-tools/MockApi";
+import { SimpleError } from "../../utils/UsefulTypes";
 
-import useEndpoint from "./UseApi";
+import useEndpoint, { passesObjCompare } from "./UseApi";
 
 const handlers = [
     /* Returns a list of two fake api items */
@@ -29,7 +30,7 @@ describe("useEndpoint", () => {
     beforeAll(() => testServer.listen());
     afterEach(() => testServer.resetHandlers());
     afterAll(() => testServer.close());
-    test("", async () => {
+    test("Returns GET data on laod", async () => {
         mockSessionContext.mockReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
@@ -50,6 +51,16 @@ describe("useEndpoint", () => {
         );
         expect(result.current.loading).toEqual(true);
         await waitForNextUpdate();
-        expect(result.current.data).toEqual([new MyApiItem("test")]);
+        expect(result.current.data).toEqual(new MyApiItem("test"));
+    });
+
+    test("passesObjCompare", () => {
+        const result = passesObjCompare({ message: "test" }, SimpleError);
+        expect(result).toBeTruthy();
+        const badResult = passesObjCompare(
+            { failureMessage: "test" },
+            SimpleError
+        );
+        expect(badResult).toBeFalsy();
     });
 });

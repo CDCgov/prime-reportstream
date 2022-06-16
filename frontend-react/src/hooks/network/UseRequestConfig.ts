@@ -18,6 +18,8 @@ export const hasData = (req: RSRequestConfig): boolean =>
     req.data !== undefined;
 export const deletesData = (reqType: Method) =>
     reqType === "delete" || reqType === "DELETE";
+export const needsTrigger = (reqType: Method) =>
+    reqType !== "GET" && reqType !== "get";
 const typedAxiosCall = <D>(config: RSRequestConfig): AxiosPromise<D> => {
     switch (config.method) {
         case "POST":
@@ -48,10 +50,11 @@ const useRequestConfig = <D>(
     /* Boolean indicating if method needs to be triggered or not. */
     const onlyCallOnTrigger = useMemo(() => {
         if (config instanceof SimpleError) return true;
-        return config.method !== "GET" && config.method !== "get";
+        return needsTrigger(config.method);
     }, [config]);
     /* Trigger to allow users to trigger a call (i.e. a POST, PUT, PATCH, or DELETE */
     const [triggerCall, setTriggerCall] = useState(0);
+    /* Increments trigger to trigger axios call */
     const trigger = useCallback(() => {
         setTriggerCall(triggerCall + 1);
     }, [triggerCall]);
@@ -63,9 +66,9 @@ const useRequestConfig = <D>(
      * To trigger a re-call, use the API controller provided from
      * useApi(). */
     useEffect(() => {
-        // This value is our way of confirming our effect is still running
-        // That way, when we break down a component, no more state is will
-        // try to be set. This helps with teardown mid network call.
+        /* This value is our way of confirming our effect is still running
+         * That way, when we break down a component, no more state is will
+         * try to be set. This helps with teardown mid network call. */
         let subscribed = true;
         setLoading(true);
         if (config instanceof SimpleError) {
