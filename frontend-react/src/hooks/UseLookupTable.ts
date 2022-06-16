@@ -135,7 +135,6 @@ const useLookupTable = <T>(
     return valueSetArray;
 };
 
-/* Keeping the dataSetName in here would keep this from refreshing if it changes. */
 export const useValueSetsTable = () =>
     useLookupTable<ValueSet>(LookupTables.VALUE_SET);
 /* I noticed this one has a dataSetName piped from the component. It SHOULD still
