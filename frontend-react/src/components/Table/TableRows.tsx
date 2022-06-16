@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, {
+    useState,
+    useCallback,
+    useMemo,
+    SetStateAction,
+    Dispatch,
+} from "react";
 import { Button } from "@trussworks/react-uswds";
 
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
@@ -6,27 +12,35 @@ import { FilterManager } from "../../hooks/filters/UseFilterManager";
 import { RowSideEffect, TableRow as TableRowData, ColumnConfig } from "./Table";
 import { ColumnData } from "./ColumnData";
 
-interface TableRowsProps {
-    rows: TableRowData[];
+interface RowProps {
     columns: ColumnConfig[];
-    filterManager?: FilterManager;
     enableEditableRows?: boolean;
-    onSave?: RowSideEffect;
-    setRowToEdit: Function; // TODO
     rowToEdit: number | undefined;
 }
 
-interface TableRowProps {
+interface TableRowsProps extends RowProps {
+    rows: TableRowData[];
+    filterManager?: FilterManager;
+    onSave?: RowSideEffect;
+    setRowToEdit: Dispatch<SetStateAction<number | undefined>>;
+}
+
+interface TableRowProps extends RowProps {
     rowData: TableRowData;
-    columns: ColumnConfig[];
-    enableEditableRows?: boolean;
     rowIndex: number;
-    rowToEdit: number | undefined;
     editButtonLabel?: string;
     updateRow: (value: string, field: string) => void;
     saveRowOrSetEditing: (index?: number) => void;
     isNew: boolean;
 }
+
+const createBlankRowForColumns = (columns: ColumnConfig[]) => {
+    return columns.reduce((acc, column) => {
+        const { dataAttr } = column;
+        acc[dataAttr] = undefined;
+        return acc;
+    }, {} as TableRowData);
+};
 
 const TableRow = ({
     rowIndex,
@@ -39,6 +53,7 @@ const TableRow = ({
     editButtonLabel,
     isNew,
 }: TableRowProps) => {
+    // on a new row, all fields should be editable
     const columnsForDisplay = useMemo(() => {
         if (!isNew) {
             return columns;
@@ -48,6 +63,7 @@ const TableRow = ({
             editable: true,
         }));
     }, [isNew, columns]);
+
     return (
         <tr key={rowIndex}>
             {columnsForDisplay.map((colConfig, colIndex) => (
@@ -75,17 +91,10 @@ const TableRow = ({
     );
 };
 
-const createBlankRowForColumns = (columns: ColumnConfig[]) => {
-    return columns.reduce((acc, column) => {
-        const { dataAttr } = column;
-        acc[dataAttr] = undefined;
-        return acc;
-    }, {} as TableRowData);
-};
-
 /* Iterates each row, and then uses the key value from columns.keys()
- * to render each cell in the appropriate column. */
-// do we want to split out the editing stuff into a plugin / hook / different component?
+ * to render each cell in the appropriate column.
+ * POSSIBLE TODO: do we want to split out the editing stuff into a plugin / hook / different component?
+ */
 export const TableRows = ({
     rows,
     onSave = () => Promise.resolve(),
@@ -95,7 +104,6 @@ export const TableRows = ({
     setRowToEdit,
     rowToEdit,
 }: TableRowsProps) => {
-    console.log("!!! rowToEdit", rowToEdit);
     // tracks data changes to row currently being edited
     // TODO: build proper loading state
     const [updatedRow, setUpdatedRow] = useState<TableRowData | null>(null);
@@ -104,22 +112,20 @@ export const TableRows = ({
     // but may need to cast it to a number, Date, or parse a JSON string in the future
     // especially if we're dealing with non text type inputs. Otherwise we may end up
     // with difficulty working with new data, or pushing to API without errors
-    const updateFieldForRow =
-        // (rowToUpdate: TableRowData | undefined) =>
-        (value: string, field: string) => {
-            // largely here for typecheck reasons, this represents a case
-            // where we're somehow trying to update a row without editing enabled
-            if (rowToEdit === undefined) {
-                console.error("Editing not enabled or no row to edit");
-                return;
-            }
+    const updateFieldForRow = (value: string, field: string) => {
+        // largely here for typecheck reasons, this represents a case
+        // where we're somehow trying to update a row without editing enabled
+        if (rowToEdit === undefined) {
+            console.error("Editing not enabled or no row to edit");
+            return;
+        }
 
-            const rowToUpdate = rowsToDisplay[rowToEdit];
-            const rowValues = { ...rowToUpdate };
-            // update the field value in the given row
-            rowValues[field] = value;
-            setUpdatedRow(rowValues);
-        };
+        const rowToUpdate = rowsToDisplay[rowToEdit];
+        const rowValues = { ...rowToUpdate };
+        // update the field value in the given row
+        rowValues[field] = value;
+        setUpdatedRow(rowValues);
+    };
 
     // note that this function does not update the data displayed in the table directly
     // it will be the responsibility of the parent component to handle any data updates by
@@ -174,8 +180,9 @@ export const TableRows = ({
                 ) {
                     return null;
                 }
-                const isNewRow =
-                    addingNewRow && rowIndex === rowsToDisplay.length;
+                // note comparison to `rows` length rather than `rowsToDisplay` to make sure
+                // this is a row that has been added
+                const isNewRow = addingNewRow && rowIndex === rows.length;
                 return (
                     <TableRow
                         rowIndex={rowIndex}

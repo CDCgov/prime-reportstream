@@ -68,11 +68,11 @@ export interface TableConfig {
 
 export interface DatasetAction {
     label: string;
-    method: Function;
+    method?: Function;
 }
 
 export interface DatasetActionProps extends DatasetAction {
-    currentlyEditing: boolean;
+    disabled: boolean;
 }
 
 export type RowSideEffect = (row: TableRow | null) => Promise<void>;
@@ -108,7 +108,7 @@ const Table = ({
     enableEditableRows,
     editableCallback = () => Promise.resolve(),
 }: TableProps) => {
-    const [rowToEdit, setRowToEdit] = useState<number>();
+    const [rowToEdit, setRowToEdit] = useState<number | undefined>();
 
     /* memoizedRows is the source of truth for rendered table rows. If a local
      * sort is applied, this function reactively sorts the rows passed in. If
@@ -255,31 +255,19 @@ const Table = ({
         );
     };
 
+    // this button will be placed above the rendered table and on `click` will run an arbitrary function
+    // passed in from the Table's parent, or an addRow function defined by the Table.
+    // in order to avoid problems around timing, takes a `disabled` prop.
+    // TODO: split this out of Table component
     const DatasetActionButton = ({
         label,
-        method,
-        currentlyEditing,
-    }: DatasetActionProps) => {
-        // TODO: disable this button if a new row is currently under edit?
-        // ATM the flow is something like:
-        // * Table component tells TableRows that a new row is under edit
-        // * TableRows controls editing
-        // * when editing is complete, reports back that editing is done, returning control,
-        // potentially to Table
-        // I foresee trouble in the current setup if we allow for local and parental
-        // control of which row is under edit at the same time. We could also find another
-        // solution to this problem and make sure control is passed in a way that doesn't
-        // cause problems.
-        return (
-            <Button
-                type={"button"}
-                onClick={() => method()}
-                disabled={currentlyEditing}
-            >
-                {label}
-            </Button>
-        );
-    };
+        method = () => {},
+        disabled,
+    }: DatasetActionProps) => (
+        <Button type={"button"} onClick={() => method()} disabled={disabled}>
+            {label}
+        </Button>
+    );
 
     const TableInfo = () => {
         return (
@@ -293,7 +281,7 @@ const Table = ({
                         <DatasetActionButton
                             label={datasetAction.label}
                             method={datasetAction.method || addRow}
-                            currentlyEditing={!!rowToEdit}
+                            disabled={!!rowToEdit}
                         />
                     ) : null}
                 </div>

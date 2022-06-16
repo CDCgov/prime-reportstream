@@ -56,9 +56,6 @@ const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
     /* We make this action do what we need it to to add an item */
     const datasetActionItem: DatasetAction = {
         label: "Add item",
-        method: () => {
-            console.log("!!!! will add a new value. Functionality to come...");
-        },
     };
     return (
         <Table

@@ -1,4 +1,4 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { within, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 
@@ -13,7 +13,6 @@ import { TestTable } from "./TestTable";
 import Table, { ColumnConfig, TableConfig, TableRow } from "./Table";
 import { TableRows } from "./TableRows";
 import { ColumnData } from "./ColumnData";
-
 /* Table generation tools */
 
 const getSetOfRows = (count: number, linkable: boolean = true) => {
@@ -531,5 +530,34 @@ describe("ColumnData", () => {
             `${initialValue}fakeItem`,
             "editableColumn"
         );
+    });
+});
+
+describe("Adding New Rows", () => {
+    test("When custom datasetAction method not passed, adds editable row to table on datasetAction click", () => {
+        render(<TestTable linkable={false} editable={true} />);
+
+        let rows = screen.getAllByRole("row");
+        expect(rows).toHaveLength(3); // 2 data rows and 1 header row
+
+        const addRowButton = screen.getByText("Test Action");
+        userEvent.click(addRowButton);
+
+        rows = screen.getAllByRole("row");
+        expect(rows).toHaveLength(4);
+    });
+
+    test("All fields on new editable row are editable", () => {
+        render(<TestTable linkable={false} editable={true} />);
+
+        const addRowButton = screen.getByText("Test Action");
+        userEvent.click(addRowButton);
+
+        const rows = screen.getAllByRole("row");
+        expect(rows).toHaveLength(4);
+
+        const newRow = rows[3];
+        const inputs = within(newRow).getAllByRole("textbox");
+        expect(inputs).toHaveLength(4);
     });
 });
