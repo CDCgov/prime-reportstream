@@ -1,15 +1,14 @@
 package gov.cdc.prime.router.fhirengine.utils
 
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
 import org.hl7.fhir.r4.model.Bundle
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.Date
 import kotlin.test.Test
-import kotlin.test.assertTrue
 
 class FhirTranscoderTests {
     @Test
@@ -38,12 +37,12 @@ class FhirTranscoderTests {
         val encodedBundle = FhirTranscoder.encode(testBundle)
 
         assertThat(encodedBundle).isNotEmpty()
-        assertTrue { isValidJSONObject(encodedBundle) }
+        assertThat(isValidJSONObject(encodedBundle)).isTrue()
 
         // Ensure contains id and type
         val jsonObj = JSONObject(encodedBundle)
-        assertThat(jsonObj.get("id") == testBundle.id)
-        assertThat(jsonObj.get("type") == testBundle.type.name.lowercase())
+        assertThat(jsonObj.get("id")).equals(testBundle.id)
+        assertThat(jsonObj.get("type")).equals(testBundle.type.name.lowercase())
     }
 
     @Test
@@ -53,8 +52,8 @@ class FhirTranscoderTests {
         """.trimIndent()
         val decodedBundle = FhirTranscoder.decode(encodedBundle)
         assertThat(decodedBundle).isNotNull()
-        assertThat(decodedBundle.id == "someid")
-        assertThat(decodedBundle.type == Bundle.BundleType.MESSAGE)
+        assertThat(decodedBundle.id).equals("someid")
+        assertThat(decodedBundle.type).equals(Bundle.BundleType.MESSAGE)
     }
 
     @Test
@@ -70,6 +69,6 @@ class FhirTranscoderTests {
         val decodedBundle = FhirTranscoder.decode(encodedBundle)
         // Ensure the decoded output is the same as the input pre-encode
         assertThat(decodedBundle).isNotNull()
-        assertThat(decodedBundle == testBundle)
+        assertThat(decodedBundle).equals(testBundle)
     }
 }
