@@ -942,6 +942,25 @@ data class Element(
          * 213-3534836x1234
          * 213-353-4836 x 1234
          * The idea here is to narrow down on only phone numbers but to expand on the permutations.
+         * ----------------------------------------------------------------------------------------------------
+         * Formats that will not match the regex
+         * Examples:
+         * Any international number that their country code is not on the phoneregions list
+         * +503 (555) 123-0987 for ES
+         * +55 11-2541-3652 for BR
+         * Any non-numberic entry
+         * adfadljl;lj
+         * j;ljoudfg
+         * Any alpha-numberic that doesn't follow the regex
+         * adged456ljlij - ere45
+         * (ab)987-ab45
+         * (1234) 555-5555
+         * 123-555-123456
+         * Phone numbers that have partial extension format
+         * (213) 353-4836 ext.
+         * (213) 353-4836x
+         * (213) 353-4836 4521
+         * (213) 353-48364521
          */
         private val maybeAPhoneNumber = Regex(
             """(\+\d{1,4}(\s|-)?)?\(?(\d{1,3})\)?(\s|-)?(\d{3,4})(\s|-)?(\d{3,4})(\s|-)?((x|ext\.|ext|#)(\s|-)?\d+)?"""
