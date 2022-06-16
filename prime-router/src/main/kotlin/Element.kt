@@ -904,7 +904,7 @@ data class Element(
         const val zipFiveToken = "\$zipFive"
         const val zipFivePlusFourToken = "\$zipFivePlusFour"
         const val usZipFormat = """^(\d{5})[- ]?(\d{4})?$"""
-        // A regex to check for the presence of only valid phone number characters. this will fail if
+        // A regex to check for the presence of only valid phone number characters. This will fail if
         // someone passes through character values, like a name, or some other text info. This checks for
         // proper format which is crucial when parsing data.
         /**
