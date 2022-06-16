@@ -20,6 +20,8 @@ import {
 } from "../../hooks/filters/UseSortOrder";
 import { StringIndexed } from "../../utils/UsefulTypes";
 
+import { TableRows } from "./TableRows";
+
 export interface ActionableColumn {
     action: Function;
     param?: string;
@@ -83,7 +85,7 @@ export interface TableProps {
     cursorManager?: CursorManager;
     paginationProps?: PaginationProps;
     enableEditableRows?: boolean;
-    editableCallback?: Function;
+    editableCallback?: RowSideEffect;
 }
 
 export interface LegendItem {
@@ -315,6 +317,7 @@ const Table = ({
                         <TableHeaders />
                     </thead>
                     <tbody className="font-mono-2xs">
+                        {/* eslint-disable-next-line react/jsx-no-undef */}
                         <TableRows
                             rows={memoizedRows}
                             onSave={editableCallback}
