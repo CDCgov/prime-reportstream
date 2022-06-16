@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 
@@ -8,8 +8,7 @@ import Table, {
     LegendItem,
     TableConfig,
 } from "../../../components/Table/Table";
-import { generateUseLookupTable } from "../../../hooks/UseLookupTable";
-import { LookupTables, ValueSetRow } from "../../../network/api/LookupTableApi";
+import { useValueSetsRowTable } from "../../../hooks/UseLookupTable";
 
 import { Legend } from "./ValueSetsIndex";
 
@@ -36,18 +35,8 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
     },
 ];
 
-const createUseValueSetsRowTable = (valueSetName: string) => {
-    return generateUseLookupTable<ValueSetRow>(
-        LookupTables.VALUE_SET_ROW,
-        valueSetName
-    );
-};
 const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
-    const useValueSetsRowTable = useMemo(
-        () => createUseValueSetsRowTable(valueSetName),
-        [valueSetName]
-    );
-    const valueSetRowArray = useValueSetsRowTable();
+    const valueSetRowArray = useValueSetsRowTable(valueSetName);
     // const [sampleValueSetRows, setSampleValueSetRows] = useState<ValueSet[]>(defaultValueSetRows);
 
     const tableConfig: TableConfig = {

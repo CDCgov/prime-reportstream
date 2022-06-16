@@ -6,8 +6,7 @@ import Table, {
     LegendItem,
     TableConfig,
 } from "../../../components/Table/Table";
-import { generateUseLookupTable } from "../../../hooks/UseLookupTable";
-import { LookupTables, ValueSet } from "../../../network/api/LookupTableApi";
+import { useValueSetsTable } from "../../../hooks/UseLookupTable";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
@@ -47,9 +46,6 @@ const valueSetColumnConfig: ColumnConfig[] = [
         columnHeader: "Created At",
     },
 ];
-const useValueSetsTable = generateUseLookupTable<ValueSet>(
-    LookupTables.VALUE_SET
-);
 
 const ValueSetsTable = () => {
     const valueSetArray = useValueSetsTable();

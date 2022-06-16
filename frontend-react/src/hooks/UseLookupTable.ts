@@ -2,17 +2,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 import {
-    lookupTableApi,
     LookupTable,
+    lookupTableApi,
     LookupTables,
+    ValueSet,
+    ValueSetRow,
 } from "../network/api/LookupTableApi";
 import { showError } from "../components/AlertNotifications";
-
-export const generateUseLookupTable =
-    <T>(tableName: LookupTables, dataSetName: string | null = null) =>
-    () => {
-        return useLookupTable<T>(tableName, dataSetName);
-    };
 
 export async function getLatestVersion(
     tableName: LookupTables
@@ -138,5 +134,13 @@ const useLookupTable = <T>(
 
     return valueSetArray;
 };
+
+export const useValueSetsTable = () =>
+    useLookupTable<ValueSet>(LookupTables.VALUE_SET);
+/* I noticed this one has a dataSetName piped from the component. It SHOULD still
+ * render only once, though, because you are not changing that prop through any state
+ * manipulation! Big win. */
+export const useValueSetsRowTable = (dataSetName: string) =>
+    useLookupTable<ValueSetRow>(LookupTables.VALUE_SET_ROW, dataSetName);
 
 export default useLookupTable;
