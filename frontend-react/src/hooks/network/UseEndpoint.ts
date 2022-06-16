@@ -26,7 +26,7 @@ export const passesObjCompare = (obj1: any, obj2: Newable<any>) => {
 };
 
 const useEndpoint = <P, D>(
-    api: API<D>,
+    api: API<D> | API<D[]>,
     endpointKey: string,
     method: Method,
     parameters?: P,

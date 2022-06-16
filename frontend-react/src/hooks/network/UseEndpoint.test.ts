@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react-hooks";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
@@ -13,6 +13,7 @@ import { SimpleError } from "../../utils/UsefulTypes";
 
 import useEndpoint, { passesObjCompare } from "./UseEndpoint";
 
+const dummyArrayReturn = [new MyApiItem("test1"), new MyApiItem("test2")];
 const handlers = [
     /* Returns a list of two fake api items */
     rest.get(
@@ -21,7 +22,24 @@ const handlers = [
             return res(ctx.status(200), ctx.json(new MyApiItem("test")));
         }
     ),
+    rest.get("https://test.prime.cdc.gov/api/test/test", (_req, res, ctx) => {
+        return res(ctx.status(200), ctx.json(dummyArrayReturn));
+    }),
 ];
+
+const mockSession = {
+    oktaToken: {
+        accessToken: "TOKEN",
+    },
+    memberships: {
+        state: {
+            active: {
+                parsedName: "ORGANIZATION",
+            } as MembershipSettings,
+        },
+    } as MembershipController,
+    store: {} as SessionController,
+};
 
 /* TEST SERVER TO USE IN `.test.ts` FILES */
 const testServer = setupServer(...handlers);
@@ -30,20 +48,8 @@ describe("useEndpoint", () => {
     beforeAll(() => testServer.listen());
     afterEach(() => testServer.resetHandlers());
     afterAll(() => testServer.close());
-    test("Returns GET data on laod", async () => {
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
-            memberships: {
-                state: {
-                    active: {
-                        parsedName: "ORGANIZATION",
-                    } as MembershipSettings,
-                },
-            } as MembershipController,
-            store: {} as SessionController,
-        });
+    test("Returns single object data", async () => {
+        mockSessionContext.mockReturnValue(mockSession);
         const { result, waitForNextUpdate } = renderHook(() =>
             useEndpoint<{ id: number }, MyApiItem>(MyApi, "itemById", "GET", {
                 id: 123,
@@ -52,6 +58,16 @@ describe("useEndpoint", () => {
         expect(result.current.loading).toEqual(true);
         await waitForNextUpdate();
         expect(result.current.data).toEqual(new MyApiItem("test"));
+    });
+
+    test("Returns array data", async () => {
+        mockSessionContext.mockReturnValue(mockSession);
+        const { result, waitForNextUpdate } = renderHook(() =>
+            useEndpoint<{}, MyApiItem>(MyApi, "list", "GET")
+        );
+        act(() => result.current.trigger());
+        await waitForNextUpdate();
+        expect(result.current.data).toEqual(dummyArrayReturn);
     });
 
     test("passesObjCompare", () => {
