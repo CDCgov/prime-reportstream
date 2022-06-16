@@ -2771,8 +2771,45 @@
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, IN, patient_state, IN)
       translation:
-        type: HL7
+        schemaName: "covid-19"
+        useTestProcessingMode: false
         useBatchHeaders: true
+        receivingApplicationName: IN-ELR
+        receivingApplicationOID: null
+        receivingFacilityName: IDOH
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: { }
+        replaceValueAwithB: { }
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: true
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: { }
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: { }
+        nameFormat: "INDIANA"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -2784,6 +2821,9 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+      externalName: "Indiana Public Health Department"
+      timeZone: CENTRAL
+      dateTimeFormat: "OFFSET"
 
 - name: ia-phd
   description: Iowa Public Health Department
