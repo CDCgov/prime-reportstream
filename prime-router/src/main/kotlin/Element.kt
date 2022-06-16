@@ -812,8 +812,6 @@ data class Element(
             val value = mapperResult.value
             if (!value.isNullOrBlank() && value != "null") {
                 retVal.value = value
-            } else {
-                retVal.value = null
             }
 
             // Add any errors or warnings.  Use warnings as errors for required fields.
