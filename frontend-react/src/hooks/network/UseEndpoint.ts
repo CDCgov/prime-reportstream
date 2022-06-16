@@ -26,14 +26,14 @@ export const passesObjCompare = (obj1: any, obj2: Newable<any>) => {
 };
 
 const useEndpoint = <P, D>(
-    api: API<D> | API<D[]>,
+    api: API<D>,
     endpointKey: string,
     method: Method,
     parameters?: P,
     advancedConfig?: AdvancedConfig<D>
 ): EndpointHookResponse<D> => {
     const { oktaToken, memberships } = useSessionContext();
-    const { data, loading, error, trigger } = useRequestConfig<D | D[]>(
+    const { data, loading, error, trigger } = useRequestConfig<D>(
         createRequestConfig(
             api,
             endpointKey,
