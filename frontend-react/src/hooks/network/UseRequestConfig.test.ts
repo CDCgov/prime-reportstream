@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react-hooks";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
@@ -103,6 +103,7 @@ describe("useRequestConfig", () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
+        act(() => result.current.trigger());
         await waitForNextUpdate();
         expect(result.current.data).toEqual({ testField: "3" });
     });
@@ -120,6 +121,7 @@ describe("useRequestConfig", () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
+        act(() => result.current.trigger());
         await waitForNextUpdate();
         expect(result.current.data).toEqual({ testField: "4" });
     });
@@ -137,6 +139,7 @@ describe("useRequestConfig", () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
+        act(() => result.current.trigger());
         await waitForNextUpdate();
         expect(result.current.data).toEqual({ testField: "4" });
     });
@@ -153,6 +156,7 @@ describe("useRequestConfig", () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
+        act(() => result.current.trigger());
         await waitForNextUpdate();
         expect(result.current.data).toEqual(undefined);
     });
@@ -169,6 +173,7 @@ describe("useRequestConfig", () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
+        act(() => result.current.trigger());
         await waitForNextUpdate();
         expect(result.current.error).toEqual(
             "Request failed with status code 401"

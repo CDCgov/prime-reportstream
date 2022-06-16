@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import axios, { AxiosPromise, Method } from "axios";
 
 import { RSRequestConfig } from "../../network/api/NewApi";
@@ -8,6 +8,7 @@ export interface RequestHookResponse<D> {
     data: D | undefined;
     loading: boolean;
     error: string;
+    trigger: () => void;
 }
 
 const DataSentRequest = ["POST", "PATCH", "PUT"];
@@ -50,7 +51,10 @@ const useRequestConfig = <D>(
         return config.method !== "GET" && config.method !== "get";
     }, [config]);
     /* Trigger to allow users to trigger a call (i.e. a POST, PUT, PATCH, or DELETE */
-    const [triggerCall, setTriggerCall] = useState(false);
+    const [triggerCall, setTriggerCall] = useState(0);
+    const trigger = useCallback(() => {
+        setTriggerCall(triggerCall + 1);
+    }, [triggerCall]);
     const [data, setData] = useState<D | undefined>();
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>("");
@@ -75,7 +79,7 @@ const useRequestConfig = <D>(
             }
         };
         const fetchAndStoreData = () => {
-            if (onlyCallOnTrigger && !triggerCall) return;
+            if (onlyCallOnTrigger && triggerCall < 1) return;
             typedAxiosCall<D>(config)
                 .then((res) => res.data)
                 .then((data) => {
@@ -110,12 +114,13 @@ const useRequestConfig = <D>(
         return () => {
             subscribed = false;
         };
-    }, [config]);
+    }, [config, onlyCallOnTrigger, triggerCall]);
 
     return {
         data,
         loading,
         error,
+        trigger,
     };
 };
 
