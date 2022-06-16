@@ -28,7 +28,8 @@ object FhirTranscoder : Logging {
     }
 
     /**
-     * The FHIR context.
+     * The default FhirContext. Used for JSON encoding/decoding
+     * FhirContext is used under the hood in the FHIRContext referenced above
      */
     private val defaultContext: FhirContext = FhirContext.forR4()
 
