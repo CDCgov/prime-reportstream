@@ -1,3 +1,5 @@
+> TODO: Re-write this according to our new API layer
+
 # How to use the ReportStream API interface
 
 ## Design
