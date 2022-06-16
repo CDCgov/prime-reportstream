@@ -8,10 +8,11 @@ import Table, {
     LegendItem,
     TableConfig,
 } from "../../../components/Table/Table";
+import { useValueSetsRowTable } from "../../../hooks/UseLookupTable";
 
 import { Legend } from "./ValueSetsIndex";
 
-const valueSetColumns: ColumnConfig[] = [
+const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
         dataAttr: "display",
         columnHeader: "Display",
@@ -34,37 +35,13 @@ const valueSetColumns: ColumnConfig[] = [
     },
 ];
 
-const defaultValueSetRows = [
-    {
-        display: "American Indian or Alaska Native",
-        code: "1002-5",
-        version: "2.5.1",
-        system: "HL7",
-    },
-    {
-        display: "Asian",
-        code: "2028-9",
-        version: "2.5.4",
-        system: "Name of org",
-    },
-    {
-        display: "Black or African American",
-        code: "2054-5",
-        version: "2.3.0",
-        system: "HL7",
-    },
-];
-
-/* END OF FAUX DATA AND STUFF TO BE REMOVED WHEN IMPLEMENTING THE API */
-
 const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
-    /* This would be replaced by our API response as reactive state (useResource) */
+    const valueSetRowArray = useValueSetsRowTable(valueSetName);
     // const [sampleValueSetRows, setSampleValueSetRows] = useState<ValueSet[]>(defaultValueSetRows);
 
-    /* We'd pass our config and our API response in this */
     const tableConfig: TableConfig = {
-        columns: valueSetColumns,
-        rows: defaultValueSetRows,
+        columns: valueSetDetailColumnConfig,
+        rows: valueSetRowArray,
     };
     /* These items, I'm assuming, are likely to be generated from API response data? */
     const legendItems: LegendItem[] = [
@@ -85,7 +62,7 @@ const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
     };
     return (
         <Table
-            title="ReportStream Value Sets"
+            title="ReportStream Core Values"
             legend={<Legend items={legendItems} />}
             datasetAction={datasetActionItem}
             config={tableConfig}
@@ -113,7 +90,7 @@ const ValueSetsDetailHeader = ({
         <>
             <h1>{valueSetName}</h1>
             <p>
-                File will fail if numberic values or test values are not entered
+                File will fail if numeric values or test values are not entered
                 using accepted values or field is left blank.
             </p>
             <p>
@@ -140,7 +117,7 @@ const ValueSetsDetail = () => {
     return (
         <>
             <Helmet>
-                <title>Value Sets | Admin | {valueSetName}</title>
+                <title>{`Value Sets | Admin | ${valueSetName}`}</title>
             </Helmet>
             <section className="grid-container">
                 <ValueSetsDetailHeader
