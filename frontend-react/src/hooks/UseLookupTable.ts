@@ -137,9 +137,7 @@ const useLookupTable = <T>(
 
 export const useValueSetsTable = () =>
     useLookupTable<ValueSet>(LookupTables.VALUE_SET);
-/* I noticed this one has a dataSetName piped from the component. It SHOULD still
- * render only once, though, because you are not changing that prop through any state
- * manipulation! Big win. */
+
 export const useValueSetsRowTable = (dataSetName: string) =>
     useLookupTable<ValueSetRow>(LookupTables.VALUE_SET_ROW, dataSetName);
 
