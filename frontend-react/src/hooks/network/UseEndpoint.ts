@@ -15,6 +15,8 @@ interface EndpointHookResponse<D> extends Omit<RequestHookResponse<D>, "data"> {
     data: D | D[] | undefined;
 }
 
+/* Shallow compare function to ensure all keys are the same across incoming data
+ * and our API resource */
 export const passesObjCompare = (obj1: any, obj2: Newable<any>) => {
     const obj1Keys = Object.keys(obj1);
     const obj2Keys = Object.keys(new obj2(Object.values(obj1)));
@@ -49,8 +51,6 @@ const useEndpoint = <P, D>(
                 return new api.resource(...args);
             });
         } else if (data && passesObjCompare(data, api.resource)) {
-            // TODO: Data that isn't an array never populates `data`
-            //  so we never arrive in this block.
             const args = Object.values(data);
             return new api.resource(...args);
         }

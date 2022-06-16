@@ -11,7 +11,7 @@ import { SessionController } from "../UseSessionStorage";
 import { MyApi, MyApiItem } from "../../network/api/test-tools/MockApi";
 import { SimpleError } from "../../utils/UsefulTypes";
 
-import useEndpoint, { passesObjCompare } from "./UseApi";
+import useEndpoint, { passesObjCompare } from "./UseEndpoint";
 
 const handlers = [
     /* Returns a list of two fake api items */
