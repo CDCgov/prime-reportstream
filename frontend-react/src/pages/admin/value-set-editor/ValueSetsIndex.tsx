@@ -48,7 +48,7 @@ const valueSetColumnConfig: ColumnConfig[] = [
 ];
 
 const ValueSetsTable = () => {
-    const valueSetArray = useValueSetsTable();
+    const valueSetArray = useValueSetsTable(null);
     const tableConfig: TableConfig = {
         columns: valueSetColumnConfig,
         rows: valueSetArray,
