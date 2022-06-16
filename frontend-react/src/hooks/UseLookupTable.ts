@@ -136,8 +136,8 @@ const useLookupTable = <T>(
 };
 
 /* Keeping the dataSetName in here would keep this from refreshing if it changes. */
-export const useValueSetsTable = (dataSetName: string | null) =>
-    useLookupTable<ValueSet>(LookupTables.VALUE_SET, dataSetName);
+export const useValueSetsTable = () =>
+    useLookupTable<ValueSet>(LookupTables.VALUE_SET);
 /* I noticed this one has a dataSetName piped from the component. It SHOULD still
  * render only once, though, because you are not changing that prop through any state
  * manipulation! Big win. */
