@@ -906,10 +906,45 @@ data class Element(
         const val zipFiveToken = "\$zipFive"
         const val zipFivePlusFourToken = "\$zipFivePlusFour"
         const val usZipFormat = """^(\d{5})[- ]?(\d{4})?$"""
-        // a regex to check for the presence of only valid phone number characters. this will fail if
-        // someone passes through character values, like a name, or some other text info. this is not
-        // attempting to check and see if the number is properly formatted, just a short circuit to
-        // fail out on REALLY bad data
+        // A regex to check for the presence of only valid phone number characters. this will fail if
+        // someone passes through character values, like a name, or some other text info. This checks for
+        // proper format which is crucial when parsing data.
+        /**
+         * Breaking down the regex
+         * The following regex is broken down in three main parts
+         * Regex("""(country code) phone number (extension number)""")
+         * ----------------------------------------------------------------------------------------------------
+         * Country Code: (\+\d{1,4}(\s|-)?)?
+         * Allows for 1 to 4 digits.
+         * Example: +1 or +91
+         * It takes up to 4 digits, this prepares our codebase for future addition of country codes that have 4 digits.
+         * The country region needs to be in the phoneRegions list, if not, it will error out.
+         * ----------------------------------------------------------------------------------------------------
+         * Phone Number: \(?(\d{1,3})\)?(\s|-)?(\d{3,4})(\s|-)?(\d{3,4})(\s|-)?
+         * This takes into account international numbers and US numbers.
+         * Examples:
+         * 2 9667 9111 and 491 578 888 for AU. (complete: +61 2 9667 9111 and +61 491 578 888)
+         * (213) 353-4836 for US. (complete: +1 (213) 353-4836)
+         * ----------------------------------------------------------------------------------------------------
+         * Extension Number: ((x|ext\.|ext|#)(\s|-)?\d+)?
+         * Allows for extension number for any international or domestic phone number with the above regex format
+         * (NOTE: no length restriction). To add an extension, the phone number needs to use the
+         * following annotations: (#, x, ext, or ext.).
+         * Examples:
+         * (213) 353-4836 ext. 1234 for US (complete: +1 (213) 353-4836 ext. 1234)
+         * 2-9667-9111 x 1234 for AU (complete: +61 2-9667-9111 x 1234)
+         * One thing to consider is that THERE IS NO RESTRICTION ON THE LENGTH OF THE EXTENSION, this is something
+         * that we might have to change in the future.
+         * ----------------------------------------------------------------------------------------------------
+         * NOTE: (\s|-)?
+         * Gives the option of using a space or a dash, but it is not mandatory.
+         * This allows for many permutations of phone numbers.
+         * Examples:
+         * 213-353 4836
+         * 213-3534836x1234
+         * 213-353-4836 x 1234
+         * The idea here is to narrow down on only phone numbers but to expand on the permutations.
+         */
         private val maybeAPhoneNumber = Regex(
             """(\+\d{1,4}(\s|-)?)?\(?(\d{1,3})\)?(\s|-)?(\d{3,4})(\s|-)?(\d{3,4})(\s|-)?((x|ext\.|ext|#)(\s|-)?\d+)?"""
         )
