@@ -47,6 +47,7 @@ import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
 import SessionProvider from "./contexts/SessionContext";
 import BuiltForYouIndex from "./pages/built-for-you/BuiltForYouIndex";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
+import Validate from "./pages/Validate";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -165,6 +166,11 @@ const App = () => {
                                     path="/upload"
                                     authorize={PERMISSIONS.SENDER}
                                     component={Upload}
+                                />
+                                <AuthorizedRoute
+                                    path="/validate"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={Validate}
                                 />
                                 {/* TODO: AuthorizedRoute needs to take many potential auth groups.
                                  *  We should fix this when we refactor our permissions layer.
