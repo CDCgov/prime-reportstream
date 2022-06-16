@@ -3010,6 +3010,8 @@
         reportingFacilityId: "11D2030855"
         suppressQstForAoe: true
         truncateHDNamespaceIds: true
+        suppressHl7Fields: MSH-19-3
+        truncateHl7Fields: MSH-3-1, PID-3-3, PID-3-6, ORC-2-2, ORC-7-10-5, OBR-2-2, OBR-3-2, SPM-2-1-2, SPM-2-2-2
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
