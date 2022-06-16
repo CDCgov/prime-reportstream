@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios, { AxiosPromise, Method } from "axios";
 
 import { RSRequestConfig } from "../../network/api/NewApi";
@@ -44,6 +44,13 @@ const typedAxiosCall = <D>(config: RSRequestConfig): AxiosPromise<D> => {
 const useRequestConfig = <D>(
     config: RSRequestConfig | SimpleError
 ): RequestHookResponse<D> => {
+    /* Boolean indicating if method needs to be triggered or not. */
+    const onlyCallOnTrigger = useMemo(() => {
+        if (config instanceof SimpleError) return true;
+        return config.method !== "GET" && config.method !== "get";
+    }, [config]);
+    /* Trigger to allow users to trigger a call (i.e. a POST, PUT, PATCH, or DELETE */
+    const [triggerCall, setTriggerCall] = useState(false);
     const [data, setData] = useState<D | undefined>();
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>("");
@@ -68,6 +75,7 @@ const useRequestConfig = <D>(
             }
         };
         const fetchAndStoreData = () => {
+            if (onlyCallOnTrigger && !triggerCall) return;
             typedAxiosCall<D>(config)
                 .then((res) => res.data)
                 .then((data) => {
