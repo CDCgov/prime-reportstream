@@ -17,7 +17,7 @@ const handlers = [
     /* Returns a list of two fake api items */
     rest.get(
         "https://test.prime.cdc.gov/api/test/test/:id",
-        (req, res, ctx) => {
+        (_req, res, ctx) => {
             return res(ctx.status(200), ctx.json(new MyApiItem("test")));
         }
     ),

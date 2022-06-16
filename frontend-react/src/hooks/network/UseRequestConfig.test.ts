@@ -20,7 +20,7 @@ const mockConsoleError = jest.spyOn(global.console, "error");
 
 const handlers = [
     /* Returns a list of two fake api items */
-    rest.get("https://test.prime.cdc.gov/api/test/test", (req, res, ctx) => {
+    rest.get("https://test.prime.cdc.gov/api/test/test", (_req, res, ctx) => {
         return res(
             ctx.status(200),
             ctx.json([new MyApiItem("1"), new MyApiItem("2")])

@@ -84,15 +84,14 @@ const useRequestConfig = <D>(
         const fetchAndStoreData = () => {
             if (onlyCallOnTrigger && triggerCall < 1) return;
             typedAxiosCall<D>(config)
-                .then((res) => res.data)
-                .then((data) => {
+                .then((res) => {
                     /* This is pretty opinionated on how WE handle deletes.
                      * It might benefit from a refactor later on. */
                     if (deletesData(config.method) && subscribed) {
                         setData(undefined);
                         setLoading(false);
                     } else if (subscribed) {
-                        setData(data);
+                        setData(res.data);
                         setLoading(false);
                     }
                 })
