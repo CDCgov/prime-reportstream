@@ -72,5 +72,5 @@
       description: ""
       transport: null
       externalName: null
-      timeZone: null
-      dateTimeFormat: "OFFSET"
+      timeZone: CENTRAL
+      dateTimeFormat: LOCAL
