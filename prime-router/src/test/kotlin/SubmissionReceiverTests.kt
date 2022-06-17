@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import assertk.assertThat
+import assertk.assertions.isFailure
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -751,9 +753,8 @@ class SubmissionReceiverTests {
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
         every { queueMock.sendMessage(elrProcessQueueName, any()) } returns Unit
 
-        // act
-        var exceptionThrown = false
-        try {
+        // act / assert
+        assertThat {
             receiver.validateAndMoveToProcessing(
                 sender,
                 hl7_record_bad_type,
@@ -766,12 +767,7 @@ class SubmissionReceiverTests {
                 "test.csv",
                 metadata = metadata
             )
-        } catch (ex: IllegalArgumentException) {
-            exceptionThrown = true
-        }
-
-        // assert
-        assertTrue(exceptionThrown)
+        }.isFailure()
 
         verify(exactly = 1) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
