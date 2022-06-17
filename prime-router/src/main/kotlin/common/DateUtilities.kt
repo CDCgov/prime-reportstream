@@ -57,9 +57,10 @@ object DateUtilities {
         "[uuuu-MM-dd'T'HH:mm[:ss]['Z'][xxx]]",
         "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]",
         "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]",
-        "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]",
         "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]",
-        "yyyy-MM-dd", "yyyy-dd-MM", "MMdduuuu", "uuuuMMdd"
+        "yyyy-MM-dd", "yyyy-dd-MM", "MMdduuuu", "uuuuMMdd",
+        "M/d/yy[ H:mm[:ss]]",
+        "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]",
     )
 
     /** A simple date formatter */
