@@ -13,7 +13,10 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 
 /**
  * Deliveries API
- * Returns a list of Actions from `public.action`.
+ * Returns a list of Actions from `public.action`. combined with `public.report_file`.
+ *
+ * @property reportFileFacade Facade class containing business logic to handle the data.
+ * @property workflowEngine Container for helpers and accessors used when dealing with the workflow.
  */
 class DeliveryFunction(
     val deliveryFacade: DeliveryFacade = DeliveryFacade.instance,
@@ -31,7 +34,7 @@ class DeliveryFunction(
     /**
      * Get the correct name for an organization receiver based on the name.
      *
-     * @param organization Name of organization and service
+     * @param organization Name of organization and client in the format {orgName}.{client}
      * @return Name for the organization
      */
     override fun userOrgName(organization: String): String? {
@@ -43,12 +46,12 @@ class DeliveryFunction(
     /**
      * Get a list of delivery history
      *
-     * @param request HTTP Request params
+     * @param queryParams Parameters extracted from the HTTP Request
      * @param userOrgName Name of the organization
      * @return json list of deliveries
      */
-    override fun historyAsJson(request: HttpRequestMessage<String?>, userOrgName: String): String {
-        val params = HistoryApiParameters(request.queryParameters)
+    override fun historyAsJson(queryParams: MutableMap<String, String>, userOrgName: String): String {
+        val params = HistoryApiParameters(queryParams)
 
         return deliveryFacade.findDeliveriesAsJson(
             userOrgName,

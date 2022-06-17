@@ -16,8 +16,11 @@ import java.time.format.DateTimeParseException
 import java.util.UUID
 
 /**
- * Submissions API
- * Returns a list of Actions from `public.action`.
+ * History API
+ * Returns a list of Actions from `public.action`. combined with `public.report_file`.
+ *
+ * @property reportFileFacade Facade class containing business logic to handle the data.
+ * @property workflowEngine Container for helpers and accessors used when dealing with the workflow.
  */
 abstract class ReportFileFunction(
     private val reportFileFacade: ReportFileFacade,
@@ -25,7 +28,7 @@ abstract class ReportFileFunction(
 ) : Logging {
     abstract fun userOrgName(organization: String): String?
 
-    abstract fun historyAsJson(request: HttpRequestMessage<String?>, userOrgName: String): String
+    abstract fun historyAsJson(queryParams: MutableMap<String, String>, userOrgName: String): String
 
     abstract fun singleDetailedHistory(request: HttpRequestMessage<String?>, action: Action): HttpResponseMessage
 
@@ -62,18 +65,18 @@ abstract class ReportFileFunction(
                     " to via client id $userOrgName."
             )
 
-            return HttpUtilities.okResponse(request, this.historyAsJson(request, userOrgName))
+            return HttpUtilities.okResponse(request, this.historyAsJson(request.queryParameters, userOrgName))
         } catch (e: IllegalArgumentException) {
             return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
         }
     }
 
     /**
-     * TODO
+     * Get a single element that matches the given id.
      *
-     * @param request
-     * @param id
-     * @return
+     * @param request HTML request body.
+     * @param id Either a reportId or actionId to look for matches on.
+     * @return JSON of the found match or an error explaining what happened.
      */
     fun getDetailedView(
         request: HttpRequestMessage<String?>,

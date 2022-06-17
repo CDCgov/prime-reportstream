@@ -13,7 +13,10 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 
 /**
  * Submissions API
- * Returns a list of Actions from `public.action`.
+ * Returns a list of Actions from `public.action`. combined with `public.report_file`.
+ *
+ * @property reportFileFacade Facade class containing business logic to handle the data.
+ * @property workflowEngine Container for helpers and accessors used when dealing with the workflow.
  */
 class SubmissionFunction(
     val submissionsFacade: SubmissionsFacade = SubmissionsFacade.instance,
@@ -35,12 +38,12 @@ class SubmissionFunction(
     /**
      * Get a list of submission history
      *
-     * @param request HTTP Request params
+     * @param queryParams Parameters extracted from the HTTP Request
      * @param userOrgName Name of the organization
      * @return json list of submissions
      */
-    override fun historyAsJson(request: HttpRequestMessage<String?>, userOrgName: String): String {
-        val params = HistoryApiParameters(request.queryParameters)
+    override fun historyAsJson(queryParams: MutableMap<String, String>, userOrgName: String): String {
+        val params = HistoryApiParameters(queryParams)
 
         return submissionsFacade.findSubmissionsAsJson(
             userOrgName,
