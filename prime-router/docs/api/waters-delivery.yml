@@ -16,7 +16,7 @@ servers:
   - url: http://localhost:7071/api
     description: Developer Environment
 paths:
-  /waters/{organization}.{service}/deliveries:
+  /waters/{organization}.{client}/deliveries:
     get:
       operationId: getDeliveries
       summary: Get available reports for a STLT
@@ -31,9 +31,9 @@ paths:
           required: true
           schema:
             type: string
-        - name: service
+        - name: client
           in: path
-          description: service of the receiver to get deliveries for
+          description: client of the receiver to get deliveries for
           required: true
           schema:
             type: string
