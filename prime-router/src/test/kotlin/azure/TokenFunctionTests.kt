@@ -155,7 +155,7 @@ class TokenFunctionTests {
             anyConstructed<ActionHistory>().trackActionResult(
                 match<String> {
                     it.startsWith(
-                        "Rejecting SenderToken JWT: io.jsonwebtoken.MalformedJwtException: Unable to read JSON value:"
+                        "Rejecting SenderToken JWT: io.jsonwebtoken.MalformedJwtException"
                     )
                 }
             )
