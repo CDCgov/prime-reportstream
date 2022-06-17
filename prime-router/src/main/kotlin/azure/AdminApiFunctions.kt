@@ -38,8 +38,8 @@ class AdminApiFunctions(
     }
 
     /**
-     * Fetch the list of lookup tables.  If the showInactive query parameter is set to true then show
-     * both active and inactive tables
+     * Fetch the list of send_errors. Spans orgs, so should ONLY be done
+     * with admin permissions this.getOktaAuthenticator() defaults to SYSTEM_ADMIN above
      */
     @FunctionName("getsendfailures")
     fun run(
