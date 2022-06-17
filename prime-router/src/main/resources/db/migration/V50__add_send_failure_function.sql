@@ -13,7 +13,7 @@
     See https://github.com/CDCgov/prime-reportstream/issues/5771
  */
 DROP FUNCTION IF EXISTS list_send_failures;
-CREATE OR REPLACE FUNCTION list_send_failures(days_back_span_param INT)
+CREATE OR REPLACE FUNCTION list_send_failures(days_to_show_param INT)
     RETURNS TABLE
             (
                 action_id            BIGINT,
@@ -59,7 +59,7 @@ BEGIN
                          end
                          as "receiver"
                   from action a
-                  where a.created_at >= current_date - days_back_span_param
+                  where a.created_at >= current_date - days_to_show_param
                     and a.action_name = 'send_error')
         select sf.action_id
              , sf.report_id
