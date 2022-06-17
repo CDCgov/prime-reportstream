@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import assertk.assertThat
+import assertk.assertions.isFailure
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -64,6 +66,43 @@ class SubmissionReceiverTests {
     val hl7_record = "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^" +
         "ISO|CDPH FL REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|202108031315" +
         "11.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLab" +
+        "Report-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
+        "SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\n" +
+        "PID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bug" +
+        "s^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^FL^95125^USA^^^06085||(123)456-" +
+        "7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\n" +
+        "ORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728db" +
+        "a581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^^^CMS&2.16.840.1.113883.3.249&" +
+        "ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester House|6789 Main St^^San Jose^FL^95" +
+        "126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San Jose^FL^95126\n" +
+        "OBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|1234d1d1-95fe-462c-8ac6-46728dba" +
+        "581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by" +
+        " Rapid immunoassay^LN^^^^2.68|||202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^" +
+        "^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\n" +
+        "OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2." +
+        "68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078^^^^2.7|||F|||20210802000" +
+        "0-0500|05D2222542^ISO||10811877011290_DIT^10811877011290^99ELR^^^^2.68^^10811877011290_DIT||20" +
+        "2108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^" +
+        "San Jose^FL^95126^^^^06085\n" +
+        "OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||||||F|||202" +
+        "108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX" +
+        "^^^05D2222542|6789 Main St^^San Jose^FL^95126-5285^^^^06085|||||QST\n" +
+        "OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||202108020000-0500" +
+        "|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|" +
+        "6789 Main St^^San Jose^FL^95126-5285^^^^06085|||||QST\n" +
+        "OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|||202108020000-05" +
+        "00|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D22225" +
+        "42|6789 Main St^^San Jose^FL^95126-5285^^^^06085|||||QST\n" +
+        "OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136||||||F|||2021080" +
+        "20000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^" +
+        "05D2222542|6789 Main St^^San Jose^FL^95126-5285^^^^06085|||||QST\n" +
+        "SPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&05D22225" +
+        "42&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^" +
+        "SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+    val hl7_record_bad_type = "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|" +
+        "Winchester House^05D2222542^" +
+        "ISO|CDPH FL REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|202108031315" +
+        "11.0147+0000||ORU^R02^ORU_R02|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLab" +
         "Report-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
         "SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\n" +
         "PID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||Bunny^Bug" +
@@ -659,6 +698,76 @@ class SubmissionReceiverTests {
 
         // assert
         assertTrue(exceptionThrown)
+
+        verify(exactly = 1) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
+        }
+
+        verify(exactly = 0) {
+            actionHistory.trackLogs(emptyList())
+            engine.insertProcessTask(any(), any(), any(), any())
+            queueMock.sendMessage(elrProcessQueueName, any())
+        }
+    }
+
+    @Test
+    fun `test ELR receiver validateAndMoveToProcessing, invalid message type hl7`() {
+        // setup
+        mockkObject(SubmissionReceiver.Companion)
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val report = Report(
+            one,
+            mapOf<String, List<String>>(Pair("test", listOf("1,2"))),
+            source = ClientSource("ignore", "ignore"),
+            metadata = metadata
+        )
+
+        val receiver = spyk(
+            ELRReceiver(
+                engine,
+                actionHistory
+            )
+        )
+
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+        val actionLogs = ActionLogger()
+        val readResult = ReadResult(report, actionLogs)
+        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+        val routeResult = emptyList<ActionLog>()
+
+        every { engine.parseCovidReport(any(), any(), any()) } returns readResult
+        every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
+        every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
+        every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+        every { queueMock.sendMessage(elrProcessQueueName, any()) } returns Unit
+
+        // act / assert
+        assertThat {
+            receiver.validateAndMoveToProcessing(
+                sender,
+                hl7_record_bad_type,
+                emptyMap(),
+                Options.None,
+                emptyList(),
+                true,
+                true,
+                ByteArray(0),
+                "test.csv",
+                metadata = metadata
+            )
+        }.isFailure()
 
         verify(exactly = 1) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
