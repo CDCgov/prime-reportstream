@@ -22,29 +22,6 @@ export const deletesData = (reqType: Method) =>
 export const needsTrigger = (reqType: Method) =>
     reqType !== "GET" && reqType !== "get";
 
-/* Our proxy for type-casting axios's returned data since `axios()` doesn't
- * currently support generics and casting. */
-const typedAxiosCall = <D>(config: RSRequestConfig) => {
-    switch (config.method) {
-        case "POST":
-        case "post":
-            return axios.post<D>(config.url, config.data, config);
-        case "PUT":
-        case "put":
-            return axios.put<D>(config.url, config.data, config);
-        case "PATCH":
-        case "patch":
-            return axios.patch<D>(config.url, config.data, config);
-        case "DELETE":
-        case "delete":
-            return axios.delete<D>(config.url, config);
-        case "GET":
-        case "get":
-        default:
-            return axios.get<D>(config.url, config);
-    }
-};
-
 /* Takes the output from `createRequestConfig` and uses it to
  * make an Axios call. The reason we use an AxiosConfig (extended
  * by RSRequestConfig) is to achieve the same functionality as
@@ -93,32 +70,32 @@ const useRequestConfig = <D>(
                     throw Error("This call requires data to be passed in");
                 }
             };
-            const fetchAndStoreData = () => {
-                if (onlyCallOnTrigger(config) && triggerCall < 1) return;
-                typedAxiosCall<D>(config)
-                    .then((res) => {
-                        /* This is pretty opinionated on how WE handle deletes.
-                         * It might benefit from a refactor later on. */
-                        if (deletesData(config.method) && subscribed) {
-                            setData(undefined);
-                        } else if (subscribed) {
-                            setData(res.data);
-                        }
-                    })
-                    /* Verified that this catch call is necessary, the catch
-                     * block below doesn't handle this Promise */
-                    .catch((e: any) => {
-                        if (subscribed) {
-                            setError(e.message);
-                        }
-                    });
-            };
+            // const fetchAndStoreData = () => {
+            //
+            // };
 
             /* Pre-fetch validator(s). Could be useful to extend this
              * feature in the future. */
             validDataSentThrough();
             /* API fetch */
-            fetchAndStoreData();
+            if (onlyCallOnTrigger(config) && triggerCall < 1) return;
+            axios(config)
+                .then((res) => {
+                    /* This is pretty opinionated on how WE handle deletes.
+                     * It might benefit from a refactor later on. */
+                    if (deletesData(config.method) && subscribed) {
+                        setData(undefined);
+                    } else if (subscribed) {
+                        setData(res.data);
+                    }
+                })
+                /* Verified that this catch call is necessary, the catch
+                 * block below doesn't handle this Promise */
+                .catch((e: any) => {
+                    if (subscribed) {
+                        setError(e.message);
+                    }
+                });
         } catch (e: any) {
             setData(undefined);
             setError(e.message);

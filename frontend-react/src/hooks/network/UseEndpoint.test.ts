@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react-hooks";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
@@ -10,6 +10,7 @@ import {
 import { SessionController } from "../UseSessionStorage";
 import { MyApi, MyApiItem } from "../../network/api/mocks/MockApi";
 import { SimpleError } from "../../utils/UsefulTypes";
+import { RSRequestConfig } from "../../network/api/NewApi";
 
 import useEndpoint, { passesObjCompare } from "./UseEndpoint";
 
@@ -20,6 +21,10 @@ const handlers = [
     rest.get(
         "https://test.prime.cdc.gov/api/test/test/:id",
         (_req, res, ctx) => {
+            const { id } = _req.params;
+            if (id === "5") {
+                return res(ctx.status(404));
+            }
             return res(ctx.status(200), ctx.json(new MyApiItem("test")));
         }
     ),
@@ -30,6 +35,12 @@ const handlers = [
         "https://test.prime.cdc.gov/api/test/badList",
         (_req, res, ctx) => {
             return res(ctx.status(200), ctx.json({ notTheRightField: "test" }));
+        }
+    ),
+    rest.delete<RSRequestConfig, {}, MyApiItem | any>(
+        "https://test.prime.cdc.gov/api/test/test/:id",
+        (req, res, ctx) => {
+            return res(ctx.status(401));
         }
     ),
 ];
@@ -101,6 +112,27 @@ describe("useEndpoint", () => {
         expect(result.current.error).toEqual(
             "Your config threw an error: Method POST cannot be used by list"
         );
+    });
+
+    test("Returns server errors", async () => {
+        mockSessionContext.mockReturnValue(mockSession);
+        const { result, waitForNextUpdate } = renderHook(() =>
+            useEndpoint<{ id: number }, MyApiItem>(
+                MyApi,
+                "itemById",
+                "DELETE",
+                {
+                    id: 5,
+                }
+            )
+        );
+        act(() => result.current.trigger());
+        await waitForNextUpdate();
+        expect(result.current.data).toBeUndefined();
+        expect(result.current.error).toEqual(
+            "Request failed with status code 401"
+        );
+        expect(result.current.loading).toBeFalsy();
     });
 
     test("passesObjCompare detects matching and mismatched object shapes", () => {
