@@ -2,7 +2,6 @@ package gov.cdc.prime.router.history.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
@@ -29,6 +28,7 @@ import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import org.apache.logging.log4j.kotlin.Logging
@@ -84,44 +84,6 @@ class DeliveryFunctionTests : Logging {
         val fileName: String,
     )
 
-    class TestDeliveryAccess(
-        private val dataset: List<DeliveryHistory>,
-        val mapper: ObjectMapper
-    ) : ReportFileAccess {
-        override fun <T> fetchActions(
-            organization: String,
-            orgService: String?,
-            sortDir: ReportFileAccess.SortDir,
-            sortColumn: ReportFileAccess.SortColumn,
-            cursor: OffsetDateTime?,
-            since: OffsetDateTime?,
-            until: OffsetDateTime?,
-            pageSize: Int,
-            showFailed: Boolean,
-            klass: Class<T>
-        ): List<T> {
-            @Suppress("UNCHECKED_CAST")
-            return dataset as List<T>
-        }
-
-        override fun <T> fetchAction(
-            organization: String,
-            actionId: Long,
-            klass: Class<T>
-        ): T? {
-            @Suppress("UNCHECKED_CAST")
-            return dataset.first() as T
-        }
-
-        override fun <T> fetchRelatedActions(
-            actionId: Long,
-            klass: Class<T>
-        ): List<T> {
-            @Suppress("UNCHECKED_CAST")
-            return dataset as List<T>
-        }
-    }
-
     private val testData = listOf(
         DeliveryHistory(
             actionId = 922,
@@ -175,14 +137,6 @@ class DeliveryFunctionTests : Logging {
     @Test
     fun `test list deliveries`() {
         val testCases = listOf(
-            DeliveryUnitTestCase(
-                mapOf("authorization" to "Bearer 111.222.333", "authentication-type" to "okta"),
-                emptyMap(),
-                ExpectedAPIResponse(
-                    HttpStatus.UNAUTHORIZED
-                ),
-                "unauthorized"
-            ),
             DeliveryUnitTestCase(
                 mapOf("authorization" to "Bearer fads"), // no 'okta' auth-type, so this uses server2server auth
                 emptyMap(),
@@ -269,7 +223,6 @@ class DeliveryFunctionTests : Logging {
             )
         )
 
-        val metadata = Metadata(schema = Schema(name = "one", topic = "test"))
         val settings = MockSettings()
         val sender = CovidSender(
             name = "default",
@@ -287,7 +240,6 @@ class DeliveryFunctionTests : Logging {
             "schema1",
         )
         settings.receiverStore[receiver.fullName] = receiver
-        val engine = makeEngine(metadata, settings)
 
         testCases.forEach {
             logger.info("Executing list deliveries unit test ${it.name}")
@@ -295,10 +247,8 @@ class DeliveryFunctionTests : Logging {
             httpRequestMessage.httpHeaders += it.headers
             httpRequestMessage.parameters += it.parameters
             // Invoke
-            val response = DeliveryFunction(
-                DeliveryFacade(TestDeliveryAccess(testData, mapper)),
-                workflowEngine = engine,
-            ).getDeliveries(
+            val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+            val response = deliveryFunction.getDeliveries(
                 httpRequestMessage,
                 "$organizationName.elr-secondary",
             )
@@ -313,6 +263,41 @@ class DeliveryFunctionTests : Logging {
                 }
             }
         }
+    }
+
+    private fun mockFacade(): DeliveryFacade {
+        val mockDatabaseAccess = mockkClass(HistoryDatabaseAccess::class)
+
+        every {
+            mockDatabaseAccess.fetchActions<DeliveryHistory>(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        } returns testData
+        every {
+            mockDatabaseAccess.fetchAction<DeliveryHistory>(
+                any(),
+                any(),
+                any(),
+            )
+        } returns testData.first()
+
+        every {
+            mockDatabaseAccess.fetchRelatedActions<DeliveryHistory>(
+                any(),
+                any(),
+            )
+        } returns testData
+
+        return DeliveryFacade(mockDatabaseAccess)
     }
 
     private fun setupDeliveryFunctionForTesting(
@@ -384,8 +369,7 @@ class DeliveryFunctionTests : Logging {
 
     @Test
     fun `test access user can view their organization's delivery history`() {
-        val facade = DeliveryFacade(TestDeliveryAccess(testData, mapper))
-        val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, facade)
+        val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         val response = deliveryFunction.getDeliveries(httpRequestMessage, "$organizationName.elr-secondary")
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -393,19 +377,19 @@ class DeliveryFunctionTests : Logging {
 
     @Test
     fun `test access user cannot view another organization's delivery history`() {
-        val facade = DeliveryFacade(TestDeliveryAccess(testData, mapper))
-        val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, facade)
+        val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
-        val response = deliveryFunction.getDeliveries(httpRequestMessage, "test-lab-2.test-lab-2")
+        val response = deliveryFunction.getDeliveries(httpRequestMessage, "$otherOrganizationName.test-lab-2")
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
     @Test
     fun `test access DHPrimeAdmins can view all organization's delivery history`() {
-        val facade = DeliveryFacade(TestDeliveryAccess(testData, mapper))
-        val deliveryFunction = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, facade)
+        val deliveryFunction = setupDeliveryFunctionForTesting("DHPrimeAdmins", mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
-        val response = deliveryFunction.getDeliveries(httpRequestMessage, "$organizationName.elr-secondary")
+        var response = deliveryFunction.getDeliveries(httpRequestMessage, "$organizationName.elr-secondary")
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        response = deliveryFunction.getDeliveries(httpRequestMessage, "$otherOrganizationName.test-lab-2")
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 

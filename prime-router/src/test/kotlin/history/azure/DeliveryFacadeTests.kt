@@ -66,8 +66,8 @@ class DeliveryFacadeTests {
         val deliveries = facade.findDeliveries(
             "ca-dph",
             "elr",
-            ReportFileAccess.SortDir.ASC,
-            ReportFileAccess.SortColumn.CREATED_AT,
+            HistoryDatabaseAccess.SortDir.ASC,
+            HistoryDatabaseAccess.SortColumn.CREATED_AT,
             null,
             null,
             null,

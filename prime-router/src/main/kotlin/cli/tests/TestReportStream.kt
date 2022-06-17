@@ -857,7 +857,7 @@ abstract class CoolTest {
                     .fetchOne()
                 if (report != null && report.actionId != null) {
                     val ret = ctx.select(
-                        DatabaseSubmissionsAccess().detailedSubmissionSelect()
+                        DatabaseSubmissionsAccess().detailedSelect()
                     )
                         .from(ACTION)
                         .where(

@@ -124,8 +124,8 @@ abstract class ReportFileFunction(
     }
 
     data class HistoryApiParameters(
-        val sortDir: ReportFileAccess.SortDir,
-        val sortColumn: ReportFileAccess.SortColumn,
+        val sortDir: HistoryDatabaseAccess.SortDir,
+        val sortColumn: HistoryDatabaseAccess.SortColumn,
         val cursor: OffsetDateTime?,
         val since: OffsetDateTime?,
         val until: OffsetDateTime?,
@@ -148,12 +148,12 @@ abstract class ReportFileFunction(
              * @param query Incoming query params
              * @return converted params
              */
-            fun extractSortDir(query: Map<String, String>): ReportFileAccess.SortDir {
+            fun extractSortDir(query: Map<String, String>): HistoryDatabaseAccess.SortDir {
                 val sort = query["sortdir"]
                 return if (sort == null)
-                    ReportFileAccess.SortDir.DESC
+                    HistoryDatabaseAccess.SortDir.DESC
                 else
-                    ReportFileAccess.SortDir.valueOf(sort)
+                    HistoryDatabaseAccess.SortDir.valueOf(sort)
             }
 
             /**
@@ -161,12 +161,12 @@ abstract class ReportFileFunction(
              * @param query Incoming query params
              * @return converted params
              */
-            fun extractSortCol(query: Map<String, String>): ReportFileAccess.SortColumn {
+            fun extractSortCol(query: Map<String, String>): HistoryDatabaseAccess.SortColumn {
                 val col = query["sortcol"]
                 return if (col == null)
-                    ReportFileAccess.SortColumn.CREATED_AT
+                    HistoryDatabaseAccess.SortColumn.CREATED_AT
                 else
-                    ReportFileAccess.SortColumn.valueOf(col)
+                    HistoryDatabaseAccess.SortColumn.valueOf(col)
             }
 
             /**
