@@ -115,7 +115,6 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
 // ];
 
 const saveData = async (row: TableRow | null) => {
-    debugger;
     const x: ValueSetRow[] = [
         {
             name: "ethnicity",
@@ -154,13 +153,49 @@ const saveData = async (row: TableRow | null) => {
     // }
 };
 
+interface SenderAutomationDataRow extends ValueSetRow {
+    id?: number;
+}
+
+const prepareRows = (
+    valueSetRowArray: ValueSetRow[],
+    valueSetName: string
+): { rowsForDisplay: any[]; allRows: any[] } => {
+    return valueSetRowArray.reduce(
+        (acc, row, index) => {
+            let mapped: SenderAutomationDataRow = {
+                name: row.name,
+                display: row.display,
+                code: row.code,
+                version: row.version,
+            };
+            if (row.name === valueSetName) {
+                mapped.id = index;
+                acc.rowsForDisplay.push(mapped);
+                acc.allRows.push(mapped);
+                return acc;
+            }
+            acc.allRows.push(mapped);
+            return acc;
+        },
+        { rowsForDisplay: [], allRows: [] } as {
+            rowsForDisplay: any[];
+            allRows: any[];
+        }
+    );
+};
+
 const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
-    debugger;
-    const valueSetRowArray = useValueSetsRowTable(valueSetName);
+    const valueSetRowArray = useValueSetsRowTable(valueSetName);=
+
+    const { allRows, rowsForDisplay } = prepareRows(
+        valueSetRowArray,
+        valueSetName
+    );
 
     const tableConfig: TableConfig = {
         columns: valueSetDetailColumnConfig,
-        rows: valueSetRowArray,
+        rows: rowsForDisplay,
     };
     /* We make this action do what we need it to to add an item */
     const datasetActionItem: DatasetAction = {

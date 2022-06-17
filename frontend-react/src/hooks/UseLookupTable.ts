@@ -119,27 +119,58 @@ export const getSenderAutomationData = async <T>(
     );
 };
 
+// type SenderAutomationDatRow = {
+//     display: string;
+//     code: string;
+//     version: string;
+//     system: string;
+//     id?: number;
+// };
+
+// // return data.reduce(
+// //   (acc, row, index) => {
+// //       let mapped: SenderAutomationDataRow = {
+// //           display: row.display,
+// //           code: row.code,
+// //           version: row.version,
+// //           system: row.system,
+// //       };
+// //       if (row.name === dataSetName) {
+// //           mapped.id = index;
+// //           acc.display.push(mapped);
+// //           acc.all.push(mapped);
+// //           return acc;
+// //       }
+// //       acc.all.push(mapped);
+// //       return acc;
+// //   },
+// //   { display: [], all: [] } as { display: any[]; all: any[] }
+
 export const getSenderAutomationDataRows = async <T>(
     tableName: LookupTables,
     dataSetName: string | null = null
 ): Promise<any[]> => {
     const { data } = await getDataAndVersion<T>(tableName);
 
-    return data
-        .filter((f) => f.name === dataSetName)
-        .map(
-            (set: {
-                display: string;
-                code: string;
-                version: string;
-                system: string;
-            }) => ({
-                display: set.display,
-                code: set.code,
-                version: set.version,
-                system: set.system,
-            })
-        );
+    return (
+        data
+            // .filter((f) => f.name === dataSetName)
+            .map(
+                (set: {
+                    name: string;
+                    display: string;
+                    code: string;
+                    version: string;
+                    system: string;
+                }) => ({
+                    name: set.name,
+                    display: set.display,
+                    code: set.code,
+                    version: set.version,
+                    system: set.system,
+                })
+            )
+    );
 };
 
 const useLookupTable = <T>(
