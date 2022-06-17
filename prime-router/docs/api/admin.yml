@@ -18,12 +18,12 @@ paths:
         - OAuth2: [ system_admin ]
       parameters:
         - in: query
-          name: days_back
+          name: days_to_show
           description: Number of days back from today include in results
           schema:
             type: integer
           required: false
-          example: days_back=3
+          example: days_to_show=3
       responses:
         '200':
           description: OK

@@ -42,7 +42,7 @@ class AdminApiFunctionsTests {
     @BeforeAll
     fun initDependencies() {
         every { mockRequest.headers } returns mapOf(HttpHeaders.AUTHORIZATION.lowercase() to "Bearer dummy")
-        every { mockRequest.uri } returns URI.create("http://localhost:7071/api/adm/getsendfailures?days_back=13")
+        every { mockRequest.uri } returns URI.create("http://localhost:7071/api/adm/getsendfailures?days_to_show=13")
         val mockAuthenticatedClaims = mockk<AuthenticatedClaims>()
         every { mockAuthenticatedClaims.userName } returns "dummy"
         every { mockOktaAuthenticator.checkAccess(any(), any(), any(), any(), captureLambda()) } answers {

@@ -54,10 +54,10 @@ class AdminApiFunctions(
         logger.info("Entering adm/getsendfailures api")
         return getOktaAuthenticator().checkAccess(request) {
             try {
-                val daysBackSpan = request.queryParameters[daysBackSpanParameter]
+                val daysToShow = request.queryParameters[daysBackSpanParameter]
                     ?.toIntOrDefault(30) ?: 30
 
-                val results = db.fetchSendFailures(daysBackSpan)
+                val results = db.fetchSendFailures(daysToShow)
                 val jsonb = mapper.writeValueAsString(results)
                 HttpUtilities.okResponse(request, jsonb ?: "{}")
             } catch (e: Exception) {
@@ -71,6 +71,6 @@ class AdminApiFunctions(
         /**
          * Name of the query parameter to specify how many days back to show.
          */
-        const val daysBackSpanParameter = "days_back"
+        const val daysBackSpanParameter = "days_to_show"
     }
 }
