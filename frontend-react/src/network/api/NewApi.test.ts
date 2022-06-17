@@ -1,8 +1,8 @@
 import { buildEndpointUrl, createRequestConfig } from "./NewApi";
 import { MyApi } from "./mocks/MockApi";
 
-const mockConsoleWarn = jest.spyOn(global.console, "warn");
-const mockConsoleError = jest.spyOn(global.console, "error");
+jest.spyOn(global.console, "warn");
+jest.spyOn(global.console, "error");
 
 describe("Api interfaces", () => {
     test("buildEndpointUrl: happy path", () => {

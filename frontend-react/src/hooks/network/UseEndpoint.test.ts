@@ -13,7 +13,7 @@ import { SimpleError } from "../../utils/UsefulTypes";
 
 import useEndpoint, { passesObjCompare } from "./UseEndpoint";
 
-const mockConsoleError = jest.spyOn(global.console, "error");
+jest.spyOn(global.console, "error");
 const dummyArrayReturn = [new MyApiItem("test1"), new MyApiItem("test2")];
 const handlers = [
     /* Returns a list of two fake api items */
