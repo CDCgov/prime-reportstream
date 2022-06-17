@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios, { AxiosPromise, Method } from "axios";
 
 import { RSRequestConfig } from "../../network/api/NewApi";
@@ -12,6 +12,8 @@ export interface RequestHookResponse<D> {
 }
 
 const DataSentRequest = ["POST", "PATCH", "PUT"];
+
+/* A bunch of useful boolean checks to keep logic clean below */
 export const needsData = (reqType: Method) =>
     DataSentRequest.includes(reqType.toUpperCase());
 export const hasData = (req: RSRequestConfig): boolean =>
@@ -20,6 +22,9 @@ export const deletesData = (reqType: Method) =>
     reqType === "delete" || reqType === "DELETE";
 export const needsTrigger = (reqType: Method) =>
     reqType !== "GET" && reqType !== "get";
+
+/* Our proxy for type-casting axios's returned data since `axios()` doesn't
+ * currently support generics and casting. */
 const typedAxiosCall = <D>(config: RSRequestConfig): AxiosPromise<D> => {
     switch (config.method) {
         case "POST":
@@ -41,17 +46,23 @@ const typedAxiosCall = <D>(config: RSRequestConfig): AxiosPromise<D> => {
     }
 };
 
-/*
+/* Takes the output from `createRequestConfig` and uses it to
+ * make an Axios call. The reason we use an AxiosConfig (extended
+ * by RSRequestConfig) is to achieve the same functionality as
+ * calling `axios(config)` but with compile-time type safety for the
+ * function. As of writing this, only specific axios functions like
+ * `axios.get` and `axios.post` have generics we can use, so we have
+ * to use `typedAxiosCall` as our proxy for selecting a method and use
+ * the generic to set a data type.
  *
  * Generic is the type of data coming back from the server */
 const useRequestConfig = <D>(
     config: RSRequestConfig | SimpleError
 ): RequestHookResponse<D> => {
     /* Boolean indicating if method needs to be triggered or not. */
-    const onlyCallOnTrigger = useMemo(() => {
-        if (config instanceof SimpleError) return true;
-        return needsTrigger(config.method);
-    }, [config]);
+    const onlyCallOnTrigger = useCallback((givenConfig: RSRequestConfig) => {
+        return needsTrigger(givenConfig.method);
+    }, []);
     /* Trigger to allow users to trigger a call (i.e. a POST, PUT, PATCH, or DELETE */
     const [triggerCall, setTriggerCall] = useState(0);
     /* Increments trigger to trigger axios call */
@@ -71,47 +82,58 @@ const useRequestConfig = <D>(
          * try to be set. This helps with teardown mid network call. */
         let subscribed = true;
         setLoading(true);
-        if (config instanceof SimpleError) {
-            throw Error(`Your config threw an error: ${config.message}`);
-        }
-        const validDataSentThrough = () => {
-            if (needsData(config.method) && !hasData(config) && subscribed) {
-                setData(undefined);
-                setLoading(false);
-                throw Error("This call requires data to be passed in");
-            }
-        };
-        const fetchAndStoreData = () => {
-            if (onlyCallOnTrigger && triggerCall < 1) return;
-            typedAxiosCall<D>(config)
-                .then((res) => {
-                    /* This is pretty opinionated on how WE handle deletes.
-                     * It might benefit from a refactor later on. */
-                    if (deletesData(config.method) && subscribed) {
-                        setData(undefined);
-                        setLoading(false);
-                    } else if (subscribed) {
-                        setData(res.data);
-                        setLoading(false);
-                    }
-                })
-                /* Verified that this catch call is necessary, the catch
-                 * block below doesn't handle this Promise */
-                .catch((e: any) => {
-                    if (subscribed) setError(e.message);
-                });
-        };
         try {
+            if (config instanceof SimpleError) {
+                throw Error(`Your config threw an error: ${config.message}`);
+            }
+            const validDataSentThrough = () => {
+                if (
+                    needsData(config.method) &&
+                    !hasData(config) &&
+                    subscribed
+                ) {
+                    setData(undefined);
+                    setLoading(false);
+                    throw Error("This call requires data to be passed in");
+                }
+            };
+            const fetchAndStoreData = () => {
+                if (onlyCallOnTrigger(config) && triggerCall < 1) {
+                    setLoading(false);
+                    return;
+                }
+                typedAxiosCall<D>(config)
+                    .then((res) => {
+                        /* This is pretty opinionated on how WE handle deletes.
+                         * It might benefit from a refactor later on. */
+                        if (deletesData(config.method) && subscribed) {
+                            setData(undefined);
+                            setLoading(false);
+                        } else if (subscribed) {
+                            setData(res.data);
+                            setLoading(false);
+                        }
+                    })
+                    /* Verified that this catch call is necessary, the catch
+                     * block below doesn't handle this Promise */
+                    .catch((e: any) => {
+                        if (subscribed) {
+                            setError(e.message);
+                            setLoading(false);
+                        }
+                    });
+            };
+
             /* Pre-fetch validator(s). Could be useful to extend this
              * feature in the future. */
             validDataSentThrough();
             /* API fetch */
             fetchAndStoreData();
         } catch (e: any) {
-            console.error(e.message);
             setData(undefined);
             setError(e.message);
             setLoading(false);
+            console.error(e.message);
         }
         return () => {
             subscribed = false;

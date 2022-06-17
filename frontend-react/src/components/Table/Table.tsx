@@ -317,7 +317,6 @@ const Table = ({
                         <TableHeaders />
                     </thead>
                     <tbody className="font-mono-2xs">
-                        {/* eslint-disable-next-line react/jsx-no-undef */}
                         <TableRows
                             rows={memoizedRows}
                             onSave={editableCallback}

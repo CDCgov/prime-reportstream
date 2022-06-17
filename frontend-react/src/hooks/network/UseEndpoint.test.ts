@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react-hooks";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
@@ -8,11 +8,12 @@ import {
     MembershipSettings,
 } from "../UseOktaMemberships";
 import { SessionController } from "../UseSessionStorage";
-import { MyApi, MyApiItem } from "../../network/api/test-tools/MockApi";
+import { MyApi, MyApiItem } from "../../network/api/mocks/MockApi";
 import { SimpleError } from "../../utils/UsefulTypes";
 
 import useEndpoint, { passesObjCompare } from "./UseEndpoint";
 
+const mockConsoleError = jest.spyOn(global.console, "error");
 const dummyArrayReturn = [new MyApiItem("test1"), new MyApiItem("test2")];
 const handlers = [
     /* Returns a list of two fake api items */
@@ -25,6 +26,12 @@ const handlers = [
     rest.get("https://test.prime.cdc.gov/api/test/test", (_req, res, ctx) => {
         return res(ctx.status(200), ctx.json(dummyArrayReturn));
     }),
+    rest.get(
+        "https://test.prime.cdc.gov/api/test/badList",
+        (_req, res, ctx) => {
+            return res(ctx.status(200), ctx.json({ notTheRightField: "test" }));
+        }
+    ),
 ];
 
 const mockSession = {
@@ -65,12 +72,36 @@ describe("useEndpoint", () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useEndpoint<{}, MyApiItem>(MyApi, "list", "GET")
         );
-        act(() => result.current.trigger());
         await waitForNextUpdate();
         expect(result.current.data).toEqual(dummyArrayReturn);
     });
 
-    test("passesObjCompare", () => {
+    test("Returns undefined data when type check fails", async () => {
+        mockSessionContext.mockReturnValue(mockSession);
+        // This skips the axios .then() in useRequestConfig for some reason
+        // and because of this, we are failing on loading === false
+        const { result, waitForNextUpdate } = renderHook(() =>
+            useEndpoint<{}, MyApiItem>(MyApi, "badList", "GET")
+        );
+        await waitForNextUpdate();
+        expect(result.current.data).toEqual(undefined);
+        expect(result.current.loading).toBeFalsy();
+        expect(result.current.error).toEqual("");
+    });
+
+    test("Returns local errors", async () => {
+        mockSessionContext.mockReturnValue(mockSession);
+        const { result } = renderHook(() =>
+            useEndpoint<{}, MyApiItem>(MyApi, "list", "POST")
+        );
+        expect(result.current.data).toBeUndefined();
+        expect(result.current.loading).toBeFalsy();
+        expect(result.current.error).toEqual(
+            "Your config threw an error: Method POST cannot be used by list"
+        );
+    });
+
+    test("passesObjCompare detects matching and mismatched object shapes", () => {
         const result = passesObjCompare({ message: "test" }, SimpleError);
         expect(result).toBeTruthy();
         const badResult = passesObjCompare(

@@ -1,5 +1,5 @@
 import { buildEndpointUrl, createRequestConfig } from "./NewApi";
-import { MyApi } from "./test-tools/MockApi";
+import { MyApi } from "./mocks/MockApi";
 
 const mockConsoleWarn = jest.spyOn(global.console, "warn");
 const mockConsoleError = jest.spyOn(global.console, "error");
@@ -35,12 +35,15 @@ describe("Api interfaces", () => {
 
     test("buildEndpointUrl: invalid endpoint key", () => {
         /* Endpoint does not exist */
-        buildEndpointUrl<{ id: number }>(MyApi, "itemByIdSpelledWrong", {
-            id: 123,
-        });
-        expect(mockConsoleError).toHaveBeenCalledWith(
-            "You must provide a valid endpoint key: itemByIdSpelledWrong not found"
-        );
+        try {
+            buildEndpointUrl<{ id: number }>(MyApi, "itemByIdSpelledWrong", {
+                id: 123,
+            });
+        } catch (e: any) {
+            expect(e.message).toEqual(
+                "You must provide a valid endpoint key: itemByIdSpelledWrong not found"
+            );
+        }
     });
 
     test("createAxiosConfig: basic config", () => {
@@ -77,10 +80,18 @@ describe("Api interfaces", () => {
     });
 
     test("createAxiosConfig: url didn't parse", () => {
-        mockConsoleWarn.mockReturnValue();
-        createRequestConfig(MyApi, "itemById", "GET", "TOKEN", "ORGANIZATION");
-        expect(mockConsoleError).toHaveBeenCalledWith(
-            "Parameters are required for itemById: /test/:id"
-        );
+        try {
+            createRequestConfig(
+                MyApi,
+                "itemById",
+                "GET",
+                "TOKEN",
+                "ORGANIZATION"
+            );
+        } catch (e: any) {
+            expect(e.message).toEqual(
+                "Parameters are required for itemById: /test/:id"
+            );
+        }
     });
 });

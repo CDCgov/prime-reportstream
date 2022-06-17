@@ -7,7 +7,7 @@ import {
     endpointHasMethod,
     RSRequestConfig,
 } from "../../network/api/NewApi";
-import { MyApi, MyApiItem } from "../../network/api/test-tools/MockApi";
+import { MyApi, MyApiItem } from "../../network/api/mocks/MockApi";
 
 import useRequestConfig, {
     deletesData,
@@ -73,6 +73,24 @@ describe("useRequestConfig", () => {
     beforeAll(() => testServer.listen());
     afterEach(() => testServer.resetHandlers());
     afterAll(() => testServer.close());
+    test("default render state", () => {
+        const config = createRequestConfig<{ id: number }, MyApiItem>(
+            MyApi,
+            "itemById",
+            "POST",
+            "TOKEN",
+            "ORGANIZATION",
+            { id: 3 },
+            { data: { testField: "3" } }
+        ) as RSRequestConfig;
+        const { result } = renderHook(() =>
+            useRequestConfig<MyApiItem>(config)
+        );
+        expect(result.current.data).toBeUndefined();
+        expect(result.current.loading).toBeFalsy();
+        expect(result.current.error).toEqual("");
+    });
+
     test("takes GET config and fetches results", async () => {
         const config = createRequestConfig(
             MyApi,
@@ -89,6 +107,7 @@ describe("useRequestConfig", () => {
             { testField: "1" },
             { testField: "2" },
         ]);
+        expect(result.current.loading).toEqual(false);
     });
 
     test("takes POST config and returns created object", async () => {
@@ -105,8 +124,10 @@ describe("useRequestConfig", () => {
             useRequestConfig<MyApiItem>(config)
         );
         act(() => result.current.trigger());
+        expect(result.current.loading).toEqual(true);
         await waitForNextUpdate();
         expect(result.current.data).toEqual({ testField: "3" });
+        expect(result.current.loading).toEqual(false);
     });
 
     test("takes PUT config and returns created object", async () => {
@@ -123,8 +144,10 @@ describe("useRequestConfig", () => {
             useRequestConfig<MyApiItem>(config)
         );
         act(() => result.current.trigger());
+        expect(result.current.loading).toEqual(true);
         await waitForNextUpdate();
         expect(result.current.data).toEqual({ testField: "4" });
+        expect(result.current.loading).toEqual(false);
     });
 
     test("takes PATCH config and returns updated object", async () => {
@@ -141,8 +164,10 @@ describe("useRequestConfig", () => {
             useRequestConfig<MyApiItem>(config)
         );
         act(() => result.current.trigger());
+        expect(result.current.loading).toEqual(true);
         await waitForNextUpdate();
         expect(result.current.data).toEqual({ testField: "4" });
+        expect(result.current.loading).toEqual(false);
     });
 
     test("takes DELETE config and returns nothing", async () => {
@@ -158,8 +183,10 @@ describe("useRequestConfig", () => {
             useRequestConfig<MyApiItem>(config)
         );
         act(() => result.current.trigger());
+        expect(result.current.loading).toEqual(true);
         await waitForNextUpdate();
         expect(result.current.data).toEqual(undefined);
+        expect(result.current.loading).toEqual(false);
     });
 
     test("catches server errors", async () => {
@@ -223,19 +250,17 @@ test("hasData", () => {
     expect(hasData(config)).toBeTruthy();
 });
 
-test("deletesData", () => {
+test("deletesData identifies configs with DELETE method", () => {
     expect(deletesData("DELETE")).toBeTruthy();
     expect(deletesData("GET")).toBeFalsy();
 });
 
-test("needsTrigger", () => {
+test("needsTrigger identifies configs that are not GETs", () => {
     expect(needsTrigger("GET")).toBeFalsy();
     expect(needsTrigger("DELETE")).toBeTruthy();
 });
 
-test("endpointHasMethod", () => {
-    const result = endpointHasMethod(MyApi, "itemById", "GET");
-    expect(result).toBeTruthy();
+test("endpointHasMethod verifies that the endpoint can perform a request type", () => {
     const badResult = () => endpointHasMethod(MyApi, "itemById", "OPTIONS");
     expect(badResult).toThrowError("Method OPTIONS cannot be used by itemById");
 });

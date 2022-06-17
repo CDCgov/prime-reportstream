@@ -44,8 +44,12 @@ const useEndpoint = <P, D>(
             advancedConfig
         )
     );
-    const typeCheckedData = useMemo(() => {
+    const dataAsResource = useMemo(() => {
         if (data && data instanceof Array) {
+            const valid = data.every((obj) =>
+                passesObjCompare(obj, api.resource)
+            );
+            if (!valid) return undefined;
             return data.map((item: D) => {
                 const args = Object.values(item);
                 return new api.resource(...args);
@@ -57,7 +61,7 @@ const useEndpoint = <P, D>(
     }, [api.resource, data]);
 
     return {
-        data: typeCheckedData,
+        data: dataAsResource,
         loading,
         error,
         trigger,

@@ -19,7 +19,9 @@ export interface API<T = {}> {
 
 /* Make some headers required */
 export interface RSRequestHeaders extends AxiosRequestHeaders {
-    /* TODO: Required headers. */
+    "authentication-type": string;
+    authorization: string;
+    organization: string;
 }
 /* Make some fields required or overwrite types */
 export interface RSRequestConfig extends AxiosRequestConfig {
@@ -79,13 +81,15 @@ export const buildEndpointUrl = <P extends StringIndexed>(
             return construct(endpoint.url);
         }
     } catch (e: any) {
-        console.error(e.message);
-        return "";
+        /* Catching extractEndpoints error, or anything form here, and piping it up */
+        console.log(e.message);
+        throw Error(e.message);
     }
 };
 
-/* Case insensitive way of checking if an endpoint contains a method.
- * example: "GET" === "get" || "GET" === "GET" */
+/* Ensure the endpoint chosen has access to the method desired. If not,
+ * this will throw and the error will be communicated in the output of
+ * generateRequestConfig */
 export const endpointHasMethod = (
     api: API,
     endpointKey: string,
@@ -97,10 +101,14 @@ export const endpointHasMethod = (
         .includes(method.toUpperCase());
     if (!canAccessMethod)
         throw Error(`Method ${method} cannot be used by ${endpointKey}`);
-    return canAccessMethod;
 };
 
-/* Handles generating the config from inputs with checks in the middle */
+/* Handles generating the config from inputs with checks in the middle. If
+ * any checks fail, this will return a SimpleError. You can check this by
+ * calling `x instanceof SimpleError`.
+ *
+ * Both buildEndpointUrl and endpointHasMethod will throw if inputs lead to
+ * errors, and that is communicated through SimpleError.message */
 export const createRequestConfig = <P extends StringIndexed, D = any>(
     api: API,
     endpointKey: string,
@@ -112,10 +120,9 @@ export const createRequestConfig = <P extends StringIndexed, D = any>(
     advancedConfig?: AdvancedConfig<D>
 ): RSRequestConfig | SimpleError => {
     try {
-        const url = buildEndpointUrl(api, endpointKey, parameters);
         endpointHasMethod(api, endpointKey, method);
         return {
-            url: url,
+            url: buildEndpointUrl(api, endpointKey, parameters),
             method: method,
             headers: {
                 "authentication-type": "okta",
@@ -125,8 +132,6 @@ export const createRequestConfig = <P extends StringIndexed, D = any>(
             ...advancedConfig,
         };
     } catch (e: any) {
-        return {
-            message: e.message,
-        };
+        return new SimpleError(e.message);
     }
 };

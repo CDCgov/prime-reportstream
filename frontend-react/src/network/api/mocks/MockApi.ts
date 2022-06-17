@@ -19,6 +19,13 @@ export const MyApi: API<MyApiItem> = {
             },
         ],
         [
+            "badList",
+            {
+                url: "/badList",
+                methods: ["GET"],
+            },
+        ],
+        [
             "itemById",
             {
                 url: "/test/:id",
