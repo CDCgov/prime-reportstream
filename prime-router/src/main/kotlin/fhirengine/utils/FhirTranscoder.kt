@@ -16,15 +16,17 @@ object FhirTranscoder : Logging {
      * Build a HL7MessageEngine for converting HL7 -> FHIR with provided [options].
      * @return the message engine
      */
-    fun getMessageEngine(options: ConverterOptions = ConverterOptions.SIMPLE_OPTIONS): HL7MessageEngine {
+    fun getMessageEngine(options: ConverterOptions? = null): HL7MessageEngine {
+        val finalOptions =
+            options ?: ConverterOptions.Builder().withBundleType(Bundle.BundleType.MESSAGE).withPrettyPrint().build()
         val context = FHIRContext(
-            options.isPrettyPrint,
-            options.isValidateResource,
-            options.properties,
-            options.zoneIdText
+            finalOptions.isPrettyPrint,
+            finalOptions.isValidateResource,
+            finalOptions.properties,
+            finalOptions.zoneIdText
         )
 
-        return HL7MessageEngine(context, options.bundleType)
+        return HL7MessageEngine(context, finalOptions.bundleType)
     }
 
     /**
