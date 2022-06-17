@@ -18,9 +18,11 @@ import { showAlertNotification, showError } from "../AlertNotifications";
 import { getStoredOktaToken } from "../../contexts/SessionStorageTools";
 
 export function AdminLastMileFailuresTable() {
+    const defaultDaysToShow = "15"; // numeric input but treat as string for easier passing around
+    const [daysToShow, setDaysToShow] = useState(defaultDaysToShow);
     const lastMileData: AdmSendFailuresResource[] = useResource(
         AdmSendFailuresResource.list(),
-        {}
+        { days_to_show: daysToShow }
     );
 
     // this is the input box filter
@@ -119,21 +121,38 @@ ${data.receiver}`;
                     <div className="flex-fill">
                         <Label
                             className="font-sans-xs usa-label"
-                            htmlFor="input-filter"
+                            htmlFor="input_filter"
                         >
                             Filter:
                         </Label>
                         <TextInput
-                            id="input-filter"
-                            name="input-filter"
+                            id="input_filter"
+                            name="input_filter"
                             type="text"
                             autoComplete="off"
                             aria-autocomplete="none"
                             autoFocus
                             onChange={(evt) => setFilter(evt.target.value)}
                         />
-                        (Includes information found in error and not shown in
-                        table summary)
+                        Searches FULL information incl error text
+                    </div>
+                    <div className="flex-auto">
+                        <Label
+                            className="font-sans-xs usa-label"
+                            htmlFor="days_to_show"
+                        >
+                            Days to show:
+                        </Label>
+                        <TextInput
+                            id="days_to_show"
+                            name="days_to_show"
+                            type="number"
+                            defaultValue={defaultDaysToShow}
+                            autoComplete="off"
+                            aria-autocomplete="none"
+                            autoFocus
+                            onChange={(evt) => setDaysToShow(evt.target.value)}
+                        />
                     </div>
                 </form>
                 <Table

@@ -28,8 +28,8 @@ export class AdmSendFailuresResource extends AuthResource {
 
     static urlRoot = `${process.env.REACT_APP_BACKEND_URL}/api/adm/getsendfailures`;
 
-    static url(params: { days_to_show: number }): string {
-        return `${this.urlRoot}?days_back=${params.days_to_show}`;
+    static url(params: { daysToShow: number }): string {
+        return `${this.urlRoot}?days_to_show=${params.daysToShow}`;
     }
 
     /**
