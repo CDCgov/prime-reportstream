@@ -1,12 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
-import axios, { AxiosPromise, Method } from "axios";
+import {
+    useCallback,
+    useEffect,
+    useState,
+} from "react";
+import axios, { Method } from "axios";
 
 import { RSRequestConfig } from "../../network/api/NewApi";
 import { SimpleError } from "../../utils/UsefulTypes";
 
 export interface RequestHookResponse<D> {
     data: D | undefined;
-    loading: boolean;
     error: string;
     trigger: () => void;
 }
@@ -25,24 +28,24 @@ export const needsTrigger = (reqType: Method) =>
 
 /* Our proxy for type-casting axios's returned data since `axios()` doesn't
  * currently support generics and casting. */
-const typedAxiosCall = <D>(config: RSRequestConfig): AxiosPromise<D> => {
+const typedAxiosCall = <D>(config: RSRequestConfig) => {
     switch (config.method) {
         case "POST":
         case "post":
-            return axios.post<D>(config.url, config.data, config);
+            return axios.post<D>;
         case "PUT":
         case "put":
-            return axios.put<D>(config.url, config.data, config);
+            return axios.put<D>;
         case "PATCH":
         case "patch":
-            return axios.patch<D>(config.url, config.data, config);
+            return axios.patch<D>;
         case "DELETE":
         case "delete":
-            return axios.delete<D>(config.url, config);
+            return axios.delete<D>;
         case "GET":
         case "get":
         default:
-            return axios.get<D>(config.url, config);
+            return axios.get<D>;
     }
 };
 
@@ -70,7 +73,6 @@ const useRequestConfig = <D>(
         setTriggerCall(triggerCall + 1);
     }, [triggerCall]);
     const [data, setData] = useState<D | undefined>();
-    const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>("");
 
     /* Fetches the data whenever the config passed in is changed.
@@ -81,7 +83,6 @@ const useRequestConfig = <D>(
          * That way, when we break down a component, no more state is will
          * try to be set. This helps with teardown mid network call. */
         let subscribed = true;
-        setLoading(true);
         try {
             if (config instanceof SimpleError) {
                 throw Error(`Your config threw an error: ${config.message}`);
@@ -93,33 +94,30 @@ const useRequestConfig = <D>(
                     subscribed
                 ) {
                     setData(undefined);
-                    setLoading(false);
                     throw Error("This call requires data to be passed in");
                 }
             };
             const fetchAndStoreData = () => {
-                if (onlyCallOnTrigger(config) && triggerCall < 1) {
-                    setLoading(false);
-                    return;
-                }
-                typedAxiosCall<D>(config)
-                    .then((res) => {
-                        /* This is pretty opinionated on how WE handle deletes.
-                         * It might benefit from a refactor later on. */
-                        if (deletesData(config.method) && subscribed) {
-                            setData(undefined);
-                            setLoading(false);
-                        } else if (subscribed) {
-                            setData(res.data);
-                            setLoading(false);
-                        }
-                    })
+                if (onlyCallOnTrigger(config) && triggerCall < 1) return;
+                const call = typedAxiosCall<D>(config);
+                call(
+                    config.url,
+                    config?.data || undefined,
+                    config
+                ).then((res) => {
+                    /* This is pretty opinionated on how WE handle deletes.
+                     * It might benefit from a refactor later on. */
+                    if (deletesData(config.method) && subscribed) {
+                        setData(undefined);
+                    } else if (subscribed) {
+                        setData(res.data);
+                    }
+                })
                     /* Verified that this catch call is necessary, the catch
                      * block below doesn't handle this Promise */
                     .catch((e: any) => {
                         if (subscribed) {
                             setError(e.message);
-                            setLoading(false);
                         }
                     });
             };
@@ -132,7 +130,6 @@ const useRequestConfig = <D>(
         } catch (e: any) {
             setData(undefined);
             setError(e.message);
-            setLoading(false);
             console.error(e.message);
         }
         return () => {
@@ -142,7 +139,6 @@ const useRequestConfig = <D>(
 
     return {
         data,
-        loading,
         error,
         trigger,
     };

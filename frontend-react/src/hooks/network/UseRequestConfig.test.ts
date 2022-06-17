@@ -87,7 +87,6 @@ describe("useRequestConfig", () => {
             useRequestConfig<MyApiItem>(config)
         );
         expect(result.current.data).toBeUndefined();
-        expect(result.current.loading).toBeFalsy();
         expect(result.current.error).toEqual("");
     });
 
@@ -107,7 +106,6 @@ describe("useRequestConfig", () => {
             { testField: "1" },
             { testField: "2" },
         ]);
-        expect(result.current.loading).toEqual(false);
     });
 
     test("takes POST config and returns created object", async () => {
@@ -124,10 +122,8 @@ describe("useRequestConfig", () => {
             useRequestConfig<MyApiItem>(config)
         );
         act(() => result.current.trigger());
-        expect(result.current.loading).toEqual(true);
         await waitForNextUpdate();
         expect(result.current.data).toEqual({ testField: "3" });
-        expect(result.current.loading).toEqual(false);
     });
 
     test("takes PUT config and returns created object", async () => {
@@ -144,10 +140,8 @@ describe("useRequestConfig", () => {
             useRequestConfig<MyApiItem>(config)
         );
         act(() => result.current.trigger());
-        expect(result.current.loading).toEqual(true);
         await waitForNextUpdate();
         expect(result.current.data).toEqual({ testField: "4" });
-        expect(result.current.loading).toEqual(false);
     });
 
     test("takes PATCH config and returns updated object", async () => {
@@ -164,10 +158,8 @@ describe("useRequestConfig", () => {
             useRequestConfig<MyApiItem>(config)
         );
         act(() => result.current.trigger());
-        expect(result.current.loading).toEqual(true);
         await waitForNextUpdate();
         expect(result.current.data).toEqual({ testField: "4" });
-        expect(result.current.loading).toEqual(false);
     });
 
     test("takes DELETE config and returns nothing", async () => {
@@ -183,10 +175,8 @@ describe("useRequestConfig", () => {
             useRequestConfig<MyApiItem>(config)
         );
         act(() => result.current.trigger());
-        expect(result.current.loading).toEqual(true);
         await waitForNextUpdate();
         expect(result.current.data).toEqual(undefined);
-        expect(result.current.loading).toEqual(false);
     });
 
     test("catches server errors", async () => {
@@ -221,7 +211,6 @@ describe("useRequestConfig", () => {
             useRequestConfig<MyApiItem>(config)
         );
         expect(result.current.data).toBeUndefined();
-        expect(result.current.loading).toBeFalsy();
         expect(result.current.error).toEqual(
             "This call requires data to be passed in"
         );

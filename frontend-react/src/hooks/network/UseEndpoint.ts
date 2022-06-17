@@ -1,5 +1,5 @@
 import { Method } from "axios";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
     AdvancedConfig,
@@ -13,6 +13,7 @@ import useRequestConfig, { RequestHookResponse } from "./UseRequestConfig";
 
 interface EndpointHookResponse<D> extends Omit<RequestHookResponse<D>, "data"> {
     data: D | D[] | undefined;
+    loading: boolean;
 }
 
 /* Shallow compare function to ensure all keys are the same across incoming data
@@ -33,7 +34,7 @@ const useEndpoint = <P, D>(
     advancedConfig?: AdvancedConfig<D>
 ): EndpointHookResponse<D> => {
     const { oktaToken, memberships } = useSessionContext();
-    const { data, loading, error, trigger } = useRequestConfig<D>(
+    const { data, error, trigger } = useRequestConfig<D>(
         createRequestConfig(
             api,
             endpointKey,
@@ -44,6 +45,17 @@ const useEndpoint = <P, D>(
             advancedConfig
         )
     );
+    /* Maintains loading state by looking for whether data or and error are
+     * passed back by the useRequestConfig hook */
+    const [loading, setLoading] = useState<boolean>(true);
+    useEffect(() => {
+        if (data !== undefined || error !== "") {
+            setLoading(false);
+        } else {
+            setLoading(true);
+        }
+    }, [data, error]);
+
     const dataAsResource = useMemo(() => {
         if (data && data instanceof Array) {
             const valid = data.every((obj) =>

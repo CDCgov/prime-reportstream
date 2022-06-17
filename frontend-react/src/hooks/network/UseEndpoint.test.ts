@@ -65,6 +65,8 @@ describe("useEndpoint", () => {
         expect(result.current.loading).toEqual(true);
         await waitForNextUpdate();
         expect(result.current.data).toEqual(new MyApiItem("test"));
+        expect(result.current.loading).toEqual(false);
+        expect(result.current.error).toEqual("");
     });
 
     test("Returns array data", async () => {

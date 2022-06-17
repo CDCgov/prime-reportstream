@@ -82,7 +82,7 @@ export const buildEndpointUrl = <P extends StringIndexed>(
         }
     } catch (e: any) {
         /* Catching extractEndpoints error, or anything form here, and piping it up */
-        console.log(e.message);
+        console.error(e.message);
         throw Error(e.message);
     }
 };
