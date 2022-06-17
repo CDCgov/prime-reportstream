@@ -1,14 +1,22 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 
 import Table, {
     ColumnConfig,
     DatasetAction,
     TableConfig,
+    TableRow,
 } from "../../../components/Table/Table";
 import { useValueSetsRowTable } from "../../../hooks/UseLookupTable";
 import { toHumanReadable } from "../../../utils/misc";
+import {
+    lookupTableApi,
+    LookupTables,
+    ValueSetRow,
+} from "../../../network/api/LookupTableApi";
+import { showError } from "../../../components/AlertNotifications";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -82,7 +90,72 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
 
 */
 
+// const defaultValueSetRows = [
+//     {
+//         name: "ethnicity",
+//         display: "American Indian or Alaska Native",
+//         code: "1002-5",
+//         version: "2.5.1",
+//         system: "HL7",
+//     },
+//     {
+//         name: "ethnicity",
+//         display: "Asian",
+//         code: "2028-9",
+//         version: "2.5.4",
+//         system: "Name of org",
+//     },
+//     {
+//         name: "ethnicity",
+//         display: "Black or African American",
+//         code: "2054-5",
+//         version: "2.3.0",
+//         system: "HL7",
+//     },
+// ];
+
+const saveData = async (row: TableRow | null) => {
+    debugger;
+    const x: ValueSetRow[] = [
+        {
+            name: "ethnicity",
+            display: row?.display,
+            code: row?.code,
+            version: row?.version,
+        },
+    ];
+
+    const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow>(
+        LookupTables.VALUE_SET_ROW
+    );
+    try {
+        return await axios
+            .post(endpointHeaderUpdate.url, x)
+            // .get<LookupTables.VALUE_SET_ROW>(endpointHeader.url, endpointHeader)
+            .then((response) => response.data);
+    } catch (e: any) {
+        console.trace(e);
+        showError(e.toString());
+        return [];
+    }
+
+    // const endpointHeaderActivate = lookupTableApi.activateTableData(
+    //     LookupTables.VALUE_SET_ROW
+    // );
+    // try {
+    //     return await axios
+    //         .post(endpointHeader.url, x)
+    //         // .get<LookupTables.VALUE_SET_ROW>(endpointHeader.url, endpointHeader)
+    //         .then((response) => response.data);
+    // } catch (e: any) {
+    //     console.trace(e);
+    //     showError(e.toString());
+    //     return [];
+    // }
+};
+
 const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
+    debugger;
     const valueSetRowArray = useValueSetsRowTable(valueSetName);
 
     const tableConfig: TableConfig = {
@@ -99,10 +172,13 @@ const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
             datasetAction={datasetActionItem}
             config={tableConfig}
             enableEditableRows
-            editableCallback={(row) => {
-                console.log("!!! saving row", row);
-                return Promise.resolve();
+            editableCallback={async (row) => {
+                return await saveData(row);
             }}
+            // editableCallback={(row) => {
+            //     console.log("!!! saving row", row);
+            //     return Promise.resolve();
+            // }}
         />
     );
 };
