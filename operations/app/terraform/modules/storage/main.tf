@@ -10,17 +10,17 @@ resource "azurerm_storage_account" "storage_account" {
   allow_blob_public_access  = false
   enable_https_traffic_only = true
 
-  network_rules {
-    default_action = "Deny"
-    bypass         = ["AzureServices"]
+  # network_rules {
+  #   default_action = "Deny"
+  #   bypass         = ["AzureServices"]
 
-    # ip_rules = sensitive(concat(
-    #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-    #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
-    # ))
+  #   # ip_rules = sensitive(concat(
+  #   #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+  #   #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
+  #   # ))
 
-    virtual_network_subnet_ids = var.subnets.primary_subnets
-  }
+  #   virtual_network_subnet_ids = var.subnets.primary_subnets
+  # }
 
   # Required for customer-managed encryption
   identity {
@@ -39,6 +39,23 @@ resource "azurerm_storage_account" "storage_account" {
   tags = {
     environment = var.environment
   }
+}
+
+# Wait to apply network restrictions to storage account to permit share creation
+resource "time_sleep" "wait_300_seconds" {
+  depends_on = [azurerm_storage_account.storage_account]
+
+  create_duration = "300s"
+}
+
+resource "azurerm_storage_account_network_rules" "storage_account" {
+  storage_account_id = azurerm_storage_account.storage_account.id
+
+  default_action             = "Deny"
+  virtual_network_subnet_ids = var.subnets.primary_subnets
+  bypass                     = ["AzureServices"]
+
+  depends_on = [time_sleep.wait_300_seconds]
 }
 
 module "storageaccount_blob_private_endpoint" {

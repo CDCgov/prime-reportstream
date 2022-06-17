@@ -84,3 +84,62 @@ Once your az cli has been authenticated, you can proceed with the terraform comm
 
    [terraform]: <https://www.terraform.io/downloads>
    [here]: ./dns.md
+
+# Demo Environments
+
+## Quickstart
+
+1. Navigate to `demo` Terraform directory using one of the following methods:
+   * `terraform -chdir=operations/app/terraform/vars/demo`
+   * `operations/app/terraform/vars/demo terraform`
+
+2. Specify `-var-file` and `-backend-config` from the desired demo directory (demo1, demo2, or demo3)
+   * `-var-file=demo1/env.tfvars.json`
+   * `-backend-config=demo1/env.tfbackend`
+
+3. Target the `init` Terraform module to `apply` base resources (vnets, key vaults, etc.)
+   * `-target=module.init`
+
+4. After base resources are created, run `apply` without a target
+
+
+## Example Create
+
+```bash
+env=demo1
+
+terraform -chdir=operations/app/terraform/vars/demo init \
+-var-file=$env/env.tfvars.json \
+-backend-config=$env/env.tfbackend
+
+terraform -chdir=operations/app/terraform/vars/demo apply \
+-target=module.init \
+-var-file=$env/env.tfvars.json \
+-auto-approve
+
+terraform -chdir=operations/app/terraform/vars/demo apply \
+-var-file=$env/env.tfvars.json \
+-auto-approve
+```
+
+## Example Destroy
+
+```bash
+rg=demo
+env=demo1
+
+terraform -chdir=operations/app/terraform/vars/$rg destroy \
+-var-file=$env/env.tfvars.json \
+-refresh=false \
+-auto-approve
+
+resources="$(az resource list --resource-group "prime-data-hub-$rg" --query "[?!(contains(name, 'terraform'))]" \
+| grep id | awk -F \" '{print $4}')"
+
+for id in "$resources"; do az resource delete --resource-group "prime-data-hub-$rg" --ids "$id" --verbose; done
+
+```
+
+## Tips
+ 1. If errors occur during destroy and you need to manually delete and remove from state:
+    * `terraform -chdir=operations/app/terraform/vars/demo state rm module.init`

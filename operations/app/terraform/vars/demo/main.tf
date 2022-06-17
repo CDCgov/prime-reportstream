@@ -41,7 +41,6 @@ module "nat_gateway" {
   subnets         = module.network.subnets
 }
 
-
 ##########
 ## 02-config
 ##########
@@ -74,6 +73,7 @@ module "key_vault" {
   dns_vnet                    = var.dns_vnet
   dns_zones                   = module.network.dns_zones
   admin_function_app          = module.function_app.admin_function_app
+  temp_env                    = var.temp_env
 }
 
 module "container_registry" {
@@ -191,6 +191,7 @@ module "sftp_container" {
   use_cdc_managed_vnet  = var.use_cdc_managed_vnet
   sa_primary_access_key = module.storage.sa_primary_access_key
   dns_zones             = module.network.dns_zones
+  storage_account       = module.storage.storage_account
 }
 
 module "metabase" {

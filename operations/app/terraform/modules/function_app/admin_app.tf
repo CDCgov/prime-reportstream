@@ -96,6 +96,9 @@ resource "azurerm_function_app" "admin" {
       site_config[0].ip_restriction
     ]
   }
+  depends_on = [
+    var.app_service_plan
+  ]
   tags = {
     environment = local.config.environment
     managed-by  = "terraform"

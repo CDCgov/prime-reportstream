@@ -85,6 +85,10 @@ resource "azurerm_key_vault" "init" {
     ]
   }
 
+  depends_on = [
+    azurerm_virtual_network.init
+  ]
+
   tags = {
     environment = var.environment
   }

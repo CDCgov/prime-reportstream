@@ -133,7 +133,7 @@ resource "azurerm_key_vault" "client_config" {
   enabled_for_deployment          = true
   enabled_for_disk_encryption     = true
   enabled_for_template_deployment = true
-  purge_protection_enabled        = true
+  purge_protection_enabled        = var.temp_env == true ? false : true
 
   network_acls {
     bypass         = "AzureServices"
