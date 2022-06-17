@@ -4,7 +4,6 @@ import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables, ValueSet } from "../network/api/LookupTableApi";
 
 import useLookupTable, {
-    generateUseLookupTable,
     getLatestData,
     getLatestVersion,
     getSenderAutomationData,
@@ -39,15 +38,6 @@ describe("test all hooks and methods", () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useLookupTable<ValueSet>(LookupTables.VALUE_SET)
         );
-        await waitForNextUpdate();
-        expect(result.current.length).toEqual(3);
-    });
-
-    test("generateUseLookupTable hook returns expected number of rows", async () => {
-        const generatedHook = generateUseLookupTable<ValueSet>(
-            LookupTables.VALUE_SET
-        );
-        const { result, waitForNextUpdate } = renderHook(() => generatedHook());
         await waitForNextUpdate();
         expect(result.current.length).toEqual(3);
     });

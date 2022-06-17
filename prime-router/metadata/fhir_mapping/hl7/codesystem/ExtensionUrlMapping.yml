@@ -136,3 +136,12 @@
 # Response flag
 - id: "response-flag"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/response-flag"
+# Start of service
+- id: "start-of-service"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/start-of-service"
+# End of service
+- id: "end-of-service"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/end-of-service"
+# Service priority
+- id: "service-priority"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/service-priority"
