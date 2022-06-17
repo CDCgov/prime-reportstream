@@ -8,17 +8,16 @@ import {
 } from "../../utils/CustomRenderUtils";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
-import { StringIndexed } from "../../utils/UsefulTypes";
 
 import { TestTable } from "./TestTable";
-import Table, { ColumnConfig, TableConfig } from "./Table";
+import Table, { ColumnConfig, TableConfig, TableRow } from "./Table";
 import { TableRows } from "./TableRows";
 import { ColumnData } from "./ColumnData";
 
 /* Table generation tools */
 
 const getSetOfRows = (count: number, linkable: boolean = true) => {
-    const testRows: StringIndexed[] = [];
+    const testRows: TableRow[] = [];
     for (let i = 0; i < count; i++) {
         // this is bad, but I couldn't figure out how to do it another way
         // without jumping through lots of typescript hoops - DWS
@@ -47,7 +46,7 @@ const getSetOfRows = (count: number, linkable: boolean = true) => {
     return testRows;
 };
 
-const makeConfigs = (sampleRow: StringIndexed): ColumnConfig[] => {
+const makeConfigs = (sampleRow: TableRow): ColumnConfig[] => {
     const sampleMapper = new Map<number, string>([[2, "Mapped Item"]]);
     const transformFunc = (v: any) => {
         return v === 9 ? "Transformed Value" : v;
@@ -76,7 +75,7 @@ const makeConfigs = (sampleRow: StringIndexed): ColumnConfig[] => {
 };
 
 const getTestConfig = (rowCount: number): TableConfig => {
-    const testRows: StringIndexed[] = getSetOfRows(rowCount);
+    const testRows: TableRow[] = getSetOfRows(rowCount);
     const colConfigs: ColumnConfig[] = makeConfigs(testRows[0]);
     return {
         rows: testRows,

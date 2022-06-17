@@ -18,7 +18,6 @@ import {
     SortOrder,
     SortSettingsActionType,
 } from "../../hooks/filters/UseSortOrder";
-import { StringIndexed } from "../../utils/UsefulTypes";
 
 import { TableRows } from "./TableRows";
 
@@ -31,6 +30,14 @@ export interface LinkableColumn {
     link: boolean;
     linkBasePath?: string;
     linkAttr?: string; // if no linkAttr is given, defaults to dataAttr
+}
+
+// each table row will be a map keyed off the dataAttr value of
+// a column from the column config from the same tableConfig.
+// values will largely be assumed to be primitive values, or values
+// to be passed into a transform function defined in the column config
+export interface TableRow {
+    [key: string]: any;
 }
 
 /* ColumnConfig tells the Table element how to render each column
@@ -56,7 +63,7 @@ export interface ColumnConfig {
 
 export interface TableConfig {
     columns: Array<ColumnConfig>;
-    rows: Array<StringIndexed>;
+    rows: Array<TableRow>;
 }
 
 export interface DatasetAction {
@@ -64,14 +71,7 @@ export interface DatasetAction {
     method: Function;
 }
 
-export interface ColumnProps {
-    rowIndex: number;
-    colIndex: number;
-    rowData: StringIndexed;
-    columnConfig: ColumnConfig;
-    editing?: boolean;
-}
-export type RowSideEffect = (row: StringIndexed | null) => Promise<void>;
+export type RowSideEffect = (row: TableRow | null) => Promise<void>;
 
 export interface TableProps {
     config: TableConfig;

@@ -2,13 +2,12 @@ import React, { useState, useCallback } from "react";
 import { Button } from "@trussworks/react-uswds";
 
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
-import { StringIndexed } from "../../utils/UsefulTypes";
 
-import { RowSideEffect, ColumnConfig } from "./Table";
+import { RowSideEffect, TableRow, ColumnConfig } from "./Table";
 import { ColumnData } from "./ColumnData";
 
 interface TableRowProps {
-    rows: StringIndexed[];
+    rows: TableRow[];
     columns: ColumnConfig[];
     filterManager?: FilterManager;
     enableEditableRows?: boolean;
@@ -28,7 +27,7 @@ export const TableRows = ({
     const [editing, setEditing] = useState<number | undefined>();
     // tracks data changes to row currently being edited
     // TODO: build proper loading state
-    const [updatedRow, setUpdatedRow] = useState<StringIndexed | null>(null);
+    const [updatedRow, setUpdatedRow] = useState<TableRow | null>(null);
 
     const editableRowButtonValue = (isEditing: boolean) =>
         isEditing ? "Save" : "Edit";
@@ -80,7 +79,7 @@ export const TableRows = ({
 
     return (
         <>
-            {rows.map((object: StringIndexed, rowIndex: number) => {
+            {rows.map((object: TableRow, rowIndex: number) => {
                 // Caps page size when filterManager exists
                 if (
                     filterManager &&

@@ -1,8 +1,4 @@
-import {
-    useCallback,
-    useEffect,
-    useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios, { Method } from "axios";
 
 import { RSRequestConfig } from "../../network/api/NewApi";
@@ -32,20 +28,20 @@ const typedAxiosCall = <D>(config: RSRequestConfig) => {
     switch (config.method) {
         case "POST":
         case "post":
-            return axios.post<D>;
+            return axios.post<D>(config.url, config.data, config);
         case "PUT":
         case "put":
-            return axios.put<D>;
+            return axios.put<D>(config.url, config.data, config);
         case "PATCH":
         case "patch":
-            return axios.patch<D>;
+            return axios.patch<D>(config.url, config.data, config);
         case "DELETE":
         case "delete":
-            return axios.delete<D>;
+            return axios.delete<D>(config.url, config);
         case "GET":
         case "get":
         default:
-            return axios.get<D>;
+            return axios.get<D>(config.url, config);
     }
 };
 
@@ -99,20 +95,16 @@ const useRequestConfig = <D>(
             };
             const fetchAndStoreData = () => {
                 if (onlyCallOnTrigger(config) && triggerCall < 1) return;
-                const call = typedAxiosCall<D>(config);
-                call(
-                    config.url,
-                    config?.data || undefined,
-                    config
-                ).then((res) => {
-                    /* This is pretty opinionated on how WE handle deletes.
-                     * It might benefit from a refactor later on. */
-                    if (deletesData(config.method) && subscribed) {
-                        setData(undefined);
-                    } else if (subscribed) {
-                        setData(res.data);
-                    }
-                })
+                typedAxiosCall<D>(config)
+                    .then((res) => {
+                        /* This is pretty opinionated on how WE handle deletes.
+                         * It might benefit from a refactor later on. */
+                        if (deletesData(config.method) && subscribed) {
+                            setData(undefined);
+                        } else if (subscribed) {
+                            setData(res.data);
+                        }
+                    })
                     /* Verified that this catch call is necessary, the catch
                      * block below doesn't handle this Promise */
                     .catch((e: any) => {
