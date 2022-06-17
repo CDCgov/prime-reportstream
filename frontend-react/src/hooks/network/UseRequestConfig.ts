@@ -18,9 +18,9 @@ export const needsData = (reqType: Method) =>
 export const hasData = (req: RSRequestConfig): boolean =>
     req.data !== undefined;
 export const deletesData = (reqType: Method) =>
-    reqType === "delete" || reqType === "DELETE";
+    reqType.toUpperCase() === "DELETE";
 export const needsTrigger = (reqType: Method) =>
-    reqType !== "GET" && reqType !== "get";
+    reqType.toUpperCase() !== "GET";
 
 /* Takes the output from `createRequestConfig` and uses it to
  * make an Axios call. The reason we use an AxiosConfig (extended

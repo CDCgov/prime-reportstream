@@ -134,14 +134,11 @@ describe("useEndpoint", () => {
         );
         expect(result.current.loading).toBeFalsy();
     });
+});
 
-    test("passesObjCompare detects matching and mismatched object shapes", () => {
-        const result = passesObjCompare({ message: "test" }, SimpleError);
-        expect(result).toBeTruthy();
-        const badResult = passesObjCompare(
-            { failureMessage: "test" },
-            SimpleError
-        );
-        expect(badResult).toBeFalsy();
-    });
+test("passesObjCompare detects matching and mismatched object shapes", () => {
+    const result = passesObjCompare({ message: "test" }, SimpleError);
+    expect(result).toBeTruthy();
+    const badResult = passesObjCompare({ failureMessage: "test" }, SimpleError);
+    expect(badResult).toBeFalsy();
 });
