@@ -253,3 +253,46 @@ extension_6:
       constants:
         system_code: "v2-0123"
 
+extension_7:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: start-of-service
+    valueDateTime:
+      type: STRING
+      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+      expressionType: JEXL
+      vars:
+        dateTimeIn: TQ1.7
+
+extension_8:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: end-of-service
+    valueDateTime:
+      type: STRING
+      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+      expressionType: JEXL
+      vars:
+        dateTimeIn: TQ1.8
+
+extension_9:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: service-priority
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept_var
+      expressionType: resource
+      vars:
+        system: SYSTEM_URL, $system_code
+        code: String, TQ1.9.1
+      constants:
+        system_code: "v2-0485"
