@@ -1,12 +1,11 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import { dummySender } from "../hooks/UseSenderMode.test";
-import { Organization, orgApi } from "../network/api/OrgApi";
+// import { dummySender } from "../hooks/UseSenderMode.test";
+import { Organization, orgApi, RSSender } from "../network/api/OrgApi";
 
 const orgList = orgApi.getOrgList();
 const firstSender = orgApi.getSenderDetail("firstOrg", "firstSender");
-const testSender = orgApi.getSenderDetail("testOrg", "testSender");
 
 const fakeOrg: Organization = {
     countyName: "Testing County",
@@ -22,6 +21,15 @@ const fakeOrg: Organization = {
     stateCode: "TC",
 };
 
+export const testSender = new RSSender(
+    "testSender",
+    "testOrg",
+    "CSV",
+    "covid-19",
+    "testing",
+    "test/covid-19-test"
+);
+
 const handlers = [
     rest.get(orgList.url, (_req, res, ctx) => {
         return res(
@@ -29,9 +37,12 @@ const handlers = [
             ctx.status(200)
         );
     }),
-    rest.get(testSender.url, (req, res, ctx) => {
-        return res(ctx.json(dummySender), ctx.status(200));
-    }),
+    rest.get(
+        "https://test.prime.cdc.gov/api/settings/organizations/testOrg/sender/testSender",
+        (req, res, ctx) => {
+            return res(ctx.json(testSender), ctx.status(200));
+        }
+    ),
     rest.get(firstSender.url, (req, res, ctx) => {
         return res(ctx.status(200));
     }),

@@ -11,11 +11,11 @@ import { Newable } from "../../utils/UsefulTypes";
 
 import useRequestConfig, { RequestHookResponse } from "./UseRequestConfig";
 
-interface EndpointHookResponse<D> extends Omit<RequestHookResponse<D>, "data"> {
-    data: D | D[] | undefined;
+interface EndpointHookResponse<D> extends RequestHookResponse<D> {
     loading: boolean;
 }
 
+/* TODO: Write a great object compare function */
 /* Shallow compare function to ensure all keys are the same across incoming data
  * and our API resource */
 export const passesObjCompare = (obj1: any, obj2: Newable<any>) => {
@@ -27,7 +27,7 @@ export const passesObjCompare = (obj1: any, obj2: Newable<any>) => {
 };
 
 /* Generics provided for data type (D) and params (P). Good examples in test file. */
-const useEndpoint = <D, P = {}>(
+const useEndpoint = <D = any, P = {}>(
     api: API<D>,
     endpointKey: string,
     method: Method,
@@ -35,17 +35,20 @@ const useEndpoint = <D, P = {}>(
     advancedConfig?: AdvancedConfig<D>
 ): EndpointHookResponse<D> => {
     const { oktaToken, memberships } = useSessionContext();
-    const { data, error, trigger } = useRequestConfig<D>(
-        createRequestConfig(
-            api,
-            endpointKey,
-            method,
-            oktaToken?.accessToken,
-            memberships.state.active?.parsedName,
-            parameters,
-            advancedConfig
-        )
+    const config = useMemo(
+        () =>
+            createRequestConfig(
+                api,
+                endpointKey,
+                method,
+                oktaToken?.accessToken,
+                memberships.state.active?.parsedName,
+                parameters,
+                advancedConfig
+            ),
+        []
     );
+    const { data, error, trigger } = useRequestConfig<D>(config);
     /* Maintains loading state by looking for whether data or and error are
      * passed back by the useRequestConfig hook */
     const [loading, setLoading] = useState<boolean>(true);

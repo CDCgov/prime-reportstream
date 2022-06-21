@@ -5,7 +5,7 @@ import { RSRequestConfig } from "../../network/api/NewApi";
 import { SimpleError } from "../../utils/UsefulTypes";
 
 export interface RequestHookResponse<D> {
-    data: D | undefined;
+    data: D | D[] | undefined;
     error: string;
     trigger: () => void;
 }
@@ -58,22 +58,11 @@ const useRequestConfig = <D>(
         let subscribed = true;
         try {
             if (config instanceof SimpleError) {
-                // Catches locally!
                 throw Error(`Your config threw an error: ${config.message}`);
             }
-            const validDataSentThrough = () => {
-                if (
-                    needsData(config.method) &&
-                    !hasData(config) &&
-                    subscribed
-                ) {
-                    throw Error("This call requires data to be passed in");
-                }
-            };
-
-            /* Pre-fetch validator(s). Could be useful to extend this
-             * feature in the future. */
-            validDataSentThrough();
+            if (needsData(config.method) && !hasData(config) && subscribed) {
+                throw Error("This call requires data to be passed in");
+            }
             /* API fetch */
             if (onlyCallOnTrigger(config) && triggerCall < 1) return;
             axios(config)

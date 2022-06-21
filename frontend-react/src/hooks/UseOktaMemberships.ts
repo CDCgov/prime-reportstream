@@ -21,6 +21,8 @@ export interface MembershipSettings {
     parsedName: string;
     // The type of membership
     memberType: MemberType;
+    // Optional sender name
+    senderName?: string;
 }
 
 export interface MembershipState {
@@ -57,12 +59,16 @@ export const getTypeOfGroup = (org: string) => {
     }
 };
 
+export const extractSenderName = (org: string) =>
+    org.split(".")?.[1] || undefined;
+
 export const getSettingsFromOrganization = (
     org: string
 ): MembershipSettings => {
     return {
         parsedName: parseOrgName(org),
         memberType: getTypeOfGroup(org),
+        senderName: extractSenderName(org),
     };
 };
 
