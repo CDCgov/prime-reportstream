@@ -171,11 +171,32 @@ presentedForm:
 
 extension_1:
   generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  condition: $value NOT_NULL
-  vars:
-    value: String, ORC.6
-  constants:
-    KEY_NAME_SUFFIX: String
-    urlValue: v2-0121
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: response-flag
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept_var
+      expressionType: resource
+      vars:
+        system: SYSTEM_URL, $system_code
+        code: String, ORC.6
+      constants:
+        system_code: v2-0121
+
+extension_2:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: result-status
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept_var
+      expressionType: resource
+      vars:
+        system: SYSTEM_URL, $system_code
+        code: String, OBR.25
+      constants:
+        system_code: v2-0123
