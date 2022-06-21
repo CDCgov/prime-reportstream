@@ -10,7 +10,7 @@ import {
 } from "../network/api/LookupTableApi";
 import { showError } from "../components/AlertNotifications";
 
-interface TableAttributes {
+export interface TableAttributes {
     version: number;
     createdAt: string;
     createdBy: string;

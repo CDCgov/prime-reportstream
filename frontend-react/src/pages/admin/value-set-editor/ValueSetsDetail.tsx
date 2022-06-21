@@ -83,7 +83,6 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
 
 const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
     const valueSetRowArray = useValueSetsRowTable(valueSetName);
-    // const [sampleValueSetRows, setSampleValueSetRows] = useState<ValueSet[]>(defaultValueSetRows);
 
     const tableConfig: TableConfig = {
         columns: valueSetDetailColumnConfig,
