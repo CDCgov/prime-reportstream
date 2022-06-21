@@ -69,7 +69,7 @@ describe("useEndpoint", () => {
     test("Returns single object data", async () => {
         mockSessionContext.mockReturnValue(mockSession);
         const { result, waitForNextUpdate } = renderHook(() =>
-            useEndpoint<{ id: number }, MyApiItem>(MyApi, "itemById", "GET", {
+            useEndpoint<MyApiItem, { id: number }>(MyApi, "itemById", "GET", {
                 id: 123,
             })
         );
@@ -83,7 +83,7 @@ describe("useEndpoint", () => {
     test("Returns array data", async () => {
         mockSessionContext.mockReturnValue(mockSession);
         const { result, waitForNextUpdate } = renderHook(() =>
-            useEndpoint<{}, MyApiItem>(MyApi, "list", "GET")
+            useEndpoint<MyApiItem>(MyApi, "list", "GET")
         );
         await waitForNextUpdate();
         expect(result.current.data).toEqual(dummyArrayReturn);
@@ -94,7 +94,7 @@ describe("useEndpoint", () => {
         // This skips the axios .then() in useRequestConfig for some reason
         // and because of this, we are failing on loading === false
         const { result, waitForNextUpdate } = renderHook(() =>
-            useEndpoint<{}, MyApiItem>(MyApi, "badList", "GET")
+            useEndpoint<MyApiItem>(MyApi, "badList", "GET")
         );
         await waitForNextUpdate();
         expect(result.current.data).toEqual(undefined);
@@ -105,7 +105,7 @@ describe("useEndpoint", () => {
     test("Returns local errors", async () => {
         mockSessionContext.mockReturnValue(mockSession);
         const { result } = renderHook(() =>
-            useEndpoint<{}, MyApiItem>(MyApi, "list", "POST")
+            useEndpoint<MyApiItem>(MyApi, "list", "POST")
         );
         expect(result.current.data).toBeUndefined();
         expect(result.current.loading).toBeFalsy();
@@ -117,7 +117,7 @@ describe("useEndpoint", () => {
     test("Returns server errors", async () => {
         mockSessionContext.mockReturnValue(mockSession);
         const { result, waitForNextUpdate } = renderHook(() =>
-            useEndpoint<{ id: number }, MyApiItem>(
+            useEndpoint<MyApiItem, { id: number }>(
                 MyApi,
                 "itemById",
                 "DELETE",

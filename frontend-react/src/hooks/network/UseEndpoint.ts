@@ -26,7 +26,8 @@ export const passesObjCompare = (obj1: any, obj2: Newable<any>) => {
     return clear1 && clear2;
 };
 
-const useEndpoint = <P, D>(
+/* Generics provided for data type (D) and params (P). Good examples in test file. */
+const useEndpoint = <D, P = {}>(
     api: API<D>,
     endpointKey: string,
     method: Method,

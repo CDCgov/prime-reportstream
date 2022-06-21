@@ -58,6 +58,7 @@ const useRequestConfig = <D>(
         let subscribed = true;
         try {
             if (config instanceof SimpleError) {
+                // Catches locally!
                 throw Error(`Your config threw an error: ${config.message}`);
             }
             const validDataSentThrough = () => {
@@ -66,13 +67,9 @@ const useRequestConfig = <D>(
                     !hasData(config) &&
                     subscribed
                 ) {
-                    setData(undefined);
                     throw Error("This call requires data to be passed in");
                 }
             };
-            // const fetchAndStoreData = () => {
-            //
-            // };
 
             /* Pre-fetch validator(s). Could be useful to extend this
              * feature in the future. */
