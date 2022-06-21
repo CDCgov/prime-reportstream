@@ -7,12 +7,10 @@ import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
-import org.jooq.CommonTableExpression
 import org.jooq.Condition
 import org.jooq.SelectFieldOrAsterisk
 import org.jooq.SortField
 import org.jooq.impl.DSL
-import org.jooq.impl.SQLDataType
 import java.time.OffsetDateTime
 
 abstract class HistoryDatabaseAccess(
@@ -225,56 +223,8 @@ abstract class HistoryDatabaseAccess(
      * @param klass the class that the found data will be converted to.
      * @return a list of descendants for the given action id.
      */
-    fun <T> fetchRelatedActions(
+    abstract fun <T> fetchRelatedActions(
         actionId: Long,
         klass: Class<T>
-    ): List<T> {
-        val cte = reportDescendantExpression(actionId)
-        return db.transactReturning { txn ->
-            DSL.using(txn)
-                .withRecursive(cte)
-                .selectDistinct(detailedSelect())
-                .from(ACTION)
-                .join(cte)
-                .on(ACTION.ACTION_ID.eq(cte.field("action_id", SQLDataType.BIGINT)))
-                .where(ACTION.ACTION_ID.ne(actionId))
-                .fetchInto(klass)
-        }
-    }
-
-    /**
-     * Helper query used recursively to get the descendants of a submission.
-     *
-     * @param actionId the action id attached to the child submission to get details for.
-     * @return a jooq sub-query finding the submission's descendants.
-     */
-    private fun reportDescendantExpression(actionId: Long): CommonTableExpression<*> {
-        return DSL.name("t").fields(
-            "action_id",
-            "child_report_id",
-            "parent_report_id"
-            // Backticks escape the kotlin reserved word, so JOOQ can use it's "as"
-        ).`as`(
-            DSL.select(
-                Tables.REPORT_LINEAGE.ACTION_ID,
-                Tables.REPORT_LINEAGE.CHILD_REPORT_ID,
-                Tables.REPORT_LINEAGE.PARENT_REPORT_ID,
-            )
-                .from(Tables.REPORT_LINEAGE)
-                .where(Tables.REPORT_LINEAGE.ACTION_ID.eq(actionId))
-                .unionAll(
-                    DSL.select(
-                        Tables.REPORT_LINEAGE.ACTION_ID,
-                        Tables.REPORT_LINEAGE.CHILD_REPORT_ID,
-                        Tables.REPORT_LINEAGE.PARENT_REPORT_ID,
-                    )
-                        .from(DSL.table(DSL.name("t")))
-                        .join(Tables.REPORT_LINEAGE)
-                        .on(
-                            DSL.field(DSL.name("t", "child_report_id"), SQLDataType.UUID)
-                                .eq(Tables.REPORT_LINEAGE.PARENT_REPORT_ID)
-                        )
-                )
-        )
-    }
+    ): List<T>
 }
