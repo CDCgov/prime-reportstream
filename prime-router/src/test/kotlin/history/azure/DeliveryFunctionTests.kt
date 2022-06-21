@@ -258,7 +258,6 @@ class DeliveryFunctionTests : Logging {
                 val deliveries: List<ExpectedDelivery> = mapper.readValue(response.body.toString())
                 if (it.expectedResponse.body != null) {
                     assertThat(deliveries.size).isEqualTo(it.expectedResponse.body.size)
-
                     assertThat(deliveries).isEqualTo(it.expectedResponse.body)
                 }
             }

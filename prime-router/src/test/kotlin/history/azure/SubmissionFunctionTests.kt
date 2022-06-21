@@ -88,7 +88,7 @@ class SubmissionFunctionTests : Logging {
         SubmissionHistory(
             actionId = 8,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
-            sendingOrg = "simple_report",
+            sendingOrg = organizationName,
             httpStatus = 201,
             externalName = "test-name.csv",
             reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
@@ -98,7 +98,7 @@ class SubmissionFunctionTests : Logging {
         SubmissionHistory(
             actionId = 7,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
-            sendingOrg = "simple_report",
+            sendingOrg = organizationName,
             httpStatus = 400,
             externalName = "test-name.csv",
             reportId = null,
@@ -126,14 +126,6 @@ class SubmissionFunctionTests : Logging {
     fun `test list submissions`() {
         val testCases = listOf(
             SubmissionUnitTestCase(
-                mapOf("authorization" to "Bearer 111.222.333", "authentication-type" to "okta"),
-                emptyMap(),
-                ExpectedAPIResponse(
-                    HttpStatus.UNAUTHORIZED
-                ),
-                "unauthorized"
-            ),
-            SubmissionUnitTestCase(
                 mapOf("authorization" to "Bearer fads"), // no 'okta' auth-type, so this uses server2server auth
                 emptyMap(),
                 ExpectedAPIResponse(
@@ -142,7 +134,7 @@ class SubmissionFunctionTests : Logging {
                         ExpectedSubmissionList(
                             submissionId = 8,
                             timestamp = OffsetDateTime.parse("2021-11-30T16:36:54.919Z"),
-                            sender = "simple_report",
+                            sender = organizationName,
                             httpStatus = 201,
                             externalName = "test-name.csv",
                             id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
@@ -152,7 +144,7 @@ class SubmissionFunctionTests : Logging {
                         ExpectedSubmissionList(
                             submissionId = 7,
                             timestamp = OffsetDateTime.parse("2021-11-30T16:36:48.307Z"),
-                            sender = "simple_report",
+                            sender = organizationName,
                             httpStatus = 400,
                             externalName = "test-name.csv",
                             id = null,
@@ -218,7 +210,7 @@ class SubmissionFunctionTests : Logging {
         val settings = MockSettings()
         val sender = CovidSender(
             name = "default",
-            organizationName = "simple_report",
+            organizationName = organizationName,
             format = Sender.Format.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
@@ -234,7 +226,7 @@ class SubmissionFunctionTests : Logging {
             val submissionsFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
             val response = submissionsFunction.getOrgSubmissionsList(
                 httpRequestMessage,
-                "simple_report",
+                organizationName,
             )
             // Verify
             assertThat(response.status).isEqualTo(it.expectedResponse.status)
