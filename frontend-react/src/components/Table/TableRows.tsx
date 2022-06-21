@@ -155,7 +155,7 @@ export const TableRows = ({
     );
 
     const addingNewRow: boolean = useMemo(
-        () => !!(rowToEdit && rowToEdit === rows.length),
+        () => !!(rowToEdit !== undefined && rowToEdit === rows.length),
         [rowToEdit, rows.length]
     );
 
