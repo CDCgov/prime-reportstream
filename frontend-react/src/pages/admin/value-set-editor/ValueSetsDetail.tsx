@@ -107,7 +107,7 @@ const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
 };
 
 const toHumanReadable = (machineString: string): string => {
-    const delimitersToSpaces = machineString.replace(/[_-]/, " ");
+    const delimitersToSpaces = machineString.replace(/[_-]/g, " ");
     const camelcaseToSpaces = delimitersToSpaces.replace(/([A-Z])/g, " $1");
     const fixCaps = camelcaseToSpaces.replace(
         /(?:\s|^)(\w)/g,
@@ -127,7 +127,7 @@ const ValueSetsDetail = () => {
             </Helmet>
             <section className="grid-container">
                 {/* valueSetsDetailHeader would go here */}
-                <h1>{toHumanReadable("valueSetName")}</h1>
+                <h1>{toHumanReadable(valueSetName)}</h1>
                 <ValueSetsDetailTable valueSetName={valueSetName} />
             </section>
         </>
