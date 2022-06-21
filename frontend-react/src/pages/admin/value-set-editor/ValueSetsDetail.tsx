@@ -8,6 +8,7 @@ import Table, {
     TableConfig,
 } from "../../../components/Table/Table";
 import { useValueSetsRowTable } from "../../../hooks/UseLookupTable";
+import { toHumanReadable } from "../../../utils/misc";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -104,16 +105,6 @@ const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
             }}
         />
     );
-};
-
-const toHumanReadable = (machineString: string): string => {
-    const delimitersToSpaces = machineString.replace(/[_-]/g, " ");
-    const camelcaseToSpaces = delimitersToSpaces.replace(/([A-Z])/g, " $1");
-    const fixCaps = camelcaseToSpaces.replace(
-        /(?:\s|^)(\w)/g,
-        (_match: string, capture: string) => ` ${capture.toUpperCase()}`
-    );
-    return fixCaps;
 };
 
 const ValueSetsDetail = () => {
