@@ -90,67 +90,67 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
 
 */
 
-// const defaultValueSetRows = [
-//     {
-//         name: "ethnicity",
-//         display: "American Indian or Alaska Native",
-//         code: "1002-5",
-//         version: "2.5.1",
-//         system: "HL7",
-//     },
-//     {
-//         name: "ethnicity",
-//         display: "Asian",
-//         code: "2028-9",
-//         version: "2.5.4",
-//         system: "Name of org",
-//     },
-//     {
-//         name: "ethnicity",
-//         display: "Black or African American",
-//         code: "2054-5",
-//         version: "2.3.0",
-//         system: "HL7",
-//     },
-// ];
+const saveData = async (
+    row: TableRow | null,
+    allRows: SenderAutomationDataRow[],
+    valueSetName: string
+) => {
+    debugger;
 
-const saveData = async (row: TableRow | null) => {
-    const x: ValueSetRow[] = [
-        {
-            name: "ethnicity",
-            display: row?.display,
-            code: row?.code,
-            version: row?.version,
-        },
-    ];
+    if (row === null) {
+        showError("A null row was encountered in saveData()");
+        return;
+    }
+
+    const index = allRows.findIndex((r) => r.id === row.id);
+    allRows.splice(index, 0, {
+        name: valueSetName,
+        display: row.display,
+        code: row.code,
+        version: row.version,
+    });
+
+    // must strip all the "id" fields from the JSON before posting to the API, otherwise it 400s
+    const strippedArray = allRows.map(
+        (set: {
+            name: string;
+            display: string;
+            code: string;
+            version: string;
+        }) => ({
+            name: set.name,
+            display: set.display,
+            code: set.code,
+            version: set.version,
+        })
+    );
 
     const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow>(
         LookupTables.VALUE_SET_ROW
     );
+
     try {
-        return await axios
-            .post(endpointHeaderUpdate.url, x)
-            // .get<LookupTables.VALUE_SET_ROW>(endpointHeader.url, endpointHeader)
+        let updateResult = await axios
+            .post(endpointHeaderUpdate.url, strippedArray)
+            .then((updateResult) => updateResult.data);
+
+        const endpointHeaderActivate = lookupTableApi.activateTableData(
+            updateResult.tableVersion,
+            LookupTables.VALUE_SET_ROW
+        );
+
+        const activateResult = await axios
+            .put(endpointHeaderActivate.url, LookupTables.VALUE_SET_ROW)
             .then((response) => response.data);
+
+        console.log(activateResult);
+
+        return updateResult;
     } catch (e: any) {
         console.trace(e);
         showError(e.toString());
         return [];
     }
-
-    // const endpointHeaderActivate = lookupTableApi.activateTableData(
-    //     LookupTables.VALUE_SET_ROW
-    // );
-    // try {
-    //     return await axios
-    //         .post(endpointHeader.url, x)
-    //         // .get<LookupTables.VALUE_SET_ROW>(endpointHeader.url, endpointHeader)
-    //         .then((response) => response.data);
-    // } catch (e: any) {
-    //     console.trace(e);
-    //     showError(e.toString());
-    //     return [];
-    // }
 };
 
 interface SenderAutomationDataRow extends ValueSetRow {
@@ -207,13 +207,9 @@ const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
             datasetAction={datasetActionItem}
             config={tableConfig}
             enableEditableRows
-            editableCallback={async (row) => {
-                return await saveData(row);
+            editableCallback={(row) => {
+                return saveData(row, allRows, valueSetName);
             }}
-            // editableCallback={(row) => {
-            //     console.log("!!! saving row", row);
-            //     return Promise.resolve();
-            // }}
         />
     );
 };
