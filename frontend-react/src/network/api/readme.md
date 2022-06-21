@@ -4,32 +4,36 @@
 
 ## Design
 
-The API interface behaves like an iPhone case. It's a shell that we put around `axios` for type 
-safety, configuration simplification and integrity, and to make our configurations easily testable. 
-The idea is that every API should have a base URL (i.e. `/api/test`) and a map of endpoints and their 
-allowed HTTP methods. A consumer hook will handle parsing this, and we will build our API as a set of 
-hooks that utilize the underlying consumer hook.
+The developer experience was center of mind when considering how to structure this module. You, the engineer,
+have two tasks: define your API, and consume its endpoints. For this, your main concerns will be the 
+`API` object type and the `useEndpoint` consumer hook. Everything else is handled under the hood as explained below.
+
+TL;DR:  Create an API, consume the endpoint, and utilize the state/controller in a component.
 
 ## 1. Build an API
 
-To build your API, first, add your API base url to the `ApiBaseUrls` enumerated class in `NewApi.ts`. Then,
-create your `API`-type variable:
+The `API` object houses three key elements needed to use the consumer: your resource, your base URL, and 
+your endpoints. The `resource` can be any "newable" object (i.e. objects instantiated with the `new`
+keyword). We have a `Newable<T>` type available checking this. So long as you supply it a `class`, it will 
+be able to runtime type check your incoming data. Endpoints map is a definition of what endpoints exist for 
+and API, and what methods they can access.
 
 ```typescript
 import {ApiBaseUrls, EndpointMap} from "./NewApi";
 
-const MyEndpoints: EndpointMap = new Map()
+class MyResource {}
 
+const MyEndpoints: EndpointMap = new Map()
 const MyApi: API = {
+    resource: MyResource,
     url: ApiBaseUrls.LOOKUP_TABLES,
     endpoints: MyEndpoints
 }
 ```
 
-## 2. Populate your `EndpointsMap`
-
 Your `Endpoint.url` does not need to include the base URL because `Api.baseUrl` is used when constructing 
-urls. You can define endpoints that use variables in the url using the `:` identifier:
+urls. You can define endpoints that use variables in the url using the `:` identifier, a convention shared 
+with `react-router`, so it should feel familiar. You'll see how to pass data into the URL in the next section.
 
 ```typescript
 MyEndpoints.set(
@@ -43,40 +47,58 @@ MyEndpoints.set(
 )
 ```
 
-## 3. Create the hook consumer
-(blocked by Issue #5557)
+## 2. Consume the endpoint and assign it a proxy hook name
 
-The way we consume and use endpoints is by creating proxy hooks that call out to our underlying consumer 
-hook with a unique configuration.
+The main consumer for an endpoint is `useEndpoint<T,P>`. This hook takes in an API, the endpoint key, 
+and method. To type your response data, use the `T` generic. Additionally, you can pass in a params object, 
+defined by the second generic, labeled `P`. 
 
 ```typescript
+import useEndpoint from "./UseEndpoint";
 
-const useLookupTableDetail = () =>
-    useApi(
+// ONLY GET calls on render
+const useGetLookupTableDetail = (id: number) =>
+    // useEndpoint<D, P> where D is data resource and P is params
+    useEndpoint<MyResource, { id: number }>(
         LookupTableApi, // API definition
         "detail", // Endpoint name (key in api.endpoints map)
         "GET", // Method (is validated with endpoint object first)
-        { id: 123 }, // Any URL variables (i.e. .../:id)
+        { id: id }, // Any URL variables (i.e. .../:id)
     );
 
-const useLookupTableList = () =>
-    useApi(
+// PATCH does not call on render
+const usePatchLookupTableDetail = (id: number) =>
+    useEndpoint<MyResource, { id: number }>(
         LookupTableApi,
-        "list",
-        "GET",
-        {}, // Pass empty object if no url variables
-        { params: { showInactive: true } } // Any other AxiosRequestConfig fields you need
+        "detail",
+        "PATCH",
+        { id: id },
+        { data: { ... } } // Example of passing data using `advancedConfig`
     )
 ```
 
+Notice how our hooks are just calling a hook with some defined parameters. This allows us to keep non-changing 
+data out of our render and state, and only pass in what we need from the component, which in this case would be 
+`id`.
+
 ## 4. Consume and use in components
-(blocked by Issue #5557)
 
 To consume in a component, you can simply call the function and store the object as a variable or 
-destructure the response:
+destructure the response.
 
 ```typescript
-const lookupTableList = useLookupTableList()
-const { data, loading } = useLookupTableList()
+// Standard call
+const response = useGetLookupTableDetail(123)
+// or destructured call
+const { data, loading, error } = useGetLookupTableDetail(123)
+```
 
+If you are using a non-`GET` method, you can destructure another attribute, a function called `trigger`,
+from your API call to trigger these through any interface.
+
+```typescript jsx
+const { data, loading, error, trigger } = usePostLookupTableDetails(123)
+return (
+    <button onClick={() => trigger()}>Add</button>
+)
 ```
