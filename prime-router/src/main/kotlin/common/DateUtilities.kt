@@ -41,6 +41,8 @@ object DateUtilities {
         "[uuuuMMddHHmmss[.SSS]Z][uuuuMMddHHmm[.SSS]Z]" +
         // ISO-ish date time format, optional seconds, optional 'Z', and optional offset
         "[uuuu-MM-dd'T'HH:mm[:ss]['Z'][xxx]]" +
+        "[uuuu-MM-dd'T'HH:mm[:ss][.S[S][S]]['Z'][xxx]]" +
+        "[uuuu-MM-dd'T'HH:mm[:ss][.nnnn]['Z'][xxx]]" +
         "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]" +
         "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]" +
         "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]" +
@@ -55,11 +57,14 @@ object DateUtilities {
         "[uuuuMMddHHmmss[.nnnn][Z]][uuuuMMddHHmm[.nnnn][Z]]",
         "[uuuuMMddHHmmss[.SSS][Z]][uuuuMMddHHmm[.SSS][Z]]",
         "[uuuu-MM-dd'T'HH:mm[:ss]['Z'][xxx]]",
+        "[uuuu-MM-dd'T'HH:mm[:ss][.S[S][S]]['Z']]",
+        "[uuuu-MM-dd'T'HH:mm[:ss][.nnnn]['Z'][xxx]]",
         "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]",
         "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]",
-        "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]",
         "[yyyy/M/d[ H:mm[:ss[.S[S][S]]]]]",
-        "yyyy-MM-dd", "yyyy-dd-MM", "MMdduuuu", "uuuuMMdd"
+        "yyyy-MM-dd", "yyyy-dd-MM", "MMdduuuu", "uuuuMMdd",
+        "M/d/yy[ H:mm[:ss]]",
+        "[M/d/yyyy[ H:mm[:ss[.S[S][S]]]]]",
     )
 
     /** A simple date formatter */
@@ -137,6 +142,11 @@ object DateUtilities {
         } catch (t: Throwable) {
             // our variable pattern has failed. let's try each one-by-one. if none of them
             // work, throw an error
+            if (dateValue.indexOf('Z', ignoreCase = true) > -1) {
+                val isoDate = tryParseIsoDate(dateValue)
+                if (isoDate != null)
+                    return isoDate.toOffsetDateTime(utcZone)
+            }
             allowedDateFormats.forEach { format ->
                 val parsedDate = parseDate(dateValue, format)
                 if (parsedDate != null) return parsedDate
@@ -158,6 +168,14 @@ object DateUtilities {
                     Instant::from,
                 )
         } catch (_: Throwable) {
+            null
+        }
+    }
+
+    fun tryParseIsoDate(dateValue: String): TemporalAccessor? {
+        return try {
+            Instant.parse(dateValue)
+        } catch (_: DateTimeParseException) {
             null
         }
     }
@@ -377,7 +395,8 @@ object DateUtilities {
                 OffsetDateTime
                     .from(this.atZone(zoneId ?: utcZone))
                     .toOffsetDateTime()
-            is OffsetDateTime, is ZonedDateTime, is Instant -> OffsetDateTime.from(this)
+            is Instant -> OffsetDateTime.from(this.atZone(zoneId ?: utcZone)).toOffsetDateTime()
+            is OffsetDateTime, is ZonedDateTime -> OffsetDateTime.from(this)
             else -> error("Unsupported format!")
         }
     }
