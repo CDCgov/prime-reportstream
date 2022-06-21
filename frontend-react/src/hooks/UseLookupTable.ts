@@ -78,16 +78,30 @@ export async function getLatestData<T>(
     }
 }
 
-export const getSenderAutomationData = async <T>(
+const getDataAndVersion = async <T>(
     tableName: LookupTables
-): Promise<any[]> => {
+): Promise<{
+    data: any[];
+    versionData: TableAttributes | null;
+}> => {
     const versionData = await getLatestVersion(tableName);
-    if (versionData === null) return []; // no version found (or other error occurred)
+    if (versionData === null) return { data: [], versionData: null }; // no version found (or other error occurred)
 
     const data: T | any[] = await getLatestData<T[]>(
         versionData.version,
         tableName
     );
+    return { data, versionData };
+};
+
+export const getSenderAutomationData = async <T>(
+    tableName: LookupTables
+): Promise<any[]> => {
+    const { data, versionData } = await getDataAndVersion<T>(tableName);
+
+    if (!versionData) {
+        return [];
+    }
 
     return data.map(
         (set: {
@@ -109,13 +123,7 @@ export const getSenderAutomationDataRows = async <T>(
     tableName: LookupTables,
     dataSetName: string | null = null
 ): Promise<any[]> => {
-    const versionData = await getLatestVersion(tableName);
-    if (versionData === null) return []; // no version found (or other error occurred)
-
-    const data: T | any[] = await getLatestData<T[]>(
-        versionData.version,
-        tableName
-    );
+    const { data } = await getDataAndVersion<T>(tableName);
 
     return data
         .filter((f) => f.name === dataSetName)
