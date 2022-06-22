@@ -9,14 +9,21 @@ import useLookupTable, {
     getSenderAutomationData,
 } from "./UseLookupTable";
 
-describe("test all hooks and methods", () => {
+describe("useLookupTable and related helper functions", () => {
     beforeAll(() => lookupTableServer.listen());
     afterEach(() => lookupTableServer.resetHandlers());
     afterAll(() => lookupTableServer.close());
 
-    test("getLatestVersion returns expected version", async () => {
-        const version = await getLatestVersion(LookupTables.VALUE_SET);
-        expect(version).toEqual(2);
+    describe("getLatestVersion", () => {
+        test("getLatestVersion returns expected version and timestampts", async () => {
+            const result = await getLatestVersion(LookupTables.VALUE_SET);
+            expect(result).toBeTruthy();
+            if (!result) return; // I don't like this, as the case is handled in the test above but shrug emoji - DWS
+            const { version, createdAt, createdBy } = result;
+            expect(version).toEqual(2);
+            expect(createdAt).toEqual("now");
+            expect(createdBy).toEqual("test@example.com");
+        });
     });
 
     test("getLatestData returns expected data", async () => {
