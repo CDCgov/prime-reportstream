@@ -67,6 +67,7 @@ resources:
     additionalSegments:
       - .ORC
       - .NTE
+      - .TIMING_QTY.TQ1
       - .OBSERVATION.OBX
       - MSH
       - PATIENT_RESULT.PATIENT.PID

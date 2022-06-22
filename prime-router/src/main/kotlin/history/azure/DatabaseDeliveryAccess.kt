@@ -44,7 +44,7 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = BaseEngine.databas
         klass: Class<T>
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
-        val whereClause = createWhereCondition(organization, orgService, since, until, showFailed)
+        val whereClause = createWhereCondition(organization, orgService, since, until)
 
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
@@ -103,17 +103,15 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = BaseEngine.databas
      * @param orgService is a specifier for an organization, such as the client or service used to send/receive
      * @param since is the OffsetDateTime that dictates how far back returned results date.
      * @param until is the OffsetDateTime that dictates how recently returned results date.
-     * @param showFailed filter out submissions that failed to send.
      * @return a jooq Condition statement to use in where().
      */
     private fun createWhereCondition(
         organization: String,
         orgService: String?,
         since: OffsetDateTime?,
-        until: OffsetDateTime?,
-        showFailed: Boolean
+        until: OffsetDateTime?
     ): Condition {
-        var senderFilter = ACTION.ACTION_NAME.eq(TaskAction.receive)
+        var senderFilter = ACTION.ACTION_NAME.eq(TaskAction.send)
             .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
 
         if (orgService != null) {
@@ -128,16 +126,7 @@ class DatabaseDeliveryAccess(private val db: DatabaseAccess = BaseEngine.databas
             senderFilter = senderFilter.and(ACTION.CREATED_AT.lt(until))
         }
 
-        val failedFilter: Condition = when (showFailed) {
-            true -> {
-                ACTION.HTTP_STATUS.between(200, 600)
-            }
-            false -> {
-                ACTION.HTTP_STATUS.between(200, 299)
-            }
-        }
-
-        return senderFilter.and(failedFilter)
+        return senderFilter
     }
 
     /**

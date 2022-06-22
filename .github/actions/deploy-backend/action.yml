@@ -176,7 +176,7 @@ runs:
           --action Allow \
           --ip-address $RUNNER_IP \
           --priority 750 \
-          > /dev/null 2>&1
+          > /dev/null
       shell: bash
 
     - uses: Azure/functions-container-action@v1
@@ -206,5 +206,5 @@ runs:
         -n ${{ env.FUNCTION_APP }} \
         --slot candidate \
         --rule-name GitHubActionIPV4 \
-        > /dev/null 2>&1
+        > /dev/null 
       shell: bash

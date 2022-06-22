@@ -44,9 +44,11 @@ import SenderModeBanner from "./components/SenderModeBanner";
 import { AdminOrgNew } from "./pages/admin/AdminOrgNew";
 import { DAPHeader } from "./components/header/DAPHeader";
 import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
+import ValueSetsDetail from "./pages/admin/value-set-editor/ValueSetsDetail";
 import SessionProvider from "./contexts/SessionContext";
 import BuiltForYouIndex from "./pages/built-for-you/BuiltForYouIndex";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
+import { AdminLastMileFailures } from "./pages/admin/AdminLastMileFailures";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -214,6 +216,11 @@ const App = () => {
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={InternalUserGuides}
                                 />
+                                <AuthorizedRoute
+                                    path="/admin/lastmile"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={AdminLastMileFailures}
+                                />
                                 <SecureRoute
                                     path="/report-details"
                                     component={Details}
@@ -222,8 +229,14 @@ const App = () => {
                                     path="/admin/features"
                                     component={FeatureFlagUIComponent}
                                 />
-                                <SecureRoute
+                                <AuthorizedRoute
+                                    path={"/admin/value-sets/:valueSetName"}
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={ValueSetsDetail}
+                                />
+                                <AuthorizedRoute
                                     path={"/admin/value-sets"}
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={ValueSetsIndex}
                                 />
                                 {/* Handles any undefined route */}

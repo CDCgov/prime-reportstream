@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from "react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
+import { AccessToken } from "@okta/okta-auth-js";
 
 import useSessionStorage, {
     SessionController,
@@ -12,6 +13,7 @@ import {
 export interface ISessionContext {
     memberships: MembershipController;
     store: SessionController;
+    oktaToken?: AccessToken;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -21,6 +23,7 @@ interface ISessionProviderProps {
 }
 
 export const SessionContext = createContext<ISessionContext>({
+    oktaToken: {} as AccessToken,
     memberships: {} as MembershipController,
     store: {} as SessionController,
 });
@@ -39,6 +42,7 @@ const SessionProvider = ({
     return (
         <SessionContext.Provider
             value={{
+                oktaToken: authState?.accessToken,
                 memberships,
                 store: store,
             }}
