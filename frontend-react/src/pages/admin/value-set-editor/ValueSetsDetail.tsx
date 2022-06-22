@@ -34,11 +34,6 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
         columnHeader: "Version",
         editable: true,
     },
-    {
-        dataAttr: "system",
-        columnHeader: "System",
-        editable: true,
-    },
 ];
 /* 
 
@@ -89,10 +84,6 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
   };
 
 */
-
-const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow>(
-    LookupTables.VALUE_SET_ROW
-);
 
 const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow>(
     LookupTables.VALUE_SET_ROW

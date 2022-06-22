@@ -122,6 +122,7 @@ export const TableRows = ({
 
         const rowToUpdate = updatedRow ? updatedRow : rows[rowToEdit];
         const rowValues = { ...rowToUpdate };
+        console.log("!!!! updating field", rowToUpdate);
         // update the field value in the given row
         rowValues[field] = value;
         setUpdatedRow(rowValues);
