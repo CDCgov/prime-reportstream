@@ -61,6 +61,7 @@ export const AdminDropdown = () => {
         makeNonStaticOption("Organization Settings", "settings"),
         makeNonStaticOption("Feature Flags", "features"),
         makeNonStaticOption("Guides", "guides/create-markdown-pages"),
+        makeNonStaticOption("Last Mile Failures", "lastmile"),
     ];
     if (CheckFeatureFlag("value-sets"))
         pages.push(makeNonStaticOption("Value Sets", "value-sets"));
