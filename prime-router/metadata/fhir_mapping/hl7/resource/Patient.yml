@@ -393,6 +393,19 @@ extension:
           expressionType: resource
           specs: PID.35
 
+    - expressionType: nested
+      generateList: true
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: patient-notes
+        valueAnnotation:
+          valueOf: datatype/Annotation
+          expressionType: resource
+          condition: $annotationText NOT_NULL
+          vars:
+            annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '  \n')
+
 communication:
   condition: $language NOT_NULL
   valueOf: secondary/Communication
