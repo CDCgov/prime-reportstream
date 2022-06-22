@@ -21,7 +21,6 @@ export async function getLatestVersion(
 ): Promise<TableAttributes | null> {
     let response;
     try {
-        debugger;
         response = await axios(lookupTableApi.getTableList()).then(
             (response) => response.data
         );
