@@ -94,6 +94,10 @@ const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow>(
     LookupTables.VALUE_SET_ROW
 );
 
+const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow>(
+    LookupTables.VALUE_SET_ROW
+);
+
 const saveData = async (
     row: TableRow | null,
     allRows: SenderAutomationDataRow[],
