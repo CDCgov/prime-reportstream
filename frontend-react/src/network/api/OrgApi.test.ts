@@ -1,11 +1,6 @@
-import { orgServer } from "../../__mocks__/OrganizationMockServer";
-
 import { orgApi } from "./OrgApi";
 
 describe("Organization API", () => {
-    beforeAll(() => orgServer.listen());
-    afterEach(() => orgServer.resetHandlers());
-    afterAll(() => orgServer.close());
     test("getOrgList", () => {
         const endpoint = orgApi.getOrgList();
         expect(endpoint).toEqual({
