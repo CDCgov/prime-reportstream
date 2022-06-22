@@ -27,6 +27,15 @@ const handlers = [
         );
     }),
     /* Returns a single item by id */
+    rest.get<RSRequestConfig, {}, MyApiItem | any>(
+        "https://test.prime.cdc.gov/api/test/test/:id",
+        (req, res, ctx) => {
+            //@ts-ignore
+            const { id } = req.params || "0";
+            return res(ctx.status(200), ctx.json(new MyApiItem(id)));
+        }
+    ),
+
     rest.post<RSRequestConfig, {}, MyApiItem | any>(
         "https://test.prime.cdc.gov/api/test/test/:id",
         (req, res, ctx) => {
@@ -73,8 +82,25 @@ describe("useRequestConfig", () => {
     beforeAll(() => testServer.listen());
     afterEach(() => testServer.resetHandlers());
     afterAll(() => testServer.close());
+
     test("default render state", () => {
-        const config = createRequestConfig<{ id: number }, MyApiItem>(
+        const getConfig = createRequestConfig<{ id: number }, MyApiItem>(
+            MyApi,
+            "itemById",
+            "GET",
+            "TOKEN",
+            "ORGANIZATION",
+            { id: 3 },
+            { data: { testField: "3" } }
+        ) as RSRequestConfig;
+        const { result: getResult } = renderHook(() =>
+            useRequestConfig<MyApiItem>(getConfig)
+        );
+        expect(getResult.current.data).toBeUndefined();
+        expect(getResult.current.error).toEqual("");
+        expect(getResult.current.loading).toBeTruthy(); // KEY DIFFERENCE
+
+        const postConfig = createRequestConfig<{ id: number }, MyApiItem>(
             MyApi,
             "itemById",
             "POST",
@@ -83,12 +109,12 @@ describe("useRequestConfig", () => {
             { id: 3 },
             { data: { testField: "3" } }
         ) as RSRequestConfig;
-        const { result } = renderHook(() =>
-            useRequestConfig<MyApiItem>(config)
+        const { result: postResult } = renderHook(() =>
+            useRequestConfig<MyApiItem>(postConfig)
         );
-        expect(result.current.data).toBeUndefined();
-        expect(result.current.error).toEqual("");
-        expect(result.current.loading).toBeTruthy();
+        expect(postResult.current.data).toBeUndefined();
+        expect(postResult.current.error).toEqual("");
+        expect(postResult.current.loading).toBeFalsy(); // KEY DIFFERENCE
     });
 
     test("takes GET config and fetches results", async () => {
@@ -124,9 +150,12 @@ describe("useRequestConfig", () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
+        expect(result.current.loading).toBeFalsy();
         act(() => result.current.trigger());
+        expect(result.current.loading).toBeTruthy();
         await waitForNextUpdate();
         expect(result.current.data).toEqual({ testField: "3" });
+        expect(result.current.loading).toBeFalsy();
     });
 
     test("takes PUT config and returns created object", async () => {
@@ -142,9 +171,12 @@ describe("useRequestConfig", () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
+        expect(result.current.loading).toBeFalsy();
         act(() => result.current.trigger());
+        expect(result.current.loading).toBeTruthy();
         await waitForNextUpdate();
         expect(result.current.data).toEqual({ testField: "4" });
+        expect(result.current.loading).toBeFalsy();
     });
 
     test("takes PATCH config and returns updated object", async () => {
@@ -154,15 +186,18 @@ describe("useRequestConfig", () => {
             "PATCH",
             "TOKEN",
             "ORGANIZATION",
-            { id: 4 },
-            { data: { testField: "4" } }
+            { id: 5 },
+            { data: { testField: "5" } }
         ) as RSRequestConfig;
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
+        expect(result.current.loading).toBeFalsy();
         act(() => result.current.trigger());
+        expect(result.current.loading).toBeTruthy();
         await waitForNextUpdate();
-        expect(result.current.data).toEqual({ testField: "4" });
+        expect(result.current.data).toEqual({ testField: "5" });
+        expect(result.current.loading).toBeFalsy();
     });
 
     test("takes DELETE config and returns nothing", async () => {
@@ -172,14 +207,17 @@ describe("useRequestConfig", () => {
             "DELETE",
             "TOKEN",
             "ORGANIZATION",
-            { id: 4 }
+            { id: 6 }
         ) as RSRequestConfig;
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
+        expect(result.current.loading).toBeFalsy();
         act(() => result.current.trigger());
+        expect(result.current.loading).toBeTruthy();
         await waitForNextUpdate();
-        expect(result.current.data).toEqual(undefined);
+        expect(result.current.data).toEqual({});
+        expect(result.current.loading).toBeFalsy();
     });
 
     test("catches server errors", async () => {
@@ -189,16 +227,19 @@ describe("useRequestConfig", () => {
             "DELETE",
             "",
             "ORGANIZATION",
-            { id: 4 }
+            { id: 7 }
         ) as RSRequestConfig;
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
+        expect(result.current.loading).toBeFalsy();
         act(() => result.current.trigger());
+        expect(result.current.loading).toBeTruthy();
         await waitForNextUpdate();
         expect(result.current.error).toEqual(
             "Request failed with status code 401"
         );
+        expect(result.current.loading).toBeFalsy();
     });
 
     test("catches local errors", async () => {
@@ -213,6 +254,7 @@ describe("useRequestConfig", () => {
         const { result } = renderHook(() =>
             useRequestConfig<MyApiItem>(config)
         );
+        expect(result.current.loading).toBeFalsy();
         expect(result.current.data).toBeUndefined();
         expect(result.current.error).toEqual(
             "This call requires data to be passed in"

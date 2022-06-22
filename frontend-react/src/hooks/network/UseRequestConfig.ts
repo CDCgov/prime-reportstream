@@ -45,15 +45,13 @@ const useRequestConfig = <D>(
     /* Increments trigger to trigger axios call */
     const trigger = useCallback(() => {
         setTriggerCall(triggerCall + 1);
+        // Temp solution for loading state on trigger
+        setLoading(true);
     }, [triggerCall]);
     const [data, setData] = useState<D | undefined>();
     const [error, setError] = useState<string>("");
     /* Maintains loading state by looking for whether data or and error are
-     * passed back by the useRequestConfig hook
-     *
-     * TODO: Fix this behavior to take into account non-GET loading sequences, too.
-     *  For any non-GET, loading should be false until a call is triggered, then set
-     *  to true, and back to false once a response is recieved. */
+     * passed back by the useRequestConfig hook */
     const [loading, setLoading] = useState<boolean>(true);
     useEffect(() => {
         if (data !== undefined || error !== "") {
@@ -79,13 +77,16 @@ const useRequestConfig = <D>(
                 throw Error("This call requires data to be passed in");
             }
             /* API fetch */
-            if (onlyCallOnTrigger(config) && triggerCall < 1) return;
+            if (onlyCallOnTrigger(config) && triggerCall < 1) {
+                setLoading(false);
+                return;
+            }
             axios(config)
                 .then((res) => {
                     /* This is pretty opinionated on how WE handle deletes.
                      * It might benefit from a refactor later on. */
                     if (deletesData(config.method) && subscribed) {
-                        setData(undefined);
+                        setData({} as D);
                     } else if (subscribed) {
                         setData(res.data);
                     }
@@ -98,6 +99,7 @@ const useRequestConfig = <D>(
                     }
                 });
         } catch (e: any) {
+            setLoading(false);
             setData(undefined);
             setError(e.message);
             console.error(e.message);
