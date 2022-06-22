@@ -107,7 +107,6 @@ const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
     );
 };
 
-
 const ValueSetsDetail = () => {
     const { valueSetName } = useParams<{ valueSetName: string }>();
     // TODO: fetch the value set from the API
@@ -125,3 +124,5 @@ const ValueSetsDetail = () => {
         </>
     );
 };
+
+export default ValueSetsDetail;
