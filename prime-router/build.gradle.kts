@@ -29,7 +29,7 @@ import java.util.Properties
 
 plugins {
     kotlin("jvm") version "1.6.21"
-    id("org.flywaydb.flyway") version "8.5.8"
+    id("org.flywaydb.flyway") version "8.5.13"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
@@ -658,7 +658,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.26.0")
-    implementation("com.azure:azure-core-http-netty:1.11.8")
+    implementation("com.azure:azure-core-http-netty:1.12.2")
     implementation("com.azure:azure-storage-blob:12.14.4") {
         exclude(group = "com.azure", module = "azure-core")
     }
