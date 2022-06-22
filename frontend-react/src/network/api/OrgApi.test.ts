@@ -1,25 +1,6 @@
-import {
-    MembershipController,
-    MembershipSettings,
-} from "../../hooks/UseOktaMemberships";
-import { SessionController } from "../../hooks/UseSessionStorage";
 import { orgServer } from "../../__mocks__/OrganizationMockServer";
 
 import { orgApi } from "./OrgApi";
-
-const mockSession = {
-    oktaToken: {
-        accessToken: "TOKEN",
-    },
-    memberships: {
-        state: {
-            active: {
-                parsedName: "ORGANIZATION",
-            } as MembershipSettings,
-        },
-    } as MembershipController,
-    store: {} as SessionController,
-};
 
 describe("Organization API", () => {
     beforeAll(() => orgServer.listen());
