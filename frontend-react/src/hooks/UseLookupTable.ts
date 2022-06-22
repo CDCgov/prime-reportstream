@@ -21,6 +21,7 @@ export async function getLatestVersion(
 ): Promise<TableAttributes | null> {
     let response;
     try {
+        debugger;
         response = await axios(lookupTableApi.getTableList()).then(
             (response) => response.data
         );
@@ -28,11 +29,7 @@ export async function getLatestVersion(
         let filteredBody: LookupTable[] = response.filter(
             (tv: LookupTable) => tv.tableName === tableName && tv.isActive
         );
-        if (filteredBody.length === 0) {
-            filteredBody = response.filter(
-                (tv: LookupTable) => tv.tableName === tableName
-            );
-        }
+
         const table: LookupTable = filteredBody.sort(
             (a: LookupTable, b: LookupTable) =>
                 b["tableVersion"] - a["tableVersion"]
