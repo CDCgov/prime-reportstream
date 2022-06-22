@@ -38,8 +38,9 @@ const TransitionBanner = () => {
                     You’ll still have access to your{" "}
                     <NavLink to="/submissions">CSV submission history </NavLink>{" "}
                     through your ReportStream user account{" "}
-                    <b>October 18, 2022</b>. We encourage you to download your
-                    data before then.
+                    <b>for three months</b> after the transition of the CSV
+                    uploader. We encourage you to download your data before
+                    then.
                 </li>
                 <li className="margin-bottom-2">
                     If you need assistance or have questions, please reach out
