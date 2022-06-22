@@ -106,37 +106,53 @@ Once your az cli has been authenticated, you can proceed with the terraform comm
 ## Example Create
 
 ```bash
-env=demo1
+env=demo2
+path='operations/app/terraform/vars/demo'
 
-terraform -chdir=operations/app/terraform/vars/demo init \
+terraform -chdir=$path init \
+-reconfigure \
 -var-file=$env/env.tfvars.json \
 -backend-config=$env/env.tfbackend
 
-terraform -chdir=operations/app/terraform/vars/demo apply \
+for i in {1..3}; do \
+terraform -chdir=$path apply \
 -target=module.init \
 -var-file=$env/env.tfvars.json \
--auto-approve
+-auto-approve; \
+sleep 30; \
+done
 
-terraform -chdir=operations/app/terraform/vars/demo apply \
+echo "init complete"
+
+for i in {1..3}; do \
+terraform -chdir=$path apply \
 -var-file=$env/env.tfvars.json \
--auto-approve
+-auto-approve; \
+sleep 60; \
+done
+
+echo "apply complete"
+
 ```
 
 ## Example Destroy
 
 ```bash
-rg=demo
-env=demo1
+env=demo2
+path='operations/app/terraform/vars/demo'
 
-terraform -chdir=operations/app/terraform/vars/$rg destroy \
+for i in {1..3}; do \
+terraform -chdir=$path destroy \
 -var-file=$env/env.tfvars.json \
 -refresh=false \
--auto-approve
+-auto-approve; \
+sleep 30; \
+done
 
-resources="$(az resource list --resource-group "prime-data-hub-$rg" --query "[?!(contains(name, 'terraform'))]" \
+resources="$(az resource list --resource-group "prime-data-hub-$env" --query "[?!(contains(name, 'terraform'))]" \
 | grep id | awk -F \" '{print $4}')"
 
-for id in "$resources"; do az resource delete --resource-group "prime-data-hub-$rg" --ids "$id" --verbose; done
+for id in "$resources"; do az resource delete --resource-group "prime-data-hub-$env" --ids "$id" --verbose; done
 
 ```
 

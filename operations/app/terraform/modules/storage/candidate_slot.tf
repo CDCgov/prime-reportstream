@@ -121,7 +121,7 @@ resource "azurerm_storage_management_policy" "retention_policy_candidate" {
 
     actions {
       dynamic "base_blob" {
-        for_each = var.temp_env == false ? ["enabled"] : []
+        for_each = var.is_temp_env == false ? ["enabled"] : []
         content {
           delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
         }
@@ -246,7 +246,7 @@ resource "azurerm_storage_management_policy" "storage_candidate_partner_retentio
 
     actions {
       dynamic "base_blob" {
-        for_each = var.temp_env == false ? ["enabled"] : []
+        for_each = var.is_temp_env == false ? ["enabled"] : []
         content {
           delete_after_days_since_modification_greater_than = 30
         }

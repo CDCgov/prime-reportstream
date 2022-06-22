@@ -49,7 +49,7 @@ variable "delete_pii_storage_after_days" {
   description = "Number of days after which we'll delete PII-related blobs from the storage account"
 }
 
-variable "temp_env" {
+variable "is_temp_env" {
   default     = false
   description = "Is a temporary environment. true or false"
 }

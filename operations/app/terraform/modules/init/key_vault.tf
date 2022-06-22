@@ -35,7 +35,7 @@ locals {
 resource "azurerm_key_vault" "init" {
   for_each = toset(["appconfig", "keyvault"])
 
-  name                            = "${var.resource_prefix}-${each.value}"
+  name                            = "${var.resource_prefix}-${each.value}${var.random_id}"
   location                        = var.location
   resource_group_name             = var.resource_group
   sku_name                        = "premium"
@@ -44,10 +44,11 @@ resource "azurerm_key_vault" "init" {
   enabled_for_disk_encryption     = true
   enabled_for_template_deployment = true
   purge_protection_enabled        = false
+  soft_delete_retention_days      = 7
 
   network_acls {
     bypass         = "AzureServices"
-    default_action = "Deny"
+    default_action = "Allow"
 
     ip_rules = var.terraform_caller_ip_address
 
@@ -86,7 +87,8 @@ resource "azurerm_key_vault" "init" {
   }
 
   depends_on = [
-    azurerm_virtual_network.init
+    azurerm_virtual_network.init,
+    module.subnets
   ]
 
   tags = {

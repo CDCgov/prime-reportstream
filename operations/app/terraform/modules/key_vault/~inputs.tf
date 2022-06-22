@@ -28,7 +28,7 @@ variable "admin_function_app" {
   description = "Admin function app"
 }
 
-variable "temp_env" {
+variable "is_temp_env" {
   default     = false
   description = "Is a temporary environment. true or false"
 }

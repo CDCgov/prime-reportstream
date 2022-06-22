@@ -27,7 +27,7 @@ provider "azurerm" {
       recover_soft_deleted_key_vaults = false
       // Required to purge secret. Will cause error since need sub purge KV permissions.
       // Solution available in azurerm 3.0 https://github.com/hashicorp/terraform-provider-azurerm/issues/10273
-      purge_soft_delete_on_destroy = true
+      purge_soft_delete_on_destroy = false
     }
     log_analytics_workspace {
       permanently_delete_on_destroy = true

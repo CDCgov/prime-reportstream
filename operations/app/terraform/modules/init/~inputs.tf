@@ -15,3 +15,8 @@ variable "application_kv_name" {}
 variable "dns_vnet" {}
 variable "client_config_kv_name" {}
 variable "network" {}
+variable "subnets" {
+  default     = ""
+  description = "A set of all available subnet combinations"
+}
+variable "random_id" {}

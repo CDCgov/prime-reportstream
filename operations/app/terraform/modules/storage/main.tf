@@ -51,7 +51,7 @@ resource "time_sleep" "wait_300_seconds" {
 resource "azurerm_storage_account_network_rules" "storage_account" {
   storage_account_id = azurerm_storage_account.storage_account.id
 
-  default_action             = "Deny"
+  default_action             = var.is_temp_env == true ? "Allow" : "Deny"
   virtual_network_subnet_ids = var.subnets.primary_subnets
   bypass                     = ["AzureServices"]
 
@@ -143,7 +143,7 @@ resource "azurerm_storage_management_policy" "retention_policy" {
 
     actions {
       dynamic "base_blob" {
-        for_each = var.temp_env == false ? ["enabled"] : []
+        for_each = var.is_temp_env == false ? ["enabled"] : []
         content {
           delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
         }
@@ -306,7 +306,7 @@ resource "azurerm_storage_management_policy" "storage_partner_retention_policy" 
 
     actions {
       dynamic "base_blob" {
-        for_each = var.temp_env == false ? ["enabled"] : []
+        for_each = var.is_temp_env == false ? ["enabled"] : []
         content {
           delete_after_days_since_modification_greater_than = 30
         }
