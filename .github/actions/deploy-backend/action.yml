@@ -206,5 +206,5 @@ runs:
         -n ${{ env.FUNCTION_APP }} \
         --slot candidate \
         --rule-name GitHubActionIPV4 \
-        > /dev/null 2>&1
+        > /dev/null 
       shell: bash
