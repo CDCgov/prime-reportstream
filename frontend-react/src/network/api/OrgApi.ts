@@ -1,5 +1,4 @@
 import { Api } from "./Api";
-import { API } from "./NewApi";
 
 export interface Sender {
     name: string;
@@ -58,45 +57,3 @@ class OrgApi extends Api {
 }
 
 export const orgApi = new OrgApi("settings/organizations");
-
-class RSOrganization {
-    name: string;
-    description: string;
-    jurisdiction: string;
-    stateCode: string;
-    countyName: string;
-    filters: Array<OrgFilters>;
-    meta: OrgMeta;
-
-    constructor(
-        name: string,
-        description: string,
-        jurisdiction: string,
-        stateCode: string,
-        countyName: string,
-        filters: Array<OrgFilters>,
-        meta: OrgMeta
-    ) {
-        this.name = name;
-        this.description = description;
-        this.jurisdiction = jurisdiction;
-        this.stateCode = stateCode;
-        this.countyName = countyName;
-        this.filters = filters;
-        this.meta = meta;
-    }
-}
-
-const OrgSettingsApi: API = {
-    resource: RSOrganization,
-    baseUrl: "/api/settings/organizations",
-    endpoints: new Map(),
-};
-OrgSettingsApi.endpoints.set("getOrgList", {
-    url: "/",
-    methods: ["GET"],
-});
-OrgSettingsApi.endpoints.set("getOrgDetail", {
-    url: "/:org",
-    methods: ["GET"],
-});
