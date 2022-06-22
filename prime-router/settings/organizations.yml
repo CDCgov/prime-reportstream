@@ -275,6 +275,17 @@
       schemaName: hl7/hl7-ingest-covid-19-training
       format: HL7
 
+- name: neurolab
+  description: Neurolab
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: neurolab
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
 - name: "naval-health-clinic-lemoore"
   description: "Naval Health Clinic - Lemoore"
   jurisdiction: "FEDERAL"
@@ -2004,7 +2015,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"

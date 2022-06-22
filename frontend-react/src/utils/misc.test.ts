@@ -5,6 +5,7 @@ import {
     getVersionWarning,
     splitOn,
     VersionWarningType,
+    toHumanReadable,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
 
@@ -53,4 +54,18 @@ test("getVersionWarning test", async () => {
 
     const popupWarning = getVersionWarning(VersionWarningType.POPUP);
     expect(popupWarning).toContain("WARNING!");
+});
+
+describe("toHumanReadable", () => {
+    test("fixes up a string delimited by underscores", () => {
+        expect(toHumanReadable("hi_there_people")).toEqual("Hi There People");
+    });
+
+    test("fixes up a string delimited by dashes", () => {
+        expect(toHumanReadable("hi-there-people")).toEqual("Hi There People");
+    });
+
+    test("fixes up a camel case string", () => {
+        expect(toHumanReadable("hiTherePeople")).toEqual("Hi There People");
+    });
 });
