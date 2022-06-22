@@ -1,5 +1,6 @@
 locals {
   environment = "test"
+  address_id  = 5
   init = {
     environment         = local.environment
     location            = "eastus"
@@ -46,7 +47,7 @@ locals {
     terraform_caller_ip_address = ["162.224.209.174", "24.163.118.70", "75.191.122.59"]
     config = {
       "East-vnet" = {
-        "address_space"           = "172.17.5.0/25"
+        "address_space"           = "172.17.${local.address_id}.0/25"
         "dns_servers"             = ["172.17.0.135"]
         "location"                = "East Us"
         "nsg_prefix"              = "eastus-"
@@ -72,7 +73,7 @@ locals {
         ]
       },
       "West-vnet" = {
-        "address_space"           = "172.17.5.128/25"
+        "address_space"           = "172.17.${local.address_id}.128/25"
         "dns_servers"             = ["172.17.0.135"]
         "location"                = "West Us"
         "subnets"                 = ["public", "private", "container"]
