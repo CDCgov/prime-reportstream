@@ -35,20 +35,17 @@ const useEndpoint = <D = any, P = {}>(
     advancedConfig?: AdvancedConfig<D>
 ): EndpointHookResponse<D> => {
     const { oktaToken, memberships } = useSessionContext();
-    const config = useMemo(
-        () =>
-            createRequestConfig(
-                api,
-                endpointKey,
-                method,
-                oktaToken?.accessToken,
-                memberships.state.active?.parsedName,
-                parameters,
-                advancedConfig
-            ),
-        []
+    const { data, error, trigger } = useRequestConfig<D>(
+        createRequestConfig(
+            api,
+            endpointKey,
+            method,
+            oktaToken?.accessToken,
+            memberships.state.active?.parsedName,
+            parameters,
+            advancedConfig
+        )
     );
-    const { data, error, trigger } = useRequestConfig<D>(config);
     /* Maintains loading state by looking for whether data or and error are
      * passed back by the useRequestConfig hook */
     const [loading, setLoading] = useState<boolean>(true);

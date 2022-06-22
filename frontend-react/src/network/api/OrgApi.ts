@@ -1,5 +1,3 @@
-import useEndpoint from "../../hooks/network/UseEndpoint";
-
 import { Api } from "./Api";
 import { API } from "./NewApi";
 
@@ -36,30 +34,30 @@ export interface Organization {
     meta: OrgMeta;
 }
 
-export class RSSender {
-    name: string;
-    organizationName: string;
-    format: "CSV" | "HL7";
-    topic: string;
-    customerStatus: "inactive" | "testing" | "active";
-    schemaName: string;
+class OrgApi extends Api {
+    getOrgList = () => {
+        return this.configure<Organization[]>({
+            method: "GET",
+            url: this.basePath,
+        });
+    };
 
-    constructor(
-        name: string,
-        organizationName: string,
-        format: "CSV" | "HL7",
-        topic: string,
-        customerStatus: "inactive" | "testing" | "active",
-        schemaName: string
-    ) {
-        this.name = name;
-        this.organizationName = organizationName;
-        this.format = format;
-        this.topic = topic;
-        this.customerStatus = customerStatus;
-        this.schemaName = schemaName;
-    }
+    getOrgDetail = (oktaGroup: string) => {
+        return this.configure<Organization>({
+            method: "GET",
+            url: `${this.basePath}/${oktaGroup}`,
+        });
+    };
+
+    getSenderDetail = (oktaGroup: string, sender: string) => {
+        return this.configure<Sender>({
+            method: "GET",
+            url: `${this.basePath}/${oktaGroup}/senders/${sender}`,
+        });
+    };
 }
+
+export const orgApi = new OrgApi("settings/organizations");
 
 class RSOrganization {
     name: string;
@@ -102,49 +100,3 @@ OrgSettingsApi.endpoints.set("getOrgDetail", {
     url: "/:org",
     methods: ["GET"],
 });
-
-const SenderApi: API<RSSender> = {
-    resource: RSSender,
-    baseUrl: "/api/settings/organizations",
-    endpoints: new Map(),
-};
-SenderApi.endpoints.set("getSenderDetail", {
-    url: "/:org/senders/:sender",
-    methods: ["GET"],
-});
-
-class OrgApi extends Api {
-    getOrgList = () => {
-        return this.configure<Organization[]>({
-            method: "GET",
-            url: this.basePath,
-        });
-    };
-
-    getOrgDetail = (oktaGroup: string) => {
-        return this.configure<Organization>({
-            method: "GET",
-            url: `${this.basePath}/${oktaGroup}`,
-        });
-    };
-
-    getSenderDetail = (oktaGroup: string, sender: string) => {
-        return this.configure<Sender>({
-            method: "GET",
-            url: `${this.basePath}/${oktaGroup}/senders/${sender}`,
-        });
-    };
-}
-
-const useGetSenderDetail = (org: string, sender: string) =>
-    useEndpoint<RSSender, { org: string; sender: string }>(
-        SenderApi,
-        "getSenderDetail",
-        "GET",
-        { org, sender }
-    ) as {
-        data: RSSender | undefined;
-    };
-
-export const orgApi = new OrgApi("settings/organizations");
-export { useGetSenderDetail };

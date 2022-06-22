@@ -1,10 +1,20 @@
 import { renderHook } from "@testing-library/react-hooks";
 
-import { orgServer, testSender } from "../__mocks__/OrganizationMockServer";
+import { Sender } from "../network/api/OrgApi";
+import { orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
 import useSenderMode from "./UseSenderMode";
 import { MemberType } from "./UseOktaMemberships";
+
+export const dummySender: Sender = {
+    name: "testSender",
+    organizationName: "testOrg",
+    format: "CSV",
+    topic: "covid-19",
+    customerStatus: "testing",
+    schemaName: "test/covid-19-test",
+};
 
 describe("useSenderMode", () => {
     beforeAll(() => orgServer.listen());
@@ -27,6 +37,6 @@ describe("useSenderMode", () => {
             useSenderMode("testOrg", "testSender")
         );
         await waitForNextUpdate();
-        expect(result.current).toEqual(testSender.customerStatus);
+        expect(result.current).toEqual(dummySender.customerStatus);
     });
 });
