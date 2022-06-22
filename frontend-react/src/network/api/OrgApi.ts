@@ -87,7 +87,7 @@ class RSOrganization {
     }
 }
 
-const OrgSettingsApi: API<RSOrganization> = {
+const OrgSettingsApi: API = {
     resource: RSOrganization,
     baseUrl: "/api/settings/organizations",
     endpoints: new Map(),

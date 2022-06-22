@@ -11,8 +11,8 @@ export interface Endpoint {
 export type EndpointMap = Map<string, Endpoint>;
 
 /* Declaration of an API */
-export interface API<T = {}> {
-    resource: Newable<T>; // Resource class
+export interface API {
+    resource: Newable<any>; // Resource class
     baseUrl: string;
     endpoints: EndpointMap;
 }

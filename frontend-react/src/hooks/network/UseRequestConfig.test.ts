@@ -88,6 +88,7 @@ describe("useRequestConfig", () => {
         );
         expect(result.current.data).toBeUndefined();
         expect(result.current.error).toEqual("");
+        expect(result.current.loading).toBeTruthy();
     });
 
     test("takes GET config and fetches results", async () => {
@@ -101,11 +102,13 @@ describe("useRequestConfig", () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useRequestConfig<MyApiItem[]>(config)
         );
+        expect(result.current.loading).toBeTruthy();
         await waitForNextUpdate();
         expect(result.current.data).toEqual([
             { testField: "1" },
             { testField: "2" },
         ]);
+        expect(result.current.loading).toBeFalsy();
     });
 
     test("takes POST config and returns created object", async () => {

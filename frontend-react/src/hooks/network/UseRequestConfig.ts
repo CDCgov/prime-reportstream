@@ -7,6 +7,7 @@ import { SimpleError } from "../../utils/UsefulTypes";
 export interface RequestHookResponse<D> {
     data: D | D[] | undefined;
     error: string;
+    loading: boolean;
     trigger: () => void;
 }
 
@@ -47,6 +48,20 @@ const useRequestConfig = <D>(
     }, [triggerCall]);
     const [data, setData] = useState<D | undefined>();
     const [error, setError] = useState<string>("");
+    /* Maintains loading state by looking for whether data or and error are
+     * passed back by the useRequestConfig hook
+     *
+     * TODO: Fix this behavior to take into account non-GET loading sequences, too.
+     *  For any non-GET, loading should be false until a call is triggered, then set
+     *  to true, and back to false once a response is recieved. */
+    const [loading, setLoading] = useState<boolean>(true);
+    useEffect(() => {
+        if (data !== undefined || error !== "") {
+            setLoading(false);
+        } else {
+            setLoading(true);
+        }
+    }, [data, error]);
 
     /* Fetches the data whenever the config passed in is changed.
      * To trigger a re-call, use the API controller provided from
@@ -95,6 +110,7 @@ const useRequestConfig = <D>(
     return {
         data,
         error,
+        loading,
         trigger,
     };
 };

@@ -7,7 +7,7 @@ export class MyApiItem {
     }
 }
 
-export const MyApi: API<MyApiItem> = {
+export const MyApi: API = {
     resource: MyApiItem,
     baseUrl: "/api/test",
     endpoints: new Map([
