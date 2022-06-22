@@ -68,7 +68,7 @@ class DeliveryFunction(
     /**
      * Get expanded details for a single report
      *
-     * @param request HTTP Request params
+     * @param request HTTP Request to extract parameters from
      * @param action Action from which the data for the delivery is loaded
      * @return
      */
