@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -90,20 +90,22 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
 
 */
 
+const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow>(
+    LookupTables.VALUE_SET_ROW
+);
+
 const saveData = async (
     row: TableRow | null,
     allRows: SenderAutomationDataRow[],
     valueSetName: string
 ) => {
-    debugger;
-
     if (row === null) {
         showError("A null row was encountered in saveData()");
         return;
     }
 
     const index = allRows.findIndex((r) => r.id === row.id);
-    allRows.splice(index, 0, {
+    allRows.splice(index, 1, {
         name: valueSetName,
         display: row.display,
         code: row.code,
@@ -125,14 +127,14 @@ const saveData = async (
         })
     );
 
-    const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow>(
-        LookupTables.VALUE_SET_ROW
-    );
+    console.log("!!! updated rows", strippedArray.slice(index - 2, index + 2));
 
     try {
         let updateResult = await axios
             .post(endpointHeaderUpdate.url, strippedArray)
             .then((updateResult) => updateResult.data);
+
+        console.log("!!! updateResult", updateResult);
 
         const endpointHeaderActivate = lookupTableApi.activateTableData(
             updateResult.tableVersion,
@@ -143,9 +145,9 @@ const saveData = async (
             .put(endpointHeaderActivate.url, LookupTables.VALUE_SET_ROW)
             .then((response) => response.data);
 
-        console.log(activateResult);
+        console.log("!!! activateResult", activateResult);
 
-        return updateResult;
+        return activateResult;
     } catch (e: any) {
         console.trace(e);
         showError(e.toString());
@@ -186,12 +188,24 @@ const prepareRows = (
 };
 
 const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
-    const valueSetRowArray = useValueSetsRowTable(valueSetName);=
-
-    const { allRows, rowsForDisplay } = prepareRows(
-        valueSetRowArray,
-        valueSetName
+    const [valueSetRows, setValueSetRows] = useState<ValueSetRow[]>(
+        [] as ValueSetRow[]
     );
+    const [valueSetsVersion, setValueSetVersion] = useState<number>();
+
+    const valueSetRowArray = useValueSetsRowTable(
+        valueSetName,
+        valueSetsVersion
+    );
+
+    useEffect(() => {
+        console.log("!!! setting rows from fetch", valueSetRowArray);
+        setValueSetRows(valueSetRowArray);
+    }, [valueSetRowArray]);
+
+    const { allRows, rowsForDisplay } = useMemo(() => {
+        return prepareRows(valueSetRows, valueSetName);
+    }, [valueSetRows, valueSetName]);
 
     const tableConfig: TableConfig = {
         columns: valueSetDetailColumnConfig,
@@ -207,8 +221,10 @@ const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
             datasetAction={datasetActionItem}
             config={tableConfig}
             enableEditableRows
-            editableCallback={(row) => {
-                return saveData(row, allRows, valueSetName);
+            editableCallback={async (row) => {
+                const data = await saveData(row, allRows, valueSetName);
+                console.log("!!! saved data", data);
+                setValueSetVersion(data.tableVersion);
             }}
         />
     );
