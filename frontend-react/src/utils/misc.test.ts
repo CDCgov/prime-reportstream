@@ -6,6 +6,7 @@ import {
     getVersionWarning,
     splitOn,
     VersionWarningType,
+    toHumanReadable,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
 
@@ -67,4 +68,18 @@ test("formatDate test", () => {
 
     console.error = jest.fn(); // we KNOW the next call complains with a console.error(). don't let it stop the test
     expect(formatDate("bad date")).toBe("bad date");
+});
+
+describe("toHumanReadable", () => {
+    test("fixes up a string delimited by underscores", () => {
+        expect(toHumanReadable("hi_there_people")).toEqual("Hi There People");
+    });
+
+    test("fixes up a string delimited by dashes", () => {
+        expect(toHumanReadable("hi-there-people")).toEqual("Hi There People");
+    });
+
+    test("fixes up a camel case string", () => {
+        expect(toHumanReadable("hiTherePeople")).toEqual("Hi There People");
+    });
 });
