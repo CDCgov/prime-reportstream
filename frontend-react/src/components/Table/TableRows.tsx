@@ -120,7 +120,7 @@ export const TableRows = ({
             return;
         }
 
-        const rowToUpdate = rowsToDisplay[rowToEdit];
+        const rowToUpdate = updatedRow ? updatedRow : rows[rowToEdit];
         const rowValues = { ...rowToUpdate };
         // update the field value in the given row
         rowValues[field] = value;
