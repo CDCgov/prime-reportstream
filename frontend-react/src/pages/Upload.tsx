@@ -25,14 +25,15 @@ const TransitionBanner = () => {
     return (
         <Alert
             type="info"
-            heading="CVS uploader will be moving to SimpleReport"
+            heading="CSV uploader will be moving to SimpleReport"
             headingLevel="h4"
         >
             <ul>
                 <li className="margin-y-2">
                     Starting <b>July 18, 2022</b>, the CSV uploader feature will
                     no longer be available from the ReportStream web portal and
-                    will be moving to our sister product, SimpleReport.
+                    will be moving to our sister product,{" "}
+                    <a href="https://www.simplereport.gov/">SimpleReport</a>.
                 </li>
                 <li className="margin-bottom-2">
                     You’ll still have access to your{" "}
