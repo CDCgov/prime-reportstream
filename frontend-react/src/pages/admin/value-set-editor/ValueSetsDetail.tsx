@@ -127,7 +127,7 @@ const saveData = async (
     try {
         let updateResult = await axios
             .post(endpointHeaderUpdate.url, strippedArray)
-            .then((updateResult) => updateResult.data);
+            .then((response) => response.data);
 
         console.log("!!! updateResult", updateResult);
 
