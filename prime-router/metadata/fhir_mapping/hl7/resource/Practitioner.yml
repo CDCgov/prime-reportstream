@@ -54,4 +54,18 @@ extension_2:
       valueOf: datatype/ContactPoint
       expressionType: resource
       specs: $contactSpec
-  
+
+extension_3:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: identifier-type
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept_var
+      expressionType: resource
+      vars:
+        code: String, XCN.13
+      constants:
+        system: v2-0203

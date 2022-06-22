@@ -78,7 +78,7 @@ issued:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: OBR.22 | OBX.19
+    dateTimeIn: OBX.19
 
 valueString:
   condition: $obx2 EQUALS ST
@@ -232,12 +232,29 @@ performer_1:
   valueOf: resource/PractitionerRole
   generateList: true
   expressionType: reference
-  specs: OBX.16
   vars:
     rolePractitioner: OBX.16
+    roleOrganization: OBX.23
+    roleOrganizationAddress: OBX.24
+  constants:
+    code: responsibleObserver
+    system: http://terminology.hl7.org/CodeSystem/practitioner-role
 
 performer_2:
-  condition: $performerValue2 NOT_NULL and $orgContactXCN NULL
+  condition: $rolePractitioner NOT_NULL
+  valueOf: resource/PractitionerRole
+  generateList: true
+  expressionType: reference
+  vars:
+    rolePractitioner: OBX.25
+    roleOrganization: OBX.23
+    roleOrganizationAddress: OBX.24
+  constants:
+    code: MDIR
+    system: v2-0912
+
+performer_3:
+  condition: $performerValue2 NOT_NULL && $orgContactXCN NULL
   valueOf: resource/Organization
   generateList: true
   expressionType: reference

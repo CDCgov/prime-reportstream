@@ -112,6 +112,9 @@
 # Generic text
 - id: "text"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/text"
+# Original text
+- id: "original-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/original-text"
 # Alternate identifier
 - id: "alternate-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier"
@@ -151,3 +154,6 @@
 # Coding system
 - id: "coding-system"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system"
+# Identifier type
+- id: "identifier-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type"

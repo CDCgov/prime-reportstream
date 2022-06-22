@@ -85,5 +85,6 @@ extension_1:
         code: String, CE.4 | CWE.4
         display: String, CE.5 | CWE.5
         system: String, CE.6 | CWE.6
-        version: String, CE.7 | CWE.7
-        alternateVersion: String, CE.8 | CWE.8
+        version: String, CWE.7
+        alternateVersion: String, CWE.8
+        originalText: String, CWE.9

@@ -15,10 +15,15 @@ practitioner:
     addressSpec: $rolePractitionerAddress
 
 organization:
-  condition: $practitioner NOT_NULL
+  condition: $rolePractitioner NOT_NULL
   valueOf: resource/Organization
   expressionType: reference
   specs: $roleOrganization
   vars:
     orgAddressXAD: $roleOrganizationAddress
     orgContactPointXTN: $roleOrganizationPhone
+
+code:
+  valueOf: datatype/CodeableConcept_var
+  expressionType: resource
+  generateList: true
