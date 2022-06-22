@@ -19,8 +19,10 @@ describe("useLookupTable and related helper functions", () => {
             const result = await getLatestVersion(LookupTables.VALUE_SET);
             expect(result).toBeTruthy();
             if (!result) return; // I don't like this, as the case is handled in the test above but shrug emoji - DWS
-            const version = result;
+            const { version, createdAt, createdBy } = result;
             expect(version).toEqual(2);
+            expect(createdAt).toEqual("now");
+            expect(createdBy).toEqual("test@example.com");
         });
     });
 
