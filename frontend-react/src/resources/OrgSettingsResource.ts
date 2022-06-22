@@ -28,14 +28,17 @@ export default class OrgSettingsResource extends OrgSettingsBaseResource {
         return `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${params.orgname}`;
     }
 
+    /**
+     * Used by filter edit box ui to show only matched elements.
+     * Allows some data to be excluded or cleaned up
+     * @param search {string}
+     */
     filterMatch(search: string | null): boolean {
         if (!search) {
             // no search returns EVERYTHING
             return true;
         }
-        // experimenting with matching.
-        // combine all the search terms, split into words, prefix match
-        // COULD include deeper meta data to search? we'd have to flatten the array of objects
+        // combine all elements to be searched.
         const fullstr =
             `${this.name} ${this.description} ${this.jurisdiction} ${this.stateCode} ${this.stateCode}`.toLowerCase();
         return fullstr.includes(`${search.toLowerCase()}`);
