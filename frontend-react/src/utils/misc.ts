@@ -92,3 +92,21 @@ export function getVersionWarning(
 
     return "";
 }
+
+/* 
+  for strings in machine readable form:
+    * camel cased
+    * inconsistent caps
+    * whitespace deliminted by - or _
+  
+  translate into normal human readable strings with all words capitalized
+*/
+export const toHumanReadable = (machineString: string): string => {
+    const delimitersToSpaces = machineString.replace(/[_-]/g, " ");
+    const camelcaseToSpaces = delimitersToSpaces.replace(/([A-Z])/g, " $1");
+    const fixCaps = camelcaseToSpaces.replace(
+        /(?:\s|^)(\w)/g,
+        (_match: string, capture: string) => ` ${capture.toUpperCase()}`
+    );
+    return fixCaps.trim();
+};
