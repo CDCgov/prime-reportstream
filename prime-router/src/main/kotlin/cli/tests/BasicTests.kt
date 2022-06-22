@@ -633,7 +633,7 @@ class QualityFilter : CoolTest() {
         history: DetailedSubmissionHistory
     ): Boolean {
         try {
-            val reportId = history.id
+            val reportId = history.reportId
             echo("Id of submitted report: $reportId")
             val destinations = history.destinations
             for (destination in destinations) {

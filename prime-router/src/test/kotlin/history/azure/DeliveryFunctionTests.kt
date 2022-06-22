@@ -77,7 +77,6 @@ class DeliveryFunctionTests : Logging {
         val expires: OffsetDateTime,
         val receivingOrg: String,
         val receivingOrgSvc: String,
-        val httpStatus: Int,
         val reportId: String,
         val topic: String,
         val reportItemCount: Int,
@@ -88,13 +87,12 @@ class DeliveryFunctionTests : Logging {
         DeliveryHistory(
             actionId = 922,
             createdAt = OffsetDateTime.parse("2022-04-19T18:04:26.534Z"),
-            receivingOrg = "ca-dph",
-            receivingOrgSvc = "elr-secondary",
-            httpStatus = 201,
             externalName = null,
             reportId = "b9f63105-bbed-4b41-b1ad-002a90f07e62",
-            schemaTopic = "covid-19",
-            itemCount = 14,
+            topic = "covid-19",
+            reportItemCount = 14,
+            receivingOrg = "ca-dph",
+            receivingOrgSvc = "elr-secondary",
             bodyUrl = null,
             schemaName = "covid-19",
             bodyFormat = "HL7_BATCH",
@@ -102,13 +100,12 @@ class DeliveryFunctionTests : Logging {
         DeliveryHistory(
             actionId = 284,
             createdAt = OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
-            receivingOrg = "ca-dph",
-            receivingOrgSvc = "elr-secondary",
-            httpStatus = 201,
             externalName = null,
             reportId = "c3c8e304-8eff-4882-9000-3645054a30b7",
-            schemaTopic = "covid-19",
-            itemCount = 1,
+            topic = "covid-19",
+            reportItemCount = 1,
+            receivingOrg = "ca-dph",
+            receivingOrgSvc = "elr-secondary",
             bodyUrl = null,
             schemaName = "primedatainput/pdi-covid-19",
             bodyFormat = "CSV"
@@ -149,7 +146,6 @@ class DeliveryFunctionTests : Logging {
                             expires = OffsetDateTime.parse("2022-05-19T18:04:26.534Z"),
                             receivingOrg = "ca-dph",
                             receivingOrgSvc = "elr-secondary",
-                            httpStatus = 201,
                             reportId = "b9f63105-bbed-4b41-b1ad-002a90f07e62",
                             topic = "covid-19",
                             reportItemCount = 14,
@@ -161,7 +157,6 @@ class DeliveryFunctionTests : Logging {
                             expires = OffsetDateTime.parse("2022-05-12T17:06:10.534Z"),
                             receivingOrg = "ca-dph",
                             receivingOrgSvc = "elr-secondary",
-                            httpStatus = 201,
                             reportId = "c3c8e304-8eff-4882-9000-3645054a30b7",
                             topic = "covid-19",
                             reportItemCount = 1,
@@ -421,9 +416,17 @@ class DeliveryFunctionTests : Logging {
 
         // Good return
         val returnBody = DeliveryHistory(
-            550, OffsetDateTime.now(), "ca-dph", "elr-secondary", 201,
-            null, "c3c8e304-8eff-4882-9000-3645054a30b7", "covid-19", 1,
-            null, "primedatainput/pdi-covid-19", "CSV"
+            550,
+            OffsetDateTime.now(),
+            null,
+            "c3c8e304-8eff-4882-9000-3645054a30b7",
+            "covid-19",
+            1,
+            "ca-dph",
+            "elr-secondary",
+            null,
+            "primedatainput/pdi-covid-19",
+            "CSV"
         )
         // Happy path with a good UUID
         val action = Action()

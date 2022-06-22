@@ -534,7 +534,7 @@ abstract class CoolTest {
             if (history == null)
                 return bad("Test Failed: No process response")
 
-            val reportId = history.id
+            val reportId = history.reportId
             echo("Id of submitted report: $reportId")
             val topic = history.topic
             val errorCount = history.errorCount
@@ -867,7 +867,7 @@ abstract class CoolTest {
                         .fetchOne()?.into(DetailedSubmissionHistory::class.java)
                     // Fill out the rest of the history data
                     if (ret != null) {
-                        ret.id = processingReportId.toString()
+                        ret.reportId = processingReportId.toString()
                         ret.reportItemCount = report.itemCount
                         ret.externalName = report.externalName
                         ret.topic = report.schemaTopic

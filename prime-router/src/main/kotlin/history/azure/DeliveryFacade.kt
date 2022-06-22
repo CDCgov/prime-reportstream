@@ -109,13 +109,12 @@ class DeliveryFacade(
         return DeliveryHistory(
             deliveryId,
             OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
-            organizationName,
-            "elr-secondary",
-            201,
             null,
             "c3c8e304-8eff-4882-9000-3645054a30b7",
             "covid-19",
             1,
+            organizationName,
+            "elr-secondary",
             "",
             "covid-19",
             "HL7_BATCH"

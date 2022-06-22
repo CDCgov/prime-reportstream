@@ -254,6 +254,10 @@ class SubmissionHistoryTests {
         SubmissionHistory(
             1,
             OffsetDateTime.now(),
+            "",
+            null,
+            null,
+            null,
             "simple_report",
             201
         ).run {
@@ -263,18 +267,18 @@ class SubmissionHistoryTests {
             assertThat(httpStatus).isEqualTo(201)
             assertThat(externalName).isEqualTo("")
             assertThat(reportId).isNull()
-            assertThat(schemaTopic).isNull()
-            assertThat(itemCount).isNull()
+            assertThat(topic).isNull()
+            assertThat(reportItemCount).isNull()
         }
         SubmissionHistory(
             1,
             OffsetDateTime.now(),
-            "simple_report",
-            201,
             "testname.csv",
             "a2cf1c46-7689-4819-98de-520b5007e45f",
             "covid-19",
-            3
+            3,
+            "simple_report",
+            201,
         ).run {
             assertThat(actionId).isEqualTo(1)
             assertThat(createdAt).isNotNull()
@@ -282,8 +286,8 @@ class SubmissionHistoryTests {
             assertThat(httpStatus).isEqualTo(201)
             assertThat(externalName).isEqualTo("testname.csv")
             assertThat(reportId).isEqualTo("a2cf1c46-7689-4819-98de-520b5007e45f")
-            assertThat(schemaTopic).isEqualTo("covid-19")
-            assertThat(itemCount).isEqualTo(3)
+            assertThat(topic).isEqualTo("covid-19")
+            assertThat(reportItemCount).isEqualTo(3)
         }
     }
 
@@ -292,12 +296,12 @@ class SubmissionHistoryTests {
         DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), 201, null, emptyList()).run {
             assertThat(actionId).isEqualTo(1)
             assertThat(createdAt).isNotNull()
-            assertThat(id).isNull()
+            assertThat(reportId).isNull()
             assertThat(httpStatus).isEqualTo(201)
             assertThat(sender).isNull()
             assertThat(topic).isNull()
             assertThat(reportItemCount).isNull()
-            assertThat(externalName).isNull()
+            assertThat(externalName).isEqualTo("")
             assertThat(destinations.size).isEqualTo(0)
             assertThat(destinationCount).isEqualTo(0)
             assertThat(logs.size).isEqualTo(0)
@@ -306,12 +310,12 @@ class SubmissionHistoryTests {
         DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, null, emptyList()).run {
             assertThat(actionId).isEqualTo(1)
             assertThat(createdAt).isNotNull()
-            assertThat(id).isNull()
+            assertThat(reportId).isNull()
             assertThat(httpStatus).isNull()
             assertThat(sender).isNull()
             assertThat(topic).isNull()
             assertThat(reportItemCount).isNull()
-            assertThat(externalName).isNull()
+            assertThat(externalName).isEqualTo("")
             assertThat(destinations.size).isEqualTo(0)
             assertThat(destinationCount).isEqualTo(0)
             assertThat(logs.size).isEqualTo(0)
@@ -342,7 +346,7 @@ class SubmissionHistoryTests {
 
         DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), 201, reports, emptyList()).run {
             assertThat(actionId).isEqualTo(1)
-            assertThat(id).isEqualTo(inputReport.reportId.toString())
+            assertThat(reportId).isEqualTo(inputReport.reportId.toString())
             assertThat(httpStatus).isEqualTo(201)
             assertThat(sender).isEqualTo(ClientSource(inputReport.sendingOrg!!, inputReport.sendingOrgClient!!).name)
             assertThat(topic).isEqualTo(inputReport.schemaTopic)
@@ -385,7 +389,7 @@ class SubmissionHistoryTests {
 
         DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, reports, logs).run {
             assertThat(actionId).isEqualTo(1)
-            assertThat(id).isEqualTo(null)
+            assertThat(reportId).isEqualTo(null)
             assertThat(sender).isEqualTo(ClientSource(inputReport.sendingOrg!!, inputReport.sendingOrgClient!!).name)
             assertThat(topic).isEqualTo(inputReport.schemaTopic)
             assertThat(reportItemCount).isEqualTo(inputReport.itemCount)

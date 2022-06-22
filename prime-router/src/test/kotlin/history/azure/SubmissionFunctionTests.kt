@@ -88,22 +88,22 @@ class SubmissionFunctionTests : Logging {
         SubmissionHistory(
             actionId = 8,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
-            sendingOrg = organizationName,
-            httpStatus = 201,
             externalName = "test-name.csv",
             reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
             schemaTopic = "covid-19",
-            itemCount = 3,
+            reportItemCount = 3,
+            sendingOrg = organizationName,
+            httpStatus = 201,
         ),
         SubmissionHistory(
             actionId = 7,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
-            sendingOrg = organizationName,
-            httpStatus = 400,
             externalName = "test-name.csv",
             reportId = null,
             schemaTopic = null,
-            itemCount = null,
+            reportItemCount = null,
+            sendingOrg = organizationName,
+            httpStatus = 400,
         )
     )
 
