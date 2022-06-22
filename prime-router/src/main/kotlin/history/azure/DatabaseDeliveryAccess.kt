@@ -29,7 +29,7 @@ class DatabaseDeliveryAccess(
             .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
 
         if (orgService != null) {
-            filter = filter.and(REPORT_FILE.RECEIVING_ORG_SVC.eq(orgService))
+            filter = filter.and(ACTION.SENDING_ORG_CLIENT.eq(orgService))
         }
 
         return filter
