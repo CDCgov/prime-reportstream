@@ -12,7 +12,7 @@ const isNotActive = (val: string): boolean => {
     return val === "testing" || val === "inactive";
 };
 
-// Class is useless right now, no run-time type check
+// TODO (#5892): RSSender should be given attributes and constructor to be used as a Newable resource
 class RSSender {}
 const SenderAPI: API = {
     resource: RSSender,
@@ -62,7 +62,7 @@ const useSenderResource = () => {
         error,
         loading,
     } = useRequestConfig(config) as {
-        data: Sender; // Ideally we can use our resource class instead of interfaces.
+        data: Sender; // TODO (#5892): Should return Newable object or array of Newable objects.
         error: string;
         loading: boolean;
     };
