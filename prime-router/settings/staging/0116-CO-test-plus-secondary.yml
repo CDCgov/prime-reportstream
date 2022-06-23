@@ -1,0 +1,163 @@
+- name: "co-phd"
+  description: "Colorado Department of Public Health and Environment"
+  jurisdiction: "STATE"
+  stateCode: "CO"
+  countyName: null
+  filters: null
+  senders: []
+  receivers:
+  - name: "elr-secondary"
+    organizationName: "co-phd"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "CO-ELR"
+      receivingApplicationOID: null
+      receivingFacilityName: "CO"
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: { }
+      replaceValueAwithB:
+        MSH-6:
+          - '*': "CO"
+        MSH-5:
+          - '*': "CO-ELR"
+        MSH-3:
+          - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+      reportingFacilityName: "CDC PRIME"
+      reportingFacilityId: "11D2030855"
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: true
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: { }
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: { }
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+    jurisdictionalFilter:
+      - "orEquals(ordering_facility_state, CO, patient_state, CO)"
+    qualityFilter: [ ]
+    routingFilter: [ ]
+    processingModeFilter: [ ]
+    reverseTheQualityFilter: true
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 4
+      initialTime: "09:30"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: "Secondary feed reversing quality filter from primary"
+    transport: !<SFTP>
+      host: "test.moveit.state.co.us"
+      port: "22"
+      filePath: "./"
+      credentialName: null
+      type: "SFTP"
+    externalName: "ELR-SECONDARY"
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+  - name: "elr-test"
+    organizationName: "co-phd"
+    topic: "covid-19"
+    customerStatus: "testing"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "CO-ELR"
+      receivingApplicationOID: null
+      receivingFacilityName: "CO"
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB:
+        MSH-6:
+          - '*': "CO"
+        MSH-5:
+          - '*': "CO-ELR"
+        MSH-3:
+          - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+      reportingFacilityName: "CDC PRIME"
+      reportingFacilityId: "11D2030855"
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: true
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+    jurisdictionalFilter:
+      - "orEquals(ordering_facility_state, CO, patient_state, CO)"
+    qualityFilter: []
+    routingFilter: []
+    processingModeFilter:
+      - "matches(processing_mode_code,T,D)"
+    reverseTheQualityFilter: false
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 8
+      initialTime: "09:30"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<SFTP>
+      host: "test.moveit.state.co.us"
+      port: "22"
+      filePath: "./"
+      credentialName: null
+      type: "SFTP"
+    externalName: "ELR-Test"
+    timeZone: null
+    dateTimeFormat: "OFFSET"

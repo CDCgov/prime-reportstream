@@ -19,14 +19,14 @@ const PaginationOverflow: React.FC = () => (
 
 interface PaginationPageNumberProps {
     pageNum: number;
-    setCurrentPage: (pageNum: number) => void;
+    setSelectedPage: (pageNum: number) => void;
     isCurrentPage: boolean;
     isLastPage: boolean;
 }
 
 const PaginationPageNumber: React.FC<PaginationPageNumberProps> = ({
     pageNum,
-    setCurrentPage,
+    setSelectedPage,
     isCurrentPage,
     isLastPage,
 }) => {
@@ -39,7 +39,7 @@ const PaginationPageNumber: React.FC<PaginationPageNumberProps> = ({
                     ["usa-pagination__button", "rs-pagination-no-button"],
                     { "usa-current": isCurrentPage }
                 )}
-                onClick={() => setCurrentPage(pageNum)}
+                onClick={() => setSelectedPage(pageNum)}
             >
                 {pageNum}
             </button>
@@ -49,13 +49,13 @@ const PaginationPageNumber: React.FC<PaginationPageNumberProps> = ({
 
 interface PaginationArrowProps {
     pageNum: number;
-    setCurrentPage: (pageNum: number) => void;
+    setSelectedPage: (pageNum: number) => void;
     direction: "previous" | "next";
 }
 
 const PaginationArrow: React.FC<PaginationArrowProps> = ({
     pageNum,
-    setCurrentPage,
+    setSelectedPage,
     direction,
 }) => {
     const isNext = direction === "next";
@@ -70,7 +70,7 @@ const PaginationArrow: React.FC<PaginationArrowProps> = ({
             <Button
                 aria-label={`${label} page`}
                 className={buttonClassName}
-                onClick={() => setCurrentPage(pageNum)}
+                onClick={() => setSelectedPage(pageNum)}
                 type="button"
                 unstyled
             >
@@ -84,14 +84,14 @@ const PaginationArrow: React.FC<PaginationArrowProps> = ({
 
 export interface PaginationProps {
     slots: SlotItem[];
-    setCurrentPage: (pageNum: number) => void;
+    setSelectedPage: (pageNum: number) => void;
     currentPageNum: number;
     label?: string;
 }
 
 const Pagination: React.FC<PaginationProps> = ({
     slots,
-    setCurrentPage,
+    setSelectedPage,
     currentPageNum,
     label = "Pagination",
 }) => {
@@ -109,7 +109,7 @@ const Pagination: React.FC<PaginationProps> = ({
                 {previousPageNum && (
                     <PaginationArrow
                         pageNum={previousPageNum}
-                        setCurrentPage={setCurrentPage}
+                        setSelectedPage={setSelectedPage}
                         direction="previous"
                     />
                 )}
@@ -122,7 +122,7 @@ const Pagination: React.FC<PaginationProps> = ({
                         <PaginationPageNumber
                             key={key}
                             pageNum={s}
-                            setCurrentPage={setCurrentPage}
+                            setSelectedPage={setSelectedPage}
                             isCurrentPage={s === currentPageNum}
                             isLastPage={i === slots.length - 1}
                         />
@@ -131,7 +131,7 @@ const Pagination: React.FC<PaginationProps> = ({
                 {nextPageNum && (
                     <PaginationArrow
                         pageNum={nextPageNum}
-                        setCurrentPage={setCurrentPage}
+                        setSelectedPage={setSelectedPage}
                         direction="next"
                     />
                 )}

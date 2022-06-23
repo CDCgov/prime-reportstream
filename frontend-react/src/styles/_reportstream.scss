@@ -318,7 +318,7 @@ h3 img[src*="svg"] {
     height: calc(var(--rs-compare-modal-height) - 14em);
     overflow: auto;
     margin: .5em;
-    line-height: 1.25em;
+    line-height: 1.5em;
     white-space: pre-wrap;
     tab-size: 2;
     font-family: monospace;
@@ -405,7 +405,14 @@ h3 img[src*="svg"] {
     cursor: pointer;
 }
 
-// Pagination
+pre {
+    background: rgba(201, 201, 201, 0.47);
+    color: black;
+    white-space: pre-wrap;
+    padding: 1.33rem;
+    border-radius: 1rem;
+}
+
 .rs-pagination-no-button {
   @include u-bg('white');
   cursor: pointer;

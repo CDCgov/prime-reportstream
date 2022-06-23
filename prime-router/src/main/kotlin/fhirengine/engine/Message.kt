@@ -1,10 +1,13 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeName
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.BlobAccess
 import java.util.Base64
 
@@ -15,19 +18,20 @@ private const val messageSizeLimit = 64 * 1000
 /**
  * An interface for Messages to be put on an Azure Queue
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-interface Message {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+    JsonSubTypes.Type(RawSubmission::class, name = "raw")
+)
+abstract class Message {
 
     fun serialize(): String {
         val bytes = mapper.writeValueAsBytes(this)
         check(bytes.size < messageSizeLimit) { "Message is too big for the queue." }
-        val base64Message = String(Base64.getEncoder().encode(bytes))
-        return base64Message
+        return String(Base64.getEncoder().encode(bytes))
     }
 
     companion object {
         private val ptv = BasicPolymorphicTypeValidator.builder()
-            .allowIfSubType("gov.cdc.prime.router.engine")
             .build()
         val mapper = jacksonMapperBuilder()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -42,15 +46,21 @@ interface Message {
 }
 
 /**
- * The Message representation of a raw submission to the system
+ * The Message representation of a raw submission to the system, tracking the [reportId], [blobUrl],
+ * and [sender]. A [digest] is also provided for checksum verification.
  *
- * Models the url where the blob is stored, an digest of the blob for validation and the sender name
+ * TODO: Need to determine if options, defaults and routeTo need to be supported
  */
+@JsonTypeName("raw")
 data class RawSubmission(
+    val reportId: ReportId,
     val blobURL: String,
     val digest: String,
     val sender: String,
-) : Message {
+//    val options: Options,
+//    val defaults: Map<String, String>,
+//    val routeTo: List<String>,
+) : Message() {
     /**
      * Download the file associated with a RawSubmission message
      */

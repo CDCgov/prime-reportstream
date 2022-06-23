@@ -109,3 +109,9 @@
     - CDCPRIME_11D2030855_
     - createdDate()
 
+- name: indiana
+  upperCase: true
+  elements:
+    - IDOH_CDCSR_
+    - createdDate(MMddyyyyHHmmss)
+

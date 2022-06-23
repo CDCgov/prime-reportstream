@@ -19,4 +19,15 @@ object StringUtilities {
 
         return StringUtils.trimToNull(this)
     }
+
+    /**
+     * A wrapper around toIntOrNull
+     * utility to improve readability when parsing params
+     *
+     * usage:
+     * request.queryParameters['foo']?.toIntOrDefault(30)
+     */
+    fun String?.toIntOrDefault(default: Int = 0): Int {
+        return this?.toIntOrNull() ?: default
+    }
 }

@@ -1,10 +1,12 @@
 import OrgSettingsBaseResource from "../resources/OrgSettingsBaseResource";
 
 import {
+    formatDate,
     getErrorDetailFromResponse,
     getVersionWarning,
     splitOn,
     VersionWarningType,
+    toHumanReadable,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
 
@@ -53,4 +55,31 @@ test("getVersionWarning test", async () => {
 
     const popupWarning = getVersionWarning(VersionWarningType.POPUP);
     expect(popupWarning).toContain("WARNING!");
+});
+
+test("formatDate test", () => {
+    expect(formatDate("2022-06-12T12:23:30.833Z")).toContain(
+        "Sun, 6/12/2022, " // time part fails because of timezone of server
+    );
+
+    expect(formatDate("2022-06-12T12:23:30.833Z")).toContain(
+        ":23" // check the minutes are at least correct
+    );
+
+    console.error = jest.fn(); // we KNOW the next call complains with a console.error(). don't let it stop the test
+    expect(formatDate("bad date")).toBe("bad date");
+});
+
+describe("toHumanReadable", () => {
+    test("fixes up a string delimited by underscores", () => {
+        expect(toHumanReadable("hi_there_people")).toEqual("Hi There People");
+    });
+
+    test("fixes up a string delimited by dashes", () => {
+        expect(toHumanReadable("hi-there-people")).toEqual("Hi There People");
+    });
+
+    test("fixes up a camel case string", () => {
+        expect(toHumanReadable("hiTherePeople")).toEqual("Hi There People");
+    });
 });

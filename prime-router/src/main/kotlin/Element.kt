@@ -810,7 +810,7 @@ data class Element(
             // Only overwrite an existing value if the mapper returns a string
             val mapperResult = mapperRef.apply(this, args, valuesForMapper, sender)
             val value = mapperResult.value
-            if (!value.isNullOrBlank()) {
+            if (!value.isNullOrBlank() && value != "null") {
                 retVal.value = value
             }
 

@@ -58,16 +58,22 @@
 # Organization name type
 - id: "organization-name-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
+# Entering organization
+- id: "entering-organization"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization"
 # Organization assigning authority namespace ID
 - id: "assigning-authority-namespace-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"
 # Organization assigning authority universal ID
 - id: "assigning-authority-universal-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"
-# Organization assigning facility universal ID
+# Assigning facility
+- id: "assigning-facility"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility"
+# Assigning facility universal ID
 - id: "assigning-facility-universal-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"
-# Organization assigning facility namespace ID
+# Assigning facility namespace ID
 - id: "assigning-facility-namespace-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"
 # Last updated facility
@@ -94,3 +100,48 @@
 # Encounter account status
 - id: "account-status"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/account-status"
+# Universal ID
+- id: "universal-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id"
+# Service request order control
+- id: "order-control"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control"
+# Callback number
+- id: "callback-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number"
+# Generic text
+- id: "text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/text"
+# Alternate identifier
+- id: "alternate-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier"
+# Alternate version
+- id: "alternate-version"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version"
+# Collector identifier
+- id: "collector-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier"
+# Clinical information
+- id: "clinical-information"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/clinical-information"
+# Placer field
+- id: "placer-field"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field"
+# Results reported or changes
+- id: "result-reported"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/result-reported"
+# Result status
+- id: "result-status"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status"
+# Response flag
+- id: "response-flag"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/response-flag"
+# Start of service
+- id: "start-of-service"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/start-of-service"
+# End of service
+- id: "end-of-service"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/end-of-service"
+# Service priority
+- id: "service-priority"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/service-priority"

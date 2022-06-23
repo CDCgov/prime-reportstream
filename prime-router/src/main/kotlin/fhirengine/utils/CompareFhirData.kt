@@ -4,6 +4,7 @@ import gov.cdc.prime.router.cli.tests.CompareData
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Property
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.Resource
@@ -72,114 +73,178 @@ class CompareFhirData(
 
         // Compare all the resources.
         resourcesToCompare.keys.forEach { expectedResource ->
-            logger.info("Comparing ${expectedResource.fhirType()}...")
-            logger.debug("Expected ID: ${expectedResource.id}")
-            val resourceMatches = resourcesToCompare[expectedResource]?.any { actualResource ->
-                logger.debug("Comparing to actual ID: ${actualResource.idBase}")
-                compareResource(actualResource, expectedResource, expectedResource.fhirType(), result)
+            resourcesToCompare[expectedResource]?.let {
+                if (resourcesToCompare[expectedResource]!!.isNotEmpty()) {
+                    val resourceResult = compareResource(
+                        expectedResource, resourcesToCompare[expectedResource]!!,
+                        getFhirIdPath("", expectedResource),
+                        getFhirTypePath("", expectedResource)
+                    )
+                    result.merge(resourceResult)
+                } else {
+                    val msg = "There were no actual resources to compare to ${expectedResource.id}"
+                    logger.error(msg)
+                    result.errors.add(msg)
+                    result.passed = false
+                }
             }
-            result.passed = result.passed and (resourceMatches ?: true)
-            logger.info("Resource ${expectedResource.fhirType()} matches = $resourceMatches")
-            logger.info("")
         }
-        logger.debug("FHIR bundles are ${if (result.passed) "IDENTICAL" else "DIFFERENT"}")
+        logger.info("FINAL RESULT: FHIR bundles are ${if (result.passed) "IDENTICAL" else "DIFFERENT"}")
+        result.errors.forEach {
+            logger.error(it)
+        }
     }
 
     /**
-     * Compare an [actualResource] to an [expectedResource] and provide the [result].
-     * @param parentTypePath a string representing a type hirearchy for the parent of the given resource
-     * @param suppressOutput set false to not log comparison results
+     * Compare a list of [actualResources] to an [expectedResource] and provide the comparison result.
+     * [parentTypePath] is the type path of the parent resource and [parentIdPath] is the ID path of the parent resource.
+     * @return the comparison result
      */
     internal fun compareResource(
-        actualResource: Base,
         expectedResource: Base,
-        parentTypePath: String,
-        result: CompareData.Result,
-        suppressOutput: Boolean = false
-    ): Boolean {
-        var isEqual = true
-        filterResourceProperties(expectedResource).forEach { expectedChild ->
-            val actualChild = actualResource.getChildByName(expectedChild.name)
-            val thisTypePath = getFhirTypePath(parentTypePath, expectedChild.name)
-            if (actualChild != null) {
-                val actualValues = actualChild.values
-                val expectedValues = expectedChild.values
-                // Skip any empty expected properties
-                if (expectedValues.isNotEmpty()) {
-                    // Search for a value that is the same in the list of values
-                    val isPropertyEqual = expectedValues.all { expectedValue ->
-                        // Note that here we look for the first good match, and note we are comparing all values which
-                        // we expect only one match.
-                        actualValues.any { actualValue ->
-                            compareValue(
-                                actualValue, expectedValue, thisTypePath, result,
-                                suppressOutput || actualValues.size > 1
-                            )
-                        }
-                    }
-
-                    if (!suppressOutput)
-                        if (!isPropertyEqual) {
-                            result.errors.add("Property $thisTypePath does not match.")
-                            logger.debug("Property $thisTypePath does not match.")
-                        } else logger.debug("Property $thisTypePath matches.")
-                    isEqual = isEqual && isPropertyEqual
+        actualResources: List<Base>,
+        parentIdPath: String,
+        parentTypePath: String
+    ): CompareData.Result {
+        var result = CompareData.Result(true)
+        result.passed = false
+        var actualIdPath = ""
+        // Compare the expected against each possible actual
+        for (actualResource in actualResources) {
+            actualIdPath = getFhirIdPath(parentIdPath, expectedResource)
+            val resourceResult = compareProperties(expectedResource, actualResource, parentIdPath, parentTypePath)
+            // We cannot just take the results as there may be multiple actuals to compare to.
+            // Assume the best match is the one with the least errors or a positive match.
+            if (!resourceResult.passed) {
+                // Use the list of errors with the least number as that is probably closer to the one we have to compare to
+                if (result.errors.isEmpty() || resourceResult.errors.size < result.errors.size) {
+                    result = resourceResult
                 }
             } else {
-                if (!suppressOutput) {
-                    result.errors.add("Property $thisTypePath does not match - different type.")
-                }
-                isEqual = false
+                // Actually have a match
+                result = CompareData.Result(true)
+                break
             }
         }
-        return isEqual
+        val expectedIdPath = getFhirIdPath(parentIdPath, expectedResource)
+        if (!result.passed) {
+            result.errors.add(0, "FAILED: Resource $parentTypePath in $expectedIdPath has no match.")
+        } else logger.debug("MATCH: Resource $parentTypePath in $expectedIdPath matches with $actualIdPath")
+        return result
     }
 
     /**
-     * Compare an [actualReference] to an [expectedReference] and provide the [result].
-     * @param thisTypePath a string representing a type hirearchy for the given value
+     * Compare an [actualProperty] to an [expectedProperty] and provide the result.
+     * [parentTypePath] is the type path of the parent resource and [parentIdPath] is the ID path of the parent resource.
+     * @return the comparison result
+     */
+    internal fun compareProperties(
+        expectedProperty: Base,
+        actualProperty: Base,
+        parentIdPath: String,
+        parentTypePath: String
+    ): CompareData.Result {
+        val result = CompareData.Result(true)
+        // This is a good place to place breakpoints based on the resource ID.
+        val expectedIdPath = getFhirIdPath(parentIdPath, expectedProperty)
+        val actualIdPath = getFhirIdPath(parentIdPath, actualProperty)
+        if (expectedProperty.isResource) // Does it have an ID?
+            logger.debug("PROPERTY: Comparing resource ${expectedProperty.fhirType()} $expectedIdPath to $actualIdPath")
+        // Only compare properties we need
+        filterResourceProperties(expectedProperty).forEach { expectedChild ->
+            val actualChild = actualProperty.getChildByName(expectedChild.name)
+            // Properties with no expected values are ignored
+            if (expectedChild.values.isNotEmpty() && actualChild != null) {
+                val actualValues = actualChild.values
+                val expectedValues = expectedChild.values
+                expectedValues.forEach { expectedValue ->
+                    val actualsOfSameType = actualValues.filter { expectedValue.fhirType() == it.fhirType() }
+                    // This is a good place to place breakpoints based on the resource type.
+                    val propertyTypePath = "$parentTypePath.${expectedChild.name}"
+                    val valueResult = when {
+                        // Dissimilar types are not a match.
+                        actualsOfSameType.isEmpty() -> {
+                            val msg = "FAILED: No matching property of same type for $expectedIdPath $propertyTypePath"
+                            CompareData.Result(
+                                false,
+                                arrayListOf(msg)
+                            )
+                        }
+
+                        // Dynamic values are only checked to exist
+                        dynamicProperties.contains(propertyTypePath) -> {
+                            logger.trace("MATCH: Dynamic property $expectedIdPath $propertyTypePath exists")
+                            CompareData.Result(true)
+                        }
+
+                        // References need to be compared as resources
+                        expectedValue.hasType("Reference") -> {
+                            compareReference(expectedValue, actualsOfSameType, expectedIdPath, propertyTypePath)
+                        }
+
+                        // Non-primitives are compared as resources
+                        !expectedValue.isPrimitive ->
+                            compareResource(expectedValue, actualsOfSameType, parentIdPath, propertyTypePath)
+
+                        // Use the built-in equals for anything else.
+                        else -> comparePrimitive(expectedValue, actualValues, expectedIdPath, propertyTypePath)
+                    }
+                    result.merge(valueResult)
+                }
+            } else if (expectedProperty.isPrimitive)
+                result.merge(comparePrimitive(expectedProperty, listOf(actualProperty), expectedIdPath, parentTypePath))
+        }
+        return result
+    }
+
+    /**
+     * Compare a FHIR primitive value of [actualPrimitive] to an [expectedPrimitive] and provide the result.
+     * [primitiveTypePath] is the type path of the parent resource and [primitiveIdPath] is the ID path of the parent resource.
+     * @return the comparison result
+     */
+    internal fun comparePrimitive(
+        expectedPrimitive: Base,
+        actualPrimitive: List<Base>,
+        primitiveIdPath: String,
+        primitiveTypePath: String
+    ): CompareData.Result {
+        val primitiveResult = CompareData.Result()
+
+        primitiveResult.passed = actualPrimitive.any {
+            // Dynamic values are only checked to exist
+            if (dynamicProperties.contains(primitiveTypePath)) true
+            else expectedPrimitive.equalsDeep(it)
+        }
+
+        if (!primitiveResult.passed) {
+            val msg = "FAILED: Property $primitiveIdPath $primitiveTypePath did not match"
+            primitiveResult.errors.add(msg)
+        } else logger.trace("MATCH: Property $primitiveIdPath $primitiveTypePath matches")
+        return primitiveResult
+    }
+
+    /**
+     * Compare a list of [actualReferences] to an [expectedReference] and provide the result.
+     * [referenceTypePath] is the type path of the parent resource and [referenceIdPath] is the ID path of the
+     * parent resource.
+     * @return the comparison result
      */
     internal fun compareReference(
-        actualReference: Reference,
-        expectedReference: Reference,
-        thisTypePath: String,
-        result: CompareData.Result
-    ): Boolean {
-        logger.debug("Comparing expected reference ${expectedReference.reference} from type $thisTypePath ...")
-        return compareResource(actualReference.resource as Base, expectedReference.resource as Base, "", result)
-    }
-
-    /**
-     * Compare an [actualValue] to an [expectedValue] and provide the [result].
-     * @param thisTypePath a string representing a type hirearchy for the given value
-     * @param suppressOutput set false to not log comparison results
-     */
-    internal fun compareValue(
-        actualValue: Base,
-        expectedValue: Base,
-        thisTypePath: String = "",
-        result: CompareData.Result,
-        suppressOutput: Boolean = false
-    ): Boolean {
-        return when {
-            // Dissimilar types are not a match.
-            expectedValue.fhirType() != actualValue.fhirType() -> false
-
-            // Dynamic values are only checked to exist
-            dynamicProperties.contains(thisTypePath) -> true
-
-            // References
-            expectedValue.hasType("Reference") ->
-                compareReference(actualValue as Reference, expectedValue as Reference, thisTypePath, result)
-
-            !expectedValue.isPrimitive ->
-                compareResource(actualValue, expectedValue, thisTypePath, result, suppressOutput)
-
-            // Use the built-in equals for anything else.
-            else -> {
-                expectedValue.equalsDeep(actualValue)
-            }
-        }
+        expectedReference: Base,
+        actualReferences: List<Base>,
+        referenceIdPath: String,
+        referenceTypePath: String
+    ): CompareData.Result {
+        require(expectedReference is Reference)
+        logger.debug("REFERENCE: Comparing reference from $referenceIdPath $referenceTypePath ...")
+        val expectedResource = expectedReference.resource as Base
+        val actualResources = actualReferences.mapNotNull { if (it is Reference) it.resource as Base else null }
+        val result = compareResource(
+            expectedResource, actualResources, getFhirIdPath(referenceIdPath, expectedResource),
+            getFhirTypePath("", expectedResource)
+        )
+        logger.debug("REFERENCE: Done with comparison of $referenceIdPath $referenceTypePath --------------------")
+        return result
     }
 
     /**
@@ -214,23 +279,39 @@ class CompareFhirData(
 
         /**
          * The list of bundle entries to test.  Do not include entries that are referenced in other resources listed
-         * here (e.g. Organization is part of MessageHeader and Provenance. If you add a resource that already referenced
+         * here (e.g. Organization is part of MessageHeader and Provenance). If you add a resource that already referenced
          * it will not break anything just generate more output.
+         * WARNING: Don't include any resources that are referenced or the comparison will be slower.
          */
         private val comparedBundleEntries = listOf(
-            "MessageHeader", "Provenance", "Patient", "Encounter",
-            "Observation", "Practitioner", "DiagnosticReport", "Specimen"
+            "MessageHeader", "Provenance", "DiagnosticReport"
         )
 
         /**
-         * Get the FHIR type path for a given [parentTypePath] and [valueName].  The FHIR type path
+         * Get the FHIR type path for a given [parentTypePath] and [resource].  The FHIR type path
          * is NOT the same as a FHIR path, and we use it to log the types we are comparing and to match types we want to
          * ignore.  E.g. Bundle.meta.lastUpdated, Organization.name.
          */
-        internal fun getFhirTypePath(parentTypePath: String, valueName: String): String {
-            require(valueName.isNotBlank())
+        internal fun getFhirTypePath(parentTypePath: String, resource: Base): String {
             val parentPath = if (parentTypePath.isNotBlank()) "$parentTypePath." else ""
-            return parentPath + valueName
+            return parentPath + resource.fhirType()
+        }
+
+        /**
+         * Get the FHIR ID path for a given [parentIdPath] and [resource].  The FHIR ID path
+         * is NOT the same as a FHIR path, and we use it to log the resources we are comparing and to match types we
+         * want to ignore.  E.g. Bundle.meta.lastUpdated, Organization.name.
+         */
+        internal fun getFhirIdPath(parentIdPath: String, resource: Base): String {
+            return when {
+                resource is Extension ->
+                    "$parentIdPath->${resource.fhirType()}(${resource.url.substringAfterLast("/")})"
+                parentIdPath == resource.idBase -> parentIdPath
+                resource.isResource ->
+                    if (parentIdPath.isBlank()) resource.idBase ?: ""
+                    else "$parentIdPath->${resource.idBase}"
+                else -> parentIdPath
+            }
         }
     }
 }
