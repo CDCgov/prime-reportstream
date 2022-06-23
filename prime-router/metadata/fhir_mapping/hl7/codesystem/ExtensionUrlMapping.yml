@@ -157,3 +157,12 @@
 # Identifier type
 - id: "identifier-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type"
+# Source of comment
+- id: "note-source"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source"
+# Comment type
+- id: "note-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type"
+# Patient notes as Annotations
+- id: "patient-notes"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes"
