@@ -90,7 +90,7 @@ abstract class ReportFileFunction(
             logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
 
             // Figure out whether we're dealing with an action_id or a report_id.
-            val actionId = id.toLongOrNull() // toLong a sacrifice can make a Null of the heart
+            val actionId = id.toLongOrNull()
             val action = if (actionId == null) {
                 val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
                 reportFileFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
