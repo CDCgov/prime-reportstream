@@ -22,7 +22,8 @@ enum class FtpsProtocol {
     JsonSubTypes.Type(AS2TransportType::class, name = "AS2"),
     JsonSubTypes.Type(FTPSTransportType::class, name = "FTPS"),
     JsonSubTypes.Type(SoapTransportType::class, name = "SOAP"),
-    JsonSubTypes.Type(GAENTransportType::class, name = "GAEN")
+    JsonSubTypes.Type(GAENTransportType::class, name = "GAEN"),
+    JsonSubTypes.Type(RESTTransportType::class, name = "REST")
 )
 abstract class TransportType(val type: String)
 
@@ -134,4 +135,20 @@ data class SoapTransportType
     val namespaces: Map<String, String>? = null
 ) : TransportType("SOAP") {
     override fun toString(): String = "endpoint=$endpoint, soapAction=$soapAction"
+}
+
+/**
+ *  Holds the parameters for REST endpoints as defined by NY, OK, and other receivers
+ */
+
+data class RESTTransportType
+@JsonCreator constructor(
+    /**  [reportUrl] The URL to post to. e.g. https://api2.health.ny.gov/services/uphn/V1.0/ECLRSPRE. */
+    val reportUrl: String,
+    /**  [authTokenUrl] The URL to get the OAuth token. e.g. https://api2.health.ny.gov/services/uphn/V1.0/auth. */
+    val authTokenUrl: String,
+    /** [tlsKeystore]The name for the credential manager to get the JKS used in TLS/SSL */
+    val tlsKeystore: String? = null,
+) : TransportType("REST") {
+    override fun toString(): String = "apiUrl=$reportUrl" // , tokenUrl=$accessTokenUrl, tlsCert=$tlsCertName"
 }

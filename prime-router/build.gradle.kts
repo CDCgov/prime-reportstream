@@ -38,6 +38,7 @@ plugins {
     id("jacoco")
     id("org.jetbrains.dokka") version "1.6.20"
     id("com.avast.gradle.docker-compose") version "0.15.2"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.6.21"
 }
 
 group = "gov.cdc.prime"
@@ -93,7 +94,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "1.6.8"
+val ktorVersion = "2.0.2"
 val kotlinVersion = "1.6.21"
 jacoco.toolVersion = "0.8.7"
 
@@ -730,7 +731,12 @@ dependencies {
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    implementation("io.ktor:ktor-client-auth:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation("io.ktor:ktor-client-encoding:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.2.1")
     implementation("it.skrape:skrapeit-http-fetcher:1.2.1")
     implementation("org.apache.poi:poi:5.2.2")

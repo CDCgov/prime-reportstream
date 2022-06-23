@@ -2905,11 +2905,10 @@
         initialTime: 00:00
         timeZone: EASTERN
       transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        type: REST
+        reportUrl:  https://api2.health.ny.gov/services/uphn/V1.0/ECLRSPRE
+        authTokenUrl: https://api2.health.ny.gov/services/uphn/V1.0/auth/token
+        tlsKeystore: cdcprime.key
 
 - name: mp-phd
   description: Northern Mariana Islands Public Health Department
