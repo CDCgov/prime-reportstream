@@ -93,12 +93,29 @@ export function getVersionWarning(
     return "";
 }
 
-/* 
+export function formatDate(date: string): string {
+    try {
+        // 'Thu, 3/31/2022, 4:50 AM'
+        return new Intl.DateTimeFormat("en-US", {
+            weekday: "short",
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+        }).format(new Date(date));
+    } catch (err: any) {
+        console.error(err);
+        return date;
+    }
+}
+
+/*
   for strings in machine readable form:
     * camel cased
     * inconsistent caps
     * whitespace deliminted by - or _
-  
+
   translate into normal human readable strings with all words capitalized
 */
 export const toHumanReadable = (machineString: string): string => {
