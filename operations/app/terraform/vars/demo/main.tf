@@ -1,4 +1,26 @@
 ##########
+## 01-Initialize
+##########
+
+module "init" {
+  source                      = "../../modules/init"
+  environment                 = local.init.environment
+  resource_group              = local.init.resource_group_name
+  resource_prefix             = local.init.resource_prefix
+  location                    = local.init.location
+  aad_object_keyvault_admin   = local.ad.aad_object_keyvault_admin
+  terraform_caller_ip_address = local.network.terraform_caller_ip_address
+  use_cdc_managed_vnet        = local.network.use_cdc_managed_vnet
+  terraform_object_id         = local.ad.terraform_object_id
+  application_kv_name         = local.key_vault.application_kv_name
+  app_config_kv_name          = local.key_vault.app_config_kv_name
+  client_config_kv_name       = local.key_vault.client_config_kv_name
+  dns_vnet                    = local.network.dns_vnet
+  network                     = local.network.config
+  random_id                   = local.init.random_id
+}
+
+##########
 ## 01-network
 ##########
 
@@ -19,7 +41,6 @@ module "nat_gateway" {
   location        = local.init.location
   subnets         = module.network.subnets
 }
-
 
 ##########
 ## 02-config
@@ -53,6 +74,7 @@ module "key_vault" {
   dns_vnet                    = local.network.dns_vnet
   dns_zones                   = module.network.dns_zones
   admin_function_app          = module.function_app.admin_function_app
+  is_temp_env                 = local.is_temp_env
 }
 
 module "container_registry" {
@@ -109,6 +131,7 @@ module "storage" {
   dns_vnet                      = local.network.dns_vnet
   dns_zones                     = module.network.dns_zones
   delete_pii_storage_after_days = local.security.delete_pii_storage_after_days
+  is_temp_env                   = local.is_temp_env
 }
 
 
@@ -146,17 +169,17 @@ module "function_app" {
   dns_ip                            = local.network.dns_ip
 }
 
-module "front_door" {
-  source                      = "../../modules/front_door"
-  environment                 = local.init.environment
-  resource_group              = local.init.resource_group_name
-  resource_prefix             = local.init.resource_prefix
-  location                    = local.init.location
-  https_cert_names            = local.security.https_cert_names
-  is_metabase_env             = local.init.is_metabase_env
-  public_primary_web_endpoint = module.storage.sa_public_primary_web_endpoint
-  application_key_vault_id    = module.key_vault.application_key_vault_id
-}
+# module "front_door" {
+#   source                      = "../../modules/front_door"
+#   environment                 = local.init.environment
+#   resource_group              = local.init.resource_group_name
+#   resource_prefix             = local.init.resource_prefix
+#   location                    = local.init.location
+#   https_cert_names            = local.security.https_cert_names
+#   is_metabase_env             = local.init.is_metabase_env
+#   public_primary_web_endpoint = module.storage.sa_public_primary_web_endpoint
+#   application_key_vault_id    = module.key_vault.application_key_vault_id
+# }
 
 module "sftp_container" {
   count = local.init.environment != "prod" ? 1 : 0
@@ -196,19 +219,19 @@ module "metabase" {
 ##########
 
 module "log_analytics_workspace" {
-  source                        = "../../modules/log_analytics_workspace"
-  environment                   = local.init.environment
-  resource_group                = local.init.resource_group_name
-  resource_prefix               = local.init.resource_prefix
-  location                      = local.init.location
-  service_plan_id               = module.app_service_plan.service_plan_id
-  container_registry_id         = module.container_registry.container_registry_id
-  postgres_server_id            = module.database.postgres_server_id
-  application_key_vault_id      = module.key_vault.application_key_vault_id
-  app_config_key_vault_id       = module.key_vault.app_config_key_vault_id
-  client_config_key_vault_id    = module.key_vault.client_config_key_vault_id
-  function_app_id               = module.function_app.function_app_id
-  front_door_id                 = module.front_door.front_door_id
+  source                     = "../../modules/log_analytics_workspace"
+  environment                = local.init.environment
+  resource_group             = local.init.resource_group_name
+  resource_prefix            = local.init.resource_prefix
+  location                   = local.init.location
+  service_plan_id            = module.app_service_plan.service_plan_id
+  container_registry_id      = module.container_registry.container_registry_id
+  postgres_server_id         = module.database.postgres_server_id
+  application_key_vault_id   = module.key_vault.application_key_vault_id
+  app_config_key_vault_id    = module.key_vault.app_config_key_vault_id
+  client_config_key_vault_id = module.key_vault.client_config_key_vault_id
+  function_app_id            = module.function_app.function_app_id
+  //front_door_id                 = module.front_door.front_door_id
   nat_gateway_id                = module.nat_gateway.nat_gateway_id
   primary_vnet_id               = module.network.primary_vnet_id
   replica_vnet_id               = module.network.replica_vnet_id

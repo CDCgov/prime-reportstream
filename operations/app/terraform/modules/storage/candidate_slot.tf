@@ -120,8 +120,11 @@ resource "azurerm_storage_management_policy" "retention_policy_candidate" {
     }
 
     actions {
-      base_blob {
-        delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
+      dynamic "base_blob" {
+        for_each = var.is_temp_env == false ? ["enabled"] : []
+        content {
+          delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
+        }
       }
       snapshot {
         delete_after_days_since_creation_greater_than = var.delete_pii_storage_after_days
@@ -242,8 +245,11 @@ resource "azurerm_storage_management_policy" "storage_candidate_partner_retentio
     }
 
     actions {
-      base_blob {
-        delete_after_days_since_modification_greater_than = 30
+      dynamic "base_blob" {
+        for_each = var.is_temp_env == false ? ["enabled"] : []
+        content {
+          delete_after_days_since_modification_greater_than = 30
+        }
       }
       snapshot {
         delete_after_days_since_creation_greater_than = 30

@@ -60,7 +60,7 @@ resource "azurerm_container_group" "sftp_container" {
       name                 = "${var.resource_prefix}-sftpserver"
       share_name           = azurerm_storage_share.sftp_share.name
       mount_path           = "/home/foo/upload"
-      storage_account_name = "${var.resource_prefix}storageaccount"
+      storage_account_name = var.storage_account.name
       storage_account_key  = var.sa_primary_access_key
     }
   }
@@ -79,18 +79,27 @@ resource "azurerm_container_group" "sftp_container" {
       container[0].volume[0],
     ]
   }
+
+  depends_on = [
+    azurerm_storage_share.sftp_share,
+    azurerm_network_profile.sftp_vnet_network_profile
+  ]
 }
 
 resource "azurerm_storage_share" "sftp_share" {
   name                 = "${var.resource_prefix}-sftpserver"
-  storage_account_name = "${var.resource_prefix}storageaccount"
+  storage_account_name = var.storage_account.name
+
+  depends_on = [
+    var.storage_account
+  ]
 }
 
 resource "azurerm_private_dns_a_record" "sftp_prime_local" {
   name = "sftp"
 
   resource_group_name = var.resource_group
-  zone_name           = data.azurerm_private_dns_zone.prime_local.name
+  zone_name           = var.dns_zones["prime"].name
 
   records = [
     azurerm_container_group.sftp_container.ip_address,

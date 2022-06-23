@@ -6,6 +6,9 @@ on:
       - master
       - production
       - test
+      - demo1
+      - demo2
+      - demo3
 
 defaults:
   run:

@@ -10,17 +10,17 @@ resource "azurerm_storage_account" "storage_account" {
   allow_blob_public_access  = false
   enable_https_traffic_only = true
 
-  network_rules {
-    default_action = "Deny"
-    bypass         = ["AzureServices"]
+  # network_rules {
+  #   default_action = "Deny"
+  #   bypass         = ["AzureServices"]
 
-    # ip_rules = sensitive(concat(
-    #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-    #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
-    # ))
+  #   # ip_rules = sensitive(concat(
+  #   #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+  #   #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
+  #   # ))
 
-    virtual_network_subnet_ids = var.subnets.primary_subnets
-  }
+  #   virtual_network_subnet_ids = var.subnets.primary_subnets
+  # }
 
   # Required for customer-managed encryption
   identity {
@@ -39,6 +39,23 @@ resource "azurerm_storage_account" "storage_account" {
   tags = {
     environment = var.environment
   }
+}
+
+# Wait to apply network restrictions to storage account to permit share creation
+resource "time_sleep" "wait_300_seconds" {
+  depends_on = [azurerm_storage_account.storage_account]
+
+  create_duration = "300s"
+}
+
+resource "azurerm_storage_account_network_rules" "storage_account" {
+  storage_account_id = azurerm_storage_account.storage_account.id
+
+  default_action             = var.is_temp_env == true ? "Allow" : "Deny"
+  virtual_network_subnet_ids = var.subnets.primary_subnets
+  bypass                     = ["AzureServices"]
+
+  depends_on = [time_sleep.wait_300_seconds]
 }
 
 module "storageaccount_blob_private_endpoint" {
@@ -125,14 +142,15 @@ resource "azurerm_storage_management_policy" "retention_policy" {
     }
 
     actions {
-      base_blob {
-        delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
+      dynamic "base_blob" {
+        for_each = var.is_temp_env == false ? ["enabled"] : []
+        content {
+          delete_after_days_since_modification_greater_than = var.delete_pii_storage_after_days
+        }
       }
       snapshot {
         delete_after_days_since_creation_greater_than = var.delete_pii_storage_after_days
       }
-      # Terraform does not appear to support deletion of versions
-      # This needs to be manually checked in the policy and set to 60 days
     }
   }
 
@@ -287,14 +305,15 @@ resource "azurerm_storage_management_policy" "storage_partner_retention_policy" 
     }
 
     actions {
-      base_blob {
-        delete_after_days_since_modification_greater_than = 30
+      dynamic "base_blob" {
+        for_each = var.is_temp_env == false ? ["enabled"] : []
+        content {
+          delete_after_days_since_modification_greater_than = 30
+        }
       }
       snapshot {
         delete_after_days_since_creation_greater_than = 30
       }
-      # Terraform does not appear to support deletion of versions
-      # This needs to be manually checked in the policy and set to 60 days
     }
   }
 
