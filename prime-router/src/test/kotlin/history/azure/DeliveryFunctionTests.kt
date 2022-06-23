@@ -135,6 +135,14 @@ class DeliveryFunctionTests : Logging {
     fun `test list deliveries`() {
         val testCases = listOf(
             DeliveryUnitTestCase(
+                mapOf("authorization" to "Bearer 111.222.333", "authentication-type" to "okta"),
+                emptyMap(),
+                ExpectedAPIResponse(
+                    HttpStatus.UNAUTHORIZED
+                ),
+                "unauthorized"
+            ),
+            DeliveryUnitTestCase(
                 mapOf("authorization" to "Bearer fads"), // no 'okta' auth-type, so this uses server2server auth
                 emptyMap(),
                 ExpectedAPIResponse(
@@ -426,7 +434,7 @@ class DeliveryFunctionTests : Logging {
             "elr-secondary",
             null,
             "primedatainput/pdi-covid-19",
-            "CSV"
+            "CSV",
         )
         // Happy path with a good UUID
         val action = Action()

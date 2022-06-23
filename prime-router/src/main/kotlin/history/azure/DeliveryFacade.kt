@@ -115,9 +115,9 @@ class DeliveryFacade(
             1,
             organizationName,
             "elr-secondary",
-            "",
+            null,
             "covid-19",
-            "HL7_BATCH"
+            "HL7_BATCH",
         )
 //        return dbDeliveryAccess.fetchAction(
 //            organizationName,

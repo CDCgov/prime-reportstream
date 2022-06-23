@@ -102,7 +102,7 @@ class DeliveryFunction(
      * Get expanded details for a single report
      *
      * @param request HTTP Request params
-     * @param id Report or Delivery id
+     * @param deliveryId Report or Delivery id
      * @return json formatted delivery
      */
     @FunctionName("getDeliveryDetails")
