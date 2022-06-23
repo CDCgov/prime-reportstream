@@ -10,9 +10,15 @@ import {
 } from "../network/api/LookupTableApi";
 import { showError } from "../components/AlertNotifications";
 
+export interface TableAttributes {
+    version: number;
+    createdAt: string;
+    createdBy: string;
+}
+
 export async function getLatestVersion(
     tableName: LookupTables
-): Promise<number> {
+): Promise<TableAttributes | null> {
     let response;
     try {
         response = await axios(lookupTableApi.getTableList()).then(
@@ -32,16 +38,26 @@ export async function getLatestVersion(
                 b["tableVersion"] - a["tableVersion"]
         )[0];
 
-        if (table?.tableVersion === undefined) {
-            showError(`ERROR! No version of table '${tableName}' was found!`);
-            return -1;
+        if (!table) {
+            showError(`ERROR! Table '${tableName}' was not found!`);
+            return null;
         }
 
-        return table?.tableVersion;
+        const { tableVersion, createdAt, createdBy } = table;
+        if (tableVersion === undefined) {
+            showError(`ERROR! No version of table '${tableName}' was found!`);
+            return null;
+        }
+
+        return {
+            version: tableVersion,
+            createdAt,
+            createdBy,
+        };
     } catch (e: any) {
         console.trace(e);
         showError(e.toString());
-        return -1;
+        return null;
     }
 }
 
@@ -62,16 +78,34 @@ export async function getLatestData<T>(
     }
 }
 
+const getDataAndVersion = async <T>(
+    tableName: LookupTables
+): Promise<{
+    data: any[];
+    versionData: TableAttributes | null;
+}> => {
+    const versionData = await getLatestVersion(tableName);
+    if (versionData === null) return { data: [], versionData: null }; // no version found (or other error occurred)
+
+    const data: T | any[] = await getLatestData<T[]>(
+        versionData.version,
+        tableName
+    );
+    return { data, versionData };
+};
+
 export const getSenderAutomationData = async <T>(
     tableName: LookupTables
 ): Promise<any[]> => {
-    const version: number = await getLatestVersion(tableName);
-    if (version === -1) return []; // no version found (or other error occurred)
+    const { data, versionData } = await getDataAndVersion<T>(tableName);
 
-    const data: T | any[] = await getLatestData<T[]>(version, tableName);
+    if (!versionData) {
+        return [];
+    }
 
     return data.map(
         (set: {
+            // should we add version here? that is in the detail designs but seems more relevant here
             name: string;
             system: string;
             createdBy: string;
@@ -79,8 +113,8 @@ export const getSenderAutomationData = async <T>(
         }) => ({
             name: set.name,
             system: set.system,
-            createdBy: set.createdBy,
-            createdAt: set.createdAt,
+            createdBy: versionData.createdBy,
+            createdAt: versionData.createdAt,
         })
     );
 };
@@ -89,10 +123,7 @@ export const getSenderAutomationDataRows = async <T>(
     tableName: LookupTables,
     dataSetName: string | null = null
 ): Promise<any[]> => {
-    const version: number = await getLatestVersion(tableName);
-    if (version === -1) return []; // no version found (or other error occurred)
-
-    const data: T | any[] = await getLatestData<T[]>(version, tableName);
+    const { data } = await getDataAndVersion<T>(tableName);
 
     return data
         .filter((f) => f.name === dataSetName)
