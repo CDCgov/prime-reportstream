@@ -1,6 +1,7 @@
 locals {
-  ping_url         = (var.environment == "prod" ? "https://prime.cdc.gov" : "https://${var.environment}.prime.cdc.gov")
-  alerting_enabled = (var.environment == "prod" || var.environment == "staging" ? 1 : 0)
+  ping_url                = (var.environment == "prod" ? "https://prime.cdc.gov" : "https://${var.environment}.prime.cdc.gov")
+  alerting_enabled        = (var.environment == "prod" || var.environment == "staging" ? 1 : 0)
+  prod_exclusive_alerting = (var.environment == "prod" ? 1 : 0)
 }
 
 resource "azurerm_application_insights" "app_insights" {
