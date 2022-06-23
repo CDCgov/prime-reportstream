@@ -24,6 +24,11 @@ describe("useLookupTable and related helper functions", () => {
             expect(createdAt).toEqual("now");
             expect(createdBy).toEqual("test@example.com");
         });
+
+        test("getLatestVersion returns null when table doesn't exist", async () => {
+            const result = await getLatestVersion(LookupTables.VALUE_SET_ROW);
+            expect(result).toBeFalsy();
+        });
     });
 
     test("getLatestData returns expected data", async () => {
