@@ -1,0 +1,36 @@
+system:
+     type: SYSTEM_URL
+     valueOf: $system
+    
+value: 
+     type: STRING
+     valueOf: $id
+     required: true
+
+period:  
+    valueOf: datatype/Period
+    expressionType: resource
+    vars: 
+       start: $start
+       end: $end
+
+extension_1:
+  # If the system is not a URL then add it as a code
+  condition: $codeAsUrl NULL && $code NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    codeAsUrl: SYSTEM_URL, $system
+    code: String, $system
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: coding-system
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept_var
+      expressionType: resource
+      vars:
+        system: SYSTEM_URL, $system_code
+        display: $NULL
+      constants:
+        system_code: "v2-0396"
