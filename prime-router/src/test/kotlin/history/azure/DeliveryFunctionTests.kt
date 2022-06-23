@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
@@ -16,16 +17,22 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.MockSettings
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.spyk
 import org.apache.logging.log4j.kotlin.Logging
+import org.jooq.exception.DataAccessException
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -115,7 +122,7 @@ class DeliveryFunctionTests : Logging {
         }
     }
 
-    val testData = listOf(
+    private val testData = listOf(
         DeliveryHistory(
             actionId = 922,
             createdAt = OffsetDateTime.parse("2022-04-19T18:04:26.534Z"),
@@ -148,7 +155,7 @@ class DeliveryFunctionTests : Logging {
 
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
-    val accessSpy = spyk(DatabaseAccess(connection))
+    private val accessSpy = spyk(DatabaseAccess(connection))
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         // Report.formExternalFilename has some metadata shenanigans that need to be tested in a different place
@@ -177,7 +184,7 @@ class DeliveryFunctionTests : Logging {
                 "unauthorized"
             ),
             DeliveryUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads"), // no 'okta' auth-type, so this uses server2server auth
+                mapOf("authorization" to "Bearer fads"), // no 'okta' auth-type, so this uses server2server auth
                 emptyMap(),
                 ExpectedAPIResponse(
                     HttpStatus.OK,
@@ -211,7 +218,7 @@ class DeliveryFunctionTests : Logging {
                 "simple success"
             ),
             DeliveryUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads", "authentication-type" to "okta"),
+                mapOf("authorization" to "Bearer fads", "authentication-type" to "okta"),
                 mapOf("cursor" to "nonsense"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
@@ -219,7 +226,7 @@ class DeliveryFunctionTests : Logging {
                 "bad date"
             ),
             DeliveryUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads"),
+                mapOf("authorization" to "Bearer fads"),
                 mapOf("pagesize" to "-1"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
@@ -227,15 +234,15 @@ class DeliveryFunctionTests : Logging {
                 "bad pagesize"
             ),
             DeliveryUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads"),
-                mapOf("pagesize" to "fdas"),
+                mapOf("authorization" to "Bearer fads"),
+                mapOf("pagesize" to "not a num"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
                 "bad pagesize, garbage"
             ),
             DeliveryUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads"),
+                mapOf("authorization" to "Bearer fads"),
                 mapOf(
                     "pagesize" to "10",
                     "cursor" to "2021-11-30T16:36:48.307Z",
@@ -247,7 +254,7 @@ class DeliveryFunctionTests : Logging {
                 "good minimum params"
             ),
             DeliveryUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads"),
+                mapOf("authorization" to "Bearer fads"),
                 mapOf(
                     "pagesize" to "10",
                     "cursor" to "2021-11-30T16:36:54.307109Z",
@@ -376,7 +383,7 @@ class DeliveryFunctionTests : Logging {
     }
 
     @Test
-    fun `test access user can view their org's delivery history`() {
+    fun `test access user can view their organization's delivery history`() {
         val facade = DeliveryFacade(TestDeliveryAccess(testData, mapper))
         val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
@@ -385,7 +392,7 @@ class DeliveryFunctionTests : Logging {
     }
 
     @Test
-    fun `test access user cannot view another org's delivery history`() {
+    fun `test access user cannot view another organization's delivery history`() {
         val facade = DeliveryFacade(TestDeliveryAccess(testData, mapper))
         val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
@@ -394,11 +401,102 @@ class DeliveryFunctionTests : Logging {
     }
 
     @Test
-    fun `test access DHPrimeAdmins can view all org's delivery history`() {
+    fun `test access DHPrimeAdmins can view all organization's delivery history`() {
         val facade = DeliveryFacade(TestDeliveryAccess(testData, mapper))
         val deliveryFunction = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, facade)
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         val response = deliveryFunction.getDeliveries(httpRequestMessage, "$organizationName.elr-secondary")
         assertThat(response.status).isEqualTo(HttpStatus.OK)
+    }
+
+    @Test
+    fun `test delivery details`() {
+        val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+
+        val mockDeliveryFacade = mockk<DeliveryFacade>()
+        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
+
+        mockkObject(AuthenticationStrategy.Companion)
+        every { AuthenticationStrategy.authenticate(any()) } returns
+            AuthenticatedClaims.generateTestClaims()
+
+        // Invalid id:  not a UUID nor a Long
+        var response = function.getDeliveryDetails(mockRequest, "bad")
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Database error
+        every { mockDeliveryFacade.fetchActionForReportId(any()) }.throws(DataAccessException("dummy"))
+        response = function.getDeliveryDetails(mockRequest, goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+
+        // Good UUID, but Not found
+        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns null
+        response = function.getDeliveryDetails(mockRequest, goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Good return
+        val returnBody = DeliveryHistory(
+            550, OffsetDateTime.now(), "ca-dph", "elr-secondary", 201,
+            null, "c3c8e304-8eff-4882-9000-3645054a30b7", "covid-19", 1,
+            null, "primedatainput/pdi-covid-19", "CSV"
+        )
+        // Happy path with a good UUID
+        val action = Action()
+        action.actionId = 550
+        action.sendingOrg = organizationName
+        action.actionName = TaskAction.receive
+        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
+        every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any(), any()) } returns returnBody
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        response = function.getDeliveryDetails(mockRequest, goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        var responseBody: ExpectedDelivery = mapper.readValue(response.body.toString())
+        assertThat(responseBody.deliveryId.toLong()).isEqualTo(returnBody.actionId)
+        assertThat(responseBody.receivingOrg).isEqualTo(returnBody.receivingOrg)
+
+        // Good uuid, but not a 'receive' step report.
+        action.actionName = TaskAction.process
+        response = function.getDeliveryDetails(mockRequest, goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Good actionId, but Not found
+        val goodActionId = "550"
+        action.actionName = TaskAction.receive
+        every { mockDeliveryFacade.fetchAction(any()) } returns null
+        response = function.getDeliveryDetails(mockRequest, goodActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Good actionId, but Not authorized
+        every { mockDeliveryFacade.fetchAction(any()) } returns action
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
+        response = function.getDeliveryDetails(mockRequest, goodActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+
+        // Happy path with a good actionId
+        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
+        every { mockDeliveryFacade.fetchAction(any()) } returns action
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any(), any()) } returns returnBody
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        response = function.getDeliveryDetails(mockRequest, goodActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        responseBody = mapper.readValue(response.body.toString())
+        assertThat(responseBody.deliveryId.toLong()).isEqualTo(returnBody.actionId)
+
+        // bad actionId, Not found
+        val badActionId = "24601"
+        action.actionName = TaskAction.receive
+        every { mockDeliveryFacade.fetchAction(any()) } returns null
+        response = function.getDeliveryDetails(mockRequest, badActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // empty actionId, Not found
+        val emptyActionId = ""
+        action.actionName = TaskAction.receive
+        every { mockDeliveryFacade.fetchAction(any()) } returns null
+        response = function.getDeliveryDetails(mockRequest, emptyActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
     }
 }
