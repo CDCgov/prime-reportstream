@@ -25,7 +25,7 @@ import java.time.OffsetDateTime
 @JsonPropertyOrder(
     value = [
         "deliveryId", "sent", "expires", "receivingOrg", "receivingOrgSvc", "httpStatus",
-        "reportId", "topic", "reportItemCount", "fileName", "fileType", "displayName",
+        "reportId", "topic", "reportItemCount", "fileName", "fileType",
     ]
 )
 class DeliveryHistory(
@@ -78,12 +78,5 @@ class DeliveryHistory(
             Report.Format.safeValueOf(this.bodyFormat),
             this.createdAt
         )
-    }
-
-    /**
-     * User-friendly name to describe this report file.
-     */
-    val displayName: String get() {
-        return if (externalName.isNullOrBlank()) receivingOrgSvc else externalName
     }
 }
