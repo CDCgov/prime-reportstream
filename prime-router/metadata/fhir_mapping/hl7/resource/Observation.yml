@@ -78,7 +78,7 @@ issued:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: OBR.22 | OBX.19
+    dateTimeIn: OBX.19
 
 valueString:
   condition: $obx2 EQUALS ST
@@ -228,16 +228,33 @@ referenceRange:
     unit: OBX.6
 
 performer_1:
-  condition: $performerValue NOT_NULL
-  valueOf: resource/Practitioner
+  condition: $rolePractitioner NOT_NULL
+  valueOf: resource/PractitionerRole
   generateList: true
   expressionType: reference
-  specs: OBX.16
   vars:
-    performerValue: OBX.16
+    rolePractitioner: OBX.16
+    roleOrganization: OBX.23
+    roleOrganizationAddress: OBX.24
+  constants:
+    code: responsibleObserver
+    system: http://terminology.hl7.org/CodeSystem/practitioner-role
 
 performer_2:
-  condition: $performerValue2 NOT_NULL
+  condition: $rolePractitioner NOT_NULL
+  valueOf: resource/PractitionerRole
+  generateList: true
+  expressionType: reference
+  vars:
+    rolePractitioner: OBX.25
+    roleOrganization: OBX.23
+    roleOrganizationAddress: OBX.24
+  constants:
+    code: MDIR
+    system: v2-0912
+
+performer_3:
+  condition: $performerValue2 NOT_NULL && $orgContactXCN NULL
   valueOf: resource/Organization
   generateList: true
   expressionType: reference
@@ -246,6 +263,7 @@ performer_2:
     performerValue2: OBX.23
     orgAddressXAD: OBX.24
     orgContactXCN: OBX.25
+    producerIdCWE: OBX.16
   constants:
     # Observation Organization needs an ADMIN purpose
     orgContactPurposeCode: "ADMIN"
@@ -274,3 +292,16 @@ category:
     code: "laboratory"
     system_code: "observation-category"
     display: "Laboratory"
+
+extension_1:
+#  condition: $producerId NOT_NULL
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: producer-id
+    valueReference:
+      valueOf: resource/Organization
+      expressionType: reference
+      specs: OBX.15
