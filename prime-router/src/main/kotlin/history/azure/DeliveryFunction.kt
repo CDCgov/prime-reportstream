@@ -91,7 +91,7 @@ class DeliveryFunction(
             name = "getDeliveries",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "waters/{organization}/deliveries"
+            route = "waters/org/{organization}/deliveries"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organization") organization: String,
     ): HttpResponseMessage {
@@ -111,7 +111,7 @@ class DeliveryFunction(
             name = "getDeliveryDetails",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "waters/deliveries/{deliveryId}/history"
+            route = "waters/report/{deliveryId}/delivery"
         ) request: HttpRequestMessage<String?>,
         @BindingName("deliveryId") deliveryId: String,
     ): HttpResponseMessage {

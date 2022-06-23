@@ -16,7 +16,7 @@ servers:
   - url: http://localhost:7071/api
     description: Developer Environment
 paths:
-  /waters/{organization}.{client}/deliveries:
+  /waters/org/{organization}.{client}/deliveries:
     get:
       operationId: getDeliveries
       summary: Get available reports for a STLT
@@ -56,7 +56,7 @@ paths:
           description: unauthorized
         '404':
           description: organization does not exist
-  /waters/deliveries/{deliveryId}/history:
+  /waters/report/{deliveryId}/delivery:
     get:
       operationId: getDeliveryDetails
       summary: Get expanded details for a single report
@@ -129,7 +129,7 @@ components:
       type: object
       properties:
         deliveryId:
-          description: the row number for this report's action log
+          description: the action_id from this report's action log entry
           type: integer
         sent:
           description: when this report was sent
@@ -145,9 +145,6 @@ components:
         receivingOrgSvc:
           description: service used by the organization
           type: string
-        httpStatus:
-          description: response given to the sender upon submission
-          type: integer
         reportId:
           description: the uuid for this report
           type: string
@@ -164,9 +161,7 @@ components:
         fileType:
           description: format in which the report was originally sent
           type: string
-        displayName:
-          description: what text to display to identify the type of report
-          type: string
+          enum: [ INTERNAL, CSV, CSV_SINGLE, HL7, HL7_BATCH, FHIR ]
     FacilitiesList:
       type: array
       items:
