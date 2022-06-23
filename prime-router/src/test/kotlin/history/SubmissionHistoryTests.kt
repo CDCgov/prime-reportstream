@@ -257,8 +257,8 @@ class SubmissionHistoryTests {
         ).run {
             assertThat(actionId).isEqualTo(1)
             assertThat(createdAt).isNotNull()
-            assertThat(sendingOrg).isEqualTo("simple_report")
-            assertThat(httpStatus).isEqualTo(201)
+            assertThat(sendingOrg).isEqualTo("")
+            assertThat(httpStatus).isNull()
             assertThat(externalName).isEqualTo("")
             assertThat(reportId).isNull()
             assertThat(topic).isNull()
@@ -342,7 +342,7 @@ class SubmissionHistoryTests {
             assertThat(externalName).isEqualTo("")
             assertThat(destinations.size).isEqualTo(0)
             assertThat(destinationCount).isEqualTo(0)
-            assertThat(reports?.size).isEqualTo(0)
+            assertThat(reports).isNull()
             assertThat(logs.size).isEqualTo(0)
         }
 
