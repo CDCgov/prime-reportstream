@@ -24,6 +24,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.JtiCache
+import gov.cdc.prime.router.azure.db.tables.pojos.ListSendFailures
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
@@ -845,6 +846,21 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     fun refreshMaterializedViews(tableName: String, txn: DataAccessTransaction? = null) {
         val ctx = if (txn != null) DSL.using(txn) else create
         Routines.refreshMaterializedViews(ctx.configuration(), tableName)
+    }
+
+    /**
+     * Calls the "Last Mile" stored procedure
+     * Returns all send_errors in the past daysBackSpan.
+     * Nothing found returns empty Result
+     */
+    fun fetchSendFailures(
+        daysBackSpan: Int = 30,
+        txn: DataAccessTransaction? = null
+    ): List<ListSendFailures> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .selectFrom(Routines.listSendFailures(daysBackSpan))
+            .fetchInto(ListSendFailures::class.java)
     }
 
     /** Common companion object */
