@@ -81,7 +81,8 @@ resource "azurerm_container_group" "sftp_container" {
   }
 
   depends_on = [
-    azurerm_storage_share.sftp_share
+    azurerm_storage_share.sftp_share,
+    azurerm_network_profile.sftp_vnet_network_profile
   ]
 }
 

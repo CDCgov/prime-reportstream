@@ -56,6 +56,7 @@ variable "function_app_id" {
 variable "front_door_id" {
   type        = string
   description = "Front Door resource id"
+  default     = ""
 }
 
 variable "nat_gateway_id" {

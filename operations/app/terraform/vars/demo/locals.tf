@@ -1,13 +1,12 @@
 locals {
   random_id   = lower(random_id.init.b64_url)
   is_temp_env = true
-}
-locals {
+  address_id  = var.address_id
   init = {
     environment         = var.environment
     location            = "eastus"
     is_metabase_env     = false
-    random_id           = local.is_temp_env == true ? "${local.random_id}" : ""
+    random_id           = local.random_id
     resource_group_name = "prime-data-hub-${var.environment}"
     resource_prefix     = "pdh${var.environment}"
     okta_redirect_url   = "https://${var.environment}.prime.cdc.gov/download"
@@ -50,7 +49,7 @@ locals {
     terraform_caller_ip_address = ["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191"]
     config = {
       "East-vnet" = {
-        "address_space"           = "172.17.8.0/25"
+        "address_space"           = "172.17.${local.address_id}.0/25"
         "dns_servers"             = "172.17.0.135"
         "location"                = "East Us"
         "nsg_prefix"              = "eastus-"
@@ -72,25 +71,25 @@ locals {
         "subnets" = ["public", "private", "container", "endpoint"]
         subnet_details = {
           public = {
-            address_prefix     = "172.17.8.0/28"
+            address_prefix     = "172.17.${local.address_id}.0/28"
             security_group     = "public"
             service_endpoints  = ["Microsoft.ContainerRegistry", "Microsoft.Storage", "Microsoft.Sql", "Microsoft.Web", "Microsoft.KeyVault"]
             service_delegation = ["Microsoft.Web/serverFarms"]
           }
           container = {
-            address_prefix     = "172.17.8.16/28"
+            address_prefix     = "172.17.${local.address_id}.16/28"
             security_group     = "public"
             service_endpoints  = ["Microsoft.Storage", "Microsoft.KeyVault"]
             service_delegation = ["Microsoft.ContainerInstance/containerGroups"]
           }
           private = {
-            address_prefix     = "172.17.8.32/28"
+            address_prefix     = "172.17.${local.address_id}.32/28"
             security_group     = "private"
             service_endpoints  = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault"]
             service_delegation = ["Microsoft.Web/serverFarms"]
           }
           endpoint = {
-            address_prefix     = "172.17.8.64/27"
+            address_prefix     = "172.17.${local.address_id}.64/27"
             security_group     = "private"
             service_endpoints  = ["Microsoft.Storage", "Microsoft.KeyVault"]
             service_delegation = []
@@ -116,7 +115,7 @@ locals {
         ]
       },
       "West-vnet" = {
-        "address_space"           = "172.17.8.128/25"
+        "address_space"           = "172.17.${local.address_id}.128/25"
         "dns_servers"             = ["172.17.0.135"]
         "location"                = "West Us"
         "subnets"                 = ["public", "private", "container", "endpoint"]
@@ -138,25 +137,25 @@ locals {
         }
         subnet_details = {
           public = {
-            address_prefix     = "172.17.8.128/28"
+            address_prefix     = "172.17.${local.address_id}.128/28"
             security_group     = "public"
             service_endpoints  = ["Microsoft.ContainerRegistry", "Microsoft.Storage", "Microsoft.Sql", "Microsoft.Web", "Microsoft.KeyVault"]
             service_delegation = ["Microsoft.Web/serverFarms"]
           }
           container = {
-            address_prefix     = "172.17.8.144/28"
+            address_prefix     = "172.17.${local.address_id}.144/28"
             security_group     = "public"
             service_endpoints  = ["Microsoft.Storage", "Microsoft.KeyVault"]
             service_delegation = ["Microsoft.ContainerInstance/containerGroups"]
           }
           private = {
-            address_prefix     = "172.17.8.160/28"
+            address_prefix     = "172.17.${local.address_id}.160/28"
             security_group     = "private"
             service_endpoints  = ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault"]
             service_delegation = ["Microsoft.Web/serverFarms"]
           }
           endpoint = {
-            address_prefix     = "172.17.8.192/27"
+            address_prefix     = "172.17.${local.address_id}.192/27"
             security_group     = "private"
             service_endpoints  = ["Microsoft.Storage", "Microsoft.KeyVault"]
             service_delegation = []
