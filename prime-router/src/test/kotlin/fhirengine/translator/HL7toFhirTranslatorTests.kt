@@ -29,12 +29,6 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
     }
 
     @Test
-    fun `test get message engine`() {
-        // Just make sure we can get an engine, which means the config is setup correctly.
-        assertThat(HL7toFhirTranslator.getMessageEngine()).isNotNull()
-    }
-
-    @Test
     fun `test get message template`() {
         val message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
         assertThat(message.size).isEqualTo(1)

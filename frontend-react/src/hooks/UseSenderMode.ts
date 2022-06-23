@@ -1,15 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 import { orgApi, Sender } from "../network/api/OrgApi";
+import { useSessionContext } from "../contexts/SessionContext";
+
+import { MemberType } from "./UseOktaMemberships";
 
 const useSenderMode = (defaultOrg?: string, defaultSender?: string): string => {
     const [status, setStatus] = useState<string>("active");
-    const endpoint = useMemo(() => {
-        if (defaultOrg && defaultSender) {
-            return orgApi.getSenderDetail(defaultOrg, defaultSender);
-        }
-    }, [defaultOrg, defaultSender]);
+    const { memberships } = useSessionContext();
 
     useEffect(() => {
         /* Tests threw a "you can't update state after a ReactElement is
@@ -17,7 +16,14 @@ const useSenderMode = (defaultOrg?: string, defaultSender?: string): string => {
          * changes state in the .then() call. On teardown, this will
          * be set to false and the state will not attempt to update. */
         let isSubscribed = true;
-        if (endpoint) {
+        const endpoint =
+            defaultOrg &&
+            defaultSender &&
+            orgApi.getSenderDetail(defaultOrg, defaultSender);
+        if (
+            endpoint &&
+            memberships.state.active?.memberType === MemberType.SENDER
+        ) {
             axios
                 .get<Sender>(endpoint.url, endpoint)
                 .then((res) =>
@@ -27,7 +33,7 @@ const useSenderMode = (defaultOrg?: string, defaultSender?: string): string => {
         return () => {
             isSubscribed = false;
         };
-    }, [endpoint]);
+    }, [defaultOrg, defaultSender, memberships.state.active?.memberType]);
 
     return status;
 };

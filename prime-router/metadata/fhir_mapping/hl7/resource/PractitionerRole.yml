@@ -1,0 +1,29 @@
+resourceType: PractitionerRole
+id:
+  type: STRING
+  valueOf: 'UUID.randomUUID()'
+  expressionType: JEXL
+
+practitioner:
+  condition: $rolePractitioner NOT_NULL
+  valueOf: resource/Practitioner
+  expressionType: reference
+  specs: $rolePractitioner
+  vars:
+    referenceDisplay: PERSON_DISPLAY_NAME, $rolePractitioner
+    contactSpec: $rolePractitionerCallbackNumber
+    addressSpec: $rolePractitionerAddress
+
+organization:
+  condition: $rolePractitioner NOT_NULL
+  valueOf: resource/Organization
+  expressionType: reference
+  specs: $roleOrganization
+  vars:
+    orgAddressXAD: $roleOrganizationAddress
+    orgContactPointXTN: $roleOrganizationPhone
+
+code:
+  valueOf: datatype/CodeableConcept_var
+  expressionType: resource
+  generateList: true

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.router.common.DateUtilities
 import org.apache.logging.log4j.kotlin.Logging
 import tech.tablesaw.api.Table
 import tech.tablesaw.selection.Selection
@@ -430,7 +431,7 @@ class InDateInterval : ReportStreamFilterDefinition {
             OffsetDateTime.now()!!
         } else {
             try {
-                Element.getDateTime(args[1], format = null)
+                DateUtilities.getDateTime(args[1], format = null)
             } catch (ex: DateTimeParseException) {
                 error("Invalid date value in date arg: ${ex.message}")
             }
@@ -444,11 +445,12 @@ class InDateInterval : ReportStreamFilterDefinition {
         val column = table.stringColumn(args[0])
         column.forEachIndexed { index, value ->
             try {
-                val dateTime = Element.getDateTime(value, format = null)
+                val dateTime = DateUtilities.getDateTime(value, format = null)
                 if (!dateTime.isBefore(intervalStart) && dateTime.isBefore(intervalEnd)) {
                     selection.add(index)
                 }
             } catch (_: DateTimeException) {
+            } catch (_: DateTimeParseException) {
             }
         }
         return selection

@@ -8,7 +8,7 @@ elements:
     type: TEXT
     csvFields: [{name: state}]
   - name: test_time
-    type: DATE
+    type: DATETIME
     csvFields: [{name: test_time}]
   - name: specimen_id
     type: ID

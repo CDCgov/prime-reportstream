@@ -1,28 +1,43 @@
 /* Makes row objects string-indexed */
 import {
     Button,
+    IconArrowDownward,
+    IconArrowUpward,
     IconNavigateBefore,
     IconNavigateNext,
-    IconArrowUpward,
-    IconArrowDownward,
 } from "@trussworks/react-uswds";
-import { NavLink } from "react-router-dom";
-import React from "react";
+import React, { ReactNode, useMemo, useCallback, useState } from "react";
 
+import Pagination, { PaginationProps } from "../../components/Table/Pagination";
 import {
     CursorActionType,
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
-import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder";
+import {
+    SortOrder,
+    SortSettingsActionType,
+} from "../../hooks/filters/UseSortOrder";
 
-export interface TableRow {
-    [key: string]: any;
-}
+import { TableRows } from "./TableRows";
 
 export interface ActionableColumn {
     action: Function;
     param?: string;
+}
+
+export interface LinkableColumn {
+    link: boolean;
+    linkBasePath?: string;
+    linkAttr?: string; // if no linkAttr is given, defaults to dataAttr
+}
+
+// each table row will be a map keyed off the dataAttr value of
+// a column from the column config from the same tableConfig.
+// values will largely be assumed to be primitive values, or values
+// to be passed into a transform function defined in the column config
+export interface TableRow {
+    [key: string]: any;
 }
 
 /* ColumnConfig tells the Table element how to render each column
@@ -34,16 +49,16 @@ export interface ActionableColumn {
  * @property linkAttr: the attribute to plug into the link url
  * @property valueMap: provides key/value pairs to map API values to UI values
  * @property transform: a function used to transform values within the column */
+type ColumnFeature = ActionableColumn | LinkableColumn;
 export interface ColumnConfig {
     dataAttr: string;
     columnHeader: string;
-    actionable?: ActionableColumn;
+    feature?: ColumnFeature;
     sortable?: boolean;
-    link?: boolean;
-    linkBasePath?: string;
-    linkAttr?: string; // if no linkAttr is given, defaults to dataAttr
     valueMap?: Map<string | number, any>;
     transform?: Function;
+    editable?: boolean;
+    localSort?: boolean;
 }
 
 export interface TableConfig {
@@ -51,60 +66,177 @@ export interface TableConfig {
     rows: Array<TableRow>;
 }
 
-export interface TableProps {
-    config: TableConfig;
-    filterManager?: FilterManager;
-    cursorManager?: CursorManager;
+export interface DatasetAction {
+    label: string;
+    method?: Function;
 }
 
-const Table = ({ config, filterManager, cursorManager }: TableProps) => {
+export interface DatasetActionProps extends DatasetAction {
+    disabled: boolean;
+}
+
+export type RowSideEffect = (row: TableRow | null) => Promise<void>;
+
+export interface TableProps {
+    config: TableConfig;
+    title?: string;
+    /* The Legend component is the responsibility
+     * of the parent to pass in, allowing it to be as
+     * versatile as possible */
+    legend?: ReactNode;
+    datasetAction?: DatasetAction;
+    filterManager?: FilterManager;
+    cursorManager?: CursorManager;
+    paginationProps?: PaginationProps;
+    enableEditableRows?: boolean;
+    editableCallback?: RowSideEffect;
+}
+
+export interface LegendItem {
+    label: string;
+    value: string;
+}
+
+const Table = ({
+    config,
+    title,
+    legend,
+    datasetAction,
+    filterManager,
+    cursorManager,
+    paginationProps,
+    enableEditableRows,
+    editableCallback = () => Promise.resolve(),
+}: TableProps) => {
+    const [rowToEdit, setRowToEdit] = useState<number | undefined>();
+
+    /* memoizedRows is the source of truth for rendered table rows. If a local
+     * sort is applied, this function reactively sorts the rows passed in. If
+     * the sort column, order, or localSort value change in SortSettings,
+     * this reactively updates to account for that, too. */
+    const memoizedRows = useMemo(() => {
+        if (!config?.rows.length) {
+            return [];
+        }
+        const column = filterManager?.sortSettings?.column || "";
+        const locally = filterManager?.sortSettings?.locally || false;
+        const localOrder = filterManager?.sortSettings?.localOrder || "DESC";
+        const valueType = typeof config?.rows[0]?.[column];
+        if (locally) {
+            switch (valueType) {
+                case "string": {
+                    return config.rows.sort((a, b) =>
+                        localOrder === "ASC"
+                            ? a[column].localeCompare(b[column])
+                            : b[column].localeCompare(a[column])
+                    );
+                }
+                case "bigint":
+                case "number": {
+                    return config.rows.sort((a, b) =>
+                        localOrder === "ASC"
+                            ? a[column] - b[column]
+                            : b[column] - a[column]
+                    );
+                }
+            }
+        }
+        return config.rows;
+    }, [config.rows, filterManager?.sortSettings]);
+
+    const addRow = useCallback(() => {
+        setRowToEdit(memoizedRows.length);
+    }, [memoizedRows, setRowToEdit]);
+
     const renderArrow = () => {
-        if (filterManager && filterManager.sortSettings.order === "ASC") {
+        const { order, localOrder, locally } = filterManager?.sortSettings || {
+            order: "DESC",
+            locally: false,
+            localOrder: "DESC",
+        };
+
+        const isOrder = (sortOrder: SortOrder) =>
+            order === sortOrder || (locally && localOrder === sortOrder);
+
+        if (filterManager && isOrder("ASC")) {
             return <IconArrowUpward />;
-        } else if (
-            filterManager &&
-            filterManager.sortSettings.order === "DESC"
-        ) {
+        } else if (filterManager && isOrder("DESC")) {
             return <IconArrowDownward />;
         }
     };
+
+    const swapSort = (currentColumn: ColumnConfig) => {
+        if (currentColumn.localSort) {
+            // Sets local sort to true and swaps local sort order
+            filterManager?.updateSort({
+                type: SortSettingsActionType.APPLY_LOCAL_SORT,
+                payload: {
+                    locally: true,
+                },
+            });
+            filterManager?.updateSort({
+                type: SortSettingsActionType.SWAP_LOCAL_ORDER,
+            });
+        } else {
+            // Sets local sort to false and swaps the order
+            filterManager?.updateSort({
+                type: SortSettingsActionType.APPLY_LOCAL_SORT,
+                payload: {
+                    locally: false,
+                },
+            });
+            filterManager?.updateSort({
+                type: SortSettingsActionType.SWAP_ORDER,
+            });
+        }
+        filterManager?.updateSort({
+            type: SortSettingsActionType.CHANGE_COL,
+            payload: {
+                column: currentColumn.dataAttr,
+            },
+        });
+    };
+
+    const updateCursorForNetworkSort = () => {
+        /* IMPORTANT:
+         * The conditional presented in this call is measuring
+         * sortSettings.order BEFORE it's swapped (which we do
+         * above this). This is why the logic is backwards */
+        cursorManager?.update({
+            type: CursorActionType.RESET,
+            payload:
+                filterManager?.sortSettings.order === "ASC"
+                    ? filterManager?.rangeSettings.to
+                    : filterManager?.rangeSettings.from,
+        });
+    };
+
     /* Renders the header row of the table from columns.values() */
     const TableHeaders = () => {
+        const isSortedColumn = (colConfig: ColumnConfig) =>
+            colConfig.sortable &&
+            filterManager?.sortSettings.column === colConfig.dataAttr;
         return (
             <tr>
                 {config.columns?.map((colConfig) => {
                     if (colConfig.sortable && filterManager) {
                         return (
                             <th
+                                className="rs-sortable-header"
                                 key={colConfig.columnHeader}
                                 onClick={() => {
-                                    filterManager?.updateSort({
-                                        type: SortSettingsActionType.CHANGE_COL,
-                                        payload: {
-                                            column: colConfig.dataAttr,
-                                        },
-                                    });
-                                    filterManager?.updateSort({
-                                        type: SortSettingsActionType.SWAP_ORDER,
-                                    });
-                                    /* IMPORTANT:
-                                     * The conditional presented in this call is measuring
-                                     * sortSettings.order BEFORE it's swapped (which we do
-                                     * above this). This is why the logic is backwards */
-                                    cursorManager?.update({
-                                        type: CursorActionType.RESET,
-                                        payload:
-                                            filterManager?.sortSettings
-                                                .order === "ASC"
-                                                ? filterManager?.rangeSettings
-                                                      .to
-                                                : filterManager?.rangeSettings
-                                                      .from,
-                                    });
+                                    // Swaps the order and set column
+                                    swapSort(colConfig);
+                                    // Only updates cursor when NOT locally sorting
+                                    if (!colConfig.localSort) {
+                                        updateCursorForNetworkSort();
+                                    }
                                 }}
                             >
                                 {colConfig.columnHeader}
-                                {colConfig.sortable ? renderArrow() : null}
+                                {isSortedColumn(colConfig)
+                                    ? renderArrow()
+                                    : null}
                             </th>
                         );
                     } else {
@@ -115,89 +247,45 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
                         );
                     }
                 })}
+                {enableEditableRows ? (
+                    // This extends the header bottom border to cover this column
+                    <th key={"edit"}>{""}</th>
+                ) : null}
             </tr>
         );
     };
 
-    const showMappedValue = (
-        columnConfig: ColumnConfig,
-        object: TableRow
-    ): string => {
-        if (columnConfig.valueMap) {
-            return (
-                columnConfig.valueMap?.get(object[columnConfig.dataAttr]) ||
-                object[columnConfig.dataAttr]
-            );
-        } else {
-            return object[columnConfig.dataAttr];
-        }
-    };
+    // this button will be placed above the rendered table and on `click` will run an arbitrary function
+    // passed in from the Table's parent, or an addRow function defined by the Table.
+    // in order to avoid problems around timing, takes a `disabled` prop.
+    // TODO: split this out of Table component
+    const DatasetActionButton = ({
+        label,
+        method = () => {},
+        disabled,
+    }: DatasetActionProps) => (
+        <Button type={"button"} onClick={() => method()} disabled={disabled}>
+            {label}
+        </Button>
+    );
 
-    const renderRow = (object: TableRow, columnConfig: ColumnConfig) => {
-        let displayValue = object[columnConfig.dataAttr];
-        // Transforms value if transform function is given
-        if (columnConfig.transform) {
-            displayValue = columnConfig.transform(displayValue);
-        }
-
-        if (columnConfig.link) {
-            // Render column value as NavLink
-            return (
-                <NavLink
-                    className="usa-link"
-                    to={`${columnConfig?.linkBasePath || ""}${
-                        object[columnConfig?.linkAttr || columnConfig.dataAttr]
-                    }`}
-                >
-                    {columnConfig.valueMap
-                        ? showMappedValue(columnConfig, object)
-                        : displayValue}
-                </NavLink>
-            );
-        } else if (columnConfig.actionable) {
-            const { action, param } = columnConfig.actionable;
-            const doAction = () => {
-                if (param) return action(object[param]);
-                return action();
-            };
-            return (
-                <button
-                    className="usa-link bg-transparent border-transparent"
-                    onClick={() => doAction()}
-                >
-                    {displayValue}
-                </button>
-            );
-        } else {
-            return columnConfig.valueMap
-                ? showMappedValue(columnConfig, object)
-                : displayValue;
-        }
-    };
-
-    /* Iterates each row, and then uses the key value from columns.keys()
-     * to render each cell in the appropriate column. */
-    const TableRows = () => {
+    const TableInfo = () => {
         return (
-            <>
-                {config.rows.map((object, rowIndex) => {
-                    // Caps page size when filterManager exists
-                    if (
-                        filterManager &&
-                        rowIndex >= filterManager?.pageSettings.size
-                    )
-                        return null;
-                    return (
-                        <tr key={rowIndex}>
-                            {config.columns.map((colConfig, colIndex) => (
-                                <td key={`${rowIndex}:${colIndex}`}>
-                                    {renderRow(object, colConfig)}
-                                </td>
-                            ))}
-                        </tr>
-                    );
-                })}
-            </>
+            <div className="grid-col-12 display-flex flex-align-end flex-justify-between">
+                <div className="grid-col-8 display-flex flex-column">
+                    {title ? <h2>{title}</h2> : null}
+                    {legend ? legend : null}
+                </div>
+                <div className="grid-col-2 display-flex flex-column">
+                    {datasetAction ? (
+                        <DatasetActionButton
+                            label={datasetAction.label}
+                            method={datasetAction.method || addRow}
+                            disabled={!!rowToEdit}
+                        />
+                    ) : null}
+                </div>
+            </div>
         );
     };
 
@@ -240,21 +328,29 @@ const Table = ({ config, filterManager, cursorManager }: TableProps) => {
 
     return (
         <div className="grid-container margin-bottom-10">
+            <TableInfo />
             <div className="grid-col-12">
                 <table
-                    className="usa-table usa-table--borderless prime-table"
+                    className="usa-table usa-table--borderless usa-table--striped prime-table"
                     aria-label="Submission history from the last 30 days"
                 >
                     <thead>
                         <TableHeaders />
                     </thead>
                     <tbody className="font-mono-2xs">
-                        <TableRows />
+                        <TableRows
+                            rows={memoizedRows}
+                            onSave={editableCallback}
+                            enableEditableRows={enableEditableRows}
+                            filterManager={filterManager}
+                            columns={config.columns}
+                            rowToEdit={rowToEdit}
+                            setRowToEdit={setRowToEdit}
+                        />
                     </tbody>
                 </table>
-                {cursorManager ? (
-                    <PaginationButtons {...cursorManager} />
-                ) : null}
+                {cursorManager && <PaginationButtons {...cursorManager} />}
+                {paginationProps && <Pagination {...paginationProps} />}
             </div>
         </div>
     );

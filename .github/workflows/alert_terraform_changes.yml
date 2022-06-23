@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -28,17 +28,20 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
       - name: Collect Terraform stats
-        uses: josiahsiegel/terraform-stats@64e3f3a7e4fb74408ab939c334f32f272ca7035d
+        uses: josiahsiegel/terraform-stats@56fee0a5fc6f2c118a8a4992603054c78a1379ad
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
+          terraform-version: 1.1.9
       - name: Format outputs for slack
+        if: steps.stats1.outputs.change-count > 0
         run: |
           echo "resource-changes=$(echo '${{ steps.stats1.outputs.resource-changes }}' \
-            | sed 's/\"/\\\"/g')" >> $GITHUB_ENV
+            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
           echo "resource-drifts=$(echo '${{ steps.stats1.outputs.resource-drifts }}' \
-            | sed 's/\"/\\\"/g')" >> $GITHUB_ENV
+            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
       - name: Send custom JSON data to Slack workflow
+        if: steps.stats1.outputs.change-count > 0
         id: slack
         uses: slackapi/slack-github-action@34c3fd73326693ef04728f8611669d918a2d781d
         with:

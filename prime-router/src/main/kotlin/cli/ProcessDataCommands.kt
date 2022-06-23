@@ -557,6 +557,7 @@ class ProcessData(
                     hl7Serializer.write(reportWithTranslation, stream)
                 }
                 Report.Format.HL7_BATCH -> hl7Serializer.writeBatch(report, stream)
+                else -> throw UnsupportedOperationException("Unsupported ${report.bodyFormat}")
             }
         }
     }

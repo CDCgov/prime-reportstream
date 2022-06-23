@@ -2,9 +2,8 @@ package gov.cdc.prime.router.fhirengine.translation
 
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v251.segment.MSH
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
-import io.github.linuxforhealth.fhir.FHIRContext
-import io.github.linuxforhealth.hl7.ConverterOptions
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
 import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
@@ -15,7 +14,9 @@ import org.hl7.fhir.r4.model.Coding
 /**
  * Translate an HL7 message to FHIR.
  */
-class HL7toFhirTranslator internal constructor(private val messageEngine: HL7MessageEngine = defaultEngine) : Logging {
+class HL7toFhirTranslator internal constructor(
+    private val messageEngine: HL7MessageEngine = FhirTranscoder.getMessageEngine()
+) : Logging {
     companion object {
         init {
             // TODO Change to use the local classpath per documentation
@@ -28,26 +29,6 @@ class HL7toFhirTranslator internal constructor(private val messageEngine: HL7Mes
          */
         internal val defaultMessageTemplates: MutableMap<String, HL7MessageModel> =
             ResourceReader.getInstance().messageTemplates
-
-        /**
-         * A default engine for translating HL7 -> FHIR
-         */
-        private val defaultEngine = getMessageEngine()
-
-        /**
-         * Build a HL7MessageEngine for converting HL7 -> FHIR with provided [options].
-         * @return the message engine
-         */
-        internal fun getMessageEngine(options: ConverterOptions = ConverterOptions.SIMPLE_OPTIONS): HL7MessageEngine {
-            val context = FHIRContext(
-                options.isPrettyPrint,
-                options.isValidateResource,
-                options.properties,
-                options.zoneIdText
-            )
-
-            return HL7MessageEngine(context, options.bundleType)
-        }
 
         /**
          * Singleton object
@@ -116,7 +97,6 @@ class HL7toFhirTranslator internal constructor(private val messageEngine: HL7Mes
      * Enhance the [bundle] metadata with data from an [hl7Message].  This is not part of the library configuration.
      */
     private fun enhanceBundleMetadata(bundle: Bundle, hl7Message: Message) {
-        bundle.type = Bundle.BundleType.MESSAGE
         // For bundles of type MESSAGE the timestamp is the time the HL7 was generated.
         bundle.timestamp = HL7Reader.getMessageTimestamp(hl7Message)
 
