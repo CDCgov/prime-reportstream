@@ -122,7 +122,6 @@ export const TableRows = ({
 
         const rowToUpdate = updatedRow ? updatedRow : rows[rowToEdit];
         const rowValues = { ...rowToUpdate };
-        console.log("!!!! updating field", rowToUpdate);
         // update the field value in the given row
         rowValues[field] = value;
         setUpdatedRow(rowValues);
@@ -138,7 +137,6 @@ export const TableRows = ({
             if (rowToEdit !== undefined && rowToEdit === rowIndex) {
                 // but if there are no changes to save, just back out of editing
                 if (!updatedRow) {
-                    console.log("No changes to save");
                     setRowToEdit(undefined);
                     return;
                 }
@@ -156,7 +154,7 @@ export const TableRows = ({
     );
 
     const addingNewRow: boolean = useMemo(
-        () => !!(rowToEdit !== undefined && rowToEdit === rows.length),
+        () => rowToEdit !== undefined && rowToEdit === rows.length,
         [rowToEdit, rows.length]
     );
 

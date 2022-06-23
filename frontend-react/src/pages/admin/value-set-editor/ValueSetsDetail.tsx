@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -122,27 +122,19 @@ const saveData = async (
         })
     );
 
-    console.log("!!! updated rows", strippedArray.slice(index - 2, index + 2));
-
     try {
         let updateResult = await axios
             .post(endpointHeaderUpdate.url, strippedArray)
             .then((response) => response.data);
-
-        console.log("!!! updateResult", updateResult);
 
         const endpointHeaderActivate = lookupTableApi.activateTableData(
             updateResult.tableVersion,
             LookupTables.VALUE_SET_ROW
         );
 
-        const activateResult = await axios
+        return await axios
             .put(endpointHeaderActivate.url, LookupTables.VALUE_SET_ROW)
             .then((response) => response.data);
-
-        console.log("!!! activateResult", activateResult);
-
-        return activateResult;
     } catch (e: any) {
         console.trace(e);
         showError(e.toString());
@@ -194,7 +186,6 @@ const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
     );
 
     useEffect(() => {
-        console.log("!!! setting rows from fetch", valueSetRowArray);
         setValueSetRows(valueSetRowArray);
     }, [valueSetRowArray]);
 

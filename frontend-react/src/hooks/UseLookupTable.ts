@@ -134,13 +134,11 @@ export const getSenderAutomationDataRows = async <T>(
             display: string;
             code: string;
             version: string;
-            system: string;
         }) => ({
             name: set.name,
             display: set.display,
             code: set.code,
             version: set.version,
-            system: set.system,
         })
     );
 };
