@@ -1,0 +1,91 @@
+openapi: 3.0.2
+info:
+  title: Prime ReportStream
+  description: A router of public health data from multiple senders and receivers
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://reportstream.cdc.gov
+    email: reportstream@cdc.gov
+  version: 0.2.0-oas3
+paths:
+
+  # The amin end-point handles the misc queries and commands PRIME admins
+  #
+  /adm/getsendfailures:
+    get:
+      description: Returns list of recent failed report-forwarding sends.
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - in: query
+          name: days_to_show
+          description: Number of days back from today include in results
+          schema:
+            type: integer
+          required: false
+          example: days_to_show=3
+      responses:
+        '200':
+          description: OK
+          headers:
+            Last-Modified:
+              description: The date and time any setting was modified in GMT.
+              example: Wed, 21 Oct 2015 07:28:00 GMT
+              required: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ListSendFailures'
+
+# Building
+components:
+  schemas:
+    ListSendFailures:
+      description: An organization connected to data hub
+      type: object
+      required: [ "name", "description", "jurisdiction" ]
+      properties:
+        actionId:
+          description: the unique id for the action
+          type: integer
+          example: 287
+        reportId:
+          description: the uuid for this report
+          type: string
+          format: uuid
+          example: "d05d17f7-acaa-4f0e-bda1-135dbd81d477"
+        receiver:
+          description: Org destination name of the receiver that failed
+          example: "ignore.HL7"
+        fileName:
+          description: Filename for the data that's prepared for forwarding but failing
+          type: string
+          example: "covid-19-d05d17f7-acaa-4f0e-bda1-135dbd81d477-20220601224923.hl7"
+        failedAt:
+          description: the time that the particular error happened
+          type: string
+          format: date-time
+          example: "2022-06-12T22:22:53.833Z"
+        actionParams:
+          description: The original action that failed had a url. These are the cgi params.
+          type: string
+          example: "report&SEND&d05d17f7-acaa-4f0e-bda1-135dbd81d477&false&2022-06-12T22:22:52.412762Z"
+        actionResult:
+          description: The long error message generated when the upload failed.
+          type: string
+          example: "FAILED Sftp upload of inputReportId d05d17f7-acaa-4f0e-bda1-135dbd81d477 to SFTPTransportType(host=sftp, port=22, filePath=./upload, credentialName=DEFAULT-SFTP) (orgService = ignore.HL7_BATCH_OFFSET_TIME_UTC), Exception: No content to sftp for report d05d17f7-acaa-4f0e-bda1-135dbd81d477, All retries failed.  Manual Intervention Required.  Send Error report for: d05d17f7-acaa-4f0e-bda1-135dbd81d477 to ignore.HL7_BATCH_OFFSET_TIME_UTC"
+        bodyUrl:
+          description: The body portion of the original action url. Contains the location of the file that failed to forward
+          type: string
+          example: "http://azurite:10000/devstoreaccount1/reports/ready%2Fignore.HL7_BATCH_OFFSET_TIME_UTC%2Fcovid-19-d05d17f7-acaa-4f0e-bda1-135dbd81d477-20220601224923.hl7"
+        reportFileReceiver:
+          description: The parsed receiver. It should be the same as receiver field above
+          type: string
+          example: "ignore.HL7_BATCH_OFFSET_TIME_UTC"
+  securitySchemes:
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
