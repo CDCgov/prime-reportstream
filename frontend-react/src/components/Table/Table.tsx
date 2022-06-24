@@ -6,7 +6,7 @@ import {
     IconNavigateBefore,
     IconNavigateNext,
 } from "@trussworks/react-uswds";
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode, useMemo, useCallback, useState } from "react";
 
 import Pagination, { PaginationProps } from "../../components/Table/Pagination";
 import {
@@ -68,7 +68,11 @@ export interface TableConfig {
 
 export interface DatasetAction {
     label: string;
-    method: Function;
+    method?: Function;
+}
+
+export interface DatasetActionProps extends DatasetAction {
+    disabled: boolean;
 }
 
 export type RowSideEffect = (row: TableRow | null) => Promise<void>;
@@ -104,6 +108,8 @@ const Table = ({
     enableEditableRows,
     editableCallback = () => Promise.resolve(),
 }: TableProps) => {
+    const [rowToEdit, setRowToEdit] = useState<number | undefined>();
+
     /* memoizedRows is the source of truth for rendered table rows. If a local
      * sort is applied, this function reactively sorts the rows passed in. If
      * the sort column, order, or localSort value change in SortSettings,
@@ -137,6 +143,11 @@ const Table = ({
         }
         return config.rows;
     }, [config.rows, filterManager?.sortSettings]);
+
+    const addRow = useCallback(() => {
+        setRowToEdit(memoizedRows.length);
+    }, [memoizedRows, setRowToEdit]);
+
     const renderArrow = () => {
         const { order, localOrder, locally } = filterManager?.sortSettings || {
             order: "DESC",
@@ -244,13 +255,19 @@ const Table = ({
         );
     };
 
-    const DatasetActionButton = ({ label, method }: DatasetAction) => {
-        return (
-            <Button type={"button"} onClick={() => method()}>
-                {label}
-            </Button>
-        );
-    };
+    // this button will be placed above the rendered table and on `click` will run an arbitrary function
+    // passed in from the Table's parent, or an addRow function defined by the Table.
+    // in order to avoid problems around timing, takes a `disabled` prop.
+    // TODO: split this out of Table component
+    const DatasetActionButton = ({
+        label,
+        method = () => {},
+        disabled,
+    }: DatasetActionProps) => (
+        <Button type={"button"} onClick={() => method()} disabled={disabled}>
+            {label}
+        </Button>
+    );
 
     const TableInfo = () => {
         return (
@@ -261,7 +278,11 @@ const Table = ({
                 </div>
                 <div className="grid-col-2 display-flex flex-column">
                     {datasetAction ? (
-                        <DatasetActionButton {...datasetAction} />
+                        <DatasetActionButton
+                            label={datasetAction.label}
+                            method={datasetAction.method || addRow}
+                            disabled={!!rowToEdit}
+                        />
                     ) : null}
                 </div>
             </div>
@@ -323,6 +344,8 @@ const Table = ({
                             enableEditableRows={enableEditableRows}
                             filterManager={filterManager}
                             columns={config.columns}
+                            rowToEdit={rowToEdit}
+                            setRowToEdit={setRowToEdit}
                         />
                     </tbody>
                 </table>

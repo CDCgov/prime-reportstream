@@ -82,8 +82,9 @@ extension_1:
       valueOf: datatype/CodeableConcept_var
       expressionType: resource
       vars:
-        code: String, CE.4
-        display: String, CE.5
-        system: String, CE.6
-        version: String, CE.7
-        alternateVersion: String, CE.8
+        code: String, CE.4 | CWE.4
+        display: String, CE.5 | CWE.5
+        system: String, CE.6 | CWE.6
+        version: String, CWE.7
+        alternateVersion: String, CWE.8
+        originalText: String, CWE.9

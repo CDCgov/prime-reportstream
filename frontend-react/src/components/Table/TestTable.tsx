@@ -30,7 +30,13 @@ export const sampleCallback = () => {
 
 /* This component is specifically configured to help test the
  * Table component. Any  */
-export const TestTable = () => {
+export const TestTable = ({
+    editable,
+    linkable = true,
+}: {
+    editable?: boolean;
+    linkable?: boolean;
+}) => {
     const filterManager = useFilterManager();
     const {
         cursors,
@@ -75,12 +81,8 @@ export const TestTable = () => {
             dataAttr: "two",
             columnHeader: "Column Two",
             sortable: true,
-            feature: {
-                link: true,
-                linkBasePath: "/test/",
-            },
         },
-        { dataAttr: "one", columnHeader: "Column One" },
+        { dataAttr: "one", columnHeader: "Column One", editable: !!editable },
         {
             dataAttr: "five",
             columnHeader: "Transform Column",
@@ -92,6 +94,13 @@ export const TestTable = () => {
             valueMap: new Map([["test", "mapped value"]]),
         },
     ];
+
+    if (linkable) {
+        fakeColumns[0].feature = {
+            link: true,
+            linkBasePath: "/test/",
+        };
+    }
 
     const config: TableConfig = {
         columns: fakeColumns,
@@ -120,7 +129,7 @@ export const TestTable = () => {
 
     const datasetAction: DatasetAction = {
         label: "Test Action",
-        method: sampleCallback,
+        method: editable ? undefined : sampleCallback,
     };
 
     return (
