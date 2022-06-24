@@ -1,0 +1,59 @@
+openapi: "3.0.3"
+info:
+  title: ReportStream Requeue API
+  version: "1.0"
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://open.cdc.gov
+    email: usds@cdc.gov
+paths:
+  /api/requeue/send:
+    post:
+      description: manually queue up a report to be sent again to one receiver
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - name: reportId
+          in: query
+          description: UUID for the report to resend
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: receiver
+          in: query
+          description: full name of the receiver to resend the report to
+          required: true
+          schema:
+            type: string
+        - name: test
+          in: query
+          description: if given, includes additional debug messages
+          schema:
+            type: boolean
+      requestBody:
+        description: Empty body due to the POST format
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmptyBody'
+      responses:
+        '200':
+          description: text stating how many items in the report will be resent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequeueResponse'
+        '400':
+          description: bad request
+components:
+  schemas:
+    EmptyBody:
+      type: string
+    RequeueResponse:
+      type: string
+
+  securitySchemes:
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'

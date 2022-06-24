@@ -47,6 +47,7 @@ object JacksonMapperUtilities {
         addModule(customSerializerModule)
         disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
         disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        enable(SerializationFeature.INDENT_OUTPUT) // Pretty print JSON output
     }.run { setTimeZone(TimeZone.getTimeZone(Environment.rsTimeZone)) }
 
     /**
@@ -57,5 +58,6 @@ object JacksonMapperUtilities {
         addModule(JavaTimeModule())
         addModule(customSerializerModule)
         disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        enable(SerializationFeature.INDENT_OUTPUT) // Pretty print JSON output
     }.run { setTimeZone(TimeZone.getTimeZone(Environment.rsTimeZone)) }
 }

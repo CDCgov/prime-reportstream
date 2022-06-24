@@ -24,6 +24,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.JtiCache
+import gov.cdc.prime.router.azure.db.tables.pojos.ListSendFailures
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
@@ -332,6 +333,17 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .fetchInto(SenderItems::class.java)
     }
 
+    fun fetchSingleMetadata(
+        messageID: String,
+        txn: DataAccessTransaction? = null
+    ): CovidResultMetadata? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.selectFrom(Tables.COVID_RESULT_METADATA)
+            .where(Tables.COVID_RESULT_METADATA.MESSAGE_ID.eq(messageID.toString()))
+            .fetchOne()
+            ?.into(CovidResultMetadata::class.java)
+    }
+
     /** Returns null if report has no item-level lineage info tracked. */
     fun fetchItemLineagesForReport(
         reportId: ReportId,
@@ -607,7 +619,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     /** search for a setting and it children, insert a deleted setting for those found */
     fun insertDeletedSettingAndChildren(
         settingId: Int,
-        settingMetadata: SettingMetadata,
+        createdBy: String,
+        createdAt: OffsetDateTime,
         txn: DataAccessTransaction
     ) {
         DSL.using(txn)
@@ -632,8 +645,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                     DSL.value(true, SETTING.IS_DELETED),
                     DSL.value(false, SETTING.IS_ACTIVE),
                     SETTING.VERSION.plus(1),
-                    DSL.value(settingMetadata.createdBy, SETTING.CREATED_BY),
-                    DSL.value(settingMetadata.createdAt, SETTING.CREATED_AT)
+                    DSL.value(createdBy, SETTING.CREATED_BY),
+                    DSL.value(createdAt, SETTING.CREATED_AT)
                 )
                     .from(SETTING)
                     .where(
@@ -835,6 +848,21 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         Routines.refreshMaterializedViews(ctx.configuration(), tableName)
     }
 
+    /**
+     * Calls the "Last Mile" stored procedure
+     * Returns all send_errors in the past daysBackSpan.
+     * Nothing found returns empty Result
+     */
+    fun fetchSendFailures(
+        daysBackSpan: Int = 30,
+        txn: DataAccessTransaction? = null
+    ): List<ListSendFailures> {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx
+            .selectFrom(Routines.listSendFailures(daysBackSpan))
+            .fetchInto(ListSendFailures::class.java)
+    }
+
     /** Common companion object */
     companion object {
         /** Global var. Set to false prior to the lazy init, to prevent flyway migrations */
@@ -958,6 +986,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                     testData.map { td ->
                         CovidResultMetadataRecord().also { record ->
                             record.messageId = td.messageId?.take(METADATA_MAX_LENGTH)
+                            record.previousMessageId = td.previousMessageId?.take(METADATA_MAX_LENGTH)
                             record.reportId = td.reportId
                             record.reportIndex = td.reportIndex
                             record.orderingProviderName =
@@ -994,6 +1023,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                                 td.testingLabState?.take(METADATA_MAX_LENGTH)
                             record.patientAge = td.patientAge
                             record.patientCounty = td.patientCounty?.take(METADATA_MAX_LENGTH)
+                            record.patientCountry = td.patientCountry?.take(METADATA_MAX_LENGTH)
                             record.patientEthnicity = td.patientEthnicity
                             record.patientEthnicityCode = td.patientEthnicityCode
                             record.patientGender = td.patientGender

@@ -2,6 +2,7 @@
 name: vt-covid-19
 topic: covid-19
 extends: covid-19
+trackingElement: message_id
 description: A schema for VT DOH to receive HL7 files
 elements:
   - name: sending_application

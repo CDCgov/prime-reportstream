@@ -91,6 +91,7 @@ class BlobAccess(
                 receivingFacilityReport
             )
             Report.Format.CSV, Report.Format.CSV_SINGLE -> csvSerializer?.write(report, outputStream)
+            else -> throw UnsupportedOperationException("Unsupported ${report.bodyFormat}")
         }
         val contentBytes = outputStream.toByteArray()
         return Pair(report.bodyFormat, contentBytes)
@@ -127,6 +128,7 @@ class BlobAccess(
                 Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName"
                 Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName"
                 Event.EventAction.PROCESS -> "process/$subfolderNameChecked$reportName"
+                Event.EventAction.TRANSLATE -> "translate/$subfolderNameChecked$reportName"
                 else -> "other/$subfolderNameChecked$reportName"
             }
             val digest = sha256Digest(blobBytes)

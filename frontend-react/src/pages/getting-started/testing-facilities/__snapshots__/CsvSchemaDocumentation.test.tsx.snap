@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CsvSchemaDocumentationItem renders a schema item 1`] = `
+<div>
+  <h4
+    class="font-body-md margin-bottom-2"
+    data-testid="header"
+    id="doc-sample_item"
+  >
+    Sample Item
+    <span
+      class="text-normal bg-white border-1px border-base font-body-3xs padding-x-1 padding-y-05 text-base margin-left-2 text-ttbottom"
+    >
+      Optional
+    </span>
+  </h4>
+  <div
+    class="margin-bottom-3"
+    data-testid="notes"
+  />
+  <div
+    class="grid-row margin-bottom-05"
+  >
+    <div
+      class="grid-col-4 text-base"
+    >
+      Column header
+    </div>
+    <div
+      class="grid-col-auto"
+    >
+      sample_item
+    </div>
+  </div>
+  <div
+    class="grid-row margin-bottom-05 border-base-lighter border-top-1px padding-top-1"
+  >
+    <div
+      class="grid-col-4 text-base"
+    >
+      Value type
+    </div>
+    <div
+      class="grid-col-auto"
+    />
+  </div>
+  <div
+    class="grid-row margin-bottom-05 border-base-lighter border-top-1px padding-top-1"
+  >
+    <div
+      class="grid-col-4 text-base"
+    />
+    <ul
+      class="grid-col-8 value-list"
+    />
+  </div>
+</div>
+`;

@@ -1,0 +1,41 @@
+# Run this:  ./prime multiple-settings set --input ./settings/prod/0119-limbsabc-nova.yml --env prod
+---
+- name: limsabc-nova
+  description: Nova Labnetics
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: limsabc-nova
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
+
+# Use UI to add limsabc-nova to match list
+#
+#- name: "hhsprotect"
+#  description: "HHSProtect"
+#  jurisdiction: "FEDERAL"
+#  receivers:
+#    - name: "elr"
+#      organizationName: "hhsprotect"
+#      topic: "covid-19"
+#      customerStatus: active
+#      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,limsabc-nova)" ]
+#      qualityFilter: [ "allowAll()" ]
+#      translation:
+#        type: "CUSTOM"
+#        schemaName: "hhsprotect/hhsprotect-covid-19"
+#        format: "CSV"
+#      deidentify: true
+#      deidentifiedValue: "<DEIDENTIFIED>"
+#      timing:
+#        operation: "MERGE"
+#        numberPerDay: 1440
+#        initialTime: "00:00"
+#        timeZone: "EASTERN"
+#      transport:
+#        type: BLOBSTORE
+#        storageName: PartnerStorage
+#        containerName: hhsprotect

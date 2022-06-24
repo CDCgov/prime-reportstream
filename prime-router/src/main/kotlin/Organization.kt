@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+
 /**
  * Organization represents a partner organization of the hub. It has a jurisdiction.
  */
@@ -9,7 +11,7 @@ open class Organization(
     val jurisdiction: Jurisdiction,
     val stateCode: String?,
     val countyName: String?,
-    val filters: List<ReportStreamFilters>? = emptyList(), // one ReportStreamFilters obj per topic. 
+    val filters: List<ReportStreamFilters>? = emptyList(), // one ReportStreamFilters obj per topic.
 ) {
     constructor(org: Organization) : this(
         org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, org.filters
@@ -50,6 +52,7 @@ open class Organization(
  *
  * Useful to put all the information about an org in single object or file.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 class DeepOrganization(
     name: String,
     description: String,

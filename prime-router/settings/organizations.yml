@@ -18,6 +18,12 @@
       customerStatus: active
       schemaName: hl7/test-covid-19
       format: HL7
+    - name: csvuploader
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
 
 - name: waters
   description: Test Sender from Waters
@@ -247,6 +253,50 @@
       schemaName: hl7/primary-covid-19
       format: HL7
 
+- name: hcintegrations
+  description: Healthcare Integrations
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: hcintegrations
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/hcintegrations-covid-19
+      format: HL7
+
+- name: intrivo
+  description: Intrivo
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: intrivo
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
+- name: limsabc-nova
+  description: Nova Labnetics
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: limsabc-nova
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
+- name: neurolab
+  description: Neurolab
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: neurolab
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
 - name: "naval-health-clinic-lemoore"
   description: "Naval Health Clinic - Lemoore"
   jurisdiction: "FEDERAL"
@@ -467,7 +517,7 @@
       organizationName: xtrava
       topic: covid-19
       customerStatus: active
-      schemaName: direct/xtrava-covid-19
+      schemaName: direct/direct-otc-covid-19
       format: CSV
 
 - name: detect
@@ -479,6 +529,17 @@
       topic: covid-19
       customerStatus: testing
       schemaName: hl7/detect-covid-19
+      format: HL7
+
+- name: signetic
+  description: Signetic
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: signetic
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/signetic-covid-19
       format: HL7
 
 - name: az-phd
@@ -576,24 +637,95 @@
         initialTime: 09:15 # A little after the 12am EASTERN reports from simple report
         timeZone: EASTERN
 
-- name: "co-phd"
-  description: "Colorado Department of Public Health and Environment"
-  jurisdiction: "STATE"
-  stateCode: "CO"
-  receivers:
-    - name: "elr"
-      organizationName: "co-phd"
-      topic: "covid-19"
-      customerStatus: active
+- name: co-phd
+  description: Colorado Department of Public Health and Environment
+  jurisdiction: STATE
+  stateCode: CO
+  filters:
+    - topic: "covid-19"
       jurisdictionalFilter:
-        - "orEquals(patient_state, CO, ordering_facility_state, CO)"
+      - "orEquals(patient_state, CO, ordering_facility_state, CO)"
+  receivers:
+    - name: elr
+      organizationName: co-phd
+      topic: covid-19
+      customerStatus: active
       translation:
         type: HL7
         useBatchHeaders: true
-        receivingApplicationName: COPHD
-        receivingApplicationOID: 2.16.840.1.114222.4.3.4.34.1.1
-        receivingFacilityName: COPHD
-        receivingFacilityOID: 2.16.840.1.113883.3.89.109.100.1.3
+        receivingApplicationName: CO-ELR
+        receivingFacilityName: CO
+        replaceValueAwithB:
+          MSH-6:
+            - '*': "CO"
+          MSH-5:
+            - '*': "CO-ELR"
+          MSH-3:
+            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          reportingFacilityName: CDC PRIME
+          reportingFacilityId: 11D2030855
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: elr-secondary
+      organizationName: co-phd
+      topic: covid-19
+      customerStatus: active
+      reverseTheQualityFilter: true
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: CO-ELR
+        receivingFacilityName: CO
+        replaceValueAwithB:
+          MSH-6:
+            - '*': "CO"
+          MSH-5:
+            - '*': "CO-ELR"
+          MSH-3:
+            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          reportingFacilityName: CDC PRIME
+          reportingFacilityId: 11D2030855
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: elr-test
+      organizationName: co-phd
+      topic: covid-19
+      customerStatus: active
+      reverseTheQualityFilter: false
+      processingModeFilter:
+        - "matches(processing_mode_code,T,D)"
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: CO-ELR
+        receivingFacilityName: CO
+        replaceValueAwithB:
+          MSH-6:
+            - '*': "CO"
+          MSH-5:
+            - '*': "CO-ELR"
+          MSH-3:
+            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          reportingFacilityName: CDC PRIME
+          reportingFacilityId: 11D2030855
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -774,7 +906,7 @@
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
         suppressNonNPI: true
-        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3, MSH-19-1, MSH-19-2, MSH-19-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
         convertPositiveDateTimeOffsetToNegative: true
@@ -809,7 +941,7 @@
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
         suppressNonNPI: true
-        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3, MSH-19-1, MSH-19-2, MSH-19-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
       timing:
@@ -846,7 +978,7 @@
         truncateHDNamespaceIds: true
         usePid14ForPatientEmail: true
         suppressNonNPI: true
-        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3
+        suppressHl7Fields: OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3, MSH-19-1, MSH-19-2, MSH-19-3
         replaceValue:
           MSH-3-1: CDC PRIME - Atlanta,
       timing:
@@ -946,7 +1078,7 @@
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 36DSMP9999
         nameFormat: ohio
-        suppressHl7Fields: OBX-23-11
+        suppressHl7Fields: OBX-23-11, MSH-19-1, MSH-19-2, MSH-19-3
         # turn off UNK and ASKU for this field
         useBlankInsteadOfUnknown: patient_race
       timing:
@@ -1406,10 +1538,10 @@
       translation:
         type: HL7
         useBatchHeaders: false
-        receivingApplicationName: CDPH CA REDIE
-        receivingApplicationOID: 2.16.840.1.114222.4.3.3 .10.1.1
-        receivingFacilityName: CDPH_CID
-        receivingFacilityOID: 2.16.840.1.114222.4.1.214104
+        replaceValueAwithB:
+          MSH-3: [ "*": "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO" ]
+          MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
+          MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
         suppressAoe: true
         truncateHl7Fields: OBR-16-3, ORC-12-3, OBX-23-1, ORC-21-1
         truncateHDNamespaceIds: true
@@ -1438,10 +1570,10 @@
         type: HL7
         useBatchHeaders: true
         truncateHDNamespaceIds: true
-        receivingApplicationName: CDPH CA REDIE
-        receivingApplicationOID: 2.16.840.1.114222.4.3.3 .10.1.1
-        receivingFacilityName: CDPH CA REDIE
-        receivingFacilityOID: 2.16.840.1.114222.4.3.3 .10.1.1
+        replaceValueAwithB:
+          MSH-3: [ "*": "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO" ]
+          MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
+          MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
         messageProfileId: PHLabReport-Batch^^2.16.840.1.113883.9.10^ISO
         cliaForOutOfStateTesting: CDPH000076
       transport:
@@ -1507,6 +1639,12 @@
         receivingFacilityName: NH_DHHS
         receivingFacilityOID: 2.16.840.1.114222.4.1.3669
         suppressHl7Fields: ORC-23-1,ORC-14-1,OBR-17-1,OBX-18-1, OBX-18-2, OBX-18-3, PID-13-1
+        replaceValueAwithB:
+          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO" ]
+          MSH-4: [ "*": "CDC PRIME^11D2030855^CLIA" ]
+          MSH-5: [ "*": "NH_ELR^2.16.840.1.114222.4.3.2.2.3.600.4^ISO" ]
+          MSH-6: [ "*": "NH_DHHS^2.16.840.1.114222.4.1.3669^ISO" ]
+          MSH-21: [ "*": "PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO" ]
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
         replaceDiiWithOid: true
@@ -1888,13 +2026,14 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,limsabc-nova)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
         schemaName: "hhsprotect/hhsprotect-covid-19"
         format: "CSV"
       deidentify: true
+      deidentifiedValue: "<DEIDENTIFIED>"
       timing:
         operation: "MERGE"
         numberPerDay: 1440
@@ -1916,6 +2055,17 @@
     - topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
   senders:
+    - name: default
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      schemaName: primedatainput/pdi-covid-19
+      format: CSV
+    - name: ignore-full-elr      # Use this to test full-elr
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: inactive
+      format: HL7
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
       topic: covid-19
@@ -2280,6 +2430,75 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: HL7_BATCH_LOCAL_TIME_CONVERT
+      externalName: LocalTime HL7_BATCH
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
+      timeZone: PACIFIC
+      dateTimeFormat: LOCAL
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: HL7
+        format: HL7_BATCH
+        receivingApplicationName: IG-PACIFIC-LOCAL-TIME
+        convertDateTimesToReceiverLocalTime: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: HL7_BATCH_OFFSET_TIME_CONVERT
+      externalName: Offset HL7_BATCH
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
+      timeZone: PACIFIC
+      dateTimeFormat: OFFSET
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: HL7
+        format: HL7_BATCH
+        receivingApplicationName: IG-PACIFIC-OFFSET
+        convertDateTimesToReceiverLocalTime: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: HL7_BATCH_OFFSET_TIME_UTC
+      externalName: Offset UTC HL7_BATCH
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, HL7_BATCH)" ]
+      timeZone: UTC
+      dateTimeFormat: OFFSET
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: HL7
+        format: HL7_BATCH
+        receivingApplicationName: IG-UTC-OFFSET
+        convertDateTimesToReceiverLocalTime: true
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
 - name: historytest
   description: FOR TESTING SUBMISSION HISTORY
@@ -2574,8 +2793,45 @@
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, IN, patient_state, IN)
       translation:
-        type: HL7
+        schemaName: "covid-19"
+        useTestProcessingMode: false
         useBatchHeaders: true
+        receivingApplicationName: IN-ELR
+        receivingApplicationOID: null
+        receivingFacilityName: IDOH
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: { }
+        replaceValueAwithB: { }
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: true
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: { }
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: { }
+        nameFormat: "INDIANA"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -2587,6 +2843,9 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+      externalName: "Indiana Public Health Department"
+      timeZone: CENTRAL
+      dateTimeFormat: "OFFSET"
 
 - name: ia-phd
   description: Iowa Public Health Department
@@ -3192,8 +3451,11 @@
         suppressQstForAoe: true
         suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         replaceValueAwithB:
-          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO" ]
-          MSH-11-1: [ "*": "D" ]
+          MSH-3:
+          - PHX.ProviderReportingService: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          - Medasource: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          MSH-5: [ "*": "WADOHPHRED^2.16.840.1.113883.3.237.4.2^ISO" ]
+          MSH-6: [ "*": "dn1fro00^1.3.6.1.4.1.38630.2.1.1.19^ISO"  ]
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
         useOrderingFacilityName: ORGANIZATION_NAME
       timing:
@@ -3232,8 +3494,11 @@
         suppressQstForAoe: true
         suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         replaceValueAwithB:
-          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO" ]
-          MSH-11-1: [ "*": "D" ]
+          MSH-3:
+          - PHX.ProviderReportingService: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          - Medasource: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          MSH-5: [ "*": "WADOHPHRED^2.16.840.1.113883.3.237.4.2^ISO" ]
+          MSH-6: [ "*": "dn1fro00^1.3.6.1.4.1.38630.2.1.1.19^ISO"  ]
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
         useOrderingFacilityName: ORGANIZATION_NAME
       timing:
@@ -3562,7 +3827,7 @@
       organizationName: "mpbiomedicals"
       format: "CSV"
       topic: "covid-19"
-      customerStatus: "testing"
+      customerStatus: "active"
       schemaName: "csv-otc-covid-19"
       keys: null
       processingType: "sync"

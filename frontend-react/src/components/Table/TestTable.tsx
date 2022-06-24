@@ -1,11 +1,14 @@
 import { useEffect, useMemo } from "react";
 
-import useCursorManager from "../../hooks/filters/UseCursorManager";
+import useCursorManager, {
+    CursorActionType,
+} from "../../hooks/filters/UseCursorManager";
 import useFilterManager from "../../hooks/filters/UseFilterManager";
 
-import Table, { ColumnConfig, TableConfig } from "./Table";
+import Table, { ColumnConfig, DatasetAction, TableConfig } from "./Table";
+import TableFilters from "./TableFilters";
 
-const dummyRowOne = {
+const testDataRowOne = {
     one: "value one",
     two: "value two",
     three: "value three",
@@ -20,30 +23,49 @@ const dummyRowTwo = {
     five: "transform this",
 };
 
+// Exported for test purposes
+export const sampleCallback = () => {
+    console.log("Callback works!");
+};
+
 /* This component is specifically configured to help test the
  * Table component. Any  */
-export const TestTable = () => {
+export const TestTable = ({
+    editable,
+    linkable = true,
+}: {
+    editable?: boolean;
+    linkable?: boolean;
+}) => {
     const filterManager = useFilterManager();
-    const cursorManager = useCursorManager("firstCursor");
+    const {
+        cursors,
+        hasNext,
+        hasPrev,
+        update: updateCursors,
+    } = useCursorManager(filterManager.rangeSettings.to);
 
     /* Ensure there's at least 1 more cursor in the cursorMap
      * to test the Next/Prev buttons. In a real application
      * the effect would call addNextCursor when the API response
      * state changes. */
     useEffect(() => {
-        cursorManager.controller.addNextCursor("secondCursor");
-    }, [cursorManager.controller]);
+        updateCursors({
+            type: CursorActionType.ADD_NEXT,
+            payload: "secondCursor",
+        });
+    }, [updateCursors]);
 
     /* Mocking the sort behavior that would normally be performed by the
      * API call */
     const fakeRows = useMemo(() => {
-        switch (filterManager.sort.order) {
+        switch (filterManager.sortSettings.order) {
             case "ASC":
-                return [dummyRowOne, dummyRowTwo];
+                return [testDataRowOne, dummyRowTwo];
             case "DESC":
-                return [dummyRowTwo, dummyRowOne];
+                return [dummyRowTwo, testDataRowOne];
         }
-    }, [filterManager.sort]);
+    }, [filterManager.sortSettings.order]);
 
     const testTransform = (v: string) => {
         if (v === "transform this") {
@@ -59,10 +81,8 @@ export const TestTable = () => {
             dataAttr: "two",
             columnHeader: "Column Two",
             sortable: true,
-            link: true,
-            linkBasePath: "/test",
         },
-        { dataAttr: "one", columnHeader: "Column One" },
+        { dataAttr: "one", columnHeader: "Column One", editable: !!editable },
         {
             dataAttr: "five",
             columnHeader: "Transform Column",
@@ -75,16 +95,68 @@ export const TestTable = () => {
         },
     ];
 
+    if (linkable) {
+        fakeColumns[0].feature = {
+            link: true,
+            linkBasePath: "/test/",
+        };
+    }
+
     const config: TableConfig = {
         columns: fakeColumns,
         rows: fakeRows,
     };
 
+    /* To test internal state, since Enzyme isn't supported and RTL doesn't let you
+     * access it, you have to render it out and query the screen for exact text */
+    const StateTestRendering = () => {
+        return (
+            <ul>
+                <li>{`range: from ${filterManager.rangeSettings.from} to ${filterManager.rangeSettings.to}`}</li>
+                <li>{`cursor: ${cursors.current}`}</li>
+            </ul>
+        );
+    };
+
+    const Legend = () => {
+        return (
+            <ul>
+                <li>Test legend item 1</li>
+                <li>Test legend item 2</li>
+            </ul>
+        );
+    };
+
+    const datasetAction: DatasetAction = {
+        label: "Test Action",
+        method: editable ? undefined : sampleCallback,
+    };
+
     return (
-        <Table
-            config={config}
-            filterManager={filterManager}
-            cursorManager={cursorManager}
-        />
+        <>
+            <StateTestRendering />
+            <TableFilters
+                filterManager={filterManager}
+                cursorManager={{
+                    cursors,
+                    hasNext,
+                    hasPrev,
+                    update: updateCursors,
+                }}
+            />
+            <Table
+                title={"Test Table Title"}
+                legend={<Legend />}
+                datasetAction={datasetAction}
+                config={config}
+                filterManager={filterManager}
+                cursorManager={{
+                    cursors,
+                    hasNext,
+                    hasPrev,
+                    update: updateCursors,
+                }}
+            />
+        </>
     );
 };

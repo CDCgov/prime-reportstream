@@ -33,5 +33,18 @@
     ],
     "[typescriptreact]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
-    }
+    },
+    "[terraform]": {
+        "editor.defaultFormatter": "hashicorp.terraform"
+    },
+    "azureFunctions.deploySubpath": "operations/app/functions/admin",
+    "azureFunctions.scmDoBuildDuringDeployment": true,
+    "azureFunctions.pythonVenv": ".venv",
+    "azureFunctions.projectLanguage": "Python",
+    "azureFunctions.projectRuntime": "~4",
+    "azureFunctions.projectSubpath": "operations/app/functions/admin",
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "git.enableCommitSigning": true
 }

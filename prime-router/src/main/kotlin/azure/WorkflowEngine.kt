@@ -3,7 +3,7 @@ package gov.cdc.prime.router.azure
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
@@ -21,7 +21,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
-import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
@@ -33,7 +33,6 @@ import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.transport.SoapTransport
-import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
@@ -54,14 +53,14 @@ class WorkflowEngine(
     val csvSerializer: CsvSerializer = csvSerializerSingleton,
     val db: DatabaseAccess = databaseAccessSingleton,
     val blob: BlobAccess = BlobAccess(csvSerializer, hl7Serializer),
-    val queue: QueueAccess = QueueAccess,
+    queue: QueueAccess = QueueAccess,
     val translator: Translator = Translator(metadata, settings),
     val sftpTransport: SftpTransport = SftpTransport(),
     val as2Transport: AS2Transport = AS2Transport(),
     val ftpsTransport: FTPSTransport = FTPSTransport(),
     val soapTransport: SoapTransport = SoapTransport(),
     val gaenTransport: GAENTransport = GAENTransport()
-) : Logging {
+) : BaseEngine(queue) {
 
     /**
      * Custom builder for Workflow engine
@@ -308,6 +307,7 @@ class WorkflowEngine(
         msgs: MutableList<String>,
     ) {
         // Send immediately.
+        var doSendQueue = false // set to true if all the required actions complete
         val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null, isEmptyBatch = false)
         db.transact { txn ->
             db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
@@ -326,15 +326,17 @@ class WorkflowEngine(
                 throw Exception("Cannot send $reportId. It is not associated with receiver ${receiver.fullName}")
             }
             if (header.task.nextActionAt != null && header.task.nextActionAt.isAfter(OffsetDateTime.now())) {
-                throw Exception(
+                msgs.add(
                     "Cannot send $reportId. Its already scheduled to ${header.task.nextAction}" +
                         " at ${header.task.nextActionAt}"
                 )
+                return@transact
             }
-            val retryItems: RetryItems = RetryToken.allItems
 
+            val retryItems: RetryItems = RetryToken.allItems
             if (retryItems.isEmpty()) {
                 msgs.add("All Items in $reportId successfully sent.  Nothing to resend. DONE")
+                return@transact
             } else {
                 if (retryItems == RetryToken.allItems) {
                     msgs.add("Will resend all (${reportFile.itemCount}) items in $reportId")
@@ -353,12 +355,13 @@ class WorkflowEngine(
                         txn
                     )
                     msgs.add("$reportId has been queued to resend immediately to ${receiver.fullName}\n")
+                    doSendQueue = true
                 } else {
                     msgs.add("Nothing sent.  This was just a test")
                 }
             }
         }
-        if (!isTest) queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
+        if (!isTest && doSendQueue) queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
     }
 
     /**
@@ -792,80 +795,18 @@ class WorkflowEngine(
         )
     }
 
-    companion object {
-        /**
-         * These are all potentially heavy weight objects that
-         * should only be created once.
-         */
-        val databaseAccessSingleton: DatabaseAccess by lazy {
-            DatabaseAccess()
-        }
-
-        val settingsProviderSingleton: SettingsProvider by lazy {
-            getSettingsProvider(Metadata.getInstance())
-        }
-
-        private val csvSerializerSingleton: CsvSerializer by lazy {
-            CsvSerializer(Metadata.getInstance())
-        }
-
-        private val hl7SerializerSingleton: Hl7Serializer by lazy {
-            Hl7Serializer(Metadata.getInstance(), settingsProviderSingleton)
-        }
-
-        /**
-         * Get a settings provider for a given [metadata] instance.
-         * @return a settings provider
-         */
-        private fun getSettingsProvider(metadata: Metadata): SettingsProvider {
-            val baseDir = System.getenv("AzureWebJobsScriptRoot") ?: "."
-            val settingsEnabled: String? = System.getenv("FEATURE_FLAG_SETTINGS_ENABLED")
-            return if (settingsEnabled == null || settingsEnabled.equals("true", ignoreCase = true)) {
-                SettingsFacade(metadata, databaseAccessSingleton)
-            } else {
-                val ext = "-${Environment.get().toString().lowercase()}"
-                FileSettings("$baseDir/settings", orgExt = ext)
-            }
-        }
-
-        /**
-         * Always find tasks at least this old.  This covers for  extended downtime due to a crash,
-         * as well as for 25 hour days etc.
-         */
-        const val BATCH_LOOKBACK_PADDING_MINS: Long = 180 // 3 hours
-
-        /**
-         * BatchFunction uses a backstop time to prevent it from processing too-old records.
-         * We also use this to prevent it from retrying unrecoverable batches over and over.
-         * So the backstop time is based on the frequency of batching for that receiver,
-         * as found in the receiver's [Receiver.Timing.numberPerDay].
-         *
-         * Note the effect of the padding is that for frequent batching, we'll actually allow
-         * more than [minNumRetries] retries.
-         *
-         * Calculation is done in minutes.
-         */
-        fun getBatchLookbackMins(numberBatchesPerDay: Int, minNumRetries: Int): Long {
-            val frequencyMins = if (numberBatchesPerDay > 0)
-                1440 / numberBatchesPerDay
-            else
-                1440
-            return ((minNumRetries + 1) * frequencyMins + BATCH_LOOKBACK_PADDING_MINS)
-        }
-    }
-
     // 1. detect format and get serializer
     // 2. readExternal and return result / errors / warnings
     // TODO: This could be moved to a utility/reports.kt or something like that, as it is not really part of workflow
     /**
-     * Reads in a received message of HL7 or CSV format, generates an in-memory report instance
+     * Reads in a received covid-19 message of HL7 or CSV format, generates an in-memory report instance
      * @param sender Sender information, pulled from database based on sender name
      * @param content Content of incoming message
      * @param defaults Default values that can be passed in as part of the request
      * @return Returns a generated report object, or null
      */
-    fun parseReport(
-        sender: Sender,
+    fun parseCovidReport(
+        sender: CovidSender,
         content: String,
         defaults: Map<String, String>,
     ): ReadResult {

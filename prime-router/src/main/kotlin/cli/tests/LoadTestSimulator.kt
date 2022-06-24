@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.cli.tests
 
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
@@ -85,10 +86,10 @@ abstract class LoadTestSimulator : CoolTest() {
         options: CoolTestOptions
     ): SimulatorResult {
         var result = SimulatorResult(simulation)
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simulation.sender,
+            simulation.sender as CovidSender,
             simulation.numItemsPerSubmission,
             simulation.targetStates,
             simulation.targetCounties,

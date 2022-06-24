@@ -1,67 +1,83 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
-import useDateRange from "./UseDateRange";
+import useDateRange, { RangeSettingsActionType } from "./UseDateRange";
 
 describe("UseDateRange", () => {
-    test("renders with friendly default values", () => {
+    test("renders with default values", () => {
         const { result } = renderHook(() => useDateRange());
-        expect(result.current.startRange.toISOString()).toEqual(
-            "2998-01-01T00:00:00.000Z"
-        );
-        expect(result.current.endRange.toISOString()).toEqual(
-            "2000-01-01T00:00:00.000Z"
-        );
+        expect(result.current.settings).toEqual({
+            to: "3000-01-01T00:00:00.000Z",
+            from: "2000-01-01T00:00:00.000Z",
+        });
     });
 
-    test("renders with given range", () => {
-        const init = {
-            startRange: new Date("2099-01-01"),
-            endRange: new Date("1970-04-07"),
-        };
-        const { result } = renderHook(() => useDateRange(init));
-        expect(result.current.startRange.toISOString()).toEqual(
-            "2099-01-01T00:00:00.000Z"
-        );
-        expect(result.current.endRange.toISOString()).toEqual(
-            "1970-04-07T00:00:00.000Z"
-        );
-    });
-
-    test("can set full range", () => {
+    test("dispatch can update From", () => {
         const { result } = renderHook(() => useDateRange());
         act(() =>
-            result.current.set({
-                date1: "2022-12-31",
-                date2: "2022-01-01",
+            result.current.update({
+                type: RangeSettingsActionType.UPDATE_FROM,
+                payload: {
+                    from: new Date("2022-12-31").toISOString(),
+                },
             })
         );
-        expect(result.current.startRange.toISOString()).toEqual(
-            "2022-12-31T00:00:00.000Z"
-        );
-        expect(result.current.endRange.toISOString()).toEqual(
-            "2022-01-01T00:00:00.000Z"
-        );
+        expect(result.current.settings).toEqual({
+            to: "3000-01-01T00:00:00.000Z",
+            from: "2022-12-31T00:00:00.000Z",
+        });
     });
 
-    test("can set partial range (ASC)", () => {
+    test("dispatch can update To", () => {
         const { result } = renderHook(() => useDateRange());
-        act(() => result.current.set({ date1: "2022-12-31", sort: "ASC" }));
-        expect(result.current.startRange.toISOString()).toEqual(
-            "2998-01-01T00:00:00.000Z"
+        act(() =>
+            result.current.update({
+                type: RangeSettingsActionType.UPDATE_TO,
+                payload: {
+                    to: new Date("2022-01-01").toISOString(),
+                },
+            })
         );
-        expect(result.current.endRange.toISOString()).toEqual(
-            "2022-12-31T00:00:00.000Z"
-        );
+        expect(result.current.settings).toEqual({
+            to: "2022-01-01T00:00:00.000Z",
+            from: "2000-01-01T00:00:00.000Z",
+        });
     });
 
-    test("can set partial range (DESC)", () => {
+    test("dispatch can reset range", () => {
         const { result } = renderHook(() => useDateRange());
-        act(() => result.current.set({ date1: "2022-12-31", sort: "DESC" }));
-        expect(result.current.startRange.toISOString()).toEqual(
-            "2022-12-31T00:00:00.000Z"
+        act(() =>
+            result.current.update({
+                type: RangeSettingsActionType.UPDATE_TO,
+                payload: {
+                    to: new Date("2022-01-01").toISOString(),
+                },
+            })
         );
-        expect(result.current.endRange.toISOString()).toEqual(
-            "2000-01-01T00:00:00.000Z"
+        act(() =>
+            result.current.update({
+                type: RangeSettingsActionType.RESET,
+            })
         );
+        expect(result.current.settings).toEqual({
+            to: "3000-01-01T00:00:00.000Z",
+            from: "2000-01-01T00:00:00.000Z",
+        });
+    });
+
+    test("reset backdoor for manual update", () => {
+        const { result } = renderHook(() => useDateRange());
+        act(() =>
+            result.current.update({
+                type: RangeSettingsActionType.RESET,
+                payload: {
+                    from: new Date("2022-12-31").toISOString(),
+                    to: new Date("2022-01-01").toISOString(),
+                },
+            })
+        );
+        expect(result.current.settings).toEqual({
+            from: "2022-12-31T00:00:00.000Z",
+            to: "2022-01-01T00:00:00.000Z",
+        });
     });
 });

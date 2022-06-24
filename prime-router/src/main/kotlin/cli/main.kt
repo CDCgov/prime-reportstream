@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CsvComparer
 import gov.cdc.prime.router.DocumentationFactory
 import gov.cdc.prime.router.FileSettings
@@ -47,7 +48,7 @@ class ListSchemas : CliktCommand(
         var formatTemplate = "%-18s\t%-10s\t%s"
         println(formatTemplate.format("Organization Name", "Client Name", "Schema Sent to Hub"))
         settings.senders.forEach {
-            println(formatTemplate.format(it.organizationName, it.name, it.schemaName))
+            println(formatTemplate.format(it.organizationName, it.name, if (it is CovidSender) it.schemaName else ""))
         }
         println()
         println("Current Services (Receivers from the Hub)")
@@ -271,6 +272,8 @@ fun main(args: Array<String>) = RouterCli()
             LookupTableActivateCommand(), LookupTableDiffCommand(), LookupTableLoadAllCommand()
         ),
         ConvertFileCommands(),
-        SenderFilesCommand()
+        SenderFilesCommand(),
+        ProcessFhirCommands(),
+        ConvertValuesetsYamlToCSV()
     )
     .main(args)

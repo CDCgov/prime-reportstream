@@ -3,8 +3,10 @@ package gov.cdc.prime.router.azure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.tokens.AccessToken
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Jwk
@@ -39,11 +41,10 @@ class TokenFunctionTests {
     val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
     val pubKey = keyPair.getPublic() as RSAPublicKey
 
-    var sender = Sender(
+    var sender = CovidSender(
         "default",
         "simple_report",
         Sender.Format.CSV,
-        "covid-19",
         CustomerStatus.INACTIVE,
         "default"
     )
@@ -69,8 +70,8 @@ class TokenFunctionTests {
 
         val dataProvider = MockDataProvider { arrayOf<MockResult>(MockResult(0, null)) }
         val connection = MockConnection(dataProvider)
-        mockkObject(WorkflowEngine.Companion)
-        every { WorkflowEngine.Companion.databaseAccessSingleton } returns DatabaseAccess(connection)
+        mockkObject(BaseEngine.Companion)
+        every { BaseEngine.Companion.databaseAccessSingleton } returns DatabaseAccess(connection)
 
         mockkConstructor(DatabaseJtiCache::class)
         every { anyConstructed<DatabaseJtiCache>().isJTIOk(any(), any()) } returns true
@@ -154,7 +155,7 @@ class TokenFunctionTests {
             anyConstructed<ActionHistory>().trackActionResult(
                 match<String> {
                     it.startsWith(
-                        "Rejecting SenderToken JWT: io.jsonwebtoken.MalformedJwtException: Unable to read JSON value:"
+                        "Rejecting SenderToken JWT: io.jsonwebtoken.MalformedJwtException"
                     )
                 }
             )
@@ -186,7 +187,7 @@ class TokenFunctionTests {
 
     @Test
     fun `Test expired key`() {
-        settings.senderStore.put(sender.fullName, Sender(sender, validScope, jwk))
+        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
 
         val expiresAtSeconds = ((System.currentTimeMillis() / 1000) + 10).toInt()
         val expirationDate = Date(expiresAtSeconds.toLong() - 1000)
@@ -227,7 +228,7 @@ class TokenFunctionTests {
 
     @Test
     fun `Test invalid scope for sender`() {
-        settings.senderStore.put(sender.fullName, Sender(sender, validScope, jwk))
+        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
         listOf(
             // Wrong org
             listOf(
@@ -236,14 +237,7 @@ class TokenFunctionTests {
                     "Invalid scope for this sender: wrong.default.report",
                 "Expected organization simple_report. Instead got: wrong"
             ),
-            // Wrong sender
-            listOf(
-                "simple_report.wrong.report",
-                "AccessToken Request Denied: Error while requesting simple_report.wrong.report: " +
-                    "Invalid scope for this sender: simple_report.wrong.report",
-                "Expected sender default. Instead got: wrong"
-            ),
-            // Wrong 
+            // Wrong
             listOf(
                 "simple_report.default.bad",
                 "AccessToken Request Denied: Error while requesting simple_report.default.bad: " +
@@ -266,7 +260,7 @@ class TokenFunctionTests {
     @Test
     fun `Test no key for scope`() {
 
-        settings.senderStore.put(sender.fullName, Sender(sender, "test.scope", jwk))
+        settings.senderStore.put(sender.fullName, CovidSender(sender, "test.scope", jwk))
 
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)
@@ -297,7 +291,7 @@ class TokenFunctionTests {
             "test"
         )
 
-        settings.senderStore.put(sender.fullName, Sender(sender, validScope, jwk))
+        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
 
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)

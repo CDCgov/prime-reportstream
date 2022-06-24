@@ -154,7 +154,7 @@ class Huge : CoolTest() {
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val fakeItemCount = REPORT_MAX_ITEMS
         ugly("Starting huge Test: Attempting to send a report with $fakeItemCount items. This is terrapin slow.")
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             simpleRepSender,
@@ -202,7 +202,7 @@ class TooBig : CoolTest() {
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val fakeItemCount = REPORT_MAX_ITEMS + 1
         ugly("Starting toobig test: Attempting to send a report with $fakeItemCount items. This is slllooooowww.")
-        val file = FileUtilities.createFakeFile(
+        val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
             simpleRepSender,

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout>
+                <!-- Might be able to use entity references to avoid repeating this pattern over and over. -->
+                <LevelPatternSelector defaultPattern="%d{HH:mm:ss.SSS} [%t][%T] %-5level %logger{36} - %msg%n">
+                  <!-- Add some color to ERROR and WARN -->
+                  <PatternMatch key="ERROR" pattern="%highlight{%d{HH:mm:ss.SSS} [%t][%T] %-5level %logger{36} - %msg}{bright,red}%n" />
+                  <PatternMatch key="WARN" pattern="%highlight{%d{HH:mm:ss.SSS} [%t][%T] %-5level %logger{36} - %msg}{bright,red}%n" />
+                  <!-- Also add a unique string that can trigger PagerDuty  -->
+                  <PatternMatch key="FATAL" pattern="%highlight{%d{HH:mm:ss.SSS} [%t][%T] FATAL-ALERT %logger{36} - %msg}{bright,red}%n" />
+                </LevelPatternSelector>
+           </PatternLayout>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <!-- Setting to debug enables logging queries -->
+        <Logger name="org.jooq" level="info" additivity="false"/>
+
+        <!-- This disables logging the jooq logo -->
+        <Logger name="org.jooq.Constants" level="warn" additivity="false"/>
+
+        <!-- Disable some unneeded info logs -->
+        <Logger name="ca.uhn.hl7v2" level="warn"/>
+        <Logger name="net.schmizz.sshj.transport" level="warn"/>
+        <Logger name="net.schmizz.sshj.connection" level="warn"/>
+        <Logger name="gov.cdc.prime.router.credentials.HashicorpVaultCredentialService" level="warn"/>
+
+        <!-- ReportStream logs -->
+        <Logger name="gov.cdc.prime.router" level="info"/>
+        <Logger name="gov.cdc.prime.router.credentials" level="info"/>
+        <Logger name="gov.cdc.prime.router.azure.FHIRFlowFunctions" level="debug"/>
+
+        <!-- FHIR conversion logs -->
+        <Logger name="io.github.linuxforhealth" level="error"/>
+        <Logger name="ca.uhn.fhir.parser.LenientErrorHandler" level="error"/>
+        <Logger name="ca.uhn.fhir" level="error"/>
+        <Logger name="org.apache.commons.beanutils.FluentPropertyBeanIntrospector" level="error"/>
+        <Logger name="gov.cdc.prime.router.fhirengine.utils.CompareFhirData" level="info"/>
+
+        <!-- Example to turn on debugging in your favorite package
+        <Logger name="gov.cdc.prime.router.azure.DatabaseAccess" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        -->
+        <!-- <Logger name="com.helger.as2lib" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        -->
+
+        <Root level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>
