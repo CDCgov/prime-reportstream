@@ -1,49 +1,126 @@
-import React, { useState, useCallback } from "react";
+import React, {
+    useState,
+    useCallback,
+    useMemo,
+    SetStateAction,
+    Dispatch,
+} from "react";
 import { Button } from "@trussworks/react-uswds";
 
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
 
-import { RowSideEffect, TableRow, ColumnConfig } from "./Table";
+import { RowSideEffect, TableRow as TableRowData, ColumnConfig } from "./Table";
 import { ColumnData } from "./ColumnData";
 
-interface TableRowProps {
-    rows: TableRow[];
+interface RowProps {
     columns: ColumnConfig[];
-    filterManager?: FilterManager;
     enableEditableRows?: boolean;
-    onSave?: RowSideEffect;
+    rowToEdit: number | undefined;
 }
 
+interface TableRowsProps extends RowProps {
+    rows: TableRowData[];
+    filterManager?: FilterManager;
+    onSave?: RowSideEffect;
+    setRowToEdit: Dispatch<SetStateAction<number | undefined>>;
+}
+
+interface TableRowProps extends RowProps {
+    rowData: TableRowData;
+    rowIndex: number;
+    editButtonLabel?: string;
+    updateRow: (value: string, field: string) => void;
+    saveRowOrSetEditing: (index?: number) => void;
+    isNew: boolean;
+}
+
+const createBlankRowForColumns = (columns: ColumnConfig[]) => {
+    return columns.reduce((acc, column) => {
+        const { dataAttr } = column;
+        acc[dataAttr] = undefined;
+        return acc;
+    }, {} as TableRowData);
+};
+
+const TableRow = ({
+    rowIndex,
+    columns,
+    rowData,
+    rowToEdit,
+    enableEditableRows,
+    updateRow,
+    saveRowOrSetEditing,
+    editButtonLabel,
+    isNew,
+}: TableRowProps) => {
+    // on a new row, all fields should be editable
+    const columnsForDisplay = useMemo(() => {
+        if (!isNew) {
+            return columns;
+        }
+        return columns.map((column) => ({
+            ...column,
+            editable: true,
+        }));
+    }, [isNew, columns]);
+
+    return (
+        <tr key={rowIndex}>
+            {columnsForDisplay.map((colConfig, colIndex) => (
+                <ColumnData
+                    key={`${rowIndex}:${colIndex}:TOP`}
+                    rowIndex={rowIndex}
+                    colIndex={colIndex}
+                    columnConfig={colConfig}
+                    rowData={rowData}
+                    editing={rowToEdit === rowIndex}
+                    setUpdatedRow={updateRow}
+                />
+            ))}
+            {enableEditableRows ? (
+                <td key={`${rowIndex}:EDIT`}>
+                    <Button
+                        type="submit"
+                        onClick={() => saveRowOrSetEditing(rowIndex)}
+                    >
+                        {editButtonLabel}
+                    </Button>
+                </td>
+            ) : null}
+        </tr>
+    );
+};
+
 /* Iterates each row, and then uses the key value from columns.keys()
- * to render each cell in the appropriate column. */
+ * to render each cell in the appropriate column.
+ * POSSIBLE TODO: do we want to split out the editing stuff into a plugin / hook / different component?
+ */
 export const TableRows = ({
     rows,
     onSave = () => Promise.resolve(),
     enableEditableRows,
     filterManager,
     columns,
-}: TableRowProps) => {
-    // tracks which row is currently being edited
-    const [editing, setEditing] = useState<number | undefined>();
+    setRowToEdit,
+    rowToEdit,
+}: TableRowsProps) => {
     // tracks data changes to row currently being edited
     // TODO: build proper loading state
-    const [updatedRow, setUpdatedRow] = useState<TableRow | null>(null);
-
-    const editableRowButtonValue = (isEditing: boolean) =>
-        isEditing ? "Save" : "Edit";
+    const [updatedRow, setUpdatedRow] = useState<TableRowData | null>(null);
 
     // TODO: typing this input as a string for now
     // but may need to cast it to a number, Date, or parse a JSON string in the future
     // especially if we're dealing with non text type inputs. Otherwise we may end up
     // with difficulty working with new data, or pushing to API without errors
-    const updateRow = (value: string, field: string) => {
+    const updateFieldForRow = (value: string, field: string) => {
         // largely here for typecheck reasons, this represents a case
         // where we're somehow trying to update a row without editing enabled
-        if (editing === undefined) {
-            console.error("Editing not enabled?");
+        if (rowToEdit === undefined) {
+            console.error("Editing not enabled or no row to edit");
             return;
         }
-        const rowToUpdate = rows[editing];
+
+        const rowToUpdate = rowsToDisplay[rowToEdit];
         const rowValues = { ...rowToUpdate };
         // update the field value in the given row
         rowValues[field] = value;
@@ -54,66 +131,73 @@ export const TableRows = ({
     // it will be the responsibility of the parent component to handle any data updates by
     // updating props passed to the table as a result of the onSave function
     const saveRowOrSetEditing = useCallback(
-        (rowIndex) => {
+        (rowIndex?: number) => {
             // if we are in edit mode, and the row being edited matches the
             // row of the button being clicked, then we want to save
-            if (editing !== undefined && editing === rowIndex) {
+            if (rowToEdit !== undefined && rowToEdit === rowIndex) {
                 // but if there are no changes to save, just back out of editing
                 if (!updatedRow) {
                     console.log("No changes to save");
-                    setEditing(undefined);
+                    setRowToEdit(undefined);
                     return;
                 }
                 // TODO: implement a loading state here
                 return onSave(updatedRow).then(() => {
-                    setEditing(undefined);
+                    setRowToEdit(undefined);
                     setUpdatedRow(null);
                 });
             }
             // otherwise, enable editing mode for this row
             setUpdatedRow(null); // in case we have some weird old irrelevant data in the state
-            setEditing(rowIndex);
+            setRowToEdit(rowIndex);
         },
-        [editing, updatedRow, onSave]
+        [rowToEdit, setRowToEdit, updatedRow, onSave]
     );
+
+    const addingNewRow: boolean = useMemo(
+        () => !!(rowToEdit !== undefined && rowToEdit === rows.length),
+        [rowToEdit, rows.length]
+    );
+
+    // decouple the rows we are displaying from the rows that have been persisted to allow
+    // easier editing
+    const rowsToDisplay = useMemo(() => {
+        if (!addingNewRow) {
+            return [...rows];
+        }
+        // if the row is currently under edit, use that row, otherwise create a blank one
+        const newRow = updatedRow || createBlankRowForColumns(columns);
+        return [...rows].concat([newRow]);
+    }, [rows, addingNewRow, updatedRow, columns]);
 
     return (
         <>
-            {rows.map((object: TableRow, rowIndex: number) => {
+            {rowsToDisplay.map((object: TableRowData, rowIndex: number) => {
                 // Caps page size when filterManager exists
                 if (
                     filterManager &&
                     rowIndex >= filterManager?.pageSettings.size
-                )
+                ) {
                     return null;
+                }
+                // note comparison to `rows` length rather than `rowsToDisplay` to make sure
+                // this is a row that has been added
+                const isNewRow = addingNewRow && rowIndex === rows.length;
                 return (
-                    <tr key={rowIndex}>
-                        {columns.map((colConfig, colIndex) => (
-                            <ColumnData
-                                key={`${rowIndex}:${colIndex}:TOP`}
-                                rowIndex={rowIndex}
-                                colIndex={colIndex}
-                                columnConfig={colConfig}
-                                rowData={object}
-                                editing={editing === rowIndex}
-                                setUpdatedRow={updateRow}
-                            />
-                        ))}
-                        {enableEditableRows ? (
-                            <td key={`${rowIndex}:EDIT`}>
-                                <Button
-                                    type="submit"
-                                    onClick={() =>
-                                        saveRowOrSetEditing(rowIndex)
-                                    }
-                                >
-                                    {editableRowButtonValue(
-                                        editing === rowIndex
-                                    )}
-                                </Button>
-                            </td>
-                        ) : null}
-                    </tr>
+                    <TableRow
+                        rowIndex={rowIndex}
+                        columns={columns}
+                        rowData={object}
+                        rowToEdit={rowToEdit}
+                        updateRow={updateFieldForRow}
+                        enableEditableRows={enableEditableRows}
+                        saveRowOrSetEditing={saveRowOrSetEditing}
+                        editButtonLabel={
+                            rowToEdit === rowIndex ? "Save" : "Edit"
+                        }
+                        key={rowIndex}
+                        isNew={isNewRow}
+                    />
                 );
             })}
         </>

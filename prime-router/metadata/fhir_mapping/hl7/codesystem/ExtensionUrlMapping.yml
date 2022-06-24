@@ -112,6 +112,9 @@
 # Generic text
 - id: "text"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/text"
+# Original text
+- id: "original-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/original-text"
 # Alternate identifier
 - id: "alternate-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier"
@@ -145,3 +148,21 @@
 # Service priority
 - id: "service-priority"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/service-priority"
+# Producer's ID
+- id: "producer-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id"
+# Coding system
+- id: "coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system"
+# Identifier type
+- id: "identifier-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type"
+# Source of comment
+- id: "note-source"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source"
+# Comment type
+- id: "note-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type"
+# Patient notes as Annotations
+- id: "patient-notes"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes"

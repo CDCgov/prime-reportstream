@@ -1,0 +1,37 @@
+# ./prime multiple-settings set --env staging --input ./settings/staging/0119-neurolab.yml
+---
+- name: neurolab
+  description: Neurolab
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: neurolab
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+#- name: "hhsprotect"
+#  description: "HHSProtect"
+#  jurisdiction: "FEDERAL"
+#  receivers:
+#    - name: "elr"
+#      organizationName: "hhsprotect"
+#      topic: "covid-19"
+#      customerStatus: active
+#      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab)" ]
+#      qualityFilter: [ "allowAll()" ]
+#      translation:
+#        type: "CUSTOM"
+#        schemaName: "hhsprotect/hhsprotect-covid-19"
+#        format: "CSV"
+#      deidentify: true
+#      deidentifiedValue: "<DEIDENTIFIED>"
+#      timing:
+#        operation: "MERGE"
+#        numberPerDay: 1440
+#        initialTime: "00:00"
+#        timeZone: "EASTERN"
+#      transport:
+#        type: BLOBSTORE
+#        storageName: PartnerStorage
+#        containerName: hhsprotect
