@@ -1,7 +1,7 @@
 import { screen, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import ValueSetsDetail from "./ValueSetsDetail";
+import ValueSetsDetail, { ValueSetsDetailTable } from "./ValueSetsDetail";
 
 const fakeRows = [
     {
@@ -14,9 +14,22 @@ const fakeRows = [
     },
 ];
 
-jest.mock("../../../hooks/UseLookupTable", () => ({
-    useValueSetsRowTable: () => fakeRows, // for some reason, can't get this working with a proper mock
-}));
+const mockEmptyArray: unknown[] = [];
+const mockError = new Error();
+
+// for some reason, can't get this working with a proper mock
+// defining mocks with mock implementations, the implementations are never run
+// shrug - DWS
+jest.mock("../../../hooks/UseLookupTable", () => {
+    return {
+        useValueSetsRowTable: (valueSetName: string) => {
+            if (valueSetName === "error") {
+                return { valueSetArray: mockEmptyArray, error: mockError };
+            }
+            return { valueSetArray: fakeRows };
+        },
+    };
+});
 
 jest.mock("react-router-dom", () => ({
     useParams: () => ({ valueSetName: "a-path" }),
@@ -50,5 +63,22 @@ describe("ValueSetsDetail tests", () => {
         // assert input element is rendered in edit mode
         const input = screen.getAllByRole("textbox");
         expect(input.length).toEqual(3);
+    });
+});
+
+describe("ValueSetsDetailTable", () => {
+    test("Handles crud related errors", () => {
+        const mockSetAlert = jest.fn();
+        render(
+            <ValueSetsDetailTable
+                valueSetName={"error"}
+                setAlert={mockSetAlert}
+            />
+        );
+        expect(mockSetAlert).toHaveBeenCalled();
+        expect(mockSetAlert).toHaveBeenCalledWith({
+            type: "error",
+            message: "Error",
+        });
     });
 });
