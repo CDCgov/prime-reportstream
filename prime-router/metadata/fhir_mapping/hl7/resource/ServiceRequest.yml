@@ -143,12 +143,12 @@ requester:
   valueOf: resource/PractitionerRole
   expressionType: reference
   vars:
-    orderingProvider: ORC.12 | OBR.16
-    callbackNumber: ORC.14 | OBR.17
-    orderingFacilityName: ORC.21
-    orderingFacilityAddress: ORC.22
-    orderingFacilityPhone: ORC.23
-    orderingProviderAddress: ORC.24
+    rolePractitioner: ORC.12 | OBR.16
+    rolePractitionerCallbackNumber: ORC.14 | OBR.17
+    roleOrganization: ORC.21
+    roleOrganizationAddress: ORC.22
+    roleOrganizationPhone: ORC.23
+    rolePractitionerAddress: ORC.24
 
 reasonCode:
   condition: $reasonCWE NOT_NULL
