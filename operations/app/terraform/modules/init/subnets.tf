@@ -8,9 +8,9 @@ module "subnets" {
   vnet               = "${var.resource_prefix}-${each.key}"
   nsg_ids            = local.nsg_ids
   subnet_nsg_details = each.value.subnet_nsg_details
+  resource_prefix    = var.resource_prefix
 
   depends_on = [
     azurerm_virtual_network.init
   ]
 }
-

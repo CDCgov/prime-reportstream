@@ -4,6 +4,7 @@ variable "resource_group" {}
 variable "vnet" {}
 variable "nsg_ids" {}
 variable "subnet_nsg_details" {}
+variable "resource_prefix" {}
 
 resource "azurerm_subnet" "init" {
   for_each = var.subnet_details
