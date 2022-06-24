@@ -39,7 +39,11 @@ import { EditSenderSettings } from "./components/Admin/EditSenderSettings";
 import "react-toastify/dist/ReactToastify.css";
 import SubmissionDetails from "./pages/submissions/SubmissionDetails";
 import { NewSetting } from "./components/Admin/NewSetting";
-import { FeatureFlagUIComponent } from "./pages/misc/FeatureFlags";
+import {
+    CheckFeatureFlag,
+    FeatureFlagName,
+    FeatureFlagUIComponent,
+} from "./pages/misc/FeatureFlags";
 import SenderModeBanner from "./components/SenderModeBanner";
 import { AdminOrgNew } from "./pages/admin/AdminOrgNew";
 import { DAPHeader } from "./components/header/DAPHeader";
@@ -167,11 +171,15 @@ const App = () => {
                                     authorize={PERMISSIONS.SENDER}
                                     component={Upload}
                                 />
-                                <AuthorizedRoute
-                                    path="/validate"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={Validate}
-                                />
+                                {CheckFeatureFlag(
+                                    FeatureFlagName.VALIDATION_SERVICE
+                                ) && (
+                                    <AuthorizedRoute
+                                        path="/validate"
+                                        authorize={PERMISSIONS.PRIME_ADMIN}
+                                        component={Validate}
+                                    />
+                                )}
                                 {/* TODO: AuthorizedRoute needs to take many potential auth groups.
                                  *  We should fix this when we refactor our permissions layer.
                                  */}
