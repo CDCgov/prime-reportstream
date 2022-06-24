@@ -324,6 +324,11 @@ maritalStatus:
     coding: MARITAL_STATUS, PID.16
     text: String, PID.16.2
 
+contact:
+  valueOf: secondary/PatientContact
+  expressionType: resource
+  generateList: true
+
 generalPractitioner:
   condition: $practitionerVal NOT_NULL
   valueOf: resource/Practitioner
