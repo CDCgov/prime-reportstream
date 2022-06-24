@@ -104,6 +104,13 @@ class SubmissionsFacade(
         )
     }
 
+    /**
+     * Get expanded details for a single report
+     *
+     * @param organizationName Name of the organization receiving this report.
+     * @param submissionId id for the submission being used
+     * @return Report details
+     */
     fun findDetailedSubmissionHistory(
         organizationName: String,
         submissionId: Long,
