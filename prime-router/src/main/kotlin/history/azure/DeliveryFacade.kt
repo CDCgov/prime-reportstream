@@ -95,6 +95,38 @@ class DeliveryFacade(
         )
     }
 
+    /**
+     * Get expanded details for a single report
+     *
+     * @param organizationName Name of the organization receiving this report.
+     * @param deliveryId id for the delivery being used
+     * @return Report details
+     */
+    fun findDetailedDeliveryHistory(
+        organizationName: String,
+        deliveryId: Long,
+    ): DeliveryHistory? {
+        return DeliveryHistory(
+            deliveryId,
+            OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
+            organizationName,
+            "elr-secondary",
+            201,
+            null,
+            "c3c8e304-8eff-4882-9000-3645054a30b7",
+            "covid-19",
+            1,
+            "",
+            "covid-19",
+            "HL7_BATCH"
+        )
+//        return dbDeliveryAccess.fetchAction(
+//            organizationName,
+//            deliveryId,
+//            DeliveryHistory::class.java
+//        )
+    }
+
     companion object {
         val instance: DeliveryFacade by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
             DeliveryFacade()
