@@ -48,6 +48,7 @@ import ValueSetsDetail from "./pages/admin/value-set-editor/ValueSetsDetail";
 import SessionProvider from "./contexts/SessionContext";
 import BuiltForYouIndex from "./pages/built-for-you/BuiltForYouIndex";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
+import { AdminLastMileFailures } from "./pages/admin/AdminLastMileFailures";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -214,6 +215,11 @@ const App = () => {
                                     path="/admin/guides"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={InternalUserGuides}
+                                />
+                                <AuthorizedRoute
+                                    path="/admin/lastmile"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={AdminLastMileFailures}
                                 />
                                 <SecureRoute
                                     path="/report-details"
