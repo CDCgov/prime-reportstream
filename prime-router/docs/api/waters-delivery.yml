@@ -16,7 +16,7 @@ servers:
   - url: http://localhost:7071/api
     description: Developer Environment
 paths:
-  /waters/{organization}/deliveries:
+  /waters/org/{organization}.{client}/deliveries:
     get:
       operationId: getDeliveries
       summary: Get available reports for a STLT
@@ -27,7 +27,13 @@ paths:
       parameters:
         - name: organization
           in: path
-          description: receiver whose reports we want to see
+          description: receiver whose deliveries we want to see
+          required: true
+          schema:
+            type: string
+        - name: client
+          in: path
+          description: client of the receiver to get deliveries for
           required: true
           schema:
             type: string
@@ -50,6 +56,64 @@ paths:
           description: unauthorized
         '404':
           description: organization does not exist
+  /waters/report/{deliveryId}/delivery:
+    get:
+      operationId: getDeliveryDetails
+      summary: Get expanded details for a single report
+      description: Retrieve the details for a report, including easily fetched relations
+      security:
+        - OAuth2: [ user ]
+        - Server2Server: []
+      parameters:
+        - name: reportId
+          in: path
+          description: ID of report whose details we want to see
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: a report detail object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Delivery'
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+        '404':
+          description: report does not exist
+  /waters/deliveries/{deliveryId}/facilities:
+    get:
+      operationId: getDeliveryFacilities
+      summary: Get facilities for a single report
+      description: Retrieve the list of facilities for a report
+      security:
+        - OAuth2: [ user ]
+        - Server2Server: []
+      parameters:
+        - name: reportId
+          in: path
+          description: ID of report whose details we want to see
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: an array of facilities in the report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacilitiesList'
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+        '404':
+          description: report does not exist
 components:
   securitySchemes:
     OAuth2:
@@ -65,7 +129,7 @@ components:
       type: object
       properties:
         deliveryId:
-          description: the row number for this report's action log
+          description: the action_id from this report's action log entry
           type: integer
         sent:
           description: when this report was sent
@@ -81,9 +145,6 @@ components:
         receivingOrgSvc:
           description: service used by the organization
           type: string
-        httpStatus:
-          description: response given to the sender upon submission
-          type: integer
         reportId:
           description: the uuid for this report
           type: string
@@ -97,3 +158,29 @@ components:
         fileName:
           description: the filename for the delivered report
           type: string
+        fileType:
+          description: format in which the report was originally sent
+          type: string
+          enum: [ INTERNAL, CSV, CSV_SINGLE, HL7, HL7_BATCH, FHIR ]
+    FacilitiesList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Facility'
+    Facility:
+      type: object
+      properties:
+        facility:
+          description: the full name of the facility
+          type: string
+        location:
+          description: city and state of the facility
+          type: string
+        CLIA:
+          description: The CLIA number (10-digit alphanumeric) of the facility
+          type: string
+        positive:
+          description: the result (conclusion) of the test. 0 = negative (good usually)
+          type: integer
+        total:
+          description: number of facilities included in the object
+          type: integer
