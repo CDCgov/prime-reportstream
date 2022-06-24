@@ -10,6 +10,7 @@ export default defineConfig({
         auth_username: process.env.REACT_APP_OKTA_USERNAME,
         auth_password: process.env.REACT_APP_OKTA_PASSWORD,
         okta_domain: process.env.REACT_APP_OKTA_DOMAIN,
-        okta_client_id: process.env.REACT_APP_OKTA_CLIENTID
+        okta_client_id: process.env.REACT_APP_OKTA_CLIENTID,
+        okta_secret: process.env.REACT_APP_OKTA_SECRET,
     }
 })
