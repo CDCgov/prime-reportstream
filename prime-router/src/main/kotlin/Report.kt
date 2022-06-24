@@ -570,6 +570,7 @@ class Report : Logging {
             when {
                 it.name == patient_zip_column_name -> buildRestrictedZipCode(it.name)
                 it.name == patient_age_column_name -> buildDeidentifiedPatientAgeColumn(replacementValue)
+                it.name == patient_dob_column_name -> buildDeidentifiedPatientDobColumn(replacementValue)
                 it.pii == true -> {
                     table.column(it.name)
                         .asStringColumn()
@@ -999,6 +1000,33 @@ class Report : Logging {
         return table.column(patient_age_column_name).copy() as StringColumn
     }
 
+    /**
+     * Walks through the patient DOB looking at each year and doing a comparison against
+     * [SAFE_HARBOR_DOB_YEAR_REPLACEMENT]. If the age is greater than or equal to that cutoff
+     * value then it replaces it with [SAFE_HARBOR_DOB_YEAR_REPLACEMENT], otherwise, the DOB
+     * is deidentified by replacing it with the birth year, so someone born 12/1/2000 would have
+     * their DOB replaced with 2000, while someone born in 1927 would have their DOB replaced
+     * with 0000.
+     * @param nullValuePlaceholder - The value to replace null with
+     * @returns a [StringColumn] of the deidentified values
+     */
+    private fun buildDeidentifiedPatientDobColumn(nullValuePlaceholder: String = ""): StringColumn {
+        table.forEachIndexed() { idx, row ->
+            val patientDob = row.getStringOrNull(patient_dob_column_name).trimToNull()
+            if (patientDob == null) {
+                setString(idx, patient_dob_column_name, nullValuePlaceholder)
+            } else {
+                val patientDobYear = DateUtilities.parseDate(patientDob).toLocalDate().year
+                if (patientDobYear <= SAFE_HARBOR_CUTOFF_YEAR) {
+                    setString(idx, patient_dob_column_name, SAFE_HARBOR_DOB_YEAR_REPLACEMENT)
+                } else {
+                    setString(idx, patient_dob_column_name, patientDobYear.toString())
+                }
+            }
+        }
+        return table.column(patient_dob_column_name).copy() as StringColumn
+    }
+
     private fun buildFakedColumn(
         name: String,
         element: Element,
@@ -1043,6 +1071,8 @@ class Report : Logging {
         private const val patient_age_column_name = "patient_age"
         private const val patient_zip_column_name = "patient_zip_code"
         private const val specimen_collection_date_column_name = "specimen_collection_date_time"
+        private const val SAFE_HARBOR_CUTOFF_YEAR = 1933
+        private const val SAFE_HARBOR_DOB_YEAR_REPLACEMENT = "0000"
 
         fun merge(inputs: List<Report>): Report {
             if (inputs.isEmpty())

@@ -326,6 +326,36 @@ class ReportTests {
     }
 
     @Test
+    fun `test patient dob deidentification`() {
+        val patientAgeSchema = Schema(
+            name = "patientAgeSchema",
+            topic = "test",
+            elements = listOf(
+                Element("patient_age", pii = true),
+                Element("patient_dob", pii = true),
+                Element("specimen_collection_date_time", pii = false)
+            )
+        )
+        Report(
+            schema = patientAgeSchema,
+            values = listOf(
+                // empty values
+                listOf("", "", ""),
+                // should be deidentified
+                listOf("", "1923-08-03", "2022-06-22 22:58:00"),
+                // collection date and dob
+                listOf("", "2000-12-01", "2022-06-22 22:58:00"),
+            ),
+            source = TestSource,
+            metadata = metadata
+        ).deidentify("<NULL>").run {
+            assertThat(this.getString(0, "patient_dob")).isEqualTo("<NULL>")
+            assertThat(this.getString(1, "patient_dob")).isEqualTo("0000")
+            assertThat(this.getString(2, "patient_dob")).isEqualTo("2000")
+        }
+    }
+
+    @Test
     fun `test patient age validation`() {
         /**
          * Create table's header
