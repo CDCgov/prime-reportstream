@@ -50,3 +50,7 @@ updates:
     directory: "/prime-router"
     schedule:
       interval: "weekly"
+    ignore:
+      # ignore updates to sshj so we don't run into future issues connecting to STLTs
+      - dependency-name: "sshj"
+        update-types: ["version-update:semver-patch"]
