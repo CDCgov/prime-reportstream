@@ -59,7 +59,7 @@ resource "azurerm_monitor_metric_alert" "exception_alert_error" {
 }
 
 resource "azurerm_monitor_metric_alert" "exception_alert_warn" {
-  count               = local.alerting_enabled
+  count               = local.prod_exclusive_alerting
   name                = "One or More Exceptions Raised in the Last Hour"
   description         = "One or More Exceptions Raised in the Last Hour"
   resource_group_name = var.resource_group

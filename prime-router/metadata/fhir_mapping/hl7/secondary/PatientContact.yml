@@ -1,0 +1,56 @@
+name:
+  valueOf: datatype/HumanName
+  generateList: true
+  expressionType: resource
+  specs: NK1.2
+
+relationship_1:
+  valueOf: datatype/CodeableConcept
+  expressionType: resource
+  generateList: true
+  specs: NK1.3
+
+relationship_2:
+  condition: $hl7System EQUALS HL70063 && $hl7Code EQUALS OTH
+  valueOf: datatype/CodeableConcept
+  expressionType: resource
+  generateList: true
+  vars:
+    hl7Code: String, NK1.3.1
+    hl7System: String, NK1.3.3
+  constants:
+    alternateCode: U
+    alternateSystem: PatientContactRelationship
+    alternateDisplay: Unknown
+
+relationship_3:
+  condition: $hl7System EQUALS HL70063 && $hl7Code EQUALS UNK
+  valueOf: datatype/CodeableConcept
+  expressionType: resource
+  generateList: true
+  vars:
+    hl7Code: String, NK1.3.1
+    hl7System: String, NK1.3.3
+  constants:
+    alternateCode: U
+    alternateSystem: PatientContactRelationship
+    alternateDisplay: Unknown
+
+address:
+  valueOf: datatype/Address
+  expressionType: resource
+  specs: NK1.4
+
+telecom:
+  valueOf: datatype/ContactPoint
+  generateList: true
+  expressionType: resource
+  specs: NK1.5
+
+organization:
+  valueOf: resource/Organization
+  expressionType: reference
+  vars:
+    orgContactPointAddressXAD: NK1.32
+    orgContactPointXTN: NK1.31
+    orgContactName: NK1.30

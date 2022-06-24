@@ -44,7 +44,7 @@ jobs:
       # - name: Install docker-compose
       #   run: apt-get update && apt-get --yes install docker-compose
       - name: Set up JDK 11
-        uses: actions/setup-java@860f60056505705214d223b91ed7a30f173f6142
+        uses: actions/setup-java@16cca5479d7c6b6843f6a6515640ba33c6501543
         with:
           java-version: '11'
           distribution: 'adopt'
@@ -59,7 +59,7 @@ jobs:
         run: ./gradlew package -Pshowtests
         
       - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@1fa26b2a644f2dbd9dd819195f0be6a83d47f6f8
+        uses: EnricoMi/publish-unit-test-result-action@c8ce9bba212f019b0449ca319e8fecef2f06cd66
         # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
         if: >
           always() &&
@@ -101,7 +101,7 @@ jobs:
         run: ./gradlew testIntegration -Pshowtests
 
       - name: Publish Integration Test Results
-        uses: EnricoMi/publish-unit-test-result-action@1fa26b2a644f2dbd9dd819195f0be6a83d47f6f8
+        uses: EnricoMi/publish-unit-test-result-action@c8ce9bba212f019b0449ca319e8fecef2f06cd66
         # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
         if: >
           always() &&
@@ -197,7 +197,7 @@ jobs:
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Set up JDK 11
-        uses: actions/setup-java@860f60056505705214d223b91ed7a30f173f6142
+        uses: actions/setup-java@16cca5479d7c6b6843f6a6515640ba33c6501543
         with:
           java-version: '11'
           distribution: 'adopt'
