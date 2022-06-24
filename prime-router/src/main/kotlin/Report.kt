@@ -567,18 +567,19 @@ class Report : Logging {
      */
     fun deidentify(replacementValue: String): Report {
         val columns = schema.elements.map {
-            if (it.name == "patient_zip_code") {
-                buildRestritedZipCode(it.name)
-            } else if (it.pii == true) {
-                table.column(it.name)
-                    .asStringColumn()
-                    .set(
-                        table.column(it.name)
-                            .isNotMissing,
-                        replacementValue
-                    )
-            } else {
-                table.column(it.name).copy()
+            when {
+                it.name == patient_zip_column_name -> buildRestrictedZipCode(it.name)
+                it.name == patient_age_column_name -> buildDeidentifiedPatientAgeColumn(replacementValue)
+                it.pii == true -> {
+                    table.column(it.name)
+                        .asStringColumn()
+                        .set(
+                            table.column(it.name)
+                                .isNotMissing,
+                            replacementValue
+                        )
+                }
+                else -> table.column(it.name).copy()
             }
         }
         return Report(
@@ -829,26 +830,26 @@ class Report : Logging {
      *      else
      *          - the patient will be calculated using period between patient date of birth and
      *          the specimen collection date.
-     *  @param patient_age - input patient's age.
-     *  @param patient_dob - input patient date of birth.
+     *  @param patientAge - input patient's age.
+     *  @param patientDob - input patient date of birth.
      *  @param specimenCollectionDate - input date of when specimen was collected.
      *  @return age - result of patient's age.
      */
-    private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: LocalDate?): String? {
+    private fun getAge(patientAge: String?, patientDob: String?, specimenCollectionDate: LocalDate?): String? {
         return if (
-            (!patient_age.isNullOrBlank()) &&
-            patient_age.all { Character.isDigit(it) } &&
-            (patient_age.toInt() > 0)
+            (!patientAge.isNullOrBlank()) &&
+            patientAge.all { Character.isDigit(it) } &&
+            (patientAge.toInt() > 0)
         ) {
-            patient_age
+            patientAge
         } else {
             //
             // Here, we got invalid or blank patient_age given to us.  Therefore, we will use patient date
             // of birth and date of specimen collected to calculate the patient's age.
             //
             try {
-                if (patient_dob == null || specimenCollectionDate == null) return null
-                val d = DateUtilities.parseDate(patient_dob).toLocalDate()
+                if (patientDob == null || specimenCollectionDate == null) return null
+                val d = DateUtilities.parseDate(patientDob).toLocalDate()
                 if (d.isBefore(specimenCollectionDate)) {
                     Period.between(d, specimenCollectionDate).years.toString()
                 } else {
@@ -860,6 +861,12 @@ class Report : Logging {
         }
     }
 
+    /**
+     * Builds the column in a first pass based on the translator mapping
+     * @param mapping - the mapping for the translation
+     * @param toElement - the element to write to
+     * @return a [StringColumn] based on the mapping
+     */
     private fun buildColumnPass1(mapping: Translator.Mapping, toElement: Element): StringColumn? {
         return when (toElement.name) {
             in mapping.useDirectly -> {
@@ -928,21 +935,68 @@ class Report : Logging {
         return StringColumn.create(name, List(itemCount) { "" })
     }
 
-    private fun buildRestritedZipCode(name: String): StringColumn {
-        val restricted_zip = metadata.findLookupTable("restricted_zip_code")
-        var row = 0
+    /**
+     * Given a column name, this function walks through each value and if the value in that
+     * column matches a restricted postal code, it will replace it with the appropriate value
+     * per the HIPAA Safe Harbor rules
+     * @param name The name of the column to examine
+     */
+    private fun buildRestrictedZipCode(name: String): StringColumn {
+        val restrictedZip = metadata.findLookupTable("restricted_zip_code")
 
-        table.column(name).forEach {
+        table.column(name).forEachIndexed { idx, columnValue ->
             // Assuming zip format is xxxxx-yyyy
-            val zipCode = it.toString().split("-")
+            val zipCode = columnValue.toString().split("-")
             val value = zipCode[0].dropLast(2)
-            if (restricted_zip?.dataRows?.contains(listOf(value)) == true) {
-                setString(row++, name, "00000")
+            if (restrictedZip?.dataRows?.contains(listOf(value)) == true) {
+                setString(idx, name, "00000")
             } else {
-                setString(row++, name, (value + "00"))
+                setString(idx, name, (value + "00"))
             }
         }
         return table.column(name).copy() as StringColumn
+    }
+
+    /**
+     * Walks the table rows and compares the patient age and if it is greater than or
+     * equal to the comparison value, it will zero it out, otherwise it will pass it through
+     * unchanged.
+     */
+    private fun buildDeidentifiedPatientAgeColumn(nullValuePlaceholder: String = ""): StringColumn {
+        // loop through the table rows
+        table.forEachIndexed { idx, row ->
+            // get the specimen collection date
+            val specimenCollectionDateTime = row
+                // get the specimen collection date time
+                .getStringOrNull(specimen_collection_date_column_name)
+                // trim it just in case
+                .trimToNull()
+                .let {
+                    when (it) {
+                        // if the value is not null, parse it to a date value, otherwise, use current
+                        // date time value to compare DOB against
+                        null -> DateUtilities.nowAtZone(DateUtilities.utcZone).toLocalDate()
+                        else -> DateUtilities.parseDate(it).toLocalDate()
+                    }
+                }
+            // get the patient age
+            val patientAge = getAge(
+                row.getStringOrNull(patient_age_column_name).trimToNull(),
+                row.getStringOrNull(patient_dob_column_name).trimToNull(),
+                specimenCollectionDateTime
+            )?.toIntOrNull().let {
+                // if the patient age is greater than or equal to 89 years old, set it to zero
+                if (it != null && it >= 89) {
+                    0
+                } else {
+                    it
+                }
+            }
+            // set the patient age value
+            setString(idx, patient_age_column_name, patientAge?.toString() ?: nullValuePlaceholder)
+        }
+
+        return table.column(patient_age_column_name).copy() as StringColumn
     }
 
     private fun buildFakedColumn(
@@ -985,6 +1039,11 @@ class Report : Logging {
      * Static functions for use in modifying and manipulating reports.
      */
     companion object {
+        private const val patient_dob_column_name = "patient_dob"
+        private const val patient_age_column_name = "patient_age"
+        private const val patient_zip_column_name = "patient_zip_code"
+        private const val specimen_collection_date_column_name = "specimen_collection_date_time"
+
         fun merge(inputs: List<Report>): Report {
             if (inputs.isEmpty())
                 error("Cannot merge an empty report list")
