@@ -37,7 +37,7 @@ interface TableRowProps extends RowProps {
 const createBlankRowForColumns = (columns: ColumnConfig[]) => {
     return columns.reduce((acc, column) => {
         const { dataAttr } = column;
-        acc[dataAttr] = undefined;
+        acc[dataAttr] = null;
         return acc;
     }, {} as TableRowData);
 };
@@ -120,7 +120,7 @@ export const TableRows = ({
             return;
         }
 
-        const rowToUpdate = updatedRow ? updatedRow : rows[rowToEdit];
+        const rowToUpdate = updatedRow ? updatedRow : rowsToDisplay[rowToEdit];
         const rowValues = { ...rowToUpdate };
         // update the field value in the given row
         rowValues[field] = value;
