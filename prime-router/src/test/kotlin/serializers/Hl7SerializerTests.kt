@@ -891,17 +891,25 @@ NTE|1|L|This is a final comment|RE"""
         val terser = Terser(message)
 
         val pathORC = "/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-2"
-        val pathOBX31 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-1"
-        val pathOBX32 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-2"
-        val pathOBX33 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-3"
+        val pathOBX_3_1 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-1"
+        val pathOBX_3_2 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-2"
+        val pathOBX_3_3 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-3-3"
+        val pathOBX_17_1 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-17-1"
+        val pathOBX_17_2 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-17-2"
+        val pathOBX_17r0_1 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-17(0)-1"
+        val pathOBX_17r0_3 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-17(0)-3"
+        val pathOBX_17r1_1 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-17(1)-1"
+        val pathOBX_17r1_3 = "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(0)/OBX-17(1)-3"
         val pathSPM = "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
 
         // Set known values
         terser.set("MSH-3", "PHX.ProviderReportingService")
         terser.set("MSH-11-1", "P")
-        terser.set(pathOBX31, "94534-5")
-        terser.set(pathOBX32, "SARS Old String")
-        terser.set(pathOBX33, "LN")
+        terser.set(pathOBX_3_1, "94534-5")
+        terser.set(pathOBX_3_2, "SARS Old String")
+        terser.set(pathOBX_3_3, "LN")
+        terser.set(pathOBX_17_1, "PhoenixDx SARS-CoV-2 Multiplex_Trax Management Services Inc.")
+        terser.set(pathOBX_17_2, "SARS-CoV-2 (COVID-19) RNA [Presence] in Respiratory specimen by NAA with probe")
 
         terser.set("$pathSPM-2-1-1", "1234567")
         terser.set("$pathSPM-2-1-2", "WASHINGTON TEST SITE")
@@ -917,6 +925,8 @@ NTE|1|L|This is a final comment|RE"""
         val msh11_1_Values = arrayListOf(mapOf("*" to "D"))
         val unKnownValuePair = arrayListOf(mapOf("*" to "Unknown"))
         val obxValuePair = arrayListOf(mapOf("*" to "OBX31^OBX32^OBX33"))
+        // Note ths OBX-17 contains field repeator (~)
+        val obx_17_ValuePair = arrayListOf(mapOf("*" to "OBX-17(0)-1^^OBX-17(0)-3~OBX-17(1)-1^^OBX-17(1)-3"))
         val spmValuePair = arrayListOf(mapOf("*" to "646&Wichita TEST SITE&123&NPI"))
 
         val replaceValueAwithB: Map<String, Any>? = mapOf(
@@ -928,6 +938,7 @@ NTE|1|L|This is a final comment|RE"""
             // ..   ORC-12-2: ["*":"unKnow"], it will add "unKnown" value to the component
             "ORC-12-2" to unKnownValuePair,
             "OBX-3" to obxValuePair,
+            "OBX-17" to obx_17_ValuePair,
             "SPM-2" to spmValuePair
         )
 
@@ -944,9 +955,14 @@ NTE|1|L|This is a final comment|RE"""
 
             assertThat(terser.get(pathORC)).isEqualTo("Unknown")
 
-            assertThat(terser.get(pathOBX31)).isEqualTo("OBX31")
-            assertThat(terser.get(pathOBX32)).isEqualTo("OBX32")
-            assertThat(terser.get(pathOBX33)).isEqualTo("OBX33")
+            assertThat(terser.get(pathOBX_3_1)).isEqualTo("OBX31")
+            assertThat(terser.get(pathOBX_3_2)).isEqualTo("OBX32")
+            assertThat(terser.get(pathOBX_3_3)).isEqualTo("OBX33")
+
+            assertThat(terser.get(pathOBX_17r0_1)).isEqualTo("OBX-17(0)-1")
+            assertThat(terser.get(pathOBX_17r0_3)).isEqualTo("OBX-17(0)-3")
+            assertThat(terser.get(pathOBX_17r1_1)).isEqualTo("OBX-17(1)-1")
+            assertThat(terser.get(pathOBX_17r1_3)).isEqualTo("OBX-17(1)-3")
 
             assertThat(terser.get("$pathSPM-2-1-1")).isEqualTo("646")
             assertThat(terser.get("$pathSPM-2-1-2")).isEqualTo("Wichita TEST SITE")
