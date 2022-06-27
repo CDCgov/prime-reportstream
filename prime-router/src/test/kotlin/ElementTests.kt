@@ -346,6 +346,18 @@ internal class ElementTests {
             "+1613-688-5335", // CA
             "+52 55 5080 2000", // MX
             "(230)7136595", // US, but invalid area code, but pass it through anyway
+            "213 555 5555", // US format
+            "+91(213) 555 5555 # 1234", // International (India) with extension number
+            "356-683-6541 x 1234", // US with extension number
+            "(985) 845-3258", // US format
+            "+91 (714) 726-1687 ext. 7923", // International (India) with extension
+            "(818) 265-7536 ext. 5264", // US with extension
+            "(874) 951-2157 # 8562", // US with extension
+            "+52 (213)478 9621 x 548", // MX with extension
+            "(310)852-9654ext.4562", // US extension variant
+            "(946)451-7653ext1254", // US extension variant
+            "(213)353-4836#852", // US extension variant
+            "(661)187-6589x7328", // US extension variant
         ).forEach {
             Element.checkPhoneNumber(it, it).run {
                 assertThat(this).isNull()
@@ -358,6 +370,12 @@ internal class ElementTests {
             "           ",
             "99999999999999999999999999999999999999999999999999999999999999",
             "9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9",
+            "(213)353-4836#", // Phone with # for extension but without extension number
+            "(568)785-6521ext.", // Phone with ext. for extension but without extension number
+            "(568)785-6521 ext.", // Phone with ext. for extension but without extension number variant
+            "(625)354-1039x", // Phone with x for extension but without extension number
+            "(710)104-75621485", // Phone without #, ext., ext, or x but with extension number
+            "(710)104-7562 1485", // Phone without #, ext., ext, or x but with extension number variant
         ).forEach {
             Element.checkPhoneNumber(it, "test field").run {
                 assertThat(this).isNotNull()
