@@ -23,7 +23,7 @@ resource "azurerm_container_group" "init" {
 
   container {
     name   = "dnsmasq"
-    image  = "ghcr.io/cdcgov/prime-reportstream_dnsmasq:test"
+    image  = "ghcr.io/cdcgov/prime-reportstream_dnsmasq:demo2"
     cpu    = "0.5"
     memory = "1.5"
 
