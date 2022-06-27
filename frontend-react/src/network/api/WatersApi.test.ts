@@ -3,7 +3,7 @@ import { watersApi } from "./WatersApi";
 describe("Waters API", () => {
     const fakeHeaders = {
         Authorization: "Bearer [token]",
-        Organization: 'test-org',
+        Organization: "test-org",
     };
     test("postReport", () => {
         watersApi.updateSession(fakeHeaders);
