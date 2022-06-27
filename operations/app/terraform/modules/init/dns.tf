@@ -11,6 +11,10 @@ resource "azurerm_network_profile" "init" {
       subnet_id = module.subnets["vnet"].dns_container_subnet_id
     }
   }
+
+  depends_on = [
+    azurerm_virtual_network.init
+  ]
 }
 
 resource "azurerm_container_group" "init" {
@@ -23,7 +27,7 @@ resource "azurerm_container_group" "init" {
 
   container {
     name   = "dnsmasq"
-    image  = "ghcr.io/cdcgov/prime-reportstream_dnsmasq:demo2"
+    image  = "ghcr.io/cdcgov/prime-reportstream_dnsmasq:${var.environment}"
     cpu    = "0.5"
     memory = "1.5"
 
