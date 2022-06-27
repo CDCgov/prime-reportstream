@@ -63,29 +63,6 @@ resource "azurerm_key_vault" "init" {
     ]
   }
 
-  access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    // CT-PRIMEReportStream-AZ-Owners
-    object_id = "52fe06f4-9717-4beb-9b7a-e05b6bdd2f0f"
-
-    key_permissions = [
-      "Create",
-      "Get",
-      "List",
-      "Delete",
-      "Purge"
-    ]
-
-    secret_permissions = [
-      "Set",
-      "List",
-      "Get",
-      "Delete",
-      "Purge",
-      "Recover"
-    ]
-  }
-
   depends_on = [
     azurerm_virtual_network.init,
     module.subnets
@@ -96,12 +73,44 @@ resource "azurerm_key_vault" "init" {
   }
 }
 
+resource "azurerm_key_vault_access_policy" "init" {
+  for_each = toset(["appconfig", "keyvault"])
+
+  key_vault_id = azurerm_key_vault.init[each.value].id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  // CT-PRIMEReportStream-AZ-Owners
+  object_id = "52fe06f4-9717-4beb-9b7a-e05b6bdd2f0f"
+
+  key_permissions = [
+    "Create",
+    "Get",
+    "List",
+    "Delete",
+    "Purge"
+  ]
+
+  secret_permissions = [
+    "Set",
+    "List",
+    "Get",
+    "Delete",
+    "Purge",
+    "Recover"
+  ]
+
+  certificate_permissions = []
+}
+
 resource "azurerm_key_vault_secret" "init" {
   for_each = local.secrets
 
   name         = each.key
   value        = each.value.secret
   key_vault_id = each.value.vault.id
+
+  depends_on = [
+    azurerm_key_vault_access_policy.init
+  ]
 }
 
 resource "azurerm_key_vault_key" "init" {
@@ -119,5 +128,9 @@ resource "azurerm_key_vault_key" "init" {
     "unwrapKey",
     "verify",
     "wrapKey"
+  ]
+
+  depends_on = [
+    azurerm_key_vault_access_policy.init
   ]
 }

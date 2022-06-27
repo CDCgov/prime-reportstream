@@ -1,3 +1,4 @@
+/*
 resource "azurerm_public_ip" "init" {
   name                = "${var.resource_prefix}-vpn-ip"
   location            = var.location
@@ -57,3 +58,4 @@ EOF
     }
   }
 }
+*/
