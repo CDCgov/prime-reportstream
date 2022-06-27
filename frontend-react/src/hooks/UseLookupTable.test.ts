@@ -15,7 +15,7 @@ describe("useLookupTable and related helper functions", () => {
     afterAll(() => lookupTableServer.close());
 
     describe("getLatestVersion", () => {
-        test("getLatestVersion returns expected version and timestampts", async () => {
+        test("getLatestVersion returns expected version and timestamps", async () => {
             const result = await getLatestVersion(LookupTables.VALUE_SET);
             expect(result).toBeTruthy();
             if (!result) return; // I don't like this, as the case is handled in the test above but shrug emoji - DWS
@@ -23,6 +23,11 @@ describe("useLookupTable and related helper functions", () => {
             expect(version).toEqual(2);
             expect(createdAt).toEqual("now");
             expect(createdBy).toEqual("test@example.com");
+        });
+
+        test("getLatestVersion returns null when table doesn't exist", async () => {
+            const result = await getLatestVersion(LookupTables.VALUE_SET_ROW);
+            expect(result).toBeFalsy();
         });
     });
 

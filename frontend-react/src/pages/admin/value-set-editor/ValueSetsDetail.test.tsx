@@ -5,9 +5,11 @@ import ValueSetsDetail from "./ValueSetsDetail";
 
 const fakeRows = [
     {
+        name: "a-path",
         display: "hi",
     },
     {
+        name: "a-path",
         display: "test",
     },
 ];
@@ -28,7 +30,7 @@ describe("ValueSetsDetail tests", () => {
         const datasetActionButton = screen.getByText("Add item");
         const rows = screen.getAllByRole("row");
 
-        expect(headers.length).toEqual(5);
+        expect(headers.length).toEqual(4);
         expect(title).toBeInTheDocument();
         expect(datasetActionButton).toBeInTheDocument();
         expect(rows.length).toBe(3); // +1 for header
@@ -47,6 +49,6 @@ describe("ValueSetsDetail tests", () => {
 
         // assert input element is rendered in edit mode
         const input = screen.getAllByRole("textbox");
-        expect(input.length).toEqual(4);
+        expect(input.length).toEqual(3);
     });
 });
