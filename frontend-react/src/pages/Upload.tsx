@@ -14,12 +14,9 @@ import { NavLink, useHistory } from "react-router-dom";
 import DOMPurify from "dompurify";
 
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
-import {
-    getStoredOrg,
-    getStoredSenderName,
-} from "../contexts/SessionStorageTools";
 import { showError } from "../components/AlertNotifications";
 import Spinner from "../components/Spinner";
+import { useSessionContext } from "../contexts/SessionContext";
 
 const TransitionBanner = () => {
     return (
@@ -98,9 +95,15 @@ export const Upload = () => {
         `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
     );
 
-    const client = `${getStoredOrg()}.${getStoredSenderName()}`;
+    const {
+        memberships: {
+            state: { active: { parsedName, senderName } = {} },
+        },
+    } = useSessionContext();
+
+    const client = `${parsedName}.${senderName}`;
     const organization = useResource(SenderOrganizationResource.detail(), {
-        name: getStoredOrg(),
+        name: parsedName,
     });
 
     const userName = {
