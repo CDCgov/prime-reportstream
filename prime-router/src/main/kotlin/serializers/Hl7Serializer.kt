@@ -856,7 +856,7 @@ class Hl7Serializer(
                                                 )
                                             else
                                                 terser.set(
-                                                    "$pathSpec($fieldRep)-$obxComponentRep-$obxSubComponentRep",
+                                                    "$pathSpec-$obxComponentRep-$obxSubComponentRep",
                                                     obxSubComponent
                                                 )
                                             obxSubComponentRep++
