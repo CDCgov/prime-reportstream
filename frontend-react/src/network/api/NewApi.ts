@@ -1,32 +1,28 @@
 import { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
 
-/* Available APIs from the RS API */
-export enum ApiBaseUrls {
-    HISTORY = "/api/history", // SAMPLE
-    LOOKUP_TABLES = "/api/lookuptables",
-}
+import { Newable, SimpleError, StringIndexed } from "../../utils/UsefulTypes";
+
 export type AvailableMethods = Method[];
 export interface Endpoint {
     url: string;
     methods: AvailableMethods;
 }
-/* Name your endpoints:
- * e.g. new Map([
- *   ["allOrgs", { url: "/organization", methods [GET] }],
- *   ["org", { url: "/organization/:id", methods: [GET, UPDATE] }]
- * ]) */
+/* Name your endpoints! */
 export type EndpointMap = Map<string, Endpoint>;
+
 /* Declaration of an API */
 export interface API {
-    baseUrl: ApiBaseUrls;
+    resource: Newable<any>; // Resource class
+    baseUrl: string;
     endpoints: EndpointMap;
 }
-/* Allows us to access them via string: params["id"] */
-export interface RSUrlParams {
-    [key: string]: any;
-}
+
 /* Make some headers required */
-export interface RSRequestHeaders extends AxiosRequestHeaders {}
+export interface RSRequestHeaders extends AxiosRequestHeaders {
+    "authentication-type": string;
+    authorization: string;
+    organization: string;
+}
 /* Make some fields required or overwrite types */
 export interface RSRequestConfig extends AxiosRequestConfig {
     url: string;
@@ -34,8 +30,8 @@ export interface RSRequestConfig extends AxiosRequestConfig {
     headers: RSRequestHeaders;
 }
 /* Prevents overriding RSRequestConfig values */
-export type AdvancedConfig = Omit<
-    AxiosRequestConfig,
+export type AdvancedConfig<D> = Omit<
+    AxiosRequestConfig<D>,
     "url" | "method" | "headers"
 >;
 
@@ -49,7 +45,7 @@ const extractEndpoint = (api: API, key: string): Endpoint => {
 
 /* Called from consumer hook to build URL. Parameters for endpoints should be passed
  * through the consumer hook and into this function when building the URL. */
-export const buildEndpointUrl = <P extends RSUrlParams>(
+export const buildEndpointUrl = <P extends StringIndexed>(
     api: API,
     endpointKey: string,
     parameters?: P
@@ -85,13 +81,35 @@ export const buildEndpointUrl = <P extends RSUrlParams>(
             return construct(endpoint.url);
         }
     } catch (e: any) {
+        /* Catching extractEndpoints error, or anything form here, and piping it up */
         console.error(e.message);
-        return "";
+        throw Error(e.message);
     }
 };
 
-/* Handles generating the config from parameters */
-export const createAxiosConfig = <P extends RSUrlParams>(
+/* Ensure the endpoint chosen has access to the method desired. If not,
+ * this will throw and the error will be communicated in the output of
+ * generateRequestConfig */
+export const endpointHasMethod = (
+    api: API,
+    endpointKey: string,
+    method: Method
+) => {
+    const endpoint = extractEndpoint(api, endpointKey);
+    const canAccessMethod = endpoint.methods
+        .map((m) => m.toUpperCase())
+        .includes(method.toUpperCase());
+    if (!canAccessMethod)
+        throw Error(`Method ${method} cannot be used by ${endpointKey}`);
+};
+
+/* Handles generating the config from inputs with checks in the middle. If
+ * any checks fail, this will return a SimpleError. You can check this by
+ * calling `x instanceof SimpleError`.
+ *
+ * Both buildEndpointUrl and endpointHasMethod will throw if inputs lead to
+ * errors, and that is communicated through SimpleError.message */
+export const createRequestConfig = <P extends StringIndexed, D = any>(
     api: API,
     endpointKey: string,
     method: Method,
@@ -99,18 +117,21 @@ export const createAxiosConfig = <P extends RSUrlParams>(
     organization?: string,
     parameters?: P,
     // Allows us to use more of AxiosRequestConfig if we want
-    advancedConfig?: AdvancedConfig
-): RSRequestConfig => {
-    const url = buildEndpointUrl(api, endpointKey, parameters);
-    if (url === "") console.warn(`Looks like your url didn't parse!`);
-    return {
-        url: url,
-        method: method,
-        headers: {
-            "authentication-type": "okta",
-            authorization: `Bearer ${token || ""}`,
-            organization: `${organization || ""}`,
-        },
-        ...advancedConfig,
-    };
+    advancedConfig?: AdvancedConfig<D>
+): RSRequestConfig | SimpleError => {
+    try {
+        endpointHasMethod(api, endpointKey, method);
+        return {
+            url: buildEndpointUrl(api, endpointKey, parameters),
+            method: method,
+            headers: {
+                "authentication-type": "okta",
+                authorization: `Bearer ${token || ""}`,
+                organization: `${organization || ""}`,
+            },
+            ...advancedConfig,
+        };
+    } catch (e: any) {
+        return new SimpleError(e.message);
+    }
 };
