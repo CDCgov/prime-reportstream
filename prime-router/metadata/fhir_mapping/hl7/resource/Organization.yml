@@ -32,8 +32,8 @@ identifier_1:
   generateList: true
   expressionType: resource
   vars:
-    id: CWE.1 | XON.10 | XON.3
-    system: CWE.3
+    id: CWE.1 | CE.1 | XON.10 | XON.3
+    system: CWE.3 | CE.3
 
 # Used by IN1/Coverage (Insurance) organizations, which have a more complex identifier
 identifier_2:
@@ -63,26 +63,22 @@ identifier_3:
 name_v1:
   type: STRING
   condition: $idValue NULL
-  valueOf: CWE.2 | XON.1 | $orgName
-  # NOTE FHIR does not require Organization.name, but we do
-  # for an unkown reason. This is documented in Issue #422
-  # When this is fixed, remove payor_2: orgName: String, IN2.25.1
-  required: true
+  valueOf: CWE.2 | CE.2 | XON.1 | $orgName
   expressionType: HL7Spec
   vars:
-    idValue: CWE.1 | XON.10 | XON.3
+    idValue: CWE.1 | CE.1 | XON.10 | XON.3
 
 name_v2:
   type: STRING
   condition: $idValue NOT_NULL
-  valueOf: CWE.2 | XON.1
+  valueOf: CWE.2 | CE.2 | XON.1
   expressionType: HL7Spec
   vars:
-    idValue: CWE.1 | XON.10 | XON.3
+    idValue: CWE.1 | CE.1 | XON.10 | XON.3
 
 alias:
   type: STRING
-  valueOf: CWE.5
+  valueOf: CWE.5 | CE.5
   expressionType: HL7Spec
 
 address:
@@ -103,6 +99,8 @@ contact:
     display: $orgContactPurposeDisplay
     text: $orgContactPurposeText
     contactPointXTN: $orgContactPointXTN
+    contactPointAddressXAD: $orgContactPointAddressXAD
+    contactName: $orgContactName
 
 type_1:
   valueOf: datatype/CodeableConcept_var

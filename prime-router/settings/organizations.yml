@@ -275,6 +275,17 @@
       schemaName: hl7/hl7-ingest-covid-19-training
       format: HL7
 
+- name: limsabc-nova
+  description: Nova Labnetics
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: limsabc-nova
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
 - name: neurolab
   description: Neurolab
   jurisdiction: FEDERAL
@@ -2015,7 +2026,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,limsabc-nova)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -3010,9 +3021,21 @@
       customerStatus: inactive
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, MO, patient_state, MO)
+      timeZone: CENTRAL
+      dateTimeFormat: LOCAL
       translation:
         type: HL7
         useBatchHeaders: true
+        receivingApplicationName: MOELR
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.36
+        receivingFacilityName: MODHSS
+        receivingFacilityOID: 2.16.840.1.114222.4.3.2.2.1.163
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        suppressQstForAoe: true
+        truncateHDNamespaceIds: true
+        suppressHl7Fields: MSH-19-3
+        truncateHl7Fields: MSH-3-1, PID-3-3, PID-3-6, ORC-2-2, ORC-7-10-5, OBR-2-2, OBR-3-2, SPM-2-1-2, SPM-2-2-2
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
