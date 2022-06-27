@@ -5,7 +5,6 @@ import { NavLink } from "react-router-dom";
 import { useSessionContext } from "../contexts/SessionContext";
 import useRequestConfig from "../hooks/network/UseRequestConfig";
 import { API, createRequestConfig, Endpoint } from "../network/api/NewApi";
-import { Sender } from "../network/api/OrgApi";
 import { MemberType } from "../hooks/UseOktaMemberships";
 
 const isNotActive = (val: string): boolean => {
@@ -62,7 +61,7 @@ const useSenderResource = () => {
         error,
         loading,
     } = useRequestConfig(config) as {
-        data: Sender; // TODO (#5892): Should return Newable object or array of Newable objects.
+        data: any; // TODO (#5892): Should return Newable object or array of Newable objects.
         error: string;
         loading: boolean;
     };
