@@ -43,6 +43,11 @@ export const ReportStreamHeader = () => {
         itemsMenu.push(<BuiltForYouDropdown />);
     }
 
+    if (CheckFeatureFlag(FeatureFlagName.IA_MAKEOVER)) {
+        /* TODO: Override itemsMenu with new IA nav */
+        itemsMenu = [];
+    }
+
     if (authState && authState.isAuthenticated && authState.accessToken) {
         /* RECEIVERS ONLY */
         if (
