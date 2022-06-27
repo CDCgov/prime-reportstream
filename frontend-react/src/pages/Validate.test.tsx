@@ -1,5 +1,3 @@
-// import { screen } from "@testing-library/react";
-
 import React, { ReactElement, Suspense } from "react";
 import { Fixture, MockResolver } from "@rest-hooks/test";
 import { CacheProvider } from "rest-hooks";
