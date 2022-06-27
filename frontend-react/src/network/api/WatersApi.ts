@@ -1,4 +1,3 @@
-import { primeApiConfig } from "../config";
 import { Destination } from "../../resources/ActionDetailsResource";
 
 import { Api, EndpointConfig } from "./Api";
@@ -43,7 +42,7 @@ class WatersApi extends Api {
             method: "POST",
             url: `${this.basePath}`,
             headers: {
-                ...this.config.headers,
+                ...this.headers,
                 "authentication-type": "okta",
                 payloadName: fileName,
                 client,
@@ -53,4 +52,4 @@ class WatersApi extends Api {
     };
 }
 
-export const watersApi = new WatersApi(primeApiConfig, "waters");
+export const watersApi = new WatersApi("waters");

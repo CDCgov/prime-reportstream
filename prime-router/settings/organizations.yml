@@ -18,6 +18,12 @@
       customerStatus: active
       schemaName: hl7/test-covid-19
       format: HL7
+    - name: csvuploader
+      organizationName: simple_report
+      topic: covid-19
+      customerStatus: active
+      schemaName: upload-covid-19
+      format: CSV
 
 - name: waters
   description: Test Sender from Waters
@@ -264,6 +270,28 @@
   senders:
     - name: default
       organizationName: intrivo
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
+- name: limsabc-nova
+  description: Nova Labnetics
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: limsabc-nova
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
+- name: neurolab
+  description: Neurolab
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: neurolab
       topic: covid-19
       customerStatus: testing
       schemaName: hl7/hl7-ingest-covid-19-training
@@ -1611,6 +1639,12 @@
         receivingFacilityName: NH_DHHS
         receivingFacilityOID: 2.16.840.1.114222.4.1.3669
         suppressHl7Fields: ORC-23-1,ORC-14-1,OBR-17-1,OBX-18-1, OBX-18-2, OBX-18-3, PID-13-1
+        replaceValueAwithB:
+          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO" ]
+          MSH-4: [ "*": "CDC PRIME^11D2030855^CLIA" ]
+          MSH-5: [ "*": "NH_ELR^2.16.840.1.114222.4.3.2.2.3.600.4^ISO" ]
+          MSH-6: [ "*": "NH_DHHS^2.16.840.1.114222.4.1.3669^ISO" ]
+          MSH-21: [ "*": "PHLabReport-Batch^^2.16.840.1.113883.9.11^ISO" ]
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
         replaceDiiWithOid: true
@@ -1992,7 +2026,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,limsabc-nova)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -2759,8 +2793,45 @@
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, IN, patient_state, IN)
       translation:
-        type: HL7
+        schemaName: "covid-19"
+        useTestProcessingMode: false
         useBatchHeaders: true
+        receivingApplicationName: IN-ELR
+        receivingApplicationOID: null
+        receivingFacilityName: IDOH
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: { }
+        replaceValueAwithB: { }
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: true
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: { }
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: { }
+        nameFormat: "INDIANA"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -2772,6 +2843,9 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+      externalName: "Indiana Public Health Department"
+      timeZone: CENTRAL
+      dateTimeFormat: "OFFSET"
 
 - name: ia-phd
   description: Iowa Public Health Department

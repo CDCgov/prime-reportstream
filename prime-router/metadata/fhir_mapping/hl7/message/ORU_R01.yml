@@ -24,6 +24,7 @@ resources:
     additionalSegments:
       - .PD1
       - MSH
+      - .NTE
 
   - resourceName: Encounter
     segment: .PV1
@@ -67,6 +68,7 @@ resources:
     additionalSegments:
       - .ORC
       - .NTE
+      - .TIMING_QTY.TQ1
       - .OBSERVATION.OBX
       - MSH
       - PATIENT_RESULT.PATIENT.PID
