@@ -85,10 +85,6 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
 
 */
 
-const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow>(
-    LookupTables.VALUE_SET_ROW
-);
-
 const saveData = async (
     row: TableRow | null,
     allRows: SenderAutomationDataRow[],
@@ -98,6 +94,10 @@ const saveData = async (
         showError("A null row was encountered in saveData()");
         return;
     }
+
+    const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow[]>(
+        LookupTables.VALUE_SET_ROW
+    );
 
     const index = allRows.findIndex((r) => r.id === row.id);
     allRows.splice(index, 1, {
@@ -124,7 +124,7 @@ const saveData = async (
 
     try {
         let updateResult = await axios
-            .post(endpointHeaderUpdate.url, strippedArray)
+            .post(endpointHeaderUpdate.url, strippedArray, endpointHeaderUpdate)
             .then((response) => response.data);
 
         const endpointHeaderActivate = lookupTableApi.activateTableData(
@@ -133,7 +133,11 @@ const saveData = async (
         );
 
         return await axios
-            .put(endpointHeaderActivate.url, LookupTables.VALUE_SET_ROW)
+            .put(
+                endpointHeaderActivate.url,
+                LookupTables.VALUE_SET_ROW,
+                endpointHeaderActivate
+            )
             .then((response) => response.data);
     } catch (e: any) {
         console.trace(e);
