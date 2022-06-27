@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Check that Terraform is installed
+if ! command -v terraform &> /dev/null
+then
+    echo "Terraform executable could not be found"
+    exit
+fi
+
 function usage() {
     echo "usage: ${0} [OPTION]"
     echo ""
