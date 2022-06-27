@@ -924,24 +924,24 @@ NTE|1|L|This is a final comment|RE"""
         terser.set("$pathSPM-2-2-3", "234567890")
         terser.set("$pathSPM-2-2-4", "NPI")
 
-        val msh3_ValuePair = arrayListOf(mapOf("*" to "CDC PRIME - Atlanta^2.16.840.1.114222.4.1.237821^ISO"))
-        val msh11_1_Values = arrayListOf(mapOf("*" to "D"))
+        val msh3ValuePair = arrayListOf(mapOf("*" to "CDC PRIME - Atlanta^2.16.840.1.114222.4.1.237821^ISO"))
+        val mshf11e1Values = arrayListOf(mapOf("*" to "D"))
         val unKnownValuePair = arrayListOf(mapOf("*" to "Unknown"))
         val obxValuePair = arrayListOf(mapOf("*" to "OBX31^OBX32^OBX33"))
         // Note ths OBX-17 contains field repeator (~)
-        val obx_17_ValuePair = arrayListOf(mapOf("*" to "OBX-17(0)-1^^OBX-17(0)-3~OBX-17(1)-1^^OBX-17(1)-3"))
+        val obxf17ValuePair = arrayListOf(mapOf("*" to "OBX-17(0)-1^^OBX-17(0)-3~OBX-17(1)-1^^OBX-17(1)-3"))
         val spmValuePair = arrayListOf(mapOf("*" to "646&Wichita TEST SITE&123&NPI"))
 
         val replaceValueAwithB: Map<String, Any>? = mapOf(
-            "MSH-3" to msh3_ValuePair,
-            "MSH-11-1" to msh11_1_Values,
+            "MSH-3" to msh3ValuePair,
+            "MSH-11-1" to mshf11e1Values,
             // Note for the value=""/blank/null/empty is same as the valude is not in HL7 file.
             // .. Hl7Serializer.kt will not set to any value.  Therefore,
             // .. if replaceValueAwithB contains:
             // ..   ORC-12-2: ["*":"unKnow"], it will add "unKnown" value to the component
             "ORC-12-2" to unKnownValuePair,
             "OBX-3" to obxValuePair,
-            "OBX-17" to obx_17_ValuePair,
+            "OBX-17" to obxf17ValuePair,
             "SPM-2" to spmValuePair
         )
 
