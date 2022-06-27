@@ -6,31 +6,15 @@ export class MyApiItem {
         this.testField = testField;
     }
 }
+const MyApi = new API(MyApiItem, "/api/test");
+MyApi.addEndpoint("list", "/test", ["GET"]);
+MyApi.addEndpoint("badList", "/badList", ["GET"]);
+MyApi.addEndpoint("itemById", "/test/:id", [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+]);
 
-export const MyApi: API = {
-    resource: MyApiItem,
-    baseUrl: "/api/test",
-    endpoints: new Map([
-        [
-            "list",
-            {
-                url: "/test",
-                methods: ["GET"],
-            },
-        ],
-        [
-            "badList",
-            {
-                url: "/badList",
-                methods: ["GET"],
-            },
-        ],
-        [
-            "itemById",
-            {
-                url: "/test/:id",
-                methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-            },
-        ],
-    ]),
-};
+export { MyApi };

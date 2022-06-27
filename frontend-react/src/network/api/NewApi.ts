@@ -2,19 +2,30 @@ import { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
 
 import { Newable, SimpleError, StringIndexed } from "../../utils/UsefulTypes";
 
+/* Using the utility type `Omit<T, ...>` we can limit what methods we allow if needed.
+ * Example: AvailableMethods = Omit<Method, "DELETE">[] */
 export type AvailableMethods = Method[];
-export interface Endpoint {
+export class Endpoint {
     url: string;
     methods: AvailableMethods;
+    constructor(url: string, methods: AvailableMethods) {
+        this.url = url;
+        this.methods = methods;
+    }
 }
 /* Name your endpoints! */
 export type EndpointMap = Map<string, Endpoint>;
-
-/* Declaration of an API */
-export interface API {
+export class API {
     resource: Newable<any>; // Resource class
     baseUrl: string;
-    endpoints: EndpointMap;
+    endpoints: EndpointMap = new Map();
+    constructor(resource: Newable<any>, baseUrl: string) {
+        this.resource = resource;
+        this.baseUrl = baseUrl;
+    }
+    addEndpoint(name: string, url: string, methods: AvailableMethods) {
+        this.endpoints.set(name, new Endpoint(url, methods));
+    }
 }
 
 /* Make some headers required */
