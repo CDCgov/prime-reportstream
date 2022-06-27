@@ -1,16 +1,24 @@
 import { useResource } from "rest-hooks";
-import { SetStateAction, useEffect, useMemo, useState } from "react";
+import { SetStateAction, useMemo, useState } from "react";
 import { useOktaAuth } from "@okta/okta-react";
 
 import { getUniqueReceiverSvc } from "../../../utils/ReportUtils";
 import ReportResource from "../../../resources/ReportResource";
 import Table, { TableConfig } from "../../../components/Table/Table";
 import { getStoredOrg } from "../../../contexts/SessionStorageTools";
-import useFilterManager from "../../../hooks/filters/UseFilterManager";
-import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
+import useFilterManager, {
+    FilterManagerDefaults,
+} from "../../../hooks/filters/UseFilterManager";
 
 import TableButtonGroup from "./TableButtonGroup";
 import { getReportAndDownload } from "./ReportsUtils";
+
+const filterManagerDefaults: FilterManagerDefaults = {
+    sortDefaults: {
+        column: "sent",
+        locally: true,
+    },
+};
 
 /* 
     This is the main exported component from this file. It provides container styling,
@@ -20,22 +28,18 @@ import { getReportAndDownload } from "./ReportsUtils";
 function ReportsTable({ sortBy }: { sortBy?: string }) {
     const auth = useOktaAuth();
     const organization = getStoredOrg();
+    const filterManager = useFilterManager(filterManagerDefaults);
     const reports: ReportResource[] = useResource(ReportResource.list(), {
         sortBy,
     });
-    const fm = useFilterManager({
-        sortDefaults: {
-            column: "sent",
-            locally: true,
-        },
-    });
     const receiverSVCs: string[] = Array.from(getUniqueReceiverSvc(reports));
     const [chosen, setChosen] = useState(receiverSVCs[0]);
+
+    /* TODO (#4859): Clean this up by refactoring how we swap feeds */
     const filteredReports = useMemo(
         () => reports.filter((report) => report.receivingOrgSvc === chosen),
         [chosen, reports]
     );
-
     /* This syncs the chosen state from <TableButtonGroup> with the chosen state here */
     const handleCallback = (chosen: SetStateAction<string>) => {
         setChosen(chosen);
@@ -48,16 +52,6 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
             organization || ""
         );
     };
-
-    /* TODO: Extend FilterManagerDefaults to include pageSize defaults */
-    useEffect(() => {
-        fm.updatePage({
-            type: PageSettingsActionType.SET_SIZE,
-            payload: {
-                size: 100,
-            },
-        });
-    }, []); // eslint-disable-line
 
     const resultsTableConfig: TableConfig = {
         columns: [
@@ -114,7 +108,10 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
                 ) : null}
             </div>
             <div className="grid-col-12">
-                <Table config={resultsTableConfig} filterManager={fm} />
+                <Table
+                    config={resultsTableConfig}
+                    filterManager={filterManager}
+                />
             </div>
             <div className="grid-col-12">
                 {reports.filter((report) => report.receivingOrgSvc === chosen)
