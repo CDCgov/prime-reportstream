@@ -120,7 +120,7 @@ const saveData = async (
             code: set.code,
             version: set.version,
         })
-    ) as ValueSetRow[] | undefined;
+    );
 
     try {
         let updateResult = await axios
