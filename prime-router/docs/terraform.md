@@ -105,10 +105,14 @@ Once your az cli has been authenticated, you can proceed with the terraform comm
 
 ## Example Create
 
+### Specify environment & Terraform path
 ```bash
 env=demo2
 path='operations/app/terraform/vars/demo'
+```
 
+### Run init, apply init module, and full apply
+```bash
 terraform -chdir=$path init \
 -reconfigure \
 -var-file=$env/env.tfvars.json \
@@ -135,24 +139,36 @@ echo "apply complete"
 
 ```
 
+### One-time config after first creation (initialization):
+ 1. Download VPN client file:
+    * Azure VPN Settings > Point-to-site configuration > Download VPN client > OpenVPN directory
+ 2. Copy `remote` & `verify-x509-name` to `.github/vpn/<env>.ovpn`
+
 ## Example Destroy
 
+### Specify environment & Terraform path
 ```bash
 env=demo2
 path='operations/app/terraform/vars/demo'
+```
 
+### VPN and networking resources will remain
+```bash
 for i in {1..3}; do \
 terraform -chdir=$path destroy \
 -var-file=$env/env.tfvars.json \
+-target=module.app_service_plan \
+-target=module.application_insights \
+-target=module.container_registry \
+-target=module.database \
+-target=module.function_app \
+-target=module.log_analytics_workspace \
+-target=module.sftp_container \
+-target=module.storage \
 -refresh=false \
 -auto-approve; \
 sleep 30; \
 done
-
-resources="$(az resource list --resource-group "prime-data-hub-$env" --query "[?!(contains(name, 'terraform'))]" \
-| grep id | awk -F \" '{print $4}')"
-
-for id in "$resources"; do az resource delete --resource-group "prime-data-hub-$env" --ids "$id" --verbose; done
 
 ```
 

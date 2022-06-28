@@ -30,6 +30,7 @@ resource "azurerm_subnet" "init" {
     ignore_changes = [
       delegation[0].service_delegation[0].actions
     ]
+    prevent_destroy = true
   }
 }
 
@@ -38,4 +39,8 @@ resource "azurerm_subnet_network_security_group_association" "init" {
 
   subnet_id                 = azurerm_subnet.init[each.key].id
   network_security_group_id = var.nsg_ids["${var.nsg_prefix}${each.value.nsg}"].nsg_id
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
