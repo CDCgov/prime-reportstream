@@ -12,7 +12,8 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 /**
  * A simple user & password credential. Can be used for SFTP transports.
  */
-data class UserPassCredential(val user: String, val pass: String) : Credential(), SftpCredential, SoapCredential
+data class UserPassCredential(val user: String, val pass: String) :
+    Credential(), SftpCredential, SoapCredential, RestCredential
 
 /**
  * A PPK credential. Can be used for SFTP transports.
@@ -76,6 +77,24 @@ data class UserApiKeyCredential(
      * [apiKey] is the api key
      */
     val apiKey: String
+) : Credential(), RestCredential
+
+/**
+ * An OAuth Key credential
+ */
+data class UserOAuthCredential(
+    /**
+     * [access_token] is the token.
+     */
+    val access_token: String,
+    /**
+     * [expires_in] is the expiration time in minutes
+     */
+    val expires_in: Int,
+    /**
+     * [token_type] is the type of token
+     */
+    val token_type: String
 ) : Credential()
 
 /**
@@ -91,7 +110,8 @@ data class UserApiKeyCredential(
     JsonSubTypes.Type(value = UserPemCredential::class, name = "UserPem"),
     JsonSubTypes.Type(value = UserPpkCredential::class, name = "UserPpk"),
     JsonSubTypes.Type(value = UserJksCredential::class, name = "UserJks"),
-    JsonSubTypes.Type(value = UserApiKeyCredential::class, name = "UserApiKey")
+    JsonSubTypes.Type(value = UserApiKeyCredential::class, name = "UserApiKey"),
+    JsonSubTypes.Type(value = UserOAuthCredential::class, name = "UserOauth")
 )
 sealed class Credential {
     /** Converts the [Credential] class to JSON */
@@ -171,3 +191,6 @@ interface SftpCredential
 
 /** Wraps any credentials that can be used by a SOAP connection */
 interface SoapCredential
+
+/** Wraps any credentials that can be used by an REST connection */
+interface RestCredential

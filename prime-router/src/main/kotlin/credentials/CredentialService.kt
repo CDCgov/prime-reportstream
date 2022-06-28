@@ -41,4 +41,5 @@ enum class CredentialRequestReason {
     FTPS_UPLOAD,
     SOAP_UPLOAD,
     GAEN_NOTIFICATION,
+    REST_UPLOAD
 }
