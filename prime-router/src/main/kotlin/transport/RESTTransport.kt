@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.transport
 
+import com.google.common.base.Preconditions
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
@@ -11,8 +12,10 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
+import gov.cdc.prime.router.credentials.RestCredential
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
+import gov.cdc.prime.router.credentials.UserPassCredential
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
@@ -33,6 +36,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
 import io.ktor.http.ContentType
+import io.ktor.http.HttpMessageBuilder
 import io.ktor.http.Parameters
 import io.ktor.http.content.TextContent
 import kotlinx.coroutines.launch
@@ -73,6 +77,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     val tokenInfo = getAuthToken(
                         restTransportInfo.authTokenUrl,
                         credential,
+                        receiver,
                         context,
                         restClient
                     )
@@ -82,6 +87,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     val responseBody = postReport(
                         header.content.toString(),
                         restTransportInfo.reportUrl,
+                        restTransportInfo.headers,
                         context,
                         restClient
                     )
@@ -157,7 +163,9 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * Get a user ApiKey credential from the credential service
      * @param receiver the fullName of the receiver is the label of the credential
      */
-    fun lookupCredentials(receiver: Receiver): UserApiKeyCredential {
+    fun lookupCredentials(receiver: Receiver): RestCredential {
+        Preconditions.checkNotNull(receiver.transport)
+        Preconditions.checkArgument(receiver.transport is RESTTransportType)
         val receiverFullName = receiver.fullName
         val credentialLabel = CredentialHelper.formCredentialLabel(fromReceiverName = receiverFullName)
         return CredentialHelper.getCredentialService().fetchCredential(
@@ -180,6 +188,30 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             ?: error("Unable to find JKS credentials for $tlsKeystore connectionId($credentialLabel)")
     }
 
+    suspend fun getAuthParameters(
+        receiverOrg: String,
+        credential: RestCredential
+    ): Parameters {
+        when (receiverOrg) {
+            "ny-phd" -> {
+                credential as UserApiKeyCredential
+                return Parameters.build {
+                    append("grant_type", "client_credentials")
+                    append("client_id", credential.user)
+                    append("client_secret", credential.apiKey)
+                }
+            }
+            "ok-phd" -> {
+                credential as UserPassCredential
+                return Parameters.build {
+                    append("email", credential.user)
+                    append("password", credential.pass)
+                }
+            }
+            else -> error("Unable to find build parameters for $receiverOrg.")
+        }
+    }
+
     /**
      * Get the OAuth token by submitting the credentials
      * This is a suspend function, meaning it can get called as an async method, though we call it
@@ -191,18 +223,16 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      */
     suspend fun getAuthToken(
         restUrl: String,
-        credential: UserApiKeyCredential,
+        credential: RestCredential,
+        receiver: Receiver,
         context: ExecutionContext,
         httpClient: HttpClient
     ): TokenInfo {
+        val authParameters = getAuthParameters(receiver.organizationName, credential)
         httpClient.use { client ->
             val tokenInfo: TokenInfo = client.submitForm(
                 restUrl,
-                formParameters = Parameters.build {
-                    append("grant_type", "client_credentials")
-                    append("client_id", credential.user)
-                    append("client_secret", credential.apiKey)
-                }
+                formParameters = authParameters
 
             ) {
                 expectSuccess = true
@@ -227,6 +257,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     suspend fun postReport(
         message: String,
         restUrl: String,
+        headers: Map<String, String>,
         context: ExecutionContext,
         httpClient: HttpClient
     ): String {
@@ -234,10 +265,13 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             val theResponse: String = client.post(restUrl) {
                 context.logger.info("posting report to rest API")
                 expectSuccess = true
-                header(
-                    // we want to pass a specific header for NY, expect to refactor this as other receivers are added
-                    """UPHN-INFOMAP""", """{"properties":"labClia=10DRPTSTRM,target=NYS,content=L,format=HL7"}"""
+                postHeaders(
+                    headers
                 )
+//                header(
+//                    // we want to pass a specific header for NY, expect to refactor this as other receivers are added
+//                    """UPHN-INFOMAP""", """{"properties":"labClia=10DRPTSTRM,target=NYS,content=L,format=HL7"}"""
+//                )
                 // we want to pass text in the body of our request. You need to do it this
                 // way because the TextContent object sets other values like the charset, etc.
                 // Ktor will balk if you try to set it some other way
@@ -315,5 +349,10 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             keyStore.load(jksCredential.jks.byteInputStream(), jksCredential.jksPasscode.toCharArray())
             return keyStore
         }
+
+        private fun HttpMessageBuilder.postHeaders(header: Map<String, String>): Unit =
+            header.forEach { entry ->
+                headers.append(entry.key, entry.value)
+            }
     }
 }

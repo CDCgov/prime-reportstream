@@ -3132,6 +3132,8 @@
         timeZone: EASTERN
       transport:
         type: REST
+        headers:
+          UPHN-INFOMAP: '{"properties":"labClia=10DRPTSTRM,target=NYS,content=L,format=HL7"}'
         reportUrl:  https://api2.health.ny.gov/services/uphn/V1.0/ECLRSPRE
         authTokenUrl: https://api2.health.ny.gov/services/uphn/V1.0/auth/token
         tlsKeystore: cdcprime.key
