@@ -1,4 +1,3 @@
-/*
 resource "azurerm_public_ip" "init" {
   name                = "${var.resource_prefix}-vpn-ip"
   location            = var.location
@@ -8,6 +7,10 @@ resource "azurerm_public_ip" "init" {
   ip_version              = "IPv4"
   idle_timeout_in_minutes = 4
   allocation_method       = "Dynamic"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "azurerm_virtual_network_gateway" "init" {
@@ -57,5 +60,12 @@ axJToXMg3T9oImHz8yIk6X7j1n+UMHE9528=
 EOF
     }
   }
+
+  depends_on = [
+    azurerm_virtual_network.init
+  ]
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
-*/
