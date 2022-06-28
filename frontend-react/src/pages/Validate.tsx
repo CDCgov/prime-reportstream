@@ -11,13 +11,10 @@ import moment from "moment";
 import { NavLink } from "react-router-dom";
 
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
-import {
-    getStoredOrg,
-    getStoredSenderName,
-} from "../contexts/SessionStorageTools";
 import { showError } from "../components/AlertNotifications";
 import Spinner from "../components/Spinner";
 import { watersApiFunctions } from "../network/api/WatersApiFunctions";
+import { useSessionContext } from "../contexts/SessionContext";
 
 // values taken from Report.kt
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
@@ -43,11 +40,16 @@ const Validate = () => {
         `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
     );
 
-    const client = `${getStoredOrg()}.${getStoredSenderName()}`;
-    const organization = useResource(SenderOrganizationResource.detail(), {
-        name: getStoredOrg(),
-    });
+    const {
+        memberships: {
+            state: { active: { parsedName, senderName } = {} },
+        },
+    } = useSessionContext();
 
+    const client = `${parsedName}.${senderName}`;
+    const organization = useResource(SenderOrganizationResource.detail(), {
+        name: parsedName,
+    });
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
