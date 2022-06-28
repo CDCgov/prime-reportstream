@@ -16,9 +16,6 @@ import ReportsTable from "./ReportsTable";
 
 const mockMs = (additional?: number) =>
     additional ? 1652458218417 + additional : 1652458218417;
-// const mockAPIData: ReportResource[] = [
-//     new ReportResource("1", mockMs(), mockMs(100000), 99, "CSV"),
-// ];
 const mockFetchReport = jest.spyOn(ReportUtilsModule, "getReportAndDownload");
 const mockApiHook = jest.spyOn(ReportsHooks, "useReportsList");
 const makeFakeData = (count: number) => {
