@@ -87,6 +87,20 @@ export const ReportStreamHeader = () => {
                     <span>Submissions</span>
                 </NavLink>
             );
+            // Validate NavLink
+            if (CheckFeatureFlag(FeatureFlagName.VALIDATION_SERVICE)) {
+                itemsMenu.push(
+                    <NavLink
+                        to="/validate"
+                        key="validate"
+                        data-attribute="hidden"
+                        hidden={true}
+                        className="usa-nav__link"
+                    >
+                        <span>Validate</span>
+                    </NavLink>
+                );
+            }
         }
 
         /* ADMIN ONLY */
