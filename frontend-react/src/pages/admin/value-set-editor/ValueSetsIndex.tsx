@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import Table, {
     ColumnConfig,
@@ -7,6 +7,11 @@ import Table, {
     TableConfig,
 } from "../../../components/Table/Table";
 import { useValueSetsTable } from "../../../hooks/UseLookupTable";
+import { StaticAlert } from "../../../components/StaticAlert";
+import {
+    handleErrorWithAlert,
+    ReportStreamAlert,
+} from "../../../utils/ErrorUtils";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
@@ -48,21 +53,35 @@ const valueSetColumnConfig: ColumnConfig[] = [
 ];
 
 const ValueSetsTable = () => {
-    const valueSetArray = useValueSetsTable();
+    const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
+    const { valueSetArray, error } = useValueSetsTable();
+
+    useEffect(() => {
+        if (error) {
+            handleErrorWithAlert({
+                logMessage: "Error occurred fetching value sets",
+                error,
+                setAlert,
+            });
+        }
+    }, [error]);
+
     const tableConfig: TableConfig = {
         columns: valueSetColumnConfig,
         rows: valueSetArray,
     };
 
     return (
-        <Table
-            title="ReportStream Value Sets"
-            config={tableConfig}
-            editableCallback={(row) => {
-                console.log("!!! saving row", row);
-                return Promise.resolve();
-            }}
-        />
+        <>
+            {alert && (
+                <StaticAlert
+                    type={alert.type}
+                    heading={alert.type.toUpperCase()}
+                    message={alert.message}
+                />
+            )}
+            <Table title="ReportStream Value Sets" config={tableConfig} />
+        </>
     );
 };
 
