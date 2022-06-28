@@ -28,3 +28,14 @@ extension_1:
   constants:
     KEY_NAME_SUFFIX: String
     urlValue: alternate-version
+
+extension_2:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $value NOT_NULL
+  vars:
+    value: String, $originalText
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: original-text

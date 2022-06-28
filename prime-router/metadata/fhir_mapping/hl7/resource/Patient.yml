@@ -324,6 +324,11 @@ maritalStatus:
     coding: MARITAL_STATUS, PID.16
     text: String, PID.16.2
 
+contact:
+  valueOf: secondary/PatientContact
+  expressionType: resource
+  generateList: true
+
 generalPractitioner:
   condition: $practitionerVal NOT_NULL
   valueOf: resource/Practitioner
@@ -392,6 +397,19 @@ extension:
           valueOf: datatype/CodeableConcept
           expressionType: resource
           specs: PID.35
+
+    - expressionType: nested
+      generateList: true
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: patient-notes
+        valueAnnotation:
+          valueOf: datatype/Annotation
+          expressionType: resource
+          condition: $annotationText NOT_NULL
+          vars:
+            annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '  \n')
 
 communication:
   condition: $language NOT_NULL
