@@ -143,6 +143,7 @@ echo "apply complete"
  1. Download VPN client file:
     * Azure VPN Settings > Point-to-site configuration > Download VPN client > OpenVPN directory
  2. Copy `remote` & `verify-x509-name` to `.github/vpn/<env>.ovpn`
+ 3. Update key vaults in `operations/dnsmasq/config/<env>/hosts.local` with random id in name.
 
 ## Example Destroy
 
