@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 
 import { useSessionContext } from "../contexts/SessionContext";
 import useRequestConfig from "../hooks/network/UseRequestConfig";
-import { API, createRequestConfig, Endpoint } from "../network/api/NewApi";
+import { API, createRequestConfig } from "../network/api/NewApi";
 import { MemberType } from "../hooks/UseOktaMemberships";
 
 const isNotActive = (val: string): boolean => {
@@ -13,26 +13,9 @@ const isNotActive = (val: string): boolean => {
 
 // TODO (#5892): RSSender should be given attributes and constructor to be used as a Newable resource
 class RSSender {}
-const SenderAPI: API = {
-    resource: RSSender,
-    baseUrl: "/api/settings/organizations",
-    endpoints: new Map<string, Endpoint>([
-        [
-            "list",
-            {
-                url: "/:org/senders",
-                methods: ["GET"],
-            },
-        ],
-        [
-            "detail",
-            {
-                url: "/:org/senders/:sender",
-                methods: ["GET"],
-            },
-        ],
-    ]),
-};
+const SenderAPI = new API(RSSender, "/api/settings/organizations");
+SenderAPI.addEndpoint("list", "/:org/senders", ["GET"]);
+SenderAPI.addEndpoint("detail", "/:org/senders/:sender", ["GET"]);
 
 const useSenderResource = () => {
     /* Access the session. */

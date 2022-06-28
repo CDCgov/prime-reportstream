@@ -1,14 +1,15 @@
-import { useResource } from "rest-hooks";
-import { SetStateAction, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useOktaAuth } from "@okta/okta-react";
 
 import { getUniqueReceiverSvc } from "../../../utils/ReportUtils";
-import ReportResource from "../../../resources/ReportResource";
 import Table, { TableConfig } from "../../../components/Table/Table";
 import { getStoredOrg } from "../../../contexts/SessionStorageTools";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
+import Spinner from "../../../components/Spinner";
+import useReportsList from "../../../hooks/network/History/ReportsHooks";
+import { RSReport } from "../../../network/api/History/Reports";
 
 import TableButtonGroup from "./TableButtonGroup";
 import { getReportAndDownload } from "./ReportsUtils";
@@ -20,28 +21,32 @@ const filterManagerDefaults: FilterManagerDefaults = {
     },
 };
 
+/* TODO (#4859): Extract SVC logic from ReportsTable */
+const useReceiverFeeds = (reports: RSReport[]) => {};
+
 /* 
     This is the main exported component from this file. It provides container styling,
     table headers, and applies the <TableData> component to the table that is created in this
     component.
 */
-function ReportsTable({ sortBy }: { sortBy?: string }) {
+function ReportsTable() {
     const auth = useOktaAuth();
     const organization = getStoredOrg();
     const filterManager = useFilterManager(filterManagerDefaults);
-    const reports: ReportResource[] = useResource(ReportResource.list(), {
-        sortBy,
-    });
+    const { reports, loading, error, trigger } = useReportsList();
+
     const receiverSVCs: string[] = Array.from(getUniqueReceiverSvc(reports));
-    const [chosen, setChosen] = useState(receiverSVCs[0]);
+    const [chosen, setChosen] = useState(receiverSVCs?.[0] || undefined);
 
     /* TODO (#4859): Clean this up by refactoring how we swap feeds */
     const filteredReports = useMemo(
-        () => reports.filter((report) => report.receivingOrgSvc === chosen),
+        () =>
+            reports?.filter((report) => report.receivingOrgSvc === chosen) ||
+            [],
         [chosen, reports]
     );
     /* This syncs the chosen state from <TableButtonGroup> with the chosen state here */
-    const handleCallback = (chosen: SetStateAction<string>) => {
+    const handleCallback = (chosen: string) => {
         setChosen(chosen);
     };
 
@@ -97,6 +102,7 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
         rows: filteredReports,
     };
 
+    if (loading) return <Spinner />;
     return (
         <>
             <div className="grid-col-12">
@@ -114,7 +120,7 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
                 />
             </div>
             <div className="grid-col-12">
-                {reports.filter((report) => report.receivingOrgSvc === chosen)
+                {reports?.filter((report) => report.receivingOrgSvc === chosen)
                     .length === 0 ? (
                     <p>No results</p>
                 ) : null}
