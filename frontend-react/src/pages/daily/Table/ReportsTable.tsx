@@ -11,7 +11,7 @@ import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 
 import TableButtonGroup from "./TableButtonGroup";
 import { getReportAndDownload } from "./ReportsUtils";
-
+/*TODO: Refactor this to make it easier for pagination work*/
 /* 
     This is the main exported component from this file. It provides container styling,
     table headers, and applies the <TableData> component to the table that is created in this
