@@ -25,9 +25,15 @@ describe("useLookupTable and related helper functions", () => {
             expect(createdBy).toEqual("test@example.com");
         });
 
-        test("getLatestVersion returns null when table doesn't exist", async () => {
-            const result = await getLatestVersion(LookupTables.VALUE_SET_ROW);
-            expect(result).toBeFalsy();
+        test("getLatestVersion throws when table doesn't exist", async () => {
+            try {
+                await getLatestVersion(LookupTables.VALUE_SET_ROW);
+                expect(true).toBe(false);
+            } catch (e: any) {
+                expect(e.message).toEqual(
+                    `Table 'sender_automation_value_set_row' was not found!`
+                );
+            }
         });
     });
 
@@ -51,6 +57,6 @@ describe("useLookupTable and related helper functions", () => {
             useLookupTable<ValueSet>(LookupTables.VALUE_SET)
         );
         await waitForNextUpdate();
-        expect(result.current.length).toEqual(3);
+        expect(result.current.valueSetArray.length).toEqual(3);
     });
 });
