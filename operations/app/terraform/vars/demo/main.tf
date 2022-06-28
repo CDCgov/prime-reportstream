@@ -169,17 +169,17 @@ module "function_app" {
   dns_ip                            = local.network.dns_ip
 }
 
-# module "front_door" {
-#   source                      = "../../modules/front_door"
-#   environment                 = local.init.environment
-#   resource_group              = local.init.resource_group_name
-#   resource_prefix             = local.init.resource_prefix
-#   location                    = local.init.location
-#   https_cert_names            = local.security.https_cert_names
-#   is_metabase_env             = local.init.is_metabase_env
-#   public_primary_web_endpoint = module.storage.sa_public_primary_web_endpoint
-#   application_key_vault_id    = module.key_vault.application_key_vault_id
-# }
+module "front_door" {
+  source                      = "../../modules/front_door"
+  environment                 = local.init.environment
+  resource_group              = local.init.resource_group_name
+  resource_prefix             = local.init.resource_prefix
+  location                    = local.init.location
+  https_cert_names            = local.security.https_cert_names
+  is_metabase_env             = local.init.is_metabase_env
+  public_primary_web_endpoint = module.storage.sa_public_primary_web_endpoint
+  application_key_vault_id    = module.key_vault.application_key_vault_id
+}
 
 module "sftp_container" {
   count = local.init.environment != "prod" ? 1 : 0
