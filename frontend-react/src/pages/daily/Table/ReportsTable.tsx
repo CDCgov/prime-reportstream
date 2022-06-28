@@ -1,15 +1,15 @@
-import { useMemo, useState } from "react";
-import { useOktaAuth } from "@okta/okta-react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 
 import { getUniqueReceiverSvc } from "../../../utils/ReportUtils";
 import Table, { TableConfig } from "../../../components/Table/Table";
-import { getStoredOrg } from "../../../contexts/SessionStorageTools";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
 import Spinner from "../../../components/Spinner";
-import useReportsList from "../../../hooks/network/History/ReportsHooks";
-import { RSReport } from "../../../network/api/History/Reports";
+import { useReportsList } from "../../../hooks/network/History/ReportsHooks";
+import { TempRSReport } from "../../../network/api/History/Reports";
+import { useSessionContext } from "../../../contexts/SessionContext";
+import { showError } from "../../../components/AlertNotifications";
 
 import TableButtonGroup from "./TableButtonGroup";
 import { getReportAndDownload } from "./ReportsUtils";
@@ -21,8 +21,37 @@ const filterManagerDefaults: FilterManagerDefaults = {
     },
 };
 
-/* TODO (#4859): Extract SVC logic from ReportsTable */
-const useReceiverFeeds = (reports: RSReport[]) => {};
+interface ReceiverFeeds {
+    activeFeed: TempRSReport[] | undefined;
+    setActiveFeed: Dispatch<SetStateAction<string | undefined>>;
+    feeds: string[] | undefined;
+}
+const useReceiverFeeds = (reports: TempRSReport[]): ReceiverFeeds => {
+    /* Keeps a list of all feeds for a receiver */
+    const receiverSVCs: string[] = useMemo(
+        () => Array.from(getUniqueReceiverSvc(reports)),
+        [reports]
+    );
+    const [chosen, setChosen] = useState<string | undefined>(undefined);
+    /* Once reports are fetched, this effect updates the chosen feed to the first feed */
+    useEffect(() => {
+        if (reports?.length >= 1 && receiverSVCs.length >= 1) {
+            setChosen(receiverSVCs[0]);
+        }
+    }, [receiverSVCs, reports]);
+    /* Provides only the feed's objects */
+    const filteredReports = useMemo(
+        () =>
+            reports?.filter((report) => report.receivingOrgSvc === chosen) ||
+            [],
+        [chosen, reports]
+    );
+    return {
+        activeFeed: filteredReports,
+        setActiveFeed: setChosen,
+        feeds: receiverSVCs,
+    };
+};
 
 /* 
     This is the main exported component from this file. It provides container styling,
@@ -30,31 +59,22 @@ const useReceiverFeeds = (reports: RSReport[]) => {};
     component.
 */
 function ReportsTable() {
-    const auth = useOktaAuth();
-    const organization = getStoredOrg();
+    const { memberships, oktaToken } = useSessionContext();
+    const { data: reports, loading, error } = useReportsList();
+    const { activeFeed, setActiveFeed, feeds } = useReceiverFeeds(reports);
     const filterManager = useFilterManager(filterManagerDefaults);
-    const { reports, loading, error, trigger } = useReportsList();
 
-    const receiverSVCs: string[] = Array.from(getUniqueReceiverSvc(reports));
-    const [chosen, setChosen] = useState(receiverSVCs?.[0] || undefined);
-
-    /* TODO (#4859): Clean this up by refactoring how we swap feeds */
-    const filteredReports = useMemo(
-        () =>
-            reports?.filter((report) => report.receivingOrgSvc === chosen) ||
-            [],
-        [chosen, reports]
-    );
-    /* This syncs the chosen state from <TableButtonGroup> with the chosen state here */
-    const handleCallback = (chosen: string) => {
-        setChosen(chosen);
-    };
+    useEffect(() => {
+        if (error !== "") {
+            showError(error);
+        }
+    }, [error]);
 
     const handleFetchAndDownload = (id: string) => {
         getReportAndDownload(
             id,
-            auth?.authState?.accessToken?.accessToken || "",
-            organization || ""
+            oktaToken?.accessToken || "",
+            memberships.state.active?.parsedName || ""
         );
     };
 
@@ -99,17 +119,18 @@ function ReportsTable() {
                 },
             },
         ],
-        rows: filteredReports,
+        rows: activeFeed || [],
     };
 
     if (loading) return <Spinner />;
+
     return (
         <>
             <div className="grid-col-12">
-                {receiverSVCs.length > 1 ? (
+                {feeds && feeds.length > 1 ? (
                     <TableButtonGroup
-                        senders={receiverSVCs}
-                        chosenCallback={handleCallback}
+                        senders={feeds}
+                        chosenCallback={setActiveFeed}
                     />
                 ) : null}
             </div>
@@ -120,8 +141,7 @@ function ReportsTable() {
                 />
             </div>
             <div className="grid-col-12">
-                {reports?.filter((report) => report.receivingOrgSvc === chosen)
-                    .length === 0 ? (
+                {activeFeed && activeFeed.length === 0 ? (
                     <p>No results</p>
                 ) : null}
             </div>

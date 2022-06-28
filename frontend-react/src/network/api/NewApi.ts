@@ -45,7 +45,13 @@ export type AdvancedConfig<D> = Omit<
     AxiosRequestConfig<D>,
     "url" | "method" | "headers"
 >;
-
+/* Basic state for API calls */
+export interface BasicAPIResponse<T> {
+    data: T;
+    error: string;
+    loading: boolean;
+    trigger: () => void;
+}
 /* Safe endpoint extraction */
 const extractEndpoint = (api: API, key: string): Endpoint => {
     const endpoint: Endpoint | undefined = api.endpoints.get(key);

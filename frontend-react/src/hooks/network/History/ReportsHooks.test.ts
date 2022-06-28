@@ -5,7 +5,7 @@ import { MembershipController, MemberType } from "../../UseOktaMemberships";
 import { SessionController } from "../../UseSessionStorage";
 import { historyServer } from "../../../__mocks__/HistoryMockServer";
 
-import useReportsList from "./ReportsHooks";
+import { useReportsList } from "./ReportsHooks";
 
 describe("ReportsHooks", () => {
     beforeAll(() => historyServer.listen());
@@ -33,6 +33,6 @@ describe("ReportsHooks", () => {
         expect(result.current.loading).toBeTruthy();
         await waitForNextUpdate();
         expect(result.current.loading).toBeFalsy();
-        expect(result.current.reports).toHaveLength(3);
+        expect(result.current.data).toHaveLength(3);
     });
 });

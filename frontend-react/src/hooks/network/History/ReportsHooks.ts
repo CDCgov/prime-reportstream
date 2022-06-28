@@ -1,7 +1,10 @@
 import { useMemo } from "react";
 
 import { useSessionContext } from "../../../contexts/SessionContext";
-import { createRequestConfig } from "../../../network/api/NewApi";
+import {
+    BasicAPIResponse,
+    createRequestConfig,
+} from "../../../network/api/NewApi";
 import ReportsApi, { TempRSReport } from "../../../network/api/History/Reports";
 import useRequestConfig from "../UseRequestConfig";
 
@@ -25,24 +28,16 @@ const useReportsList = () => {
             ),
         [oktaToken?.accessToken, adminSafeOrgName]
     );
-    const {
-        data: reports,
-        error,
-        loading,
-        trigger,
-    } = useRequestConfig(config) as {
-        data: TempRSReport[];
-        error: string;
-        loading: boolean;
-        trigger: () => void;
-    };
+    const { data, error, loading, trigger } = useRequestConfig(
+        config
+    ) as BasicAPIResponse<TempRSReport[]>;
 
     return {
-        reports,
+        data,
         error,
         loading,
         trigger,
     };
 };
 
-export default useReportsList;
+export { useReportsList };
