@@ -21,11 +21,9 @@ const fakeOrg = {
     description: "A county for testing",
     filters: [],
     jurisdiction: "TC",
-    meta: {
-        version: 1,
-        createdBy: "OrganizationMockServer",
-        createdAt: "now",
-    },
+    version: 1,
+    createdBy: "OrganizationMockServer",
+    createdAt: "now",
     name: "Fake Org",
     stateCode: "TC",
 };
