@@ -346,7 +346,6 @@ tasks.register<JavaExec>("primeCLI") {
             args = project.extra["cliArgs"] as MutableList<String>
         } else if (args.isNullOrEmpty()) {
             args = listOf("-h")
-            println("")
             println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
             println(
                 "Usage example: gradle primeCLI --args=\"data --input-fake 50 " +
