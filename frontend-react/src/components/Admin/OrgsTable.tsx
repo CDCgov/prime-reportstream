@@ -37,7 +37,10 @@ export function OrgsTable() {
         let payload: Partial<MembershipSettings> = {
             parsedName: orgName,
         };
-        if (memberType === MemberType.SENDER) {
+        if (
+            memberType === MemberType.SENDER ||
+            memberType === MemberType.PRIME_ADMIN
+        ) {
             payload.senderName = senderName || "default";
         }
         memberships.dispatch({

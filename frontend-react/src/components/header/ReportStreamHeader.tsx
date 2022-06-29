@@ -87,6 +87,10 @@ export const ReportStreamHeader = () => {
                     <span>Submissions</span>
                 </NavLink>
             );
+        }
+
+        /* ADMIN ONLY */
+        if (memberships.state.active?.memberType === MemberType.PRIME_ADMIN) {
             // Validate NavLink
             if (CheckFeatureFlag(FeatureFlagName.VALIDATION_SERVICE)) {
                 itemsMenu.push(
@@ -101,10 +105,7 @@ export const ReportStreamHeader = () => {
                     </NavLink>
                 );
             }
-        }
 
-        /* ADMIN ONLY */
-        if (memberships.state.active?.memberType === MemberType.PRIME_ADMIN) {
             itemsMenu.push(<AdminDropdown />);
         }
     }
