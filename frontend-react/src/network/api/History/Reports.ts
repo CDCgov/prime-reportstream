@@ -2,8 +2,10 @@ import { API } from "../NewApi";
 import ActionResource from "../../../resources/ActionResource";
 
 class RSReport {}
-/* For compile-time type checks while #5892 is worked on */
-interface TempRSReport {
+/**
+ * @deprecated For compile-time type checks while #5892 is worked on
+ */
+interface RSReportInterface {
     sent: number;
     via: string;
     positive: number;
@@ -22,9 +24,12 @@ interface TempRSReport {
     fileName: string;
     mimeType: string;
 }
-const ReportsApi = new API(RSReport, "/api/history/report");
-ReportsApi.addEndpoint("list", "", ["GET"]);
+const ReportsApi = new API(RSReport, "/api/history/report").addEndpoint(
+    "list",
+    "",
+    ["GET"]
+);
 
 export default ReportsApi;
 export { RSReport };
-export type { TempRSReport };
+export type { RSReportInterface };

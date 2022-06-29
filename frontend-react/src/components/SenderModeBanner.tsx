@@ -13,9 +13,15 @@ const isNotActive = (val: string): boolean => {
 
 // TODO (#5892): RSSender should be given attributes and constructor to be used as a Newable resource
 class RSSender {}
-const SenderAPI = new API(RSSender, "/api/settings/organizations");
-SenderAPI.addEndpoint("list", "/:org/senders", ["GET"]);
-SenderAPI.addEndpoint("detail", "/:org/senders/:sender", ["GET"]);
+/**
+ * @deprecated For compile-time type checks while #5892 is worked on
+ */
+interface RSSenderInterface {
+    customerStatus: string;
+}
+const SenderAPI = new API(RSSender, "/api/settings/organizations")
+    .addEndpoint("list", "/:org/senders", ["GET"])
+    .addEndpoint("detail", "/:org/senders/:sender", ["GET"]);
 
 const useSenderResource = () => {
     /* Access the session. */
@@ -44,7 +50,7 @@ const useSenderResource = () => {
         error,
         loading,
     } = useRequestConfig(config) as {
-        data: any; // TODO (#5892): Should return Newable object or array of Newable objects.
+        data: RSSenderInterface; // TODO (#5892): Should return Newable object or array of Newable objects.
         error: string;
         loading: boolean;
     };

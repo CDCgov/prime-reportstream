@@ -1,7 +1,7 @@
 import download from "downloadjs";
 import axios from "axios";
 
-import { TempRSReport } from "../../../network/api/History/Reports";
+import { RSReportInterface } from "../../../network/api/History/Reports";
 
 export const reportDetailURL = (id: string, base?: string) =>
     `${
@@ -12,10 +12,10 @@ export const getReportAndDownload = (
     id: string,
     oktaToken: string,
     org: string
-): TempRSReport | undefined => {
+): RSReportInterface | undefined => {
     let report = undefined;
     axios
-        .get<TempRSReport>(reportDetailURL(id), {
+        .get<RSReportInterface>(reportDetailURL(id), {
             headers: {
                 Authorization: `Bearer ${oktaToken}`,
                 Organization: org,
@@ -33,7 +33,7 @@ export const getReportAndDownload = (
     return report;
 };
 
-export const downloadReport = (report: TempRSReport) => {
+export const downloadReport = (report: RSReportInterface) => {
     let filename = decodeURIComponent(report.fileName);
     let filenameStartIndex = filename.lastIndexOf("/");
     if (filenameStartIndex >= 0 && filename.length > filenameStartIndex + 1)

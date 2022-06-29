@@ -6,15 +6,15 @@ export class MyApiItem {
         this.testField = testField;
     }
 }
-const MyApi = new API(MyApiItem, "/api/test");
-MyApi.addEndpoint("list", "/test", ["GET"]);
-MyApi.addEndpoint("badList", "/badList", ["GET"]);
-MyApi.addEndpoint("itemById", "/test/:id", [
-    "GET",
-    "POST",
-    "PUT",
-    "PATCH",
-    "DELETE",
-]);
+const MyApi = new API(MyApiItem, "/api/test")
+    .addEndpoint("list", "/test", ["GET"])
+    .addEndpoint("badList", "/badList", ["GET"])
+    .addEndpoint("itemById", "/test/:id", [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE",
+    ]);
 
 export { MyApi };

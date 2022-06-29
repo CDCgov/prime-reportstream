@@ -23,8 +23,9 @@ export class API {
         this.resource = resource;
         this.baseUrl = baseUrl;
     }
-    addEndpoint(name: string, url: string, methods: AvailableMethods) {
+    addEndpoint(name: string, url: string, methods: AvailableMethods): this {
         this.endpoints.set(name, new Endpoint(url, methods));
+        return this;
     }
 }
 

@@ -5,7 +5,9 @@ import {
     BasicAPIResponse,
     createRequestConfig,
 } from "../../../network/api/NewApi";
-import ReportsApi, { TempRSReport } from "../../../network/api/History/Reports";
+import ReportsApi, {
+    RSReportInterface,
+} from "../../../network/api/History/Reports";
 import useRequestConfig from "../UseRequestConfig";
 
 const useReportsList = () => {
@@ -30,7 +32,7 @@ const useReportsList = () => {
     );
     const { data, error, loading, trigger } = useRequestConfig(
         config
-    ) as BasicAPIResponse<TempRSReport[]>;
+    ) as BasicAPIResponse<RSReportInterface[]>;
 
     return {
         data,

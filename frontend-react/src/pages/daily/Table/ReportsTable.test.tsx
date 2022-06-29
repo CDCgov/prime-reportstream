@@ -3,7 +3,7 @@ import { fireEvent, screen } from "@testing-library/react";
 import { renderWithRouter } from "../../../utils/CustomRenderUtils";
 import { historyServer } from "../../../__mocks__/HistoryMockServer";
 import * as ReportsHooks from "../../../hooks/network/History/ReportsHooks";
-import { TempRSReport } from "../../../network/api/History/Reports";
+import { RSReportInterface } from "../../../network/api/History/Reports";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import {
     MembershipController,
@@ -19,7 +19,7 @@ const mockMs = (additional?: number) =>
 const mockFetchReport = jest.spyOn(ReportUtilsModule, "getReportAndDownload");
 const mockApiHook = jest.spyOn(ReportsHooks, "useReportsList");
 const makeFakeData = (count: number) => {
-    const data: TempRSReport[] = [];
+    const data: RSReportInterface[] = [];
     for (count; count > 0; count--) {
         data.push({
             reportId: `${count}`,

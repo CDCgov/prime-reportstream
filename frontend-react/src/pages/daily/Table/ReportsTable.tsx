@@ -7,7 +7,7 @@ import useFilterManager, {
 } from "../../../hooks/filters/UseFilterManager";
 import Spinner from "../../../components/Spinner";
 import { useReportsList } from "../../../hooks/network/History/ReportsHooks";
-import { TempRSReport } from "../../../network/api/History/Reports";
+import { RSReportInterface } from "../../../network/api/History/Reports";
 import { useSessionContext } from "../../../contexts/SessionContext";
 import { showError } from "../../../components/AlertNotifications";
 
@@ -22,11 +22,11 @@ const filterManagerDefaults: FilterManagerDefaults = {
 };
 
 interface ReceiverFeeds {
-    activeFeed: TempRSReport[] | undefined;
+    activeFeed: RSReportInterface[] | undefined;
     setActiveFeed: Dispatch<SetStateAction<string | undefined>>;
     feeds: string[] | undefined;
 }
-const useReceiverFeeds = (reports: TempRSReport[]): ReceiverFeeds => {
+const useReceiverFeeds = (reports: RSReportInterface[]): ReceiverFeeds => {
     /* Keeps a list of all feeds for a receiver */
     const receiverSVCs: string[] = useMemo(
         () => Array.from(getUniqueReceiverSvc(reports)),
@@ -141,9 +141,7 @@ function ReportsTable() {
                 />
             </div>
             <div className="grid-col-12">
-                {activeFeed && activeFeed.length === 0 ? (
-                    <p>No results</p>
-                ) : null}
+                {activeFeed?.length === 0 ? <p>No results</p> : null}
             </div>
         </>
     );
