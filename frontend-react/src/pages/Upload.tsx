@@ -38,8 +38,7 @@ const TransitionBanner = () => {
                     <NavLink to="/submissions">CSV submission history </NavLink>{" "}
                     through your ReportStream user account{" "}
                     <b>for three months</b> after the transition of the CSV
-                    uploader. We encourage you to download your data before
-                    then.
+                    uploader.
                 </li>
                 <li className="margin-bottom-2">
                     If you need assistance or have questions, please reach out
