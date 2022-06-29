@@ -1,22 +1,17 @@
 import { AccessToken } from "@okta/okta-auth-js";
 
-import { RSUserClaims } from "./OrganizationUtils";
-
-const mockToken = (mock?: Partial<AccessToken>) => {
-    const mockedClaims: RSUserClaims = mock?.claims
-        ? mock.claims
-        : {
-              sub: "",
-              // organization: "",
-          };
-
+const mockToken = (mock?: Partial<AccessToken>): AccessToken => {
     return {
         authorizeUrl: mock?.authorizeUrl || "",
         expiresAt: mock?.expiresAt || 0,
         scopes: mock?.scopes || [],
         userinfoUrl: mock?.userinfoUrl || "",
         accessToken: mock?.accessToken || "",
-        claims: mockedClaims,
+        claims: mock?.claims
+            ? mock.claims
+            : {
+                  sub: "",
+              },
         tokenType: mock?.tokenType || "",
     };
 };
