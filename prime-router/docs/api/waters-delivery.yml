@@ -85,7 +85,7 @@ paths:
           description: unauthorized
         '404':
           description: report does not exist
-  /waters/deliveries/{deliveryId}/facilities:
+  /waters/report/{deliveryId}/facilities:
     get:
       operationId: getDeliveryFacilities
       summary: Get facilities for a single report

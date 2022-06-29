@@ -241,7 +241,7 @@ abstract class ReportFileFunction(
      * @param str
      * @return a valid UUID, or null if this [str] cannot be parsed into a valid UUID.
      */
-    private fun toUuidOrNull(str: String): UUID? {
+    fun toUuidOrNull(str: String): UUID? {
         return try {
             UUID.fromString(str)
         } catch (e: IllegalArgumentException) {

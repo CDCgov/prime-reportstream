@@ -2,7 +2,6 @@ package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.common.BaseEngine
-import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
 import java.time.OffsetDateTime
 
@@ -16,37 +15,6 @@ class DeliveryFacade(
 ) : ReportFileFacade(
     dbAccess,
 ) {
-    // Ignoring unknown properties because we don't require them. -DK
-    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
-
-    /**
-     * Serializes a list of Actions into a String.
-     *
-     * @param organization from JWT Claim.
-     * @param receivingOrgSvc is a specifier for the receiving organization's service.
-     * @param sortDir sort the table by date in ASC or DESC order.
-     * @param sortColumn sort the table by a specific column; defaults to sorting by created_at.
-     * @param cursor is the OffsetDateTime of the last result in the previous list.
-     * @param since is the OffsetDateTime minimum date to get results for.
-     * @param until is the OffsetDateTime maximum date to get results for.
-     * @param pageSize Int of items to return per page.
-     *
-     * @return a String representation of an array of actions.
-     */
-    fun findDeliveriesAsJson(
-        organization: String,
-        receivingOrgSvc: String?,
-        sortDir: HistoryDatabaseAccess.SortDir,
-        sortColumn: HistoryDatabaseAccess.SortColumn,
-        cursor: OffsetDateTime?,
-        since: OffsetDateTime?,
-        until: OffsetDateTime?,
-        pageSize: Int
-    ): String {
-        val result = findDeliveries(organization, receivingOrgSvc, sortDir, sortColumn, cursor, since, until, pageSize)
-        return mapper.writeValueAsString(result)
-    }
-
     /**
      * Find deliveries based on parameters.
      *

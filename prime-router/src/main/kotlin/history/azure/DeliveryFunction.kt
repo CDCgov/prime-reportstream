@@ -7,9 +7,15 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.tokens.AuthenticationStrategy
+import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.tokens.authorizationFailure
 
 /**
  * Deliveries API
@@ -25,6 +31,9 @@ class DeliveryFunction(
     deliveryFacade,
     workflowEngine,
 ) {
+    // Ignoring unknown properties because we don't require them. -DK
+    private val mapper = JacksonMapperUtilities.allowUnknownsMapper
+
     /**
      * Authorization and shared logic uses the organization name without the service
      * We store the service name here to pass to the facade
@@ -53,7 +62,7 @@ class DeliveryFunction(
     override fun historyAsJson(queryParams: MutableMap<String, String>, userOrgName: String): String {
         val params = HistoryApiParameters(queryParams)
 
-        return deliveryFacade.findDeliveriesAsJson(
+        val deliveries = deliveryFacade.findDeliveries(
             userOrgName,
             receivingOrgSvc,
             params.sortDir,
@@ -63,6 +72,8 @@ class DeliveryFunction(
             params.until,
             params.pageSize,
         )
+
+        return mapper.writeValueAsString(deliveries)
     }
 
     /**
@@ -81,7 +92,7 @@ class DeliveryFunction(
      * It does not assume the user belongs to a single Organization.  Rather, it uses
      * the organization in the URL path, after first confirming authorization to access that organization.
      *
-     * @param request HTTP Request params
+     * @param request HTML request body.
      * @param organization Name of organization and service
      * @return json list of deliveries
      */
@@ -101,7 +112,7 @@ class DeliveryFunction(
     /**
      * Get expanded details for a single report
      *
-     * @param request HTTP Request params
+     * @param request HTML request body.
      * @param deliveryId Report or Delivery id
      * @return json formatted delivery
      */
@@ -116,5 +127,59 @@ class DeliveryFunction(
         @BindingName("deliveryId") deliveryId: String,
     ): HttpResponseMessage {
         return this.getDetailedView(request, deliveryId)
+    }
+
+    /**
+     * Get a sortable list of delivery facilities
+     *
+     * @param request HTML request body.
+     * @param reportId UUID for the report to get facilities from
+     * @return JSON of the facility list or errors.
+     */
+    @FunctionName("getDeliveryFacilities")
+    fun getDeliveryFacilities(
+        @HttpTrigger(
+            name = "getDeliveryFacilities",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "waters/report/{deliveryId}/facilities"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("reportId") reportId: String,
+    ): HttpResponseMessage {
+        try {
+            // Do authentication
+            val claims = AuthenticationStrategy.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+            logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
+
+            val convertedReportId = toUuidOrNull(reportId) ?: error("Bad format: $reportId must be a num or a UUID")
+            val action = deliveryFacade.fetchActionForReportId(convertedReportId)
+                ?: error("No such reportId: $reportId")
+
+            // Do Authorization.  Confirm these claims allow access to this Action
+            if (!deliveryFacade.checkSenderAccessAuthorization(action, claims)) {
+                logger.warn(
+                    "Invalid Authorization for user ${claims.userName}:" +
+                        " ${request.httpMethod}:${request.uri.path}"
+                )
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
+
+            logger.info(
+                "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
+            )
+
+            return HttpUtilities.okResponse(
+                request,
+                mapper.writeValueAsString(
+                    workflowEngine.db.getFacilitiesForDownloadableReport(
+                        ReportId.fromString(reportId)
+                    )
+                )
+            )
+        } catch (e: IllegalArgumentException) {
+            return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
+        }
     }
 }
