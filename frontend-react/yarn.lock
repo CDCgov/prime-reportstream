@@ -1555,6 +1555,29 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@okta/okta-auth-js@6.5.1":
+  version "6.5.1"
+  resolved "https://registry.yarnpkg.com/@okta/okta-auth-js/-/okta-auth-js-6.5.1.tgz#aa1b3815152e729c6a69137a19c7fd502d2e4e5d"
+  integrity sha512-mBzg+EH1Ey7skxHiimSN/ZYraB3l8ZXZlBi8RXNmRLwPMbFlZkQoKrrQu357S5YSEckF59Lqbb/r9Y3cXBNQBQ==
+  dependencies:
+    "@babel/runtime" "^7.12.5"
+    "@babel/runtime-corejs3" "^7.17.0"
+    "@peculiar/webcrypto" "1.1.6"
+    Base64 "1.1.0"
+    atob "^2.1.2"
+    broadcast-channel "^4.10.0"
+    btoa "^1.2.1"
+    core-js "^3.6.5"
+    cross-fetch "^3.1.5"
+    js-cookie "^3.0.1"
+    jsonpath-plus "^6.0.1"
+    node-cache "^5.1.2"
+    p-cancelable "^2.0.0"
+    text-encoding "^0.7.0"
+    tiny-emitter "1.1.0"
+    webcrypto-shim "^0.1.5"
+    xhr2 "0.1.3"
+
 "@okta/okta-auth-js@^6.5.1":
   version "6.7.1"
   resolved "https://registry.yarnpkg.com/@okta/okta-auth-js/-/okta-auth-js-6.7.1.tgz#c8810693af9d7578fd3b353f20b3d447c0decb78"
@@ -1667,6 +1690,17 @@
   integrity sha512-coUfuoMeIB7B8/NMekxaDzLhaYmp0HZNPEjYRm9goRou8UZIC3z21s0sL9AWoCw4EG876QyO3kYrc61WNF9B/w==
   dependencies:
     tslib "^2.0.0"
+
+"@peculiar/webcrypto@1.1.6":
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/@peculiar/webcrypto/-/webcrypto-1.1.6.tgz#484bb58be07149e19e873861b585b0d5e4f83b7b"
+  integrity sha512-xcTjouis4Y117mcsJslWAGypwhxtXslkVdRp7e3tHwtuw0/xCp1te8RuMMv/ia5TsvxomcyX/T+qTbRZGLLvyA==
+  dependencies:
+    "@peculiar/asn1-schema" "^2.0.27"
+    "@peculiar/json-schema" "^1.1.12"
+    pvtsutils "^1.1.2"
+    tslib "^2.1.0"
+    webcrypto-core "^1.2.0"
 
 "@peculiar/webcrypto@^1.4.0":
   version "1.4.0"
@@ -3370,7 +3404,7 @@ braces@^3.0.2, braces@~3.0.2:
   dependencies:
     fill-range "^7.0.1"
 
-broadcast-channel@^4.13.0:
+broadcast-channel@^4.10.0, broadcast-channel@^4.13.0:
   version "4.13.0"
   resolved "https://registry.yarnpkg.com/broadcast-channel/-/broadcast-channel-4.13.0.tgz#21387b2602b9e9ec3b97b03bd8a8d2c198352ff6"
   integrity sha512-fcDr8QNJ4SOb6jyjUNZatVNmcHtSWfW4PFcs4xIEFZAtorKCIFoEYtjIjaQ4c0jrbr/Bl8NIwOWiLSyspoAnEQ==
@@ -9234,7 +9268,7 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
-pvtsutils@^1.3.2:
+pvtsutils@^1.1.2, pvtsutils@^1.3.2:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/pvtsutils/-/pvtsutils-1.3.2.tgz#9f8570d132cdd3c27ab7d51a2799239bf8d8d5de"
   integrity sha512-+Ipe2iNUyrZz+8K/2IOo+kKikdtfhRKzNpQbruF2URmqPtoqAs8g3xS7TJvFF2GcPXjh7DkqMnpVveRFq4PgEQ==
@@ -10866,11 +10900,6 @@ tslib@^2.0.0, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.4.0:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
   integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
 
-tslib@^2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
-  integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
-
 tsutils@^3.21.0:
   version "3.21.0"
   resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-3.21.0.tgz#b48717d394cea6c1e096983eed58e9d61715b623"
@@ -11306,7 +11335,7 @@ web-vitals@^2.1.2:
   resolved "https://registry.yarnpkg.com/web-vitals/-/web-vitals-2.1.4.tgz#76563175a475a5e835264d373704f9dde718290c"
   integrity sha512-sVWcwhU5mX6crfI5Vd2dC4qchyTqxV8URinzt25XqVh+bHEPGH4C3NPrNionCP7Obx59wrYEbNlw4Z8sjALzZg==
 
-webcrypto-core@^1.7.4:
+webcrypto-core@^1.2.0, webcrypto-core@^1.7.4:
   version "1.7.5"
   resolved "https://registry.yarnpkg.com/webcrypto-core/-/webcrypto-core-1.7.5.tgz#c02104c953ca7107557f9c165d194c6316587ca4"
   integrity sha512-gaExY2/3EHQlRNNNVSrbG2Cg94Rutl7fAaKILS1w8ZDhGxdFOaw6EbCfHIxPy9vt/xwp5o0VQAx9aySPF6hU1A==
