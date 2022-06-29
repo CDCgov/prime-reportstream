@@ -40,7 +40,9 @@ const testNewOrgJson = JSON.stringify({
     jurisdiction: "STATE",
     stateCode: "CA",
     countyName: null,
-    meta: null,
+    version: null,
+    createdAt: null,
+    createdBy: null,
 });
 
 describe("AdminOrgNew", () => {
