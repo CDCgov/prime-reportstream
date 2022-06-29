@@ -1893,7 +1893,7 @@
     "@babel/core" "^7.12.3"
     "@svgr/babel-preset" "^5.5.0"
     "@svgr/hast-util-to-babel-ast" "^5.5.0"
-    svg-parser "^7"
+    svg-parser "^2.0.2"
 
 "@svgr/plugin-svgo@^5.5.0":
   version "5.5.0"
