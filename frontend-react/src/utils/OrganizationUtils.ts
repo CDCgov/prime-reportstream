@@ -1,4 +1,4 @@
-import { AccessToken, UserClaims } from "@okta/okta-auth-js";
+import { AccessToken, UserClaims, CustomUserClaims } from "@okta/okta-auth-js";
 
 import { SessionStore } from "../hooks/UseSessionStorage";
 
@@ -12,7 +12,7 @@ enum RSOrgType {
 
 /* New claims not present in UserClaims need tobe added via
  * this interface so UserClaims can implement the fields. */
-interface RSExtraClaims {
+interface RSExtraClaims extends CustomUserClaims {
     organization: string[];
 }
 type RSUserClaims = UserClaims<RSExtraClaims>;
