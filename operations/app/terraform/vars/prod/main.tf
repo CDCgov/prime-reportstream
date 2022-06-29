@@ -1,7 +1,3 @@
-##########
-## 01-network
-##########
-
 module "network" {
   source          = "../../modules/network"
   environment     = local.init.environment
@@ -19,11 +15,6 @@ module "nat_gateway" {
   location        = local.init.location
   subnets         = module.network.subnets
 }
-
-
-##########
-## 02-config
-##########
 
 module "app_service_plan" {
   source          = "../../modules/app_service_plan"
