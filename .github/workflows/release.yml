@@ -73,13 +73,25 @@ jobs:
       - pre_job
       - build_release
       - build_frontend_react_release
-    if: startsWith(needs.pre_job.outputs.env_name, 'demo')
+    if: |
+      needs.pre_job.outputs.env_name == 'demo1' ||
+      needs.pre_job.outputs.env_name == 'demo2' ||
+      needs.pre_job.outputs.env_name == 'demo3'
     environment: ${{ needs.pre_job.outputs.env_name }}
     concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+      - name: Terraform - init
+        working-directory: operations/app/terraform/vars/demo
+        run: |
+          terraform init \
+          -reconfigure \
+          -var-file=${{ needs.pre_job.outputs.env_name }}/env.tfvars.json \
+          -backend-config=${{ needs.pre_job.outputs.env_name }}/env.tfbackend
+        shell: bash
 
   deploy_release:
     name: "Deploy Release: ${{ needs.pre_job.outputs.env_name }}"
