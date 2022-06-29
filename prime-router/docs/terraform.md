@@ -168,7 +168,7 @@ terraform -chdir=$path destroy \
 -target=module.storage \
 -refresh=false \
 -auto-approve; \
-sleep 30; \
+sleep 60; \
 done
 
 ```
