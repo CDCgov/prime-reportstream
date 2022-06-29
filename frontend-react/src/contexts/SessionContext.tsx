@@ -13,7 +13,7 @@ import {
 export interface ISessionContext {
     memberships: MembershipController;
     store: SessionController;
-    oktaToken?: AccessToken;
+    oktaToken?: Partial<AccessToken>;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -23,7 +23,7 @@ interface ISessionProviderProps {
 }
 
 export const SessionContext = createContext<ISessionContext>({
-    oktaToken: {} as AccessToken,
+    oktaToken: {} as Partial<AccessToken>,
     memberships: {} as MembershipController,
     store: {} as SessionController,
 });

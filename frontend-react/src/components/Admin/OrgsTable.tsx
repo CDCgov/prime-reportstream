@@ -12,11 +12,11 @@ import { NavLink, useHistory } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
-import { getStoredOrg, setStoredOrg } from "../../contexts/SessionStorageTools";
 import { useSessionContext } from "../../contexts/SessionContext";
 import {
     MembershipActionType,
     MemberType,
+    MembershipSettings,
 } from "../../hooks/UseOktaMemberships";
 
 export function OrgsTable() {
@@ -25,17 +25,24 @@ export function OrgsTable() {
         {}
     ).sort((a, b) => a.name.localeCompare(b.name));
     const [filter, setFilter] = useState("");
-    const currentOrg = getStoredOrg();
     const history = useHistory();
     const { memberships } = useSessionContext();
+    const currentOrg = memberships?.state?.active?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
-        setStoredOrg(orgName);
+        const {
+            state: { active: { senderName, memberType } = {} },
+        } = memberships;
+
+        let payload: Partial<MembershipSettings> = {
+            parsedName: orgName,
+        };
+        if (memberType === MemberType.SENDER) {
+            payload.senderName = senderName || "default";
+        }
         memberships.dispatch({
             type: MembershipActionType.ADMIN_OVERRIDE,
-            payload: {
-                parsedName: orgName,
-            },
+            payload,
         });
     };
 
@@ -126,8 +133,8 @@ export function OrgsTable() {
                             }
                             id="user-type-select"
                         >
-                            {Object.values(MemberType).map((type) => (
-                                <option>{type}</option>
+                            {Object.values(MemberType).map((type, index) => (
+                                <option key={index}>{type}</option>
                             ))}
                         </Dropdown>
                     </div>

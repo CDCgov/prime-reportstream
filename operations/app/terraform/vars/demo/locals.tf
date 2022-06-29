@@ -30,7 +30,7 @@ locals {
     delete_pii_storage_after_days = 30
   }
   database = {
-    db_sku_name         = "GP_Gen5_16"
+    db_sku_name         = "GP_Gen5_4"
     db_version          = "11"
     db_storage_mb       = 5120
     db_auto_grow        = true
@@ -40,7 +40,7 @@ locals {
   }
   app = {
     app_tier = "PremiumV2"
-    app_size = "P3v2"
+    app_size = "P2v2"
   }
   network = {
     use_cdc_managed_vnet        = true
