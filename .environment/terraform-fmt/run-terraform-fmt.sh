@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 
-# Check that Terraform is installed
-if ! command -v terraform &> /dev/null
-then
-    echo "Terraform executable could not be found"
-    exit
-fi
-
 function usage() {
     echo "usage: ${0} [OPTION]"
     echo ""
@@ -106,6 +99,19 @@ if [[ -z "${SELECTED_RUNMODE?}" ]]; then
 fi
 
 RC=1 # Nothing done, fail
+
+# Exit if terraform is not detected but Terraform files have been changed
+    MODIFIED_TF_FILES_COUNT=$(git status --porcelain | grep "\.tf$" | wc -l)
+    if [ ${MODIFIED_TF_FILES_COUNT?} != 0 ]; then
+        if ! command -v terraform &> /dev/null; then
+        echo "Terraform not detected but Terraform files updated; you must install Terraform to pass this check"
+        exit 1
+        fi
+    else
+        note "Skipping this check, you made no changes to Terraform files..."
+        RC=0
+    fi
+
 case "${SELECTED_RUNMODE?}" in
 "${RUNMODE_CHECK?}")
     terraform_fmt_check
