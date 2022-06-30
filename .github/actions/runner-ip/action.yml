@@ -4,7 +4,7 @@ description: 'Get IP address of GitHub runner'
 outputs:
   ip-address:
     description: Public IP address of runner
-    value: ${{ steps.get_ip.outputs.public_ip }}
+    value: ${{ steps.get_ip.outputs.ip }}
 
 runs:
   using: "composite"
@@ -14,5 +14,5 @@ runs:
       id: get_ip
       shell: bash
       run: |
-        echo "PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)"
-        echo "::set-output name=public_ip::$PUBLIC_IP"
+        PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+        echo "::set-output name=ip::$PUBLIC_IP"
