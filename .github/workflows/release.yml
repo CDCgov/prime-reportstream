@@ -104,7 +104,6 @@ jobs:
 
       - name: Terraform - init
         run: |
-          echo "runner ip: ${{ steps.runner_ip.outputs.ip-address }}"
           terraform init \
           -reconfigure \
           -var-file=${{ needs.pre_job.outputs.env_name }}/env.tfvars.json \

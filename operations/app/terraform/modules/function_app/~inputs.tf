@@ -76,3 +76,8 @@ variable "okta_base_url" {}
 variable "subnets" {
   description = "A set of all available subnet combinations"
 }
+
+variable "is_temp_env" {
+  default     = false
+  description = "Is a temporary environment. true or false"
+}

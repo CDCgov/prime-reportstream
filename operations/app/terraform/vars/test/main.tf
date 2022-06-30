@@ -147,6 +147,7 @@ module "function_app" {
   client_config_key_vault_id        = module.key_vault.client_config_key_vault_id
   app_config_key_vault_id           = module.key_vault.app_config_key_vault_id
   dns_ip                            = local.network.dns_ip
+  is_temp_env                       = local.is_temp_env
 }
 
 module "front_door" {
