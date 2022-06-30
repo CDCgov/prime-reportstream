@@ -98,43 +98,10 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
 
-      - name: Get runner ip
-        id: runner_ip
-        uses: ./.github/actions/runner-ip
-
-      - name: Terraform - init
-        run: |
-          terraform init \
-          -reconfigure \
-          -var-file=${{ needs.pre_job.outputs.env_name }}/env.tfvars.json \
-          -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
-          -backend-config=${{ needs.pre_job.outputs.env_name }}/env.tfbackend
-        shell: bash
-
-      - name: Terraform - validate
-        run: |
-          terraform validate
-        shell: bash
-
-      - name: Terraform - apply
-        run: |
-          for i in {1..3}; do \
-          terraform apply \
-          -target=module.init \
-          -var-file=${{ needs.pre_job.outputs.env_name }}/env.tfvars.json \
-          -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
-          -auto-approve; \
-          sleep 60; \
-          done
-
-          for i in {1..3}; do \
-          terraform apply \
-          -var-file=${{ needs.pre_job.outputs.env_name }}/env.tfvars.json \
-          -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
-          -auto-approve; \
-          sleep 60; \
-          done
-        shell: bash
+      - name: Provision demo environment
+        uses: ./.github/actions/demo-env
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
 
   deploy_release:
     name: "Deploy Release: ${{ needs.pre_job.outputs.env_name }}"
