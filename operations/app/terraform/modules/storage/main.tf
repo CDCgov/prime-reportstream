@@ -275,7 +275,7 @@ resource "azurerm_storage_account_network_rules" "storage_partner" {
     split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
     var.terraform_caller_ip_address, # Storage accounts only allow CIDR-notation for /[0-30]
   ))
-  virtual_network_subnet_ids = [var.subnets.primary_public_endpoint_subnets]
+  virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
   bypass                     = ["None"]
 }
 
