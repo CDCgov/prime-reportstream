@@ -46,7 +46,7 @@ resource "azurerm_storage_account" "storage_account_candidate" {
 resource "azurerm_storage_account_network_rules" "storage_account_candidate" {
   storage_account_id = azurerm_storage_account.storage_account_candidate.id
 
-  default_action             = "Deny"
+  default_action             = var.is_temp_env == true ? "Allow" : "Deny"
   ip_rules                   = var.terraform_caller_ip_address
   virtual_network_subnet_ids = var.subnets.vnet_public_container_endpoint_subnets
   bypass                     = ["None"]
@@ -220,7 +220,7 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
 resource "azurerm_storage_account_network_rules" "storage_partner_candidate" {
   storage_account_id = azurerm_storage_account.storage_partner_candidate.id
 
-  default_action             = "Deny"
+  default_action             = var.is_temp_env == true ? "Allow" : "Deny"
   ip_rules                   = var.terraform_caller_ip_address
   virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
   bypass                     = ["None"]

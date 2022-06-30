@@ -269,7 +269,7 @@ resource "azurerm_storage_account" "storage_partner" {
 resource "azurerm_storage_account_network_rules" "storage_partner" {
   storage_account_id = azurerm_storage_account.storage_partner.id
 
-  default_action = "Deny"
+  default_action = var.is_temp_env == true ? "Allow" : "Deny"
   ip_rules = sensitive(concat(
     split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
     split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
