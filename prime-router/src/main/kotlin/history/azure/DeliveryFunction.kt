@@ -7,9 +7,9 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
-import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.history.DeliveryHistory
 
 /**
  * Deliveries API
@@ -68,16 +68,12 @@ class DeliveryFunction(
     /**
      * Get expanded details for a single report
      *
-     * @param request HTTP Request to extract parameters from
+     * @param queryParams Parameters extracted from the HTTP Request
      * @param action Action from which the data for the delivery is loaded
      * @return
      */
-    override fun singleDetailedHistory(request: HttpRequestMessage<String?>, action: Action): HttpResponseMessage {
-        val submission = deliveryFacade.findDetailedDeliveryHistory(action.sendingOrg, action.actionId)
-        return if (submission != null)
-            HttpUtilities.okJSONResponse(request, submission)
-        else
-            HttpUtilities.notFoundResponse(request, "Submission ${action.actionId} was not found.")
+    override fun singleDetailedHistory(queryParams: MutableMap<String, String>, action: Action): DeliveryHistory? {
+        return deliveryFacade.findDetailedDeliveryHistory(action.sendingOrg, action.actionId)
     }
 
     /**
@@ -106,7 +102,7 @@ class DeliveryFunction(
      * Get expanded details for a single report
      *
      * @param request HTTP Request params
-     * @param id Report or Delivery id
+     * @param deliveryId Report or Delivery id
      * @return json formatted delivery
      */
     @FunctionName("getDeliveryDetails")

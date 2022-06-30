@@ -534,7 +534,7 @@ abstract class CoolTest {
             if (history == null)
                 return bad("Test Failed: No process response")
 
-            val reportId = history.id
+            val reportId = history.reportId
             echo("Id of submitted report: $reportId")
             val topic = history.topic
             val errorCount = history.errorCount
@@ -657,8 +657,8 @@ abstract class CoolTest {
     fun getReportIdFromResponse(jsonResponse: String): ReportId? {
         var reportId: ReportId? = null
         val tree = jacksonObjectMapper().readTree(jsonResponse)
-        if (!tree.isNull && !tree["id"].isNull) {
-            reportId = ReportId.fromString(tree["id"].textValue())
+        if (!tree.isNull && !tree["reportId"].isNull) {
+            reportId = ReportId.fromString(tree["reportId"].textValue())
         }
         return reportId
     }
@@ -857,7 +857,7 @@ abstract class CoolTest {
                     .fetchOne()
                 if (report != null && report.actionId != null) {
                     val ret = ctx.select(
-                        DatabaseSubmissionsAccess().detailedSubmissionSelect()
+                        DatabaseSubmissionsAccess().detailedSelect()
                     )
                         .from(ACTION)
                         .where(
@@ -867,7 +867,7 @@ abstract class CoolTest {
                         .fetchOne()?.into(DetailedSubmissionHistory::class.java)
                     // Fill out the rest of the history data
                     if (ret != null) {
-                        ret.id = processingReportId.toString()
+                        ret.reportId = processingReportId.toString()
                         ret.reportItemCount = report.itemCount
                         ret.externalName = report.externalName
                         ret.topic = report.schemaTopic
