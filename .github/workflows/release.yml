@@ -111,11 +111,22 @@ jobs:
           terraform validate
         shell: bash
 
-      - name: Terraform - plan
+      - name: Terraform - apply
         run: |
-          terraform plan \
+          for i in {1..3}; do \
+          terraform apply \
           -target=module.init \
-          -var-file=${{ needs.pre_job.outputs.env_name }}/env.tfvars.json
+          -var-file=${{ needs.pre_job.outputs.env_name }}/env.tfvars.json \
+          -auto-approve; \
+          sleep 60; \
+          done
+
+          for i in {1..3}; do \
+          terraform apply \
+          -var-file=${{ needs.pre_job.outputs.env_name }}/env.tfvars.json \
+          -auto-approve; \
+          sleep 60; \
+          done
         shell: bash
 
   deploy_release:
