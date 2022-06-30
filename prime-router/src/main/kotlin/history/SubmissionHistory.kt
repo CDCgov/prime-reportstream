@@ -112,6 +112,34 @@ class DetailedSubmissionHistory(
     val errorCount = logs.count { it.type == ActionLogLevel.error }
 
     /**
+     * Alias for the reportId
+     * Legacy support needs this older property
+     */
+    val id: String? get() {
+        return reportId
+    }
+
+    /**
+     * Errors logged for this Report File.
+     */
+    val errors = mutableListOf<ConsolidatedActionLog>()
+
+    /**
+     * Warnings logged for this Report File.
+     */
+    val warnings = mutableListOf<ConsolidatedActionLog>()
+
+    /**
+     * The number of warnings.  Note this is not the number of consolidated warnings.
+     */
+    val warningCount = logs.count { it.type == ActionLogLevel.warning }
+
+    /**
+     * The number of errors.  Note this is not the number of consolidated errors.
+     */
+    val errorCount = logs.count { it.type == ActionLogLevel.error }
+
+    /**
      * The destinations.
      */
     var destinations = mutableListOf<Destination>()

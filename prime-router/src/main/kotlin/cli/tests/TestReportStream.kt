@@ -657,8 +657,8 @@ abstract class CoolTest {
     fun getReportIdFromResponse(jsonResponse: String): ReportId? {
         var reportId: ReportId? = null
         val tree = jacksonObjectMapper().readTree(jsonResponse)
-        if (!tree.isNull && !tree["id"].isNull) {
-            reportId = ReportId.fromString(tree["id"].textValue())
+        if (!tree.isNull && !tree["reportId"].isNull) {
+            reportId = ReportId.fromString(tree["reportId"].textValue())
         }
         return reportId
     }

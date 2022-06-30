@@ -19,9 +19,9 @@ import java.time.OffsetDateTime
  * @property reportItemCount number of tests (data rows) contained in the report
  * @property receivingOrg the name of the organization that's receiving this submission
  * @property receivingOrgSvc the name of the organization's service that's receiving this submission
- * @property bodyUrl
- * @property schemaName
- * @property bodyFormat
+ * @property bodyUrl url used for generating the filename
+ * @property schemaName schema used for generating the filename
+ * @property bodyFormat filetype, used for generating the filename
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder(
