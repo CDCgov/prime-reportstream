@@ -253,7 +253,24 @@ class SubmissionHistoryTests {
     fun `test SubmissionHistory init`() {
         SubmissionHistory(
             1,
+            OffsetDateTime.now()
+        ).run {
+            assertThat(actionId).isEqualTo(1)
+            assertThat(createdAt).isNotNull()
+            assertThat(sendingOrg).isEqualTo("")
+            assertThat(httpStatus).isNull()
+            assertThat(externalName).isEqualTo("")
+            assertThat(reportId).isNull()
+            assertThat(topic).isNull()
+            assertThat(reportItemCount).isNull()
+        }
+        SubmissionHistory(
+            1,
             OffsetDateTime.now(),
+            "",
+            null,
+            null,
+            null,
             "simple_report",
             201
         ).run {
@@ -263,18 +280,18 @@ class SubmissionHistoryTests {
             assertThat(httpStatus).isEqualTo(201)
             assertThat(externalName).isEqualTo("")
             assertThat(reportId).isNull()
-            assertThat(schemaTopic).isNull()
-            assertThat(itemCount).isNull()
+            assertThat(topic).isNull()
+            assertThat(reportItemCount).isNull()
         }
         SubmissionHistory(
             1,
             OffsetDateTime.now(),
-            "simple_report",
-            201,
             "testname.csv",
             "a2cf1c46-7689-4819-98de-520b5007e45f",
             "covid-19",
-            3
+            3,
+            "simple_report",
+            201,
         ).run {
             assertThat(actionId).isEqualTo(1)
             assertThat(createdAt).isNotNull()
@@ -282,44 +299,86 @@ class SubmissionHistoryTests {
             assertThat(httpStatus).isEqualTo(201)
             assertThat(externalName).isEqualTo("testname.csv")
             assertThat(reportId).isEqualTo("a2cf1c46-7689-4819-98de-520b5007e45f")
-            assertThat(schemaTopic).isEqualTo("covid-19")
-            assertThat(itemCount).isEqualTo(3)
+            assertThat(topic).isEqualTo("covid-19")
+            assertThat(reportItemCount).isEqualTo(3)
         }
     }
 
     @Test
     fun `test DetailedSubmissionHistory common properties init`() {
-        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), 201, null, emptyList()).run {
+        DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+        ).run {
             assertThat(actionId).isEqualTo(1)
             assertThat(createdAt).isNotNull()
-            assertThat(id).isNull()
-            assertThat(httpStatus).isEqualTo(201)
-            assertThat(sender).isNull()
-            assertThat(topic).isNull()
-            assertThat(reportItemCount).isNull()
-            assertThat(externalName).isNull()
-            assertThat(destinations.size).isEqualTo(0)
-            assertThat(destinationCount).isEqualTo(0)
-            assertThat(logs.size).isEqualTo(0)
-        }
-
-        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, null, emptyList()).run {
-            assertThat(actionId).isEqualTo(1)
-            assertThat(createdAt).isNotNull()
-            assertThat(id).isNull()
+            assertThat(reportId).isNull()
             assertThat(httpStatus).isNull()
             assertThat(sender).isNull()
             assertThat(topic).isNull()
             assertThat(reportItemCount).isNull()
-            assertThat(externalName).isNull()
+            assertThat(externalName).isEqualTo("")
+            assertThat(destinations.size).isEqualTo(0)
+            assertThat(destinationCount).isEqualTo(0)
+            assertThat(reports?.size).isEqualTo(0)
+            assertThat(logs.size).isEqualTo(0)
+        }
+        DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            201,
+            null,
+            emptyList(),
+        ).run {
+            assertThat(actionId).isEqualTo(1)
+            assertThat(createdAt).isNotNull()
+            assertThat(reportId).isNull()
+            assertThat(httpStatus).isEqualTo(201)
+            assertThat(sender).isNull()
+            assertThat(topic).isNull()
+            assertThat(reportItemCount).isNull()
+            assertThat(externalName).isEqualTo("")
+            assertThat(destinations.size).isEqualTo(0)
+            assertThat(destinationCount).isEqualTo(0)
+            assertThat(reports).isNull()
+            assertThat(logs.size).isEqualTo(0)
+        }
+
+        DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            null,
+            null,
+            emptyList(),
+        ).run {
+            assertThat(actionId).isEqualTo(1)
+            assertThat(createdAt).isNotNull()
+            assertThat(reportId).isNull()
+            assertThat(httpStatus).isNull()
+            assertThat(sender).isNull()
+            assertThat(topic).isNull()
+            assertThat(reportItemCount).isNull()
+            assertThat(externalName).isEqualTo("")
             assertThat(destinations.size).isEqualTo(0)
             assertThat(destinationCount).isEqualTo(0)
             assertThat(logs.size).isEqualTo(0)
         }
 
         val inputReport = DetailedReport(
-            UUID.randomUUID(), null, null, "org",
-            "client", "topic", "externalName", null, null, 5, 7
+            UUID.randomUUID(),
+            null,
+            null,
+            "org",
+            "client",
+            "topic",
+            "externalName",
+            null,
+            null,
+            5,
+            7
         )
 
         val refUUID = UUID.randomUUID()
@@ -327,22 +386,54 @@ class SubmissionHistoryTests {
         var reports = listOf(
             inputReport,
             DetailedReport(
-                refUUID, "recvOrg1", "recvSvc1", null,
-                null, "topic", "otherExternalName1", null, null, 1, 1
+                refUUID, "recvOrg1",
+                "recvSvc1",
+                null,
+                null,
+                "topic",
+                "otherExternalName1",
+                null,
+                null,
+                1,
+                1
             ),
             DetailedReport(
-                UUID.randomUUID(), "recvOrg2", "recvSvc2", null,
-                null, "topic", "otherExternalName2", null, null, 2, null
+                UUID.randomUUID(),
+                "recvOrg2",
+                "recvSvc2",
+                null,
+                null,
+                "topic",
+                "otherExternalName2",
+                null,
+                null,
+                2,
+                null
             ),
             DetailedReport(
-                UUID.randomUUID(), "recvOrg3", "recvSvc3", null,
-                null, "topic", "no item count dest", null, null, 0, null
+                UUID.randomUUID(),
+                "recvOrg3",
+                "recvSvc3",
+                null,
+                null, "topic",
+                "no item count dest",
+                null,
+                null,
+                0,
+                null
             ),
         ).toMutableList()
 
-        DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), 201, reports, emptyList()).run {
+        DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            201,
+            reports,
+            emptyList(),
+        ).run {
             assertThat(actionId).isEqualTo(1)
-            assertThat(id).isEqualTo(inputReport.reportId.toString())
+            assertThat(reportId).isEqualTo(inputReport.reportId.toString())
             assertThat(httpStatus).isEqualTo(201)
             assertThat(sender).isEqualTo(ClientSource(inputReport.sendingOrg!!, inputReport.sendingOrgClient!!).name)
             assertThat(topic).isEqualTo(inputReport.schemaTopic)
@@ -350,7 +441,7 @@ class SubmissionHistoryTests {
             assertThat(externalName).isEqualTo(inputReport.externalName)
             assertThat(destinations.size).isEqualTo(3)
             assertThat(destinationCount).isEqualTo(2)
-            // assertThat(destinations.first().organization).isNotNull()
+            // assertThat(destinations.first().organization).isNull()
             assertThat(destinations.first().itemCountBeforeQualFilter).isEqualTo(1)
         }
 
@@ -385,7 +476,7 @@ class SubmissionHistoryTests {
 
         DetailedSubmissionHistory(1, TaskAction.receive, OffsetDateTime.now(), null, reports, logs).run {
             assertThat(actionId).isEqualTo(1)
-            assertThat(id).isEqualTo(null)
+            assertThat(reportId).isEqualTo(null)
             assertThat(sender).isEqualTo(ClientSource(inputReport.sendingOrg!!, inputReport.sendingOrgClient!!).name)
             assertThat(topic).isEqualTo(inputReport.schemaTopic)
             assertThat(reportItemCount).isEqualTo(inputReport.itemCount)
@@ -413,7 +504,11 @@ class SubmissionHistoryTests {
     @Test
     fun `test DetailedSubmissionHistory overallStatus and completionAt calculations`() {
         val testError = DetailedSubmissionHistory(
-            1, TaskAction.receive, OffsetDateTime.now(), HttpStatus.BAD_REQUEST.value(), null
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            HttpStatus.BAD_REQUEST.value(),
+            null,
         )
         testError.enrichWithSummary()
         testError.run {
@@ -423,7 +518,11 @@ class SubmissionHistoryTests {
         }
 
         val testReceived = DetailedSubmissionHistory(
-            1, TaskAction.receive, OffsetDateTime.now(), HttpStatus.OK.value(), null
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            null,
         )
         testReceived.enrichWithSummary()
         testReceived.run {
@@ -434,15 +533,26 @@ class SubmissionHistoryTests {
 
         var reports = listOf(
             DetailedReport(
-                UUID.randomUUID(), "recvOrg3", "recvSvc3", null, null,
-                "topic", "no item count dest", null, null, 0, null
+                UUID.randomUUID(),
+                "recvOrg3",
+                "recvSvc3",
+                null,
+                null,
+                "topic",
+                "no item count dest",
+                null,
+                null,
+                0,
+                null,
             ),
         ).toMutableList()
 
         val testNotDelivering = DetailedSubmissionHistory(
             1,
             TaskAction.receive,
-            OffsetDateTime.now(), HttpStatus.OK.value(), reports
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            reports,
         )
         testNotDelivering.enrichWithSummary()
         testNotDelivering.run {
@@ -455,25 +565,59 @@ class SubmissionHistoryTests {
         val today = OffsetDateTime.now()
 
         val inputReport = DetailedReport(
-            UUID.randomUUID(), null, null, "org", "client",
-            "topic", "externalName", null, null, 3, null
+            UUID.randomUUID(),
+            null,
+            null,
+            "org",
+            "client",
+            "topic",
+            "externalName",
+            null,
+            null,
+            3,
+            null,
         )
 
         val latestReport = DetailedReport(
-            UUID.randomUUID(), "recvOrg2", "recvSvc2", null, null,
-            "topic", "otherExternalName2", null, tomorrow, 2, null
+            UUID.randomUUID(),
+            "recvOrg2",
+            "recvSvc2",
+            null, null,
+            "topic",
+            "otherExternalName2",
+            null,
+            tomorrow,
+            2,
+            null,
         )
 
         reports = listOf(
             inputReport,
             latestReport,
             DetailedReport(
-                UUID.randomUUID(), "recvOrg1", "recvSvc1", null, null,
-                "topic", "otherExternalName1", null, today, 1, null
+                UUID.randomUUID(),
+                "recvOrg1",
+                "recvSvc1",
+                null,
+                null,
+                "topic",
+                "otherExternalName1",
+                null, today,
+                1,
+                null,
             ),
             DetailedReport(
-                UUID.randomUUID(), "recvOrg3", "recvSvc3", null, null,
-                "topic", "no item count dest", null, null, 0, null
+                UUID.randomUUID(),
+                "recvOrg3",
+                "recvSvc3",
+                null,
+                null,
+                "topic",
+                "no item count dest",
+                null,
+                null,
+                0,
+                null,
             ),
         ).toMutableList()
 
@@ -490,8 +634,17 @@ class SubmissionHistoryTests {
 
         val partiallyDelivered = listOf(
             DetailedReport(
-                UUID.randomUUID(), "recvOrg1", "recvSvc1", null, null,
-                "topic", "extname", null, null, 3, null
+                UUID.randomUUID(),
+                "recvOrg1",
+                "recvSvc1",
+                null,
+                null,
+                "topic",
+                "extname",
+                null,
+                null,
+                3,
+                null,
             ),
         ).toMutableList()
 
@@ -550,16 +703,43 @@ class SubmissionHistoryTests {
 
         val deliveredReports = listOf(
             DetailedReport(
-                UUID.randomUUID(), "recvOrg1", "recvSvc1", null, null,
-                "topic", "otherExternalName1", null, null, 1, null
+                UUID.randomUUID(),
+                "recvOrg1",
+                "recvSvc1",
+                null,
+                null,
+                "topic",
+                "otherExternalName1",
+                null,
+                null,
+                1,
+                null,
             ),
             DetailedReport(
-                UUID.randomUUID(), "recvOrg2", "recvSvc2", null, null,
-                "topic", "otherExternalName2", null, null, 2, null
+                UUID.randomUUID(),
+                "recvOrg2",
+                "recvSvc2",
+                null,
+                null,
+                "topic",
+                "otherExternalName2",
+                null,
+                null,
+                2,
+                null,
             ),
             DetailedReport(
-                UUID.randomUUID(), "otherRecOrg", "otherRecSvc", null, null,
-                "topic", "someOtherExtName", null, null, 0, null
+                UUID.randomUUID(),
+                "otherRecOrg",
+                "otherRecSvc",
+                null,
+                null,
+                "topic",
+                "someOtherExtName",
+                null,
+                null,
+                0,
+                null,
             ),
         ).toMutableList()
 
