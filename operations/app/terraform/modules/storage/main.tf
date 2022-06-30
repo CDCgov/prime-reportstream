@@ -232,20 +232,20 @@ resource "azurerm_storage_account" "storage_partner" {
   allow_blob_public_access  = false
   enable_https_traffic_only = true
 
-  network_rules {
-    default_action = "Deny"
-    bypass         = ["None"]
+  # network_rules {
+  #   default_action = "Deny"
+  #   bypass         = ["None"]
 
-    ip_rules = sensitive(concat(
-      split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
-      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-      var.terraform_caller_ip_address, # Storage accounts only allow CIDR-notation for /[0-30]
-    ))
+  #   ip_rules = sensitive(concat(
+  #     split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
+  #     split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+  #     var.terraform_caller_ip_address, # Storage accounts only allow CIDR-notation for /[0-30]
+  #   ))
 
-    # ip_rules = [var.terraform_caller_ip_address]
+  #   # ip_rules = [var.terraform_caller_ip_address]
 
-    virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
-  }
+  #   virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
+  # }
 
   # Required for customer-managed encryption
   identity {
@@ -266,7 +266,18 @@ resource "azurerm_storage_account" "storage_partner" {
   }
 }
 
+resource "azurerm_storage_account_network_rules" "storage_partner" {
+  storage_account_id = azurerm_storage_account.storage_partner.id
 
+  default_action = "Deny"
+  ip_rules = sensitive(concat(
+    split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
+    split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
+    var.terraform_caller_ip_address, # Storage accounts only allow CIDR-notation for /[0-30]
+  ))
+  virtual_network_subnet_ids = [var.subnets.primary_public_endpoint_subnets]
+  bypass                     = ["None"]
+}
 
 # Grant the storage account Key Vault access, to access encryption keys
 resource "azurerm_key_vault_access_policy" "storage_partner_policy" {
