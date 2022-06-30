@@ -666,7 +666,7 @@ class QualityFilter : CoolTest() {
         try {
             echo(json)
             val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
+            val reportId = ReportId.fromString(tree["reportId"].textValue())
             echo("Id of submitted report: $reportId")
             val destinations = tree["destinations"] as ArrayNode
             for (i in 0 until destinations.size()) {
