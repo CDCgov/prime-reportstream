@@ -65,7 +65,6 @@ export function OrgsTable() {
     };
 
     const saveListToCSVFile = () => {
-        // generate a lines that has "value","value","value"... each line is a
         const csvbody = orgs
             .filter((eachOrg) => eachOrg.filterMatch(filter))
             .map((eachOrg) =>
@@ -77,13 +76,16 @@ export function OrgsTable() {
                         eachOrg.jurisdiction,
                         eachOrg.stateCode,
                         eachOrg.countyName,
-                        new Date(eachOrg.meta.createdAt).toDateString(),
                     ].join(`","`),
                     `"`,
                 ].join("")
             )
             .join(`\n`); // join result of .map() lines
-        const csvheader = `Name,Description,Jurisdiction,State,County,Created\n`;
+        // Note that this csv previously included a `Created` column with a createdAt
+        // date taken from organization metadata. Currently this metadata is not being returned
+        // in the API call for organizations, so we have removed the created column. It
+        // should be added back whenever this API handler is adjusted to send back metadata - DWS
+        const csvheader = `Name,Description,Jurisdiction,State,County\n`;
         const filecontent = [
             "data:text/csv;charset=utf-8,", // this makes it a csv file
             csvheader,
