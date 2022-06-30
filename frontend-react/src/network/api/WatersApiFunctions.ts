@@ -36,10 +36,14 @@ const watersApiFunctions = {
                 } as RequestInit);
             }
 
-            textBody = await response.text();
+            if (response) {
+                textBody = await response.text();
 
-            // if this JSON.parse fails, the body was most likely an error string from the server
-            return JSON.parse(textBody);
+                // if this JSON.parse fails, the body was most likely an error string from the server
+                return JSON.parse(textBody);
+            } else {
+                throw Error("no response from server");
+            }
         } catch (error) {
             return {
                 ok: false,

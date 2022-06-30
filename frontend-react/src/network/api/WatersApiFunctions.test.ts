@@ -32,9 +32,11 @@ describe("test all hooks and methods", () => {
         expect(failureData.id).toEqual(null);
         expect(failureData.errorCount).toEqual(1);
         expect(failureData.warningCount).toEqual(0);
-        expect(failureData.errors[0].message).toEqual(
-            "The GMT offset hour value of the TM datatype must be >=0 and <=23"
-        );
+        if (failureData.errors) {
+            expect(failureData.errors[0].message).toEqual(
+                "The GMT offset hour value of the TM datatype must be >=0 and <=23"
+            );
+        }
     });
 
     test("postReport returns 500 error data", async () => {
@@ -47,8 +49,10 @@ describe("test all hooks and methods", () => {
             "[token]"
         );
         expect(failureData.ok).toEqual(false);
-        expect(failureData.errors[0]["details"]).toEqual(
-            "This response will not parse and will cause an error"
-        );
+        if (failureData.errors) {
+            expect(failureData.errors[0]["details"]).toEqual(
+                "This response will not parse and will cause an error"
+            );
+        }
     });
 });

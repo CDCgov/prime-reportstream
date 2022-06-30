@@ -12,7 +12,7 @@ export const useOrganizationResource = () => {
     /* Create a stable config reference with useMemo(). */
     const config = useMemo(
         () =>
-            createRequestConfig<{ org: string; sender: string }>(
+            createRequestConfig<{ org: string }>(
                 OrganizationsAPI,
                 "detail",
                 "GET",
@@ -20,7 +20,6 @@ export const useOrganizationResource = () => {
                 memberships.state.active?.parsedName,
                 {
                     org: memberships.state.active?.parsedName || "",
-                    sender: memberships.state.active?.senderName || "default",
                 }
             ),
         /* Note: we DO want to update config ONLY when these values update. If the linter
@@ -28,14 +27,18 @@ export const useOrganizationResource = () => {
         [oktaToken?.accessToken, memberships.state.active]
     );
     /* Pass the stable config into the consumer and cast the response with types. */
-    const { data, error, loading } = useRequestConfig(config) as {
+    const {
+        data: organization,
+        error,
+        loading,
+    } = useRequestConfig(config) as {
         data: any; // TODO (#5892): Should return Newable object or array of Newable objects.
         error: string;
         loading: boolean;
     };
     /* Finally, return the values from the hook. */
     return {
-        data,
+        organization,
         error,
         loading,
     };
