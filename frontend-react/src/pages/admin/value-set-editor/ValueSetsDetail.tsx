@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+    useState,
+    useMemo,
+    useEffect,
+    Dispatch,
+    SetStateAction,
+} from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -12,11 +18,16 @@ import Table, {
 import { useValueSetsRowTable } from "../../../hooks/UseLookupTable";
 import { toHumanReadable } from "../../../utils/misc";
 import {
+    LookupTable,
     lookupTableApi,
     LookupTables,
     ValueSetRow,
 } from "../../../network/api/LookupTableApi";
-import { showError } from "../../../components/AlertNotifications";
+import { StaticAlert } from "../../../components/StaticAlert";
+import {
+    ReportStreamAlert,
+    handleErrorWithAlert,
+} from "../../../utils/ErrorUtils";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -85,19 +96,18 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
 
 */
 
-const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow>(
-    LookupTables.VALUE_SET_ROW
-);
-
 const saveData = async (
     row: TableRow | null,
     allRows: SenderAutomationDataRow[],
     valueSetName: string
-) => {
+): Promise<LookupTable> => {
     if (row === null) {
-        showError("A null row was encountered in saveData()");
-        return;
+        throw new Error("A null row was encountered in saveData");
     }
+
+    const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow[]>(
+        LookupTables.VALUE_SET_ROW
+    );
 
     const index = allRows.findIndex((r) => r.id === row.id);
     allRows.splice(index, 1, {
@@ -122,24 +132,23 @@ const saveData = async (
         })
     );
 
-    try {
-        let updateResult = await axios
-            .post(endpointHeaderUpdate.url, strippedArray)
-            .then((response) => response.data);
+    const updateResult = await axios.post(
+        endpointHeaderUpdate.url,
+        strippedArray,
+        endpointHeaderUpdate
+    );
 
-        const endpointHeaderActivate = lookupTableApi.activateTableData(
-            updateResult.tableVersion,
-            LookupTables.VALUE_SET_ROW
-        );
+    const endpointHeaderActivate = lookupTableApi.activateTableData(
+        updateResult.data.tableVersion,
+        LookupTables.VALUE_SET_ROW
+    );
 
-        return await axios
-            .put(endpointHeaderActivate.url, LookupTables.VALUE_SET_ROW)
-            .then((response) => response.data);
-    } catch (e: any) {
-        console.trace(e);
-        showError(e.toString());
-        return [];
-    }
+    const activateResult = await axios.put(
+        endpointHeaderActivate.url,
+        LookupTables.VALUE_SET_ROW,
+        endpointHeaderActivate
+    );
+    return activateResult.data;
 };
 
 interface SenderAutomationDataRow extends ValueSetRow {
@@ -147,10 +156,10 @@ interface SenderAutomationDataRow extends ValueSetRow {
 }
 
 const prepareRows = (
-    valueSetRowArray: ValueSetRow[],
+    valueSetArray: ValueSetRow[],
     valueSetName: string
 ): { rowsForDisplay: any[]; allRows: any[] } => {
-    return valueSetRowArray.reduce(
+    return valueSetArray.reduce(
         (acc, row, index) => {
             let mapped: SenderAutomationDataRow = {
                 name: row.name,
@@ -174,20 +183,36 @@ const prepareRows = (
     );
 };
 
-const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
+export const ValueSetsDetailTable = ({
+    valueSetName,
+    setAlert,
+}: {
+    valueSetName: string;
+    setAlert: Dispatch<SetStateAction<ReportStreamAlert | undefined>>;
+}) => {
     const [valueSetRows, setValueSetRows] = useState<ValueSetRow[]>(
         [] as ValueSetRow[]
     );
     const [valueSetsVersion, setValueSetVersion] = useState<number>();
 
-    const valueSetRowArray = useValueSetsRowTable(
+    const { valueSetArray, error } = useValueSetsRowTable(
         valueSetName,
         valueSetsVersion
     );
 
     useEffect(() => {
-        setValueSetRows(valueSetRowArray);
-    }, [valueSetRowArray]);
+        if (error) {
+            handleErrorWithAlert({
+                logMessage: "Error occurred fetching value set",
+                error,
+                setAlert,
+            });
+        }
+    }, [error, setAlert]);
+
+    useEffect(() => {
+        setValueSetRows(valueSetArray);
+    }, [valueSetArray]);
 
     const { allRows, rowsForDisplay } = useMemo(() => {
         return prepareRows(valueSetRows, valueSetName);
@@ -197,20 +222,31 @@ const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
         columns: valueSetDetailColumnConfig,
         rows: rowsForDisplay,
     };
-    /* We make this action do what we need it to to add an item */
+
     const datasetActionItem: DatasetAction = {
         label: "Add item",
     };
+
     return (
         <Table
             title="ReportStream Core Values"
-            datasetAction={datasetActionItem}
+            // assume we don't want to allow creating a row if initial fetch failed
+            datasetAction={error ? undefined : datasetActionItem}
             config={tableConfig}
             enableEditableRows
             editableCallback={async (row) => {
-                const data = await saveData(row, allRows, valueSetName);
-                console.log("!!! saved data", data);
-                setValueSetVersion(data.tableVersion);
+                try {
+                    const data = await saveData(row, allRows, valueSetName);
+                    setValueSetVersion(data.tableVersion);
+                } catch (e: any) {
+                    handleErrorWithAlert({
+                        logMessage: "Error occurred saving value set",
+                        error: e,
+                        setAlert,
+                    });
+                    return;
+                }
+                setAlert({ type: "success", message: "Value Saved" });
             }}
         />
     );
@@ -218,6 +254,8 @@ const ValueSetsDetailTable = ({ valueSetName }: { valueSetName: string }) => {
 
 const ValueSetsDetail = () => {
     const { valueSetName } = useParams<{ valueSetName: string }>();
+    // TODO: when to unset?
+    const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
 
     return (
         <>
@@ -227,7 +265,17 @@ const ValueSetsDetail = () => {
             <section className="grid-container">
                 {/* valueSetsDetailHeader would go here */}
                 <h1>{toHumanReadable(valueSetName)}</h1>
-                <ValueSetsDetailTable valueSetName={valueSetName} />
+                {alert && (
+                    <StaticAlert
+                        type={alert.type}
+                        heading={alert.type.toUpperCase()}
+                        message={alert.message}
+                    />
+                )}
+                <ValueSetsDetailTable
+                    valueSetName={valueSetName}
+                    setAlert={setAlert}
+                />
             </section>
         </>
     );

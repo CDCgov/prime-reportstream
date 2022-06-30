@@ -53,7 +53,7 @@ const useReceiverFeeds = (reports: RSReportInterface[]): ReceiverFeeds => {
     };
 };
 
-/* 
+/*
     This is the main exported component from this file. It provides container styling,
     table headers, and applies the <TableData> component to the table that is created in this
     component.
@@ -140,8 +140,10 @@ function ReportsTable() {
                     filterManager={filterManager}
                 />
             </div>
-            <div className="grid-col-12">
-                {activeFeed?.length === 0 ? <p>No results</p> : null}
+            <div className="grid-container margin-bottom-10">
+                <div className="grid-col-12">
+                    {activeFeed?.length === 0 ? <p>No results</p> : null}
+                </div>
             </div>
         </>
     );

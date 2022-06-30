@@ -8,7 +8,6 @@ import {
     ValueSet,
     ValueSetRow,
 } from "../network/api/LookupTableApi";
-import { showError } from "../components/AlertNotifications";
 
 export interface TableAttributes {
     version: number;
@@ -18,43 +17,34 @@ export interface TableAttributes {
 
 export async function getLatestVersion(
     tableName: LookupTables
-): Promise<TableAttributes | null> {
-    let response;
-    try {
-        response = await axios(lookupTableApi.getTableList()).then(
-            (response) => response.data
-        );
+): Promise<TableAttributes> {
+    const response = await axios(lookupTableApi.getTableList()).then(
+        (response) => response.data
+    );
 
-        let filteredBody: LookupTable[] = response.filter(
-            (tv: LookupTable) => tv.tableName === tableName && tv.isActive
-        );
+    let filteredBody: LookupTable[] = response.filter(
+        (tv: LookupTable) => tv.tableName === tableName && tv.isActive
+    );
 
-        const table: LookupTable = filteredBody.sort(
-            (a: LookupTable, b: LookupTable) =>
-                b["tableVersion"] - a["tableVersion"]
-        )[0];
+    const table: LookupTable = filteredBody.sort(
+        (a: LookupTable, b: LookupTable) =>
+            b["tableVersion"] - a["tableVersion"]
+    )[0];
 
-        if (!table) {
-            showError(`ERROR! Table '${tableName}' was not found!`);
-            return null;
-        }
-
-        const { tableVersion, createdAt, createdBy } = table;
-        if (tableVersion === undefined) {
-            showError(`ERROR! No version of table '${tableName}' was found!`);
-            return null;
-        }
-
-        return {
-            version: tableVersion,
-            createdAt,
-            createdBy,
-        };
-    } catch (e: any) {
-        console.trace(e);
-        showError(e.toString());
-        return null;
+    if (!table) {
+        throw new Error(`Table '${tableName}' was not found!`);
     }
+
+    const { tableVersion, createdAt, createdBy } = table;
+    if (tableVersion === undefined) {
+        throw new Error(`No version of table '${tableName}' was found!`);
+    }
+
+    return {
+        version: tableVersion,
+        createdAt,
+        createdBy,
+    };
 }
 
 export async function getLatestData<T>(
@@ -63,15 +53,9 @@ export async function getLatestData<T>(
 ): Promise<T | T[]> {
     const endpointHeader = lookupTableApi.getTableData<T>(version, tableName);
 
-    try {
-        return await axios
-            .get<T>(endpointHeader.url, endpointHeader)
-            .then((response) => response.data);
-    } catch (e: any) {
-        console.trace(e);
-        showError(e.toString());
-        return [];
-    }
+    return await axios
+        .get<T>(endpointHeader.url, endpointHeader)
+        .then((response) => response.data);
 }
 
 const getDataAndVersion = async <T>(
@@ -79,12 +63,11 @@ const getDataAndVersion = async <T>(
     suppliedVersion?: number
 ): Promise<{
     data: any[];
-    versionData: TableAttributes | null;
+    versionData: TableAttributes;
 }> => {
     const versionData = suppliedVersion
         ? { version: suppliedVersion }
         : await getLatestVersion(tableName);
-    if (versionData === null) return { data: [], versionData: null }; // no version found (or other error occurred)
 
     const data: T | any[] = await getLatestData<T[]>(
         versionData.version,
@@ -101,10 +84,6 @@ export const getSenderAutomationData = async <T>(
         tableName,
         suppliedVersion
     );
-
-    if (!versionData) {
-        return [];
-    }
 
     return data.map(
         (set: {
@@ -147,8 +126,9 @@ const useLookupTable = <T>(
     tableName: LookupTables,
     dataSetName: string | null = null,
     version?: number
-): T[] => {
+): { valueSetArray: T[]; error: any } => {
     const [valueSetArray, setValueSetArray] = useState<T[]>([]);
+    const [error, setError] = useState();
 
     useEffect(() => {
         let promiseResult: Promise<any[]>;
@@ -159,12 +139,16 @@ const useLookupTable = <T>(
         } else {
             promiseResult = getSenderAutomationData<T>(tableName, version);
         }
-        promiseResult.then((results) => {
-            setValueSetArray(results);
-        });
+        promiseResult
+            .then((results) => {
+                setValueSetArray(results);
+            })
+            .catch((e) => {
+                setError(e);
+            });
     }, [dataSetName, tableName, version]);
 
-    return valueSetArray;
+    return { valueSetArray, error };
 };
 
 export const useValueSetsTable = () =>
