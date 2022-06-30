@@ -6,6 +6,7 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.history.ReportHistory
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
@@ -26,11 +27,31 @@ abstract class ReportFileFunction(
     private val reportFileFacade: ReportFileFacade,
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
+    /**
+     * Get the correct name for an organization based on the name.
+     *
+     * @param organization Name of organization and service
+     * @return Name for the organization
+     */
     abstract fun userOrgName(organization: String): String?
 
+    /**
+     * Get history entries as a list
+     *
+     * @param queryParams Parameters extracted from the HTTP Request
+     * @param userOrgName Name of the organization
+     * @return json list of history
+     */
     abstract fun historyAsJson(queryParams: MutableMap<String, String>, userOrgName: String): String
 
-    abstract fun singleDetailedHistory(request: HttpRequestMessage<String?>, action: Action): HttpResponseMessage
+    /**
+     * Get expanded details for a single report
+     *
+     * @param queryParams Parameters extracted from the HTTP Request
+     * @param action Action from which the data for the report is loaded
+     * @return
+     */
+    abstract fun singleDetailedHistory(queryParams: MutableMap<String, String>, action: Action): ReportHistory?
 
     /**
      * Get a list of reports for a given organization.
@@ -115,7 +136,11 @@ abstract class ReportFileFunction(
                 "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
             )
 
-            return this.singleDetailedHistory(request, action)
+            val history = this.singleDetailedHistory(request.queryParameters, action)
+            return if (history != null)
+                HttpUtilities.okJSONResponse(request, history)
+            else
+                HttpUtilities.notFoundResponse(request, "History entry ${action.actionId} was not found.")
         } catch (e: DataAccessException) {
             logger.error("Unable to fetch history for ID $id", e)
             return HttpUtilities.internalErrorResponse(request)
@@ -127,8 +152,8 @@ abstract class ReportFileFunction(
     }
 
     data class HistoryApiParameters(
-        val sortDir: ReportFileAccess.SortDir,
-        val sortColumn: ReportFileAccess.SortColumn,
+        val sortDir: HistoryDatabaseAccess.SortDir,
+        val sortColumn: HistoryDatabaseAccess.SortColumn,
         val cursor: OffsetDateTime?,
         val since: OffsetDateTime?,
         val until: OffsetDateTime?,
@@ -151,12 +176,12 @@ abstract class ReportFileFunction(
              * @param query Incoming query params
              * @return converted params
              */
-            fun extractSortDir(query: Map<String, String>): ReportFileAccess.SortDir {
+            fun extractSortDir(query: Map<String, String>): HistoryDatabaseAccess.SortDir {
                 val sort = query["sortdir"]
                 return if (sort == null)
-                    ReportFileAccess.SortDir.DESC
+                    HistoryDatabaseAccess.SortDir.DESC
                 else
-                    ReportFileAccess.SortDir.valueOf(sort)
+                    HistoryDatabaseAccess.SortDir.valueOf(sort)
             }
 
             /**
@@ -164,12 +189,12 @@ abstract class ReportFileFunction(
              * @param query Incoming query params
              * @return converted params
              */
-            fun extractSortCol(query: Map<String, String>): ReportFileAccess.SortColumn {
+            fun extractSortCol(query: Map<String, String>): HistoryDatabaseAccess.SortColumn {
                 val col = query["sortcol"]
                 return if (col == null)
-                    ReportFileAccess.SortColumn.CREATED_AT
+                    HistoryDatabaseAccess.SortColumn.CREATED_AT
                 else
-                    ReportFileAccess.SortColumn.valueOf(col)
+                    HistoryDatabaseAccess.SortColumn.valueOf(col)
             }
 
             /**
