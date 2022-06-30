@@ -1,13 +1,7 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-import { watersApi, WatersResponse } from "../network/api/WatersApi";
-
-const postReportEndpoint = watersApi.postReport(
-    "test.default",
-    "test-file.hl7",
-    "application/hl7-v2"
-);
+import { WatersResponse } from "../network/api/WatersApi";
 
 const watersResponseSuccess: WatersResponse = {
     id: "uuid-string",
@@ -70,24 +64,28 @@ const watersResponseError = {
 };
 
 const handlers = [
-    rest.post(postReportEndpoint.url, (req, res, ctx) => {
-        if (req.headers["_headers"]["client"] === "bad-client") {
-            return res(ctx.json(watersResponseError), ctx.status(400));
-        }
+    rest.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/waters`,
+        (req, res, ctx) => {
+            if (req.headers["_headers"]["client"] === "bad-client") {
+                return res(ctx.json(watersResponseError), ctx.status(400));
+            }
 
-        if (
-            req.headers["_headers"]["client"] === "give me a very bad response"
-        ) {
-            return res(
-                ctx.text(
-                    "This response will not parse and will cause an error"
-                ),
-                ctx.status(500)
-            );
-        }
+            if (
+                req.headers["_headers"]["client"] ===
+                "give me a very bad response"
+            ) {
+                return res(
+                    ctx.text(
+                        "This response will not parse and will cause an error"
+                    ),
+                    ctx.status(500)
+                );
+            }
 
-        return res(ctx.json(watersResponseSuccess), ctx.status(201));
-    }),
+            return res(ctx.json(watersResponseSuccess), ctx.status(201));
+        }
+    ),
 ];
 
 export const watersServer = setupServer(...handlers);

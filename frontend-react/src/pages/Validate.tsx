@@ -6,15 +6,15 @@ import {
     Label,
     FileInput,
 } from "@trussworks/react-uswds";
-import { useResource } from "rest-hooks";
 import moment from "moment";
 import { NavLink } from "react-router-dom";
 
-import SenderOrganizationResource from "../resources/SenderOrganizationResource";
 import { showError } from "../components/AlertNotifications";
 import Spinner from "../components/Spinner";
-import { watersApiFunctions } from "../network/api/WatersApiFunctions";
+import watersApiFunctions from "../network/api/WatersApiFunctions";
 import { useSessionContext } from "../contexts/SessionContext";
+import { StaticAlert } from "../components/StaticAlert";
+import { useOrganizationResource } from "../hooks/UseOrganizationResouce";
 
 // values taken from Report.kt
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
@@ -44,12 +44,13 @@ const Validate = () => {
         memberships: {
             state: { active: { parsedName, senderName } = {} },
         },
+        oktaToken: { accessToken },
     } = useSessionContext();
 
     const client = `${parsedName}.${senderName}`;
-    const organization = useResource(SenderOrganizationResource.detail(), {
-        name: parsedName,
-    });
+
+    const { organization } = useOrganizationResource();
+
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -172,11 +173,13 @@ const Validate = () => {
 
         let response;
         try {
-            response = await watersApiFunctions(
+            response = await watersApiFunctions.postData(
                 client,
                 fileName,
                 contentType,
-                fileContent
+                fileContent,
+                parsedName,
+                accessToken
             );
             if (response?.destinations?.length) {
                 // NOTE: `{ readonly [key: string]: string }` means a key:value object
@@ -247,25 +250,22 @@ const Validate = () => {
             <h2 className="font-sans-lg">{headerMessage}</h2>
             {reportId && (
                 <div>
-                    <div className="usa-alert usa-alert--success">
-                        <div className="usa-alert__body">
-                            <h4 className="usa-alert__heading">
-                                Success: File accepted
-                            </h4>
-                            <p className="usa-alert__text">
-                                Your file has been successfully transmitted to
-                                the department of health.
-                            </p>
-                            <p className="margin-top-0">
-                                <NavLink
-                                    to="/submissions"
-                                    className="text-no-underline"
-                                >
-                                    Review your file status in Submissions.
-                                </NavLink>
-                            </p>
-                        </div>
-                    </div>
+                    <StaticAlert
+                        type={"success"}
+                        heading={"Success: File accepted"}
+                        message={
+                            "Your file has been successfully transmitted to the department of health."
+                        }
+                    >
+                        <p className="margin-top-0">
+                            <NavLink
+                                to="/submissions"
+                                className="text-no-underline"
+                            >
+                                Review your file status in Submissions.
+                            </NavLink>
+                        </p>
+                    </StaticAlert>
                     <div>
                         <p
                             id="orgName"

@@ -1,7 +1,7 @@
 import { watersServer } from "../../__mocks__/WatersMockServer";
 
 import { WatersResponse } from "./WatersApi";
-import { watersApiFunctions } from "./WatersApiFunctions";
+import watersApiFunctions from "./WatersApiFunctions";
 
 describe("test all hooks and methods", () => {
     beforeAll(() => watersServer.listen());
@@ -9,21 +9,25 @@ describe("test all hooks and methods", () => {
     afterAll(() => watersServer.close());
 
     test("postReport returns expected success data", async () => {
-        const successData: WatersResponse = await watersApiFunctions(
+        const successData: WatersResponse = await watersApiFunctions.postData(
             "test.default",
             "test-file.hl7",
             "application/hl7-v2",
-            "fileContents"
+            "fileContents",
+            "test-org",
+            "[token]"
         );
         expect(successData.id).toEqual("uuid-string");
     });
 
     test("postReport returns expected errors and warnings data", async () => {
-        const failureData: WatersResponse = await watersApiFunctions(
+        const failureData: WatersResponse = await watersApiFunctions.postData(
             "bad-client",
             "test-file.hl7",
             "application/hl7-v2",
-            "badData"
+            "badData",
+            "test-org",
+            "[token]"
         );
         expect(failureData.id).toEqual(null);
         expect(failureData.errorCount).toEqual(1);
@@ -34,11 +38,13 @@ describe("test all hooks and methods", () => {
     });
 
     test("postReport returns 500 error data", async () => {
-        const failureData: WatersResponse = await watersApiFunctions(
+        const failureData: WatersResponse = await watersApiFunctions.postData(
             "give me a very bad response",
             "test-file.hl7",
             "application/hl7-v2",
-            ""
+            "",
+            "test-org",
+            "[token]"
         );
         expect(failureData.ok).toEqual(false);
         expect(failureData.errors[0]["details"]).toEqual(
