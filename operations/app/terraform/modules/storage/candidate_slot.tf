@@ -10,9 +10,9 @@ resource "azurerm_storage_account" "storage_account_candidate" {
   allow_blob_public_access  = false
   enable_https_traffic_only = true
 
-  # network_rules {
-  #   default_action = "Deny"
-  #   bypass         = ["None"]
+  network_rules {
+    default_action = var.is_temp_env == true ? "Allow" : "Deny"
+    bypass         = ["None"]
 
   #   # ip_rules = sensitive(concat(
   #   #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),

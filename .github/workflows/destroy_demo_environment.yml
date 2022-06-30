@@ -1,0 +1,69 @@
+name: Destroy Demo Environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      demo_env:
+        description: 'Demo Environment:'
+        required: true
+        options:
+        - demo1
+        - demo2
+        - demo3
+        type: choice
+
+jobs:
+  destroy_demo_environment:
+    name: "Destroy Environment: ${{ github.event.inputs.demo_env }}"
+    environment: ${{ github.event.inputs.demo_env }}
+    concurrency: ${{ github.event.inputs.demo_env }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: operations/app/terraform/vars/demo
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: true
+
+      - name: Get runner ip
+        id: runner_ip
+        uses: ./.github/actions/runner-ip
+
+      - name: Terraform - init
+        run: |
+          terraform init \
+          -reconfigure \
+          -var-file=${{ github.event.inputs.demo_env }}/env.tfvars.json \
+          -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
+          -backend-config=${{ github.event.inputs.demo_env }}/env.tfbackend
+        shell: bash
+
+      - name: Terraform - destroy
+        run: |
+          for i in {1..3}; do \
+          terraform destroy \
+          -var-file=${{ github.event.inputs.demo_env }}/env.tfvars.json \
+          -target=module.app_service_plan \
+          -target=module.application_insights \
+          -target=module.container_registry \
+          -target=module.database \
+          -target=module.function_app \
+          -target=module.log_analytics_workspace \
+          -target=module.sftp_container \
+          -target=module.storage \
+          -refresh=false \
+          -auto-approve; \
+          sleep 60; \
+          done
+        shell: bash
