@@ -233,6 +233,7 @@ const Validate = () => {
         setIsSubmitting(false);
     };
 
+    /* @deprecated Use of Moment needs to be refactored out */
     const formattedSuccessDate = (format: string) => {
         const timestampDate = new Date(successTimestamp);
         return moment(timestampDate).format(format);
