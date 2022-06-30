@@ -5,7 +5,7 @@ on:
     branches:
       - master
 
-name: Run Sunarcloud Scan
+name: Run Sonarcloud Scan
 jobs:
   sonarcloud:
     runs-on: ubuntu-latest

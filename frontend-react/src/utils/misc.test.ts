@@ -42,16 +42,14 @@ const objResource: OrgSettingsBaseResource = {
     name: "test setting",
     url: "http://localhost",
     pk: () => "10101",
-    meta: {
-        version: 5,
-        createdBy: "test@example.com",
-        createdAt: "1/1/2000 00:00",
-    },
+    version: 5,
+    createdBy: "test@example.com",
+    createdAt: "1/1/2000 00:00",
 };
 
 test("getVersionWarning test", async () => {
     const fullWarning = getVersionWarning(VersionWarningType.FULL, objResource);
-    expect(fullWarning).toContain(objResource.meta?.createdBy);
+    expect(fullWarning).toContain(objResource.createdBy);
 
     const popupWarning = getVersionWarning(VersionWarningType.POPUP);
     expect(popupWarning).toContain("WARNING!");
