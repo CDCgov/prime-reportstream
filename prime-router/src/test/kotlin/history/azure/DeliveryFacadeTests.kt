@@ -19,13 +19,12 @@ class DeliveryFacadeTests {
         val delivery1 = DeliveryHistory(
             284,
             OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
-            "ca-dph",
-            "elr-secondary",
-            201,
             null,
             "c3c8e304-8eff-4882-9000-3645054a30b7",
             "covid-19",
             1,
+            "ca-dph",
+            "elr-secondary",
             "",
             "covid-19",
             "HL7_BATCH"
@@ -34,13 +33,12 @@ class DeliveryFacadeTests {
         val delivery2 = DeliveryHistory(
             922,
             OffsetDateTime.parse("2022-04-19T18:04:26.534Z"),
-            "ca-dph",
-            "elr-secondary",
-            201,
             null,
             "b9f63105-bbed-4b41-b1ad-002a90f07e62",
             "covid-19",
             14,
+            "ca-dph",
+            "elr-secondary",
             "",
             "primedatainput/pdi-covid-19",
             "CSV"
@@ -66,8 +64,8 @@ class DeliveryFacadeTests {
         val deliveries = facade.findDeliveries(
             "ca-dph",
             "elr",
-            ReportFileAccess.SortDir.ASC,
-            ReportFileAccess.SortColumn.CREATED_AT,
+            HistoryDatabaseAccess.SortDir.ASC,
+            HistoryDatabaseAccess.SortColumn.CREATED_AT,
             null,
             null,
             null,
