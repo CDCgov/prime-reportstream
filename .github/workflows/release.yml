@@ -80,12 +80,6 @@ jobs:
     environment: needs.pre_job.outputs.env_name
     concurrency: needs.pre_job.outputs.env_name
     runs-on: ubuntu-latest
-    environment: ${{ needs.pre_job.outputs.env_name }}
-    concurrency: ${{ needs.pre_job.outputs.env_name }}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: operations/app/terraform/vars/demo
     steps:
       - name: Check out changes
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
