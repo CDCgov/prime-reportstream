@@ -77,12 +77,18 @@ jobs:
       needs.pre_job.outputs.env_name == 'demo1' ||
       needs.pre_job.outputs.env_name == 'demo2' ||
       needs.pre_job.outputs.env_name == 'demo3'
-    environment: needs.pre_job.outputs.env_name
-    concurrency: needs.pre_job.outputs.env_name
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+      # - name: Use specific version of Terraform
+      #   uses: hashicorp/setup-terraform@17d4c9b8043b238f6f35641cdd8433da1e6f3867
+      #   with:
+      #     terraform_version: 1.2.0
+      #     terraform_wrapper: false
 
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
@@ -109,7 +115,8 @@ jobs:
       - build_frontend_react_release
       - deploy_infrastructure
     if: |
-      always() && 
+      always() &&
+      failure() == 'false' &&
       (needs.pre_job.outputs.has_router_change == 'true' ||
       needs.pre_job.outputs.has_react_change == 'true')
     environment: ${{ needs.pre_job.outputs.env_name }}

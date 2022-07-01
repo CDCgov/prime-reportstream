@@ -11,9 +11,6 @@ on:
         - demo2
         - demo3
         type: choice
-  push:
-    branches:
-      - josiahsiegel/create-demo-tf
 
 jobs:
   destroy_demo_environment:
