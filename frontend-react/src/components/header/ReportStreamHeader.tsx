@@ -91,6 +91,21 @@ export const ReportStreamHeader = () => {
 
         /* ADMIN ONLY */
         if (memberships.state.active?.memberType === MemberType.PRIME_ADMIN) {
+            // Validate NavLink
+            if (CheckFeatureFlag(FeatureFlagName.VALIDATION_SERVICE)) {
+                itemsMenu.push(
+                    <NavLink
+                        to="/validate"
+                        key="validate"
+                        data-attribute="hidden"
+                        hidden={true}
+                        className="usa-nav__link"
+                    >
+                        <span>Validate</span>
+                    </NavLink>
+                );
+            }
+
             itemsMenu.push(<AdminDropdown />);
         }
     }
