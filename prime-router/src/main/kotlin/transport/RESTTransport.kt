@@ -30,7 +30,6 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.accept
 import io.ktor.client.request.forms.submitForm
-import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -180,7 +179,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * Get a JKS from the credential service
      * @param [tlsKeystore] is the label of the credential
      */
-    fun lookupJksCredentials(tlsKeystore: String): UserJksCredential {
+    private fun lookupJksCredentials(tlsKeystore: String): UserJksCredential {
         val credentialLabel = CredentialHelper.formCredentialLabel(tlsKeystore)
         return CredentialHelper.getCredentialService().fetchCredential(
             credentialLabel, "RESTTransport", CredentialRequestReason.REST_UPLOAD
@@ -188,7 +187,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             ?: error("Unable to find JKS credentials for $tlsKeystore connectionId($credentialLabel)")
     }
 
-    suspend fun getAuthParameters(
+    private fun getAuthParameters(
         receiverOrg: String,
         credential: RestCredential
     ): Parameters {
@@ -282,7 +281,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 )
                 accept(ContentType.Application.Json)
             }.bodyAsText()
-            return theResponse.toString()
+            return theResponse
         }
     }
 

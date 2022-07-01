@@ -33,11 +33,12 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
 
     private val mockClientAuthOk = HttpClient(MockEngine) {
         engine {
-            addHandler { _ ->
+            addHandler {
                 respond(
                     """{"access_token": "AYjcyMzY3ZDhiNmJkNTY", 
                         |"refresh_token": "RjY2NjM5NzA2OWJjuE7c", 
-                        |"token_type": "Bearer", "expires_in": 3600}""".trimMargin(),
+                        |"token_type": "Bearer", "expires_in": 3600}
+                    """.trimMargin(),
                     HttpStatusCode.OK,
                     responseHeaders
                 )
@@ -74,11 +75,12 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
 
     private val mockClientPostOk = HttpClient(MockEngine) {
         engine {
-            addHandler { _ ->
+            addHandler {
                 respond(
                     """{"status": "Success", 
                         |"statusDesc": "Received. LIN:4299844", 
-                        |"respTrackingId": "UT-20211119-746000000-54"}""".trimMargin(),
+                        |"respTrackingId": "UT-20211119-746000000-54"}
+                    """.trimMargin(),
                     HttpStatusCode.OK,
                     responseHeaders
                 )
@@ -114,7 +116,12 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     }
 
     private var actionHistory = ActionHistory(TaskAction.send)
-    private val transportType = RESTTransportType("mock-api", "mock-tokenUrl")
+    private val transportType = RESTTransportType(
+        "mock-api",
+        "mock-tokenUrl",
+        null,
+        mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
+    )
     private val task = Task(
         reportId,
         TaskAction.send,
@@ -139,8 +146,8 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         return WorkflowEngine.Header(
             task, reportFile,
             null,
-            settings.findOrganization("pa-phd"),
-            settings.findReceiver("pa-phd.elr-chester-hl7"),
+            settings.findOrganization("ny-phd"),
+            settings.findReceiver("ny-phd.elr"),
             metadata.findSchema("covid-19"),
             content = content.toByteArray(),
             true
@@ -159,7 +166,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         every { mockRestTransport.lookupCredentials(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any()) } }.returns("")
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any()) } }.returns("")
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
     }
@@ -171,7 +178,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         every { mockRestTransport.lookupCredentials(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any()) } }.returns("")
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any()) } }.returns("")
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNotNull()
     }
@@ -183,7 +190,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         every { mockRestTransport.lookupCredentials(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any()) } }.returns("")
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any()) } }.returns("")
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
     }
@@ -195,7 +202,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         every { mockRestTransport.lookupCredentials(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.getAuthToken(any(), any(), any(), any()) } }.returns(
+        every { runBlocking { mockRestTransport.getAuthToken(any(), any(), any(), any(), any()) } }.returns(
             TokenInfo("MockToken", 1000, "MockRefreshToken", null, "bearer", null)
         )
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
@@ -209,7 +216,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         every { mockRestTransport.lookupCredentials(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.getAuthToken(any(), any(), any(), any()) } }.returns(
+        every { runBlocking { mockRestTransport.getAuthToken(any(), any(), any(), any(), any()) } }.returns(
             TokenInfo("MockToken", 1000, "MockRefreshToken", null, "bearer", null)
         )
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
@@ -223,7 +230,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         every { mockRestTransport.lookupCredentials(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.getAuthToken(any(), any(), any(), any()) } }.returns(
+        every { runBlocking { mockRestTransport.getAuthToken(any(), any(), any(), any(), any()) } }.returns(
             TokenInfo("MockToken", 1000, "MockRefreshToken", null, "bearer", null)
         )
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
