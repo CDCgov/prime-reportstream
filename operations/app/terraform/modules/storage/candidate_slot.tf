@@ -14,11 +14,6 @@ resource "azurerm_storage_account" "storage_account_candidate" {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["None"]
 
-    # ip_rules = sensitive(concat(
-    #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-    #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
-    # ))
-
     ip_rules = var.terraform_caller_ip_address
 
     virtual_network_subnet_ids = var.subnets.vnet_public_container_endpoint_subnets
