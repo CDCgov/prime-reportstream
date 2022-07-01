@@ -114,7 +114,7 @@ jobs:
       - deploy_infrastructure
     if: |
       always() &&
-      failure() == 'false' &&
+      failure() != 'true' &&
       (needs.pre_job.outputs.has_router_change == 'true' ||
       needs.pre_job.outputs.has_react_change == 'true')
     environment: ${{ needs.pre_job.outputs.env_name }}
