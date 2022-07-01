@@ -77,8 +77,8 @@ jobs:
       needs.pre_job.outputs.env_name == 'demo1' ||
       needs.pre_job.outputs.env_name == 'demo2' ||
       needs.pre_job.outputs.env_name == 'demo3'
-    environment: needs.pre_job.outputs.env_name
-    concurrency: needs.pre_job.outputs.env_name
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
@@ -109,7 +109,8 @@ jobs:
       - build_frontend_react_release
       - deploy_infrastructure
     if: |
-      always() && 
+      always() &&
+      failure() == 'false' &&
       (needs.pre_job.outputs.has_router_change == 'true' ||
       needs.pre_job.outputs.has_react_change == 'true')
     environment: ${{ needs.pre_job.outputs.env_name }}
