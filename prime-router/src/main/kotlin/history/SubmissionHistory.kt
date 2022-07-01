@@ -90,6 +90,13 @@ class DetailedSubmissionHistory(
     null,
     httpStatus
 ) {
+    /**
+     * Alias for the reportId
+     * Legacy support needs this older property
+     */
+    val id: String? get() {
+        return reportId
+    }
 
     /**
      * Errors logged for this Report File.
