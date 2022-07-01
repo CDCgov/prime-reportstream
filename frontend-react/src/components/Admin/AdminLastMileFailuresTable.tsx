@@ -82,7 +82,7 @@ ${data.receiver}`;
         try {
             setLoading(true);
             const url =
-                `${process.env.REACT_APP_BACKEND_URL}/api/requeue/send?` +
+                `${process.env.REACT_APP_BACKEND_URL}/api/adm/resend?` +
                 `reportId=${currentReportId}&receiver=${currentReceiver}`;
             const response = await fetch(url, {
                 method: "POST",
@@ -151,7 +151,7 @@ ${data.receiver}`;
                             autoComplete="off"
                             aria-autocomplete="none"
                             autoFocus
-                            onChange={(evt) => setDaysToShow(evt.target.value)}
+                            onBlur={(evt) => setDaysToShow(evt.target.value)}
                         />
                     </div>
                 </form>
