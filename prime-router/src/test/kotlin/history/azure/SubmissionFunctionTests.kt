@@ -2,7 +2,6 @@ package gov.cdc.prime.router.history.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
@@ -31,6 +30,7 @@ import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import org.apache.logging.log4j.kotlin.Logging
@@ -84,64 +84,26 @@ class SubmissionFunctionTests : Logging {
         val overallStatus: String,
     )
 
-    class TestSubmissionAccess(
-        private val dataset: List<SubmissionHistory>,
-        val mapper: ObjectMapper
-    ) : ReportFileAccess {
-        override fun <T> fetchActions(
-            organization: String,
-            orgService: String?,
-            sortDir: ReportFileAccess.SortDir,
-            sortColumn: ReportFileAccess.SortColumn,
-            cursor: OffsetDateTime?,
-            since: OffsetDateTime?,
-            until: OffsetDateTime?,
-            pageSize: Int,
-            showFailed: Boolean,
-            klass: Class<T>
-        ): List<T> {
-            @Suppress("UNCHECKED_CAST")
-            return dataset as List<T>
-        }
-
-        override fun <T> fetchAction(
-            organization: String,
-            actionId: Long,
-            klass: Class<T>
-        ): T? {
-            @Suppress("UNCHECKED_CAST")
-            return dataset.first() as T
-        }
-
-        override fun <T> fetchRelatedActions(
-            actionId: Long,
-            klass: Class<T>
-        ): List<T> {
-            @Suppress("UNCHECKED_CAST")
-            return dataset as List<T>
-        }
-    }
-
     private val testData = listOf(
         SubmissionHistory(
             actionId = 8,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
-            sendingOrg = "simple_report",
-            httpStatus = 201,
-            externalName = "testname.csv",
+            externalName = "test-name.csv",
             reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
             schemaTopic = "covid-19",
-            itemCount = 3,
+            reportItemCount = 3,
+            sendingOrg = organizationName,
+            httpStatus = 201,
         ),
         SubmissionHistory(
             actionId = 7,
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:48.307109Z"),
-            sendingOrg = "simple_report",
-            httpStatus = 400,
-            externalName = "testname.csv",
+            externalName = "test-name.csv",
             reportId = null,
             schemaTopic = null,
-            itemCount = null,
+            reportItemCount = null,
+            sendingOrg = organizationName,
+            httpStatus = 400,
         )
     )
 
@@ -164,15 +126,7 @@ class SubmissionFunctionTests : Logging {
     fun `test list submissions`() {
         val testCases = listOf(
             SubmissionUnitTestCase(
-                mapOf("authorization" to "Bearer 111.222.333", "authentication-type" to "okta"),
-                emptyMap(),
-                ExpectedAPIResponse(
-                    HttpStatus.UNAUTHORIZED
-                ),
-                "unauthorized"
-            ),
-            SubmissionUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads"), // no 'okta' auth-type, so this uses server2server auth
+                mapOf("authorization" to "Bearer fads"), // no 'okta' auth-type, so this uses server2server auth
                 emptyMap(),
                 ExpectedAPIResponse(
                     HttpStatus.OK,
@@ -180,9 +134,9 @@ class SubmissionFunctionTests : Logging {
                         ExpectedSubmissionList(
                             submissionId = 8,
                             timestamp = OffsetDateTime.parse("2021-11-30T16:36:54.919Z"),
-                            sender = "simple_report",
+                            sender = organizationName,
                             httpStatus = 201,
-                            externalName = "testname.csv",
+                            externalName = "test-name.csv",
                             id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
                             topic = "covid-19",
                             reportItemCount = 3
@@ -190,9 +144,9 @@ class SubmissionFunctionTests : Logging {
                         ExpectedSubmissionList(
                             submissionId = 7,
                             timestamp = OffsetDateTime.parse("2021-11-30T16:36:48.307Z"),
-                            sender = "simple_report",
+                            sender = organizationName,
                             httpStatus = 400,
-                            externalName = "testname.csv",
+                            externalName = "test-name.csv",
                             id = null,
                             topic = null,
                             reportItemCount = null
@@ -202,7 +156,7 @@ class SubmissionFunctionTests : Logging {
                 "simple success"
             ),
             SubmissionUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads", "authentication-type" to "okta"),
+                mapOf("authorization" to "Bearer fads", "authentication-type" to "okta"),
                 mapOf("cursor" to "nonsense"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
@@ -210,7 +164,7 @@ class SubmissionFunctionTests : Logging {
                 "bad date"
             ),
             SubmissionUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads"),
+                mapOf("authorization" to "Bearer fads"),
                 mapOf("pagesize" to "-1"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
@@ -218,15 +172,15 @@ class SubmissionFunctionTests : Logging {
                 "bad pagesize"
             ),
             SubmissionUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads"),
-                mapOf("pagesize" to "fdas"),
+                mapOf("authorization" to "Bearer fads"),
+                mapOf("pagesize" to "fads"),
                 ExpectedAPIResponse(
                     HttpStatus.BAD_REQUEST
                 ),
                 "bad pagesize, garbage"
             ),
             SubmissionUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads"),
+                mapOf("authorization" to "Bearer fads"),
                 mapOf(
                     "pagesize" to "10",
                     "cursor" to "2021-11-30T16:36:48.307Z",
@@ -238,7 +192,7 @@ class SubmissionFunctionTests : Logging {
                 "good minimum params"
             ),
             SubmissionUnitTestCase(
-                mapOf("authorization" to "Bearer fdafads"),
+                mapOf("authorization" to "Bearer fads"),
                 mapOf(
                     "pagesize" to "10",
                     "since" to "2021-11-30T16:36:54.307109Z",
@@ -253,17 +207,15 @@ class SubmissionFunctionTests : Logging {
             )
         )
 
-        val metadata = Metadata(schema = Schema(name = "one", topic = "test"))
         val settings = MockSettings()
         val sender = CovidSender(
             name = "default",
-            organizationName = "simple_report",
+            organizationName = organizationName,
             format = Sender.Format.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
         settings.senderStore[sender.fullName] = sender
-        val engine = makeEngine(metadata, settings)
 
         testCases.forEach {
             logger.info("Executing list submissions unit test ${it.name}")
@@ -271,12 +223,10 @@ class SubmissionFunctionTests : Logging {
             httpRequestMessage.httpHeaders += it.headers
             httpRequestMessage.parameters += it.parameters
             // Invoke
-            val response = SubmissionFunction(
-                SubmissionsFacade(TestSubmissionAccess(testData, mapper)),
-                workflowEngine = engine,
-            ).getOrgSubmissionsList(
+            val submissionsFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+            val response = submissionsFunction.getOrgSubmissionsList(
                 httpRequestMessage,
-                "simple_report",
+                organizationName,
             )
             // Verify
             assertThat(response.status).isEqualTo(it.expectedResponse.status)
@@ -288,6 +238,41 @@ class SubmissionFunctionTests : Logging {
                 }
             }
         }
+    }
+
+    private fun mockFacade(): SubmissionsFacade {
+        val mockDatabaseAccess = mockkClass(HistoryDatabaseAccess::class)
+
+        every {
+            mockDatabaseAccess.fetchActions<SubmissionHistory>(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        } returns testData
+        every {
+            mockDatabaseAccess.fetchAction<SubmissionHistory>(
+                any(),
+                any(),
+                any(),
+            )
+        } returns testData.first()
+
+        every {
+            mockDatabaseAccess.fetchRelatedActions<SubmissionHistory>(
+                any(),
+                any(),
+            )
+        } returns testData
+
+        return SubmissionsFacade(mockDatabaseAccess)
     }
 
     private fun setupSubmissionFunctionForTesting(
@@ -338,27 +323,24 @@ class SubmissionFunctionTests : Logging {
     }
 
     @Test
-    fun `test access user can view their org's submission history`() {
-        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
-        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, facade)
+    fun `test access user can view their organization's submission history`() {
+        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
     @Test
-    fun `test access user cannot view another org's submission history`() {
-        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
-        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, facade)
+    fun `test access user cannot view another organization's submission history`() {
+        val submissionFunction = setupSubmissionFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         val response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, otherOrganizationName)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
     @Test
-    fun `test access DHPrimeAdmins can view all org's submission history`() {
-        val facade = SubmissionsFacade(TestSubmissionAccess(testData, mapper))
-        val submissionFunction = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, facade)
+    fun `test access DHPrimeAdmins can view all organization's submission history`() {
+        val submissionFunction = setupSubmissionFunctionForTesting("DHPrimeAdmins", mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = submissionFunction.getOrgSubmissionsList(httpRequestMessage, organizationName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)

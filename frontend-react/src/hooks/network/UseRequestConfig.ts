@@ -22,6 +22,10 @@ export const deletesData = (reqType: Method) =>
     reqType.toUpperCase() === "DELETE";
 export const needsTrigger = (reqType: Method) =>
     reqType.toUpperCase() !== "GET";
+export const urlMissingVariables = (url: string) => {
+    const urlObj = new URL(url);
+    return urlObj.pathname.includes(":");
+};
 
 /* Takes the output from `createRequestConfig` and uses it to
  * make an Axios call. The reason we use an AxiosConfig (extended
@@ -81,23 +85,26 @@ const useRequestConfig = <D>(
                 setLoading(false);
                 return;
             }
-            axios(config)
-                .then((res) => {
-                    /* This is pretty opinionated on how WE handle deletes.
-                     * It might benefit from a refactor later on. */
-                    if (deletesData(config.method) && subscribed) {
-                        setData({} as D);
-                    } else if (subscribed) {
-                        setData(res.data);
-                    }
-                })
-                /* Verified that this catch call is necessary, the catch
-                 * block below doesn't handle this Promise */
-                .catch((e: any) => {
-                    if (subscribed) {
-                        setError(e.message);
-                    }
-                });
+
+            if (!urlMissingVariables(config.url)) {
+                axios(config)
+                    .then((res) => {
+                        /* This is pretty opinionated on how WE handle deletes.
+                         * It might benefit from a refactor later on. */
+                        if (deletesData(config.method) && subscribed) {
+                            setData({} as D);
+                        } else if (subscribed) {
+                            setData(res.data);
+                        }
+                    })
+                    /* Verified that this catch call is necessary, the catch
+                     * block below doesn't handle this Promise */
+                    .catch((e: any) => {
+                        if (subscribed) {
+                            setError(e.message);
+                        }
+                    });
+            }
         } catch (e: any) {
             setLoading(false);
             setData(undefined);
