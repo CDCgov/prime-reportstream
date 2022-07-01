@@ -139,11 +139,11 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
 
-      - name: Provision demo environment
-        uses: ./.github/actions/demo-env
-        with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
-          tf-dir: operations/app/terraform/vars/demo
+      # - name: Provision demo environment
+      #   uses: ./.github/actions/demo-env
+      #   with:
+      #     env-name: ${{ needs.pre_job.outputs.env_name }}
+      #     tf-dir: operations/app/terraform/vars/demo
 
   deploy_release:
     name: "Deploy Release: ${{ needs.pre_job.outputs.env_name }}"
