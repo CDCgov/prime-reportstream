@@ -1,3 +1,4 @@
+
 name: Release to Azure
 
 on:
@@ -67,80 +68,80 @@ jobs:
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
           version: ${{ needs.pre_job.outputs.version }}
 
-  deploy_infrastructure:
-    name: "Deploy Infrastructure: ${{ needs.pre_job.outputs.env_name }}"
-    needs:
-      - pre_job
-      - build_release
-      - build_frontend_react_release
-    if: |
-      needs.pre_job.outputs.env_name == 'demo1' ||
-      needs.pre_job.outputs.env_name == 'demo2' ||
-      needs.pre_job.outputs.env_name == 'demo3'
-    environment: needs.pre_job.outputs.env_name
-    concurrency: needs.pre_job.outputs.env_name
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+  # deploy_infrastructure:
+  #   name: "Deploy Infrastructure: ${{ needs.pre_job.outputs.env_name }}"
+  #   needs:
+  #     - pre_job
+  #     - build_release
+  #     - build_frontend_react_release
+  #   if: |
+  #     needs.pre_job.outputs.env_name == 'demo1' ||
+  #     needs.pre_job.outputs.env_name == 'demo2' ||
+  #     needs.pre_job.outputs.env_name == 'demo3'
+  #   environment: ${{ needs.pre_job.outputs.env_name }}
+  #   concurrency: ${{ needs.pre_job.outputs.env_name }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check out changes
+  #       uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
-        with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-          tf-auth: true
+  #     - name: Connect to VPN and login to Azure
+  #       uses: ./.github/actions/vpn-azure
+  #       with:
+  #         env-name: ${{ needs.pre_job.outputs.env_name }}
+  #         tls-key: ${{ secrets.TLS_KEY }}
+  #         ca-cert: ${{ secrets.CA_CRT}}
+  #         user-crt: ${{ secrets.USER_CRT }}
+  #         user-key: ${{ secrets.USER_KEY }}
+  #         sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+  #         tf-auth: true
 
-      - name: Provision demo environment
-        uses: ./.github/actions/demo-env
-        with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
-          tf-dir: operations/app/terraform/vars/demo
+  #     - name: Provision demo environment
+  #       uses: ./.github/actions/demo-env
+  #       with:
+  #         env-name: ${{ needs.pre_job.outputs.env_name }}
+  #         tf-dir: operations/app/terraform/vars/demo
 
-  deploy_release:
-    name: "Deploy Release: ${{ needs.pre_job.outputs.env_name }}"
-    needs:
-      - pre_job
-      - build_release
-      - build_frontend_react_release
-      - deploy_infrastructure
-    if: |
-      always() && 
-      (needs.pre_job.outputs.has_router_change == 'true' ||
-      needs.pre_job.outputs.has_react_change == 'true')
-    environment: ${{ needs.pre_job.outputs.env_name }}
-    concurrency: ${{ needs.pre_job.outputs.env_name }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out changes
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+  # deploy_release:
+  #   name: "Deploy Release: ${{ needs.pre_job.outputs.env_name }}"
+  #   needs:
+  #     - pre_job
+  #     - build_release
+  #     - build_frontend_react_release
+  #     - deploy_infrastructure
+  #   if: |
+  #     always() && 
+  #     (needs.pre_job.outputs.has_router_change == 'true' ||
+  #     needs.pre_job.outputs.has_react_change == 'true')
+  #   environment: ${{ needs.pre_job.outputs.env_name }}
+  #   concurrency: ${{ needs.pre_job.outputs.env_name }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check out changes
+  #       uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
-        with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+  #     - name: Connect to VPN and login to Azure
+  #       uses: ./.github/actions/vpn-azure
+  #       with:
+  #         env-name: ${{ needs.pre_job.outputs.env_name }}
+  #         tls-key: ${{ secrets.TLS_KEY }}
+  #         ca-cert: ${{ secrets.CA_CRT}}
+  #         user-crt: ${{ secrets.USER_CRT }}
+  #         user-key: ${{ secrets.USER_KEY }}
+  #         sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Deploy backend
-        if: needs.pre_job.outputs.has_router_change == 'true'
-        uses: ./.github/actions/deploy-backend
-        with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
-          dct-root-pass: ${{ secrets.DCT_ROOT_PASS }}
-          dct-repo-pass: ${{ secrets.DCT_REPO_PASS }}
-          version: ${{ needs.pre_job.outputs.version }}
+  #     - name: Deploy backend
+  #       if: needs.pre_job.outputs.has_router_change == 'true'
+  #       uses: ./.github/actions/deploy-backend
+  #       with:
+  #         env-name: ${{ needs.pre_job.outputs.env_name }}
+  #         dct-root-pass: ${{ secrets.DCT_ROOT_PASS }}
+  #         dct-repo-pass: ${{ secrets.DCT_REPO_PASS }}
+  #         version: ${{ needs.pre_job.outputs.version }}
 
-      - name: Deploy frontend
-        if: needs.pre_job.outputs.has_react_change == 'true'
-        uses: ./.github/actions/deploy-frontend
-        with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
-          version: ${{ needs.pre_job.outputs.version }}
+  #     - name: Deploy frontend
+  #       if: needs.pre_job.outputs.has_react_change == 'true'
+  #       uses: ./.github/actions/deploy-frontend
+  #       with:
+  #         env-name: ${{ needs.pre_job.outputs.env_name }}
+  #         version: ${{ needs.pre_job.outputs.version }}
