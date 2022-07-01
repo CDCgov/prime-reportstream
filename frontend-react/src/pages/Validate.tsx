@@ -40,12 +40,15 @@ const Validate = () => {
         `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
     );
 
+    const sessionContext = useSessionContext();
+
     const {
         memberships: {
             state: { active: { parsedName, senderName } = {} },
         },
-        oktaToken: { accessToken },
-    } = useSessionContext();
+    } = sessionContext;
+
+    const accessToken = sessionContext.oktaToken?.accessToken;
 
     const client = `${parsedName}.${senderName}`;
 
@@ -178,8 +181,8 @@ const Validate = () => {
                 fileName,
                 contentType,
                 fileContent,
-                parsedName,
-                accessToken
+                parsedName || "",
+                accessToken || ""
             );
             if (response?.destinations?.length) {
                 // NOTE: `{ readonly [key: string]: string }` means a key:value object
