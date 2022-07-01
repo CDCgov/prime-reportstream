@@ -40,16 +40,11 @@ const Validate = () => {
         `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
     );
 
-    const sessionContext = useSessionContext();
+    const { memberships, oktaToken } = useSessionContext();
 
-    const {
-        memberships: {
-            state: { active: { parsedName, senderName } = {} },
-        },
-    } = sessionContext;
-
-    const accessToken = sessionContext.oktaToken?.accessToken;
-
+    const accessToken = oktaToken?.accessToken;
+    const parsedName = memberships.state.active?.parsedName;
+    const senderName = memberships.state.active?.senderName;
     const client = `${parsedName}.${senderName}`;
 
     const { organization } = useOrganizationResource();
