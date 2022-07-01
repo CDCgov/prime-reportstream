@@ -95,6 +95,42 @@ resource "azurerm_key_vault_access_policy" "init" {
   ]
 
   certificate_permissions = []
+
+  depends_on = [
+    azurerm_key_vault.init
+  ]
+}
+
+resource "azurerm_key_vault_access_policy" "init_tf" {
+  for_each = toset(["appconfig", "keyvault"])
+
+  key_vault_id = azurerm_key_vault.init[each.value].id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  // terraform-automation 5ab367bf-df15-45af-a027-47f95f2c75d8
+  object_id = "4d81288c-27a3-4df8-b776-c9da8e688bc7"
+
+  key_permissions = [
+    "Create",
+    "Get",
+    "List",
+    "Delete",
+    "Purge"
+  ]
+
+  secret_permissions = [
+    "Set",
+    "List",
+    "Get",
+    "Delete",
+    "Purge",
+    "Recover"
+  ]
+
+  certificate_permissions = []
+
+  depends_on = [
+    azurerm_key_vault.init
+  ]
 }
 
 resource "azurerm_key_vault_secret" "init" {
