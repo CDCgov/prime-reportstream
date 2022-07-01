@@ -187,6 +187,12 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             ?: error("Unable to find JKS credentials for $tlsKeystore connectionId($credentialLabel)")
     }
 
+    /**
+     * Get parameters for token auth
+     * @param [receiverOrg] identifies the intended receiver
+     * @param [credential] is the REST credential wrapper
+     * @return parameters to send in the token request
+     */
     private fun getAuthParameters(
         receiverOrg: String,
         credential: RestCredential
@@ -349,6 +355,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             return keyStore
         }
 
+        /***
+         * Builds header unit from map
+         * @param [header] is a map of all values provided in receiver setting
+         * @return Unit with all headers appended
+         */
         private fun HttpMessageBuilder.postHeaders(header: Map<String, String>): Unit =
             header.forEach { entry ->
                 headers.append(entry.key, entry.value)

@@ -149,6 +149,7 @@ data class RESTTransportType
     val authTokenUrl: String,
     /** [tlsKeystore]The name for the credential manager to get the JKS used in TLS/SSL */
     val tlsKeystore: String? = null,
+    /** [headers] The map of headers to be sent in the message */
     val headers: Map<String, String>
 ) : TransportType("REST") {
     override fun toString(): String = "apiUrl=$reportUrl" // , tokenUrl=$accessTokenUrl, tlsCert=$tlsCertName"
