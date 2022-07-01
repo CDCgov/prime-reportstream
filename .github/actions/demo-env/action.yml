@@ -23,7 +23,6 @@ runs:
         terraform init \
         -reconfigure \
         -var-file=${{ inputs.env-name }}/env.tfvars.json \
-        -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
         -backend-config=${{ inputs.env-name }}/env.tfbackend
       shell: bash
 
