@@ -14,11 +14,6 @@ resource "azurerm_storage_account" "storage_account" {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["AzureServices"]
 
-    # ip_rules = sensitive(concat(
-    #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-    #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
-    # ))
-
     virtual_network_subnet_ids = var.subnets.primary_subnets
   }
 
@@ -236,16 +231,15 @@ resource "azurerm_storage_account" "storage_partner" {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["None"]
 
-  #   ip_rules = sensitive(concat(
-  #     split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
-  #     split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-  #     var.terraform_caller_ip_address, # Storage accounts only allow CIDR-notation for /[0-30]
-  #   ))
+    # Storage accounts only allow CIDR-notation for /[0-30]
+    ip_rules = sensitive(concat(
+      split(",", coalesce(data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value, "127.0.0.1")),
+      split(",", coalesce(data.azurerm_key_vault_secret.cyberark_ip_ingress.value, "127.0.0.1")),
+      var.terraform_caller_ip_address
+    ))
 
-  #   # ip_rules = [var.terraform_caller_ip_address]
-
-  #   virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
-  # }
+    virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
+  }
 
   # Required for customer-managed encryption
   identity {
