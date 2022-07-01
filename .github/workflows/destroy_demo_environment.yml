@@ -11,9 +11,6 @@ on:
         - demo2
         - demo3
         type: choice
-  push:
-    branches:
-      - josiahsiegel/create-demo-tf
 
 jobs:
   destroy_demo_environment:
@@ -54,6 +51,7 @@ jobs:
         shell: bash
 
       - name: Terraform - destroy
+        continue-on-error: true
         run: |
           for i in {1..3}; do \
           terraform destroy \
@@ -67,7 +65,7 @@ jobs:
           -target=module.sftp_container \
           -target=module.storage \
           -refresh=false \
-          -auto-approve; \
+          -auto-approve; 2>&1 \
           sleep 60; \
           done
         shell: bash

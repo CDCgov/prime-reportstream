@@ -14,11 +14,6 @@ resource "azurerm_storage_account" "storage_account" {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["AzureServices"]
 
-    # ip_rules = sensitive(concat(
-    #   split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-    #   [split("/", var.terraform_caller_ip_address)[0]], # Storage accounts only allow CIDR-notation for /[0-30]
-    # ))
-
     virtual_network_subnet_ids = var.subnets.primary_subnets
   }
 
@@ -39,23 +34,6 @@ resource "azurerm_storage_account" "storage_account" {
   tags = {
     environment = var.environment
   }
-}
-
-# Wait to apply network restrictions to storage account to permit share creation
-resource "time_sleep" "wait_300_seconds" {
-  depends_on = [azurerm_storage_account.storage_account]
-
-  create_duration = "300s"
-}
-
-resource "azurerm_storage_account_network_rules" "storage_account" {
-  storage_account_id = azurerm_storage_account.storage_account.id
-
-  default_action             = var.is_temp_env == true ? "Allow" : "Deny"
-  virtual_network_subnet_ids = var.subnets.primary_subnets
-  bypass                     = ["AzureServices"]
-
-  depends_on = [time_sleep.wait_300_seconds]
 }
 
 module "storageaccount_blob_private_endpoint" {
@@ -236,13 +214,12 @@ resource "azurerm_storage_account" "storage_partner" {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
     bypass         = ["None"]
 
+    # Storage accounts only allow CIDR-notation for /[0-30]
     ip_rules = sensitive(concat(
-      split(",", data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value),
-      split(",", data.azurerm_key_vault_secret.cyberark_ip_ingress.value),
-      var.terraform_caller_ip_address, # Storage accounts only allow CIDR-notation for /[0-30]
+      split(",", coalesce(data.azurerm_key_vault_secret.hhsprotect_ip_ingress.value, "127.0.0.1")),
+      split(",", coalesce(data.azurerm_key_vault_secret.cyberark_ip_ingress.value, "127.0.0.1")),
+      var.terraform_caller_ip_address
     ))
-
-    # ip_rules = [var.terraform_caller_ip_address]
 
     virtual_network_subnet_ids = var.subnets.primary_public_endpoint_subnets
   }

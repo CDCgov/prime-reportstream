@@ -57,10 +57,6 @@ resource "azurerm_key_vault" "init" {
 
   lifecycle {
     prevent_destroy = false
-    ignore_changes = [
-      # Temp ignore ip_rules during tf development
-      network_acls[0].ip_rules
-    ]
   }
 
   depends_on = [

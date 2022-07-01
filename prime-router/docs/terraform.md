@@ -167,7 +167,7 @@ terraform -chdir=$path destroy \
 -target=module.sftp_container \
 -target=module.storage \
 -refresh=false \
--auto-approve; \
+-auto-approve; 2>&1 \
 sleep 60; \
 done
 
