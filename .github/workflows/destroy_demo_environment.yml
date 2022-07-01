@@ -11,10 +11,14 @@ on:
         - demo2
         - demo3
         type: choice
+  push:
+    branches:
+      - josiahsiegel/create-demo-tf
 
 jobs:
   destroy_demo_environment:
     name: "Destroy Environment: ${{ github.event.inputs.demo_env }}"
+    if: github.event_name == 'workflow_dispatch'
     environment: ${{ github.event.inputs.demo_env }}
     concurrency: ${{ github.event.inputs.demo_env }}
     runs-on: ubuntu-latest
