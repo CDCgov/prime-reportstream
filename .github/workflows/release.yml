@@ -1,3 +1,4 @@
+
 name: Release to Azure
 
 on:
@@ -122,12 +123,6 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
-      # - name: Use specific version of Terraform
-      #   uses: hashicorp/setup-terraform@17d4c9b8043b238f6f35641cdd8433da1e6f3867
-      #   with:
-      #     terraform_version: 1.2.0
-      #     terraform_wrapper: false
-
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -139,11 +134,11 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
 
-      # - name: Provision demo environment
-      #   uses: ./.github/actions/demo-env
-      #   with:
-      #     env-name: ${{ needs.pre_job.outputs.env_name }}
-      #     tf-dir: operations/app/terraform/vars/demo
+      - name: Provision demo environment
+        uses: ./.github/actions/demo-env
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tf-dir: operations/app/terraform/vars/demo
 
   deploy_release:
     name: "Deploy Release: ${{ needs.pre_job.outputs.env_name }}"
