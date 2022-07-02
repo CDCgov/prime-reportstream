@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useResource } from "rest-hooks";
+import DOMPurify from "dompurify";
 import {
     Button,
     ButtonGroup,
@@ -242,7 +243,9 @@ ${data.receiver}`;
                         className="rs-editable-compare-base rs-editable-compare-static"
                         contentEditable={false}
                         dangerouslySetInnerHTML={{
-                            __html: `${htmlModalShowInfoContent}`,
+                            __html: DOMPurify.sanitize(
+                                htmlModalShowInfoContent
+                            ),
                         }}
                     />
                 </Modal>
@@ -264,7 +267,9 @@ ${data.receiver}`;
                         className="rs-editable-compare-base rs-editable-compare-static"
                         contentEditable={false}
                         dangerouslySetInnerHTML={{
-                            __html: `${htmlContentForGithubIssue}`,
+                            __html: DOMPurify.sanitize(
+                                htmlContentForGithubIssue
+                            ),
                         }}
                     />
                     <ModalFooter>

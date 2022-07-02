@@ -15,6 +15,7 @@ export enum FeatureFlagName {
     NUMBERED_PAGINATION = "numbered-pagination",
     VALUE_SETS_ADMIN = "value-sets",
     BUILT_FOR_YOU = "built-for-you",
+    VALIDATION_SERVICE = "validation-service",
 }
 
 /* feature flags are just and array of strings saved into a single localStorage variable */
