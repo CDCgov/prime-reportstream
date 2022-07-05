@@ -295,6 +295,10 @@ class ELRReceiver : SubmissionReceiver {
         )
     }
 
+    /**
+     * Checks that a [message] is of the supported type(s), and uses the [actionLogs] to add an error
+     * message for item with index [itemIndex] if it is not.
+     */
     internal fun checkValidMessageType(message: Message, actionLogs: ActionLogger, itemIndex: Int) {
         val header = message.get("MSH")
         check(header is MSH)
