@@ -2077,6 +2077,7 @@ class Hl7Serializer(
         val CE_FIELDS = listOf("OBX-15-1")
 
         // Component specific sub-component length from HL7 specification Chapter 2A
+        private val CE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20)
         private val CWE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20, 10, 10, 199)
         private val CX_MAX_LENGTHS = arrayOf(15, 1, 3, 227, 5, 227, 5, 227, 8, 8, 705, 705)
         private val EI_MAX_LENGTHS = arrayOf(199, 20, 199, 6)
@@ -2093,6 +2094,7 @@ class Hl7Serializer(
          * Component length table for composite HL7 types taken from HL7 specification Chapter 2A.
          */
         val HL7_COMPONENT_MAX_LENGTH = mapOf(
+            "CE" to CE_MAX_LENGTHS,
             "CWE" to CWE_MAX_LENGTHS,
             "CX" to CX_MAX_LENGTHS,
             "EI" to EI_MAX_LENGTHS,
