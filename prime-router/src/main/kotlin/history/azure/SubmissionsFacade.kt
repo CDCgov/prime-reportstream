@@ -12,7 +12,7 @@ import java.time.OffsetDateTime
  * Contains all business logic regarding submissions and JSON serialization.
  */
 class SubmissionsFacade(
-    private val dbSubmissionAccess: ReportFileAccess = DatabaseSubmissionsAccess(),
+    private val dbSubmissionAccess: HistoryDatabaseAccess = DatabaseSubmissionsAccess(),
     dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton
 ) : ReportFileFacade(
     dbAccess,
@@ -38,8 +38,8 @@ class SubmissionsFacade(
     fun findSubmissionsAsJson(
         organization: String,
         sendingOrgClient: String?,
-        sortDir: ReportFileAccess.SortDir,
-        sortColumn: ReportFileAccess.SortColumn,
+        sortDir: HistoryDatabaseAccess.SortDir,
+        sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
@@ -78,8 +78,8 @@ class SubmissionsFacade(
     private fun findSubmissions(
         organization: String,
         sendingOrgClient: String?,
-        sortDir: ReportFileAccess.SortDir,
-        sortColumn: ReportFileAccess.SortColumn,
+        sortDir: HistoryDatabaseAccess.SortDir,
+        sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
@@ -104,6 +104,13 @@ class SubmissionsFacade(
         )
     }
 
+    /**
+     * Get expanded details for a single report
+     *
+     * @param organizationName Name of the organization receiving this report.
+     * @param submissionId id for the submission being used
+     * @return Report details
+     */
     fun findDetailedSubmissionHistory(
         organizationName: String,
         submissionId: Long,

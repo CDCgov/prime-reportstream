@@ -5,19 +5,70 @@ import {
     FormGroup,
     Label,
     FileInput,
+    Alert,
 } from "@trussworks/react-uswds";
 import { useResource } from "rest-hooks";
 import { useOktaAuth } from "@okta/okta-react";
 import moment from "moment";
 import { NavLink, useHistory } from "react-router-dom";
+import DOMPurify from "dompurify";
 
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
-import {
-    getStoredOrg,
-    getStoredSenderName,
-} from "../contexts/SessionStorageTools";
 import { showError } from "../components/AlertNotifications";
 import Spinner from "../components/Spinner";
+import { useSessionContext } from "../contexts/SessionContext";
+import { StaticAlert } from "../components/StaticAlert";
+
+const TransitionBanner = () => {
+    return (
+        <Alert
+            type="info"
+            heading="CSV uploader will be moving to SimpleReport"
+            headingLevel="h4"
+        >
+            <ul>
+                <li className="margin-y-2">
+                    Starting <b>July 18, 2022</b>, the CSV uploader feature will
+                    no longer be available from the ReportStream web portal and
+                    will be moving to our sister product,{" "}
+                    <a href="https://www.simplereport.gov/">SimpleReport</a>.
+                </li>
+                <li className="margin-bottom-2">
+                    You’ll still have access to your{" "}
+                    <NavLink to="/submissions">CSV submission history </NavLink>{" "}
+                    through your ReportStream user account{" "}
+                    <b>for three months</b> after the transition of the CSV
+                    uploader.
+                </li>
+                <li className="margin-bottom-2">
+                    If you need assistance or have questions, please reach out
+                    directly. We’re happy to help! Email the ReportStream team
+                    at{" "}
+                    <a
+                        href={
+                            "mailto:" +
+                            DOMPurify.sanitize("reportstream@cdc.gov")
+                        }
+                        className="usa-link"
+                    >
+                        reportstream@cdc.gov
+                    </a>
+                    . Email the SimpleReport team at{" "}
+                    <a
+                        href={
+                            "mailto:" +
+                            DOMPurify.sanitize("support@simplereport.gov")
+                        }
+                        className="usa-link"
+                    >
+                        support@simplereport.gov
+                    </a>
+                    .
+                </li>
+            </ul>
+        </Alert>
+    );
+};
 
 // values taken from Report.kt
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
@@ -44,9 +95,15 @@ export const Upload = () => {
         `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
     );
 
-    const client = `${getStoredOrg()}.${getStoredSenderName()}`;
+    const {
+        memberships: {
+            state: { active: { parsedName, senderName } = {} },
+        },
+    } = useSessionContext();
+
+    const client = `${parsedName}.${senderName}`;
     const organization = useResource(SenderOrganizationResource.detail(), {
-        name: getStoredOrg(),
+        name: parsedName,
     });
 
     const userName = {
@@ -238,6 +295,9 @@ export const Upload = () => {
 
     return (
         <div className="grid-container usa-section margin-bottom-10">
+            <section className="margin-bottom-4">
+                <TransitionBanner />
+            </section>
             <span
                 id="orgName"
                 className="text-normal text-base margin-bottom-0"
@@ -250,25 +310,22 @@ export const Upload = () => {
             <h2 className="font-sans-lg">{headerMessage}</h2>
             {reportId && (
                 <div>
-                    <div className="usa-alert usa-alert--success">
-                        <div className="usa-alert__body">
-                            <h4 className="usa-alert__heading">
-                                Success: File accepted
-                            </h4>
-                            <p className="usa-alert__text">
-                                Your file has been successfully transmitted to
-                                the department of health.
-                            </p>
-                            <p className="margin-top-0">
-                                <NavLink
-                                    to="/submissions"
-                                    className="text-no-underline"
-                                >
-                                    Review your file status in Submissions.
-                                </NavLink>
-                            </p>
-                        </div>
-                    </div>
+                    <StaticAlert
+                        type={"success"}
+                        heading={"Success: File accepted"}
+                        message={
+                            "Your file has been successfully transmitted to the department of health."
+                        }
+                    >
+                        <p className="margin-top-0">
+                            <NavLink
+                                to="/submissions"
+                                className="text-no-underline"
+                            >
+                                Review your file status in Submissions.
+                            </NavLink>
+                        </p>
+                    </StaticAlert>
                     <div>
                         <p
                             id="orgName"
@@ -322,16 +379,11 @@ export const Upload = () => {
 
             {errors.length > 0 && (
                 <div>
-                    <div className="usa-alert usa-alert--error" role="alert">
-                        <div className="usa-alert__body">
-                            <h4 className="usa-alert__heading">
-                                Error: File not accepted
-                            </h4>
-                            <p className="usa-alert__text">
-                                {errorMessageText}
-                            </p>
-                        </div>
-                    </div>
+                    <StaticAlert
+                        type={"error"}
+                        heading={"Error: File not accepted"}
+                        message={errorMessageText}
+                    />
                     <table className="usa-table usa-table--borderless">
                         <thead>
                             <tr>

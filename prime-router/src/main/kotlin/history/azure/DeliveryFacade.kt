@@ -11,7 +11,7 @@ import java.time.OffsetDateTime
  * Contains all business logic regarding deliveries and JSON serialization.
  */
 class DeliveryFacade(
-    private val dbDeliveryAccess: ReportFileAccess = DatabaseDeliveryAccess(),
+    private val dbDeliveryAccess: HistoryDatabaseAccess = DatabaseDeliveryAccess(),
     dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton
 ) : ReportFileFacade(
     dbAccess,
@@ -36,8 +36,8 @@ class DeliveryFacade(
     fun findDeliveriesAsJson(
         organization: String,
         receivingOrgSvc: String?,
-        sortDir: ReportFileAccess.SortDir,
-        sortColumn: ReportFileAccess.SortColumn,
+        sortDir: HistoryDatabaseAccess.SortDir,
+        sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
@@ -64,8 +64,8 @@ class DeliveryFacade(
     fun findDeliveries(
         organization: String,
         receivingOrgSvc: String?,
-        sortDir: ReportFileAccess.SortDir,
-        sortColumn: ReportFileAccess.SortColumn,
+        sortDir: HistoryDatabaseAccess.SortDir,
+        sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
@@ -93,6 +93,37 @@ class DeliveryFacade(
             false,
             DeliveryHistory::class.java
         )
+    }
+
+    /**
+     * Get expanded details for a single report
+     *
+     * @param organizationName Name of the organization receiving this report.
+     * @param deliveryId id for the delivery being used
+     * @return Report details
+     */
+    fun findDetailedDeliveryHistory(
+        organizationName: String,
+        deliveryId: Long,
+    ): DeliveryHistory? {
+        return DeliveryHistory(
+            deliveryId,
+            OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
+            null,
+            "c3c8e304-8eff-4882-9000-3645054a30b7",
+            "covid-19",
+            1,
+            organizationName,
+            "elr-secondary",
+            null,
+            "covid-19",
+            "HL7_BATCH",
+        )
+//        return dbDeliveryAccess.fetchAction(
+//            organizationName,
+//            deliveryId,
+//            DeliveryHistory::class.java
+//        )
     }
 
     companion object {

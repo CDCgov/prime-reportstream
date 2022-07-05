@@ -112,11 +112,9 @@ export class TestResponse {
             throw new Error("Function not implemented.");
         },
         name: "",
-        meta: {
-            version: 0,
-            createdBy: "mctest@example.com",
-            createdAt: "1/1/2000 00:00:00",
-        },
+        version: 0,
+        createdBy: "mctest@example.com",
+        createdAt: "1/1/2000 00:00:00",
         url: "",
     };
 

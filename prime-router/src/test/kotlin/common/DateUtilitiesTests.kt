@@ -391,6 +391,33 @@ class DateUtilitiesTests {
         }
     }
 
+    // test the parse date feature
+    @Test
+    fun `test parse date`() {
+        mapOf(
+            "09/12/2021" to "20210912000000",
+            "20220101" to "20220101000000",
+            "01/02/2022 05:00" to "20220102050000",
+            "1975-08-01T11:39:00Z" to "19750801113900",
+            "2022-04-29T15:43:02.307Z" to "20220429154302",
+            "3/1/1999" to "19990301000000",
+            "12/1/1900" to "19001201000000",
+            "2/3/02" to "20020203000000",
+            "2/3/02 8:00" to "20020203080000",
+        ).forEach { (input, expected) ->
+            val parsed = DateUtilities.parseDate(input)
+            assertThat(
+                DateUtilities.formatDateForReceiver(
+                    parsed,
+                    DateUtilities.utcZone,
+                    DateUtilities.DateTimeFormat.LOCAL,
+                    false,
+                    false
+                )
+            ).isEqualTo(expected)
+        }
+    }
+
     companion object {
         // this regex checks for 14 digits, then a period, three digits, and then the offset
         val highPrecisionTimeStampRegex = "\\d{14}\\.\\d{4}[-|+]\\d{4}".toRegex()
