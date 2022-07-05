@@ -1,24 +1,38 @@
 import { useEffect, useState } from "react";
 
-import { MetaData } from "../../resources/OrgSettingsBaseResource";
+import { MetaTaggedResource } from "../../resources/OrgSettingsBaseResource";
 import { formatDate } from "../../utils/misc";
 
-type Props = {
-    metaObj?: MetaData | undefined;
+type DisplayMetaProps = {
+    metaObj?: MetaTaggedResource;
 };
 
-export const DisplayMeta = (props: Props) => {
-    const [metaData, setMetaData] = useState<MetaData>();
+export const DisplayMeta = ({ metaObj }: DisplayMetaProps) => {
+    const [metaData, setMetaData] = useState<MetaTaggedResource>();
 
     useEffect(() => {
-        if (!props.metaObj) {
+        if (!metaObj) {
             return;
         }
-        setMetaData(props.metaObj);
-    }, [props]);
+        setMetaData(metaObj);
+    }, [metaObj]);
 
-    return metaData ? (
-        <>{`v${metaData.version} [${formatDate(metaData.createdAt)}] 
-        ${metaData.createdBy}`}</>
-    ) : null;
+    // if there is no object with data to display
+    // we can return early. If the metadata object is present but
+    // version, createdAt, and/or createdBy are missing
+    // that case is handled below
+    if (!metaData) {
+        return null;
+    }
+
+    const { version, createdAt, createdBy } = metaData;
+
+    // handle cases where individual metadata are not available
+    const versionDisplay = version || version === 0 ? `v${version} ` : "";
+    const createdAtDisplay = createdAt
+        ? `[${formatDate(metaData.createdAt)}] `
+        : "";
+    const createdByDisplay = createdBy ?? "";
+
+    return <>{`${versionDisplay}${createdAtDisplay}${createdByDisplay}`}</>;
 };

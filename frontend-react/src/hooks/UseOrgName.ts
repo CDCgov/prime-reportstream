@@ -1,15 +1,9 @@
-import { useResource } from "rest-hooks";
-
-import OrganizationResource from "../resources/OrganizationResource";
-import { getStoredOrg } from "../contexts/SessionStorageTools";
-import { parseOrgName } from "../utils/OrganizationUtils";
+import { useOrganizationResource } from "./UseOrganizationResouce";
 
 function useOrgName(): string {
-    const org = useResource(OrganizationResource.detail(), {
-        orgname: parseOrgName(getStoredOrg()),
-    });
+    const { organization } = useOrganizationResource();
 
-    return org?.description || "";
+    return organization?.description || "";
 }
 
 export { useOrgName };
