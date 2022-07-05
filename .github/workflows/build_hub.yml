@@ -78,13 +78,10 @@ jobs:
           while [ ! -s .vault/env/.env.local ]; do sleep 1; done
           echo "loaded env vars"
 
-      - name: Make ftps dir
-        run: mkdir build/ftps
-
       - name: Spin up containers
         id: spin_containers
         run: |
-          docker-compose -f docker-compose.yml up -d prime_dev ftps sftp azurite
+          docker-compose -f docker-compose.yml up -d prime_dev sftp azurite
           
       - name: Give some time for the container to start
         uses: juliangruber/sleep-action@1e243206ce103180af2f3ebbcab6437b52140789
