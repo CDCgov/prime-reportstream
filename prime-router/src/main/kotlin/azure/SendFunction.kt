@@ -8,7 +8,6 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.AS2TransportType
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.CustomerStatus
-import gov.cdc.prime.router.FTPSTransportType
 import gov.cdc.prime.router.GAENTransportType
 import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.Receiver
@@ -124,7 +123,6 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             is SFTPTransportType -> workflowEngine.sftpTransport
             is BlobStoreTransportType -> workflowEngine.blobStoreTransport
             is AS2TransportType -> workflowEngine.as2Transport
-            is FTPSTransportType -> workflowEngine.ftpsTransport
             is SoapTransportType -> workflowEngine.soapTransport
             is GAENTransportType -> workflowEngine.gaenTransport
             is NullTransportType -> NullTransport()
