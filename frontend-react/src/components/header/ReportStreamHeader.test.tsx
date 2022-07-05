@@ -22,7 +22,7 @@ jest.mock("./SignInOrUser", () => ({
     },
 }));
 
-describe("ReportStreamHeader", () => {
+describe("ReportStreamHeaderTouch", () => {
     test("renders without errors", () => {
         mockAuth.mockReturnValue({} as IOktaContext);
         mockSessionContext.mockReturnValue({} as ISessionContext);
