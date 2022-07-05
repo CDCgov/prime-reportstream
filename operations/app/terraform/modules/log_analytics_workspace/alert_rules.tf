@@ -10,11 +10,11 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_fatal" {
   data_source_id = azurerm_log_analytics_workspace.law.id
   description    = "Found FATAL-ALERT in FunctionApp logs"
   enabled        = true
-  query          = <<-QUERY
-  // 2022-03-31: Exclude co-phd.elr-test -- this is a known error per Rick Hood
-  FunctionAppLogs
-  | where Message contains 'FATAL-ALERT' and not(Message contains 'co-phd.elr-test')
-  QUERY
+  query          = <<-EOT
+      // 2022-03-31: Exclude co-phd.elr-test -- this is a known error per Rick Hood
+      FunctionAppLogs
+      | where Message contains 'FATAL-ALERT' and not(Message contains 'co-phd.elr-test')
+  EOT
   throttling     = 120
   severity       = 2
   frequency      = 15

@@ -1,0 +1,26 @@
+[
+    {
+        "deliveryId": 922,
+        "sent": "2022-04-19T18:04:26.534Z",
+        "expires": "2022-05-19T18:04:26.534Z",
+        "receivingOrg": "ca-dph",
+        "receivingOrgSvc": "elr-secondary",
+        "reportId": "b9f63105-bbed-4b41-b1ad-002a90f07e62",
+        "topic": "covid-19",
+        "reportItemCount": 14,
+        "fileName": "covid-19-c6cf3ffe-6c36-4af5-a5b0-14788bc41a9b-20220419134719.hl7",
+        "fileType": "HL7_BATCH",
+    },
+    {
+        "deliveryId": 284,
+        "sent": "2022-04-12T17:06:10.534Z",
+        "expires": "2022-05-12T17:06:10.534Z",
+        "receivingOrg": "ca-dph",
+        "receivingOrgSvc": "elr-secondary",
+        "reportId": "c3c8e304-8eff-4882-9000-3645054a30b7",
+        "topic": "covid-19",
+        "reportItemCount": 1,
+        "fileName": "covid-19-c6cf3ffe-6c36-4af5-a5b0-14788bc41a9b-20220419134719.hl7",
+        "fileType": "HL7_BATCH",
+    }
+]

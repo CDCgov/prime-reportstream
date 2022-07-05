@@ -5,20 +5,25 @@ id:
   expressionType: JEXL
 
 practitioner:
-  condition: $orderingProvider NOT_NULL
+  condition: $rolePractitioner NOT_NULL
   valueOf: resource/Practitioner
   expressionType: reference
-  specs: $orderingProvider
+  specs: $rolePractitioner
   vars:
-    referenceDisplay: PERSON_DISPLAY_NAME, $orderingProvider
-    contactSpec: $callbackNumber
-    addressSpec: $orderingProviderAddress
+    referenceDisplay: PERSON_DISPLAY_NAME, $rolePractitioner
+    contactSpec: $rolePractitionerCallbackNumber
+    addressSpec: $rolePractitionerAddress
 
 organization:
-  condition: $orderingProvider NOT_NULL
+  condition: $rolePractitioner NOT_NULL
   valueOf: resource/Organization
   expressionType: reference
-  specs: $orderingFacilityName
+  specs: $roleOrganization
   vars:
-    orgAddressXAD: $orderingFacilityAddress
-    orgContactPointXTN: $orderingFacilityPhone
+    orgAddressXAD: $roleOrganizationAddress
+    orgContactPointXTN: $roleOrganizationPhone
+
+code:
+  valueOf: datatype/CodeableConcept_var
+  expressionType: resource
+  generateList: true

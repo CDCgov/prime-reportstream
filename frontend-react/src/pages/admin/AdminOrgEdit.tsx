@@ -86,7 +86,7 @@ export function AdminOrgEdit({
                 JSON.stringify(orgSettings, jsonSortReplacer, 2)
             );
 
-            if (latestResponse?.meta?.version !== orgSettings?.meta?.version) {
+            if (latestResponse?.version !== orgSettings?.version) {
                 showError(getVersionWarning(VersionWarningType.POPUP));
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse)
@@ -108,7 +108,7 @@ export function AdminOrgEdit({
     const saveOrgData = async () => {
         try {
             const latestResponse = await getLatestOrgResponse();
-            if (latestResponse.meta?.version !== orgSettings?.meta?.version) {
+            if (latestResponse.version !== orgSettings?.version) {
                 // refresh left-side panel in compare modal to make it obvious what has changed
                 setOrgSettingsOldJson(
                     JSON.stringify(latestResponse, jsonSortReplacer, 2)
@@ -168,7 +168,7 @@ export function AdminOrgEdit({
                             <Grid row>
                                 <Grid col={3}>Meta:</Grid>
                                 <Grid col={9}>
-                                    <DisplayMeta metaObj={orgSettings.meta} />
+                                    <DisplayMeta metaObj={orgSettings} />
                                     <br />
                                 </Grid>
                             </Grid>

@@ -27,16 +27,12 @@ describe("SenderModeBanner", () => {
                 state: {
                     active: {
                         memberType: MemberType.SENDER,
-                        parsedName: "ignore",
+                        parsedName: "testOrg",
+                        senderName: "testSender",
                     },
                 },
             } as MembershipController,
-            store: {
-                values: {
-                    org: "testOrg",
-                    senderName: "testSender",
-                },
-            } as SessionController,
+            store: {} as SessionController, // TS yells about removing this because of types
         });
         renderWithSession(
             <SenderModeBanner />,

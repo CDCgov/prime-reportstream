@@ -77,6 +77,7 @@ resource "azurerm_function_app_slot" "candidate" {
       # Allows Docker versioning via GitHub Actions
       site_config[0].linux_fx_version,
       storage_account_access_key,
+      tags,
       app_settings["APPINSIGHTS_INSTRUMENTATIONKEY"],
       app_settings["APPLICATIONINSIGHTS_CONNECTION_STRING"],
       app_settings["DOCKER_REGISTRY_SERVER_PASSWORD"],
