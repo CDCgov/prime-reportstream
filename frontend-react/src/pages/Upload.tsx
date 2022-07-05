@@ -14,12 +14,10 @@ import { NavLink, useHistory } from "react-router-dom";
 import DOMPurify from "dompurify";
 
 import SenderOrganizationResource from "../resources/SenderOrganizationResource";
-import {
-    getStoredOrg,
-    getStoredSenderName,
-} from "../contexts/SessionStorageTools";
 import { showError } from "../components/AlertNotifications";
 import Spinner from "../components/Spinner";
+import { useSessionContext } from "../contexts/SessionContext";
+import { StaticAlert } from "../components/StaticAlert";
 
 const TransitionBanner = () => {
     return (
@@ -40,8 +38,7 @@ const TransitionBanner = () => {
                     <NavLink to="/submissions">CSV submission history </NavLink>{" "}
                     through your ReportStream user account{" "}
                     <b>for three months</b> after the transition of the CSV
-                    uploader. We encourage you to download your data before
-                    then.
+                    uploader.
                 </li>
                 <li className="margin-bottom-2">
                     If you need assistance or have questions, please reach out
@@ -98,9 +95,15 @@ export const Upload = () => {
         `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
     );
 
-    const client = `${getStoredOrg()}.${getStoredSenderName()}`;
+    const {
+        memberships: {
+            state: { active: { parsedName, senderName } = {} },
+        },
+    } = useSessionContext();
+
+    const client = `${parsedName}.${senderName}`;
     const organization = useResource(SenderOrganizationResource.detail(), {
-        name: getStoredOrg(),
+        name: parsedName,
     });
 
     const userName = {
@@ -307,25 +310,22 @@ export const Upload = () => {
             <h2 className="font-sans-lg">{headerMessage}</h2>
             {reportId && (
                 <div>
-                    <div className="usa-alert usa-alert--success">
-                        <div className="usa-alert__body">
-                            <h4 className="usa-alert__heading">
-                                Success: File accepted
-                            </h4>
-                            <p className="usa-alert__text">
-                                Your file has been successfully transmitted to
-                                the department of health.
-                            </p>
-                            <p className="margin-top-0">
-                                <NavLink
-                                    to="/submissions"
-                                    className="text-no-underline"
-                                >
-                                    Review your file status in Submissions.
-                                </NavLink>
-                            </p>
-                        </div>
-                    </div>
+                    <StaticAlert
+                        type={"success"}
+                        heading={"Success: File accepted"}
+                        message={
+                            "Your file has been successfully transmitted to the department of health."
+                        }
+                    >
+                        <p className="margin-top-0">
+                            <NavLink
+                                to="/submissions"
+                                className="text-no-underline"
+                            >
+                                Review your file status in Submissions.
+                            </NavLink>
+                        </p>
+                    </StaticAlert>
                     <div>
                         <p
                             id="orgName"
@@ -379,16 +379,11 @@ export const Upload = () => {
 
             {errors.length > 0 && (
                 <div>
-                    <div className="usa-alert usa-alert--error" role="alert">
-                        <div className="usa-alert__body">
-                            <h4 className="usa-alert__heading">
-                                Error: File not accepted
-                            </h4>
-                            <p className="usa-alert__text">
-                                {errorMessageText}
-                            </p>
-                        </div>
-                    </div>
+                    <StaticAlert
+                        type={"error"}
+                        heading={"Error: File not accepted"}
+                        message={errorMessageText}
+                    />
                     <table className="usa-table usa-table--borderless">
                         <thead>
                             <tr>

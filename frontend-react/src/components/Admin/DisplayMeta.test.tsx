@@ -1,12 +1,10 @@
 import { render, screen } from "@testing-library/react";
 
-import { MetaData } from "../../resources/OrgSettingsBaseResource";
-
 import { DisplayMeta } from "./DisplayMeta";
 
 describe("DisplayMeta rendering object", () => {
     beforeEach(() => {
-        const metaobj: MetaData = {
+        const metaobj = {
             version: 2,
             createdBy: "McTest@example.com",
             createdAt: "1/1/2000 00:00",
