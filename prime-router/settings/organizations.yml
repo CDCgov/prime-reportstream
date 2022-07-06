@@ -3159,6 +3159,27 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: elr-monkeypox
+      organizationName: ny-phd
+      topic: monkeypox
+      customerStatus: testing
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, NY, patient_state, NY)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        schemaName: monkeypox
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
 - name: mp-phd
   description: Northern Mariana Islands Public Health Department

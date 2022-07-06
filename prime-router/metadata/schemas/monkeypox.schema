@@ -12,12 +12,11 @@ topic: monkeypox
 trackingElement: message_id
 description: collection of standard elements, not an actual schema
 elements:
+  # TODO: add different values here and see how it maps per the valueset
   - name: abnormal_flag
     type: CODE
     valueSet: hl70078
     hl7Field: OBX-8
-    # TODO: does this map for monkeypox
-    mapper: obx8(test_result)
     documentation: This field is generated based on the normalcy status of the result. A = abnormal; N = normal
 
   - name: comment
@@ -38,70 +37,36 @@ elements:
     type: DATETIME
     hl7Field: OBR-22
 
-  # TODO: replace with pass-through for monkeypox
   - name: device_id
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    mapper: obx17()
-    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
-    referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    hl7OutputFields: [ OBX-17-1, OBX-17-9 ]
+    type: TEXT
+    hl7Field: OBX-17-1
     documentation: |
-      Device_id is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
+      Device_id is a generated value for the OBX-17 field.
 
-  # TODO: replace with pass-through for monkeypox
   - name: device_id_type
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    mapper: obx17Type()
-    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
-    referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
+    type: TEXT
     hl7Field: OBX-17-3
     documentation: |
-      Device_id_type is a generated value for the OBX-17 field. It is based on the device model and the LIVD table.
+      Device_id_type is a generated value for the OBX-17 field.
 
   - name: equipment_instance_id
     type: ID
     hl7Field:
 
-  # TODO: replace with pass-through for monkeypox
   - name: equipment_model_id
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: Equipment UID
-    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
-    referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: livdLookup()
+    type: TEXT
     hl7Field: OBX-18-1
 
-  # TODO: replace with pass-through for monkeypox
   - name: equipment_model_id_type
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: Equipment UID Type
-    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
-    referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: livdLookup()
+    type: TEXT
     hl7Field: OBX-18-3
 
-  # TODO: replace with pass-through for monkeypox
   - name: equipment_model_name
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: Model
-    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
-    referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: livdLookup()
+    type: TEXT
     hl7Field: OBX-17-2
 
-  # TODO: replace with pass-through for monkeypox
   - name: equipment_manufacture
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: Manufacturer
-    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
-    referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: livdLookup()
+    type: TEXT
 
   - name: file_created_date
     type: DATETIME
@@ -130,20 +95,12 @@ elements:
     type: DATETIME
     hl7Field: ORC-15
 
-  # TODO: replace with pass-through for monkeypox
   - name: ordered_test_code
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: Test Ordered LOINC Code
-    mapper: livdLookup()
+    type: TEXT
     hl7Field: OBR-4-1
 
-  # TODO: replace with pass-through for monkeypox
   - name: ordered_test_name
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: Test Ordered LOINC Long Name
-    mapper: livdLookup()
+    type: TEXT
     hl7Field: OBR-4-2
 
   - name: ordered_test_system
@@ -155,12 +112,8 @@ elements:
     default: LN
     hl7Field: OBR-4-3
 
-  # TODO: replace with pass-through for monkeypox
   - name: ordered_test_encoding_version
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: LOINC Version ID
-    mapper: livdLookup()
+    type: TEXT
     hl7Field: OBR-4-7
 
   - name: ordering_facility_city
@@ -437,7 +390,6 @@ elements:
       but downstream consumers are free to define their own accepted values. Please refer to 
       the consumer-specific schema if you have questions.
 
-  # TODO Figure out how to encode patient id (PID-3) like AZ and others want
   - name: patient_id
     type: TEXT
     pii: true
@@ -445,7 +397,8 @@ elements:
     hl7Field: PID-3-1
     documentation: |
       The ID for the patient within one of the reporting entities for this lab result. It could be the
-      the patient ID from the testing lab, the oder placer, the ordering provider, or even within the PRIME system itself.
+      the patient ID from the testing lab, the oder placer, the ordering provider, 
+      or even within the PRIME system itself.
 
   - name: patient_id_assigner
     type: HD
@@ -751,32 +704,17 @@ elements:
     hl7Field: NTE-3
     pii: true
 
-  # TODO: replace with pass-through for monkeypox
   - name: test_kit_name_id
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: Testkit Name ID
-    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
-    referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: livdLookup()
+    type: TEXT
+    hl7Field: OBX-17-1
     documentation: Follows guidence for OBX-17 as defined in the HL7 Confluence page
 
-  # TODO: replace with pass-through for monkeypox
   - name: test_kit_name_id_type
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: Testkit Name ID Type
-    reference: Follows guidance for OBX-17 as defined in the HL7 Confluence page
-    referenceUrl: https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification
-    mapper: livdLookup()
+    type: TEXT
+    hl7Field: OBX-17-3
 
-  # TODO: replace with pass-through for monkeypox
   - name: test_kit_name_id_cwe_version
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: LOINC Version ID
-    reference: Follows guidance for OBX-17-7 where the version of the CWE field is passed along
-    mapper: livdLookup()
+    type: TEXT
     hl7Field: OBX-17-7
     documentation: Follows guidance for OBX-17-7 where the version of the CWE field is passed along
 
@@ -785,21 +723,13 @@ elements:
     hl7Field:
     documentation: A text field that allows the lab to provide more information aboout the test method
 
-  # TODO: replace with pass-through for monkeypox
   - name: test_performed_code
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: Test Performed LOINC Code
-    mapper: livdLookup()
+    type: TEXT
     hl7Field: OBX-3-1
     documentation: The LOINC code of the test performed. This is a standardized coded value describing the test
 
-  # TODO: replace with pass-through for monkeypox
   - name: test_performed_name
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: Test Performed LOINC Long Name
-    mapper: livdLookup()
+    type: TEXT
     hl7Field: OBX-3-2
     documentation: The LOINC description of the test performed as related to the LOINC code.
 
@@ -812,12 +742,8 @@ elements:
     type: TEXT
     default: LOINC
 
-  # TODO: replace with pass-through for monkeypox
   - name: test_performed_system_version
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    mapper: livdLookup()
-    tableColumn: LOINC Version ID
+    type: TEXT
     hl7Field: OBX-3-7
 
   # TODO: replace with a monkeypox valueset
@@ -868,8 +794,7 @@ elements:
 
   - name: testing_lab_accession_number
     type: ID
-    #hl7Field: OBR-3-1
-    #hl7OutputFields: [OBR-3-1, SPM-2]
+    hl7Field: OBR-3-1
     documentation: The accession number of the specimen collected
 
   - name: testing_lab_city
@@ -943,11 +868,9 @@ elements:
     hl7Field: SPM-2-1
     documentation: The specimen-id from the testing lab
 
-  # TODO: remove. we should pass this through
   - name: testing_lab_specimen_received_datetime
     type: DATETIME
     hl7Field: SPM-18-1
-    mapper: offsetDateTime(specimen_collection_date_time, seconds, 6)
     documentation: |
       The received date time for the specimen. This field is very important to many states for their HL7,
       but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
@@ -994,4 +917,12 @@ elements:
       ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  
       Not to be confused with sending_application, in which ReportStream acts as the 'sender' 
       to the downstream jurisdiction.
+
+  - name: topic
+    type: TEXT
+    cardinality: ONE
+    mapper: useSenderSetting(topic)
+    documentation: |
+      The topic for the data. This way it can be interrogated at the row level for HL7 serialization and we can
+      branch out any disease-specific logic.
 
