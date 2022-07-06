@@ -47,18 +47,3 @@ extension_2:
       valueOf: datatype/CodeableConcept
       expressionType: resource
       specs: NTE.4
-
-extension_3:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: note-source
-    valueCodeableConcept:
-      valueOf: datatype/CodeableConcept_var
-      expressionType: resource
-      vars:
-        code: String, NTE.2
-      constants:
-        system: v2-0105

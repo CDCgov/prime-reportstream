@@ -20,7 +20,7 @@ SERVICES=() # empty list means all services for docker-compose
 BUILD_SERVICES=()
 if [ "$(uname -m)" = "arm64" ] && [[ $(uname -av) == *"Darwin"* ]]; then
   PROFILE=apple_silicon
-  SERVICES=(sftp azurite ftps vault) # Only these services are M1 compatible
+  SERVICES=(sftp azurite vault) # Only these services are M1 compatible
   BUILD_SERVICES=(postgresql)
 fi
 

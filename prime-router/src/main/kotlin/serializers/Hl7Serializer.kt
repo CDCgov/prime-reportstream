@@ -706,11 +706,11 @@ class Hl7Serializer(
             zipCode: String,
             countyCode: String
         ) {
-            if (address.isNullOrEmpty() &&
-                city.isNullOrEmpty() &&
-                state.isNullOrEmpty() &&
-                zipCode.isNullOrEmpty() &&
-                countyCode.isNullOrEmpty()
+            if (address.isEmpty() &&
+                city.isEmpty() &&
+                state.isEmpty() &&
+                zipCode.isEmpty() &&
+                countyCode.isEmpty()
             ) {
                 report.setString(row, field.plus("_street"), "11 Fake AtHome Test Street")
                 report.setString(row, field.plus("_city"), "Yakutat")
@@ -723,14 +723,14 @@ class Hl7Serializer(
         report.setString(row, "reporting_facility_clia", "0OCDCPRIME")
 
         val testResultStatus = report.getString(row, "test_result_status") ?: ""
-        if (testResultStatus.isNullOrEmpty()) {
+        if (testResultStatus.isEmpty()) {
             report.setString(row, "test_result_status", "F")
             report.setString(row, "order_result_status", "F")
             report.setString(row, "observation_result_status", "F")
         }
 
         val senderId = report.getString(row, "sender_id") ?: ""
-        if (!senderId.isNullOrEmpty()) {
+        if (senderId.isNotEmpty()) {
             val comment = report.getString(row, "comment")
             report.setString(
                 row,
@@ -742,15 +742,15 @@ class Hl7Serializer(
         }
 
         val orderingProviderFirstName = report.getString(row, "ordering_provider_first_name") ?: ""
-        if (orderingProviderFirstName.isNullOrEmpty()) {
+        if (orderingProviderFirstName.isEmpty()) {
             report.setString(row, "ordering_provider_first_name", "SA.OverTheCounter")
         }
         val orderingFacilityName = report.getString(row, "ordering_facility_name") ?: ""
-        if (orderingFacilityName.isNullOrEmpty()) {
+        if (orderingFacilityName.isEmpty()) {
             report.setString(row, "ordering_facility_name", "SA.OverTheCounter")
         }
         val testingLabName = report.getString(row, "testing_lab_name") ?: ""
-        if (testingLabName.isNullOrEmpty()) {
+        if (testingLabName.isEmpty()) {
             report.setString(row, "testing_lab_name", "SA.OverTheCounter")
         }
 
@@ -770,7 +770,7 @@ class Hl7Serializer(
         )
 
         val orderingFacilityPhoneNumber = report.getString(row, "ordering_facility_phone_number") ?: ""
-        if (orderingFacilityPhoneNumber.isNullOrEmpty()) {
+        if (orderingFacilityPhoneNumber.isEmpty()) {
             report.setString(row, "ordering_facility_phone_number", "1111111111:1:")
         }
 
@@ -790,11 +790,11 @@ class Hl7Serializer(
         )
 
         val testingLabClia = report.getString(row, "testing_lab_clia") ?: ""
-        if (testingLabClia.isNullOrEmpty()) {
+        if (testingLabClia.isEmpty()) {
             report.setString(row, "testing_lab_clia", "00Z0000014")
         }
         val testingLabIdAssigner = report.getString(row, "testing_lab_id_assigner") ?: ""
-        if (testingLabIdAssigner.isNullOrEmpty()) {
+        if (testingLabIdAssigner.isEmpty()) {
             report.setString(row, "testing_lab_id_assigner", "CLIA^2.16.840.1.113883.4.7^ISO")
         }
     }
@@ -2077,6 +2077,7 @@ class Hl7Serializer(
         val CE_FIELDS = listOf("OBX-15-1")
 
         // Component specific sub-component length from HL7 specification Chapter 2A
+        private val CE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20)
         private val CWE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20, 10, 10, 199)
         private val CX_MAX_LENGTHS = arrayOf(15, 1, 3, 227, 5, 227, 5, 227, 8, 8, 705, 705)
         private val EI_MAX_LENGTHS = arrayOf(199, 20, 199, 6)
@@ -2093,6 +2094,7 @@ class Hl7Serializer(
          * Component length table for composite HL7 types taken from HL7 specification Chapter 2A.
          */
         val HL7_COMPONENT_MAX_LENGTH = mapOf(
+            "CE" to CE_MAX_LENGTHS,
             "CWE" to CWE_MAX_LENGTHS,
             "CX" to CX_MAX_LENGTHS,
             "EI" to EI_MAX_LENGTHS,
