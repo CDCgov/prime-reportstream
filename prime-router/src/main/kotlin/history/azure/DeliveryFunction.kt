@@ -170,16 +170,46 @@ class DeliveryFunction(
                 "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
             )
 
+            val params = HistoryApiParameters(request.queryParameters)
+            val facilityParams = FacilityListApiParameters(request.queryParameters)
+
             return HttpUtilities.okResponse(
                 request,
                 mapper.writeValueAsString(
-                    workflowEngine.db.getFacilitiesForDownloadableReport(
-                        ReportId.fromString(reportId)
+                    deliveryFacade.findDeliveryFacilities(
+                        ReportId.fromString(reportId),
+                        params.sortDir,
+                        facilityParams.sortColumn,
+                        params.cursor,
+                        params.pageSize,
                     )
                 )
             )
         } catch (e: IllegalArgumentException) {
             return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
+        }
+    }
+
+    data class FacilityListApiParameters(
+        val sortColumn: DatabaseDeliveryAccess.FacilitySortColumn,
+    ) {
+        constructor(query: Map<String, String>) : this (
+            sortColumn = extractSortCol(query),
+        )
+
+        companion object {
+            /**
+             * Convert sorting column from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
+            fun extractSortCol(query: Map<String, String>): DatabaseDeliveryAccess.FacilitySortColumn {
+                val col = query["sortcol"]
+                return if (col == null)
+                    DatabaseDeliveryAccess.FacilitySortColumn.NAME
+                else
+                    DatabaseDeliveryAccess.FacilitySortColumn.valueOf(col)
+            }
         }
     }
 }

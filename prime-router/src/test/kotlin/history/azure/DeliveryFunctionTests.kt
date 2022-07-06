@@ -19,6 +19,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
@@ -81,6 +82,15 @@ class DeliveryFunctionTests : Logging {
         val topic: String,
         val reportItemCount: Int,
         val fileName: String,
+    )
+
+    data class ExpectedFacility(
+        val reportId: String?,
+        val facility: String?,
+        val location: String?,
+        val clia: String?,
+        val positive: Long?,
+        val total: Long?,
     )
 
     private val testData = listOf(
@@ -260,7 +270,7 @@ class DeliveryFunctionTests : Logging {
     }
 
     private fun mockFacade(): DeliveryFacade {
-        val mockDatabaseAccess = mockkClass(HistoryDatabaseAccess::class)
+        val mockDatabaseAccess = mockkClass(DatabaseDeliveryAccess::class)
 
         every {
             mockDatabaseAccess.fetchActions<DeliveryHistory>(
@@ -484,5 +494,76 @@ class DeliveryFunctionTests : Logging {
         every { mockDeliveryFacade.fetchAction(any()) } returns null
         response = function.getDeliveryDetails(mockRequest, emptyActionId)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
+    @Test
+    fun `test list facilities`() {
+        val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+
+        val mockDeliveryFacade = mockk<DeliveryFacade>()
+        val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
+
+        mockkObject(AuthenticationStrategy.Companion)
+        every { AuthenticationStrategy.authenticate(any()) } returns
+            AuthenticatedClaims.generateTestClaims()
+
+        // Invalid id:  not a UUID nor a Long
+//        var response = function.getDeliveryFacilities(mockRequest, "bad")
+//        assertThat(response.status).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+//        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Database error
+//        every { mockDeliveryFacade.fetchActionForReportId(any()) }.throws(DataAccessException("dummy"))
+//        response = function.getDeliveryFacilities(mockRequest, goodUuid)
+//        assertThat(response.status).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+//
+//        // Good UUID, but Not found
+//        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns null
+//        response = function.getDeliveryFacilities(mockRequest, goodUuid)
+//        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Good return
+
+        val returnBody = listOf<DeliveryFacility>(
+            DeliveryFacility(
+                goodUuid,
+                "Any lab USA",
+                "Kurtistown, HI",
+                "43D1961163",
+                0,
+                1
+            )
+        )
+
+        every {
+            mockDeliveryFacade.findDeliveryFacilities(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        } returns returnBody
+
+        // Happy path with a good UUID
+        val action = Action()
+        action.actionId = 550
+        action.sendingOrg = organizationName
+        action.actionName = TaskAction.receive
+        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
+        every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+
+        var response = function.getDeliveryFacilities(mockRequest, goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        val responseBody: List<DeliveryFacility> = mapper.readValue(response.body.toString())
+        assertThat(responseBody.first().reportId).isEqualTo(returnBody.first().reportId)
+        assertThat(responseBody.first().facility).isEqualTo(returnBody.first().facility)
+        assertThat(responseBody.first().location).isEqualTo(returnBody.first().location)
+        assertThat(responseBody.first().clia).isEqualTo(returnBody.first().clia)
+        assertThat(responseBody.first().positive).isEqualTo(returnBody.first().positive)
+        assertThat(responseBody.first().total).isEqualTo(returnBody.first().total)
     }
 }

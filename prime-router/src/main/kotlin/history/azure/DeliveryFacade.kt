@@ -1,7 +1,9 @@
 package gov.cdc.prime.router.history.azure
 
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
 import java.time.OffsetDateTime
 
@@ -10,7 +12,7 @@ import java.time.OffsetDateTime
  * Contains all business logic regarding deliveries and JSON serialization.
  */
 class DeliveryFacade(
-    private val dbDeliveryAccess: HistoryDatabaseAccess = DatabaseDeliveryAccess(),
+    private val dbDeliveryAccess: DatabaseDeliveryAccess = DatabaseDeliveryAccess(),
     dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton
 ) : ReportFileFacade(
     dbAccess,
@@ -92,6 +94,26 @@ class DeliveryFacade(
 //            deliveryId,
 //            DeliveryHistory::class.java
 //        )
+    }
+
+    fun findDeliveryFacilities(
+        reportId: ReportId,
+        sortDir: HistoryDatabaseAccess.SortDir,
+        sortColumn: DatabaseDeliveryAccess.FacilitySortColumn,
+        cursor: OffsetDateTime?,
+        pageSize: Int
+    ): List<DeliveryFacility> {
+        require(pageSize > 0) {
+            "pageSize must be a positive integer."
+        }
+
+        return dbDeliveryAccess.fetchFacilityList(
+            reportId,
+            sortDir,
+            sortColumn,
+            cursor,
+            pageSize,
+        )
     }
 
     companion object {

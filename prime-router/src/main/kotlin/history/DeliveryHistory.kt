@@ -79,3 +79,23 @@ class DeliveryHistory(
         )
     }
 }
+
+@JsonPropertyOrder(
+    value = [
+        "reportId",
+        "facility",
+        "location",
+        "clia",
+        "positive",
+        "total",
+    ]
+)
+data class DeliveryFacility(
+    val reportId: String?,
+    val facility: String?,
+    val location: String?,
+    @JsonProperty("CLIA")
+    val clia: String?,
+    val positive: Long?,
+    val total: Long?
+)
