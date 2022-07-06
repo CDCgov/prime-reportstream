@@ -542,6 +542,17 @@
       schemaName: hl7/signetic-covid-19
       format: HL7
 
+- name: mayo-clinic
+  description: The Mayo Clinic
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: mayo-clinic
+      topic: monkeypox
+      customerStatus: testing
+      schemaName: monkeypox
+      format: HL7
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE

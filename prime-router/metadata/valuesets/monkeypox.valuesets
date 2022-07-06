@@ -1,0 +1,9 @@
+# Some valuesets
+---
+- name: monkeypox/specimen_type
+  system: SNOMED_CT
+  version: 2.67
+  referenceUrl: ""
+  values:
+    - code: "257261003"
+      display: "Swab (specimen)"

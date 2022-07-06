@@ -3,7 +3,6 @@ package gov.cdc.prime.router.azure
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
@@ -15,6 +14,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -803,10 +803,10 @@ class WorkflowEngine(
      * @param defaults Default values that can be passed in as part of the request
      * @return Returns a generated report object, or null
      */
-    fun parseCovidReport(
-        sender: CovidSender,
+    fun parseTopicReport(
+        sender: TopicSender,
         content: String,
-        defaults: Map<String, String>,
+        defaults: Map<String, String>
     ): ReadResult {
         return when (sender.format) {
             Sender.Format.CSV -> {
@@ -816,7 +816,7 @@ class WorkflowEngine(
                         input = ByteArrayInputStream(content.toByteArray()),
                         sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
                         defaultValues = defaults,
-                        sender = sender,
+                        sender = sender
                     )
                 } catch (e: Exception) {
                     throw ActionError(
@@ -826,7 +826,7 @@ class WorkflowEngine(
                                     "team at reportstream@cdc.gov."
                             )
                         ),
-                        e.message,
+                        e.message
                     )
                 }
             }
@@ -836,7 +836,7 @@ class WorkflowEngine(
                         schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
                         ClientSource(organization = sender.organizationName, client = sender.name),
-                        sender = sender,
+                        sender = sender
                     )
                 } catch (e: Exception) {
                     throw ActionError(
@@ -846,7 +846,7 @@ class WorkflowEngine(
                                     "team at reportstream@cdc.gov."
                             )
                         ),
-                        e.message,
+                        e.message
                     )
                 }
             }
