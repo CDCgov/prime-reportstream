@@ -1,5 +1,5 @@
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
-import { Suspense, useCallback, useEffect } from "react";
+import React, { Suspense, useCallback, useEffect } from "react";
 
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
@@ -95,6 +95,7 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
     );
 };
 
+/** @deprecated Replace with new numbered pagination version */
 function SubmissionTableWithCursorManager() {
     const filterManager = useFilterManager(filterManagerDefaults);
     const cursorManager = useCursorManager(filterManager.rangeSettings.to);
