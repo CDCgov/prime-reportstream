@@ -1,0 +1,73 @@
+resourceType: Specimen
+id:
+  type: STRING
+  valueOf: "UUID.randomUUID()"
+  expressionType: JEXL
+
+identifier_1:
+  valueOf: datatype/Identifier
+  generateList: true
+  expressionType: resource
+  specs: SPM.2.1
+
+identifier_2:
+  valueOf: datatype/Identifier
+  generateList: true
+  expressionType: resource
+  vars:
+    value: SPM.2.2.1
+  constants:
+    alternateCode: FGN
+    alternateSystem: v2-0203
+
+status:
+  type: SPECIMEN_STATUS
+  valueOf: SPM.20
+  expressionType: HL7Spec
+
+type:
+  valueOf: datatype/CodeableConcept
+  expressionType: resource
+  specs: SPM.4 | SPM.5
+
+receivedTime:
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: SPM.18
+
+collection:
+  valueOf: secondary/Collection
+  expressionType: resource
+
+processing:
+  condition: $spm6 NOT_NULL
+  valueOf: secondary/processing
+  expressionType: resource
+  vars:
+    spm6: SPM.6
+
+condition:
+  condition: $spm24 NOT_NULL
+  valueOf: datatype/CodeableConcept
+  expressionType: resource
+  specs: SPM.24
+  vars:
+    spm24: SPM.24
+
+note_1:
+  valueOf: datatype/Annotation_var
+  expressionType: resource
+  generateList: true
+  vars:
+    noteText: SPM.14
+
+container:
+  condition: $containerTypeCWE NOT_NULL
+  valueOf: secondary/Container
+  expressionType: resource
+  generateList: true
+  vars:
+    containerTypeCWE: SPM.27
+    specimenQuantity: SPM.26
