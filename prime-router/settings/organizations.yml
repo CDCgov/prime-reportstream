@@ -549,7 +549,7 @@
     - name: default
       organizationName: mayo-clinic
       topic: monkeypox
-      customerStatus: testing
+      customerStatus: active
       schemaName: monkeypox
       format: HL7
 

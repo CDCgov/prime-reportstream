@@ -740,10 +740,9 @@ elements:
     hl7Field: SPM-8
     documentation: Refers back to the specimen source site, which is then encoded into the SPM-8 segment
 
-  # TODO: replace with valueset for monkeypox
   - name: specimen_type
     type: CODE
-    valueSet: covid-19/specimen_type
+    valueSet: monkeypox/specimen_type
     hl7Field: SPM-4
     documentation: The specimen source, such as Blood or Serum
 
@@ -990,5 +989,9 @@ elements:
   - name: sender_id
     type: TEXT
     cardinality: ONE
-    documentation:  ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  Not to be confused with sending_application, in which ReportStream acts as the 'sender' to the downstream jurisdiction.
+    mapper: useSenderSetting(organizationName)
+    documentation:  |
+      ID name of org that is sending this data to ReportStream.  Suitable for provenance or chain of custody tracking.  
+      Not to be confused with sending_application, in which ReportStream acts as the 'sender' 
+      to the downstream jurisdiction.
 
