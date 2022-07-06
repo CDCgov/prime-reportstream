@@ -9,7 +9,6 @@ import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ItemActionLogDetail
-import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -20,138 +19,23 @@ import java.util.UUID
  *
  * @property actionId reference to the `action` table for the action that created this file
  * @property createdAt when the file was created
- * @property httpStatus response code for the user fetching this report file
  * @property externalName actual filename of the file
  * @property reportId unique identifier for this specific report file
- * @property schemaTopic the kind of data contained in the report (e.g. "covid-19")
- * @property itemCount number of tests (data rows) contained in the report
+ * @property topic the kind of data contained in the report (e.g. "covid-19")
+ * @property reportItemCount number of tests (data rows) contained in the report
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-abstract class ReportFileHistory(
+abstract class ReportHistory(
     val actionId: Long,
     @JsonProperty("timestamp")
     val createdAt: OffsetDateTime,
-    val httpStatus: Int,
     @JsonInclude(Include.NON_NULL)
-    val externalName: String? = "",
+    var externalName: String? = "",
     @JsonProperty("id")
-    val reportId: String? = null,
-    @JsonProperty("topic")
-    val schemaTopic: String? = null,
-    @JsonProperty("reportItemCount")
-    val itemCount: Int? = null,
+    var reportId: String? = null,
+    var topic: String? = null,
+    var reportItemCount: Int? = null,
 )
-
-/**
- * This class provides a detailed view for data in the `report_file` table and data from other related sources.
- * Due to the large amount of data and logic used here, instead use ReportFileHistory for lists.
- *
- * @property actionId reference to the `action` table for the action that created this file
- * @property actionName the type of action that created this report file
- * @property createdAt when the file was created
- * @property httpStatus response code for the user fetching this report file
- * @property reports other reports that are related to this report file's action log
- * @property logs container for logs generated throughout the fetching of this report file
- */
-@JsonIgnoreProperties(ignoreUnknown = true)
-abstract class DetailedReportFileHistory(
-    val actionId: Long,
-    @JsonIgnore
-    val actionName: TaskAction,
-    @JsonProperty("timestamp")
-    val createdAt: OffsetDateTime,
-    val httpStatus: Int? = null,
-    @JsonIgnore
-    var reports: MutableList<DetailedReport>?,
-    @JsonIgnore
-    var logs: List<DetailedActionLog> = emptyList()
-) {
-    /**
-     * The report ID.
-     */
-    var id: String? = null
-
-    /**
-     * Errors logged for this Report File.
-     */
-    val errors = mutableListOf<ConsolidatedActionLog>()
-
-    /**
-     * Warnings logged for this Report File.
-     */
-    val warnings = mutableListOf<ConsolidatedActionLog>()
-
-    /**
-     * The schema topic.
-     */
-    var topic: String? = null
-
-    /**
-     * The input report's external name.
-     */
-    var externalName: String? = null
-
-    /**
-     * The number of warnings.  Note this is not the number of consolidated warnings.
-     */
-    val warningCount = logs.count { it.type == ActionLogLevel.warning }
-
-    /**
-     * The number of errors.  Note this is not the number of consolidated errors.
-     */
-    val errorCount = logs.count { it.type == ActionLogLevel.error }
-
-    /**
-     * Number of report items.
-     */
-    var reportItemCount: Int? = null
-
-    init {
-        errors.addAll(consolidateLogs(ActionLogLevel.error))
-        warnings.addAll(consolidateLogs(ActionLogLevel.warning))
-    }
-
-    /**
-     * Consolidate the [logs] filtered by an optional [filterBy] action level, so to list similar messages once
-     * with a list of items they relate to.
-     * @return the consolidated list of logs
-     */
-    internal fun consolidateLogs(filterBy: ActionLogLevel? = null):
-        List<ConsolidatedActionLog> {
-        val consolidatedList = mutableListOf<ConsolidatedActionLog>()
-
-        // First filter the logs and sort by the message.  This first sorting can take care of sorting old messages
-        // that contain index numbers like "Report 3: xxxx"
-        val filteredList = when (filterBy) {
-            null -> logs
-            else -> logs.filter { it.type == filterBy }
-        }.sortedBy { it.detail.message }
-        // Now order the list so that logs contain first non-item messages, then item messages, and item messages
-        // are sorted by index.
-        val orderedList = (
-            filteredList.filter { it.scope != ActionLogScope.item }.sortedBy { it.scope } +
-                filteredList.filter { it.scope == ActionLogScope.item }.sortedBy { it.index }
-            ).toMutableList()
-        // Now consolidate the list
-        while (orderedList.isNotEmpty()) {
-            // Grab the first log.
-            val consolidatedLog = ConsolidatedActionLog(orderedList.first())
-            orderedList.removeFirst()
-            // Now find similar logs and consolidate it.  Note by using the iterator we can delete on the fly.
-            with(orderedList.iterator()) {
-                forEach { log ->
-                    if (consolidatedLog.canBeConsolidatedWith(log)) {
-                        consolidatedLog.add(log)
-                        remove()
-                    }
-                }
-            }
-            consolidatedList.add(consolidatedLog)
-        }
-
-        return consolidatedList
-    }
-}
 
 /**
  * This is a container for various bits of report data used by DetailedReportFileHistory
@@ -192,7 +76,7 @@ data class DetailedReport(
 
 /**
  * Consolidated action log class to be output to the API JSON response.
- * @property log the base log message to be consolidated
+ * @param log the base log message to be consolidated
  */
 @JsonInclude(Include.NON_NULL)
 class ConsolidatedActionLog(log: DetailedActionLog) {
@@ -266,7 +150,7 @@ class ConsolidatedActionLog(log: DetailedActionLog) {
 /**
  * Detail action log class used to read the data from the database.
  *
- * @property scope the level in which this log ocurred (e.g. report, item...)
+ * @property scope the level in which this log occurred (e.g. report, item...)
  * @property reportId unique identifier for the report that owns this log
  * @property index position in the report of the item that caused this log
  * @property trackingId id for identifying the test this log is related to

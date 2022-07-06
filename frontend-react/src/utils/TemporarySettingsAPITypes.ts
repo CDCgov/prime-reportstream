@@ -60,11 +60,6 @@ enum USTimeZone {
     CHAMORRO = "Pacific/Guam",
 }
 
-enum FtpsProtocol {
-    SSL = "SSL",
-    TLS = "TLS",
-}
-
 enum GAENUUIDFormat {
     PHONE_DATE = "PHONE_DATE",
     REPORT_ID = "REPORT_ID",
@@ -237,15 +232,6 @@ class SampleTransportObject extends SampleObject {
         contentDescription: "",
     };
 
-    FTPS = {
-        host: "",
-        port: 0,
-        username: "",
-        password: "",
-        protocol: FtpsProtocol.SSL,
-        binaryTransfer: true,
-    };
-
     GAEN = {
         apiUrl: "",
         uuidFormat: GAENUUIDFormat.REPORT_ID,
@@ -254,7 +240,6 @@ class SampleTransportObject extends SampleObject {
 
     getAllEnums(): Map<string, string[]> {
         return new Map<string, string[]>([
-            ["FTPS.protocol", Array.from(Object.values(FtpsProtocol))],
             ["GAEN.uuidFormat", Array.from(Object.values(GAENUUIDFormat))],
         ]);
     }
