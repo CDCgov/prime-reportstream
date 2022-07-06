@@ -662,8 +662,8 @@
             - '*': "CO-ELR"
           MSH-3:
             - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-          reportingFacilityName: CDC PRIME
-          reportingFacilityId: 11D2030855
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 11D2030855
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -692,8 +692,8 @@
             - '*': "CO-ELR"
           MSH-3:
             - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-          reportingFacilityName: CDC PRIME
-          reportingFacilityId: 11D2030855
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 11D2030855
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -724,8 +724,8 @@
             - '*': "CO-ELR"
           MSH-3:
             - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-          reportingFacilityName: CDC PRIME
-          reportingFacilityId: 11D2030855
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 11D2030855
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1543,7 +1543,7 @@
           MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
           MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
         suppressAoe: true
-        truncateHl7Fields: OBR-16-3, ORC-12-3, OBX-23-1, ORC-21-1
+        truncateHl7Fields: OBX-17-1, OBR-16-3, ORC-12-3, OBX-23-1, ORC-21-1
         truncateHDNamespaceIds: true
         cliaForOutOfStateTesting: CDPH000075
       transport:
