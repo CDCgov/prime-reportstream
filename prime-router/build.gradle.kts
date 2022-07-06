@@ -659,7 +659,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.26.0")
+    implementation("com.azure:azure-core:1.30.0")
     implementation("com.azure:azure-core-http-netty:1.12.2")
     implementation("com.azure:azure-storage-blob:12.14.4") {
         exclude(group = "com.azure", module = "azure-core")
@@ -693,7 +693,7 @@ dependencies {
     }
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.18")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.7.1")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.0.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.49")
