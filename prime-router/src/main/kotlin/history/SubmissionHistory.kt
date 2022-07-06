@@ -90,6 +90,13 @@ class DetailedSubmissionHistory(
     null,
     httpStatus
 ) {
+    /**
+     * Alias for the reportId
+     * Legacy support needs this older property
+     */
+    val id: String? get() {
+        return reportId
+    }
 
     /**
      * Errors logged for this Report File.
@@ -110,14 +117,6 @@ class DetailedSubmissionHistory(
      * The number of errors.  Note this is not the number of consolidated errors.
      */
     val errorCount = logs.count { it.type == ActionLogLevel.error }
-
-    /**
-     * Alias for the reportId
-     * Legacy support needs this older property
-     */
-    val id: String? get() {
-        return reportId
-    }
 
     /**
      * The destinations.

@@ -80,6 +80,16 @@ class DeliveryHistory(
     }
 }
 
+/**
+ * Class containing information to be output when getting delivery facilities
+ *
+ * @property reportId unique identifier for this specific report file
+ * @property facility the full name of the facility
+ * @property location city and state of the facility
+ * @property clia The CLIA number (10-digit alphanumeric) of the facility
+ * @property positive the result (conclusion) of the test. 0 = negative (good usually)
+ * @property total number of facilities included in the object
+ */
 @JsonPropertyOrder(
     value = [
         "reportId",

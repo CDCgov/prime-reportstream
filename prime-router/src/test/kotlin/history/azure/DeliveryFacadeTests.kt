@@ -242,8 +242,6 @@ class DeliveryFacadeTests {
                 any(),
                 any(),
                 any(),
-                any(),
-                any(),
             )
         } returns facilities
 
@@ -252,23 +250,11 @@ class DeliveryFacadeTests {
             ReportId.fromString(reportId),
             HistoryDatabaseAccess.SortDir.DESC,
             DatabaseDeliveryAccess.FacilitySortColumn.NAME,
-            null,
-            10,
         )
 
         assertThat(facilities.first().reportId).isEqualTo(result.first().reportId)
-
-        // Unhappy path: "pageSize must be a positive integer."
-        assertThat {
-            facade.findDeliveryFacilities(
-                ReportId.fromString(reportId),
-                HistoryDatabaseAccess.SortDir.DESC,
-                DatabaseDeliveryAccess.FacilitySortColumn.NAME,
-                null,
-                -10,
-            )
-        }.isFailure().hasMessage("pageSize must be a positive integer.")
     }
+
     @Test
     fun `test companion instance`() {
         val facade = DeliveryFacade.instance

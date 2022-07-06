@@ -542,8 +542,6 @@ class DeliveryFunctionTests : Logging {
                 any(),
                 any(),
                 any(),
-                any(),
-                any(),
             )
         } returns returnBody
 

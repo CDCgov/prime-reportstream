@@ -10,7 +10,6 @@ import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DeliveryFacility
 import org.jooq.Condition
 import org.jooq.impl.DSL
-import java.time.OffsetDateTime
 
 /**
  * Class to access lookup tables stored in the database.
@@ -20,8 +19,7 @@ class DatabaseDeliveryAccess(
 ) : HistoryDatabaseAccess(db) {
 
     /**
-     * TODO
-     *
+     * Values that facilities can be sorted by
      */
     enum class FacilitySortColumn {
         NAME,
@@ -65,12 +63,18 @@ class DatabaseDeliveryAccess(
         TODO("Not yet implemented")
     }
 
+    /**
+     * Fetch a list of facilities for a single delivery.
+     *
+     * @param reportId ID of report whose details we want to see
+     * @param sortDir sort the table in ASC or DESC order.
+     * @param sortColumn sort the table by specific column
+     * @return a list of facilities
+     */
     fun fetchFacilityList(
         reportId: ReportId,
         sortDir: SortDir,
         sortColumn: FacilitySortColumn,
-        cursor: OffsetDateTime?,
-        pageSize: Int,
     ): List<DeliveryFacility> {
         val column = when (sortColumn) {
             /* Decides sort column by enum */
@@ -88,8 +92,6 @@ class DatabaseDeliveryAccess(
             SortDir.DESC -> column.desc()
         }
 
-//        var filter: Condition?
-
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
                 // Note the report file and action tables have columns with the same name, so we must specify what we need.
@@ -104,13 +106,7 @@ class DatabaseDeliveryAccess(
                 .from(Tables.REPORT_FACILITIES(reportId))
                 .orderBy(sortedColumn)
 
-            if (cursor != null) {
-//                query.seek(cursor)
-//                query.seek()
-            }
-
-            query.limit(pageSize)
-                .fetchInto(DeliveryFacility::class.java)
+            query.fetchInto(DeliveryFacility::class.java)
         }
     }
 }

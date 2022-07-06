@@ -96,23 +96,23 @@ class DeliveryFacade(
 //        )
     }
 
+    /**
+     * Get facilities for a single delivery.
+     *
+     * @param reportId ID of report whose details we want to see
+     * @param sortDir sort the table in ASC or DESC order.
+     * @param sortColumn sort the table by specific column
+     * @return a list of facilities
+     */
     fun findDeliveryFacilities(
         reportId: ReportId,
         sortDir: HistoryDatabaseAccess.SortDir,
         sortColumn: DatabaseDeliveryAccess.FacilitySortColumn,
-        cursor: OffsetDateTime?,
-        pageSize: Int
     ): List<DeliveryFacility> {
-        require(pageSize > 0) {
-            "pageSize must be a positive integer."
-        }
-
         return dbDeliveryAccess.fetchFacilityList(
             reportId,
             sortDir,
             sortColumn,
-            cursor,
-            pageSize,
         )
     }
 

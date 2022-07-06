@@ -180,8 +180,6 @@ class DeliveryFunction(
                         ReportId.fromString(reportId),
                         params.sortDir,
                         facilityParams.sortColumn,
-                        params.cursor,
-                        params.pageSize,
                     )
                 )
             )

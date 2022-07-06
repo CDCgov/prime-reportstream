@@ -101,6 +101,8 @@ paths:
           schema:
             type: string
             format: uuid
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
       responses:
         '200':
           description: an array of facilities in the report
@@ -165,10 +167,14 @@ components:
     FacilitiesList:
       type: array
       items:
-        $ref: '#/components/schemas/Facility'
-    Facility:
+        $ref: '#/components/schemas/DeliveryFacility'
+    DeliveryFacility:
       type: object
       properties:
+        reportId:
+          description: the uuid for the referenced report
+          type: string
+          format: uuid
         facility:
           description: the full name of the facility
           type: string
