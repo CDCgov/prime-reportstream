@@ -1,3 +1,5 @@
+## THIS PAGE IS NO LONGER UPDATED. PLEASE VISIT THE FOLLOWINK LINK TO VIEW THE LATEST LIST OF REPORTSTREAM JURISDICTIONS: https://reportstream.cdc.gov/how-it-works/where-were-live
+
 ## Supported Jurisdictions
 
 ## Last updated: September 15, 2021

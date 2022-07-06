@@ -1,5 +1,7 @@
 package gov.cdc.prime.router
 
+import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.model.v251.segment.MSH
 import gov.cdc.prime.router.Report.Format
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
@@ -262,6 +264,9 @@ class ELRReceiver : SubmissionReceiver {
             report, rawBody, sender, actionHistory, payloadName
         )
 
+        // check for valid message type
+        messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
+
         // if there are any errors, kick this out.
         if (actionLogs.hasErrors()) {
             throw actionLogs.exception
@@ -288,5 +293,24 @@ class ELRReceiver : SubmissionReceiver {
 //                routeTo
             ).serialize()
         )
+    }
+
+    /**
+     * Checks that a [message] is of the supported type(s), and uses the [actionLogs] to add an error
+     * message for item with index [itemIndex] if it is not.
+     */
+    internal fun checkValidMessageType(message: Message, actionLogs: ActionLogger, itemIndex: Int) {
+        val header = message.get("MSH")
+        check(header is MSH)
+        val messageType = header.messageType.msg1_MessageCode.value +
+            "_" +
+            header.messageType.msg2_TriggerEvent.value
+
+        // TODO: This may need to be a configurable value in the future, if we ever support message types other
+        //  than ORU_RO1. As of 6/15/2022 multiple message type support is out of scope
+        if (messageType != "ORU_R01") {
+            actionLogs.getItemLogger(itemIndex)
+                .error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
+        }
     }
 }

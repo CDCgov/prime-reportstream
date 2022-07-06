@@ -27,7 +27,6 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
-import gov.cdc.prime.router.transport.FTPSTransport
 import gov.cdc.prime.router.transport.GAENTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
@@ -57,7 +56,6 @@ class WorkflowEngine(
     val translator: Translator = Translator(metadata, settings),
     val sftpTransport: SftpTransport = SftpTransport(),
     val as2Transport: AS2Transport = AS2Transport(),
-    val ftpsTransport: FTPSTransport = FTPSTransport(),
     val soapTransport: SoapTransport = SoapTransport(),
     val gaenTransport: GAENTransport = GAENTransport()
 ) : BaseEngine(queue) {
@@ -307,6 +305,7 @@ class WorkflowEngine(
         msgs: MutableList<String>,
     ) {
         // Send immediately.
+        var doSendQueue = false // set to true if all the required actions complete
         val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null, isEmptyBatch = false)
         db.transact { txn ->
             db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
@@ -325,15 +324,17 @@ class WorkflowEngine(
                 throw Exception("Cannot send $reportId. It is not associated with receiver ${receiver.fullName}")
             }
             if (header.task.nextActionAt != null && header.task.nextActionAt.isAfter(OffsetDateTime.now())) {
-                throw Exception(
+                msgs.add(
                     "Cannot send $reportId. Its already scheduled to ${header.task.nextAction}" +
                         " at ${header.task.nextActionAt}"
                 )
+                return@transact
             }
-            val retryItems: RetryItems = RetryToken.allItems
 
+            val retryItems: RetryItems = RetryToken.allItems
             if (retryItems.isEmpty()) {
                 msgs.add("All Items in $reportId successfully sent.  Nothing to resend. DONE")
+                return@transact
             } else {
                 if (retryItems == RetryToken.allItems) {
                     msgs.add("Will resend all (${reportFile.itemCount}) items in $reportId")
@@ -352,12 +353,13 @@ class WorkflowEngine(
                         txn
                     )
                     msgs.add("$reportId has been queued to resend immediately to ${receiver.fullName}\n")
+                    doSendQueue = true
                 } else {
                     msgs.add("Nothing sent.  This was just a test")
                 }
             }
         }
-        if (!isTest) queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
+        if (!isTest && doSendQueue) queue.sendMessage(nextEvent) // Avoid race condition by doing after txn completes.
     }
 
     /**

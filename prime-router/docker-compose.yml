@@ -89,30 +89,6 @@ services:
     networks:
       - prime-router_build
 
-  # local FTPS Server
-  ftps:
-    image: stilliard/pure-ftpd
-    ports:
-      - "21000:21"
-      - "30000-30009:30000-30009"
-    volumes:
-      - ./build/ftps:/home/ftpusers
-      - ./build/ftps:/etc/ssl/private
-      - ./build/ftps:/etc/pure-ftpd/passwd/
-      - ./build/ftps:/var/log/pure-ftpd/
-    environment:
-      PUBLICHOST: "ftps"
-      FTP_USER_NAME: ftps
-      FTP_USER_PASS: ftps
-      FTP_USER_HOME: /home/test-user
-      ADDED_FLAGS: "--tls=2 -d"
-      TLS_CN: "localhost"
-      TLS_ORG: "TestOrg"
-      TLS_C: "DE"
-    restart: always
-    networks:
-      - prime-router_build
-
   # Secrets management
   vault:
     image: vault
