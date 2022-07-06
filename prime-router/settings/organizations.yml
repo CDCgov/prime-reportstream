@@ -673,8 +673,8 @@
             - '*': "CO-ELR"
           MSH-3:
             - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-          reportingFacilityName: CDC PRIME
-          reportingFacilityId: 11D2030855
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 11D2030855
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -703,8 +703,8 @@
             - '*': "CO-ELR"
           MSH-3:
             - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-          reportingFacilityName: CDC PRIME
-          reportingFacilityId: 11D2030855
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 11D2030855
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -735,8 +735,8 @@
             - '*': "CO-ELR"
           MSH-3:
             - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-          reportingFacilityName: CDC PRIME
-          reportingFacilityId: 11D2030855
+        reportingFacilityName: CDC PRIME
+        reportingFacilityId: 11D2030855
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
