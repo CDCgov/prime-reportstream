@@ -26,6 +26,7 @@ import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
+import kotlin.collections.mutableMapOf
 
 plugins {
     kotlin("jvm") version "1.7.0"
@@ -84,11 +85,17 @@ val jooqPackageName = "gov.cdc.prime.router.azure.db"
  * Add the `VAULT_TOKEN` in the local vault to the [env] map
  */
 fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
-    val file = File(".vault/env/.env.local")
-    if (!file.exists()) return
+    val vaultFile = File(project.projectDir, ".vault/env/.env.local")
+    if (!vaultFile.exists()) {
+        vaultFile.createNewFile()
+        throw GradleException("Your vault configuration has not been initialized. Start/Restart your vault container.")
+    }
     val prop = Properties()
-    FileInputStream(file).use { prop.load(it) }
+    FileInputStream(vaultFile).use { prop.load(it) }
     prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
+    if (!env.contains("CREDENTIAL_STORAGE_METHOD") || env["CREDENTIAL_STORAGE_METHOD"] != "HASHICORP_VAULT") {
+        throw GradleException("Your vault configuration is incorrect.  Check your ${vaultFile.absolutePath} file.")
+    }
 }
 
 defaultTasks("package")
@@ -383,6 +390,17 @@ tasks.register("reloadTables") {
     group = rootProject.description ?: ""
     description = "Load the latest test lookup tables to the database"
     project.extra["cliArgs"] = listOf("lookuptables", "loadall")
+    finalizedBy("primeCLI")
+}
+
+tasks.register("reloadCredentials") {
+    dependsOn("composeUp")
+    group = rootProject.description ?: ""
+    description = "Load the SFTP credentials used for local testing to the vault"
+    project.extra["cliArgs"] = listOf(
+        "create-credential", "--type=UserPass", "--persist=DEFAULT-SFTP", "--user",
+        "foo", "--pass", "pass"
+    )
     finalizedBy("primeCLI")
 }
 
