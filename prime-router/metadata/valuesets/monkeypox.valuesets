@@ -7,3 +7,10 @@
   values:
     - code: "257261003"
       display: "Swab (specimen)"
+
+- name: monkeypox/test_result
+  system: SNOMED_CT
+  values:
+      - code: "260373001"
+        display: "Non-variola Orthopoxvirus DNA detected"
+        version: "2.16.840.1.113883.6.96"

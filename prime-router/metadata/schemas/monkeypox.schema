@@ -311,12 +311,9 @@ elements:
     cardinality: ONE
 
   - name: patient_county_code
-    type: TABLE
+    type: TEXT
     pii: false
     cardinality: ZERO_OR_ONE
-    table: fips-county
-    tableColumn: FIPS
-    mapper: lookup(patient_state, patient_county)
     hl7Field: PID-11-9
     documentation: The FIPS code for the patient's county
 
@@ -591,9 +588,29 @@ elements:
     default: ISO
     documentation: The message profile identifier universal id type
 
-  - name: reason_for_study
-    type: TEXT # Pretty complicated field that could use multiple coding systems
-    hl7Field: OBR-31
+  - name: reason_for_study_id
+    type: TEXT
+    hl7Field: OBR-31-1
+
+  - name: reason_for_study_text
+    type: TEXT
+    hl7Field: OBR-31-2
+
+  - name: reason_for_study_coding_system
+    type: TEXT
+    hl7Field: OBR-31-3
+
+  - name: reason_for_study_alternate_id
+    type: TEXT
+    hl7Field: OBR-31-4
+
+  - name: reason_for_study_alternate_text
+    type: TEXT
+    hl7Field: OBR-31-5
+
+  - name: reason_for_study_alternate_coding_system
+    type: TEXT
+    hl7Field: OBR-31-6
 
   - name: receiving_application
     type: HD
@@ -635,6 +652,10 @@ elements:
     type: TEXT
     default: CWE
     hl7Field: OBX-2
+
+  - name: security
+    type: TEXT
+    hl7Field: MSH-8
 
   - name: sending_application
     type: HD
@@ -699,6 +720,18 @@ elements:
     hl7Field: SPM-4
     documentation: The specimen source, such as Blood or Serum
 
+  - name: specimen_type_modifier_id
+    type: TEXT
+    hl7Field: SPM-5-1
+
+  - name: specimen_type_modifier_name
+    type: TEXT
+    hl7Field: SPM-5-2
+
+  - name: specimen_type_modifier_system
+    type: TEXT
+    hl7Field: SPM-5-3
+
   - name: test_correction_reason
     type: TEXT
     hl7Field: NTE-3
@@ -746,13 +779,19 @@ elements:
     type: TEXT
     hl7Field: OBX-3-7
 
-  # TODO: replace with a monkeypox valueset
-  - name: test_result
-    type: CODE
-    valueSet: covid-19/test_result
-    hl7Field: OBX-5
+  - name: test_result_id
+    type: TEXT
+    hl7Field: OBX-5-1
     documentation: |
       The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
+
+  - name: test_result_text
+    type: TEXT
+    hl7Field: OBX-5-2
+
+  - name: test_result_coding_system
+    type: TEXT
+    hl7Field: OBX-5-3
 
   - name: test_result_date
     type: DATETIME
