@@ -676,7 +676,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
-    implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
+    implementation("com.microsoft.azure.functions:azure-functions-java-library:2.0.1")
     implementation("com.azure:azure-core:1.30.0")
     implementation("com.azure:azure-core-http-netty:1.12.2")
     implementation("com.azure:azure-storage-blob:12.17.1") {
