@@ -1,0 +1,12 @@
+{
+  "deliveryId": 922,
+  "sent": "2022-04-19T18:04:26.534Z",
+  "expires": "2022-05-19T18:04:26.534Z",
+  "receivingOrg": "ca-dph",
+  "receivingOrgSvc": "elr-secondary",
+  "reportId": "b9f63105-bbed-4b41-b1ad-002a90f07e62",
+  "topic": "covid-19",
+  "reportItemCount": 14,
+  "fileName": "covid-19-c6cf3ffe-6c36-4af5-a5b0-14788bc41a9b-20220419134719.hl7",
+  "fileType": "HL7_BATCH",
+}

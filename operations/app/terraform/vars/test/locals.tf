@@ -7,7 +7,7 @@ locals {
     is_metabase_env     = true
     resource_group_name = "prime-data-hub-${local.environment}"
     resource_prefix     = "pdh${local.environment}"
-    okta_redirect_url   = "https://prime-data-hub-rkh5012.azurefd.net/download"
+    okta_redirect_url   = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
     okta_base_url       = "hhs-prime.oktapreview.com"
   }
   key_vault = {

@@ -1,0 +1,36 @@
+collectedDateTime:
+  condition: $end NULL
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: SPM.17.1
+    end: SPM.17.2
+
+collectedPeriod:
+  condition: $end NOT_NULL
+  valueOf: datatype/Period
+  expressionType: resource
+  vars:
+    start: SPM.17.1
+    end: SPM.17.2
+
+quantity:
+  valueOf: datatype/Quantity
+  expressionType: resource
+  vars:
+    value: SPM.12.1
+    unit: SPM.12.2
+
+method:
+  condition: $spm7 NOT_NULL
+  valueOf: datatype/CodeableConcept
+  expressionType: resource
+  specs: SPM.7
+  vars:
+    spm7: SPM.7
+
+bodySite:
+  valueOf: datatype/CodeableConcept
+  expressionType: resource
+  specs: SPM.8

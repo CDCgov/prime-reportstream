@@ -7,30 +7,43 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
-import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
-import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
-import gov.cdc.prime.router.tokens.authenticationFailure
-import gov.cdc.prime.router.tokens.authorizationFailure
-import org.jooq.exception.DataAccessException
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.history.DetailedSubmissionHistory
 
 /**
  * Submissions API
- * Returns a list of Actions from `public.action`.
+ * Returns a list of Actions from `public.action`. combined with `public.report_file`.
+ *
+ * @property reportFileFacade Facade class containing business logic to handle the data.
+ * @property workflowEngine Container for helpers and accessors used when dealing with the workflow.
  */
 class SubmissionFunction(
     val submissionsFacade: SubmissionsFacade = SubmissionsFacade.instance,
     workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : ReportFileFunction(
+    submissionsFacade,
     workflowEngine,
 ) {
+    /**
+     * Get the correct name for an organization sender based on the name.
+     *
+     * @param organization Name of organization and service
+     * @return Name for the organization
+     */
     override fun userOrgName(organization: String): String? {
         return workflowEngine.settings.findSender(organization)?.organizationName
     }
 
-    override fun historyAsJson(request: HttpRequestMessage<String?>, userOrgName: String): String {
-        val params = HistoryApiParameters(request.queryParameters)
+    /**
+     * Get a list of submission history
+     *
+     * @param queryParams Parameters extracted from the HTTP Request
+     * @param userOrgName Name of the organization
+     * @return json list of submissions
+     */
+    override fun historyAsJson(queryParams: MutableMap<String, String>, userOrgName: String): String {
+        val params = HistoryApiParameters(queryParams)
 
         return submissionsFacade.findSubmissionsAsJson(
             userOrgName,
@@ -43,6 +56,20 @@ class SubmissionFunction(
             params.pageSize,
             params.showFailed,
         )
+    }
+
+    /**
+     * Get expanded details for a single report
+     *
+     * @param queryParams Parameters extracted from the HTTP Request
+     * @param action Action from which the data for the submission is loaded
+     * @return
+     */
+    override fun singleDetailedHistory(
+        queryParams: MutableMap<String, String>,
+        action: Action
+    ): DetailedSubmissionHistory? {
+        return submissionsFacade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)
     }
 
     /**
@@ -77,50 +104,6 @@ class SubmissionFunction(
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: String,
     ): HttpResponseMessage {
-        try {
-            // Do authentication
-            val claims = AuthenticationStrategy.authenticate(request)
-                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-            logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
-
-            // Figure out whether we're dealing with an action_id or a report_id.
-            val submissionId = id.toLongOrNull() // toLong a sacrifice can make a Null of the heart
-            val action = if (submissionId == null) {
-                val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
-                submissionsFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
-            } else {
-                submissionsFacade.fetchAction(submissionId) ?: error("No such submissionId $submissionId")
-            }
-
-            // Confirm this is actually a submission.
-            if (action.sendingOrg == null || action.actionName != TaskAction.receive) {
-                return HttpUtilities.notFoundResponse(request, "$id is not a submitted report")
-            }
-
-            // Do Authorization.  Confirm these claims allow access to this Action
-            if (!submissionsFacade.checkSenderAccessAuthorization(action, claims)) {
-                logger.warn(
-                    "Invalid Authorization for user ${claims.userName}:" +
-                        " ${request.httpMethod}:${request.uri.path}"
-                )
-                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
-            }
-            logger.info(
-                "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
-            )
-
-            val submission = submissionsFacade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)
-            return if (submission != null)
-                HttpUtilities.okJSONResponse(request, submission)
-            else
-                HttpUtilities.notFoundResponse(request, "Submission $submissionId was not found.")
-        } catch (e: DataAccessException) {
-            logger.error("Unable to fetch history for submission ID $id", e)
-            return HttpUtilities.internalErrorResponse(request)
-        } catch (ex: IllegalStateException) {
-            logger.error(ex)
-            // Errors above are actionId or UUID not found errors.
-            return HttpUtilities.notFoundResponse(request, ex.message)
-        }
+        return this.getDetailedView(request, id)
     }
 }
