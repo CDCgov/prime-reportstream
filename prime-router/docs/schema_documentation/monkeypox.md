@@ -3352,11 +3352,11 @@ P, D, or T for Production, Debugging, or Training
 
 ---
 
-**Name**: receiving_application
+**Name**: receiving_application_namespace_id
 
-**ReportStream Internal Name**: receiving_application
+**ReportStream Internal Name**: receiving_application_namespace_id
 
-**Type**: HD
+**Type**: TEXT
 
 **PII**: No
 
@@ -3364,15 +3364,15 @@ P, D, or T for Production, Debugging, or Training
 
 **Documentation**:
 
-The receiving application for the message (specified by the receiver)
+The receiving application name for the message (specified by the receiver)
 
 ---
 
-**Name**: receiving_facility
+**Name**: receiving_application_universal_id
 
-**ReportStream Internal Name**: receiving_facility
+**ReportStream Internal Name**: receiving_application_universal_id
 
-**Type**: HD
+**Type**: TEXT
 
 **PII**: No
 
@@ -3380,7 +3380,71 @@ The receiving application for the message (specified by the receiver)
 
 **Documentation**:
 
-The receiving facility for the message (specified by the receiver)
+The receiving application id for the message (specified by the receiver)
+
+---
+
+**Name**: receiving_application_universal_id_type
+
+**ReportStream Internal Name**: receiving_application_universal_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The receiving application id type for the message (specified by the receiver)
+
+---
+
+**Name**: receiving_facility_namespace_id
+
+**ReportStream Internal Name**: receiving_facility_namespace_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The receiving facility name for the message (specified by the receiver)
+
+---
+
+**Name**: receiving_facility_universal_id
+
+**ReportStream Internal Name**: receiving_facility_universal_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The receiving facility id for the message (specified by the receiver)
+
+---
+
+**Name**: receiving_facility_universal_id_type
+
+**ReportStream Internal Name**: receiving_facility_universal_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The receiving facility id type for the message (specified by the receiver)
 
 ---
 
@@ -3513,21 +3577,59 @@ to the downstream jurisdiction.
 
 ---
 
-**Name**: sending_application
+**Name**: sending_application_namespace_id
 
-**ReportStream Internal Name**: sending_application
+**ReportStream Internal Name**: sending_application_namespace_id
 
-**Type**: HD
+**Type**: TEXT
 
 **PII**: No
 
-**Default Value**: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
+**Default Value**: CDC PRIME - Atlanta, Georgia (Dekalb)
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-The name and OID for the application sending information to the receivers
+The name for the application sending information to the receivers
+
+
+---
+
+**Name**: sending_application_universal_id
+
+**ReportStream Internal Name**: sending_application_universal_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: 2.16.840.1.114222.4.1.237821
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID for the application sending information to the receivers
+
+
+---
+
+**Name**: sending_application_universal_id_type
+
+**ReportStream Internal Name**: sending_application_universal_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: ISO
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID type for the application sending information to the receivers
 
 
 ---
