@@ -1,6 +1,5 @@
 ---
-# This is set of standard data elements for covid-19 topic
-#
+# This is set of standard data elements for monkeypox
 # Conventions:
 # - Sort by element name
 # - Use the HL7 message name with _ instead of space and lower cased
@@ -612,15 +611,35 @@ elements:
     type: TEXT
     hl7Field: OBR-31-6
 
-  - name: receiving_application
-    type: HD
-    hl7Field: MSH-5
-    documentation: The receiving application for the message (specified by the receiver)
+  - name: receiving_application_namespace_id
+    type: TEXT
+    hl7Field: MSH-5-1
+    documentation: The receiving application name for the message (specified by the receiver)
 
-  - name: receiving_facility
-    type: HD
-    hl7Field: MSH-6
-    documentation: The receiving facility for the message (specified by the receiver)
+  - name: receiving_application_universal_id
+    type: TEXT
+    hl7Field: MSH-5-2
+    documentation: The receiving application id for the message (specified by the receiver)
+
+  - name: receiving_application_universal_id_type
+    type: TEXT
+    hl7Field: MSH-5-3
+    documentation: The receiving application id type for the message (specified by the receiver)
+
+  - name: receiving_facility_namespace_id
+    type: TEXT
+    hl7Field: MSH-6-1
+    documentation: The receiving facility name for the message (specified by the receiver)
+
+  - name: receiving_facility_universal_id
+    type: TEXT
+    hl7Field: MSH-6-2
+    documentation: The receiving facility id for the message (specified by the receiver)
+
+  - name: receiving_facility_universal_id_type
+    type: TEXT
+    hl7Field: MSH-6-3
+    documentation: The receiving facility id type for the message (specified by the receiver)
 
   - name: reference_range
     type: TEXT
@@ -657,13 +676,26 @@ elements:
     type: TEXT
     hl7Field: MSH-8
 
-  - name: sending_application
-    type: HD
-    # Default is the official name of PRIME from CDC PHIN. Matches the OID in sending_application_id, below.
-    default: CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO
-    hl7Field: MSH-3
+  - name: sending_application_namespace_id
+    type: TEXT
+    default: CDC PRIME - Atlanta, Georgia (Dekalb)
+    hl7Field: MSH-3-1
     documentation: |
-      The name and OID for the application sending information to the receivers
+      The name for the application sending information to the receivers
+
+  - name: sending_application_universal_id
+    type: TEXT
+    default: 2.16.840.1.114222.4.1.237821
+    hl7Field: MSH-3-2
+    documentation: |
+      The ID for the application sending information to the receivers
+
+  - name: sending_application_universal_id_type
+    type: TEXT
+    default: ISO
+    hl7Field: MSH-3-3
+    documentation: |
+      The ID type for the application sending information to the receivers
 
   - name: site_of_care
     type: TEXT

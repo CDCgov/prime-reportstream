@@ -3163,6 +3163,12 @@
       organizationName: ny-phd
       topic: monkeypox
       customerStatus: testing
+      routingFilter:
+        - "AllowAll()"
+      processingModeFilter:
+        - "AllowAll()"
+      qualityFilter:
+        - "AllowAll()"
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, NY, patient_state, NY)
       translation:
