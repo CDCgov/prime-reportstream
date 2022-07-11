@@ -53,7 +53,9 @@ export const CsvSchemaDocumentationItem: React.FC<CsvSchemaItemProps> = ({
                 {item.notes?.map((note, noteIndex) => (
                     <p
                         key={`${item.colHeader}-note-${noteIndex}`}
-                        dangerouslySetInnerHTML={{ __html: `${note}` }}
+                        dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(note),
+                        }}
                     />
                 ))}
             </div>
@@ -75,7 +77,9 @@ export const CsvSchemaDocumentationItem: React.FC<CsvSchemaItemProps> = ({
                     {item.values?.map((value, valueIndex) => (
                         <li
                             key={`${item.colHeader}-value-${valueIndex}`}
-                            dangerouslySetInnerHTML={{ __html: `${value}` }}
+                            dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(value),
+                            }}
                         />
                     ))}
                 </ul>

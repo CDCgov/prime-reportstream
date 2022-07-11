@@ -265,7 +265,7 @@ class ELRReceiver : SubmissionReceiver {
         )
 
         // check for valid message type
-        messages.forEach { checkValidMessageType(it, actionLogs) }
+        messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
 
         // if there are any errors, kick this out.
         if (actionLogs.hasErrors()) {
@@ -295,7 +295,11 @@ class ELRReceiver : SubmissionReceiver {
         )
     }
 
-    internal fun checkValidMessageType(message: Message, actionLogs: ActionLogger) {
+    /**
+     * Checks that a [message] is of the supported type(s), and uses the [actionLogs] to add an error
+     * message for item with index [itemIndex] if it is not.
+     */
+    internal fun checkValidMessageType(message: Message, actionLogs: ActionLogger, itemIndex: Int) {
         val header = message.get("MSH")
         check(header is MSH)
         val messageType = header.messageType.msg1_MessageCode.value +
@@ -305,7 +309,8 @@ class ELRReceiver : SubmissionReceiver {
         // TODO: This may need to be a configurable value in the future, if we ever support message types other
         //  than ORU_RO1. As of 6/15/2022 multiple message type support is out of scope
         if (messageType != "ORU_R01") {
-            actionLogs.error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
+            actionLogs.getItemLogger(itemIndex)
+                .error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
         }
     }
 }
