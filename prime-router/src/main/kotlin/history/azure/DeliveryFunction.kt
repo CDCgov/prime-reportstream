@@ -10,6 +10,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
@@ -50,6 +51,17 @@ class DeliveryFunction(
         val receiver = workflowEngine.settings.findReceiver(organization)
         receivingOrgSvc = receiver?.name
         return receiver?.organizationName
+    }
+
+    /**
+     * Verify that the action being checked has the correct data/parameters
+     * for the type of report being viewed.
+     *
+     * @param action DB Action that we are reviewing
+     * @return true if action is valid, else false
+     */
+    override fun actionIsValid(action: Action): Boolean {
+        return action.actionName == TaskAction.send
     }
 
     /**

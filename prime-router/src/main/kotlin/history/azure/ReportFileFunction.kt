@@ -4,7 +4,6 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
-import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.ReportHistory
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
@@ -52,6 +51,15 @@ abstract class ReportFileFunction(
      * @return
      */
     abstract fun singleDetailedHistory(queryParams: MutableMap<String, String>, action: Action): ReportHistory?
+
+    /**
+     * Verify that the action being checked has the correct data/parameters
+     * for the type of report being viewed.
+     *
+     * @param action DB Action that we are reviewing
+     * @return true if action is valid, else false
+     */
+    abstract fun actionIsValid(action: Action): Boolean
 
     /**
      * Get a list of reports for a given organization.
@@ -119,10 +127,9 @@ abstract class ReportFileFunction(
                 reportFileFacade.fetchAction(actionId) ?: error("No such actionId $actionId")
             }
 
-            // Confirm this is actually a submission.
-            if (action.sendingOrg == null || action.actionName != TaskAction.receive) {
-                return HttpUtilities.notFoundResponse(request, "$id is not a submitted report")
-            }
+            // Confirm the action is of the expected type for the given endpoint
+            if (!this.actionIsValid(action))
+                return HttpUtilities.notFoundResponse(request, "$id is not a valid report")
 
             // Do Authorization.  Confirm these claims allow access to this Action
             if (!reportFileFacade.checkSenderAccessAuthorization(action, claims)) {
