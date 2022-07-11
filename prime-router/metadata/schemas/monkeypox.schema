@@ -1,5 +1,6 @@
 ---
-# This is set of standard data elements for monkeypox
+# This is set of standard data elements for monkeypox topic
+#
 # Conventions:
 # - Sort by element name
 # - Use the HL7 message name with _ instead of space and lower cased
