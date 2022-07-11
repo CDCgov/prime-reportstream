@@ -94,7 +94,7 @@ abstract class HistoryDatabaseAccess(
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         pageSize: Int,
-        showFailed: Boolean,
+        showFailed: Boolean?,
         klass: Class<T>
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
@@ -166,7 +166,7 @@ abstract class HistoryDatabaseAccess(
         orgService: String?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
-        showFailed: Boolean
+        showFailed: Boolean?
     ): Condition {
         var filter = this.organizationFilter(organization, orgService)
 
@@ -184,6 +184,9 @@ abstract class HistoryDatabaseAccess(
             }
             false -> {
                 ACTION.HTTP_STATUS.between(200, 299)
+            }
+            else -> {
+                ACTION.HTTP_STATUS.isNull
             }
         }
 
