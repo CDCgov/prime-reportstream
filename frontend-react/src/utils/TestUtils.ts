@@ -7,11 +7,7 @@ const mockToken = (mock?: Partial<AccessToken>): AccessToken => {
         scopes: mock?.scopes || [],
         userinfoUrl: mock?.userinfoUrl || "",
         accessToken: mock?.accessToken || "",
-        claims: mock?.claims
-            ? mock.claims
-            : {
-                  sub: "",
-              },
+        claims: mock?.claims || { sub: "" },
         tokenType: mock?.tokenType || "",
     };
 };
