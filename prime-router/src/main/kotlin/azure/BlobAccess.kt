@@ -174,7 +174,7 @@ class BlobAccess(
          */
         fun downloadBlob(blobUrl: String): ByteArray {
             val stream = ByteArrayOutputStream()
-            stream.use { getBlobClient(blobUrl).download(it) }
+            stream.use { getBlobClient(blobUrl).downloadStream(it) }
             return stream.toByteArray()
         }
 
