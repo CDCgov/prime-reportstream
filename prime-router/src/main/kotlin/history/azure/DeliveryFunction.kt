@@ -142,7 +142,7 @@ class DeliveryFunction(
             name = "getDeliveryFacilities",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "waters/report/{deliveryId}/facilities"
+            route = "waters/report/{reportId}/facilities"
         ) request: HttpRequestMessage<String?>,
         @BindingName("reportId") reportId: String,
     ): HttpResponseMessage {
@@ -185,6 +185,10 @@ class DeliveryFunction(
             )
         } catch (e: IllegalArgumentException) {
             return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
+        } catch (ex: IllegalStateException) {
+            logger.error(ex)
+            // Errors above are actionId or UUID not found errors.
+            return HttpUtilities.notFoundResponse(request, ex.message)
         }
     }
 
