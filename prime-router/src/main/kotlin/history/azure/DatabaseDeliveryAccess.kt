@@ -25,11 +25,11 @@ class DatabaseDeliveryAccess(
         organization: String,
         orgService: String?,
     ): Condition {
-        var filter = ACTION.ACTION_NAME.eq(TaskAction.receive)
+        var filter = ACTION.ACTION_NAME.eq(TaskAction.send)
             .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
 
         if (orgService != null) {
-            filter = filter.and(ACTION.SENDING_ORG_CLIENT.eq(orgService))
+            filter = filter.and(REPORT_FILE.RECEIVING_ORG_SVC.eq(orgService))
         }
 
         return filter
