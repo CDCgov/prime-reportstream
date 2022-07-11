@@ -79,13 +79,12 @@ elements:
   - name: filler_name
     type: TEXT
     hl7Field: ORC-3-2
-    hl7OutputFields: [ORC-3-2, OBR-3-2]
 
   - name: filler_order_id
     type: ID
     hl7Field: ORC-3-1
-    hl7OutputFields: [ ORC-3-1, SPM-2-2, OBR-3-1 ]
-    documentation: Accension number
+    hl7OutputFields: [ ORC-3-1, SPM-2-2 ]
+    documentation: Accession number
 
   - name: filler_clia
     type: ID_CLIA
@@ -148,6 +147,18 @@ elements:
     type: TEXT
     hl7Field: ORC-21-1
     documentation: The name of the facility which the test was ordered from
+
+  - name: ordering_facility_name_assigning_authority
+    type: TEXT
+    hl7Field: ORC-21-6
+
+  - name: ordering_facility_name_identifier_type_code
+    type: TEXT
+    hl7Field: ORC-21-7
+
+  - name: ordering_facility_name_organization_identifier
+    type: TEXT
+    hl7Field: ORC-21-10
 
   - name: ordering_facility_phone_number
     type: TELEPHONE
@@ -900,6 +911,18 @@ elements:
     hl7Field: OBR-3-1
     documentation: The accession number of the specimen collected
 
+  - name: testing_lab_accession_number_namespace_id
+    type: TEXT
+    hl7Field: OBR-3-2
+
+  - name: testing_lab_accession_number_universal_id
+    type: TEXT
+    hl7Field: OBR-3-3
+
+  - name: testing_lab_accession_number_universal_id_system
+    type: TEXT
+    hl7Field: OBR-3-4
+
   - name: testing_lab_city
     type: CITY
     hl7Field: OBX-24-3
@@ -952,7 +975,7 @@ elements:
     type: ID_CLIA
     cardinality: ONE
     hl7Field: OBX-23-10
-    hl7OutputFields: [ OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3, OBR-2-3, ORC-2-3 ]
+    hl7OutputFields: [ OBX-15-1, OBX-23-10, ORC-3-3, OBR-2-3, ORC-2-3 ]
     documentation: |
       CLIA Number from the laboratory that sends the message to DOH
       
@@ -961,7 +984,7 @@ elements:
   - name: testing_lab_name
     type: TEXT
     hl7Field: OBX-23-1
-    hl7OutputFields: [ ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1, OBX-15-2 ]
+    hl7OutputFields: [ ORC-2-2, OBR-2-2, ORC-3-2, OBX-23-1, OBX-15-2 ]
     documentation: |
       The name of the laboratory which performed the test, can be the same as the sending facility name
 
