@@ -670,7 +670,7 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.3.3")
+    jooqGenerator("org.postgresql:postgresql:42.4.0")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
