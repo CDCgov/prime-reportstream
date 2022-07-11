@@ -6,15 +6,12 @@ import {
     Label,
     FileInput,
 } from "@trussworks/react-uswds";
-import moment from "moment";
-import { NavLink } from "react-router-dom";
 
 import { showError } from "../components/AlertNotifications";
 import Spinner from "../components/Spinner";
 import watersApiFunctions from "../network/api/WatersApiFunctions";
 import { useSessionContext } from "../contexts/SessionContext";
 import { StaticAlert } from "../components/StaticAlert";
-import { useOrganizationResource } from "../hooks/UseOrganizationResouce";
 
 // values taken from Report.kt
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
@@ -29,13 +26,8 @@ const Validate = () => {
     const [contentType, setContentType] = useState("");
     const [fileName, setFileName] = useState("");
     const [errors, setErrors] = useState([]);
-    const [destinations, setDestinations] = useState("");
     const [reportId, setReportId] = useState(null);
-    const [successTimestamp, setSuccessTimestamp] = useState("");
     const [buttonText, setButtonText] = useState("Validate");
-    const [headerMessage, setHeaderMessage] = useState(
-        "Validate your COVID-19 results"
-    );
     const [errorMessageText, setErrorMessageText] = useState(
         `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
     );
@@ -46,8 +38,6 @@ const Validate = () => {
     const parsedName = memberships.state.active?.parsedName;
     const senderName = memberships.state.active?.senderName;
     const client = `${parsedName}.${senderName}`;
-
-    const { organization } = useOrganizationResource();
 
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
@@ -161,9 +151,7 @@ const Validate = () => {
         // reset the state on subsequent uploads
         setIsSubmitting(true);
         setReportId(null);
-        setSuccessTimestamp("");
         setErrors([]);
-        setDestinations("");
 
         if (fileContent.length === 0) {
             return;
@@ -179,21 +167,9 @@ const Validate = () => {
                 parsedName || "",
                 accessToken || ""
             );
-            if (response?.destinations?.length) {
-                // NOTE: `{ readonly [key: string]: string }` means a key:value object
-                setDestinations(
-                    response.destinations
-                        .map(
-                            (d: { readonly [key: string]: string }) =>
-                                d["organization"]
-                        )
-                        .join(", ")
-                );
-            }
 
             if (response?.id) {
                 setReportId(response.id);
-                setSuccessTimestamp(response.timestamp);
                 event.currentTarget.reset();
             }
 
@@ -206,8 +182,6 @@ const Validate = () => {
                         : "Please resolve the errors below and upload your edited file. Your file has not been accepted."
                 );
             }
-
-            setHeaderMessage("Your COVID-19 Results");
         } catch (error) {
             // Noop.  Errors are collected below
         }
@@ -231,89 +205,16 @@ const Validate = () => {
         setIsSubmitting(false);
     };
 
-    /* @deprecated Use of Moment needs to be refactored out */
-    const formattedSuccessDate = (format: string) => {
-        const timestampDate = new Date(successTimestamp);
-        return moment(timestampDate).format(format);
-    };
-
-    const timeZoneAbbreviated = () => {
-        return Intl.DateTimeFormat().resolvedOptions().timeZone;
-    };
-
     return (
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">
-                {organization?.description}
+                ReportStream File Validator
             </h1>
-            <h2 className="font-sans-lg">{headerMessage}</h2>
             {reportId && (
-                <div>
-                    <StaticAlert
-                        type={"success"}
-                        heading={"Success: File accepted"}
-                        message={
-                            "Your file has been successfully transmitted to the department of health."
-                        }
-                    >
-                        <p className="margin-top-0">
-                            <NavLink
-                                to="/submissions"
-                                className="text-no-underline"
-                            >
-                                Review your file status in Submissions.
-                            </NavLink>
-                        </p>
-                    </StaticAlert>
-                    <div>
-                        <p
-                            id="orgName"
-                            className="text-normal text-base margin-bottom-0"
-                        >
-                            Confirmation Code
-                        </p>
-                        <p className="margin-top-05">{reportId}</p>
-                    </div>
-                    <div>
-                        <p
-                            id="orgName"
-                            className="text-normal text-base margin-bottom-0"
-                        >
-                            Date Received
-                        </p>
-                        <p className="margin-top-05">
-                            {formattedSuccessDate("DD MMMM YYYY")}
-                        </p>
-                    </div>
-
-                    <div>
-                        <p
-                            id="orgName"
-                            className="text-normal text-base margin-bottom-0"
-                        >
-                            Time Received
-                        </p>
-                        <p className="margin-top-05">{`${formattedSuccessDate(
-                            "h:mm"
-                        )} ${timeZoneAbbreviated()}`}</p>
-                    </div>
-                    <div>
-                        <p
-                            id="orgName"
-                            className="text-normal text-base margin-bottom-0"
-                        >
-                            Recipients
-                        </p>
-                        {destinations && (
-                            <p className="margin-top-05">{destinations}</p>
-                        )}
-                        {!destinations && (
-                            <p className="margin-top-05">
-                                There are no known recipients at this time.
-                            </p>
-                        )}
-                    </div>
-                </div>
+                <ValidationSuccess
+                    fileName={fileName}
+                    fileType={contentType.match("hl7") ? "HL7" : "CSV"}
+                />
             )}
 
             {errors.length > 0 && (
@@ -385,6 +286,32 @@ const Validate = () => {
                 </div>
             </Form>
         </div>
+    );
+};
+
+type ValidationSuccessProps = {
+    fileName: string;
+    fileType: string;
+};
+
+const ValidationSuccess = ({ fileName, fileType }: ValidationSuccessProps) => {
+    return (
+        <>
+            <StaticAlert
+                type={"success"}
+                heading={"Your file has been validated"}
+                message={`Your file meets the standard ${fileType} schema and can be successfully transmitted.`}
+            />
+            <div>
+                <p
+                    id="validatedFilename"
+                    className="text-normal text-base margin-bottom-0"
+                >
+                    File name
+                </p>
+                <p className="margin-top-05">{fileName}</p>
+            </div>
+        </>
     );
 };
 
