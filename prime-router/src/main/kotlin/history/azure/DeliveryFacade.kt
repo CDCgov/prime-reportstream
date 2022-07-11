@@ -68,12 +68,10 @@ class DeliveryFacade(
     /**
      * Get expanded details for a single report
      *
-     * @param organizationName Name of the organization receiving this report.
      * @param deliveryId id for the delivery being used
      * @return Report details
      */
     fun findDetailedDeliveryHistory(
-        organizationName: String,
         deliveryId: Long,
     ): DeliveryHistory? {
         return DeliveryHistory(
@@ -83,7 +81,7 @@ class DeliveryFacade(
             "c3c8e304-8eff-4882-9000-3645054a30b7",
             "covid-19",
             1,
-            organizationName,
+            "ak-phd",
             "elr-secondary",
             null,
             "covid-19",

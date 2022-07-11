@@ -96,7 +96,7 @@ class DeliveryFunction(
      * @return
      */
     override fun singleDetailedHistory(queryParams: MutableMap<String, String>, action: Action): DeliveryHistory? {
-        return deliveryFacade.findDetailedDeliveryHistory(action.sendingOrg, action.actionId)
+        return deliveryFacade.findDetailedDeliveryHistory(action.actionId)
     }
 
     /**
@@ -125,7 +125,7 @@ class DeliveryFunction(
      * Get expanded details for a single report
      *
      * @param request HTML request body.
-     * @param deliveryId Report or Delivery id
+     * @param id Report or Delivery id
      * @return json formatted delivery
      */
     @FunctionName("getDeliveryDetails")
@@ -136,16 +136,16 @@ class DeliveryFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{deliveryId}/delivery"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("deliveryId") deliveryId: String,
+        @BindingName("id") id: String,
     ): HttpResponseMessage {
-        return this.getDetailedView(request, deliveryId)
+        return this.getDetailedView(request, id)
     }
 
     /**
      * Get a sortable list of delivery facilities
      *
      * @param request HTML request body.
-     * @param reportId UUID for the report to get facilities from
+     * @param id Report or Delivery id for the report to get facilities from
      * @return JSON of the facility list or errors.
      */
     @FunctionName("getDeliveryFacilities")
@@ -154,9 +154,9 @@ class DeliveryFunction(
             name = "getDeliveryFacilities",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "waters/report/{reportId}/facilities"
+            route = "waters/report/{id}/facilities"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("reportId") reportId: String,
+        @BindingName("id") id: String,
     ): HttpResponseMessage {
         try {
             // Do authentication
@@ -165,9 +165,14 @@ class DeliveryFunction(
 
             logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
 
-            val convertedReportId = toUuidOrNull(reportId) ?: error("Bad format: $reportId must be a num or a UUID")
-            val action = deliveryFacade.fetchActionForReportId(convertedReportId)
-                ?: error("No such reportId: $reportId")
+            // Figure out whether we're dealing with a deliveryId or a reportId.
+            val actionId = id.toLongOrNull()
+            val action = if (actionId == null) {
+                val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
+                deliveryFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
+            } else {
+                deliveryFacade.fetchAction(actionId) ?: error("No such actionId $actionId")
+            }
 
             // Do Authorization.  Confirm these claims allow access to this Action
             if (!deliveryFacade.checkSenderAccessAuthorization(action, claims)) {
@@ -189,7 +194,7 @@ class DeliveryFunction(
                 request,
                 mapper.writeValueAsString(
                     deliveryFacade.findDeliveryFacilities(
-                        ReportId.fromString(reportId),
+                        ReportId.fromString(id),
                         params.sortDir,
                         facilityParams.sortColumn,
                     )

@@ -215,7 +215,6 @@ class ReportFunction(
 
         check(actionHistory.action.actionId > 0)
         val submission = SubmissionsFacade.instance.findDetailedSubmissionHistory(
-            actionHistory.action.sendingOrg,
             actionHistory.action.actionId
         )
         val response = request.createResponseBuilder(httpStatus)
