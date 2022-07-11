@@ -178,16 +178,13 @@ abstract class HistoryDatabaseAccess(
             filter = filter.and(ACTION.CREATED_AT.lt(until))
         }
 
-        val failedFilter: Condition = when (showFailed) {
-            true -> {
-                ACTION.HTTP_STATUS.between(200, 600)
-            }
-            false -> {
-                ACTION.HTTP_STATUS.between(200, 299)
-            }
+        return if (showFailed) {
+            filter
+        } else {
+            // don't show failed = need to filter by status
+            val failedFilter = ACTION.HTTP_STATUS.between(200, 299)
+            filter.and(failedFilter)
         }
-
-        return filter.and(failedFilter)
     }
 
     /**
