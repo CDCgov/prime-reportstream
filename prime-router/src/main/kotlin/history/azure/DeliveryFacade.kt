@@ -90,7 +90,7 @@ class DeliveryFacade(
             since,
             until,
             pageSize,
-            null,
+            true,
             DeliveryHistory::class.java
         )
     }
