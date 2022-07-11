@@ -25,6 +25,7 @@ resources:
       - .PD1
       - MSH
       - .NTE
+      - .NK1
 
   - resourceName: Encounter
     segment: .PV1
