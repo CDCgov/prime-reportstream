@@ -19,6 +19,9 @@ const filterManagerDefaults: FilterManagerDefaults = {
         column: "sent",
         locally: true,
     },
+    pageDefaults: {
+        size: 100,
+    },
 };
 
 interface ReceiverFeeds {
