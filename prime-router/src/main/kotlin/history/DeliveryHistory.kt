@@ -106,8 +106,8 @@ data class DeliveryFacility(
         var loc = this.testingLabCity
 
         if (this.testingLabState != null) {
-            loc += if (loc != null) {
-                ", " + this.testingLabState
+            loc = if (loc != null) {
+                loc + ", " + this.testingLabState
             } else {
                 this.testingLabState
             }
