@@ -23,6 +23,7 @@ import {
     FeatureFlagName,
 } from "../../pages/misc/FeatureFlags";
 import SubmissionsResource from "../../resources/SubmissionsResource";
+import { useSessionContext } from "../../contexts/SessionContext";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
@@ -97,6 +98,7 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
 
 /** @deprecated Replace with new numbered pagination version */
 function SubmissionTableWithCursorManager() {
+    const { memberships } = useSessionContext();
     const filterManager = useFilterManager(filterManagerDefaults);
     const cursorManager = useCursorManager(filterManager.rangeSettings.to);
 
@@ -110,7 +112,7 @@ function SubmissionTableWithCursorManager() {
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
         {
-            organization: getStoredOrg(),
+            organization: memberships.state.active?.parsedName || "no-org",
             cursor: cursorOrRange(
                 filterManager.sortSettings.order,
                 RangeField.TO,
