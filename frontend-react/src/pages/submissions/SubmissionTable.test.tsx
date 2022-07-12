@@ -89,11 +89,24 @@ describe("SubmissionTable", () => {
         });
 
         test("renders a placeholder", async () => {
+            mockSessionContext.mockReturnValue({
+                memberships: {
+                    state: {
+                        active: {
+                            memberType: MemberType.SENDER,
+                            parsedName: "testOrg",
+                            senderName: "testSender",
+                        },
+                    },
+                } as MembershipController,
+                store: {} as SessionController, // TS yells about removing this because of types
+            });
             const fixtures: Fixture[] = [
                 {
                     endpoint: SubmissionsResource.list(),
                     args: [
                         {
+                            organization: "testOrg",
                             cursor: "3000-01-01T00:00:00.000Z",
                             endCursor: "2000-01-01T00:00:00.000Z",
                             pageSize: 61,
@@ -108,7 +121,6 @@ describe("SubmissionTable", () => {
                     ] as SubmissionsResource[],
                 },
             ];
-
             renderWithResolver(<SubmissionTable />, fixtures);
 
             const pagination = await screen.findByLabelText(

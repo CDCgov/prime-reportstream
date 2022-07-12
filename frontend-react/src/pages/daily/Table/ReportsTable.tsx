@@ -14,6 +14,7 @@ import { showError } from "../../../components/AlertNotifications";
 import TableButtonGroup from "./TableButtonGroup";
 import { getReportAndDownload } from "./ReportsUtils";
 
+/** @todo: page size default set to 10 once paginated */
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
         column: "sent",

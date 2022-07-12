@@ -17,7 +17,6 @@ import useCursorManager, {
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters from "../../components/Table/TableFilters";
 import { PaginationProps } from "../../components/Table/Pagination";
-import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import {
     CheckFeatureFlag,
     FeatureFlagName,
@@ -112,7 +111,7 @@ function SubmissionTableWithCursorManager() {
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
         {
-            organization: memberships.state.active?.parsedName || "no-org",
+            organization: memberships.state.active?.parsedName,
             cursor: cursorOrRange(
                 filterManager.sortSettings.order,
                 RangeField.TO,
@@ -155,7 +154,7 @@ function SubmissionTableWithCursorManager() {
 }
 
 function SubmissionTableWithNumberedPagination() {
-    const organization = getStoredOrg();
+    const { memberships } = useSessionContext();
 
     const filterManager = useFilterManager(filterManagerDefaults);
     const pageSize = filterManager.pageSettings.size;
@@ -174,7 +173,7 @@ function SubmissionTableWithNumberedPagination() {
             const cursor = sortOrder === "DESC" ? currentCursor : rangeTo;
             const endCursor = sortOrder === "DESC" ? rangeFrom : currentCursor;
             return controllerFetch(SubmissionsResource.list(), {
-                organization,
+                organization: memberships.state.active?.parsedName,
                 cursor,
                 endCursor,
                 pageSize: numResults,
@@ -182,7 +181,13 @@ function SubmissionTableWithNumberedPagination() {
                 showFailed: false,
             }) as unknown as Promise<SubmissionsResource[]>;
         },
-        [organization, sortOrder, controllerFetch, rangeFrom, rangeTo]
+        [
+            memberships.state.active?.parsedName,
+            sortOrder,
+            controllerFetch,
+            rangeFrom,
+            rangeTo,
+        ]
     );
 
     // The start cursor is the high value when results are in descending order
