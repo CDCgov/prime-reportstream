@@ -83,7 +83,7 @@ class AdminApiFunctionsTests {
         val mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
         val function = AdminApiFunctions(db, mockOktaAuthenticator)
-        function.run(mockRequest)
+        function.getSendFailures(mockRequest)
         verify(exactly = 1) {
             mockResponseBuilder.body(
                 withArg {
