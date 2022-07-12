@@ -200,8 +200,14 @@ abstract class ReportFileFunction(
                 val col = query["sortcol"]
                 return if (col == null)
                     HistoryDatabaseAccess.SortColumn.CREATED_AT
-                else
-                    HistoryDatabaseAccess.SortColumn.valueOf(col)
+                else {
+                    // https://stackoverflow.com/a/41844910/1978219
+                    if (HistoryDatabaseAccess.SortColumn.values().any { it.name == col })
+                        HistoryDatabaseAccess.SortColumn.valueOf(col)
+                    else {
+                        HistoryDatabaseAccess.SortColumn.CREATED_AT
+                    }
+                }
             }
 
             /**
