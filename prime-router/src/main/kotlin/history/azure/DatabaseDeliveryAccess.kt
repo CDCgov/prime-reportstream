@@ -94,7 +94,6 @@ class DatabaseDeliveryAccess(
 
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
-                // Note the report file and action tables have columns with the same name, so we must specify what we need.
                 .select(
                     Tables.REPORT_FACILITIES.TESTING_LAB_NAME,
                     Tables.REPORT_FACILITIES.TESTING_LAB_CITY,

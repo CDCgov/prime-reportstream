@@ -81,31 +81,38 @@ class DeliveryHistory(
 }
 
 /**
- * Class containing information to be output when getting delivery facilities
+ * Class containing information fetched from the DB when getting delivery facilities
  *
- * @property reportId unique identifier for this specific report file
- * @property facility the full name of the facility
- * @property location city and state of the facility
- * @property clia The CLIA number (10-digit alphanumeric) of the facility
+ * @property testingLabName the full name of the facility
+ * @property testingLabCity city of the facility
+ * @property testingLabState state of the facility
+ * @property testingLabClia The CLIA number (10-digit alphanumeric) of the facility
  * @property positive the result (conclusion) of the test. 0 = negative (good usually)
- * @property total number of facilities included in the object
+ * @property countRecords number of facilities included in the object
  */
-@JsonPropertyOrder(
-    value = [
-        "reportId",
-        "facility",
-        "location",
-        "clia",
-        "positive",
-        "total",
-    ]
-)
 data class DeliveryFacility(
-    val reportId: String?,
-    val facility: String?,
-    val location: String?,
-    @JsonProperty("CLIA")
-    val clia: String?,
+    val testingLabName: String?,
+    val testingLabCity: String?,
+    val testingLabState: String?,
+    val testingLabClia: String?,
     val positive: Long?,
-    val total: Long?
-)
+    val countRecords: Long?,
+) {
+    /**
+     * This is a combination of the city and state values
+     * for easier conversion into an output format
+     */
+    val location: String? get() {
+        var loc = this.testingLabCity
+
+        if (this.testingLabState != null) {
+            loc += if (loc != null) {
+                ", " + this.testingLabState
+            } else {
+                this.testingLabState
+            }
+        }
+
+        return loc
+    }
+}

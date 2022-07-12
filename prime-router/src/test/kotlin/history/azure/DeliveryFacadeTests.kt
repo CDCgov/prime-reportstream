@@ -210,25 +210,25 @@ class DeliveryFacadeTests {
 
         val facilities = listOf<DeliveryFacility>(
             DeliveryFacility(
-                reportId,
                 "Any lab USA",
-                "Kurtistown, HI",
+                "Kurtistown",
+                "HI",
                 "43D1961163",
                 0,
                 1,
             ),
             DeliveryFacility(
-                reportId,
                 "Any lab USA",
-                "Paauilo, HI",
+                "Paauilo",
+                "HI",
                 "52D0993791",
                 0,
                 14,
             ),
             DeliveryFacility(
-                reportId,
                 "Any lab USA",
-                "Kekaha, HI",
+                "Kekaha",
+                "HI",
                 "90D6609198",
                 0,
                 1,
@@ -250,7 +250,8 @@ class DeliveryFacadeTests {
             DatabaseDeliveryAccess.FacilitySortColumn.NAME,
         )
 
-        assertThat(facilities.first().reportId).isEqualTo(result.first().reportId)
+        assertThat(facilities.first().testingLabName).isEqualTo(result.first().testingLabName)
+        assertThat(facilities.first().location).isEqualTo(result.first().location)
     }
 
     @Test

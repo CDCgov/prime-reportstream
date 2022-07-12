@@ -84,15 +84,6 @@ class DeliveryFunctionTests : Logging {
         val fileName: String,
     )
 
-    data class ExpectedFacility(
-        val reportId: String?,
-        val facility: String?,
-        val location: String?,
-        val clia: String?,
-        val positive: Long?,
-        val total: Long?,
-    )
-
     private val testData = listOf(
         DeliveryHistory(
             actionId = 922,
@@ -290,7 +281,6 @@ class DeliveryFunctionTests : Logging {
             mockDatabaseAccess.fetchAction<DeliveryHistory>(
                 any(),
                 any(),
-                any(),
             )
         } returns testData.first()
 
@@ -442,10 +432,10 @@ class DeliveryFunctionTests : Logging {
         val action = Action()
         action.actionId = 550
         action.sendingOrg = organizationName
-        action.actionName = TaskAction.receive
+        action.actionName = TaskAction.send
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockDeliveryFacade.findDetailedDeliveryHistory(any(), any()) } returns returnBody
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
         every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
         response = function.getDeliveryDetails(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -460,7 +450,7 @@ class DeliveryFunctionTests : Logging {
 
         // Good actionId, but Not found
         val goodActionId = "550"
-        action.actionName = TaskAction.receive
+        action.actionName = TaskAction.send
         every { mockDeliveryFacade.fetchAction(any()) } returns null
         response = function.getDeliveryDetails(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
@@ -474,7 +464,7 @@ class DeliveryFunctionTests : Logging {
         // Happy path with a good actionId
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockDeliveryFacade.fetchAction(any()) } returns action
-        every { mockDeliveryFacade.findDetailedDeliveryHistory(any(), any()) } returns returnBody
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
         every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
         response = function.getDeliveryDetails(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -526,11 +516,11 @@ class DeliveryFunctionTests : Logging {
 
         // Good return
 
-        val returnBody = listOf<DeliveryFacility>(
+        val returnBody = listOf(
             DeliveryFacility(
-                goodUuid,
                 "Any lab USA",
-                "Kurtistown, HI",
+                "Kurtistown",
+                "HI",
                 "43D1961163",
                 0,
                 1
@@ -554,14 +544,13 @@ class DeliveryFunctionTests : Logging {
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
 
-        var response = function.getDeliveryFacilities(mockRequest, goodUuid)
+        val response = function.getDeliveryFacilities(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
-        val responseBody: List<DeliveryFacility> = mapper.readValue(response.body.toString())
-        assertThat(responseBody.first().reportId).isEqualTo(returnBody.first().reportId)
-        assertThat(responseBody.first().facility).isEqualTo(returnBody.first().facility)
+        val responseBody: List<DeliveryFunction.Facility> = mapper.readValue(response.body.toString())
+        assertThat(responseBody.first().facility).isEqualTo(returnBody.first().testingLabName)
         assertThat(responseBody.first().location).isEqualTo(returnBody.first().location)
-        assertThat(responseBody.first().clia).isEqualTo(returnBody.first().clia)
+        assertThat(responseBody.first().clia).isEqualTo(returnBody.first().testingLabClia)
         assertThat(responseBody.first().positive).isEqualTo(returnBody.first().positive)
-        assertThat(responseBody.first().total).isEqualTo(returnBody.first().total)
+        assertThat(responseBody.first().total).isEqualTo(returnBody.first().countRecords)
     }
 }

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.history.azure
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -190,15 +191,25 @@ class DeliveryFunction(
             val params = HistoryApiParameters(request.queryParameters)
             val facilityParams = FacilityListApiParameters(request.queryParameters)
 
+            val facilities = deliveryFacade.findDeliveryFacilities(
+                ReportId.fromString(id),
+                params.sortDir,
+                facilityParams.sortColumn,
+            )
+
+            val out: List<Facility> = facilities.map {
+                Facility(
+                    it.testingLabName,
+                    it.location,
+                    it.testingLabClia,
+                    it.positive,
+                    it.countRecords,
+                )
+            }
+
             return HttpUtilities.okResponse(
                 request,
-                mapper.writeValueAsString(
-                    deliveryFacade.findDeliveryFacilities(
-                        ReportId.fromString(id),
-                        params.sortDir,
-                        facilityParams.sortColumn,
-                    )
-                )
+                mapper.writeValueAsString(out)
             )
         } catch (e: IllegalArgumentException) {
             return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
@@ -231,4 +242,22 @@ class DeliveryFunction(
             }
         }
     }
+
+    /**
+     * Container for the output data of a facility
+     *
+     * @property facility the full name of the facility
+     * @property location the city and state of the facility
+     * @property clia The CLIA number (10-digit alphanumeric) of the facility
+     * @property positive the result (conclusion) of the test. 0 = negative (good usually)
+     * @property total number of facilities included in the object
+     */
+    data class Facility(
+        val facility: String?,
+        val location: String?,
+        @JsonProperty("CLIA")
+        val clia: String?,
+        val positive: Long?,
+        val total: Long?,
+    )
 }
