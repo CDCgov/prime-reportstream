@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
     Button,
     Form,
@@ -6,7 +6,6 @@ import {
     Label,
     FileInput,
 } from "@trussworks/react-uswds";
-// import { NavLink } from "react-router-dom";
 
 import { showError } from "../components/AlertNotifications";
 import Spinner from "../components/Spinner";
@@ -30,8 +29,7 @@ const Validate = () => {
     const [fileName, setFileName] = useState("");
     const [errors, setErrors] = useState<ResponseError[]>([]);
     const [reportId, setReportId] = useState(null);
-    const [buttonText, setButtonText] = useState("Validate");
-    const [cancellable, setCancellable] = useState<Boolean>(false);
+    const [cancellable, setCancellable] = useState<boolean>(false);
     const [errorMessageText, setErrorMessageText] = useState(
         "Please resolve the errors below and upload your edited file. Your file has not been accepted."
     );
@@ -47,7 +45,6 @@ const Validate = () => {
         setFileName("");
         setErrors([]);
         setReportId(null);
-        setButtonText("Validate");
         setCancellable(false);
         setErrorMessageText(
             "Please resolve the errors below and upload your edited file. Your file has not been accepted."
@@ -224,12 +221,16 @@ const Validate = () => {
         } else {
             setCancellable(false);
         }
-        setButtonText("Validate another file");
         // Changing the key to force the FileInput to reset.
         // Otherwise it won't recognize changes to the file's content unless the file name changes
         setFileInputResetValue(fileInputResetValue + 1);
         setIsSubmitting(false);
     };
+
+    const submitted = useMemo(
+        () => !!(reportId || errors.length),
+        [reportId, errors.length]
+    );
 
     // TODO: let's store file type in state independent of content type, it's easier to work with and more easily descripttive
     return (
@@ -255,23 +256,25 @@ const Validate = () => {
                 onSubmit={(e) => handleSubmit(e)}
                 className="rs-full-width-form"
             >
-                <FormGroup className="margin-bottom-3">
-                    <Label
-                        className="font-sans-xs"
-                        id="upload-csv-input-label"
-                        htmlFor="upload-csv-input"
-                    >
-                        Select an HL7 or CSV formatted file to validate.
-                    </Label>
-                    <FileInput
-                        key={fileInputResetValue}
-                        id="upload-csv-input"
-                        name="upload-csv-input"
-                        aria-describedby="upload-csv-input-label"
-                        onChange={(e) => handleFileChange(e)}
-                        required
-                    />
-                </FormGroup>
+                {!submitted && (
+                    <FormGroup className="margin-bottom-3">
+                        <Label
+                            className="font-sans-xs"
+                            id="upload-csv-input-label"
+                            htmlFor="upload-csv-input"
+                        >
+                            Select an HL7 or CSV formatted file to validate.
+                        </Label>
+                        <FileInput
+                            key={fileInputResetValue}
+                            id="upload-csv-input"
+                            name="upload-csv-input"
+                            aria-describedby="upload-csv-input-label"
+                            onChange={(e) => handleFileChange(e)}
+                            required
+                        />
+                    </FormGroup>
+                )}
                 {isSubmitting && (
                     <div className="grid-col flex-1 display-flex flex-column flex-align-center">
                         <div className="grid-row">
@@ -282,7 +285,7 @@ const Validate = () => {
                 )}
                 <div className="grid-row">
                     <div className="grid-col flex-1 display-flex flex-column flex-align-start">
-                        {cancellable && (
+                        {cancellable && !isSubmitting && (
                             <Button onClick={resetState} type="button" outline>
                                 <span>Cancel</span>
                             </Button>
@@ -290,14 +293,12 @@ const Validate = () => {
                     </div>
                     <div className="grid-col flex-1" />
                     <div className="grid-col flex-1 display-flex flex-column flex-align-end">
-                        {!isSubmitting && (
-                            <Button
-                                type="submit"
-                                disabled={fileName.length === 0}
-                            >
-                                <span>{buttonText}</span>
-                            </Button>
-                        )}
+                        <SubmitButton
+                            isSubmitting={isSubmitting}
+                            submitted={submitted}
+                            fileName={fileName}
+                            reset={resetState}
+                        />
                     </div>
                 </div>
             </Form>
@@ -346,6 +347,8 @@ const ValidationErrorDisplay = ({
     errors,
     messageText,
 }: ValidationErrorDisplayProps) => {
+    const showErrorTable =
+        errors && errors.length && errors.some((error) => error.message);
     return (
         <div>
             <StaticAlert
@@ -362,25 +365,61 @@ const ValidationErrorDisplay = ({
                 </p>
                 <p className="margin-top-05">{fileName}</p>
             </div>
-            <table className="usa-table usa-table--borderless">
-                <thead>
-                    <tr>
-                        <th>Requested Edit</th>
-                        <th>Areas Containing the Requested Edit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {errors.map((e, i) => {
-                        return (
-                            <tr key={"error_" + i}>
-                                <td>{e.message}</td>
-                                <td>Row(s): {e.rowList}</td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
+            {showErrorTable && (
+                <table className="usa-table usa-table--borderless">
+                    <thead>
+                        <tr>
+                            <th>Requested Edit</th>
+                            <th>Areas Containing the Requested Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {errors.map((e, i) => {
+                            return (
+                                <tr key={"error_" + i}>
+                                    <td>{e.message}</td>
+                                    <td>
+                                        {e.rowList && (
+                                            <span>Row(s): {e.rowList}</span>
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            )}
         </div>
+    );
+};
+
+type SubmitButtonProps = {
+    isSubmitting: boolean;
+    submitted: boolean;
+    fileName: string;
+    reset: () => void;
+};
+
+const SubmitButton = ({
+    isSubmitting,
+    submitted,
+    fileName,
+    reset,
+}: SubmitButtonProps) => {
+    if (isSubmitting) {
+        return null;
+    }
+    if (submitted) {
+        return (
+            <Button type="button" onClick={reset}>
+                Validate another file
+            </Button>
+        );
+    }
+    return (
+        <Button type="submit" disabled={fileName.length === 0}>
+            Validate
+        </Button>
     );
 };
 
