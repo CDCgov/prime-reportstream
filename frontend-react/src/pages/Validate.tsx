@@ -21,11 +21,6 @@ const REPORT_MAX_ITEMS = 10000;
 const REPORT_MAX_ITEM_COLUMNS = 2000;
 // const REPORT_MAX_ERRORS = 100;
 
-const DOCUMENTATION_LINKS = {
-    CSV: null,
-    HL7: null,
-};
-
 const Validate = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fileInputResetValue, setFileInputResetValue] = useState(0);
@@ -36,11 +31,28 @@ const Validate = () => {
     const [errors, setErrors] = useState<ResponseError[]>([]);
     const [reportId, setReportId] = useState(null);
     const [buttonText, setButtonText] = useState("Validate");
+    const [cancellable, setCancellable] = useState<Boolean>(false);
     const [errorMessageText, setErrorMessageText] = useState(
-        `Please resolve the errors below and upload your edited file. Your file has not been accepted.`
+        "Please resolve the errors below and upload your edited file. Your file has not been accepted."
     );
 
     const { memberships, oktaToken } = useSessionContext();
+
+    const resetState = () => {
+        setIsSubmitting(false);
+        setFileInputResetValue(fileInputResetValue + 1);
+        setFileContent("");
+        setContentType("");
+        setFileType("");
+        setFileName("");
+        setErrors([]);
+        setReportId(null);
+        setButtonText("Validate");
+        setCancellable(false);
+        setErrorMessageText(
+            "Please resolve the errors below and upload your edited file. Your file has not been accepted."
+        );
+    };
 
     const accessToken = oktaToken?.accessToken;
     const parsedName = memberships.state.active?.parsedName;
@@ -106,10 +118,12 @@ const Validate = () => {
 
             setFileName(file.name);
             setFileContent(filecontent);
+            setCancellable(true);
         } catch (err: any) {
             // todo: have central error reporting mechanism.
             console.error(err);
             showError(`An unexpected error happened: '${err.toString()}'`);
+            setCancellable(false);
         }
     };
 
@@ -206,6 +220,9 @@ const Validate = () => {
                             : "")
             );
             setErrors(response.errors);
+            setCancellable(true);
+        } else {
+            setCancellable(false);
         }
         setButtonText("Validate another file");
         // Changing the key to force the FileInput to reset.
@@ -217,9 +234,7 @@ const Validate = () => {
     // TODO: let's store file type in state independent of content type, it's easier to work with and more easily descripttive
     return (
         <div className="grid-container usa-section margin-bottom-10">
-            <h1 className="margin-top-0 margin-bottom-5">
-                ReportStream File Validator
-            </h1>
+            <h1 className="margin-top-0 margin-bottom-5">File Validator</h1>
             {reportId && (
                 <ValidationSuccessDisplay
                     fileName={fileName}
@@ -229,7 +244,7 @@ const Validate = () => {
 
             {errors.length > 0 && (
                 <ValidationErrorDisplay
-                    // documentationLink={DOCUMENTATION_LINKS[fileType]}
+                    fileName={fileName}
                     fileType={fileType}
                     errors={errors}
                     messageText={errorMessageText}
@@ -265,20 +280,26 @@ const Validate = () => {
                         <div className="grid-row">Processing file...</div>
                     </div>
                 )}
-                {!isSubmitting && (
-                    <div className="grid-row">
-                        <div className="grid-col flex-1" />
-                        <div className="grid-col flex-1" />
-                        <div className="grid-col flex-1 display-flex flex-column flex-align-end">
+                <div className="grid-row">
+                    <div className="grid-col flex-1 display-flex flex-column flex-align-start">
+                        {cancellable && (
+                            <Button onClick={resetState} type="button" outline>
+                                <span>Cancel</span>
+                            </Button>
+                        )}
+                    </div>
+                    <div className="grid-col flex-1" />
+                    <div className="grid-col flex-1 display-flex flex-column flex-align-end">
+                        {!isSubmitting && (
                             <Button
                                 type="submit"
-                                disabled={isSubmitting || fileName.length === 0}
+                                disabled={fileName.length === 0}
                             >
                                 <span>{buttonText}</span>
                             </Button>
-                        </div>
+                        )}
                     </div>
-                )}
+                </div>
             </Form>
         </div>
     );
@@ -314,15 +335,14 @@ const ValidationSuccessDisplay = ({
 };
 
 type ValidationErrorDisplayProps = {
-    // documentationLink: string;
     fileType: string;
     errors: ResponseError[];
     messageText: string;
+    fileName: string;
 };
 
 const ValidationErrorDisplay = ({
-    fileType,
-    // documentationLink,
+    fileName,
     errors,
     messageText,
 }: ValidationErrorDisplayProps) => {
@@ -332,12 +352,16 @@ const ValidationErrorDisplay = ({
                 type={"error"}
                 heading={"We found errors in your file."}
                 message={messageText}
-            >
-                See the {/* <NavLink to={documentationLink}> */}
-                {fileType} schema documentation
-                {/* </NavLink>{" "} */}
-                for help with formatting errors.
-            </StaticAlert>
+            />
+            <div>
+                <p
+                    id="validatedFilename"
+                    className="text-normal text-base margin-bottom-0"
+                >
+                    File name
+                </p>
+                <p className="margin-top-05">{fileName}</p>
+            </div>
             <table className="usa-table usa-table--borderless">
                 <thead>
                     <tr>
