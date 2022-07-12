@@ -30,6 +30,7 @@ export interface ResponseError {
     scope: string | undefined;
     trackingIds: string[] | undefined;
     details: any | undefined;
+    rowList?: string;
 }
 
 const WatersApi: API = new API(WatersResponse, "/api").addEndpoint(

@@ -6,12 +6,14 @@ import {
     Label,
     FileInput,
 } from "@trussworks/react-uswds";
+// import { NavLink } from "react-router-dom";
 
 import { showError } from "../components/AlertNotifications";
 import Spinner from "../components/Spinner";
 import watersApiFunctions from "../network/api/WatersApiFunctions";
 import { useSessionContext } from "../contexts/SessionContext";
 import { StaticAlert } from "../components/StaticAlert";
+import { ResponseError } from "../network/api/WatersApi";
 
 // values taken from Report.kt
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
@@ -19,13 +21,18 @@ const REPORT_MAX_ITEMS = 10000;
 const REPORT_MAX_ITEM_COLUMNS = 2000;
 // const REPORT_MAX_ERRORS = 100;
 
+const DOCUMENTATION_LINKS = {
+    "text/csv": null,
+    "application/hl7-v2": null,
+};
+
 const Validate = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fileInputResetValue, setFileInputResetValue] = useState(0);
     const [fileContent, setFileContent] = useState("");
     const [contentType, setContentType] = useState("");
     const [fileName, setFileName] = useState("");
-    const [errors, setErrors] = useState([]);
+    const [errors, setErrors] = useState<ResponseError[]>([]);
     const [reportId, setReportId] = useState(null);
     const [buttonText, setButtonText] = useState("Validate");
     const [errorMessageText, setErrorMessageText] = useState(
@@ -189,7 +196,7 @@ const Validate = () => {
         // Process the error messages
         if (response?.errors && response.errors.length > 0) {
             // Add a string to properly display the indices if available.
-            response.errors.map(
+            response.errors.forEach(
                 (errorMsg: any) =>
                     (errorMsg.rowList =
                         errorMsg.indices && errorMsg.indices.length > 0
@@ -205,49 +212,26 @@ const Validate = () => {
         setIsSubmitting(false);
     };
 
+    // TODO: let's store file type in state independent of content type, it's easier to work with and more easily descripttive
     return (
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">
                 ReportStream File Validator
             </h1>
             {reportId && (
-                <ValidationSuccess
+                <ValidationSuccessDisplay
                     fileName={fileName}
                     fileType={contentType.match("hl7") ? "HL7" : "CSV"}
                 />
             )}
 
             {errors.length > 0 && (
-                <div>
-                    <div className="usa-alert usa-alert--error" role="alert">
-                        <div className="usa-alert__body">
-                            <h4 className="usa-alert__heading">
-                                Error: File not accepted
-                            </h4>
-                            <p className="usa-alert__text">
-                                {errorMessageText}
-                            </p>
-                        </div>
-                    </div>
-                    <table className="usa-table usa-table--borderless">
-                        <thead>
-                            <tr>
-                                <th>Requested Edit</th>
-                                <th>Areas Containing the Requested Edit</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {errors.map((e, i) => {
-                                return (
-                                    <tr key={"error_" + i}>
-                                        <td>{e["message"]}</td>
-                                        <td>Row(s): {e["rowList"]}</td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+                <ValidationErrorDisplay
+                    documentationLink={DOCUMENTATION_LINKS[contentType]}
+                    fileType={contentType.match("hl7") ? "HL7" : "CSV"}
+                    errors={errors}
+                    messageText={errorMessageText}
+                />
             )}
 
             <Form onSubmit={(e) => handleSubmit(e)}>
@@ -289,12 +273,15 @@ const Validate = () => {
     );
 };
 
-type ValidationSuccessProps = {
+type ValidationSuccessDisplayProps = {
     fileName: string;
     fileType: string;
 };
 
-const ValidationSuccess = ({ fileName, fileType }: ValidationSuccessProps) => {
+const ValidationSuccessDisplay = ({
+    fileName,
+    fileType,
+}: ValidationSuccessDisplayProps) => {
     return (
         <>
             <StaticAlert
@@ -312,6 +299,53 @@ const ValidationSuccess = ({ fileName, fileType }: ValidationSuccessProps) => {
                 <p className="margin-top-05">{fileName}</p>
             </div>
         </>
+    );
+};
+
+type ValidationErrorDisplayProps = {
+    documentationLink: string;
+    fileType: string;
+    errors: ResponseError[]; // TODO: type stronger, need to define type of errors based on response
+    messageText: string;
+};
+
+const ValidationErrorDisplay = ({
+    fileType,
+    documentationLink,
+    errors,
+    messageText,
+}: ValidationErrorDisplayProps) => {
+    return (
+        <div>
+            <StaticAlert
+                type={"error"}
+                heading={"We found errors in your file."}
+                message={messageText}
+            >
+                See the {/* <NavLink to={documentationLink}> */}
+                {fileType} schema documentation
+                {/* </NavLink>{" "} */}
+                for help with formatting errors.
+            </StaticAlert>
+            <table className="usa-table usa-table--borderless">
+                <thead>
+                    <tr>
+                        <th>Requested Edit</th>
+                        <th>Areas Containing the Requested Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {errors.map((e, i) => {
+                        return (
+                            <tr key={"error_" + i}>
+                                <td>{e.message}</td>
+                                <td>Row(s): {e.rowList}</td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+        </div>
     );
 };
 
