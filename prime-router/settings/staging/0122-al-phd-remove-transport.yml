@@ -76,12 +76,6 @@
           action: "NONE"
           onlyOncePerDay: false
       description: ""
-      transport: !<SFTP>
-        host: "172.17.6.20"
-        port: "22"
-        filePath: "./upload"
-        credentialName: null
-        type: "SFTP"
       externalName: "PROD-Feed"
       timeZone: null
       dateTimeFormat: "OFFSET"
