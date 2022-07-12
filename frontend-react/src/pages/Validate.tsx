@@ -22,8 +22,8 @@ const REPORT_MAX_ITEM_COLUMNS = 2000;
 // const REPORT_MAX_ERRORS = 100;
 
 const DOCUMENTATION_LINKS = {
-    "text/csv": null,
-    "application/hl7-v2": null,
+    CSV: null,
+    HL7: null,
 };
 
 const Validate = () => {
@@ -31,6 +31,7 @@ const Validate = () => {
     const [fileInputResetValue, setFileInputResetValue] = useState(0);
     const [fileContent, setFileContent] = useState("");
     const [contentType, setContentType] = useState("");
+    const [fileType, setFileType] = useState("");
     const [fileName, setFileName] = useState("");
     const [errors, setErrors] = useState<ResponseError[]>([]);
     const [reportId, setReportId] = useState(null);
@@ -60,24 +61,25 @@ const Validate = () => {
                 return;
             }
 
-            let fileType;
+            let uploadType;
             if (file.type) {
-                fileType = file.type;
+                uploadType = file.type;
             } else {
                 // look at the filename extension.
                 // it's all we have to go off of for now
                 const fileNameArray = file.name.split(".");
-                fileType = fileNameArray[fileNameArray.length - 1];
+                uploadType = fileNameArray[fileNameArray.length - 1];
             }
 
             if (
-                fileType !== "text/csv" &&
-                fileType !== "csv" &&
-                fileType !== "hl7"
+                uploadType !== "text/csv" &&
+                uploadType !== "csv" &&
+                uploadType !== "hl7"
             ) {
                 showError(`The file type must be .csv or .hl7`);
                 return;
             }
+            setFileType(uploadType.match("hl7") ? "HL7" : "CSV");
 
             if (file.size > PAYLOAD_MAX_BYTES) {
                 const maxkbytes = (PAYLOAD_MAX_BYTES / 1024).toLocaleString(
@@ -93,7 +95,7 @@ const Validate = () => {
             // load the "contents" of the file. Hope it fits in memory!
             const filecontent = await file.text();
 
-            if (fileType === "csv" || fileType === "text/csv") {
+            if (uploadType === "csv" || uploadType === "text/csv") {
                 if (basicCsvFileValidationError(file.name, filecontent)) {
                     return;
                 }
@@ -221,14 +223,14 @@ const Validate = () => {
             {reportId && (
                 <ValidationSuccessDisplay
                     fileName={fileName}
-                    fileType={contentType.match("hl7") ? "HL7" : "CSV"}
+                    fileType={fileType}
                 />
             )}
 
             {errors.length > 0 && (
                 <ValidationErrorDisplay
-                    documentationLink={DOCUMENTATION_LINKS[contentType]}
-                    fileType={contentType.match("hl7") ? "HL7" : "CSV"}
+                    // documentationLink={DOCUMENTATION_LINKS[fileType]}
+                    fileType={fileType}
                     errors={errors}
                     messageText={errorMessageText}
                 />
@@ -303,15 +305,15 @@ const ValidationSuccessDisplay = ({
 };
 
 type ValidationErrorDisplayProps = {
-    documentationLink: string;
+    // documentationLink: string;
     fileType: string;
-    errors: ResponseError[]; // TODO: type stronger, need to define type of errors based on response
+    errors: ResponseError[];
     messageText: string;
 };
 
 const ValidationErrorDisplay = ({
     fileType,
-    documentationLink,
+    // documentationLink,
     errors,
     messageText,
 }: ValidationErrorDisplayProps) => {
