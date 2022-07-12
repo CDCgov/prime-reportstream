@@ -64,7 +64,7 @@ describe("ReportsTable", () => {
             } as MembershipController,
             store: {} as SessionController, // TS yells about removing this because of types
         });
-        const reports = makeFakeData(1);
+        const reports = makeFakeData(199);
         mockApiHook.mockReturnValue({
             data: reports,
             loading: false,
@@ -82,17 +82,25 @@ describe("ReportsTable", () => {
         expect(await screen.findByText("File")).toBeInTheDocument();
     });
 
+    test("renders 100 results per page + 1 header row", () => {
+        const rows = screen.getAllByRole("row");
+        expect(rows).toHaveLength(100 + 1);
+    });
+
     test("dates are transformed on render", async () => {
         const mockSent = new Date(mockMs()).toLocaleString();
         const mockExpires = new Date(mockMs()).toLocaleString();
-        expect(await screen.findByText(mockSent)).toBeInTheDocument();
-        expect(await screen.findByText(mockExpires)).toBeInTheDocument();
+        const renderedSent = await screen.findAllByText(mockSent);
+        const renderedExpires = await screen.findAllByText(mockExpires);
+        expect(renderedSent).toHaveLength(100);
+        expect(renderedExpires).toHaveLength(100);
     });
 
     test("file button downloads file", async () => {
         const mockReports = makeFakeData(1);
         mockFetchReport.mockReturnValue(mockReports[0]);
-        fireEvent.click(await screen.findByText("CSV"));
+        const buttons = await screen.findAllByText("CSV");
+        fireEvent.click(buttons[0]);
         expect(mockFetchReport).toHaveBeenCalled();
     });
 });
