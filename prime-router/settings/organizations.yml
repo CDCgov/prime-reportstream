@@ -297,6 +297,17 @@
       schemaName: hl7/hl7-ingest-covid-19-training
       format: HL7
 
+- name: clxhealth
+  description: CLX Health
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: clxhealth
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
 - name: "naval-health-clinic-lemoore"
   description: "Naval Health Clinic - Lemoore"
   jurisdiction: "FEDERAL"
@@ -2026,7 +2037,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,limsabc-nova)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,limsabc-nova,clxhealth)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -3034,8 +3045,8 @@
         reportingFacilityId: "11D2030855"
         suppressQstForAoe: true
         truncateHDNamespaceIds: true
-        suppressHl7Fields: MSH-19-3
-        truncateHl7Fields: MSH-3-1, PID-3-3, PID-3-6, ORC-2-2, ORC-7-10-5, OBR-2-2, OBR-3-2, SPM-2-1-2, SPM-2-2-2
+        suppressHl7Fields: MSH-19-3, PID-15-3
+        truncateHl7Fields: MSH-3-1, PID-3-3, PID-3-6, ORC-2-2, ORC-7-10-5, OBR-2-2, OBR-3-2, SPM-2-1-2, SPM-2-2-2, ORC-21-1, OBX-23-1
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

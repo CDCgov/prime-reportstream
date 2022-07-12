@@ -26,6 +26,7 @@ import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
+import kotlin.collections.mutableMapOf
 
 plugins {
     kotlin("jvm") version "1.7.0"
@@ -84,11 +85,17 @@ val jooqPackageName = "gov.cdc.prime.router.azure.db"
  * Add the `VAULT_TOKEN` in the local vault to the [env] map
  */
 fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
-    val file = File(".vault/env/.env.local")
-    if (!file.exists()) return
+    val vaultFile = File(project.projectDir, ".vault/env/.env.local")
+    if (!vaultFile.exists()) {
+        vaultFile.createNewFile()
+        throw GradleException("Your vault configuration has not been initialized. Start/Restart your vault container.")
+    }
     val prop = Properties()
-    FileInputStream(file).use { prop.load(it) }
+    FileInputStream(vaultFile).use { prop.load(it) }
     prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
+    if (!env.contains("CREDENTIAL_STORAGE_METHOD") || env["CREDENTIAL_STORAGE_METHOD"] != "HASHICORP_VAULT") {
+        throw GradleException("Your vault configuration is incorrect.  Check your ${vaultFile.absolutePath} file.")
+    }
 }
 
 defaultTasks("package")
@@ -386,6 +393,17 @@ tasks.register("reloadTables") {
     finalizedBy("primeCLI")
 }
 
+tasks.register("reloadCredentials") {
+    dependsOn("composeUp")
+    group = rootProject.description ?: ""
+    description = "Load the SFTP credentials used for local testing to the vault"
+    project.extra["cliArgs"] = listOf(
+        "create-credential", "--type=UserPass", "--persist=DEFAULT-SFTP", "--user",
+        "foo", "--pass", "pass"
+    )
+    finalizedBy("primeCLI")
+}
+
 /**
  * Packaging and running related tasks
  */
@@ -652,7 +670,7 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.3.3")
+    jooqGenerator("org.postgresql:postgresql:42.4.0")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
@@ -661,7 +679,7 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
     implementation("com.azure:azure-core:1.30.0")
     implementation("com.azure:azure-core-http-netty:1.12.2")
-    implementation("com.azure:azure-storage-blob:12.14.4") {
+    implementation("com.azure:azure-storage-blob:12.17.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.12.2") {
@@ -682,7 +700,7 @@ dependencies {
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.4.1")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.3") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
