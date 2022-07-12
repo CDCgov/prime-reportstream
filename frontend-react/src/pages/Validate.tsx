@@ -236,14 +236,17 @@ const Validate = () => {
                 />
             )}
 
-            <Form onSubmit={(e) => handleSubmit(e)}>
+            <Form
+                onSubmit={(e) => handleSubmit(e)}
+                className="rs-full-width-form"
+            >
                 <FormGroup className="margin-bottom-3">
                     <Label
                         className="font-sans-xs"
                         id="upload-csv-input-label"
                         htmlFor="upload-csv-input"
                     >
-                        Upload your COVID-19 lab results as a .CSV or .HL7.
+                        Select an HL7 or CSV formatted file to validate.
                     </Label>
                     <FileInput
                         key={fileInputResetValue}
@@ -254,22 +257,28 @@ const Validate = () => {
                         required
                     />
                 </FormGroup>
-                <div className="display-flex">
-                    <Button
-                        className={`${reportId && "flex-1 margin-right-3"}`}
-                        type="submit"
-                        disabled={isSubmitting || fileName.length === 0}
-                    >
-                        {isSubmitting && (
-                            <span>
-                                <Spinner />
-                                <span>Processing file...</span>
-                            </span>
-                        )}
-
-                        {!isSubmitting && <span>{buttonText}</span>}
-                    </Button>
-                </div>
+                {isSubmitting && (
+                    <div className="grid-col flex-1 display-flex flex-column flex-align-center">
+                        <div className="grid-row">
+                            <Spinner />
+                        </div>
+                        <div className="grid-row">Processing file...</div>
+                    </div>
+                )}
+                {!isSubmitting && (
+                    <div className="grid-row">
+                        <div className="grid-col flex-1" />
+                        <div className="grid-col flex-1" />
+                        <div className="grid-col flex-1 display-flex flex-column flex-align-end">
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting || fileName.length === 0}
+                            >
+                                <span>{buttonText}</span>
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </Form>
         </div>
     );
