@@ -8,7 +8,7 @@
 #  2. The local case where 'build/azure-functions/prime-data-hub-router'1' contains the function
 #  2. The local case where 'azure-functions/prime-data-hub-router' contains the function
 #
-
+JAVA_EXEC=$JAVA_HOME/bin/java
 set -e
 base_name=azure-functions/prime-data-hub-router
 
@@ -30,15 +30,15 @@ function load_config() {
   top_dir=$function_folder/../..
   fatjar=$top_dir/libs/prime-router-0.1-SNAPSHOT-all.jar
   echo "Loading lookup tables..."
-  java -jar $fatjar lookuptables loadall -d $function_folder/metadata/tables/local -r 60 --check-last-modified
+  $JAVA_EXEC -jar $fatjar lookuptables loadall -d $function_folder/metadata/tables/local -r 60 --check-last-modified
   # Note the settings require the full metadata catalog to be in place, so run last
   echo "Loading organization settings..."
-  java -jar $fatjar multiple-settings set -s -i $function_folder/settings/organizations.yml -r 60 --check-last-modified
+  $JAVA_EXEC -jar $fatjar multiple-settings set -s -i $function_folder/settings/organizations.yml -r 60 --check-last-modified
   echo "Done loading local configurations."
 }
 
 # Load the configuration in the background if not running in GitHub Actions.
-if [ ! -z "$GITHUB_ACTIONS" ]
+if [ -z "$GITHUB_ACTIONS" ]
 then
    load_config | awk -v date="$(date +[%FT%TZ])" '{print date " [LOAD CONFIG] " $0}' &
 else
