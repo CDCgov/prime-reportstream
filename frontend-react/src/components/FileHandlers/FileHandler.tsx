@@ -3,7 +3,7 @@ import React, { useState, useMemo } from "react";
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { useOrganizationResource } from "../../hooks/UseOrganizationResouce";
-import { FileResponseError } from "../../network/api/WatersApi";
+import { FileResponseError, ResponseError } from "../../network/api/WatersApi";
 import { WatersPost } from "../../network/api/WatersApiFunctions";
 import { Destination } from "../../resources/ActionDetailsResource";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
@@ -11,7 +11,8 @@ import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import {
     FileErrorDisplay,
     FileSuccessDisplay,
-    FileWarningDisplay,
+    FileWarningsDisplay,
+    FileWarningBanner,
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
@@ -129,6 +130,7 @@ const FileHandler = ({
     >("");
     const [cancellable, setCancellable] = useState<boolean>(false);
     const [errorType, setErrorType] = useState<ErrorType>(ErrorType.FILE);
+    const [warnings, setWarnings] = useState<ResponseError[]>([]);
 
     const { memberships, oktaToken } = useSessionContext();
     const { organization } = useOrganizationResource();
@@ -259,7 +261,7 @@ const FileHandler = ({
             if (response?.id) {
                 setReportId(response.id);
                 setSuccessTimestamp(response.timestamp);
-                event.currentTarget.reset();
+                // event.currentTarget.reset();
             }
 
             // if there is a response status,
@@ -267,8 +269,12 @@ const FileHandler = ({
             if (response?.errors?.length && response?.status) {
                 setErrorType(ErrorType.SERVER);
             }
+            if (response?.warnings?.length) {
+                setWarnings(response.warnings);
+            }
         } catch (error) {
             // Noop.  Errors are collected below
+            console.error("Unexpected error in file handler", error);
         }
 
         // Process the error messages
@@ -312,7 +318,7 @@ const FileHandler = ({
             <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
             <h2 className="font-sans-lg">{organization?.description}</h2>
             {showWarningBanner && (
-                <FileWarningDisplay message={warningText || ""} />
+                <FileWarningBanner message={warningText || ""} />
             )}
             {reportId && (
                 <FileSuccessDisplay
@@ -327,7 +333,13 @@ const FileHandler = ({
                     showExtendedMetadata={showSuccessMetadata}
                 />
             )}
-
+            {warnings.length > 0 && (
+                <FileWarningsDisplay
+                    warnings={warnings}
+                    heading={errorMessaging.heading}
+                    message={errorMessaging.message}
+                />
+            )}
             {errors.length > 0 && (
                 <FileErrorDisplay
                     fileName={fileName}

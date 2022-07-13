@@ -92,35 +92,27 @@ export const FileSuccessDisplay = ({
     );
 };
 
+/***
+ * This function attempts to truncate an error message if it contains
+ * a full stack trace
+ * @param errorMessage - the error message to potentially reformat
+ * @returns - the original or transformed error message
+ */
+const truncateErrorMesssage = (errorMessage: string | undefined): string => {
+    if (!errorMessage) return "";
+
+    if (errorMessage.includes("\n") && errorMessage.includes("Exception:"))
+        return errorMessage.substring(0, errorMessage.indexOf("\n")) + " ...";
+
+    return errorMessage;
+};
+
 type FileErrorDisplayProps = {
     errors: FileResponseError[];
     message: string;
     fileName: string;
     handlerType: string;
     heading: string;
-};
-
-/***
- * This function attempts to truncate an error message if it contains
- * a full stack trace
- * @param truncateErrorMessage - the error message to potentially reformat
- * @returns - the original or transformed error message
- */
-const reformat = (truncateErrorMessage: string | undefined): string => {
-    if (!truncateErrorMessage) return "";
-
-    if (
-        truncateErrorMessage.includes("\n") &&
-        truncateErrorMessage.includes("Exception:")
-    )
-        return (
-            truncateErrorMessage.substring(
-                0,
-                truncateErrorMessage.indexOf("\n")
-            ) + " ..."
-        );
-
-    return truncateErrorMessage;
 };
 
 export const FileErrorDisplay = ({
@@ -165,7 +157,7 @@ export const FileErrorDisplay = ({
                         {errors.map((e, i) => {
                             return (
                                 <tr key={"error_" + i}>
-                                    <td>{reformat(e.message)}</td>
+                                    <td>{truncateErrorMesssage(e.message)}</td>
                                     <td>
                                         {e.rowList && (
                                             <span>Row(s): {e.rowList}</span>
@@ -181,10 +173,55 @@ export const FileErrorDisplay = ({
     );
 };
 
-interface FileWarningDisplayProps {
+interface FileWarningBannerProps {
     message: string;
 }
 
-export const FileWarningDisplay = ({ message }: FileWarningDisplayProps) => {
+export const FileWarningBanner = ({ message }: FileWarningBannerProps) => {
     return <StaticAlert type={"warning"} heading="Warning" message={message} />;
+};
+
+type FileWarningsDisplayProps = {
+    warnings: FileResponseError[];
+    message: string;
+    // fileName: string;
+    // handlerType: string;
+    heading: string;
+};
+
+export const FileWarningsDisplay = ({
+    // fileName,
+    warnings,
+    message,
+    heading,
+}: // handlerType,
+FileWarningsDisplayProps) => {
+    return (
+        <div>
+            <StaticAlert type={"warning"} heading={heading} message={message} />
+            <h3>Warnings</h3>
+            <table className="usa-table usa-table--borderless">
+                <thead>
+                    <tr>
+                        <th>Warning</th>
+                        <th>Areas Containing the Requested Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {warnings.map((w, i) => {
+                        return (
+                            <tr key={"error_" + i}>
+                                <td>{w.message}</td>
+                                <td>
+                                    {w.rowList && (
+                                        <span>Row(s): {w.rowList}</span>
+                                    )}
+                                </td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+        </div>
+    );
 };
