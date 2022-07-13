@@ -1,63 +1,86 @@
-import { useResource } from "rest-hooks";
-import { SetStateAction, useEffect, useMemo, useState } from "react";
-import { useOktaAuth } from "@okta/okta-react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 
 import { getUniqueReceiverSvc } from "../../../utils/ReportUtils";
-import ReportResource from "../../../resources/ReportResource";
 import Table, { TableConfig } from "../../../components/Table/Table";
-import { getStoredOrg } from "../../../contexts/SessionStorageTools";
-import useFilterManager from "../../../hooks/filters/UseFilterManager";
-import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
+import useFilterManager, {
+    FilterManagerDefaults,
+} from "../../../hooks/filters/UseFilterManager";
+import Spinner from "../../../components/Spinner";
+import { useReportsList } from "../../../hooks/network/History/ReportsHooks";
+import { RSReportInterface } from "../../../network/api/History/Reports";
+import { useSessionContext } from "../../../contexts/SessionContext";
+import { showError } from "../../../components/AlertNotifications";
 
 import TableButtonGroup from "./TableButtonGroup";
 import { getReportAndDownload } from "./ReportsUtils";
+
+/** @todo: page size default set to 10 once paginated */
+const filterManagerDefaults: FilterManagerDefaults = {
+    sortDefaults: {
+        column: "sent",
+        locally: true,
+    },
+    pageDefaults: {
+        size: 100,
+    },
+};
+
+interface ReceiverFeeds {
+    activeFeed: RSReportInterface[] | undefined;
+    setActiveFeed: Dispatch<SetStateAction<string | undefined>>;
+    feeds: string[] | undefined;
+}
+const useReceiverFeeds = (reports: RSReportInterface[]): ReceiverFeeds => {
+    /* Keeps a list of all feeds for a receiver */
+    const receiverSVCs: string[] = useMemo(
+        () => Array.from(getUniqueReceiverSvc(reports)),
+        [reports]
+    );
+    const [chosen, setChosen] = useState<string | undefined>(undefined);
+    /* Once reports are fetched, this effect updates the chosen feed to the first feed */
+    useEffect(() => {
+        if (reports?.length >= 1 && receiverSVCs.length >= 1) {
+            setChosen(receiverSVCs[0]);
+        }
+    }, [receiverSVCs, reports]);
+    /* Provides only the feed's objects */
+    const filteredReports = useMemo(
+        () =>
+            reports?.filter((report) => report.receivingOrgSvc === chosen) ||
+            [],
+        [chosen, reports]
+    );
+    return {
+        activeFeed: filteredReports,
+        setActiveFeed: setChosen,
+        feeds: receiverSVCs,
+    };
+};
 
 /*
     This is the main exported component from this file. It provides container styling,
     table headers, and applies the <TableData> component to the table that is created in this
     component.
 */
-function ReportsTable({ sortBy }: { sortBy?: string }) {
-    const auth = useOktaAuth();
-    const organization = getStoredOrg();
-    const reports: ReportResource[] = useResource(ReportResource.list(), {
-        sortBy,
-    });
-    const fm = useFilterManager({
-        sortDefaults: {
-            column: "sent",
-            locally: true,
-        },
-    });
-    const receiverSVCs: string[] = Array.from(getUniqueReceiverSvc(reports));
-    const [chosen, setChosen] = useState(receiverSVCs[0]);
-    const filteredReports = useMemo(
-        () => reports.filter((report) => report.receivingOrgSvc === chosen),
-        [chosen, reports]
-    );
+function ReportsTable() {
+    const { memberships, oktaToken } = useSessionContext();
+    const { data: reports, loading, error } = useReportsList();
+    const { activeFeed, setActiveFeed, feeds } = useReceiverFeeds(reports);
+    const filterManager = useFilterManager(filterManagerDefaults);
 
-    /* This syncs the chosen state from <TableButtonGroup> with the chosen state here */
-    const handleCallback = (chosen: SetStateAction<string>) => {
-        setChosen(chosen);
-    };
+    useEffect(() => {
+        if (error !== "") {
+            showError(error);
+        }
+    }, [error]);
 
     const handleFetchAndDownload = (id: string) => {
         getReportAndDownload(
             id,
-            auth?.authState?.accessToken?.accessToken || "",
-            organization || ""
+            oktaToken?.accessToken || "",
+            memberships.state.active?.parsedName || ""
         );
     };
-
-    /* TODO: Extend FilterManagerDefaults to include pageSize defaults */
-    useEffect(() => {
-        fm.updatePage({
-            type: PageSettingsActionType.SET_SIZE,
-            payload: {
-                size: 100,
-            },
-        });
-    }, []); // eslint-disable-line
 
     const resultsTableConfig: TableConfig = {
         columns: [
@@ -100,29 +123,30 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
                 },
             },
         ],
-        rows: filteredReports,
+        rows: activeFeed || [],
     };
+
+    if (loading) return <Spinner />;
 
     return (
         <>
             <div className="grid-col-12">
-                {receiverSVCs.length > 1 ? (
+                {feeds && feeds.length > 1 ? (
                     <TableButtonGroup
-                        senders={receiverSVCs}
-                        chosenCallback={handleCallback}
+                        senders={feeds}
+                        chosenCallback={setActiveFeed}
                     />
                 ) : null}
             </div>
             <div className="grid-col-12">
-                <Table config={resultsTableConfig} filterManager={fm} />
+                <Table
+                    config={resultsTableConfig}
+                    filterManager={filterManager}
+                />
             </div>
             <div className="grid-container margin-bottom-10">
                 <div className="grid-col-12">
-                    {reports.filter(
-                        (report) => report.receivingOrgSvc === chosen
-                    ).length === 0 ? (
-                        <p>No results</p>
-                    ) : null}
+                    {activeFeed?.length === 0 ? <p>No results</p> : null}
                 </div>
             </div>
         </>
