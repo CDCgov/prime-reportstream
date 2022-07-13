@@ -2,7 +2,7 @@
 version: "3.3"
 services:
   postgresql:
-    image: postgres:11
+    image: postgres:14
     restart: always
     environment:
       POSTGRES_DB: "prime_data_hub"

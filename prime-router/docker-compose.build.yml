@@ -29,7 +29,7 @@ services:
   # build docker-compose as we do not want to dictate that.
   # You can connect using psql, or pgAdmin, or ... just point at 5432 on your local host
   postgresql:
-    image: postgres:11
+    image: postgres:14
     restart: always
     environment:
       POSTGRES_DB: "prime_data_hub"
