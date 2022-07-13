@@ -1,10 +1,12 @@
 import { renderHook } from "@testing-library/react-hooks";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
-import { MembershipController, MemberType } from "../../UseOktaMemberships";
+import {
+    MembershipController,
+    MemberType,
+} from "../../types/UseOktaMembershipsTypes";
 import { SessionController } from "../../UseSessionStorage";
 import { historyServer } from "../../../__mocks__/HistoryMockServer";
-
 import { useReportsList } from "./ReportsHooks";
 
 describe("ReportsHooks", () => {

@@ -8,7 +8,7 @@ import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import {
     MembershipController,
     MemberType,
-} from "../../../hooks/UseOktaMemberships";
+} from "../../../hooks/types/UseOktaMembershipsTypes";
 import { SessionController } from "../../../hooks/UseSessionStorage";
 
 import * as ReportUtilsModule from "./ReportsUtils";

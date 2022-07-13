@@ -5,9 +5,8 @@ import { mockToken } from "../utils/TestUtils";
 import {
     MemberType,
     MembershipActionType,
-    membershipsFromToken,
-    useOktaMemberships,
-} from "./UseOktaMemberships";
+} from "./types/UseOktaMembershipsTypes";
+import { membershipsFromToken, useOktaMemberships } from "./UseOktaMemberships";
 
 describe("useOktaMemberships", () => {
     test("renders with default values", () => {

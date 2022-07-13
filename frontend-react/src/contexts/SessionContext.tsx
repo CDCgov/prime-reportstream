@@ -5,10 +5,8 @@ import { AccessToken } from "@okta/okta-auth-js";
 import useSessionStorage, {
     SessionController,
 } from "../hooks/UseSessionStorage";
-import {
-    MembershipController,
-    useOktaMemberships,
-} from "../hooks/UseOktaMemberships";
+import { useOktaMemberships } from "../hooks/UseOktaMemberships";
+import { MembershipController } from "../hooks/types/UseOktaMembershipsTypes";
 
 export interface ISessionContext {
     memberships: MembershipController;

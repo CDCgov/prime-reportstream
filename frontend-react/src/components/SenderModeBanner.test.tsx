@@ -7,7 +7,10 @@ import {
 } from "../contexts/SessionStorageTools";
 import { makeOktaHook, renderWithSession } from "../utils/CustomRenderUtils";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
-import { MembershipController, MemberType } from "../hooks/UseOktaMemberships";
+import {
+    MembershipController,
+    MemberType,
+} from "../hooks/types/UseOktaMembershipsTypes";
 import { SessionController } from "../hooks/UseSessionStorage";
 
 import SenderModeBanner from "./SenderModeBanner";

@@ -1,46 +1,55 @@
-import React, { useEffect, useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 
 import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
 
-export enum MemberType {
-    SENDER = "sender",
-    RECEIVER = "receiver",
-    PRIME_ADMIN = "prime-admin",
-    NON_STAND = "non-standard",
-}
+import {
+    MembershipAction,
+    MemberType,
+    MembershipActionType,
+    MembershipSettings,
+    MembershipState,
+    MembershipController,
+} from "./types/UseOktaMembershipsTypes";
 
-export enum MembershipActionType {
-    SWITCH = "switch",
-    UPDATE = "update",
-    ADMIN_OVERRIDE = "override",
-}
+// export enum MemberType {
+//     SENDER = "sender",
+//     RECEIVER = "receiver",
+//     PRIME_ADMIN = "prime-admin",
+//     NON_STAND = "non-standard",
+// }
 
-export interface MembershipSettings {
-    // The org header value
-    parsedName: string;
-    // The type of membership
-    memberType: MemberType;
-    // Optional sender name
-    senderName?: string;
-}
+// export enum MembershipActionType {
+//     SWITCH = "switch",
+//     UPDATE = "update",
+//     ADMIN_OVERRIDE = "override",
+// }
 
-export interface MembershipState {
-    active?: MembershipSettings;
-    // Key is the OKTA group name, settings has parsedName
-    memberships?: Map<string, MembershipSettings>;
-}
+// export interface MembershipSettings {
+//     // The org header value
+//     parsedName: string;
+//     // The type of membership
+//     memberType: MemberType;
+//     // Optional sender name
+//     senderName?: string;
+// }
 
-export interface MembershipController {
-    state: MembershipState;
-    dispatch: React.Dispatch<MembershipAction>;
-}
+// export interface MembershipState {
+//     active?: MembershipSettings;
+//     // Key is the OKTA group name, settings has parsedName
+//     memberships?: Map<string, MembershipSettings>;
+// }
 
-export interface MembershipAction {
-    type: MembershipActionType;
-    // Only need to pass name of an org to swap to
-    payload: string | AccessToken | Partial<MembershipSettings>;
-}
+// export interface MembershipController {
+//     state: MembershipState;
+//     dispatch: React.Dispatch<MembershipAction>;
+// }
+
+// export interface MembershipAction {
+//     type: MembershipActionType;
+//     // Only need to pass name of an org to swap to
+//     payload: string | AccessToken | Partial<MembershipSettings>;
+// }
 
 export const getTypeOfGroup = (org: string) => {
     const isStandardType = org.startsWith("DH");

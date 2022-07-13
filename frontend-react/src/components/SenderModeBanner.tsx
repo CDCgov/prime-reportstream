@@ -5,7 +5,7 @@ import { NavLink } from "react-router-dom";
 import { useSessionContext } from "../contexts/SessionContext";
 import useRequestConfig from "../hooks/network/UseRequestConfig";
 import { API, createRequestConfig } from "../network/api/NewApi";
-import { MemberType } from "../hooks/UseOktaMemberships";
+import { MemberType } from "../hooks/types/UseOktaMembershipsTypes";
 
 const isNotActive = (val: string): boolean => {
     return val === "testing" || val === "inactive";
