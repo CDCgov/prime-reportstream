@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
     Button,
     Form,
@@ -12,8 +12,12 @@ import Spinner from "../components/Spinner";
 import watersApiFunctions from "../network/api/WatersApiFunctions";
 import { useSessionContext } from "../contexts/SessionContext";
 import { StaticAlert } from "../components/StaticAlert";
+import { useOrganizationResource } from "../hooks/UseOrganizationResouce";
 import { ResponseError } from "../network/api/WatersApi";
 
+interface ValidationError extends ResponseError {
+    rowList?: string;
+}
 // values taken from Report.kt
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
 const REPORT_MAX_ITEMS = 10000;
@@ -27,7 +31,8 @@ const Validate = () => {
     const [contentType, setContentType] = useState("");
     const [fileType, setFileType] = useState("");
     const [fileName, setFileName] = useState("");
-    const [errors, setErrors] = useState<ResponseError[]>([]);
+    const [errors, setErrors] = useState<ValidationError[]>([]);
+    const [destinations, setDestinations] = useState("");
     const [reportId, setReportId] = useState(null);
     const [cancellable, setCancellable] = useState<boolean>(false);
     const [errorMessageText, setErrorMessageText] = useState(
@@ -44,6 +49,7 @@ const Validate = () => {
         setFileType("");
         setFileName("");
         setErrors([]);
+        setDestinations("");
         setReportId(null);
         setCancellable(false);
         setErrorMessageText(
@@ -55,6 +61,8 @@ const Validate = () => {
     const parsedName = memberships.state.active?.parsedName;
     const senderName = memberships.state.active?.senderName;
     const client = `${parsedName}.${senderName}`;
+
+    const { organization } = useOrganizationResource();
 
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
@@ -172,6 +180,7 @@ const Validate = () => {
         setIsSubmitting(true);
         setReportId(null);
         setErrors([]);
+        setDestinations("");
 
         if (fileContent.length === 0) {
             return;
@@ -187,6 +196,18 @@ const Validate = () => {
                 parsedName || "",
                 accessToken || ""
             );
+
+            if (response?.destinations?.length) {
+                // NOTE: `{ readonly [key: string]: string }` means a key:value object
+                setDestinations(
+                    response.destinations
+                        .map(
+                            (d: { readonly [key: string]: string }) =>
+                                d["organization"]
+                        )
+                        .join(", ")
+                );
+            }
 
             if (response?.id) {
                 setReportId(response.id);
@@ -209,14 +230,14 @@ const Validate = () => {
         // Process the error messages
         if (response?.errors && response.errors.length > 0) {
             // Add a string to properly display the indices if available.
-            response.errors.forEach(
-                (errorMsg: any) =>
-                    (errorMsg.rowList =
-                        errorMsg.indices && errorMsg.indices.length > 0
-                            ? errorMsg.indices.join(", ")
-                            : "")
-            );
-            setErrors(response.errors);
+            const validationErrors = response.errors.map((error: any) => {
+                const rowList =
+                    error.indices && error.indices.length > 0
+                        ? error.indices.join(", ")
+                        : "";
+                return { ...error, rowList };
+            });
+            setErrors(validationErrors);
             setCancellable(true);
         } else {
             setCancellable(false);
@@ -232,14 +253,15 @@ const Validate = () => {
         [reportId, errors.length]
     );
 
-    // TODO: let's store file type in state independent of content type, it's easier to work with and more easily descripttive
     return (
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">File Validator</h1>
+            <h2 className="font-sans-lg">{organization?.description}</h2>
             {reportId && (
                 <ValidationSuccessDisplay
                     fileName={fileName}
                     fileType={fileType}
+                    destinations={destinations}
                 />
             )}
 
@@ -309,12 +331,16 @@ const Validate = () => {
 type ValidationSuccessDisplayProps = {
     fileName: string;
     fileType: string;
+    destinations: string;
 };
 
 const ValidationSuccessDisplay = ({
     fileName,
     fileType,
+    destinations,
 }: ValidationSuccessDisplayProps) => {
+    const destinationsDisplay =
+        destinations || "There are no known recipients at this time.";
     return (
         <>
             <StaticAlert
@@ -330,6 +356,12 @@ const ValidationSuccessDisplay = ({
                     File name
                 </p>
                 <p className="margin-top-05">{fileName}</p>
+                <div>
+                    <p className="text-normal text-base margin-bottom-0">
+                        Recipients
+                    </p>
+                    <p className="margin-top-05">{destinationsDisplay}</p>
+                </div>
             </div>
         </>
     );
@@ -337,7 +369,7 @@ const ValidationSuccessDisplay = ({
 
 type ValidationErrorDisplayProps = {
     fileType: string;
-    errors: ResponseError[];
+    errors: ValidationError[];
     messageText: string;
     fileName: string;
 };
@@ -349,6 +381,15 @@ const ValidationErrorDisplay = ({
 }: ValidationErrorDisplayProps) => {
     const showErrorTable =
         errors && errors.length && errors.some((error) => error.message);
+
+    useEffect(() => {
+        errors.forEach((error: ValidationError) => {
+            if (error.details) {
+                console.error("Validation Failed: ", error.details);
+            }
+        });
+    }, [errors]);
+
     return (
         <div>
             <StaticAlert
