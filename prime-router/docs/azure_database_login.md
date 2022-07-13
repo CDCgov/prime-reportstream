@@ -31,6 +31,7 @@ Copy the value from `accessToken`. This will be your password. It will expire in
 After connecting using this password, your session will remain active beyond the token expiration.
 
 ## Login to PostgreSQL
+**NOTE: the below is currently not working. There is discussion of updating the process. In the meantime, please contact your on-boarding buddy or a teammate that has access to prod, and they can get you set up.**
 
 Using your PostgreSQL tool of choice, login with the following details:
 
