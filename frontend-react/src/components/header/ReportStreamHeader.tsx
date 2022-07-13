@@ -12,7 +12,7 @@ import { NetworkErrorBoundary } from "rest-hooks";
 import { permissionCheck, PERMISSIONS } from "../../utils/PermissionsUtils";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { MemberType } from "../../hooks/UseOktaMemberships";
+import { MemberType } from "../../hooks/types/UseOktaMembershipsTypes";
 import {
     CheckFeatureFlag,
     FeatureFlagName,

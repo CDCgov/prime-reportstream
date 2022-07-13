@@ -17,7 +17,7 @@ import {
     MembershipActionType,
     MemberType,
     MembershipSettings,
-} from "../../hooks/UseOktaMemberships";
+} from "../../hooks/types/UseOktaMembershipsTypes";
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(

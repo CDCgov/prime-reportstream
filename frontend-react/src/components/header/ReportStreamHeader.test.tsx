@@ -5,7 +5,7 @@ import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import { renderWithSession } from "../../utils/CustomRenderUtils";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
 import { ISessionContext } from "../../contexts/SessionContext";
-import { MemberType } from "../../hooks/UseOktaMemberships";
+import { MemberType } from "../../hooks/types/UseOktaMembershipsTypes";
 
 import { ReportStreamHeader } from "./ReportStreamHeader";
 
