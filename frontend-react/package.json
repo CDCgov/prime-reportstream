@@ -62,7 +62,7 @@
         "e2e": "cypress run",
         "e2e:open": "cypress open",
         "test": "react-scripts test",
-        "test:ci": "CI=true yarn --verbose test --coverage --verbose",
+        "test:ci": "yarn --verbose test --coverage --verbose",
         "eject": "react-scripts eject",
         "lint": "npm-run-all -p lint:eslint",
         "lint:write": "npm-run-all -p lint:eslint:write",
