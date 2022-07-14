@@ -78,7 +78,9 @@ class DetailedSubmissionHistory(
     @JsonProperty("timestamp")
     createdAt: OffsetDateTime,
     httpStatus: Int? = null,
+    @JsonIgnore
     val reports: MutableList<DetailedReport>? = mutableListOf(),
+    @JsonIgnore
     var logs: List<DetailedActionLog> = emptyList(),
 ) : SubmissionHistory(
     actionId,
