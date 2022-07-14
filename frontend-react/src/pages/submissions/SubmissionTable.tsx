@@ -24,7 +24,7 @@ import { PaginationProps } from "../../components/Table/Pagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
 
-const extractCursor = (s: SubmissionsResource) => s.timestamp;
+// const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
