@@ -15,8 +15,7 @@ const TransitionBanner = () => {
                     no longer be available from the ReportStream web portal.
                     However, you’ll still have access to your{" "}
                     <NavLink to="/submissions">CSV submission history</NavLink>{" "}
-                    through your ReportStream user account for three months
-                    following the transition date.
+                    through your ReportStream user account until further notice.
                 </li>
                 <li className="margin-bottom-2">
                     Visit the new CSV uploader by{" "}
