@@ -5,7 +5,11 @@ import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 import { MarkdownDirectory } from "../Markdown/MarkdownDirectory";
 import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 
+<<<<<<< HEAD
 type NonStaticOption = Omit<MarkdownDirectory, "files" | "desc">;
+=======
+export type NonStaticOption = Omit<MarkdownDirectory, "files">;
+>>>>>>> cacc31fd7 (add page for user upload, nest file handlers in drop down nav)
 interface DropdownNavProps {
     label: string;
     root: string;
@@ -19,7 +23,7 @@ export const makeNonStaticOption = (
     return { title, slug };
 };
 
-const DropdownNav = ({ label, root, directories }: DropdownNavProps) => {
+export const DropdownNav = ({ label, root, directories }: DropdownNavProps) => {
     const [isOpen, setIsOpen] = useState(false);
     /* Used since setIsOpen cannot be directly called in useEffect */
     const handleClick = () => setIsOpen(false);
