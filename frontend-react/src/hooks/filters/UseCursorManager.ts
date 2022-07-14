@@ -21,6 +21,7 @@ type CursorReducer<Cursors, CursorAction> = (
     action: CursorAction
 ) => Cursors;
 
+/** @deprecated CursorManager is replaced with PaginationProps*/
 interface CursorManager {
     cursors: Cursors;
     hasPrev: boolean;
@@ -67,6 +68,7 @@ const cursorReducer = (state: Cursors, action: CursorAction): Cursors => {
     }
 };
 
+/** @deprecated Replace with usePagination for numbered pagination */
 const useCursorManager = (firstCursor?: string) => {
     const [cursors, cursorDispatch] = useReducer<
         CursorReducer<Cursors, CursorAction>
