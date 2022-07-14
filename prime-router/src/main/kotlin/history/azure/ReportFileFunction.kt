@@ -198,16 +198,11 @@ abstract class ReportFileFunction(
              */
             fun extractSortCol(query: Map<String, String>): HistoryDatabaseAccess.SortColumn {
                 val col = query["sortcol"]
-                return if (col == null)
+                // https://stackoverflow.com/a/41844910/1978219
+                return if (col != null && HistoryDatabaseAccess.SortColumn.values().any { it.name == col })
+                    HistoryDatabaseAccess.SortColumn.valueOf(col)
+                else
                     HistoryDatabaseAccess.SortColumn.CREATED_AT
-                else {
-                    // https://stackoverflow.com/a/41844910/1978219
-                    if (HistoryDatabaseAccess.SortColumn.values().any { it.name == col })
-                        HistoryDatabaseAccess.SortColumn.valueOf(col)
-                    else {
-                        HistoryDatabaseAccess.SortColumn.CREATED_AT
-                    }
-                }
             }
 
             /**
