@@ -4,7 +4,7 @@ import { ReactElement } from "react";
 import { CacheProvider } from "rest-hooks";
 
 import SubmissionsResource from "../../resources/SubmissionsResource";
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import { renderWithSession } from "../../utils/CustomRenderUtils";
 import {
     _exportForTesting,
     FeatureFlagName,
@@ -27,7 +27,7 @@ const { addFeatureFlag, removeFeatureFlag } = _exportForTesting;
 // can't be in a shared location util we update existing tests.
 // See https://github.com/CDCgov/prime-reportstream/issues/5623
 const renderWithResolver = (ui: ReactElement, fixtures: Fixture[]) =>
-    renderWithRouter(
+    renderWithSession(
         <CacheProvider>
             <MockResolver fixtures={fixtures}>{ui}</MockResolver>
         </CacheProvider>
