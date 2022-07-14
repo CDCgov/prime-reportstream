@@ -10,13 +10,18 @@ system:
   valueOf: $sys
   expressionType: HL7Spec
 
-value:
+value_1:
   condition: $fillpla NOT_NULL
+  type: STRING
+  valueOf: $fillpla
+  expressionType: HL7Spec
+  required: true
+
+value_2:
+  condition: $fillpla NOT_NULL && $obx3 NOT_NULL
   type: STRING
   valueOf: $join
   expressionType: HL7Spec
   required: true
   vars:
     join: $fillpla + $joinChar + $obx3
-
-
