@@ -378,7 +378,8 @@ class SubmissionHistoryTests {
             null,
             null,
             5,
-            7
+            7,
+            false
         )
 
         val refUUID = UUID.randomUUID()
@@ -395,7 +396,8 @@ class SubmissionHistoryTests {
                 null,
                 null,
                 1,
-                1
+                1,
+                true
             ),
             DetailedReport(
                 UUID.randomUUID(),
@@ -408,7 +410,8 @@ class SubmissionHistoryTests {
                 null,
                 null,
                 2,
-                null
+                null,
+                true
             ),
             DetailedReport(
                 UUID.randomUUID(),
@@ -420,7 +423,8 @@ class SubmissionHistoryTests {
                 null,
                 null,
                 0,
-                null
+                null,
+                true
             ),
         ).toMutableList()
 
@@ -544,6 +548,7 @@ class SubmissionHistoryTests {
                 null,
                 0,
                 null,
+                true
             ),
         ).toMutableList()
 
@@ -576,6 +581,7 @@ class SubmissionHistoryTests {
             null,
             3,
             null,
+            false
         )
 
         val latestReport = DetailedReport(
@@ -589,6 +595,7 @@ class SubmissionHistoryTests {
             tomorrow,
             2,
             null,
+            true
         )
 
         reports = listOf(
@@ -605,6 +612,7 @@ class SubmissionHistoryTests {
                 null, today,
                 1,
                 null,
+                true
             ),
             DetailedReport(
                 UUID.randomUUID(),
@@ -618,6 +626,7 @@ class SubmissionHistoryTests {
                 null,
                 0,
                 null,
+                true
             ),
         ).toMutableList()
 
@@ -645,6 +654,7 @@ class SubmissionHistoryTests {
                 null,
                 3,
                 null,
+                true
             ),
         ).toMutableList()
 
@@ -714,6 +724,7 @@ class SubmissionHistoryTests {
                 null,
                 1,
                 null,
+                true
             ),
             DetailedReport(
                 UUID.randomUUID(),
@@ -727,6 +738,7 @@ class SubmissionHistoryTests {
                 null,
                 2,
                 null,
+                true
             ),
             DetailedReport(
                 UUID.randomUUID(),
@@ -740,6 +752,7 @@ class SubmissionHistoryTests {
                 null,
                 0,
                 null,
+                true
             ),
         ).toMutableList()
 
@@ -774,6 +787,67 @@ class SubmissionHistoryTests {
         }
     }
 
+    @Test
+    fun `test Destination nextActionTime`() {
+        val inputReport = DetailedReport(
+            UUID.randomUUID(),
+            null,
+            null,
+            "org",
+            "client",
+            "topic",
+            "externalName",
+            null,
+            OffsetDateTime.now(),
+            3,
+            null,
+            false
+        )
+        val refUUID = UUID.randomUUID()
+        val now = OffsetDateTime.now()
+        var reports = listOf(
+            inputReport,
+            DetailedReport(
+                refUUID, "recvOrg1",
+                "recvSvc1",
+                null,
+                null,
+                "topic",
+                "otherExternalName1",
+                null,
+                now,
+                1,
+                1,
+                true
+            ),
+            DetailedReport(
+                UUID.randomUUID(),
+                "recvOrg3",
+                "recvSvc3",
+                null,
+                null, "topic",
+                "no item count dest",
+                null,
+                now,
+                0,
+                null,
+                false
+            ),
+        ).toMutableList()
+
+        DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            201,
+            reports,
+            emptyList(),
+        ).run {
+            // First destination has a transport set therefore sendingAt
+            assertThat(destinations.first().sendingAt).equals(now)
+            assertThat(destinations.last().sendingAt).isNull()
+        }
+    }
     @Test
     fun `test Status enum toString`() {
         assertThat(DetailedSubmissionHistory.Status.RECEIVED.toString()).isEqualTo("Received")

@@ -51,6 +51,7 @@ abstract class ReportHistory(
  * @property nextActionAt when the report is next expected to send or process
  * @property itemCount number of tests (data rows) contained in the report
  * @property itemCountBeforeQualFilter number of tests that were submitted by the sender
+ * @property receiverHasTransport whether a receiver has set up a transport method
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -72,6 +73,8 @@ data class DetailedReport(
     val itemCount: Int,
     @JsonIgnore
     val itemCountBeforeQualFilter: Int?,
+    @JsonIgnore
+    val receiverHasTransport: Boolean,
 )
 
 /**
