@@ -1,5 +1,5 @@
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
-import { Suspense, useCallback, useEffect } from "react";
+import React, { Suspense, useCallback, useEffect } from "react";
 
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
@@ -17,12 +17,12 @@ import useCursorManager, {
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters from "../../components/Table/TableFilters";
 import { PaginationProps } from "../../components/Table/Pagination";
-import { getStoredOrg } from "../../contexts/SessionStorageTools";
 import {
     CheckFeatureFlag,
     FeatureFlagName,
 } from "../../pages/misc/FeatureFlags";
 import SubmissionsResource from "../../resources/SubmissionsResource";
+import { useSessionContext } from "../../contexts/SessionContext";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
@@ -95,7 +95,9 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
     );
 };
 
+/** @deprecated Replace with new numbered pagination version */
 function SubmissionTableWithCursorManager() {
+    const { memberships } = useSessionContext();
     const filterManager = useFilterManager(filterManagerDefaults);
     const cursorManager = useCursorManager(filterManager.rangeSettings.to);
 
@@ -109,7 +111,7 @@ function SubmissionTableWithCursorManager() {
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
         {
-            organization: getStoredOrg(),
+            organization: memberships.state.active?.parsedName,
             cursor: cursorOrRange(
                 filterManager.sortSettings.order,
                 RangeField.TO,
@@ -152,7 +154,7 @@ function SubmissionTableWithCursorManager() {
 }
 
 function SubmissionTableWithNumberedPagination() {
-    const organization = getStoredOrg();
+    const { memberships } = useSessionContext();
 
     const filterManager = useFilterManager(filterManagerDefaults);
     const pageSize = filterManager.pageSettings.size;
@@ -171,7 +173,7 @@ function SubmissionTableWithNumberedPagination() {
             const cursor = sortOrder === "DESC" ? currentCursor : rangeTo;
             const endCursor = sortOrder === "DESC" ? rangeFrom : currentCursor;
             return controllerFetch(SubmissionsResource.list(), {
-                organization,
+                organization: memberships.state.active?.parsedName,
                 cursor,
                 endCursor,
                 pageSize: numResults,
@@ -179,7 +181,13 @@ function SubmissionTableWithNumberedPagination() {
                 showFailed: false,
             }) as unknown as Promise<SubmissionsResource[]>;
         },
-        [organization, sortOrder, controllerFetch, rangeFrom, rangeTo]
+        [
+            memberships.state.active?.parsedName,
+            sortOrder,
+            controllerFetch,
+            rangeFrom,
+            rangeTo,
+        ]
     );
 
     // The start cursor is the high value when results are in descending order
