@@ -434,12 +434,13 @@ When invoked with `--prune-volumes`, this script will also reset your PostgreSQL
     ```
 1. Run the following command to delete all ReportStream related tables from the database and recreate them.  This
 is very useful to reset your database to a clean state.  Note that the database will be re-populated the
-next time you run ReportStream.
+next time you run ReportStream using docker-compose up.
     ```bash
     ./gradlew resetDB
     ```
-1. Run ReportStream and run the following command to load the organization settings into the database:
+1. Run ReportStream and run the following commands to load the tables and organization settings into the database:
     ```bash
+    ./gradlew reloadTables
     ./gradlew reloadSettings
     ```
 
