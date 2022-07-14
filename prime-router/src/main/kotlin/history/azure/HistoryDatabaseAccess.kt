@@ -76,8 +76,6 @@ abstract class HistoryDatabaseAccess(
                         .`as`("receiverHasTransport")
                 )
                     .from(REPORT_FILE)
-                    // Not ideal but to return the sender so that we can get the sending org and
-                    // submission report id, we have to use a left join to include that settings row
                     .leftJoin(org)
                     .on(REPORT_FILE.RECEIVING_ORG.eq(org.NAME))
                     .leftJoin(receiver)
