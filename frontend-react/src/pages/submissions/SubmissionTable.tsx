@@ -1,17 +1,20 @@
-import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
-import React, { Suspense, useCallback, useEffect } from "react";
+import {
+    NetworkErrorBoundary,
+    useController /* useResource */,
+} from "rest-hooks";
+import React, { Suspense, useCallback /* useEffect */ } from "react";
 
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
 import usePagination from "../../hooks/UsePagination";
-import { RangeField } from "../../hooks/filters/UseDateRange";
+// import { RangeField } from "../../hooks/filters/UseDateRange";
 import useFilterManager, {
-    cursorOrRange,
+    // cursorOrRange,
     FilterManager,
     FilterManagerDefaults,
 } from "../../hooks/filters/UseFilterManager";
-import useCursorManager, {
-    CursorActionType,
+import {
+    /* useCursorManager, */ // CursorActionType,
     CursorManager,
 } from "../../hooks/filters/UseCursorManager";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
@@ -97,60 +100,61 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
 
 /** @deprecated Replace with new numbered pagination version */
 function SubmissionTableWithCursorManager() {
-    const { memberships } = useSessionContext();
-    const filterManager = useFilterManager(filterManagerDefaults);
-    const cursorManager = useCursorManager(filterManager.rangeSettings.to);
+    return null;
+    // const { memberships } = useSessionContext();
+    // const filterManager = useFilterManager(filterManagerDefaults);
+    // const cursorManager = useCursorManager(filterManager.rangeSettings.to);
 
-    /* Our API call! Updates when any of the given state variables update.
-     * The logical swap of cursors and range value is to account for which end of the
-     * range needs to update when paginating with a specific sort order.
-     *
-     * DESC -> Start [ -> ] End (Start uses cursor to increment towards end)
-     * ASC -> Start [ <- ] End (End uses cursor to increment towards start)
-     */
-    const submissions: SubmissionsResource[] = useResource(
-        SubmissionsResource.list(),
-        {
-            organization: memberships.state.active?.parsedName,
-            cursor: cursorOrRange(
-                filterManager.sortSettings.order,
-                RangeField.TO,
-                cursorManager.cursors.current,
-                filterManager.rangeSettings.to
-            ),
-            endCursor: cursorOrRange(
-                filterManager.sortSettings.order,
-                RangeField.FROM,
-                cursorManager.cursors.current,
-                filterManager.rangeSettings.from
-            ),
-            pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
-            sort: filterManager.sortSettings.order,
-            showFailed: false, // No plans for this to be set to true
-        }
-    );
+    // /* Our API call! Updates when any of the given state variables update.
+    //  * The logical swap of cursors and range value is to account for which end of the
+    //  * range needs to update when paginating with a specific sort order.
+    //  *
+    //  * DESC -> Start [ -> ] End (Start uses cursor to increment towards end)
+    //  * ASC -> Start [ <- ] End (End uses cursor to increment towards start)
+    //  */
+    // const submissions: SubmissionsResource[] = useResource(
+    //     SubmissionsResource.list(),
+    //     {
+    //         organization: memberships.state.active?.parsedName,
+    //         cursor: cursorOrRange(
+    //             filterManager.sortSettings.order,
+    //             RangeField.TO,
+    //             cursorManager.cursors.current,
+    //             filterManager.rangeSettings.to
+    //         ),
+    //         endCursor: cursorOrRange(
+    //             filterManager.sortSettings.order,
+    //             RangeField.FROM,
+    //             cursorManager.cursors.current,
+    //             filterManager.rangeSettings.from
+    //         ),
+    //         pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
+    //         sort: filterManager.sortSettings.order,
+    //         showFailed: false, // No plans for this to be set to true
+    //     }
+    // );
 
-    /* Effect to add next cursor whenever submissions returns a new array */
-    const updateCursor = cursorManager.update;
-    useEffect(() => {
-        const nextCursor =
-            submissions[filterManager.pageSettings.size]?.timestamp ||
-            undefined;
-        if (nextCursor) {
-            updateCursor({
-                type: CursorActionType.ADD_NEXT,
-                payload: nextCursor,
-            });
-        }
-    }, [submissions, filterManager.pageSettings.size, updateCursor]);
+    // /* Effect to add next cursor whenever submissions returns a new array */
+    // const updateCursor = cursorManager.update;
+    // useEffect(() => {
+    //     const nextCursor =
+    //         submissions[filterManager.pageSettings.size]?.timestamp ||
+    //         undefined;
+    //     if (nextCursor) {
+    //         updateCursor({
+    //             type: CursorActionType.ADD_NEXT,
+    //             payload: nextCursor,
+    //         });
+    //     }
+    // }, [submissions, filterManager.pageSettings.size, updateCursor]);
 
-    return (
-        <SubmissionTableContent
-            cursorManager={cursorManager}
-            filterManager={filterManager}
-            submissions={submissions}
-        />
-    );
+    // return (
+    //     <SubmissionTableContent
+    //         cursorManager={cursorManager}
+    //         filterManager={filterManager}
+    //         submissions={submissions}
+    //     />
+    // );
 }
 
 function SubmissionTableWithNumberedPagination() {
