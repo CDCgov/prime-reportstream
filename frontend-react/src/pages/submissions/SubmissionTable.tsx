@@ -12,10 +12,10 @@ import { CursorManager } from "../../hooks/filters/UseCursorManager";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters from "../../components/Table/TableFilters";
 import { PaginationProps } from "../../components/Table/Pagination";
-import {
-    CheckFeatureFlag,
-    FeatureFlagName,
-} from "../../pages/misc/FeatureFlags";
+// import {
+//     CheckFeatureFlag,
+//     FeatureFlagName,
+// } from "../../pages/misc/FeatureFlags";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
 
@@ -230,9 +230,9 @@ function SubmissionTableWithNumberedPagination() {
 }
 
 function SubmissionTable() {
-    const isNumberedPaginationOn = CheckFeatureFlag(
-        FeatureFlagName.NUMBERED_PAGINATION
-    );
+    // const isNumberedPaginationOn = CheckFeatureFlag(
+    //     FeatureFlagName.NUMBERED_PAGINATION
+    // );
     return (
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="message" />}
