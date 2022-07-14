@@ -16,6 +16,7 @@ export enum FeatureFlagName {
     VALUE_SETS_ADMIN = "value-sets",
     BUILT_FOR_YOU = "built-for-you",
     VALIDATION_SERVICE = "validation-service",
+    USER_UPLOAD = "user-upload",
 }
 
 /* feature flags are just and array of strings saved into a single localStorage variable */
