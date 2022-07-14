@@ -1,7 +1,7 @@
 import { SimpleError } from "../../utils/UsefulTypes";
 
-import { WatersAPI } from "./WatersApi";
 import { createRequestConfig, RSRequestConfig } from "./NewApi";
+import WatersApi from "./WatersApi";
 
 const watersApiFunctions = {
     postData: async (
@@ -20,7 +20,7 @@ const watersApiFunctions = {
             const config: RSRequestConfig | SimpleError = createRequestConfig<{
                 org: string;
                 sender: string;
-            }>(WatersAPI, "waters", "POST", accessToken, organizationName);
+            }>(WatersApi, "waters", "POST", accessToken, organizationName);
 
             if (!(config instanceof SimpleError)) {
                 // TODO: Extend custom headers for NewApi

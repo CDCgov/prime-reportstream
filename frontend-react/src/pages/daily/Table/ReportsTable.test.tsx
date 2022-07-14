@@ -1,72 +1,106 @@
 import { fireEvent, screen } from "@testing-library/react";
-import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 
-import ReportResource from "../../../resources/ReportResource";
 import { renderWithRouter } from "../../../utils/CustomRenderUtils";
-import * as SessionStorageTools from "../../../contexts/SessionStorageTools";
 import { historyServer } from "../../../__mocks__/HistoryMockServer";
+import * as ReportsHooks from "../../../hooks/network/History/ReportsHooks";
+import { RSReportInterface } from "../../../network/api/History/Reports";
+import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
+import {
+    MembershipController,
+    MemberType,
+} from "../../../hooks/UseOktaMemberships";
+import { SessionController } from "../../../hooks/UseSessionStorage";
 
-import ReportsTable from "./ReportsTable";
 import * as ReportUtilsModule from "./ReportsUtils";
+import ReportsTable from "./ReportsTable";
 
 const mockMs = (additional?: number) =>
     additional ? 1652458218417 + additional : 1652458218417;
-const mockAPIData: ReportResource[] = [
-    new ReportResource("1", mockMs(), mockMs(100000), 99, "CSV"),
-];
-const mockFetchReport = jest
-    .spyOn(ReportUtilsModule, "getReportAndDownload")
-    .mockImplementation(() => {
-        return mockAPIData[0];
-    });
-// @ts-ignore so we can mock this partially
-const mockAuth = jest.fn<() => Partial<IOktaContext>>().mockReturnValue({
-    authState: {
-        accessToken: {
-            accessToken: "",
-        },
-    },
-});
-jest.mock("@okta/okta-react", () => ({
-    useOktaAuth: () => mockAuth(),
-}));
-const mockStoredOrg = jest.spyOn(SessionStorageTools, "getStoredOrg");
-jest.mock("rest-hooks", () => ({
-    useResource: () => {
-        return mockAPIData;
-    },
-}));
+const mockFetchReport = jest.spyOn(ReportUtilsModule, "getReportAndDownload");
+const mockApiHook = jest.spyOn(ReportsHooks, "useReportsList");
+const makeFakeData = (count: number) => {
+    const data: RSReportInterface[] = [];
+    for (count; count > 0; count--) {
+        data.push({
+            reportId: `${count}`,
+            actions: [],
+            content: "",
+            displayName: "",
+            facilities: [],
+            fileName: "",
+            mimeType: "",
+            positive: 0,
+            receivingOrg: "",
+            receivingOrgSvc: "",
+            sendingOrg: "",
+            type: "",
+            via: "",
+            sent: mockMs(),
+            expires: mockMs(100000),
+            total: 99,
+            fileType: "CSV",
+        });
+    }
+    return data;
+};
 
 describe("ReportsTable", () => {
     beforeAll(() => historyServer.listen());
     afterEach(() => historyServer.resetHandlers());
     afterAll(() => historyServer.close());
-    beforeEach(() => renderWithRouter(<ReportsTable />));
-    test("renders with no error", () => {
-        // Hooks run
-        expect(mockAuth).toHaveBeenCalled();
-        expect(mockStoredOrg).toHaveBeenCalled();
-
+    beforeEach(() => {
+        mockSessionContext.mockReturnValue({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
+            memberships: {
+                state: {
+                    active: {
+                        memberType: MemberType.RECEIVER,
+                        parsedName: "testOrg",
+                        senderName: undefined,
+                    },
+                },
+            } as MembershipController,
+            store: {} as SessionController, // TS yells about removing this because of types
+        });
+        const reports = makeFakeData(199);
+        mockApiHook.mockReturnValue({
+            data: reports,
+            loading: false,
+            error: "",
+            trigger: () => {},
+        });
+        renderWithRouter(<ReportsTable />);
+    });
+    test("renders with no error", async () => {
         // Column headers render
-        expect(screen.getByText("Report ID")).toBeInTheDocument();
-        expect(screen.getByText("Date Sent")).toBeInTheDocument();
-        expect(screen.getByText("Expires")).toBeInTheDocument();
-        expect(screen.getByText("Total Tests")).toBeInTheDocument();
-        expect(screen.getByText("File")).toBeInTheDocument();
-
-        // Content loads
-        expect(screen.getAllByRole("row")).toHaveLength(2);
+        expect(await screen.findByText("Report ID")).toBeInTheDocument();
+        expect(await screen.findByText("Date Sent")).toBeInTheDocument();
+        expect(await screen.findByText("Expires")).toBeInTheDocument();
+        expect(await screen.findByText("Total Tests")).toBeInTheDocument();
+        expect(await screen.findByText("File")).toBeInTheDocument();
     });
 
-    test("dates are transformed on render", () => {
+    test("renders 100 results per page + 1 header row", () => {
+        const rows = screen.getAllByRole("row");
+        expect(rows).toHaveLength(100 + 1);
+    });
+
+    test("dates are transformed on render", async () => {
         const mockSent = new Date(mockMs()).toLocaleString();
         const mockExpires = new Date(mockMs()).toLocaleString();
-        expect(screen.getByText(mockSent)).toBeInTheDocument();
-        expect(screen.getByText(mockExpires)).toBeInTheDocument();
+        const renderedSent = await screen.findAllByText(mockSent);
+        const renderedExpires = await screen.findAllByText(mockExpires);
+        expect(renderedSent).toHaveLength(100);
+        expect(renderedExpires).toHaveLength(100);
     });
 
-    test("file button downloads file", () => {
-        fireEvent.click(screen.getByText("CSV"));
+    test("file button downloads file", async () => {
+        const mockReports = makeFakeData(1);
+        mockFetchReport.mockReturnValue(mockReports[0]);
+        const buttons = await screen.findAllByText("CSV");
+        fireEvent.click(buttons[0]);
         expect(mockFetchReport).toHaveBeenCalled();
     });
 });
