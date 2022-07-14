@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 import { useSessionContext } from "../contexts/SessionContext";
 import { createRequestConfig } from "../network/api/NewApi";
-import { OrganizationsAPI } from "../network/api/OrganizationsApi";
+import OrganizationsAPI from "../network/api/OrganizationsApi";
 
 import useRequestConfig from "./network/UseRequestConfig";
 

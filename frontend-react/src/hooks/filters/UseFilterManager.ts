@@ -29,6 +29,7 @@ export interface FilterManager {
 
 interface FilterManagerDefaults {
     sortDefaults?: Partial<SortSettings>;
+    pageDefaults?: Partial<PageSettings>;
 }
 
 /* This helper can plug into your API call to allow for pagination
@@ -63,7 +64,9 @@ const useFilterManager = (defaults?: FilterManagerDefaults): FilterManager => {
     const { settings: sortSettings, update: updateSort } = useSortOrder(
         defaults?.sortDefaults
     );
-    const { settings: pageSettings, update: updatePage } = usePages();
+    const { settings: pageSettings, update: updatePage } = usePages(
+        defaults?.pageDefaults
+    );
 
     const resetAll = useCallback(() => {
         updateRange({ type: RangeSettingsActionType.RESET });
