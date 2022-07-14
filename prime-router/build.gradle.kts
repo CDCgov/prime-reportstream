@@ -30,7 +30,7 @@ import kotlin.collections.mutableMapOf
 
 plugins {
     kotlin("jvm") version "1.7.0"
-    id("org.flywaydb.flyway") version "8.5.13"
+    id("org.flywaydb.flyway") version "9.0.0"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
@@ -734,7 +734,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:8.5.8")
-    implementation("org.commonmark:commonmark:0.18.2")
+    implementation("org.commonmark:commonmark:0.19.0")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("com.helger.as2:as2-lib:4.10.1")
     // Prevent mixed versions of these libs based on different versions being included by different packages
