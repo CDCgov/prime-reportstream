@@ -1,9 +1,9 @@
-import { useResource } from "rest-hooks";
-import React, { useEffect } from "react";
+import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
+import React, { Suspense, useCallback, useEffect } from "react";
 
-// import Spinner from "../../components/Spinner";
-// import { ErrorPage } from "../error/ErrorPage";
-// import usePagination from "../../hooks/UsePagination";
+import Spinner from "../../components/Spinner";
+import { ErrorPage } from "../error/ErrorPage";
+import usePagination from "../../hooks/UsePagination";
 import { RangeField } from "../../hooks/filters/UseDateRange";
 import useFilterManager, {
     cursorOrRange,
@@ -17,14 +17,14 @@ import useCursorManager, {
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
 import TableFilters from "../../components/Table/TableFilters";
 import { PaginationProps } from "../../components/Table/Pagination";
-// import {
-//     CheckFeatureFlag,
-//     FeatureFlagName,
-// } from "../../pages/misc/FeatureFlags";
+import {
+    CheckFeatureFlag,
+    FeatureFlagName,
+} from "../../pages/misc/FeatureFlags";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
 
-// const extractCursor = (s: SubmissionsResource) => s.timestamp;
+const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
@@ -153,106 +153,105 @@ function SubmissionTableWithCursorManager() {
     );
 }
 
-// function SubmissionTableWithNumberedPagination() {
-//     const { memberships } = useSessionContext();
+function SubmissionTableWithNumberedPagination() {
+    const { memberships } = useSessionContext();
 
-//     const filterManager = useFilterManager(filterManagerDefaults);
-//     const pageSize = filterManager.pageSettings.size;
-//     const sortOrder = filterManager.sortSettings.order;
-//     const rangeTo = filterManager.rangeSettings.to;
-//     const rangeFrom = filterManager.rangeSettings.from;
+    const filterManager = useFilterManager(filterManagerDefaults);
+    const pageSize = filterManager.pageSettings.size;
+    const sortOrder = filterManager.sortSettings.order;
+    const rangeTo = filterManager.rangeSettings.to;
+    const rangeFrom = filterManager.rangeSettings.from;
 
-//     const { fetch: controllerFetch } = useController();
-//     const fetchResults = useCallback(
-//         (currentCursor: string, numResults: number) => {
-//             // The `cursor` and `endCursor` parameters are always the high and
-//             // low values of the range, respectively. When the results are in
-//             // descending order we move the high value and keep the low value
-//             // constant; in ascending order we keep the high value constant and
-//             // move the low value.
-//             const cursor = sortOrder === "DESC" ? currentCursor : rangeTo;
-//             const endCursor = sortOrder === "DESC" ? rangeFrom : currentCursor;
-//             return controllerFetch(SubmissionsResource.list(), {
-//                 organization: memberships.state.active?.parsedName,
-//                 cursor,
-//                 endCursor,
-//                 pageSize: numResults,
-//                 sort: sortOrder,
-//                 showFailed: false,
-//             }) as unknown as Promise<SubmissionsResource[]>;
-//         },
-//         [
-//             memberships.state.active?.parsedName,
-//             sortOrder,
-//             controllerFetch,
-//             rangeFrom,
-//             rangeTo,
-//         ]
-//     );
+    const { fetch: controllerFetch } = useController();
+    const fetchResults = useCallback(
+        (currentCursor: string, numResults: number) => {
+            // The `cursor` and `endCursor` parameters are always the high and
+            // low values of the range, respectively. When the results are in
+            // descending order we move the high value and keep the low value
+            // constant; in ascending order we keep the high value constant and
+            // move the low value.
+            const cursor = sortOrder === "DESC" ? currentCursor : rangeTo;
+            const endCursor = sortOrder === "DESC" ? rangeFrom : currentCursor;
+            return controllerFetch(SubmissionsResource.list(), {
+                organization: memberships.state.active?.parsedName,
+                cursor,
+                endCursor,
+                pageSize: numResults,
+                sort: sortOrder,
+                showFailed: false,
+            }) as unknown as Promise<SubmissionsResource[]>;
+        },
+        [
+            memberships.state.active?.parsedName,
+            sortOrder,
+            controllerFetch,
+            rangeFrom,
+            rangeTo,
+        ]
+    );
 
-//     // The start cursor is the high value when results are in descending order
-//     // and the low value when the results are in ascending order.
-//     const startCursor =
-//         sortOrder === "DESC"
-//             ? filterManager.rangeSettings.to
-//             : filterManager.rangeSettings.from;
-//     // The API treats the request range as the interval [from, to).
-//     // When we move the `endCursor` value in ascending requests, the cursor is
-//     // inclusive: the request will return results whose cursor values are >= the
-//     // cursor.
-//     // When we move the `cursor` value in descending requests, the cursor is
-//     // exclusive: the requst will return results whose cursor values are < the
-//     // cursor.
-//     const isCursorInclusive = sortOrder === "ASC";
+    // The start cursor is the high value when results are in descending order
+    // and the low value when the results are in ascending order.
+    const startCursor =
+        sortOrder === "DESC"
+            ? filterManager.rangeSettings.to
+            : filterManager.rangeSettings.from;
+    // The API treats the request range as the interval [from, to).
+    // When we move the `endCursor` value in ascending requests, the cursor is
+    // inclusive: the request will return results whose cursor values are >= the
+    // cursor.
+    // When we move the `cursor` value in descending requests, the cursor is
+    // exclusive: the requst will return results whose cursor values are < the
+    // cursor.
+    const isCursorInclusive = sortOrder === "ASC";
 
-//     const {
-//         currentPageResults: submissions,
-//         paginationProps,
-//         isLoading,
-//     } = usePagination<SubmissionsResource>({
-//         startCursor,
-//         isCursorInclusive,
-//         pageSize,
-//         fetchResults,
-//         extractCursor,
-//     });
+    const {
+        currentPageResults: submissions,
+        paginationProps,
+        isLoading,
+    } = usePagination<SubmissionsResource>({
+        startCursor,
+        isCursorInclusive,
+        pageSize,
+        fetchResults,
+        extractCursor,
+    });
 
-//     if (isLoading) {
-//         return <Spinner />;
-//     }
+    if (isLoading) {
+        return <Spinner />;
+    }
 
-//     if (paginationProps) {
-//         paginationProps.label = "Submissions pagination";
-//     }
+    if (paginationProps) {
+        paginationProps.label = "Submissions pagination";
+    }
 
-//     return (
-//         <SubmissionTableContent
-//             filterManager={filterManager}
-//             paginationProps={paginationProps}
-//             submissions={submissions}
-//         />
-//     );
-// }
+    return (
+        <SubmissionTableContent
+            filterManager={filterManager}
+            paginationProps={paginationProps}
+            submissions={submissions}
+        />
+    );
+}
 
 function SubmissionTable() {
-    return <SubmissionTableWithCursorManager />;
-    // const isNumberedPaginationOn = CheckFeatureFlag(
-    //     FeatureFlagName.NUMBERED_PAGINATION
-    // );
-    // return (
-    //     <NetworkErrorBoundary
-    //         fallbackComponent={() => <ErrorPage type="message" />}
-    //     >
-    //         <Suspense fallback={<Spinner />}>
-    //             {isNumberedPaginationOn && (
-    //                 <SubmissionTableWithNumberedPagination />
-    //             )}
-    //             {!isNumberedPaginationOn && (
-    //                 <SubmissionTableWithCursorManager />
-    //             )}
-    //         </Suspense>
-    //     </NetworkErrorBoundary>
-    // );
+    const isNumberedPaginationOn = CheckFeatureFlag(
+        FeatureFlagName.NUMBERED_PAGINATION
+    );
+    return (
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorPage type="message" />}
+        >
+            <Suspense fallback={<Spinner />}>
+                {isNumberedPaginationOn && (
+                    <SubmissionTableWithNumberedPagination />
+                )}
+                {!isNumberedPaginationOn && (
+                    <SubmissionTableWithCursorManager />
+                )}
+            </Suspense>
+        </NetworkErrorBoundary>
+    );
 }
 
 export default SubmissionTable;
