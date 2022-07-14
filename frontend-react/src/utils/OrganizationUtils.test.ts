@@ -1,10 +1,10 @@
 import {
+    AccessTokenWithRSClaims,
     getOktaGroups,
     getRSOrgs,
     parseOrgName,
     parseOrgs,
     RSOrgType,
-    RSUserClaims,
 } from "./OrganizationUtils";
 import { mockToken } from "./TestUtils";
 
@@ -18,8 +18,8 @@ const goodAccessToken = mockToken({
             "DHxx_phd",
             "DHSender_ignore.ignore-waters",
         ],
-    } as RSUserClaims,
-});
+    },
+} as AccessTokenWithRSClaims);
 
 test("groupToOrg", () => {
     const admins = parseOrgName("DHPrimeAdmins");
