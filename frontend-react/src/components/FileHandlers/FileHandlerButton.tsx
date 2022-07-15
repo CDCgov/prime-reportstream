@@ -6,6 +6,8 @@ type FileHandlerSubmitButtonProps = {
     submitted: boolean;
     disabled: boolean;
     reset: () => void;
+    resetText: string;
+    submitText: string;
 };
 
 export const FileHandlerSubmitButton = ({
@@ -13,6 +15,8 @@ export const FileHandlerSubmitButton = ({
     submitted,
     disabled,
     reset,
+    resetText,
+    submitText,
 }: FileHandlerSubmitButtonProps) => {
     if (isSubmitting) {
         return null;
@@ -20,13 +24,13 @@ export const FileHandlerSubmitButton = ({
     if (submitted) {
         return (
             <Button type="button" onClick={reset}>
-                Validate another file
+                {resetText}
             </Button>
         );
     }
     return (
         <Button type="submit" disabled={disabled}>
-            Validate
+            {submitText}
         </Button>
     );
 };

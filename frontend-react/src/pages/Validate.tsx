@@ -1,14 +1,6 @@
 import React, { useState, useMemo } from "react";
-import {
-    Button,
-    Form,
-    FormGroup,
-    Label,
-    FileInput,
-} from "@trussworks/react-uswds";
 
 import { showError } from "../components/AlertNotifications";
-import Spinner from "../components/Spinner";
 import watersApiFunctions from "../network/api/WatersApiFunctions";
 import { useSessionContext } from "../contexts/SessionContext";
 import { useOrganizationResource } from "../hooks/UseOrganizationResouce";
@@ -17,7 +9,7 @@ import {
     FileErrorDisplay,
     FileSuccessDisplay,
 } from "../components/FileHandlers/FileHandlerMessaging";
-import { FileHandlerSubmitButton } from "../components/FileHandlers/FileHandlerButton";
+import { FileHandlerForm } from "../components/FileHandlers/FileHandlerForm";
 
 // values taken from Report.kt
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
@@ -251,6 +243,7 @@ const Validate = () => {
         [reportId, errors.length]
     );
 
+    // how to encapsulate state and allow for easier reuse of the file handler functionality?
     return (
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">File Validator</h1>
@@ -274,56 +267,16 @@ const Validate = () => {
                 />
             )}
 
-            <Form
-                onSubmit={(e) => handleSubmit(e)}
-                className="rs-full-width-form"
-            >
-                {!submitted && (
-                    <FormGroup className="margin-bottom-3">
-                        <Label
-                            className="font-sans-xs"
-                            id="upload-csv-input-label"
-                            htmlFor="upload-csv-input"
-                        >
-                            Select an HL7 or CSV formatted file to validate.
-                        </Label>
-                        <FileInput
-                            key={fileInputResetValue}
-                            id="upload-csv-input"
-                            name="upload-csv-input"
-                            aria-describedby="upload-csv-input-label"
-                            onChange={(e) => handleFileChange(e)}
-                            required
-                        />
-                    </FormGroup>
-                )}
-                {isSubmitting && (
-                    <div className="grid-col flex-1 display-flex flex-column flex-align-center">
-                        <div className="grid-row">
-                            <Spinner />
-                        </div>
-                        <div className="grid-row">Processing file...</div>
-                    </div>
-                )}
-                <div className="grid-row">
-                    <div className="grid-col flex-1 display-flex flex-column flex-align-start">
-                        {cancellable && !isSubmitting && (
-                            <Button onClick={resetState} type="button" outline>
-                                <span>Cancel</span>
-                            </Button>
-                        )}
-                    </div>
-                    <div className="grid-col flex-1" />
-                    <div className="grid-col flex-1 display-flex flex-column flex-align-end">
-                        <FileHandlerSubmitButton
-                            isSubmitting={isSubmitting}
-                            submitted={submitted}
-                            disabled={fileName.length === 0}
-                            reset={resetState}
-                        />
-                    </div>
-                </div>
-            </Form>
+            <FileHandlerForm
+                handleSubmit={handleSubmit}
+                handleFileChange={handleFileChange}
+                resetState={resetState}
+                fileInputResetValue={fileInputResetValue}
+                submitted={submitted}
+                cancellable={cancellable}
+                isSubmitting={isSubmitting}
+                fileName={fileName}
+            />
         </div>
     );
 };
