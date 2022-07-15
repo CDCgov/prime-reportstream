@@ -6,7 +6,7 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 /**
  * Utilities to handle HL7 messages
  */
-class HL7Utils {
+object HL7Utils {
     /**
      * The supported HL7 output messages.
      */
@@ -19,8 +19,10 @@ class HL7Utils {
          */
         fun getMessageInstance(): Message {
             val instance = type.getDeclaredConstructor().newInstance()
+
+            // Sanity check: Check to make sure a mistake was not made when adding types.
             return if (instance is Message) instance
-            else throw IllegalArgumentException("Type ${type.name} is not of type message.")
+            else throw IllegalArgumentException("Type ${type.name} is not of type ca.uhn.hl7v2.model.Message.")
         }
 
         companion object {
@@ -29,11 +31,10 @@ class HL7Utils {
              * @return an instance of a supported message
              */
             fun getMessageInstance(type: String, version: String): Message? {
-                val list = SupportedMessages.values().filter {
+                val messageType = SupportedMessages.values().firstOrNull {
                     it.getMessageInstance().version == version && it.type.simpleName == type
                 }
-                return if (list.isEmpty() || list.size > 1) null
-                else list[0].getMessageInstance()
+                return messageType?.getMessageInstance()
             }
 
             /**

@@ -39,7 +39,7 @@ data class ConfigSchema(
         if (!isValidated) {
             errors = validate()
         }
-        return errors.isNotEmpty()
+        return errors.isEmpty()
     }
 
     /**
@@ -59,25 +59,26 @@ data class ConfigSchema(
         if (name.isNullOrBlank())
             addError("Schema name cannot be blank")
 
-        // hl7Type is only allowed at the top level.
-        if (!isChildSchema && hl7Type.isNullOrBlank())
-            addError("Schema hl7Type cannot be blank")
-        else if (isChildSchema && !hl7Type.isNullOrBlank())
-            addError("Schema hl7Type can only be specified in top level schema")
+        // hl7Type or hl7Version is only allowed at the top level.
+        if (isChildSchema) {
+            if (!hl7Type.isNullOrBlank())
+                addError("Schema hl7Type can only be specified in top level schema")
+            if (!hl7Version.isNullOrBlank())
+                addError("Schema hl7Version can only be specified in top level schema")
+        } else {
+            if (hl7Type.isNullOrBlank())
+                addError("Schema hl7Type cannot be blank")
+            if (hl7Version.isNullOrBlank())
+                addError("Schema hl7Version cannot be blank")
 
-        // hl7Version is only allowed at the top level.
-        if (!isChildSchema && hl7Version.isNullOrBlank())
-            addError("Schema hl7Version cannot be blank")
-        else if (isChildSchema && !hl7Version.isNullOrBlank())
-            addError("Schema hl7Version can only be specified in top level schema")
-
-        // Do we support the provided HL7 type and version?
-        if (hl7Version != null && hl7Type != null) {
-            if (!HL7Utils.SupportedMessages.supports(hl7Type!!, hl7Version!!))
-                addError(
-                    "Schema unsupported hl7 type and version. Must be one of: " +
-                        HL7Utils.SupportedMessages.getSupportedListAsString()
-                )
+            // Do we support the provided HL7 type and version?
+            if (hl7Version != null && hl7Type != null) {
+                if (!HL7Utils.SupportedMessages.supports(hl7Type!!, hl7Version!!))
+                    addError(
+                        "Schema unsupported hl7 type and version. Must be one of: " +
+                            HL7Utils.SupportedMessages.getSupportedListAsString()
+                    )
+            }
         }
 
         // Validate the schema elements.
@@ -162,6 +163,10 @@ data class ConfigSchemaElement(
                 addError("Hl7Spec property is required when not using a schema")
             schema.isNullOrBlank() && value.isNullOrBlank() ->
                 addError("Value property is required when not using a schema")
+        }
+
+        if (!schema.isNullOrBlank() && schemaRef == null) {
+            addError("Missing schema reference $schema")
         }
 
         // Validate the FHIR paths.

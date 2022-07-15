@@ -14,7 +14,7 @@ object FhirPathUtils {
     private val defaultPathEngine = FHIRPathEngine(SimpleWorkerContext())
 
     /**
-     * Parse a FHIR path from a [fhirPath] string.
+     * Parse a FHIR path from a [fhirPath] string.  This will also provide some format validation.
      * @return the validated FHIR path
      * @throws Exception if the path is invalid
      */

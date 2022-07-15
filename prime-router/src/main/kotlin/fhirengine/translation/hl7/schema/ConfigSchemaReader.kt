@@ -11,7 +11,7 @@ import java.io.InputStream
 /**
  * Read schema configuration.
  */
-class ConfigSchemaReader : Logging {
+object ConfigSchemaReader : Logging {
     /**
      * Read a schema [schemaName] from a file given the root [folder].
      * @return the validated schema
@@ -20,8 +20,8 @@ class ConfigSchemaReader : Logging {
     fun fromFile(schemaName: String, folder: String? = null): ConfigSchema {
         val rawSchema = readSchemaTreeFromFile(schemaName, folder)
 
-        if (rawSchema.isValid()) {
-            throw Exception("Invalid schema in file $schemaName: \n${rawSchema.errors.joinToString("\n")}")
+        if (!rawSchema.isValid()) {
+            throw Exception("Invalid schema $schemaName: \n${rawSchema.errors.joinToString("\n")}")
         }
         return rawSchema
     }
@@ -33,7 +33,15 @@ class ConfigSchemaReader : Logging {
     internal fun readSchemaTreeFromFile(schemaName: String, folder: String? = null): ConfigSchema {
         val file = File(folder, "$schemaName.yml")
         if (!file.canRead()) throw Exception("Cannot read ${file.absolutePath}")
-        val rawSchema = readOneYamlSchema(file.inputStream())
+        val rawSchema = try {
+            readOneYamlSchema(file.inputStream())
+        } catch (e: JacksonYAMLParseException) {
+            logger.error("Error while reading schema configuration from file ${file.absolutePath}", e)
+            throw e
+        } catch (e: JsonMappingException) {
+            logger.error("Error while reading schema configuration from file ${file.absolutePath}", e)
+            throw e
+        }
 
         // Process any schema references
         val rootFolder = file.parent
@@ -48,15 +56,7 @@ class ConfigSchemaReader : Logging {
      * @return the schema
      */
     internal fun readOneYamlSchema(inputStream: InputStream): ConfigSchema {
-        return try {
-            val mapper = ObjectMapper(YAMLFactory())
-            mapper.readValue(inputStream, ConfigSchema::class.java)
-        } catch (e: JacksonYAMLParseException) {
-            logger.error("Error while reading schema configuration", e)
-            throw e
-        } catch (e: JsonMappingException) {
-            logger.error("Error while reading schema configuration", e)
-            throw e
-        }
+        val mapper = ObjectMapper(YAMLFactory())
+        return mapper.readValue(inputStream, ConfigSchema::class.java)
     }
 }
