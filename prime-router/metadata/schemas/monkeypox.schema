@@ -10,7 +10,10 @@
 name: monkeypox
 topic: monkeypox
 trackingElement: message_id
-description: collection of standard elements, not an actual schema
+description: |
+  A collection of standard elements, not an actual schema. Based on specifications from several locations:
+  https://www.cdc.gov/poxvirus/monkeypox/lab-personnel/report-results.html
+  https://www.who.int/publications/i/item/WHO-MPX-laboratory-2022.1
 elements:
   # TODO: add different values here and see how it maps per the valueset
   - name: abnormal_flag
@@ -76,13 +79,11 @@ elements:
   - name: filler_name
     type: TEXT
     hl7Field: ORC-3-2
-    hl7OutputFields: [ORC-3-2, OBR-3-2]
 
   - name: filler_order_id
     type: ID
     hl7Field: ORC-3-1
-    hl7OutputFields: [ ORC-3-1, SPM-2-2, OBR-3-1 ]
-    documentation: Accension number
+    documentation: Accession number
 
   - name: filler_clia
     type: ID_CLIA
@@ -103,14 +104,21 @@ elements:
     type: TEXT
     hl7Field: OBR-4-2
 
-  - name: ordered_test_system
+  - name: ordered_test_name_system
     type: TEXT
-    default: LOINC
-
-  - name: ordered_test_system_abbr
-    type: TEXT
-    default: LN
     hl7Field: OBR-4-3
+
+  - name: ordered_test_alternate_code
+    type: TEXT
+    hl7Field: OBR-4-4
+
+  - name: ordered_test_alternate_name
+    type: TEXT
+    hl7Field: OBR-4-5
+
+  - name: ordered_test_alternate_code_system
+    type: TEXT
+    hl7Field: OBR-4-6
 
   - name: ordered_test_encoding_version
     type: TEXT
@@ -146,6 +154,18 @@ elements:
     hl7Field: ORC-21-1
     documentation: The name of the facility which the test was ordered from
 
+  - name: ordering_facility_name_assigning_authority
+    type: TEXT
+    hl7Field: ORC-21-6
+
+  - name: ordering_facility_name_identifier_type_code
+    type: TEXT
+    hl7Field: ORC-21-7
+
+  - name: ordering_facility_name_organization_identifier
+    type: TEXT
+    hl7Field: ORC-21-10
+
   - name: ordering_facility_phone_number
     type: TELEPHONE
     cardinality: ZERO_OR_ONE
@@ -177,22 +197,19 @@ elements:
 
   - name: ordering_provider_city
     type: CITY
-    pii: true   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
+    pii: true
     hl7Field: ORC-24-3
     documentation: The city of the provider
 
   - name: ordering_provider_county
     type: TABLE
-    pii: false    # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
+    pii: false
     table: fips-county
     tableColumn: County
 
   - name: ordering_provider_county_code
-    type: TABLE
+    type: TEXT
     pii: false
-    table: fips-county
-    tableColumn: FIPS
-    mapper: lookup(ordering_provider_state, ordering_provider_county)
     hl7Field: ORC-24-9
     documentation: The FIPS code for the ordering provider
 
@@ -203,14 +220,14 @@ elements:
 
   - name: ordering_provider_first_name
     type: PERSON_NAME
-    pii: false   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
+    pii: false
     hl7Field: ORC-12-3
     hl7OutputFields: [ORC-12-3, OBR-16-3]
     documentation: The first name of the provider who ordered the test
 
   - name: ordering_provider_id
     type: ID_NPI
-    pii: false   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
+    pii: false
     hl7Field: ORC-12-1
     hl7OutputFields: [ ORC-12-1, OBR-16-1 ]
     documentation: The ordering provider’s National Provider Identifier
@@ -234,7 +251,7 @@ elements:
 
   - name: ordering_provider_last_name
     type: PERSON_NAME
-    pii: false   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
+    pii: false
     hl7Field: ORC-12-2
     hl7OutputFields: [ORC-12-2, OBR-16-2]
     documentation: The last name of provider who ordered the test
@@ -253,7 +270,7 @@ elements:
 
   - name: ordering_provider_phone_number
     type: TELEPHONE
-    pii: true   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
+    pii: true
     hl7Field: ORC-14
     hl7OutputFields: [ORC-14, OBR-17]
     documentation: The phone number of the provider
@@ -280,7 +297,7 @@ elements:
 
   - name: ordering_provider_zip_code
     type: POSTAL_CODE
-    pii: false    # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
+    pii: false
     hl7Field: ORC-24-5
     documentation: The zip code of the provider
 
@@ -305,7 +322,7 @@ elements:
 
   - name: patient_county
     type: TABLE_OR_BLANK
-    pii: false    # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
+    pii: false
     table: fips-county
     tableColumn: County
     cardinality: ONE
@@ -398,12 +415,20 @@ elements:
       or even within the PRIME system itself.
 
   - name: patient_id_assigner
-    type: HD
+    type: TEXT
     pii: false
-    mapper: use(ordering_facility_name)
-    hl7Field: PID-3-4
-    hl7OutputFields: [ PID-3-6-2 ]
+    hl7Field: PID-3-4-1
     documentation: The name of the assigner of the patient_id field. Typically we use the name of the ordering facility
+
+  - name: patient_id_assigner_universal_id
+    type: TEXT
+    pii: false
+    hl7Field: PID-3-4-2
+
+  - name: patient_id_assigner_universal_id_type
+    type: TEXT
+    pii: false
+    hl7Field: PID-3-4-3
 
   - name: patient_id_type
     type: TEXT
@@ -469,6 +494,18 @@ elements:
       The patient's race. There is a common valueset defined for race values, but some states 
       may choose to define different code/value combinations.
 
+  - name: patient_species
+    type: TEXT
+    hl7Field: PID-35-2
+
+  - name: patient_species_code
+    type: TEXT
+    hl7Field: PID-35-1
+
+  - name: patient_species_code_system
+    type: TEXT
+    hl7Field: PID-35-3
+
   - name: patient_state
     type: TABLE
     pii: false
@@ -508,7 +545,7 @@ elements:
 
   - name: patient_zip_code
     type: POSTAL_CODE
-    pii: false    # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
+    pii: true
     cardinality: ZERO_OR_ONE
     hl7Field: PID-11-5
     documentation: The patient's zip code
@@ -659,13 +696,13 @@ elements:
   - name: reporting_facility_name
     type: TEXT
     hl7Field: MSH-4-1
-    hl7OutputFields: [ MSH-4-1, PID-3-4-1, PID-3-6-1, SPM-2-1-2, SPM-2-2-2 ]
+    hl7OutputFields: [ MSH-4-1, PID-3-6-1 ]
     documentation: The reporting facility's name
 
   - name: reporting_facility_clia
     type: ID_CLIA
     hl7Field: MSH-4-2
-    hl7OutputFields: [ MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-4-2, PID-3-6-2 ]
+    hl7OutputFields: [ MSH-4-2, PID-3-6-2 ]
     documentation: The reporting facility's CLIA
 
   - name: result_format
@@ -702,7 +739,7 @@ elements:
     type: TEXT
     documentation: |
       The type of facility providing care (Hospital, Nursing Home, etc.).  
-      This is a CUSTOM internal field. DO NOT use this for the COVID AOE residence_type.
+      This is a CUSTOM internal field. DO NOT use this for an AOE residence_type.
 
   - name: specimen_collection_date_time
     type: DATETIME
@@ -734,29 +771,71 @@ elements:
 
   # replaced by testing_lab_specimen_id?
   - name: specimen_id
-    type: EI
-    hl7OutputFields: [SPM-2]
-    mapper: use(message_id)
+    type: TEXT
+    hl7Field: SPM-2-1-1
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2
     documentation: A unique code for this specimen
+    hl7OutputFields: [ SPM-2-1-1, SPM-2-2-1 ]
+
+  - name: specimen_id_namespace_id
+    type: TEXT
+    hl7Field: SPM-2-1-2
+    hl7OutputFields: [ SPM-2-1-2, SPM-2-2-2 ]
+
+  - name: specimen_id_universal_id
+    type: TEXT
+    hl7Field: SPM-2-1-3
+    hl7OutputFields: [ SPM-2-1-3, SPM-2-2-3 ]
+
+  - name: specimen_id_universal_id_type
+    type: TEXT
+    hl7Field: SPM-2-1-4
+    hl7OutputFields: [ SPM-2-1-4, SPM-2-2-4 ]
 
   - name: specimen_role
     type: CODE
     valueSet: specimen_role
     hl7Field: SPM-11
 
-  # TODO: replace with valueset for monkeypox
   - name: specimen_source_site_code
-    type: CODE
-    valueSet: covid-19/specimen_source_site
-    hl7Field: SPM-8
+    type: TEXT
+    hl7Field: SPM-8-1
     documentation: Refers back to the specimen source site, which is then encoded into the SPM-8 segment
 
+  - name: specimen_source_site_text
+    type: TEXT
+    hl7Field: SPM-8-2
+    documentation: The text for the specimen source site
+
+  - name: specimen_source_site_system
+    type: TEXT
+    hl7Field: SPM-8-3
+    documentation: The coding system the sender is using for the specimen source
+
   - name: specimen_type
-    type: CODE
-    valueSet: monkeypox/specimen_type
-    hl7Field: SPM-4
+    type: TEXT
+    hl7Field: SPM-4-1
     documentation: The specimen source, such as Blood or Serum
+
+  - name: specimen_type_code
+    type: TEXT
+    hl7Field: SPM-4-2
+
+  - name: specimen_type_code_system
+    type: TEXT
+    hl7Field: SPM-4-3
+
+  - name: specimen_type_alternate_value
+    type: TEXT
+    hl7Field: SPM-4-4
+
+  - name: specimen_type_alternate_value_code
+    type: TEXT
+    hl7Field: SPM-4-5
+
+  - name: specimen_type_alternate_value_code_system
+    type: TEXT
+    hl7Field: SPM-4-6
 
   - name: specimen_type_modifier_id
     type: TEXT
@@ -874,6 +953,18 @@ elements:
     hl7Field: OBR-3-1
     documentation: The accession number of the specimen collected
 
+  - name: testing_lab_accession_number_namespace_id
+    type: TEXT
+    hl7Field: OBR-3-2
+
+  - name: testing_lab_accession_number_universal_id
+    type: TEXT
+    hl7Field: OBR-3-3
+
+  - name: testing_lab_accession_number_universal_id_system
+    type: TEXT
+    hl7Field: OBR-3-4
+
   - name: testing_lab_city
     type: CITY
     hl7Field: OBX-24-3
@@ -926,7 +1017,7 @@ elements:
     type: ID_CLIA
     cardinality: ONE
     hl7Field: OBX-23-10
-    hl7OutputFields: [ OBX-15-1, OBX-23-10, ORC-3-3, OBR-3-3, OBR-2-3, ORC-2-3 ]
+    hl7OutputFields: [ OBX-15-1, OBX-23-10, ORC-3-3, OBR-2-3, ORC-2-3 ]
     documentation: |
       CLIA Number from the laboratory that sends the message to DOH
       
@@ -935,14 +1026,13 @@ elements:
   - name: testing_lab_name
     type: TEXT
     hl7Field: OBX-23-1
-    hl7OutputFields: [ ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1, PID-3-4-1, OBX-15-2 ]
+    hl7OutputFields: [ ORC-2-2, OBR-2-2, ORC-3-2, OBX-23-1, OBX-15-2 ]
     documentation: |
       The name of the laboratory which performed the test, can be the same as the sending facility name
 
   - name: testing_lab_specimen_id
     type: ID
     mapper: use(message_id)
-    hl7Field: SPM-2-1
     documentation: The specimen-id from the testing lab
 
   - name: testing_lab_specimen_received_datetime
