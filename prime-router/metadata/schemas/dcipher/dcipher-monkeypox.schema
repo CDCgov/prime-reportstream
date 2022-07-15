@@ -62,17 +62,15 @@ elements:
   - name: specimen_collection_date_time
     csvFields: [{ name: collection_timestamp }]
     documentation: Time at which the sample was collected, as opposed to the time the sample collection device was recovered, as in HL7 fields SPM-17.1.1 and OBR-7.
-    #note confirm formatting        #Timestamp        
 
   - name: testing_lab_specimen_received_datetime
     csvFields: [{ name: received_timestamp }]
     documentation: Time at which the specimen is received at the diagnostic service.  The actual time recorded is based on how the specimen receipt is managed, and may correspond to the time the sample is logged in. Corresponds to HL7 field SPM-18.1
-    #note confirm formatting        #Timestamp        
 
-  - name: sample_modified_date #TODO: do we have a mapping function that generates the current date/time?
+  - name: sample_modified_date
     type: DATETIME
     csvFields: [{ name: sample_modified_date }]
-    default: $currentDate
+    mapper: timestamp()
     documentation: Date/time sample last updated at CDC (system-generated).
 
   - name: sample_start
@@ -124,10 +122,10 @@ elements:
     documentation: Date/time lab performed the test
     #note confirm formatting        #Date
 
-  - name: TODO_test_modified_on #TODO: do we have a mapping function that generates the current date/time?
+  - name: test_modified_on
     type: DATETIME
     csvFields: [{ name: test_modifed_on }]
-    default: NULL
+    mapper: timestamp()
     documentation: Date/time test last updated at CDC (system-generated).
 
   - name: extraction_kit
@@ -170,12 +168,13 @@ elements:
     csvFields: [{ name: test_comments }]
     documentation: Any notes regarding how the test was performed that are not covered by other data elements (typically left blank)
 
-  - name: TODO_test_overall_findings     #TODO: what to put here?
+  - name: test_overall_findings
     type: TEXT
     csvFields: [{ name: test_overall_findings }]
     documentation: Brief description of the test results
+    default: NULL
 
-  - name: TODO_sample_result_status     #TODO: defaulting for now, may need a valueset or alt values
+  - name: sample_result_status
     type: TEXT
     csvFields: [{ name: sample_result_status }]
     default: Testing Completed by lab
@@ -187,7 +186,7 @@ elements:
     default: NULL
     documentation: Any notes regarding the conclusions drawn that are not covered by other data elements (typically left blank)
 
-  - name: sample_conclusion     #TODO: defaulting to null now, may need to change this
+  - name: sample_conclusion
     type: TEXT
     csvFields: [{ name: sample_conclusion }]
     default: NULL
@@ -217,9 +216,10 @@ elements:
   - name: patient_zip_code
     csvFields: [{ name: subject_zip }]
 
-  - name: processing_date   #TODO: do we have a mapping function that generates the current date/time?
+  - name: processing_date
     type: DATETIME
     csvFields: [{ name: processing_date }]
+    mapper: timestamp()
     documentation: Date/time message was processed at CDC (system-generated)
 
   - name: sample_temperature

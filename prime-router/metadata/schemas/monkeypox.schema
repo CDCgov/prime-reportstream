@@ -1076,6 +1076,10 @@ elements:
     hl7Field: OBX-2
     valueSet: hl70125
 
+  - name: current_date
+    type: TEXT
+    mapper: use($currentDate)
+
   - name: sender_id
     type: TEXT
     cardinality: ONE
@@ -1092,4 +1096,3 @@ elements:
     documentation: |
       The topic for the data. This way it can be interrogated at the row level for HL7 serialization and we can
       branch out any disease-specific logic.
-
