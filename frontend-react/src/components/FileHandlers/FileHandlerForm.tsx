@@ -8,6 +8,7 @@ import {
 } from "@trussworks/react-uswds";
 
 import Spinner from "../Spinner";
+
 import { FileHandlerSubmitButton } from "./FileHandlerButton";
 
 interface FileHandlerFormProps {

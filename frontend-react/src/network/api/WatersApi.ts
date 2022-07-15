@@ -21,6 +21,7 @@ export class WatersResponse {
     warningCount: number | undefined;
     warnings: ResponseError[] | undefined;
     ok: boolean | undefined;
+    status?: number;
 }
 
 export interface ResponseError {
