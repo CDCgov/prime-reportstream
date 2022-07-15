@@ -752,8 +752,8 @@ class Report : Logging {
                     }
                     it.organizationName = row.getStringOrNull("organization_name").trimToNull()
 
-                    it.sendingApplicationId = row.getStringOrNull("sending_application_id")
-                    it.sendingApplicationName = row.getStringOrNull("sending_application_name")
+                    it.sendingApplicationId = row.getStringOrNull("sending_application_namespace_id")
+                    it.sendingApplicationName = row.getStringOrNull("sending_application_universal_id")
 
                     it.orderingProviderName =
                         row.getStringOrNull("ordering_provider_first_name").trimToNull() +
@@ -772,7 +772,7 @@ class Report : Logging {
                     it.orderingFacilityState = row.getStringOrNull("ordering_facility_state")
 
                     it.testingFacilityCity = row.getStringOrNull("testing_lab_city").trimToNull()
-                    it.testingFacilityId = row.getStringOrNull("testing_lab_clia").trimToNull()
+                    it.testingFacilityId = row.getStringOrNull("testing_lab_id").trimToNull()
                     it.testingFacilityCounty = row.getStringOrNull("testing_lab_county").trimToNull()
                     it.testingFacilityName = row.getStringOrNull("testing_lab_name").trimToNull()
                     it.testingFacilityPostalCode = row.getStringOrNull("testing_lab_zip_code").trimToNull()
@@ -805,15 +805,11 @@ class Report : Logging {
                     it.patientPreferredLanguage = row.getStringOrNull("patient_preferred_language")
                     it.patientNationality = row.getStringOrNull("patient_nationality")
 
-                    it.reasonForStudy = row.getStringOrNull("reason_for_study")
-                    it.reasonForStudyCode = row.getStringOrNull("reason_for_study_code")
+                    it.reasonForStudy = row.getStringOrNull("reason_for_study_text")
+                    it.reasonForStudyCode = row.getStringOrNull("reason_for_study_id")
 
-                    it.testResultCode = row.getStringOrNull("test_result").trimToNull()
-                    it.testResult = if (it.testResultCode != null) {
-                        metadata.findValueSet("covid-19/test_result")?.toDisplayFromCode(it.testResultCode)
-                    } else {
-                        null
-                    }
+                    it.testResultCode = row.getStringOrNull("test_result_text").trimToNull()
+                    it.testResult = row.getStringOrNull("test_result_id").trimToNull()
                     it.equipmentModel = row.getStringOrNull("equipment_model_name").trimToNull()
                     it.specimenCollectionDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
                         if (!dt.isNullOrEmpty()) {
@@ -831,7 +827,9 @@ class Report : Logging {
                         row.getStringOrNull("patient_dob").trimToNull(),
                         it.specimenCollectionDateTime
                     )
-                    it.specimenReceivedDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
+                    it.specimenReceivedDateTime = row.getStringOrNull(
+                        "testing_lab_specimen_received_datetime"
+                    ).let { dt ->
                         if (!dt.isNullOrEmpty()) {
                             try {
                                 DateUtilities.parseDate(dt).toOffsetDateTime()
@@ -845,16 +843,14 @@ class Report : Logging {
                     it.specimenCollectionMethod = row.getStringOrNull("specimen_collection_method")
                     it.specimenCollectionSite = row.getStringOrNull("specimen_collection_site")
                     it.specimenType = row.getStringOrNull("specimen_type")
-                    it.specimenSourceSite = row.getStringOrNull("specimen_source_site")
+                    it.specimenSourceSite = row.getStringOrNull("specimen_source_site_text")
 
                     it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
                     it.testPerformedCode = row.getStringOrNull("test_performed_code").trimToNull()
-                    it.testPerformed = row.getStringOrNull("test_performed").trimToNull()
-                    it.testOrdered = row.getStringOrNull("test_ordered").trimToNull()
-                    it.testOrderedCode = row.getStringOrNull("test_ordered_code").trimToNull()
-                    it.testResult = row.getStringOrNull("test_result").trimToNull()
-                    it.testResultCode = row.getStringOrNull("test_result_code").trimToNull()
+                    it.testPerformed = row.getStringOrNull("test_performed_name").trimToNull()
+                    it.testOrdered = row.getStringOrNull("ordered_test_name").trimToNull()
+                    it.testOrderedCode = row.getStringOrNull("ordered_test_code").trimToNull()
                 }
             }
         } catch (e: Exception) {
