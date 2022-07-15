@@ -1,22 +1,22 @@
 import { permissionCheck, PERMISSIONS } from "./PermissionsUtils";
-import { RSUserClaims } from "./OrganizationUtils";
+import { AccessTokenWithRSClaims } from "./OrganizationUtils";
 import { mockToken } from "./TestUtils";
 
 const senderToken = mockToken({
     claims: {
         organization: ["DHSender_ignore"],
-    } as RSUserClaims,
-});
+    },
+} as AccessTokenWithRSClaims);
 const receiverToken = mockToken({
     claims: {
         organization: ["DHxx_phd"],
-    } as RSUserClaims,
-});
+    },
+} as AccessTokenWithRSClaims);
 const adminToken = mockToken({
     claims: {
         organization: ["DHPrimeAdmins"],
-    } as RSUserClaims,
-});
+    },
+} as AccessTokenWithRSClaims);
 
 test("permissionCheck", () => {
     const trueSenderAuth = permissionCheck(PERMISSIONS.SENDER, senderToken);
