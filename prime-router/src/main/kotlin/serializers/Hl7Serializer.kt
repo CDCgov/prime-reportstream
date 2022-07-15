@@ -819,7 +819,6 @@ class Hl7Serializer(
         terser: Terser,
         observationRepeats: Int
     ) {
-
         replaceValueAwithBMap.forEach segment@{ segment ->
             // Scan through segment(s)
             @Suppress("UNCHECKED_CAST")

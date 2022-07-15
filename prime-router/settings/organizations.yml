@@ -1354,7 +1354,37 @@
         receivingApplicationOID: 2.16.840.1.114222.4.3.3.6.2.1
         receivingFacilityName: MN DOH
         receivingFacilityOID: 2.16.840.1.114222.4.1.3661
-        suppressHl7Fields: SPM-2-1
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-mpx
+      organizationName: mn-doh
+      topic: monkeypox
+      routingFilter:
+        - "AllowAll()"
+      processingModeFilter:
+        - "AllowAll()"
+      qualityFilter:
+        - "AllowAll()"
+      customerStatus: active
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, MN, patient_state, MN)
+      translation:
+        type: HL7
+        schemaName: monkeypox
+        useBatchHeaders: true
+        receivingApplicationName: MEDSS-ELR
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.6.2.1
+        receivingFacilityName: MN DOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3661
       transport:
         type: SFTP
         host: sftp

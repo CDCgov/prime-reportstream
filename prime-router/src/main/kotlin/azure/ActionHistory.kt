@@ -63,6 +63,7 @@ class ActionHistory : Logging {
     /**
      * Stores covid metadata records that are created when a new report is received with the topic covid-19
      */
+    // todo: genericize so we can save this information without having to store it here
     private val covidMetaDataRecords = mutableListOf<CovidResultMetadata>()
 
     /**
@@ -307,10 +308,17 @@ class ActionHistory : Logging {
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
 
+        // check that we're dealing with an external file
+        val clientSource = report.sources.firstOrNull { it is ClientSource }
+        if (clientSource != null) {
+            when (report.schema.topic.lowercase()) {
+                "covid-19" -> covidMetaDataRecords.addAll(report.getDeidentifiedResultMetaData())
+                // "monkeypox" -> error("Not implemented yet")
+            }
+        }
+
         // if the received report topic is covid-19, generate de-identified metadata
         if (report.schema.topic.lowercase() == "covid-19") {
-            // check that we're dealing with an external file
-            val clientSource = report.sources.firstOrNull { it is ClientSource }
             if (clientSource != null)
                 covidMetaDataRecords.addAll(report.getDeidentifiedResultMetaData())
         }
@@ -563,6 +571,7 @@ class ActionHistory : Logging {
         reportsOut.values.forEach { it.actionId = action.actionId }
         filteredOutReports.values.forEach { it.actionId = action.actionId }
         insertReports(txn)
+        // todo: genericize this so it's not COVID specific again
         DatabaseAccess.saveTestData(covidMetaDataRecords, txn)
 
         // TODO: Generation of lineages needs to be separated from database insert functionality, since there

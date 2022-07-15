@@ -83,7 +83,6 @@ elements:
   - name: filler_order_id
     type: ID
     hl7Field: ORC-3-1
-    hl7OutputFields: [ ORC-3-1, SPM-2-2 ]
     documentation: Accession number
 
   - name: filler_clia
@@ -105,14 +104,21 @@ elements:
     type: TEXT
     hl7Field: OBR-4-2
 
-  - name: ordered_test_system
+  - name: ordered_test_name_system
     type: TEXT
-    default: LOINC
-
-  - name: ordered_test_system_abbr
-    type: TEXT
-    default: LN
     hl7Field: OBR-4-3
+
+  - name: ordered_test_alternate_code
+    type: TEXT
+    hl7Field: OBR-4-4
+
+  - name: ordered_test_alternate_name
+    type: TEXT
+    hl7Field: OBR-4-5
+
+  - name: ordered_test_alternate_code_system
+    type: TEXT
+    hl7Field: OBR-4-6
 
   - name: ordered_test_encoding_version
     type: TEXT
@@ -488,6 +494,18 @@ elements:
       The patient's race. There is a common valueset defined for race values, but some states 
       may choose to define different code/value combinations.
 
+  - name: patient_species
+    type: TEXT
+    hl7Field: PID-35-2
+
+  - name: patient_species_code
+    type: TEXT
+    hl7Field: PID-35-1
+
+  - name: patient_species_code_system
+    type: TEXT
+    hl7Field: PID-35-3
+
   - name: patient_state
     type: TABLE
     pii: false
@@ -678,13 +696,13 @@ elements:
   - name: reporting_facility_name
     type: TEXT
     hl7Field: MSH-4-1
-    hl7OutputFields: [ MSH-4-1, PID-3-6-1, SPM-2-1-2, SPM-2-2-2 ]
+    hl7OutputFields: [ MSH-4-1, PID-3-6-1 ]
     documentation: The reporting facility's name
 
   - name: reporting_facility_clia
     type: ID_CLIA
     hl7Field: MSH-4-2
-    hl7OutputFields: [ MSH-4-2, SPM-2-1-3, SPM-2-2-3, PID-3-6-2 ]
+    hl7OutputFields: [ MSH-4-2, PID-3-6-2 ]
     documentation: The reporting facility's CLIA
 
   - name: result_format
@@ -748,7 +766,7 @@ elements:
 
   # replaced by testing_lab_specimen_id?
   - name: specimen_id
-    type: EI
+    type: TEXT
     hl7Field: SPM-2-1-1
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2
     documentation: A unique code for this specimen
@@ -790,10 +808,29 @@ elements:
     documentation: The coding system the sender is using for the specimen source
 
   - name: specimen_type
-    type: CODE
-    valueSet: monkeypox/specimen_type
-    hl7Field: SPM-4
+    type: TEXT
+    hl7Field: SPM-4-1
     documentation: The specimen source, such as Blood or Serum
+
+  - name: specimen_type_code
+    type: TEXT
+    hl7Field: SPM-4-2
+
+  - name: specimen_type_code_system
+    type: TEXT
+    hl7Field: SPM-4-3
+
+  - name: specimen_type_alternate_value
+    type: TEXT
+    hl7Field: SPM-4-4
+
+  - name: specimen_type_alternate_value_code
+    type: TEXT
+    hl7Field: SPM-4-5
+
+  - name: specimen_type_alternate_value_code_system
+    type: TEXT
+    hl7Field: SPM-4-6
 
   - name: specimen_type_modifier_id
     type: TEXT
@@ -991,7 +1028,6 @@ elements:
   - name: testing_lab_specimen_id
     type: ID
     mapper: use(message_id)
-    hl7Field: SPM-2-1
     documentation: The specimen-id from the testing lab
 
   - name: testing_lab_specimen_received_datetime
