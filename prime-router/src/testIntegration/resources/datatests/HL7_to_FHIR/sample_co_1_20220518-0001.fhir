@@ -295,7 +295,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.1-"
+        "value" : "21:AA:B0029251S.1"
       } ],
       "status" : "corrected",
       "category" : [ {
@@ -560,7 +560,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.1-"
+        "value" : "21:AA:B0029251S.1"
       } ],
       "status" : "corrected",
       "category" : [ {
@@ -850,7 +850,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.1-"
+        "value" : "21:AA:B0029251S.1"
       } ],
       "status" : "corrected",
       "category" : [ {
@@ -1172,7 +1172,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.2-"
+        "value" : "21:AA:B0029251S.2"
       } ],
       "status" : "corrected",
       "category" : [ {
@@ -1452,7 +1452,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.2-"
+        "value" : "21:AA:B0029251S.2"
       } ],
       "status" : "corrected",
       "category" : [ {
@@ -1721,7 +1721,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.2-"
+        "value" : "21:AA:B0029251S.2"
       } ],
       "status" : "corrected",
       "category" : [ {
@@ -1997,7 +1997,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.2-"
+        "value" : "21:AA:B0029251S.2"
       } ],
       "status" : "corrected",
       "category" : [ {
@@ -2266,7 +2266,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.2-"
+        "value" : "21:AA:B0029251S.2"
       } ],
       "status" : "corrected",
       "category" : [ {
@@ -2542,7 +2542,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.2-"
+        "value" : "21:AA:B0029251S.2"
       } ],
       "status" : "corrected",
       "category" : [ {
@@ -2811,7 +2811,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.2-"
+        "value" : "21:AA:B0029251S.2"
       } ],
       "status" : "corrected",
       "category" : [ {
@@ -3130,7 +3130,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.3-"
+        "value" : "21:AA:B0029251S.3"
       } ],
       "status" : "final",
       "category" : [ {
@@ -3416,7 +3416,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.3-"
+        "value" : "21:AA:B0029251S.3"
       } ],
       "status" : "final",
       "category" : [ {
@@ -3697,7 +3697,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.3-"
+        "value" : "21:AA:B0029251S.3"
       } ],
       "status" : "final",
       "category" : [ {
@@ -3978,7 +3978,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.3-"
+        "value" : "21:AA:B0029251S.3"
       } ],
       "status" : "final",
       "category" : [ {
@@ -4258,7 +4258,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.3-"
+        "value" : "21:AA:B0029251S.3"
       } ],
       "status" : "final",
       "category" : [ {
@@ -4539,7 +4539,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.3-"
+        "value" : "21:AA:B0029251S.3"
       } ],
       "status" : "final",
       "category" : [ {
@@ -4820,7 +4820,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.3-"
+        "value" : "21:AA:B0029251S.3"
       } ],
       "status" : "final",
       "category" : [ {
@@ -5101,7 +5101,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.3-"
+        "value" : "21:AA:B0029251S.3"
       } ],
       "status" : "final",
       "category" : [ {
@@ -5382,7 +5382,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.3-"
+        "value" : "21:AA:B0029251S.3"
       } ],
       "status" : "final",
       "category" : [ {
@@ -5663,7 +5663,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.3-"
+        "value" : "21:AA:B0029251S.3"
       } ],
       "status" : "final",
       "category" : [ {
@@ -5944,7 +5944,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.4-"
+        "value" : "21:AA:B0029251S.4"
       } ],
       "status" : "preliminary",
       "code" : {
@@ -6208,7 +6208,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.5-"
+        "value" : "21:AA:B0029251S.5"
       } ],
       "status" : "preliminary",
       "category" : [ {
@@ -6479,7 +6479,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.5-"
+        "value" : "21:AA:B0029251S.5"
       } ],
       "status" : "preliminary",
       "category" : [ {
@@ -6751,7 +6751,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.5-"
+        "value" : "21:AA:B0029251S.5"
       } ],
       "status" : "preliminary",
       "category" : [ {
@@ -7022,7 +7022,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.5-"
+        "value" : "21:AA:B0029251S.5"
       } ],
       "status" : "preliminary",
       "category" : [ {
@@ -7294,7 +7294,7 @@
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
-        "value" : "21:AA:B0029251S.5-"
+        "value" : "21:AA:B0029251S.5"
       } ],
       "status" : "preliminary",
       "category" : [ {
