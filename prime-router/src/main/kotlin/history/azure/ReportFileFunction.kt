@@ -185,7 +185,7 @@ abstract class ReportFileFunction(
     private fun actionFromId(id: String): Action {
         // Figure out whether we're dealing with an action_id or a report_id.
         val actionId = id.toLongOrNull()
-        return if (currentAction != null)
+        return if (currentAction != null && currentAction!!.actionId == actionId)
             currentAction!!
         else if (actionId == null) {
             val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")

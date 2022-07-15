@@ -443,19 +443,20 @@ class DeliveryFunctionTests : Logging {
         assertThat(responseBody.deliveryId.toLong()).isEqualTo(returnBody.actionId)
         assertThat(responseBody.receivingOrg).isEqualTo(returnBody.receivingOrg)
 
-        // Good uuid, but not a 'receive' step report.
+        // Good uuid, but not a with `process` action step report.
         action.actionName = TaskAction.process
         response = function.getDeliveryDetails(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
-        // Good actionId, but Not found
+        // Good actionId, but with `receive` action name
         val goodActionId = "550"
-        action.actionName = TaskAction.send
+        action.actionName = TaskAction.receive
         every { mockDeliveryFacade.fetchAction(any()) } returns null
         response = function.getDeliveryDetails(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
         // Good actionId, but Not authorized
+        action.actionName = TaskAction.send
         every { mockDeliveryFacade.fetchAction(any()) } returns action
         every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
         response = function.getDeliveryDetails(mockRequest, goodActionId)
@@ -499,21 +500,6 @@ class DeliveryFunctionTests : Logging {
         every { AuthenticationStrategy.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
 
-        // Invalid id:  not a UUID nor a Long
-//        var response = function.getDeliveryFacilities(mockRequest, "bad")
-//        assertThat(response.status).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-//        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
-
-        // Database error
-//        every { mockDeliveryFacade.fetchActionForReportId(any()) }.throws(DataAccessException("dummy"))
-//        response = function.getDeliveryFacilities(mockRequest, goodUuid)
-//        assertThat(response.status).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-//
-//        // Good UUID, but Not found
-//        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns null
-//        response = function.getDeliveryFacilities(mockRequest, goodUuid)
-//        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
-
         // Good return
 
         val returnBody = listOf(
@@ -539,7 +525,7 @@ class DeliveryFunctionTests : Logging {
         val action = Action()
         action.actionId = 550
         action.sendingOrg = organizationName
-        action.actionName = TaskAction.receive
+        action.actionName = TaskAction.send
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
