@@ -4,6 +4,7 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
+import gov.cdc.prime.router.azure.db.Tables.SETTING
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
@@ -11,6 +12,7 @@ import org.jooq.Condition
 import org.jooq.SelectFieldOrAsterisk
 import org.jooq.SortField
 import org.jooq.impl.DSL
+import org.jooq.impl.DSL.field
 import java.time.OffsetDateTime
 
 abstract class HistoryDatabaseAccess(
@@ -51,6 +53,10 @@ abstract class HistoryDatabaseAccess(
      * @return a jooq select statement adding additional DB columns.
      */
     fun detailedSelect(): List<SelectFieldOrAsterisk> {
+
+        val org = SETTING.`as`("org")
+        val receiver = SETTING.`as`("receiver")
+
         return listOf(
             ACTION.asterisk(),
             DSL.multiset(
@@ -61,8 +67,22 @@ abstract class HistoryDatabaseAccess(
                 r?.into(DetailedActionLog::class.java)
             },
             DSL.multiset(
-                DSL.select()
+                DSL.select(
+                    REPORT_FILE.REPORT_ID, REPORT_FILE.RECEIVING_ORG, REPORT_FILE.RECEIVING_ORG_SVC,
+                    REPORT_FILE.SENDING_ORG, REPORT_FILE.SENDING_ORG_CLIENT, REPORT_FILE.SCHEMA_TOPIC,
+                    REPORT_FILE.EXTERNAL_NAME, REPORT_FILE.CREATED_AT, REPORT_FILE.NEXT_ACTION_AT,
+                    REPORT_FILE.ITEM_COUNT, REPORT_FILE.ITEM_COUNT_BEFORE_QUAL_FILTER,
+                    field("\"receiver\".\"values\"->>'transport' IS NOT NULL")
+                        .`as`("receiverHasTransport")
+                )
                     .from(REPORT_FILE)
+                    .leftJoin(org)
+                    .on(REPORT_FILE.RECEIVING_ORG.eq(org.NAME))
+                    .leftJoin(receiver)
+                    .on(
+                        org.SETTING_ID.eq(receiver.ORGANIZATION_ID)
+                            .and(REPORT_FILE.RECEIVING_ORG_SVC.eq(receiver.NAME))
+                    )
                     .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
             ).`as`("reports").convertFrom { r ->
                 r?.into(DetailedReport::class.java)

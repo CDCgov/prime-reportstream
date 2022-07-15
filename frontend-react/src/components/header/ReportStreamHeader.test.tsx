@@ -6,6 +6,7 @@ import { renderWithSession } from "../../utils/CustomRenderUtils";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
 import { ISessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
+import { AccessTokenWithRSClaims } from "../../utils/OrganizationUtils";
 
 import { ReportStreamHeader } from "./ReportStreamHeader";
 
@@ -44,7 +45,7 @@ describe("ReportStreamHeader", () => {
                         //@ts-ignore
                         organization: ["DHPrimeAdmins"],
                     },
-                },
+                } as AccessTokenWithRSClaims,
             },
         });
         mockSessionContext.mockReturnValue({
@@ -80,7 +81,7 @@ describe("ReportStreamHeader", () => {
                         //@ts-ignore
                         organization: ["DHSender_ignore"],
                     },
-                },
+                } as AccessTokenWithRSClaims,
             },
         });
         mockSessionContext.mockReturnValue({
@@ -115,7 +116,7 @@ describe("ReportStreamHeader", () => {
                         //@ts-ignore
                         organization: ["DHignore"],
                     },
-                },
+                } as AccessTokenWithRSClaims,
             },
         });
         mockSessionContext.mockReturnValue({

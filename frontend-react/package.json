@@ -5,7 +5,7 @@
     "npmClient": "yarn",
     "proxy": "http://localhost:7071",
     "dependencies": {
-        "@okta/okta-auth-js": "=6.3.1",
+        "@okta/okta-auth-js": "^6.5.1",
         "@okta/okta-react": "^6.4.1",
         "@okta/okta-signin-widget": "^6.0.1",
         "@rest-hooks/rest": "^3.0.3",
