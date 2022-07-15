@@ -562,6 +562,7 @@
       topic: monkeypox
       customerStatus: active
       schemaName: monkeypox
+      allowDuplicates: false
       format: HL7
 
 - name: az-phd
@@ -2065,6 +2066,35 @@
         type: BLOBSTORE
         storageName: PartnerStorage
         containerName: hhsprotect
+
+- name: "dcipher-monkeypox"
+  description: DCIPHER for Monkeypox reporting
+  jurisdiction: "FEDERAL"
+  receivers:
+    - name: "elr"
+      organizationName: "dcipher-monkeypox"
+      topic: "monkeypox"
+      customerStatus: active
+      jurisdictionalFilter: [ "allowAll()" ]
+      qualityFilter: [ "allowAll()" ]
+      translation:
+        type: "CUSTOM"
+        schemaName: "dcipher/dcipher-monkeypox"
+        format: "CSV"
+      deidentify: true
+      deidentifiedValue: "<DEIDENTIFIED>"
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
 
 # 'ignore' is a test organization, designed to be safely usable across all our environments.
 # It has a bunch of receivers, each given a useful fake name, eg, named after the format of the data, in some cases.

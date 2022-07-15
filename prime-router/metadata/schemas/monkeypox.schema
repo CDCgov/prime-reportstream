@@ -721,6 +721,11 @@ elements:
     hl7Field: SPM-10
     referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10
 
+  - name: specimen_condition
+    type: TEXT
+    hl7Field: SPM-24
+    referenceUrl: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.24
+
   # should this also have a lookup into LIVD?
   - name: specimen_description
     type: TEXT
