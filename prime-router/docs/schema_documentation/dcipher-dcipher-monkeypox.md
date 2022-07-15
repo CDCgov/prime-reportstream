@@ -1,13 +1,786 @@
 
-### Schema: monkeypox
+### Schema: dcipher/dcipher-monkeypox
 ### Topic: monkeypox
-### Tracking Element: (message_id)
-### Base On: none
-### Extends: none
-#### Description: A collection of standard elements, not an actual schema. Based on specifications from several locations:
-https://www.cdc.gov/poxvirus/monkeypox/lab-personnel/report-results.html
-https://www.who.int/publications/i/item/WHO-MPX-laboratory-2022.1
+### Tracking Element: message_id (message_id)
+### Base On: [monkeypox](./monkeypox.md)
+### Extends: [monkeypox](./monkeypox.md)
+#### Description: Monkeypox flat file format for submission to DCIPHER
 
+---
+
+**Name**: sample_result_status
+
+**ReportStream Internal Name**: TODO_sample_result_status
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: Testing Completed by lab
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Use one from this value set - Testing Completed by lab, Testing Not Completed - further testing has been deferred to the CDC, Testing Not Completed - additional testing to be sent by lab
+
+---
+
+**Name**: test_modifed_on
+
+**ReportStream Internal Name**: TODO_test_modified_on
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Date/time test last updated at CDC (system-generated).
+
+---
+
+**Name**: test_overall_findings
+
+**ReportStream Internal Name**: TODO_test_overall_findings
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Brief description of the test results
+
+---
+
+**Name**: amplification_kit
+
+**ReportStream Internal Name**: amplification_kit
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: test_comments
+
+**ReportStream Internal Name**: comment
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Any notes regarding how the test was performed that are not covered by other data elements (typically left blank)
+
+---
+
+**Name**: event_name
+
+**ReportStream Internal Name**: event_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: 2022 Monkeypox
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: extraction_kit
+
+**ReportStream Internal Name**: extraction_kit
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: sample_additional_identifier
+
+**ReportStream Internal Name**: filler_order_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Primary identifier for the specimen, as in HL7 field SPM-2.2.1
+
+---
+
+**Name**: locator_id
+
+**ReportStream Internal Name**: locator_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: message_id
+
+**ReportStream Internal Name**: message_id
+
+**Type**: ID
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Documentation**:
+
+Identifier for the message received (system-generated)
+
+---
+
+**Name**: message_type
+
+**ReportStream Internal Name**: message_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: SAMPLE
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: subject_city
+
+**ReportStream Internal Name**: patient_city
+
+**Type**: CITY
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's city
+
+---
+
+**Name**: Patient_id
+
+**ReportStream Internal Name**: patient_id
+
+**Type**: TEXT
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Optional patient identifier
+
+---
+
+**Name**: subject_state
+
+**ReportStream Internal Name**: patient_state
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [1..1]
+
+**Table**: fips-county
+
+**Table Column**: State
+
+**Documentation**:
+
+The patient's state
+
+---
+
+**Name**: subject_address_line_1
+
+**ReportStream Internal Name**: patient_street
+
+**Type**: STREET
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's street address
+
+---
+
+**Name**: subject_address_line_2
+
+**ReportStream Internal Name**: patient_street2
+
+**Type**: STREET_OR_BLANK
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's second address line
+
+---
+
+**Name**: subject_zip
+
+**ReportStream Internal Name**: patient_zip_code
+
+**Type**: POSTAL_CODE
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's zip code
+
+---
+
+**Name**: processing_date
+
+**ReportStream Internal Name**: processing_date
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Date/time message was processed at CDC (system-generated)
+
+---
+
+**Name**: program
+
+**ReportStream Internal Name**: program
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: LRN-B
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_facility_oid
+
+**ReportStream Internal Name**: reporting_facility_clia
+
+**Type**: ID_CLIA
+
+**PII**: No
+
+**HL7 Fields**
+
+- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
+- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Unique identifier of the facility that sends the message. 
+
+---
+
+**Name**: sample_category
+
+**ReportStream Internal Name**: sample_category
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: Human - Clinical
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: sample_conclusion
+
+**ReportStream Internal Name**: sample_conclusion
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Description of the conclusion that should be drawn from the test results e.g., Presumptive positive identification of Varicella Zoster virus
+
+---
+
+**Name**: sample_conclusion_comment
+
+**ReportStream Internal Name**: sample_conclusion_comment
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Any notes regarding the conclusions drawn that are not covered by other data elements (typically left blank)
+
+---
+
+**Name**: sample_duration
+
+**ReportStream Internal Name**: sample_duration
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: sample_latitude
+
+**ReportStream Internal Name**: sample_latitude
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: sample_longitude
+
+**ReportStream Internal Name**: sample_longitude
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: sample_modified_date
+
+**ReportStream Internal Name**: sample_modified_date
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Default Value**: $currentDate
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Date/time sample last updated at CDC (system-generated).
+
+---
+
+**Name**: sample_start
+
+**ReportStream Internal Name**: sample_start
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: sample_stop
+
+**ReportStream Internal Name**: sample_stop
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: sample_temperature
+
+**ReportStream Internal Name**: sample_temperature
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The temperature of the sample at the time of testing, if available (typically NULL)
+
+---
+
+**Name**: sample_type_other_text
+
+**ReportStream Internal Name**: sample_type_other_text
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: LRN-B
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Alternate description of the specimen, as in HL7 field SPM-4.9
+
+---
+
+**Name**: sample_volume
+
+**ReportStream Internal Name**: sample_volume
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: sample_weight
+
+**ReportStream Internal Name**: sample_weight
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The weight of the sample at the time of testing, if available (typically left blank)
+
+---
+
+**Name**: collection_timestamp
+
+**ReportStream Internal Name**: specimen_collection_date_time
+
+**Type**: DATETIME
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-7](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.7)
+- [OBR-8](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.8)
+- [OBX-14](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.14)
+- [SPM-17-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.17.1)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Time at which the sample was collected, as opposed to the time the sample collection device was recovered, as in HL7 fields SPM-17.1.1 and OBR-7.
+
+---
+
+**Name**: sample_condition
+
+**ReportStream Internal Name**: specimen_condition
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.24](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.24) 
+
+**Documentation**:
+
+Description of the physical state of the specimen, as in HL7 field SPM-24.2
+
+---
+
+**Name**: sample_description
+
+**ReportStream Internal Name**: specimen_description
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14](https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14) 
+
+**Documentation**:
+
+Additional information specifically about the specimen to be sent in the message, as in HL7 field SPM-14
+
+---
+
+**Name**: sample_type
+
+**ReportStream Internal Name**: specimen_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Description of the precise nature of the entity that will be the source material for the observation, as in HL7 field SPM-4.2
+
+---
+
+**Name**: subject_description
+
+**ReportStream Internal Name**: subject_description
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: suspect_agent
+
+**ReportStream Internal Name**: suspect_agent
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: test_interpretation_for_moiety
+
+**ReportStream Internal Name**: test_interpretation_for_moiety
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: test_equipment_used
+
+**ReportStream Internal Name**: test_kit_name_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Description of the equipment used to perform the test, as in HL7 field OBX-17.
+
+---
+
+**Name**: test_moiety
+
+**ReportStream Internal Name**: test_moiety
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: test_parameter
+
+**ReportStream Internal Name**: test_performed_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Code or text describing the parameter or subtest being evaluated, as in HL7 field OBX-3.
+
+---
+
+**Name**: test_assay
+
+**ReportStream Internal Name**: test_performed_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Name of test performed, as in HL7 field OBX-3.2
+
+---
+
+**Name**: test_date
+
+**ReportStream Internal Name**: test_result_date
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Date/time lab performed the test
+
+---
+
+**Name**: test_result
+
+**ReportStream Internal Name**: test_result_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Result of the test performed, as in HL7 field OBX-5.
+
+---
+
+**Name**: data_value_text
+
+**ReportStream Internal Name**: test_result_text
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+If provided, a numeric result value.
+
+---
+
+**Name**: tested_agent
+
+**ReportStream Internal Name**: tested_agent
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: Variola & poxvirus
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_facility_name
+
+**ReportStream Internal Name**: testing_lab_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
+- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
+- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
+- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
+- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Unique name of the facility that sends the message, corresponding to the OID above.
+
+---
+
+**Name**: received_timestamp
+
+**ReportStream Internal Name**: testing_lab_specimen_received_datetime
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Time at which the specimen is received at the diagnostic service.  The actual time recorded is based on how the specimen receipt is managed, and may correspond to the time the sample is logged in. Corresponds to HL7 field SPM-18.1
 
 ---
 
@@ -61,18 +834,6 @@ W|Worse--use when direction not relevant|HL7
 **Documentation**:
 
 This field is generated based on the normalcy status of the result. A = abnormal; N = normal
-
----
-
-**Name**: comment
-
-**ReportStream Internal Name**: comment
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
 
 ---
 
@@ -269,22 +1030,6 @@ When was this file created. This is only used for HL7 generation.
 
 ---
 
-**Name**: filler_order_id
-
-**ReportStream Internal Name**: filler_order_id
-
-**Type**: ID
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Accession number
-
----
-
 **Name**: flatfile_version_no
 
 **ReportStream Internal Name**: flatfile_version_no
@@ -294,22 +1039,6 @@ Accession number
 **PII**: No
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: message_id
-
-**ReportStream Internal Name**: message_id
-
-**Type**: ID
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Documentation**:
-
-unique id to track the usage of the message
 
 ---
 
@@ -1457,22 +2186,6 @@ ZWE|Zimbabwe|ISO
 
 ---
 
-**Name**: patient_city
-
-**ReportStream Internal Name**: patient_city
-
-**Type**: CITY
-
-**PII**: Yes
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's city
-
----
-
 **Name**: patient_country
 
 **ReportStream Internal Name**: patient_country
@@ -1672,25 +2385,6 @@ N|Not applicable|HL7
 The patient's gender. There is a valueset defined based on the values in PID-8-1, 
 but downstream consumers are free to define their own accepted values. Please refer to 
 the consumer-specific schema if you have questions.
-
-
----
-
-**Name**: patient_id
-
-**ReportStream Internal Name**: patient_id
-
-**Type**: TEXT
-
-**PII**: Yes
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The ID for the patient within one of the reporting entities for this lab result. It could be the
-the patient ID from the testing lab, the oder placer, the ordering provider, 
-or even within the PRIME system itself.
 
 
 ---
@@ -2747,58 +3441,6 @@ may choose to define different code/value combinations.
 
 ---
 
-**Name**: patient_state
-
-**ReportStream Internal Name**: patient_state
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [1..1]
-
-**Table**: fips-county
-
-**Table Column**: State
-
-**Documentation**:
-
-The patient's state
-
----
-
-**Name**: patient_street
-
-**ReportStream Internal Name**: patient_street
-
-**Type**: STREET
-
-**PII**: Yes
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's street address
-
----
-
-**Name**: patient_street2
-
-**ReportStream Internal Name**: patient_street2
-
-**Type**: STREET_OR_BLANK
-
-**PII**: Yes
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's second address line
-
----
-
 **Name**: patient_suffix
 
 **ReportStream Internal Name**: patient_suffix
@@ -3404,22 +4046,6 @@ The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.1
 
 ---
 
-**Name**: patient_zip_code
-
-**ReportStream Internal Name**: patient_zip_code
-
-**Type**: POSTAL_CODE
-
-**PII**: Yes
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The patient's zip code
-
----
-
 **Name**: placer_clia
 
 **ReportStream Internal Name**: placer_clia
@@ -3771,27 +4397,6 @@ aggregator
 
 ---
 
-**Name**: reporting_facility_clia
-
-**ReportStream Internal Name**: reporting_facility_clia
-
-**Type**: ID_CLIA
-
-**PII**: No
-
-**HL7 Fields**
-
-- [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
-- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The reporting facility's CLIA
-
----
-
 **Name**: reporting_facility_name
 
 **ReportStream Internal Name**: reporting_facility_name
@@ -3933,30 +4538,6 @@ This is a CUSTOM internal field. DO NOT use this for an AOE residence_type.
 
 ---
 
-**Name**: specimen_collection_date_time
-
-**ReportStream Internal Name**: specimen_collection_date_time
-
-**Type**: DATETIME
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-7](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.7)
-- [OBR-8](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.8)
-- [OBX-14](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.14)
-- [SPM-17-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.17.1)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The date which the specimen was collected. The default format is yyyyMMddHHmmsszz
-
-
----
-
 **Name**: specimen_collection_method
 
 **ReportStream Internal Name**: specimen_collection_method
@@ -4067,38 +4648,6 @@ WOOD|Swab, Wooden Shaft|HL7
 **PII**: No
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: specimen_condition
-
-**ReportStream Internal Name**: specimen_condition
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.24](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.24) 
-
----
-
-**Name**: specimen_description
-
-**ReportStream Internal Name**: specimen_description
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-
-**Reference URL**:
-[https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14](https://hl7-definition.caristix.com/v2/HL7v2.8/Fields/SPM.14) 
 
 ---
 
@@ -4322,22 +4871,6 @@ The text for the specimen source site
 
 ---
 
-**Name**: specimen_type
-
-**ReportStream Internal Name**: specimen_type
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The specimen source, such as Blood or Serum
-
----
-
 **Name**: specimen_type_alternate_value
 
 **ReportStream Internal Name**: specimen_type_alternate_value
@@ -4446,22 +4979,6 @@ The specimen source, such as Blood or Serum
 
 ---
 
-**Name**: test_kit_name_id
-
-**ReportStream Internal Name**: test_kit_name_id
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Follows guidence for OBX-17 as defined in the HL7 Confluence page
-
----
-
 **Name**: test_kit_name_id_cwe_version
 
 **ReportStream Internal Name**: test_kit_name_id_cwe_version
@@ -4554,38 +5071,6 @@ A text field that allows the lab to provide more information aboout the test met
 
 ---
 
-**Name**: test_performed_code
-
-**ReportStream Internal Name**: test_performed_code
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The LOINC code of the test performed. This is a standardized coded value describing the test
-
----
-
-**Name**: test_performed_name
-
-**ReportStream Internal Name**: test_performed_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The LOINC description of the test performed as related to the LOINC code.
-
----
-
 **Name**: test_performed_system
 
 **ReportStream Internal Name**: test_performed_system
@@ -4621,35 +5106,6 @@ The LOINC description of the test performed as related to the LOINC code.
 **PII**: No
 
 **Cardinality**: [0..1]
-
----
-
-**Name**: test_result_date
-
-**ReportStream Internal Name**: test_result_date
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: test_result_id
-
-**ReportStream Internal Name**: test_result_id
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The result of the test performed. For IgG, IgM and CT results that give a numeric value put that here.
-
 
 ---
 
@@ -4695,18 +5151,6 @@ the test result is in some intermediate status, is a correction, or is the final
 **ReportStream Internal Name**: test_result_sub_id
 
 **Type**: ID
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: test_result_text
-
-**ReportStream Internal Name**: test_result_text
-
-**Type**: TEXT
 
 **PII**: No
 
@@ -4950,31 +5394,6 @@ testing lab has a CLIA, this field will be filled in.
 
 ---
 
-**Name**: testing_lab_name
-
-**ReportStream Internal Name**: testing_lab_name
-
-**Type**: TEXT
-
-**PII**: No
-
-**HL7 Fields**
-
-- [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
-- [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
-- [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
-- [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
-- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The name of the laboratory which performed the test, can be the same as the sending facility name
-
-
----
-
 **Name**: testing_lab_name_type_code
 
 **ReportStream Internal Name**: testing_lab_name_type_code
@@ -5016,26 +5435,6 @@ The phone number of the testing lab
 **Documentation**:
 
 The specimen-id from the testing lab
-
----
-
-**Name**: testing_lab_specimen_received_datetime
-
-**ReportStream Internal Name**: testing_lab_specimen_received_datetime
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-The received date time for the specimen. This field is very important to many states for their HL7,
-but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
-setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
-be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
-
 
 ---
 
