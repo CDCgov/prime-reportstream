@@ -15,9 +15,6 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
-import gov.cdc.prime.router.tokens.authenticationFailure
-import gov.cdc.prime.router.tokens.authorizationFailure
 
 /**
  * Deliveries API
@@ -161,32 +158,9 @@ class DeliveryFunction(
     ): HttpResponseMessage {
         try {
             // Do authentication
-            val claims = AuthenticationStrategy.authenticate(request)
-                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-
-            logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
-
-            // Figure out whether we're dealing with a deliveryId or a reportId.
-            val actionId = id.toLongOrNull()
-            val action = if (actionId == null) {
-                val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
-                deliveryFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
-            } else {
-                deliveryFacade.fetchAction(actionId) ?: error("No such actionId $actionId")
-            }
-
-            // Do Authorization.  Confirm these claims allow access to this Action
-            if (!deliveryFacade.checkSenderAccessAuthorization(action, claims)) {
-                logger.warn(
-                    "Invalid Authorization for user ${claims.userName}:" +
-                        " ${request.httpMethod}:${request.uri.path}"
-                )
-                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
-            }
-
-            logger.info(
-                "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
-            )
+            val authResult = this.authSingle(request, id)
+            if (authResult != null)
+                return authResult
 
             val params = HistoryApiParameters(request.queryParameters)
             val facilityParams = FacilityListApiParameters(request.queryParameters)

@@ -26,6 +26,12 @@ abstract class ReportFileFunction(
     private val reportFileFacade: ReportFileFacade,
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
+
+    /**
+     * Helper to store currently loaded action to prevent extra DB calls
+     */
+    private var currentAction: Action? = null
+
     /**
      * Get the correct name for an organization based on the name.
      *
@@ -113,35 +119,11 @@ abstract class ReportFileFunction(
     ): HttpResponseMessage {
         try {
             // Do authentication
-            val claims = AuthenticationStrategy.authenticate(request)
-                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+            val authResult = this.authSingle(request, id)
+            if (authResult != null)
+                return authResult
 
-            logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
-
-            // Figure out whether we're dealing with an action_id or a report_id.
-            val actionId = id.toLongOrNull()
-            val action = if (actionId == null) {
-                val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
-                reportFileFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
-            } else {
-                reportFileFacade.fetchAction(actionId) ?: error("No such actionId $actionId")
-            }
-
-            // Confirm the action is of the expected type for the given endpoint
-            if (!this.actionIsValid(action))
-                return HttpUtilities.notFoundResponse(request, "$id is not a valid report")
-
-            // Do Authorization.  Confirm these claims allow access to this Action
-            if (!reportFileFacade.checkSenderAccessAuthorization(action, claims)) {
-                logger.warn(
-                    "Invalid Authorization for user ${claims.userName}:" +
-                        " ${request.httpMethod}:${request.uri.path}"
-                )
-                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
-            }
-            logger.info(
-                "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
-            )
+            val action = this.actionFromId(id)
 
             val history = this.singleDetailedHistory(request.queryParameters, action)
             return if (history != null)
@@ -155,6 +137,48 @@ abstract class ReportFileFunction(
             logger.error(ex)
             // Errors above are actionId or UUID not found errors.
             return HttpUtilities.notFoundResponse(request, ex.message)
+        }
+    }
+
+    internal fun authSingle(
+        request: HttpRequestMessage<String?>,
+        id: String,
+    ): HttpResponseMessage? {
+        // Do authentication
+        val claims = AuthenticationStrategy.authenticate(request)
+            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+        logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
+
+        val action = this.actionFromId(id)
+
+        return if (!this.actionIsValid(action))
+            HttpUtilities.notFoundResponse(request, "$id is not a valid report")
+        else if (!reportFileFacade.checkSenderAccessAuthorization(action, claims)) {
+            logger.warn(
+                "Invalid Authorization for user ${claims.userName}:" +
+                    " ${request.httpMethod}:${request.uri.path}"
+            )
+            HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+        } else {
+            currentAction = action
+            logger.info(
+                "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
+            )
+            null
+        }
+    }
+
+    private fun actionFromId(id: String): Action {
+        // Figure out whether we're dealing with an action_id or a report_id.
+        val actionId = id.toLongOrNull()
+        return if (currentAction != null)
+            currentAction!!
+        else if (actionId == null) {
+            val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
+            reportFileFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
+        } else {
+            reportFileFacade.fetchAction(actionId) ?: error("No such actionId $actionId")
         }
     }
 
@@ -249,7 +273,7 @@ abstract class ReportFileFunction(
      * @param str
      * @return a valid UUID, or null if this [str] cannot be parsed into a valid UUID.
      */
-    fun toUuidOrNull(str: String): UUID? {
+    private fun toUuidOrNull(str: String): UUID? {
         return try {
             UUID.fromString(str)
         } catch (e: IllegalArgumentException) {
