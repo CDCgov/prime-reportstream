@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
     Button,
     Form,
@@ -11,13 +11,13 @@ import { showError } from "../components/AlertNotifications";
 import Spinner from "../components/Spinner";
 import watersApiFunctions from "../network/api/WatersApiFunctions";
 import { useSessionContext } from "../contexts/SessionContext";
-import { StaticAlert } from "../components/StaticAlert";
 import { useOrganizationResource } from "../hooks/UseOrganizationResouce";
-import { ResponseError } from "../network/api/WatersApi";
+import { FileResponseError } from "../network/api/WatersApi";
+import {
+    FileErrorDisplay,
+    FileSuccessDisplay,
+} from "../components/FileHandlers/FileHandlerMessaging";
 
-interface ValidationError extends ResponseError {
-    rowList?: string;
-}
 // values taken from Report.kt
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
 const REPORT_MAX_ITEMS = 10000;
@@ -31,7 +31,7 @@ const Validate = () => {
     const [contentType, setContentType] = useState("");
     const [fileType, setFileType] = useState("");
     const [fileName, setFileName] = useState("");
-    const [errors, setErrors] = useState<ValidationError[]>([]);
+    const [errors, setErrors] = useState<FileResponseError[]>([]);
     const [destinations, setDestinations] = useState("");
     const [reportId, setReportId] = useState(null);
     const [cancellable, setCancellable] = useState<boolean>(false);
@@ -113,7 +113,7 @@ const Validate = () => {
             const filecontent = await file.text();
 
             if (uploadType === "csv" || uploadType === "text/csv") {
-                if (basicCsvFileValidationError(file.name, filecontent)) {
+                if (FileResponseError(file.name, filecontent)) {
                     return;
                 }
             } else {
@@ -132,10 +132,7 @@ const Validate = () => {
         }
     };
 
-    const basicCsvFileValidationError = (
-        fileName: string,
-        filecontent: string
-    ) => {
+    const FileResponseError = (fileName: string, filecontent: string) => {
         const error = false;
         setContentType("text/csv");
         // count the number of lines
@@ -230,14 +227,14 @@ const Validate = () => {
         // Process the error messages
         if (response?.errors && response.errors.length > 0) {
             // Add a string to properly display the indices if available.
-            const validationErrors = response.errors.map((error: any) => {
+            const FileResponseErrors = response.errors.map((error: any) => {
                 const rowList =
                     error.indices && error.indices.length > 0
                         ? error.indices.join(", ")
                         : "";
                 return { ...error, rowList };
             });
-            setErrors(validationErrors);
+            setErrors(FileResponseErrors);
             setCancellable(true);
         } else {
             setCancellable(false);
@@ -258,17 +255,19 @@ const Validate = () => {
             <h1 className="margin-top-0 margin-bottom-5">File Validator</h1>
             <h2 className="font-sans-lg">{organization?.description}</h2>
             {reportId && (
-                <ValidationSuccessDisplay
+                <FileSuccessDisplay
                     fileName={fileName}
-                    fileType={fileType}
                     destinations={destinations}
+                    heading={"Your file has been validated"}
+                    message={`Your file meets the standard ${fileType} schema and can be successfully transmitted.`}
+                    showDestinations={false}
                 />
             )}
 
             {errors.length > 0 && (
-                <ValidationErrorDisplay
+                <FileErrorDisplay
                     fileName={fileName}
-                    fileType={fileType}
+                    errorType="Validation"
                     errors={errors}
                     messageText={errorMessageText}
                 />
@@ -324,112 +323,6 @@ const Validate = () => {
                     </div>
                 </div>
             </Form>
-        </div>
-    );
-};
-
-type ValidationSuccessDisplayProps = {
-    fileName: string;
-    fileType: string;
-    destinations: string;
-};
-
-const ValidationSuccessDisplay = ({
-    fileName,
-    fileType,
-    destinations,
-}: ValidationSuccessDisplayProps) => {
-    const destinationsDisplay =
-        destinations || "There are no known recipients at this time.";
-    return (
-        <>
-            <StaticAlert
-                type={"success"}
-                heading={"Your file has been validated"}
-                message={`Your file meets the standard ${fileType} schema and can be successfully transmitted.`}
-            />
-            <div>
-                <p
-                    id="validatedFilename"
-                    className="text-normal text-base margin-bottom-0"
-                >
-                    File name
-                </p>
-                <p className="margin-top-05">{fileName}</p>
-                <div>
-                    <p className="text-normal text-base margin-bottom-0">
-                        Recipients
-                    </p>
-                    <p className="margin-top-05">{destinationsDisplay}</p>
-                </div>
-            </div>
-        </>
-    );
-};
-
-type ValidationErrorDisplayProps = {
-    fileType: string;
-    errors: ValidationError[];
-    messageText: string;
-    fileName: string;
-};
-
-const ValidationErrorDisplay = ({
-    fileName,
-    errors,
-    messageText,
-}: ValidationErrorDisplayProps) => {
-    const showErrorTable =
-        errors && errors.length && errors.some((error) => error.message);
-
-    useEffect(() => {
-        errors.forEach((error: ValidationError) => {
-            if (error.details) {
-                console.error("Validation Failed: ", error.details);
-            }
-        });
-    }, [errors]);
-
-    return (
-        <div>
-            <StaticAlert
-                type={"error"}
-                heading={"We found errors in your file."}
-                message={messageText}
-            />
-            <div>
-                <p
-                    id="validatedFilename"
-                    className="text-normal text-base margin-bottom-0"
-                >
-                    File name
-                </p>
-                <p className="margin-top-05">{fileName}</p>
-            </div>
-            {showErrorTable && (
-                <table className="usa-table usa-table--borderless">
-                    <thead>
-                        <tr>
-                            <th>Requested Edit</th>
-                            <th>Areas Containing the Requested Edit</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {errors.map((e, i) => {
-                            return (
-                                <tr key={"error_" + i}>
-                                    <td>{e.message}</td>
-                                    <td>
-                                        {e.rowList && (
-                                            <span>Row(s): {e.rowList}</span>
-                                        )}
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-            )}
         </div>
     );
 };

@@ -32,6 +32,10 @@ export interface ResponseError {
     details: any | undefined;
 }
 
+export interface FileResponseError extends ResponseError {
+    rowList?: string;
+}
+
 const WatersApi: API = new API(WatersResponse, "/api").addEndpoint(
     "waters",
     "/waters",
