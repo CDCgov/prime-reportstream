@@ -158,7 +158,7 @@ class DeliveryFunction(
     ): HttpResponseMessage {
         try {
             // Do authentication
-            val authResult = this.authSingle(request, id)
+            val authResult = this.authSingleBlocks(request, id)
             if (authResult != null)
                 return authResult
 

@@ -119,7 +119,7 @@ abstract class ReportFileFunction(
     ): HttpResponseMessage {
         try {
             // Do authentication
-            val authResult = this.authSingle(request, id)
+            val authResult = this.authSingleBlocks(request, id)
             if (authResult != null)
                 return authResult
 
@@ -140,7 +140,14 @@ abstract class ReportFileFunction(
         }
     }
 
-    internal fun authSingle(
+    /**
+     * Check for auth issues when fetching a single result.
+     *
+     * @param request HTML request body.
+     * @param id Either a reportId or actionId to look for matches on.
+     * @return The error response if found, or null if all is well.
+     */
+    internal fun authSingleBlocks(
         request: HttpRequestMessage<String?>,
         id: String,
     ): HttpResponseMessage? {
@@ -169,6 +176,12 @@ abstract class ReportFileFunction(
         }
     }
 
+    /**
+     * Look for an action related to the given id.
+     *
+     * @param id Either a reportId or actionId to look for matches on.
+     * @return The action related to the given id.
+     */
     private fun actionFromId(id: String): Action {
         // Figure out whether we're dealing with an action_id or a report_id.
         val actionId = id.toLongOrNull()
