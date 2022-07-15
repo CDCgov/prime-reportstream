@@ -67,7 +67,7 @@ export const FileErrorDisplay = ({
                 console.error(`${errorType} failure: ${error.details}`);
             }
         });
-    }, [errors]);
+    }, [errors, errorType]);
 
     return (
         <div>

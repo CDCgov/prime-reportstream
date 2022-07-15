@@ -17,6 +17,7 @@ import {
     FileErrorDisplay,
     FileSuccessDisplay,
 } from "../components/FileHandlers/FileHandlerMessaging";
+import { FileHandlerSubmitButton } from "../components/FileHandlers/FileHandlerButton";
 
 // values taken from Report.kt
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
@@ -314,46 +315,16 @@ const Validate = () => {
                     </div>
                     <div className="grid-col flex-1" />
                     <div className="grid-col flex-1 display-flex flex-column flex-align-end">
-                        <SubmitButton
+                        <FileHandlerSubmitButton
                             isSubmitting={isSubmitting}
                             submitted={submitted}
-                            fileName={fileName}
+                            disabled={fileName.length === 0}
                             reset={resetState}
                         />
                     </div>
                 </div>
             </Form>
         </div>
-    );
-};
-
-type SubmitButtonProps = {
-    isSubmitting: boolean;
-    submitted: boolean;
-    fileName: string;
-    reset: () => void;
-};
-
-const SubmitButton = ({
-    isSubmitting,
-    submitted,
-    fileName,
-    reset,
-}: SubmitButtonProps) => {
-    if (isSubmitting) {
-        return null;
-    }
-    if (submitted) {
-        return (
-            <Button type="button" onClick={reset}>
-                Validate another file
-            </Button>
-        );
-    }
-    return (
-        <Button type="submit" disabled={fileName.length === 0}>
-            Validate
-        </Button>
     );
 };
 
