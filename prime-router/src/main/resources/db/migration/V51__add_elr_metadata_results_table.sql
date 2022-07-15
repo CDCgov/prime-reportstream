@@ -104,8 +104,7 @@ create table if not exists elr_result_metadata
     testing_facility_state              varchar(512),
     testing_facility_county             varchar(512),
     testing_facility_postal_code        varchar(512)
-)
-;
+);
 
 -- comments
 comment on table elr_result_metadata

@@ -3,10 +3,10 @@ package gov.cdc.prime.router
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
+import gov.cdc.prime.router.azure.db.tables.pojos.ElrResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.common.DateUtilities
-import gov.cdc.prime.router.common.DateUtilities.toLocalDate
+import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
@@ -17,13 +17,15 @@ import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
 import tech.tablesaw.selection.Selection
 import java.security.MessageDigest
+import java.time.Duration
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.time.Period
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.xml.bind.DatatypeConverter
+import kotlin.math.abs
+import kotlin.math.floor
 import kotlin.random.Random
 
 /**
@@ -728,34 +730,54 @@ class Report : Logging {
     }
 
     /**
-     * This method takes the contents of a report and maps them a CovidResultMetadata object that is ready
+     * This method takes the contents of a report and maps them a [ElrResultMetadata] object that is ready
      * to be persisted to the database. This is not PII nor PHI, so it is safe to collect and build trend
      * analysis off of.
      */
-    fun getDeidentifiedResultMetaData(): List<CovidResultMetadata> {
+    fun getDeidentifiedResultMetaData(): List<ElrResultMetadata> {
         return try {
             table.mapIndexed { idx, row ->
-                CovidResultMetadata().also {
+                ElrResultMetadata().also {
                     it.messageId = row.getStringOrNull("message_id")
                     it.previousMessageId = row.getStringOrNull("previous_message_id")
+                    it.topic = row.getStringOrNull("topic")
+                    it.reportId = this.id
+                    // switched to 1-based index on items in Feb 2022
+                    it.reportIndex = idx + 1
+                    // For sender ID, use first the provided ID and if not use the client ID.
+                    it.senderId = row.getStringOrNull("sender_id").trimToNull()
+                    if (it.senderId.isNullOrBlank()) {
+                        val clientSource = sources.firstOrNull { source -> source is ClientSource } as ClientSource?
+                        if (clientSource != null) it.senderId = clientSource.name.trimToNull()
+                    }
+                    it.organizationName = row.getStringOrNull("organization_name").trimToNull()
+
+                    it.sendingApplicationId = row.getStringOrNull("sending_application_id")
+                    it.sendingApplicationName = row.getStringOrNull("sending_application_name")
+
                     it.orderingProviderName =
                         row.getStringOrNull("ordering_provider_first_name").trimToNull() +
                         " " + row.getStringOrNull("ordering_provider_last_name").trimToNull()
                     it.orderingProviderId = row.getStringOrNull("ordering_provider_id").trimToNull()
+                    it.orderingProviderCity = row.getStringOrNull("ordering_provider_city").trimToNull()
                     it.orderingProviderState = row.getStringOrNull("ordering_provider_state").trimToNull()
                     it.orderingProviderPostalCode = row.getStringOrNull("ordering_provider_zip_code").trimToNull()
                     it.orderingProviderCounty = row.getStringOrNull("ordering_provider_county").trimToNull()
+
+                    it.orderingFacilityId = row.getStringOrNull("ordering_facility_id").trimToNull()
                     it.orderingFacilityCity = row.getStringOrNull("ordering_facility_city").trimToNull()
                     it.orderingFacilityCounty = row.getStringOrNull("ordering_facility_county").trimToNull()
                     it.orderingFacilityName = row.getStringOrNull("ordering_facility_name").trimToNull()
                     it.orderingFacilityPostalCode = row.getStringOrNull("ordering_facility_zip_code").trimToNull()
                     it.orderingFacilityState = row.getStringOrNull("ordering_facility_state")
-                    it.testingLabCity = row.getStringOrNull("testing_lab_city").trimToNull()
-                    it.testingLabClia = row.getStringOrNull("testing_lab_clia").trimToNull()
-                    it.testingLabCounty = row.getStringOrNull("testing_lab_county").trimToNull()
-                    it.testingLabName = row.getStringOrNull("testing_lab_name").trimToNull()
-                    it.testingLabPostalCode = row.getStringOrNull("testing_lab_zip_code").trimToNull()
-                    it.testingLabState = row.getStringOrNull("testing_lab_state").trimToNull()
+
+                    it.testingFacilityCity = row.getStringOrNull("testing_lab_city").trimToNull()
+                    it.testingFacilityId = row.getStringOrNull("testing_lab_clia").trimToNull()
+                    it.testingFacilityCounty = row.getStringOrNull("testing_lab_county").trimToNull()
+                    it.testingFacilityName = row.getStringOrNull("testing_lab_name").trimToNull()
+                    it.testingFacilityPostalCode = row.getStringOrNull("testing_lab_zip_code").trimToNull()
+                    it.testingFacilityState = row.getStringOrNull("testing_lab_state").trimToNull()
+
                     it.patientCounty = row.getStringOrNull("patient_county").trimToNull()
                     it.patientCountry = row.getStringOrNull("patient_country").trimToNull()
                     it.patientEthnicityCode = row.getStringOrNull("patient_ethnicity")
@@ -778,6 +800,14 @@ class Report : Logging {
                         null
                     }
                     it.patientState = row.getStringOrNull("patient_state").trimToNull()
+                    it.patientTribalCitizenship = row.getStringOrNull("patient_tribal_citizenship")
+                    it.patientTribalCitizenshipCode = row.getStringOrNull("patient_tribal_citizenship_code")
+                    it.patientPreferredLanguage = row.getStringOrNull("patient_preferred_language")
+                    it.patientNationality = row.getStringOrNull("patient_nationality")
+
+                    it.reasonForStudy = row.getStringOrNull("reason_for_study")
+                    it.reasonForStudyCode = row.getStringOrNull("reason_for_study_code")
+
                     it.testResultCode = row.getStringOrNull("test_result").trimToNull()
                     it.testResult = if (it.testResultCode != null) {
                         metadata.findValueSet("covid-19/test_result")?.toDisplayFromCode(it.testResultCode)
@@ -788,7 +818,7 @@ class Report : Logging {
                     it.specimenCollectionDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
                         if (!dt.isNullOrEmpty()) {
                             try {
-                                LocalDate.from(DateUtilities.parseDate(dt))
+                                DateUtilities.parseDate(dt).toOffsetDateTime()
                             } catch (_: Exception) {
                                 null
                             }
@@ -801,19 +831,30 @@ class Report : Logging {
                         row.getStringOrNull("patient_dob").trimToNull(),
                         it.specimenCollectionDateTime
                     )
-                    it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
-                    it.reportId = this.id
-                    // switched to 1-based index on items in Feb 2022
-                    it.reportIndex = idx + 1
-                    // For sender ID, use first the provided ID and if not use the client ID.
-                    it.senderId = row.getStringOrNull("sender_id").trimToNull()
-                    if (it.senderId.isNullOrBlank()) {
-                        val clientSource = sources.firstOrNull { source -> source is ClientSource } as ClientSource?
-                        if (clientSource != null) it.senderId = clientSource.name.trimToNull()
+                    it.specimenReceivedDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
+                        if (!dt.isNullOrEmpty()) {
+                            try {
+                                DateUtilities.parseDate(dt).toOffsetDateTime()
+                            } catch (_: Exception) {
+                                null
+                            }
+                        } else {
+                            null
+                        }
                     }
+                    it.specimenCollectionMethod = row.getStringOrNull("specimen_collection_method")
+                    it.specimenCollectionSite = row.getStringOrNull("specimen_collection_site")
+                    it.specimenType = row.getStringOrNull("specimen_type")
+                    it.specimenSourceSite = row.getStringOrNull("specimen_source_site")
+
+                    it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
-                    it.testPerformedLoincCode = row.getStringOrNull("test_performed_code").trimToNull()
-                    it.organizationName = row.getStringOrNull("organization_name").trimToNull()
+                    it.testPerformedCode = row.getStringOrNull("test_performed_code").trimToNull()
+                    it.testPerformed = row.getStringOrNull("test_performed").trimToNull()
+                    it.testOrdered = row.getStringOrNull("test_ordered").trimToNull()
+                    it.testOrderedCode = row.getStringOrNull("test_ordered_code").trimToNull()
+                    it.testResult = row.getStringOrNull("test_result").trimToNull()
+                    it.testResultCode = row.getStringOrNull("test_result_code").trimToNull()
                 }
             }
         } catch (e: Exception) {
@@ -834,7 +875,14 @@ class Report : Logging {
      *  @param specimenCollectionDate - input date of when specimen was collected.
      *  @return age - result of patient's age.
      */
-    private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: LocalDate?): String? {
+    private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: OffsetDateTime?): String? {
+        /**
+         * Get the age in years from the [duration]
+         */
+        fun getAgeInYearsFromDuration(duration: Duration): Int {
+            return floor(abs(duration.toDays() / 365.0)).toInt()
+        }
+
         return if (
             (!patient_age.isNullOrBlank()) &&
             patient_age.all { Character.isDigit(it) } &&
@@ -848,9 +896,9 @@ class Report : Logging {
             //
             try {
                 if (patient_dob == null || specimenCollectionDate == null) return null
-                val d = DateUtilities.parseDate(patient_dob).toLocalDate()
+                val d = DateUtilities.parseDate(patient_dob).toOffsetDateTime()
                 if (d.isBefore(specimenCollectionDate)) {
-                    Period.between(d, specimenCollectionDate).years.toString()
+                    getAgeInYearsFromDuration(Duration.between(d, specimenCollectionDate)).toString()
                 } else {
                     null
                 }
