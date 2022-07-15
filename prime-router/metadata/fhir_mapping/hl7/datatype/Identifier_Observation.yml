@@ -1,15 +1,9 @@
-#
-# (C) Copyright IBM Corp. 2021
-#
-# SPDX-License-Identifier: Apache-2.0
-#
-# Creates an identifier for observation which concatenates value strings
----
 system:
   type: SYSTEM_URL
   valueOf: $sys
   expressionType: HL7Spec
 
+# override - simply pass the value if no need to join
 value_1:
   condition: $fillpla NOT_NULL
   type: STRING
@@ -17,6 +11,7 @@ value_1:
   expressionType: HL7Spec
   required: true
 
+# override from library - verify $obx3 exists before joining
 value_2:
   condition: $fillpla NOT_NULL && $obx3 NOT_NULL
   type: STRING
