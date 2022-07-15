@@ -76,3 +76,8 @@ variable "okta_base_url" {}
 variable "subnets" {
   description = "A set of all available subnet combinations"
 }
+
+variable "function_runtime_version" {
+  type        = string
+  description = "function app runtime version"
+}

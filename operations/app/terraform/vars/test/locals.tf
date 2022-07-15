@@ -37,8 +37,9 @@ locals {
     db_replica          = true
   }
   app = {
-    app_tier = "PremiumV2"
-    app_size = "P3v2"
+    app_tier                 = "PremiumV2"
+    app_size                 = "P3v2"
+    function_runtime_version = "~4"
   }
   network = {
     use_cdc_managed_vnet        = true
