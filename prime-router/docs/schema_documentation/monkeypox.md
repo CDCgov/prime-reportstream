@@ -4,7 +4,10 @@
 ### Tracking Element: (message_id)
 ### Base On: none
 ### Extends: none
-#### Description: collection of standard elements, not an actual schema
+#### Description: A collection of standard elements, not an actual schema. Based on specifications from several locations:
+https://www.cdc.gov/poxvirus/monkeypox/lab-personnel/report-results.html
+https://www.who.int/publications/i/item/WHO-MPX-laboratory-2022.1
+
 
 ---
 
@@ -262,11 +265,6 @@ When was this file created. This is only used for HL7 generation.
 
 **PII**: No
 
-**HL7 Fields**
-
-- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
-- [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
-
 **Cardinality**: [0..1]
 
 ---
@@ -279,17 +277,11 @@ When was this file created. This is only used for HL7 generation.
 
 **PII**: No
 
-**HL7 Fields**
-
-- [OBR-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.1)
-- [ORC-3-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.1)
-- [SPM-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2)
-
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-Accension number
+Accession number
 
 ---
 
@@ -468,6 +460,42 @@ Z|No record of this patient|HL7
 
 ---
 
+**Name**: ordered_test_alternate_code
+
+**ReportStream Internal Name**: ordered_test_alternate_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordered_test_alternate_code_system
+
+**ReportStream Internal Name**: ordered_test_alternate_code_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordered_test_alternate_name
+
+**ReportStream Internal Name**: ordered_test_alternate_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: ordered_test_code
 
 **ReportStream Internal Name**: ordered_test_code
@@ -504,29 +532,13 @@ Z|No record of this patient|HL7
 
 ---
 
-**Name**: ordered_test_system
+**Name**: ordered_test_name_system
 
-**ReportStream Internal Name**: ordered_test_system
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: LOINC
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: ordered_test_system_abbr
-
-**ReportStream Internal Name**: ordered_test_system_abbr
+**ReportStream Internal Name**: ordered_test_name_system
 
 **Type**: TEXT
 
 **PII**: No
-
-**Default Value**: LN
 
 **Cardinality**: [0..1]
 
@@ -619,6 +631,42 @@ The city of the facility which the test was ordered from
 **Documentation**:
 
 The name of the facility which the test was ordered from
+
+---
+
+**Name**: ordering_facility_name_assigning_authority
+
+**ReportStream Internal Name**: ordering_facility_name_assigning_authority
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordering_facility_name_identifier_type_code
+
+**ReportStream Internal Name**: ordering_facility_name_identifier_type_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordering_facility_name_organization_identifier
+
+**ReportStream Internal Name**: ordering_facility_name_organization_identifier
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -756,15 +804,11 @@ The city of the provider
 
 **ReportStream Internal Name**: ordering_provider_county_code
 
-**Type**: TABLE
+**Type**: TEXT
 
 **PII**: No
 
 **Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: FIPS
 
 **Documentation**:
 
@@ -818,20 +862,54 @@ The ordering provider’s National Provider Identifier
 
 **ReportStream Internal Name**: ordering_provider_id_authority
 
-**Type**: HD
+**Type**: TEXT
 
 **PII**: No
 
 **HL7 Fields**
 
-- [OBR-16-9](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.9)
-- [ORC-12-9](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.9)
+- [OBR-16-9-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.9.1)
+- [ORC-12-9-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.9.1)
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
 Usually the OID for CMS
+
+---
+
+**Name**: ordering_provider_id_authority_oid
+
+**ReportStream Internal Name**: ordering_provider_id_authority_oid
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-16-9-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.9.2)
+- [ORC-12-9-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.9.2)
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: ordering_provider_id_authority_oid_system
+
+**ReportStream Internal Name**: ordering_provider_id_authority_oid_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-16-9-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.9.3)
+- [ORC-12-9-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.9.3)
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -911,6 +989,23 @@ The last name of provider who ordered the test
 
 ---
 
+**Name**: ordering_provider_name_type_code
+
+**ReportStream Internal Name**: ordering_provider_name_type_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-16-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.10)
+- [ORC-12-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.10)
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: ordering_provider_phone_number
 
 **ReportStream Internal Name**: ordering_provider_phone_number
@@ -929,6 +1024,23 @@ The last name of provider who ordered the test
 **Documentation**:
 
 The phone number of the provider
+
+---
+
+**Name**: ordering_provider_professional_suffix
+
+**ReportStream Internal Name**: ordering_provider_professional_suffix
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [OBR-16-21](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.16.21)
+- [ORC-12-21](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.12.21)
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -1014,6 +1126,66 @@ The zip code of the provider
 
 The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
 
+
+---
+
+**Name**: patient_account_number_assigning_authority
+
+**ReportStream Internal Name**: patient_account_number_assigning_authority
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_account_number_check_digit
+
+**ReportStream Internal Name**: patient_account_number_check_digit
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_account_number_check_digit_scheme
+
+**ReportStream Internal Name**: patient_account_number_check_digit_scheme
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_account_number_id
+
+**ReportStream Internal Name**: patient_account_number_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_account_number_identifier_code
+
+**ReportStream Internal Name**: patient_account_number_identifier_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -1527,20 +1699,39 @@ or even within the PRIME system itself.
 
 **ReportStream Internal Name**: patient_id_assigner
 
-**Type**: HD
+**Type**: TEXT
 
 **PII**: No
-
-**HL7 Fields**
-
-- [PID-3-4](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4)
-- [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
 The name of the assigner of the patient_id field. Typically we use the name of the ordering facility
+
+---
+
+**Name**: patient_id_assigner_universal_id
+
+**ReportStream Internal Name**: patient_id_assigner_universal_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_id_assigner_universal_id_type
+
+**ReportStream Internal Name**: patient_id_assigner_universal_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -2460,6 +2651,102 @@ may choose to define different code/value combinations.
 
 ---
 
+**Name**: patient_species
+
+**ReportStream Internal Name**: patient_species
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_species_alternate_code
+
+**ReportStream Internal Name**: patient_species_alternate_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_species_alternate_code_system
+
+**ReportStream Internal Name**: patient_species_alternate_code_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_species_alternate_code_version
+
+**ReportStream Internal Name**: patient_species_alternate_code_version
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_species_alternate_text
+
+**ReportStream Internal Name**: patient_species_alternate_text
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_species_code
+
+**ReportStream Internal Name**: patient_species_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_species_code_system
+
+**ReportStream Internal Name**: patient_species_code_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: patient_species_code_version
+
+**ReportStream Internal Name**: patient_species_code_version
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: patient_state
 
 **ReportStream Internal Name**: patient_state
@@ -3123,7 +3410,7 @@ The tribal citizenship of the patient using the TribalEntityUS (OID 2.16.840.1.1
 
 **Type**: POSTAL_CODE
 
-**PII**: No
+**PII**: Yes
 
 **Cardinality**: [0..1]
 
@@ -3495,10 +3782,7 @@ aggregator
 **HL7 Fields**
 
 - [MSH-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.2)
-- [PID-3-4-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.2)
 - [PID-3-6-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.2)
-- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
-- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
 
 **Cardinality**: [0..1]
 
@@ -3519,10 +3803,7 @@ The reporting facility's CLIA
 **HL7 Fields**
 
 - [MSH-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/MSH.4.1)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
 - [PID-3-6-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.6.1)
-- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
-- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
 
 **Cardinality**: [0..1]
 
@@ -3647,7 +3928,7 @@ The ID type for the application sending information to the receivers
 **Documentation**:
 
 The type of facility providing care (Hospital, Nursing Home, etc.).  
-This is a CUSTOM internal field. DO NOT use this for the COVID AOE residence_type.
+This is a CUSTOM internal field. DO NOT use this for an AOE residence_type.
 
 
 ---
@@ -3753,6 +4034,42 @@ WOOD|Swab, Wooden Shaft|HL7
 
 ---
 
+**Name**: specimen_collector_first_name
+
+**ReportStream Internal Name**: specimen_collector_first_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_collector_id
+
+**ReportStream Internal Name**: specimen_collector_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_collector_last_name
+
+**ReportStream Internal Name**: specimen_collector_last_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: specimen_description
 
 **ReportStream Internal Name**: specimen_description
@@ -3773,13 +4090,14 @@ WOOD|Swab, Wooden Shaft|HL7
 
 **ReportStream Internal Name**: specimen_id
 
-**Type**: EI
+**Type**: TEXT
 
 **PII**: No
 
 **HL7 Fields**
 
-- [SPM-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2)
+- [SPM-2-1-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.1)
+- [SPM-2-2-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.1)
 
 **Cardinality**: [0..1]
 
@@ -3793,32 +4111,150 @@ A unique code for this specimen
 
 ---
 
-**Name**: specimen_role
+**Name**: specimen_id_namespace_id
 
-**ReportStream Internal Name**: specimen_role
+**ReportStream Internal Name**: specimen_id_namespace_id
 
-**Type**: CODE
+**Type**: TEXT
 
 **PII**: No
 
-**Format**: use value found in the Code column
+**HL7 Fields**
+
+- [SPM-2-1-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.2)
+- [SPM-2-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.2)
 
 **Cardinality**: [0..1]
 
-**Value Sets**
+---
 
-Code | Display | System
----- | ------- | ------
-B|Blind sample|FHIR
-E|Electronic QC|FHIR
-F|Filer|FHIR
-G|Group|FHIR
-L|Pool|FHIR
-O|Operator proficiency|FHIR
-P|Patient|FHIR
-Q|Control specimen|FHIR
-R|Replicate|FHIR
-V|Verifying collaborator|FHIR
+**Name**: specimen_id_universal_id
+
+**ReportStream Internal Name**: specimen_id_universal_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [SPM-2-1-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.3)
+- [SPM-2-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.3)
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_id_universal_id_type
+
+**ReportStream Internal Name**: specimen_id_universal_id_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**HL7 Fields**
+
+- [SPM-2-1-4](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.1.4)
+- [SPM-2-2-4](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.2.2.4)
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_role_alternate_id
+
+**ReportStream Internal Name**: specimen_role_alternate_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_role_alternate_system
+
+**ReportStream Internal Name**: specimen_role_alternate_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_role_alternate_system_version_id
+
+**ReportStream Internal Name**: specimen_role_alternate_system_version_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_role_alternate_text
+
+**ReportStream Internal Name**: specimen_role_alternate_text
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_role_coding_system_version_id
+
+**ReportStream Internal Name**: specimen_role_coding_system_version_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_role_id
+
+**ReportStream Internal Name**: specimen_role_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_role_system
+
+**ReportStream Internal Name**: specimen_role_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_role_text
+
+**ReportStream Internal Name**: specimen_role_text
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -3826,27 +4262,11 @@ V|Verifying collaborator|FHIR
 
 **ReportStream Internal Name**: specimen_source_site_code
 
-**Type**: CODE
+**Type**: TEXT
 
 **PII**: No
 
-**Format**: use value found in the Code column
-
 **Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-119297000|Blood specimen (specimen)|SNOMED_CT
-71836000|Nasopharyngeal structure (body structure)|SNOMED_CT
-45206002|Nasal structure (body structure)|SNOMED_CT
-53342003|Internal nose structure (body structure)|SNOMED_CT
-29092000|Venous structure (body structure)|SNOMED_CT
-123851003|Mouth region structure (body structure)|SNOMED_CT
-31389004|Oropharyngeal structure (body structure)|SNOMED_CT
-39607008|Lung structure (body structure)|SNOMED_CT
-955009|Bronchial structure (body structure)|SNOMED_CT
 
 **Documentation**:
 
@@ -3854,27 +4274,111 @@ Refers back to the specimen source site, which is then encoded into the SPM-8 se
 
 ---
 
+**Name**: specimen_source_site_system
+
+**ReportStream Internal Name**: specimen_source_site_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The coding system the sender is using for the specimen source
+
+---
+
+**Name**: specimen_source_site_text
+
+**ReportStream Internal Name**: specimen_source_site_text
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The text for the specimen source site
+
+---
+
 **Name**: specimen_type
 
 **ReportStream Internal Name**: specimen_type
 
-**Type**: CODE
+**Type**: TEXT
 
 **PII**: No
 
-**Format**: use value found in the Code column
-
 **Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-257261003|Swab (specimen)|SNOMED_CT
 
 **Documentation**:
 
 The specimen source, such as Blood or Serum
+
+---
+
+**Name**: specimen_type_alternate_value
+
+**ReportStream Internal Name**: specimen_type_alternate_value
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_type_alternate_value_code
+
+**ReportStream Internal Name**: specimen_type_alternate_value_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_type_alternate_value_code_system
+
+**ReportStream Internal Name**: specimen_type_alternate_value_code_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_type_code
+
+**ReportStream Internal Name**: specimen_type_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_type_code_system
+
+**ReportStream Internal Name**: specimen_type_code_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 
@@ -3986,6 +4490,54 @@ A text field that allows the lab to provide more information aboout the test met
 
 ---
 
+**Name**: test_performed_alternate_code
+
+**ReportStream Internal Name**: test_performed_alternate_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: test_performed_alternate_name
+
+**ReportStream Internal Name**: test_performed_alternate_name
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: test_performed_alternate_system
+
+**ReportStream Internal Name**: test_performed_alternate_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: test_performed_alternate_system_version
+
+**ReportStream Internal Name**: test_performed_alternate_system_version
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: test_performed_code
 
 **ReportStream Internal Name**: test_performed_code
@@ -4021,20 +4573,6 @@ The LOINC description of the test performed as related to the LOINC code.
 **Name**: test_performed_system
 
 **ReportStream Internal Name**: test_performed_system
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: LOINC
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: test_performed_system_abbr
-
-**ReportStream Internal Name**: test_performed_system_abbr
 
 **Type**: TEXT
 
@@ -4192,6 +4730,54 @@ The accession number of the specimen collected
 
 ---
 
+**Name**: testing_lab_accession_number_namespace_id
+
+**ReportStream Internal Name**: testing_lab_accession_number_namespace_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_accession_number_universal_id
+
+**ReportStream Internal Name**: testing_lab_accession_number_universal_id
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_accession_number_universal_id_system
+
+**ReportStream Internal Name**: testing_lab_accession_number_universal_id_system
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: testing_lab_address_type
+
+**ReportStream Internal Name**: testing_lab_address_type
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: testing_lab_city
 
 **ReportStream Internal Name**: testing_lab_city
@@ -4219,7 +4805,6 @@ The city of the testing lab
 **HL7 Fields**
 
 - [OBR-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.3)
-- [OBR-3-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.3)
 - [OBX-15-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.1)
 - [OBX-23-10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.10)
 - [ORC-2-3](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.3)
@@ -4278,15 +4863,11 @@ The text value for the testing lab county. This is used to do the lookup in the 
 
 **ReportStream Internal Name**: testing_lab_county_code
 
-**Type**: TABLE
+**Type**: TEXT
 
 **PII**: No
 
 **Cardinality**: [0..1]
-
-**Table**: fips-county
-
-**Table Column**: FIPS
 
 **Documentation**:
 
@@ -4364,12 +4945,10 @@ testing lab has a CLIA, this field will be filled in.
 **HL7 Fields**
 
 - [OBR-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.2.2)
-- [OBR-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBR.3.2)
 - [OBX-15-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.15.2)
 - [OBX-23-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/OBX.23.1)
 - [ORC-2-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.2.2)
 - [ORC-3-2](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/ORC.3.2)
-- [PID-3-4-1](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/PID.3.4.1)
 
 **Cardinality**: [0..1]
 
@@ -4377,6 +4956,18 @@ testing lab has a CLIA, this field will be filled in.
 
 The name of the laboratory which performed the test, can be the same as the sending facility name
 
+
+---
+
+**Name**: testing_lab_name_type_code
+
+**ReportStream Internal Name**: testing_lab_name_type_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 
