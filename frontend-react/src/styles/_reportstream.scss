@@ -385,6 +385,13 @@ h3 img[src*="svg"] {
     max-width: 100vw;
 }
 
+.rs-full-width-form {
+  max-width: 100%;
+  .usa-file-input {
+    max-width: 100%;
+  }
+}
+
 .fixed-tooltip {
     background: transparent;
     color: #005ea2;
