@@ -3,14 +3,8 @@ locals {
   sshnames = jsondecode(data.external.sftp_ssh_query.result.sshnames)
 }
 
-/*
-Fetch names of related SSH keys
-SSH key names determine SFTP instances and users
-  pdh<env>-sftp01-lab1 = instance: sftp01 user: lab1
-  pdh<env>-sftp01-lab2 = instance: sftp01 user: lab2
-  pdh<env>-sftp01-lab1 = instance: sftp02 user: lab1
-Seperate file shares exist for each instance/user combination
-*/
+# Fetch names of related SSH keys
+# SSH key names determine SFTP instances and users
 data "external" "sftp_ssh_query" {
   program = ["bash", "${local.sftp_dir}/get_ssh_list.sh"]
 
