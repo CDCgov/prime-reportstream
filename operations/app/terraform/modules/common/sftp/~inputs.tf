@@ -35,3 +35,11 @@ variable "key_vault_id" {
 variable "storage_account" {
   description = "Storage account to host file shares"
 }
+
+variable "admin_share" {
+  description = "Admin file share"
+}
+
+variable "scripts_share" {
+  description = "Startup scripts file share"
+}

@@ -37,15 +37,24 @@ resource "azurerm_container_group" "sftp" {
       protocol = "TCP"
     }
 
-    # Host SSH keys
-    dynamic "volume" {
-      for_each = toset(["ssh_host_ed25519_key", "ssh_host_ed25519_key.pub", "ssh_host_rsa_key", "ssh_host_rsa_key.pub"])
-      content {
-        name       = "sftphostauth${replace(volume.value, "/[^a-z0-9]/", "")}"
-        mount_path = "/etc/ssh/${volume.value}"
-        read_only  = true
-        secret     = { "${volume.value}" : base64encode(data.azurerm_storage_blob.sftp[volume.value].content_md5) }
-      }
+    # Admin file share
+    volume {
+      name                 = "sftpadmin"
+      mount_path           = "/etc/sftpadmin"
+      read_only            = false
+      share_name           = "pdh${var.environment}-sftp-admin-share"
+      storage_account_name = var.storage_account.name
+      storage_account_key  = var.storage_account.primary_access_key
+    }
+
+    # Startup scripts file share
+    volume {
+      name                 = "sftpscripts"
+      mount_path           = "/etc/sftp.d"
+      read_only            = false
+      share_name           = "pdh${var.environment}-sftp-scripts-share"
+      storage_account_name = var.storage_account.name
+      storage_account_key  = var.storage_account.primary_access_key
     }
 
     # User SSH public keys
