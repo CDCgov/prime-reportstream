@@ -8,8 +8,13 @@ variable "location" {
   description = "Network Location"
 }
 
-variable "resource_prefix" {}
-variable "environment" {}
+variable "resource_prefix" {
+  type = string
+}
+
+variable "environment" {
+  type = string
+}
 
 variable "cpu" {
   type = number
@@ -19,11 +24,25 @@ variable "memory" {
   type = number
 }
 
-variable "users_file" {
-  description = "User file path"
+variable "users" {
+  description = "Usernames"
+}
+
+variable "sshaccess" {
+  description = "Usernames in SFTP access format"
+}
+
+variable "instance" {
+  type        = string
+  description = "Instance name"
+}
+
+variable "instance_users" {
+  description = "Instances appended with usernames"
 }
 
 variable "sftp_folder" {
+  type        = string
   description = "SFTP folder name"
 }
 

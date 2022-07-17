@@ -1,14 +1,11 @@
 locals {
-  user_file = split("\n", file(var.users_file))
-}
-
-locals {
-  file_list       = [for line in local.user_file : chomp(line)]
-  file_list_names = [for line in local.user_file : element(split(":", chomp(line)), 0)]
+  users          = var.users
+  sftp_users     = var.sshaccess
+  instance_users = var.instance_users
 }
 
 resource "azurerm_storage_share" "sftp" {
-  for_each = toset(local.file_list_names)
+  for_each = toset(local.users)
 
   name                 = "${var.resource_prefix}-share-${each.value}"
   storage_account_name = var.storage_account.name
@@ -25,11 +22,11 @@ resource "azurerm_container_group" "sftp" {
 
   container {
     name   = "sftp-source"
-    image  = "josiah85/sftp:latest"
+    image  = "atmoz/sftp:latest"
     cpu    = var.cpu
     memory = var.memory
     environment_variables = {
-      "SFTP_USERS" = join(" ", local.file_list)
+      "SFTP_USERS" = join(" ", local.sftp_users)
     }
 
     ports {
@@ -59,18 +56,18 @@ resource "azurerm_container_group" "sftp" {
 
     # User SSH public keys
     dynamic "volume" {
-      for_each = toset(local.file_list_names)
+      for_each = toset(local.users)
       content {
         name       = "sftpuserauth${volume.value}"
         mount_path = "/home/${volume.value}/.ssh/keys"
         read_only  = true
-        secret     = { ssh = base64encode(data.azurerm_ssh_public_key.sftp[volume.value].public_key) }
+        secret     = { ssh = base64encode(data.azurerm_ssh_public_key.sftp["${var.instance}-${volume.value}"].public_key) }
       }
     }
 
     # User file shares
     dynamic "volume" {
-      for_each = toset(local.file_list_names)
+      for_each = toset(local.users)
       content {
         name                 = "sftpvolume${volume.value}"
         mount_path           = "/home/${volume.value}/${var.sftp_folder}"
@@ -81,6 +78,9 @@ resource "azurerm_container_group" "sftp" {
       }
     }
   }
+  depends_on = [
+    azurerm_storage_share.sftp
+  ]
   tags = {
     environment = var.environment
   }

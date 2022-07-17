@@ -1,10 +1,18 @@
 locals {
   sftp_dir = "../../../../../.environment/sftp"
+  sshnames = jsondecode(data.external.sftp_ssh_query.result.sshnames)
 }
 
-# terraform -chdir=operations/app/terraform/vars/test state show module.sftp.data.external.sftp_ssh_query
+/*
+Fetch names of related SSH keys
+SSH key names determine SFTP instances and users
+  pdh<env>-sftp01-lab1 = instance: sftp01 user: lab1
+  pdh<env>-sftp01-lab2 = instance: sftp01 user: lab2
+  pdh<env>-sftp01-lab1 = instance: sftp02 user: lab1
+Seperate file shares exist for each instance/user combination
+*/
 data "external" "sftp_ssh_query" {
-  program = ["bash", "${local.sftp_dir}/query/get_ssh_list.sh"]
+  program = ["bash", "${local.sftp_dir}/get_ssh_list.sh"]
 
   query = {
     environment = "${var.environment}"
@@ -42,13 +50,14 @@ resource "azurerm_storage_share" "sftp_scripts" {
 resource "azurerm_storage_share_file" "sftp" {
   name             = "startup.sh"
   storage_share_id = azurerm_storage_share.sftp_scripts.id
-  source           = "${local.sftp_dir}/admin/startup.sh"
+  source           = "${local.sftp_dir}/startup.sh"
 }
 
 module "instance" {
-  for_each = fileset("${local.sftp_dir}/instances", "*.conf")
+  for_each = toset(jsondecode(data.external.sftp_ssh_query.result.instances))
 
   source          = "../common/sftp"
+  instance        = each.value
   resource_prefix = "${var.resource_prefix}-${replace(replace(each.value, "/[^a-z0-9]/", ""), "conf", "")}"
   resource_group  = var.resource_group
   environment     = var.environment
@@ -56,7 +65,9 @@ module "instance" {
   memory          = 4
   sftp_folder     = "uploads"
   location        = var.location
-  users_file      = "${local.sftp_dir}/instances/${each.value}"
+  users           = [for item in local.sshnames : replace(item, "${var.resource_prefix}-${each.value}-", "") if can(regex("${each.value}-", item))]
+  instance_users  = [for item in local.sshnames : replace(item, "${var.resource_prefix}-", "") if can(regex("${each.value}-", item))]
+  sshaccess       = [for item in local.sshnames : "${replace(item, "${var.resource_prefix}-${each.value}-", "")}:::100" if can(regex("${each.value}-", item))]
   key_vault_id    = var.key_vault_id
   storage_account = azurerm_storage_account.sftp
   admin_share     = azurerm_storage_share.sftp_admin
