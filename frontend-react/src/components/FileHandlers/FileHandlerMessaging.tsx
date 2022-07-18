@@ -3,6 +3,8 @@ import React, { useEffect } from "react";
 import { StaticAlert } from "../StaticAlert";
 import { FileResponseError } from "../../network/api/WatersApi";
 
+// TODO: info / warning alert on submit
+
 type FileSuccessDisplayProps = {
     fileName: string;
     destinations: string;
@@ -11,6 +13,7 @@ type FileSuccessDisplayProps = {
     showDestinations: boolean;
 };
 
+// TODO: show confirmation code, date and time received
 export const FileSuccessDisplay = ({
     fileName,
     destinations,
