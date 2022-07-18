@@ -61,7 +61,7 @@ interface FileHandlerProps {
     formLabel: string;
     resetText: string;
     submitText: string;
-    showDestinations: boolean;
+    showSuccessMetadata: boolean;
 }
 
 const FileHandler = ({
@@ -72,7 +72,7 @@ const FileHandler = ({
     formLabel,
     resetText,
     submitText,
-    showDestinations,
+    showSuccessMetadata,
 }: FileHandlerProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fileInputResetValue, setFileInputResetValue] = useState(0);
@@ -83,6 +83,9 @@ const FileHandler = ({
     const [errors, setErrors] = useState<FileResponseError[]>([]);
     const [destinations, setDestinations] = useState("");
     const [reportId, setReportId] = useState<string | null>(null);
+    const [successTimestamp, setSuccessTimestamp] = useState<
+        string | undefined
+    >("");
     const [cancellable, setCancellable] = useState<boolean>(false);
     const [errorMessageText, setErrorMessageText] = useState(
         "Please resolve the errors below and upload your edited file. Your file has not been accepted."
@@ -106,6 +109,7 @@ const FileHandler = ({
         setErrors([]);
         setDestinations("");
         setReportId(null);
+        setSuccessTimestamp("");
         setCancellable(false);
         setErrorMessageText(
             "Please resolve the errors below and upload your edited file. Your file has not been accepted."
@@ -189,6 +193,7 @@ const FileHandler = ({
         setReportId(null);
         setErrors([]);
         setDestinations("");
+        setSuccessTimestamp("");
 
         if (fileContent.length === 0) {
             return;
@@ -216,6 +221,7 @@ const FileHandler = ({
 
             if (response?.id) {
                 setReportId(response.id);
+                setSuccessTimestamp(response.timestamp);
                 event.currentTarget.reset();
             }
 
@@ -265,10 +271,14 @@ const FileHandler = ({
             {reportId && (
                 <FileSuccessDisplay
                     fileName={fileName}
-                    destinations={destinations}
+                    extendedMetadata={{
+                        destinations,
+                        timestamp: successTimestamp,
+                        reportId,
+                    }}
                     heading={successMessage}
                     message={`Your file meets the standard ${fileType} schema and can be successfully transmitted.`}
-                    showDestinations={showDestinations}
+                    showExtendedMetadata={showSuccessMetadata}
                 />
             )}
 

@@ -10,6 +10,7 @@ const UploadToPipeline = () => {
             formLabel="Select an HL7 or CSV formatted file to upload."
             resetText="Upload another file"
             submitText="Upload"
+            showSuccessMetadata={true}
             fetcher={watersApiFunctions.postData}
         />
     );
