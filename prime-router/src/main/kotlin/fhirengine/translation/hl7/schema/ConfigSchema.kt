@@ -22,7 +22,7 @@ data class ConfigSchema(
     /**
      * Has this schema been validated? Only used on the top level schema.
      */
-    private var isValidated = false
+    private var hasBeenValidated = false
 
     /**
      * Validation errors.
@@ -36,7 +36,7 @@ data class ConfigSchema(
      * @return true if the schema is valid, false otherwise
      */
     fun isValid(): Boolean {
-        if (!isValidated) {
+        if (!hasBeenValidated) {
             errors = validate()
         }
         return errors.isEmpty()
@@ -88,7 +88,7 @@ data class ConfigSchema(
             element.validate().forEach { addError(it) }
         }
 
-        isValidated = true
+        hasBeenValidated = true
         return validationErrors.toList()
     }
 }
@@ -174,7 +174,9 @@ data class ConfigSchemaElement(
         valueExpression = getFhirPath(value)
         resourceExpression = getFhirPath(resource)
 
-        schemaRef?.validate(true)
+        schemaRef?.let {
+            validationErrors.addAll(it.validate(true))
+        }
         return validationErrors
     }
 }

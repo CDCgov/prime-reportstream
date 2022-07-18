@@ -5,7 +5,7 @@ elements:
     required: true
     value: '%resource.name.family'
     hl7Spec:
-      - .PID.5.1
+      - /PATIENT_RESULT/PATIENT/PID-5-1
 
   - name: PID-segment
     condition: '%resource is Patient and %resource.exists()'
