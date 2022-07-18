@@ -59,7 +59,7 @@ jobs:
         run: ./gradlew package -Pshowtests
         
       - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@c8ce9bba212f019b0449ca319e8fecef2f06cd66
+        uses: EnricoMi/publish-unit-test-result-action@fb18c961a49f49e6a270c5641e5d2f9cf49bafe4
         # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
         if: >
           always() &&
@@ -78,13 +78,10 @@ jobs:
           while [ ! -s .vault/env/.env.local ]; do sleep 1; done
           echo "loaded env vars"
 
-      - name: Make ftps dir
-        run: mkdir build/ftps
-
       - name: Spin up containers
         id: spin_containers
         run: |
-          docker-compose -f docker-compose.yml up -d prime_dev ftps sftp azurite
+          docker-compose -f docker-compose.yml up -d prime_dev sftp azurite
           
       - name: Give some time for the container to start
         uses: juliangruber/sleep-action@1e243206ce103180af2f3ebbcab6437b52140789
@@ -101,7 +98,7 @@ jobs:
         run: ./gradlew testIntegration -Pshowtests
 
       - name: Publish Integration Test Results
-        uses: EnricoMi/publish-unit-test-result-action@c8ce9bba212f019b0449ca319e8fecef2f06cd66
+        uses: EnricoMi/publish-unit-test-result-action@fb18c961a49f49e6a270c5641e5d2f9cf49bafe4
         # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
         if: >
           always() &&

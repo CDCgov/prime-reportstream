@@ -43,9 +43,41 @@ export const ReportStreamHeader = () => {
         itemsMenu.push(<BuiltForYouDropdown />);
     }
 
-    if (CheckFeatureFlag(FeatureFlagName.IA_MAKEOVER)) {
+    if (CheckFeatureFlag(FeatureFlagName.NEW_IA)) {
         /* TODO: Override itemsMenu with new IA nav */
-        itemsMenu = [];
+        itemsMenu.push(
+            <NavLink
+                to="/product"
+                key="product"
+                data-attribute="hidden"
+                hidden={true}
+                className="usa-nav__link"
+            >
+                <span>Product</span>
+            </NavLink>
+        );
+        itemsMenu.push(
+            <NavLink
+                to="/resources"
+                key="resources"
+                data-attribute="hidden"
+                hidden={true}
+                className="usa-nav__link"
+            >
+                <span>Resources</span>
+            </NavLink>
+        );
+        itemsMenu.push(
+            <NavLink
+                to="/support"
+                key="support"
+                data-attribute="hidden"
+                hidden={true}
+                className="usa-nav__link"
+            >
+                <span>Support</span>
+            </NavLink>
+        );
     }
 
     if (authState && authState.isAuthenticated && authState.accessToken) {
@@ -96,6 +128,21 @@ export const ReportStreamHeader = () => {
 
         /* ADMIN ONLY */
         if (memberships.state.active?.memberType === MemberType.PRIME_ADMIN) {
+            // Validate NavLink
+            if (CheckFeatureFlag(FeatureFlagName.VALIDATION_SERVICE)) {
+                itemsMenu.push(
+                    <NavLink
+                        to="/validate"
+                        key="validate"
+                        data-attribute="hidden"
+                        hidden={true}
+                        className="usa-nav__link"
+                    >
+                        <span>Validate</span>
+                    </NavLink>
+                );
+            }
+
             itemsMenu.push(<AdminDropdown />);
         }
     }

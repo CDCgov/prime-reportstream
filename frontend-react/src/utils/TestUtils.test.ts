@@ -1,15 +1,15 @@
 import { AccessToken } from "@okta/okta-auth-js";
 
 import { mockToken } from "./TestUtils";
-import { RSUserClaims } from "./OrganizationUtils";
+import { AccessTokenWithRSClaims } from "./OrganizationUtils";
 
 test("mockToken", () => {
     const emptyAccessToken: AccessToken = mockToken(); // Returns all default values
     const mockedAccessToken: AccessToken = mockToken({
         claims: {
             organization: ["DHSender_xx-phd", "DHxx_phd"],
-        } as RSUserClaims,
-    });
+        },
+    } as AccessTokenWithRSClaims);
 
     expect(emptyAccessToken).toEqual({
         authorizeUrl: "",
@@ -19,7 +19,7 @@ test("mockToken", () => {
         accessToken: "",
         claims: {
             sub: "", // This satisfies the required attribute
-        } as RSUserClaims,
+        },
         tokenType: "",
     });
     expect(mockedAccessToken).toEqual({
@@ -30,7 +30,7 @@ test("mockToken", () => {
         accessToken: "",
         claims: {
             organization: ["DHSender_xx-phd", "DHxx_phd"],
-        } as RSUserClaims,
+        },
         tokenType: "",
     });
 });

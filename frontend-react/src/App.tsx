@@ -39,7 +39,11 @@ import { EditSenderSettings } from "./components/Admin/EditSenderSettings";
 import "react-toastify/dist/ReactToastify.css";
 import SubmissionDetails from "./pages/submissions/SubmissionDetails";
 import { NewSetting } from "./components/Admin/NewSetting";
-import { FeatureFlagUIComponent } from "./pages/misc/FeatureFlags";
+import {
+    CheckFeatureFlag,
+    FeatureFlagName,
+    FeatureFlagUIComponent,
+} from "./pages/misc/FeatureFlags";
 import SenderModeBanner from "./components/SenderModeBanner";
 import { AdminOrgNew } from "./pages/admin/AdminOrgNew";
 import { DAPHeader } from "./components/header/DAPHeader";
@@ -47,8 +51,12 @@ import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
 import ValueSetsDetail from "./pages/admin/value-set-editor/ValueSetsDetail";
 import SessionProvider from "./contexts/SessionContext";
 import BuiltForYouIndex from "./pages/built-for-you/BuiltForYouIndex";
+import { Resources } from "./pages/resources/ResourcesIndex";
+import { Support } from "./pages/support/SupportIndex";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
 import { AdminLastMileFailures } from "./pages/admin/AdminLastMileFailures";
+import Validate from "./pages/Validate";
+import { Product } from "./pages/product/ProductIndex";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -159,6 +167,21 @@ const App = () => {
                                     component={BuiltForYouIndex}
                                 />
                                 <AuthorizedRoute
+                                    path="/resources"
+                                    component={Resources}
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                />
+                                <AuthorizedRoute
+                                    path="/product"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={Product}
+                                />
+                                <AuthorizedRoute
+                                    path="/support"
+                                    component={Support}
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                />
+                                <AuthorizedRoute
                                     path="/daily-data"
                                     authorize={PERMISSIONS.RECEIVER}
                                     component={Daily}
@@ -168,6 +191,15 @@ const App = () => {
                                     authorize={PERMISSIONS.SENDER}
                                     component={Upload}
                                 />
+                                {CheckFeatureFlag(
+                                    FeatureFlagName.VALIDATION_SERVICE
+                                ) && (
+                                    <AuthorizedRoute
+                                        path="/validate"
+                                        authorize={PERMISSIONS.PRIME_ADMIN}
+                                        component={Validate}
+                                    />
+                                )}
                                 {/* TODO: AuthorizedRoute needs to take many potential auth groups.
                                  *  We should fix this when we refactor our permissions layer.
                                  */}

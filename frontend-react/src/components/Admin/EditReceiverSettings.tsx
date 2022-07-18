@@ -91,11 +91,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             setOrgReceiverSettingsNewJson(
                 JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2)
             );
-
-            if (
-                latestResponse?.meta?.version !==
-                orgReceiverSettings?.meta?.version
-            ) {
+            if (latestResponse?.version !== orgReceiverSettings?.version) {
                 showError(getVersionWarning(VersionWarningType.POPUP));
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse)
@@ -130,10 +126,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             setLoading(true);
 
             const latestResponse = await getLatestReceiverResponse();
-            if (
-                latestResponse.meta?.version !==
-                orgReceiverSettings?.meta?.version
-            ) {
+            if (latestResponse.version !== orgReceiverSettings?.version) {
                 // refresh left-side panel in compare modal to make it obvious what has changed
                 setOrgReceiverSettingsOldJson(
                     JSON.stringify(latestResponse, jsonSortReplacer, 2)

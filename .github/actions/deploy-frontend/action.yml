@@ -12,11 +12,6 @@ runs:
   using: "composite"
   steps:
 
-    - name: Set environment variables - dev
-      if: inputs.env-name == 'dev'
-      shell: bash
-      run: echo "IMAGE_REPO=rkh5012" >> $GITHUB_ENV
-
     - name: Set environment variables - test
       if: inputs.env-name == 'test'
       shell: bash

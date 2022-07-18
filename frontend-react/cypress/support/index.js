@@ -18,3 +18,24 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+export const loginHooks = () => {
+    // Global before for logging in to Okta
+    before(() => {
+        // Clear any leftover data from previous tests
+        cy.clearCookies();
+        cy.clearLocalStorageSnapshot();
+        // Login to Okta to get an access token
+        cy.loginByOktaApi();
+    });
+    beforeEach(() => {
+        // Cypress clears cookies by default, but for these tests
+        // we want to preserve the Spring session cookie
+        Cypress.Cookies.preserveOnce("SESSION");
+        // It also clears local storage, so restore before each test
+        cy.restoreLocalStorage();
+    });
+    afterEach(() => {
+        cy.saveLocalStorage();
+    });
+};

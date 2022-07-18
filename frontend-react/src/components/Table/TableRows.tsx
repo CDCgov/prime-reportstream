@@ -37,7 +37,7 @@ interface TableRowProps extends RowProps {
 const createBlankRowForColumns = (columns: ColumnConfig[]) => {
     return columns.reduce((acc, column) => {
         const { dataAttr } = column;
-        acc[dataAttr] = undefined;
+        acc[dataAttr] = null;
         return acc;
     }, {} as TableRowData);
 };
@@ -120,7 +120,7 @@ export const TableRows = ({
             return;
         }
 
-        const rowToUpdate = rowsToDisplay[rowToEdit];
+        const rowToUpdate = updatedRow ? updatedRow : rowsToDisplay[rowToEdit];
         const rowValues = { ...rowToUpdate };
         // update the field value in the given row
         rowValues[field] = value;
@@ -137,7 +137,6 @@ export const TableRows = ({
             if (rowToEdit !== undefined && rowToEdit === rowIndex) {
                 // but if there are no changes to save, just back out of editing
                 if (!updatedRow) {
-                    console.log("No changes to save");
                     setRowToEdit(undefined);
                     return;
                 }
@@ -155,7 +154,7 @@ export const TableRows = ({
     );
 
     const addingNewRow: boolean = useMemo(
-        () => !!(rowToEdit !== undefined && rowToEdit === rows.length),
+        () => rowToEdit !== undefined && rowToEdit === rows.length,
         [rowToEdit, rows.length]
     );
 

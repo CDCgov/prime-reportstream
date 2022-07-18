@@ -1,7 +1,7 @@
 import React from "react";
 
 import { MarkdownDirectory } from "../../components/Markdown/MarkdownDirectory";
-import StaticPageFromDirectories from "../../components/Markdown/StaticPageFromDirectories";
+import StaticPagesFromDirectories from "../../components/Markdown/StaticPagesFromDirectories";
 import may2022 from "../../content/built-for-you/2022-may.md";
 import june2022 from "../../content/built-for-you/2022-june.md";
 import DropdownNav from "../../components/header/DropdownNav";
@@ -29,6 +29,6 @@ export const BuiltForYouDropdown = () => {
 
 /* Creates the page and side-nav from your directory array */
 const BuiltForYouIndex = () => (
-    <StaticPageFromDirectories directories={BUILT_FOR_YOU} />
+    <StaticPagesFromDirectories directories={BUILT_FOR_YOU} />
 );
 export default BuiltForYouIndex;

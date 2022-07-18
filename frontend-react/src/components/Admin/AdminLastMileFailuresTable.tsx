@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useResource } from "rest-hooks";
+import DOMPurify from "dompurify";
 import {
     Button,
     ButtonGroup,
@@ -82,7 +83,7 @@ ${data.receiver}`;
         try {
             setLoading(true);
             const url =
-                `${process.env.REACT_APP_BACKEND_URL}/api/requeue/send?` +
+                `${process.env.REACT_APP_BACKEND_URL}/api/adm/resend?` +
                 `reportId=${currentReportId}&receiver=${currentReceiver}`;
             const response = await fetch(url, {
                 method: "POST",
@@ -151,7 +152,7 @@ ${data.receiver}`;
                             autoComplete="off"
                             aria-autocomplete="none"
                             autoFocus
-                            onChange={(evt) => setDaysToShow(evt.target.value)}
+                            onBlur={(evt) => setDaysToShow(evt.target.value)}
                         />
                     </div>
                 </form>
@@ -242,7 +243,9 @@ ${data.receiver}`;
                         className="rs-editable-compare-base rs-editable-compare-static"
                         contentEditable={false}
                         dangerouslySetInnerHTML={{
-                            __html: `${htmlModalShowInfoContent}`,
+                            __html: DOMPurify.sanitize(
+                                htmlModalShowInfoContent
+                            ),
                         }}
                     />
                 </Modal>
@@ -264,7 +267,9 @@ ${data.receiver}`;
                         className="rs-editable-compare-base rs-editable-compare-static"
                         contentEditable={false}
                         dangerouslySetInnerHTML={{
-                            __html: `${htmlContentForGithubIssue}`,
+                            __html: DOMPurify.sanitize(
+                                htmlContentForGithubIssue
+                            ),
                         }}
                     />
                     <ModalFooter>
