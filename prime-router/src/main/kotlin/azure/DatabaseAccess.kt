@@ -867,6 +867,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     /**
      * Returns recent connection check results. start and end time are queried
      * against the CONNECTION_CHECK_STARTED_AT column
+     *
+     * Example of how to do a multiple inner join across the same table but giving
+     * each a differents "as" name without needing a stored procedure.
+     *
      * @param startDateTime Earliest date to match (greater or equal)
      * @param endDateTime Optional end date (defaults to "current")
      */
@@ -892,7 +896,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .innerJoin(SETTING.asTable(recvrInnerTable))
             .on(RECEIVER_CONNECTION_CHECK_RESULTS.RECEIVER_ID.eq(recvrInnerTable.SETTING_ID))
             .where(
-                // select started at between two dates
+                // endDateTime is optional parameter and null means NO end date
                 when (endDateTime == null) {
                     true ->
                         RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.ge(startDateTime)
@@ -901,7 +905,12 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                             .and(RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.le(endDateTime))
                 }
             )
-            .orderBy(RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.desc())
+            // sort order preferred by client
+            .orderBy(
+                orgInnerTable.NAME.asc(),
+                recvrInnerTable.NAME.asc(),
+                RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.asc()
+            )
             .fetchInto(ReceiverConnectionCheckResultJoined::class.java)
     }
 
