@@ -30,6 +30,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.db.tables.records.CovidResultMetadataRecord
 import gov.cdc.prime.router.azure.db.tables.records.ElrResultMetadataRecord
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import gov.cdc.prime.router.common.Environment
@@ -1058,6 +1059,72 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                             record.testOrderedCode = td.testOrderedCode?.take(METADATA_MAX_LENGTH)
                             record.testResult = td.testResult?.take(METADATA_MAX_LENGTH)
                             record.testResultCode = td.testResultCode?.take(METADATA_MAX_LENGTH)
+                        }
+                    }
+                )
+                .execute()
+        }
+
+        /**
+         * This is the old way, this is not the new way. Saves just the COVID-specific
+         * report metadata to the table. We want to migrate this to the newer version.
+         */
+        fun saveCovidTestData(testData: List<CovidResultMetadata>, txn: DataAccessTransaction) {
+            DSL.using(txn)
+                .batchInsert(
+                    testData.map { td ->
+                        CovidResultMetadataRecord().also { record ->
+                            record.messageId = td.messageId?.take(METADATA_MAX_LENGTH)
+                            record.previousMessageId = td.previousMessageId?.take(METADATA_MAX_LENGTH)
+                            record.reportId = td.reportId
+                            record.reportIndex = td.reportIndex
+                            record.orderingProviderName =
+                                td.orderingProviderName?.take(METADATA_MAX_LENGTH)
+                            record.orderingProviderCounty =
+                                td.orderingProviderCounty?.take(METADATA_MAX_LENGTH)
+                            record.orderingProviderId =
+                                td.orderingProviderId?.take(METADATA_MAX_LENGTH)
+                            record.orderingProviderPostalCode = td.orderingProviderPostalCode
+                            record.orderingProviderState =
+                                td.orderingProviderState?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityCity =
+                                td.orderingFacilityCity?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityCounty =
+                                td.orderingFacilityCounty?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityName =
+                                td.orderingFacilityName?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityPostalCode = td.orderingFacilityPostalCode
+                            record.orderingFacilityState =
+                                td.orderingFacilityState?.take(METADATA_MAX_LENGTH)
+                            record.organizationName =
+                                td.organizationName?.take(METADATA_MAX_LENGTH)
+                            record.testResult = td.testResult?.take(METADATA_MAX_LENGTH)
+                            record.testResultCode = td.testResultCode
+                            record.equipmentModel = td.equipmentModel?.take(METADATA_MAX_LENGTH)
+                            record.specimenCollectionDateTime = td.specimenCollectionDateTime
+                            record.testingLabCity = td.testingLabCity?.take(METADATA_MAX_LENGTH)
+                            record.testingLabClia = td.testingLabClia
+                            record.testingLabCounty =
+                                td.testingLabCounty?.take(METADATA_MAX_LENGTH)
+                            record.testingLabName = td.testingLabName?.take(METADATA_MAX_LENGTH)
+                            record.testingLabPostalCode = td.testingLabPostalCode
+                            record.testingLabState =
+                                td.testingLabState?.take(METADATA_MAX_LENGTH)
+                            record.patientAge = td.patientAge
+                            record.patientCounty = td.patientCounty?.take(METADATA_MAX_LENGTH)
+                            record.patientCountry = td.patientCountry?.take(METADATA_MAX_LENGTH)
+                            record.patientEthnicity = td.patientEthnicity
+                            record.patientEthnicityCode = td.patientEthnicityCode
+                            record.patientGender = td.patientGender
+                            record.patientGenderCode = td.patientGenderCode
+                            record.patientPostalCode = td.patientPostalCode
+                            record.patientRace = td.patientRace
+                            record.patientRaceCode = td.patientRaceCode
+                            record.patientState = td.patientState?.take(METADATA_MAX_LENGTH)
+                            record.siteOfCare = td.siteOfCare?.take(METADATA_MAX_LENGTH)
+                            record.senderId = td.senderId?.take(METADATA_MAX_LENGTH)
+                            record.testKitNameId = td.testKitNameId?.take(METADATA_MAX_LENGTH)
+                            record.testPerformedLoincCode = td.testPerformedLoincCode?.take(METADATA_MAX_LENGTH)
                         }
                     }
                 )
