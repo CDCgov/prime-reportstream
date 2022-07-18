@@ -62,3 +62,15 @@ variable "admin_share" {
 variable "scripts_share" {
   description = "Startup scripts file share"
 }
+
+variable "nat_gateway_id" {
+  type        = string
+  description = "NAT gateway resource id"
+}
+
+variable "network_profile_id" {
+  type        = string
+  description = "Network profile resource id"
+}
+
+variable "subnet_id" {}

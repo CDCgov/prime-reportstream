@@ -43,3 +43,8 @@ variable "terraform_caller_ip_address" {
   description = "The IP address of the Terraform script caller. This IP will have already been whitelisted; it's inclusion is to prevent its removal during terraform apply calls."
   sensitive   = true
 }
+
+variable "nat_gateway_id" {
+  type        = string
+  description = "NAT gateway resource id"
+}

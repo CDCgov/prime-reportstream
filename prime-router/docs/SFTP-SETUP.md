@@ -6,13 +6,13 @@
     * Send private key to client.
     * Azure SSH key names determine SFTP instance and users:
       >  * `pdh<env>-sftp01-lab1`
-      >    * sftp instance: `pdh<env>-sftp01-continst.eastus.azurecontainer.io`
+      >    * sftp instance: `pdh<env>-sftp01.eastus.azurecontainer.io`
       >    * sftp user: `lab1`
       >  * `pdh<env>-sftp01-lab2`
-      >    * sftp instance: `pdh<env>-sftp01-continst.eastus.azurecontainer.io`
+      >    * sftp instance: `pdh<env>-sftp01.eastus.azurecontainer.io`
       >    * sftp user: `lab2`
       >  * `pdh<env>-sftp02-lab1`
-      >    * sftp instance: `pdh<env>-sftp02-continst.eastus.azurecontainer.io`
+      >    * sftp instance: `pdh<env>-sftp02.eastus.azurecontainer.io`
       >    * sftp user: `lab1`
    * Seperate file shares exist for each instance/user combination in storage account `pdh<env>sftp`.
 2. Run Terraform apply to provision the clients SFTP site.

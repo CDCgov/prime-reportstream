@@ -170,6 +170,7 @@ module "sftp" {
   location                    = local.init.location
   key_vault_id                = module.key_vault.application_key_vault_id
   terraform_caller_ip_address = local.network.terraform_caller_ip_address
+  nat_gateway_id              = module.nat_gateway.nat_gateway_id
 }
 
 module "sftp_container" {
