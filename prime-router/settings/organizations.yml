@@ -2097,12 +2097,12 @@
         storageName: PartnerStorage
         containerName: hhsprotect
 
-- name: "dcipher"
-  description: "DCIPHER at CDC"
+- name: "cdc"
+  description: "Centers for Disease Control"
   jurisdiction: "FEDERAL"
   receivers:
-    - name: "monkeypox"
-      organizationName: "dcipher"
+    - name: "dcipher-monkeypox"
+      organizationName: "cdc"
       topic: "monkeypox"
       customerStatus: active
       jurisdictionalFilter: [ "allowAll()" ]
