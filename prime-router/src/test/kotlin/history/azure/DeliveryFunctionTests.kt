@@ -530,13 +530,58 @@ class DeliveryFunctionTests : Logging {
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
 
-        val response = function.getDeliveryFacilities(mockRequest, goodUuid)
+        mockRequest.parameters["sortCol"] = "facility"
+        mockRequest.parameters["sortDir"] = "DESC"
+        var response = function.getDeliveryFacilities(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
-        val responseBody: List<DeliveryFunction.Facility> = mapper.readValue(response.body.toString())
+        var responseBody: List<DeliveryFunction.Facility> = mapper.readValue(response.body.toString())
+        assertThat(responseBody.first().facility).isEqualTo(returnBody.last().testingLabName)
+        assertThat(responseBody.first().location).isEqualTo(returnBody.last().location)
+        assertThat(responseBody.first().clia).isEqualTo(returnBody.last().testingLabClia)
+        assertThat(responseBody.first().positive).isEqualTo(returnBody.last().positive)
+        assertThat(responseBody.first().total).isEqualTo(returnBody.last().countRecords)
+
+        mockRequest.parameters["sortDir"] = "ASC"
+        response = function.getDeliveryFacilities(mockRequest, goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        responseBody = mapper.readValue(response.body.toString())
         assertThat(responseBody.first().facility).isEqualTo(returnBody.first().testingLabName)
         assertThat(responseBody.first().location).isEqualTo(returnBody.first().location)
         assertThat(responseBody.first().clia).isEqualTo(returnBody.first().testingLabClia)
         assertThat(responseBody.first().positive).isEqualTo(returnBody.first().positive)
         assertThat(responseBody.first().total).isEqualTo(returnBody.first().countRecords)
+
+        // Good uuid, but not a with `process` action step report.
+        action.actionName = TaskAction.process
+        response = function.getDeliveryFacilities(mockRequest, goodUuid)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Good actionId, but with `receive` action name
+        val goodActionId = "550"
+        action.actionName = TaskAction.receive
+        every { mockDeliveryFacade.fetchAction(any()) } returns null
+        response = function.getDeliveryFacilities(mockRequest, goodActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // Good actionId, but Not authorized
+        action.actionName = TaskAction.send
+        every { mockDeliveryFacade.fetchAction(any()) } returns action
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
+        response = function.getDeliveryFacilities(mockRequest, goodActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+
+        // bad actionId, Not found
+        val badActionId = "24601"
+        action.actionName = TaskAction.receive
+        every { mockDeliveryFacade.fetchAction(any()) } returns null
+        response = function.getDeliveryFacilities(mockRequest, badActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+
+        // empty actionId, Not found
+        val emptyActionId = ""
+        action.actionName = TaskAction.receive
+        every { mockDeliveryFacade.fetchAction(any()) } returns null
+        response = function.getDeliveryFacilities(mockRequest, emptyActionId)
+        assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
     }
 }
