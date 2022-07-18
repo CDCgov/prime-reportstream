@@ -19,7 +19,16 @@ resource "azurerm_storage_account" "sftp" {
   resource_group_name      = var.resource_group
   location                 = var.location
   account_tier             = "Standard"
-  account_replication_type = "LRS"
+  account_replication_type = "GRS"
+  min_tls_version          = "TLS1_2"
+
+  network_rules {
+    default_action = "Allow"
+    bypass         = ["AzureServices"]
+
+    ip_rules = var.terraform_caller_ip_address
+    #virtual_network_subnet_ids = var.subnets.primary_subnets
+  }
 
   tags = {
     environment = var.environment

@@ -20,6 +20,11 @@ resource "azurerm_container_group" "sftp" {
   dns_name_label      = "${var.resource_prefix}-continst"
   os_type             = "Linux"
 
+  exposed_port = [{
+    port     = 22
+    protocol = "TCP"
+  }]
+
   container {
     name   = "sftp-source"
     image  = "atmoz/sftp:latest"
@@ -30,7 +35,7 @@ resource "azurerm_container_group" "sftp" {
     }
 
     ports {
-      port     = "22"
+      port     = 22
       protocol = "TCP"
     }
 
@@ -78,9 +83,15 @@ resource "azurerm_container_group" "sftp" {
       }
     }
   }
+
+  identity {
+    type = "SystemAssigned"
+  }
+
   depends_on = [
     azurerm_storage_share.sftp
   ]
+
   tags = {
     environment = var.environment
   }

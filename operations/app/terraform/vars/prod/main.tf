@@ -160,12 +160,13 @@ module "front_door" {
 }
 
 module "sftp" {
-  source          = "../../modules/sftp"
-  environment     = local.init.environment
-  resource_group  = local.init.resource_group_name
-  resource_prefix = local.init.resource_prefix
-  location        = local.init.location
-  key_vault_id    = module.key_vault.application_key_vault_id
+  source                      = "../../modules/sftp"
+  environment                 = local.init.environment
+  resource_group              = local.init.resource_group_name
+  resource_prefix             = local.init.resource_prefix
+  location                    = local.init.location
+  key_vault_id                = module.key_vault.application_key_vault_id
+  terraform_caller_ip_address = local.network.terraform_caller_ip_address
 }
 
 module "sftp_container" {
