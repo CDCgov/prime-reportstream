@@ -241,3 +241,20 @@ module "application_insights" {
   service_plan_id             = module.app_service_plan.service_plan_id
   workspace_id                = module.log_analytics_workspace.law_id
 }
+
+##########
+## 06-Integration
+##########
+
+# module "data_factory" {
+#   source                       = "../../modules/data_factory"
+#   environment                  = local.init.environment
+#   resource_group               = local.init.resource_group_name
+#   resource_prefix              = local.init.resource_prefix
+#   location                     = local.init.location
+#   key_vault_id                 = module.key_vault.application_key_vault_id
+#   terraform_caller_ip_address  = local.network.terraform_caller_ip_address
+#   sa_primary_connection_string = module.storage.sa_primary_connection_string
+#   sftp_storage                 = module.sftp.sftp_storage
+#   sftp_shares                  = module.sftp.sftp_shares
+# }
