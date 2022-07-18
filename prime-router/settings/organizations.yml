@@ -562,7 +562,7 @@
       topic: monkeypox
       customerStatus: active
       schemaName: monkeypox
-      allowDuplicates: false
+      allowDuplicates: true
       format: HL7
 
 - name: az-phd
@@ -2097,12 +2097,12 @@
         storageName: PartnerStorage
         containerName: hhsprotect
 
-- name: "dcipher-monkeypox"
-  description: DCIPHER for Monkeypox reporting
+- name: "dcipher"
+  description: "DCIPHER at CDC"
   jurisdiction: "FEDERAL"
   receivers:
-    - name: "elr"
-      organizationName: "dcipher-monkeypox"
+    - name: "monkeypox"
+      organizationName: "dcipher"
       topic: "monkeypox"
       customerStatus: active
       jurisdictionalFilter: [ "allowAll()" ]
@@ -2119,11 +2119,9 @@
         initialTime: "00:00"
         timeZone: "EASTERN"
       transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        type: BLOBSTORE
+        storageName: PartnerStorage
+        containerName: dcipher
 
 
 # 'ignore' is a test organization, designed to be safely usable across all our environments.
