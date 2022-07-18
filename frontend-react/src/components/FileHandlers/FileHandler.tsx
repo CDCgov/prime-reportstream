@@ -6,6 +6,7 @@ import { useOrganizationResource } from "../../hooks/UseOrganizationResouce";
 import { FileResponseError } from "../../network/api/WatersApi";
 import { WatersPost } from "../../network/api/WatersApiFunctions";
 import { Destination } from "../../resources/ActionDetailsResource";
+import Spinner from "../Spinner"; // TODO: refactor to use suspense
 
 import { FileErrorDisplay, FileSuccessDisplay } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
@@ -255,7 +256,6 @@ const FileHandler = ({
         [reportId, errors.length]
     );
 
-    // how to encapsulate state and allow for easier reuse of the file handler functionality?
     return (
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
@@ -278,20 +278,28 @@ const FileHandler = ({
                     messageText={errorMessageText}
                 />
             )}
-
-            <FileHandlerForm
-                handleSubmit={handleSubmit}
-                handleFileChange={handleFileChange}
-                resetState={resetState}
-                fileInputResetValue={fileInputResetValue}
-                submitted={submitted}
-                cancellable={cancellable}
-                isSubmitting={isSubmitting}
-                fileName={fileName}
-                formLabel={formLabel}
-                resetText={resetText}
-                submitText={submitText}
-            />
+            {isSubmitting && (
+                <div className="grid-col flex-1 display-flex flex-column flex-align-center">
+                    <div className="grid-row">
+                        <Spinner />
+                    </div>
+                    <div className="grid-row">Processing file...</div>
+                </div>
+            )}
+            {!isSubmitting && (
+                <FileHandlerForm
+                    handleSubmit={handleSubmit}
+                    handleFileChange={handleFileChange}
+                    resetState={resetState}
+                    fileInputResetValue={fileInputResetValue}
+                    submitted={submitted}
+                    cancellable={cancellable}
+                    fileName={fileName}
+                    formLabel={formLabel}
+                    resetText={resetText}
+                    submitText={submitText}
+                />
+            )}
         </div>
     );
 };

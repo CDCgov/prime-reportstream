@@ -7,8 +7,6 @@ import {
     FileInput,
 } from "@trussworks/react-uswds";
 
-import Spinner from "../Spinner";
-
 import { FileHandlerSubmitButton } from "./FileHandlerButton";
 
 // NOTE: many of this props will go away / change after we refactor FileHandler to use a reducer
@@ -19,7 +17,6 @@ interface FileHandlerFormProps {
     fileInputResetValue: number;
     submitted: boolean;
     cancellable: boolean;
-    isSubmitting: boolean;
     fileName: string;
     formLabel: string;
     resetText: string;
@@ -36,7 +33,6 @@ export const FileHandlerForm = ({
     fileInputResetValue,
     submitted,
     cancellable,
-    isSubmitting,
     fileName,
     formLabel,
     resetText,
@@ -63,17 +59,9 @@ export const FileHandlerForm = ({
                     />
                 </FormGroup>
             )}
-            {isSubmitting && (
-                <div className="grid-col flex-1 display-flex flex-column flex-align-center">
-                    <div className="grid-row">
-                        <Spinner />
-                    </div>
-                    <div className="grid-row">Processing file...</div>
-                </div>
-            )}
             <div className="grid-row">
                 <div className="grid-col flex-1 display-flex flex-column flex-align-start">
-                    {cancellable && !isSubmitting && (
+                    {cancellable && (
                         <Button onClick={resetState} type="button" outline>
                             <span>Cancel</span>
                         </Button>
@@ -82,7 +70,6 @@ export const FileHandlerForm = ({
                 <div className="grid-col flex-1" />
                 <div className="grid-col flex-1 display-flex flex-column flex-align-end">
                     <FileHandlerSubmitButton
-                        isSubmitting={isSubmitting}
                         submitted={submitted}
                         disabled={fileName.length === 0}
                         reset={resetState}
