@@ -97,7 +97,7 @@ export const HowItWorksDropdown = () => {
                 makeNonStaticOption("Where we're live", "where-were-live"),
                 makeNonStaticOption(
                     "System and settings",
-                    "system-and-settings"
+                    "systems-and-settings"
                 ),
                 makeNonStaticOption("Security practices", "security-practices"),
             ]}

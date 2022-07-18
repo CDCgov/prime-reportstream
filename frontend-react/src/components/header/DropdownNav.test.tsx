@@ -66,7 +66,7 @@ test("How It Works Dropdown", () => {
     );
     expect(screen.getByText("System and settings")).toHaveAttribute(
         "href",
-        "/how-it-works/system-and-settings"
+        "/how-it-works/systems-and-settings"
     );
     expect(screen.getByText("Security practices")).toHaveAttribute(
         "href",
