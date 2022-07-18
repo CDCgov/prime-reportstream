@@ -8,56 +8,6 @@
 
 ---
 
-**Name**: sample_result_status
-
-**ReportStream Internal Name**: TODO_sample_result_status
-
-**Type**: TEXT
-
-**PII**: No
-
-**Default Value**: Testing Completed by lab
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Use one from this value set - Testing Completed by lab, Testing Not Completed - further testing has been deferred to the CDC, Testing Not Completed - additional testing to be sent by lab
-
----
-
-**Name**: test_modifed_on
-
-**ReportStream Internal Name**: TODO_test_modified_on
-
-**Type**: DATETIME
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Date/time test last updated at CDC (system-generated).
-
----
-
-**Name**: test_overall_findings
-
-**ReportStream Internal Name**: TODO_test_overall_findings
-
-**Type**: TEXT
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Documentation**:
-
-Brief description of the test results
-
----
-
 **Name**: amplification_kit
 
 **ReportStream Internal Name**: amplification_kit
@@ -411,13 +361,29 @@ Any notes regarding the conclusions drawn that are not covered by other data ele
 
 **PII**: No
 
-**Default Value**: $currentDate
-
 **Cardinality**: [0..1]
 
 **Documentation**:
 
 Date/time sample last updated at CDC (system-generated).
+
+---
+
+**Name**: sample_result_status
+
+**ReportStream Internal Name**: sample_result_status
+
+**Type**: TEXT
+
+**PII**: No
+
+**Default Value**: Testing Completed by lab
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Use one from this value set - Testing Completed by lab, Testing Not Completed - further testing has been deferred to the CDC, Testing Not Completed - additional testing to be sent by lab
 
 ---
 
@@ -638,6 +604,22 @@ Description of the equipment used to perform the test, as in HL7 field OBX-17.
 
 ---
 
+**Name**: test_modifed_on
+
+**ReportStream Internal Name**: test_modified_on
+
+**Type**: DATETIME
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Date/time test last updated at CDC (system-generated).
+
+---
+
 **Name**: test_moiety
 
 **ReportStream Internal Name**: test_moiety
@@ -647,6 +629,22 @@ Description of the equipment used to perform the test, as in HL7 field OBX-17.
 **PII**: No
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: test_overall_findings
+
+**ReportStream Internal Name**: test_overall_findings
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+Brief description of the test results
 
 ---
 
@@ -881,6 +879,18 @@ GI|General Instructions|HL7
 GR|General Reason|HL7
 PI|Patient Instructions|HL7
 RE|Remark|HL7
+
+---
+
+**Name**: current_date
+
+**ReportStream Internal Name**: current_date
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
 
 ---
 

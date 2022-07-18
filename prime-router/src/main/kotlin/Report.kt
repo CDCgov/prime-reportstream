@@ -868,7 +868,7 @@ class Report : Logging {
                     it.previousMessageId = row.getStringOrNull("previous_message_id")
                     it.orderingProviderName =
                         row.getStringOrNull("ordering_provider_first_name").trimToNull() +
-                            " " + row.getStringOrNull("ordering_provider_last_name").trimToNull()
+                        " " + row.getStringOrNull("ordering_provider_last_name").trimToNull()
                     it.orderingProviderId = row.getStringOrNull("ordering_provider_id").trimToNull()
                     it.orderingProviderState = row.getStringOrNull("ordering_provider_state").trimToNull()
                     it.orderingProviderPostalCode = row.getStringOrNull("ordering_provider_zip_code").trimToNull()
