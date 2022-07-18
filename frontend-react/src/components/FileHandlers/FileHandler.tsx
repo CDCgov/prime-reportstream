@@ -57,6 +57,9 @@ interface FileHandlerProps {
     action: string;
     fetcher: WatersPost;
     successMessage: string;
+    formLabel: string;
+    resetText: string;
+    submitText: string;
 }
 
 const FileHandler = ({
@@ -64,6 +67,9 @@ const FileHandler = ({
     action,
     fetcher,
     successMessage,
+    formLabel,
+    resetText,
+    submitText,
 }: FileHandlerProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fileInputResetValue, setFileInputResetValue] = useState(0);
@@ -282,6 +288,9 @@ const FileHandler = ({
                 cancellable={cancellable}
                 isSubmitting={isSubmitting}
                 fileName={fileName}
+                formLabel={formLabel}
+                resetText={resetText}
+                submitText={submitText}
             />
         </div>
     );

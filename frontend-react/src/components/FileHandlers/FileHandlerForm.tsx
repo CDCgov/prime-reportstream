@@ -11,6 +11,7 @@ import Spinner from "../Spinner";
 
 import { FileHandlerSubmitButton } from "./FileHandlerButton";
 
+// NOTE: many of this props will go away / change after we refactor FileHandler to use a reducer
 interface FileHandlerFormProps {
     handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -20,6 +21,9 @@ interface FileHandlerFormProps {
     cancellable: boolean;
     isSubmitting: boolean;
     fileName: string;
+    formLabel: string;
+    resetText: string;
+    submitText: string;
 }
 
 // TODO: create passed functions within this component once reducer is in place
@@ -28,12 +32,15 @@ interface FileHandlerFormProps {
 export const FileHandlerForm = ({
     handleSubmit,
     handleFileChange,
+    resetState,
     fileInputResetValue,
     submitted,
     cancellable,
     isSubmitting,
-    resetState,
     fileName,
+    formLabel,
+    resetText,
+    submitText,
 }: FileHandlerFormProps) => {
     return (
         <Form onSubmit={(e) => handleSubmit(e)} className="rs-full-width-form">
@@ -44,7 +51,7 @@ export const FileHandlerForm = ({
                         id="upload-csv-input-label"
                         htmlFor="upload-csv-input"
                     >
-                        Select an HL7 or CSV formatted file to validate.
+                        {formLabel}
                     </Label>
                     <FileInput
                         key={fileInputResetValue}
@@ -79,8 +86,8 @@ export const FileHandlerForm = ({
                         submitted={submitted}
                         disabled={fileName.length === 0}
                         reset={resetState}
-                        resetText="Validate another file"
-                        submitText="Validate"
+                        resetText={resetText}
+                        submitText={submitText}
                     />
                 </div>
             </div>
