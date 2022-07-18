@@ -43,6 +43,43 @@ export const ReportStreamHeader = () => {
         itemsMenu.push(<BuiltForYouDropdown />);
     }
 
+    if (CheckFeatureFlag(FeatureFlagName.NEW_IA)) {
+        /* TODO: Override itemsMenu with new IA nav */
+        itemsMenu.push(
+            <NavLink
+                to="/product"
+                key="product"
+                data-attribute="hidden"
+                hidden={true}
+                className="usa-nav__link"
+            >
+                <span>Product</span>
+            </NavLink>
+        );
+        itemsMenu.push(
+            <NavLink
+                to="/resources"
+                key="resources"
+                data-attribute="hidden"
+                hidden={true}
+                className="usa-nav__link"
+            >
+                <span>Resources</span>
+            </NavLink>
+        );
+        itemsMenu.push(
+            <NavLink
+                to="/support"
+                key="support"
+                data-attribute="hidden"
+                hidden={true}
+                className="usa-nav__link"
+            >
+                <span>Support</span>
+            </NavLink>
+        );
+    }
+
     if (authState && authState.isAuthenticated && authState.accessToken) {
         /* RECEIVERS ONLY */
         if (

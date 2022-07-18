@@ -5,7 +5,7 @@ import testMd from "../../content/markdown-test.md";
 import { renderWithRouter } from "../../utils/CustomRenderUtils";
 
 import { MarkdownDirectory } from "./MarkdownDirectory";
-import StaticPageFromDirectories from "./StaticPageFromDirectories";
+import StaticPagesFromDirectories from "./StaticPagesFromDirectories";
 
 const testDirectories = [
     new MarkdownDirectory("Test Dir", "test-dir", [testMd]),
@@ -19,12 +19,12 @@ jest.mock("react-router-dom", () => ({
 describe("StaticPageFromDirectories", () => {
     test("Renders without error", () => {
         renderWithRouter(
-            <StaticPageFromDirectories directories={testDirectories} />
+            <StaticPagesFromDirectories directories={testDirectories} />
         );
     });
     test("Renders without side-nav", () => {
         renderWithRouter(
-            <StaticPageFromDirectories directories={testDirectories} />
+            <StaticPagesFromDirectories directories={testDirectories} />
         );
         const nav = screen.getByText("Test Dir");
         expect(nav).toBeInTheDocument();

@@ -5,7 +5,7 @@ import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 import { MarkdownDirectory } from "../Markdown/MarkdownDirectory";
 import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 
-type NonStaticOption = Omit<MarkdownDirectory, "files">;
+type NonStaticOption = Omit<MarkdownDirectory, "files" | "desc">;
 interface DropdownNavProps {
     label: string;
     root: string;
@@ -100,6 +100,19 @@ export const HowItWorksDropdown = () => {
                     "systems-and-settings"
                 ),
                 makeNonStaticOption("Security practices", "security-practices"),
+            ]}
+        />
+    );
+};
+
+export const SupportDropdown = () => {
+    return (
+        <DropdownNav
+            label="Support"
+            root="/support"
+            directories={[
+                makeNonStaticOption("Contact", "contact"),
+                makeNonStaticOption("Frequently asked questions", "faq"),
             ]}
         />
     );
