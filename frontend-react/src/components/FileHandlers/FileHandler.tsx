@@ -61,6 +61,7 @@ interface FileHandlerProps {
     formLabel: string;
     resetText: string;
     submitText: string;
+    showDestinations: boolean;
 }
 
 const FileHandler = ({
@@ -71,6 +72,7 @@ const FileHandler = ({
     formLabel,
     resetText,
     submitText,
+    showDestinations,
 }: FileHandlerProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fileInputResetValue, setFileInputResetValue] = useState(0);
@@ -266,7 +268,7 @@ const FileHandler = ({
                     destinations={destinations}
                     heading={successMessage}
                     message={`Your file meets the standard ${fileType} schema and can be successfully transmitted.`}
-                    showDestinations={false}
+                    showDestinations={showDestinations}
                 />
             )}
 

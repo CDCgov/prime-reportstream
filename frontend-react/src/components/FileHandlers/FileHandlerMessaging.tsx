@@ -16,7 +16,7 @@ export const FileSuccessDisplay = ({
     destinations,
     heading,
     message,
-    showDestinations = true,
+    showDestinations,
 }: FileSuccessDisplayProps) => {
     const destinationsDisplay =
         destinations || "There are no known recipients at this time.";
