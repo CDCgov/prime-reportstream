@@ -2,7 +2,9 @@
 
 ## Client accessible SFTP
 
-1. Create an Azure SSH key in the appropriate resource group.
+![](assets/client_sftp.png)
+
+* Create an Azure SSH key in the appropriate resource group.
     * Send private key to client.
     * Azure SSH key names determine SFTP instance and users:
       >  * `pdh<env>-sftp01-lab1`
@@ -15,7 +17,7 @@
       >    * sftp instance: `pdh<env>-sftp02.eastus.azurecontainer.io`
       >    * sftp user: `lab1`
    * Seperate file shares exist for each instance/user combination in storage account `pdh<env>sftp`.
-2. Run Terraform apply to provision the clients SFTP site.
+* Run Terraform apply to provision the clients SFTP site.
 
 ---
 
