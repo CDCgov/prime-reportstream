@@ -2,8 +2,8 @@ package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
+import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
@@ -78,12 +78,12 @@ class DatabaseDeliveryAccess(
     ): List<DeliveryFacility> {
         val column = when (sortColumn) {
             /* Decides sort column by enum */
-            FacilitySortColumn.NAME -> Tables.REPORT_FACILITIES.TESTING_LAB_NAME
-            FacilitySortColumn.CITY -> Tables.REPORT_FACILITIES.TESTING_LAB_CITY
-            FacilitySortColumn.STATE -> Tables.REPORT_FACILITIES.TESTING_LAB_STATE
-            FacilitySortColumn.CLIA -> Tables.REPORT_FACILITIES.TESTING_LAB_CLIA
-            FacilitySortColumn.POSITIVE -> Tables.REPORT_FACILITIES.POSITIVE
-            FacilitySortColumn.TOTAL -> Tables.REPORT_FACILITIES.COUNT_RECORDS
+            FacilitySortColumn.NAME -> REPORT_FACILITIES.TESTING_LAB_NAME
+            FacilitySortColumn.CITY -> REPORT_FACILITIES.TESTING_LAB_CITY
+            FacilitySortColumn.STATE -> REPORT_FACILITIES.TESTING_LAB_STATE
+            FacilitySortColumn.CLIA -> REPORT_FACILITIES.TESTING_LAB_CLIA
+            FacilitySortColumn.POSITIVE -> REPORT_FACILITIES.POSITIVE
+            FacilitySortColumn.TOTAL -> REPORT_FACILITIES.COUNT_RECORDS
         }
 
         val sortedColumn = when (sortDir) {
@@ -95,14 +95,14 @@ class DatabaseDeliveryAccess(
         return db.transactReturning { txn ->
             val query = DSL.using(txn)
                 .select(
-                    Tables.REPORT_FACILITIES.TESTING_LAB_NAME,
-                    Tables.REPORT_FACILITIES.TESTING_LAB_CITY,
-                    Tables.REPORT_FACILITIES.TESTING_LAB_STATE,
-                    Tables.REPORT_FACILITIES.TESTING_LAB_CLIA,
-                    Tables.REPORT_FACILITIES.POSITIVE,
-                    Tables.REPORT_FACILITIES.COUNT_RECORDS
+                    REPORT_FACILITIES.TESTING_LAB_NAME,
+                    REPORT_FACILITIES.TESTING_LAB_CITY,
+                    REPORT_FACILITIES.TESTING_LAB_STATE,
+                    REPORT_FACILITIES.TESTING_LAB_CLIA,
+                    REPORT_FACILITIES.POSITIVE,
+                    REPORT_FACILITIES.COUNT_RECORDS
                 )
-                .from(Tables.REPORT_FACILITIES(reportId))
+                .from(REPORT_FACILITIES(reportId))
                 .orderBy(sortedColumn)
 
             query.fetchInto(DeliveryFacility::class.java)
