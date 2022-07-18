@@ -565,6 +565,18 @@
       allowDuplicates: true
       format: HL7
 
+- name: aegis
+  description: Aegis Sciences Corporation
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: aegis
+      topic: monkeypox
+      customerStatus: active
+      schemaName: monkeypox
+      allowDuplicates: false
+      format: HL7
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
@@ -2107,6 +2119,7 @@
       customerStatus: active
       jurisdictionalFilter: [ "allowAll()" ]
       qualityFilter: [ "allowAll()" ]
+      processingModeFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
         schemaName: "dcipher/dcipher-monkeypox"
