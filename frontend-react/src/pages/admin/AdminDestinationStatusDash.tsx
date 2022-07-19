@@ -1,0 +1,34 @@
+import { NetworkErrorBoundary } from "rest-hooks";
+import { Helmet } from "react-helmet";
+import { Suspense } from "react";
+
+import { ErrorPage } from "../error/ErrorPage";
+import Spinner from "../../components/Spinner";
+import HipaaNotice from "../../components/HipaaNotice";
+import { AdminDestinationStatusDashboard } from "../../components/Admin/AdminDestinationStatusDashboard";
+
+export function AdminDestinationStatusDash() {
+    return (
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorPage type="page" />}
+        >
+            <Helmet>
+                <title>Admin Destination Dashboard</title>
+            </Helmet>
+            <section className="grid-container margin-bottom-5">
+                <h3 className="margin-bottom-0">
+                    <Suspense fallback={<Spinner />} />
+                </h3>
+            </section>
+            <NetworkErrorBoundary
+                fallbackComponent={() => <ErrorPage type="message" />}
+            >
+                <Suspense fallback={<Spinner />}>
+                    <section className="grid-container margin-top-0" />
+                    <AdminDestinationStatusDashboard />
+                </Suspense>
+            </NetworkErrorBoundary>
+            <HipaaNotice />
+        </NetworkErrorBoundary>
+    );
+}

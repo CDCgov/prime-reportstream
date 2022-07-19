@@ -54,6 +54,7 @@ import BuiltForYouIndex from "./pages/built-for-you/BuiltForYouIndex";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
 import { AdminLastMileFailures } from "./pages/admin/AdminLastMileFailures";
 import Validate from "./pages/Validate";
+import { AdminDestinationStatusDash } from "./pages/admin/AdminDestinationStatusDash";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -234,6 +235,11 @@ const App = () => {
                                     path="/admin/lastmile"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={AdminLastMileFailures}
+                                />
+                                <AuthorizedRoute
+                                    path="/admin/senddash"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={AdminDestinationStatusDash}
                                 />
                                 <SecureRoute
                                     path="/report-details"
