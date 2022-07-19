@@ -52,6 +52,29 @@ type FileErrorDisplayProps = {
     errorType: string;
 };
 
+/***
+ * This function attempts to truncate an error message if it contains
+ * a full stack trace
+ * @param truncateErrorMessage - the error message to potentially reformat
+ * @returns - the original or transformed error message
+ */
+const reformat = (truncateErrorMessage: string | undefined): string => {
+    if (!truncateErrorMessage) return "";
+
+    if (
+        truncateErrorMessage.includes("\n") &&
+        truncateErrorMessage.includes("Exception:")
+    )
+        return (
+            truncateErrorMessage.substring(
+                0,
+                truncateErrorMessage.indexOf("\n")
+            ) + " ..."
+        );
+
+    return truncateErrorMessage;
+};
+
 export const FileErrorDisplay = ({
     fileName,
     errors,
@@ -97,7 +120,7 @@ export const FileErrorDisplay = ({
                         {errors.map((e, i) => {
                             return (
                                 <tr key={"error_" + i}>
-                                    <td>{e.message}</td>
+                                    <td>{reformat(e.message)}</td>
                                     <td>
                                         {e.rowList && (
                                             <span>Row(s): {e.rowList}</span>
