@@ -33,5 +33,6 @@ variable "sa_primary_connection_string" {
   sensitive = true
 }
 
+variable "storage_account_id" {}
 variable "sftp_storage" {}
 variable "sftp_shares" {}
