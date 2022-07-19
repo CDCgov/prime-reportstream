@@ -1,0 +1,41 @@
+preAdmissionIdentifier:
+    valueOf: datatype/Identifier
+    generateList: true
+    expressionType: resource
+    specs:  PV1.5
+
+admitSource:
+   valueOf: datatype/CodeableConcept
+   expressionType: resource
+   specs: PV1.14
+
+reAdmission:
+   valueOf: datatype/CodeableConcept
+   condition: $textValue NOT_NULL
+   expressionType: resource
+   specs: PV1.13
+
+dietPreference:
+   valueOf: datatype/CodeableConcept
+   condition: $textValue NOT_NULL
+   expressionType: resource
+   specs: PV1.38
+
+specialCourtesy:
+   valueOf: datatype/CodeableConcept
+   condition: $textValue NOT_NULL
+   generateList: true
+   expressionType: resource
+   specs: PV1.16
+
+specialArrangement: 
+   valueOf: datatype/CodeableConcept
+   condition: $textValue NOT_NULL
+   generateList: true
+   expressionType: resource
+   specs: PV1.15 | OBR.30 | OBR.43
+
+dischargeDisposition:
+   valueOf: datatype/CodeableConcept
+   expressionType: resource
+   specs: PV1.36
