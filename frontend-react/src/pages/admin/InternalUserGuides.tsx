@@ -1,6 +1,6 @@
 import { MarkdownDirectory } from "../../components/Markdown/MarkdownDirectory";
 import markdownPagesGuide from "../../content/internal-user-guides/make-markdown-pages.md";
-import StaticPageFromDirectories from "../../components/Markdown/StaticPageFromDirectories";
+import StaticPagesFromDirectories from "../../components/Markdown/StaticPagesFromDirectories";
 
 export const InternalUserGuidesDirectory = [
     new MarkdownDirectory("Create markdown pages", "create-markdown-pages", [
@@ -10,7 +10,7 @@ export const InternalUserGuidesDirectory = [
 
 const InternalUserGuides = () => {
     return (
-        <StaticPageFromDirectories directories={InternalUserGuidesDirectory} />
+        <StaticPagesFromDirectories directories={InternalUserGuidesDirectory} />
     );
 };
 
