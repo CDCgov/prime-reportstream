@@ -8,36 +8,17 @@ import { WatersPost } from "../../network/api/WatersApiFunctions";
 import { Destination } from "../../resources/ActionDetailsResource";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 
-import { FileErrorDisplay, FileSuccessDisplay } from "./FileHandlerMessaging";
+import {
+    FileErrorDisplay,
+    FileSuccessDisplay,
+    FileWarningDisplay,
+} from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
 // values taken from Report.kt
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
 const REPORT_MAX_ITEMS = 10000;
 const REPORT_MAX_ITEM_COLUMNS = 2000;
-
-/*
-
-error messaging
-
-validation:
-- server error
-* "Error"
-* "There was a server error. Your file has not been accepted."
-- file error
-* "Your file has not passed validation"
-* "Please review the errors below."
-
-
-upload:
-- server error
-* "Error"
-* "There was a server error. Your file has not been accepted."
-- file error
-* "We found errors in your file"
-* "Please resolve the errors below and upload your edited file. Your file has not been accepted."
-
-*/
 
 const SERVER_ERROR_MESSAGING = {
     heading: "Error",
@@ -118,6 +99,8 @@ interface FileHandlerProps {
     resetText: string;
     submitText: string;
     showSuccessMetadata: boolean;
+    showWarningBanner: boolean;
+    warningText?: string;
 }
 
 const FileHandler = ({
@@ -129,6 +112,8 @@ const FileHandler = ({
     resetText,
     submitText,
     showSuccessMetadata,
+    showWarningBanner,
+    warningText,
 }: FileHandlerProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fileInputResetValue, setFileInputResetValue] = useState(0);
@@ -326,6 +311,9 @@ const FileHandler = ({
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
             <h2 className="font-sans-lg">{organization?.description}</h2>
+            {showWarningBanner && (
+                <FileWarningDisplay message={warningText || ""} />
+            )}
             {reportId && (
                 <FileSuccessDisplay
                     fileName={fileName}

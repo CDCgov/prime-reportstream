@@ -14,6 +14,7 @@ const Validate = () => {
             submitText="Validate"
             showSuccessMetadata={false}
             fetcher={watersApiFunctions.postData}
+            showWarningBanner={false}
         />
     );
 };

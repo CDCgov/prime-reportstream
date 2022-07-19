@@ -5,11 +5,8 @@ import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 import { MarkdownDirectory } from "../Markdown/MarkdownDirectory";
 import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 
-<<<<<<< HEAD
-type NonStaticOption = Omit<MarkdownDirectory, "files" | "desc">;
-=======
-export type NonStaticOption = Omit<MarkdownDirectory, "files">;
->>>>>>> cacc31fd7 (add page for user upload, nest file handlers in drop down nav)
+export type NonStaticOption = Omit<MarkdownDirectory, "files" | "desc">;
+
 interface DropdownNavProps {
     label: string;
     root: string;

@@ -7,8 +7,6 @@ import {
 import { StaticAlert } from "../StaticAlert";
 import { FileResponseError } from "../../network/api/WatersApi";
 
-// TODO: info / warning alert on submit
-
 type ExtendedSuccessMetadata = {
     destinations?: string;
     reportId?: string;
@@ -17,17 +15,14 @@ type ExtendedSuccessMetadata = {
 
 type FileSuccessDisplayProps = {
     fileName: string;
-    // destinations: string;
     heading: string;
     message: string;
     showExtendedMetadata: boolean;
     extendedMetadata?: ExtendedSuccessMetadata;
 };
 
-// TODO: show confirmation code, date and time received
 export const FileSuccessDisplay = ({
     fileName,
-    // destinations,
     heading,
     message,
     showExtendedMetadata,
@@ -184,4 +179,12 @@ export const FileErrorDisplay = ({
             )}
         </div>
     );
+};
+
+interface FileWarningDisplayProps {
+    message: string;
+}
+
+export const FileWarningDisplay = ({ message }: FileWarningDisplayProps) => {
+    return <StaticAlert type={"warning"} heading="Warning" message={message} />;
 };

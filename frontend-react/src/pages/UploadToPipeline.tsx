@@ -14,6 +14,10 @@ const UploadToPipeline = () => {
             submitText="Upload"
             showSuccessMetadata={true}
             fetcher={watersApiFunctions.postData}
+            showWarningBanner={true}
+            warningText={
+                "Uploading files on this page will result in data being transmitted to public health authorities. Use caution when uploading data."
+            }
         />
     );
 };
