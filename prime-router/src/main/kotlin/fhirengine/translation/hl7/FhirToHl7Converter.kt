@@ -12,15 +12,26 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 
+/**
+ * The FHIR to HL7 converter.
+ * @property bundle the source FHIR bundle
+ * @property schema the name of the schema to use for the conversion
+ * @property schemaFolder the location of the schema
+ * @property terser the terser to use for building the HL7 message (use for dependency injection)
+ */
 class FhirToHl7Converter(
     private val bundle: Bundle,
     private val schema: String,
-    private val folder: String,
+    private val schemaFolder: String,
     private var terser: Terser? = null
 ) : Logging {
 
+    /**
+     * Convert the given bundle to an HL7 message.
+     * @return the HL7 message
+     */
     fun convert(): Message {
-        val schemaRef = ConfigSchemaReader.fromFile(schema, folder)
+        val schemaRef = ConfigSchemaReader.fromFile(schema, schemaFolder)
 
         // Sanity check, but the schema is assumed good to go here
         check(!schemaRef.hl7Type.isNullOrBlank())
@@ -34,6 +45,9 @@ class FhirToHl7Converter(
         return message
     }
 
+    /**
+     * Generate HL7 data for the elements for the given [schema] starting at the [focusResource] in the bundle.
+     */
     internal fun processSchema(focusResource: Base, schema: ConfigSchema) {
         logger.debug("Processing schema: ${schema.name} with ${schema.elements.size} elements")
         schema.elements.forEach { element ->
@@ -41,61 +55,26 @@ class FhirToHl7Converter(
         }
     }
 
+    /**
+     * Generate HL7 data for an [element] starting at the [focusResource] in the bundle.
+     */
     internal fun processElement(focusResource: Base, element: ConfigSchemaElement) {
         // First we need to resolve a resource value if available.
-        var traceMsg = "Processing element name: ${element.name}"
-        val resourceValue = if (element.resourceExpression == null) {
-            focusResource
-        } else {
-            val evaluatedResource = FhirPathUtils
-                .evaluate("", focusResource, bundle, element.resourceExpression!!)
-            // If a resource was not found then we cannot resolve this element further.  If we try to use
-            // bundle or some other resource then we could get unexpected values, so the preference is to not process it.
-            when {
-                evaluatedResource == null || evaluatedResource.isEmpty() -> null
-                evaluatedResource.size == 1 -> evaluatedResource[0]
-                else -> {
-                    // TODO handle collections and their index}
-                    evaluatedResource.forEach {
-                        println(it)
-                    }
-                    TODO()
-                }
-            }
-        }
-
-        if (resourceValue != null) {
-            // Check the condition to see if we need to evaluate this element
-            val needToEvaluate = element.conditionExpression?.let {
-                FhirPathUtils.evaluateCondition("", resourceValue, bundle, it)
-            } ?: true
-
-            traceMsg += ", required: ${element.required}, " +
-                "condition: $needToEvaluate, resourceType: ${resourceValue.fhirType()}"
-            if (needToEvaluate) {
+        getFocusResources(element, focusResource).forEach { singleFocusResource ->
+            var debugMsg = "Processing element name: ${element.name}, required: ${element.required}, "
+            if (canEvaluate(element, singleFocusResource)) {
                 when {
                     // If this is a schema then process it.
                     element.schemaRef != null -> {
-                        processSchema(resourceValue, element.schemaRef!!)
+                        processSchema(singleFocusResource, element.schemaRef!!)
                     }
 
                     // A value
                     element.valueExpression != null && element.hl7Spec.isNotEmpty() -> {
-                        val value = FhirPathUtils.evaluateString("", resourceValue, bundle, element.valueExpression!!)
-                        element.hl7Spec.forEach {
-                            try {
-                                terser!!.set(it, value)
-                            } catch (e: HL7Exception) {
-                                val msg = "Error while setting HL7 value for element ${element.name}"
-                                logger.error(msg, e)
-                                throw HL7ConversionException(msg, e)
-                            } catch (e: java.lang.IllegalArgumentException) {
-                                val msg = "Invalid Hl7 spec specified in schema for element ${element.name}"
-                                logger.error(msg, e)
-                                throw SchemaException(msg, e)
-                            }
-                        }
-                        traceMsg += ", value: $value, hl7Spec: ${element.hl7Spec}"
+                        val value = FhirPathUtils.evaluateString("", focusResource, bundle, element.valueExpression!!)
+                        setHl7Value(element, value)
+                        debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
+                            "value: $value, hl7Spec: ${element.hl7Spec}"
                     }
 
                     // This should never happen as the schema was validated prior to getting here
@@ -104,11 +83,62 @@ class FhirToHl7Converter(
             } else if (element.required == true) {
                 // The condition was not met, but the element was required
                 throw RequiredElementException(element)
+            } else {
+                debugMsg += "condition: false, resourceType: ${singleFocusResource.fhirType()}"
             }
-        } else {
-            // There was no resource found and one was specified
-            traceMsg += ", resource: NOT FOUND - Will not process element"
+            // Only log for elements that require values
+            if (element.schemaRef == null) logger.debug(debugMsg)
         }
-        logger.debug(traceMsg)
+    }
+
+    /**
+     * Determine the focus resource for an [element] using the [previousFocusResource].
+     * @return a list of focus resources containing at least one resource.  Multiple resources are returned for collections
+     */
+    internal fun getFocusResources(element: ConfigSchemaElement, previousFocusResource: Base): List<Base> {
+        val resource = if (element.resourceExpression == null) {
+            listOf(previousFocusResource)
+        } else {
+            val evaluatedResource = FhirPathUtils
+                .evaluate("", previousFocusResource, bundle, element.resourceExpression!!)
+            evaluatedResource ?: emptyList<Base>()
+        }
+        // Sanity check, we will always have a resource even if it is the bundle.
+        check(resource.isNotEmpty())
+        return resource
+    }
+
+    /**
+     * Test if an [element] can be evaluated based on the [element]'s condition.  Use the [focusResource] to evaluate the
+     * condition expression.
+     * @return true if the condition expression evaluates to a boolean or if the condition expression is empty, false otherwise
+     */
+    internal fun canEvaluate(element: ConfigSchemaElement, focusResource: Base): Boolean {
+        return element.conditionExpression?.let {
+            FhirPathUtils.evaluateCondition("", focusResource, bundle, it)
+        } ?: true
+    }
+
+    /**
+     * Set the [value] an [element]'s HL7 spec.
+     */
+    internal fun setHl7Value(element: ConfigSchemaElement, value: String) {
+        if (value.isBlank() && element.required == true) {
+            // The value is empty, but the element was required
+            throw RequiredElementException(element)
+        }
+        element.hl7Spec.forEach {
+            try {
+                terser!!.set(it, value)
+            } catch (e: HL7Exception) {
+                val msg = "Error while setting HL7 value for element ${element.name}"
+                logger.error(msg, e)
+                throw HL7ConversionException(msg, e)
+            } catch (e: java.lang.IllegalArgumentException) {
+                val msg = "Invalid Hl7 spec specified in schema for element ${element.name}"
+                logger.error(msg, e)
+                throw SchemaException(msg, e)
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.cli
 
 import ca.uhn.fhir.context.FhirContext
+import ca.uhn.hl7v2.model.Message
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.output.TermUi
@@ -10,6 +11,7 @@ import com.github.ajalt.clikt.parameters.types.file
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
@@ -37,6 +39,12 @@ class ProcessFhirCommands : CliktCommand(
     private val outputFile by option("-o", "--output-file", help = "output file")
         .file()
 
+    /**
+     * Schema location for the FHIR to HL7 conversion
+     */
+    private val fhirToHl7Schema by option("-s", "--schema", help = "Schema location for the FHIR to HL7 conversion")
+        .file()
+
     override fun run() {
         // Read the contents of the file
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
@@ -49,6 +57,25 @@ class ProcessFhirCommands : CliktCommand(
                 if (messages.size > 1) throw CliktError("Only one HL7 message is supported.")
                 val fhirBundle = HL7toFhirTranslator.getInstance().translate(messages[0])
                 outputResult(fhirBundle, actionLogger)
+            }
+
+            "FHIR", "JSON" -> {
+                when {
+                    fhirToHl7Schema == null ->
+                        throw CliktError("You must specify a schema.")
+
+                    !fhirToHl7Schema!!.canRead() ->
+                        throw CliktError("Unable to read schema file ${fhirToHl7Schema!!.absolutePath}.")
+
+                    else -> {
+                        val bundle = FhirTranscoder.decode(contents)
+                        val message = FhirToHl7Converter(
+                            bundle, fhirToHl7Schema!!.name.split(".")[0], fhirToHl7Schema!!.parent
+                        )
+                            .convert()
+                        outputResult(message)
+                    }
+                }
             }
             else -> throw CliktError("File extension ${inputFile.extension} is not supported.")
         }
@@ -75,6 +102,21 @@ class ProcessFhirCommands : CliktCommand(
 
         actionLogger.errors.forEach { TermUi.echo("ERROR: ${it.detail.message}") }
         actionLogger.warnings.forEach { TermUi.echo("ERROR: ${it.detail.message}") }
+    }
+
+    /**
+     * Output an HL7 [message] to the screen or a file.
+     */
+    private fun outputResult(message: Message) {
+        val text = message.encode()
+        if (outputFile != null) {
+            outputFile!!.writeText(text, Charsets.UTF_8)
+            TermUi.echo("Wrote output to ${outputFile!!.absolutePath}")
+        } else {
+            TermUi.echo("-- HL7 OUTPUT ------------------------------------------")
+            text.split("\r").forEach { TermUi.echo(it) }
+            TermUi.echo("-- END HL7 OUTPUT --------------------------------------")
+        }
     }
 }
 
