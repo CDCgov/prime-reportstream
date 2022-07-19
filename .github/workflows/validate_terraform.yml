@@ -69,7 +69,7 @@ jobs:
         run: |
           terraform -chdir=operations/app/terraform/vars/staging plan \
             -out=../../../plan/staging-${{ github.run_id }}-${{ github.sha }}.json \
-            -input=false -lock-timeout=600s -json
+            -input=false -lock-timeout=600s -refresh=false -json
       - name: Upload Terraform Plan to Storage Account
         if: ${{ always() }} # We want to upload whatever part of the plan we have
         run: |
