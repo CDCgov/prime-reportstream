@@ -51,9 +51,12 @@ import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
 import ValueSetsDetail from "./pages/admin/value-set-editor/ValueSetsDetail";
 import SessionProvider from "./contexts/SessionContext";
 import BuiltForYouIndex from "./pages/built-for-you/BuiltForYouIndex";
+import { Resources } from "./pages/resources/ResourcesIndex";
+import { Support } from "./pages/support/SupportIndex";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
 import { AdminLastMileFailures } from "./pages/admin/AdminLastMileFailures";
 import Validate from "./pages/Validate";
+import { Product } from "./pages/product/ProductIndex";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -162,6 +165,21 @@ const App = () => {
                                 <Route
                                     path="/built-for-you"
                                     component={BuiltForYouIndex}
+                                />
+                                <AuthorizedRoute
+                                    path="/resources"
+                                    component={Resources}
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                />
+                                <AuthorizedRoute
+                                    path="/product"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={Product}
+                                />
+                                <AuthorizedRoute
+                                    path="/support"
+                                    component={Support}
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
                                 />
                                 <AuthorizedRoute
                                     path="/daily-data"
