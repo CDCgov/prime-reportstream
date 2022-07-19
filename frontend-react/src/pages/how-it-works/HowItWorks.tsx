@@ -11,7 +11,7 @@ import { CODES, ErrorPage } from "../error/ErrorPage";
 
 import { SecurityPractices } from "./SecurityPractices";
 import { WhereWereLive } from "./WhereWereLive";
-import { SystemsAndSettings } from "./SystemsAndSettings";
+import { SystemAndSettings } from "./SystemAndSettings";
 import { About } from "./About";
 
 export const HowItWorks = () => {
@@ -68,7 +68,7 @@ export const HowItWorks = () => {
                             />
                             <Route
                                 path={`${path}/systems-and-settings`}
-                                component={SystemsAndSettings}
+                                component={SystemAndSettings}
                             />
                             <Route
                                 path={`${path}/security-practices`}

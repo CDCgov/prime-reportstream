@@ -14,6 +14,8 @@
 @import "@trussworks/react-uswds/lib/index.css";
 
 @import "styles/uswds_overrides"; // _uswds_overrides.scss
+@import "styles/color"; // _color.scss
+@import "styles/typography"; // _typography.scss
 @import "styles/reportstream";  // _reportstream.scss
 
 // Print styles (e.g. may be used by PDF generation)

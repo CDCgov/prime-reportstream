@@ -2,6 +2,7 @@
 import { MarkdownDirectory } from "./MarkdownDirectory";
 import { MarkdownContent } from "./MarkdownContent";
 
+//TODO: Update so it can take all content directories, OR rename to markdown specific
 const DirectoryAsPage = ({ directory }: { directory: MarkdownDirectory }) => {
     return (
         <div>
