@@ -105,4 +105,4 @@ jobs:
       - name: Run Terraform
         run: |
           terraform init -input=false
-          terraform apply -input=false -no-color -lock-timeout=120s -auto-approve
+          terraform apply -input=false -no-color -lock-timeout=600s -auto-approve
