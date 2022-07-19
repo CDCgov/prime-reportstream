@@ -57,6 +57,7 @@ serviceType:
 
 priority:
    valueOf: datatype/CodeableConcept
+   condition: $textValue NOT_NULL
    expressionType: resource
    specs: PV2.25
 
@@ -81,12 +82,14 @@ length:
 
 reasonCode_1:
     valueOf: datatype/CodeableConcept
+    condition: $textValue NOT_NULL
     generateList: true
     expressionType: resource
     specs: EVN.4
 
 reasonCode_2:
   valueOf: datatype/CodeableConcept
+  condition: $textValue NOT_NULL
   generateList: true
   expressionType: resource
   specs: PV2.3
@@ -139,6 +142,7 @@ diagnosis:
          refconditionId: $BASE_VALUE, GeneralUtils.extractAttribute(refconditionId,"$.identifier[?(@.system==\"urn:id:extID\")].value","String")
      use:
         valueOf: datatype/CodeableConcept
+        condition: $textValue NOT_NULL
         expressionType: resource
         specs: DG1.6
         vars:
