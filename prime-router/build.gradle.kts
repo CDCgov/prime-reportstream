@@ -42,7 +42,7 @@ plugins {
 }
 
 group = "gov.cdc.prime"
-version = "0.1-SNAPSHOT"
+version = "0.2-SNAPSHOT"
 description = "prime-router"
 val azureAppName = "prime-data-hub-router"
 val azureFunctionsDir = "azure-functions"

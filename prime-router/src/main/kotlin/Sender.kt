@@ -5,11 +5,26 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import gov.cdc.prime.router.Sender.PrimarySubmissionMethod.automated
+import gov.cdc.prime.router.Sender.PrimarySubmissionMethod.manual
+import gov.cdc.prime.router.Sender.ProcessingType.async
+import gov.cdc.prime.router.Sender.ProcessingType.sync
+import gov.cdc.prime.router.Sender.SenderType.dataAggregator
+import gov.cdc.prime.router.Sender.SenderType.facility
+import gov.cdc.prime.router.Sender.SenderType.hospitalSystem
+import gov.cdc.prime.router.Sender.SenderType.testManufacturer
 import gov.cdc.prime.router.azure.SettingAPI
 import gov.cdc.prime.router.azure.SettingsMetadata
 import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.JwkSet
 import java.time.OffsetDateTime
+
+/**
+ * Used by senders to indicate that they carry a schema, so we can get the schema name
+ */
+interface HasSchema {
+    var schemaName: String
+}
 
 /**
  * A `Sender` represents the agent that is sending reports to
@@ -28,7 +43,6 @@ import java.time.OffsetDateTime
  * @property senderType one of four broad sender categories
  * @property primarySubmissionMethod Sender preference for submission - manual or automatic
  */
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -38,6 +52,7 @@ import java.time.OffsetDateTime
 @JsonSubTypes(
     JsonSubTypes.Type(value = FullELRSender::class, name = "full-elr"),
     JsonSubTypes.Type(value = CovidSender::class, name = "covid-19"),
+    JsonSubTypes.Type(value = MonkeypoxSender::class, name = "monkeypox")
 )
 abstract class Sender(
     val topic: Topic,
@@ -60,6 +75,7 @@ abstract class Sender(
      * Makes a copy of the concrete Sender with a new scope and jwk
      */
     abstract fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender
+
     /**
      * Makes a copy of the concrete Sender
      */
@@ -279,14 +295,88 @@ class FullELRSender : Sender {
     }
 }
 
+open class TopicSender : Sender, HasSchema {
+    final override var schemaName: String
+
+    @JsonCreator
+    constructor(
+        name: String,
+        organizationName: String,
+        format: Format,
+        customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
+        schemaName: String,
+        topic: Topic,
+        keys: List<JwkSet>? = null,
+        processingType: ProcessingType = ProcessingType.sync,
+        allowDuplicates: Boolean = true,
+        senderType: SenderType? = null,
+        primarySubmissionMethod: PrimarySubmissionMethod? = null
+    ) : super(
+        topic,
+        name,
+        organizationName,
+        format,
+        customerStatus,
+        keys,
+        processingType,
+        allowDuplicates,
+        senderType,
+        primarySubmissionMethod
+    ) {
+        this.schemaName = schemaName
+    }
+
+    constructor(copy: TopicSender) : this(
+        copy.name,
+        copy.organizationName,
+        copy.format,
+        copy.customerStatus,
+        copy.schemaName,
+        copy.topic,
+        if (copy.keys != null) ArrayList(copy.keys) else null
+    )
+
+    // constructor that copies and adds a key
+    constructor(copy: TopicSender, newScope: String, newJwk: Jwk) : this(
+        copy.name,
+        copy.organizationName,
+        copy.format,
+        copy.customerStatus,
+        copy.schemaName,
+        copy.topic,
+        addJwkSet(copy.keys, newScope, newJwk)
+    )
+
+    /**
+     * To ensure existing functionality, we need to be able to create a copy of this CovidSender with
+     * a different scope and jwk.
+     */
+    override fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender {
+        return TopicSender(this, scope, jwk)
+    }
+
+    /**
+     * To ensure existing functionality, we need to be able to create a straight copy of this CovidSender
+     */
+    override fun makeCopy(): Sender {
+        return TopicSender(this)
+    }
+
+    /**
+     * For validation, not used in this context. Maybe refactor in the future.
+     */
+    override fun consistencyErrorMessage(metadata: Metadata): String? {
+        return null
+    }
+}
+
 /**
  * Represents a Sender that is specifically used for covid data, and not for full ELR data. The topic of this
  * sender will be 'COVID-19', and a [schemaName] must be specified
  *
  * @property schemaName the name of the schema used by the sender
  */
-class CovidSender : Sender {
-    var schemaName: String
+class CovidSender : TopicSender, HasSchema {
     @JsonCreator
     constructor(
         name: String,
@@ -300,19 +390,18 @@ class CovidSender : Sender {
         senderType: SenderType? = null,
         primarySubmissionMethod: PrimarySubmissionMethod? = null
     ) : super(
-        Topic.COVID_19,
         name,
         organizationName,
         format,
         customerStatus,
+        schemaName,
+        Topic.COVID_19,
         keys,
         processingType,
         allowDuplicates,
         senderType,
         primarySubmissionMethod
-    ) {
-        this.schemaName = schemaName
-    }
+    )
 
     constructor(copy: CovidSender) : this(
         copy.name,
@@ -346,6 +435,71 @@ class CovidSender : Sender {
      */
     override fun makeCopy(): Sender {
         return CovidSender(this)
+    }
+}
+
+/**
+ * Our monkeypox sender
+ */
+class MonkeypoxSender : TopicSender, HasSchema {
+    @JsonCreator
+    constructor(
+        name: String,
+        organizationName: String,
+        format: Format,
+        customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
+        schemaName: String,
+        keys: List<JwkSet>? = null,
+        processingType: ProcessingType = ProcessingType.sync,
+        allowDuplicates: Boolean = true,
+        senderType: SenderType? = null,
+        primarySubmissionMethod: PrimarySubmissionMethod? = null
+    ) : super(
+        name,
+        organizationName,
+        format,
+        customerStatus,
+        schemaName,
+        Topic.MONKEYPOX,
+        keys,
+        processingType,
+        allowDuplicates,
+        senderType,
+        primarySubmissionMethod
+    )
+
+    constructor(copy: MonkeypoxSender) : this(
+        copy.name,
+        copy.organizationName,
+        copy.format,
+        copy.customerStatus,
+        copy.schemaName,
+        if (copy.keys != null) ArrayList(copy.keys) else null
+    )
+
+    // constructor that copies and adds a key
+    constructor(copy: MonkeypoxSender, newScope: String, newJwk: Jwk) : this(
+        copy.name,
+        copy.organizationName,
+        copy.format,
+        copy.customerStatus,
+        copy.schemaName,
+        addJwkSet(copy.keys, newScope, newJwk)
+    )
+
+    /**
+     * To ensure existing functionality, we need to be able to create a copy of this CovidSender with
+     * a different scope and jwk.
+     */
+    override fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender {
+        return MonkeypoxSender(this, scope, jwk)
+    }
+
+    /**
+     * To ensure existing functionality, we need to be able to create a straight copy of this CovidSender
+     */
+    override fun makeCopy(): Sender {
+        return MonkeypoxSender(this)
     }
 
     /**
