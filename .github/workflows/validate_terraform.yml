@@ -30,7 +30,7 @@ jobs:
       - name: Use specific version of Terraform
         uses: hashicorp/setup-terraform@17d4c9b8043b238f6f35641cdd8433da1e6f3867
         with:
-          terraform_version: 1.1.9
+          terraform_version: 1.2.0
           terraform_wrapper: false
       - name: Verify Terraform Formatting
         run: terraform -chdir=operations/app/terraform/vars/staging fmt -check -recursive ../../
@@ -59,7 +59,7 @@ jobs:
       - name: Use specific version of Terraform
         uses: hashicorp/setup-terraform@17d4c9b8043b238f6f35641cdd8433da1e6f3867
         with:
-          terraform_version: 1.1.9
+          terraform_version: 1.2.0
           terraform_wrapper: false
       - name: Initialize Terraform
         run: terraform -chdir=operations/app/terraform/vars/staging init
