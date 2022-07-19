@@ -16,6 +16,52 @@ const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 
 const REPORT_MAX_ITEMS = 10000;
 const REPORT_MAX_ITEM_COLUMNS = 2000;
 
+/*
+
+error messaging
+
+validation:
+- server error
+* "Error"
+* "There was a server error. Your file has not been accepted."
+- file error
+* "Your file has not passed validation"
+* "Please review the errors below."
+
+
+upload:
+- server error
+* "Error"
+* "There was a server error. Your file has not been accepted."
+- file error
+* "We found errors in your file"
+* "Please resolve the errors below and upload your edited file. Your file has not been accepted."
+
+*/
+
+const SERVER_ERROR_MESSAGING = {
+    heading: "Error",
+    message: "There was a server error. Your file has not been accepted.",
+};
+
+const errorMessagingMap = {
+    validation: {
+        server: SERVER_ERROR_MESSAGING,
+        file: {
+            heading: "Your file has not passed validation",
+            message: "Please review the errors below.",
+        },
+    },
+    upload: {
+        server: SERVER_ERROR_MESSAGING,
+        file: {
+            heading: "We found errors in your file",
+            message:
+                "Please resolve the errors below and upload your edited file. Your file has not been accepted.",
+        },
+    },
+};
+
 const parseCsvForError = (fileName: string, filecontent: string) => {
     const error = false;
     // count the number of lines
@@ -53,9 +99,19 @@ const parseCsvForError = (fileName: string, filecontent: string) => {
     return error;
 };
 
+export enum FileHandlerType {
+    UPLOAD = "upload",
+    VALIDATION = "validation",
+}
+
+enum ErrorType {
+    SERVER = "server",
+    FILE = "file",
+}
+
 interface FileHandlerProps {
     headingText: string;
-    action: string;
+    handlerType: FileHandlerType;
     fetcher: WatersPost;
     successMessage: string;
     formLabel: string;
@@ -66,7 +122,7 @@ interface FileHandlerProps {
 
 const FileHandler = ({
     headingText,
-    action,
+    handlerType,
     fetcher,
     successMessage,
     formLabel,
@@ -87,9 +143,7 @@ const FileHandler = ({
         string | undefined
     >("");
     const [cancellable, setCancellable] = useState<boolean>(false);
-    const [errorMessageText, setErrorMessageText] = useState(
-        "Please resolve the errors below and upload your edited file. Your file has not been accepted."
-    );
+    const [errorType, setErrorType] = useState<ErrorType>(ErrorType.FILE);
 
     const { memberships, oktaToken } = useSessionContext();
     const { organization } = useOrganizationResource();
@@ -111,9 +165,7 @@ const FileHandler = ({
         setReportId(null);
         setSuccessTimestamp("");
         setCancellable(false);
-        setErrorMessageText(
-            "Please resolve the errors below and upload your edited file. Your file has not been accepted."
-        );
+        setErrorType(ErrorType.FILE);
     };
 
     const handleFileChange = async (
@@ -225,14 +277,10 @@ const FileHandler = ({
                 event.currentTarget.reset();
             }
 
-            if (response?.errors?.length) {
-                // if there is a response status,
-                // then there was most likely a server-side error as the json was not parsed
-                setErrorMessageText(
-                    response?.status
-                        ? "There was a server error. Your file has not been accepted."
-                        : "Please resolve the errors below and upload your edited file. Your file has not been accepted."
-                );
+            // if there is a response status,
+            // then there was most likely a server-side error as the json was not parsed
+            if (response?.errors?.length && response?.status) {
+                setErrorType(ErrorType.SERVER);
             }
         } catch (error) {
             // Noop.  Errors are collected below
@@ -264,6 +312,16 @@ const FileHandler = ({
         [reportId, errors.length]
     );
 
+    const successDescription = useMemo(() => {
+        let suffix = "";
+        if (handlerType === "upload") {
+            suffix = " and will be transmitted";
+        }
+        return `Your file meets the standard ${fileType} schema${suffix}.`;
+    }, [fileType, handlerType]);
+
+    const errorMessaging = errorMessagingMap[handlerType][errorType];
+
     return (
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
@@ -277,7 +335,7 @@ const FileHandler = ({
                         reportId,
                     }}
                     heading={successMessage}
-                    message={`Your file meets the standard ${fileType} schema and can be successfully transmitted.`}
+                    message={successDescription}
                     showExtendedMetadata={showSuccessMetadata}
                 />
             )}
@@ -285,9 +343,10 @@ const FileHandler = ({
             {errors.length > 0 && (
                 <FileErrorDisplay
                     fileName={fileName}
-                    errorType={action}
+                    handlerType={handlerType}
                     errors={errors}
-                    messageText={errorMessageText}
+                    heading={errorMessaging.heading}
+                    message={errorMessaging.message}
                 />
             )}
             {isSubmitting && (

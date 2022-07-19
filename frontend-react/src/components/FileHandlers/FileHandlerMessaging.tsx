@@ -99,9 +99,10 @@ export const FileSuccessDisplay = ({
 
 type FileErrorDisplayProps = {
     errors: FileResponseError[];
-    messageText: string;
+    message: string;
     fileName: string;
-    errorType: string;
+    handlerType: string;
+    heading: string;
 };
 
 /***
@@ -130,8 +131,9 @@ const reformat = (truncateErrorMessage: string | undefined): string => {
 export const FileErrorDisplay = ({
     fileName,
     errors,
-    messageText,
-    errorType,
+    message,
+    heading,
+    handlerType,
 }: FileErrorDisplayProps) => {
     const showErrorTable =
         errors && errors.length && errors.some((error) => error.message);
@@ -139,18 +141,14 @@ export const FileErrorDisplay = ({
     useEffect(() => {
         errors.forEach((error: FileResponseError) => {
             if (error.details) {
-                console.error(`${errorType} failure: ${error.details}`);
+                console.error(`${handlerType} failure: ${error.details}`);
             }
         });
-    }, [errors, errorType]);
+    }, [errors, handlerType]);
 
     return (
         <div>
-            <StaticAlert
-                type={"error"}
-                heading={"We found errors in your file."}
-                message={messageText}
-            />
+            <StaticAlert type={"error"} heading={heading} message={message} />
             <div>
                 <p
                     id="validatedFilename"
