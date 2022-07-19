@@ -258,6 +258,7 @@ module "data_factory" {
   key_vault_id                 = module.key_vault.application_key_vault_id
   terraform_caller_ip_address  = local.network.terraform_caller_ip_address
   sa_primary_connection_string = module.storage.sa_primary_connection_string
+  storage_account_id           = module.storage.storage_account_id
   sftp_storage                 = module.sftp.sftp_storage
   sftp_shares                  = module.sftp.sftp_shares
 }

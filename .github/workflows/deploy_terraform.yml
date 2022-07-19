@@ -53,7 +53,7 @@ jobs:
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
-          terraform-version: 1.1.9
+          terraform-version: 1.2.0
 
   approve_deploy:
     name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
@@ -100,9 +100,9 @@ jobs:
       - name: Use specific version of Terraform
         uses: hashicorp/setup-terraform@17d4c9b8043b238f6f35641cdd8433da1e6f3867
         with:
-          terraform_version: 1.1.9
+          terraform_version: 1.2.0
           terraform_wrapper: false
       - name: Run Terraform
         run: |
           terraform init -input=false
-          terraform apply -input=false -no-color -lock-timeout=120s -auto-approve
+          terraform apply -input=false -no-color -lock-timeout=600s -auto-approve
