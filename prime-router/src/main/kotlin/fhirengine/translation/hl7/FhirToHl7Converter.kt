@@ -61,6 +61,8 @@ class FhirToHl7Converter(
     internal fun processElement(focusResource: Base, element: ConfigSchemaElement) {
         // First we need to resolve a resource value if available.
         getFocusResources(element, focusResource).forEach { singleFocusResource ->
+            // TODO NEED TO HANDLE REPEATING SEGMENTS AS THEY WILL NEED AN INDEX REFERENCE
+
             var debugMsg = "Processing element name: ${element.name}, required: ${element.required}, "
             if (canEvaluate(element, singleFocusResource)) {
                 when {
@@ -96,16 +98,20 @@ class FhirToHl7Converter(
      * @return a list of focus resources containing at least one resource.  Multiple resources are returned for collections
      */
     internal fun getFocusResources(element: ConfigSchemaElement, previousFocusResource: Base): List<Base> {
-        val resource = if (element.resourceExpression == null) {
+        val resourceList = if (element.resourceExpression == null) {
             listOf(previousFocusResource)
         } else {
             val evaluatedResource = FhirPathUtils
                 .evaluate("", previousFocusResource, bundle, element.resourceExpression!!)
-            evaluatedResource ?: emptyList<Base>()
+            evaluatedResource ?: emptyList()
         }
-        // Sanity check, we will always have a resource even if it is the bundle.
-        check(resource.isNotEmpty())
-        return resource
+
+        // This must be resources
+        resourceList.forEach {
+            if (it.isPrimitive)
+                throw SchemaException("Invalid FHIR path ${element.resource}: must evaluate to a FHIR resource.")
+        }
+        return resourceList
     }
 
     /**
@@ -134,7 +140,7 @@ class FhirToHl7Converter(
                 val msg = "Error while setting HL7 value for element ${element.name}"
                 logger.error(msg, e)
                 throw HL7ConversionException(msg, e)
-            } catch (e: java.lang.IllegalArgumentException) {
+            } catch (e: IllegalArgumentException) {
                 val msg = "Invalid Hl7 spec specified in schema for element ${element.name}"
                 logger.error(msg, e)
                 throw SchemaException(msg, e)

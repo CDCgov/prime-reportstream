@@ -18,7 +18,7 @@ object HL7Utils : Logging {
     /**
      * The default HL7 encoding characters.  Note that depending on the message version this will be 4 or 5 characters.
      */
-    private const val defaultHl7EncodingChars = "^~&#"
+    private const val defaultHl7EncodingChars = "^~\\&#"
 
     /**
      * The supported HL7 output messages.
@@ -42,7 +42,6 @@ object HL7Utils : Logging {
                 terser.set("MSH-1", defaultHl7Delimiter)
                 terser.set("MSH-2", defaultHl7EncodingChars.take(msh2Length))
             } catch (e: HL7Exception) {
-                // Could this not be an error in the future if we support other message types?
                 logger.error("Could not set MSH delimiters.", e)
                 throw e
             }

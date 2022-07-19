@@ -112,4 +112,21 @@ class ConfigSchemaTests {
         )
         assertThat(element.validate()).isNotEmpty()
     }
+
+    @Test
+    fun `test validate schema with schemas`() {
+        var goodElement = ConfigSchemaElement("name", value = "Bundle", hl7Spec = listOf("MSH-7"))
+        var childSchema = ConfigSchema("name", elements = listOf(goodElement))
+        var elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
+        var topSchema = ConfigSchema("name", "ORU_R01", "2.5.1", listOf(elementWithSchema))
+        assertThat(topSchema.isValid()).isTrue()
+        assertThat(topSchema.errors).isEmpty()
+
+        goodElement = ConfigSchemaElement("name", value = "Bundle") // No HL7Spec = error
+        childSchema = ConfigSchema("name", elements = listOf(goodElement))
+        elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
+        topSchema = ConfigSchema("name", "ORU_R01", "2.5.1", listOf(elementWithSchema))
+        assertThat(topSchema.isValid()).isFalse()
+        assertThat(topSchema.errors).isNotEmpty()
+    }
 }
