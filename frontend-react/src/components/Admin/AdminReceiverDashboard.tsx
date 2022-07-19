@@ -7,6 +7,7 @@ import {
     Label,
     TextInput,
 } from "@trussworks/react-uswds";
+import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
 import {
     AdmConnStatusResource,
@@ -119,11 +120,18 @@ class SuccessRateTracker {
     }
 }
 
-const SUCCESS_CLASSNAME_MAP = {
-    [SuccessRate.UNDEFINED]: "rs-admindash-success-undefined",
-    [SuccessRate.ALL_SUCCESSFUL]: "rs-admindash-success-all",
-    [SuccessRate.ALL_FAILURE]: "rs-admindash-failure-all",
-    [SuccessRate.MIXED_SUCCESS]: "rs-admindash-success-mixed",
+const SUCCESS_BK_CLASSNAME_MAP = {
+    [SuccessRate.UNDEFINED]: "rs-admindash-bk-success-undefined",
+    [SuccessRate.ALL_SUCCESSFUL]: "rs-admindash-bk-success-all",
+    [SuccessRate.ALL_FAILURE]: "rs-admindash-bk-failure-all",
+    [SuccessRate.MIXED_SUCCESS]: "rs-admindash-bk-success-mixed",
+};
+
+const SUCCESS_BORDER_CLASSNAME_MAP = {
+    [SuccessRate.UNDEFINED]: "rs-admindash-border-success-undefined",
+    [SuccessRate.ALL_SUCCESSFUL]: "rs-admindash-border-success-all",
+    [SuccessRate.ALL_FAILURE]: "rs-admindash-border-failure-all",
+    [SuccessRate.MIXED_SUCCESS]: "rs-admindash-border-success-mixed",
 };
 
 function dateAddHours(d: Date, h: number): Date {
@@ -290,7 +298,7 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
 
                 {
                     const sliceClassName =
-                        SUCCESS_CLASSNAME_MAP[successForSlice.currentState];
+                        SUCCESS_BK_CLASSNAME_MAP[successForSlice.currentState];
 
                     // we can use the currentkey in the data dict as a unique key for this cell
                     // todo: include starttime and hover information. (use hoverInfo)
@@ -345,8 +353,8 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
                     (successForRow.countSuccess + successForRow.countFailed)
             );
 
-            const sliceClassName =
-                SUCCESS_CLASSNAME_MAP[successForRow.currentState];
+            const titleClassName =
+                SUCCESS_BORDER_CLASSNAME_MAP[successForRow.currentState];
 
             // todo: improve layout of row header
             rowElements.push(
@@ -356,7 +364,7 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
                     className={"rs-admindash-receiver-row"}
                 >
                     <Grid
-                        className={`rs-admindash-receiver-row-title ${sliceClassName}`}
+                        className={`rs-admindash-receiver-row-title ${titleClassName}`}
                         title={`${orgName}\n${recvrName}`}
                     >
                         {orgName}
@@ -366,7 +374,8 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
                         {successRate}%
                     </Grid>
                     <Grid className={"rs-admindash-days-row"}>
-                        <div className={"rs-admindash-horizonal-scroll"}>
+                        <ScrollSyncPane>
+                            {/*<div className={"rs-admindash-horizonal-scroll"}>*/}
                             <GridContainer
                                 className={"rs-admindash-container-days"}
                             >
@@ -384,7 +393,8 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
                                     </Grid>
                                 </Grid>
                             </GridContainer>
-                        </div>
+                            {/*</div>*/}
+                        </ScrollSyncPane>
                     </Grid>
                 </Grid>
             );
@@ -393,12 +403,14 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
         keyOffset++;
     } // while
     return (
-        <GridContainer
-            className={"rs-admindash-main-container"}
-            key={"AdminReceiverDashboard"}
-        >
-            {rowElements}
-        </GridContainer>
+        <ScrollSync horizontal={true} vertical={false}>
+            <GridContainer
+                className={"rs-admindash-main-container"}
+                key={"AdminReceiverDashboard"}
+            >
+                {rowElements}
+            </GridContainer>
+        </ScrollSync>
     );
 }
 

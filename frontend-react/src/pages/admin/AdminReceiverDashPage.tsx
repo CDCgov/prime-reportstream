@@ -7,7 +7,7 @@ import Spinner from "../../components/Spinner";
 import HipaaNotice from "../../components/HipaaNotice";
 import { AdminReceiverDashboard } from "../../components/Admin/AdminReceiverDashboard";
 
-export function AdminDestinationStatusDash() {
+export function AdminReceiverDashPage() {
     return (
         <NetworkErrorBoundary
             fallbackComponent={() => <ErrorPage type="page" />}

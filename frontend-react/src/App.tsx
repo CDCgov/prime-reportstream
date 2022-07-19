@@ -56,7 +56,7 @@ import { Support } from "./pages/support/SupportIndex";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
 import { AdminLastMileFailures } from "./pages/admin/AdminLastMileFailures";
 import Validate from "./pages/Validate";
-import { AdminDestinationStatusDash } from "./pages/admin/AdminDestinationStatusDash";
+import { AdminReceiverDashPage } from "./pages/admin/AdminReceiverDashPage";
 import { Product } from "./pages/product/ProductIndex";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
@@ -257,7 +257,7 @@ const App = () => {
                                 <AuthorizedRoute
                                     path="/admin/senddash"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={AdminDestinationStatusDash}
+                                    component={AdminReceiverDashPage}
                                 />
                                 <SecureRoute
                                     path="/report-details"

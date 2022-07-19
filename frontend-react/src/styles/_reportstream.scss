@@ -476,20 +476,20 @@ pre {
     border: solid 1px #2f2f2f;
 }
 
-.rs-admindash-success-undefined {
+.rs-admindash-bk-success-undefined {
     background-color: rgb(190, 190, 190);
 }
 
-.rs-admindash-success-all {
+.rs-admindash-bk-success-all {
     /* color bind friendly */
     background-color: rgba(0, 97, 100, 100);
 }
 
-.rs-admindash-failure-all {
+.rs-admindash-bk-failure-all {
     background-color: rgba(219, 67, 37, 100);
 }
 
-.rs-admindash-success-mixed {
+.rs-admindash-bk-success-mixed {
     background: repeating-linear-gradient(
             45deg,
             #ffffff,
@@ -518,14 +518,34 @@ pre {
 }
 
 .rs-admindash-receiver-row-title {
-    width: 10em;
+    width: 12em;
     height: 5em;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: white;
-    font-size: larger;
     font-weight: bolder;
-    text-shadow: 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000, -2px 0 0 #000;
+    font-size: small;
+    padding: 4px;
+    border-top: 4px black solid;
+    border-left: 8px black solid;
+    border-bottom: 4px black solid;
+    border-right: 8px black solid;
+}
+
+rs-admindash-border-success-undefined {
+    border-color: rgb(190, 190, 190);
+}
+
+.rs-admindash-border-success-all {
+    /* color bind friendly */
+    border-color: rgba(0, 97, 100, 100);
+}
+
+.rs-admindash-border-failure-all {
+    border-color: rgba(219, 67, 37, 100);
+}
+
+.rs-admindash-border-success-mixed {
+    border-color: rgba(219, 67, 37, 100);
 }
 
 .rs-admindash-days-row {
