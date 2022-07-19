@@ -275,7 +275,7 @@ function ensure_build_dependencies() {
 
 # Ensures that the binaries exist
 function ensure_binaries() {
-  CANARY="./build/azure-functions/prime-data-hub-router/prime-router-0.1-SNAPSHOT.jar"
+  CANARY="./build/azure-functions/prime-data-hub-router/prime-router-0.2-SNAPSHOT.jar"
   if [[ ! -f "${CANARY?}" ]]; then
     ensure_build_dependencies
 

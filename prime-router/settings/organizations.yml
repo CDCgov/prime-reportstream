@@ -553,6 +553,30 @@
       schemaName: hl7/signetic-covid-19
       format: HL7
 
+- name: mayo-clinic
+  description: The Mayo Clinic
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: mayo-clinic
+      topic: monkeypox
+      customerStatus: active
+      schemaName: monkeypox
+      allowDuplicates: true
+      format: HL7
+
+- name: aegis
+  description: Aegis Sciences Corporation
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: aegis
+      topic: monkeypox
+      customerStatus: active
+      schemaName: monkeypox
+      allowDuplicates: false
+      format: HL7
+
 - name: az-phd
   description: Arizona PHD
   jurisdiction: STATE
@@ -1343,7 +1367,37 @@
         receivingApplicationOID: 2.16.840.1.114222.4.3.3.6.2.1
         receivingFacilityName: MN DOH
         receivingFacilityOID: 2.16.840.1.114222.4.1.3661
-        suppressHl7Fields: SPM-2-1
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      timing:
+        operation: MERGE
+        numberPerDay: 1440
+        initialTime: 00:00
+        timeZone: EASTERN
+    - name: elr-mpx
+      organizationName: mn-doh
+      topic: monkeypox
+      routingFilter:
+        - "AllowAll()"
+      processingModeFilter:
+        - "AllowAll()"
+      qualityFilter:
+        - "AllowAll()"
+      customerStatus: active
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, MN, patient_state, MN)
+      translation:
+        type: HL7
+        schemaName: monkeypox
+        useBatchHeaders: true
+        receivingApplicationName: MEDSS-ELR
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.6.2.1
+        receivingFacilityName: MN DOH
+        receivingFacilityOID: 2.16.840.1.114222.4.1.3661
       transport:
         type: SFTP
         host: sftp
@@ -2054,6 +2108,34 @@
         type: BLOBSTORE
         storageName: PartnerStorage
         containerName: hhsprotect
+
+- name: "cdc"
+  description: "Centers for Disease Control"
+  jurisdiction: "FEDERAL"
+  receivers:
+    - name: "dcipher-monkeypox"
+      organizationName: "cdc"
+      topic: "monkeypox"
+      customerStatus: active
+      jurisdictionalFilter: [ "allowAll()" ]
+      qualityFilter: [ "allowAll()" ]
+      processingModeFilter: [ "allowAll()" ]
+      translation:
+        type: "CUSTOM"
+        schemaName: "dcipher/dcipher-monkeypox"
+        format: "CSV"
+      deidentify: true
+      deidentifiedValue: "<DEIDENTIFIED>"
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+      transport:
+        type: BLOBSTORE
+        storageName: PartnerStorage
+        containerName: dcipher
+
 
 # 'ignore' is a test organization, designed to be safely usable across all our environments.
 # It has a bunch of receivers, each given a useful fake name, eg, named after the format of the data, in some cases.
@@ -3159,6 +3241,33 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: elr-monkeypox
+      organizationName: ny-phd
+      topic: monkeypox
+      customerStatus: testing
+      routingFilter:
+        - "AllowAll()"
+      processingModeFilter:
+        - "AllowAll()"
+      qualityFilter:
+        - "AllowAll()"
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, NY, patient_state, NY)
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        schemaName: monkeypox
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
 - name: mp-phd
   description: Northern Mariana Islands Public Health Department
@@ -3474,9 +3583,7 @@
         suppressQstForAoe: true
         suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         replaceValueAwithB:
-          MSH-3:
-          - PHX.ProviderReportingService: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-          - Medasource: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"]
           MSH-5: [ "*": "WADOHPHRED^2.16.840.1.113883.3.237.4.2^ISO" ]
           MSH-6: [ "*": "dn1fro00^1.3.6.1.4.1.38630.2.1.1.19^ISO"  ]
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
@@ -3517,9 +3624,7 @@
         suppressQstForAoe: true
         suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         replaceValueAwithB:
-          MSH-3:
-          - PHX.ProviderReportingService: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-          - Medasource: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"]
           MSH-5: [ "*": "WADOHPHRED^2.16.840.1.113883.3.237.4.2^ISO" ]
           MSH-6: [ "*": "dn1fro00^1.3.6.1.4.1.38630.2.1.1.19^ISO"  ]
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE

@@ -21,6 +21,7 @@ export class WatersResponse {
     warningCount: number | undefined;
     warnings: ResponseError[] | undefined;
     ok: boolean | undefined;
+    status?: number;
 }
 
 export interface ResponseError {
@@ -30,6 +31,10 @@ export interface ResponseError {
     scope: string | undefined;
     trackingIds: string[] | undefined;
     details: any | undefined;
+}
+
+export interface FileResponseError extends ResponseError {
+    rowList?: string;
 }
 
 const WatersApi: API = new API(WatersResponse, "/api").addEndpoint(

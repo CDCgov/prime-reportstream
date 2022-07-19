@@ -1,21 +1,4 @@
-// Was index.css
-.prime-user-account {
-  font-size: .88rem;
-  vertical-align: u-text("vertical-align");
-  line-height: 1.25rem;
-}
-
-.prime-table {
-  width: 100%;
-}
-
-.prime-table thead th {
-  border-bottom: 2px solid;
-}
-
-.prime-table tbody td, .prime-table tbody th {
-  border-color: #dfe1e2;
-}
+// USWDS identifier
 
 .prime-identifier {
   background-color: #f0f0f0;
@@ -36,6 +19,31 @@
   color: #71767a;
 }
 
+// Navigation
+
+// Environment watermark above RS wordmark
+.rs-oktapreview-watermark {
+  transform: rotate(343deg);
+  position: absolute;
+  opacity: .6;
+  top: 1em;
+  color: crimson;
+  overflow: hidden;
+  font-weight: 900;
+}
+
+.prime-user-account {
+  font-size: .88rem;
+  vertical-align: middle;
+  line-height: 1.25rem;
+}
+
+#okta-sign-in {
+  margin-top: 0;
+}
+
+// RS hero
+
 .rs-hero {
   background-color: #f0f0f0;
 }
@@ -44,31 +52,68 @@
   align-items: center;
 }
 
+// RS HERO - INDEX PAGES
+
+.rs-hero__index {
+  border-bottom: 1px solid color('base-lighter');
+  padding-top: units(3);
+  padding-bottom: units(4);
+  margin-bottom: units(6);
+
+  h1, h2 {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0;
+  }
+
+  h2 {
+    color: color('gray-cool-50');
+    font-size: size('sans', 'xl');
+  }
+
+  .heading-alt {
+    font-size: size('sans', 'xl');
+    @include u-text('bold');
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0;
+
+    span {
+      color: color('gray-cool-50');
+    }
+  }
+}
+
+@media (max-width: $mobile) {
+  
+  .rs-hero__index {
+    padding-top: 0;
+
+    h1, h2 {
+      line-height: line-height('heading', 2);
+    }
+  }
+
+}
+
+// Tables
+
+.prime-table {
+  width: 100%;
+}
+
+.prime-table thead th {
+  border-bottom: 2px solid;
+}
+
+.prime-table tbody td, .prime-table tbody th {
+  border-color: #dfe1e2;
+}
+
 h3 img[src*="svg"] {
   vertical-align: text-top;
   margin-right: 5px;
   float: left;
-}
-
-#okta-sign-in {
-  margin-top: 0;
-}
-
-.rs-documentation ul li {
-  margin-bottom: 0.75rem;
-}
-
-.rs-documentation ul li ul li ul {
-  margin-top: 0.5rem;
-}
-
-.rs-documentation h3 {
-  margin-bottom: 0;
-  margin-top: 2rem;
-}
-
-.rs-documentation h4 {
-  margin-bottom: 0.5rem;
 }
 
 /// actions
@@ -114,78 +159,43 @@ ul.rb li .timestamp {
   font-weight: bold;
 }
 
-/// USDS overrides
+// Page styles
+// Content pages for documentation, support, etc 
 
-.prime-user-account {
-  font-size: .88rem;
-  vertical-align: middle;
-  line-height: 1.25rem;
-}
+.rs-documentation {
+  
 
-.prime-table {
-  width: 100%;
-}
+  h1, h2, h3, h4, h5, h6, p, ul, ol, .usa-alert {
+    @include u-measure(6);
+  }
 
-.prime-table thead th {
-  border-bottom: 2px solid;
-}
+  h1 {
+    margin: 0;
+  }
 
-.prime-table tbody td, .prime-table tbody th {
-  border-color: #dfe1e2;
-}
+  h2 {
+    font-size: size('sans', 'lg');
+    @include u-text('normal');
+    color: color('base');
+  }
 
-.prime-identifier {
-  background-color: #f0f0f0;
-  color: #1b1b1b;
-}
+  section, hr {
+    border-top: 1px solid color('base-lighter');
+    margin-top: units(4);
+    padding-top: units(3);
+  }
+  // for achieving the same as the above <section> class, but in .md content
+  hr {
+    height: 1px;
+    border-right: none;
+    border-bottom: none;
+    border-left: none;
+  }
 
-.prime-identifier .prime-identifier__domain {
-  color: #565c65;
-}
-
-.prime-identifier .prime-identifier__disclaimer a:link,
-.prime-identifier .prime-identifier__disclaimer a:visited,
-.prime-identifier .prime-identifier__disclaimer a:active {
-  color: #1b1b1b;
-}
-
-.prime-identifier .prime-identifier__disclaimer a:hover {
-  color: #71767a;
-}
-
-.rs-hero {
-  background-color: #f0f0f0;
-}
-
-.rs-hero__flex-center {
-  align-items: center;
-}
-
-h3 img[src*="svg"] {
-  vertical-align: text-top;
-  margin-right: 5px;
-  float: left;
-}
-
-#okta-sign-in {
-  margin-top: 0;
-}
-
-.rs-documentation ul li {
-  margin-bottom: 0.75rem;
-}
-
-.rs-documentation ul li ul li ul {
-  margin-top: 0.5rem;
-}
-
-.rs-documentation h3 {
-  margin-bottom: 0;
-  margin-top: 2rem;
-}
-
-.rs-documentation h4 {
-  margin-bottom: 0.5rem;
+  h3 {
+    margin-top: 0;
+    font-size: size('sans', 'lg');
+  }
 }
 
 .rs-documentation__values {
@@ -228,15 +238,7 @@ h3 img[src*="svg"] {
   }
 }
 
-.rs-oktapreview-watermark {
-    transform: rotate(343deg);
-    position: absolute;
-    opacity: .6;
-    top: 1em;
-    color: crimson;
-    overflow: hidden;
-    font-weight: 900;
-}
+// Where we're live
 
 .rs-livestate-two-column {
     list-style: unset;
