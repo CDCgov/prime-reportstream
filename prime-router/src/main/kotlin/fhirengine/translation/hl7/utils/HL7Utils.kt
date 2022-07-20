@@ -37,10 +37,15 @@ object HL7Utils : Logging {
 
             // Add the field delimiter and encoding characters.  Note these could still be overridden in the schema
             try {
+                check(type.simpleName.split("_").size == 2)
                 val terser = Terser(message)
                 val msh2Length = terser.getSegment("MSH").getLength(2)
                 terser.set("MSH-1", defaultHl7Delimiter)
                 terser.set("MSH-2", defaultHl7EncodingChars.take(msh2Length))
+                terser.set("MSH-9-1", type.simpleName.split("_")[0])
+                terser.set("MSH-9-2", type.simpleName.split("_")[1])
+                terser.set("MSH-9-3", type.simpleName)
+                terser.set("MSH-12", message.version)
             } catch (e: HL7Exception) {
                 logger.error("Could not set MSH delimiters.", e)
                 throw e
