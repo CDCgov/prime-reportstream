@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "dc150335-535a-4d65-b863-a296a9b38101",
+  "id" : "78d8295e-0388-4874-bd80-d8170307d2dd",
   "meta" : {
-    "lastUpdated" : "2022-07-20T13:02:34.073-04:00"
+    "lastUpdated" : "2022-07-20T15:20:46.699-04:00"
   },
   "identifier" : {
     "value" : "MT_COCAA_ORU_AAPHELR.1.6214638"
@@ -28,13 +28,13 @@
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
       "sender" : {
-        "reference" : "Organization/c5835841-c2b4-4313-a26f-fdde7a8c26e0"
+        "reference" : "Organization/daab6791-735d-4fbc-a1c7-cc034387046c"
       },
       "source" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-vendor-org",
           "valueReference" : {
-            "reference" : "Organization/9d37f3ca-27c9-496a-a571-3e98858a3753"
+            "reference" : "Organization/fc732df0-ab7b-4e78-a369-2ecc95f1dd1e"
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-install-date",
@@ -48,10 +48,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/c5835841-c2b4-4313-a26f-fdde7a8c26e0",
+    "fullUrl" : "Organization/daab6791-735d-4fbc-a1c7-cc034387046c",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "c5835841-c2b4-4313-a26f-fdde7a8c26e0",
+      "id" : "daab6791-735d-4fbc-a1c7-cc034387046c",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -63,10 +63,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/9d37f3ca-27c9-496a-a571-3e98858a3753",
+    "fullUrl" : "Organization/fc732df0-ab7b-4e78-a369-2ecc95f1dd1e",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "9d37f3ca-27c9-496a-a571-3e98858a3753",
+      "id" : "fc732df0-ab7b-4e78-a369-2ecc95f1dd1e",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -103,10 +103,10 @@
       "name" : "MEDITECH, Inc."
     }
   }, {
-    "fullUrl" : "Provenance/19aa6faf-ff72-4a34-a079-b0ed3181c7c9",
+    "fullUrl" : "Provenance/9acf203e-4fc5-4c1e-af9c-f8182c0455f9",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "19aa6faf-ff72-4a34-a079-b0ed3181c7c9",
+      "id" : "9acf203e-4fc5-4c1e-af9c-f8182c0455f9",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -134,15 +134,15 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/8d643386-490f-4ec4-8fc9-fe77d2f84cbc"
+          "reference" : "Device/70f85978-62c9-4118-8131-d3d4a883d138"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/8d643386-490f-4ec4-8fc9-fe77d2f84cbc",
+    "fullUrl" : "Device/70f85978-62c9-4118-8131-d3d4a883d138",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "8d643386-490f-4ec4-8fc9-fe77d2f84cbc",
+      "id" : "70f85978-62c9-4118-8131-d3d4a883d138",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -157,10 +157,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Observation/20b7f759-4633-4f47-92c4-2a1bae2055b7",
+    "fullUrl" : "Observation/5ac74865-29d5-42b4-aa03-842a0eda93b9",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "20b7f759-4633-4f47-92c4-2a1bae2055b7",
+      "id" : "5ac74865-29d5-42b4-aa03-842a0eda93b9",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -173,7 +173,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/f17fb200-601c-4412-9c81-3993de588006"
+          "reference" : "Organization/7c7bf61b-1f8e-4194-9ac8-a39714d5c568"
         }
       } ],
       "identifier" : [ {
@@ -207,22 +207,22 @@
         "text" : "Bacteria identified in Blood by Culture"
       },
       "subject" : {
-        "reference" : "Patient/cc13ffae-0a46-45ef-a96a-dce3519a1ca4"
+        "reference" : "Patient/a53d15be-991e-4fac-8181-488ec273b303"
       },
       "encounter" : {
-        "reference" : "Encounter/35452487-fce3-4d61-840a-fc2ee0522ce4"
+        "reference" : "Encounter/7411d920-81d6-4ad0-a77e-2af695141457"
       },
       "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
       "issued" : "2028-08-07T16:36:01-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/a29d9705-c20c-425e-a8b4-44ba5c810cff"
+        "reference" : "PractitionerRole/77fcd550-e45c-424e-8d99-a2046f7494d8"
       } ]
     }
   }, {
-    "fullUrl" : "Location/e14f0c56-42c2-48c5-a565-f216b70705fe",
+    "fullUrl" : "Location/c68d1afe-5e5a-43fa-a9ea-1f43a9e680be",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "e14f0c56-42c2-48c5-a565-f216b70705fe",
+      "id" : "c68d1afe-5e5a-43fa-a9ea-1f43a9e680be",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -235,10 +235,10 @@
       "name" : "ROSE MEDICAL CENTER "
     }
   }, {
-    "fullUrl" : "Practitioner/f74af330-5064-4e66-93eb-19426d4d26cb",
+    "fullUrl" : "Practitioner/b1b452a7-1fa6-4309-81f8-3ece1ec090f9",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "f74af330-5064-4e66-93eb-19426d4d26cb",
+      "id" : "b1b452a7-1fa6-4309-81f8-3ece1ec090f9",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -259,7 +259,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/e14f0c56-42c2-48c5-a565-f216b70705fe"
+          "reference" : "Location/c68d1afe-5e5a-43fa-a9ea-1f43a9e680be"
         }
       } ],
       "identifier" : [ {
@@ -282,10 +282,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/5b28550a-cd70-4e2f-876c-7d7349407b9d",
+    "fullUrl" : "Organization/a6440264-089c-4311-93db-2cbfc3c8ed3e",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "5b28550a-cd70-4e2f-876c-7d7349407b9d",
+      "id" : "a6440264-089c-4311-93db-2cbfc3c8ed3e",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -316,10 +316,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/a29d9705-c20c-425e-a8b4-44ba5c810cff",
+    "fullUrl" : "PractitionerRole/77fcd550-e45c-424e-8d99-a2046f7494d8",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "a29d9705-c20c-425e-a8b4-44ba5c810cff",
+      "id" : "77fcd550-e45c-424e-8d99-a2046f7494d8",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -330,10 +330,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/f74af330-5064-4e66-93eb-19426d4d26cb"
+        "reference" : "Practitioner/b1b452a7-1fa6-4309-81f8-3ece1ec090f9"
       },
       "organization" : {
-        "reference" : "Organization/5b28550a-cd70-4e2f-876c-7d7349407b9d"
+        "reference" : "Organization/a6440264-089c-4311-93db-2cbfc3c8ed3e"
       },
       "code" : [ {
         "coding" : [ {
@@ -343,10 +343,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/f17fb200-601c-4412-9c81-3993de588006",
+    "fullUrl" : "Organization/7c7bf61b-1f8e-4194-9ac8-a39714d5c568",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "f17fb200-601c-4412-9c81-3993de588006",
+      "id" : "7c7bf61b-1f8e-4194-9ac8-a39714d5c568",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -371,10 +371,10 @@
       "name" : "ROSE MEDICAL CENTER (MCOE)"
     }
   }, {
-    "fullUrl" : "Specimen/d71ce09f-603b-4c82-8d69-cefb322a0ec6",
+    "fullUrl" : "Specimen/f1802361-216e-42dc-b4e5-908bf9669ed3",
     "resource" : {
       "resourceType" : "Specimen",
-      "id" : "d71ce09f-603b-4c82-8d69-cefb322a0ec6",
+      "id" : "f1802361-216e-42dc-b4e5-908bf9669ed3",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -446,22 +446,18 @@
       } ]
     }
   }, {
-    "fullUrl" : "DiagnosticReport/3b551dd3-3312-48d1-9cc1-b3774b85c360",
+    "fullUrl" : "DiagnosticReport/82e54c9b-a715-49c3-bb2b-52e5e4748f2a",
     "resource" : {
       "resourceType" : "DiagnosticReport",
-      "id" : "3b551dd3-3312-48d1-9cc1-b3774b85c360",
+      "id" : "82e54c9b-a715-49c3-bb2b-52e5e4748f2a",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
           "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
         }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+        } ]
       },
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status",
@@ -520,7 +516,7 @@
         "value" : "21:AA:B0029251S"
       } ],
       "basedOn" : [ {
-        "reference" : "ServiceRequest/c4369892-3e28-4428-82a6-361607d43893"
+        "reference" : "ServiceRequest/00b20e20-4a9f-46ad-a336-273aed21aab2"
       } ],
       "status" : "preliminary",
       "code" : {
@@ -542,10 +538,10 @@
         "text" : "Bacteria identified in Blood by Culture"
       },
       "subject" : {
-        "reference" : "Patient/cc13ffae-0a46-45ef-a96a-dce3519a1ca4"
+        "reference" : "Patient/a53d15be-991e-4fac-8181-488ec273b303"
       },
       "encounter" : {
-        "reference" : "Encounter/35452487-fce3-4d61-840a-fc2ee0522ce4"
+        "reference" : "Encounter/7411d920-81d6-4ad0-a77e-2af695141457"
       },
       "effectivePeriod" : {
         "start" : "2028-08-02T02:52:01-06:00",
@@ -553,53 +549,45 @@
       },
       "issued" : "2021-08-10T06:25:00-06:00",
       "specimen" : [ {
-        "reference" : "Specimen/d71ce09f-603b-4c82-8d69-cefb322a0ec6"
+        "reference" : "Specimen/f1802361-216e-42dc-b4e5-908bf9669ed3"
       } ],
       "result" : [ {
-        "reference" : "Observation/20b7f759-4633-4f47-92c4-2a1bae2055b7"
+        "reference" : "Observation/5ac74865-29d5-42b4-aa03-842a0eda93b9"
       } ]
     }
   }, {
-    "fullUrl" : "Location/6e7fb6ea-3752-4b17-abf5-bf2f19572fbd",
+    "fullUrl" : "Location/e2315219-4206-49c7-a213-aed1d5571f03",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "6e7fb6ea-3752-4b17-abf5-bf2f19572fbd",
+      "id" : "e2315219-4206-49c7-a213-aed1d5571f03",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
           "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
         }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+        } ]
       }
     }
   }, {
-    "fullUrl" : "Practitioner/729c12aa-791b-458b-9647-fa3ceb06f748",
+    "fullUrl" : "Practitioner/14443fd3-79ce-4a8c-8711-7ddebbfa1edf",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "729c12aa-791b-458b-9647-fa3ceb06f748",
+      "id" : "14443fd3-79ce-4a8c-8711-7ddebbfa1edf",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
           "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
         }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+        } ]
       },
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/6e7fb6ea-3752-4b17-abf5-bf2f19572fbd"
+          "reference" : "Location/e2315219-4206-49c7-a213-aed1d5571f03"
         }
       } ],
       "identifier" : [ {
@@ -607,42 +595,34 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/caa6a795-885a-42a0-b1da-c2d5815db224",
+    "fullUrl" : "Location/244da23b-c287-4811-b3a6-c34c05e42b7d",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "caa6a795-885a-42a0-b1da-c2d5815db224",
+      "id" : "244da23b-c287-4811-b3a6-c34c05e42b7d",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
           "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
         }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+        } ]
       },
       "name" : "RML"
     }
   }, {
-    "fullUrl" : "Practitioner/fffff64a-5a9c-4ae6-877e-ac3eb32aad73",
+    "fullUrl" : "Practitioner/62300477-343f-4bf3-82aa-96249e4f426c",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "fffff64a-5a9c-4ae6-877e-ac3eb32aad73",
+      "id" : "62300477-343f-4bf3-82aa-96249e4f426c",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
           "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
         }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+        } ]
       },
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
@@ -659,14 +639,13 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
             "valueString" : "Hospital Line"
           } ],
-          "system" : "phone",
           "value" : "+1 303 436 2727",
           "use" : "work"
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/caa6a795-885a-42a0-b1da-c2d5815db224"
+          "reference" : "Location/244da23b-c287-4811-b3a6-c34c05e42b7d"
         }
       } ],
       "identifier" : [ {
@@ -702,22 +681,18 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/70d6c105-e1cf-4109-baa1-a1fa819ab3c6",
+    "fullUrl" : "Organization/9ea797b7-c653-4071-ac36-15df8b1edc0e",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "70d6c105-e1cf-4109-baa1-a1fa819ab3c6",
+      "id" : "9ea797b7-c653-4071-ac36-15df8b1edc0e",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
           "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
         }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+        } ]
       },
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
@@ -755,54 +730,45 @@
       } ],
       "contact" : [ {
         "telecom" : [ {
-          "system" : "phone",
           "value" : "+1 303 695 2653",
           "use" : "work"
         } ]
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/c2224625-9aaf-4310-a911-8bc8895729c5",
+    "fullUrl" : "PractitionerRole/db5dc749-b718-4990-9520-2c2e99c54459",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "c2224625-9aaf-4310-a911-8bc8895729c5",
+      "id" : "db5dc749-b718-4990-9520-2c2e99c54459",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
           "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
         }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+        } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/fffff64a-5a9c-4ae6-877e-ac3eb32aad73"
+        "reference" : "Practitioner/62300477-343f-4bf3-82aa-96249e4f426c"
       },
       "organization" : {
-        "reference" : "Organization/70d6c105-e1cf-4109-baa1-a1fa819ab3c6"
+        "reference" : "Organization/9ea797b7-c653-4071-ac36-15df8b1edc0e"
       }
     }
   }, {
-    "fullUrl" : "ServiceRequest/c4369892-3e28-4428-82a6-361607d43893",
+    "fullUrl" : "ServiceRequest/00b20e20-4a9f-46ad-a336-273aed21aab2",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "c4369892-3e28-4428-82a6-361607d43893",
+      "id" : "00b20e20-4a9f-46ad-a336-273aed21aab2",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
           "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
         }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+        } ]
       },
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/start-of-service",
@@ -824,7 +790,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
         "valueReference" : {
-          "reference" : "Practitioner/729c12aa-791b-458b-9647-fa3ceb06f748"
+          "reference" : "Practitioner/14443fd3-79ce-4a8c-8711-7ddebbfa1edf"
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
@@ -909,12 +875,12 @@
         "text" : "Bacteria identified in Blood by Culture"
       },
       "subject" : {
-        "reference" : "Patient/cc13ffae-0a46-45ef-a96a-dce3519a1ca4"
+        "reference" : "Patient/a53d15be-991e-4fac-8181-488ec273b303"
       },
       "occurrenceDateTime" : "2021-08-03T23:50:00Z",
       "authoredOn" : "2028-08-08T09:28:00Z",
       "requester" : {
-        "reference" : "PractitionerRole/c2224625-9aaf-4310-a911-8bc8895729c5"
+        "reference" : "PractitionerRole/db5dc749-b718-4990-9520-2c2e99c54459"
       },
       "reasonCode" : [ {
         "extension" : [ {
@@ -936,77 +902,30 @@
       } ]
     }
   }, {
-    "fullUrl" : "Patient/cc13ffae-0a46-45ef-a96a-dce3519a1ca4",
+    "fullUrl" : "Patient/a53d15be-991e-4fac-8181-488ec273b303",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "cc13ffae-0a46-45ef-a96a-dce3519a1ca4",
+      "id" : "a53d15be-991e-4fac-8181-488ec273b303",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
           "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
         }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "lastUpdated" : "2021-08-09T08:52:00-06:00"
+        } ]
       },
       "extension" : [ {
-        "url" : "http://hl7.org/fhir/StructureDefinition/patient-religion",
-        "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "text" : "Nonreligious"
-            }
-          } ],
-          "coding" : [ {
-            "system" : "http://terminology.hl7.org/CodeSystem/v3-ReligiousAffiliation",
-            "display" : "Invalid input: code 'NOE' could not be mapped to values in system 'http://terminology.hl7.org/CodeSystem/v3-ReligiousAffiliation' with original display 'null' and version 'null'."
-          } ],
-          "text" : "Nonreligious"
-        }
-      }, {
         "url" : "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
-        "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "W",
-                "display" : "White"
-              } ]
-            }
-          } ],
-          "coding" : [ {
-            "system" : "http://terminology.hl7.org/CodeSystem/v3-Race",
-            "version" : "L",
-            "code" : "2106-3"
-          } ],
-          "text" : "White"
-        }
+        "valueCodeableConcept" : { }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes",
         "valueAnnotation" : {
           "extension" : [ {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "C",
-                    "display" : "Comment"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "HL70364",
-                "version" : "L",
                 "code" : "RE"
               } ],
               "text" : "Remark"
@@ -1024,113 +943,10 @@
         }
       }, {
         "url" : "http://terminology.hl7.org/ValueSet/v2-0189",
-        "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "2",
-                "display" : "Not Hispanic or Latin"
-              } ]
-            }
-          } ],
-          "coding" : [ {
-            "system" : "HL70189",
-            "version" : "L",
-            "code" : "N"
-          } ],
-          "text" : "Not Hispanic or Latino"
-        }
+        "valueCodeableConcept" : { }
       }, {
         "url" : "http://hl7.org/fhir/StructureDefinition/patient-animal",
-        "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "Human",
-                "display" : "Human"
-              } ]
-            }
-          } ],
-          "coding" : [ {
-            "system" : "http://snomed.info/sct",
-            "version" : "L",
-            "code" : "337915000"
-          } ],
-          "text" : "Homo sapiens (organism)"
-        }
-      } ],
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
-          "valueOid" : "urn:oid:2.16.840.1.114222.4.3.2.2.1.321.111"
-        } ],
-        "type" : {
-          "coding" : [ {
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code" : "MR",
-            "display" : "Medical record number"
-          } ]
-        },
-        "system" : "urn:id:MEDITECH",
-        "value" : "100001"
-      }, {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
-          "valueOid" : "urn:oid:2.16.840.1.114222.4.3.2.2.1.321.111"
-        } ],
-        "type" : {
-          "coding" : [ {
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code" : "SS",
-            "display" : "Social Security number"
-          } ]
-        },
-        "system" : "urn:id:MEDITECH",
-        "value" : "285-64-4175"
-      }, {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
-          "valueOid" : "urn:oid:2.16.840.1.114222.4.3.2.2.1.321.111"
-        } ],
-        "type" : {
-          "coding" : [ {
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code" : "PI",
-            "display" : "Patient internal identifier"
-          } ]
-        },
-        "system" : "urn:id:MEDITECH",
-        "value" : "X605236"
-      }, {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
-          "valueOid" : "urn:oid:2.16.840.1.114222.4.3.2.2.1.321.111"
-        } ],
-        "type" : {
-          "coding" : [ {
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code" : "AN",
-            "display" : "Account number"
-          } ]
-        },
-        "system" : "urn:id:MEDITECH",
-        "value" : "E40014904640"
+        "valueCodeableConcept" : { }
       } ],
       "name" : [ {
         "use" : "official",
@@ -1138,101 +954,38 @@
         "family" : "BIERLY",
         "given" : [ "LONNIE" ]
       } ],
-      "telecom" : [ {
-        "system" : "phone",
-        "value" : "+1 303 693 0111",
-        "use" : "home"
-      }, {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
-          "valueString" : "Business"
-        } ],
-        "system" : "phone",
-        "value" : "+1 303 999 9999",
-        "use" : "work"
-      } ],
-      "gender" : "male",
-      "birthDate" : "1936-10-23",
       "deceasedBoolean" : false,
-      "address" : [ {
-        "use" : "home",
-        "line" : [ "4673 ELM ST", "CHERRY CRK NURSING CTR" ],
-        "city" : "CAPITAN",
-        "state" : "NM",
-        "postalCode" : "80014",
-        "country" : "USA"
-      } ],
-      "maritalStatus" : {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
-          "code" : "S",
-          "display" : "Never Married"
-        } ]
-      },
       "contact" : [ {
         "name" : {
-          "use" : "official",
           "text" : "GENARO SURYAN",
           "family" : "SURYAN",
           "given" : [ "GENARO" ]
         },
-        "telecom" : [ {
-          "system" : "phone",
-          "value" : "+1 720 301 3954",
-          "use" : "home"
-        } ],
-        "address" : {
-          "use" : "home",
-          "line" : [ "4861 20TH AVE" ],
-          "city" : "THUNDER MOUNTAIN",
-          "state" : "NV",
-          "postalCode" : "99999",
-          "country" : "USA"
-        },
         "organization" : {
-          "reference" : "Organization/3a0b6fba-cd29-4a80-b99d-7e5e45edc3c4"
+          "reference" : "Organization/8e26357a-91b4-4a6c-b04f-a84370e4d6f1"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/3a0b6fba-cd29-4a80-b99d-7e5e45edc3c4",
+    "fullUrl" : "Organization/8e26357a-91b4-4a6c-b04f-a84370e4d6f1",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "3a0b6fba-cd29-4a80-b99d-7e5e45edc3c4",
+      "id" : "8e26357a-91b4-4a6c-b04f-a84370e4d6f1",
       "meta" : {
         "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
-          "valueString" : "COCAA"
-        }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
           "valueId" : "MT_COCAA_ORU_AAPHELR.1.6214638"
         }, {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "lastUpdated" : "2021-08-09T08:52:00-06:00"
-      },
-      "contact" : [ {
-        "telecom" : [ {
-          "system" : "phone",
-          "value" : "+1 720 301 3954",
-          "use" : "work"
-        } ],
-        "address" : {
-          "use" : "home",
-          "line" : [ "4861 20TH AVE" ],
-          "city" : "AURORA",
-          "state" : "CO",
-          "postalCode" : "99999",
-          "country" : "USA"
-        }
-      } ]
+        } ]
+      }
     }
   }, {
-    "fullUrl" : "Encounter/35452487-fce3-4d61-840a-fc2ee0522ce4",
+    "fullUrl" : "Encounter/7411d920-81d6-4ad0-a77e-2af695141457",
     "resource" : {
       "resourceType" : "Encounter",
-      "id" : "35452487-fce3-4d61-840a-fc2ee0522ce4",
+      "id" : "7411d920-81d6-4ad0-a77e-2af695141457",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -1271,7 +1024,7 @@
         } ]
       },
       "subject" : {
-        "reference" : "Patient/cc13ffae-0a46-45ef-a96a-dce3519a1ca4"
+        "reference" : "Patient/a53d15be-991e-4fac-8181-488ec273b303"
       },
       "participant" : [ {
         "type" : [ {
@@ -1282,7 +1035,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/3fce1361-12ec-45e8-a8f6-df4ffd56b6be"
+          "reference" : "Practitioner/1820b607-3611-44ea-9bc2-5fea52305c91"
         }
       }, {
         "type" : [ {
@@ -1293,7 +1046,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/d8306768-08ff-4439-b0fe-35dbb979eced"
+          "reference" : "Practitioner/b928dade-85c8-4282-b5af-949fb95714b4"
         }
       }, {
         "type" : [ {
@@ -1304,7 +1057,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/775de3d0-30a7-46b3-ac51-769a517d9636"
+          "reference" : "Practitioner/2b464bee-1003-4ff2-af25-8cec53fa3411"
         }
       }, {
         "type" : [ {
@@ -1315,7 +1068,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/ee8ce1fb-e1e5-458b-a71a-ffc38a69eec8"
+          "reference" : "Practitioner/9ee2b7cd-1571-4bd5-b5a8-0d373a0447c0"
         }
       }, {
         "type" : [ {
@@ -1326,7 +1079,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/10d8888d-52d5-4c7a-8beb-70137963df73"
+          "reference" : "Practitioner/40b5ab59-0553-4c8c-8190-a43c2211bc82"
         }
       }, {
         "type" : [ {
@@ -1337,7 +1090,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/920971c3-ce8c-4fe6-8d4b-0737261c069e"
+          "reference" : "Practitioner/8612d358-2b91-4919-aaef-914ea780d963"
         }
       } ],
       "period" : {
@@ -1357,16 +1110,16 @@
       },
       "location" : [ {
         "location" : {
-          "reference" : "Location/916d658a-da70-41d1-a6c7-4d9f9566498d"
+          "reference" : "Location/785c9909-e76d-4f1c-8bb4-2a3d05712146"
         },
         "status" : "active"
       } ]
     }
   }, {
-    "fullUrl" : "Location/5a45fb01-1dd5-4571-a368-dcf9057aae06",
+    "fullUrl" : "Location/e35ae4eb-fcba-4779-bf7b-45b58605148a",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "5a45fb01-1dd5-4571-a368-dcf9057aae06",
+      "id" : "e35ae4eb-fcba-4779-bf7b-45b58605148a",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -1378,10 +1131,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/3fce1361-12ec-45e8-a8f6-df4ffd56b6be",
+    "fullUrl" : "Practitioner/1820b607-3611-44ea-9bc2-5fea52305c91",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "3fce1361-12ec-45e8-a8f6-df4ffd56b6be",
+      "id" : "1820b607-3611-44ea-9bc2-5fea52305c91",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -1402,7 +1155,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/5a45fb01-1dd5-4571-a368-dcf9057aae06"
+          "reference" : "Location/e35ae4eb-fcba-4779-bf7b-45b58605148a"
         }
       } ],
       "identifier" : [ {
@@ -1428,10 +1181,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/c7aba822-adc5-4498-a558-ea0c7b04570b",
+    "fullUrl" : "Location/fd9feed8-1326-4cb0-9692-90743ee42e6a",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "c7aba822-adc5-4498-a558-ea0c7b04570b",
+      "id" : "fd9feed8-1326-4cb0-9692-90743ee42e6a",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -1443,10 +1196,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/d8306768-08ff-4439-b0fe-35dbb979eced",
+    "fullUrl" : "Practitioner/b928dade-85c8-4282-b5af-949fb95714b4",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "d8306768-08ff-4439-b0fe-35dbb979eced",
+      "id" : "b928dade-85c8-4282-b5af-949fb95714b4",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -1467,7 +1220,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/c7aba822-adc5-4498-a558-ea0c7b04570b"
+          "reference" : "Location/fd9feed8-1326-4cb0-9692-90743ee42e6a"
         }
       } ],
       "identifier" : [ {
@@ -1493,10 +1246,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/d7261eab-8991-40c3-911a-1856b3018095",
+    "fullUrl" : "Location/7808939b-00da-48dc-937b-da9ca330c097",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "d7261eab-8991-40c3-911a-1856b3018095",
+      "id" : "7808939b-00da-48dc-937b-da9ca330c097",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -1508,10 +1261,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/775de3d0-30a7-46b3-ac51-769a517d9636",
+    "fullUrl" : "Practitioner/2b464bee-1003-4ff2-af25-8cec53fa3411",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "775de3d0-30a7-46b3-ac51-769a517d9636",
+      "id" : "2b464bee-1003-4ff2-af25-8cec53fa3411",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -1532,7 +1285,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/d7261eab-8991-40c3-911a-1856b3018095"
+          "reference" : "Location/7808939b-00da-48dc-937b-da9ca330c097"
         }
       } ],
       "identifier" : [ {
@@ -1558,10 +1311,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/01913125-b0f2-4e4a-bd57-462424a983a6",
+    "fullUrl" : "Location/5b7eb674-c57a-42f6-8359-9414f7aabc26",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "01913125-b0f2-4e4a-bd57-462424a983a6",
+      "id" : "5b7eb674-c57a-42f6-8359-9414f7aabc26",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -1573,10 +1326,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/ee8ce1fb-e1e5-458b-a71a-ffc38a69eec8",
+    "fullUrl" : "Practitioner/9ee2b7cd-1571-4bd5-b5a8-0d373a0447c0",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "ee8ce1fb-e1e5-458b-a71a-ffc38a69eec8",
+      "id" : "9ee2b7cd-1571-4bd5-b5a8-0d373a0447c0",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -1597,7 +1350,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/01913125-b0f2-4e4a-bd57-462424a983a6"
+          "reference" : "Location/5b7eb674-c57a-42f6-8359-9414f7aabc26"
         }
       } ],
       "identifier" : [ {
@@ -1619,10 +1372,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/905b4d9e-4436-48dd-b496-91388d9b4981",
+    "fullUrl" : "Location/69534ea2-661e-4063-ab52-7f9f91a35353",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "905b4d9e-4436-48dd-b496-91388d9b4981",
+      "id" : "69534ea2-661e-4063-ab52-7f9f91a35353",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -1634,10 +1387,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/10d8888d-52d5-4c7a-8beb-70137963df73",
+    "fullUrl" : "Practitioner/40b5ab59-0553-4c8c-8190-a43c2211bc82",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "10d8888d-52d5-4c7a-8beb-70137963df73",
+      "id" : "40b5ab59-0553-4c8c-8190-a43c2211bc82",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -1658,7 +1411,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/905b4d9e-4436-48dd-b496-91388d9b4981"
+          "reference" : "Location/69534ea2-661e-4063-ab52-7f9f91a35353"
         }
       } ],
       "identifier" : [ {
@@ -1680,10 +1433,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/8b1aeca6-d72b-4c5a-8fbe-bec7377bf283",
+    "fullUrl" : "Location/1ceed676-e892-48c8-bdf4-2ccbe34210c2",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "8b1aeca6-d72b-4c5a-8fbe-bec7377bf283",
+      "id" : "1ceed676-e892-48c8-bdf4-2ccbe34210c2",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -1695,10 +1448,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/920971c3-ce8c-4fe6-8d4b-0737261c069e",
+    "fullUrl" : "Practitioner/8612d358-2b91-4919-aaef-914ea780d963",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "920971c3-ce8c-4fe6-8d4b-0737261c069e",
+      "id" : "8612d358-2b91-4919-aaef-914ea780d963",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",
@@ -1719,7 +1472,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/8b1aeca6-d72b-4c5a-8fbe-bec7377bf283"
+          "reference" : "Location/1ceed676-e892-48c8-bdf4-2ccbe34210c2"
         }
       } ],
       "identifier" : [ {
@@ -1745,10 +1498,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/916d658a-da70-41d1-a6c7-4d9f9566498d",
+    "fullUrl" : "Location/785c9909-e76d-4f1c-8bb4-2a3d05712146",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "916d658a-da70-41d1-a6c7-4d9f9566498d",
+      "id" : "785c9909-e76d-4f1c-8bb4-2a3d05712146",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id",

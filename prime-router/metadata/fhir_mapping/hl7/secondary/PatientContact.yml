@@ -43,6 +43,7 @@ address:
   specs: NK1.4
 
 telecom:
+  condition: $textValue NOT_NULL
   valueOf: datatype/ContactPoint
   generateList: true
   expressionType: resource
