@@ -1,7 +1,7 @@
 import React from "react";
 
-import { MarkdownDirectory } from "../../components/Markdown/MarkdownDirectory";
-import StaticPagesFromDirectories from "../../components/Markdown/StaticPagesFromDirectories";
+import { MarkdownDirectory } from "../../components/Content/MarkdownDirectory";
+import StaticPagesFromDirectories from "../../components/Content/StaticPagesFromDirectories";
 import may2022 from "../../content/built-for-you/2022-may.md";
 import june2022 from "../../content/built-for-you/2022-june.md";
 import DropdownNav from "../../components/header/DropdownNav";

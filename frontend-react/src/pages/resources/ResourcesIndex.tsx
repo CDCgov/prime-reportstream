@@ -4,14 +4,14 @@ import { Route, Switch } from "react-router-dom";
 import {
     ElementDirectory,
     GeneratedRouter,
-} from "../../components/Markdown/MarkdownDirectory";
+} from "../../components/Content/MarkdownDirectory";
 import ReferralGuide from "../../content/resources/referral-guide.md";
-import { MarkdownContent } from "../../components/Markdown/MarkdownContent";
+import { MarkdownContent } from "../../components/Content/MarkdownContent";
 import {
     contentContainer,
     ContentDirectoryTools,
     SlugParams,
-} from "../../components/Markdown/DirectoryGenerationTools";
+} from "../../components/Content/DirectoryGenerationTools";
 import { IACardList } from "../../components/IACard";
 
 import ProgrammersGuide from "./programmers-guide/ProgrammersGuide";

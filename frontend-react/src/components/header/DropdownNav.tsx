@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 
-import { MarkdownDirectory } from "../Markdown/MarkdownDirectory";
+import { MarkdownDirectory } from "../Content/MarkdownDirectory";
 import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 
 type NonStaticOption = Omit<MarkdownDirectory, "files" | "desc">;
