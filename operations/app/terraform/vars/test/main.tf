@@ -162,6 +162,17 @@ module "front_door" {
   application_key_vault_id    = module.key_vault.application_key_vault_id
 }
 
+module "sftp" {
+  source                      = "../../modules/sftp"
+  environment                 = local.init.environment
+  resource_group              = local.init.resource_group_name
+  resource_prefix             = local.init.resource_prefix
+  location                    = local.init.location
+  key_vault_id                = module.key_vault.application_key_vault_id
+  terraform_caller_ip_address = local.network.terraform_caller_ip_address
+  nat_gateway_id              = module.nat_gateway.nat_gateway_id
+}
+
 module "sftp_container" {
   count = local.init.environment != "prod" ? 1 : 0
 
@@ -232,4 +243,22 @@ module "application_insights" {
   postgres_server_id          = module.database.postgres_server_id
   service_plan_id             = module.app_service_plan.service_plan_id
   workspace_id                = module.log_analytics_workspace.law_id
+}
+
+##########
+## 06-Integration
+##########
+
+module "data_factory" {
+  source                       = "../../modules/data_factory"
+  environment                  = local.init.environment
+  resource_group               = local.init.resource_group_name
+  resource_prefix              = local.init.resource_prefix
+  location                     = local.init.location
+  key_vault_id                 = module.key_vault.application_key_vault_id
+  terraform_caller_ip_address  = local.network.terraform_caller_ip_address
+  sa_primary_connection_string = module.storage.sa_primary_connection_string
+  storage_account_id           = module.storage.storage_account_id
+  sftp_storage                 = module.sftp.sftp_storage
+  sftp_shares                  = module.sftp.sftp_shares
 }

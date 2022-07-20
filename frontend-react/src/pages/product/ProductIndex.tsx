@@ -6,14 +6,14 @@ import {
     ContentDirectory,
     MarkdownDirectory,
     ElementDirectory,
-} from "../../components/Markdown/MarkdownDirectory";
+} from "../../components/Content/MarkdownDirectory";
 import ProductIndexMd from "../../content/product/product-index.md";
 import ReleaseNotesMd from "../../content/product/release-notes.md";
-import StaticPagesFromDirectories from "../../components/Markdown/StaticPagesFromDirectories";
+import StaticPagesFromDirectories from "../../components/Content/StaticPagesFromDirectories";
 import {
     ContentDirectoryTools,
     SlugParams,
-} from "../../components/Markdown/DirectoryGenerationTools";
+} from "../../components/Content/PageGenerationTools";
 
 import { WhereWereLiveIa } from "./WhereWereLive";
 

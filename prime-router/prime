@@ -13,7 +13,7 @@
 #
 # This script should work on both a Mac and the Dev Docker container
 
-version=0.1-SNAPSHOT
+version=0.2-SNAPSHOT
 fat_jar_name=prime-router-$version-all.jar
 lib_dir=build/libs
 
