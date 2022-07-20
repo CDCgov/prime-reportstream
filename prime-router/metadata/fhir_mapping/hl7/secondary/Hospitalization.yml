@@ -6,6 +6,7 @@ preAdmissionIdentifier:
 
 admitSource:
    valueOf: datatype/CodeableConcept
+   condition: $textValue NOT_NULL
    expressionType: resource
    specs: PV1.14
 
@@ -37,5 +38,6 @@ specialArrangement:
 
 dischargeDisposition:
    valueOf: datatype/CodeableConcept
+   condition: $textValue NOT_NULL
    expressionType: resource
    specs: PV1.36

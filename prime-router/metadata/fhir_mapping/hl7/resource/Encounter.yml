@@ -51,6 +51,7 @@ type:
    specs: PV1.4
 
 serviceType:
+   condition: $textValue NOT_NULL
    valueOf: datatype/CodeableConcept
    expressionType: resource
    specs: PV1.10
