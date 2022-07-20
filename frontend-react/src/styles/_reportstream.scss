@@ -1,162 +1,162 @@
 // USWDS identifier
 
 .prime-identifier {
-  background-color: #f0f0f0;
-  color: #1b1b1b;
+    background-color: #f0f0f0;
+    color: #1b1b1b;
 }
 
 .prime-identifier .prime-identifier__domain {
-  color: #565c65;
+    color: #565c65;
 }
 
 .prime-identifier .prime-identifier__disclaimer a:link,
 .prime-identifier .prime-identifier__disclaimer a:visited,
 .prime-identifier .prime-identifier__disclaimer a:active {
-  color: #1b1b1b;
+    color: #1b1b1b;
 }
 
 .prime-identifier .prime-identifier__disclaimer a:hover {
-  color: #71767a;
+    color: #71767a;
 }
 
 // Navigation
 
 // Environment watermark above RS wordmark
 .rs-oktapreview-watermark {
-  transform: rotate(343deg);
-  position: absolute;
-  opacity: .6;
-  top: 1em;
-  color: crimson;
-  overflow: hidden;
-  font-weight: 900;
+    transform: rotate(343deg);
+    position: absolute;
+    opacity: .6;
+    top: 1em;
+    color: crimson;
+    overflow: hidden;
+    font-weight: 900;
 }
 
 .prime-user-account {
-  font-size: .88rem;
-  vertical-align: middle;
-  line-height: 1.25rem;
+    font-size: .88rem;
+    vertical-align: middle;
+    line-height: 1.25rem;
 }
 
 #okta-sign-in {
-  margin-top: 0;
+    margin-top: 0;
 }
 
 // RS hero
 
 .rs-hero {
-  background-color: #f0f0f0;
+    background-color: #f0f0f0;
 }
 
 .rs-hero__flex-center {
-  align-items: center;
+    align-items: center;
 }
 
 // RS HERO - INDEX PAGES
 
 .rs-hero__index {
-  border-bottom: 1px solid color('base-lighter');
-  padding-top: units(3);
-  padding-bottom: units(4);
-  margin-bottom: units(6);
+    border-bottom: 1px solid color('base-lighter');
+    padding-top: units(3);
+    padding-bottom: units(4);
+    margin-bottom: units(6);
 
-  h1, h2 {
-    margin-top: 0;
-    margin-bottom: 0;
-    padding: 0;
-  }
-
-  h2 {
-    color: color('gray-cool-50');
-    font-size: size('sans', 'xl');
-  }
-
-  .heading-alt {
-    font-size: size('sans', 'xl');
-    @include u-text('bold');
-    margin-top: 0;
-    margin-bottom: 0;
-    padding: 0;
-
-    span {
-      color: color('gray-cool-50');
+    h1, h2 {
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 0;
     }
-  }
+
+    h2 {
+        color: color('gray-cool-50');
+        font-size: size('sans', 'xl');
+    }
+
+    .heading-alt {
+        font-size: size('sans', 'xl');
+        @include u-text('bold');
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 0;
+
+        span {
+            color: color('gray-cool-50');
+        }
+    }
 }
 
 @media (max-width: $mobile) {
 
-  .rs-hero__index {
-    padding-top: 0;
+    .rs-hero__index {
+        padding-top: 0;
 
-    h1, h2 {
-      line-height: line-height('heading', 2);
+        h1, h2 {
+            line-height: line-height('heading', 2);
+        }
     }
-  }
 
 }
 
 // Tables
 
 .prime-table {
-  width: 100%;
+    width: 100%;
 }
 
 .prime-table thead th {
-  border-bottom: 2px solid;
+    border-bottom: 2px solid;
 }
 
 .prime-table tbody td, .prime-table tbody th {
-  border-color: #dfe1e2;
+    border-color: #dfe1e2;
 }
 
 h3 img[src*="svg"] {
-  vertical-align: text-top;
-  margin-right: 5px;
-  float: left;
+    vertical-align: text-top;
+    margin-right: 5px;
+    float: left;
 }
 
 /// actions
 .rb-container {
-  margin: auto;
-  display: block;
-  position: relative;
+    margin: auto;
+    display: block;
+    position: relative;
 }
 
 .rb-container ul.rb {
-  margin: 0 0;
-  padding: 0;
-  display: inline-block;
+    margin: 0 0;
+    padding: 0;
+    display: inline-block;
 }
 
 .rb-container ul.rb li {
-  list-style: none;
-  margin: auto;
-  min-height: 50px;
-  border-left: 1px dashed #000;
-  padding: 0 0 20px 30px;
-  position: relative;
+    list-style: none;
+    margin: auto;
+    min-height: 50px;
+    border-left: 1px dashed #000;
+    padding: 0 0 20px 30px;
+    position: relative;
 }
 
 .rb-container ul.rb li:last-child {
-  border-left: 0;
+    border-left: 0;
 }
 
 .rb-container ul.rb li::before {
-  position: absolute;
-  left: -10px;
-  content: " ";
-  border: 8px solid rgba(0, 0, 0, 1);
-  border-radius: 500%;
-  background: #000000;
-  height: 20px;
-  width: 20px;
+    position: absolute;
+    left: -10px;
+    content: " ";
+    border: 8px solid rgba(0, 0, 0, 1);
+    border-radius: 500%;
+    background: #000000;
+    height: 20px;
+    width: 20px;
 }
 
 
 ul.rb li .timestamp {
-  position: relative;
-  font-weight: bold;
+    position: relative;
+    font-weight: bold;
 }
 
 // Page styles
@@ -165,77 +165,78 @@ ul.rb li .timestamp {
 .rs-documentation {
 
 
-  h1, h2, h3, h4, h5, h6, p, ul, ol, .usa-alert {
-    @include u-measure(6);
-  }
+    h1, h2, h3, h4, h5, h6, p, ul, ol, .usa-alert {
+        @include u-measure(6);
+    }
 
-  h1 {
-    margin: 0;
-  }
+    h1 {
+        margin: 0;
+    }
 
-  h2 {
-    font-size: size('sans', 'lg');
-    @include u-text('normal');
-    color: color('base');
-  }
+    h2 {
+        font-size: size('sans', 'lg');
+        @include u-text('normal');
+        color: color('base');
+    }
 
-  section, hr {
-    border-top: 1px solid color('base-lighter');
-    margin-top: units(4);
-    padding-top: units(3);
-  }
-  // for achieving the same as the above <section> class, but in .md content
-  hr {
-    height: 1px;
-    border-right: none;
-    border-bottom: none;
-    border-left: none;
-  }
+    section, hr {
+        border-top: 1px solid color('base-lighter');
+        margin-top: units(4);
+        padding-top: units(3);
+    }
 
-  h3 {
-    margin-top: 0;
-    font-size: size('sans', 'lg');
-  }
+    // for achieving the same as the above <section> class, but in .md content
+    hr {
+        height: 1px;
+        border-right: none;
+        border-bottom: none;
+        border-left: none;
+    }
+
+    h3 {
+        margin-top: 0;
+        font-size: size('sans', 'lg');
+    }
 }
 
 .rs-documentation__values {
 
-  code {
-    display: inline-block;
-    padding-left: units(1);
-    padding-right: units(1);
-    border-radius: 2px;
-    @include u-bg('gray-5');
-    @include u-text('gray-90');
-  }
-
-  .value-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    li {
-      margin: 0 0 units(1) 0;
+    code {
+        display: inline-block;
+        padding-left: units(1);
+        padding-right: units(1);
+        border-radius: 2px;
+        @include u-bg('gray-5');
+        @include u-text('gray-90');
     }
-  }
+
+    .value-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+            margin: 0 0 units(1) 0;
+        }
+    }
 }
 
 .rs-blockquote__documentation {
-  @include u-bg('base-lightest');
-  @include u-padding-x(3);
-  @include u-padding-y(1);
-  @include u-margin(0);
+    @include u-bg('base-lightest');
+    @include u-padding-x(3);
+    @include u-padding-y(1);
+    @include u-margin(0);
 }
 
 .rs-process-list__documentation {
 
-  img {
-    display: block;
-    max-width: 15rem;
-    @include u-border(1px, 'base-lighter');
-    margin-top: units(4);
+    img {
+        display: block;
+        max-width: 15rem;
+        @include u-border(1px, 'base-lighter');
+        margin-top: units(4);
 
-  }
+    }
 }
 
 // Where we're live
@@ -247,7 +248,7 @@ ul.rb li .timestamp {
     column-gap: 1.25em;
 }
 
-.rs-livestate-two-column>* {
+.rs-livestate-two-column > * {
     list-style: unset;
     display: inline-block;
     width: 80%;
@@ -275,31 +276,35 @@ ul.rb li .timestamp {
 
     .rs-spinner-tiny {
         zoom: 0.2;
-        display:inline-flex;
+        display: inline-flex;
         align-content: center;
     }
 }
 
 .usa-modal-wrapper {
     &.is-visible {
-        z-index: var(--rs-zindex-top);  // default is 99999, want toast over top.
+        z-index: var(--rs-zindex-top); // default is 99999, want toast over top.
     }
 }
 
 .rs-compare-modal {
     max-width: calc(var(--rs-compare-modal-width));
     height: var(--rs-compare-modal-height + 12em);
+
     .usa-modal__main {
-        width:100%;
-        max-width:90em;
+        width: 100%;
+        max-width: 90em;
         padding: 0;
     }
+
     .usa-modal__content {
         padding: 1em;
     }
+
     .usa-modal__heading {
         margin: 0;
     }
+
     .usa-modal__close {
         margin: 0;
         position: absolute;
@@ -326,12 +331,12 @@ ul.rb li .timestamp {
     font-family: monospace;
     font-size: 105%;
     color: black;
-    background-color: rgba(0,0,0,0); /* show the highlight behind it */
+    background-color: rgba(0, 0, 0, 0); /* show the highlight behind it */
 }
 
 /* just the right side (has two child divs overlapping aligned) */
 .rs-editable-stacked-container {
-    display: grid;       /* positioning the background and edit on top of each other */
+    display: grid; /* positioning the background and edit on top of each other */
     grid-template-areas: "inner-div";
     place-items: center;
     width: 50%;
@@ -340,8 +345,8 @@ ul.rb li .timestamp {
 
 .rs-editable-compare-background {
     grid-area: inner-div;
-    color: rgba(0,0,0,0); /* hide font we only want background colors */
-    border: 2px rgba(0,0,0,0) solid;    /* takes up same exact same space, just invisible */
+    color: rgba(0, 0, 0, 0); /* hide font we only want background colors */
+    border: 2px rgba(0, 0, 0, 0) solid; /* takes up same exact same space, just invisible */
 
     // enable these to debug alignment.
     // color: rgba(255,0,0,0.5); /* hide font we only want background colors */
@@ -349,6 +354,7 @@ ul.rb li .timestamp {
     width: 100%;
     z-index: 2;
     pointer-events: none;
+
     mark {
         border-radius: 3px;
         color: transparent;
@@ -388,10 +394,11 @@ ul.rb li .timestamp {
 }
 
 .rs-full-width-form {
-  max-width: 100%;
-  .usa-file-input {
     max-width: 100%;
-  }
+
+    .usa-file-input {
+        max-width: 100%;
+    }
 }
 
 .fixed-tooltip {
@@ -423,134 +430,213 @@ pre {
 }
 
 .rs-pagination-no-button {
-  @include u-bg('white');
-  cursor: pointer;
+    @include u-bg('white');
+    cursor: pointer;
 }
 
 .rs-pagination-arrow-button {
-  align-items: center;
-  display: inline-flex;
+    align-items: center;
+    display: inline-flex;
 }
 
-/* used by the receiver dashboard */
-.rs-admindash-progress-row {
-    width: 50em;
-    height: 5em;
-    flex-wrap: nowrap;
-    padding-left: 0;
-    padding-right: 0;
-    overflow-y: hidden;
+/* used by the receiver dashboard
+    SEE diagrams in AdminRecieverDashboard to understand layout */
+.rs-admindash-component {
+    width: calc(100vw - 10em);
+    border-bottom: #5d5d52 1px solid;
+
+    .perreceiver-row {
+        flex-wrap: nowrap;
+        width: 100%;
+        border-top: #5d5d52 1px solid;
+        padding-top: 2px;
+
+        .title-column {
+            width: 12em;
+            min-width: 12em;
+            height: 5em;
+            overflow: hidden;
+
+            .title-text {
+                flex-wrap: nowrap;
+                text-overflow: ellipsis;
+                font-weight: bolder;
+                font-size: small;
+                line-height: 150%;
+                min-height: 4.5em;
+                background-color: white;
+                margin: 6px;
+            }
+        }
+
+        .week-column {
+            flex-wrap: nowrap;
+            padding-left: 6px;
+            padding-right: 1px;
+
+            .perday-component {
+                width: 8em;
+                height: 5em;
+                flex-wrap: nowrap;
+                padding-left: 0.25em;
+                padding-right: 0;
+                overflow: hidden;
+
+                .title-row {
+                    flex-wrap: nowrap;
+                    font-size: smaller;
+                    font-weight: bold;
+                    background-color: white;
+                    margin: 6px;
+                }
+
+                .slices-row {
+                    display: grid;
+                    height: 3em;
+
+                    .slice {
+                        border-radius: .5em;
+                        border: solid 0.05em #2f2f2f;
+                    }
+                }
+
+                .slices-row-12 {
+                    /** https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns **/
+                    grid-template-columns: repeat(13, 7.4%);
+                }
+
+                .slices-row-4 {
+                    grid-template-columns: repeat(4, 24%);
+                }
+            }
+        }
+
+        .horizonal-scroll {
+            scroll-margin: 0;
+            scrollbar-gutter: stable both-edges;
+            overflow-x: scroll;
+            overflow-y: clip;
+            width: 100%;
+        }
+
+        .success-undefined {
+            background-color: rgb(190, 190, 190);
+        }
+
+        .success-all {
+            /* color bind friendly */
+            background-color: rgba(0, 97, 100, 100);
+        }
+
+        .failure-all {
+            background-color: rgba(219, 67, 37, 100);
+        }
+
+        .success-mixed {
+            background: repeating-linear-gradient(
+                    45deg,
+                    #ffffff,
+                    #006164 10px,
+                    #DB4325 30px
+            );
+        }
+    }
 }
 
-.rs-admindash-week {
-    flex-wrap: nowrap;
-    padding-left: 0;
-    padding-right: 0;
-}
+//.rs-admindash-single-day-column {
+//    width: 100%;
+//    height: 5em;
+//    flex-wrap: nowrap;
+//    padding-left: 0;
+//    padding-right: 0;
+//    overflow-y: hidden;
+//}
 
-/* first column of a row */
-.rs-admindash-perday-title {
-    flex-wrap: nowrap;
-    font-size: smaller;
-    font-weight: bold;
-}
+//.rs-admindash-receiver-row {
+//    flex-wrap: nowrap;
+//    width: 100%;
+//    border-top: #5d5d52 1px solid;
+//    padding-top: 2px;
+//}
+//
+//.rs-admindash-receiver-row-title {
+//    width: 12em;
+//    min-width: 12em;
+//    height: 5em;
+//    overflow: hidden;
+//}
+
+//.rs-admindash-receiver-row-title-text {
+//    text-overflow: ellipsis;
+//    font-weight: bolder;
+//    font-size: small;
+//    line-height: 150%;
+//    min-height: 4.5em;
+//}
+
+//.rs-admindash-week {
+//    flex-wrap: nowrap;
+//    padding-left: 6px;
+//    padding-right: 1px;
+//}
+
+///* first column of a row */
+//.rs-admindash-perday-title {
+//    flex-wrap: nowrap;
+//    font-size: smaller;
+//    font-weight: bold;
+//    background-color: white;
+//    margin: 6px;
+//}
 
 /* 12 slots per day .. so every 2hrs*/
-.rs-admindash-12perday-section {
-    display: grid;
-    height: 3em;
-    /** https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns **/
-    grid-template-columns: repeat(13, 7.4%);
-}
+//.rs-admindash-12perday-section {
+//    display: grid;
+//    height: 3em;
+//    /** https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns **/
+//    grid-template-columns: repeat(13, 7.4%);
+////}
+//
+///* 4 slots per day.. so every 6hrs */
+//.rs-admindash-4perday-section {
+//    display: grid;
+//    height: 5em;
+//    /** https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns **/
+//    grid-template-columns: repeat(4, 24%);
+//}
+//
+//.rs-admindash-per-slot {
+//    border-radius: .5em;
+//    border: solid 1px #2f2f2f;
+//}
+//
+//.rs-admindash-bk-success-undefined {
+//    background-color: rgb(190, 190, 190);
+//}
+//
+//.rs-admindash-bk-success-all {
+//    /* color bind friendly */
+//    background-color: rgba(0, 97, 100, 100);
+//}
+//
+//.rs-admindash-bk-failure-all {
+//    background-color: rgba(219, 67, 37, 100);
+//}
+//
+//.rs-admindash-bk-success-mixed {
+//    background: repeating-linear-gradient(
+//            45deg,
+//            #ffffff,
+//            #006164 10px,
+//            #DB4325 30px
+//    );
+//}
 
-/* 4 slots per day.. so every 6hrs */
-.rs-admindash-4perday-section {
-    display: grid;
-    height: 5em;
-    /** https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns **/
-    grid-template-columns: repeat(4, 24%);
-}
-
-.rs-admindash-per-slot {
-    border-radius: .5em;
-    border: solid 1px #2f2f2f;
-}
-
-.rs-admindash-bk-success-undefined {
-    background-color: rgb(190, 190, 190);
-}
-
-.rs-admindash-bk-success-all {
-    /* color bind friendly */
-    background-color: rgba(0, 97, 100, 100);
-}
-
-.rs-admindash-bk-failure-all {
-    background-color: rgba(219, 67, 37, 100);
-}
-
-.rs-admindash-bk-success-mixed {
-    background: repeating-linear-gradient(
-            45deg,
-            #ffffff,
-            #006164 10px,
-            #DB4325 30px
-    );
-}
-
-.rs-admindash-horizonal-scroll {
-    scroll-margin: 0;
-    scrollbar-gutter: stable both-edges;
-    overflow-x: scroll;
-    overflow-y: clip;
-    width: 100%;
-}
-
-.rs-admindash-main-container {
-    width: 100vw;
-    border-bottom: #5d5d52 1px solid;
-}
-
-.rs-admindash-receiver-row {
-    flex-wrap: nowrap;
-    width: 100vw;
-    border-top: #5d5d52 1px solid;
-}
-
-.rs-admindash-receiver-row-title {
-    width: 12em;
-    height: 5em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-weight: bolder;
-    font-size: small;
-    padding: 4px;
-    border-top: 4px black solid;
-    border-left: 8px black solid;
-    border-bottom: 4px black solid;
-    border-right: 8px black solid;
-}
-
-rs-admindash-border-success-undefined {
-    border-color: rgb(190, 190, 190);
-}
-
-.rs-admindash-border-success-all {
-    /* color bind friendly */
-    border-color: rgba(0, 97, 100, 100);
-}
-
-.rs-admindash-border-failure-all {
-    border-color: rgba(219, 67, 37, 100);
-}
-
-.rs-admindash-border-success-mixed {
-    border-color: rgba(219, 67, 37, 100);
-}
 
 .rs-admindash-days-row {
     width: max-content;
 }
+
 .rs-admindash-container-days {
     width: fit-content;
 }

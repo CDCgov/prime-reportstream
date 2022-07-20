@@ -16,12 +16,9 @@ import {
 import { StyleClass } from "../Table/TableFilters";
 
 /**
- * UI driven by data "shape".
  *
- * Cron runs every 2 hours.
+ * Cron runs every 2 hours (in production)
  * OrgID+RecvID is unique, there are ~103 right now.
- * Recv Name is NOT unique. But "OrgName RecvName" is unique
- *
  *
  * First attempt was to use nested arrays to group data for easier display
  * [outer group by org+recv][inner group by hour of day], but it got complicated FAST
@@ -29,6 +26,91 @@ import { StyleClass } from "../Table/TableFilters";
  * https://en.wikipedia.org/wiki/Key%E2%80%93value_database
  *
  * Keys will be ORDERED PATH of value and therefore similar data will adjacent.
+ *
+ * There are 3 nested loops for layout of the data
+ *    foreach per-receiver:
+ *       foreach per-day loop:
+ *          foreach per-timeblock loop: (also called "slice" in this code)
+ *
+ * And since the key-value dictionary is sorted this way, then there's a single
+ * cursor moving through it. (NOTE: there might be missing days or slices in the dictionary.
+ * This can happen when a new receiver is onboarded in the middle of the data. Or if the CRON job doesn't
+ * run because of deploy or outage leaving slice holes)
+ *
+ *
+ * Layout can be confusing, so hopefully this helps.
+ *
+ * "Dashboard" component
+ *
+ *                  .rs-admindash-component
+ * ├──────────────────────────────────────────────────────┤
+ * ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓──┬
+ * ┃ ┌──────────────────────────────────────────────────┐ ┃  │
+ * ┃ │                                                  │ ┃  │
+ * ┃ │                                                  │ ┃  │ `.perreceiver-row`
+ * ┃ │                                                  │ ┃  │
+ * ┃ └──────────────────────────────────────────────────┘ ┃  │
+ * ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫──┴
+ * ┃ ┌──────────────────────────────────────────────────┐ ┃
+ * ┃ │                                                  │ ┃
+ * ┃ │                                                  │ ┃
+ * ┃ │                                                  │ ┃
+ * ┃ └──────────────────────────────────────────────────┘ ┃
+ * ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+ * ┃ ┌──────────────────────────────────────────────────┐ ┃
+ * ┃ │                                                  │ ┃
+ * ┃ │    ▲                                             │ ┃
+ * ┃ │    │                                             │ ┃
+ * ┃ └───━│─────────────────────────────────────────────┘ ┃
+ * ┗━━━━━━│━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+ *        └─── PerReceiverComponent
+ *
+ *
+ * "PerReceiver" component
+ *  outer grid is one row
+ *  inner grid is two columns
+ *
+ *        ┌ .title-text                       ┌ PerDay components from above
+ *        │                                │
+ * ┏━━━━━━│━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+ * ┃  ┌───┼───┐  ┃   ┌──────┐ ┌──────┐ ┌───┼──┐ ┌──────┐ ┌──────┐ ┌──────┐    ┃
+ * ┃  │   │   │  ┃   │      │ │      │ │   │  │ │      │ │      │ │      │    ┃
+ * ┃  │   ▼   │  ┃   │      │ │      │ │   ▼  │ │      │ │      │ │      │    ┃
+ * ┃  │       │  ┃   │      │ │      │ │      │ │      │ │      │ │      │    ┃
+ * ┃  └───────┘  ┃   └──────┘ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘    ┃
+ * ┗━━━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+ * ││           │ │                                                         │ │
+ * │├───────────┤ ├─────────────────────────────────────────────────────────┤ │
+ * │     ▲                          .week-column                              │
+ * │     └─ .title-column                                                     │
+ * ├──────────────────────────────────────────────────────────────────────────┤
+ *                               .perreceiver-component
+ *
+ *
+ *
+ * "PerDay" component
+ *
+ *    Grid is two rows.
+ *    [inner grid] is a bunch of very fall columns
+ *  ┏━━━━━━━━━━━━━━━━━┓ ─────┬
+ *  ┃  .perday-title  ┃      │ .title-row (Row 1)
+ *  ┣━━┯━━┯━━┯━━┯━━┯━━┫ ─────┼
+ *  ┃  │  │  │  │  │  ┃      │
+ *  ┃  │  │  │  │  │  ┃      │
+ *  ┃  │  │  │  │  │  ┃      │
+ *  ┃  [inner grid]   ┃      │ .slices-row^ (Row 2)
+ *  ┃  │  │  │  │  │  ┃      │
+ *  ┃  │  │  │  │  │  ┃      │
+ *  ┃  │  │▲ │  │  │  ┃      │
+ *  ┗━━┷━━┷│━┷━━┷━━┷━━┛ ─────┴
+ *  │      └──────────┼─────.slice^ (each)
+ *  ├─────────────────┤
+ *    .perday-component
+ *
+ *
+ * ^NOTES: - perday-slices-row needs to know the number of total slices.
+ *           Right now there are layouts for 12/day (every 2hrs) and 4/day (every 6hrs)
+ *         - perday-perslice-column has 4 color states as well
  *
  */
 
@@ -121,17 +203,10 @@ class SuccessRateTracker {
 }
 
 const SUCCESS_BK_CLASSNAME_MAP = {
-    [SuccessRate.UNDEFINED]: "rs-admindash-bk-success-undefined",
-    [SuccessRate.ALL_SUCCESSFUL]: "rs-admindash-bk-success-all",
-    [SuccessRate.ALL_FAILURE]: "rs-admindash-bk-failure-all",
-    [SuccessRate.MIXED_SUCCESS]: "rs-admindash-bk-success-mixed",
-};
-
-const SUCCESS_BORDER_CLASSNAME_MAP = {
-    [SuccessRate.UNDEFINED]: "rs-admindash-border-success-undefined",
-    [SuccessRate.ALL_SUCCESSFUL]: "rs-admindash-border-success-all",
-    [SuccessRate.ALL_FAILURE]: "rs-admindash-border-failure-all",
-    [SuccessRate.MIXED_SUCCESS]: "rs-admindash-border-success-mixed",
+    [SuccessRate.UNDEFINED]: "success-undefined",
+    [SuccessRate.ALL_SUCCESSFUL]: "success-all",
+    [SuccessRate.ALL_FAILURE]: "failure-all",
+    [SuccessRate.MIXED_SUCCESS]: "success-mixed",
 };
 
 function dateAddHours(d: Date, h: number): Date {
@@ -240,8 +315,8 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
     // we use double cursors (move through time and through entries)
     let keyOffset = 0;
     // readability
-    const rowElements: JSX.Element[] = [];
-    let dayElements: JSX.Element[] = [];
+    const perReceiverElements: JSX.Element[] = [];
+    let perDayElements: JSX.Element[] = [];
     let sliceElements: JSX.Element[] = [];
 
     // loop over all receivers (each is its own row)
@@ -264,7 +339,7 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
             );
             for (let [timeSlotStart, timeSlotEnd] of timeSlots) {
                 const successForSlice = new SuccessRateTracker();
-                const hoverInfo: AdmConnStatusDataType[] = []; // used for hover - feels hacky
+                // const hoverInfo: AdmConnStatusDataType[] = []; // used for hover - feels hacky
 
                 // loop over keys that are in this range. Build aggregates
                 const keysMatched = [];
@@ -281,7 +356,7 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
                     successForSlice.updateState(wasSuccessful);
                     successForDay.updateState(wasSuccessful);
                     successForRow.updateState(wasSuccessful);
-                    hoverInfo.push(currentEntry);
+                    // hoverInfo.push(currentEntry);
 
                     // next entry
                     keyOffset++;
@@ -301,21 +376,21 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
                         SUCCESS_BK_CLASSNAME_MAP[successForSlice.currentState];
 
                     // we can use the currentkey in the data dict as a unique key for this cell
-                    // todo: include starttime and hover information. (use hoverInfo)
-                    console.log(`use hoverInfo`, JSON.stringify(hoverInfo));
                     sliceElements.push(
                         <Grid
                             row
                             key={`slice:${currentReceiver}|${timeSlotStart}`}
-                            className={`rs-admindash-per-slot ${sliceClassName}`}
+                            className={`slice ${sliceClassName}`}
                             title={`${currentReceiver}\n${timeSlotStart}`}
+                            data-keyoffset={keyOffset}
                         >
                             {" "}
                         </Grid>
                     );
                 }
             }
-            // render day using successForDay and current day info
+
+            // render PerDay component
             {
                 const dateStr = Intl.DateTimeFormat("en-US", {
                     weekday: "short",
@@ -324,15 +399,18 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
                     day: "numeric",
                 }).format(daySlotStart);
 
-                dayElements.push(
-                    <GridContainer className={"rs-admindash-week"}>
-                        <Grid row className={"rs-admindash-perday-title"}>
+                perDayElements.push(
+                    <GridContainer
+                        key={`perday-${dateStr}`}
+                        className={"perday-component"}
+                    >
+                        <Grid row className={"title-row"}>
                             {dateStr}
                         </Grid>
                         <Grid
                             gap={1}
                             row
-                            className={"rs-admindash-12perday-section"}
+                            className={"slices-row slices-row-12"}
                         >
                             {sliceElements}
                         </Grid>
@@ -342,7 +420,7 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
             }
         } // for dayslots
 
-        // render row using successForRow and current receiver name
+        // render Per-Receiver component
         {
             // we saved the start of this block of data, grab the information from there.
             const key = keys[keyOffsetStartRow];
@@ -354,83 +432,46 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
             );
 
             const titleClassName =
-                SUCCESS_BORDER_CLASSNAME_MAP[successForRow.currentState];
+                SUCCESS_BK_CLASSNAME_MAP[successForRow.currentState];
 
-            // todo: improve layout of row header
-            rowElements.push(
+            perReceiverElements.push(
                 <Grid
                     row
-                    key={`row|${key}`}
-                    className={"rs-admindash-receiver-row"}
+                    key={`perreceiver-row-${keyOffsetStartRow}`}
+                    className={"perreceiver-row"}
                 >
                     <Grid
-                        className={`rs-admindash-receiver-row-title ${titleClassName}`}
+                        className={`title-column ${titleClassName}`}
                         title={`${orgName}\n${recvrName}`}
                     >
-                        {orgName}
-                        <br />
-                        {recvrName}
-                        <br />
-                        {successRate}%
+                        <div className={"title-text"}>
+                            {orgName}
+                            <br />
+                            {recvrName}
+                            <br />
+                            {successRate}%
+                        </div>
                     </Grid>
-                    <Grid className={"rs-admindash-days-row"}>
-                        <ScrollSyncPane>
-                            {/*<div className={"rs-admindash-horizonal-scroll"}>*/}
-                            <GridContainer
-                                className={"rs-admindash-container-days"}
-                            >
-                                <Grid
-                                    row
-                                    className={"rs-admindash-days-row"}
-                                    key={`week|${currentReceiver}`}
-                                >
-                                    <Grid
-                                        row
-                                        className={"rs-admindash-progress-row"}
-                                        key={`days|${currentReceiver}`}
-                                    >
-                                        {dayElements}
-                                    </Grid>
-                                </Grid>
-                            </GridContainer>
-                            {/*</div>*/}
-                        </ScrollSyncPane>
-                    </Grid>
+                    <ScrollSyncPane enabled>
+                        <Grid row className={"week-column horizonal-scroll"}>
+                            {perDayElements}
+                        </Grid>
+                    </ScrollSyncPane>
                 </Grid>
             );
-            dayElements = [];
+            perDayElements = [];
         }
         keyOffset++;
     } // while
     return (
-        <ScrollSync horizontal={true} vertical={false}>
-            <GridContainer
-                className={"rs-admindash-main-container"}
-                key={"AdminReceiverDashboard"}
-            >
-                {rowElements}
+        //
+        <ScrollSync horizontal enabled>
+            <GridContainer className={"rs-admindash-component"}>
+                {perReceiverElements}
             </GridContainer>
         </ScrollSync>
     );
 }
-
-// function getFirstLastEntries(data: DataDictionary) {
-//     const keys = Object.keys(data);
-//     const firstkey = keys[0];
-//     const lastkey = keys[keys.length];
-//     return {
-//         first: data[firstkey],
-//         last: data[lastkey],
-//     };
-// }
-
-// function getFirstLastDates(data: DataDictionary): DatePair {
-//     const { first, last } = getFirstLastEntries(data);
-//     return [
-//         new Date(first.connectionCheckStartedAt),
-//         new Date(last.connectionCheckStartedAt),
-//     ];
-// }
 
 export function AdminReceiverDashboard() {
     const [startDate, setStartDate] = useState<string>(defaultStartDateIso());
@@ -499,7 +540,7 @@ export function AdminReceiverDashboard() {
                             autoComplete="off"
                             aria-autocomplete="none"
                             autoFocus
-                            onBlur={(evt) =>
+                            onChange={(evt) =>
                                 setFilterReceivers(evt.target.value)
                             }
                         />
@@ -510,7 +551,7 @@ export function AdminReceiverDashboard() {
                             className="font-sans-xs usa-label"
                             htmlFor="input_filter_errors"
                         >
-                            Filter on network results:
+                            Filter on results (e.g. `fail`):
                         </Label>
                         <TextInput
                             id="input_filter_errors"
@@ -519,7 +560,7 @@ export function AdminReceiverDashboard() {
                             autoComplete="off"
                             aria-autocomplete="none"
                             autoFocus
-                            onBlur={(evt) =>
+                            onChange={(evt) =>
                                 setFilterErrorResults(evt.target.value)
                             }
                         />
