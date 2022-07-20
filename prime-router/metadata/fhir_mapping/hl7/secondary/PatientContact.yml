@@ -5,13 +5,14 @@ name:
   specs: NK1.2
 
 relationship_1:
+  condition: $textValue NOT_NULL
   valueOf: datatype/CodeableConcept
   expressionType: resource
   generateList: true
   specs: NK1.3
 
 relationship_2:
-  condition: $hl7System EQUALS HL70063 && $hl7Code EQUALS OTH
+  condition: $textValue NOT_NULL && $hl7System EQUALS HL70063 && $hl7Code EQUALS OTH
   valueOf: datatype/CodeableConcept
   expressionType: resource
   generateList: true
@@ -24,7 +25,7 @@ relationship_2:
     alternateDisplay: Unknown
 
 relationship_3:
-  condition: $hl7System EQUALS HL70063 && $hl7Code EQUALS UNK
+  condition: $textValue NOT_NULL && $hl7System EQUALS HL70063 && $hl7Code EQUALS UNK
   valueOf: datatype/CodeableConcept
   expressionType: resource
   generateList: true
