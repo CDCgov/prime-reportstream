@@ -514,7 +514,7 @@ pre {
         .horizonal-scroll {
             scroll-margin: 0;
             scrollbar-gutter: stable both-edges;
-            overflow-x: scroll;
+            overflow-x: auto;
             overflow-y: clip;
             width: 100%;
         }
@@ -543,100 +543,3 @@ pre {
     }
 }
 
-//.rs-admindash-single-day-column {
-//    width: 100%;
-//    height: 5em;
-//    flex-wrap: nowrap;
-//    padding-left: 0;
-//    padding-right: 0;
-//    overflow-y: hidden;
-//}
-
-//.rs-admindash-receiver-row {
-//    flex-wrap: nowrap;
-//    width: 100%;
-//    border-top: #5d5d52 1px solid;
-//    padding-top: 2px;
-//}
-//
-//.rs-admindash-receiver-row-title {
-//    width: 12em;
-//    min-width: 12em;
-//    height: 5em;
-//    overflow: hidden;
-//}
-
-//.rs-admindash-receiver-row-title-text {
-//    text-overflow: ellipsis;
-//    font-weight: bolder;
-//    font-size: small;
-//    line-height: 150%;
-//    min-height: 4.5em;
-//}
-
-//.rs-admindash-week {
-//    flex-wrap: nowrap;
-//    padding-left: 6px;
-//    padding-right: 1px;
-//}
-
-///* first column of a row */
-//.rs-admindash-perday-title {
-//    flex-wrap: nowrap;
-//    font-size: smaller;
-//    font-weight: bold;
-//    background-color: white;
-//    margin: 6px;
-//}
-
-/* 12 slots per day .. so every 2hrs*/
-//.rs-admindash-12perday-section {
-//    display: grid;
-//    height: 3em;
-//    /** https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns **/
-//    grid-template-columns: repeat(13, 7.4%);
-////}
-//
-///* 4 slots per day.. so every 6hrs */
-//.rs-admindash-4perday-section {
-//    display: grid;
-//    height: 5em;
-//    /** https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns **/
-//    grid-template-columns: repeat(4, 24%);
-//}
-//
-//.rs-admindash-per-slot {
-//    border-radius: .5em;
-//    border: solid 1px #2f2f2f;
-//}
-//
-//.rs-admindash-bk-success-undefined {
-//    background-color: rgb(190, 190, 190);
-//}
-//
-//.rs-admindash-bk-success-all {
-//    /* color bind friendly */
-//    background-color: rgba(0, 97, 100, 100);
-//}
-//
-//.rs-admindash-bk-failure-all {
-//    background-color: rgba(219, 67, 37, 100);
-//}
-//
-//.rs-admindash-bk-success-mixed {
-//    background: repeating-linear-gradient(
-//            45deg,
-//            #ffffff,
-//            #006164 10px,
-//            #DB4325 30px
-//    );
-//}
-
-
-.rs-admindash-days-row {
-    width: max-content;
-}
-
-.rs-admindash-container-days {
-    width: fit-content;
-}

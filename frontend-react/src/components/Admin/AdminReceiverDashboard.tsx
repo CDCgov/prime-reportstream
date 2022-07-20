@@ -453,8 +453,10 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
                         </div>
                     </Grid>
                     <ScrollSyncPane enabled>
-                        <Grid row className={"week-column horizonal-scroll"}>
-                            {perDayElements}
+                        <Grid row className={"horizonal-scroll"}>
+                            <Grid row className={"week-column"}>
+                                {perDayElements}
+                            </Grid>
                         </Grid>
                     </ScrollSyncPane>
                 </Grid>
