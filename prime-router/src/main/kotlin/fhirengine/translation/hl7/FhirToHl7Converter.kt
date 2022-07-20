@@ -13,7 +13,7 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 
 /**
- * Convert a FHIR [bundle] to an HL7 message using the [schema] located in the [schemaFolder] to perform the conversion.
+ * Convert a FHIR [bundle] to an HL7 message using the [schemaRef] to perform the conversion.
  * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
  * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
  * the schema validation process.
@@ -21,19 +21,30 @@ import org.hl7.fhir.r4.model.Bundle
  */
 class FhirToHl7Converter(
     private val bundle: Bundle,
-    private val schema: String,
-    private val schemaFolder: String,
+    private val schemaRef: ConfigSchema,
     private val strict: Boolean = false,
     private var terser: Terser? = null
 ) : Logging {
+    /**
+     * Convert a FHIR [bundle] to an HL7 message using the [schema] in the [schemaFolder] location to perform the conversion.
+     * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
+     * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
+     * the schema validation process.
+     * @property terser the terser to use for building the HL7 message (use for dependency injection)
+     */
+    constructor(
+        bundle: Bundle,
+        schema: String,
+        schemaFolder: String,
+        strict: Boolean = false,
+        terser: Terser? = null
+    ) : this(bundle, ConfigSchemaReader.fromFile(schema, schemaFolder), strict, terser)
 
     /**
      * Convert the given bundle to an HL7 message.
      * @return the HL7 message
      */
     fun convert(): Message {
-        val schemaRef = ConfigSchemaReader.fromFile(schema, schemaFolder)
-
         // Sanity check, but the schema is assumed good to go here
         check(!schemaRef.hl7Type.isNullOrBlank())
         check(!schemaRef.hl7Version.isNullOrBlank())

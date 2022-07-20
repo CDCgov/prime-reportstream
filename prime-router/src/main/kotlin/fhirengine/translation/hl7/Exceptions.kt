@@ -14,7 +14,7 @@ class SchemaException : Exception {
  * Exception thrown when a required [element] has no value.
  */
 class RequiredElementException(val element: ConfigSchemaElement) :
-    Exception("Required element ${element.name} does not have a value.")
+    Exception("Required element ${element.name} conditional was false or value was empty.")
 
 /**
  * Exception thrown when there are conversion issues when writing values to an HL7 message.

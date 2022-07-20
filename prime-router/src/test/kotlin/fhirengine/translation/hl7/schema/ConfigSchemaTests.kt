@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import assertk.assertThat
 import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
@@ -72,6 +73,10 @@ class ConfigSchemaTests {
         element = ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
         assertThat(element.validate()).isEmpty()
 
+        element = ConfigSchemaElement("name", value = listOf("Bundle", "Bundle.id"), hl7Spec = listOf("MSH-7"))
+        assertThat(element.validate()).isEmpty()
+        assertThat(element.valueExpressions.size).isEqualTo(2)
+
         element = ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"), schema = "schema")
         assertThat(element.validate()).isNotEmpty()
 
@@ -121,6 +126,18 @@ class ConfigSchemaTests {
 
         goodElement = ConfigSchemaElement("name", value = listOf("Bundle")) // No HL7Spec = error
         childSchema = ConfigSchema("name", elements = listOf(goodElement))
+        elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
+        topSchema = ConfigSchema("name", "ORU_R01", "2.5.1", listOf(elementWithSchema))
+        assertThat(topSchema.isValid()).isFalse()
+        assertThat(topSchema.errors).isNotEmpty()
+
+        childSchema = ConfigSchema("name", hl7Version = "2.5.1", elements = listOf(goodElement))
+        elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
+        topSchema = ConfigSchema("name", "ORU_R01", "2.5.1", listOf(elementWithSchema))
+        assertThat(topSchema.isValid()).isFalse()
+        assertThat(topSchema.errors).isNotEmpty()
+
+        childSchema = ConfigSchema("name", hl7Type = "ORU_R01", elements = listOf(goodElement))
         elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
         topSchema = ConfigSchema("name", "ORU_R01", "2.5.1", listOf(elementWithSchema))
         assertThat(topSchema.isValid()).isFalse()

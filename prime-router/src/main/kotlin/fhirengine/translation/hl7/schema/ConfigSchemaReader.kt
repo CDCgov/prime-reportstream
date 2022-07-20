@@ -1,8 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
-import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.JacksonYAMLParseException
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.apache.logging.log4j.kotlin.Logging
@@ -37,11 +35,7 @@ object ConfigSchemaReader : Logging {
         if (!file.canRead()) throw Exception("Cannot read ${file.absolutePath}")
         val rawSchema = try {
             readOneYamlSchema(file.inputStream())
-        } catch (e: JacksonYAMLParseException) {
-            val msg = "Error while reading schema configuration from file ${file.absolutePath}"
-            logger.error(msg, e)
-            throw SchemaException(msg, e)
-        } catch (e: JsonMappingException) {
+        } catch (e: Exception) {
             val msg = "Error while reading schema configuration from file ${file.absolutePath}"
             logger.error(msg, e)
             throw SchemaException(msg, e)

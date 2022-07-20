@@ -103,8 +103,8 @@ data class ConfigSchema(
  * @property schemaRef the reference to the loaded child schema
  * @property resource a FHIR path that points to a FHIR resource
  * @property resourceExpression the validated FHIR path representation of the [resource] string
- * @property value a list of FHIR paths that points to a FHIR primitive value
- * @property valueExpressions the validated FHIR paths representation of the [value] string
+ * @property value a list of FHIR paths each pointing to a FHIR primitive value
+ * @property valueExpressions the validated FHIR paths of the [value] list
  * @property hl7Spec a list of hl7Specs that denote the field to place a value into
  */
 @JsonIgnoreProperties
@@ -171,11 +171,9 @@ data class ConfigSchemaElement(
 
         // Validate the FHIR paths.
         conditionExpression = getFhirPath(condition)
-        val valueExpressionList = mutableListOf<ExpressionNode>()
-        value.forEach { path ->
-            getFhirPath(path)?.let { valueExpressionList.add(it) }
+        valueExpressions = value.mapNotNull { path ->
+            getFhirPath(path)
         }
-        valueExpressions = valueExpressionList.toList()
         resourceExpression = getFhirPath(resource)
 
         schemaRef?.let {
