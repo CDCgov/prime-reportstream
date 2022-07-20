@@ -1,7 +1,5 @@
-import DOMPurify from "dompurify";
 import { Helmet } from "react-helmet";
 
-import site from "../../content/site.json";
 // NOTE: update live.json and open usa_w_territories.svg with TEXT EDITOR and uncomment state styles
 import live from "../../content/live.json";
 import usamapsvg from "../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
@@ -23,14 +21,7 @@ export const WhereWereLiveIa = () => {
             </p>
             <p className="usa-intro text-base">
                 Don't see your state or territory?{" "}
-                <a
-                    href={
-                        "mailto:" +
-                        DOMPurify.sanitize(site.orgs.RS.email) +
-                        "?subject=Getting started with ReportStream"
-                    }
-                    className="margin-left-1 usa-link"
-                >
+                <a href="/support/contact" className="margin-left-1 usa-link">
                     Get in touch
                 </a>
                 .

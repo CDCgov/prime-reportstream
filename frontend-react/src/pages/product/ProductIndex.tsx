@@ -38,13 +38,13 @@ const directories: ContentDirectory[] = [
         ""
     ),
     new ElementDirectory(
-        "Where We're Live",
+        "Where we're live",
         DirectoryTools.prependRoot("WHERE_WERE_LIVE"),
         "",
         WhereWereLiveIa
     ),
     new MarkdownDirectory(
-        "Release Notes",
+        "Release notes",
         DirectoryTools.prependRoot("RELEASE_NOTES"),
         [ReleaseNotesMd],
         ""

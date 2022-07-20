@@ -1,5 +1,4 @@
 import { Helmet } from "react-helmet";
-import { Link } from "react-router-dom";
 
 import site from "../../../content/site.json";
 
@@ -22,12 +21,14 @@ export const ProgrammersGuide = () => {
                     The ReportStream programmer's guide is available as a PDF.
                 </p>
                 <p>
-                    <Link
+                    <a
                         className={"usa-link"}
-                        to={site.assets.programmersGuidePdf.path}
+                        href={site.assets.programmersGuidePdf.path}
+                        target="_blank"
+                        rel="noreferrer noopener"
                     >
                         API programmer's guide (pdf)
-                    </Link>
+                    </a>
                 </p>
             </section>
         </>

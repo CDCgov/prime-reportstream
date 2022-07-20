@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet";
+import { Link } from "react-router-dom";
 import DOMPurify from "dompurify";
 
 import site from "../../content/site.json";
@@ -24,25 +25,8 @@ export const Contact = () => {
             <section>
                 <h3>Interested in partnering with ReportStream?</h3>
                 <p>
-                    Read our getting started guides for{" "}
-                    <a
-                        className="usa-link"
-                        href="/getting-started/public-health-departments/overview"
-                    >
-                        public health departments
-                    </a>{" "}
-                    and{" "}
-                    <a
-                        className="usa-link"
-                        href="/getting-started/testing-facilities/overview"
-                    >
-                        organizations and testing facilities
-                    </a>
-                    .
-                </p>
-                <p>
-                    To learn more, or to begin the account registration process,
-                    email us at{" "}
+                    If you want to learn more about ReportStream or how to get
+                    started, email us at{" "}
                     <a
                         href={
                             "mailto:" + DOMPurify.sanitize(site.orgs.RS.email)
@@ -53,6 +37,18 @@ export const Contact = () => {
                     </a>
                     .
                 </p>
+                <p>
+                    To begin the account registration process, follow the steps
+                    outlined in our{" "}
+                    <Link
+                        to="/resources/account-registration-guide"
+                        key="account registration guide"
+                        className="usa-link"
+                    >
+                        account registration guide
+                    </Link>
+                    .
+                </p>
             </section>
             <section>
                 {" "}
@@ -61,17 +57,11 @@ export const Contact = () => {
                 </h3>
                 <p>
                     Read our guides for sending data{" "}
-                    <a
-                        className="usa-link"
-                        href="/getting-started/public-health-departments/elr-checklist"
-                    >
+                    <a className="usa-link" href="/resources/elr-checklist">
                         via API (ELR)
                     </a>{" "}
                     or{" "}
-                    <a
-                        className="usa-link"
-                        href="/getting-started/testing-facilities/csv-upload-guide"
-                    >
+                    <a className="usa-link" href="/resources/csv-upload-guide">
                         via CSV upload
                     </a>
                     . For all other issues, contact us at{" "}
