@@ -279,7 +279,6 @@ const FileHandler = ({
         }
 
         // Process the error messages
-        // TODO: deprecate FileResponseErrors
         if (response?.errors && response.errors.length > 0) {
             // Add a string to properly display the indices if available.
             setErrors(response.errors);
@@ -298,13 +297,16 @@ const FileHandler = ({
         [reportId, errors.length]
     );
 
-    // TODO: refactor so that we can add `ReportStream standard HL7 v2.5.1` to the hl7 messages
     const successDescription = useMemo(() => {
         let suffix = "";
         if (handlerType === "upload") {
             suffix = " and will be transmitted";
         }
-        return `Your file meets the standard ${fileType} schema${suffix}.`;
+        const schemaDescription =
+            fileType === "HL7"
+                ? "ReportStream standard HL7 v2.5.1"
+                : "standard CSV";
+        return `Your file meets the ${schemaDescription} schema${suffix}.`;
     }, [fileType, handlerType]);
 
     const warningDescription = useMemo(() => {
@@ -322,7 +324,7 @@ const FileHandler = ({
             {showWarningBanner && (
                 <FileWarningBanner message={warningText || ""} />
             )}
-            {warnings.length > 0 && fileType === "HL7" && (
+            {warnings.length > 0 && (
                 <FileWarningsDisplay
                     warnings={warnings}
                     heading="We found non-critical issues in your file"
@@ -352,7 +354,7 @@ const FileHandler = ({
                 />
             )}
             {isSubmitting && (
-                <div className="grid-col flex-1 display-flex flex-column flex-align-center">
+                <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-4">
                     <div className="grid-row">
                         <Spinner />
                     </div>

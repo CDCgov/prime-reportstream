@@ -134,7 +134,7 @@ export const FileErrorDisplay = ({
     }, [errors, handlerType]);
 
     return (
-        <div>
+        <>
             <StaticAlert type={"error"} heading={heading} message={message} />
             <div>
                 <p
@@ -165,7 +165,7 @@ export const FileErrorDisplay = ({
                     </table>
                 </>
             )}
-        </div>
+        </>
     );
 };
 
@@ -189,7 +189,7 @@ export const FileWarningsDisplay = ({
     heading,
 }: FileWarningsDisplayProps) => {
     return (
-        <div>
+        <>
             <StaticAlert type={"warning"} heading={heading} message={message} />
             <h3>Warnings</h3>
             <table className="usa-table usa-table--borderless">
@@ -207,7 +207,7 @@ export const FileWarningsDisplay = ({
                     })}
                 </tbody>
             </table>
-        </div>
+        </>
     );
 };
 
@@ -215,15 +215,6 @@ interface ErrorRowProps {
     error: ResponseError;
     index: number;
 }
-
-// const ErrorRow = ({ error, index) }:ErrorRowProps )=> {
-//   const errorsForDisplay = Oberrors.map((error: any) => {
-//     const rowList =
-//         error.indices && error.indices.length > 0
-//             ? error.indices.join(", ")
-//             : "";
-//     return { ...error, rowList };
-// });
 
 const ErrorRow = ({ error, index }: ErrorRowProps) => {
     const { message, indices, field, trackingIds } = error;
