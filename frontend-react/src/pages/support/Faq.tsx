@@ -8,12 +8,14 @@ export const Faq = () => {
                 <title>FAQ | Support | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
             <h1>Frequently asked questions</h1>
-            <h2>Subhead about the faq</h2>
+            <h2>Answers to common questions about ReportStream</h2>
+            <hr />
             <h3>How much does ReportStream cost?</h3>
             <p>
                 ReportStream was developed by the CDC for COVID-19 test data
                 reporting and is 100% free.
             </p>
+            <hr />
             <h3>Where can you use ReportStream?</h3>
             <p>
                 ReportStream is currently live or getting set up in
@@ -24,6 +26,7 @@ export const Faq = () => {
                 </a>
                 .
             </p>
+            <hr />
             <h3>Which browser is recommended for using ReportStream?</h3>
             <p>
                 Our application works best on a modern desktop browser (ex:{" "}
@@ -64,6 +67,7 @@ export const Faq = () => {
                 </a>
                 ). ReportStream doesn't support Internet Explorer 11 or below.
             </p>
+            <hr />
             <h3>
                 I just activated my ReportStream account, why can't I log in?
             </h3>
@@ -87,18 +91,19 @@ export const Faq = () => {
                 </a>
                 , a PRIME project that ReportStream closely collaborates with.
                 To access your user account, be sure to log in at{" "}
-                <a className="usa-link" href="/support/contact">
+                <Link to="/login" key="login" className="usa-link">
                     reportstream.cdc.gov/login
-                </a>
+                </Link>
                 .
             </p>
             <p>
                 For any other issues logging in,{" "}
-                <a className="usa-link" href="/contact">
+                <a className="usa-link" href="/support/contact">
                     contact us
                 </a>
                 .
             </p>
+            <hr />
             <h3>How do I reset my password?</h3>
             <p>
                 If you forgot your password, follow the instructions under the
@@ -185,26 +190,21 @@ export const Faq = () => {
                     <strong>Blank values</strong>
                     <p>
                         Our{" "}
-                        <a
-                            className="usa-link"
-                            href="/getting-started/testing-facilities/csv-schema"
-                        >
+                        <a className="usa-link" href="/resources/csv-schema">
                             standard schema
                         </a>{" "}
                         requires certain fields to be filled out. Required
                         fields containing blank values can prevent your file
                         from being uploaded. For a list of required fields, read
                         our{" "}
-                        <a
-                            className="usa-link"
-                            href="/getting-started/testing-facilities/csv-schema"
-                        >
+                        <a className="usa-link" href="/resources/csv-schema">
                             CSV schema documentation
                         </a>
                         .
                     </p>
                 </li>
             </ul>
+            <hr />
             <h3>
                 Can I sort my CSV columns in any order when I submit the file to
                 ReportStream?
@@ -214,6 +214,7 @@ export const Faq = () => {
                 file. ReportStream looks for data values beneath the column
                 header regardless of where it's located in the file.
             </p>
+            <hr />
             <h3>
                 What's the difference between ReportStream and SimpleReport?
             </h3>
