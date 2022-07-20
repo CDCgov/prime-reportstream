@@ -24,6 +24,8 @@ import {
     AdminDropdown,
     GettingStartedDropdown,
     HowItWorksDropdown,
+    DropdownNav,
+    NonStaticOption,
 } from "./DropdownNav";
 
 const isOktaPreview =
@@ -126,20 +128,42 @@ export const ReportStreamHeader = () => {
             );
         }
 
-        /* ADMIN ONLY */
+        /* ADMIN ONLY 
+        
+          Build a drop down for file handler links
+        */
         if (memberships.state.active?.memberType === MemberType.PRIME_ADMIN) {
             // Validate NavLink
-            if (CheckFeatureFlag(FeatureFlagName.VALIDATION_SERVICE)) {
+            const features = [
+                {
+                    access: CheckFeatureFlag(
+                        FeatureFlagName.VALIDATION_SERVICE
+                    ),
+                    slug: "validate",
+                    title: "Validate",
+                },
+                {
+                    access: CheckFeatureFlag(FeatureFlagName.USER_UPLOAD),
+                    slug: "user-upload",
+                    title: "User Upload",
+                },
+            ];
+            if (features.some(({ access }) => access)) {
+                const fileHandlerDirectories = features.reduce(
+                    (acc, { access, title, slug }) => {
+                        if (access) {
+                            acc.push({ title, slug });
+                        }
+                        return acc;
+                    },
+                    [] as NonStaticOption[]
+                );
                 itemsMenu.push(
-                    <NavLink
-                        to="/validate"
-                        key="validate"
-                        data-attribute="hidden"
-                        hidden={true}
-                        className="usa-nav__link"
-                    >
-                        <span>Validate</span>
-                    </NavLink>
+                    <DropdownNav
+                        label="Upload & Validate"
+                        root="/file-handler"
+                        directories={fileHandlerDirectories}
+                    />
                 );
             }
 

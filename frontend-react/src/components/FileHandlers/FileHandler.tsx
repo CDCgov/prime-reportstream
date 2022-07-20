@@ -8,13 +8,40 @@ import { WatersPost } from "../../network/api/WatersApiFunctions";
 import { Destination } from "../../resources/ActionDetailsResource";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 
-import { FileErrorDisplay, FileSuccessDisplay } from "./FileHandlerMessaging";
+import {
+    FileErrorDisplay,
+    FileSuccessDisplay,
+    FileWarningDisplay,
+} from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
 // values taken from Report.kt
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
 const REPORT_MAX_ITEMS = 10000;
 const REPORT_MAX_ITEM_COLUMNS = 2000;
+
+const SERVER_ERROR_MESSAGING = {
+    heading: "Error",
+    message: "There was a server error. Your file has not been accepted.",
+};
+
+const errorMessagingMap = {
+    validation: {
+        server: SERVER_ERROR_MESSAGING,
+        file: {
+            heading: "Your file has not passed validation",
+            message: "Please review the errors below.",
+        },
+    },
+    upload: {
+        server: SERVER_ERROR_MESSAGING,
+        file: {
+            heading: "We found errors in your file",
+            message:
+                "Please resolve the errors below and upload your edited file. Your file has not been accepted.",
+        },
+    },
+};
 
 const parseCsvForError = (fileName: string, filecontent: string) => {
     const error = false;
@@ -53,26 +80,40 @@ const parseCsvForError = (fileName: string, filecontent: string) => {
     return error;
 };
 
+export enum FileHandlerType {
+    UPLOAD = "upload",
+    VALIDATION = "validation",
+}
+
+enum ErrorType {
+    SERVER = "server",
+    FILE = "file",
+}
+
 interface FileHandlerProps {
     headingText: string;
-    action: string;
+    handlerType: FileHandlerType;
     fetcher: WatersPost;
     successMessage: string;
     formLabel: string;
     resetText: string;
     submitText: string;
-    showDestinations: boolean;
+    showSuccessMetadata: boolean;
+    showWarningBanner: boolean;
+    warningText?: string;
 }
 
 const FileHandler = ({
     headingText,
-    action,
+    handlerType,
     fetcher,
     successMessage,
     formLabel,
     resetText,
     submitText,
-    showDestinations,
+    showSuccessMetadata,
+    showWarningBanner,
+    warningText,
 }: FileHandlerProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fileInputResetValue, setFileInputResetValue] = useState(0);
@@ -83,10 +124,11 @@ const FileHandler = ({
     const [errors, setErrors] = useState<FileResponseError[]>([]);
     const [destinations, setDestinations] = useState("");
     const [reportId, setReportId] = useState<string | null>(null);
+    const [successTimestamp, setSuccessTimestamp] = useState<
+        string | undefined
+    >("");
     const [cancellable, setCancellable] = useState<boolean>(false);
-    const [errorMessageText, setErrorMessageText] = useState(
-        "Please resolve the errors below and upload your edited file. Your file has not been accepted."
-    );
+    const [errorType, setErrorType] = useState<ErrorType>(ErrorType.FILE);
 
     const { memberships, oktaToken } = useSessionContext();
     const { organization } = useOrganizationResource();
@@ -106,10 +148,9 @@ const FileHandler = ({
         setErrors([]);
         setDestinations("");
         setReportId(null);
+        setSuccessTimestamp("");
         setCancellable(false);
-        setErrorMessageText(
-            "Please resolve the errors below and upload your edited file. Your file has not been accepted."
-        );
+        setErrorType(ErrorType.FILE);
     };
 
     const handleFileChange = async (
@@ -189,6 +230,7 @@ const FileHandler = ({
         setReportId(null);
         setErrors([]);
         setDestinations("");
+        setSuccessTimestamp("");
 
         if (fileContent.length === 0) {
             return;
@@ -216,17 +258,14 @@ const FileHandler = ({
 
             if (response?.id) {
                 setReportId(response.id);
+                setSuccessTimestamp(response.timestamp);
                 event.currentTarget.reset();
             }
 
-            if (response?.errors?.length) {
-                // if there is a response status,
-                // then there was most likely a server-side error as the json was not parsed
-                setErrorMessageText(
-                    response?.status
-                        ? "There was a server error. Your file has not been accepted."
-                        : "Please resolve the errors below and upload your edited file. Your file has not been accepted."
-                );
+            // if there is a response status,
+            // then there was most likely a server-side error as the json was not parsed
+            if (response?.errors?.length && response?.status) {
+                setErrorType(ErrorType.SERVER);
             }
         } catch (error) {
             // Noop.  Errors are collected below
@@ -258,26 +297,44 @@ const FileHandler = ({
         [reportId, errors.length]
     );
 
+    const successDescription = useMemo(() => {
+        let suffix = "";
+        if (handlerType === "upload") {
+            suffix = " and will be transmitted";
+        }
+        return `Your file meets the standard ${fileType} schema${suffix}.`;
+    }, [fileType, handlerType]);
+
+    const errorMessaging = errorMessagingMap[handlerType][errorType];
+
     return (
         <div className="grid-container usa-section margin-bottom-10">
             <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
             <h2 className="font-sans-lg">{organization?.description}</h2>
+            {showWarningBanner && (
+                <FileWarningDisplay message={warningText || ""} />
+            )}
             {reportId && (
                 <FileSuccessDisplay
                     fileName={fileName}
-                    destinations={destinations}
+                    extendedMetadata={{
+                        destinations,
+                        timestamp: successTimestamp,
+                        reportId,
+                    }}
                     heading={successMessage}
-                    message={`Your file meets the standard ${fileType} schema and can be successfully transmitted.`}
-                    showDestinations={showDestinations}
+                    message={successDescription}
+                    showExtendedMetadata={showSuccessMetadata}
                 />
             )}
 
             {errors.length > 0 && (
                 <FileErrorDisplay
                     fileName={fileName}
-                    errorType={action}
+                    handlerType={handlerType}
                     errors={errors}
-                    messageText={errorMessageText}
+                    heading={errorMessaging.heading}
+                    message={errorMessaging.message}
                 />
             )}
             {isSubmitting && (

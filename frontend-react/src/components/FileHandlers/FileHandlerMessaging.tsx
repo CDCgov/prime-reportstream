@@ -1,23 +1,34 @@
 import React, { useEffect } from "react";
 
+import {
+    formattedDateFromTimestamp,
+    timeZoneAbbreviated,
+} from "../../utils/DateTimeUtils";
 import { StaticAlert } from "../StaticAlert";
 import { FileResponseError } from "../../network/api/WatersApi";
 
+type ExtendedSuccessMetadata = {
+    destinations?: string;
+    reportId?: string;
+    timestamp?: string;
+};
+
 type FileSuccessDisplayProps = {
     fileName: string;
-    destinations: string;
     heading: string;
     message: string;
-    showDestinations: boolean;
+    showExtendedMetadata: boolean;
+    extendedMetadata?: ExtendedSuccessMetadata;
 };
 
 export const FileSuccessDisplay = ({
     fileName,
-    destinations,
     heading,
     message,
-    showDestinations,
+    showExtendedMetadata,
+    extendedMetadata = {},
 }: FileSuccessDisplayProps) => {
+    const { destinations, timestamp, reportId } = extendedMetadata;
     const destinationsDisplay =
         destinations || "There are no known recipients at this time.";
 
@@ -32,13 +43,49 @@ export const FileSuccessDisplay = ({
                     File name
                 </p>
                 <p className="margin-top-05">{fileName}</p>
-                {showDestinations && (
-                    <div>
-                        <p className="text-normal text-base margin-bottom-0">
-                            Recipients
-                        </p>
-                        <p className="margin-top-05">{destinationsDisplay}</p>
-                    </div>
+                {showExtendedMetadata && (
+                    <>
+                        {reportId && (
+                            <div>
+                                <p className="text-normal text-base margin-bottom-0">
+                                    Confirmation Code
+                                </p>
+                                <p className="margin-top-05">{reportId}</p>
+                            </div>
+                        )}
+                        {timestamp && (
+                            <div>
+                                <p className="text-normal text-base margin-bottom-0">
+                                    Date Received
+                                </p>
+                                <p className="margin-top-05">
+                                    {formattedDateFromTimestamp(
+                                        timestamp,
+                                        "DD MMMM YYYY"
+                                    )}
+                                </p>
+                            </div>
+                        )}
+                        {timestamp && (
+                            <div>
+                                <p className="text-normal text-base margin-bottom-0">
+                                    Time Received
+                                </p>
+                                <p className="margin-top-05">{`${formattedDateFromTimestamp(
+                                    timestamp,
+                                    "h:mm"
+                                )} ${timeZoneAbbreviated()}`}</p>
+                            </div>
+                        )}
+                        <div>
+                            <p className="text-normal text-base margin-bottom-0">
+                                Recipients
+                            </p>
+                            <p className="margin-top-05">
+                                {destinationsDisplay}
+                            </p>
+                        </div>
+                    </>
                 )}
             </div>
         </>
@@ -47,9 +94,10 @@ export const FileSuccessDisplay = ({
 
 type FileErrorDisplayProps = {
     errors: FileResponseError[];
-    messageText: string;
+    message: string;
     fileName: string;
-    errorType: string;
+    handlerType: string;
+    heading: string;
 };
 
 /***
@@ -78,8 +126,9 @@ const reformat = (truncateErrorMessage: string | undefined): string => {
 export const FileErrorDisplay = ({
     fileName,
     errors,
-    messageText,
-    errorType,
+    message,
+    heading,
+    handlerType,
 }: FileErrorDisplayProps) => {
     const showErrorTable =
         errors && errors.length && errors.some((error) => error.message);
@@ -87,18 +136,14 @@ export const FileErrorDisplay = ({
     useEffect(() => {
         errors.forEach((error: FileResponseError) => {
             if (error.details) {
-                console.error(`${errorType} failure: ${error.details}`);
+                console.error(`${handlerType} failure: ${error.details}`);
             }
         });
-    }, [errors, errorType]);
+    }, [errors, handlerType]);
 
     return (
         <div>
-            <StaticAlert
-                type={"error"}
-                heading={"We found errors in your file."}
-                message={messageText}
-            />
+            <StaticAlert type={"error"} heading={heading} message={message} />
             <div>
                 <p
                     id="validatedFilename"
@@ -134,4 +179,12 @@ export const FileErrorDisplay = ({
             )}
         </div>
     );
+};
+
+interface FileWarningDisplayProps {
+    message: string;
+}
+
+export const FileWarningDisplay = ({ message }: FileWarningDisplayProps) => {
+    return <StaticAlert type={"warning"} heading="Warning" message={message} />;
 };
