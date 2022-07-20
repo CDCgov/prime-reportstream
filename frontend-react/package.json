@@ -3,7 +3,7 @@
     "version": "0.1.1",
     "private": true,
     "npmClient": "yarn",
-    "proxy": "http://staging.reportstream.cdc.gov",
+    "proxy": "http://localhost:7071",
     "dependencies": {
         "@okta/okta-auth-js": "^6.5.1",
         "@okta/okta-react": "^6.4.1",
