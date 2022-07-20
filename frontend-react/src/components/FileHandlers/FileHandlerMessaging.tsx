@@ -5,7 +5,7 @@ import {
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
 import { StaticAlert } from "../StaticAlert";
-import { FileResponseError } from "../../network/api/WatersApi";
+import { ResponseError } from "../../network/api/WatersApi";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -108,7 +108,7 @@ const truncateErrorMesssage = (errorMessage: string | undefined): string => {
 };
 
 type FileErrorDisplayProps = {
-    errors: FileResponseError[];
+    errors: ResponseError[];
     message: string;
     fileName: string;
     handlerType: string;
@@ -126,7 +126,7 @@ export const FileErrorDisplay = ({
         errors && errors.length && errors.some((error) => error.message);
 
     useEffect(() => {
-        errors.forEach((error: FileResponseError) => {
+        errors.forEach((error: ResponseError) => {
             if (error.details) {
                 console.error(`${handlerType} failure: ${error.details}`);
             }
@@ -146,28 +146,24 @@ export const FileErrorDisplay = ({
                 <p className="margin-top-05">{fileName}</p>
             </div>
             {showErrorTable && (
-                <table className="usa-table usa-table--borderless">
-                    <thead>
-                        <tr>
-                            <th>Requested Edit</th>
-                            <th>Areas Containing the Requested Edit</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {errors.map((e, i) => {
-                            return (
-                                <tr key={"error_" + i}>
-                                    <td>{truncateErrorMesssage(e.message)}</td>
-                                    <td>
-                                        {e.rowList && (
-                                            <span>Row(s): {e.rowList}</span>
-                                        )}
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                <>
+                    <h3>Errors</h3>
+                    <table className="usa-table usa-table--borderless">
+                        <thead>
+                            <tr>
+                                <th>Requested Edit</th>
+                                <th>Areas Containing the Requested Edit</th>
+                                <th>Field</th>
+                                <th>Tracking ID(s)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {errors.map((e, i) => {
+                                return <ErrorRow error={e} index={i} />;
+                            })}
+                        </tbody>
+                    </table>
+                </>
             )}
         </div>
     );
@@ -182,20 +178,16 @@ export const FileWarningBanner = ({ message }: FileWarningBannerProps) => {
 };
 
 type FileWarningsDisplayProps = {
-    warnings: FileResponseError[];
+    warnings: ResponseError[];
     message: string;
-    // fileName: string;
-    // handlerType: string;
     heading: string;
 };
 
 export const FileWarningsDisplay = ({
-    // fileName,
     warnings,
     message,
     heading,
-}: // handlerType,
-FileWarningsDisplayProps) => {
+}: FileWarningsDisplayProps) => {
     return (
         <div>
             <StaticAlert type={"warning"} heading={heading} message={message} />
@@ -204,24 +196,51 @@ FileWarningsDisplayProps) => {
                 <thead>
                     <tr>
                         <th>Warning</th>
-                        <th>Areas Containing the Requested Edit</th>
+                        <th>Indices</th>
+                        <th>Field</th>
+                        <th>Tracking ID(s)</th>
                     </tr>
                 </thead>
                 <tbody>
                     {warnings.map((w, i) => {
-                        return (
-                            <tr key={"error_" + i}>
-                                <td>{w.message}</td>
-                                <td>
-                                    {w.rowList && (
-                                        <span>Row(s): {w.rowList}</span>
-                                    )}
-                                </td>
-                            </tr>
-                        );
+                        return <ErrorRow error={w} index={i} />;
                     })}
                 </tbody>
             </table>
         </div>
+    );
+};
+
+interface ErrorRowProps {
+    error: ResponseError;
+    index: number;
+}
+
+// const ErrorRow = ({ error, index) }:ErrorRowProps )=> {
+//   const errorsForDisplay = Oberrors.map((error: any) => {
+//     const rowList =
+//         error.indices && error.indices.length > 0
+//             ? error.indices.join(", ")
+//             : "";
+//     return { ...error, rowList };
+// });
+
+const ErrorRow = ({ error, index }: ErrorRowProps) => {
+    const { message, indices, field, trackingIds } = error;
+    return (
+        <tr key={"error_" + index}>
+            <td>{truncateErrorMesssage(message)}</td>
+            <td>
+                {indices?.length && indices.length > 0 && (
+                    <span>Row(s): {indices.join(", ")}</span>
+                )}
+            </td>
+            <td>{field}</td>
+            <td>
+                {trackingIds?.length && trackingIds.length > 0 && (
+                    <span>{trackingIds.join(", ")}</span>
+                )}
+            </td>
+        </tr>
     );
 };

@@ -3,7 +3,7 @@ import React, { useState, useMemo } from "react";
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { useOrganizationResource } from "../../hooks/UseOrganizationResouce";
-import { FileResponseError, ResponseError } from "../../network/api/WatersApi";
+import { ResponseError } from "../../network/api/WatersApi";
 import { WatersPost } from "../../network/api/WatersApiFunctions";
 import { Destination } from "../../resources/ActionDetailsResource";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
@@ -122,7 +122,7 @@ const FileHandler = ({
     const [contentType, setContentType] = useState("");
     const [fileType, setFileType] = useState("");
     const [fileName, setFileName] = useState("");
-    const [errors, setErrors] = useState<FileResponseError[]>([]);
+    const [errors, setErrors] = useState<ResponseError[]>([]);
     const [destinations, setDestinations] = useState("");
     const [reportId, setReportId] = useState<string | null>(null);
     const [successTimestamp, setSuccessTimestamp] = useState<
@@ -153,6 +153,7 @@ const FileHandler = ({
         setSuccessTimestamp("");
         setCancellable(false);
         setErrorType(ErrorType.FILE);
+        setWarnings([]);
     };
 
     const handleFileChange = async (
@@ -261,7 +262,7 @@ const FileHandler = ({
             if (response?.id) {
                 setReportId(response.id);
                 setSuccessTimestamp(response.timestamp);
-                // event.currentTarget.reset();
+                event?.currentTarget?.reset && event.currentTarget.reset();
             }
 
             // if there is a response status,
@@ -278,16 +279,10 @@ const FileHandler = ({
         }
 
         // Process the error messages
+        // TODO: deprecate FileResponseErrors
         if (response?.errors && response.errors.length > 0) {
             // Add a string to properly display the indices if available.
-            const FileResponseErrors = response.errors.map((error: any) => {
-                const rowList =
-                    error.indices && error.indices.length > 0
-                        ? error.indices.join(", ")
-                        : "";
-                return { ...error, rowList };
-            });
-            setErrors(FileResponseErrors);
+            setErrors(response.errors);
             setCancellable(true);
         } else {
             setCancellable(false);
@@ -303,6 +298,7 @@ const FileHandler = ({
         [reportId, errors.length]
     );
 
+    // TODO: refactor so that we can add `ReportStream standard HL7 v2.5.1` to the hl7 messages
     const successDescription = useMemo(() => {
         let suffix = "";
         if (handlerType === "upload") {
@@ -310,6 +306,12 @@ const FileHandler = ({
         }
         return `Your file meets the standard ${fileType} schema${suffix}.`;
     }, [fileType, handlerType]);
+
+    const warningDescription = useMemo(() => {
+        return handlerType === "upload"
+            ? "Your file has been transmitted"
+            : "Your file has passed validation";
+    }, [handlerType]);
 
     const errorMessaging = errorMessagingMap[handlerType][errorType];
 
@@ -319,6 +321,13 @@ const FileHandler = ({
             <h2 className="font-sans-lg">{organization?.description}</h2>
             {showWarningBanner && (
                 <FileWarningBanner message={warningText || ""} />
+            )}
+            {warnings.length > 0 && fileType === "HL7" && (
+                <FileWarningsDisplay
+                    warnings={warnings}
+                    heading="We found non-critical issues in your file"
+                    message={`The following warnings were returned while processing your file. ${warningDescription}, but these warning areas can be addressed to enhance clarity."`}
+                />
             )}
             {reportId && (
                 <FileSuccessDisplay
@@ -331,13 +340,6 @@ const FileHandler = ({
                     heading={successMessage}
                     message={successDescription}
                     showExtendedMetadata={showSuccessMetadata}
-                />
-            )}
-            {warnings.length > 0 && (
-                <FileWarningsDisplay
-                    warnings={warnings}
-                    heading={errorMessaging.heading}
-                    message={errorMessaging.message}
                 />
             )}
             {errors.length > 0 && (

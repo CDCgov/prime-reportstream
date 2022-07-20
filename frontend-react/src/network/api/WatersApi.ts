@@ -34,9 +34,9 @@ export interface ResponseError {
     rowList?: string;
 }
 
-export interface FileResponseError extends ResponseError {
-    rowList?: string;
-}
+// export interface FileResponseError extends ResponseError {
+//     rowList?: string;
+// }
 
 const WatersApi: API = new API(WatersResponse, "/api").addEndpoint(
     "waters",
