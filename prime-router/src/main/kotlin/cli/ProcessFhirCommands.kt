@@ -171,7 +171,7 @@ class FhirPathCommand : CliktCommand(
                 value?.forEach {
                     val valueAsString =
                         when {
-                            it.isPrimitive -> it.toString()
+                            it.isPrimitive -> "Primitive: $it"
 
                             // Resource are large, so lets pretty print them
                             it is IBaseResource -> {
@@ -181,9 +181,11 @@ class FhirPathCommand : CliktCommand(
                                 JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
                             }
 
+                            // Bundle entries
                             it is BundleEntryComponent -> "Entry: ${it.fullUrl}"
 
-                            else -> it.toString()
+                            // Non-base resources
+                            else -> "Resource: $it"
                         }
 
                     // Print out the value, but add a dash to each collection entry if more than one
