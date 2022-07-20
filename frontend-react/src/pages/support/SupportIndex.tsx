@@ -5,13 +5,13 @@ import {
     ContentDirectory,
     ElementDirectory,
     GeneratedRouter,
-} from "../../components/Markdown/MarkdownDirectory";
+} from "../../components/Content/MarkdownDirectory";
 import { IACardList } from "../../components/IACard";
 import {
     contentContainer,
     ContentDirectoryTools,
     SlugParams,
-} from "../../components/Markdown/DirectoryGenerationTools";
+} from "../../components/Content/PageGenerationTools";
 
 import { Contact } from "./Contact";
 import { Faq } from "./Faq";
