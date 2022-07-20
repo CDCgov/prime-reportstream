@@ -7,28 +7,23 @@ export const Faq = () => {
             <Helmet>
                 <title>FAQ | Support | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
-
             <h1>Frequently asked questions</h1>
-
             <h2>Subhead about the faq</h2>
-
             <h3>How much does ReportStream cost?</h3>
             <p>
                 ReportStream was developed by the CDC for COVID-19 test data
                 reporting and is 100% free.
             </p>
-
             <h3>Where can you use ReportStream?</h3>
             <p>
                 ReportStream is currently live or getting set up in
                 jurisdictions across the United States. Take a look at the
                 complete{" "}
-                <a className="usa-link" href="/how-it-works/where-were-live">
+                <a className="usa-link" href="/product/where-were-live">
                     list of ReportStream partners
                 </a>
                 .
             </p>
-
             <h3>Which browser is recommended for using ReportStream?</h3>
             <p>
                 Our application works best on a modern desktop browser (ex:{" "}
@@ -69,7 +64,6 @@ export const Faq = () => {
                 </a>
                 ). ReportStream doesn't support Internet Explorer 11 or below.
             </p>
-
             <h3>
                 I just activated my ReportStream account, why can't I log in?
             </h3>
@@ -78,6 +72,8 @@ export const Faq = () => {
                 <a
                     className="usa-link"
                     href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html"
+                    target="_blank"
+                    rel="noreferrer noopener"
                 >
                     Pandemic-Ready Interoperability Modernization Effort (PRIME)
                 </a>
@@ -91,7 +87,7 @@ export const Faq = () => {
                 </a>
                 , a PRIME project that ReportStream closely collaborates with.
                 To access your user account, be sure to log in at{" "}
-                <a className="usa-link" href="/login">
+                <a className="usa-link" href="/support/contact">
                     reportstream.cdc.gov/login
                 </a>
                 .
@@ -103,7 +99,6 @@ export const Faq = () => {
                 </a>
                 .
             </p>
-
             <h3>How do I reset my password?</h3>
             <p>
                 If you forgot your password, follow the instructions under the
@@ -122,8 +117,7 @@ export const Faq = () => {
                 </Link>
                 .
             </p>
-
-            <h3>Why does my CSV file keep getting errors from ReportStream?</h3>
+            resourcesetting errors from ReportStream?
             <p>
                 We've put together{" "}
                 <a
@@ -211,7 +205,6 @@ export const Faq = () => {
                     </p>
                 </li>
             </ul>
-
             <h3>
                 Can I sort my CSV columns in any order when I submit the file to
                 ReportStream?
@@ -221,7 +214,6 @@ export const Faq = () => {
                 file. ReportStream looks for data values beneath the column
                 header regardless of where it's located in the file.
             </p>
-
             <h3>
                 What's the difference between ReportStream and SimpleReport?
             </h3>

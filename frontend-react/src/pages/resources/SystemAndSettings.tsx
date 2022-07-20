@@ -78,7 +78,7 @@ export const SystemAndSettingsIa = () => {
                 <p>
                     Get more information on{" "}
                     <a
-                        href="/how-it-works/security-practices"
+                        href="/resources/security-practices"
                         className="usa-link"
                     >
                         ReportStream security practices

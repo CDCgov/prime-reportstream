@@ -62,9 +62,9 @@ ReportStream can receive report data as either [comma-separated values (CSV)] or
 -   CSV upload Pilot program
     Use a simple online tool to submit a CSV file formatted with a standard schema. Receive real-time validation and feedback on file format and field values. Learn how CSV upload works or read the full documentation. **This feature is currently being piloted in select jurisdictions with organizations or facilities that have existing Electronic Medical Record (EMR) systems. Pilot partners are selected by recommendation from jurisdictions. Find out if your jurisdiction is partnered with ReportStream and contact us to learn more.**
 -   SimpleReport
-    [SimpleReport](https://simplereport.com) is a fast, free, and easy way for COVID-19 testing facilities to report results to public health departments. Skip re-entering the same data every time you report. Just pull up a name, enter the test result, and submit. SimpleReport automatically converts your data into the format required by your public health department. Real-time reporting submits test results the moment you record them — saving you time.
+    [SimpleReport](https://simplereport.gov) is a fast, free, and easy way for COVID-19 testing facilities to report results to public health departments. Skip re-entering the same data every time you report. Just pull up a name, enter the test result, and submit. SimpleReport automatically converts your data into the format required by your public health department. Real-time reporting submits test results the moment you record them — saving you time.
 
-Not sure which method is right for you? Contact us as [reportstream@cdc.gov]() to learn more.
+Not sure which method is right for you? [Contact us](/support/contact) to learn more.
 
 ### Where We’re Live
 

@@ -178,7 +178,6 @@ export const GettingStartedPhd = () => {
                     and let us know if you have any special requirements for
                     them to complete before they join.
                 </p>
-
                 <h3>ELR onboarding checklist</h3>
                 <p>
                     Check out our{" "}
@@ -208,11 +207,7 @@ export const GettingStartedPhd = () => {
                 </p>
                 <p>
                     <a
-                        href={
-                            "mailto:" +
-                            DOMPurify.sanitize(site.orgs.RS.email) +
-                            "?subject=Getting started with ReportStream"
-                        }
+                        href="/support/contact"
                         className="usa-button usa-button--outline"
                     >
                         Get in touch
