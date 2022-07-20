@@ -50,7 +50,6 @@ import { DAPHeader } from "./components/header/DAPHeader";
 import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
 import ValueSetsDetail from "./pages/admin/value-set-editor/ValueSetsDetail";
 import SessionProvider from "./contexts/SessionContext";
-import BuiltForYouIndex from "./pages/built-for-you/BuiltForYouIndex";
 import { Resources } from "./pages/resources/ResourcesIndex";
 import { Support } from "./pages/support/SupportIndex";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
@@ -164,24 +163,11 @@ const App = () => {
                                     component={GettingStartedTestingFacilities}
                                 />
                                 <Route
-                                    path="/built-for-you"
-                                    component={BuiltForYouIndex}
-                                />
-                                <AuthorizedRoute
                                     path="/resources"
                                     component={Resources}
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
                                 />
-                                <AuthorizedRoute
-                                    path="/product"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={Product}
-                                />
-                                <AuthorizedRoute
-                                    path="/support"
-                                    component={Support}
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                />
+                                <Route path="/product" component={Product} />
+                                <Route path="/support" component={Support} />
                                 <AuthorizedRoute
                                     path="/daily-data"
                                     authorize={PERMISSIONS.RECEIVER}
