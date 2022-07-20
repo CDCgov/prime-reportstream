@@ -1,10 +1,12 @@
 # How to refer users to ReportStream
 
-This guide provides instructions and communications for referring COVID-19 reporting entities to use ReportStream.
+## This guide provides instructions and communications for referring COVID-19 reporting entities to use ReportStream.
 
-**VERSION DATE: MAY19, 2022**
+_Last updated: May 19, 2022_
 
-## Instructions: Referring users to ReportStream
+---
+
+### Instructions: Referring users to ReportStream
 
 1.Create a new email message from your email application that will be drafted for the prospective user (this is typically the reporting entity’s technical user).
 2.In the subject lineof your email, include a compelling descriptor such as “Recommending this free COVID-19 Reporting Tool”
@@ -16,7 +18,7 @@ b.Make sure all hyperlinks work.
 
 ---
 
-## APPENDIX A:SAMPLE REFFERAL EMAIL COPY
+### APPENDIX A:SAMPLE REFFERAL EMAIL COPY
 
 > Hi[insert name of contact],
 > You’re receiving this email because you’re listed as a point of contact who submits electronic lab reporting of COVID-19 test results for your facility.

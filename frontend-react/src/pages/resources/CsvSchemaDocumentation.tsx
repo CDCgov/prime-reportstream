@@ -99,7 +99,6 @@ export const CsvSchemaDocumentation = () => {
                 </title>
             </Helmet>
 
-            <span className="text-base text-italic">Updated: May 9, 2022</span>
             <h1 id="anchor-top" className="margin-top-0 ">
                 CSV schema documentation{" "}
             </h1>
@@ -126,8 +125,9 @@ export const CsvSchemaDocumentation = () => {
                 </a>{" "}
                 with ReportStream.{" "}
             </p>
+            <p className="text-base text-italic">Last updated: May 9, 2022</p>
             <section>
-                <div className="usa-alert usa-alert--info margin-y-6">
+                <div className="usa-alert usa-alert--info margin-top-2 margin-bottom-6">
                     <div className="usa-alert__body">
                         <h3 className="usa-alert__heading font-body-md margin-top-05">
                             About CSV upload

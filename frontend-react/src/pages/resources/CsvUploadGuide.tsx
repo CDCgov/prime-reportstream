@@ -11,7 +11,7 @@ export const CsvUploadGuideIa = () => {
                     CSV upload guide | Resources | {process.env.REACT_APP_TITLE}
                 </title>
             </Helmet>
-            <span className="text-base text-italic">Updated: January 2022</span>
+
             <h1 id="anchor-top">CSV upload guide </h1>
             <h2 className="usa-intro">
                 Step-by-step instructions and guidance for preparing and
@@ -26,7 +26,9 @@ export const CsvUploadGuideIa = () => {
                 . Receive real-time validation and feedback on file format and
                 field values before submission.
             </p>
-            <div className="usa-alert usa-alert--info margin-y-6">
+            <p className="text-base text-italic">Last updated: January 2022</p>
+            <hr />
+            <div className="usa-alert usa-alert--info margin-top-2 margin-bottom-6">
                 <div className="usa-alert__body">
                     <h3 className="usa-alert__heading font-body-md margin-top-05">
                         About CSV upload
