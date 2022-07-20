@@ -35,7 +35,7 @@ object HL7Utils : Logging {
             if (message !is Message)
                 throw IllegalArgumentException("Type ${type.name} is not of type ca.uhn.hl7v2.model.Message.")
 
-            // Add the field delimiter and encoding characters.  Note these could still be overridden in the schema
+            // Add some default fields.  Note these could still be overridden in the schema
             try {
                 check(type.simpleName.split("_").size == 2)
                 val terser = Terser(message)
