@@ -106,6 +106,8 @@ class FhirToHl7ConverterTests {
         bundle.id = "abc123"
         val resource = MessageHeader()
         resource.id = "def456"
+        resource.destination = listOf(MessageHeader.MessageDestinationComponent())
+        resource.destination[0].name = "a destination"
         val entry = BundleEntryComponent()
         entry.resource = resource
         bundle.addEntry(entry)
@@ -117,23 +119,42 @@ class FhirToHl7ConverterTests {
         assertThat(focusResources).isNotEmpty()
         assertThat(focusResources[0]).isEqualTo(bundle)
 
-        var pathExpression = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(MessageHeader)")
-        assertThat(pathExpression).isNotNull()
-        element = ConfigSchemaElement("name", resourceExpression = pathExpression)
+        var resourceExpression = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(MessageHeader)")
+        assertThat(resourceExpression).isNotNull()
+        element = ConfigSchemaElement("name", resourceExpression = resourceExpression)
         focusResources = converter.getFocusResources(element, bundle)
         assertThat(focusResources).isNotEmpty()
         assertThat(focusResources[0]).isEqualTo(resource)
 
-        pathExpression = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(Patient)")
-        assertThat(pathExpression).isNotNull()
-        element = ConfigSchemaElement("name", resourceExpression = pathExpression)
+        resourceExpression = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(Patient)")
+        assertThat(resourceExpression).isNotNull()
+        element = ConfigSchemaElement("name", resourceExpression = resourceExpression)
         focusResources = converter.getFocusResources(element, bundle)
         assertThat(focusResources).isEmpty()
 
-        pathExpression = FhirPathUtils.parsePath("1")
-        assertThat(pathExpression).isNotNull()
-        element = ConfigSchemaElement("name", resourceExpression = pathExpression)
+        resourceExpression = FhirPathUtils.parsePath("1")
+        assertThat(resourceExpression).isNotNull()
+        element = ConfigSchemaElement("name", resourceExpression = resourceExpression)
         assertThat { converter.getFocusResources(element, bundle) }.isFailure().hasClass(SchemaException::class.java)
+
+        resourceExpression = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(MessageHeader).destination[0].name")
+        assertThat(resourceExpression).isNotNull()
+        element = ConfigSchemaElement("name", resourceExpression = resourceExpression)
+        assertThat { converter.getFocusResources(element, bundle) }.isFailure().hasClass(SchemaException::class.java)
+
+        // Let's test how the FHIR library handles the focus resource
+        resourceExpression = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(MessageHeader).destination")
+        val valueExpression = FhirPathUtils.parsePath("%resource.name")
+        assertThat(resourceExpression).isNotNull()
+        assertThat(valueExpression).isNotNull()
+        element = ConfigSchemaElement(
+            "name", resourceExpression = resourceExpression, valueExpressions = listOf(valueExpression!!)
+        )
+        focusResources = converter.getFocusResources(element, bundle)
+        assertThat(focusResources).isNotEmpty()
+        assertThat(focusResources.size).isEqualTo(1)
+        assertThat(focusResources).isEqualTo(resource.destination)
+        assertThat(converter.getValue(element, focusResources[0])).isEqualTo(resource.destination[0].name)
     }
 
     @Test
