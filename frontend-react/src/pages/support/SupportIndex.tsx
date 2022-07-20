@@ -11,7 +11,7 @@ import {
     contentContainer,
     ContentDirectoryTools,
     SlugParams,
-} from "../../components/Content/DirectoryGenerationTools";
+} from "../../components/Content/PageGenerationTools";
 
 import { Contact } from "./Contact";
 import { Faq } from "./Faq";

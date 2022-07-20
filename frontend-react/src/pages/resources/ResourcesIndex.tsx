@@ -11,7 +11,7 @@ import {
     contentContainer,
     ContentDirectoryTools,
     SlugParams,
-} from "../../components/Content/DirectoryGenerationTools";
+} from "../../components/Content/PageGenerationTools";
 import { IACardList } from "../../components/IACard";
 
 import ProgrammersGuide from "./programmers-guide/ProgrammersGuide";

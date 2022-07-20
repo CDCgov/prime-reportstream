@@ -13,7 +13,7 @@ import StaticPagesFromDirectories from "../../components/Content/StaticPagesFrom
 import {
     ContentDirectoryTools,
     SlugParams,
-} from "../../components/Content/DirectoryGenerationTools";
+} from "../../components/Content/PageGenerationTools";
 
 import { WhereWereLiveIa } from "./WhereWereLive";
 
