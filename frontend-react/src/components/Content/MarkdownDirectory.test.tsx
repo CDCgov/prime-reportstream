@@ -3,7 +3,7 @@ import { ElementDirectory, MarkdownDirectory } from "./MarkdownDirectory";
 const TestDiv = <div>Hello, world</div>;
 const TestElement = () => TestDiv;
 
-describe("ContentDirectory extnesions", () => {
+describe("ContentDirectory extensions", () => {
     const markdown = new MarkdownDirectory(
         "Test Dir",
         "test-dir",

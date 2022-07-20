@@ -25,6 +25,7 @@ export const crumbsFromHere = (
 ): CrumbConfig[] => [{ label: directory, path: dirPath }, { label: pageLabel }];
 
 /** Renders a given element with breadcrumbs
+ * @todo make private method of ContentDirectoryTools
  * @param element {JSX.Element} The element to be rendered
  * @param crumbs {CrumbConfig[]} A list of crumbs to render */
 export const renderWithCrumbs =
@@ -48,7 +49,7 @@ export class ContentDirectoryTools {
         return this;
     }
     setSlugs(slugs: SlugParams[]) {
-        slugs.map((config) => this.slugs.set(config.key, config.slug));
+        slugs.forEach((config) => this.slugs.set(config.key, config.slug));
         return this;
     }
     prependRoot(slugMapKey: string) {
