@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 
-import { ContentDirectory } from "./Markdown/MarkdownDirectory";
+import { ContentDirectory } from "./Content/MarkdownDirectory";
 
 /** Takes an array of ContentDirectories and returns a gird list of IACards
  * with navigation links to the directories, and descriptions.
