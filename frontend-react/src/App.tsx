@@ -16,7 +16,6 @@ import { ToastContainer } from "react-toastify";
 import { Home } from "./pages/home/Home";
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import Daily from "./pages/daily/Daily";
-import { HowItWorks } from "./pages/how-it-works/HowItWorks";
 import { Details } from "./pages/details/Details";
 import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
@@ -30,8 +29,6 @@ import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
 import Submissions from "./pages/submissions/Submissions";
-import { GettingStartedPublicHealthDepartments } from "./pages/getting-started/public-health-departments";
-import { GettingStartedTestingFacilities } from "./pages/getting-started/testing-facilities";
 import { AdminMain } from "./pages/admin/AdminMain";
 import { AdminOrgEdit } from "./pages/admin/AdminOrgEdit";
 import { EditReceiverSettings } from "./components/Admin/EditReceiverSettings";
@@ -136,10 +133,6 @@ const App = () => {
                             <Switch>
                                 <Route path="/" exact={true} component={Home} />
                                 <Route
-                                    path="/how-it-works"
-                                    component={HowItWorks}
-                                />
-                                <Route
                                     path="/terms-of-service"
                                     component={TermsOfService}
                                 />
@@ -151,16 +144,6 @@ const App = () => {
                                 <Route
                                     path="/sign-tos"
                                     component={TermsOfServiceForm}
-                                />
-                                <Route
-                                    path="/getting-started/public-health-departments"
-                                    component={
-                                        GettingStartedPublicHealthDepartments
-                                    }
-                                />
-                                <Route
-                                    path="/getting-started/testing-facilities"
-                                    component={GettingStartedTestingFacilities}
                                 />
                                 <Route
                                     path="/resources"
