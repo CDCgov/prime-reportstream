@@ -165,7 +165,7 @@ ul.rb li .timestamp {
 .rs-documentation {
   
 
-  h1, h2, h3, h4, h5, h6, p, ul, ol, .usa-alert {
+  h1, h2, h3, h4, h5, h6, p, ul, ol, .usa-alert, blockquote {
     @include u-measure(6);
   }
 
@@ -195,6 +195,13 @@ ul.rb li .timestamp {
   h3 {
     margin-top: 0;
     font-size: size('sans', 'lg');
+  }
+
+  blockquote {
+    background-color: color('base-lightest');
+    padding: units(1) units(3);
+    margin: units(3) 0 units(3) 0;
+    width: inherit;
   }
 }
 
