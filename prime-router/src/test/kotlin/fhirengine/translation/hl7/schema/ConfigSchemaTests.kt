@@ -27,7 +27,7 @@ class ConfigSchemaTests {
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.errors).isNotEmpty()
 
-        val goodElement = ConfigSchemaElement("name", value = "Bundle", hl7Spec = listOf("MSH-7"))
+        val goodElement = ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
         schema = ConfigSchema("name", "ORU_R01", "2.5.1", listOf(goodElement))
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.errors).isEmpty()
@@ -63,66 +63,63 @@ class ConfigSchemaTests {
         element = ConfigSchemaElement("name")
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement("name", value = "Bundle")
+        element = ConfigSchemaElement("name", value = listOf("Bundle"))
         assertThat(element.validate()).isNotEmpty()
 
         element = ConfigSchemaElement("name", hl7Spec = listOf("MSH-7"))
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement("name", value = "Bundle", hl7Spec = listOf("MSH-7"))
+        element = ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
         assertThat(element.validate()).isEmpty()
 
-        element = ConfigSchemaElement("name", value = "Bundle", hl7Spec = listOf("MSH-7"), schema = "schema")
+        element = ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"), schema = "schema")
         assertThat(element.validate()).isNotEmpty()
 
         element = ConfigSchemaElement("name", hl7Spec = listOf("MSH-7"), schema = "schema")
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement("name", value = "Bundle", schema = "schema")
+        element = ConfigSchemaElement("name", value = listOf("Bundle"), schema = "schema")
         assertThat(element.validate()).isNotEmpty()
 
         element = ConfigSchemaElement("name", schema = "schema")
         assertThat(element.validate()).isNotEmpty()
 
-        element = ConfigSchemaElement("name", schema = "schema", schemaRef = ConfigSchema())
-        assertThat(element.validate()).isEmpty()
-
         element = ConfigSchemaElement(
-            "name", value = "Bundle", resource = "Bundle", condition = "Bundle",
+            "name", value = listOf("Bundle"), resource = "Bundle", condition = "Bundle",
             hl7Spec = listOf("MSH-7")
         )
         assertThat(element.validate()).isEmpty()
-        assertThat(element.valueExpression).isNotNull()
+        assertThat(element.valueExpressions).isNotNull()
         assertThat(element.resourceExpression).isNotNull()
         assertThat(element.conditionExpression).isNotNull()
 
         // FHIR Path errors
         element = ConfigSchemaElement(
-            "name", value = "Bundle...", resource = "Bundle", condition = "Bundle",
+            "name", value = listOf("Bundle..."), resource = "Bundle", condition = "Bundle",
         )
         assertThat(element.validate()).isNotEmpty()
 
         element = ConfigSchemaElement(
-            "name", value = "Bundle", resource = "Bundle...", condition = "Bundle",
+            "name", value = listOf("Bundle"), resource = "Bundle...", condition = "Bundle",
         )
         assertThat(element.validate()).isNotEmpty()
 
         element = ConfigSchemaElement(
-            "name", value = "Bundle", resource = "Bundle", condition = "Bundle...",
+            "name", value = listOf("Bundle"), resource = "Bundle", condition = "Bundle...",
         )
         assertThat(element.validate()).isNotEmpty()
     }
 
     @Test
     fun `test validate schema with schemas`() {
-        var goodElement = ConfigSchemaElement("name", value = "Bundle", hl7Spec = listOf("MSH-7"))
+        var goodElement = ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"))
         var childSchema = ConfigSchema("name", elements = listOf(goodElement))
         var elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
         var topSchema = ConfigSchema("name", "ORU_R01", "2.5.1", listOf(elementWithSchema))
         assertThat(topSchema.isValid()).isTrue()
         assertThat(topSchema.errors).isEmpty()
 
-        goodElement = ConfigSchemaElement("name", value = "Bundle") // No HL7Spec = error
+        goodElement = ConfigSchemaElement("name", value = listOf("Bundle")) // No HL7Spec = error
         childSchema = ConfigSchema("name", elements = listOf(goodElement))
         elementWithSchema = ConfigSchemaElement("name", schema = "schemaname", schemaRef = childSchema)
         topSchema = ConfigSchema("name", "ORU_R01", "2.5.1", listOf(elementWithSchema))

@@ -22,7 +22,7 @@ class ConfigSchemaReaderTests {
                 Bundle.entry.resource.ofType(MessageHeader) and
                 Bundle.entry.resource.ofType(Provenance) and
                 Bundle.entry.resource.ofType(Provenance).activity.coding.code = 'R01'
-              value: '1'
+              value: ['1']
               hl7Spec:
                 - .PID.1
         """.trimIndent()

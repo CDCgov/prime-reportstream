@@ -1,7 +1,10 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.context.SimpleWorkerContext
 import org.hl7.fhir.r4.model.Base
+import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.ExpressionNode
 import org.hl7.fhir.r4.utils.FHIRPathEngine
@@ -9,7 +12,7 @@ import org.hl7.fhir.r4.utils.FHIRPathEngine
 /**
  * Utilities to handle FHIR Path parsing.
  */
-object FhirPathUtils {
+object FhirPathUtils : Logging {
     /**
      * The FHIR path engine.
      */
@@ -45,6 +48,7 @@ object FhirPathUtils {
      * [appContext] provides custom context (e.g. variables) used for the evaluation.
      * Note that if the [expressionNode] does not evaluate to a boolean then the result is false.
      * @return true if the expression evaluates to true, otherwise false
+     * @throws SchemaException if the FHIR path does not evaluate to a boolean type
      */
     fun evaluateCondition(
         appContext: Any,
@@ -52,7 +56,11 @@ object FhirPathUtils {
         bundle: Bundle,
         expressionNode: ExpressionNode
     ): Boolean {
-        return defaultPathEngine.evaluateToBoolean(appContext, focusResource, bundle, bundle, expressionNode)
+        val value = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+        return if (value.size == 1 && value[0].isBooleanPrimitive) (value[0] as BooleanType).value
+        else {
+            throw SchemaException("Condition did not evaluate to a boolean type")
+        }
     }
 
     /**

@@ -103,9 +103,9 @@ data class ConfigSchema(
  * @property schemaRef the reference to the loaded child schema
  * @property resource a FHIR path that points to a FHIR resource
  * @property resourceExpression the validated FHIR path representation of the [resource] string
- * @property value a FHIR path that points to a FHIR primitive value
- * @property valueExpression the validated FHIR path representation of the [value] string
- * @property hl7Spec an array of hl7Specs that denote the field to place a value into
+ * @property value a list of FHIR paths that points to a FHIR primitive value
+ * @property valueExpressions the validated FHIR paths representation of the [value] string
+ * @property hl7Spec a list of hl7Specs that denote the field to place a value into
  */
 @JsonIgnoreProperties
 data class ConfigSchemaElement(
@@ -117,8 +117,8 @@ data class ConfigSchemaElement(
     var schemaRef: ConfigSchema? = null,
     var resource: String? = null,
     var resourceExpression: ExpressionNode? = null,
-    var value: String? = null,
-    var valueExpression: ExpressionNode? = null,
+    var value: List<String> = emptyList(),
+    var valueExpressions: List<ExpressionNode> = emptyList(),
     var hl7Spec: List<String> = emptyList()
 ) {
     /**
@@ -152,16 +152,16 @@ data class ConfigSchemaElement(
         }
 
         if (name.isNullOrBlank()) {
-            addError("Schema name cannot be blank")
+            addError("Element name cannot be blank")
         }
 
         // Hl7spec and value cannot be used with schema.
         when {
-            !schema.isNullOrBlank() && (hl7Spec.isNotEmpty() || !value.isNullOrBlank()) ->
+            !schema.isNullOrBlank() && (hl7Spec.isNotEmpty() || value.isNotEmpty()) ->
                 addError("Schema property cannot be used with hl7Spec or value properties")
             schema.isNullOrBlank() && hl7Spec.isEmpty() ->
                 addError("Hl7Spec property is required when not using a schema")
-            schema.isNullOrBlank() && value.isNullOrBlank() ->
+            schema.isNullOrBlank() && value.isEmpty() ->
                 addError("Value property is required when not using a schema")
         }
 
@@ -171,7 +171,11 @@ data class ConfigSchemaElement(
 
         // Validate the FHIR paths.
         conditionExpression = getFhirPath(condition)
-        valueExpression = getFhirPath(value)
+        val valueExpressionList = mutableListOf<ExpressionNode>()
+        value.forEach { path ->
+            getFhirPath(path)?.let { valueExpressionList.add(it) }
+        }
+        valueExpressions = valueExpressionList.toList()
         resourceExpression = getFhirPath(resource)
 
         schemaRef?.let {

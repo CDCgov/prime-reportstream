@@ -2,8 +2,11 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import assertk.assertThat
 import assertk.assertions.isFailure
+import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
+import org.hl7.fhir.r4.model.Bundle
 import kotlin.test.Test
 
 class FhirPathUtilsTests {
@@ -21,5 +24,23 @@ class FhirPathUtilsTests {
 
         // Null
         assertThat(FhirPathUtils.parsePath(null)).isNull()
+    }
+
+    @Test
+    fun `test evaluate condition`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+
+        var path = FhirPathUtils.parsePath("Bundle.id.exists()")
+        assertThat(path).isNotNull()
+        assertThat(FhirPathUtils.evaluateCondition("", bundle, bundle, path!!)).isTrue()
+
+        path = FhirPathUtils.parsePath("Bundle.timestamp.exists()")
+        assertThat(path).isNotNull()
+        assertThat(FhirPathUtils.evaluateCondition("", bundle, bundle, path!!)).isFalse()
+
+        path = FhirPathUtils.parsePath("Bundle.id")
+        assertThat(path).isNotNull()
+        assertThat { FhirPathUtils.evaluateCondition("", bundle, bundle, path!!) }.isFailure()
     }
 }

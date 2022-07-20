@@ -13,16 +13,17 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 
 /**
- * The FHIR to HL7 converter.
- * @property bundle the source FHIR bundle
- * @property schema the name of the schema to use for the conversion
- * @property schemaFolder the location of the schema
+ * Convert a FHIR [bundle] to an HL7 message using the [schema] located in the [schemaFolder] to perform the conversion.
+ * The converter will error out if [strict] is set to true and there is an error during the conversion.  if [strict]
+ * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
+ * the schema validation process.
  * @property terser the terser to use for building the HL7 message (use for dependency injection)
  */
 class FhirToHl7Converter(
     private val bundle: Bundle,
     private val schema: String,
     private val schemaFolder: String,
+    private val strict: Boolean = false,
     private var terser: Terser? = null
 ) : Logging {
 
@@ -41,25 +42,25 @@ class FhirToHl7Converter(
         // Sanity check, but at this point we know we have a good schema
         check(message != null)
         terser = Terser(message)
-        processSchema(bundle, schemaRef)
+        processSchema(schemaRef, bundle)
         return message
     }
 
     /**
      * Generate HL7 data for the elements for the given [schema] starting at the [focusResource] in the bundle.
      */
-    internal fun processSchema(focusResource: Base, schema: ConfigSchema) {
+    internal fun processSchema(schema: ConfigSchema, focusResource: Base) {
         logger.debug("Processing schema: ${schema.name} with ${schema.elements.size} elements")
         schema.elements.forEach { element ->
-            processElement(focusResource, element)
+            processElement(element, focusResource)
         }
     }
 
     /**
      * Generate HL7 data for an [element] starting at the [focusResource] in the bundle.
      */
-    internal fun processElement(focusResource: Base, element: ConfigSchemaElement) {
-        // First we need to resolve a resource value if available.
+    internal fun processElement(element: ConfigSchemaElement, focusResource: Base) {
+        // First we need to resolve a resource value if available. This always returns at least one resource
         getFocusResources(element, focusResource).forEach { singleFocusResource ->
             // TODO NEED TO HANDLE REPEATING SEGMENTS AS THEY WILL NEED AN INDEX REFERENCE
 
@@ -68,12 +69,13 @@ class FhirToHl7Converter(
                 when {
                     // If this is a schema then process it.
                     element.schemaRef != null -> {
-                        processSchema(singleFocusResource, element.schemaRef!!)
+                        processSchema(element.schemaRef!!, singleFocusResource)
                     }
 
                     // A value
-                    element.valueExpression != null && element.hl7Spec.isNotEmpty() -> {
-                        val value = FhirPathUtils.evaluateString("", focusResource, bundle, element.valueExpression!!)
+                    element.valueExpressions.isNotEmpty() && element.hl7Spec.isNotEmpty() -> {
+                        // TODO NEED TO PROVIDE AN APPCONTEXT WITH CUSTOM SET OF VARIABLES INSTEAD OF ""
+                        val value = getValue(element, singleFocusResource)
                         setHl7Value(element, value)
                         debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
                             "value: $value, hl7Spec: ${element.hl7Spec}"
@@ -91,6 +93,23 @@ class FhirToHl7Converter(
             // Only log for elements that require values
             if (element.schemaRef == null) logger.debug(debugMsg)
         }
+    }
+
+    /**
+     * Get the first valid string from the list of values specified in the schema for a given [element] starting
+     * at the [focusResource].
+     * @return the value for the the element or an empty string if no value found
+     */
+    internal fun getValue(element: ConfigSchemaElement, focusResource: Base): String {
+        var retVal = ""
+        element.valueExpressions.forEach {
+            val value = FhirPathUtils.evaluateString("", focusResource, bundle, it)
+            if (value.isNotBlank()) {
+                retVal = value
+                return@forEach
+            }
+        }
+        return retVal
     }
 
     /**
@@ -121,7 +140,15 @@ class FhirToHl7Converter(
      */
     internal fun canEvaluate(element: ConfigSchemaElement, focusResource: Base): Boolean {
         return element.conditionExpression?.let {
-            FhirPathUtils.evaluateCondition("", focusResource, bundle, it)
+            try {
+                FhirPathUtils.evaluateCondition("", focusResource, bundle, it)
+            } catch (e: SchemaException) {
+                logger.warn(
+                    "Condition for element ${element.name} did not evaluate to a boolean type, " +
+                        "so the condition failed."
+                )
+                false
+            }
         } ?: true
     }
 
@@ -137,13 +164,17 @@ class FhirToHl7Converter(
             try {
                 terser!!.set(it, value)
             } catch (e: HL7Exception) {
-                val msg = "Error while setting HL7 value for element ${element.name}"
-                logger.error(msg, e)
-                throw HL7ConversionException(msg, e)
+                val msg = "Could not set HL7 value for spec $it for element ${element.name}"
+                if (strict) {
+                    logger.error(msg, e)
+                    throw HL7ConversionException(msg, e)
+                } else logger.warn(msg, e)
             } catch (e: IllegalArgumentException) {
-                val msg = "Invalid Hl7 spec specified in schema for element ${element.name}"
-                logger.error(msg, e)
-                throw SchemaException(msg, e)
+                val msg = "Invalid Hl7 spec $it specified in schema for element ${element.name}"
+                if (strict) {
+                    logger.error(msg, e)
+                    throw SchemaException(msg, e)
+                } else logger.warn(msg, e)
             }
         }
     }
