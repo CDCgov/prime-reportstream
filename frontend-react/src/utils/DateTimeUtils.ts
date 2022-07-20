@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export type SubmissionDate = {
     dateString: string;
     timeString: string;
@@ -51,4 +53,17 @@ const parseMonth = (numericMonth: number) => {
         "Dec",
     ];
     return monthNames[numericMonth];
+};
+
+export const formattedDateFromTimestamp = (
+    timestamp: string,
+    format: string
+) => {
+    const timestampDate = new Date(timestamp);
+    // TODO: refactor to remove dependency on moment
+    return moment(timestampDate).format(format);
+};
+
+export const timeZoneAbbreviated = () => {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
 };

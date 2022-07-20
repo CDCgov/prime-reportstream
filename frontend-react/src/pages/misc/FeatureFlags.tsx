@@ -17,6 +17,7 @@ export enum FeatureFlagName {
     BUILT_FOR_YOU = "built-for-you",
     VALIDATION_SERVICE = "validation-service",
     NEW_IA = "new-ia",
+    USER_UPLOAD = "user-upload",
 }
 
 /* feature flags are just and array of strings saved into a single localStorage variable */
