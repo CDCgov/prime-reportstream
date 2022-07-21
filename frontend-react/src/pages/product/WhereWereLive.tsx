@@ -1,12 +1,10 @@
-import DOMPurify from "dompurify";
 import { Helmet } from "react-helmet";
 
-import site from "../../content/site.json";
 // NOTE: update live.json and open usa_w_territories.svg with TEXT EDITOR and uncomment state styles
 import live from "../../content/live.json";
 import usamapsvg from "../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
 
-export const WhereWereLiveIa = () => {
+export const WhereWereLive = () => {
     return (
         <>
             <Helmet>
@@ -17,24 +15,17 @@ export const WhereWereLiveIa = () => {
             <h1 aria-describedby="product-heading-description" id="anchor-top">
                 Where we're live
             </h1>
-            <p className="usa-intro text-base">
+            <h2>
                 ReportStream is currently live or getting set up in
                 jurisdictions across the United States.{" "}
-            </p>
-            <p className="usa-intro text-base">
+            </h2>
+            <h2>
                 Don't see your state or territory?{" "}
-                <a
-                    href={
-                        "mailto:" +
-                        DOMPurify.sanitize(site.orgs.RS.email) +
-                        "?subject=Getting started with ReportStream"
-                    }
-                    className="margin-left-1 usa-link"
-                >
+                <a href="/support/contact" className="margin-left-1 usa-link">
                     Get in touch
                 </a>
                 .
-            </p>
+            </h2>
             <img
                 className="margin-bottom-6"
                 src={usamapsvg}

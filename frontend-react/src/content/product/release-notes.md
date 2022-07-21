@@ -1,23 +1,27 @@
 # Release notes
 
-## June 2022 
+## Stay up to date with new features, enhancements, and fixes
 
-### New Features 
+---
 
-ReportStream now supports RADx MARS, the NIH standard for at-home test reporting via HL7 and CSV formats. 
+### June 2022
 
-The Standard CSV schema now accepts “Residence Type” data in your file submission. For details, visit the online guide. 
+#### New Features
 
-ReportStream now accepts international phone numbers. 
+ReportStream now supports RADx MARS, the NIH standard for at-home test reporting via HL7 and CSV formats.
 
-### Enhancements 
+The Standard CSV schema now accepts “Residence Type” data in your file submission. For details, visit the online guide.
 
-From your ReportStream user account, you can now sort the data column on the Submissions page by ascending or descending order. 
+ReportStream now accepts international phone numbers.
 
-### Fixed Issues 
+#### Enhancements
 
-From your ReportStream user account, you must select a valid date range when using the fixed date filters on the Submissions page. 
+From your ReportStream user account, you can now sort the data column on the Submissions page by ascending or descending order.
 
-### Additional Resources 
+#### Fixed Issues
 
-ReportStream API Programmer’s Guide is updated to version 2.2 with information on how to submit data reporting for at-home test results.   
+From your ReportStream user account, you must select a valid date range when using the fixed date filters on the Submissions page.
+
+#### Additional Resources
+
+ReportStream [API Programmer’s Guide](/resources/programmers-guide) is updated to version 2.2 with information on how to submit data for at-home test results.
