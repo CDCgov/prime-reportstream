@@ -19,6 +19,7 @@ import Daily from "./pages/daily/Daily";
 import { Details } from "./pages/details/Details";
 import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
+import { About } from "./pages/About";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
 import { oktaAuthConfig } from "./oktaConfig";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
@@ -136,6 +137,7 @@ const App = () => {
                                     path="/terms-of-service"
                                     component={TermsOfService}
                                 />
+                                <Route path="/about" component={About} />
                                 <Route path="/login" render={() => <Login />} />
                                 <Route
                                     path="/login/callback"

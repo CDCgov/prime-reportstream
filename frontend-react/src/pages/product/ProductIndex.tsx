@@ -70,7 +70,7 @@ export const Product = () => {
                 {/* Workaround to allow links to /product to work */}
                 <Redirect from={"/product"} to={"/product/overview"} />
             </Switch>
-            <div className="rs-prose">
+            <div>
                 <StaticPagesFromDirectories directories={directories} />
             </div>
         </>
