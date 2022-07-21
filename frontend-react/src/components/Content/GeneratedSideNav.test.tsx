@@ -13,10 +13,10 @@ const TEST_DIRS = [
 test("GeneratedSideNav", () => {
     renderWithRouter(<GeneratedSideNav directories={TEST_DIRS} />);
     expect(screen.getByText("Test Dir")).toBeInTheDocument();
-    expect(screen.getByText("Test Dir")).toHaveAttribute("href", "test-dir");
+    expect(screen.getByText("Test Dir")).toHaveAttribute("href", "/test-dir");
     expect(screen.getByText("Another Dir")).toBeInTheDocument();
     expect(screen.getByText("Another Dir")).toHaveAttribute(
         "href",
-        "another-dir"
+        "/another-dir"
     );
 });
