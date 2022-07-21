@@ -10,14 +10,14 @@ _Last updated: May 19, 2022_
 
 1. Create a new email message from your email application that will be drafted for the prospective user (this is typically the reporting entity’s technical user).
 2. In the subject lineof your email, include a compelling descriptor such as “Recommending this free COVID-19 Reporting Tool”
-3. In the body of your email, copy and paste the text from “Appendix A: Sample Referral Email Copy.”
+3. In the body of your email, copy and paste the below text under "Sample referral email copy.”
    Replace the instructional text in the brackets with the correct information (example: “[insert name of contact]” can be replaced with the recipient name who will receive this referral email). Make sure all hyperlinks work.
 4. If you haven’t already done so, enter the email address of the testing facility contact in the “To” or recipient field.
 5. When your email is reviewed and ready, hit Send.
 
 ---
 
-### Appendix A: Sample Referral email copy
+### Sample referral email copy
 
 > Hi [insert name of contact],
 >
