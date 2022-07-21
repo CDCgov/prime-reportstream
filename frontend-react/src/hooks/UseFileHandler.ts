@@ -4,8 +4,8 @@ import { ResponseError, WatersResponse } from "../network/api/WatersApi";
 import { Destination } from "../resources/ActionDetailsResource";
 
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
-const REPORT_MAX_ITEMS = 10000;
-const REPORT_MAX_ITEM_COLUMNS = 2000;
+// const REPORT_MAX_ITEMS = 10000;
+// const REPORT_MAX_ITEM_COLUMNS = 2000;
 
 export enum ErrorType {
     SERVER = "server",
@@ -89,34 +89,34 @@ type FileHandlerReducer = (
     action: FileHandlerAction
 ) => FileHandlerState;
 
-const parseCsvForError = (
-    fileName: string,
-    filecontent: string
-): string | undefined => {
-    // count the number of lines
-    const linecount = (filecontent.match(/\n/g) || []).length + 1;
-    if (linecount > REPORT_MAX_ITEMS) {
-        return `The file '${fileName}' has too many rows. The maximum number of rows allowed is ${REPORT_MAX_ITEMS}.`;
-    }
-    if (linecount <= 1) {
-        return `The file '${fileName}' doesn't contain any valid data. File should have a header line and at least one line of data.`;
-    }
+// const parseCsvForError = (
+//     fileName: string,
+//     filecontent: string
+// ): string | undefined => {
+//     // count the number of lines
+//     const linecount = (filecontent.match(/\n/g) || []).length + 1;
+//     if (linecount > REPORT_MAX_ITEMS) {
+//         return `The file '${fileName}' has too many rows. The maximum number of rows allowed is ${REPORT_MAX_ITEMS}.`;
+//     }
+//     if (linecount <= 1) {
+//         return `The file '${fileName}' doesn't contain any valid data. File should have a header line and at least one line of data.`;
+//     }
 
-    // get the first line and examine it
-    const firstline = (filecontent.match(/^(.*)\n/) || [""])[0];
-    // ideally, the columns would be comma seperated, but they may be tabs, because the first
-    // line is a header, we don't have to worry about escaped delimiters in strings (e.g. ,"Smith, John",)
-    const columncount =
-        (firstline.match(/,/g) || []).length ||
-        (firstline.match(/\t/g) || []).length;
+//     // get the first line and examine it
+//     const firstline = (filecontent.match(/^(.*)\n/) || [""])[0];
+//     // ideally, the columns would be comma seperated, but they may be tabs, because the first
+//     // line is a header, we don't have to worry about escaped delimiters in strings (e.g. ,"Smith, John",)
+//     const columncount =
+//         (firstline.match(/,/g) || []).length ||
+//         (firstline.match(/\t/g) || []).length;
 
-    if (columncount > REPORT_MAX_ITEM_COLUMNS) {
-        return `The file '${fileName}' has too many columns. The maximum number of allowed columns is ${REPORT_MAX_ITEM_COLUMNS}.`;
-    }
-    // todo: this is a good place to do basic validation of the upload file. e.g. does it have
-    // all the required columns? Are any rows obviously not correct (empty or obviously wrong type)?
-    return;
-};
+//     if (columncount > REPORT_MAX_ITEM_COLUMNS) {
+//         return `The file '${fileName}' has too many columns. The maximum number of allowed columns is ${REPORT_MAX_ITEM_COLUMNS}.`;
+//     }
+//     // todo: this is a good place to do basic validation of the upload file. e.g. does it have
+//     // all the required columns? Are any rows obviously not correct (empty or obviously wrong type)?
+//     return;
+// };
 
 // Currently returning a static object, but leaving this as a function
 // in case we need to make it dynamic for some reason later
@@ -149,10 +149,10 @@ function getPreSubmitState(): Partial<FileHandlerState> {
     };
 }
 
-async function calculateFileSelectedState(
+function calculateFileSelectedState(
     state: FileHandlerState,
     payload: FileSelectedPayload
-): Promise<Partial<FileHandlerState>> {
+): Partial<FileHandlerState> {
     const { file } = payload;
     try {
         let uploadType;
@@ -188,29 +188,19 @@ async function calculateFileSelectedState(
             };
         }
         // load the "contents" of the file. Hope it fits in memory!
-        const filecontent = await file.text();
+        // const filecontent = await file.text();
 
-        let contentType;
-        if (uploadType === "csv" || uploadType === "text/csv") {
-            contentType = ContentType.CSV;
-            const localCsvError = parseCsvForError(file.name, filecontent);
-            if (localCsvError) {
-                return {
-                    ...state,
-                    localError: localCsvError,
-                };
-            }
-        } else {
-            // todo: do any front-end validations we can do here on hl7 files before it hits the server here
-            contentType = ContentType.HL7;
-        }
+        const contentType =
+            uploadType === "csv" || uploadType === "text/csv"
+                ? ContentType.CSV
+                : ContentType.HL7;
 
         const fileType = uploadType.match("hl7") ? FileType.HL7 : FileType.CSV;
         return {
             ...state,
             fileType,
             fileName: file.name,
-            fileContent: filecontent,
+            // fileContent: filecontent,
             contentType,
             cancellable: true,
         };
@@ -273,6 +263,7 @@ function reducer(
                 state,
                 payload as FileSelectedPayload
             );
+            console.log("!!! file selected", fileSelectedState);
             return { ...state, ...fileSelectedState };
         case FileHandlerActionType.REQUEST_COMPLETE:
             const requestCompleteState = calculateRequestCompleteState(

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -20,8 +20,8 @@ import {
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
-// const REPORT_MAX_ITEMS = 10000;
-// const REPORT_MAX_ITEM_COLUMNS = 2000;
+const REPORT_MAX_ITEMS = 10000;
+const REPORT_MAX_ITEM_COLUMNS = 2000;
 
 const SERVER_ERROR_MESSAGING = {
     heading: "Error",
@@ -46,42 +46,37 @@ const errorMessagingMap = {
     },
 };
 
-// const parseCsvForError = (fileName: string, filecontent: string) => {
-//     const error = false;
-//     // count the number of lines
-//     const linecount = (filecontent.match(/\n/g) || []).length + 1;
-//     if (linecount > REPORT_MAX_ITEMS) {
-//         showError(
-//             `The file '${fileName}' has too many rows. The maximum number of rows allowed is ${REPORT_MAX_ITEMS}.`
-//         );
-//         return true;
-//     }
-//     if (linecount <= 1) {
-//         showError(
-//             `The file '${fileName}' doesn't contain any valid data. ` +
-//                 `File should have a header line and at least one line of data.`
-//         );
-//         return true;
-//     }
+const parseCsvForError = (
+    fileName: string,
+    filecontent: string
+): string | undefined => {
+    // count the number of lines
+    const linecount = (filecontent.match(/\n/g) || []).length + 1;
+    if (linecount > REPORT_MAX_ITEMS) {
+        return `The file '${fileName}' has too many rows. The maximum number of rows allowed is ${REPORT_MAX_ITEMS}.`;
+    }
+    if (linecount <= 1) {
+        return (
+            `The file '${fileName}' doesn't contain any valid data. ` +
+            `File should have a header line and at least one line of data.`
+        );
+    }
 
-//     // get the first line and examine it
-//     const firstline = (filecontent.match(/^(.*)\n/) || [""])[0];
-//     // ideally, the columns would be comma seperated, but they may be tabs, because the first
-//     // line is a header, we don't have to worry about escaped delimiters in strings (e.g. ,"Smith, John",)
-//     const columncount =
-//         (firstline.match(/,/g) || []).length ||
-//         (firstline.match(/\t/g) || []).length;
+    // get the first line and examine it
+    const firstline = (filecontent.match(/^(.*)\n/) || [""])[0];
+    // ideally, the columns would be comma seperated, but they may be tabs, because the first
+    // line is a header, we don't have to worry about escaped delimiters in strings (e.g. ,"Smith, John",)
+    const columncount =
+        (firstline.match(/,/g) || []).length ||
+        (firstline.match(/\t/g) || []).length;
 
-//     if (columncount > REPORT_MAX_ITEM_COLUMNS) {
-//         showError(
-//             `The file '${fileName}' has too many columns. The maximum number of allowed columns is ${REPORT_MAX_ITEM_COLUMNS}.`
-//         );
-//         return true;
-//     }
-//     // todo: this is a good place to do basic validation of the upload file. e.g. does it have
-//     // all the required columns? Are any rows obviously not correct (empty or obviously wrong type)?
-//     return error;
-// };
+    if (columncount > REPORT_MAX_ITEM_COLUMNS) {
+        return `The file '${fileName}' has too many columns. The maximum number of allowed columns is ${REPORT_MAX_ITEM_COLUMNS}.`;
+    }
+    // todo: this is a good place to do basic validation of the upload file. e.g. does it have
+    // all the required columns? Are any rows obviously not correct (empty or obviously wrong type)?
+    return;
+};
 
 export enum FileHandlerType {
     UPLOAD = "upload",
@@ -130,11 +125,12 @@ const FileHandler = ({
     // const [warnings, setWarnings] = useState<ResponseError[]>([]);
 
     const { state, dispatch } = useFileHandler();
+    const [fileContent, setFileContent] = useState("");
 
     const {
         isSubmitting,
         fileInputResetValue,
-        fileContent,
+        // fileContent,
         contentType,
         fileType,
         fileName,
@@ -191,6 +187,20 @@ const FileHandler = ({
             // shouldn't happen but keeps linter happy
             return;
         }
+
+        // unfortunate that we have to do this a bit early in order to keep
+        // async code out of the reducer, but oh well - DWS
+        const fileContent = await file.text();
+
+        if (file.type === "csv" || file.type === "text/csv") {
+            const localCsvError = parseCsvForError(file.name, fileContent);
+            if (localCsvError) {
+                showError(localCsvError);
+                return;
+            }
+        }
+
+        setFileContent(fileContent);
 
         dispatch({
             type: FileHandlerActionType.FILE_SELECTED,
@@ -264,6 +274,7 @@ const FileHandler = ({
         // setWarnings([]);
 
         if (fileContent.length === 0) {
+            showError(`No File Contents To ${submitText}`);
             return;
         }
 
@@ -358,7 +369,10 @@ const FileHandler = ({
     const errorMessaging =
         errorMessagingMap[handlerType][errorType || ErrorType.FILE];
 
-    const resetState = () => dispatch({ type: FileHandlerActionType.RESET });
+    const resetState = () => {
+        setFileContent("");
+        dispatch({ type: FileHandlerActionType.RESET });
+    };
 
     return (
         <div className="grid-container usa-section margin-bottom-10">
