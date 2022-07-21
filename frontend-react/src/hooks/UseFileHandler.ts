@@ -1,8 +1,13 @@
 import { useReducer } from "react";
 
-import { ResponseError } from "../network/api/WatersApi";
+import { ResponseError, WatersResponse } from "../network/api/WatersApi";
+import { Destination } from "../resources/ActionDetailsResource";
 
-enum ErrorType {
+const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
+const REPORT_MAX_ITEMS = 10000;
+const REPORT_MAX_ITEM_COLUMNS = 2000;
+
+export enum ErrorType {
     SERVER = "server",
     FILE = "file",
 }
@@ -22,7 +27,7 @@ export interface FileHandlerState {
     isSubmitting: boolean;
     fileInputResetValue: number;
     fileContent: string;
-    contentType?: string;
+    contentType?: ContentType;
     fileType?: FileType;
     fileName: string;
     errors: ResponseError[];
@@ -32,33 +37,32 @@ export interface FileHandlerState {
     cancellable: boolean;
     errorType?: ErrorType;
     warnings: ResponseError[];
+    localError: string;
 }
 
-enum FileHandlerActionType {
+export enum FileHandlerActionType {
     RESET = "RESET",
     PREPARE_FOR_REQUEST = "PREPARE_FOR_REQUEST",
     SET_FILE_TYPE = "SET_FILE_TYPE",
-    REQUEST_COMPLETE = "REQUEST_COMPLETE",
-    FILE_SELECTED = "FILE_SELECTED",
     SET_CANCELLABLE = "SET_CANCELLABLE",
+    FILE_SELECTED = "FILE_SELECTED",
+    REQUEST_COMPLETE = "REQUEST_COMPLETE",
 }
 
 interface RequestCompletePayload {
-    destinations?: string;
-    reportId?: string;
-    successTimestamp?: string;
-    errorType?: ErrorType;
-    warnings?: ResponseError[];
-    errors?: ResponseError[];
-    cancellable: boolean;
-    fileInputResetValue: number;
+    // destinations?: string;
+    // reportId?: string;
+    // successTimestamp?: string;
+    // errorType?: ErrorType;
+    // warnings?: ResponseError[];
+    // errors?: ResponseError[];
+    // cancellable: boolean;
+    // fileInputResetValue: number;
+    response: WatersResponse;
 }
 
 interface FileSelectedPayload {
-    contentType: ContentType;
-    fileName: string;
-    fileContent: string;
-    cancellable: boolean;
+    file: File;
 }
 
 interface SetFileTypePayload {
@@ -69,19 +73,50 @@ interface SetCancellablePayload {
     cancellable: boolean;
 }
 
+type FileHandlerActionPayload =
+    | RequestCompletePayload
+    | SetFileTypePayload
+    | FileSelectedPayload
+    | SetCancellablePayload;
+
 interface FileHandlerAction {
     type: FileHandlerActionType;
-    payload?:
-        | RequestCompletePayload
-        | SetFileTypePayload
-        | FileSelectedPayload
-        | SetCancellablePayload; // reset actions will have no payload
+    payload?: FileHandlerActionPayload; // reset actions will have no payload
 }
 
 type FileHandlerReducer = (
     state: FileHandlerState,
     action: FileHandlerAction
 ) => FileHandlerState;
+
+const parseCsvForError = (
+    fileName: string,
+    filecontent: string
+): string | undefined => {
+    // count the number of lines
+    const linecount = (filecontent.match(/\n/g) || []).length + 1;
+    if (linecount > REPORT_MAX_ITEMS) {
+        return `The file '${fileName}' has too many rows. The maximum number of rows allowed is ${REPORT_MAX_ITEMS}.`;
+    }
+    if (linecount <= 1) {
+        return `The file '${fileName}' doesn't contain any valid data. File should have a header line and at least one line of data.`;
+    }
+
+    // get the first line and examine it
+    const firstline = (filecontent.match(/^(.*)\n/) || [""])[0];
+    // ideally, the columns would be comma seperated, but they may be tabs, because the first
+    // line is a header, we don't have to worry about escaped delimiters in strings (e.g. ,"Smith, John",)
+    const columncount =
+        (firstline.match(/,/g) || []).length ||
+        (firstline.match(/\t/g) || []).length;
+
+    if (columncount > REPORT_MAX_ITEM_COLUMNS) {
+        return `The file '${fileName}' has too many columns. The maximum number of allowed columns is ${REPORT_MAX_ITEM_COLUMNS}.`;
+    }
+    // todo: this is a good place to do basic validation of the upload file. e.g. does it have
+    // all the required columns? Are any rows obviously not correct (empty or obviously wrong type)?
+    return;
+};
 
 // Currently returning a static object, but leaving this as a function
 // in case we need to make it dynamic for some reason later
@@ -97,6 +132,7 @@ function getInitialState(): FileHandlerState {
         successTimestamp: "",
         cancellable: false,
         warnings: [],
+        localError: "",
     };
 }
 
@@ -109,10 +145,113 @@ function getPreSubmitState(): Partial<FileHandlerState> {
         reportId: "",
         successTimestamp: "",
         warnings: [],
+        localError: "",
     };
 }
 
-function reducer<T>(
+async function calculateFileSelectedState(
+    state: FileHandlerState,
+    payload: FileSelectedPayload
+): Promise<Partial<FileHandlerState>> {
+    const { file } = payload;
+    try {
+        let uploadType;
+        if (file.type) {
+            uploadType = file.type;
+        } else {
+            // look at the filename extension.
+            // it's all we have to go off of for now
+            const fileNameArray = file.name.split(".");
+            uploadType = fileNameArray[fileNameArray.length - 1];
+        }
+
+        if (
+            uploadType !== "text/csv" &&
+            uploadType !== "csv" &&
+            uploadType !== "hl7"
+        ) {
+            return {
+                ...state,
+                localError: "The file type must be .csv or .hl7",
+            };
+        }
+
+        if (file.size > PAYLOAD_MAX_BYTES) {
+            const maxkbytes = (PAYLOAD_MAX_BYTES / 1024).toLocaleString(
+                "en-US",
+                { maximumFractionDigits: 2, minimumFractionDigits: 2 }
+            );
+
+            return {
+                ...state,
+                localError: `The file '${file.name}' is too large. The maximum file size is ${maxkbytes}k`,
+            };
+        }
+        // load the "contents" of the file. Hope it fits in memory!
+        const filecontent = await file.text();
+
+        let contentType;
+        if (uploadType === "csv" || uploadType === "text/csv") {
+            contentType = ContentType.CSV;
+            const localCsvError = parseCsvForError(file.name, filecontent);
+            if (localCsvError) {
+                return {
+                    ...state,
+                    localError: localCsvError,
+                };
+            }
+        } else {
+            // todo: do any front-end validations we can do here on hl7 files before it hits the server here
+            contentType = ContentType.HL7;
+        }
+
+        const fileType = uploadType.match("hl7") ? FileType.HL7 : FileType.CSV;
+        return {
+            ...state,
+            fileType,
+            fileName: file.name,
+            fileContent: filecontent,
+            contentType,
+            cancellable: true,
+        };
+    } catch (err: any) {
+        // todo: have central error reporting mechanism.
+        console.error(err);
+        // showError(`An unexpected error happened: '${err.toString()}'`);
+        return {
+            ...state,
+            localError: `An unexpected error happened: '${err.toString()}'`,
+            cancellable: false,
+        };
+    }
+}
+
+function calculateRequestCompleteState(
+    state: FileHandlerState,
+    payload: RequestCompletePayload
+): Partial<FileHandlerState> {
+    const {
+        response: { destinations, id, timestamp, errors, status, warnings },
+    } = payload;
+
+    const destinationList = destinations?.length
+        ? destinations.map((d: Destination) => d.organization).join(", ")
+        : "";
+
+    return {
+        destinations: destinationList,
+        isSubmitting: false,
+        fileInputResetValue: state.fileInputResetValue + 1,
+        errors,
+        cancellable: errors?.length ? true : false,
+        warnings,
+        errorType: errors?.length && status ? ErrorType.SERVER : ErrorType.FILE,
+        reportId: id,
+        successTimestamp: timestamp,
+    };
+}
+
+function reducer(
     state: FileHandlerState,
     action: FileHandlerAction
 ): FileHandlerState {
@@ -123,40 +262,29 @@ function reducer<T>(
         case FileHandlerActionType.PREPARE_FOR_REQUEST:
             const preSubmitState = getPreSubmitState();
             return { ...state, ...preSubmitState };
-        case FileHandlerActionType.PROCESS_RESULTS:
-            return processResultsReducer(
+        case FileHandlerActionType.SET_FILE_TYPE:
+            const { fileType } = payload as SetFileTypePayload;
+            return { ...state, fileType };
+        case FileHandlerActionType.SET_CANCELLABLE:
+            const { cancellable } = payload as SetCancellablePayload;
+            return { ...state, cancellable };
+        case FileHandlerActionType.FILE_SELECTED:
+            const fileSelectedState = calculateFileSelectedState(
                 state,
-                payload as ProcessResultsPayload<T>
+                payload as FileSelectedPayload
             );
-        case FileHandlerActionType.SET_SELECTED_PAGE:
-            return setSelectedPageReducer(
+            return { ...state, ...fileSelectedState };
+        case FileHandlerActionType.REQUEST_COMPLETE:
+            const requestCompleteState = calculateRequestCompleteState(
                 state,
-                payload as SetSelectedPagePayload
+                payload as RequestCompletePayload
             );
+            return { ...state, ...requestCompleteState };
         default:
             return state;
     }
 }
 
-// Input parameters to the hook.
-export interface UseFileHandlerProps<T> {
-    // Whether the cursor value in requests is inclusive. If true, a page's
-    // cursor is taken from the first result on the page, otherwise it's taken
-    // from the last result on the previous page.
-    isCursorInclusive: boolean;
-    // Function for extracting the cursor value from a result in the paginated
-    // set.
-    extractCursor: CursorExtractor<T>;
-    // Callback function for fetching results.
-    fetchResults: ResultsFetcher<T>;
-    // Number of items on a page of results in the UI.
-    pageSize: number;
-    // Initial cursor for the paginated set.
-    startCursor: string;
-}
-
-// Hook for paginating through a set of results by means of a cursor values
-// extracted from the items in the set.
 function useFileHandler(): {
     state: FileHandlerState;
     dispatch: React.Dispatch<FileHandlerAction>;
