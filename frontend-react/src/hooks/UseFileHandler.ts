@@ -3,9 +3,8 @@ import { useReducer } from "react";
 import { ResponseError, WatersResponse } from "../network/api/WatersApi";
 import { Destination } from "../resources/ActionDetailsResource";
 
+// values taken from Report.kt
 const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
-// const REPORT_MAX_ITEMS = 10000;
-// const REPORT_MAX_ITEM_COLUMNS = 2000;
 
 export enum ErrorType {
     SERVER = "server",
@@ -50,14 +49,6 @@ export enum FileHandlerActionType {
 }
 
 interface RequestCompletePayload {
-    // destinations?: string;
-    // reportId?: string;
-    // successTimestamp?: string;
-    // errorType?: ErrorType;
-    // warnings?: ResponseError[];
-    // errors?: ResponseError[];
-    // cancellable: boolean;
-    // fileInputResetValue: number;
     response: WatersResponse;
 }
 
@@ -88,35 +79,6 @@ type FileHandlerReducer = (
     state: FileHandlerState,
     action: FileHandlerAction
 ) => FileHandlerState;
-
-// const parseCsvForError = (
-//     fileName: string,
-//     filecontent: string
-// ): string | undefined => {
-//     // count the number of lines
-//     const linecount = (filecontent.match(/\n/g) || []).length + 1;
-//     if (linecount > REPORT_MAX_ITEMS) {
-//         return `The file '${fileName}' has too many rows. The maximum number of rows allowed is ${REPORT_MAX_ITEMS}.`;
-//     }
-//     if (linecount <= 1) {
-//         return `The file '${fileName}' doesn't contain any valid data. File should have a header line and at least one line of data.`;
-//     }
-
-//     // get the first line and examine it
-//     const firstline = (filecontent.match(/^(.*)\n/) || [""])[0];
-//     // ideally, the columns would be comma seperated, but they may be tabs, because the first
-//     // line is a header, we don't have to worry about escaped delimiters in strings (e.g. ,"Smith, John",)
-//     const columncount =
-//         (firstline.match(/,/g) || []).length ||
-//         (firstline.match(/\t/g) || []).length;
-
-//     if (columncount > REPORT_MAX_ITEM_COLUMNS) {
-//         return `The file '${fileName}' has too many columns. The maximum number of allowed columns is ${REPORT_MAX_ITEM_COLUMNS}.`;
-//     }
-//     // todo: this is a good place to do basic validation of the upload file. e.g. does it have
-//     // all the required columns? Are any rows obviously not correct (empty or obviously wrong type)?
-//     return;
-// };
 
 // Currently returning a static object, but leaving this as a function
 // in case we need to make it dynamic for some reason later
@@ -187,9 +149,10 @@ function calculateFileSelectedState(
                 localError: `The file '${file.name}' is too large. The maximum file size is ${maxkbytes}k`,
             };
         }
-        // load the "contents" of the file. Hope it fits in memory!
-        // const filecontent = await file.text();
 
+        // previously loading file contents here
+        // since this is an async action we'll do this in the calling component
+        // prior to dispatching into the reducer, and handle the file content in local state
         const contentType =
             uploadType === "csv" || uploadType === "text/csv"
                 ? ContentType.CSV
@@ -200,14 +163,12 @@ function calculateFileSelectedState(
             ...state,
             fileType,
             fileName: file.name,
-            // fileContent: filecontent,
             contentType,
             cancellable: true,
         };
     } catch (err: any) {
         // todo: have central error reporting mechanism.
         console.error(err);
-        // showError(`An unexpected error happened: '${err.toString()}'`);
         return {
             ...state,
             localError: `An unexpected error happened: '${err.toString()}'`,
@@ -263,7 +224,6 @@ function reducer(
                 state,
                 payload as FileSelectedPayload
             );
-            console.log("!!! file selected", fileSelectedState);
             return { ...state, ...fileSelectedState };
         case FileHandlerActionType.REQUEST_COMPLETE:
             const requestCompleteState = calculateRequestCompleteState(

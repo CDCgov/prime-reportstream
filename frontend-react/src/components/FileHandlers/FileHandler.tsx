@@ -3,9 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { useOrganizationResource } from "../../hooks/UseOrganizationResouce";
-// import { ResponseError } from "../../network/api/WatersApi";
 import { WatersPost } from "../../network/api/WatersApiFunctions";
-// import { Destination } from "../../resources/ActionDetailsResource";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
     FileHandlerActionType,
@@ -20,6 +18,7 @@ import {
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
+// values taken from Report.kt
 const REPORT_MAX_ITEMS = 10000;
 const REPORT_MAX_ITEM_COLUMNS = 2000;
 
@@ -56,10 +55,7 @@ const parseCsvForError = (
         return `The file '${fileName}' has too many rows. The maximum number of rows allowed is ${REPORT_MAX_ITEMS}.`;
     }
     if (linecount <= 1) {
-        return (
-            `The file '${fileName}' doesn't contain any valid data. ` +
-            `File should have a header line and at least one line of data.`
-        );
+        return `The file '${fileName}' doesn't contain any valid data. File should have a header line and at least one line of data.`;
     }
 
     // get the first line and examine it
@@ -108,29 +104,12 @@ const FileHandler = ({
     showWarningBanner,
     warningText,
 }: FileHandlerProps) => {
-    // const [isSubmitting, setIsSubmitting] = useState(false);
-    // const [fileInputResetValue, setFileInputResetValue] = useState(0);
-    // const [fileContent, setFileContent] = useState("");
-    // const [contentType, setContentType] = useState("");
-    // const [fileType, setFileType] = useState("");
-    // const [fileName, setFileName] = useState("");
-    // const [errors, setErrors] = useState<ResponseError[]>([]);
-    // const [destinations, setDestinations] = useState("");
-    // const [reportId, setReportId] = useState<string | null>(null);
-    // const [successTimestamp, setSuccessTimestamp] = useState<
-    //     string | undefined
-    // >("");
-    // const [cancellable, setCancellable] = useState<boolean>(false);
-    // const [errorType, setErrorType] = useState<ErrorType>(ErrorType.FILE);
-    // const [warnings, setWarnings] = useState<ResponseError[]>([]);
-
     const { state, dispatch } = useFileHandler();
     const [fileContent, setFileContent] = useState("");
 
     const {
         isSubmitting,
         fileInputResetValue,
-        // fileContent,
         contentType,
         fileType,
         fileName,
@@ -158,26 +137,9 @@ const FileHandler = ({
     const senderName = memberships.state.active?.senderName;
     const client = `${parsedName}.${senderName}`;
 
-    // const resetState = () => {
-    //     setIsSubmitting(false);
-    //     setFileInputResetValue(fileInputResetValue + 1);
-    //     setFileContent("");
-    //     setContentType("");
-    //     setFileType("");
-    //     setFileName("");
-    //     setErrors([]);
-    //     setDestinations("");
-    //     setReportId(null);
-    //     setSuccessTimestamp("");
-    //     setCancellable(false);
-    //     setErrorType(ErrorType.FILE);
-    //     setWarnings([]);
-    // };
-
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
-        // try {
         if (!event?.currentTarget?.files?.length) {
             // no files selected
             return;
@@ -206,72 +168,10 @@ const FileHandler = ({
             type: FileHandlerActionType.FILE_SELECTED,
             payload: { file },
         });
-
-        //     let uploadType;
-        //     if (file.type) {
-        //         uploadType = file.type;
-        //     } else {
-        //         // look at the filename extension.
-        //         // it's all we have to go off of for now
-        //         const fileNameArray = file.name.split(".");
-        //         uploadType = fileNameArray[fileNameArray.length - 1];
-        //     }
-
-        //     if (
-        //         uploadType !== "text/csv" &&
-        //         uploadType !== "csv" &&
-        //         uploadType !== "hl7"
-        //     ) {
-        //         showError(`The file type must be .csv or .hl7`);
-        //         return;
-        //     }
-        //     setFileType(uploadType.match("hl7") ? "HL7" : "CSV");
-
-        //     if (file.size > PAYLOAD_MAX_BYTES) {
-        //         const maxkbytes = (PAYLOAD_MAX_BYTES / 1024).toLocaleString(
-        //             "en-US",
-        //             { maximumFractionDigits: 2, minimumFractionDigits: 2 }
-        //         );
-
-        //         showError(
-        //             `The file '${file.name}' is too large. The maximum file size is ${maxkbytes}k`
-        //         );
-        //         return;
-        //     }
-        //     // load the "contents" of the file. Hope it fits in memory!
-        //     const filecontent = await file.text();
-
-        //     if (uploadType === "csv" || uploadType === "text/csv") {
-        //         setContentType("text/csv");
-        //         if (parseCsvForError(file.name, filecontent)) {
-        //             return;
-        //         }
-        //     } else {
-        //         // todo: do any front-end validations we can do here on hl7 files before it hits the server here
-        //         setContentType("application/hl7-v2");
-        //     }
-
-        //     setFileName(file.name);
-        //     setFileContent(filecontent);
-        //     setCancellable(true);
-        // } catch (err: any) {
-        //     // todo: have central error reporting mechanism.
-        //     console.error(err);
-        //     showError(`An unexpected error happened: '${err.toString()}'`);
-        //     setCancellable(false);
-        // }
     };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
-        // // reset the state on subsequent uploads
-        // setIsSubmitting(true);
-        // setReportId(null);
-        // setErrors([]);
-        // setDestinations("");
-        // setSuccessTimestamp("");
-        // setWarnings([]);
 
         if (fileContent.length === 0) {
             showError(`No File Contents To ${submitText}`);
@@ -290,6 +190,7 @@ const FileHandler = ({
                 parsedName || "",
                 accessToken || ""
             );
+            // handles error and success cases via reducer
             dispatch({
                 type: FileHandlerActionType.REQUEST_COMPLETE,
                 payload: { response },
@@ -298,48 +199,6 @@ const FileHandler = ({
             // Noop.  Errors are collected below
             console.error("Unexpected error in file handler", error);
         }
-
-        //     // we can put (almost) all of this into REQUEST_COMPLETE
-        //     if (response?.destinations?.length) {
-        //         // NOTE: `{ readonly [key: string]: string }` means a key:value object
-        //         setDestinations(
-        //             response.destinations
-        //                 .map((d: Destination) => d.organization)
-        //                 .join(", ")
-        //         );
-        //     }
-
-        //     if (response?.id) {
-        //         setReportId(response.id);
-        //         setSuccessTimestamp(response.timestamp);
-        //         event?.currentTarget?.reset && event.currentTarget.reset();
-        //     }
-
-        //     // if there is a response status,
-        //     // then there was most likely a server-side error as the json was not parsed
-        //     if (response?.errors?.length && response?.status) {
-        //         setErrorType(ErrorType.SERVER);
-        //     }
-        //     if (response?.warnings?.length) {
-        //         setWarnings(response.warnings);
-        //     }
-        // } catch (error) {
-        //     // Noop.  Errors are collected below
-        //     console.error("Unexpected error in file handler", error);
-        // }
-
-        // // Process the error messages
-        // if (response?.errors && response.errors.length > 0) {
-        //     // Add a string to properly display the indices if available.
-        //     setErrors(response.errors);
-        //     setCancellable(true);
-        // } else {
-        //     setCancellable(false);
-        // }
-        // // Changing the key to force the FileInput to reset.
-        // // Otherwise it won't recognize changes to the file's content unless the file name changes
-        // setFileInputResetValue(fileInputResetValue + 1);
-        // setIsSubmitting(false);
     };
 
     const submitted = useMemo(
