@@ -339,7 +339,10 @@ class ActionHistory : Logging {
         reportsReceived[reportFile.reportId] = reportFile
 
         // add to queue
-        if (event.eventAction != Event.EventAction.BATCH)
+        if (event.eventAction != Event.EventAction.BATCH &&
+            event.eventAction != Event.EventAction.ROUTE &&
+            event.eventAction != Event.EventAction.TRANSLATE
+        )
             trackEvent(event)
     }
 
@@ -397,7 +400,10 @@ class ActionHistory : Logging {
         trackItemLineages(report)
 
         // batch queue messages are added by the batchDecider, not ActionHistory
-        if (event.eventAction != Event.EventAction.BATCH)
+        if (event.eventAction != Event.EventAction.BATCH &&
+            event.eventAction != Event.EventAction.ROUTE &&
+            event.eventAction != Event.EventAction.TRANSLATE
+        )
             trackEvent(event) // to be sent to queue later.
     }
 
@@ -425,7 +431,12 @@ class ActionHistory : Logging {
         trackFilteredItems(report)
 
         // batch queue messages are added by the batchDecider, not ActionHistory
-        if (event.eventAction != Event.EventAction.BATCH)
+        // TODO: Need to update this process to have a better way to determine what messages should be sent
+        //  automatically as part of queueMessages and what are being send manually as part of the parent function
+        if (event.eventAction != Event.EventAction.BATCH &&
+            event.eventAction != Event.EventAction.ROUTE &&
+            event.eventAction != Event.EventAction.TRANSLATE
+        )
             trackEvent(event) // to be sent to queue later.
     }
 

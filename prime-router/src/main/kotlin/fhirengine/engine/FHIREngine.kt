@@ -12,7 +12,7 @@ import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 
-const val elrConvertQueueName = "convert-elr"
+const val elrConvertQueueName = "elr-fhir-convert"
 const val elrRoutingQueueName = "elr-fhir-route"
 const val elrTranslationQueueName = "elr-fhir-translate"
 

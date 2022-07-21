@@ -3,13 +3,18 @@ package gov.cdc.prime.router.fhirengine.engine
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.Source
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 
 /**
  * [metadata] mockable metadata
@@ -39,16 +44,68 @@ class FHIRRouter(
     ) {
         logger.trace("Processing HL7 data for FHIR conversion.")
         try {
-            // todo: pull fhir document
-            //        val fhirDocument = FHirEN
-            // todo: parse fhir document
+            // pull fhir document and parse FHIR document
+            val fhirDocument = FhirTranscoder.decode(message.downloadContent())
 
-            // todo: do routing calculation - Phase 1 is just to route to CO
+            // create report object
+            val sources = emptyList<Source>()
+            val report = Report(
+                Report.Format.FHIR,
+                sources,
+                1,
+                metadata = metadata
+            )
 
-            // todo: push fhir document back to blobstore
-            // todo: update action table with routing action
+            // TODO: Phase 2 - do routing calculation and save destination to blob - Phase 1 is just to route to CO
+            //  (hardcoded in FHIRTranslator)
 
-            // todo: insert translate task
+            // track input report
+            actionHistory.trackExistingInputReport(message.reportId)
+
+            // create item lineage
+            report.itemLineages = listOf(
+                ItemLineage(
+                    null,
+                    message.reportId,
+                    1,
+                    report.id,
+                    1,
+                    null,
+                    null,
+                    null,
+                    report.getItemHashForRow(1)
+                )
+            )
+
+            // create translate event
+            val translateEvent = ProcessEvent(
+                Event.EventAction.TRANSLATE,
+                message.reportId,
+                Options.None,
+                emptyMap<String, String>(),
+                emptyList<String>()
+            )
+
+            // upload new copy to blobstore
+            var bodyBytes = FhirTranscoder.encode(fhirDocument).toByteArray()
+            var blobInfo = BlobAccess.uploadBody(
+                Report.Format.FHIR,
+                bodyBytes,
+                report.name,
+                message.sender,
+                translateEvent.eventAction
+            )
+
+            // ensure tracking is set
+            actionHistory.trackCreatedReport(translateEvent, report, blobInfo)
+
+            // insert translate task into Task table
+            this.insertTranslateTask(
+                report,
+                report.bodyFormat.toString(),
+                blobInfo.blobUrl,
+                translateEvent
+            )
 
             // move to translation (send to <elrTranslationQueueName> queue). This passes the same message on, but
             //  the destinations have been updated in the FHIR

@@ -93,7 +93,7 @@ class FHIRConverter(
                     )
                 )
 
-                // create translate event
+                // create route event
                 val routeEvent = ProcessEvent(
                     Event.EventAction.ROUTE,
                     report.id,
@@ -122,8 +122,6 @@ class FHIRConverter(
                     blobInfo.blobUrl,
                     routeEvent
                 )
-
-                Options.None
 
                 // move to routing (send to <elrRoutingQueueName> queue)
                 this.queue.sendMessage(

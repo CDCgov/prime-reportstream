@@ -25,7 +25,7 @@ import org.apache.logging.log4j.kotlin.Logging
 class FHIRRouteFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val fhirEngine: FHIREngine = FHIRRouter(),
-    private val actionHistory: ActionHistory = ActionHistory(TaskAction.translate),
+    private val actionHistory: ActionHistory = ActionHistory(TaskAction.route),
     private val actionLogger: ActionLogger = ActionLogger()
 ) : Logging {
 
