@@ -12,7 +12,7 @@ export const TermsOfService = () => {
                     heading="This is a U.S. government service"
                     className="margin-bottom-5"
                 >
-                    <div className="measure-">
+                    <div className="measure-6">
                         <p>
                             You are accessing a US Government information
                             system, which includes (1) this computer, (2) this
@@ -54,7 +54,7 @@ export const TermsOfService = () => {
                 </Alert>
             </section>
             <div className="grid-container ">
-                <div className="grid-row usa-prose measure-5">
+                <div className="grid-row usa-prose measure-6">
                     <section className="">
                         <h1 className="margin-top-0">
                             Terms of service – PRIME ReportStream

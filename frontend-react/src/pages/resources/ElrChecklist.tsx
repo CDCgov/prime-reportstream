@@ -15,20 +15,17 @@ export const ELRChecklistIa = () => {
                 </title>
             </Helmet>
 
-            <h1 id="anchor-top" className="margin-top-0">
-                ELR onboarding checklist
-            </h1>
-
-            <p className="usa-intro text-base">
-                If you’re a public health department and want to connect
-                ReportStream through Electronic Lab Reporting (ELR), you’ll need
+            <h1 id="anchor-top">ELR onboarding checklist</h1>
+            <h2>
+                If you're a public health department and want to connect
+                ReportStream through Electronic Lab Reporting (ELR), you'll need
                 to fill out the ReportStream ELR onboarding form.
-            </p>
-            <p className="usa-intro text-base">
-                Our checklist here provides a preview of what we’ll ask, so you
-                can gather everything you need to complete the form.
-            </p>
-
+            </h2>
+            <h2 className="margin-bottom-8">
+                This checklist provides a preview of what we'll ask, so you can
+                gather everything you need to complete the form.
+            </h2>
+            <hr />
             <a
                 href={DOMPurify.sanitize(site.forms.intakeElr.url)}
                 target="_blank"
@@ -38,20 +35,15 @@ export const ELRChecklistIa = () => {
                 ELR onboarding form
             </a>
             <a
-                href={
-                    "mailto:" +
-                    DOMPurify.sanitize(site.orgs.RS.email) +
-                    "?subject=Getting started with ReportStream"
-                }
+                href="/support/contact"
                 className="usa-button usa-button--outline"
             >
                 Contact us
             </a>
-
+            <hr />
             <p className="margin-top-6">
                 <strong>On this page:</strong>
             </p>
-
             <ul>
                 <li>
                     <a href="#elr-contact-information" className="usa-link">
@@ -132,11 +124,9 @@ export const ELRChecklistIa = () => {
                     <li>Email address</li>
                     <li>Phone number</li>
                 </ul>
-
-                <h3
-                    id="alternate-contact-information"
-                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
-                >
+            </section>
+            <section>
+                <h3 id="alternate-contact-information">
                     Program or admin staff contact information
                 </h3>
 
@@ -145,11 +135,9 @@ export const ELRChecklistIa = () => {
                     <li>Email address</li>
                     <li>Phone number</li>
                 </ul>
-
-                <h3
-                    id="data-requirements-and-preferences"
-                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
-                >
+            </section>
+            <section>
+                <h3 id="data-requirements-and-preferences">
                     Data requirements and preferences{" "}
                 </h3>
 
@@ -228,11 +216,9 @@ export const ELRChecklistIa = () => {
                         Any other data or fields you’d like collected?{" "}
                     </li>
                 </ul>
-
-                <h3
-                    id="testing-facility-registration"
-                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
-                >
+            </section>
+            <section>
+                <h3 id="testing-facility-registration">
                     Testing facility registration{" "}
                 </h3>
 
@@ -265,11 +251,9 @@ export const ELRChecklistIa = () => {
                         process?{" "}
                     </li>
                 </ul>
-
-                <h3
-                    id="hl7-data-fields"
-                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
-                >
+            </section>
+            <section>
+                <h3 id="hl7-data-fields">
                     HL7 data fields (Not applicable if using an alternate data
                     format){" "}
                 </h3>
@@ -286,13 +270,9 @@ export const ELRChecklistIa = () => {
                         <a href="https://www.hl7.org/oid/">OID</a>
                     </li>
                 </ul>
-
-                <h3
-                    id="sftp-details"
-                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
-                >
-                    SFTP details{" "}
-                </h3>
+            </section>
+            <section>
+                <h3 id="sftp-details">SFTP details </h3>
 
                 <ul>
                     <li>Staging host name (DNS name)</li>
@@ -300,13 +280,9 @@ export const ELRChecklistIa = () => {
                     <li>Prod host name (DNS name) </li>
                     <li>Prod host folder (folder name) </li>
                 </ul>
-
-                <h3
-                    id="document-uploads"
-                    className="font-body-lg border-top-1px border-ink margin-top-8 margin-bottom-6 padding-top-1"
-                >
-                    Document uploads{" "}
-                </h3>
+            </section>
+            <section>
+                <h3 id="document-uploads">Document uploads </h3>
 
                 <ul>
                     <li>
@@ -332,21 +308,17 @@ export const ELRChecklistIa = () => {
                     <a href="https://prime.powerappsportals.us/siw/">
                         ReportStream ELR onboarding form
                     </a>
-                    . We’ll get back to you within a week.
+                    . We'll get back to you within a week.
                 </p>
 
                 <p>
-                    Have questions or aren’t quite ready for our ELR connection?
-                    Send us an email and we’ll help you figure out next steps.
+                    Have questions or aren't quite ready for our ELR connection?
+                    Send us an email and we'll help you figure out next steps.
                 </p>
 
                 <p>
                     <a
-                        href={
-                            "mailto:" +
-                            DOMPurify.sanitize(site.orgs.RS.email) +
-                            "?subject=Getting started with ReportStream"
-                        }
+                        href="/support/contact"
                         className="usa-button usa-button--outline"
                     >
                         Get in touch
