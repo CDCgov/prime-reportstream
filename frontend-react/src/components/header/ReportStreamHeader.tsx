@@ -17,70 +17,58 @@ import {
     CheckFeatureFlag,
     FeatureFlagName,
 } from "../../pages/misc/FeatureFlags";
-import { BuiltForYouDropdown } from "../../pages/built-for-you/BuiltForYouIndex";
 
 import { SignInOrUser } from "./SignInOrUser";
-import {
-    AdminDropdown,
-    GettingStartedDropdown,
-    HowItWorksDropdown,
-    DropdownNav,
-    NonStaticOption,
-} from "./DropdownNav";
+import { AdminDropdown, DropdownNav, NonStaticOption } from "./DropdownNav";
 
 const isOktaPreview =
     `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
 const environment = `${process.env.REACT_APP_CLIENT_ENV}`;
 
+const ProductIA = () => (
+    <NavLink
+        to="/product"
+        key="product"
+        data-attribute="hidden"
+        hidden={true}
+        className="usa-nav__link"
+    >
+        <span>Product</span>
+    </NavLink>
+);
+
+const ResourcesIA = () => (
+    <NavLink
+        to="/resources"
+        key="resources"
+        data-attribute="hidden"
+        hidden={true}
+        className="usa-nav__link"
+    >
+        <span>Resources</span>
+    </NavLink>
+);
+
+const SupportIA = () => (
+    <NavLink
+        to="/support"
+        key="support"
+        data-attribute="hidden"
+        hidden={true}
+        className="usa-nav__link"
+    >
+        <span>Support</span>
+    </NavLink>
+);
+
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
     const { memberships } = useSessionContext();
     const [expanded, setExpanded] = useState(false);
-    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
+    let itemsMenu = [<ProductIA />, <ResourcesIA />, <SupportIA />];
 
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
-
-    if (CheckFeatureFlag(FeatureFlagName.BUILT_FOR_YOU)) {
-        itemsMenu.push(<BuiltForYouDropdown />);
-    }
-
-    if (CheckFeatureFlag(FeatureFlagName.NEW_IA)) {
-        /* TODO: Override itemsMenu with new IA nav */
-        itemsMenu.push(
-            <NavLink
-                to="/product"
-                key="product"
-                data-attribute="hidden"
-                hidden={true}
-                className="usa-nav__link"
-            >
-                <span>Product</span>
-            </NavLink>
-        );
-        itemsMenu.push(
-            <NavLink
-                to="/resources"
-                key="resources"
-                data-attribute="hidden"
-                hidden={true}
-                className="usa-nav__link"
-            >
-                <span>Resources</span>
-            </NavLink>
-        );
-        itemsMenu.push(
-            <NavLink
-                to="/support"
-                key="support"
-                data-attribute="hidden"
-                hidden={true}
-                className="usa-nav__link"
-            >
-                <span>Support</span>
-            </NavLink>
-        );
-    }
 
     if (authState && authState.isAuthenticated && authState.accessToken) {
         /* RECEIVERS ONLY */

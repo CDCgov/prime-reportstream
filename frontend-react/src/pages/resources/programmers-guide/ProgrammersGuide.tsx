@@ -22,7 +22,7 @@ export const ProgrammersGuide = () => {
                 </p>
                 <p>
                     <a
-                        className={"usa-link"}
+                        className={"usa-button usa-button--outline"}
                         href={site.assets.programmersGuidePdf.path}
                         target="_blank"
                         rel="noreferrer noopener"

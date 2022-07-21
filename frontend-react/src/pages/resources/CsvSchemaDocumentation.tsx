@@ -94,8 +94,8 @@ export const CsvSchemaDocumentation = () => {
         <>
             <Helmet>
                 <title>
-                    CSV schema documentation | Organizations and testing
-                    facilities | Getting started | {process.env.REACT_APP_TITLE}
+                    CSV schema documentation | Resources |{" "}
+                    {process.env.REACT_APP_TITLE}
                 </title>
             </Helmet>
 

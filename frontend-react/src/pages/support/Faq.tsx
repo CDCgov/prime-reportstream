@@ -12,8 +12,7 @@ export const Faq = () => {
             <hr />
             <h3>How much does ReportStream cost?</h3>
             <p>
-                ReportStream was developed by the CDC for COVID-19 test data
-                reporting and is 100% free.
+                ReportStream is 100% free. Development is supported by the CDC.
             </p>
             <hr />
             <h3>Where can you use ReportStream?</h3>
@@ -121,98 +120,6 @@ export const Faq = () => {
                     reportstream.cdc.gov/login
                 </Link>
                 .
-            </p>
-            resourcesetting errors from ReportStream?
-            <p>
-                We've put together{" "}
-                <a
-                    className="usa-link"
-                    href="/getting-started/testing-facilities/csv-upload-guide"
-                >
-                    detailed instructions
-                </a>{" "}
-                outlining how to prepare a CSV file for submission. We use a{" "}
-                <a
-                    className="usa-link"
-                    href="/getting-started/testing-facilities/csv-schema"
-                >
-                    standard schema
-                </a>{" "}
-                that will be accepted by state, tribal, local, or territorial
-                (STLT) health departments partnered with ReportStream. The most
-                common errors are outlined below:
-            </p>
-            <ul>
-                <li>
-                    <strong>Incorrect values</strong>
-                    <p>
-                        Elements of our standard CSV schema may require specific
-                        values or formatting. Common values you may be
-                        experiencing errors with include:{" "}
-                        <a
-                            className="usa-link"
-                            href="/getting-started/testing-facilities/csv-schema#doc-equipment_model_name"
-                        >
-                            equipment model name
-                        </a>
-                        ,{" "}
-                        <a
-                            className="usa-link"
-                            href="/getting-started/testing-facilities/csv-schema#doc-test_performed_code"
-                        >
-                            test performed code
-                        </a>
-                        ,{" "}
-                        <a
-                            className="usa-link"
-                            href="/getting-started/testing-facilities/csv-schema#doc-test_result"
-                        >
-                            test result
-                        </a>
-                        ,{" "}
-                        <a
-                            className="usa-link"
-                            href="/getting-started/testing-facilities/csv-schema#doc-patient_race"
-                        >
-                            patient race
-                        </a>
-                        , and{" "}
-                        <a
-                            className="usa-link"
-                            href="/getting-started/testing-facilities/csv-schema#doc-patient_ethnicity"
-                        >
-                            patient ethnicity
-                        </a>
-                        .
-                    </p>
-                </li>
-                <li>
-                    <strong>Blank values</strong>
-                    <p>
-                        Our{" "}
-                        <a className="usa-link" href="/resources/csv-schema">
-                            standard schema
-                        </a>{" "}
-                        requires certain fields to be filled out. Required
-                        fields containing blank values can prevent your file
-                        from being uploaded. For a list of required fields, read
-                        our{" "}
-                        <a className="usa-link" href="/resources/csv-schema">
-                            CSV schema documentation
-                        </a>
-                        .
-                    </p>
-                </li>
-            </ul>
-            <hr />
-            <h3>
-                Can I sort my CSV columns in any order when I submit the file to
-                ReportStream?
-            </h3>
-            <p>
-                Yes, you can organize your CSV columns in any order within your
-                file. ReportStream looks for data values beneath the column
-                header regardless of where it's located in the file.
             </p>
             <hr />
             <h3>

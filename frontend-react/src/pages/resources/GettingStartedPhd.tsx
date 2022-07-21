@@ -16,22 +16,32 @@ export const GettingStartedPhd = () => {
             </Helmet>
             <h1 id="anchor-top">Getting started: public health departments</h1>
             <h2>
+                A step-by-step process for connecting your jurisdiction to
+                ReportStream
+            </h2>
+            <hr />
+            <h3>Overview</h3>
+            <p>
                 First, we'll get you connected to our web application, where you
                 can immediately start downloading reporting data that is
                 relevant to your jurisdiction.
-            </h2>
-            <h2>
+            </p>
+            <p>
                 Depending on your needs, we can also create a customized
                 Electronic Lab Reporting (ELR) connection — an online setup used
                 to send digital lab reports to public health departments via a
-                secure server. Either way,{" "}
+                secure server.
+            </p>
+            <p>
+                {" "}
+                If you're ready to get started right away,{" "}
                 <Link className={"usa-link"} to={"/support/contact"}>
                     reach out to us
                 </Link>{" "}
                 and we'll get back to you in about a week.
-            </h2>
+            </p>
 
-            <p className="margin-top-4">
+            <p>
                 <strong>On this page:</strong>
             </p>
             <ul>
@@ -69,11 +79,7 @@ export const GettingStartedPhd = () => {
                         </h4>
                         <p className="margin-top-05">
                             <a
-                                href={
-                                    "mailto:" +
-                                    DOMPurify.sanitize(site.orgs.RS.email) +
-                                    "?subject=Getting started with ReportStream"
-                                }
+                                href="/support/contact"
                                 className="margin-right-1 usa-link"
                             >
                                 Send us an email
@@ -109,10 +115,21 @@ export const GettingStartedPhd = () => {
                 <h3 id="elr-connection">ELR connection</h3>
                 <p>
                     If you've decided you'll need an ELR connection for your
-                    public health data reporting, we'll get some information
-                    from you on your needs and requirements. Connecting with
-                    ReportStream is similar to setting up an ELR feed with a lab
-                    or hospital, and takes just a few steps.
+                    jurisdiction, we'll get some information from you on your
+                    needs and requirements. Connecting with ReportStream is
+                    similar to setting up an ELR feed with a lab or hospital,
+                    and takes just a few steps.
+                </p>
+                <p>
+                    Before starting step one, review our{" "}
+                    <a
+                        href="/resources/elr-checklist"
+                        className="usa-link margin-right-05"
+                    >
+                        ELR onboarding checklist
+                    </a>
+                    to preview all the information you'll need to gather for
+                    onboarding.{" "}
                 </p>
                 <ol className="usa-process-list">
                     <li className="usa-process-list__item">
@@ -160,6 +177,7 @@ export const GettingStartedPhd = () => {
                         </p>
                     </li>
                 </ol>
+                <hr />
                 <h3 id="connecting-to-testing-facilities">
                     Connecting to testing facilities
                 </h3>
@@ -178,30 +196,11 @@ export const GettingStartedPhd = () => {
                     and let us know if you have any special requirements for
                     them to complete before they join.
                 </p>
-                <h3>ELR onboarding checklist</h3>
-                <p>
-                    Check out our{" "}
-                    <a
-                        href="/getting-started/public-health-departments/elr-checklist"
-                        className="usa-link margin-right-1 usa-link"
-                    >
-                        ELR onboarding checklist
-                    </a>
-                    to preview the information you'll need to complete step one:
-                    the{" "}
-                    <a
-                        href={DOMPurify.sanitize(site.forms.intakeElr.url)}
-                        className="usa-link"
-                    >
-                        ReportStream ELR onboarding form
-                    </a>
-                    .
-                </p>
             </section>
             <section>
                 <h3>Get started with ReportStream</h3>
                 <p>
-                    Ready to bring ReportStream to your jurisdiction or just
+                    Ready to bring ReportStream to your jurisdiction, or just
                     have more questions? Email us and we'll follow up with next
                     steps.
                 </p>
