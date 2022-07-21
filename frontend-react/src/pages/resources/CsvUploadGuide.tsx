@@ -1,5 +1,4 @@
 import { Helmet } from "react-helmet";
-import DOMPurify from "dompurify";
 
 import site from "../../content/site.json";
 
@@ -12,30 +11,24 @@ export const CsvUploadGuideIa = () => {
                     CSV upload guide | Resources | {process.env.REACT_APP_TITLE}
                 </title>
             </Helmet>
-            <span className="text-base text-italic">Updated: January 2022</span>
-            <h1 id="anchor-top">
-                CSV upload guide{" "}
-                <span className="text-secondary bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">
-                    Pilot program{" "}
-                </span>
-            </h1>
-            <p className="usa-intro text-base margin-bottom-4">
+
+            <h1 id="anchor-top">CSV upload guide </h1>
+            <h2 className="usa-intro">
                 Step-by-step instructions and guidance for preparing and
                 uploading COVID-19 test results via a comma-separated values
                 (CSV) file.
-            </p>
+            </h2>
             <p>
                 Use a simple online tool to submit a CSV file with a{" "}
-                <a
-                    href="/getting-started/testing-facilities/csv-schema"
-                    className="usa-link"
-                >
+                <a href="/resources/csv-schema" className="usa-link">
                     standard schema
                 </a>
                 . Receive real-time validation and feedback on file format and
                 field values before submission.
             </p>
-            <div className="usa-alert usa-alert--info margin-y-6">
+            <p className="text-base text-italic">Last updated: January 2022</p>
+            <hr />
+            <div className="usa-alert usa-alert--info margin-top-2 margin-bottom-6">
                 <div className="usa-alert__body">
                     <h3 className="usa-alert__heading font-body-md margin-top-05">
                         About CSV upload
@@ -45,21 +38,11 @@ export const CsvUploadGuideIa = () => {
                     existing Electronic Medical Record (EMR) systems. Pilot
                     partners are selected by recommendation from jurisdictions.
                     Find out if your jurisdiction is{" "}
-                    <a
-                        href="/how-it-works/where-were-live"
-                        className="usa-link"
-                    >
+                    <a href="/product/where-were-live" className="usa-link">
                         partnered
                     </a>{" "}
                     with ReportStream and{" "}
-                    <a
-                        href={
-                            "mailto:" +
-                            DOMPurify.sanitize(site.orgs.RS.email) +
-                            "?subject=Getting started with ReportStream"
-                        }
-                        className="usa-link"
-                    >
+                    <a href="/support/contact" className="usa-link">
                         contact us
                     </a>{" "}
                     to learn more.
@@ -108,7 +91,7 @@ export const CsvUploadGuideIa = () => {
                                 standard CSV file
                             </a>{" "}
                             and{" "}
-                            <a href="/getting-started/testing-facilities/csv-schema">
+                            <a href="/resources/csv-schema">
                                 {" "}
                                 CSV schema documentation
                             </a>
@@ -143,7 +126,7 @@ export const CsvUploadGuideIa = () => {
                         </h4>
                         <p>
                             Using the{" "}
-                            <a href="/getting-started/testing-facilities/csv-schema">
+                            <a href="/resources/csv-schema">
                                 {" "}
                                 CSV schema documentation
                             </a>{" "}
@@ -208,8 +191,8 @@ export const CsvUploadGuideIa = () => {
                             </li>
                             <li>
                                 <strong>Option B:</strong> Click “choose from
-                                folder” to browse your computer, select CSV
-                                file and click Open.
+                                folder” to browse your computer, select CSV file
+                                and click Open.
                             </li>
                         </ul>
                     </li>
@@ -233,7 +216,7 @@ export const CsvUploadGuideIa = () => {
                         <p>
                             ReportStream validates all uploaded files against a{" "}
                             <a
-                                href="/getting-started/testing-facilities/csv-schema"
+                                href="/resources/csv-schema"
                                 className="usa-link"
                             >
                                 standard CSV schema
@@ -249,7 +232,7 @@ export const CsvUploadGuideIa = () => {
                                 Review the list of errors and recommended
                                 changes suggested by ReportStream. Reference the{" "}
                                 <a
-                                    href="/getting-started/testing-facilities/csv-schema"
+                                    href="/resources/csv-schema"
                                     className="usa-link"
                                 >
                                     CSV schema documentation
