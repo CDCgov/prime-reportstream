@@ -149,6 +149,27 @@ describe("AdminReceiverDashboard tests", () => {
         }
     });
 
+    test("dateDiffShort", () => {
+        const now = new Date();
+        const before = new Date(now);
+        before.setHours(
+            before.getHours() - 1,
+            before.getMinutes() - 2,
+            before.getSeconds() - 3
+        );
+
+        const result1 = _exportForTesting.dateDiffFormatShort(now, before);
+        expect(result1).toBe("1h 02m 03s");
+
+        const future2 = new Date(now.getTime() + 5678);
+        const result2 = _exportForTesting.dateDiffFormatShort(future2, now);
+        expect(result2).toBe("05.678s");
+
+        future2.setHours(future2.getHours() + 12, future2.getMinutes() + 34);
+        const result3 = _exportForTesting.dateDiffFormatShort(future2, now);
+        expect(result2).toBe("12h 34m 05.678s");
+    });
+
     test("unfinished test", () => {
         expect(DATA.length).toBe(5);
     });

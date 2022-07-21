@@ -1,10 +1,13 @@
 import { useResource } from "rest-hooks";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
     DateRangePicker,
+    Dropdown,
     Grid,
     GridContainer,
     Label,
+    Modal,
+    ModalRef,
     TextInput,
 } from "@trussworks/react-uswds";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
@@ -14,6 +17,7 @@ import {
     AdmConnStatusDataType,
 } from "../../resources/AdmConnStatusResource";
 import { StyleClass } from "../Table/TableFilters";
+import { formatDate } from "../../utils/misc";
 
 /**
  *
@@ -34,11 +38,12 @@ import { StyleClass } from "../Table/TableFilters";
  *
  * And since the key-value dictionary is sorted this way, then there's a single
  * cursor moving through it. (NOTE: there might be missing days or slices in the dictionary.
- * This can happen when a new receiver is onboarded in the middle of the data. Or if the CRON job doesn't
- * run because of deploy or outage leaving slice holes)
+ * This can happen when a new receiver is onboarded in the middle of the data.
+ * Or if the CRON job doesn't run because of deploy or outage leaving slice holes)
  *
  *
  * Layout can be confusing, so hopefully this helps.
+ * Also, the scss follows this SAME hierarchy layout
  *
  * "Dashboard" component
  *
@@ -115,7 +120,7 @@ import { StyleClass } from "../Table/TableFilters";
  */
 
 const SKIP_HOURS = 2; // hrs
-const DAY_BACK_DEFAULT = 5 - 1; // 5 days (-1 because we add a day later for ranges)
+const DAY_BACK_DEFAULT = 7 - 1; // N days (-1 because we add a day later for ranges)
 
 /**
  * Declared outside of the function so React doesn't update constantly (also, time is fixed)
@@ -148,20 +153,57 @@ const roundIsoDateUp = (iso: string) => {
     return `${parts[0]}T00:00:00.000${endsInZ ? "Z" : ""}`;
 };
 
+/**
+ * Result string is like "12h 34m 05.678s"
+ * @param dateNewer Date
+ * @param dateOlder Date
+ */
+const durationFormatShort = (dateNewer: Date, dateOlder: Date): string => {
+    const msDiff = dateNewer.getTime() - dateOlder.getTime();
+    const hrs = Math.floor(msDiff / (60 * 60 * 1000)).toString();
+    const mins = Math.floor((msDiff / (60 * 1000)) % 60).toString();
+    // 0.1200001 -> '0.12`
+    const secs = parseFloat(((msDiff / 1000) % 60).toFixed(3)).toString();
+
+    const parts = [];
+    if (hrs !== "0") {
+        parts.push(`${hrs}h`);
+    }
+    if (parts.length || mins !== "0") {
+        const mins_pad = mins.length < 2 ? "0" + mins : mins;
+        parts.push(`${mins_pad}m`);
+    }
+    if (parts.length || secs !== "0") {
+        const secs_pad = secs.indexOf(".") < 2 ? "0" + secs : secs;
+        parts.push(`${secs_pad}s`);
+    }
+    return parts.join(" ");
+};
+
+/* WARNING: Intl.DateTimeFormat() can be slow if called in a loop! */
+const dateShortFormat = (d: Date) => {
+    return Intl.DateTimeFormat("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+    }).format(d);
+};
+
 // key/value pair
 type DataDictionary = Record<string, AdmConnStatusDataType>;
 // prop drilled down to bottom most components
 // type dateClickHandler = (id: string) => void;
 
 enum SuccessRate {
-    UNDEFINED,
-    ALL_SUCCESSFUL,
-    ALL_FAILURE,
-    MIXED_SUCCESS,
+    UNDEFINED = "UNDEFINED",
+    ALL_SUCCESSFUL = "ALL_SUCCESSFUL",
+    ALL_FAILURE = "ALL_FAILURE",
+    MIXED_SUCCESS = "MIXED_SUCCESS",
 }
 
 /** simple container for logic related to tracking if a run is all success or all failure or mixed.
- * Originally was a reducer, but that was overkill and the hook made using it harder. **/
+ * Originally was a reducer, but the hook limitations made using it harder to use. **/
 class SuccessRateTracker {
     currentState: SuccessRate;
     countSuccess: number;
@@ -202,7 +244,7 @@ class SuccessRateTracker {
     }
 }
 
-const SUCCESS_BK_CLASSNAME_MAP = {
+const SUCCESS_RATE_CLASSNAME_MAP = {
     [SuccessRate.UNDEFINED]: "success-undefined",
     [SuccessRate.ALL_SUCCESSFUL]: "success-all",
     [SuccessRate.ALL_FAILURE]: "failure-all",
@@ -298,14 +340,26 @@ function makeDictionary(dataIn: AdmConnStatusDataType[]): DataDictionary {
         }, emptyResult);
 }
 
-function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
+function MainRender(props: {
+    data: DataDictionary;
+    datesRange: DatePair;
+    filterRowStatus: SuccessRate;
+    onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
+}) {
     const keys = Object.keys(props.data);
     if (keys.length === 0) {
         return <div>No Data</div>;
     }
 
-    // todo: logic to handle empty days on either end vs (user selected)
-    // const [firstDate, lastDate] = getFirstLastDates(props.data);
+    const onClick = (clickedKey: string) => {
+        debugger;
+        // in theory, there might be multiple events for the block, but we're only handling one for now.
+        const subData = props.data[clickedKey] || null;
+        if (!subData) {
+            return;
+        }
+        props?.onDetailsClick([subData]);
+    };
 
     const startDay = props.datesRange[0];
     const endDay = props.datesRange[1];
@@ -373,7 +427,9 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
 
                 {
                     const sliceClassName =
-                        SUCCESS_BK_CLASSNAME_MAP[successForSlice.currentState];
+                        SUCCESS_RATE_CLASSNAME_MAP[
+                            successForSlice.currentState
+                        ];
 
                     // we can use the currentkey in the data dict as a unique key for this cell
                     sliceElements.push(
@@ -381,8 +437,19 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
                             row
                             key={`slice:${currentReceiver}|${timeSlotStart}`}
                             className={`slice ${sliceClassName}`}
-                            title={`${currentReceiver}\n${timeSlotStart}`}
-                            data-keyoffset={keyOffset}
+                            data-keyoffset={keyOffset - 1}
+                            onClick={(evt) => {
+                                if (
+                                    successForSlice.currentState ===
+                                    SuccessRate.UNDEFINED
+                                ) {
+                                    return;
+                                }
+                                const clickKey =
+                                    evt.currentTarget?.dataset["keyoffset"] ||
+                                    "";
+                                onClick(keys[parseInt(clickKey)] || "");
+                            }}
                         >
                             {" "}
                         </Grid>
@@ -392,12 +459,7 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
 
             // render PerDay component
             {
-                const dateStr = Intl.DateTimeFormat("en-US", {
-                    weekday: "short",
-                    year: "numeric",
-                    month: "numeric",
-                    day: "numeric",
-                }).format(daySlotStart);
+                const dateStr = dateShortFormat(daySlotStart);
 
                 perDayElements.push(
                     <GridContainer
@@ -422,45 +484,51 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
 
         // render Per-Receiver component
         {
-            // we saved the start of this block of data, grab the information from there.
-            const key = keys[keyOffsetStartRow];
-            const orgName = props.data[key].organizationName;
-            const recvrName = props.data[key].receiverName;
-            const successRate = Math.round(
-                (100 * successForRow.countSuccess) /
-                    (successForRow.countSuccess + successForRow.countFailed)
-            );
+            const showRow =
+                props.filterRowStatus !== SuccessRate.UNDEFINED
+                    ? props.filterRowStatus === successForRow.currentState
+                    : true;
 
-            const titleClassName =
-                SUCCESS_BK_CLASSNAME_MAP[successForRow.currentState];
+            if (showRow) {
+                // we saved the start of this block of data, grab the information from there.
+                const key = keys[keyOffsetStartRow];
+                const orgName = props.data[key].organizationName;
+                const recvrName = props.data[key].receiverName;
+                const successRate = Math.round(
+                    (100 * successForRow.countSuccess) /
+                        (successForRow.countSuccess + successForRow.countFailed)
+                );
+                const titleClassName =
+                    SUCCESS_RATE_CLASSNAME_MAP[successForRow.currentState];
 
-            perReceiverElements.push(
-                <Grid
-                    row
-                    key={`perreceiver-row-${keyOffsetStartRow}`}
-                    className={"perreceiver-row"}
-                >
+                perReceiverElements.push(
                     <Grid
-                        className={`title-column ${titleClassName}`}
-                        title={`${orgName}\n${recvrName}`}
+                        row
+                        key={`perreceiver-row-${keyOffsetStartRow}`}
+                        className={"perreceiver-row"}
                     >
-                        <div className={"title-text"}>
-                            {orgName}
-                            <br />
-                            {recvrName}
-                            <br />
-                            {successRate}%
-                        </div>
-                    </Grid>
-                    <ScrollSyncPane enabled>
-                        <Grid row className={"horizonal-scroll"}>
-                            <Grid row className={"week-column"}>
-                                {perDayElements}
-                            </Grid>
+                        <Grid
+                            className={`title-column ${titleClassName}`}
+                            title={`${orgName}\n${recvrName}`}
+                        >
+                            <div className={"title-text"}>
+                                {orgName}
+                                <br />
+                                {recvrName}
+                                <br />
+                                {successRate}%
+                            </div>
                         </Grid>
-                    </ScrollSyncPane>
-                </Grid>
-            );
+                        <ScrollSyncPane enabled>
+                            <Grid row className={"horizonal-scroll"}>
+                                <Grid row className={"week-column"}>
+                                    {perDayElements}
+                                </Grid>
+                            </Grid>
+                        </ScrollSyncPane>
+                    </Grid>
+                );
+            }
             perDayElements = [];
         }
         keyOffset++;
@@ -475,6 +543,84 @@ function MainRender(props: { data: DataDictionary; datesRange: DatePair }) {
     );
 }
 
+function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
+    if (!props?.subData.length) {
+        return <>No Data Found</>;
+    }
+    // note: if we ever have the timeslots > cron job so there are multiple
+    // resuls per slot, then this needs to be expended to show more.
+    const dataItem = props.subData[0];
+
+    const duration = () => {
+        return durationFormatShort(
+            new Date(dataItem.connectionCheckCompletedAt),
+            new Date(dataItem.connectionCheckStartedAt)
+        );
+    };
+    const successClass = dataItem.connectionCheckResult
+        ? "success-all"
+        : "failure-all";
+
+    return (
+        <>
+            <GridContainer className={"rs-admindash-modal"}>
+                <Grid className={"modal-info-title"}>
+                    Results for connection verification check
+                </Grid>
+                <Grid row className={"modal-info-row"}>
+                    <Grid className={"modal-info-label"}>Org:</Grid>
+                    <Grid className={"modal-info-value"}>
+                        {dataItem.organizationName} (id:{" "}
+                        {dataItem.organizationId})
+                    </Grid>
+                </Grid>
+
+                <Grid row className={"modal-info-row"}>
+                    <Grid className={"modal-info-label "}>Receiver:</Grid>
+                    <Grid className={"modal-info-value"}>
+                        {dataItem.receiverName} (id: {dataItem.receiverId})
+                    </Grid>
+                </Grid>
+
+                <Grid row className={"modal-info-row"}>
+                    <Grid className={"modal-info-label"}>Result:</Grid>
+                    <Grid className={`modal-info-value ${successClass}`}>
+                        {dataItem.connectionCheckSuccessful
+                            ? "success"
+                            : "failed"}
+                    </Grid>
+                </Grid>
+
+                <Grid row className={"modal-info-row"}>
+                    <Grid className={"modal-info-label"}>Started At:</Grid>
+                    <Grid className={"modal-info-value"}>
+                        {formatDate(dataItem.connectionCheckStartedAt)}
+                        <br />
+                        {dataItem.connectionCheckStartedAt}
+                    </Grid>
+                </Grid>
+
+                <Grid row className={"modal-info-row"}>
+                    <Grid className={"modal-info-label"}>
+                        Time to complete:
+                    </Grid>
+                    <Grid className={"modal-info-value"}>
+                        {duration()}
+                        <br />
+                    </Grid>
+                </Grid>
+
+                <Grid row className={"modal-info-row"}>
+                    <Grid className={"modal-info-label"}>Result message:</Grid>
+                    <Grid className={"modal-info-value"}>
+                        {dataItem.connectionCheckResult}
+                    </Grid>
+                </Grid>
+            </GridContainer>
+        </>
+    );
+}
+
 export function AdminReceiverDashboard() {
     const [startDate, setStartDate] = useState<string>(defaultStartDateIso());
     const [endDate, setEndDate] = useState<string | undefined>(); // may be null because it's optional
@@ -485,6 +631,14 @@ export function AdminReceiverDashboard() {
     // this is the text input box filter
     const [filterReceivers, setFilterReceivers] = useState("");
     const [filterErrorResults, setFilterErrorResults] = useState("");
+    const [filterRowSuccessState, setFilterRowSuccessState] =
+        useState<SuccessRate>(SuccessRate.UNDEFINED);
+
+    // used to show hide the modal
+    const modalShowInfoRef = useRef<ModalRef>(null);
+    const [currentDataForModal, setCurrentDataForModal] = useState<
+        AdmConnStatusDataType[]
+    >([]);
 
     const data = makeDictionary(
         results.filter(
@@ -494,89 +648,126 @@ export function AdminReceiverDashboard() {
         )
     );
 
-    return (
-        <>
-            <section className="grid-container margin-1">
-                <h4>Receiver dashboards</h4>
-                <form autoComplete="off" className="grid-row margin-0">
-                    <div className="flex-auto">
-                        <DateRangePicker
-                            className={`${StyleClass.DATE_CONTAINER} margin-1`}
-                            startDateLabel="From (Start Range):"
-                            startDatePickerProps={{
-                                id: "start-date",
-                                name: "start-date-picker",
-                                defaultValue: defaultStartDateIso(),
-                                onChange: (s) =>
-                                    setStartDate(
-                                        s
-                                            ? new Date(s).toISOString()
-                                            : defaultStartDateIso()
-                                    ),
-                            }}
-                            endDateLabel="Until (End Range):"
-                            endDatePickerProps={{
-                                id: "end-date",
-                                name: "end-date-picker",
-                                defaultValue: defaultEndDateIso(),
-                                onChange: (s) =>
-                                    setEndDate(
-                                        s
-                                            ? new Date(s).toISOString()
-                                            : undefined
-                                    ),
-                            }}
-                        />
-                    </div>
-                    <div className="flex-fill margin-1">
-                        <Label
-                            className="font-sans-xs usa-label"
-                            htmlFor="input_filter_receivers"
-                        >
-                            Filter receiver rows:
-                        </Label>
-                        <TextInput
-                            id="input_filter_receivers"
-                            name="input_filter_receivers"
-                            type="text"
-                            autoComplete="off"
-                            aria-autocomplete="none"
-                            autoFocus
-                            onChange={(evt) =>
-                                setFilterReceivers(evt.target.value)
-                            }
-                        />
-                    </div>
+    const showDetailsModal = (subData: AdmConnStatusDataType[]) => {
+        if (subData.length) {
+            setCurrentDataForModal(subData);
+            modalShowInfoRef?.current?.toggleModal(undefined, true);
+        }
+    };
 
-                    <div className="flex-fill margin-1">
-                        <Label
-                            className="font-sans-xs usa-label"
-                            htmlFor="input_filter_errors"
-                        >
-                            Filter on results (e.g. `fail`):
-                        </Label>
-                        <TextInput
-                            id="input_filter_errors"
-                            name="input_filter_errors"
-                            type="text"
-                            autoComplete="off"
-                            aria-autocomplete="none"
-                            autoFocus
-                            onChange={(evt) =>
-                                setFilterErrorResults(evt.target.value)
-                            }
-                        />
-                    </div>
-                </form>
-                {MainRender({
-                    data,
-                    datesRange: [
-                        new Date(startDate),
-                        endDate ? new Date(endDate) : new Date(),
-                    ],
-                })}
-            </section>
-        </>
+    return (
+        <section className="grid-container">
+            <h4>Receiver dashboards</h4>
+            <form autoComplete="off" className="grid-row margin-0">
+                <div className="flex-auto">
+                    <DateRangePicker
+                        className={`${StyleClass.DATE_CONTAINER} margin-0`}
+                        startDateLabel="From (Start Range):"
+                        startDatePickerProps={{
+                            id: "start-date",
+                            name: "start-date-picker",
+                            defaultValue: defaultStartDateIso(),
+                            onChange: (s) =>
+                                setStartDate(
+                                    s
+                                        ? new Date(s).toISOString()
+                                        : defaultStartDateIso()
+                                ),
+                        }}
+                        endDateLabel="Until (End Range):"
+                        endDatePickerProps={{
+                            id: "end-date",
+                            name: "end-date-picker",
+                            defaultValue: defaultEndDateIso(),
+                            onChange: (s) =>
+                                setEndDate(
+                                    s ? new Date(s).toISOString() : undefined
+                                ),
+                        }}
+                    />
+                </div>
+                <div className="flex-fill margin-1">
+                    <Label
+                        className="font-sans-xs usa-label"
+                        htmlFor="input_filter_receivers"
+                    >
+                        Receiver:
+                    </Label>
+                    <TextInput
+                        id="input_filter_receivers"
+                        name="input_filter_receivers"
+                        type="text"
+                        autoComplete="off"
+                        aria-autocomplete="none"
+                        autoFocus
+                        onChange={(evt) => setFilterReceivers(evt.target.value)}
+                    />
+                </div>
+
+                <div className="flex-fill margin-1">
+                    <Label
+                        className="font-sans-xs usa-label"
+                        htmlFor="input_filter_errors"
+                    >
+                        Results:
+                    </Label>
+                    <TextInput
+                        id="input_filter_errors"
+                        name="input_filter_errors"
+                        type="text"
+                        autoComplete="off"
+                        aria-autocomplete="none"
+                        autoFocus
+                        onChange={(evt) =>
+                            setFilterErrorResults(evt.target.value)
+                        }
+                    />
+                </div>
+
+                <div className="flex-fill margin-1">
+                    <Label
+                        className="font-sans-xs usa-label"
+                        htmlFor="successrate-dropdown"
+                    >
+                        Success:
+                    </Label>
+                    <Dropdown
+                        id="successrate-dropdown"
+                        name="successrate-dropdown"
+                        onChange={(evt) =>
+                            setFilterRowSuccessState(
+                                (evt?.target?.value as SuccessRate) ||
+                                    SuccessRate.UNDEFINED
+                            )
+                        }
+                    >
+                        <option value={SuccessRate.UNDEFINED}>Show All</option>
+                        <option value={SuccessRate.ALL_FAILURE}>Failed</option>
+                        <option value={SuccessRate.MIXED_SUCCESS}>
+                            Mixed success
+                        </option>
+                    </Dropdown>
+                </div>
+            </form>
+            {MainRender({
+                data,
+                filterRowStatus: filterRowSuccessState,
+                datesRange: [
+                    new Date(startDate),
+                    endDate ? new Date(endDate) : new Date(),
+                ],
+                onDetailsClick: showDetailsModal,
+            })}
+
+            <Modal
+                isLarge={true}
+                className="rs-compare-modal"
+                ref={modalShowInfoRef}
+                id={"showSuccessDetails"}
+            >
+                {ModalInfoRender({ subData: currentDataForModal })}
+            </Modal>
+        </section>
     );
 }
 
@@ -586,4 +777,5 @@ export const _exportForTesting = {
     roundIsoDateUp,
     SuccessRateTracker,
     SuccessRate,
+    dateDiffFormatShort: durationFormatShort,
 };

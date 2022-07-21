@@ -442,7 +442,7 @@ pre {
 /* used by the receiver dashboard
     SEE diagrams in AdminRecieverDashboard to understand layout */
 .rs-admindash-component {
-    width: calc(100vw - 10em);
+    display: contents;
     border-bottom: #5d5d52 1px solid;
 
     .perreceiver-row {
@@ -465,14 +465,15 @@ pre {
                 line-height: 150%;
                 min-height: 4.5em;
                 background-color: white;
-                margin: 6px;
+                margin: 0.25em;
+                padding: 0.5em;
             }
         }
 
         .week-column {
             flex-wrap: nowrap;
-            padding-left: 6px;
-            padding-right: 1px;
+            padding-left: 3px;
+            padding-right: 3px;
 
             .perday-component {
                 width: 8em;
@@ -497,6 +498,7 @@ pre {
                     .slice {
                         border-radius: .5em;
                         border: solid 0.05em #2f2f2f;
+                        cursor: pointer; /* success-undefined removes */
                     }
                 }
 
@@ -521,6 +523,7 @@ pre {
 
         .success-undefined {
             background-color: rgb(190, 190, 190);
+            cursor: default !important;
         }
 
         .success-all {
@@ -537,9 +540,50 @@ pre {
                     45deg,
                     #ffffff,
                     #006164 10px,
+                    #ffffff 10px,
                     #DB4325 30px
             );
         }
     }
+}
+
+.rs-admindash-modal {
+    .modal-info-title {
+        font-size: larger;
+        font-weight: bolder;
+        background-color: #2e2e2e;
+        color: white;
+        padding: 7px;
+    }
+
+    .modal-info-row {
+        flex-wrap: nowrap;
+    }
+
+    .modal-info-label {
+        width: 25em;
+        font-weight: bolder;
+        color: #2e2e2e;
+        text-align: right;
+        padding: 0.2em;
+    }
+
+    .modal-info-value {
+        width: 120em;
+        padding: 0.2em;
+    }
+
+    .success-all {
+        color: rgba(0, 97, 100, 100);
+    }
+
+    .failure-all {
+        color: rgba(219, 67, 37, 100);
+    }
+}
+
+/* for dashboards, unbounded width is a nice feature */
+.rs-container-unbounded {
+    max-width: fit-content !important;
 }
 

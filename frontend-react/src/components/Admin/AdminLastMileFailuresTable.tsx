@@ -115,184 +115,178 @@ ${data.receiver}`;
     const modalResendId = "sendFailuresModalDetails";
 
     return (
-        <>
-            <section className="grid-container margin-bottom-5">
-                <h2>Last Mile failures</h2>
-                <form autoComplete="off" className="grid-row">
-                    <div className="flex-fill">
-                        <Label
-                            className="font-sans-xs usa-label"
-                            htmlFor="input_filter"
-                        >
-                            Filter:
-                        </Label>
-                        <TextInput
-                            id="input_filter"
-                            name="input_filter"
-                            type="text"
-                            autoComplete="off"
-                            aria-autocomplete="none"
-                            autoFocus
-                            onChange={(evt) => setFilter(evt.target.value)}
-                        />
-                        Searches FULL information incl error text
-                    </div>
-                    <div className="flex-auto">
-                        <Label
-                            className="font-sans-xs usa-label"
-                            htmlFor="days_to_show"
-                        >
-                            Days to show:
-                        </Label>
-                        <TextInput
-                            id="days_to_show"
-                            name="days_to_show"
-                            type="number"
-                            defaultValue={defaultDaysToShow}
-                            autoComplete="off"
-                            aria-autocomplete="none"
-                            autoFocus
-                            onBlur={(evt) => setDaysToShow(evt.target.value)}
-                        />
-                    </div>
-                </form>
-                <Table
-                    key="lastmiletable"
-                    aria-label="List of failed sends"
-                    striped
-                    fullWidth
-                >
-                    <thead>
-                        <tr>
-                            <th scope="col">Failed At</th>
-                            <th scope="col">ReportId</th>
-                            <th scope="col">Receiver</th>
-                            <th scope="col">
-                                ⓘnfo
-                                <br />
-                                ↺Resend
-                            </th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="tBodyLastMile" className="font-mono-2xs">
-                        {lastMileData
-                            .filter((eachRow) => eachRow.filterMatch(filter))
-                            .map((eachRow) => (
-                                <tr
-                                    className={"hide-buttons-on-hover"}
-                                    key={`lastmile_row_${eachRow.pk()}`}
-                                >
-                                    <td>{formatDate(eachRow.failedAt)}</td>
-                                    <td>{eachRow.reportId}</td>
-                                    <td>{eachRow.receiver}</td>
-                                    <td>
-                                        <ButtonGroup type="segmented">
-                                            <Button
-                                                key={`details_${eachRow.pk()}`}
-                                                onClick={() =>
-                                                    handleShowDetailsClick(
-                                                        JSON.stringify(
-                                                            eachRow,
-                                                            null,
-                                                            4
-                                                        )
-                                                    )
-                                                }
-                                                type="button"
-                                                size="small"
-                                                className="padding-1 usa-button--outline"
-                                                title="Show Info"
-                                            >
-                                                {"ⓘ"}
-                                            </Button>
-                                            <Button
-                                                key={`retry_${eachRow.pk()}`}
-                                                onClick={() =>
-                                                    handleRetrySendClick(
-                                                        JSON.stringify(
-                                                            eachRow,
-                                                            null,
-                                                            2
-                                                        )
-                                                    )
-                                                }
-                                                type="button"
-                                                size="small"
-                                                className="padding-1 usa-button--outline"
-                                                title="Resend"
-                                            >
-                                                {"↺"}
-                                            </Button>
-                                        </ButtonGroup>
-                                    </td>
-                                </tr>
-                            ))}
-                    </tbody>
-                </Table>
-
-                <Modal
-                    isLarge={true}
-                    className="rs-compare-modal"
-                    ref={modalShowInfoRef}
-                    id={modalShowInfoId}
-                    aria-labelledby={`${modalShowInfoId}-heading`}
-                    aria-describedby={`${modalShowInfoId}-description`}
-                >
-                    <div
-                        className="rs-editable-compare-base rs-editable-compare-static"
-                        contentEditable={false}
-                        dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(
-                                htmlModalShowInfoContent
-                            ),
-                        }}
+        <section className="grid-container rs-container-unbounded">
+            <h2>Last Mile failures</h2>
+            <form autoComplete="off" className="grid-row">
+                <div className="flex-fill">
+                    <Label
+                        className="font-sans-xs usa-label"
+                        htmlFor="input_filter"
+                    >
+                        Filter:
+                    </Label>
+                    <TextInput
+                        id="input_filter"
+                        name="input_filter"
+                        type="text"
+                        autoComplete="off"
+                        aria-autocomplete="none"
+                        autoFocus
+                        onChange={(evt) => setFilter(evt.target.value)}
                     />
-                </Modal>
-
-                {/* Confirm before sending modal */}
-                <Modal isLarge={true} ref={modalResendRef} id={modalResendId}>
-                    <ModalHeading id={`${modalResendId}-heading`}>
-                        Are you sure you want to continue?
-                    </ModalHeading>
-                    <p className="usa-prose">
-                        You are about to trigger a retransmission.
-                    </p>
-                    <p className="usa-prose">
-                        Copy the information below into a github issue to
-                        coordinate fixing. (This is only until tracking is in
-                        place in the server.)
-                    </p>
-                    <div
-                        className="rs-editable-compare-base rs-editable-compare-static"
-                        contentEditable={false}
-                        dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(
-                                htmlContentForGithubIssue
-                            ),
-                        }}
+                    Searches FULL information incl error text
+                </div>
+                <div className="flex-auto">
+                    <Label
+                        className="font-sans-xs usa-label"
+                        htmlFor="days_to_show"
+                    >
+                        Days to show:
+                    </Label>
+                    <TextInput
+                        id="days_to_show"
+                        name="days_to_show"
+                        type="number"
+                        defaultValue={defaultDaysToShow}
+                        autoComplete="off"
+                        aria-autocomplete="none"
+                        autoFocus
+                        onBlur={(evt) => setDaysToShow(evt.target.value)}
                     />
-                    <ModalFooter>
-                        <ButtonGroup>
-                            <Button
-                                type="button"
-                                size="small"
-                                disabled={loading}
-                                onClick={() => startResend()}
+                </div>
+            </form>
+            <Table
+                key="lastmiletable"
+                aria-label="List of failed sends"
+                striped
+                fullWidth
+            >
+                <thead>
+                    <tr>
+                        <th scope="col">Failed At</th>
+                        <th scope="col">ReportId</th>
+                        <th scope="col">Receiver</th>
+                        <th scope="col">
+                            ⓘnfo
+                            <br />
+                            ↺Resend
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody id="tBodyLastMile" className="font-mono-2xs">
+                    {lastMileData
+                        .filter((eachRow) => eachRow.filterMatch(filter))
+                        .map((eachRow) => (
+                            <tr
+                                className={"hide-buttons-on-hover"}
+                                key={`lastmile_row_${eachRow.pk()}`}
                             >
-                                Trigger Resend
-                            </Button>
-                            <Button
-                                type="button"
-                                size="small"
-                                onClick={closeResendModal}
-                            >
-                                Cancel
-                            </Button>
-                        </ButtonGroup>
-                    </ModalFooter>
-                </Modal>
-            </section>
-        </>
+                                <td>{formatDate(eachRow.failedAt)}</td>
+                                <td>{eachRow.reportId}</td>
+                                <td>{eachRow.receiver}</td>
+                                <td>
+                                    <ButtonGroup type="segmented">
+                                        <Button
+                                            key={`details_${eachRow.pk()}`}
+                                            onClick={() =>
+                                                handleShowDetailsClick(
+                                                    JSON.stringify(
+                                                        eachRow,
+                                                        null,
+                                                        4
+                                                    )
+                                                )
+                                            }
+                                            type="button"
+                                            size="small"
+                                            className="padding-1 usa-button--outline"
+                                            title="Show Info"
+                                        >
+                                            {"ⓘ"}
+                                        </Button>
+                                        <Button
+                                            key={`retry_${eachRow.pk()}`}
+                                            onClick={() =>
+                                                handleRetrySendClick(
+                                                    JSON.stringify(
+                                                        eachRow,
+                                                        null,
+                                                        2
+                                                    )
+                                                )
+                                            }
+                                            type="button"
+                                            size="small"
+                                            className="padding-1 usa-button--outline"
+                                            title="Resend"
+                                        >
+                                            {"↺"}
+                                        </Button>
+                                    </ButtonGroup>
+                                </td>
+                            </tr>
+                        ))}
+                </tbody>
+            </Table>
+
+            <Modal
+                isLarge={true}
+                className="rs-compare-modal"
+                ref={modalShowInfoRef}
+                id={modalShowInfoId}
+                aria-labelledby={`${modalShowInfoId}-heading`}
+                aria-describedby={`${modalShowInfoId}-description`}
+            >
+                <div
+                    className="rs-editable-compare-base rs-editable-compare-static"
+                    contentEditable={false}
+                    dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(htmlModalShowInfoContent),
+                    }}
+                />
+            </Modal>
+
+            {/* Confirm before sending modal */}
+            <Modal isLarge={true} ref={modalResendRef} id={modalResendId}>
+                <ModalHeading id={`${modalResendId}-heading`}>
+                    Are you sure you want to continue?
+                </ModalHeading>
+                <p className="usa-prose">
+                    You are about to trigger a retransmission.
+                </p>
+                <p className="usa-prose">
+                    Copy the information below into a github issue to coordinate
+                    fixing. (This is only until tracking is in place in the
+                    server.)
+                </p>
+                <div
+                    className="rs-editable-compare-base rs-editable-compare-static"
+                    contentEditable={false}
+                    dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(htmlContentForGithubIssue),
+                    }}
+                />
+                <ModalFooter>
+                    <ButtonGroup>
+                        <Button
+                            type="button"
+                            size="small"
+                            disabled={loading}
+                            onClick={() => startResend()}
+                        >
+                            Trigger Resend
+                        </Button>
+                        <Button
+                            type="button"
+                            size="small"
+                            onClick={closeResendModal}
+                        >
+                            Cancel
+                        </Button>
+                    </ButtonGroup>
+                </ModalFooter>
+            </Modal>
+        </section>
     );
 }
