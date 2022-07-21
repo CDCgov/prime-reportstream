@@ -14,14 +14,12 @@ export const AccountRegistrationGuideIa = () => {
                 </title>
             </Helmet>
 
-            <span id="anchor-top" className="text-base text-italic">
-                Updated: January 2022
-            </span>
-            <h1>Account registration guide</h1>
+            <h1 id="anchor-top">Account registration guide</h1>
             <h2>
                 The ReportStream team will help you set up a new user account.
                 Follow the steps below to reach out and get the process started.
             </h2>
+            <p className="text-base text-italic">Last updated: January 2022</p>
 
             <section>
                 <h3>Register for a ReportStream account</h3>

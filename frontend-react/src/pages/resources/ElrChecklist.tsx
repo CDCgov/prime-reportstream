@@ -16,7 +16,7 @@ export const ELRChecklistIa = () => {
             </Helmet>
 
             <h1 id="anchor-top" className="margin-top-0">
-                ELR Onboarding Checklist
+                ELR onboarding checklist
             </h1>
 
             <p className="usa-intro text-base">

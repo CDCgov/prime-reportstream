@@ -57,6 +57,7 @@ import InternalUserGuides from "./pages/admin/InternalUserGuides";
 import { AdminLastMileFailures } from "./pages/admin/AdminLastMileFailures";
 import Validate from "./pages/Validate";
 import { Product } from "./pages/product/ProductIndex";
+import UploadToPipeline from "./pages/UploadToPipeline";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -195,7 +196,7 @@ const App = () => {
                                     FeatureFlagName.VALIDATION_SERVICE
                                 ) && (
                                     <AuthorizedRoute
-                                        path="/validate"
+                                        path="/file-handler/validate"
                                         authorize={PERMISSIONS.PRIME_ADMIN}
                                         component={Validate}
                                     />
@@ -271,6 +272,15 @@ const App = () => {
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={ValueSetsIndex}
                                 />
+                                {CheckFeatureFlag(
+                                    FeatureFlagName.USER_UPLOAD
+                                ) && (
+                                    <AuthorizedRoute
+                                        path={"/file-handler/user-upload"}
+                                        authorize={PERMISSIONS.PRIME_ADMIN}
+                                        component={UploadToPipeline}
+                                    />
+                                )}
                                 {/* Handles any undefined route */}
                                 <Route
                                     render={() => (
