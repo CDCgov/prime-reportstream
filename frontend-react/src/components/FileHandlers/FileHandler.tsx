@@ -86,11 +86,6 @@ export enum FileHandlerType {
     VALIDATION = "validation",
 }
 
-enum ErrorType {
-    SERVER = "server",
-    FILE = "file",
-}
-
 interface FileHandlerProps {
     headingText: string;
     handlerType: FileHandlerType;
@@ -116,21 +111,39 @@ const FileHandler = ({
     showWarningBanner,
     warningText,
 }: FileHandlerProps) => {
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [fileInputResetValue, setFileInputResetValue] = useState(0);
-    const [fileContent, setFileContent] = useState("");
-    const [contentType, setContentType] = useState("");
-    const [fileType, setFileType] = useState("");
-    const [fileName, setFileName] = useState("");
-    const [errors, setErrors] = useState<ResponseError[]>([]);
-    const [destinations, setDestinations] = useState("");
-    const [reportId, setReportId] = useState<string | null>(null);
-    const [successTimestamp, setSuccessTimestamp] = useState<
-        string | undefined
-    >("");
-    const [cancellable, setCancellable] = useState<boolean>(false);
-    const [errorType, setErrorType] = useState<ErrorType>(ErrorType.FILE);
-    const [warnings, setWarnings] = useState<ResponseError[]>([]);
+    // const [isSubmitting, setIsSubmitting] = useState(false);
+    // const [fileInputResetValue, setFileInputResetValue] = useState(0);
+    // const [fileContent, setFileContent] = useState("");
+    // const [contentType, setContentType] = useState("");
+    // const [fileType, setFileType] = useState("");
+    // const [fileName, setFileName] = useState("");
+    // const [errors, setErrors] = useState<ResponseError[]>([]);
+    // const [destinations, setDestinations] = useState("");
+    // const [reportId, setReportId] = useState<string | null>(null);
+    // const [successTimestamp, setSuccessTimestamp] = useState<
+    //     string | undefined
+    // >("");
+    // const [cancellable, setCancellable] = useState<boolean>(false);
+    // const [errorType, setErrorType] = useState<ErrorType>(ErrorType.FILE);
+    // const [warnings, setWarnings] = useState<ResponseError[]>([]);
+
+    const { state, dispatch } = useFileHandler();
+
+    const {
+        isSubmitting,
+        fileInputResetValue,
+        fileContent,
+        contentType,
+        fileType,
+        fileName,
+        errors,
+        destinations,
+        reportId,
+        successTimestamp,
+        cancellable,
+        errorType,
+        warnings,
+    } = state;
 
     const { memberships, oktaToken } = useSessionContext();
     const { organization } = useOrganizationResource();
@@ -140,21 +153,21 @@ const FileHandler = ({
     const senderName = memberships.state.active?.senderName;
     const client = `${parsedName}.${senderName}`;
 
-    const resetState = () => {
-        setIsSubmitting(false);
-        setFileInputResetValue(fileInputResetValue + 1);
-        setFileContent("");
-        setContentType("");
-        setFileType("");
-        setFileName("");
-        setErrors([]);
-        setDestinations("");
-        setReportId(null);
-        setSuccessTimestamp("");
-        setCancellable(false);
-        setErrorType(ErrorType.FILE);
-        setWarnings([]);
-    };
+    // const resetState = () => {
+    //     setIsSubmitting(false);
+    //     setFileInputResetValue(fileInputResetValue + 1);
+    //     setFileContent("");
+    //     setContentType("");
+    //     setFileType("");
+    //     setFileName("");
+    //     setErrors([]);
+    //     setDestinations("");
+    //     setReportId(null);
+    //     setSuccessTimestamp("");
+    //     setCancellable(false);
+    //     setErrorType(ErrorType.FILE);
+    //     setWarnings([]);
+    // };
 
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
@@ -251,6 +264,7 @@ const FileHandler = ({
                 accessToken || ""
             );
 
+            // we can put (almost) all of this into REQUEST_COMPLETE
             if (response?.destinations?.length) {
                 // NOTE: `{ readonly [key: string]: string }` means a key:value object
                 setDestinations(
