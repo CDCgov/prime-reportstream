@@ -31,9 +31,6 @@ export interface ResponseError {
     scope: string | undefined;
     trackingIds: string[] | undefined;
     details: any | undefined;
-}
-
-export interface FileResponseError extends ResponseError {
     rowList?: string;
 }
 
