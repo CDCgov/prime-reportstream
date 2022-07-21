@@ -57,3 +57,5 @@ _Last updated: May 19, 2022_
 > [insert your nameand/or public health department name]
 >
 > [insert your public health department contact information]
+
+---
