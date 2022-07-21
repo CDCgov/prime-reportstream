@@ -15,7 +15,7 @@ import {
     SlugParams,
 } from "../../components/Content/PageGenerationTools";
 
-import { WhereWereLiveIa } from "./WhereWereLive";
+import { WhereWereLive } from "./WhereWereLive";
 
 /* Data that drives breadcrumb creation and slug appending */
 const slugs: SlugParams[] = [
@@ -41,7 +41,7 @@ const directories: ContentDirectory[] = [
         "Where we're live",
         DirectoryTools.prependRoot("WHERE_WERE_LIVE"),
         "",
-        WhereWereLiveIa
+        WhereWereLive
     ),
     new MarkdownDirectory(
         "Release notes",
