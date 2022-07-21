@@ -234,6 +234,7 @@ const FileHandler = ({
         setErrors([]);
         setDestinations("");
         setSuccessTimestamp("");
+        setWarnings([]);
 
         if (fileContent.length === 0) {
             return;
