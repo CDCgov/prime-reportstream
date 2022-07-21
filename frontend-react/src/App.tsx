@@ -16,10 +16,10 @@ import { ToastContainer } from "react-toastify";
 import { Home } from "./pages/home/Home";
 import { ReportStreamFooter } from "./components/ReportStreamFooter";
 import Daily from "./pages/daily/Daily";
-import { HowItWorks } from "./pages/how-it-works/HowItWorks";
 import { Details } from "./pages/details/Details";
 import { Login } from "./pages/Login";
 import { TermsOfService } from "./pages/TermsOfService";
+import { About } from "./pages/About";
 import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
 import { oktaAuthConfig } from "./oktaConfig";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
@@ -30,8 +30,6 @@ import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
 import Submissions from "./pages/submissions/Submissions";
-import { GettingStartedPublicHealthDepartments } from "./pages/getting-started/public-health-departments";
-import { GettingStartedTestingFacilities } from "./pages/getting-started/testing-facilities";
 import { AdminMain } from "./pages/admin/AdminMain";
 import { AdminOrgEdit } from "./pages/admin/AdminOrgEdit";
 import { EditReceiverSettings } from "./components/Admin/EditReceiverSettings";
@@ -50,10 +48,13 @@ import { DAPHeader } from "./components/header/DAPHeader";
 import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
 import ValueSetsDetail from "./pages/admin/value-set-editor/ValueSetsDetail";
 import SessionProvider from "./contexts/SessionContext";
-import BuiltForYouIndex from "./pages/built-for-you/BuiltForYouIndex";
+import { Resources } from "./pages/resources/ResourcesIndex";
+import { Support } from "./pages/support/SupportIndex";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
 import { AdminLastMileFailures } from "./pages/admin/AdminLastMileFailures";
 import Validate from "./pages/Validate";
+import { Product } from "./pages/product/ProductIndex";
+import UploadToPipeline from "./pages/UploadToPipeline";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -133,13 +134,10 @@ const App = () => {
                             <Switch>
                                 <Route path="/" exact={true} component={Home} />
                                 <Route
-                                    path="/how-it-works"
-                                    component={HowItWorks}
-                                />
-                                <Route
                                     path="/terms-of-service"
                                     component={TermsOfService}
                                 />
+                                <Route path="/about" component={About} />
                                 <Route path="/login" render={() => <Login />} />
                                 <Route
                                     path="/login/callback"
@@ -150,19 +148,11 @@ const App = () => {
                                     component={TermsOfServiceForm}
                                 />
                                 <Route
-                                    path="/getting-started/public-health-departments"
-                                    component={
-                                        GettingStartedPublicHealthDepartments
-                                    }
+                                    path="/resources"
+                                    component={Resources}
                                 />
-                                <Route
-                                    path="/getting-started/testing-facilities"
-                                    component={GettingStartedTestingFacilities}
-                                />
-                                <Route
-                                    path="/built-for-you"
-                                    component={BuiltForYouIndex}
-                                />
+                                <Route path="/product" component={Product} />
+                                <Route path="/support" component={Support} />
                                 <AuthorizedRoute
                                     path="/daily-data"
                                     authorize={PERMISSIONS.RECEIVER}
@@ -177,7 +167,7 @@ const App = () => {
                                     FeatureFlagName.VALIDATION_SERVICE
                                 ) && (
                                     <AuthorizedRoute
-                                        path="/validate"
+                                        path="/file-handler/validate"
                                         authorize={PERMISSIONS.PRIME_ADMIN}
                                         component={Validate}
                                     />
@@ -253,6 +243,15 @@ const App = () => {
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={ValueSetsIndex}
                                 />
+                                {CheckFeatureFlag(
+                                    FeatureFlagName.USER_UPLOAD
+                                ) && (
+                                    <AuthorizedRoute
+                                        path={"/file-handler/user-upload"}
+                                        authorize={PERMISSIONS.PRIME_ADMIN}
+                                        component={UploadToPipeline}
+                                    />
+                                )}
                                 {/* Handles any undefined route */}
                                 <Route
                                     render={() => (

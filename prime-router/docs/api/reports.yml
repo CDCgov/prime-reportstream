@@ -131,11 +131,6 @@ components:
         destinationCount:
           description: total destinations recieving the report(s)
           type: integer
-        routing:
-          description: The receiver destination names for each item in the report. This is displayed when verbose=true is present on the query string.
-          type: array
-          items:
-            $ref: '#/components/schemas/ItemRouting'
         errorCount:
           description: total errors found during initial validation.  There may be multiple errors per item.
           type: integer
@@ -194,21 +189,6 @@ components:
         itemCount:
           type: integer
           description: The number of reports being sent to this destination
-
-    ItemRouting:
-      type: object
-      properties:
-        reportIndex:
-          type: integer
-          description: the index of the item in the submitted report (0 based)
-        trackingId:
-          type: string
-          description: The tracking id provided by the sender defined in the schema, null otherwise
-        destinations:
-          description: The organization and service destinations
-          type: array
-          items:
-            type: string
 
   securitySchemes:
     ApiKeyAuth:
