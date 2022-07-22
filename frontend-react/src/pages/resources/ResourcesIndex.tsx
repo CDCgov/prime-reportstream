@@ -4,18 +4,19 @@ import { Route, Switch } from "react-router-dom";
 import {
     ElementDirectory,
     GeneratedRouter,
-} from "../../components/Markdown/MarkdownDirectory";
+} from "../../components/Content/MarkdownDirectory";
 import ReferralGuide from "../../content/resources/referral-guide.md";
-import { MarkdownContent } from "../../components/Markdown/MarkdownContent";
+import { MarkdownContent } from "../../components/Content/MarkdownContent";
 import {
     contentContainer,
     ContentDirectoryTools,
     SlugParams,
-} from "../../components/Markdown/DirectoryGenerationTools";
+} from "../../components/Content/PageGenerationTools";
 import { IACardList } from "../../components/IACard";
 
 import ProgrammersGuide from "./programmers-guide/ProgrammersGuide";
 import { AccountRegistrationGuideIa } from "./AccountRegistrationGuide";
+import { CsvSchemaDocumentation } from "./CsvSchemaDocumentation";
 import { CsvUploadGuideIa } from "./CsvUploadGuide";
 import { DataDownloadGuideIa } from "./DataDownloadGuide";
 import { ELRChecklistIa } from "./ElrChecklist";
@@ -30,6 +31,7 @@ const slugs: SlugParams[] = [
         key: "ACCOUNT_REGISTRATION",
         slug: "account-registration-guide",
     },
+    { key: "SCHEMA_DOCUMENTATION", slug: "csv-schema" },
     { key: "UPLOAD_GUIDE", slug: "csv-upload-guide" },
     { key: "DOWNLOAD_GUIDE", slug: "data-download-guide" },
     { key: "REFERRAL_GUIDE", slug: "referral-guide" },
@@ -57,27 +59,27 @@ const directories = [
         "Step-by-step instructions for setting up a new user account.",
         contentContainer(
             <AccountRegistrationGuideIa />,
-            DirectoryTools.makeCrumb("Account Registration Guide")
+            DirectoryTools.makeCrumb("Account registration guide")
         )
     ),
     new ElementDirectory(
         "Getting started: Public health departments",
         DirectoryTools.prependRoot("GETTING_STARTED_PHD"),
-        "foo foo getting started for PHDs.",
+        "Overview of the process for connecting your health department to ReportStream.",
         contentContainer(
             <GettingStartedPhd />,
             DirectoryTools.makeCrumb(
-                "Getting started: Public health departments"
+                "Getting started: public health departments"
             )
         )
     ),
     new ElementDirectory(
         "ELR onboarding checklist",
         DirectoryTools.prependRoot("ELR_CHECKLIST"),
-        "Checklist to help gather information to submit.",
+        "Checklist of required information for public health departments to set up an ELR connection",
         contentContainer(
             <ELRChecklistIa />,
-            DirectoryTools.makeCrumb("ELR Checklist")
+            DirectoryTools.makeCrumb("ELR onboarding checklist")
         )
     ),
     new ElementDirectory(
@@ -86,7 +88,16 @@ const directories = [
         "Instructions and tools for testing facilities and organizations reporting data via the ReportStream Restful (REST) API.",
         contentContainer(
             <ProgrammersGuide />,
-            DirectoryTools.makeCrumb("Programmer's Guide")
+            DirectoryTools.makeCrumb("Programmer's guide")
+        )
+    ),
+    new ElementDirectory(
+        "CSV schema documentation",
+        DirectoryTools.prependRoot("SCHEMA_DOCUMENTATION"),
+        "How to format data for reporting via CSV upload.",
+        contentContainer(
+            <CsvSchemaDocumentation />,
+            DirectoryTools.makeCrumb("CSV schema documentation")
         )
     ),
     new ElementDirectory(
@@ -95,7 +106,7 @@ const directories = [
         "Instructions for testing facilities and organizations reporting data via comma separated values (CSV).",
         contentContainer(
             <CsvUploadGuideIa />,
-            DirectoryTools.makeCrumb("CSV Upload Guide")
+            DirectoryTools.makeCrumb("CSV upload guide")
         )
     ),
     new ElementDirectory(
@@ -104,7 +115,7 @@ const directories = [
         "Instructions for public health departments to download data as comma separated values (CSV).",
         contentContainer(
             <DataDownloadGuideIa />,
-            DirectoryTools.makeCrumb("Data Download Guide")
+            DirectoryTools.makeCrumb("CSV download guide")
         )
     ),
     new ElementDirectory(
@@ -122,7 +133,7 @@ const directories = [
         "Information about the ReportStream platform, including data configuration, formats, and transport.",
         contentContainer(
             <SystemAndSettingsIa />,
-            DirectoryTools.makeCrumb("System and Settings")
+            DirectoryTools.makeCrumb("System and settings")
         )
     ),
     new ElementDirectory(
@@ -131,7 +142,7 @@ const directories = [
         "Answers to common questions about ReportStream security and data practices.",
         contentContainer(
             <SecurityPracticesIa />,
-            DirectoryTools.makeCrumb("Security Practices")
+            DirectoryTools.makeCrumb("Security practices")
         )
     ),
 ];

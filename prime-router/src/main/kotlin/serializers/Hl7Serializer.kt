@@ -291,6 +291,9 @@ class Hl7Serializer(
         try {
             val terser = Terser(hapiMsg)
 
+            val orc23 = terser.getSegment("/.ORC")
+            logger.debug(orc23.name)
+
             // First, extract any data elements from the HL7 message.
             schema.elements.forEach { element ->
                 // If there is no value for the key, then initialize it.
@@ -816,7 +819,6 @@ class Hl7Serializer(
         terser: Terser,
         observationRepeats: Int
     ) {
-
         replaceValueAwithBMap.forEach segment@{ segment ->
             // Scan through segment(s)
             @Suppress("UNCHECKED_CAST")

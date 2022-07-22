@@ -6,16 +6,16 @@ import {
     ContentDirectory,
     MarkdownDirectory,
     ElementDirectory,
-} from "../../components/Markdown/MarkdownDirectory";
+} from "../../components/Content/MarkdownDirectory";
 import ProductIndexMd from "../../content/product/product-index.md";
 import ReleaseNotesMd from "../../content/product/release-notes.md";
-import StaticPagesFromDirectories from "../../components/Markdown/StaticPagesFromDirectories";
+import StaticPagesFromDirectories from "../../components/Content/StaticPagesFromDirectories";
 import {
     ContentDirectoryTools,
     SlugParams,
-} from "../../components/Markdown/DirectoryGenerationTools";
+} from "../../components/Content/PageGenerationTools";
 
-import { WhereWereLiveIa } from "./WhereWereLive";
+import { WhereWereLive } from "./WhereWereLive";
 
 /* Data that drives breadcrumb creation and slug appending */
 const slugs: SlugParams[] = [
@@ -38,13 +38,13 @@ const directories: ContentDirectory[] = [
         ""
     ),
     new ElementDirectory(
-        "Where We're Live",
+        "Where we're live",
         DirectoryTools.prependRoot("WHERE_WERE_LIVE"),
         "",
-        WhereWereLiveIa
+        WhereWereLive
     ),
     new MarkdownDirectory(
-        "Release Notes",
+        "Release notes",
         DirectoryTools.prependRoot("RELEASE_NOTES"),
         [ReleaseNotesMd],
         ""
@@ -70,7 +70,7 @@ export const Product = () => {
                 {/* Workaround to allow links to /product to work */}
                 <Redirect from={"/product"} to={"/product/overview"} />
             </Switch>
-            <div className="rs-prose">
+            <div>
                 <StaticPagesFromDirectories directories={directories} />
             </div>
         </>

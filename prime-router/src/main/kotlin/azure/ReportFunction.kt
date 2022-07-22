@@ -13,17 +13,19 @@ import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.CovidReceiver
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.ELRReceiver
+import gov.cdc.prime.router.HasSchema
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.MonkeypoxSender
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
+import gov.cdc.prime.router.TopicReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
@@ -39,6 +41,7 @@ private const val DEFAULT_PARAMETER = "default"
 private const val ROUTE_TO_PARAMETER = "routeTo"
 private const val ALLOW_DUPLICATES_PARAMETER = "allowDuplicate"
 private const val PROCESSING_TYPE_PARAMETER = "processing"
+private const val TOPIC_PARAMETER = "topic"
 
 /**
  * Azure Functions with HTTP Trigger.
@@ -49,11 +52,15 @@ class ReportFunction(
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
 ) : Logging {
 
+    /**
+     * The data that wraps a request that we receive from a sender.
+     */
     data class ValidatedRequest(
         val content: String = "",
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
         val sender: Sender,
+        val topic: String = "covid-19"
     )
 
     /**
@@ -68,11 +75,12 @@ class ReportFunction(
             name = "req",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.FUNCTION
-        ) request: HttpRequestMessage<String?>,
+        ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         val senderName = extractClient(request)
-        if (senderName.isBlank())
+        if (senderName.isBlank()) {
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
+        }
 
         // Sender should eventually be obtained directly from who is authenticated
         val sender = workflowEngine.settings.findSender(senderName)
@@ -82,10 +90,11 @@ class ReportFunction(
         return try {
             processRequest(request, sender)
         } catch (ex: Exception) {
-            if (ex.message != null)
+            if (ex.message != null) {
                 logger.error(ex.message!!, ex)
-            else
+            } else {
                 logger.error(ex)
+            }
             HttpUtilities.internalErrorResponse(request)
         }
     }
@@ -102,11 +111,12 @@ class ReportFunction(
             name = "waters",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS
-        ) request: HttpRequestMessage<String?>,
+        ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         val senderName = extractClient(request)
-        if (senderName.isBlank())
+        if (senderName.isBlank()) {
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
+        }
 
         actionHistory.trackActionParams(request)
         try {
@@ -131,10 +141,11 @@ class ReportFunction(
             )
             return processRequest(request, sender)
         } catch (ex: Exception) {
-            if (ex.message != null)
+            if (ex.message != null) {
                 logger.error(ex.message!!, ex)
-            else
+            } else {
                 logger.error(ex)
+            }
             return HttpUtilities.internalErrorResponse(request)
         }
     }
@@ -149,7 +160,7 @@ class ReportFunction(
      */
     internal fun processRequest(
         request: HttpRequestMessage<String?>,
-        sender: Sender,
+        sender: Sender
     ): HttpResponseMessage {
         // determine if we should be following the sync or async workflow
         val isAsync = processingType(request, sender) == ProcessingType.async
@@ -168,16 +179,16 @@ class ReportFunction(
                 // if the override parameter is populated, use that, otherwise use the sender value
                 val allowDuplicates = if
                 (!allowDuplicatesParam.isNullOrEmpty()) allowDuplicatesParam == "true"
-                else
+                else {
                     sender.allowDuplicates
+                }
 
                 // Only process the report if we are not checking for connection or validation.
                 if (options != Options.CheckConnections && options != Options.ValidatePayload) {
-                    val receiver =
-                        if (sender is CovidSender)
-                            CovidReceiver(workflowEngine, actionHistory)
-                        else
-                            ELRReceiver(workflowEngine, actionHistory)
+                    val receiver = when (sender) {
+                        is CovidSender, is MonkeypoxSender -> TopicReceiver(workflowEngine, actionHistory)
+                        else -> ELRReceiver(workflowEngine, actionHistory)
+                    }
 
                     // send report on its way, either via the COVID pipeline or the full ELR pipeline
                     receiver.validateAndMoveToProcessing(
@@ -271,9 +282,15 @@ class ReportFunction(
         }
     }
 
+    /**
+     * Take the request and parse it into a [ValidatedRequest] object with some
+     * sensible default values
+     */
     internal fun validateRequest(request: HttpRequestMessage<String?>): ValidatedRequest {
         val actionLogs = ActionLogger()
         HttpUtilities.payloadSizeCheck(request)
+
+        val topic = request.queryParameters.getOrDefault(TOPIC_PARAMETER, "covid-19")
 
         val receiverNamesText = request.queryParameters.getOrDefault(ROUTE_TO_PARAMETER, "")
         val routeTo = if (receiverNamesText.isNotBlank()) receiverNamesText.split(ROUTE_TO_SEPARATOR) else emptyList()
@@ -281,16 +298,18 @@ class ReportFunction(
             .forEach { actionLogs.error(InvalidParamMessage("Invalid receiver name: $it")) }
 
         val clientName = extractClient(request)
-        if (clientName.isBlank())
+        if (clientName.isBlank()) {
             actionLogs.error(InvalidParamMessage("Expected a '$CLIENT_PARAMETER' query parameter"))
+        }
 
         val sender = workflowEngine.settings.findSender(clientName)
-        if (sender == null)
+        if (sender == null) {
             actionLogs.error(InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown sender"))
+        }
 
-        // verify schema if the sender is a covidSender
+        // verify schema if the sender is a topic sender
         var schema: Schema? = null
-        if (sender != null && sender is CovidSender) {
+        if (sender != null && sender is HasSchema) {
             schema = workflowEngine.metadata.findSchema(sender.schemaName)
             if (schema == null) {
                 actionLogs.error(
@@ -324,8 +343,8 @@ class ReportFunction(
                     return@mapNotNull null
                 }
 
-                // only CovidSenders will have a schema
-                if (sender is CovidSender && schema != null) {
+                // only non full ELR senders will have a schema
+                if (sender is HasSchema && schema != null) {
                     val element = schema.findElement(parts[0])
                     if (element == null) {
                         actionLogs.error(InvalidParamMessage("'${parts[0]}' is not a valid element name"))
@@ -348,6 +367,7 @@ class ReportFunction(
             defaultValues,
             routeTo,
             sender,
+            topic
         )
     }
 }

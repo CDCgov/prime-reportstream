@@ -84,7 +84,12 @@
     }
 }
 
-@media (max-width: $mobile) {
+
+=======
+@media (max-width: $tablet) {
+  
+  .rs-hero__index {
+    padding-top: 0;
 
     .rs-hero__index {
         padding-top: 0;
@@ -164,7 +169,6 @@ ul.rb li .timestamp {
 
 .rs-documentation {
 
-
     h1, h2, h3, h4, h5, h6, p, ul, ol, .usa-alert {
         @include u-measure(6);
     }
@@ -173,30 +177,30 @@ ul.rb li .timestamp {
         margin: 0;
     }
 
-    h2 {
-        font-size: size('sans', 'lg');
-        @include u-text('normal');
-        color: color('base');
-    }
+  section, hr {
+    border-top: 1px solid color('base-lighter');
+    margin-top: units(4);
+    padding-top: units(3);
+  }
+  // for achieving the same as the above <section> class, but in .md content
+  hr {
+    height: 1px;
+    border-right: none;
+    border-bottom: none;
+    border-left: none;
+  }
 
-    section, hr {
-        border-top: 1px solid color('base-lighter');
-        margin-top: units(4);
-        padding-top: units(3);
-    }
+  h3 {
+    margin-top: 0;
+    font-size: size('sans', 'lg');
+  }
 
-    // for achieving the same as the above <section> class, but in .md content
-    hr {
-        height: 1px;
-        border-right: none;
-        border-bottom: none;
-        border-left: none;
-    }
-
-    h3 {
-        margin-top: 0;
-        font-size: size('sans', 'lg');
-    }
+  blockquote {
+    background-color: color('base-lightest');
+    padding: units(1) units(3);
+    margin: units(3) 0 units(3) 0;
+    width: inherit;
+  }
 }
 
 .rs-documentation__values {
