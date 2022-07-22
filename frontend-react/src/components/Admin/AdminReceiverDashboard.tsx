@@ -781,4 +781,6 @@ export const _exportForTesting = {
     SuccessRateTracker,
     SuccessRate,
     durationFormatShort,
+    makeDictionary,
+    MainRender,
 };

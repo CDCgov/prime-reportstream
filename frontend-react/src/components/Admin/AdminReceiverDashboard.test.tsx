@@ -1,8 +1,21 @@
+import { render, screen } from "@testing-library/react";
+
 import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
 
 const DATA: AdmConnStatusDataType[] = [
+    {
+        receiverConnectionCheckResultId: 2397,
+        organizationId: 61,
+        receiverId: 313,
+        connectionCheckResult: "connectionCheckResult dummy result 2397",
+        connectionCheckSuccessful: true,
+        connectionCheckStartedAt: "2022-07-11T00:00:00.001Z",
+        connectionCheckCompletedAt: "2022-07-11T00:00:50.000Z",
+        organizationName: "ca-dph",
+        receiverName: "elr",
+    },
     {
         receiverConnectionCheckResultId: 2398,
         organizationId: 61,
@@ -16,24 +29,25 @@ const DATA: AdmConnStatusDataType[] = [
     },
     {
         receiverConnectionCheckResultId: 2397,
-        organizationId: 61,
-        receiverId: 312,
+        organizationId: 49,
+        receiverId: 311,
         connectionCheckResult: "connectionCheckResult dummy result 2397",
         connectionCheckSuccessful: true,
         connectionCheckStartedAt: "2022-07-11T07:59:23.713Z",
         connectionCheckCompletedAt: "2022-07-11T07:59:24.033Z",
-        organizationName: "ca-dph",
+        organizationName: "oh-doh",
         receiverName: "elr",
     },
     {
+        // this entry is out-of-sort-order and connectionCheckSuccessful:failed
         receiverConnectionCheckResultId: 2396,
-        organizationId: 49,
-        receiverId: 311,
+        organizationId: 61,
+        receiverId: 312,
         connectionCheckResult: "connectionCheckResult dummy result 2396",
         connectionCheckSuccessful: false,
         connectionCheckStartedAt: "2022-07-11T07:59:23.385Z",
         connectionCheckCompletedAt: "2022-07-11T07:59:23.711Z",
-        organizationName: "oh-doh",
+        organizationName: "ca-dph",
         receiverName: "elr",
     },
     {
@@ -170,7 +184,24 @@ describe("AdminReceiverDashboard tests", () => {
         expect(result3).toBe("12h 34m 05.678s");
     });
 
-    test("unfinished test", () => {
-        expect(DATA.length).toBe(5);
+    test("MainRender", async () => {
+        const data = _exportForTesting.makeDictionary(DATA); // sorts
+        const keys = Object.keys(data);
+        expect(keys.length).toBe(6);
+        // make sure sorted correct.
+        expect(data[keys[3]].organizationName).toBe("oh-doh");
+
+        render(
+            <_exportForTesting.MainRender
+                data={data}
+                datesRange={[new Date("2022-07-11"), new Date()]}
+                filterRowStatus={_exportForTesting.SuccessRate.ALL_SUCCESSFUL}
+                onDetailsClick={(_subdata: AdmConnStatusDataType[]) => {}}
+            />
+        );
+
+        expect(
+            screen.getByText("Mon, 7/11/2022", { exact: false })
+        ).toBeInTheDocument();
     });
 });
