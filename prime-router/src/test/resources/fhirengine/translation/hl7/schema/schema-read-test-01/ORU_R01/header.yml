@@ -1,7 +1,8 @@
 name: ORU-R01-header
 elements:
   - name: message-identifier
-    resource: Bundle.id
+    value:
+      - Bundle.id
     required: true
     hl7Spec:
       - MSH-10
