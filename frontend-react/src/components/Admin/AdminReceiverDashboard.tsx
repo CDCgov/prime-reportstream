@@ -75,7 +75,7 @@ import { formatDate } from "../../utils/misc";
  *  outer grid is one row
  *  inner grid is two columns
  *
- *        ┌ .title-text                       ┌ PerDay components from above
+ *        ┌ .title-text                    ┌ PerDay components from above
  *        │                                │
  * ┏━━━━━━│━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━│━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
  * ┃  ┌───┼───┐  ┃   ┌──────┐ ┌──────┐ ┌───┼──┐ ┌──────┐ ┌──────┐ ┌──────┐    ┃
@@ -352,7 +352,6 @@ function MainRender(props: {
     }
 
     const onClick = (clickedKey: string) => {
-        debugger;
         // in theory, there might be multiple events for the block, but we're only handling one for now.
         const subData = props.data[clickedKey] || null;
         if (!subData) {
@@ -425,6 +424,7 @@ function MainRender(props: {
                     currentReceiver = `${currentEntry.organizationName}|${currentEntry.receiverName}`;
                 }
 
+                // render slots for day
                 {
                     const sliceClassName =
                         SUCCESS_RATE_CLASSNAME_MAP[
@@ -520,7 +520,7 @@ function MainRender(props: {
                             </div>
                         </Grid>
                         <ScrollSyncPane enabled>
-                            <Grid row className={"horizonal-scroll"}>
+                            <Grid row className={"horizontal-scroll"}>
                                 <Grid row className={"week-column"}>
                                     {perDayElements}
                                 </Grid>
@@ -657,7 +657,10 @@ export function AdminReceiverDashboard() {
 
     return (
         <section className="grid-container">
-            <h4>Receiver dashboards</h4>
+            <h4>Receiver Status dashboard</h4>
+            <section>
+                CRON job results that check if receivers are working.
+            </section>
             <form autoComplete="off" className="grid-row margin-0">
                 <div className="flex-auto">
                     <DateRangePicker

@@ -141,7 +141,7 @@ ${data.receiver}`;
                         className="font-sans-xs usa-label"
                         htmlFor="days_to_show"
                     >
-                        Days to show:
+                        Days to show: (refresh after focus
                     </Label>
                     <TextInput
                         id="days_to_show"
