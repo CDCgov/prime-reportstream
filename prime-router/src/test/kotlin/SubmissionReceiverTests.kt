@@ -354,7 +354,7 @@ class SubmissionReceiverTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val receiver = CovidReceiver(
+        val receiver = TopicReceiver(
             engine,
             actionHistory
         )
@@ -397,7 +397,7 @@ class SubmissionReceiverTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val receiver = CovidReceiver(
+        val receiver = TopicReceiver(
             engine,
             actionHistory
         )
@@ -452,7 +452,7 @@ class SubmissionReceiverTests {
         )
 
         val receiver = spyk(
-            CovidReceiver(
+            TopicReceiver(
                 engine,
                 actionHistory
             )
@@ -470,7 +470,7 @@ class SubmissionReceiverTests {
         val readResult = ReadResult(report, actionLogs)
         val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
 
-        every { engine.parseCovidReport(any(), any(), any()) } returns readResult
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { receiver.processAsync(any(), any(), any(), any()) } returns Unit
 
@@ -490,7 +490,7 @@ class SubmissionReceiverTests {
 
         // assert
         verify(exactly = 1) {
-            engine.parseCovidReport(any(), any(), any())
+            engine.parseTopicReport(any(), any(), any())
             engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             receiver.processAsync(any(), any(), any(), any())
@@ -515,7 +515,7 @@ class SubmissionReceiverTests {
         )
 
         val receiver = spyk(
-            CovidReceiver(
+            TopicReceiver(
                 engine,
                 actionHistory
             )
@@ -534,7 +534,7 @@ class SubmissionReceiverTests {
         val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
-        every { engine.parseCovidReport(any(), any(), any()) } returns readResult
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
@@ -555,7 +555,7 @@ class SubmissionReceiverTests {
 
         // assert
         verify(exactly = 1) {
-            engine.parseCovidReport(any(), any(), any())
+            engine.parseTopicReport(any(), any(), any())
             engine.recordReceivedReport(any(), any(), any(), any(), any())
             engine.routeReport(any(), any(), any(), any(), any())
             SubmissionReceiver.doDuplicateDetection(any(), any(), any())
@@ -603,7 +603,7 @@ class SubmissionReceiverTests {
         val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
-        every { engine.parseCovidReport(any(), any(), any()) } returns readResult
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
@@ -671,7 +671,7 @@ class SubmissionReceiverTests {
         val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
-        every { engine.parseCovidReport(any(), any(), any()) } returns readResult
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
@@ -747,7 +747,7 @@ class SubmissionReceiverTests {
         val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
-        every { engine.parseCovidReport(any(), any(), any()) } returns readResult
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit

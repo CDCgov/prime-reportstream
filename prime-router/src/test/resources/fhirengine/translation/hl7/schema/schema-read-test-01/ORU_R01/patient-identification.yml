@@ -1,18 +1,21 @@
 name: ORU-R01-patient-identification
 elements:
   - name: patient-segment-set-ID
-    value: '1'
+    value:
+      - '1'
     hl7Spec:
-      - .PID.1
+      - /PATIENT_RESULT/PATIENT/PID-1
 
   - name: patient-last-name
     condition: '%resource is Patient and %resource.name.family.exists()'
     required: true
-    value: '%resource.name.family'
+    value:
+      - '%resource.name.family'
     hl7Spec:
-      - .PID.5.1
+      - /PATIENT_RESULT/PATIENT/PID-5-1
 
   - name: name-type-code
-    value: 'L'
+    value:
+      - 'L'
     hl7Spec:
-      - /PATIENT_RESULT/ORDER_OBSERVATION(2)/OBSERVATIO(2)/OBX.3.2
+      - /PATIENT_RESULT/PATIENT/PID-5-7

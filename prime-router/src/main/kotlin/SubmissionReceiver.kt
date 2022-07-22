@@ -112,10 +112,10 @@ abstract class SubmissionReceiver(
 }
 
 /**
- * Receiver for COVID submissions, contains all logic to parse and move a covid submission to the next step
- * in the pipeline
+ * Receiver for submissions with a specific topic, contains all logic to parse and move
+ * a topic'd submission to the next step in the pipeline
  */
-class CovidReceiver : SubmissionReceiver {
+class TopicReceiver : SubmissionReceiver {
     constructor(
         workflowEngine: WorkflowEngine = WorkflowEngine(),
         actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
@@ -134,8 +134,7 @@ class CovidReceiver : SubmissionReceiver {
         metadata: Metadata?
     ) {
         // parse, check for parse errors
-
-        val (report, actionLogs) = this.workflowEngine.parseCovidReport(sender as CovidSender, content, defaults)
+        val (report, actionLogs) = this.workflowEngine.parseTopicReport(sender as TopicSender, content, defaults)
 
         // prevent duplicates if configured to not allow them
         if (!allowDuplicates) {
@@ -191,7 +190,6 @@ class CovidReceiver : SubmissionReceiver {
         defaults: Map<String, String>,
         routeTo: List<String>
     ) {
-
         val report = parsedReport.copy()
         val senderSource = parsedReport.sources.firstOrNull()
             ?: error("Unable to process report ${report.id} because sender sources collection is empty.")
