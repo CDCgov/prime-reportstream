@@ -1,8 +1,5 @@
 import { Helmet } from "react-helmet";
 import { NavLink } from "react-router-dom";
-import DOMPurify from "dompurify";
-
-import site from "../../content/site.json";
 
 export const DataDownloadGuideIa = () => {
     return (
@@ -14,22 +11,13 @@ export const DataDownloadGuideIa = () => {
                 </title>
             </Helmet>
             <h1 id="anchor-top">CSV download guide</h1>
-            <p className="usa-intro text-base">
+            <h2>
                 Instructions for public health departments to download data as
                 comma separated values (CSV).
-            </p>
-            <a
-                href={
-                    "mailto:" +
-                    DOMPurify.sanitize(site.orgs.RS.email) +
-                    "?subject=Getting started with ReportStream"
-                }
-                className="usa-button usa-button--outline"
-            >
-                Contact us
-            </a>
+            </h2>
+
             <section>
-                <h3>Benefits of the data download site</h3>
+                <h3>Benefits of downloading CSV data</h3>
 
                 <h4>Receive data from SimpleReport</h4>
                 <p>
@@ -181,9 +169,9 @@ export const DataDownloadGuideIa = () => {
                 </h4>
                 <p>
                     ReportStream will manually manage user accounts for your
-                    team. To add or remove team members, email us at{" "}
-                    <a href="mailto:reportstream@cdc.gov" className="usa-link">
-                        reportstream@cdc.gov
+                    team. To add or remove team members,{" "}
+                    <a href="/support/contact" className="usa-link">
+                        contact us
                     </a>
                     .
                 </p>
@@ -196,7 +184,7 @@ export const DataDownloadGuideIa = () => {
                         If you forgot your password, follow the instructions
                         under "Need help signing in?" on the login page at{" "}
                         <NavLink to="/login" key="login" className="usa-link">
-                            reportsream.cdc.gov/login
+                            reportstream.cdc.gov/login
                         </NavLink>
                         .
                     </li>
@@ -232,20 +220,15 @@ export const DataDownloadGuideIa = () => {
                     <em>Support</em>
                 </h4>
                 <p>
-                    Do you have questions, problems, or bugs to report? Email
-                    the team at&nbsp;
-                    <a
-                        href={
-                            "mailto:" +
-                            DOMPurify.sanitize(site.orgs.RS.email) +
-                            "?subject=Getting started with ReportStream"
-                        }
-                        className="usa-link"
-                    >
-                        reportstream@cdc.gov
-                    </a>
-                    &nbsp;for help.
+                    Do you have questions, problems, or bugs to report? Contact
+                    us for help.
                 </p>
+                <a
+                    href="/support/contact"
+                    className="usa-button usa-button--outline"
+                >
+                    Contact us
+                </a>
 
                 <p className="margin-top-8">
                     <a href="#anchor-top" className="usa-link">
