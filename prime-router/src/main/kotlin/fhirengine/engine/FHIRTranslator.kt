@@ -13,6 +13,8 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchema
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 
@@ -53,14 +55,15 @@ class FHIRTranslator(
             actionHistory.trackExistingInputReport(message.reportId)
 
             // todo: iterate over each receiver, translating on a per-receiver basis - for phase 1, hard coded to CO
-            val receivers = listOf<String>("CO-PDH")
+            val receivers = listOf<String>("co-pdh")
 
             receivers.forEach {
-                // todo: get schema for receiver (?)
+                // todo: get schema for receiver - for Phase 1 this is solely going to convert to HL7 and not do any
+                //  receiver-specific transforms
 
-                // todo: do translation, get instance of Report
-//                var schema = ConfigSchema("schema name", hl7Type = "ORU_R01", hl7Version = "2.5.1", elements = listOf(element))
-//                val message = FhirToHl7Converter(bundle, schema).convert()
+                // todo: do translation, get hl7 message
+                var schema = ConfigSchema("schema name", hl7Type = "ORU_R01", hl7Version = "2.5.1")
+                val hl7Message = FhirToHl7Converter(bundle, schema).convert()
 
                 // create report object  // DEBUG - this needs to be the report created by converting to HL7
                 // todo: remove this. we should not be creating this report here. It is for interim commit work
@@ -72,6 +75,21 @@ class FHIRTranslator(
                     metadata = metadata
                 )
 
+                // create item lineage
+                report.itemLineages = listOf(
+                    ItemLineage(
+                        null,
+                        message.reportId,
+                        1,
+                        report.id,
+                        1,
+                        null,
+                        null,
+                        null,
+                        report.getItemHashForRow(1)
+                    )
+                )
+
                 // create batch event
                 val batchEvent = ProcessEvent(
                     Event.EventAction.BATCH,
@@ -81,9 +99,14 @@ class FHIRTranslator(
                     emptyList<String>()
                 )
 
-                // upload new copy to blobstore
-                var blobInfo = blob.generateBodyAndUploadReport(
-                    report
+                // upload the translated copy to blobstore
+                var bodyBytes = hl7Message.encode().toByteArray()
+                var blobInfo = BlobAccess.uploadBody(
+                    Report.Format.HL7,
+                    bodyBytes,
+                    report.name,
+                    it,
+                    batchEvent.eventAction
                 )
 
                 // track generated reports, one per receiver
