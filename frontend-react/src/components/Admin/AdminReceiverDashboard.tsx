@@ -780,5 +780,5 @@ export const _exportForTesting = {
     roundIsoDateUp,
     SuccessRateTracker,
     SuccessRate,
-    dateDiffFormatShort: durationFormatShort,
+    durationFormatShort,
 };

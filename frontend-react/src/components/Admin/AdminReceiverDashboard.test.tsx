@@ -149,7 +149,7 @@ describe("AdminReceiverDashboard tests", () => {
         }
     });
 
-    test("dateDiffShort", () => {
+    test("durationFormatShort", () => {
         const now = new Date();
         const before = new Date(now);
         before.setHours(
@@ -158,16 +158,16 @@ describe("AdminReceiverDashboard tests", () => {
             before.getSeconds() - 3
         );
 
-        const result1 = _exportForTesting.dateDiffFormatShort(now, before);
+        const result1 = _exportForTesting.durationFormatShort(now, before);
         expect(result1).toBe("1h 02m 03s");
 
         const future2 = new Date(now.getTime() + 5678);
-        const result2 = _exportForTesting.dateDiffFormatShort(future2, now);
+        const result2 = _exportForTesting.durationFormatShort(future2, now);
         expect(result2).toBe("05.678s");
 
         future2.setHours(future2.getHours() + 12, future2.getMinutes() + 34);
-        const result3 = _exportForTesting.dateDiffFormatShort(future2, now);
-        expect(result2).toBe("12h 34m 05.678s");
+        const result3 = _exportForTesting.durationFormatShort(future2, now);
+        expect(result3).toBe("12h 34m 05.678s");
     });
 
     test("unfinished test", () => {

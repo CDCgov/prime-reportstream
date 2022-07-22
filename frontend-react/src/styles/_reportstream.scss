@@ -515,7 +515,7 @@ pre {
 
         .horizontal-scroll {
             scroll-margin: 0;
-            overflow-x: auto;
+            overflow-x: scroll; // auto;
             overflow-y: clip;
             width: 100%;
         }
