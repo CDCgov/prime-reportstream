@@ -44,6 +44,9 @@ class FHIRRouter(
     ) {
         logger.trace("Processing HL7 data for FHIR conversion.")
         try {
+            // track input report
+            actionHistory.trackExistingInputReport(message.reportId)
+
             // pull fhir document and parse FHIR document
             val fhirDocument = FhirTranscoder.decode(message.downloadContent())
 
@@ -58,9 +61,6 @@ class FHIRRouter(
 
             // TODO: Phase 2 - do routing calculation and save destination to blob - Phase 1 is just to route to CO
             //  (hardcoded in FHIRTranslator)
-
-            // track input report
-            actionHistory.trackExistingInputReport(message.reportId)
 
             // create item lineage
             report.itemLineages = listOf(
@@ -111,7 +111,12 @@ class FHIRRouter(
             //  the destinations have been updated in the FHIR
             this.queue.sendMessage(
                 elrTranslationQueueName,
-                message.serialize()
+                RawSubmission(
+                    report.id,
+                    blobInfo.blobUrl,
+                    BlobAccess.digestToString(blobInfo.digest),
+                    message.sender
+                ).serialize()
             )
         } catch (e: IllegalArgumentException) {
             logger.error(e)
