@@ -75,6 +75,11 @@ const DATA: AdmConnStatusDataType[] = [
 ];
 
 describe("AdminReceiverDashboard tests", () => {
+    test("misc functions", () => {
+        expect(_exportForTesting.defaultStartDateIso()).toContain("T");
+        expect(_exportForTesting.defaultEndDateIso()).toContain("Z");
+    });
+
     test("TimeSlots", () => {
         // NOTE: all times are ISO with a trailing "Z"
         const timeslots = new _exportForTesting.TimeSlots(

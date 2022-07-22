@@ -295,14 +295,6 @@ class TimeSlots implements IterateTimeSlots {
     }
 }
 
-// function splitUtcDateStr(input: string): { dateStr: string; hourStr: string } {
-//     // handy observation, the UTC date format makes getting the time section easier.
-//     // "2022-07-14T19:33:04.948Z" => ["2022-07-14", "19", "33", "04.948Z"]
-//     // We WANT leading zeros for hour so that they sort correctly, thus hour is a string.
-//     const timeParts = input.split(/[T,:]/);
-//     return { dateStr: timeParts[0], hourStr: timeParts[1] };
-// }
-
 /**
  * build the dictionary with a special path+key
  * @param dataIn
@@ -392,10 +384,8 @@ function MainRender(props: {
             );
             for (let [timeSlotStart, timeSlotEnd] of timeSlots) {
                 const successForSlice = new SuccessRateTracker();
-                // const hoverInfo: AdmConnStatusDataType[] = []; // used for hover - feels hacky
 
                 // loop over keys that are in this range. Build aggregates
-                const keysMatched = [];
                 while (
                     keyOffset < keys.length &&
                     dateIsInRange(currentDate, [timeSlotStart, timeSlotEnd]) &&
@@ -403,13 +393,11 @@ function MainRender(props: {
                 ) {
                     // because we're moving two cursors through data (date slots and data results),
                     // we use the data results from the prior iteration when we moved that cursor forward.
-                    keysMatched.push(currentKey);
                     const wasSuccessful =
                         currentEntry.connectionCheckSuccessful;
                     successForSlice.updateState(wasSuccessful);
                     successForDay.updateState(wasSuccessful);
                     successForRow.updateState(wasSuccessful);
-                    // hoverInfo.push(currentEntry);
 
                     // next entry
                     keyOffset++;
@@ -775,6 +763,8 @@ export function AdminReceiverDashboard() {
 }
 
 export const _exportForTesting = {
+    defaultStartDateIso,
+    defaultEndDateIso,
     TimeSlots,
     roundIsoDateDown,
     roundIsoDateUp,
