@@ -132,7 +132,7 @@ class DeliveryFunction(
             name = "getDeliveryDetails",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "waters/report/{deliveryId}/delivery"
+            route = "waters/report/{id}/delivery"
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: String,
     ): HttpResponseMessage {
