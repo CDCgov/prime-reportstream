@@ -2,9 +2,7 @@ import { useReducer } from "react";
 
 import { ResponseError, WatersResponse } from "../network/api/WatersApi";
 import { Destination } from "../resources/ActionDetailsResource";
-
-// values taken from Report.kt
-const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
+import { PAYLOAD_MAX_BYTES } from "../utils/FileUtils";
 
 export enum ErrorType {
     SERVER = "server",
@@ -111,6 +109,7 @@ function getPreSubmitState(): Partial<FileHandlerState> {
     };
 }
 
+// update state when file is selected in form
 function calculateFileSelectedState(
     state: FileHandlerState,
     payload: FileSelectedPayload
@@ -177,6 +176,7 @@ function calculateFileSelectedState(
     }
 }
 
+// update state when API request is complete
 function calculateRequestCompleteState(
     state: FileHandlerState,
     payload: RequestCompletePayload
@@ -236,6 +236,9 @@ function reducer(
     }
 }
 
+// this layer of abstraction around the reducer may not be necessary, but following
+// the pattern laid down in UsePagination for now, in case we need to make this more
+// complex later - DWS
 function useFileHandler(): {
     state: FileHandlerState;
     dispatch: React.Dispatch<FileHandlerAction>;
