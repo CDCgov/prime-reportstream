@@ -1,6 +1,6 @@
 import { Destination } from "../../resources/ActionDetailsResource";
 
-import { API, Endpoint } from "./NewApi";
+import { API } from "./NewApi";
 
 export class WatersResponse {
     actualCompletionAt: string | undefined;
@@ -21,6 +21,7 @@ export class WatersResponse {
     warningCount: number | undefined;
     warnings: ResponseError[] | undefined;
     ok: boolean | undefined;
+    status?: number;
 }
 
 export interface ResponseError {
@@ -30,18 +31,13 @@ export interface ResponseError {
     scope: string | undefined;
     trackingIds: string[] | undefined;
     details: any | undefined;
+    rowList?: string;
 }
 
-export const WatersAPI: API = {
-    resource: WatersResponse,
-    baseUrl: "/api",
-    endpoints: new Map<string, Endpoint>([
-        [
-            "waters",
-            {
-                url: "/waters",
-                methods: ["POST"],
-            },
-        ],
-    ]),
-};
+const WatersApi: API = new API(WatersResponse, "/api").addEndpoint(
+    "waters",
+    "/waters",
+    ["POST"]
+);
+
+export default WatersApi;

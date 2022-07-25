@@ -50,6 +50,20 @@ $mobile: 480px;
 $tablet: 1024px;
 $desktop: 1200px;
 
+// Flex
+
+$flex-settings: (
+  responsive: true
+);
+
+$flex-direction-settings: (
+  responsive: true
+);
+
+$flex-wrap-settings: (
+  responsive: true
+);
+
 // COLORS - USDS redefine
 // these are color names we can reference else where and/or redefine usds colors
 $black: #010101;
