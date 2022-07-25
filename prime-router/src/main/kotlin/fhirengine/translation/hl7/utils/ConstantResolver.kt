@@ -20,7 +20,7 @@ data class CustomContext(val constants: MutableMap<String, String> = mutableMapO
     companion object {
         /**
          * Add [constants] to a context.
-         * @return a new context with the [constants] added
+         * @return a new context with the [constants] added or the existing context of no new constants are specified
          */
         fun addConstants(constants: Map<String, String>, previousContext: CustomContext?): CustomContext? {
             return if (constants.isEmpty()) previousContext
@@ -33,7 +33,7 @@ data class CustomContext(val constants: MutableMap<String, String> = mutableMapO
 
         /**
          * Add constant with [key] and [value] to a context.
-         * @return a new context with the constant added
+         * @return a new context with the constant added or the existing context of no new constant is specified
          */
         fun addConstant(key: String, value: String, previousContext: CustomContext?): CustomContext? {
             return addConstants(mapOf(key to value), previousContext)
@@ -64,8 +64,9 @@ object ConstantSubstitutor {
     internal class StringCustomResolver(val context: CustomContext?) : StringLookup, Logging {
         override fun lookup(key: String?): String {
             require(!key.isNullOrBlank())
-            if (context == null || !context.constants.contains(key))
-                throw HL7ConversionException("Constant '$key' cannot be resolved in string")
+            if (context == null) throw HL7ConversionException("No context available to resolve constant '$key'")
+            else if (!context.constants.contains(key))
+                throw HL7ConversionException("'$key' was not found in the provided context")
             return context.constants[key] ?: ""
         }
     }
@@ -81,14 +82,14 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
 
         return when {
             appContext == null || appContext !is CustomContext ->
-                throw PathEngineException("No custom context available to resolve fixed constant '$name'")
+                throw PathEngineException("No context available to resolve constant '$name'")
             appContext.constants.contains(name) -> {
                 // Return the type depending on the contents of the variable
                 if (NumberUtils.isDigits(appContext.constants[name]))
                     IntegerType(NumberUtils.createInteger(appContext.constants[name]))
                 else StringType(appContext.constants[name])
             }
-            else -> throw PathEngineException("Unknown custom fixed constant '$name'")
+            else -> throw PathEngineException("'$name' was not found in the provided context")
         }
     }
 
