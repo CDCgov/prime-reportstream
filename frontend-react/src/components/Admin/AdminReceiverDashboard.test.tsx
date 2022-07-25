@@ -208,6 +208,7 @@ describe("AdminReceiverDashboard tests", () => {
         expect(data[keys[3]].organizationName).toBe("oh-doh");
 
         render(
+            // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.MainRender
                 data={data}
                 datesRange={[new Date("2022-07-11"), new Date()]}
