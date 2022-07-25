@@ -1,13 +1,14 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
+import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
+import { Destination } from "../resources/ActionDetailsResource";
+import { ResponseError } from "../network/api/WatersApi";
+
 import useFileHandler, {
     INITIAL_STATE,
     FileHandlerActionType,
     RequestCompletePayload,
 } from "./UseFileHandler";
-import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
-import { Destination } from "../resources/ActionDetailsResource";
-import { ResponseError } from "../network/api/WatersApi";
 
 const fakeDestination: Destination = {
     organization_id: "an org id",
