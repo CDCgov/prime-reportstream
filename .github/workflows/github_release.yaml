@@ -108,7 +108,7 @@ jobs:
           prerelease: ${{ needs.wf_vars.outputs.prerelease }}
       - name: Build changelog
         id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@c9066537c0c7bc5c7b0ec7722cefc02524c7c005
+        uses: mikepenz/release-changelog-builder-action@f3776883ea2e511b41298ec5853017efecd7c2ee
         with:
           configuration: '.github/changelog_config.json'
           # Allow changelog tests in forks
