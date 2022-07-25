@@ -197,7 +197,7 @@ describe("AdminReceiverDashboard tests", () => {
         expect(result3).toBe("12h 34m 05.678s");
 
         const result4 = _exportForTesting.durationFormatShort(now, now);
-        expect(result3).toBe("");
+        expect(result4).toBe("");
     });
 
     test("MainRender", async () => {
