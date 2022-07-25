@@ -3201,6 +3201,8 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+        header:
+          - RecordID: ReportID
 
 - name: or-phd
   description: Oregon Public Health Department
