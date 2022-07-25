@@ -1,7 +1,4 @@
-import DOMPurify from "dompurify";
-
 import { SectionProp } from "../HomeProps";
-import site from "../../../content/site.json";
 
 export default function CtaSection({ section }: { section: SectionProp }) {
     return (
@@ -20,11 +17,7 @@ export default function CtaSection({ section }: { section: SectionProp }) {
             </p>
             <a
                 data-testid="email-link"
-                href={
-                    "mailto:" +
-                    DOMPurify.sanitize(site.orgs.RS.email) +
-                    "?subject=Getting started with ReportStream"
-                }
+                href="/support/contact"
                 className="usa-button"
             >
                 Get in touch
