@@ -6,8 +6,8 @@ import GeneratedSideNav from "./GeneratedSideNav";
 import { MarkdownDirectory } from "./MarkdownDirectory";
 
 const TEST_DIRS = [
-    new MarkdownDirectory("Test Dir", "/test-dir", []),
-    new MarkdownDirectory("Another Dir", "/another-dir", []),
+    new MarkdownDirectory().setTitle("Test Dir").setSlug("test-dir"),
+    new MarkdownDirectory().setTitle("Another Dir").setSlug("another-dir"),
 ];
 
 test("GeneratedSideNav", () => {

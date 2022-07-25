@@ -3,9 +3,10 @@ import markdownPagesGuide from "../../content/internal-user-guides/make-markdown
 import StaticPagesFromDirectories from "../../components/Content/StaticPagesFromDirectories";
 
 export const InternalUserGuidesDirectory = [
-    new MarkdownDirectory("Create markdown pages", "create-markdown-pages", [
-        markdownPagesGuide,
-    ]),
+    new MarkdownDirectory()
+        .setTitle("Create markdown pages")
+        .setSlug("create-markdown-pages")
+        .addFile(markdownPagesGuide),
 ];
 
 const InternalUserGuides = () => {
