@@ -3,7 +3,7 @@ import React, { useState, useMemo } from "react";
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { useOrganizationResource } from "../../hooks/UseOrganizationResouce";
-import { FileResponseError } from "../../network/api/WatersApi";
+import { ResponseError } from "../../network/api/WatersApi";
 import { WatersPost } from "../../network/api/WatersApiFunctions";
 import { Destination } from "../../resources/ActionDetailsResource";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
@@ -11,7 +11,8 @@ import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import {
     FileErrorDisplay,
     FileSuccessDisplay,
-    FileWarningDisplay,
+    FileWarningsDisplay,
+    FileWarningBanner,
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
 
@@ -121,7 +122,7 @@ const FileHandler = ({
     const [contentType, setContentType] = useState("");
     const [fileType, setFileType] = useState("");
     const [fileName, setFileName] = useState("");
-    const [errors, setErrors] = useState<FileResponseError[]>([]);
+    const [errors, setErrors] = useState<ResponseError[]>([]);
     const [destinations, setDestinations] = useState("");
     const [reportId, setReportId] = useState<string | null>(null);
     const [successTimestamp, setSuccessTimestamp] = useState<
@@ -129,6 +130,7 @@ const FileHandler = ({
     >("");
     const [cancellable, setCancellable] = useState<boolean>(false);
     const [errorType, setErrorType] = useState<ErrorType>(ErrorType.FILE);
+    const [warnings, setWarnings] = useState<ResponseError[]>([]);
 
     const { memberships, oktaToken } = useSessionContext();
     const { organization } = useOrganizationResource();
@@ -151,6 +153,7 @@ const FileHandler = ({
         setSuccessTimestamp("");
         setCancellable(false);
         setErrorType(ErrorType.FILE);
+        setWarnings([]);
     };
 
     const handleFileChange = async (
@@ -231,6 +234,7 @@ const FileHandler = ({
         setErrors([]);
         setDestinations("");
         setSuccessTimestamp("");
+        setWarnings([]);
 
         if (fileContent.length === 0) {
             return;
@@ -259,7 +263,7 @@ const FileHandler = ({
             if (response?.id) {
                 setReportId(response.id);
                 setSuccessTimestamp(response.timestamp);
-                event.currentTarget.reset();
+                event?.currentTarget?.reset && event.currentTarget.reset();
             }
 
             // if there is a response status,
@@ -267,21 +271,18 @@ const FileHandler = ({
             if (response?.errors?.length && response?.status) {
                 setErrorType(ErrorType.SERVER);
             }
+            if (response?.warnings?.length) {
+                setWarnings(response.warnings);
+            }
         } catch (error) {
             // Noop.  Errors are collected below
+            console.error("Unexpected error in file handler", error);
         }
 
         // Process the error messages
         if (response?.errors && response.errors.length > 0) {
             // Add a string to properly display the indices if available.
-            const FileResponseErrors = response.errors.map((error: any) => {
-                const rowList =
-                    error.indices && error.indices.length > 0
-                        ? error.indices.join(", ")
-                        : "";
-                return { ...error, rowList };
-            });
-            setErrors(FileResponseErrors);
+            setErrors(response.errors);
             setCancellable(true);
         } else {
             setCancellable(false);
@@ -302,8 +303,18 @@ const FileHandler = ({
         if (handlerType === "upload") {
             suffix = " and will be transmitted";
         }
-        return `Your file meets the standard ${fileType} schema${suffix}.`;
+        const schemaDescription =
+            fileType === "HL7"
+                ? "ReportStream standard HL7 v2.5.1"
+                : "standard CSV";
+        return `Your file meets the ${schemaDescription} schema${suffix}.`;
     }, [fileType, handlerType]);
+
+    const warningDescription = useMemo(() => {
+        return handlerType === "upload"
+            ? "Your file has been transmitted"
+            : "Your file has passed validation";
+    }, [handlerType]);
 
     const errorMessaging = errorMessagingMap[handlerType][errorType];
 
@@ -312,7 +323,14 @@ const FileHandler = ({
             <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
             <h2 className="font-sans-lg">{organization?.description}</h2>
             {showWarningBanner && (
-                <FileWarningDisplay message={warningText || ""} />
+                <FileWarningBanner message={warningText || ""} />
+            )}
+            {warnings.length > 0 && (
+                <FileWarningsDisplay
+                    warnings={warnings}
+                    heading="We found non-critical issues in your file"
+                    message={`The following warnings were returned while processing your file. ${warningDescription}, but these warning areas can be addressed to enhance clarity."`}
+                />
             )}
             {reportId && (
                 <FileSuccessDisplay
@@ -327,7 +345,6 @@ const FileHandler = ({
                     showExtendedMetadata={showSuccessMetadata}
                 />
             )}
-
             {errors.length > 0 && (
                 <FileErrorDisplay
                     fileName={fileName}
@@ -338,7 +355,7 @@ const FileHandler = ({
                 />
             )}
             {isSubmitting && (
-                <div className="grid-col flex-1 display-flex flex-column flex-align-center">
+                <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-4">
                     <div className="grid-row">
                         <Spinner />
                     </div>

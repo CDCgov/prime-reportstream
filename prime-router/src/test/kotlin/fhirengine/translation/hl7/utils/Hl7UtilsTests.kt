@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import assertk.assertThat
+import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
@@ -36,6 +37,8 @@ class Hl7UtilsTests {
         assertThat(instance).isNotNull()
         instance?.also {
             assertThat(it).isInstanceOf(Message::class.java)
+            assertThat(it).isInstanceOf(ORU_R01::class.java)
+            assertThat(it.encodingCharactersValue.length).isEqualTo(4)
         }
 
         assertThat(HL7Utils.SupportedMessages.getMessageInstance("ORU_R01", "3")).isNull()
