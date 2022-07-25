@@ -120,17 +120,17 @@ const FileHandler = ({
 
         // unfortunate that we have to do this a bit early in order to keep
         // async code out of the reducer, but oh well - DWS
-        const fileContent = await file.text();
+        const content = await file.text();
 
         if (file.type === "csv" || file.type === "text/csv") {
-            const localCsvError = parseCsvForError(file.name, fileContent);
+            const localCsvError = parseCsvForError(file.name, content);
             if (localCsvError) {
                 showError(localCsvError);
                 return;
             }
         }
 
-        setFileContent(fileContent);
+        setFileContent(content);
 
         dispatch({
             type: FileHandlerActionType.FILE_SELECTED,

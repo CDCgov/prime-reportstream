@@ -40,8 +40,6 @@ export interface FileHandlerState {
 export enum FileHandlerActionType {
     RESET = "RESET",
     PREPARE_FOR_REQUEST = "PREPARE_FOR_REQUEST",
-    // SET_FILE_TYPE = "SET_FILE_TYPE",
-    // SET_CANCELLABLE = "SET_CANCELLABLE",
     FILE_SELECTED = "FILE_SELECTED",
     REQUEST_COMPLETE = "REQUEST_COMPLETE",
 }
@@ -231,13 +229,12 @@ function useFileHandler(): {
     );
 
     /* TODO: possible future refactors:
-    - we could abstract over the dispatch function as UsePagination does and expose individual
-    actions as their own functions (ex. fileSelected, requestComplete)
-    - we could refactor some logic to keep some state variables internal to the reducer / hook.
-    Not sure how much we'd be able to simplify here, or if it'd be worth it, but would be nice
-    if we didn't have to send back the entire state to the component
+      - we could abstract over the dispatch function as UsePagination does and expose individual
+      actions as their own functions (ex. fileSelected, requestComplete)
+      - we could refactor some logic to keep some state variables internal to the reducer / hook.
+      Not sure how much we'd be able to simplify here, or if it'd be worth it, but would be nice
+      if we didn't have to send back the entire state to the component
     */
-    // console.log("!!! useFileHandler", state);
     return {
         state,
         dispatch,

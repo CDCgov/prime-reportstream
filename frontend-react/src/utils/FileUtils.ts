@@ -33,5 +33,4 @@ export const parseCsvForError = (
     }
     // todo: this is a good place to do basic validation of the upload file. e.g. does it have
     // all the required columns? Are any rows obviously not correct (empty or obviously wrong type)?
-    return;
 };
