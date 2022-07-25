@@ -15,10 +15,17 @@ export abstract class ContentDirectory {
     title: string = "";
     slug: string = "";
     desc: string = "";
-    protected constructor(title: string, slug: string, desc: string) {
+    setTitle(title: string) {
         this.title = title;
+        return this;
+    }
+    setSlug(slug: string) {
         this.slug = slug;
-        this.desc = desc;
+        return this;
+    }
+    setDescription(description: string) {
+        this.desc = description;
+        return this;
     }
 }
 /** Creates a backwards-compatible method of rendering old React elements
@@ -30,15 +37,10 @@ export abstract class ContentDirectory {
  * @property element - Element to render
  */
 export class ElementDirectory extends ContentDirectory {
-    element: ContentElement;
-    constructor(
-        title: string = "",
-        slug: string = "",
-        desc: string = "",
-        element: ContentElement
-    ) {
-        super(title, slug, desc);
+    element: ContentElement = () => <></>; //Empty element default
+    addElement(element: ContentElement) {
         this.element = element;
+        return this;
     }
 }
 /** Used to create objects that hold pointers to markdown directories and the
@@ -50,10 +52,14 @@ export class ElementDirectory extends ContentDirectory {
  * @property desc
  * @property files - markdown files to render */
 export class MarkdownDirectory extends ContentDirectory {
-    files: module[];
-    constructor(title: string, slug: string, files: module[], desc?: string) {
-        super(title, slug, desc || "");
+    files: module[] = []; //Empty module array default
+    addFile(file: module) {
+        this.files.push(file);
+        return this;
+    }
+    addAllFiles(files: module[]) {
         this.files = files;
+        return this;
     }
 }
 /** Takes a `ContentDirectory` and returns a react-router `Route` */

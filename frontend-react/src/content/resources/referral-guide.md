@@ -29,24 +29,24 @@ _Last updated: May 19, 2022_
 >
 > **What’s ReportStream?**
 >
-> ReportStream is a free tool developed by the Centers for Disease Control and Prevention (CDC) and U.S. Digital Service (USDS) that makes it easy for public health data to be transferred from testing facilities to public health departments.More about this tool can be found at [reportstream.cdc.gov](http://reportstream.cdc.gov).
+> ReportStream is a free tool developed by the Centers for Disease Control and Prevention (CDC) and U.S. Digital Service (USDS) that makes it easy for public health data to be transferred from testing facilities to public health departments. More about this tool can be found at [reportstream.cdc.gov](http://reportstream.cdc.gov).
 >
 > **Why use ReportStream?**
 >
 > ReportStream is 100% free and offerssome other great benefits:
 >
-> -   Allows you to send faster, more accurate data directly from your testing facility or lab through a single connection. You no longer have to come up with a makeshift approachto report data.
+> -   Allows you to send faster, more accurate data directly from your testing facility or lab through a single connection. You no longer have to come up with a makeshift approach to report data.
 > -   Test results and patient data are securely stored and protected by two-factor authentication, database encryption, and HTTPS.
 > -   Provides access to view your file submission history
 >
 > **How do I submit to ReportStream?**
 >
-> Currently, ReportStream can accept either a comma-separated values (CSV) file or Health Level 7 (HL7) input data format. All you’ll need todo isregister for a free ReportStream user account to get started.
+> Currently, ReportStream can accept either a comma-separated values (CSV) file or Health Level 7 (HL7) input data format. All you’ll need to do is register for a free ReportStream user account to get started.
 >
 > **Next steps:**
 >
-> 1.  Visit ReportStream’s Overview page to read more about “How do I submit data through ReportStream?” at [https://reportstream.cdc.gov/getting-started/testing-facilities/overview](https://reportstream.cdc.gov/getting-started/testing-facilities/overview).
-> 2.  Register for afree ReportStream user account at [https://reportstream.cdc.gov/getting-started/testing-facilities/account-registration-guide](https://reportstream.cdc.gov/getting-started/testing-facilities/account-registration-guide)
+> 1.  Visit ReportStream’s Overview page to read more about “How do I submit data through ReportStream?” at [https://reportstream.cdc.gov/product/overview](https://reportstream.cdc.gov/product/overview).
+> 2.  Register for a free ReportStream user account at [https://reportstream.cdc.gov/resources/account-registration-guide](https://reportstream.cdc.gov/resources/account-registration-guide)
 >
 > **Questions?**
 >

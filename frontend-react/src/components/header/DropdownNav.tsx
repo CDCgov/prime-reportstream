@@ -5,7 +5,10 @@ import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 import { MarkdownDirectory } from "../Content/MarkdownDirectory";
 import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 
-export type NonStaticOption = Omit<MarkdownDirectory, "files" | "desc">;
+export interface NonStaticOption {
+    title: string;
+    slug: string;
+}
 
 interface DropdownNavProps {
     label: string;
