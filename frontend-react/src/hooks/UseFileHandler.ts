@@ -1,8 +1,8 @@
 import { useReducer } from "react";
-
+import pick from "lodash.pick";
 import { ResponseError, WatersResponse } from "../network/api/WatersApi";
 import { Destination } from "../resources/ActionDetailsResource";
-import { PAYLOAD_MAX_BYTES } from "../utils/FileUtils";
+import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 
 export enum ErrorType {
     SERVER = "server",
@@ -40,13 +40,13 @@ export interface FileHandlerState {
 export enum FileHandlerActionType {
     RESET = "RESET",
     PREPARE_FOR_REQUEST = "PREPARE_FOR_REQUEST",
-    SET_FILE_TYPE = "SET_FILE_TYPE",
-    SET_CANCELLABLE = "SET_CANCELLABLE",
+    // SET_FILE_TYPE = "SET_FILE_TYPE",
+    // SET_CANCELLABLE = "SET_CANCELLABLE",
     FILE_SELECTED = "FILE_SELECTED",
     REQUEST_COMPLETE = "REQUEST_COMPLETE",
 }
 
-interface RequestCompletePayload {
+export interface RequestCompletePayload {
     response: WatersResponse;
 }
 
@@ -54,19 +54,7 @@ interface FileSelectedPayload {
     file: File;
 }
 
-interface SetFileTypePayload {
-    fileType: FileType;
-}
-
-interface SetCancellablePayload {
-    cancellable: boolean;
-}
-
-type FileHandlerActionPayload =
-    | RequestCompletePayload
-    | SetFileTypePayload
-    | FileSelectedPayload
-    | SetCancellablePayload;
+type FileHandlerActionPayload = RequestCompletePayload | FileSelectedPayload;
 
 interface FileHandlerAction {
     type: FileHandlerActionType;
@@ -78,34 +66,38 @@ type FileHandlerReducer = (
     action: FileHandlerAction
 ) => FileHandlerState;
 
+export const INITIAL_STATE = {
+    isSubmitting: false,
+    fileInputResetValue: 0,
+    fileContent: "",
+    fileName: "",
+    errors: [],
+    destinations: "",
+    reportId: "",
+    successTimestamp: "",
+    cancellable: false,
+    warnings: [],
+    localError: "",
+};
+
 // Currently returning a static object, but leaving this as a function
 // in case we need to make it dynamic for some reason later
 function getInitialState(): FileHandlerState {
-    return {
-        isSubmitting: false,
-        fileInputResetValue: 0,
-        fileContent: "",
-        fileName: "",
-        errors: [],
-        destinations: "",
-        reportId: "",
-        successTimestamp: "",
-        cancellable: false,
-        warnings: [],
-        localError: "",
-    };
+    return INITIAL_STATE;
 }
 
 // state for resetting / setting state at beginning of submission
 function getPreSubmitState(): Partial<FileHandlerState> {
     return {
+        ...pick(INITIAL_STATE, [
+            "errors",
+            "destinations",
+            "reportId",
+            "successTimestamp",
+            "warnings",
+            "localError",
+        ]),
         isSubmitting: true,
-        errors: [],
-        destinations: "",
-        reportId: "",
-        successTimestamp: "",
-        warnings: [],
-        localError: "",
     };
 }
 
@@ -138,14 +130,9 @@ function calculateFileSelectedState(
         }
 
         if (file.size > PAYLOAD_MAX_BYTES) {
-            const maxkbytes = (PAYLOAD_MAX_BYTES / 1024).toLocaleString(
-                "en-US",
-                { maximumFractionDigits: 2, minimumFractionDigits: 2 }
-            );
-
             return {
                 ...state,
-                localError: `The file '${file.name}' is too large. The maximum file size is ${maxkbytes}k`,
+                localError: `The file '${file.name}' is too large. The maximum file size is ${PAYLOAD_MAX_KBYTES}k`,
             };
         }
 
@@ -197,8 +184,9 @@ function calculateRequestCompleteState(
         cancellable: errors?.length ? true : false,
         warnings,
         errorType: errors?.length && status ? ErrorType.SERVER : ErrorType.FILE,
-        reportId: id,
-        successTimestamp: timestamp,
+        // pulled from old Upload implementation. Not sure why id is being renamed here, when reportId also exists on the response
+        reportId: id || "",
+        successTimestamp: errors?.length ? "" : timestamp,
     };
 }
 
@@ -213,12 +201,6 @@ function reducer(
         case FileHandlerActionType.PREPARE_FOR_REQUEST:
             const preSubmitState = getPreSubmitState();
             return { ...state, ...preSubmitState };
-        case FileHandlerActionType.SET_FILE_TYPE:
-            const { fileType } = payload as SetFileTypePayload;
-            return { ...state, fileType };
-        case FileHandlerActionType.SET_CANCELLABLE:
-            const { cancellable } = payload as SetCancellablePayload;
-            return { ...state, cancellable };
         case FileHandlerActionType.FILE_SELECTED:
             const fileSelectedState = calculateFileSelectedState(
                 state,
@@ -248,8 +230,14 @@ function useFileHandler(): {
         getInitialState()
     );
 
-    // do we need to return the whole state? there may be things we can keep internal.
-    // this may be a second refactor to move functionality out of the components in here.
+    /* TODO: possible future refactors:
+    - we could abstract over the dispatch function as UsePagination does and expose individual
+    actions as their own functions (ex. fileSelected, requestComplete)
+    - we could refactor some logic to keep some state variables internal to the reducer / hook.
+    Not sure how much we'd be able to simplify here, or if it'd be worth it, but would be nice
+    if we didn't have to send back the entire state to the component
+    */
+    // console.log("!!! useFileHandler", state);
     return {
         state,
         dispatch,

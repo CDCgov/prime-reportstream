@@ -2,6 +2,10 @@
 export const REPORT_MAX_ITEMS = 10000;
 export const REPORT_MAX_ITEM_COLUMNS = 2000;
 export const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
+export const PAYLOAD_MAX_KBYTES = (PAYLOAD_MAX_BYTES / 1024).toLocaleString(
+    "en-US",
+    { maximumFractionDigits: 2, minimumFractionDigits: 2 }
+);
 
 export const parseCsvForError = (
     fileName: string,
