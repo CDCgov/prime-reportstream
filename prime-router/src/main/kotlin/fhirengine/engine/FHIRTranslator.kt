@@ -62,7 +62,7 @@ class FHIRTranslator(
                 //  receiver-specific transforms
 
                 // todo: do translation, get hl7 message
-                var schema = ConfigSchema("schema name", hl7Type = "ORU_R01", hl7Version = "2.5.1")
+                var schema = ConfigSchema("FHIR_HL7", hl7Type = "ORU_R01", hl7Version = "2.5.1")
                 val hl7Message = FhirToHl7Converter(bundle, schema).convert()
 
                 // create report object  // DEBUG - this needs to be the report created by converting to HL7
