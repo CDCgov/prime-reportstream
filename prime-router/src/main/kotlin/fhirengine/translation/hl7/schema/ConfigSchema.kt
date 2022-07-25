@@ -84,6 +84,11 @@ data class ConfigSchema(
             }
         }
 
+        // Check that all constants have a string
+        constants.filterValues { it.isNullOrBlank() }.forEach { (key, _) ->
+            addError("Constant '$key' does not have a value")
+        }
+
         // Validate the schema elements.
         if (elements.isEmpty())
             addError("Schema elements cannot be empty")
@@ -181,6 +186,11 @@ data class ConfigSchemaElement(
 
         if (!schema.isNullOrBlank() && schemaRef == null) {
             addError("Missing schema reference $schema")
+        }
+
+        // Check that all constants have a string
+        constants.filterValues { it.isNullOrBlank() }.forEach { (key, _) ->
+            addError("Constant '$key' does not have a value")
         }
 
         // Validate the FHIR paths.
