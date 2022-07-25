@@ -4,7 +4,7 @@ elements:
     value:
       - '%observationIndex  + 1'
     hl7Spec:
-      - /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{observationIndex})/OBX-1
+      - '%{hl7Order}/OBSERVATION(%{observationIndex})/OBX-1'
 
   - name: observation-set-ID
     value:
