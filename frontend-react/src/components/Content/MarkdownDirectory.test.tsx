@@ -4,18 +4,15 @@ const TestDiv = <div>Hello, world</div>;
 const TestElement = () => TestDiv;
 
 describe("ContentDirectory extensions", () => {
-    const markdown = new MarkdownDirectory(
-        "Test Dir",
-        "test-dir",
-        [],
-        "Test desc"
-    );
-    const element = new ElementDirectory(
-        "Element Dir",
-        "element-dir",
-        "Elements in a directory",
-        TestElement
-    );
+    const markdown = new MarkdownDirectory()
+        .setTitle("Test Dir")
+        .setSlug("test-dir")
+        .setDescription("Test desc");
+    const element = new ElementDirectory()
+        .setTitle("Element Dir")
+        .setSlug("element-dir")
+        .setDescription("Elements in a directory")
+        .addElement(TestElement);
     test("Markdown constructor", () => {
         expect(markdown.title).toEqual("Test Dir");
         expect(markdown.slug).toEqual("test-dir");
