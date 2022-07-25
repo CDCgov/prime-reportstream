@@ -18,7 +18,6 @@ import gov.cdc.prime.router.metadata.IfThenElseMapper
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
 import gov.cdc.prime.router.metadata.LookupMapper
 import gov.cdc.prime.router.metadata.LookupSenderAutomationValuesets
-import gov.cdc.prime.router.metadata.LookupSenderValuesetsMapper
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import gov.cdc.prime.router.metadata.Mappers
@@ -75,7 +74,6 @@ class Metadata : Logging {
         TimestampMapper(),
         HashMapper(),
         NullMapper(),
-        LookupSenderValuesetsMapper(),
         NpiLookupMapper(),
         CountryMapper(),
         LookupSenderAutomationValuesets(),
