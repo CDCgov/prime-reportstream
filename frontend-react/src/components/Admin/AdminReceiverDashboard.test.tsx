@@ -126,6 +126,14 @@ describe("AdminReceiverDashboard tests", () => {
         ).toBe("2022-07-12T00:00:00.000Z");
     });
 
+    test("dateShortFormat", () => {
+        expect(
+            _exportForTesting.dateShortFormat(
+                new Date("2022-07-11T08:09:22.748Z")
+            )
+        ).toBe("Mon, 7/11/2022");
+    });
+
     test("SuccessRateTracker", () => {
         // test two overlapping conditions and variables just to be sure no globals are used
         const testSuccess = new _exportForTesting.SuccessRateTracker();
@@ -187,6 +195,9 @@ describe("AdminReceiverDashboard tests", () => {
         future2.setHours(future2.getHours() + 12, future2.getMinutes() + 34);
         const result3 = _exportForTesting.durationFormatShort(future2, now);
         expect(result3).toBe("12h 34m 05.678s");
+
+        const result4 = _exportForTesting.durationFormatShort(now, now);
+        expect(result3).toBe("");
     });
 
     test("MainRender", async () => {

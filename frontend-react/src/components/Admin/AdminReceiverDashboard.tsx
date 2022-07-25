@@ -155,6 +155,7 @@ const roundIsoDateUp = (iso: string) => {
 
 /**
  * Result string is like "12h 34m 05.678s"
+ * No duration returns ""
  * @param dateNewer Date
  * @param dateOlder Date
  */
@@ -180,14 +181,18 @@ const durationFormatShort = (dateNewer: Date, dateOlder: Date): string => {
     return parts.join(" ");
 };
 
-/* WARNING: Intl.DateTimeFormat() can be slow if called in a loop! */
+/*
+ * format: "Mon, 7/25/2022"
+ * WARNING: Intl.DateTimeFormat() can be slow if called in a loop!
+ * Rewrote to just use Date to save cpu
+ * */
 const dateShortFormat = (d: Date) => {
-    return Intl.DateTimeFormat("en-US", {
-        weekday: "short",
-        year: "numeric",
-        month: "numeric",
-        day: "numeric",
-    }).format(d);
+    const dayOfWeek =
+        ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"][d.getDay()] || "";
+    return (
+        `${dayOfWeek}, ` +
+        `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
+    );
 };
 
 // key/value pair
@@ -771,6 +776,7 @@ export const _exportForTesting = {
     SuccessRateTracker,
     SuccessRate,
     durationFormatShort,
+    dateShortFormat,
     makeDictionary,
     MainRender,
 };
