@@ -555,62 +555,55 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
         : "failure-all";
 
     return (
-        <>
-            <GridContainer className={"rs-admindash-modal"}>
-                <Grid className={"modal-info-title"}>
-                    Results for connection verification check
+        <GridContainer className={"rs-admindash-modal"}>
+            <Grid className={"modal-info-title"}>
+                Results for connection verification check
+            </Grid>
+            <Grid row className={"modal-info-row"}>
+                <Grid className={"modal-info-label"}>Org:</Grid>
+                <Grid className={"modal-info-value"}>
+                    {dataItem.organizationName} (id: {dataItem.organizationId})
                 </Grid>
-                <Grid row className={"modal-info-row"}>
-                    <Grid className={"modal-info-label"}>Org:</Grid>
-                    <Grid className={"modal-info-value"}>
-                        {dataItem.organizationName} (id:{" "}
-                        {dataItem.organizationId})
-                    </Grid>
-                </Grid>
+            </Grid>
 
-                <Grid row className={"modal-info-row"}>
-                    <Grid className={"modal-info-label "}>Receiver:</Grid>
-                    <Grid className={"modal-info-value"}>
-                        {dataItem.receiverName} (id: {dataItem.receiverId})
-                    </Grid>
+            <Grid row className={"modal-info-row"}>
+                <Grid className={"modal-info-label "}>Receiver:</Grid>
+                <Grid className={"modal-info-value"}>
+                    {dataItem.receiverName} (id: {dataItem.receiverId})
                 </Grid>
+            </Grid>
 
-                <Grid row className={"modal-info-row"}>
-                    <Grid className={"modal-info-label"}>Result:</Grid>
-                    <Grid className={`modal-info-value ${successClass}`}>
-                        {dataItem.connectionCheckSuccessful
-                            ? "success"
-                            : "failed"}
-                    </Grid>
+            <Grid row className={"modal-info-row"}>
+                <Grid className={"modal-info-label"}>Result:</Grid>
+                <Grid className={`modal-info-value ${successClass}`}>
+                    {dataItem.connectionCheckSuccessful ? "success" : "failed"}
                 </Grid>
+            </Grid>
 
-                <Grid row className={"modal-info-row"}>
-                    <Grid className={"modal-info-label"}>Started At:</Grid>
-                    <Grid className={"modal-info-value"}>
-                        {formatDate(dataItem.connectionCheckStartedAt)}
-                        <br />
-                        {dataItem.connectionCheckStartedAt}
-                    </Grid>
+            <Grid row className={"modal-info-row"}>
+                <Grid className={"modal-info-label"}>Started At:</Grid>
+                <Grid className={"modal-info-value"}>
+                    {formatDate(dataItem.connectionCheckStartedAt)}
+                    <br />
+                    {dataItem.connectionCheckStartedAt}
                 </Grid>
+            </Grid>
 
-                <Grid row className={"modal-info-row"}>
-                    <Grid className={"modal-info-label"}>
-                        Time to complete:
-                    </Grid>
-                    <Grid className={"modal-info-value"}>
-                        {duration()}
-                        <br />
-                    </Grid>
+            <Grid row className={"modal-info-row"}>
+                <Grid className={"modal-info-label"}>Time to complete:</Grid>
+                <Grid className={"modal-info-value"}>
+                    {duration()}
+                    <br />
                 </Grid>
+            </Grid>
 
-                <Grid row className={"modal-info-row"}>
-                    <Grid className={"modal-info-label"}>Result message:</Grid>
-                    <Grid className={"modal-info-value"}>
-                        {dataItem.connectionCheckResult}
-                    </Grid>
+            <Grid row className={"modal-info-row"}>
+                <Grid className={"modal-info-label"}>Result message:</Grid>
+                <Grid className={"modal-info-value"}>
+                    {dataItem.connectionCheckResult}
                 </Grid>
-            </GridContainer>
-        </>
+            </Grid>
+        </GridContainer>
     );
 }
 
