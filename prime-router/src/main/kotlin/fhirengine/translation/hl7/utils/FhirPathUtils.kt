@@ -46,8 +46,8 @@ object FhirPathUtils : Logging {
     ): List<Base> {
         val resources = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
         return resources.map {
-            if (it.hasType("Reference")) {
-                (it as Reference).resource as Base
+            if (it.hasType("Reference") && (it as Reference).resource != null) {
+                it.resource as Base
             } else it
         }
     }

@@ -185,7 +185,7 @@ data class ConfigSchemaElement(
         }
 
         if (!schema.isNullOrBlank() && schemaRef == null) {
-            addError("Missing schema reference $schema")
+            addError("Missing schema reference for '$schema'")
         }
 
         // Check that all constants have a string
