@@ -541,7 +541,7 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
         return <>No Data Found</>;
     }
     // note: if we ever have the timeslots > cron job so there are multiple
-    // resuls per slot, then this needs to be expended to show more.
+    // results per slot, then this needs to be expended to show more.
     const dataItem = props.subData[0];
 
     const duration = () => {
