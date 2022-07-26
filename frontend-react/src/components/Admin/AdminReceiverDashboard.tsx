@@ -29,7 +29,7 @@ import { formatDate } from "../../utils/misc";
  * Instead, we're going to borrow a concept from key-value databases.
  * https://en.wikipedia.org/wiki/Key%E2%80%93value_database
  *
- * Keys will be ORDERED PATH of value and therefore similar data will adjacent.
+ * Keys will be ORDERED PATH of value and therefore similar data will be adjacent.
  *
  * There are 3 nested loops for layout of the data
  *    foreach per-receiver:
