@@ -2,25 +2,29 @@ import { Destination } from "../../resources/ActionDetailsResource";
 
 import { API } from "./NewApi";
 
+/* 
+  shape of response from the Waters API
+  @todo refactor to move away from all of these optional fields. Which of these are actually optional?
+*/
 export class WatersResponse {
-    actualCompletionAt: string | undefined;
-    destinationCount: number | undefined;
-    destinations: Destination[] | undefined;
-    errorCount: number | undefined;
-    errors: ResponseError[] | undefined;
-    externalName: string | undefined;
-    httpStatus: number | undefined;
-    id: string | undefined;
-    overallStatus: string | undefined;
-    plannedCompletionAt: string | undefined;
-    reportItemCount: number | undefined;
-    sender: string | undefined;
-    submissionId: number | undefined;
-    timestamp: string | undefined;
-    topic: string | undefined;
-    warningCount: number | undefined;
-    warnings: ResponseError[] | undefined;
-    ok: boolean | undefined;
+    actualCompletionAt?: string;
+    destinationCount?: number;
+    destinations?: Destination[];
+    errorCount?: number;
+    errors?: ResponseError[];
+    externalName?: string;
+    httpStatus?: number;
+    id?: string;
+    overallStatus?: string;
+    plannedCompletionAt?: string;
+    reportItemCount?: number;
+    sender?: string;
+    submissionId?: number;
+    timestamp?: string;
+    topic?: string;
+    warningCount?: number;
+    warnings?: ResponseError[];
+    ok?: boolean;
     status?: number;
 }
 
