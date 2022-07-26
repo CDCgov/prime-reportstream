@@ -28,10 +28,10 @@ const DATA: AdmConnStatusDataType[] = [
         receiverName: "elr-secondary",
     },
     {
-        receiverConnectionCheckResultId: 2397,
+        receiverConnectionCheckResultId: 2399,
         organizationId: 49,
         receiverId: 311,
-        connectionCheckResult: "connectionCheckResult dummy result 2397",
+        connectionCheckResult: "connectionCheckResult dummy result 2399",
         connectionCheckSuccessful: true,
         connectionCheckStartedAt: "2022-07-11T07:59:23.713Z",
         connectionCheckCompletedAt: "2022-07-11T07:59:24.033Z",
