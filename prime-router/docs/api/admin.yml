@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: "3.0.3"
 info:
   title: Prime ReportStream
   description: A router of public health data from multiple senders and receivers
@@ -8,7 +8,6 @@ info:
     email: reportstream@cdc.gov
   version: 0.2.0-oas3
 paths:
-
   # The amin end-point handles the misc queries and commands PRIME admins
   #
   /adm/getsendfailures:
@@ -45,6 +44,8 @@ paths:
   /adm/listreceiversconnstatus:
     get:
       description: Get recent report-forward sends across all orgs. Prime admin only.
+      security:
+        - OAuth2: [ system_admin ]
       parameters:
         - name: start_date
           in: query
@@ -68,7 +69,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListReceiversConnStatusResponse'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReceiversConnStatusResponse'
 components:
   schemas:
     ListSendFailures:
@@ -114,14 +117,10 @@ components:
           description: The parsed receiver. It should be the same as receiver field above
           type: string
           example: "ignore.HL7_BATCH_OFFSET_TIME_UTC"
-    ListReceiversConnStatusResponse:
-      description: List of results
-      type: array
-      items:
-        $ref: '#/components/schemas/ReceiverConnectionCheckResult'
-    ReceiverConnectionCheckResult:
-      description: An organization connected to data hub
+
+    ReceiversConnStatusResponse:
       type: object
+      description: An organization connected to data hub
       properties:
         receiverConnectionCheckResultId:
           description: Internal primary key. Useful for react to use as a unique key
@@ -144,21 +143,21 @@ components:
           type: boolean
           example: true
         connectionCheckStartedAt:
-          description:
+          description: Timestamp of when the check started
           type: string
           format: date-time
           example: "2022-07-01T18:52:06.918Z"
         connectionCheckCompletedAt:
-          description:
+          description: Timestamp of when the check ended
           type: string
           format: date-time
           example: "2022-07-01T18:52:06.919Z"
         organizationName:
-          description:
+          description: Name string associated with the organizationId field pulled from Settings
           type: string
           example: "az-phd"
         receiverName:
-          description:
+          description: Name string associated with the receiverId field pulled from Settings
           type: string
           example: "elr-secondary"
   securitySchemes:
