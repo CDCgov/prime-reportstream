@@ -31,7 +31,9 @@ method:
     spm7: SPM.7
 
 bodySite:
-  condition: $textValue NOT_NULL
+  condition: $spm8 NOT_NULL
   valueOf: datatype/CodeableConcept
   expressionType: resource
   specs: SPM.8
+  vars:
+    spm8: OBX.8
