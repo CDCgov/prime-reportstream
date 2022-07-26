@@ -297,6 +297,17 @@
       schemaName: hl7/hl7-ingest-covid-19-training
       format: HL7
 
+- name: geneus-diagnostics
+  description: Geneus Diagnostics Las Vagas
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: geneus-diagnostics
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
 - name: clxhealth
   description: CLX Health
   jurisdiction: FEDERAL
@@ -2091,7 +2102,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,limsabc-nova,clxhealth)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,limsabc-nova,geneus-diagnostics,clxhealth)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -3583,9 +3594,7 @@
         suppressQstForAoe: true
         suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         replaceValueAwithB:
-          MSH-3:
-          - PHX.ProviderReportingService: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-          - Medasource: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"]
           MSH-5: [ "*": "WADOHPHRED^2.16.840.1.113883.3.237.4.2^ISO" ]
           MSH-6: [ "*": "dn1fro00^1.3.6.1.4.1.38630.2.1.1.19^ISO"  ]
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE
@@ -3626,9 +3635,7 @@
         suppressQstForAoe: true
         suppressHl7Fields: PID-39-1, PID-39-2, PID-39-3
         replaceValueAwithB:
-          MSH-3:
-          - PHX.ProviderReportingService: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
-          - Medasource: "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+          MSH-3: [ "*": "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"]
           MSH-5: [ "*": "WADOHPHRED^2.16.840.1.113883.3.237.4.2^ISO" ]
           MSH-6: [ "*": "dn1fro00^1.3.6.1.4.1.38630.2.1.1.19^ISO"  ]
         phoneNumberFormatting: ONLY_DIGITS_IN_COMPONENT_ONE

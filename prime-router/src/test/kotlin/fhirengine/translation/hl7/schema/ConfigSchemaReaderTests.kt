@@ -22,7 +22,7 @@ class ConfigSchemaReaderTests {
                 Bundle.entry.resource.ofType(MessageHeader) and
                 Bundle.entry.resource.ofType(Provenance) and
                 Bundle.entry.resource.ofType(Provenance).activity.coding.code = 'R01'
-              value: '1'
+              value: ['1']
               hl7Spec:
                 - .PID.1
         """.trimIndent()
@@ -61,6 +61,14 @@ class ConfigSchemaReaderTests {
               schema: ORU_R01/header.yml
         """.trimIndent()
         assertThat { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }.isFailure()
+        yaml = """
+            name ORU-R01-Base
+        """.trimIndent()
+        assertThat { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }.isFailure()
+        yaml = """
+            name: [ORU-R01-Base,other]
+        """.trimIndent()
+        assertThat { ConfigSchemaReader.readOneYamlSchema(yaml.byteInputStream()) }.isFailure()
 
         // Empty file
         yaml = ""
@@ -81,13 +89,13 @@ class ConfigSchemaReaderTests {
         assertThat(schema.hl7Version).isEqualTo("2.5.1")
         assertThat(schema.elements).isNotEmpty()
 
-        val patientInfoElement = schema.elements.single() { it.name == "patient-information" }
+        val patientInfoElement = schema.elements.single { it.name == "patient-information" }
         assertThat(patientInfoElement.schema).isNotNull()
         assertThat(patientInfoElement.schema!!).isNotEmpty()
         assertThat(patientInfoElement.schemaRef).isNotNull()
 
         assertThat(patientInfoElement.schemaRef!!.name).isEqualTo("ORU-R01-patient")
-        val patientNameElement = patientInfoElement.schemaRef!!.elements.single() { it.name == "patient-last-name" }
+        val patientNameElement = patientInfoElement.schemaRef!!.elements.single { it.name == "patient-last-name" }
         assertThat(patientNameElement.hl7Spec).isNotEmpty()
 
         // This is a bad schema.

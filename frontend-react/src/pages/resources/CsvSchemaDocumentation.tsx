@@ -1,8 +1,8 @@
 import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
-import site from "../../../content/site.json";
-import schema from "../../../content/getting_started_csv_upload.json";
+import site from "../../content/site.json";
+import schema from "../../content/getting_started_csv_upload.json";
 
 export type CsvSchemaItem = {
     name: string;
@@ -94,55 +94,47 @@ export const CsvSchemaDocumentation = () => {
         <>
             <Helmet>
                 <title>
-                    CSV schema documentation | Organizations and testing
-                    facilities | Getting started | {process.env.REACT_APP_TITLE}
+                    CSV schema documentation | Resources |{" "}
+                    {process.env.REACT_APP_TITLE}
                 </title>
             </Helmet>
-            <section id="anchor-top">
-                <span className="text-base text-italic">
-                    Updated: May 9, 2022
-                </span>
-                <h2 className="margin-top-0 ">
-                    CSV schema documentation{" "}
-                    <span className="text-secondary bg-white border-1px border-secondary font-body-3xs padding-x-1 padding-y-05 text-secondary margin-left-2 text-ttbottom">
-                        Pilot program{" "}
-                    </span>
-                </h2>
-                <p className="usa-intro text-base">
-                    How to format data for submission to ReportStream via CSV
-                    upload.
-                </p>
-                <p>
-                    The ReportStream standard CSV schema is a blend of the
-                    Department of Health and Human Science's (HHS){" "}
-                    <a
-                        href="https://www.hhs.gov/coronavirus/testing/covid-19-diagnostic-data-reporting/index.html"
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="usa-link"
-                    >
-                        requirements for COVID-19 test data
-                    </a>{" "}
-                    as well as those of numerous jurisdictions. This standard
-                    schema will be accepted by state, tribal, local, or
-                    territorial (STLT) health departments{" "}
-                    <a
-                        href="/how-it-works/where-were-live"
-                        className="usa-link"
-                    >
-                        partnered
-                    </a>{" "}
-                    with ReportStream.{" "}
-                </p>
 
-                <div className="usa-alert usa-alert--info margin-y-6">
+            <h1 id="anchor-top" className="margin-top-0 ">
+                CSV schema documentation{" "}
+            </h1>
+            <h2 className="usa-intro text-base">
+                How to format data for submission to ReportStream via CSV
+                upload.
+            </h2>
+            <p>
+                The ReportStream standard CSV schema is a blend of the
+                Department of Health and Human Science's (HHS){" "}
+                <a
+                    href="https://www.hhs.gov/coronavirus/testing/covid-19-diagnostic-data-reporting/index.html"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="usa-link"
+                >
+                    requirements for COVID-19 test data
+                </a>{" "}
+                as well as those of numerous jurisdictions. Data reported using
+                this standard schema will be accepted by state, tribal, local,
+                or territorial (STLT) health departments{" "}
+                <a href="/product/where-were-live" className="usa-link">
+                    partnered
+                </a>{" "}
+                with ReportStream.{" "}
+            </p>
+            <p className="text-base text-italic">Last updated: May 9, 2022</p>
+            <section>
+                <div className="usa-alert usa-alert--info margin-top-2 margin-bottom-6">
                     <div className="usa-alert__body">
                         <h3 className="usa-alert__heading font-body-md margin-top-05">
                             About CSV upload
                         </h3>
                         This documentation will help you prepare a file for{" "}
                         <a
-                            href="/getting-started/testing-facilities/csv-upload-guide"
+                            href="/resources/csv-upload-guide"
                             className="usa-link"
                         >
                             CSV upload
@@ -152,21 +144,11 @@ export const CsvSchemaDocumentation = () => {
                         existing Electronic Medical Record (EMR) systems. Pilot
                         partners are selected by recommendation from
                         jurisdictions. Find out if your jurisdiction is{" "}
-                        <a
-                            href="/how-it-works/where-were-live"
-                            className="usa-link"
-                        >
+                        <a href="/product/where-were-live" className="usa-link">
                             partnered
                         </a>{" "}
                         with ReportStream and{" "}
-                        <a
-                            href={
-                                "mailto:" +
-                                DOMPurify.sanitize(site.orgs.RS.email) +
-                                "?subject=Getting started with ReportStream"
-                            }
-                            className="usa-link"
-                        >
+                        <a href="/support/contact" className="usa-link">
                             contact us
                         </a>{" "}
                         to learn more.

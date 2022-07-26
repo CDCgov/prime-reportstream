@@ -135,5 +135,10 @@ resource "azurerm_data_factory_pipeline" "sftp_share_to_archive" {
     ]
   )
 
+  depends_on = [
+    azurerm_data_factory_dataset_binary.sftp_share,
+    azurerm_data_factory_dataset_binary.sftp_archive
+  ]
+
   timeouts {}
 }

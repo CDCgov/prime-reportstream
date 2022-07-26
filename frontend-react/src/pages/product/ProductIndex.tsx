@@ -6,16 +6,16 @@ import {
     ContentDirectory,
     MarkdownDirectory,
     ElementDirectory,
-} from "../../components/Markdown/MarkdownDirectory";
+} from "../../components/Content/MarkdownDirectory";
 import ProductIndexMd from "../../content/product/product-index.md";
 import ReleaseNotesMd from "../../content/product/release-notes.md";
-import StaticPagesFromDirectories from "../../components/Markdown/StaticPagesFromDirectories";
+import StaticPagesFromDirectories from "../../components/Content/StaticPagesFromDirectories";
 import {
     ContentDirectoryTools,
     SlugParams,
-} from "../../components/Markdown/DirectoryGenerationTools";
+} from "../../components/Content/PageGenerationTools";
 
-import { WhereWereLiveIa } from "./WhereWereLive";
+import { WhereWereLive } from "./WhereWereLive";
 
 /* Data that drives breadcrumb creation and slug appending */
 const slugs: SlugParams[] = [
@@ -31,24 +31,18 @@ const DirectoryTools = new ContentDirectoryTools()
     .setSlugs(slugs);
 
 const directories: ContentDirectory[] = [
-    new MarkdownDirectory(
-        "Overview",
-        DirectoryTools.prependRoot("OVERVIEW"),
-        [ProductIndexMd],
-        ""
-    ),
-    new ElementDirectory(
-        "Where We're Live",
-        DirectoryTools.prependRoot("WHERE_WERE_LIVE"),
-        "",
-        WhereWereLiveIa
-    ),
-    new MarkdownDirectory(
-        "Release Notes",
-        DirectoryTools.prependRoot("RELEASE_NOTES"),
-        [ReleaseNotesMd],
-        ""
-    ),
+    new MarkdownDirectory()
+        .setTitle("Overview")
+        .setSlug(DirectoryTools.prependRoot("OVERVIEW"))
+        .addFile(ProductIndexMd),
+    new ElementDirectory()
+        .setTitle("Where we're live")
+        .setSlug(DirectoryTools.prependRoot("WHERE_WERE_LIVE"))
+        .addElement(WhereWereLive),
+    new MarkdownDirectory()
+        .setTitle("Release notes")
+        .setSlug(DirectoryTools.prependRoot("RELEASE_NOTES"))
+        .addFile(ReleaseNotesMd),
 ];
 
 export const Product = () => {
@@ -70,7 +64,7 @@ export const Product = () => {
                 {/* Workaround to allow links to /product to work */}
                 <Redirect from={"/product"} to={"/product/overview"} />
             </Switch>
-            <div className="rs-prose">
+            <div>
                 <StaticPagesFromDirectories directories={directories} />
             </div>
         </>

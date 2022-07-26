@@ -4,56 +4,65 @@ import { Route } from "react-router-dom";
 
 import DirectoryAsPage from "./DirectoryAsPage";
 
-/* Used to instantiate a set of static pages, like BuiltForYouIndex
- * or HowItWorks */
-
 type ContentElement = () => JSX.Element;
 
-export interface MarkdownPageProps {
-    directories: MarkdownDirectory[];
-}
-
+/** A base type that holds directory information
+ *
+ * @property title
+ * @property slug
+ * @property desc */
 export abstract class ContentDirectory {
     title: string = "";
     slug: string = "";
     desc: string = "";
-    protected constructor(title: string, slug: string, desc: string) {
+    setTitle(title: string) {
         this.title = title;
+        return this;
+    }
+    setSlug(slug: string) {
         this.slug = slug;
-        this.desc = desc;
+        return this;
+    }
+    setDescription(description: string) {
+        this.desc = description;
+        return this;
     }
 }
-
-/** Creates a directory (page) consisting of one ore many elements to render in order
+/** Creates a backwards-compatible method of rendering old React elements
+ * as pages until converted to markdown
  *
- * @param title {string} Value displayed in GeneratedSideNav
- * @param slug {string} the url slug to navigate to
- * @param element {ContentElement[]} one or more elemnets to render on a given page
+ * @property title
+ * @property slug
+ * @property desc
+ * @property element - Element to render
  */
 export class ElementDirectory extends ContentDirectory {
-    element: ContentElement;
-    constructor(
-        title: string = "",
-        slug: string = "",
-        desc: string = "",
-        element: ContentElement
-    ) {
-        super(title, slug, desc);
+    element: ContentElement = () => <></>; //Empty element default
+    addElement(element: ContentElement) {
         this.element = element;
+        return this;
     }
 }
-
-/* Used to create objects that hold pointers to markdown directories and the
+/** Used to create objects that hold pointers to markdown directories and the
  * info needed to query them. This is because we cannot access the filesystem
- * at runtime */
+ * at runtime
+ *
+ * @property title
+ * @property slug
+ * @property desc
+ * @property files - markdown files to render */
 export class MarkdownDirectory extends ContentDirectory {
-    files: module[];
-    constructor(title: string, slug: string, files: module[], desc?: string) {
-        super(title, slug, desc || "");
+    files: module[] = []; //Empty module array default
+    addFile(file: module) {
+        this.files.push(file);
+        return this;
+    }
+    addAllFiles(files: module[]) {
         this.files = files;
+        return this;
     }
 }
-
+/** Takes a `ContentDirectory` and returns a react-router `Route` */
 export const GeneratedRoute = ({ dir }: { dir: ContentDirectory }) => {
     if (dir instanceof MarkdownDirectory) {
         return (
@@ -79,7 +88,8 @@ export const GeneratedRoute = ({ dir }: { dir: ContentDirectory }) => {
         );
     }
 };
-
+/** Takes a `ContentDirectory[]` and generates a React Fragment containing
+ * each directory's `GeneratedRoute` */
 export const GeneratedRouter = ({
     directories,
 }: {

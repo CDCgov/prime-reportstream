@@ -3,6 +3,13 @@ resource "azurerm_data_factory_dataset_binary" "sftp_share" {
   resource_group_name = var.resource_group
   data_factory_id     = azurerm_data_factory.primary.id
 
+  sftp_server_location {
+    path                     = "/"
+    filename                 = ""
+    dynamic_filename_enabled = true
+    dynamic_path_enabled     = true
+  }
+
   linked_service_name = azurerm_data_factory_linked_service_azure_file_storage.sftp_share.name
   folder              = "SFTP-share-to-archive"
   parameters = {
@@ -12,6 +19,12 @@ resource "azurerm_data_factory_dataset_binary" "sftp_share" {
   annotations           = []
 
   timeouts {}
+
+  lifecycle {
+    ignore_changes = [
+      sftp_server_location #TF not recognizing file share properly
+    ]
+  }
 }
 
 resource "azurerm_data_factory_dataset_binary" "sftp_archive" {

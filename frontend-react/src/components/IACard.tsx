@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 
-import { ContentDirectory } from "./Markdown/MarkdownDirectory";
+import { ContentDirectory } from "./Content/MarkdownDirectory";
 
 /** Takes an array of ContentDirectories and returns a gird list of IACards
  * with navigation links to the directories, and descriptions.
@@ -9,13 +9,13 @@ export const IACardList = ({ dirs }: { dirs: ContentDirectory[] }) => {
     return (
         <ul className="usa-card-group">
             {dirs.map((res, idx) => (
-                <IACard {...res} key={idx} />
+                <IACard dir={res} key={idx} />
             ))}
         </ul>
     );
 };
 
-const IACard = (dir: ContentDirectory) => {
+const IACard = ({ dir }: { dir: ContentDirectory }) => {
     return (
         <li className="usa-card tablet:grid-col-4">
             <div className="usa-card__container">
