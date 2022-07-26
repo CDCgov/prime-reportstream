@@ -51,7 +51,7 @@ elements:
   - name: sample_type_other_text
     type: TEXT
     csvFields: [{ name: sample_type_other_text }]
-    default: LRN-B
+    default: NULL
     documentation: Alternate description of the specimen, as in HL7 field SPM-4.9
 
   - name: suspect_agent
@@ -197,9 +197,11 @@ elements:
     csvFields: [{ name: subject_description }]
     default: NULL
 
-  - name: patient_id
+  - name: patient_id_hash
+    type: TEXT
+    mapper: hash(patient_id)
     csvFields: [{ name: Patient_id }]
-    documentation: Optional patient identifier
+    documentation: Optional patient identifier. Using a hash to deidentify
 
   - name: patient_street
     csvFields: [{ name: subject_address_line_1 }]
