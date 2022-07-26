@@ -146,6 +146,7 @@ class DetailedSubmissionHistory(
      *     partiallyDelivered state until someone fixes it.
      */
     enum class Status(private val printableName: String) {
+        VALID("Valid"),
         ERROR("Error"),
         RECEIVED("Received"),
         NOT_DELIVERING("Not Delivering"),
