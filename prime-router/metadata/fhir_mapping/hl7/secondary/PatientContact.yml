@@ -5,14 +5,16 @@ name:
   specs: NK1.2
 
 relationship_1:
-  condition: $textValue NOT_NULL
+  condition: $valueIn NOT_NULL
   valueOf: datatype/CodeableConcept
   expressionType: resource
   generateList: true
   specs: NK1.3
+  vars:
+    valueIn: NK1.3
 
 relationship_2:
-  condition: $textValue NOT_NULL && $hl7System EQUALS HL70063 && $hl7Code EQUALS OTH
+  condition: $hl7System EQUALS HL70063 && $hl7Code EQUALS OTH
   valueOf: datatype/CodeableConcept
   expressionType: resource
   generateList: true
@@ -25,7 +27,7 @@ relationship_2:
     alternateDisplay: Unknown
 
 relationship_3:
-  condition: $textValue NOT_NULL && $hl7System EQUALS HL70063 && $hl7Code EQUALS UNK
+  condition: $hl7System EQUALS HL70063 && $hl7Code EQUALS UNK
   valueOf: datatype/CodeableConcept
   expressionType: resource
   generateList: true
@@ -43,11 +45,13 @@ address:
   specs: NK1.4
 
 telecom:
-  condition: $textValue NOT_NULL
+  condition: $valueIn NOT_NULL
   valueOf: datatype/ContactPoint
   generateList: true
   expressionType: resource
   specs: NK1.5
+  vars:
+    valueIn: NK1.5
 
 organization:
   valueOf: resource/Organization

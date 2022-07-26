@@ -149,7 +149,7 @@ diagnosis:
          refconditionId: $BASE_VALUE, GeneralUtils.extractAttribute(refconditionId,"$.identifier[?(@.system==\"urn:id:extID\")].value","String")
      use:
         valueOf: datatype/CodeableConcept
-        condition: $textValue NOT_NULL
+        condition: $coding NOT_NULL
         expressionType: resource
         specs: DG1.6
         vars:
