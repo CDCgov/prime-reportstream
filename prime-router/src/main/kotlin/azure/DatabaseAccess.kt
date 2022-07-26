@@ -846,7 +846,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * The ReceiverConnectionCheckResult is needs a join to get
+     * The ReceiverConnectionCheckResult needs a join to get
      * the organizationName from the organizationId and
      * the receiverName from the receiverId.
      * Would be nice to extend the Java generated ReceiverConnectionCheckResult, but
