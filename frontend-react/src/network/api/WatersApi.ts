@@ -2,6 +2,10 @@ import { Destination } from "../../resources/ActionDetailsResource";
 
 import { API } from "./NewApi";
 
+/* 
+  shape of response from the Waters API
+  @todo refactor to move away from all of these optional fields. Which of these are actually optional?
+*/
 export class WatersResponse {
     actualCompletionAt?: string;
     destinationCount?: number;
