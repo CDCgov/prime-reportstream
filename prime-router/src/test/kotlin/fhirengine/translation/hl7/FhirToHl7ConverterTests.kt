@@ -24,6 +24,7 @@ import io.mockk.verifySequence
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent
 import org.hl7.fhir.r4.model.MessageHeader
+import org.hl7.fhir.r4.model.ServiceRequest
 import kotlin.test.Test
 
 class FhirToHl7ConverterTests {
@@ -242,6 +243,52 @@ class FhirToHl7ConverterTests {
         val elementWithSchema = ConfigSchemaElement("name", schemaRef = schema)
         converter.processElement(elementWithSchema, bundle)
         verify(exactly = 1) { mockTerser.set(element.hl7Spec[0], any()) }
+
+        // Test when a resource has no value
+        element = ConfigSchemaElement(
+            "name", resourceExpression = pathNoValue, required = true
+        )
+        assertThat { converter.processElement(element, bundle) }.isFailure()
+            .hasClass(RequiredElementException::class.java)
+    }
+
+    @Test
+    fun `test resource index`() {
+        val mockTerser = mockk<Terser>()
+        val mockSchema = mockk<ConfigSchema>() // Just a dummy schema to pass around
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val servRequest1 = ServiceRequest()
+        servRequest1.id = "def456"
+        val servRequest2 = ServiceRequest()
+        servRequest2.id = "ghi789"
+        val entry1 = BundleEntryComponent()
+        entry1.resource = servRequest1
+        val entry2 = BundleEntryComponent()
+        entry2.resource = servRequest2
+        bundle.addEntry(entry1)
+        bundle.addEntry(entry2)
+
+        val converter = FhirToHl7Converter(bundle, mockSchema, terser = mockTerser)
+
+        val pathToCollection = FhirPathUtils.parsePath("Bundle.entry")
+        val valueExpression = FhirPathUtils.parsePath("1")
+        assertThat(pathToCollection)
+        assertThat(valueExpression)
+        val childElement = ConfigSchemaElement(
+            "childElement", valueExpressions = listOf(valueExpression!!),
+            hl7Spec = listOf("/PATIENT_RESULT/ORDER_OBSERVATION(%{myindexvar})/OBX-1")
+        )
+        val childSchema = ConfigSchema("childSchema", elements = listOf(childElement))
+        val element = ConfigSchemaElement(
+            "name", resourceExpression = pathToCollection, resourceIndex = "myindexvar", schemaRef = childSchema
+        )
+        justRun { mockTerser.set(any(), any()) }
+        converter.processElement(element, bundle)
+        verifySequence {
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION(0)/OBX-1", any())
+            mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION(1)/OBX-1", any())
+        }
     }
 
     @Test
