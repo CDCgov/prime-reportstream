@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "e6c0c9f4-9178-4056-9acc-0a06cefe58fe",
+  "id" : "2d002318-6bc0-412a-b3a0-84149131bead",
   "meta" : {
-    "lastUpdated" : "2022-07-26T14:26:56.939-04:00",
+    "lastUpdated" : "2022-07-26T14:35:32.782-04:00",
     "security" : [ {
       "code" : "SECURITY",
       "display" : "SECURITY"
@@ -45,13 +45,13 @@
         "endpoint" : "CDPHE"
       } ],
       "sender" : {
-        "reference" : "Organization/341c946d-4f6f-4459-8081-781b7b449b80"
+        "reference" : "Organization/9518e2fa-1cac-4ea5-bd65-4f7638e0e3a2"
       },
       "source" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-vendor-org",
           "valueReference" : {
-            "reference" : "Organization/8f5373e2-13e5-4be8-a276-2d61624720b9"
+            "reference" : "Organization/37edea1f-0c91-4c9d-8909-cf3000af1345"
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-install-date",
@@ -69,10 +69,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/341c946d-4f6f-4459-8081-781b7b449b80",
+    "fullUrl" : "Organization/9518e2fa-1cac-4ea5-bd65-4f7638e0e3a2",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "341c946d-4f6f-4459-8081-781b7b449b80",
+      "id" : "9518e2fa-1cac-4ea5-bd65-4f7638e0e3a2",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -99,10 +99,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/8f5373e2-13e5-4be8-a276-2d61624720b9",
+    "fullUrl" : "Organization/37edea1f-0c91-4c9d-8909-cf3000af1345",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "8f5373e2-13e5-4be8-a276-2d61624720b9",
+      "id" : "37edea1f-0c91-4c9d-8909-cf3000af1345",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -147,10 +147,10 @@
       "name" : "MEDITECH, Inc."
     }
   }, {
-    "fullUrl" : "Provenance/7a962c05-1d17-4ff2-a346-54c45a05286f",
+    "fullUrl" : "Provenance/63ff86f8-8d5e-42ea-b72e-5afb550ab14f",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "7a962c05-1d17-4ff2-a346-54c45a05286f",
+      "id" : "63ff86f8-8d5e-42ea-b72e-5afb550ab14f",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -185,21 +185,21 @@
           } ]
         },
         "who" : {
-          "reference" : "Organization/9ab4eceb-a4d7-4456-958f-8bd6dd34be12"
+          "reference" : "Organization/de3a3afa-dcec-41c0-8b87-8675ed6f763b"
         }
       } ],
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/9d64ad2c-0db0-41a3-85fa-5652eb42c7b7"
+          "reference" : "Device/730e8f2a-53e5-4d70-a87f-22ba0ea5c874"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/9ab4eceb-a4d7-4456-958f-8bd6dd34be12",
+    "fullUrl" : "Organization/de3a3afa-dcec-41c0-8b87-8675ed6f763b",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "9ab4eceb-a4d7-4456-958f-8bd6dd34be12",
+      "id" : "de3a3afa-dcec-41c0-8b87-8675ed6f763b",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -230,10 +230,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Device/9d64ad2c-0db0-41a3-85fa-5652eb42c7b7",
+    "fullUrl" : "Device/730e8f2a-53e5-4d70-a87f-22ba0ea5c874",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "9d64ad2c-0db0-41a3-85fa-5652eb42c7b7",
+      "id" : "730e8f2a-53e5-4d70-a87f-22ba0ea5c874",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -266,10 +266,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Observation/1c7ba276-b6f6-4dec-9b3e-8401f97a945a",
+    "fullUrl" : "Observation/6c48f0c9-016a-4340-8cbf-4559c494ead1",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "1c7ba276-b6f6-4dec-9b3e-8401f97a945a",
+      "id" : "6c48f0c9-016a-4340-8cbf-4559c494ead1",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -290,7 +290,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/f88061ff-0c11-4d91-9034-0c540df2df1b"
+          "reference" : "Organization/1829bce7-7fa7-4eb1-bda4-817f23973a30"
         }
       } ],
       "identifier" : [ {
@@ -324,22 +324,22 @@
         "text" : "Bacteria identified in Blood by Culture"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
       "issued" : "2028-08-07T16:36:01-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/5934b283-ed05-4405-88d3-0f81adb78ad1"
+        "reference" : "PractitionerRole/9aa140e1-36d8-44ef-bb4c-ac58318a986f"
       } ]
     }
   }, {
-    "fullUrl" : "Location/598f98ae-5526-480f-9249-4fa94da9a8b2",
+    "fullUrl" : "Location/30df9e39-0be0-4119-b9a1-b9cd7c7ceb17",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "598f98ae-5526-480f-9249-4fa94da9a8b2",
+      "id" : "30df9e39-0be0-4119-b9a1-b9cd7c7ceb17",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -360,10 +360,10 @@
       "name" : "ROSE MEDICAL CENTER "
     }
   }, {
-    "fullUrl" : "Practitioner/f54dc166-8642-4980-a814-adb671af2065",
+    "fullUrl" : "Practitioner/7bcb78bb-dc1f-449e-ade7-dbc182be8189",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "f54dc166-8642-4980-a814-adb671af2065",
+      "id" : "7bcb78bb-dc1f-449e-ade7-dbc182be8189",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -392,7 +392,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/598f98ae-5526-480f-9249-4fa94da9a8b2"
+          "reference" : "Location/30df9e39-0be0-4119-b9a1-b9cd7c7ceb17"
         }
       } ],
       "identifier" : [ {
@@ -415,10 +415,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/a21d0408-0f1a-4a32-91f7-184d324a7136",
+    "fullUrl" : "Organization/f41031ee-7e37-44b3-8df5-8fcc9e10c77b",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "a21d0408-0f1a-4a32-91f7-184d324a7136",
+      "id" : "f41031ee-7e37-44b3-8df5-8fcc9e10c77b",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -457,10 +457,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/5934b283-ed05-4405-88d3-0f81adb78ad1",
+    "fullUrl" : "PractitionerRole/9aa140e1-36d8-44ef-bb4c-ac58318a986f",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "5934b283-ed05-4405-88d3-0f81adb78ad1",
+      "id" : "9aa140e1-36d8-44ef-bb4c-ac58318a986f",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -479,10 +479,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/f54dc166-8642-4980-a814-adb671af2065"
+        "reference" : "Practitioner/7bcb78bb-dc1f-449e-ade7-dbc182be8189"
       },
       "organization" : {
-        "reference" : "Organization/a21d0408-0f1a-4a32-91f7-184d324a7136"
+        "reference" : "Organization/f41031ee-7e37-44b3-8df5-8fcc9e10c77b"
       },
       "code" : [ {
         "coding" : [ {
@@ -492,10 +492,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/f88061ff-0c11-4d91-9034-0c540df2df1b",
+    "fullUrl" : "Organization/1829bce7-7fa7-4eb1-bda4-817f23973a30",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "f88061ff-0c11-4d91-9034-0c540df2df1b",
+      "id" : "1829bce7-7fa7-4eb1-bda4-817f23973a30",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -528,10 +528,10 @@
       "name" : "ROSE MEDICAL CENTER (MCOE)"
     }
   }, {
-    "fullUrl" : "Observation/4f7c37ff-3ef9-4c59-b6c4-6b999fe8ecec",
+    "fullUrl" : "Observation/9e5af5e5-a65c-4981-801e-15282b1687a0",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "4f7c37ff-3ef9-4c59-b6c4-6b999fe8ecec",
+      "id" : "9e5af5e5-a65c-4981-801e-15282b1687a0",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -552,7 +552,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/89efcc2b-edff-4cd7-aff1-fdcf1a384987"
+          "reference" : "Organization/a014f56c-6909-46d4-a1e0-5db6fbea58c4"
         }
       } ],
       "identifier" : [ {
@@ -586,15 +586,15 @@
         "text" : "Bacteria identified in Blood by Culture"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
       "issued" : "2028-08-07T16:36:01-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/0f435aa4-a2d2-4df8-819f-2da3449da909"
+        "reference" : "PractitionerRole/d12b90b6-5b32-4435-8645-55c5f9884a4a"
       } ],
       "valueCodeableConcept" : {
         "extension" : [ {
@@ -623,10 +623,10 @@
       }
     }
   }, {
-    "fullUrl" : "Location/43732d54-d67b-4a93-9c21-e1a06f24dd85",
+    "fullUrl" : "Location/7b85a589-c6a7-4705-ab63-526f4e58da9e",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "43732d54-d67b-4a93-9c21-e1a06f24dd85",
+      "id" : "7b85a589-c6a7-4705-ab63-526f4e58da9e",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -647,10 +647,10 @@
       "name" : "ROSE MEDICAL CENTER "
     }
   }, {
-    "fullUrl" : "Practitioner/536c0c09-c660-4d7c-9629-23f91e5b5433",
+    "fullUrl" : "Practitioner/daac6405-1395-4a8e-9a18-81ef8f9b2bd8",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "536c0c09-c660-4d7c-9629-23f91e5b5433",
+      "id" : "daac6405-1395-4a8e-9a18-81ef8f9b2bd8",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -679,7 +679,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/43732d54-d67b-4a93-9c21-e1a06f24dd85"
+          "reference" : "Location/7b85a589-c6a7-4705-ab63-526f4e58da9e"
         }
       } ],
       "identifier" : [ {
@@ -702,10 +702,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/3e514526-e572-41b8-ae4e-4f4a316fdcb9",
+    "fullUrl" : "Organization/298bb67e-0896-4c67-8e4b-ce6d07148ac1",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "3e514526-e572-41b8-ae4e-4f4a316fdcb9",
+      "id" : "298bb67e-0896-4c67-8e4b-ce6d07148ac1",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -744,10 +744,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/0f435aa4-a2d2-4df8-819f-2da3449da909",
+    "fullUrl" : "PractitionerRole/d12b90b6-5b32-4435-8645-55c5f9884a4a",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "0f435aa4-a2d2-4df8-819f-2da3449da909",
+      "id" : "d12b90b6-5b32-4435-8645-55c5f9884a4a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -766,10 +766,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/536c0c09-c660-4d7c-9629-23f91e5b5433"
+        "reference" : "Practitioner/daac6405-1395-4a8e-9a18-81ef8f9b2bd8"
       },
       "organization" : {
-        "reference" : "Organization/3e514526-e572-41b8-ae4e-4f4a316fdcb9"
+        "reference" : "Organization/298bb67e-0896-4c67-8e4b-ce6d07148ac1"
       },
       "code" : [ {
         "coding" : [ {
@@ -779,10 +779,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/89efcc2b-edff-4cd7-aff1-fdcf1a384987",
+    "fullUrl" : "Organization/a014f56c-6909-46d4-a1e0-5db6fbea58c4",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "89efcc2b-edff-4cd7-aff1-fdcf1a384987",
+      "id" : "a014f56c-6909-46d4-a1e0-5db6fbea58c4",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -815,10 +815,10 @@
       "name" : "ROSE MEDICAL CENTER (MCOE)"
     }
   }, {
-    "fullUrl" : "Observation/50a2ddc7-2a78-4fe8-a43e-5aef162dfb3c",
+    "fullUrl" : "Observation/af4cc84b-05e1-4113-8f4c-e4119f435177",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "50a2ddc7-2a78-4fe8-a43e-5aef162dfb3c",
+      "id" : "af4cc84b-05e1-4113-8f4c-e4119f435177",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -839,7 +839,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/4a500fdd-787e-4d74-9db1-4e23707914e7"
+          "reference" : "Organization/87795e0f-4560-4912-a568-ea6e43a6db82"
         }
       } ],
       "identifier" : [ {
@@ -873,15 +873,15 @@
         "text" : "Bacteria identified in Blood by Culture"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
       "issued" : "2028-08-07T16:36:01-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/86064d33-3642-4de6-859f-279b71ad701a"
+        "reference" : "PractitionerRole/955c277e-c235-491b-90d7-7614b5aa9e7d"
       } ],
       "valueCodeableConcept" : {
         "extension" : [ {
@@ -942,10 +942,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/6fc03e12-0324-40db-93c4-f94631b6df45",
+    "fullUrl" : "Location/23a2307e-f134-4f51-8442-9d6211075ea6",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "6fc03e12-0324-40db-93c4-f94631b6df45",
+      "id" : "23a2307e-f134-4f51-8442-9d6211075ea6",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -966,10 +966,10 @@
       "name" : "ROSE MEDICAL CENTER "
     }
   }, {
-    "fullUrl" : "Practitioner/3e2f55c7-0209-43f2-888b-3377fe8cff8f",
+    "fullUrl" : "Practitioner/1fe0da76-fc84-40d4-80e1-8ccbde276a41",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "3e2f55c7-0209-43f2-888b-3377fe8cff8f",
+      "id" : "1fe0da76-fc84-40d4-80e1-8ccbde276a41",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -998,7 +998,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/6fc03e12-0324-40db-93c4-f94631b6df45"
+          "reference" : "Location/23a2307e-f134-4f51-8442-9d6211075ea6"
         }
       } ],
       "identifier" : [ {
@@ -1021,10 +1021,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/b779c3aa-cab0-4f19-a321-b08738978b59",
+    "fullUrl" : "Organization/1d7bf6fc-2ebb-4f1d-82d5-60e61c2eb2a0",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "b779c3aa-cab0-4f19-a321-b08738978b59",
+      "id" : "1d7bf6fc-2ebb-4f1d-82d5-60e61c2eb2a0",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1063,10 +1063,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/86064d33-3642-4de6-859f-279b71ad701a",
+    "fullUrl" : "PractitionerRole/955c277e-c235-491b-90d7-7614b5aa9e7d",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "86064d33-3642-4de6-859f-279b71ad701a",
+      "id" : "955c277e-c235-491b-90d7-7614b5aa9e7d",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1085,10 +1085,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/3e2f55c7-0209-43f2-888b-3377fe8cff8f"
+        "reference" : "Practitioner/1fe0da76-fc84-40d4-80e1-8ccbde276a41"
       },
       "organization" : {
-        "reference" : "Organization/b779c3aa-cab0-4f19-a321-b08738978b59"
+        "reference" : "Organization/1d7bf6fc-2ebb-4f1d-82d5-60e61c2eb2a0"
       },
       "code" : [ {
         "coding" : [ {
@@ -1098,10 +1098,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/4a500fdd-787e-4d74-9db1-4e23707914e7",
+    "fullUrl" : "Organization/87795e0f-4560-4912-a568-ea6e43a6db82",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "4a500fdd-787e-4d74-9db1-4e23707914e7",
+      "id" : "87795e0f-4560-4912-a568-ea6e43a6db82",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1134,10 +1134,10 @@
       "name" : "ROSE MEDICAL CENTER (MCOE)"
     }
   }, {
-    "fullUrl" : "Observation/7d55ed79-c10a-40e1-8ca7-4fa446b63f0f",
+    "fullUrl" : "Observation/a465a315-ca68-48d8-8b9a-ba2778fbf1e4",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "7d55ed79-c10a-40e1-8ca7-4fa446b63f0f",
+      "id" : "a465a315-ca68-48d8-8b9a-ba2778fbf1e4",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1158,7 +1158,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/0d9086b3-7513-4ef2-9c20-8460f586fe08"
+          "reference" : "Organization/c3b657f2-d070-4aa8-96bd-03d84af04a5e"
         }
       } ],
       "identifier" : [ {
@@ -1192,22 +1192,22 @@
         "text" : "Bacteria identified in Blood by Culture"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
       "issued" : "2021-08-10T06:25:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/85c2e1a0-2217-45f9-b79a-f50c8d8bbef5"
+        "reference" : "PractitionerRole/3ea28575-8fab-4b70-9736-d8ec635b0408"
       } ]
     }
   }, {
-    "fullUrl" : "Location/a785993f-3a40-47b2-893a-0aa8a47b86a8",
+    "fullUrl" : "Location/c55745df-f3d7-44cc-be5f-58890f0a3dca",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "a785993f-3a40-47b2-893a-0aa8a47b86a8",
+      "id" : "c55745df-f3d7-44cc-be5f-58890f0a3dca",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1228,10 +1228,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/4a6b5271-7ace-4b40-b685-8270b9027c99",
+    "fullUrl" : "Practitioner/7eba9977-3a40-4bf2-9124-1a983d8f8471",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "4a6b5271-7ace-4b40-b685-8270b9027c99",
+      "id" : "7eba9977-3a40-4bf2-9124-1a983d8f8471",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1260,7 +1260,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/a785993f-3a40-47b2-893a-0aa8a47b86a8"
+          "reference" : "Location/c55745df-f3d7-44cc-be5f-58890f0a3dca"
         }
       } ],
       "identifier" : [ {
@@ -1283,10 +1283,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/e5341962-7de5-4f46-af23-148ee431e8ab",
+    "fullUrl" : "Organization/50111bdf-ccfe-4573-95e0-f59cbacb5595",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "e5341962-7de5-4f46-af23-148ee431e8ab",
+      "id" : "50111bdf-ccfe-4573-95e0-f59cbacb5595",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1340,10 +1340,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/85c2e1a0-2217-45f9-b79a-f50c8d8bbef5",
+    "fullUrl" : "PractitionerRole/3ea28575-8fab-4b70-9736-d8ec635b0408",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "85c2e1a0-2217-45f9-b79a-f50c8d8bbef5",
+      "id" : "3ea28575-8fab-4b70-9736-d8ec635b0408",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1362,10 +1362,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/4a6b5271-7ace-4b40-b685-8270b9027c99"
+        "reference" : "Practitioner/7eba9977-3a40-4bf2-9124-1a983d8f8471"
       },
       "organization" : {
-        "reference" : "Organization/e5341962-7de5-4f46-af23-148ee431e8ab"
+        "reference" : "Organization/50111bdf-ccfe-4573-95e0-f59cbacb5595"
       },
       "code" : [ {
         "coding" : [ {
@@ -1375,10 +1375,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/0d9086b3-7513-4ef2-9c20-8460f586fe08",
+    "fullUrl" : "Organization/c3b657f2-d070-4aa8-96bd-03d84af04a5e",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "0d9086b3-7513-4ef2-9c20-8460f586fe08",
+      "id" : "c3b657f2-d070-4aa8-96bd-03d84af04a5e",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1411,10 +1411,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/3269a6e5-3d55-4dd6-a0a4-18649bb2c776",
+    "fullUrl" : "Observation/7f96f7af-0760-4e5b-be36-ba2d6be5e8f8",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "3269a6e5-3d55-4dd6-a0a4-18649bb2c776",
+      "id" : "7f96f7af-0760-4e5b-be36-ba2d6be5e8f8",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1435,7 +1435,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/e5de6208-b739-4599-a37e-943b1c65fe75"
+          "reference" : "Organization/9831a1b2-5d54-4f5b-b4b8-ec4ea870e781"
         }
       } ],
       "identifier" : [ {
@@ -1458,23 +1458,23 @@
         "text" : "BLOOD CULTURE PCR"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
       "issued" : "2021-08-10T06:25:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/4eaa1b73-dc6e-4a81-8164-82e0276c8bb9"
+        "reference" : "PractitionerRole/d588fbf5-3629-4a4b-81a8-c6d5a34f1088"
       } ],
       "valueString" : "GRAM POSITIVE PCR; NO TARGETS DETECTED (SEE COMMENT)"
     }
   }, {
-    "fullUrl" : "Location/dc73527a-e8c7-4dac-b94b-9c8363fb8c65",
+    "fullUrl" : "Location/7c6f0f51-3ffc-455a-bba1-d866e8b8fcf6",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "dc73527a-e8c7-4dac-b94b-9c8363fb8c65",
+      "id" : "7c6f0f51-3ffc-455a-bba1-d866e8b8fcf6",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1495,10 +1495,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/946f408b-b4da-4501-9b49-1d334672bdda",
+    "fullUrl" : "Practitioner/5cd43fda-6813-4a0c-bc7c-fafc62ad0a3a",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "946f408b-b4da-4501-9b49-1d334672bdda",
+      "id" : "5cd43fda-6813-4a0c-bc7c-fafc62ad0a3a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1527,7 +1527,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/dc73527a-e8c7-4dac-b94b-9c8363fb8c65"
+          "reference" : "Location/7c6f0f51-3ffc-455a-bba1-d866e8b8fcf6"
         }
       } ],
       "identifier" : [ {
@@ -1550,10 +1550,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/39438439-858e-4934-b532-b586e239dcc5",
+    "fullUrl" : "Organization/87046ff0-7418-4ac0-a06e-d5d597f87feb",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "39438439-858e-4934-b532-b586e239dcc5",
+      "id" : "87046ff0-7418-4ac0-a06e-d5d597f87feb",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1606,10 +1606,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/4eaa1b73-dc6e-4a81-8164-82e0276c8bb9",
+    "fullUrl" : "PractitionerRole/d588fbf5-3629-4a4b-81a8-c6d5a34f1088",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "4eaa1b73-dc6e-4a81-8164-82e0276c8bb9",
+      "id" : "d588fbf5-3629-4a4b-81a8-c6d5a34f1088",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1628,10 +1628,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/946f408b-b4da-4501-9b49-1d334672bdda"
+        "reference" : "Practitioner/5cd43fda-6813-4a0c-bc7c-fafc62ad0a3a"
       },
       "organization" : {
-        "reference" : "Organization/39438439-858e-4934-b532-b586e239dcc5"
+        "reference" : "Organization/87046ff0-7418-4ac0-a06e-d5d597f87feb"
       },
       "code" : [ {
         "coding" : [ {
@@ -1641,10 +1641,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/e5de6208-b739-4599-a37e-943b1c65fe75",
+    "fullUrl" : "Organization/9831a1b2-5d54-4f5b-b4b8-ec4ea870e781",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "e5de6208-b739-4599-a37e-943b1c65fe75",
+      "id" : "9831a1b2-5d54-4f5b-b4b8-ec4ea870e781",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1677,10 +1677,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/1b686c8b-936f-436a-a651-92ac98866f56",
+    "fullUrl" : "Observation/cde067ee-3a4d-4ec9-9eeb-c50a3528b2c1",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "1b686c8b-936f-436a-a651-92ac98866f56",
+      "id" : "cde067ee-3a4d-4ec9-9eeb-c50a3528b2c1",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1701,7 +1701,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/3b459315-2e87-42d4-9f50-f88affdcde63"
+          "reference" : "Organization/585f333e-8760-4226-8cfd-8f03f98fab7e"
         }
       } ],
       "identifier" : [ {
@@ -1724,15 +1724,15 @@
         "text" : "BLOOD CULTURE GRAM STAIN"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
       "issued" : "2021-08-10T06:25:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/50ecf74a-c5ee-4cea-9f3d-758be5f1a1c7"
+        "reference" : "PractitionerRole/93937442-ae4a-4ecb-8938-c9c257e2be61"
       } ],
       "valueString" : "GRAM POSITIVE COCCI IN PAIRS",
       "interpretation" : [ {
@@ -1744,10 +1744,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/3d84ae1d-599f-4a4e-82de-9cb4dcf3a4ab",
+    "fullUrl" : "Location/9f0c4069-a40b-43d1-9e01-84b6278de440",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "3d84ae1d-599f-4a4e-82de-9cb4dcf3a4ab",
+      "id" : "9f0c4069-a40b-43d1-9e01-84b6278de440",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1768,10 +1768,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/f24d818c-33d7-47f8-a8c4-1a95a1221491",
+    "fullUrl" : "Practitioner/c49cbdcb-1343-4d23-b573-8a76e5ed6377",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "f24d818c-33d7-47f8-a8c4-1a95a1221491",
+      "id" : "c49cbdcb-1343-4d23-b573-8a76e5ed6377",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1800,7 +1800,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/3d84ae1d-599f-4a4e-82de-9cb4dcf3a4ab"
+          "reference" : "Location/9f0c4069-a40b-43d1-9e01-84b6278de440"
         }
       } ],
       "identifier" : [ {
@@ -1823,10 +1823,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/670e09b4-8134-47df-ae9d-8cfeaf6b4c64",
+    "fullUrl" : "Organization/2933f8a7-1f30-41b3-a191-05bd18fdee35",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "670e09b4-8134-47df-ae9d-8cfeaf6b4c64",
+      "id" : "2933f8a7-1f30-41b3-a191-05bd18fdee35",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1880,10 +1880,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/50ecf74a-c5ee-4cea-9f3d-758be5f1a1c7",
+    "fullUrl" : "PractitionerRole/93937442-ae4a-4ecb-8938-c9c257e2be61",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "50ecf74a-c5ee-4cea-9f3d-758be5f1a1c7",
+      "id" : "93937442-ae4a-4ecb-8938-c9c257e2be61",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1902,10 +1902,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/f24d818c-33d7-47f8-a8c4-1a95a1221491"
+        "reference" : "Practitioner/c49cbdcb-1343-4d23-b573-8a76e5ed6377"
       },
       "organization" : {
-        "reference" : "Organization/670e09b4-8134-47df-ae9d-8cfeaf6b4c64"
+        "reference" : "Organization/2933f8a7-1f30-41b3-a191-05bd18fdee35"
       },
       "code" : [ {
         "coding" : [ {
@@ -1915,10 +1915,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/3b459315-2e87-42d4-9f50-f88affdcde63",
+    "fullUrl" : "Organization/585f333e-8760-4226-8cfd-8f03f98fab7e",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "3b459315-2e87-42d4-9f50-f88affdcde63",
+      "id" : "585f333e-8760-4226-8cfd-8f03f98fab7e",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1951,10 +1951,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/d1c1abd2-67ce-4958-aac1-a988b4bc269d",
+    "fullUrl" : "Observation/90caa4b7-2a2f-4083-8b44-1cada24d4024",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "d1c1abd2-67ce-4958-aac1-a988b4bc269d",
+      "id" : "90caa4b7-2a2f-4083-8b44-1cada24d4024",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -1975,7 +1975,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/0a0ea1a5-9ac3-4876-8156-4436745ba48c"
+          "reference" : "Organization/241ab6dd-1747-465a-9bd0-57d936dbe8d5"
         }
       } ],
       "identifier" : [ {
@@ -1998,23 +1998,23 @@
         "text" : "BLOOD CULTURE GRAM STAIN"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
       "issued" : "2021-08-10T06:25:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/ec43ac34-6277-480f-8008-bffd83416a2a"
+        "reference" : "PractitionerRole/32bf5452-d2dc-499b-87a4-90390614e497"
       } ],
       "valueString" : "ANAEROBIC BOTTLE"
     }
   }, {
-    "fullUrl" : "Location/79fb79dd-7d26-45bf-8915-d6fa0e5cfc50",
+    "fullUrl" : "Location/5e2cc510-f8da-4dd1-b842-509141189cf9",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "79fb79dd-7d26-45bf-8915-d6fa0e5cfc50",
+      "id" : "5e2cc510-f8da-4dd1-b842-509141189cf9",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2035,10 +2035,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/fed2e0a4-8fec-4cdc-89f5-f945ca05c984",
+    "fullUrl" : "Practitioner/369f8b3d-a783-4b43-85de-12e6023e4390",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "fed2e0a4-8fec-4cdc-89f5-f945ca05c984",
+      "id" : "369f8b3d-a783-4b43-85de-12e6023e4390",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2067,7 +2067,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/79fb79dd-7d26-45bf-8915-d6fa0e5cfc50"
+          "reference" : "Location/5e2cc510-f8da-4dd1-b842-509141189cf9"
         }
       } ],
       "identifier" : [ {
@@ -2090,10 +2090,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/7446101e-70b6-42f4-8115-e35b05205e7c",
+    "fullUrl" : "Organization/ba643beb-5566-422a-8d83-7a020f227b1a",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "7446101e-70b6-42f4-8115-e35b05205e7c",
+      "id" : "ba643beb-5566-422a-8d83-7a020f227b1a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2146,10 +2146,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/ec43ac34-6277-480f-8008-bffd83416a2a",
+    "fullUrl" : "PractitionerRole/32bf5452-d2dc-499b-87a4-90390614e497",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "ec43ac34-6277-480f-8008-bffd83416a2a",
+      "id" : "32bf5452-d2dc-499b-87a4-90390614e497",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2168,10 +2168,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/fed2e0a4-8fec-4cdc-89f5-f945ca05c984"
+        "reference" : "Practitioner/369f8b3d-a783-4b43-85de-12e6023e4390"
       },
       "organization" : {
-        "reference" : "Organization/7446101e-70b6-42f4-8115-e35b05205e7c"
+        "reference" : "Organization/ba643beb-5566-422a-8d83-7a020f227b1a"
       },
       "code" : [ {
         "coding" : [ {
@@ -2181,10 +2181,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/0a0ea1a5-9ac3-4876-8156-4436745ba48c",
+    "fullUrl" : "Organization/241ab6dd-1747-465a-9bd0-57d936dbe8d5",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "0a0ea1a5-9ac3-4876-8156-4436745ba48c",
+      "id" : "241ab6dd-1747-465a-9bd0-57d936dbe8d5",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2217,10 +2217,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/9d478029-ae83-44f7-b176-adbbf97d7cdf",
+    "fullUrl" : "Observation/bd939cd5-a796-4fc7-ab6c-c45c7bec69b4",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "9d478029-ae83-44f7-b176-adbbf97d7cdf",
+      "id" : "bd939cd5-a796-4fc7-ab6c-c45c7bec69b4",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2241,7 +2241,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/edc28e59-4bed-4903-b8d3-ca504e3e150a"
+          "reference" : "Organization/1b0a64ae-bad0-4c2a-9cd2-4d79420d68a8"
         }
       } ],
       "identifier" : [ {
@@ -2264,15 +2264,15 @@
         "text" : "BLOOD CULTURE GRAM STAIN"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
       "issued" : "2021-08-10T06:25:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/7e532edd-71b3-428b-aec1-7a3fd661523e"
+        "reference" : "PractitionerRole/14ec1793-a239-460c-b928-e4e5ec2b39cc"
       } ],
       "valueString" : "YEAST",
       "interpretation" : [ {
@@ -2284,10 +2284,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/bf31b9a8-cdd0-4d01-b354-22dbeea2c7f5",
+    "fullUrl" : "Location/4c57fa8c-060e-4f16-be53-f649d27ba874",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "bf31b9a8-cdd0-4d01-b354-22dbeea2c7f5",
+      "id" : "4c57fa8c-060e-4f16-be53-f649d27ba874",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2308,10 +2308,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/38dbcc76-df03-4506-bcc7-cfce20ce827a",
+    "fullUrl" : "Practitioner/9fe646bb-4a33-40f2-840c-2db23ad4a42d",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "38dbcc76-df03-4506-bcc7-cfce20ce827a",
+      "id" : "9fe646bb-4a33-40f2-840c-2db23ad4a42d",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2340,7 +2340,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/bf31b9a8-cdd0-4d01-b354-22dbeea2c7f5"
+          "reference" : "Location/4c57fa8c-060e-4f16-be53-f649d27ba874"
         }
       } ],
       "identifier" : [ {
@@ -2363,10 +2363,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/f0bf8725-dc09-41c2-a3a8-3acccbdb4249",
+    "fullUrl" : "Organization/f8a2ebfc-de4b-493b-ac20-f4849a6a9c61",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "f0bf8725-dc09-41c2-a3a8-3acccbdb4249",
+      "id" : "f8a2ebfc-de4b-493b-ac20-f4849a6a9c61",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2420,10 +2420,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/7e532edd-71b3-428b-aec1-7a3fd661523e",
+    "fullUrl" : "PractitionerRole/14ec1793-a239-460c-b928-e4e5ec2b39cc",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "7e532edd-71b3-428b-aec1-7a3fd661523e",
+      "id" : "14ec1793-a239-460c-b928-e4e5ec2b39cc",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2442,10 +2442,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/38dbcc76-df03-4506-bcc7-cfce20ce827a"
+        "reference" : "Practitioner/9fe646bb-4a33-40f2-840c-2db23ad4a42d"
       },
       "organization" : {
-        "reference" : "Organization/f0bf8725-dc09-41c2-a3a8-3acccbdb4249"
+        "reference" : "Organization/f8a2ebfc-de4b-493b-ac20-f4849a6a9c61"
       },
       "code" : [ {
         "coding" : [ {
@@ -2455,10 +2455,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/edc28e59-4bed-4903-b8d3-ca504e3e150a",
+    "fullUrl" : "Organization/1b0a64ae-bad0-4c2a-9cd2-4d79420d68a8",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "edc28e59-4bed-4903-b8d3-ca504e3e150a",
+      "id" : "1b0a64ae-bad0-4c2a-9cd2-4d79420d68a8",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2491,10 +2491,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/fe00fa95-a9e6-478b-becf-ffec368dc30f",
+    "fullUrl" : "Observation/347a5f4a-03e1-436a-8175-19fefc4ed564",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "fe00fa95-a9e6-478b-becf-ffec368dc30f",
+      "id" : "347a5f4a-03e1-436a-8175-19fefc4ed564",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2515,7 +2515,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/db6b7776-1e60-42d9-9068-c5ef538ee435"
+          "reference" : "Organization/7dd2e4b9-8e64-4013-b7b7-410ab9bb69e7"
         }
       } ],
       "identifier" : [ {
@@ -2538,23 +2538,23 @@
         "text" : "BLOOD CULTURE GRAM STAIN"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
       "issued" : "2021-08-10T06:25:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/a1b6b135-4794-4d85-bb12-c1ccbfa59311"
+        "reference" : "PractitionerRole/d9271cac-1968-4152-9739-c71f5475ce42"
       } ],
       "valueString" : "AEROBIC BOTTLE"
     }
   }, {
-    "fullUrl" : "Location/72744e3e-2d41-4abd-9afc-562eac92aafb",
+    "fullUrl" : "Location/b7adb8de-3e7c-445b-b5fa-413c2aa41f62",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "72744e3e-2d41-4abd-9afc-562eac92aafb",
+      "id" : "b7adb8de-3e7c-445b-b5fa-413c2aa41f62",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2575,10 +2575,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/beb9f8d0-4a7c-4964-83b2-7c929b501ff0",
+    "fullUrl" : "Practitioner/a7fb8cc1-5f31-4457-b944-1768695ab635",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "beb9f8d0-4a7c-4964-83b2-7c929b501ff0",
+      "id" : "a7fb8cc1-5f31-4457-b944-1768695ab635",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2607,7 +2607,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/72744e3e-2d41-4abd-9afc-562eac92aafb"
+          "reference" : "Location/b7adb8de-3e7c-445b-b5fa-413c2aa41f62"
         }
       } ],
       "identifier" : [ {
@@ -2630,10 +2630,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/484ad13b-1aff-4998-8d39-12564d36ce82",
+    "fullUrl" : "Organization/3a097c49-3ff0-498d-b985-84cea415e836",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "484ad13b-1aff-4998-8d39-12564d36ce82",
+      "id" : "3a097c49-3ff0-498d-b985-84cea415e836",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2686,10 +2686,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/a1b6b135-4794-4d85-bb12-c1ccbfa59311",
+    "fullUrl" : "PractitionerRole/d9271cac-1968-4152-9739-c71f5475ce42",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "a1b6b135-4794-4d85-bb12-c1ccbfa59311",
+      "id" : "d9271cac-1968-4152-9739-c71f5475ce42",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2708,10 +2708,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/beb9f8d0-4a7c-4964-83b2-7c929b501ff0"
+        "reference" : "Practitioner/a7fb8cc1-5f31-4457-b944-1768695ab635"
       },
       "organization" : {
-        "reference" : "Organization/484ad13b-1aff-4998-8d39-12564d36ce82"
+        "reference" : "Organization/3a097c49-3ff0-498d-b985-84cea415e836"
       },
       "code" : [ {
         "coding" : [ {
@@ -2721,10 +2721,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/db6b7776-1e60-42d9-9068-c5ef538ee435",
+    "fullUrl" : "Organization/7dd2e4b9-8e64-4013-b7b7-410ab9bb69e7",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "db6b7776-1e60-42d9-9068-c5ef538ee435",
+      "id" : "7dd2e4b9-8e64-4013-b7b7-410ab9bb69e7",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2757,10 +2757,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/b70b10c4-dfc0-4d94-b3ac-2a94d084a50f",
+    "fullUrl" : "Observation/af636a8d-7378-4613-a1da-0a5dbd119eca",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "b70b10c4-dfc0-4d94-b3ac-2a94d084a50f",
+      "id" : "af636a8d-7378-4613-a1da-0a5dbd119eca",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2781,7 +2781,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/d4186fa1-34ec-4a53-8622-1dcb15f7d782"
+          "reference" : "Organization/d316ca14-6959-46b9-be76-34d49180916a"
         }
       } ],
       "identifier" : [ {
@@ -2815,15 +2815,15 @@
         "text" : "Bacteria identified in Blood by Culture"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
       "issued" : "2021-08-10T06:25:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/4efaf9ed-ee41-489d-aaf5-6afb2069a329"
+        "reference" : "PractitionerRole/fafdab0d-9741-4d72-bedc-8fec673be3e7"
       } ],
       "valueCodeableConcept" : {
         "coding" : [ {
@@ -2866,10 +2866,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/cbe55dfd-5f06-4f66-bef1-154f3601c1c2",
+    "fullUrl" : "Location/c24bf956-6e8e-4c38-9624-469fdb50c88b",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "cbe55dfd-5f06-4f66-bef1-154f3601c1c2",
+      "id" : "c24bf956-6e8e-4c38-9624-469fdb50c88b",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2890,10 +2890,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/1ed745cf-0475-413d-bf2e-cdf24760a97f",
+    "fullUrl" : "Practitioner/d373ad7b-e878-4e63-b7bc-5878f1e46bd4",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1ed745cf-0475-413d-bf2e-cdf24760a97f",
+      "id" : "d373ad7b-e878-4e63-b7bc-5878f1e46bd4",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -2922,7 +2922,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/cbe55dfd-5f06-4f66-bef1-154f3601c1c2"
+          "reference" : "Location/c24bf956-6e8e-4c38-9624-469fdb50c88b"
         }
       } ],
       "identifier" : [ {
@@ -2945,10 +2945,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/5381a535-9129-4251-8527-be64f36cb235",
+    "fullUrl" : "Organization/f4832db4-a25d-42c5-8ab2-11bdefe0c3db",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "5381a535-9129-4251-8527-be64f36cb235",
+      "id" : "f4832db4-a25d-42c5-8ab2-11bdefe0c3db",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3002,10 +3002,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/4efaf9ed-ee41-489d-aaf5-6afb2069a329",
+    "fullUrl" : "PractitionerRole/fafdab0d-9741-4d72-bedc-8fec673be3e7",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "4efaf9ed-ee41-489d-aaf5-6afb2069a329",
+      "id" : "fafdab0d-9741-4d72-bedc-8fec673be3e7",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3024,10 +3024,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/1ed745cf-0475-413d-bf2e-cdf24760a97f"
+        "reference" : "Practitioner/d373ad7b-e878-4e63-b7bc-5878f1e46bd4"
       },
       "organization" : {
-        "reference" : "Organization/5381a535-9129-4251-8527-be64f36cb235"
+        "reference" : "Organization/f4832db4-a25d-42c5-8ab2-11bdefe0c3db"
       },
       "code" : [ {
         "coding" : [ {
@@ -3037,10 +3037,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/d4186fa1-34ec-4a53-8622-1dcb15f7d782",
+    "fullUrl" : "Organization/d316ca14-6959-46b9-be76-34d49180916a",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "d4186fa1-34ec-4a53-8622-1dcb15f7d782",
+      "id" : "d316ca14-6959-46b9-be76-34d49180916a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3073,10 +3073,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/da6f82e9-085b-481d-af18-fd0bb3f688bd",
+    "fullUrl" : "Observation/a7bb8410-2ff9-4db1-9b5e-0a5f4e9c051f",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "da6f82e9-085b-481d-af18-fd0bb3f688bd",
+      "id" : "a7bb8410-2ff9-4db1-9b5e-0a5f4e9c051f",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3097,7 +3097,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/cc8140d6-ee26-4546-8c6c-1caae9560503"
+          "reference" : "Organization/6358ca58-69df-4d4e-8c7f-7ac503ddddd3"
         }
       } ],
       "identifier" : [ {
@@ -3131,15 +3131,15 @@
         "text" : "Laboratory comment [Text] in Report Narrative"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-02T02:52:01-06:00",
       "issued" : "2021-08-05T01:38:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/673ec2cf-a28c-488d-9126-2ab72add0e04"
+        "reference" : "PractitionerRole/e87114c6-30bc-4cb6-9ea2-ba4a5a0d1d24"
       } ],
       "valueCodeableConcept" : {
         "coding" : [ {
@@ -3149,10 +3149,10 @@
       }
     }
   }, {
-    "fullUrl" : "Location/a8e3d133-6dda-4bab-a5d0-97ccecb9d54c",
+    "fullUrl" : "Location/82c97b74-2b64-4e7f-9def-560fce7cdec5",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "a8e3d133-6dda-4bab-a5d0-97ccecb9d54c",
+      "id" : "82c97b74-2b64-4e7f-9def-560fce7cdec5",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3173,10 +3173,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/d5e32b86-c172-4c20-bf74-eae610092a24",
+    "fullUrl" : "Practitioner/0dec678f-c5bd-475e-83f4-b8549e1f2177",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "d5e32b86-c172-4c20-bf74-eae610092a24",
+      "id" : "0dec678f-c5bd-475e-83f4-b8549e1f2177",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3205,7 +3205,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/a8e3d133-6dda-4bab-a5d0-97ccecb9d54c"
+          "reference" : "Location/82c97b74-2b64-4e7f-9def-560fce7cdec5"
         }
       } ],
       "identifier" : [ {
@@ -3228,10 +3228,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/189989f9-8420-4bf8-b2ac-6d92da041a57",
+    "fullUrl" : "Organization/edff6abd-3a56-4b4b-a791-677873de983d",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "189989f9-8420-4bf8-b2ac-6d92da041a57",
+      "id" : "edff6abd-3a56-4b4b-a791-677873de983d",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3285,10 +3285,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/673ec2cf-a28c-488d-9126-2ab72add0e04",
+    "fullUrl" : "PractitionerRole/e87114c6-30bc-4cb6-9ea2-ba4a5a0d1d24",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "673ec2cf-a28c-488d-9126-2ab72add0e04",
+      "id" : "e87114c6-30bc-4cb6-9ea2-ba4a5a0d1d24",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3307,10 +3307,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/d5e32b86-c172-4c20-bf74-eae610092a24"
+        "reference" : "Practitioner/0dec678f-c5bd-475e-83f4-b8549e1f2177"
       },
       "organization" : {
-        "reference" : "Organization/189989f9-8420-4bf8-b2ac-6d92da041a57"
+        "reference" : "Organization/edff6abd-3a56-4b4b-a791-677873de983d"
       },
       "code" : [ {
         "coding" : [ {
@@ -3320,10 +3320,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/cc8140d6-ee26-4546-8c6c-1caae9560503",
+    "fullUrl" : "Organization/6358ca58-69df-4d4e-8c7f-7ac503ddddd3",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "cc8140d6-ee26-4546-8c6c-1caae9560503",
+      "id" : "6358ca58-69df-4d4e-8c7f-7ac503ddddd3",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3356,10 +3356,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/f4658c77-b90f-417d-941a-4fd9a95f82fa",
+    "fullUrl" : "Observation/b1cc6e5d-c0e5-4b7a-a04e-744ce7cc9db4",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "f4658c77-b90f-417d-941a-4fd9a95f82fa",
+      "id" : "b1cc6e5d-c0e5-4b7a-a04e-744ce7cc9db4",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3380,7 +3380,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/171f6ceb-59d6-4971-87c7-3b658bb97318"
+          "reference" : "Organization/9f857306-3708-4dda-983f-b0f5d9ce42e9"
         }
       } ],
       "identifier" : [ {
@@ -3414,23 +3414,23 @@
         "text" : "Laboratory comment [Text] in Report Narrative"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
       "issued" : "2021-08-05T01:38:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/124dea99-cb12-4e9b-9275-831a8e73d35f"
+        "reference" : "PractitionerRole/f0db2b2f-c58d-43d9-bc9e-867c597b8f29"
       } ],
       "valueString" : "This is a rapid molecular assay that simultaneously detects"
     }
   }, {
-    "fullUrl" : "Location/e2c00e06-afc3-4a99-b61e-19b1d0119a26",
+    "fullUrl" : "Location/9cb47a97-5542-48d4-a920-9fb129c214fc",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "e2c00e06-afc3-4a99-b61e-19b1d0119a26",
+      "id" : "9cb47a97-5542-48d4-a920-9fb129c214fc",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3451,10 +3451,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/23890b29-2744-424d-bba8-f32aec3a0d43",
+    "fullUrl" : "Practitioner/95dc938f-d732-4cbe-b382-ea4f244dc308",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "23890b29-2744-424d-bba8-f32aec3a0d43",
+      "id" : "95dc938f-d732-4cbe-b382-ea4f244dc308",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3483,7 +3483,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/e2c00e06-afc3-4a99-b61e-19b1d0119a26"
+          "reference" : "Location/9cb47a97-5542-48d4-a920-9fb129c214fc"
         }
       } ],
       "identifier" : [ {
@@ -3506,10 +3506,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/9405657f-5cc3-4e8e-83ee-e2c1545fd8b4",
+    "fullUrl" : "Organization/0e1d94e2-f2c3-4a63-a347-4689207bcd0a",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "9405657f-5cc3-4e8e-83ee-e2c1545fd8b4",
+      "id" : "0e1d94e2-f2c3-4a63-a347-4689207bcd0a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3563,10 +3563,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/124dea99-cb12-4e9b-9275-831a8e73d35f",
+    "fullUrl" : "PractitionerRole/f0db2b2f-c58d-43d9-bc9e-867c597b8f29",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "124dea99-cb12-4e9b-9275-831a8e73d35f",
+      "id" : "f0db2b2f-c58d-43d9-bc9e-867c597b8f29",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3585,10 +3585,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/23890b29-2744-424d-bba8-f32aec3a0d43"
+        "reference" : "Practitioner/95dc938f-d732-4cbe-b382-ea4f244dc308"
       },
       "organization" : {
-        "reference" : "Organization/9405657f-5cc3-4e8e-83ee-e2c1545fd8b4"
+        "reference" : "Organization/0e1d94e2-f2c3-4a63-a347-4689207bcd0a"
       },
       "code" : [ {
         "coding" : [ {
@@ -3598,10 +3598,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/171f6ceb-59d6-4971-87c7-3b658bb97318",
+    "fullUrl" : "Organization/9f857306-3708-4dda-983f-b0f5d9ce42e9",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "171f6ceb-59d6-4971-87c7-3b658bb97318",
+      "id" : "9f857306-3708-4dda-983f-b0f5d9ce42e9",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3634,10 +3634,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/915e8fa9-249f-49ee-9af3-ccc8c7e8050b",
+    "fullUrl" : "Observation/ad2a9e65-a5a2-4547-9f73-69581a91461a",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "915e8fa9-249f-49ee-9af3-ccc8c7e8050b",
+      "id" : "ad2a9e65-a5a2-4547-9f73-69581a91461a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3658,7 +3658,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/2538659e-88d8-4eb5-a844-a1faa2cabdac"
+          "reference" : "Organization/82e0e7e7-5fcd-4370-9b6d-371afdac8000"
         }
       } ],
       "identifier" : [ {
@@ -3692,23 +3692,23 @@
         "text" : "Laboratory comment [Text] in Report Narrative"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
       "issued" : "2021-08-05T01:38:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/2879e303-81c5-4cd6-84e0-ff0e1237a26c"
+        "reference" : "PractitionerRole/fb6ff603-31dd-41ea-a824-ac623ba0ef64"
       } ],
       "valueString" : "and identifies the following gram-positive organisms:"
     }
   }, {
-    "fullUrl" : "Location/2e1d6c1c-04b1-4cb9-b62c-ff79d3a3b5d6",
+    "fullUrl" : "Location/91e2282c-2daf-47c1-83aa-206e33adb91a",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "2e1d6c1c-04b1-4cb9-b62c-ff79d3a3b5d6",
+      "id" : "91e2282c-2daf-47c1-83aa-206e33adb91a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3729,10 +3729,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/95aee5c2-43f4-4f6f-b3a2-15dd579d49a3",
+    "fullUrl" : "Practitioner/925d914e-5ceb-464c-bd64-f018b7faa3cc",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "95aee5c2-43f4-4f6f-b3a2-15dd579d49a3",
+      "id" : "925d914e-5ceb-464c-bd64-f018b7faa3cc",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3761,7 +3761,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/2e1d6c1c-04b1-4cb9-b62c-ff79d3a3b5d6"
+          "reference" : "Location/91e2282c-2daf-47c1-83aa-206e33adb91a"
         }
       } ],
       "identifier" : [ {
@@ -3784,10 +3784,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/c5223711-2924-483a-a588-a8263b432e11",
+    "fullUrl" : "Organization/c8e67600-c0ca-42dd-a121-65eae825f1c6",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "c5223711-2924-483a-a588-a8263b432e11",
+      "id" : "c8e67600-c0ca-42dd-a121-65eae825f1c6",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3841,10 +3841,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/2879e303-81c5-4cd6-84e0-ff0e1237a26c",
+    "fullUrl" : "PractitionerRole/fb6ff603-31dd-41ea-a824-ac623ba0ef64",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "2879e303-81c5-4cd6-84e0-ff0e1237a26c",
+      "id" : "fb6ff603-31dd-41ea-a824-ac623ba0ef64",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3863,10 +3863,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/95aee5c2-43f4-4f6f-b3a2-15dd579d49a3"
+        "reference" : "Practitioner/925d914e-5ceb-464c-bd64-f018b7faa3cc"
       },
       "organization" : {
-        "reference" : "Organization/c5223711-2924-483a-a588-a8263b432e11"
+        "reference" : "Organization/c8e67600-c0ca-42dd-a121-65eae825f1c6"
       },
       "code" : [ {
         "coding" : [ {
@@ -3876,10 +3876,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/2538659e-88d8-4eb5-a844-a1faa2cabdac",
+    "fullUrl" : "Organization/82e0e7e7-5fcd-4370-9b6d-371afdac8000",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "2538659e-88d8-4eb5-a844-a1faa2cabdac",
+      "id" : "82e0e7e7-5fcd-4370-9b6d-371afdac8000",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3912,10 +3912,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/92c1aaf4-a27c-4caf-88c5-ccdf41bd62e7",
+    "fullUrl" : "Observation/a6c3d61a-c8b4-4a9a-a850-b6dbbc9e2a2b",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "92c1aaf4-a27c-4caf-88c5-ccdf41bd62e7",
+      "id" : "a6c3d61a-c8b4-4a9a-a850-b6dbbc9e2a2b",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -3936,7 +3936,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/6c5da19f-6417-458a-80e3-043dd89597a8"
+          "reference" : "Organization/ac0a035e-ff9b-4fb4-a445-8c73ed05ab9a"
         }
       } ],
       "identifier" : [ {
@@ -3970,22 +3970,22 @@
         "text" : "Laboratory comment [Text] in Report Narrative"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
       "issued" : "2021-08-05T01:38:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/1f43e6cd-b78f-4755-afba-56c4fb6e897b"
+        "reference" : "PractitionerRole/a6b36538-a2f0-4c71-bd65-94d33caa595d"
       } ]
     }
   }, {
-    "fullUrl" : "Location/ef4747a1-c2a5-4853-b9d1-1f2ef70c2056",
+    "fullUrl" : "Location/7a649de7-708c-4f9d-aff9-fb27caa95680",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "ef4747a1-c2a5-4853-b9d1-1f2ef70c2056",
+      "id" : "7a649de7-708c-4f9d-aff9-fb27caa95680",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4006,10 +4006,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/350f9de2-31b9-4802-a48b-7e7a1777f9c1",
+    "fullUrl" : "Practitioner/91837589-5da7-461f-986d-f235b3b76997",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "350f9de2-31b9-4802-a48b-7e7a1777f9c1",
+      "id" : "91837589-5da7-461f-986d-f235b3b76997",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4038,7 +4038,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/ef4747a1-c2a5-4853-b9d1-1f2ef70c2056"
+          "reference" : "Location/7a649de7-708c-4f9d-aff9-fb27caa95680"
         }
       } ],
       "identifier" : [ {
@@ -4061,10 +4061,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/a70f058a-afa2-4d9a-96b2-778412de98ee",
+    "fullUrl" : "Organization/90623f80-788e-4064-a609-b279dfa73f60",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "a70f058a-afa2-4d9a-96b2-778412de98ee",
+      "id" : "90623f80-788e-4064-a609-b279dfa73f60",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4118,10 +4118,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/1f43e6cd-b78f-4755-afba-56c4fb6e897b",
+    "fullUrl" : "PractitionerRole/a6b36538-a2f0-4c71-bd65-94d33caa595d",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "1f43e6cd-b78f-4755-afba-56c4fb6e897b",
+      "id" : "a6b36538-a2f0-4c71-bd65-94d33caa595d",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4140,10 +4140,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/350f9de2-31b9-4802-a48b-7e7a1777f9c1"
+        "reference" : "Practitioner/91837589-5da7-461f-986d-f235b3b76997"
       },
       "organization" : {
-        "reference" : "Organization/a70f058a-afa2-4d9a-96b2-778412de98ee"
+        "reference" : "Organization/90623f80-788e-4064-a609-b279dfa73f60"
       },
       "code" : [ {
         "coding" : [ {
@@ -4153,10 +4153,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/6c5da19f-6417-458a-80e3-043dd89597a8",
+    "fullUrl" : "Organization/ac0a035e-ff9b-4fb4-a445-8c73ed05ab9a",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "6c5da19f-6417-458a-80e3-043dd89597a8",
+      "id" : "ac0a035e-ff9b-4fb4-a445-8c73ed05ab9a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4189,10 +4189,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/9dcd566d-d829-4d3a-b9ba-9a8af9e6eb87",
+    "fullUrl" : "Observation/58df88eb-47ea-4b6c-b920-85f95eee8164",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "9dcd566d-d829-4d3a-b9ba-9a8af9e6eb87",
+      "id" : "58df88eb-47ea-4b6c-b920-85f95eee8164",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4213,7 +4213,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/ade671d2-ac43-4839-a100-f892d0ce8cfc"
+          "reference" : "Organization/cba520d2-ea0b-42ce-b234-a9246b134915"
         }
       } ],
       "identifier" : [ {
@@ -4247,23 +4247,23 @@
         "text" : "Laboratory comment [Text] in Report Narrative"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
       "issued" : "2021-08-05T01:38:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/d1db55c5-4cf0-4bac-a25a-85d19603c0e5"
+        "reference" : "PractitionerRole/5a7e9dda-8981-4c62-adc0-082a67570365"
       } ],
       "valueString" : "Staphylococcus spp.          Streptococcus pyogenes"
     }
   }, {
-    "fullUrl" : "Location/3cd6f6bf-9436-4c6f-923d-6bf23106e097",
+    "fullUrl" : "Location/ad88f218-2e78-419f-a6ae-e32efbc33bf4",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "3cd6f6bf-9436-4c6f-923d-6bf23106e097",
+      "id" : "ad88f218-2e78-419f-a6ae-e32efbc33bf4",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4284,10 +4284,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/8932bc5f-5e93-43a3-a9fd-c5aa7f90a2df",
+    "fullUrl" : "Practitioner/e116bd6a-67c9-460a-96c8-20c90d85e53f",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "8932bc5f-5e93-43a3-a9fd-c5aa7f90a2df",
+      "id" : "e116bd6a-67c9-460a-96c8-20c90d85e53f",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4316,7 +4316,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/3cd6f6bf-9436-4c6f-923d-6bf23106e097"
+          "reference" : "Location/ad88f218-2e78-419f-a6ae-e32efbc33bf4"
         }
       } ],
       "identifier" : [ {
@@ -4339,10 +4339,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/d6f35ba4-4138-4554-8a69-70bdf3ae7a82",
+    "fullUrl" : "Organization/084d7281-6ca3-464f-9cf1-bc1a9fef549b",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "d6f35ba4-4138-4554-8a69-70bdf3ae7a82",
+      "id" : "084d7281-6ca3-464f-9cf1-bc1a9fef549b",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4396,10 +4396,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/d1db55c5-4cf0-4bac-a25a-85d19603c0e5",
+    "fullUrl" : "PractitionerRole/5a7e9dda-8981-4c62-adc0-082a67570365",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "d1db55c5-4cf0-4bac-a25a-85d19603c0e5",
+      "id" : "5a7e9dda-8981-4c62-adc0-082a67570365",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4418,10 +4418,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/8932bc5f-5e93-43a3-a9fd-c5aa7f90a2df"
+        "reference" : "Practitioner/e116bd6a-67c9-460a-96c8-20c90d85e53f"
       },
       "organization" : {
-        "reference" : "Organization/d6f35ba4-4138-4554-8a69-70bdf3ae7a82"
+        "reference" : "Organization/084d7281-6ca3-464f-9cf1-bc1a9fef549b"
       },
       "code" : [ {
         "coding" : [ {
@@ -4431,10 +4431,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/ade671d2-ac43-4839-a100-f892d0ce8cfc",
+    "fullUrl" : "Organization/cba520d2-ea0b-42ce-b234-a9246b134915",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "ade671d2-ac43-4839-a100-f892d0ce8cfc",
+      "id" : "cba520d2-ea0b-42ce-b234-a9246b134915",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4467,10 +4467,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/de8fb406-c6e1-4608-af88-006d0bda2a7f",
+    "fullUrl" : "Observation/012e7887-f833-4653-a055-ba39a13f8599",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "de8fb406-c6e1-4608-af88-006d0bda2a7f",
+      "id" : "012e7887-f833-4653-a055-ba39a13f8599",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4491,7 +4491,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/f4d5ca5c-e131-4e2e-9d9f-c46642cdd3fd"
+          "reference" : "Organization/b9a771a1-4cd1-4157-8534-89bded958697"
         }
       } ],
       "identifier" : [ {
@@ -4525,23 +4525,23 @@
         "text" : "Laboratory comment [Text] in Report Narrative"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
       "issued" : "2021-08-05T01:38:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/a1520026-ee4f-4f06-8c52-bc1464a4f5de"
+        "reference" : "PractitionerRole/24dd33b6-db1e-48d9-875f-2a149ec33510"
       } ],
       "valueString" : "Staphylococcus aureus        Streptococcus agalactiae"
     }
   }, {
-    "fullUrl" : "Location/e1d33dcb-1a37-4687-b279-0f030009c85b",
+    "fullUrl" : "Location/7a098c45-e8cc-487e-ba96-7ef3d30998c2",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "e1d33dcb-1a37-4687-b279-0f030009c85b",
+      "id" : "7a098c45-e8cc-487e-ba96-7ef3d30998c2",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4562,10 +4562,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/04cd287b-988b-453c-8ca1-d41ffd6c94b0",
+    "fullUrl" : "Practitioner/00183eb5-2ed9-4205-bdb9-e32aac01b076",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "04cd287b-988b-453c-8ca1-d41ffd6c94b0",
+      "id" : "00183eb5-2ed9-4205-bdb9-e32aac01b076",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4594,7 +4594,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/e1d33dcb-1a37-4687-b279-0f030009c85b"
+          "reference" : "Location/7a098c45-e8cc-487e-ba96-7ef3d30998c2"
         }
       } ],
       "identifier" : [ {
@@ -4617,10 +4617,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/413ac377-3569-4878-a774-c972643a8be5",
+    "fullUrl" : "Organization/b4d71865-9191-43c8-88b4-28eb9155179e",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "413ac377-3569-4878-a774-c972643a8be5",
+      "id" : "b4d71865-9191-43c8-88b4-28eb9155179e",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4674,10 +4674,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/a1520026-ee4f-4f06-8c52-bc1464a4f5de",
+    "fullUrl" : "PractitionerRole/24dd33b6-db1e-48d9-875f-2a149ec33510",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "a1520026-ee4f-4f06-8c52-bc1464a4f5de",
+      "id" : "24dd33b6-db1e-48d9-875f-2a149ec33510",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4696,10 +4696,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/04cd287b-988b-453c-8ca1-d41ffd6c94b0"
+        "reference" : "Practitioner/00183eb5-2ed9-4205-bdb9-e32aac01b076"
       },
       "organization" : {
-        "reference" : "Organization/413ac377-3569-4878-a774-c972643a8be5"
+        "reference" : "Organization/b4d71865-9191-43c8-88b4-28eb9155179e"
       },
       "code" : [ {
         "coding" : [ {
@@ -4709,10 +4709,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/f4d5ca5c-e131-4e2e-9d9f-c46642cdd3fd",
+    "fullUrl" : "Organization/b9a771a1-4cd1-4157-8534-89bded958697",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "f4d5ca5c-e131-4e2e-9d9f-c46642cdd3fd",
+      "id" : "b9a771a1-4cd1-4157-8534-89bded958697",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4745,10 +4745,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/42edfba8-722d-472a-902b-f4662b227c79",
+    "fullUrl" : "Observation/e3827638-eb5d-4717-8c7c-ab2f1acc88be",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "42edfba8-722d-472a-902b-f4662b227c79",
+      "id" : "e3827638-eb5d-4717-8c7c-ab2f1acc88be",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4769,7 +4769,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/345a787a-f62c-47a5-a567-4d3ef93d9a61"
+          "reference" : "Organization/5270a5ef-2b78-419d-9365-77ae5856ba79"
         }
       } ],
       "identifier" : [ {
@@ -4803,23 +4803,23 @@
         "text" : "Laboratory comment [Text] in Report Narrative"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
       "issued" : "2021-08-05T01:38:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/8d22c16d-d947-4502-948b-d9bdbc5a6cf0"
+        "reference" : "PractitionerRole/e150f6ad-9dd0-4429-9698-8b0cf391fdd5"
       } ],
       "valueString" : "Staphylococcus epidermidis   Streptococcus anginosus group"
     }
   }, {
-    "fullUrl" : "Location/f2a4aa97-7870-4463-a5af-c436e5a12750",
+    "fullUrl" : "Location/d4f2c458-b55f-4784-af6b-8a97e7162b09",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "f2a4aa97-7870-4463-a5af-c436e5a12750",
+      "id" : "d4f2c458-b55f-4784-af6b-8a97e7162b09",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4840,10 +4840,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/a59ec87c-7d80-43e8-b454-e470dae837a2",
+    "fullUrl" : "Practitioner/9692c36d-f02b-4515-8174-02d0dfa404cd",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "a59ec87c-7d80-43e8-b454-e470dae837a2",
+      "id" : "9692c36d-f02b-4515-8174-02d0dfa404cd",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4872,7 +4872,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/f2a4aa97-7870-4463-a5af-c436e5a12750"
+          "reference" : "Location/d4f2c458-b55f-4784-af6b-8a97e7162b09"
         }
       } ],
       "identifier" : [ {
@@ -4895,10 +4895,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/c5513b6c-a28e-4664-be34-ee172cb37d32",
+    "fullUrl" : "Organization/03f4ac37-7095-4aac-8405-58e90c89f572",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "c5513b6c-a28e-4664-be34-ee172cb37d32",
+      "id" : "03f4ac37-7095-4aac-8405-58e90c89f572",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4952,10 +4952,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/8d22c16d-d947-4502-948b-d9bdbc5a6cf0",
+    "fullUrl" : "PractitionerRole/e150f6ad-9dd0-4429-9698-8b0cf391fdd5",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "8d22c16d-d947-4502-948b-d9bdbc5a6cf0",
+      "id" : "e150f6ad-9dd0-4429-9698-8b0cf391fdd5",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -4974,10 +4974,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/a59ec87c-7d80-43e8-b454-e470dae837a2"
+        "reference" : "Practitioner/9692c36d-f02b-4515-8174-02d0dfa404cd"
       },
       "organization" : {
-        "reference" : "Organization/c5513b6c-a28e-4664-be34-ee172cb37d32"
+        "reference" : "Organization/03f4ac37-7095-4aac-8405-58e90c89f572"
       },
       "code" : [ {
         "coding" : [ {
@@ -4987,10 +4987,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/345a787a-f62c-47a5-a567-4d3ef93d9a61",
+    "fullUrl" : "Organization/5270a5ef-2b78-419d-9365-77ae5856ba79",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "345a787a-f62c-47a5-a567-4d3ef93d9a61",
+      "id" : "5270a5ef-2b78-419d-9365-77ae5856ba79",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5023,10 +5023,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/4bbddad9-3e86-4e4e-9f91-79c15c6afd06",
+    "fullUrl" : "Observation/e7b2ac44-837e-4dd1-a4d1-98e3456fe299",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "4bbddad9-3e86-4e4e-9f91-79c15c6afd06",
+      "id" : "e7b2ac44-837e-4dd1-a4d1-98e3456fe299",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5047,7 +5047,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/b45f5d4a-b412-4c53-b16a-c71638654e43"
+          "reference" : "Organization/e2b1e8e4-e7c4-4b8d-99d4-8ad94b469567"
         }
       } ],
       "identifier" : [ {
@@ -5081,23 +5081,23 @@
         "text" : "Laboratory comment [Text] in Report Narrative"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
       "issued" : "2021-08-05T01:38:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/4ce1cc04-3c8e-44ea-bd3e-3123f3d5f4fd"
+        "reference" : "PractitionerRole/5e949bcb-d96f-46ab-8aeb-17f2ca22f883"
       } ],
       "valueString" : "Staphylococcus lugdunensis   Streptococcus faecalis"
     }
   }, {
-    "fullUrl" : "Location/30aab871-53d1-4e71-8900-14e349371494",
+    "fullUrl" : "Location/a3e089a1-f415-4b1a-9b1a-938f93ecf96b",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "30aab871-53d1-4e71-8900-14e349371494",
+      "id" : "a3e089a1-f415-4b1a-9b1a-938f93ecf96b",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5118,10 +5118,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/4c120b33-8a8c-4845-aad7-9214a7bb816f",
+    "fullUrl" : "Practitioner/845d3f45-a568-4811-9516-fbde97088aae",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "4c120b33-8a8c-4845-aad7-9214a7bb816f",
+      "id" : "845d3f45-a568-4811-9516-fbde97088aae",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5150,7 +5150,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/30aab871-53d1-4e71-8900-14e349371494"
+          "reference" : "Location/a3e089a1-f415-4b1a-9b1a-938f93ecf96b"
         }
       } ],
       "identifier" : [ {
@@ -5173,10 +5173,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/d7034e16-7f54-47fb-9255-d83cc6c08997",
+    "fullUrl" : "Organization/04b27fb5-49c8-4b08-9b91-9cd00c31d83e",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "d7034e16-7f54-47fb-9255-d83cc6c08997",
+      "id" : "04b27fb5-49c8-4b08-9b91-9cd00c31d83e",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5230,10 +5230,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/4ce1cc04-3c8e-44ea-bd3e-3123f3d5f4fd",
+    "fullUrl" : "PractitionerRole/5e949bcb-d96f-46ab-8aeb-17f2ca22f883",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "4ce1cc04-3c8e-44ea-bd3e-3123f3d5f4fd",
+      "id" : "5e949bcb-d96f-46ab-8aeb-17f2ca22f883",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5252,10 +5252,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/4c120b33-8a8c-4845-aad7-9214a7bb816f"
+        "reference" : "Practitioner/845d3f45-a568-4811-9516-fbde97088aae"
       },
       "organization" : {
-        "reference" : "Organization/d7034e16-7f54-47fb-9255-d83cc6c08997"
+        "reference" : "Organization/04b27fb5-49c8-4b08-9b91-9cd00c31d83e"
       },
       "code" : [ {
         "coding" : [ {
@@ -5265,10 +5265,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/b45f5d4a-b412-4c53-b16a-c71638654e43",
+    "fullUrl" : "Organization/e2b1e8e4-e7c4-4b8d-99d4-8ad94b469567",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "b45f5d4a-b412-4c53-b16a-c71638654e43",
+      "id" : "e2b1e8e4-e7c4-4b8d-99d4-8ad94b469567",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5301,10 +5301,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/3a2f6494-a7fb-406c-9537-b5073633cc86",
+    "fullUrl" : "Observation/157990b8-0dce-4238-8d95-a1c75250ed48",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "3a2f6494-a7fb-406c-9537-b5073633cc86",
+      "id" : "157990b8-0dce-4238-8d95-a1c75250ed48",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5325,7 +5325,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/f2ded4ab-834b-4f28-a356-ac22b227fe44"
+          "reference" : "Organization/4bd3ee4e-8fb7-44ad-8d8b-581462e41f37"
         }
       } ],
       "identifier" : [ {
@@ -5359,23 +5359,23 @@
         "text" : "Laboratory comment [Text] in Report Narrative"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
       "issued" : "2021-08-05T01:38:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/c20e6956-4609-4bba-9c8e-72cb6f86b3fb"
+        "reference" : "PractitionerRole/eff9b613-60c1-4357-83a4-4a830b5d9cae"
       } ],
       "valueString" : "Streptococcus spp.           Enterococcus faecium"
     }
   }, {
-    "fullUrl" : "Location/abfb030b-d637-4149-bd78-b72dade19a4d",
+    "fullUrl" : "Location/7b8e82c5-50e2-49f5-8a77-4f18f5c38093",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "abfb030b-d637-4149-bd78-b72dade19a4d",
+      "id" : "7b8e82c5-50e2-49f5-8a77-4f18f5c38093",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5396,10 +5396,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/ecd4131a-8e25-4398-883d-f5982df3f786",
+    "fullUrl" : "Practitioner/704a460c-953e-4c7b-8896-4df32e62083d",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "ecd4131a-8e25-4398-883d-f5982df3f786",
+      "id" : "704a460c-953e-4c7b-8896-4df32e62083d",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5428,7 +5428,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/abfb030b-d637-4149-bd78-b72dade19a4d"
+          "reference" : "Location/7b8e82c5-50e2-49f5-8a77-4f18f5c38093"
         }
       } ],
       "identifier" : [ {
@@ -5451,10 +5451,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/07bffbdb-13a5-486c-ae94-fbcb97b91a94",
+    "fullUrl" : "Organization/89ffb6a0-e124-4211-a2e7-b5d611de839a",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "07bffbdb-13a5-486c-ae94-fbcb97b91a94",
+      "id" : "89ffb6a0-e124-4211-a2e7-b5d611de839a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5508,10 +5508,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/c20e6956-4609-4bba-9c8e-72cb6f86b3fb",
+    "fullUrl" : "PractitionerRole/eff9b613-60c1-4357-83a4-4a830b5d9cae",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "c20e6956-4609-4bba-9c8e-72cb6f86b3fb",
+      "id" : "eff9b613-60c1-4357-83a4-4a830b5d9cae",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5530,10 +5530,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/ecd4131a-8e25-4398-883d-f5982df3f786"
+        "reference" : "Practitioner/704a460c-953e-4c7b-8896-4df32e62083d"
       },
       "organization" : {
-        "reference" : "Organization/07bffbdb-13a5-486c-ae94-fbcb97b91a94"
+        "reference" : "Organization/89ffb6a0-e124-4211-a2e7-b5d611de839a"
       },
       "code" : [ {
         "coding" : [ {
@@ -5543,10 +5543,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/f2ded4ab-834b-4f28-a356-ac22b227fe44",
+    "fullUrl" : "Organization/4bd3ee4e-8fb7-44ad-8d8b-581462e41f37",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "f2ded4ab-834b-4f28-a356-ac22b227fe44",
+      "id" : "4bd3ee4e-8fb7-44ad-8d8b-581462e41f37",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5579,10 +5579,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/722e11c1-2d14-4bac-ad9a-7ed6d60a82e6",
+    "fullUrl" : "Observation/61c5037f-55db-451a-a675-eb0fcf7d2295",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "722e11c1-2d14-4bac-ad9a-7ed6d60a82e6",
+      "id" : "61c5037f-55db-451a-a675-eb0fcf7d2295",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5603,7 +5603,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/64edee8e-3d50-4351-9407-cbad0d120b54"
+          "reference" : "Organization/e0a85dcc-3345-4709-9aad-24b4b1b3e3a4"
         }
       } ],
       "identifier" : [ {
@@ -5637,23 +5637,23 @@
         "text" : "Laboratory comment [Text] in Report Narrative"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2021-08-05T01:38:00-06:00",
       "issued" : "2021-08-05T01:38:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/eee03afe-ae84-4b7d-b1fd-3ea9b8a0db4e"
+        "reference" : "PractitionerRole/bafa38a0-aaad-4bd3-b59e-dbe2c1e46997"
       } ],
       "valueString" : "Streptococcus pneumoniae     "
     }
   }, {
-    "fullUrl" : "Location/5fbe705d-dd92-4532-b8a1-044d4c7ead0a",
+    "fullUrl" : "Location/70cf32c5-821e-4741-888f-d42abc0fb4c5",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "5fbe705d-dd92-4532-b8a1-044d4c7ead0a",
+      "id" : "70cf32c5-821e-4741-888f-d42abc0fb4c5",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5674,10 +5674,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Practitioner/19349a94-5f06-4d6b-b778-35e2dee961eb",
+    "fullUrl" : "Practitioner/91b8fdee-09a2-4271-a3a1-ba0aa5cb8c5a",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "19349a94-5f06-4d6b-b778-35e2dee961eb",
+      "id" : "91b8fdee-09a2-4271-a3a1-ba0aa5cb8c5a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5706,7 +5706,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/5fbe705d-dd92-4532-b8a1-044d4c7ead0a"
+          "reference" : "Location/70cf32c5-821e-4741-888f-d42abc0fb4c5"
         }
       } ],
       "identifier" : [ {
@@ -5729,10 +5729,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/5cfe168b-4961-4f0c-8a8b-3ba5ee6a9c50",
+    "fullUrl" : "Organization/47c7396a-2841-4987-ae16-4ecf346b6c12",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "5cfe168b-4961-4f0c-8a8b-3ba5ee6a9c50",
+      "id" : "47c7396a-2841-4987-ae16-4ecf346b6c12",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5786,10 +5786,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/eee03afe-ae84-4b7d-b1fd-3ea9b8a0db4e",
+    "fullUrl" : "PractitionerRole/bafa38a0-aaad-4bd3-b59e-dbe2c1e46997",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "eee03afe-ae84-4b7d-b1fd-3ea9b8a0db4e",
+      "id" : "bafa38a0-aaad-4bd3-b59e-dbe2c1e46997",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5808,10 +5808,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/19349a94-5f06-4d6b-b778-35e2dee961eb"
+        "reference" : "Practitioner/91b8fdee-09a2-4271-a3a1-ba0aa5cb8c5a"
       },
       "organization" : {
-        "reference" : "Organization/5cfe168b-4961-4f0c-8a8b-3ba5ee6a9c50"
+        "reference" : "Organization/47c7396a-2841-4987-ae16-4ecf346b6c12"
       },
       "code" : [ {
         "coding" : [ {
@@ -5821,10 +5821,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/64edee8e-3d50-4351-9407-cbad0d120b54",
+    "fullUrl" : "Organization/e0a85dcc-3345-4709-9aad-24b4b1b3e3a4",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "64edee8e-3d50-4351-9407-cbad0d120b54",
+      "id" : "e0a85dcc-3345-4709-9aad-24b4b1b3e3a4",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5857,10 +5857,10 @@
       "name" : "TMCA, SOUTH CAMPUS"
     }
   }, {
-    "fullUrl" : "Observation/fcdcbd98-7878-4c1f-ba36-008bbd4ef7c7",
+    "fullUrl" : "Observation/9e0f1fb8-6be9-46ed-a742-02fbcc954606",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "fcdcbd98-7878-4c1f-ba36-008bbd4ef7c7",
+      "id" : "9e0f1fb8-6be9-46ed-a742-02fbcc954606",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5881,7 +5881,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/bb4e3411-d333-4719-9ccd-7f7d662f93e1"
+          "reference" : "Organization/4b1b4427-c3ef-4d36-be0c-7b2f5f6bcef1"
         }
       } ],
       "identifier" : [ {
@@ -5908,15 +5908,15 @@
         "text" : "DAPTOmycin [Susceptibility] by Minimum inhibitory concentration (MIC)"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-07T16:36:01-06:00",
       "issued" : "2028-08-07T16:36:01-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/75ef82c7-14d2-4cb6-bf5b-34f2fc14bf49"
+        "reference" : "PractitionerRole/ce650372-37f6-487e-9b1c-f5977f4d008d"
       } ],
       "interpretation" : [ {
         "coding" : [ {
@@ -5927,10 +5927,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/f43db291-b9c6-44eb-88a2-a88a9913827f",
+    "fullUrl" : "Location/6315e0a3-aa1e-471d-a229-4e53b78fe223",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "f43db291-b9c6-44eb-88a2-a88a9913827f",
+      "id" : "6315e0a3-aa1e-471d-a229-4e53b78fe223",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5951,10 +5951,10 @@
       "name" : "ROSE MEDICAL CENTER "
     }
   }, {
-    "fullUrl" : "Practitioner/9308dca3-9e90-404f-a078-071dc76b3f15",
+    "fullUrl" : "Practitioner/dbb9699d-5dbb-4ca0-9e32-8050c412cb63",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "9308dca3-9e90-404f-a078-071dc76b3f15",
+      "id" : "dbb9699d-5dbb-4ca0-9e32-8050c412cb63",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -5983,7 +5983,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/f43db291-b9c6-44eb-88a2-a88a9913827f"
+          "reference" : "Location/6315e0a3-aa1e-471d-a229-4e53b78fe223"
         }
       } ],
       "identifier" : [ {
@@ -6006,10 +6006,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/96ec88f8-374c-4984-affa-aa3ff9e040ab",
+    "fullUrl" : "Organization/ea92c17c-aef8-429f-96e2-8313202215b9",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "96ec88f8-374c-4984-affa-aa3ff9e040ab",
+      "id" : "ea92c17c-aef8-429f-96e2-8313202215b9",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6048,10 +6048,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/75ef82c7-14d2-4cb6-bf5b-34f2fc14bf49",
+    "fullUrl" : "PractitionerRole/ce650372-37f6-487e-9b1c-f5977f4d008d",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "75ef82c7-14d2-4cb6-bf5b-34f2fc14bf49",
+      "id" : "ce650372-37f6-487e-9b1c-f5977f4d008d",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6070,10 +6070,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/9308dca3-9e90-404f-a078-071dc76b3f15"
+        "reference" : "Practitioner/dbb9699d-5dbb-4ca0-9e32-8050c412cb63"
       },
       "organization" : {
-        "reference" : "Organization/96ec88f8-374c-4984-affa-aa3ff9e040ab"
+        "reference" : "Organization/ea92c17c-aef8-429f-96e2-8313202215b9"
       },
       "code" : [ {
         "coding" : [ {
@@ -6083,10 +6083,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/bb4e3411-d333-4719-9ccd-7f7d662f93e1",
+    "fullUrl" : "Organization/4b1b4427-c3ef-4d36-be0c-7b2f5f6bcef1",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "bb4e3411-d333-4719-9ccd-7f7d662f93e1",
+      "id" : "4b1b4427-c3ef-4d36-be0c-7b2f5f6bcef1",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6119,10 +6119,10 @@
       "name" : "ROSE MEDICAL CENTER (MCOE)"
     }
   }, {
-    "fullUrl" : "Observation/d3eadd2e-a952-479d-bdbc-8d35cb499e24",
+    "fullUrl" : "Observation/56505f9f-f18c-4603-b5a6-089636c4a15b",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "d3eadd2e-a952-479d-bdbc-8d35cb499e24",
+      "id" : "56505f9f-f18c-4603-b5a6-089636c4a15b",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6143,7 +6143,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/d7c2e068-6ca5-4f6f-9575-9b41ccf5df8b"
+          "reference" : "Organization/2f2b06b8-b4ad-4f96-a6da-d22b8824eaea"
         }
       } ],
       "identifier" : [ {
@@ -6177,15 +6177,15 @@
         "text" : "Ampicillin [Susceptibility] by Minimum inhibitory concentration (MIC)"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-07T16:36:01-06:00",
       "issued" : "2028-08-07T16:36:01-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/2fcc5e95-bfff-49ea-a05f-7651e532e7f7"
+        "reference" : "PractitionerRole/3e67e96c-9088-4412-8d09-eadaa13d8090"
       } ],
       "interpretation" : [ {
         "coding" : [ {
@@ -6196,10 +6196,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/e4391405-3e04-492c-b2c5-0645cce1dffe",
+    "fullUrl" : "Location/11c12d4f-7d92-40e4-9b58-503fd8854804",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "e4391405-3e04-492c-b2c5-0645cce1dffe",
+      "id" : "11c12d4f-7d92-40e4-9b58-503fd8854804",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6220,10 +6220,10 @@
       "name" : "ROSE MEDICAL CENTER "
     }
   }, {
-    "fullUrl" : "Practitioner/70099cbc-e7d5-4a7c-bd6a-0a7115200d7d",
+    "fullUrl" : "Practitioner/1863be4d-5235-48e9-a040-a7cae041912c",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "70099cbc-e7d5-4a7c-bd6a-0a7115200d7d",
+      "id" : "1863be4d-5235-48e9-a040-a7cae041912c",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6252,7 +6252,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/e4391405-3e04-492c-b2c5-0645cce1dffe"
+          "reference" : "Location/11c12d4f-7d92-40e4-9b58-503fd8854804"
         }
       } ],
       "identifier" : [ {
@@ -6275,10 +6275,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/e5427a1a-fed4-471e-ad62-b77db4c1cf35",
+    "fullUrl" : "Organization/4aea3b02-9252-4146-a236-52055f4cebca",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "e5427a1a-fed4-471e-ad62-b77db4c1cf35",
+      "id" : "4aea3b02-9252-4146-a236-52055f4cebca",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6317,10 +6317,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/2fcc5e95-bfff-49ea-a05f-7651e532e7f7",
+    "fullUrl" : "PractitionerRole/3e67e96c-9088-4412-8d09-eadaa13d8090",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "2fcc5e95-bfff-49ea-a05f-7651e532e7f7",
+      "id" : "3e67e96c-9088-4412-8d09-eadaa13d8090",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6339,10 +6339,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/70099cbc-e7d5-4a7c-bd6a-0a7115200d7d"
+        "reference" : "Practitioner/1863be4d-5235-48e9-a040-a7cae041912c"
       },
       "organization" : {
-        "reference" : "Organization/e5427a1a-fed4-471e-ad62-b77db4c1cf35"
+        "reference" : "Organization/4aea3b02-9252-4146-a236-52055f4cebca"
       },
       "code" : [ {
         "coding" : [ {
@@ -6352,10 +6352,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/d7c2e068-6ca5-4f6f-9575-9b41ccf5df8b",
+    "fullUrl" : "Organization/2f2b06b8-b4ad-4f96-a6da-d22b8824eaea",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "d7c2e068-6ca5-4f6f-9575-9b41ccf5df8b",
+      "id" : "2f2b06b8-b4ad-4f96-a6da-d22b8824eaea",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6388,10 +6388,10 @@
       "name" : "ROSE MEDICAL CENTER (MCOE)"
     }
   }, {
-    "fullUrl" : "Observation/0d275e9b-b3e6-4d96-b973-02179566a4de",
+    "fullUrl" : "Observation/4acda208-976f-48ec-8543-db82e831ccaf",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "0d275e9b-b3e6-4d96-b973-02179566a4de",
+      "id" : "4acda208-976f-48ec-8543-db82e831ccaf",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6412,7 +6412,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/9362c10a-2412-4bf4-b26c-a515c6dbf598"
+          "reference" : "Organization/7d3cf125-fe0e-4c3d-a5cf-8f499fe220fd"
         }
       } ],
       "identifier" : [ {
@@ -6446,15 +6446,15 @@
         "text" : "Gentamicin.high potency [Susceptibility] by Minimum inhibitory concentration (MIC)"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-07T16:36:01-06:00",
       "issued" : "2028-08-07T16:36:01-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/1355161d-2f83-4e95-adf9-668568ce991a"
+        "reference" : "PractitionerRole/d667bf71-2ec5-4708-b829-9e4cb5affadf"
       } ],
       "valueString" : "SYN-S",
       "interpretation" : [ {
@@ -6466,10 +6466,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/7ba2213e-4a20-4558-a0b0-2ac8d571716c",
+    "fullUrl" : "Location/862ab0ae-75e1-4d4a-9d2e-791c6ba056cd",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "7ba2213e-4a20-4558-a0b0-2ac8d571716c",
+      "id" : "862ab0ae-75e1-4d4a-9d2e-791c6ba056cd",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6490,10 +6490,10 @@
       "name" : "ROSE MEDICAL CENTER "
     }
   }, {
-    "fullUrl" : "Practitioner/f3cb65fc-8200-46a7-a9a7-54a50fd509a1",
+    "fullUrl" : "Practitioner/87c0b5d1-36da-49e9-b9a1-ca26c79472dd",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "f3cb65fc-8200-46a7-a9a7-54a50fd509a1",
+      "id" : "87c0b5d1-36da-49e9-b9a1-ca26c79472dd",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6522,7 +6522,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/7ba2213e-4a20-4558-a0b0-2ac8d571716c"
+          "reference" : "Location/862ab0ae-75e1-4d4a-9d2e-791c6ba056cd"
         }
       } ],
       "identifier" : [ {
@@ -6545,10 +6545,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/51bd0239-2c84-464c-9d15-af4663f5db3f",
+    "fullUrl" : "Organization/bcc91f44-5f55-433b-9f3d-87ad81ad2a58",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "51bd0239-2c84-464c-9d15-af4663f5db3f",
+      "id" : "bcc91f44-5f55-433b-9f3d-87ad81ad2a58",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6587,10 +6587,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/1355161d-2f83-4e95-adf9-668568ce991a",
+    "fullUrl" : "PractitionerRole/d667bf71-2ec5-4708-b829-9e4cb5affadf",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "1355161d-2f83-4e95-adf9-668568ce991a",
+      "id" : "d667bf71-2ec5-4708-b829-9e4cb5affadf",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6609,10 +6609,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/f3cb65fc-8200-46a7-a9a7-54a50fd509a1"
+        "reference" : "Practitioner/87c0b5d1-36da-49e9-b9a1-ca26c79472dd"
       },
       "organization" : {
-        "reference" : "Organization/51bd0239-2c84-464c-9d15-af4663f5db3f"
+        "reference" : "Organization/bcc91f44-5f55-433b-9f3d-87ad81ad2a58"
       },
       "code" : [ {
         "coding" : [ {
@@ -6622,10 +6622,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/9362c10a-2412-4bf4-b26c-a515c6dbf598",
+    "fullUrl" : "Organization/7d3cf125-fe0e-4c3d-a5cf-8f499fe220fd",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "9362c10a-2412-4bf4-b26c-a515c6dbf598",
+      "id" : "7d3cf125-fe0e-4c3d-a5cf-8f499fe220fd",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6658,10 +6658,10 @@
       "name" : "ROSE MEDICAL CENTER (MCOE)"
     }
   }, {
-    "fullUrl" : "Observation/40b2572c-be1b-458d-800c-738b21e7c9e2",
+    "fullUrl" : "Observation/b925ba85-76ec-478a-940e-1b54c322cde1",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "40b2572c-be1b-458d-800c-738b21e7c9e2",
+      "id" : "b925ba85-76ec-478a-940e-1b54c322cde1",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6682,7 +6682,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/53cbb8b9-724e-4e2b-b595-3ff0fe025b2e"
+          "reference" : "Organization/7e269368-d38d-4c43-b31b-fd14678ced17"
         }
       } ],
       "identifier" : [ {
@@ -6716,15 +6716,15 @@
         "text" : "Linezolid [Susceptibility] by Minimum inhibitory concentration (MIC)"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-07T16:36:01-06:00",
       "issued" : "2028-08-07T16:36:01-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/a7362d32-2d5a-43fd-ab34-491ce2ae6dd8"
+        "reference" : "PractitionerRole/fd6eeeb6-8682-49c7-9bfd-4cae5710d7c0"
       } ],
       "interpretation" : [ {
         "coding" : [ {
@@ -6735,10 +6735,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/01e0bc86-76a5-48d0-85e8-97d22bfbc869",
+    "fullUrl" : "Location/fad84a89-ed2a-4ea1-91c2-308554e6191f",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "01e0bc86-76a5-48d0-85e8-97d22bfbc869",
+      "id" : "fad84a89-ed2a-4ea1-91c2-308554e6191f",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6759,10 +6759,10 @@
       "name" : "ROSE MEDICAL CENTER "
     }
   }, {
-    "fullUrl" : "Practitioner/2c46eff9-7e1d-4ddc-be55-b15e0c76290c",
+    "fullUrl" : "Practitioner/90ee897f-a4ff-486f-a44c-8c8951a0e95e",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "2c46eff9-7e1d-4ddc-be55-b15e0c76290c",
+      "id" : "90ee897f-a4ff-486f-a44c-8c8951a0e95e",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6791,7 +6791,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/01e0bc86-76a5-48d0-85e8-97d22bfbc869"
+          "reference" : "Location/fad84a89-ed2a-4ea1-91c2-308554e6191f"
         }
       } ],
       "identifier" : [ {
@@ -6814,10 +6814,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/ff276ecf-ef72-4faf-8469-e921b7f24c85",
+    "fullUrl" : "Organization/ed283c80-5aa2-4054-af78-fdea0a344801",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "ff276ecf-ef72-4faf-8469-e921b7f24c85",
+      "id" : "ed283c80-5aa2-4054-af78-fdea0a344801",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6856,10 +6856,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/a7362d32-2d5a-43fd-ab34-491ce2ae6dd8",
+    "fullUrl" : "PractitionerRole/fd6eeeb6-8682-49c7-9bfd-4cae5710d7c0",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "a7362d32-2d5a-43fd-ab34-491ce2ae6dd8",
+      "id" : "fd6eeeb6-8682-49c7-9bfd-4cae5710d7c0",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6878,10 +6878,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/2c46eff9-7e1d-4ddc-be55-b15e0c76290c"
+        "reference" : "Practitioner/90ee897f-a4ff-486f-a44c-8c8951a0e95e"
       },
       "organization" : {
-        "reference" : "Organization/ff276ecf-ef72-4faf-8469-e921b7f24c85"
+        "reference" : "Organization/ed283c80-5aa2-4054-af78-fdea0a344801"
       },
       "code" : [ {
         "coding" : [ {
@@ -6891,10 +6891,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/53cbb8b9-724e-4e2b-b595-3ff0fe025b2e",
+    "fullUrl" : "Organization/7e269368-d38d-4c43-b31b-fd14678ced17",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "53cbb8b9-724e-4e2b-b595-3ff0fe025b2e",
+      "id" : "7e269368-d38d-4c43-b31b-fd14678ced17",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6927,10 +6927,10 @@
       "name" : "ROSE MEDICAL CENTER (MCOE)"
     }
   }, {
-    "fullUrl" : "Observation/1f78d3b8-f1dc-412c-a3bd-3632ae67d9a6",
+    "fullUrl" : "Observation/5f583f2b-164c-4547-a0d7-f7c1e126c3f5",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "1f78d3b8-f1dc-412c-a3bd-3632ae67d9a6",
+      "id" : "5f583f2b-164c-4547-a0d7-f7c1e126c3f5",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -6951,7 +6951,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/6cc67f8b-aeff-402c-a9da-b6f8310d567d"
+          "reference" : "Organization/229809f5-5aaf-476f-b4e5-5e99d862908d"
         }
       } ],
       "identifier" : [ {
@@ -6985,15 +6985,15 @@
         "text" : "Streptomycin.high potency [Susceptibility] by Minimum inhibitory concentration (MIC)"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-07T16:36:01-06:00",
       "issued" : "2028-08-07T16:36:01-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/43e0ef71-edce-46d3-876f-10677e77e581"
+        "reference" : "PractitionerRole/673da613-7012-4dad-87ee-850c3e81d427"
       } ],
       "valueString" : "SYN-S",
       "interpretation" : [ {
@@ -7005,10 +7005,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/10865a19-e69e-4182-882c-d3ce6bbdd314",
+    "fullUrl" : "Location/ded52bbb-e13e-410c-8055-d170b4612bc5",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "10865a19-e69e-4182-882c-d3ce6bbdd314",
+      "id" : "ded52bbb-e13e-410c-8055-d170b4612bc5",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7029,10 +7029,10 @@
       "name" : "ROSE MEDICAL CENTER "
     }
   }, {
-    "fullUrl" : "Practitioner/adc8fa75-86d2-4845-9cc7-6ca12a079198",
+    "fullUrl" : "Practitioner/971f5f01-7977-47a4-91e8-694b035c2845",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "adc8fa75-86d2-4845-9cc7-6ca12a079198",
+      "id" : "971f5f01-7977-47a4-91e8-694b035c2845",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7061,7 +7061,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/10865a19-e69e-4182-882c-d3ce6bbdd314"
+          "reference" : "Location/ded52bbb-e13e-410c-8055-d170b4612bc5"
         }
       } ],
       "identifier" : [ {
@@ -7084,10 +7084,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/03cbecd1-a710-4903-92b7-37c272e97290",
+    "fullUrl" : "Organization/0f6b43c7-a03c-43c5-8f9e-4820e91daf5d",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "03cbecd1-a710-4903-92b7-37c272e97290",
+      "id" : "0f6b43c7-a03c-43c5-8f9e-4820e91daf5d",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7126,10 +7126,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/43e0ef71-edce-46d3-876f-10677e77e581",
+    "fullUrl" : "PractitionerRole/673da613-7012-4dad-87ee-850c3e81d427",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "43e0ef71-edce-46d3-876f-10677e77e581",
+      "id" : "673da613-7012-4dad-87ee-850c3e81d427",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7148,10 +7148,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/adc8fa75-86d2-4845-9cc7-6ca12a079198"
+        "reference" : "Practitioner/971f5f01-7977-47a4-91e8-694b035c2845"
       },
       "organization" : {
-        "reference" : "Organization/03cbecd1-a710-4903-92b7-37c272e97290"
+        "reference" : "Organization/0f6b43c7-a03c-43c5-8f9e-4820e91daf5d"
       },
       "code" : [ {
         "coding" : [ {
@@ -7161,10 +7161,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/6cc67f8b-aeff-402c-a9da-b6f8310d567d",
+    "fullUrl" : "Organization/229809f5-5aaf-476f-b4e5-5e99d862908d",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "6cc67f8b-aeff-402c-a9da-b6f8310d567d",
+      "id" : "229809f5-5aaf-476f-b4e5-5e99d862908d",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7197,10 +7197,10 @@
       "name" : "ROSE MEDICAL CENTER (MCOE)"
     }
   }, {
-    "fullUrl" : "Observation/4e59ed65-d80b-4a51-9371-dcfdd05437a2",
+    "fullUrl" : "Observation/d2a6157e-682d-44dc-9e26-e94b4b87d2da",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "4e59ed65-d80b-4a51-9371-dcfdd05437a2",
+      "id" : "d2a6157e-682d-44dc-9e26-e94b4b87d2da",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7221,7 +7221,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueReference" : {
-          "reference" : "Organization/f8cae3f4-79ec-4345-b31f-b10431139995"
+          "reference" : "Organization/d48f3224-207b-495d-b8ad-127e26eda9e0"
         }
       } ],
       "identifier" : [ {
@@ -7255,15 +7255,15 @@
         "text" : "Vancomycin [Susceptibility]"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectiveDateTime" : "2028-08-07T16:36:01-06:00",
       "issued" : "2028-08-07T16:36:01-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/b45c4ca2-2628-47de-a19e-155e193ed077"
+        "reference" : "PractitionerRole/447c028a-e9fd-436d-a310-e54c839575bf"
       } ],
       "interpretation" : [ {
         "coding" : [ {
@@ -7274,10 +7274,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/a67dfade-a2b6-4c89-9668-a3cc637a29c5",
+    "fullUrl" : "Location/f00838f0-dced-4a97-86e3-24e33b2ccecc",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "a67dfade-a2b6-4c89-9668-a3cc637a29c5",
+      "id" : "f00838f0-dced-4a97-86e3-24e33b2ccecc",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7298,10 +7298,10 @@
       "name" : "ROSE MEDICAL CENTER "
     }
   }, {
-    "fullUrl" : "Practitioner/a7de5673-86a7-439b-b592-5e097f10323b",
+    "fullUrl" : "Practitioner/c6f48e27-59ea-41bc-8900-467a52b63bb5",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "a7de5673-86a7-439b-b592-5e097f10323b",
+      "id" : "c6f48e27-59ea-41bc-8900-467a52b63bb5",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7330,7 +7330,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/a67dfade-a2b6-4c89-9668-a3cc637a29c5"
+          "reference" : "Location/f00838f0-dced-4a97-86e3-24e33b2ccecc"
         }
       } ],
       "identifier" : [ {
@@ -7353,10 +7353,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/8ae7db97-3ebe-4c76-949e-8fcb78917222",
+    "fullUrl" : "Organization/0db002ea-1e1c-4e57-9cc8-5978dc94d94b",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "8ae7db97-3ebe-4c76-949e-8fcb78917222",
+      "id" : "0db002ea-1e1c-4e57-9cc8-5978dc94d94b",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7395,10 +7395,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/b45c4ca2-2628-47de-a19e-155e193ed077",
+    "fullUrl" : "PractitionerRole/447c028a-e9fd-436d-a310-e54c839575bf",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "b45c4ca2-2628-47de-a19e-155e193ed077",
+      "id" : "447c028a-e9fd-436d-a310-e54c839575bf",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7417,10 +7417,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/a7de5673-86a7-439b-b592-5e097f10323b"
+        "reference" : "Practitioner/c6f48e27-59ea-41bc-8900-467a52b63bb5"
       },
       "organization" : {
-        "reference" : "Organization/8ae7db97-3ebe-4c76-949e-8fcb78917222"
+        "reference" : "Organization/0db002ea-1e1c-4e57-9cc8-5978dc94d94b"
       },
       "code" : [ {
         "coding" : [ {
@@ -7430,10 +7430,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/f8cae3f4-79ec-4345-b31f-b10431139995",
+    "fullUrl" : "Organization/d48f3224-207b-495d-b8ad-127e26eda9e0",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "f8cae3f4-79ec-4345-b31f-b10431139995",
+      "id" : "d48f3224-207b-495d-b8ad-127e26eda9e0",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7466,10 +7466,10 @@
       "name" : "ROSE MEDICAL CENTER (MCOE)"
     }
   }, {
-    "fullUrl" : "Specimen/3db5c701-c734-4867-a358-f1a367576dda",
+    "fullUrl" : "Specimen/66ef3dd3-79c1-4a1c-a871-64535962d7f8",
     "resource" : {
       "resourceType" : "Specimen",
-      "id" : "3db5c701-c734-4867-a358-f1a367576dda",
+      "id" : "66ef3dd3-79c1-4a1c-a871-64535962d7f8",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7540,10 +7540,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Specimen/96c44fda-d08d-4966-a0dc-351d1951ad29",
+    "fullUrl" : "Specimen/d02e896f-cfbe-4aa2-9dc7-dc25fcc75767",
     "resource" : {
       "resourceType" : "Specimen",
-      "id" : "96c44fda-d08d-4966-a0dc-351d1951ad29",
+      "id" : "d02e896f-cfbe-4aa2-9dc7-dc25fcc75767",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7629,10 +7629,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Specimen/9f92ec71-3fcb-43f1-b8d9-cde94c3672cf",
+    "fullUrl" : "Specimen/31231500-8160-4bad-a278-3dc06cf11ee9",
     "resource" : {
       "resourceType" : "Specimen",
-      "id" : "9f92ec71-3fcb-43f1-b8d9-cde94c3672cf",
+      "id" : "31231500-8160-4bad-a278-3dc06cf11ee9",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7695,10 +7695,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Specimen/fa5bf230-3bcf-4afa-9113-287a4092bd3e",
+    "fullUrl" : "Specimen/b0b42659-7df3-45cd-841d-5dc25464e8c3",
     "resource" : {
       "resourceType" : "Specimen",
-      "id" : "fa5bf230-3bcf-4afa-9113-287a4092bd3e",
+      "id" : "b0b42659-7df3-45cd-841d-5dc25464e8c3",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -7784,10 +7784,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "DiagnosticReport/1d13f471-ffc1-4b51-a4fa-a5e0077843ba",
+    "fullUrl" : "DiagnosticReport/110af2e8-3a0d-46f6-81a2-1ff384477144",
     "resource" : {
       "resourceType" : "DiagnosticReport",
-      "id" : "1d13f471-ffc1-4b51-a4fa-a5e0077843ba",
+      "id" : "110af2e8-3a0d-46f6-81a2-1ff384477144",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -7869,7 +7869,7 @@
         "value" : "21:AA:B0029251S"
       } ],
       "basedOn" : [ {
-        "reference" : "ServiceRequest/951f0846-0441-48c0-951d-526189cda38a"
+        "reference" : "ServiceRequest/b191da00-1a33-43e8-a04f-558971b1881f"
       } ],
       "status" : "preliminary",
       "code" : {
@@ -7891,10 +7891,10 @@
         "text" : "Bacteria identified in Blood by Culture"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectivePeriod" : {
         "start" : "2028-08-02T02:52:01-06:00",
@@ -7902,21 +7902,21 @@
       },
       "issued" : "2021-08-10T06:25:00-06:00",
       "specimen" : [ {
-        "reference" : "Specimen/3db5c701-c734-4867-a358-f1a367576dda"
+        "reference" : "Specimen/66ef3dd3-79c1-4a1c-a871-64535962d7f8"
       } ],
       "result" : [ {
-        "reference" : "Observation/1c7ba276-b6f6-4dec-9b3e-8401f97a945a"
+        "reference" : "Observation/6c48f0c9-016a-4340-8cbf-4559c494ead1"
       }, {
-        "reference" : "Observation/4f7c37ff-3ef9-4c59-b6c4-6b999fe8ecec"
+        "reference" : "Observation/9e5af5e5-a65c-4981-801e-15282b1687a0"
       }, {
-        "reference" : "Observation/50a2ddc7-2a78-4fe8-a43e-5aef162dfb3c"
+        "reference" : "Observation/af4cc84b-05e1-4113-8f4c-e4119f435177"
       } ]
     }
   }, {
-    "fullUrl" : "Location/63d579a2-e673-48e1-8d9d-634c1a166a45",
+    "fullUrl" : "Location/2555488a-c11e-4adf-87de-d43abc8335da",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "63d579a2-e673-48e1-8d9d-634c1a166a45",
+      "id" : "2555488a-c11e-4adf-87de-d43abc8335da",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -7940,10 +7940,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/29b63379-bedc-46c0-9cfb-e7d09710f905",
+    "fullUrl" : "Practitioner/580381b0-2063-4dfb-bbfb-568f1d7758c2",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "29b63379-bedc-46c0-9cfb-e7d09710f905",
+      "id" : "580381b0-2063-4dfb-bbfb-568f1d7758c2",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -7968,7 +7968,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/63d579a2-e673-48e1-8d9d-634c1a166a45"
+          "reference" : "Location/2555488a-c11e-4adf-87de-d43abc8335da"
         }
       } ],
       "identifier" : [ {
@@ -7976,10 +7976,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/a9a7fe29-146c-4f04-9c73-b8dad7a66ee1",
+    "fullUrl" : "Location/05b9741e-49a6-418c-a98d-7d157fd4e0f1",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "a9a7fe29-146c-4f04-9c73-b8dad7a66ee1",
+      "id" : "05b9741e-49a6-418c-a98d-7d157fd4e0f1",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -8004,10 +8004,10 @@
       "name" : "RML"
     }
   }, {
-    "fullUrl" : "Practitioner/dd0776ce-d12c-490e-8112-ea21e191486a",
+    "fullUrl" : "Practitioner/f9948d0e-69a6-4323-aada-b3eef5e4705f",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "dd0776ce-d12c-490e-8112-ea21e191486a",
+      "id" : "f9948d0e-69a6-4323-aada-b3eef5e4705f",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -8051,7 +8051,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/a9a7fe29-146c-4f04-9c73-b8dad7a66ee1"
+          "reference" : "Location/05b9741e-49a6-418c-a98d-7d157fd4e0f1"
         }
       } ],
       "identifier" : [ {
@@ -8087,10 +8087,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/5575c57a-4f64-44d4-b8f3-78ce8f4fa8f3",
+    "fullUrl" : "Organization/27c53b74-d65c-4957-be53-b364f25a89cf",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "5575c57a-4f64-44d4-b8f3-78ce8f4fa8f3",
+      "id" : "27c53b74-d65c-4957-be53-b364f25a89cf",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -8155,10 +8155,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/e68461df-43f3-4387-9aae-b4c791590a89",
+    "fullUrl" : "PractitionerRole/756996ad-866e-4968-8441-324a4efd4db6",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "e68461df-43f3-4387-9aae-b4c791590a89",
+      "id" : "756996ad-866e-4968-8441-324a4efd4db6",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -8181,17 +8181,17 @@
         "lastUpdated" : "2021-08-09T08:52:00-06:00"
       },
       "practitioner" : {
-        "reference" : "Practitioner/dd0776ce-d12c-490e-8112-ea21e191486a"
+        "reference" : "Practitioner/f9948d0e-69a6-4323-aada-b3eef5e4705f"
       },
       "organization" : {
-        "reference" : "Organization/5575c57a-4f64-44d4-b8f3-78ce8f4fa8f3"
+        "reference" : "Organization/27c53b74-d65c-4957-be53-b364f25a89cf"
       }
     }
   }, {
-    "fullUrl" : "ServiceRequest/951f0846-0441-48c0-951d-526189cda38a",
+    "fullUrl" : "ServiceRequest/b191da00-1a33-43e8-a04f-558971b1881f",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "951f0846-0441-48c0-951d-526189cda38a",
+      "id" : "b191da00-1a33-43e8-a04f-558971b1881f",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -8233,7 +8233,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
         "valueReference" : {
-          "reference" : "Practitioner/29b63379-bedc-46c0-9cfb-e7d09710f905"
+          "reference" : "Practitioner/580381b0-2063-4dfb-bbfb-568f1d7758c2"
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
@@ -8327,12 +8327,12 @@
         "text" : "Bacteria identified in Blood by Culture"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "occurrenceDateTime" : "2021-08-03T23:50:00Z",
       "authoredOn" : "2028-08-08T09:28:00Z",
       "requester" : {
-        "reference" : "PractitionerRole/e68461df-43f3-4387-9aae-b4c791590a89"
+        "reference" : "PractitionerRole/756996ad-866e-4968-8441-324a4efd4db6"
       },
       "reasonCode" : [ {
         "extension" : [ {
@@ -8386,10 +8386,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "DiagnosticReport/9e362c6a-ed47-4290-803a-e8f733d64b5a",
+    "fullUrl" : "DiagnosticReport/f2ad7ff4-18cf-4eb6-8c1a-21d56a11afae",
     "resource" : {
       "resourceType" : "DiagnosticReport",
-      "id" : "9e362c6a-ed47-4290-803a-e8f733d64b5a",
+      "id" : "f2ad7ff4-18cf-4eb6-8c1a-21d56a11afae",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -8471,7 +8471,7 @@
         "value" : "21:AA:B0029251S"
       } ],
       "basedOn" : [ {
-        "reference" : "ServiceRequest/9facf413-1249-4909-b342-f8623673876c"
+        "reference" : "ServiceRequest/6e25cfa3-0015-4a64-a637-30e0d8b86a08"
       } ],
       "status" : "preliminary",
       "code" : {
@@ -8493,10 +8493,10 @@
         "text" : "Bacteria identified in Blood by Culture"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectivePeriod" : {
         "start" : "2028-08-02T02:52:01-06:00",
@@ -8504,29 +8504,29 @@
       },
       "issued" : "2021-08-10T06:25:00-06:00",
       "specimen" : [ {
-        "reference" : "Specimen/96c44fda-d08d-4966-a0dc-351d1951ad29"
+        "reference" : "Specimen/d02e896f-cfbe-4aa2-9dc7-dc25fcc75767"
       } ],
       "result" : [ {
-        "reference" : "Observation/7d55ed79-c10a-40e1-8ca7-4fa446b63f0f"
+        "reference" : "Observation/a465a315-ca68-48d8-8b9a-ba2778fbf1e4"
       }, {
-        "reference" : "Observation/3269a6e5-3d55-4dd6-a0a4-18649bb2c776"
+        "reference" : "Observation/7f96f7af-0760-4e5b-be36-ba2d6be5e8f8"
       }, {
-        "reference" : "Observation/1b686c8b-936f-436a-a651-92ac98866f56"
+        "reference" : "Observation/cde067ee-3a4d-4ec9-9eeb-c50a3528b2c1"
       }, {
-        "reference" : "Observation/d1c1abd2-67ce-4958-aac1-a988b4bc269d"
+        "reference" : "Observation/90caa4b7-2a2f-4083-8b44-1cada24d4024"
       }, {
-        "reference" : "Observation/9d478029-ae83-44f7-b176-adbbf97d7cdf"
+        "reference" : "Observation/bd939cd5-a796-4fc7-ab6c-c45c7bec69b4"
       }, {
-        "reference" : "Observation/fe00fa95-a9e6-478b-becf-ffec368dc30f"
+        "reference" : "Observation/347a5f4a-03e1-436a-8175-19fefc4ed564"
       }, {
-        "reference" : "Observation/b70b10c4-dfc0-4d94-b3ac-2a94d084a50f"
+        "reference" : "Observation/af636a8d-7378-4613-a1da-0a5dbd119eca"
       } ]
     }
   }, {
-    "fullUrl" : "Location/24d710a7-b48b-4ccc-a1f0-908e87c33f68",
+    "fullUrl" : "Location/aaeab99d-99b4-424c-8023-e142524b31be",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "24d710a7-b48b-4ccc-a1f0-908e87c33f68",
+      "id" : "aaeab99d-99b4-424c-8023-e142524b31be",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -8550,10 +8550,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/3e7b22d5-4848-4fff-8245-88c5c5608d79",
+    "fullUrl" : "Practitioner/2eae775b-a62d-44a0-a8ca-1670bbe8ecb1",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "3e7b22d5-4848-4fff-8245-88c5c5608d79",
+      "id" : "2eae775b-a62d-44a0-a8ca-1670bbe8ecb1",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -8578,7 +8578,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/24d710a7-b48b-4ccc-a1f0-908e87c33f68"
+          "reference" : "Location/aaeab99d-99b4-424c-8023-e142524b31be"
         }
       } ],
       "identifier" : [ {
@@ -8586,10 +8586,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/092c05f9-6a0e-49ed-af79-03bf6041dc79",
+    "fullUrl" : "Location/83e073d1-6b94-4727-b755-8e4cb5142368",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "092c05f9-6a0e-49ed-af79-03bf6041dc79",
+      "id" : "83e073d1-6b94-4727-b755-8e4cb5142368",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -8614,10 +8614,10 @@
       "name" : "RML"
     }
   }, {
-    "fullUrl" : "Practitioner/9728ae7c-6767-4eec-bfbe-8c15b26671d8",
+    "fullUrl" : "Practitioner/22d313ff-d2d0-4f81-a1b6-c64c96bd8cdb",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "9728ae7c-6767-4eec-bfbe-8c15b26671d8",
+      "id" : "22d313ff-d2d0-4f81-a1b6-c64c96bd8cdb",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -8661,7 +8661,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/092c05f9-6a0e-49ed-af79-03bf6041dc79"
+          "reference" : "Location/83e073d1-6b94-4727-b755-8e4cb5142368"
         }
       } ],
       "identifier" : [ {
@@ -8697,10 +8697,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/6a2d43e5-5b16-408a-bbfb-b2f17117ce21",
+    "fullUrl" : "Organization/37a23886-a1ea-46e4-9c2b-cf5d0c1dac07",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "6a2d43e5-5b16-408a-bbfb-b2f17117ce21",
+      "id" : "37a23886-a1ea-46e4-9c2b-cf5d0c1dac07",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -8765,10 +8765,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/dca2d63d-ae91-41d6-ae60-1af1330c61b7",
+    "fullUrl" : "PractitionerRole/cd9a4c21-2200-43ae-b09d-5976d4aebda0",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "dca2d63d-ae91-41d6-ae60-1af1330c61b7",
+      "id" : "cd9a4c21-2200-43ae-b09d-5976d4aebda0",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -8791,17 +8791,17 @@
         "lastUpdated" : "2021-08-09T08:52:00-06:00"
       },
       "practitioner" : {
-        "reference" : "Practitioner/9728ae7c-6767-4eec-bfbe-8c15b26671d8"
+        "reference" : "Practitioner/22d313ff-d2d0-4f81-a1b6-c64c96bd8cdb"
       },
       "organization" : {
-        "reference" : "Organization/6a2d43e5-5b16-408a-bbfb-b2f17117ce21"
+        "reference" : "Organization/37a23886-a1ea-46e4-9c2b-cf5d0c1dac07"
       }
     }
   }, {
-    "fullUrl" : "ServiceRequest/9facf413-1249-4909-b342-f8623673876c",
+    "fullUrl" : "ServiceRequest/6e25cfa3-0015-4a64-a637-30e0d8b86a08",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "9facf413-1249-4909-b342-f8623673876c",
+      "id" : "6e25cfa3-0015-4a64-a637-30e0d8b86a08",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -8843,7 +8843,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
         "valueReference" : {
-          "reference" : "Practitioner/3e7b22d5-4848-4fff-8245-88c5c5608d79"
+          "reference" : "Practitioner/2eae775b-a62d-44a0-a8ca-1670bbe8ecb1"
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
@@ -8937,12 +8937,12 @@
         "text" : "Bacteria identified in Blood by Culture"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "occurrenceDateTime" : "2021-08-03T23:50:00Z",
       "authoredOn" : "2028-08-08T09:28:00Z",
       "requester" : {
-        "reference" : "PractitionerRole/dca2d63d-ae91-41d6-ae60-1af1330c61b7"
+        "reference" : "PractitionerRole/cd9a4c21-2200-43ae-b09d-5976d4aebda0"
       },
       "reasonCode" : [ {
         "extension" : [ {
@@ -8996,10 +8996,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "DiagnosticReport/271e5a2a-0642-4870-991d-e76aaf07806e",
+    "fullUrl" : "DiagnosticReport/724297d7-6532-4bf4-a38b-324eddb6bff9",
     "resource" : {
       "resourceType" : "DiagnosticReport",
-      "id" : "271e5a2a-0642-4870-991d-e76aaf07806e",
+      "id" : "724297d7-6532-4bf4-a38b-324eddb6bff9",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9081,7 +9081,7 @@
         "value" : "21:AA:B0029251S"
       } ],
       "basedOn" : [ {
-        "reference" : "ServiceRequest/abb981c8-573c-4021-a1ea-8eef8350933b"
+        "reference" : "ServiceRequest/507a8df8-6a2b-4215-8a6e-005f38d0fff9"
       } ],
       "status" : "preliminary",
       "code" : {
@@ -9103,10 +9103,10 @@
         "text" : "Laboratory comment [Text] in Report Narrative"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectivePeriod" : {
         "start" : "2028-08-02T02:52:01-06:00",
@@ -9114,35 +9114,35 @@
       },
       "issued" : "2021-08-10T06:25:00-06:00",
       "specimen" : [ {
-        "reference" : "Specimen/9f92ec71-3fcb-43f1-b8d9-cde94c3672cf"
+        "reference" : "Specimen/31231500-8160-4bad-a278-3dc06cf11ee9"
       } ],
       "result" : [ {
-        "reference" : "Observation/da6f82e9-085b-481d-af18-fd0bb3f688bd"
+        "reference" : "Observation/a7bb8410-2ff9-4db1-9b5e-0a5f4e9c051f"
       }, {
-        "reference" : "Observation/f4658c77-b90f-417d-941a-4fd9a95f82fa"
+        "reference" : "Observation/b1cc6e5d-c0e5-4b7a-a04e-744ce7cc9db4"
       }, {
-        "reference" : "Observation/915e8fa9-249f-49ee-9af3-ccc8c7e8050b"
+        "reference" : "Observation/ad2a9e65-a5a2-4547-9f73-69581a91461a"
       }, {
-        "reference" : "Observation/92c1aaf4-a27c-4caf-88c5-ccdf41bd62e7"
+        "reference" : "Observation/a6c3d61a-c8b4-4a9a-a850-b6dbbc9e2a2b"
       }, {
-        "reference" : "Observation/9dcd566d-d829-4d3a-b9ba-9a8af9e6eb87"
+        "reference" : "Observation/58df88eb-47ea-4b6c-b920-85f95eee8164"
       }, {
-        "reference" : "Observation/de8fb406-c6e1-4608-af88-006d0bda2a7f"
+        "reference" : "Observation/012e7887-f833-4653-a055-ba39a13f8599"
       }, {
-        "reference" : "Observation/42edfba8-722d-472a-902b-f4662b227c79"
+        "reference" : "Observation/e3827638-eb5d-4717-8c7c-ab2f1acc88be"
       }, {
-        "reference" : "Observation/4bbddad9-3e86-4e4e-9f91-79c15c6afd06"
+        "reference" : "Observation/e7b2ac44-837e-4dd1-a4d1-98e3456fe299"
       }, {
-        "reference" : "Observation/3a2f6494-a7fb-406c-9537-b5073633cc86"
+        "reference" : "Observation/157990b8-0dce-4238-8d95-a1c75250ed48"
       }, {
-        "reference" : "Observation/722e11c1-2d14-4bac-ad9a-7ed6d60a82e6"
+        "reference" : "Observation/61c5037f-55db-451a-a675-eb0fcf7d2295"
       } ]
     }
   }, {
-    "fullUrl" : "Location/6a89fee7-0a44-49e0-95a8-ef48a03dc35e",
+    "fullUrl" : "Location/4e3beb50-1177-4a71-8f87-aa2bf41ec717",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "6a89fee7-0a44-49e0-95a8-ef48a03dc35e",
+      "id" : "4e3beb50-1177-4a71-8f87-aa2bf41ec717",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9166,10 +9166,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/d4cf831f-1f30-497d-a03f-09cc7f9bbb4b",
+    "fullUrl" : "Practitioner/8567cda9-1e5b-434f-974c-bacdfff5dbc0",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "d4cf831f-1f30-497d-a03f-09cc7f9bbb4b",
+      "id" : "8567cda9-1e5b-434f-974c-bacdfff5dbc0",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9194,7 +9194,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/6a89fee7-0a44-49e0-95a8-ef48a03dc35e"
+          "reference" : "Location/4e3beb50-1177-4a71-8f87-aa2bf41ec717"
         }
       } ],
       "identifier" : [ {
@@ -9202,10 +9202,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/39d4a2c8-d415-4182-b5b5-c6a428c78da7",
+    "fullUrl" : "Location/041fed8d-42f7-45d2-a3c7-d4e888fb2e93",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "39d4a2c8-d415-4182-b5b5-c6a428c78da7",
+      "id" : "041fed8d-42f7-45d2-a3c7-d4e888fb2e93",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9230,10 +9230,10 @@
       "name" : "RML"
     }
   }, {
-    "fullUrl" : "Practitioner/e649a016-8fbb-44a1-9543-c66622e179ae",
+    "fullUrl" : "Practitioner/7d4aabc7-d56a-4042-8fc7-3ca817988f77",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "e649a016-8fbb-44a1-9543-c66622e179ae",
+      "id" : "7d4aabc7-d56a-4042-8fc7-3ca817988f77",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9277,7 +9277,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/39d4a2c8-d415-4182-b5b5-c6a428c78da7"
+          "reference" : "Location/041fed8d-42f7-45d2-a3c7-d4e888fb2e93"
         }
       } ],
       "identifier" : [ {
@@ -9313,10 +9313,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/c8f64cb3-1500-4ce0-93a8-5404650d5d26",
+    "fullUrl" : "Organization/d368a8b8-540c-4366-b491-5d5c9f641f4c",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "c8f64cb3-1500-4ce0-93a8-5404650d5d26",
+      "id" : "d368a8b8-540c-4366-b491-5d5c9f641f4c",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9381,10 +9381,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/e87609f2-8ca0-4070-8ab2-31b2908827b6",
+    "fullUrl" : "PractitionerRole/b44122ed-6f66-4f69-a0b6-173c50b7fc65",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "e87609f2-8ca0-4070-8ab2-31b2908827b6",
+      "id" : "b44122ed-6f66-4f69-a0b6-173c50b7fc65",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9407,17 +9407,17 @@
         "lastUpdated" : "2021-08-09T08:52:00-06:00"
       },
       "practitioner" : {
-        "reference" : "Practitioner/e649a016-8fbb-44a1-9543-c66622e179ae"
+        "reference" : "Practitioner/7d4aabc7-d56a-4042-8fc7-3ca817988f77"
       },
       "organization" : {
-        "reference" : "Organization/c8f64cb3-1500-4ce0-93a8-5404650d5d26"
+        "reference" : "Organization/d368a8b8-540c-4366-b491-5d5c9f641f4c"
       }
     }
   }, {
-    "fullUrl" : "ServiceRequest/abb981c8-573c-4021-a1ea-8eef8350933b",
+    "fullUrl" : "ServiceRequest/507a8df8-6a2b-4215-8a6e-005f38d0fff9",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "abb981c8-573c-4021-a1ea-8eef8350933b",
+      "id" : "507a8df8-6a2b-4215-8a6e-005f38d0fff9",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9459,7 +9459,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
         "valueReference" : {
-          "reference" : "Practitioner/d4cf831f-1f30-497d-a03f-09cc7f9bbb4b"
+          "reference" : "Practitioner/8567cda9-1e5b-434f-974c-bacdfff5dbc0"
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
@@ -9553,12 +9553,12 @@
         "text" : "Laboratory comment [Text] in Report Narrative"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "occurrenceDateTime" : "2021-08-03T23:50:00Z",
       "authoredOn" : "2028-08-08T09:28:00Z",
       "requester" : {
-        "reference" : "PractitionerRole/e87609f2-8ca0-4070-8ab2-31b2908827b6"
+        "reference" : "PractitionerRole/b44122ed-6f66-4f69-a0b6-173c50b7fc65"
       },
       "reasonCode" : [ {
         "extension" : [ {
@@ -9612,10 +9612,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "DiagnosticReport/bfc202d2-8bd7-472e-93db-22ae14b5d61f",
+    "fullUrl" : "DiagnosticReport/84200c33-ac17-481a-af4a-d413f9af4492",
     "resource" : {
       "resourceType" : "DiagnosticReport",
-      "id" : "bfc202d2-8bd7-472e-93db-22ae14b5d61f",
+      "id" : "84200c33-ac17-481a-af4a-d413f9af4492",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9661,7 +9661,7 @@
         "value" : "21:AA:B0029251S.4"
       } ],
       "basedOn" : [ {
-        "reference" : "ServiceRequest/caf5dd35-77c9-4300-b66e-467e7e823fc9"
+        "reference" : "ServiceRequest/3be0a6d7-5200-4ecf-82f6-07e8e7807bfb"
       } ],
       "status" : "preliminary",
       "code" : {
@@ -9683,10 +9683,10 @@
         "text" : "Bacterial susceptibility panel by Minimum inhibitory concentration (MIC)"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectivePeriod" : {
         "start" : "2028-08-07T16:36:01-06:00",
@@ -9694,14 +9694,14 @@
       },
       "issued" : "2021-08-10T06:25:00-06:00",
       "result" : [ {
-        "reference" : "Observation/fcdcbd98-7878-4c1f-ba36-008bbd4ef7c7"
+        "reference" : "Observation/9e0f1fb8-6be9-46ed-a742-02fbcc954606"
       } ]
     }
   }, {
-    "fullUrl" : "Location/dacc06de-ff34-4853-9e12-5627d7940022",
+    "fullUrl" : "Location/8f5e9e1e-db75-48b4-a9f8-885d0c3864fc",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "dacc06de-ff34-4853-9e12-5627d7940022",
+      "id" : "8f5e9e1e-db75-48b4-a9f8-885d0c3864fc",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9725,10 +9725,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/de00dca1-b68e-47d7-a227-2e169d1f2212",
+    "fullUrl" : "Practitioner/c560356c-a9f7-4df4-8dc0-28edb958d518",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "de00dca1-b68e-47d7-a227-2e169d1f2212",
+      "id" : "c560356c-a9f7-4df4-8dc0-28edb958d518",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9753,7 +9753,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/dacc06de-ff34-4853-9e12-5627d7940022"
+          "reference" : "Location/8f5e9e1e-db75-48b4-a9f8-885d0c3864fc"
         }
       } ],
       "identifier" : [ {
@@ -9761,10 +9761,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/a72a1db7-dc89-488e-9a2a-5615d65dd141",
+    "fullUrl" : "Location/2bbad341-869b-469a-94bf-c1f01d6dece7",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "a72a1db7-dc89-488e-9a2a-5615d65dd141",
+      "id" : "2bbad341-869b-469a-94bf-c1f01d6dece7",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9789,10 +9789,10 @@
       "name" : "RML"
     }
   }, {
-    "fullUrl" : "Practitioner/9f219a5a-4ab7-4b71-8a74-03f79ff36456",
+    "fullUrl" : "Practitioner/2b4e69c9-d50a-480b-baf4-59ac410db56a",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "9f219a5a-4ab7-4b71-8a74-03f79ff36456",
+      "id" : "2b4e69c9-d50a-480b-baf4-59ac410db56a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9836,7 +9836,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/a72a1db7-dc89-488e-9a2a-5615d65dd141"
+          "reference" : "Location/2bbad341-869b-469a-94bf-c1f01d6dece7"
         }
       } ],
       "identifier" : [ {
@@ -9863,10 +9863,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/e9c6731d-a677-415a-ba63-f49927d86a74",
+    "fullUrl" : "Organization/5d5e6a57-3056-437e-bf03-89aa33062446",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "e9c6731d-a677-415a-ba63-f49927d86a74",
+      "id" : "5d5e6a57-3056-437e-bf03-89aa33062446",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9890,10 +9890,10 @@
       }
     }
   }, {
-    "fullUrl" : "PractitionerRole/0726811e-1320-415b-a616-3fd70161e3cd",
+    "fullUrl" : "PractitionerRole/0441b6b5-56f1-479b-82e3-1db5211906bc",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "0726811e-1320-415b-a616-3fd70161e3cd",
+      "id" : "0441b6b5-56f1-479b-82e3-1db5211906bc",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9916,17 +9916,17 @@
         "lastUpdated" : "2021-08-09T08:52:00-06:00"
       },
       "practitioner" : {
-        "reference" : "Practitioner/9f219a5a-4ab7-4b71-8a74-03f79ff36456"
+        "reference" : "Practitioner/2b4e69c9-d50a-480b-baf4-59ac410db56a"
       },
       "organization" : {
-        "reference" : "Organization/e9c6731d-a677-415a-ba63-f49927d86a74"
+        "reference" : "Organization/5d5e6a57-3056-437e-bf03-89aa33062446"
       }
     }
   }, {
-    "fullUrl" : "ServiceRequest/caf5dd35-77c9-4300-b66e-467e7e823fc9",
+    "fullUrl" : "ServiceRequest/3be0a6d7-5200-4ecf-82f6-07e8e7807bfb",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "caf5dd35-77c9-4300-b66e-467e7e823fc9",
+      "id" : "3be0a6d7-5200-4ecf-82f6-07e8e7807bfb",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -9965,7 +9965,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
         "valueReference" : {
-          "reference" : "Practitioner/de00dca1-b68e-47d7-a227-2e169d1f2212"
+          "reference" : "Practitioner/c560356c-a9f7-4df4-8dc0-28edb958d518"
         }
       } ],
       "identifier" : [ {
@@ -10009,11 +10009,11 @@
         "text" : "Bacterial susceptibility panel by Minimum inhibitory concentration (MIC)"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "occurrenceDateTime" : "2028-08-07T16:36:01-06:00",
       "requester" : {
-        "reference" : "PractitionerRole/0726811e-1320-415b-a616-3fd70161e3cd"
+        "reference" : "PractitionerRole/0441b6b5-56f1-479b-82e3-1db5211906bc"
       },
       "reasonCode" : [ {
         "extension" : [ {
@@ -10035,10 +10035,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "DiagnosticReport/d349a4bd-588a-4cce-81e8-001b16119fe1",
+    "fullUrl" : "DiagnosticReport/cfe6d7ba-e9e4-467c-81c4-9b984ff4bbc5",
     "resource" : {
       "resourceType" : "DiagnosticReport",
-      "id" : "d349a4bd-588a-4cce-81e8-001b16119fe1",
+      "id" : "cfe6d7ba-e9e4-467c-81c4-9b984ff4bbc5",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -10084,7 +10084,7 @@
         "value" : "21:AA:B0029251S.5"
       } ],
       "basedOn" : [ {
-        "reference" : "ServiceRequest/828e30b6-0a31-44a3-a01a-1e7815cf894f"
+        "reference" : "ServiceRequest/426127e9-4e43-49d5-8241-73931c07dbde"
       } ],
       "status" : "preliminary",
       "code" : {
@@ -10095,10 +10095,10 @@
         "text" : "VITEK2 AST-GP75"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "encounter" : {
-        "reference" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d"
+        "reference" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a"
       },
       "effectivePeriod" : {
         "start" : "2028-08-07T16:36:01-06:00",
@@ -10106,25 +10106,25 @@
       },
       "issued" : "2021-08-10T06:25:00-06:00",
       "specimen" : [ {
-        "reference" : "Specimen/fa5bf230-3bcf-4afa-9113-287a4092bd3e"
+        "reference" : "Specimen/b0b42659-7df3-45cd-841d-5dc25464e8c3"
       } ],
       "result" : [ {
-        "reference" : "Observation/d3eadd2e-a952-479d-bdbc-8d35cb499e24"
+        "reference" : "Observation/56505f9f-f18c-4603-b5a6-089636c4a15b"
       }, {
-        "reference" : "Observation/0d275e9b-b3e6-4d96-b973-02179566a4de"
+        "reference" : "Observation/4acda208-976f-48ec-8543-db82e831ccaf"
       }, {
-        "reference" : "Observation/40b2572c-be1b-458d-800c-738b21e7c9e2"
+        "reference" : "Observation/b925ba85-76ec-478a-940e-1b54c322cde1"
       }, {
-        "reference" : "Observation/1f78d3b8-f1dc-412c-a3bd-3632ae67d9a6"
+        "reference" : "Observation/5f583f2b-164c-4547-a0d7-f7c1e126c3f5"
       }, {
-        "reference" : "Observation/4e59ed65-d80b-4a51-9371-dcfdd05437a2"
+        "reference" : "Observation/d2a6157e-682d-44dc-9e26-e94b4b87d2da"
       } ]
     }
   }, {
-    "fullUrl" : "Location/7015e50b-1b54-4fba-804a-efdd50cda732",
+    "fullUrl" : "Location/447dc866-f6e9-4933-9b29-fbceeaa19009",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "7015e50b-1b54-4fba-804a-efdd50cda732",
+      "id" : "447dc866-f6e9-4933-9b29-fbceeaa19009",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -10148,10 +10148,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/67a25957-d444-4e76-a451-4ce96b1dd77a",
+    "fullUrl" : "Practitioner/be0dadb7-0f3f-4511-bbe8-384a0d95bb54",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "67a25957-d444-4e76-a451-4ce96b1dd77a",
+      "id" : "be0dadb7-0f3f-4511-bbe8-384a0d95bb54",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -10176,7 +10176,7 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/7015e50b-1b54-4fba-804a-efdd50cda732"
+          "reference" : "Location/447dc866-f6e9-4933-9b29-fbceeaa19009"
         }
       } ],
       "identifier" : [ {
@@ -10184,10 +10184,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/284ea9ef-3911-4af4-9fca-50d9c965e772",
+    "fullUrl" : "Location/c46b5215-1093-40ef-8502-1e941296cd00",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "284ea9ef-3911-4af4-9fca-50d9c965e772",
+      "id" : "c46b5215-1093-40ef-8502-1e941296cd00",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -10212,10 +10212,10 @@
       "name" : "RML"
     }
   }, {
-    "fullUrl" : "Practitioner/855739f4-773b-48a2-8f65-eb93a6728e44",
+    "fullUrl" : "Practitioner/40d16fec-6e3a-4d38-afb6-38c012ad4180",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "855739f4-773b-48a2-8f65-eb93a6728e44",
+      "id" : "40d16fec-6e3a-4d38-afb6-38c012ad4180",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -10259,7 +10259,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/284ea9ef-3911-4af4-9fca-50d9c965e772"
+          "reference" : "Location/c46b5215-1093-40ef-8502-1e941296cd00"
         }
       } ],
       "identifier" : [ {
@@ -10286,10 +10286,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/71ee1f92-3214-494c-86c0-6e643c52ef52",
+    "fullUrl" : "Organization/0d76b617-df6f-4513-8549-5a4483a086c0",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "71ee1f92-3214-494c-86c0-6e643c52ef52",
+      "id" : "0d76b617-df6f-4513-8549-5a4483a086c0",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -10313,10 +10313,10 @@
       }
     }
   }, {
-    "fullUrl" : "PractitionerRole/68a15611-d055-4768-8c19-82b249d2f7d5",
+    "fullUrl" : "PractitionerRole/3b45bad9-fb5c-4953-b913-d00ad0b081f2",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "68a15611-d055-4768-8c19-82b249d2f7d5",
+      "id" : "3b45bad9-fb5c-4953-b913-d00ad0b081f2",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -10339,17 +10339,17 @@
         "lastUpdated" : "2021-08-09T08:52:00-06:00"
       },
       "practitioner" : {
-        "reference" : "Practitioner/855739f4-773b-48a2-8f65-eb93a6728e44"
+        "reference" : "Practitioner/40d16fec-6e3a-4d38-afb6-38c012ad4180"
       },
       "organization" : {
-        "reference" : "Organization/71ee1f92-3214-494c-86c0-6e643c52ef52"
+        "reference" : "Organization/0d76b617-df6f-4513-8549-5a4483a086c0"
       }
     }
   }, {
-    "fullUrl" : "ServiceRequest/828e30b6-0a31-44a3-a01a-1e7815cf894f",
+    "fullUrl" : "ServiceRequest/426127e9-4e43-49d5-8241-73931c07dbde",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "828e30b6-0a31-44a3-a01a-1e7815cf894f",
+      "id" : "426127e9-4e43-49d5-8241-73931c07dbde",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -10388,7 +10388,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
         "valueReference" : {
-          "reference" : "Practitioner/67a25957-d444-4e76-a451-4ce96b1dd77a"
+          "reference" : "Practitioner/be0dadb7-0f3f-4511-bbe8-384a0d95bb54"
         }
       } ],
       "identifier" : [ {
@@ -10421,11 +10421,11 @@
         "text" : "VITEK2 AST-GP75"
       },
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "occurrenceDateTime" : "2028-08-07T16:36:01-06:00",
       "requester" : {
-        "reference" : "PractitionerRole/68a15611-d055-4768-8c19-82b249d2f7d5"
+        "reference" : "PractitionerRole/3b45bad9-fb5c-4953-b913-d00ad0b081f2"
       },
       "reasonCode" : [ {
         "extension" : [ {
@@ -10447,10 +10447,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd",
+    "fullUrl" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "0bc687a3-12c5-4319-b9e2-176603e855dd",
+      "id" : "53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -10704,15 +10704,15 @@
           "country" : "USA"
         },
         "organization" : {
-          "reference" : "Organization/c51004b2-becd-4747-a62a-3308fee257a4"
+          "reference" : "Organization/10e3a356-d250-4493-ab15-5e86144bd78f"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/c51004b2-becd-4747-a62a-3308fee257a4",
+    "fullUrl" : "Organization/10e3a356-d250-4493-ab15-5e86144bd78f",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "c51004b2-becd-4747-a62a-3308fee257a4",
+      "id" : "10e3a356-d250-4493-ab15-5e86144bd78f",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -10751,10 +10751,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Encounter/3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d",
+    "fullUrl" : "Encounter/a82a19e2-4f0d-4100-b5aa-019e8a73862a",
     "resource" : {
       "resourceType" : "Encounter",
-      "id" : "3a4b90a7-0e88-4b6e-b7c2-1a4a70d0a07d",
+      "id" : "a82a19e2-4f0d-4100-b5aa-019e8a73862a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -10806,7 +10806,7 @@
         } ]
       } ],
       "subject" : {
-        "reference" : "Patient/0bc687a3-12c5-4319-b9e2-176603e855dd"
+        "reference" : "Patient/53a9d6d5-69e8-40a8-b23a-2d45d1d2f6fb"
       },
       "participant" : [ {
         "type" : [ {
@@ -10817,7 +10817,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/920da71b-cd44-4598-9d95-c346c82fc8ba"
+          "reference" : "Practitioner/87e67f0f-90e0-4de6-ad4d-5da31acabbf3"
         }
       }, {
         "type" : [ {
@@ -10828,7 +10828,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/577cbf05-9d37-44d5-9293-46f8080e9a7d"
+          "reference" : "Practitioner/ce37bf4b-4c66-46f0-a02a-c86a696a86cb"
         }
       }, {
         "type" : [ {
@@ -10839,7 +10839,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/89bfdda0-d277-4e45-b311-ada7b049778f"
+          "reference" : "Practitioner/d2b6cd96-ee71-401d-b6a6-522351f1c3f1"
         }
       }, {
         "type" : [ {
@@ -10850,7 +10850,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/72930e8e-4faa-4a7f-b4ee-e8aacb946469"
+          "reference" : "Practitioner/f3129092-f745-4ef1-a9a6-b8925fc90824"
         }
       }, {
         "type" : [ {
@@ -10861,7 +10861,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/0ee21cc1-fc55-41de-a6e4-2dcd5a662cd1"
+          "reference" : "Practitioner/7e5ed90f-0aa0-4754-8763-4b7e5ee998a0"
         }
       }, {
         "type" : [ {
@@ -10872,24 +10872,36 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/cea4c092-159a-4455-837c-6251e05bd6cb"
+          "reference" : "Practitioner/0a7d04d5-f658-414c-9144-1263b547fe44"
         }
       } ],
       "period" : {
         "start" : "2028-08-02T05:56:00Z"
       },
+      "hospitalization" : {
+        "admitSource" : {
+          "coding" : [ {
+            "code" : "PR"
+          } ]
+        },
+        "dischargeDisposition" : {
+          "coding" : [ {
+            "code" : "SAP"
+          } ]
+        }
+      },
       "location" : [ {
         "location" : {
-          "reference" : "Location/b6bea20b-5ad7-4c7d-b2db-0996e8e22da8"
+          "reference" : "Location/61525f6a-3e1e-4988-bef0-3d380651c8ed"
         },
         "status" : "active"
       } ]
     }
   }, {
-    "fullUrl" : "Location/d7b324a8-5a79-4daa-9e0b-d872d0bbd2a7",
+    "fullUrl" : "Location/85feed4a-9867-43a2-b874-0b1efbb4a994",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "d7b324a8-5a79-4daa-9e0b-d872d0bbd2a7",
+      "id" : "85feed4a-9867-43a2-b874-0b1efbb4a994",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -10909,10 +10921,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/920da71b-cd44-4598-9d95-c346c82fc8ba",
+    "fullUrl" : "Practitioner/87e67f0f-90e0-4de6-ad4d-5da31acabbf3",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "920da71b-cd44-4598-9d95-c346c82fc8ba",
+      "id" : "87e67f0f-90e0-4de6-ad4d-5da31acabbf3",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -10941,7 +10953,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/d7b324a8-5a79-4daa-9e0b-d872d0bbd2a7"
+          "reference" : "Location/85feed4a-9867-43a2-b874-0b1efbb4a994"
         }
       } ],
       "identifier" : [ {
@@ -10967,10 +10979,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/94dcfcc4-57c9-4ab1-b7e3-239bc60ea6d2",
+    "fullUrl" : "Location/6d6d533e-b1e5-46c6-8eaf-36c61b858de8",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "94dcfcc4-57c9-4ab1-b7e3-239bc60ea6d2",
+      "id" : "6d6d533e-b1e5-46c6-8eaf-36c61b858de8",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -10990,10 +11002,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/577cbf05-9d37-44d5-9293-46f8080e9a7d",
+    "fullUrl" : "Practitioner/ce37bf4b-4c66-46f0-a02a-c86a696a86cb",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "577cbf05-9d37-44d5-9293-46f8080e9a7d",
+      "id" : "ce37bf4b-4c66-46f0-a02a-c86a696a86cb",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -11022,7 +11034,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/94dcfcc4-57c9-4ab1-b7e3-239bc60ea6d2"
+          "reference" : "Location/6d6d533e-b1e5-46c6-8eaf-36c61b858de8"
         }
       } ],
       "identifier" : [ {
@@ -11048,10 +11060,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/dbb0c621-0896-4261-947e-916a8ecf4bc5",
+    "fullUrl" : "Location/9478f655-de40-432a-a060-3923ba8670b6",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "dbb0c621-0896-4261-947e-916a8ecf4bc5",
+      "id" : "9478f655-de40-432a-a060-3923ba8670b6",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -11071,10 +11083,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/89bfdda0-d277-4e45-b311-ada7b049778f",
+    "fullUrl" : "Practitioner/d2b6cd96-ee71-401d-b6a6-522351f1c3f1",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "89bfdda0-d277-4e45-b311-ada7b049778f",
+      "id" : "d2b6cd96-ee71-401d-b6a6-522351f1c3f1",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -11103,7 +11115,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/dbb0c621-0896-4261-947e-916a8ecf4bc5"
+          "reference" : "Location/9478f655-de40-432a-a060-3923ba8670b6"
         }
       } ],
       "identifier" : [ {
@@ -11129,10 +11141,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/7edc2bd2-9d5a-4957-9c27-4b3a4fd3ff18",
+    "fullUrl" : "Location/daeeacf7-37ed-47b2-ad74-fd5f82d69105",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "7edc2bd2-9d5a-4957-9c27-4b3a4fd3ff18",
+      "id" : "daeeacf7-37ed-47b2-ad74-fd5f82d69105",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -11152,10 +11164,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/72930e8e-4faa-4a7f-b4ee-e8aacb946469",
+    "fullUrl" : "Practitioner/f3129092-f745-4ef1-a9a6-b8925fc90824",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "72930e8e-4faa-4a7f-b4ee-e8aacb946469",
+      "id" : "f3129092-f745-4ef1-a9a6-b8925fc90824",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -11184,7 +11196,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/7edc2bd2-9d5a-4957-9c27-4b3a4fd3ff18"
+          "reference" : "Location/daeeacf7-37ed-47b2-ad74-fd5f82d69105"
         }
       } ],
       "identifier" : [ {
@@ -11206,10 +11218,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/815f2c9b-3705-47ca-ada6-56868a1e7164",
+    "fullUrl" : "Location/771cd960-f4a3-4231-b718-61d77e0418d1",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "815f2c9b-3705-47ca-ada6-56868a1e7164",
+      "id" : "771cd960-f4a3-4231-b718-61d77e0418d1",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -11229,10 +11241,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/0ee21cc1-fc55-41de-a6e4-2dcd5a662cd1",
+    "fullUrl" : "Practitioner/7e5ed90f-0aa0-4754-8763-4b7e5ee998a0",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "0ee21cc1-fc55-41de-a6e4-2dcd5a662cd1",
+      "id" : "7e5ed90f-0aa0-4754-8763-4b7e5ee998a0",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -11261,7 +11273,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/815f2c9b-3705-47ca-ada6-56868a1e7164"
+          "reference" : "Location/771cd960-f4a3-4231-b718-61d77e0418d1"
         }
       } ],
       "identifier" : [ {
@@ -11283,10 +11295,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/ae975b67-56e5-42f5-85d1-647905b6b4ef",
+    "fullUrl" : "Location/8fc3f73c-f673-4f35-9674-8a0ecb5e16eb",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "ae975b67-56e5-42f5-85d1-647905b6b4ef",
+      "id" : "8fc3f73c-f673-4f35-9674-8a0ecb5e16eb",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -11306,10 +11318,10 @@
       }
     }
   }, {
-    "fullUrl" : "Practitioner/cea4c092-159a-4455-837c-6251e05bd6cb",
+    "fullUrl" : "Practitioner/0a7d04d5-f658-414c-9144-1263b547fe44",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "cea4c092-159a-4455-837c-6251e05bd6cb",
+      "id" : "0a7d04d5-f658-414c-9144-1263b547fe44",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -11338,7 +11350,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/ae975b67-56e5-42f5-85d1-647905b6b4ef"
+          "reference" : "Location/8fc3f73c-f673-4f35-9674-8a0ecb5e16eb"
         }
       } ],
       "identifier" : [ {
@@ -11364,10 +11376,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/b6bea20b-5ad7-4c7d-b2db-0996e8e22da8",
+    "fullUrl" : "Location/61525f6a-3e1e-4988-bef0-3d380651c8ed",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "b6bea20b-5ad7-4c7d-b2db-0996e8e22da8",
+      "id" : "61525f6a-3e1e-4988-bef0-3d380651c8ed",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id",
@@ -11398,7 +11410,7 @@
           "system" : "http://terminology.hl7.org/CodeSystem/location-physical-type",
           "code" : "bd"
         } ]
-      }
+      }h
     }
   } ]
 }
