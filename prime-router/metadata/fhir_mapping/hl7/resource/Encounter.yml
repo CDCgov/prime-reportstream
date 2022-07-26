@@ -60,7 +60,7 @@ serviceType:
 
 priority:
    valueOf: datatype/CodeableConcept
-   condition: valueIn NOT_NULL
+   condition: v$alueIn NOT_NULL
    expressionType: resource
    specs: PV2.25
    vars:
