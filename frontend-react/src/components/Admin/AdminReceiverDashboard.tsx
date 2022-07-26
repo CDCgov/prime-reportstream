@@ -29,7 +29,7 @@ import { formatDate } from "../../utils/misc";
  * Instead, we're going to borrow a concept from key-value databases.
  * https://en.wikipedia.org/wiki/Key%E2%80%93value_database
  *
- * Keys will be ORDERED PATH of value and therefore similar data will adjacent.
+ * Keys will be ORDERED PATH of value and therefore similar data will be adjacent.
  *
  * There are 3 nested loops for layout of the data
  *    foreach per-receiver:
@@ -541,7 +541,7 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
         return <>No Data Found</>;
     }
     // note: if we ever have the timeslots > cron job so there are multiple
-    // resuls per slot, then this needs to be expended to show more.
+    // results per slot, then this needs to be expended to show more.
     const dataItem = props.subData[0];
 
     const duration = () => {
