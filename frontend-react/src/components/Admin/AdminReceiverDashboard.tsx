@@ -9,6 +9,7 @@ import {
     Modal,
     ModalRef,
     TextInput,
+    Tooltip,
 } from "@trussworks/react-uswds";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
@@ -188,7 +189,7 @@ const durationFormatShort = (dateNewer: Date, dateOlder: Date): string => {
  * */
 const dateShortFormat = (d: Date) => {
     const dayOfWeek =
-        ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"][d.getDay()] || "";
+        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()] || "";
     return (
         `${dayOfWeek}, ` +
         `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
@@ -643,12 +644,15 @@ export function AdminReceiverDashboard() {
 
     return (
         <section className="grid-container">
-            <h4>Receiver Status dashboard</h4>
+            <h4>Receiver Status Dashboard</h4>
             <section>
                 CRON job results that check if receivers are working.
+                <br />
+                Each slot is a 2hr time slice. Colored slots had a check run.
+                Clicking on a slot shows details.
             </section>
             <form autoComplete="off" className="grid-row margin-0">
-                <div className="flex-auto">
+                <div className="flex-auto margin-1">
                     <DateRangePicker
                         className={`${StyleClass.DATE_CONTAINER} margin-0`}
                         startDateLabel="From (Start Range):"
@@ -677,76 +681,97 @@ export function AdminReceiverDashboard() {
                 </div>
                 <div className="flex-fill margin-1">
                     <Label
-                        className="font-sans-xs usa-label"
+                        className="font-sans-xs usa-label text-no-wrap"
                         htmlFor="input_filter_receivers"
                     >
-                        Receiver:
+                        Receiver Name:
                     </Label>
-                    <TextInput
-                        id="input_filter_receivers"
-                        name="input_filter_receivers"
-                        type="text"
-                        autoComplete="off"
-                        aria-autocomplete="none"
-                        autoFocus
-                        onChange={(evt) => setFilterReceivers(evt.target.value)}
-                    />
+                    <Tooltip
+                        className="fixed-tooltip"
+                        label="Filter rows on just the first column's Organization name and Receiver setting name."
+                    >
+                        <TextInput
+                            id="input_filter_receivers"
+                            name="input_filter_receivers"
+                            type="text"
+                            autoComplete="off"
+                            aria-autocomplete="none"
+                            autoFocus
+                            onChange={(evt) =>
+                                setFilterReceivers(evt.target.value)
+                            }
+                        />
+                    </Tooltip>
                 </div>
 
                 <div className="flex-fill margin-1">
                     <Label
-                        className="font-sans-xs usa-label"
+                        className="font-sans-xs usa-label text-no-wrap"
                         htmlFor="input_filter_errors"
                     >
-                        Results:
+                        Results Message:
                     </Label>
-                    <TextInput
-                        id="input_filter_errors"
-                        name="input_filter_errors"
-                        type="text"
-                        autoComplete="off"
-                        aria-autocomplete="none"
-                        autoFocus
-                        onChange={(evt) =>
-                            setFilterErrorResults(evt.target.value)
-                        }
-                    />
+                    <Tooltip
+                        className="fixed-tooltip"
+                        label="Filter rows on the Result Message details. This value is found in the details."
+                    >
+                        <TextInput
+                            id="input_filter_errors"
+                            name="input_filter_errors"
+                            type="text"
+                            autoComplete="off"
+                            aria-autocomplete="none"
+                            autoFocus
+                            onChange={(evt) =>
+                                setFilterErrorResults(evt.target.value)
+                            }
+                        />
+                    </Tooltip>
                 </div>
 
                 <div className="flex-fill margin-1">
                     <Label
-                        className="font-sans-xs usa-label"
+                        className="font-sans-xs usa-label text-no-wrap"
                         htmlFor="successrate-dropdown"
                     >
-                        Success:
+                        Success Type:
                     </Label>
-                    <Dropdown
-                        id="successrate-dropdown"
-                        name="successrate-dropdown"
-                        onChange={(evt) =>
-                            setFilterRowSuccessState(
-                                (evt?.target?.value as SuccessRate) ||
-                                    SuccessRate.UNDEFINED
-                            )
-                        }
+                    <Tooltip
+                        className="fixed-tooltip"
+                        label="Show only rows in one of these states."
                     >
-                        <option value={SuccessRate.UNDEFINED}>Show All</option>
-                        <option value={SuccessRate.ALL_FAILURE}>Failed</option>
-                        <option value={SuccessRate.MIXED_SUCCESS}>
-                            Mixed success
-                        </option>
-                    </Dropdown>
+                        <Dropdown
+                            id="successrate-dropdown"
+                            name="successrate-dropdown"
+                            onChange={(evt) =>
+                                setFilterRowSuccessState(
+                                    (evt?.target?.value as SuccessRate) ||
+                                        SuccessRate.UNDEFINED
+                                )
+                            }
+                        >
+                            <option value={SuccessRate.UNDEFINED}>
+                                Show All
+                            </option>
+                            <option value={SuccessRate.ALL_FAILURE}>
+                                Failed
+                            </option>
+                            <option value={SuccessRate.MIXED_SUCCESS}>
+                                Mixed success
+                            </option>
+                        </Dropdown>
+                    </Tooltip>
                 </div>
             </form>
-            {MainRender({
-                data,
-                filterRowStatus: filterRowSuccessState,
-                datesRange: [
+            <MainRender
+                data={data}
+                filterRowStatus={filterRowSuccessState}
+                datesRange={[
                     new Date(startDate),
                     endDate ? new Date(endDate) : new Date(),
-                ],
-                onDetailsClick: showDetailsModal,
-            })}
+                ]}
+                onDetailsClick={showDetailsModal}
+            />
 
             <Modal
                 isLarge={true}
@@ -754,7 +779,7 @@ export function AdminReceiverDashboard() {
                 ref={modalShowInfoRef}
                 id={"showSuccessDetails"}
             >
-                {ModalInfoRender({ subData: currentDataForModal })}
+                <ModalInfoRender subData={currentDataForModal} />
             </Modal>
         </section>
     );
