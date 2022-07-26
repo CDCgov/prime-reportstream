@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import org.hl7.fhir.r4.model.ExpressionNode
+import java.util.SortedMap
 
 /**
  * A schema.
@@ -11,13 +12,15 @@ import org.hl7.fhir.r4.model.ExpressionNode
  * @property hl7Type the HL7 message type for the output.  Only allowed at the top level schema
  * @property hl7Version the HL7 message version for the output.  Only allowed at the top level schema
  * @property elements the elements for the schema
+ * @property constants schema level constants
  */
 @JsonIgnoreProperties
 data class ConfigSchema(
     var name: String? = null,
     var hl7Type: String? = null,
     var hl7Version: String? = null,
-    var elements: List<ConfigSchemaElement> = emptyList()
+    var elements: List<ConfigSchemaElement> = emptyList(),
+    var constants: SortedMap<String, String> = sortedMapOf()
 ) {
     /**
      * Has this schema been validated? Only used on the top level schema.
@@ -81,6 +84,11 @@ data class ConfigSchema(
             }
         }
 
+        // Check that all constants have a string
+        constants.filterValues { it.isNullOrBlank() }.forEach { (key, _) ->
+            addError("Constant '$key' does not have a value")
+        }
+
         // Validate the schema elements.
         if (elements.isEmpty())
             addError("Schema elements cannot be empty")
@@ -106,6 +114,8 @@ data class ConfigSchema(
  * @property value a list of FHIR paths each pointing to a FHIR primitive value
  * @property valueExpressions the validated FHIR paths of the [value] list
  * @property hl7Spec a list of hl7Specs that denote the field to place a value into
+ * @property resourceIndex the variable name to store a FHIR collection's index number
+ * @property constants element level constants
  */
 @JsonIgnoreProperties
 data class ConfigSchemaElement(
@@ -119,7 +129,9 @@ data class ConfigSchemaElement(
     var resourceExpression: ExpressionNode? = null,
     var value: List<String> = emptyList(),
     var valueExpressions: List<ExpressionNode> = emptyList(),
-    var hl7Spec: List<String> = emptyList()
+    var hl7Spec: List<String> = emptyList(),
+    var resourceIndex: String? = null,
+    var constants: SortedMap<String, String> = sortedMapOf()
 ) {
     /**
      * Validate the element.
@@ -155,6 +167,13 @@ data class ConfigSchemaElement(
             addError("Element name cannot be blank")
         }
 
+        when {
+            resource.isNullOrBlank() && !resourceIndex.isNullOrBlank() ->
+                addError("Resource property is required to use the resourceIndex property")
+            schema.isNullOrBlank() && !resourceIndex.isNullOrBlank() ->
+                addError("Schema property is required to use the resourceIndex property")
+        }
+
         // Hl7spec and value cannot be used with schema.
         when {
             !schema.isNullOrBlank() && (hl7Spec.isNotEmpty() || value.isNotEmpty()) ->
@@ -166,7 +185,12 @@ data class ConfigSchemaElement(
         }
 
         if (!schema.isNullOrBlank() && schemaRef == null) {
-            addError("Missing schema reference $schema")
+            addError("Missing schema reference for '$schema'")
+        }
+
+        // Check that all constants have a string
+        constants.filterValues { it.isNullOrBlank() }.forEach { (key, _) ->
+            addError("Constant '$key' does not have a value")
         }
 
         // Validate the FHIR paths.

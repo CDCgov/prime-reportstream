@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -54,6 +55,21 @@ class ConfigSchemaTests {
         assertThat(schema.isValid()).isFalse()
         assertThat(schema.isValid()).isFalse() // We check again to make sure we get the same value
         assertThat(schema.errors).isNotEmpty()
+
+        // Check on contants
+        schema = ConfigSchema(
+            "name", "ORU_R01", "2.5.1", listOf(goodElement), constants = sortedMapOf("const1" to "")
+        )
+        assertThat(schema.isValid()).isFalse()
+        assertThat(schema.errors).isNotEmpty()
+        assertThat(schema.errors.size).isEqualTo(1)
+        assertThat(schema.errors[0]).contains(schema.constants.firstKey())
+
+        schema = ConfigSchema(
+            "name", "ORU_R01", "2.5.1", listOf(goodElement), constants = sortedMapOf("const1" to "value")
+        )
+        assertThat(schema.isValid()).isTrue()
+        assertThat(schema.errors).isEmpty()
     }
 
     @Test
@@ -113,6 +129,40 @@ class ConfigSchemaTests {
             "name", value = listOf("Bundle"), resource = "Bundle", condition = "Bundle...",
         )
         assertThat(element.validate()).isNotEmpty()
+
+        // Check on resource index
+        val aSchema = ConfigSchema(
+            "schemaname",
+            elements = listOf(ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7")))
+        )
+        element = ConfigSchemaElement(
+            "name", schema = "someschema", schemaRef = aSchema, resourceIndex = "someindex"
+        )
+        assertThat(element.validate()).isNotEmpty()
+        element = ConfigSchemaElement(
+            "name", schema = "someschema", schemaRef = aSchema, resourceIndex = "someindex",
+            resource = "someresource"
+        )
+        assertThat(element.validate()).isEmpty()
+        element = ConfigSchemaElement(
+            "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"), resourceIndex = "someindex",
+            resource = "someresource"
+        )
+        assertThat(element.validate()).isNotEmpty()
+
+        // Check on constants
+        element = ConfigSchemaElement(
+            "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"), constants = sortedMapOf("const1" to "")
+        )
+        val errors = element.validate()
+        assertThat(errors).isNotEmpty()
+        assertThat(errors.size).isEqualTo(1)
+        assertThat(errors[0]).contains(element.constants.firstKey())
+        element = ConfigSchemaElement(
+            "name", value = listOf("somevalue"), hl7Spec = listOf("MSH-10"),
+            constants = sortedMapOf("const1" to "value")
+        )
+        assertThat(element.validate()).isEmpty()
     }
 
     @Test

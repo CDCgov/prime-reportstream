@@ -15,3 +15,10 @@ elements:
     condition: '%resource.count() = 1'
     required: true
     schema: ORU_R01/patient
+
+  - name: order-observations
+    resource: Bundle.entry.resource.ofType(DiagnosticReport)
+    condition: '%resource.count() > 0'
+    required: true
+    schema: ORU_R01/order-observation
+    resourceIndex: orderIndex
