@@ -99,21 +99,25 @@ class FhirRouterTests {
         "\t\t\t\t\"source\": {\n" +
         "\t\t\t\t\t\"extension\": [\n" +
         "\t\t\t\t\t\t{\n" +
-        "\t\t\t\t\t\t\t\"url\": \"https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-vendor-org\",\n" +
+        "\t\t\t\t\t\t\t\"url\": \"https://reportstream.cdc.gov/fhir/StructureDefinition/" +
+        "source-software-vendor-org\",\n" +
         "\t\t\t\t\t\t\t\"valueReference\": {\n" +
         "\t\t\t\t\t\t\t\t\"reference\": \"Organization/c3a639a8-d624-455f-844d-ad5aea717c56\"\n" +
         "\t\t\t\t\t\t\t}\n" +
         "\t\t\t\t\t\t},\n" +
         "\t\t\t\t\t\t{\n" +
-        "\t\t\t\t\t\t\t\"url\": \"https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-install-date\",\n" +
+        "\t\t\t\t\t\t\t\"url\": \"https://reportstream.cdc.gov/fhir/StructureDefinition/" +
+        "source-software-install-date\",\n" +
         "\t\t\t\t\t\t\t\"valueDateTime\": \"2021-07-26\"\n" +
         "\t\t\t\t\t\t},\n" +
         "\t\t\t\t\t\t{\n" +
-        "\t\t\t\t\t\t\t\"url\": \"https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-binary-id\",\n" +
+        "\t\t\t\t\t\t\t\"url\": \"https://reportstream.cdc.gov/fhir/StructureDefinition/" +
+        "source-software-binary-id\",\n" +
         "\t\t\t\t\t\t\t\"valueString\": \"0.1-SNAPSHOT\"\n" +
         "\t\t\t\t\t\t},\n" +
         "\t\t\t\t\t\t{\n" +
-        "\t\t\t\t\t\t\t\"url\": \"https://reportstream.cdc.gov/fhir/StructureDefinition/source-identifier-system\",\n" +
+        "\t\t\t\t\t\t\t\"url\": \"https://reportstream.cdc.gov/fhir/StructureDefinition/" +
+        "source-identifier-system\",\n" +
         "\t\t\t\t\t\t\t\"valueOid\": \"urn:oid:2.16.840.1.114222.4.1.237821\"\n" +
         "\t\t\t\t\t\t}\n" +
         "\t\t\t\t\t],\n" +
