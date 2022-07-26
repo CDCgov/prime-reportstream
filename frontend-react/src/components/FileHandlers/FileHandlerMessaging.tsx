@@ -5,7 +5,7 @@ import {
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
 import { StaticAlert } from "../StaticAlert";
-import { FileResponseError } from "../../network/api/WatersApi";
+import { ResponseError } from "../../network/api/WatersApi";
 
 type ExtendedSuccessMetadata = {
     destinations?: string;
@@ -92,35 +92,27 @@ export const FileSuccessDisplay = ({
     );
 };
 
+/***
+ * This function attempts to truncate an error message if it contains
+ * a full stack trace
+ * @param errorMessage - the error message to potentially reformat
+ * @returns - the original or transformed error message
+ */
+const truncateErrorMesssage = (errorMessage: string | undefined): string => {
+    if (!errorMessage) return "";
+
+    if (errorMessage.includes("\n") && errorMessage.includes("Exception:"))
+        return errorMessage.substring(0, errorMessage.indexOf("\n")) + " ...";
+
+    return errorMessage;
+};
+
 type FileErrorDisplayProps = {
-    errors: FileResponseError[];
+    errors: ResponseError[];
     message: string;
     fileName: string;
     handlerType: string;
     heading: string;
-};
-
-/***
- * This function attempts to truncate an error message if it contains
- * a full stack trace
- * @param truncateErrorMessage - the error message to potentially reformat
- * @returns - the original or transformed error message
- */
-const reformat = (truncateErrorMessage: string | undefined): string => {
-    if (!truncateErrorMessage) return "";
-
-    if (
-        truncateErrorMessage.includes("\n") &&
-        truncateErrorMessage.includes("Exception:")
-    )
-        return (
-            truncateErrorMessage.substring(
-                0,
-                truncateErrorMessage.indexOf("\n")
-            ) + " ..."
-        );
-
-    return truncateErrorMessage;
 };
 
 export const FileErrorDisplay = ({
@@ -134,7 +126,7 @@ export const FileErrorDisplay = ({
         errors && errors.length && errors.some((error) => error.message);
 
     useEffect(() => {
-        errors.forEach((error: FileResponseError) => {
+        errors.forEach((error: ResponseError) => {
             if (error.details) {
                 console.error(`${handlerType} failure: ${error.details}`);
             }
@@ -142,7 +134,7 @@ export const FileErrorDisplay = ({
     }, [errors, handlerType]);
 
     return (
-        <div>
+        <>
             <StaticAlert type={"error"} heading={heading} message={message} />
             <div>
                 <p
@@ -154,37 +146,92 @@ export const FileErrorDisplay = ({
                 <p className="margin-top-05">{fileName}</p>
             </div>
             {showErrorTable && (
-                <table className="usa-table usa-table--borderless">
-                    <thead>
-                        <tr>
-                            <th>Requested Edit</th>
-                            <th>Areas Containing the Requested Edit</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {errors.map((e, i) => {
-                            return (
-                                <tr key={"error_" + i}>
-                                    <td>{reformat(e.message)}</td>
-                                    <td>
-                                        {e.rowList && (
-                                            <span>Row(s): {e.rowList}</span>
-                                        )}
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                <>
+                    <h3>Errors</h3>
+                    <table className="usa-table usa-table--borderless">
+                        <thead>
+                            <tr>
+                                <th>Requested Edit</th>
+                                <th>Areas Containing the Requested Edit</th>
+                                <th>Field</th>
+                                <th>Tracking ID(s)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {errors.map((e, i) => {
+                                return <ErrorRow error={e} index={i} />;
+                            })}
+                        </tbody>
+                    </table>
+                </>
             )}
-        </div>
+        </>
     );
 };
 
-interface FileWarningDisplayProps {
+interface FileWarningBannerProps {
     message: string;
 }
 
-export const FileWarningDisplay = ({ message }: FileWarningDisplayProps) => {
+export const FileWarningBanner = ({ message }: FileWarningBannerProps) => {
     return <StaticAlert type={"warning"} heading="Warning" message={message} />;
+};
+
+type FileWarningsDisplayProps = {
+    warnings: ResponseError[];
+    message: string;
+    heading: string;
+};
+
+export const FileWarningsDisplay = ({
+    warnings,
+    message,
+    heading,
+}: FileWarningsDisplayProps) => {
+    return (
+        <>
+            <StaticAlert type={"warning"} heading={heading} message={message} />
+            <h3>Warnings</h3>
+            <table className="usa-table usa-table--borderless">
+                <thead>
+                    <tr>
+                        <th>Warning</th>
+                        <th>Indices</th>
+                        <th>Field</th>
+                        <th>Tracking ID(s)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {warnings.map((w, i) => {
+                        return <ErrorRow error={w} index={i} />;
+                    })}
+                </tbody>
+            </table>
+        </>
+    );
+};
+
+interface ErrorRowProps {
+    error: ResponseError;
+    index: number;
+}
+
+const ErrorRow = ({ error, index }: ErrorRowProps) => {
+    const { message, indices, field, trackingIds } = error;
+    return (
+        <tr key={"error_" + index}>
+            <td>{truncateErrorMesssage(message)}</td>
+            <td>
+                {indices?.length && indices.length > 0 && (
+                    <span>Row(s): {indices.join(", ")}</span>
+                )}
+            </td>
+            <td>{field}</td>
+            <td>
+                {trackingIds?.length && trackingIds.length > 0 && (
+                    <span>{trackingIds.join(", ")}</span>
+                )}
+            </td>
+        </tr>
+    );
 };

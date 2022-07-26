@@ -5,7 +5,10 @@ import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 import { MarkdownDirectory } from "../Content/MarkdownDirectory";
 import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 
-export type NonStaticOption = Omit<MarkdownDirectory, "files" | "desc">;
+export interface NonStaticOption {
+    title: string;
+    slug: string;
+}
 
 interface DropdownNavProps {
     label: string;
@@ -67,56 +70,6 @@ export const AdminDropdown = () => {
     if (CheckFeatureFlag("value-sets"))
         pages.push(makeNonStaticOption("Value Sets", "value-sets"));
     return <DropdownNav label={"Admin"} root={"/admin"} directories={pages} />;
-};
-
-export const GettingStartedDropdown = () => {
-    return (
-        <DropdownNav
-            label="Getting Started"
-            root="/getting-started"
-            directories={[
-                makeNonStaticOption(
-                    "Public health departments",
-                    "public-health-departments/overview"
-                ),
-                makeNonStaticOption(
-                    "Testing facilities",
-                    "testing-facilities/overview"
-                ),
-            ]}
-        />
-    );
-};
-
-export const HowItWorksDropdown = () => {
-    return (
-        <DropdownNav
-            label="How It Works"
-            root="/how-it-works"
-            directories={[
-                makeNonStaticOption("About", "about"),
-                makeNonStaticOption("Where we're live", "where-were-live"),
-                makeNonStaticOption(
-                    "System and settings",
-                    "systems-and-settings"
-                ),
-                makeNonStaticOption("Security practices", "security-practices"),
-            ]}
-        />
-    );
-};
-
-export const SupportDropdown = () => {
-    return (
-        <DropdownNav
-            label="Support"
-            root="/support"
-            directories={[
-                makeNonStaticOption("Contact", "contact"),
-                makeNonStaticOption("Frequently asked questions", "faq"),
-            ]}
-        />
-    );
 };
 
 export default DropdownNav;

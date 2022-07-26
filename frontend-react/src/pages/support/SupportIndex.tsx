@@ -30,21 +30,27 @@ const DirectoryTools = new ContentDirectoryTools()
 
 /* An array of directories to be rendered */
 const directories: ContentDirectory[] = [
-    new ElementDirectory(
-        "Contact",
-        DirectoryTools.prependRoot("CONTACT"),
-        "Want to get in touch with ReportStream? Email us at reportstream@cdc.gov.",
-        contentContainer(<Contact />, DirectoryTools.makeCrumb("Contact"))
-    ),
-    new ElementDirectory(
-        "Frequently asked questions",
-        DirectoryTools.prependRoot("FAQ"),
-        "Answers to common questions about working with ReportStream.",
-        contentContainer(
-            <Faq />,
-            DirectoryTools.makeCrumb("Frequently asked questions")
+    new ElementDirectory()
+        .setTitle("Contact")
+        .setDescription(DirectoryTools.prependRoot("CONTACT"))
+        .setDescription(
+            "Want to get in touch with ReportStream? Email us at reportstream@cdc.gov."
         )
-    ),
+        .addElement(
+            contentContainer(<Contact />, DirectoryTools.makeCrumb("Contact"))
+        ),
+    new ElementDirectory()
+        .setTitle("Frequently asked questions")
+        .setSlug(DirectoryTools.prependRoot("FAQ"))
+        .setDescription(
+            "Answers to common questions about working with ReportStream."
+        )
+        .addElement(
+            contentContainer(
+                <Faq />,
+                DirectoryTools.makeCrumb("Frequently asked questions")
+            )
+        ),
 ];
 
 export const Support = () => {

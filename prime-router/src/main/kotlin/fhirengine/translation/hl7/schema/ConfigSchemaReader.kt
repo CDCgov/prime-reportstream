@@ -1,9 +1,8 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
-import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.JacksonYAMLParseException
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.InputStream
@@ -21,13 +20,14 @@ object ConfigSchemaReader : Logging {
         val rawSchema = readSchemaTreeFromFile(schemaName, folder)
 
         if (!rawSchema.isValid()) {
-            throw Exception("Invalid schema $schemaName: \n${rawSchema.errors.joinToString("\n")}")
+            throw SchemaException("Invalid schema $schemaName: \n${rawSchema.errors.joinToString("\n")}")
         }
         return rawSchema
     }
 
     /**
      * Read a complete schema tree from a file for [schemaName] in [folder].
+     * Note this is a recursive function used to walk through all the schemas to load.
      * @return the validated schema
      */
     internal fun readSchemaTreeFromFile(schemaName: String, folder: String? = null): ConfigSchema {
@@ -35,12 +35,10 @@ object ConfigSchemaReader : Logging {
         if (!file.canRead()) throw Exception("Cannot read ${file.absolutePath}")
         val rawSchema = try {
             readOneYamlSchema(file.inputStream())
-        } catch (e: JacksonYAMLParseException) {
-            logger.error("Error while reading schema configuration from file ${file.absolutePath}", e)
-            throw e
-        } catch (e: JsonMappingException) {
-            logger.error("Error while reading schema configuration from file ${file.absolutePath}", e)
-            throw e
+        } catch (e: Exception) {
+            val msg = "Error while reading schema configuration from file ${file.absolutePath}"
+            logger.error(msg, e)
+            throw SchemaException(msg, e)
         }
 
         // Process any schema references

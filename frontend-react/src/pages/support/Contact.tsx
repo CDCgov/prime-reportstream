@@ -56,15 +56,22 @@ export const Contact = () => {
                     Have a problem with a data you're trying to send or receive?
                 </h3>
                 <p>
-                    Read our guides for sending data{" "}
+                    Read our guides for sending data via{" "}
                     <a className="usa-link" href="/resources/elr-checklist">
-                        via API (ELR)
+                        ELR
                     </a>{" "}
-                    or{" "}
-                    <a className="usa-link" href="/resources/csv-upload-guide">
-                        via CSV upload
+                    ,
+                    <a className="usa-link" href="/resources/programmers-guide">
+                        API
                     </a>
-                    . For all other issues, contact us at{" "}
+                    , or{" "}
+                    <a className="usa-link" href="/resources/csv-upload-guide">
+                        CSV upload
+                    </a>
+                    .
+                </p>
+                <p>
+                    For all other issues, contact us at{" "}
                     <a
                         href={
                             "mailto:" + DOMPurify.sanitize(site.orgs.RS.email)
