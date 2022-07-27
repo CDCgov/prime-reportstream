@@ -269,11 +269,6 @@ resource "azurerm_storage_account_customer_managed_key" "storage_partner_key" {
   depends_on = [azurerm_key_vault_access_policy.storage_partner_policy]
 }
 
-resource "azurerm_storage_container" "storage_container_hhsprotect" {
-  name                 = "hhsprotect"
-  storage_account_name = azurerm_storage_account.storage_partner.name
-}
-
 resource "azurerm_storage_management_policy" "storage_partner_retention_policy" {
   storage_account_id = azurerm_storage_account.storage_partner.id
 
