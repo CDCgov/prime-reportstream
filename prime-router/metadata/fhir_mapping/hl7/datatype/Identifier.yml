@@ -1,9 +1,11 @@
 # added condition to filter out if empty
 type:
    valueOf: datatype/CodeableConcept
-   condition: $code NOT_NULL || $alternateCode NOT_NULL || $type NOT_NULL
+   condition: $valueIn NOT_NULL
    expressionType: resource
    specs: CX.5 | $type
+   vars:
+     valueIn: CX.5 | $code | $alternateCode | $type
 
 system:
      type: SYSTEM_URL
