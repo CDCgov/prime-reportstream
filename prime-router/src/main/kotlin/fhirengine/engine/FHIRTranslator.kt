@@ -19,7 +19,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchema
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 
 /**
- * Translate a full-ELR FHIR [message] into the formats needed by any receivers from the route step
+ * Translate a full-ELR FHIR message into the formats needed by any receivers from the route step
  * [metadata] mockable metadata
  * [settings] mockable settings
  * [db] mockable database access
@@ -55,24 +55,26 @@ class FHIRTranslator(
             actionHistory.trackExistingInputReport(message.reportId)
 
             // todo: iterate over each receiver, translating on a per-receiver basis - for phase 1, hard coded to CO
-            val receivers = listOf<String>("co-pdh")
+            val receivers = listOf("ignore")
 
             receivers.forEach {
                 // todo: get schema for receiver - for Phase 1 this is solely going to convert to HL7 and not do any
                 //  receiver-specific transforms
 
                 // todo: do translation, get hl7 message
-                var schema = ConfigSchema("FHIR_HL7", hl7Type = "ORU_R01", hl7Version = "2.5.1")
+                val schema = ConfigSchema("FHIR_HL7", hl7Type = "ORU_R01", hl7Version = "2.5.1")
                 val hl7Message = FhirToHl7Converter(bundle, schema).convert()
 
-                // create report object  // DEBUG - this needs to be the report created by converting to HL7
-                // todo: remove this. we should not be creating this report here. It is for interim commit work
+                // create report object
                 val sources = emptyList<Source>()
                 val report = Report(
                     Report.Format.HL7,
                     sources,
                     1,
-                    metadata = metadata
+                    metadata = metadata,
+                    // todo: when we actually want to send HL7 data to a receiver, we will need to ensure the
+                    //  destination property of the report is set
+                    // destination = settings.findReceiver(it)
                 )
 
                 // create item lineage
@@ -95,13 +97,13 @@ class FHIRTranslator(
                     Event.EventAction.BATCH,
                     report.id,
                     Options.None,
-                    emptyMap<String, String>(),
-                    emptyList<String>()
+                    emptyMap(),
+                    emptyList()
                 )
 
                 // upload the translated copy to blobstore
-                var bodyBytes = hl7Message.encode().toByteArray()
-                var blobInfo = BlobAccess.uploadBody(
+                val bodyBytes = hl7Message.encode().toByteArray()
+                val blobInfo = BlobAccess.uploadBody(
                     Report.Format.HL7,
                     bodyBytes,
                     report.name,
