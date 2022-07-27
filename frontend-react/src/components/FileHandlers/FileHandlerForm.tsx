@@ -9,11 +9,10 @@ import {
 
 import { FileHandlerSubmitButton } from "./FileHandlerButton";
 
-// NOTE: many of this props will go away / change after we refactor FileHandler to use a reducer
 interface FileHandlerFormProps {
     handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    resetState: () => void;
+    resetState: () => void; // to handle resetting any parent state
     fileInputResetValue: number;
     submitted: boolean;
     cancellable: boolean;
@@ -23,9 +22,8 @@ interface FileHandlerFormProps {
     submitText: string;
 }
 
-// TODO: create passed functions within this component once reducer is in place
-// Currently handling them above,  otherwise we'd wind up
-// passing through too many state control functions here, with a reducer we can just pass dispatch
+// form for submitting files to the api
+// all state is controlled from above, and necessary elements and control functions are passed in
 export const FileHandlerForm = ({
     handleSubmit,
     handleFileChange,
