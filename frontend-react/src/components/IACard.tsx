@@ -9,13 +9,13 @@ export const IACardList = ({ dirs }: { dirs: ContentDirectory[] }) => {
     return (
         <ul className="usa-card-group">
             {dirs.map((res, idx) => (
-                <IACard {...res} key={idx} />
+                <IACard dir={res} key={idx} />
             ))}
         </ul>
     );
 };
 
-const IACard = (dir: ContentDirectory) => {
+const IACard = ({ dir }: { dir: ContentDirectory }) => {
     return (
         <li className="usa-card tablet:grid-col-4">
             <div className="usa-card__container">
