@@ -9,45 +9,46 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
+import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.Message
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import org.apache.logging.log4j.kotlin.Logging
 
-const val elrProcessQueueName = "process-elr"
-
 /**
- * Functions to execution and logging of FHIR translations.
+ * Takes a FHIR message, parses it, and generates translated outputs for each receiver in the destinations list
  * @property workflowEngine the workflow engine
  * @property fhirEngine the fhir engine to use
  * @property actionHistory the action history tracker
  * @property actionLogger the action logger
  */
-class FHIRProcessFunctions(
+class FHIRTranslateFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-    private val fhirEngine: FHIREngine = FHIREngine(),
-    private val actionHistory: ActionHistory = ActionHistory(TaskAction.process),
+    private val fhirEngine: FHIREngine = FHIRTranslator(),
+    private val actionHistory: ActionHistory = ActionHistory(TaskAction.translate),
     private val actionLogger: ActionLogger = ActionLogger()
 ) : Logging {
 
     /**
-     * An azure function for processing ingesting full-ELR HL7 data.
+     * An azure function for translating full-ELR FHIR data.
      */
-    @FunctionName("process-fhir")
+    @FunctionName("translate-fhir")
     @StorageAccount("AzureWebJobsStorage")
     fun process(
-        @QueueTrigger(name = "message", queueName = elrProcessQueueName)
+        @QueueTrigger(name = "message", queueName = elrTranslationQueueName)
         message: String,
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
-        logger.debug("Processing message: $message for the $dequeueCount time")
+        logger.debug("Translating message: $message for the $dequeueCount time")
         val messageContent = Message.deserialize(message)
         check(messageContent is RawSubmission) {
-            "An unknown message was received by the FHIR Engine ${messageContent.javaClass.kotlin.qualifiedName}"
+            "An unknown message was received by the FHIR Translate Function " +
+                "${messageContent.javaClass.kotlin.qualifiedName}"
         }
 
         try {
-            fhirEngine.processHL7(messageContent, actionLogger, actionHistory)
+            fhirEngine.doWork(messageContent, actionLogger, actionHistory)
         } catch (e: Exception) {
             logger.error("Unknown error.", e)
         }
