@@ -31,6 +31,9 @@ method:
     spm7: SPM.7
 
 bodySite:
+  condition: $valueIn NOT_NULL
   valueOf: datatype/CodeableConcept
   expressionType: resource
   specs: SPM.8
+  vars:
+    valueIn: SPM.8

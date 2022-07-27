@@ -32,7 +32,7 @@ const DirectoryTools = new ContentDirectoryTools()
 const directories: ContentDirectory[] = [
     new ElementDirectory()
         .setTitle("Contact")
-        .setDescription(DirectoryTools.prependRoot("CONTACT"))
+        .setSlug(DirectoryTools.prependRoot("CONTACT"))
         .setDescription(
             "Want to get in touch with ReportStream? Email us at reportstream@cdc.gov."
         )
