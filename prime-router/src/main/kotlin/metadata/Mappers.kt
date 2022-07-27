@@ -488,48 +488,6 @@ class LookupMapper : Mapper {
 }
 
 /**
- * The LookupSenderValuesetsMapper is used to lookup values from the "sender_valuesets" table/csv
- * The args for the mapper are:
- *      args[0] --> lookupColumn = the primary lookup field (usually "sender_id")
- *      args[1] --> questionColumn = the secondary lookup field, expected to be the element name (i.e. patient_gender)
- * The mapper uses the above arguments + the question's answer to retrieve a row from the table
- */
-class LookupSenderValuesetsMapper : Mapper {
-    override val name = "lookupSenderValuesets"
-
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return args
-    }
-
-    override fun apply(
-        element: Element,
-        args: List<String>,
-        values: List<ElementAndValue>,
-        sender: Sender?
-    ): ElementResult {
-        return ElementResult(
-            if (values.size != args.size) {
-                null
-            } else {
-                val lookupTable = element.tableRef
-                    ?: error("Schema Error: could not find table ${element.table}")
-
-                val lookupColumn = args[0]
-                val lookupValue = values.find { it.element.name == lookupColumn }?.value ?: return ElementResult(null)
-                val questionColumn = args[1]
-                val answer = values.find { it.element.name == questionColumn }?.value ?: return ElementResult(null)
-
-                lookupTable.FilterBuilder()
-                    .equalsIgnoreCase(lookupColumn, lookupValue)
-                    .equalsIgnoreCase("element_name", element.name)
-                    .equalsIgnoreCase("free_text_substring", answer)
-                    .findSingleResult("result")
-            }
-        )
-    }
-}
-
-/**
  * The lookupSenderAutomationValuesetsMapper is used to lookup values from the
  *      "sender_automation_value_set_row" table/csv
  * The args for the mapper are:

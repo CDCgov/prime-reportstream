@@ -3,6 +3,7 @@ import {
     Breadcrumb,
     BreadcrumbLink,
 } from "@trussworks/react-uswds";
+import { ReactChild } from "react";
 
 interface CrumbConfig {
     label: string;
@@ -11,12 +12,13 @@ interface CrumbConfig {
 
 interface CrumbsProps {
     crumbList?: CrumbConfig[];
+    noPadding?: boolean;
 }
 
-const Crumbs = ({ crumbList }: CrumbsProps) => {
+const Crumbs = ({ crumbList, noPadding }: CrumbsProps) => {
     if (crumbList) {
         return (
-            <div className="grid-container">
+            <div className={!noPadding ? "grid-container" : ""}>
                 <BreadcrumbBar>
                     {crumbList?.map((crumbConfig) => (
                         <Breadcrumb
@@ -42,6 +44,21 @@ const Crumbs = ({ crumbList }: CrumbsProps) => {
             </div>
         );
     }
+};
+
+interface WithCrumbsProps extends CrumbsProps {
+    page: ReactChild;
+}
+/** HOC to provide Crumbs at top of page
+ * @param props {WithCrumbsProps} Pass in an array of CrumbConfigs for rendering and
+ * a page to render with it */
+export const WithCrumbs = ({ crumbList, page }: WithCrumbsProps) => {
+    return (
+        <>
+            <Crumbs crumbList={crumbList} />
+            {page}
+        </>
+    );
 };
 
 export default Crumbs;

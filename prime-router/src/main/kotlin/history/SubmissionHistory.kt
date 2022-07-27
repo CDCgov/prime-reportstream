@@ -78,7 +78,9 @@ class DetailedSubmissionHistory(
     @JsonProperty("timestamp")
     createdAt: OffsetDateTime,
     httpStatus: Int? = null,
+    @JsonIgnore
     val reports: MutableList<DetailedReport>? = mutableListOf(),
+    @JsonIgnore
     var logs: List<DetailedActionLog> = emptyList(),
 ) : SubmissionHistory(
     actionId,
@@ -193,13 +195,16 @@ class DetailedSubmissionHistory(
                 val filteredReportItems = filterLogs.map {
                     ReportStreamFilterResultForResponse(it.detail as ReportStreamFilterResult)
                 }
+                // If there is no transport defined, there will not be a next action so sending at
+                // should be null.
+                val nextActionTime = if (report.receiverHasTransport) report.nextActionAt else null
                 destinations.add(
                     Destination(
                         report.receivingOrg,
                         report.receivingOrgSvc!!,
                         filteredReportRows,
                         filteredReportItems,
-                        report.nextActionAt,
+                        nextActionTime,
                         report.itemCount,
                         report.itemCountBeforeQualFilter,
                     )

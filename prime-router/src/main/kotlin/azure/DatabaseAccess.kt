@@ -22,6 +22,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
+import gov.cdc.prime.router.azure.db.tables.pojos.ElrResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.JtiCache
 import gov.cdc.prime.router.azure.db.tables.pojos.ListSendFailures
@@ -30,6 +31,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.CovidResultMetadataRecord
+import gov.cdc.prime.router.azure.db.tables.records.ElrResultMetadataRecord
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
@@ -980,7 +982,94 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
          * @param testData : the report meta data to persist
          * @param txn : the database transaction to use for this insert/update
          */
-        fun saveTestData(testData: List<CovidResultMetadata>, txn: DataAccessTransaction) {
+        fun saveTestData(testData: List<ElrResultMetadata>, txn: DataAccessTransaction) {
+            DSL.using(txn)
+                .batchInsert(
+                    testData.map { td ->
+                        ElrResultMetadataRecord().also { record ->
+                            record.messageId = td.messageId?.take(METADATA_MAX_LENGTH)
+                            record.previousMessageId = td.previousMessageId?.take(METADATA_MAX_LENGTH)
+                            record.topic = td.topic?.take(METADATA_MAX_LENGTH)
+                            record.reportId = td.reportId
+                            record.reportIndex = td.reportIndex
+                            record.sendingApplicationId = td.sendingApplicationId?.take(METADATA_MAX_LENGTH)
+                            record.sendingApplicationName = td.sendingApplicationName?.take(METADATA_MAX_LENGTH)
+                            record.orderingProviderName =
+                                td.orderingProviderName?.take(METADATA_MAX_LENGTH)
+                            record.orderingProviderCounty =
+                                td.orderingProviderCounty?.take(METADATA_MAX_LENGTH)
+                            record.orderingProviderId =
+                                td.orderingProviderId?.take(METADATA_MAX_LENGTH)
+                            record.orderingProviderPostalCode = td.orderingProviderPostalCode
+                            record.orderingProviderState =
+                                td.orderingProviderState?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityCity =
+                                td.orderingFacilityCity?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityCounty =
+                                td.orderingFacilityCounty?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityId = td.orderingFacilityId?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityName =
+                                td.orderingFacilityName?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityPostalCode = td.orderingFacilityPostalCode
+                            record.orderingFacilityState =
+                                td.orderingFacilityState?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityCity = td.orderingFacilityCity?.take(METADATA_MAX_LENGTH)
+                            record.organizationName =
+                                td.organizationName?.take(METADATA_MAX_LENGTH)
+                            record.testResult = td.testResult?.take(METADATA_MAX_LENGTH)
+                            record.testResultCode = td.testResultCode
+                            record.equipmentModel = td.equipmentModel?.take(METADATA_MAX_LENGTH)
+                            record.specimenCollectionDateTime = td.specimenCollectionDateTime
+                            record.specimenReceivedDateTime = td.specimenReceivedDateTime
+                            record.specimenCollectionMethod = td.specimenCollectionMethod
+                            record.specimenCollectionSite = td.specimenCollectionSite
+                            record.specimenSourceSite = td.specimenSourceSite
+                            record.testingFacilityCity = td.testingFacilityCity?.take(METADATA_MAX_LENGTH)
+                            record.testingFacilityId = td.testingFacilityId
+                            record.testingFacilityCounty =
+                                td.testingFacilityCounty?.take(METADATA_MAX_LENGTH)
+                            record.testingFacilityName = td.testingFacilityName?.take(METADATA_MAX_LENGTH)
+                            record.testingFacilityPostalCode = td.testingFacilityPostalCode
+                            record.testingFacilityState =
+                                td.testingFacilityState?.take(METADATA_MAX_LENGTH)
+                            record.patientAge = td.patientAge
+                            record.patientCounty = td.patientCounty?.take(METADATA_MAX_LENGTH)
+                            record.patientCountry = td.patientCountry?.take(METADATA_MAX_LENGTH)
+                            record.patientEthnicity = td.patientEthnicity
+                            record.patientEthnicityCode = td.patientEthnicityCode
+                            record.patientGender = td.patientGender
+                            record.patientGenderCode = td.patientGenderCode
+                            record.patientPostalCode = td.patientPostalCode
+                            record.patientRace = td.patientRace
+                            record.patientRaceCode = td.patientRaceCode
+                            record.patientState = td.patientState?.take(METADATA_MAX_LENGTH)
+                            record.patientTribalCitizenship = td.patientTribalCitizenship?.take(METADATA_MAX_LENGTH)
+                            record.patientTribalCitizenshipCode =
+                                td.patientTribalCitizenshipCode?.take(METADATA_MAX_LENGTH)
+                            record.patientPreferredLanguage = td.patientPreferredLanguage?.take(METADATA_MAX_LENGTH)
+                            record.patientNationality = td.patientNationality?.take(METADATA_MAX_LENGTH)
+                            record.reasonForStudy = td.reasonForStudy?.take(METADATA_MAX_LENGTH)
+                            record.reasonForStudyCode = td.reasonForStudyCode?.take(METADATA_MAX_LENGTH)
+                            record.siteOfCare = td.siteOfCare?.take(METADATA_MAX_LENGTH)
+                            record.senderId = td.senderId?.take(METADATA_MAX_LENGTH)
+                            record.testKitNameId = td.testKitNameId?.take(METADATA_MAX_LENGTH)
+                            record.testPerformedCode = td.testPerformedCode?.take(METADATA_MAX_LENGTH)
+                            record.testPerformed = td.testPerformed?.take(METADATA_MAX_LENGTH)
+                            record.testOrdered = td.testOrdered?.take(METADATA_MAX_LENGTH)
+                            record.testOrderedCode = td.testOrderedCode?.take(METADATA_MAX_LENGTH)
+                            record.testResult = td.testResult?.take(METADATA_MAX_LENGTH)
+                            record.testResultCode = td.testResultCode?.take(METADATA_MAX_LENGTH)
+                        }
+                    }
+                )
+                .execute()
+        }
+
+        /**
+         * This is the old way, this is not the new way. Saves just the COVID-specific
+         * report metadata to the table. We want to migrate this to the newer version.
+         */
+        fun saveCovidTestData(testData: List<CovidResultMetadata>, txn: DataAccessTransaction) {
             DSL.using(txn)
                 .batchInsert(
                     testData.map { td ->
