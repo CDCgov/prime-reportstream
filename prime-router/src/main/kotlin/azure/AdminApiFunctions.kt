@@ -53,7 +53,7 @@ class AdminApiFunctions(
         request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         logger.info("Entering adm/getsendfailures api")
-        return getOktaAuthenticator().checkAccess(request) {
+        return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
             try {
                 val daysToShow = request.queryParameters[daysBackSpanParameter]
                     ?.toIntOrDefault(30) ?: 30
@@ -83,7 +83,7 @@ class AdminApiFunctions(
         request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         logger.info("Entering adm/listreceiversconnstatus api")
-        return getOktaAuthenticator().checkAccess(request) {
+        return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
             try {
                 val startDateTime = OffsetDateTime.parse(request.queryParameters[startDateParam])
                 // endDateParam may be missing and that's ok.
