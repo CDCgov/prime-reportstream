@@ -9,9 +9,7 @@ import { AdminReceiverDashboard } from "../../components/Admin/AdminReceiverDash
 
 export function AdminReceiverDashPage() {
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
+        <>
             <Helmet>
                 <title>Admin Destination Dashboard</title>
             </Helmet>
@@ -29,6 +27,6 @@ export function AdminReceiverDashPage() {
                 </Suspense>
             </NetworkErrorBoundary>
             <HipaaNotice />
-        </NetworkErrorBoundary>
+        </>
     );
 }
