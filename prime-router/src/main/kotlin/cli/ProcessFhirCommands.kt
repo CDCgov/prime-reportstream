@@ -165,33 +165,36 @@ class FhirPathCommand : CliktCommand(
 
             if (pathExpression != null) {
                 // Evaluate the path
-                val value = FhirPathUtils.evaluate("", bundle, bundle, pathExpression)
+                try {
+                    val value = FhirPathUtils.evaluate(null, bundle, bundle, pathExpression)
+                    // Note you can get collections
+                    value.forEach {
+                        val valueAsString =
+                            when {
+                                it.isPrimitive -> "Primitive: $it"
 
-                // Note you can get collections
-                value?.forEach {
-                    val valueAsString =
-                        when {
-                            it.isPrimitive -> "Primitive: $it"
+                                // Resource are large, so lets pretty print them
+                                it is IBaseResource -> {
+                                    val encodedResource = FhirContext.forR4().newJsonParser().encodeResourceToString(it)
+                                    val jsonObject = JacksonMapperUtilities.defaultMapper
+                                        .readValue(encodedResource, Any::class.java)
+                                    JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
+                                }
 
-                            // Resource are large, so lets pretty print them
-                            it is IBaseResource -> {
-                                val encodedResource = FhirContext.forR4().newJsonParser().encodeResourceToString(it)
-                                val jsonObject = JacksonMapperUtilities.defaultMapper
-                                    .readValue(encodedResource, Any::class.java)
-                                JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
+                                // Bundle entries
+                                it is BundleEntryComponent -> "Entry: ${it.fullUrl}"
+
+                                // Non-base resources
+                                else -> "Resource: $it"
                             }
 
-                            // Bundle entries
-                            it is BundleEntryComponent -> "Entry: ${it.fullUrl}"
-
-                            // Non-base resources
-                            else -> "Resource: $it"
-                        }
-
-                    // Print out the value, but add a dash to each collection entry if more than one
-                    echo("${if (value.size > 1) "- " else ""}$valueAsString", true)
+                        // Print out the value, but add a dash to each collection entry if more than one
+                        echo("${if (value.size > 1) "- " else ""}$valueAsString", true)
+                    }
+                    if (value.size > 1) echo("--- Return size = ${value.size}  ---")
+                } catch (e: NotImplementedError) {
+                    echo("One or more FHIR path functions specified are not implemented in the library")
                 }
-                if (value != null && value.size > 1) echo("--- Return size = ${value.size}  ---")
             }
 
             echo("----------------------------------------------------", true)

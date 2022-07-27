@@ -7,6 +7,7 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.ExpressionNode
+import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 
 /**
@@ -17,6 +18,10 @@ object FhirPathUtils : Logging {
      * The FHIR path engine.
      */
     private val defaultPathEngine = FHIRPathEngine(SimpleWorkerContext())
+
+    init {
+        defaultPathEngine.hostServices = FhirPathCustomResolver()
+    }
 
     /**
      * Parse a FHIR path from a [fhirPath] string.  This will also provide some format validation.
@@ -34,12 +39,17 @@ object FhirPathUtils : Logging {
      * [appContext] provides custom context (e.g. variables) used for the evaluation.
      */
     fun evaluate(
-        appContext: Any,
+        appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
         expressionNode: ExpressionNode
-    ): MutableList<Base>? {
-        return defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+    ): List<Base> {
+        val resources = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+        return resources.map {
+            if (it.hasType("Reference") && (it as Reference).resource != null) {
+                it.resource as Base
+            } else it
+        }
     }
 
     /**
@@ -51,7 +61,7 @@ object FhirPathUtils : Logging {
      * @throws SchemaException if the FHIR path does not evaluate to a boolean type
      */
     fun evaluateCondition(
-        appContext: Any,
+        appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
         expressionNode: ExpressionNode
@@ -72,13 +82,11 @@ object FhirPathUtils : Logging {
      * @return a string with the value from the expression, or an empty string
      */
     fun evaluateString(
-        appContext: Any,
+        appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
         expressionNode: ExpressionNode
     ): String {
         return defaultPathEngine.evaluateToString(appContext, focusResource, bundle, bundle, expressionNode)
     }
-
-    // TODO Input custom variables into the FHIR path evaluation
 }
