@@ -2337,9 +2337,28 @@ The patient's drivers license number
 
 Code | Display | System
 ---- | ------- | ------
-H|Hispanic or Latino|HL7
-N|Non Hispanic or Latino|HL7
-U|Unknown|HL7
+H|Hispanic or Latino|LOCAL
+H|Hispanic|LOCAL
+H|Latino|LOCAL
+H|Mex. Amer./Hispanic|LOCAL
+H|2135-2|LOCAL
+H|H|LOCAL
+N|Non Hispanic or Latino|LOCAL
+N|Non-Hispanic or Latino|LOCAL
+N|Non Hispanic|LOCAL
+N|Non-Hispanic|LOCAL
+N|Not Hispanic or Latino|LOCAL
+N|Not Hispanic|LOCAL
+N|2186-5|LOCAL
+N|N|LOCAL
+U|Unknown|LOCAL
+U|U|LOCAL
+U|UNK|LOCAL
+U|Black|LOCAL
+U|White|LOCAL
+U|African American|LOCAL
+U|NULL|LOCAL
+U|Patient Declines|LOCAL
 
 **Documentation**:
 
@@ -3355,14 +3374,45 @@ The patient's preferred language
 
 Code | Display | System
 ---- | ------- | ------
-1002-5|American Indian or Alaska Native|HL7
-2028-9|Asian|HL7
-2054-5|Black or African American|HL7
-2076-8|Native Hawaiian or Other Pacific Islander|HL7
-2106-3|White|HL7
-2131-1|Other|HL7
-UNK|Unknown|NULLFL
-ASKU|Asked, but unknown|NULLFL
+2106-3|White|LOCAL
+2106-3|W|LOCAL
+2106-3|Caucasian|LOCAL
+2106-3|C|LOCAL
+2106-3|2106-3|LOCAL
+1002-5|American Indian or Alaska Native|LOCAL
+1002-5|American Indian|LOCAL
+1002-5|Native American|LOCAL
+1002-5|1002-5|LOCAL
+2054-5|Black or African American|LOCAL
+2058-6|African American|LOCAL
+2054-5|African American Alaska Native|LOCAL
+2054-5|African American Black|LOCAL
+2054-5|Black|LOCAL
+2054-5|B|LOCAL
+2054-5|2054-5|LOCAL
+2076-8|Native Hawaiian or Other Pacific Islander|LOCAL
+2076-8|Hawaiian|LOCAL
+2076-8|NH|LOCAL
+2076-8|2076-8|LOCAL
+2131-1|Other|LOCAL
+2131-1|OTH|LOCAL
+2131-1|O|LOCAL
+2131-1|Other Race|LOCAL
+2131-1|Other Race White|LOCAL
+2131-1|Other Race,White|LOCAL
+2131-1|Other Race Black|LOCAL
+2131-1|Other Race,Black|LOCAL
+2131-1|2131-1|LOCAL
+2028-9|Asian|LOCAL
+2028-9|Asian Indian|LOCAL
+2028-9|2028-9|LOCAL
+UNK|Unknown|LOCAL
+UNK|UNK|LOCAL
+UNK|U|LOCAL
+UNK|Patient Declines|LOCAL
+UNK|null|LOCAL
+ASKU|Asked, but unknown|LOCAL
+ASKU|ASKU|LOCAL
 
 **Documentation**:
 

@@ -421,7 +421,7 @@ elements:
     type: CODE
     pii: false
     cardinality: ZERO_OR_ONE
-    valueSet: hl70189
+    valueSet: sender-automation/ethnicity
     hl7Field: PID-22
     documentation: |
       The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
@@ -530,7 +530,7 @@ elements:
     pii: false
     valueSet: hl70005
     cardinality: ZERO_OR_ONE
-    hl7Field: PID-10
+    valueSet: sender-automation/race
     documentation: |
       The patient's race. There is a common valueset defined for race values, but some states 
       may choose to define different code/value combinations.
