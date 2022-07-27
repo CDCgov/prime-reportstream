@@ -4,6 +4,7 @@ preAdmissionIdentifier:
     expressionType: resource
     specs:  PV1.5
 
+# added condition to filter out if empty
 admitSource:
    valueOf: datatype/CodeableConcept
    condition: $valueIn NOT_NULL
@@ -12,6 +13,7 @@ admitSource:
    vars:
      valueIn: PV1.14
 
+# added condition to filter out if empty
 reAdmission:
    valueOf: datatype/CodeableConcept
    condition: $valueIn NOT_NULL
@@ -20,6 +22,7 @@ reAdmission:
    vars:
      valueIn: PV1.13
 
+# added condition to filter out if empty
 dietPreference:
    valueOf: datatype/CodeableConcept
    condition: $valueIn NOT_NULL
@@ -28,6 +31,7 @@ dietPreference:
    vars:
      valueIn: PV1.38
 
+# added condition to filter out if empty
 specialCourtesy:
    valueOf: datatype/CodeableConcept
    condition: $valueIn NOT_NULL
@@ -37,6 +41,7 @@ specialCourtesy:
    vars:
      valueIn: PV1.16
 
+# added condition to filter out if empty
 specialArrangement: 
    valueOf: datatype/CodeableConcept
    condition: $valueIn NOT_NULL
@@ -46,6 +51,7 @@ specialArrangement:
    vars:
      valueIn: PV1.15 | OBR.30 | OBR.43
 
+# added condition to filter out if empty
 dischargeDisposition:
    valueOf: datatype/CodeableConcept
    condition: $valueIn NOT_NULL

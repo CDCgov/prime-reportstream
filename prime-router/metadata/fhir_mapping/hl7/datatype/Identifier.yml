@@ -1,3 +1,4 @@
+# added condition to filter out if empty
 type:
    valueOf: datatype/CodeableConcept
    condition: $code NOT_NULL || $alternateCode NOT_NULL || $type NOT_NULL
