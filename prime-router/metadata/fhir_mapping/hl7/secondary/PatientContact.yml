@@ -5,10 +5,13 @@ name:
   specs: NK1.2
 
 relationship_1:
+  condition: $valueIn NOT_NULL
   valueOf: datatype/CodeableConcept
   expressionType: resource
   generateList: true
   specs: NK1.3
+  vars:
+    valueIn: NK1.3
 
 relationship_2:
   condition: $hl7System EQUALS HL70063 && $hl7Code EQUALS OTH
@@ -42,10 +45,13 @@ address:
   specs: NK1.4
 
 telecom:
+  condition: $valueIn NOT_NULL
   valueOf: datatype/ContactPoint
   generateList: true
   expressionType: resource
   specs: NK1.5
+  vars:
+    valueIn: NK1.5
 
 organization:
   valueOf: resource/Organization
