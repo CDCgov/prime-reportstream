@@ -42,7 +42,7 @@ plugins {
 }
 
 group = "gov.cdc.prime"
-version = "0.1-SNAPSHOT"
+version = "0.2-SNAPSHOT"
 description = "prime-router"
 val azureAppName = "prime-data-hub-router"
 val azureFunctionsDir = "azure-functions"
@@ -711,7 +711,7 @@ dependencies {
     }
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.18")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.7.1")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.0.3")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.49")
@@ -734,7 +734,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:8.5.8")
-    implementation("org.commonmark:commonmark:0.18.2")
+    implementation("org.commonmark:commonmark:0.19.0")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("com.helger.as2:as2-lib:4.10.1")
     // Prevent mixed versions of these libs based on different versions being included by different packages
@@ -772,7 +772,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.12.3")
+    testImplementation("io.mockk:mockk:1.12.4")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
