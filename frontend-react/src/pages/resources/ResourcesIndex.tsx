@@ -53,98 +53,126 @@ const DirectoryTools = new ContentDirectoryTools()
 
 /* An array of directories to be rendered */
 const directories = [
-    new ElementDirectory(
-        "Account registration guide",
-        DirectoryTools.prependRoot("ACCOUNT_REGISTRATION"),
-        "Step-by-step instructions for setting up a new user account.",
-        contentContainer(
-            <AccountRegistrationGuideIa />,
-            DirectoryTools.makeCrumb("Account registration guide")
+    new ElementDirectory()
+        .setTitle("Account registration guide")
+        .setSlug(DirectoryTools.prependRoot("ACCOUNT_REGISTRATION"))
+        .setDescription(
+            "Step-by-step instructions for setting up a new user account."
         )
-    ),
-    new ElementDirectory(
-        "Getting started: Public health departments",
-        DirectoryTools.prependRoot("GETTING_STARTED_PHD"),
-        "Overview of the process for connecting your health department to ReportStream.",
-        contentContainer(
-            <GettingStartedPhd />,
-            DirectoryTools.makeCrumb(
-                "Getting started: public health departments"
+        .addElement(
+            contentContainer(
+                <AccountRegistrationGuideIa />,
+                DirectoryTools.makeCrumb("Account registration guide")
             )
+        ),
+    new ElementDirectory()
+        .setTitle("Getting started: Public health departments")
+        .setSlug(DirectoryTools.prependRoot("GETTING_STARTED_PHD"))
+        .setDescription(
+            "Overview of the process for connecting your health department to ReportStream."
         )
-    ),
-    new ElementDirectory(
-        "ELR onboarding checklist",
-        DirectoryTools.prependRoot("ELR_CHECKLIST"),
-        "Checklist of required information for public health departments to set up an ELR connection",
-        contentContainer(
-            <ELRChecklistIa />,
-            DirectoryTools.makeCrumb("ELR onboarding checklist")
+        .addElement(
+            contentContainer(
+                <GettingStartedPhd />,
+                DirectoryTools.makeCrumb(
+                    "Getting started: public health departments"
+                )
+            )
+        ),
+    new ElementDirectory()
+        .setTitle("ELR onboarding checklist")
+        .setSlug(DirectoryTools.prependRoot("ELR_CHECKLIST"))
+        .setDescription(
+            "Checklist of required information for public health departments to set up an ELR connection"
         )
-    ),
-    new ElementDirectory(
-        "Programmer's guide",
-        DirectoryTools.prependRoot("PROGRAMMERS_GUIDE"),
-        "Instructions and tools for testing facilities and organizations reporting data via the ReportStream Restful (REST) API.",
-        contentContainer(
-            <ProgrammersGuide />,
-            DirectoryTools.makeCrumb("Programmer's guide")
+        .addElement(
+            contentContainer(
+                <ELRChecklistIa />,
+                DirectoryTools.makeCrumb("ELR onboarding checklist")
+            )
+        ),
+    new ElementDirectory()
+        .setTitle("Programmer's guide")
+        .setSlug(DirectoryTools.prependRoot("PROGRAMMERS_GUIDE"))
+        .setDescription(
+            "Instructions and tools for testing facilities and organizations reporting data via the ReportStream Restful (REST) API."
         )
-    ),
-    new ElementDirectory(
-        "CSV schema documentation",
-        DirectoryTools.prependRoot("SCHEMA_DOCUMENTATION"),
-        "How to format data for reporting via CSV upload.",
-        contentContainer(
-            <CsvSchemaDocumentation />,
-            DirectoryTools.makeCrumb("CSV schema documentation")
+        .addElement(
+            contentContainer(
+                <ProgrammersGuide />,
+                DirectoryTools.makeCrumb("Programmer's guide")
+            )
+        ),
+    new ElementDirectory()
+        .setTitle("CSV schema documentation")
+        .setSlug(DirectoryTools.prependRoot("SCHEMA_DOCUMENTATION"))
+        .setDescription("How to format data for reporting via CSV upload.")
+        .addElement(
+            contentContainer(
+                <CsvSchemaDocumentation />,
+                DirectoryTools.makeCrumb("CSV schema documentation")
+            )
+        ),
+    new ElementDirectory()
+        .setTitle("CSV upload guide")
+        .setSlug(DirectoryTools.prependRoot("UPLOAD_GUIDE"))
+        .setDescription(
+            "Instructions for testing facilities and organizations reporting data via comma separated values (CSV)."
         )
-    ),
-    new ElementDirectory(
-        "CSV upload guide",
-        DirectoryTools.prependRoot("UPLOAD_GUIDE"),
-        "Instructions for testing facilities and organizations reporting data via comma separated values (CSV).",
-        contentContainer(
-            <CsvUploadGuideIa />,
-            DirectoryTools.makeCrumb("CSV upload guide")
+        .addElement(
+            contentContainer(
+                <CsvUploadGuideIa />,
+                DirectoryTools.makeCrumb("CSV upload guide")
+            )
+        ),
+    new ElementDirectory()
+        .setTitle("CSV download guide")
+        .setSlug(DirectoryTools.prependRoot("DOWNLOAD_GUIDE"))
+        .setDescription(
+            "Instructions for public health departments to download data as comma separated values (CSV)."
         )
-    ),
-    new ElementDirectory(
-        "CSV download guide",
-        DirectoryTools.prependRoot("DOWNLOAD_GUIDE"),
-        "Instructions for public health departments to download data as comma separated values (CSV).",
-        contentContainer(
-            <DataDownloadGuideIa />,
-            DirectoryTools.makeCrumb("CSV download guide")
+        .addElement(
+            contentContainer(
+                <DataDownloadGuideIa />,
+                DirectoryTools.makeCrumb("CSV download guide")
+            )
+        ),
+    new ElementDirectory()
+        .setTitle("ReportStream referral guide")
+        .setSlug(DirectoryTools.prependRoot("REFERRAL_GUIDE"))
+        .setDescription(
+            "Instructions and templates for public health departments to onboard reporting entities in their jurisdiction."
         )
-    ),
-    new ElementDirectory(
-        "ReportStream referral guide",
-        DirectoryTools.prependRoot("REFERRAL_GUIDE"),
-        "Instructions and templates for public health departments to onboard reporting entities in their jurisdiction.",
-        contentContainer(
-            <MarkdownContent markdownUrl={ReferralGuide} />,
-            DirectoryTools.makeCrumb("ReportStream referral guide")
+        .addElement(
+            contentContainer(
+                <MarkdownContent markdownUrl={ReferralGuide} />,
+                DirectoryTools.makeCrumb("ReportStream referral guide")
+            )
+        ),
+    new ElementDirectory()
+        .setTitle("System and settings")
+        .setSlug(DirectoryTools.prependRoot("SYSTEM"))
+        .setDescription(
+            "Information about the ReportStream platform, including data configuration, formats, and transport."
         )
-    ),
-    new ElementDirectory(
-        "System and settings",
-        DirectoryTools.prependRoot("SYSTEM"),
-        "Information about the ReportStream platform, including data configuration, formats, and transport.",
-        contentContainer(
-            <SystemAndSettingsIa />,
-            DirectoryTools.makeCrumb("System and settings")
+        .addElement(
+            contentContainer(
+                <SystemAndSettingsIa />,
+                DirectoryTools.makeCrumb("System and settings")
+            )
+        ),
+    new ElementDirectory()
+        .setTitle("Security practices")
+        .setSlug(DirectoryTools.prependRoot("SECURITY"))
+        .setDescription(
+            "Answers to common questions about ReportStream security and data practices."
         )
-    ),
-    new ElementDirectory(
-        "Security practices",
-        DirectoryTools.prependRoot("SECURITY"),
-        "Answers to common questions about ReportStream security and data practices.",
-        contentContainer(
-            <SecurityPracticesIa />,
-            DirectoryTools.makeCrumb("Security practices")
-        )
-    ),
+        .addElement(
+            contentContainer(
+                <SecurityPracticesIa />,
+                DirectoryTools.makeCrumb("Security practices")
+            )
+        ),
 ];
 
 /** Main render source for Resources IA page -- provides router
