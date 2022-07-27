@@ -932,6 +932,37 @@ class ZipCodeToCountyMapper : Mapper {
         )
     }
 }
+/**
+ * [ZipCodeToStateMapper] runs a lookup using zip code and returns the single associated state. Null is returned if
+ * no zip code is provided, the zip code is not found, or if multiple records are found in the lookup.
+ */
+
+class ZipCodeToStateMapper : Mapper {
+    override val name = "zipCodeToState"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        val table = element.tableRef ?: error("Cannot perform lookup on a null table")
+        val zipCode = values.firstOrNull()?.value ?: return ElementResult(null)
+        val cleanedZip = if (zipCode.contains("-")) {
+            zipCode.split("-").first()
+        } else {
+            zipCode
+        }
+        return ElementResult(
+            table.FilterBuilder().equalsIgnoreCase("zipcode", cleanedZip)
+                .findSingleResult("state")
+        )
+    }
+}
 
 /**
  * The CountryMapper examines both the patient_country and the patient_zip_code fields for a row

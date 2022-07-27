@@ -686,6 +686,60 @@ class MapperTests {
     }
 
     @Test
+    fun `test zip code to state mapper`() {
+        val mapper = ZipCodeToStateMapper()
+        val csv = """
+            zipcode,state
+            32303,FL
+            42223,TN
+            42223,KY
+        """.trimIndent()
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
+        val schema = Schema(
+            "test", topic = "covid-19",
+            elements = listOf(
+                Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
+        val lookupElement = metadata.findSchema("test")?.findElement("a") ?: fail("Schema element missing")
+
+        // Test when value has a hyphen and extension
+        val valuesWithHyphen = listOf(
+            ElementAndValue(Element("patient_zip_code"), "32303-4509")
+        )
+
+        val expectedWithHyphen = "FL"
+        val actualWithHyphen = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithHyphen)
+        assertThat(actualWithHyphen.value).isEqualTo(expectedWithHyphen)
+
+        // Test when multiple values are returned from lookup
+        val valuesWithTwoStates = listOf(
+            ElementAndValue(Element("patient_zip_code"), "42223")
+        )
+
+        val expectedWithTwoStates = null
+        val actualWithTwoStates = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithTwoStates)
+        assertThat(actualWithTwoStates.value).isEqualTo(expectedWithTwoStates)
+
+        // Test when zip code does not exist in table
+        val valuesWithFakeZip = listOf(
+            ElementAndValue(Element("patient_zip_code"), "fakeZip")
+        )
+        val expectedWithFakeZip = null
+        val actualWithFakeZip = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithFakeZip)
+        assertThat(actualWithFakeZip.value).isEqualTo(expectedWithFakeZip)
+
+        // Test when zip code is blank
+        val valuesWithBlankZip = listOf(
+            ElementAndValue(Element("patient_zip_code"), "")
+        )
+        val expectedWithBlankZip = null
+        val actualWithBlankZip = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithBlankZip)
+        assertThat(actualWithBlankZip.value).isEqualTo(expectedWithBlankZip)
+    }
+
+    @Test
     fun `test HashMapper`() {
         val mapper = HashMapper()
         val elementA = Element("a")
