@@ -413,119 +413,110 @@ function MainRender(props: {
                     currentReceiver = `${currentEntry.organizationName}|${currentEntry.receiverName}`;
                 }
 
-                {
-                    // render slots for day
-                    const sliceClassName =
-                        SUCCESS_RATE_CLASSNAME_MAP[
-                            successForSlice.currentState
-                        ];
+                // <editor-fold desc="Time slices for a given day render">
+                const sliceClassName =
+                    SUCCESS_RATE_CLASSNAME_MAP[successForSlice.currentState];
 
-                    // we can use the currentkey in the data dict as a unique key for this cell
-                    sliceElements.push(
-                        <Grid
-                            row
-                            key={`slice:${currentReceiver}|${timeSlotStart}`}
-                            className={`slice ${sliceClassName}`}
-                            data-keyoffset={keyOffset - 1}
-                            onClick={
-                                successForSlice.currentState ===
-                                SuccessRate.UNDEFINED
-                                    ? undefined // do not even install a click handler noop
-                                    : (evt) => {
-                                          // get saved offset from "data-keyoffset" attribute on this element
-                                          const dataKeyOffset = parseInt(
-                                              evt.currentTarget?.dataset[
-                                                  "keyoffset"
-                                              ] || "-1"
-                                          );
-                                          // sanity check it's within range (should never happen)
-                                          if (
-                                              dataKeyOffset >= 0 &&
-                                              dataKeyOffset < keys.length
-                                          ) {
-                                              const key = keys[dataKeyOffset];
-                                              onClick(props.data[key]);
-                                          }
-                                      }
-                            }
-                        >
-                            {" "}
-                        </Grid>
-                    );
-                }
-            }
-
-            // render PerDay component
-            {
-                const dateStr = dateShortFormat(daySlotStart);
-
-                perDayElements.push(
-                    <GridContainer
-                        key={`perday-${dateStr}`}
-                        className={"perday-component"}
-                    >
-                        <Grid row className={"title-row"}>
-                            {dateStr}
-                        </Grid>
-                        <Grid
-                            gap={1}
-                            row
-                            className={"slices-row slices-row-12"}
-                        >
-                            {sliceElements}
-                        </Grid>
-                    </GridContainer>
-                );
-                sliceElements = [];
-            }
-        } // for dayslots
-
-        // render Per-Receiver component
-        {
-            const showRow =
-                props.filterRowStatus !== SuccessRate.UNDEFINED
-                    ? props.filterRowStatus === successForRow.currentState
-                    : true;
-
-            if (showRow) {
-                // we saved the start of this block of data, grab the information from there.
-                const key = keys[keyOffsetStartRow];
-                const orgName = props.data[key].organizationName;
-                const recvrName = props.data[key].receiverName;
-                const successRate = Math.round(
-                    (100 * successForRow.countSuccess) /
-                        (successForRow.countSuccess + successForRow.countFailed)
-                );
-                const titleClassName =
-                    SUCCESS_RATE_CLASSNAME_MAP[successForRow.currentState];
-
-                perReceiverElements.push(
+                // we can use the currentkey in the data dict as a unique key for this cell
+                sliceElements.push(
                     <Grid
                         row
-                        key={`perreceiver-row-${keyOffsetStartRow}`}
-                        className={"perreceiver-row"}
+                        key={`slice:${currentReceiver}|${timeSlotStart}`}
+                        className={`slice ${sliceClassName}`}
+                        data-keyoffset={keyOffset - 1}
+                        onClick={
+                            successForSlice.currentState ===
+                            SuccessRate.UNDEFINED
+                                ? undefined // do not even install a click handler noop
+                                : (evt) => {
+                                      // get saved offset from "data-keyoffset" attribute on this element
+                                      const dataKeyOffset = parseInt(
+                                          evt.currentTarget?.dataset[
+                                              "keyoffset"
+                                          ] || "-1"
+                                      );
+                                      // sanity check it's within range (should never happen)
+                                      if (
+                                          dataKeyOffset >= 0 &&
+                                          dataKeyOffset < keys.length
+                                      ) {
+                                          const key = keys[dataKeyOffset];
+                                          onClick(props.data[key]);
+                                      }
+                                  }
+                        }
                     >
-                        <Grid className={`title-column ${titleClassName}`}>
-                            <div className={"title-text"}>
-                                {orgName}
-                                <br />
-                                {recvrName}
-                                <br />
-                                {successRate}%
-                            </div>
-                        </Grid>
-                        <ScrollSyncPane enabled>
-                            <Grid row className={"horizontal-scroll"}>
-                                <Grid row className={"week-column"}>
-                                    {perDayElements}
-                                </Grid>
-                            </Grid>
-                        </ScrollSyncPane>
+                        {" "}
                     </Grid>
                 );
+                // </editor-fold>
             }
-            perDayElements = [];
+
+            // <editor-fold desc="Per-Day render">
+            const dateStr = dateShortFormat(daySlotStart);
+
+            perDayElements.push(
+                <GridContainer
+                    key={`perday-${dateStr}`}
+                    className={"perday-component"}
+                >
+                    <Grid row className={"title-row"}>
+                        {dateStr}
+                    </Grid>
+                    <Grid gap={1} row className={"slices-row slices-row-12"}>
+                        {sliceElements}
+                    </Grid>
+                </GridContainer>
+            );
+            sliceElements = [];
+            // </editor-fold>
+        } // for dayslots
+
+        // <editor-fold desc="Per-Receiver render">
+        const showRow =
+            props.filterRowStatus !== SuccessRate.UNDEFINED
+                ? props.filterRowStatus === successForRow.currentState
+                : true;
+
+        if (showRow) {
+            // we saved the start of this block of data, grab the information from there.
+            const key = keys[keyOffsetStartRow];
+            const orgName = props.data[key].organizationName;
+            const recvrName = props.data[key].receiverName;
+            const successRate = Math.round(
+                (100 * successForRow.countSuccess) /
+                    (successForRow.countSuccess + successForRow.countFailed)
+            );
+            const titleClassName =
+                SUCCESS_RATE_CLASSNAME_MAP[successForRow.currentState];
+
+            perReceiverElements.push(
+                <Grid
+                    row
+                    key={`perreceiver-row-${keyOffsetStartRow}`}
+                    className={"perreceiver-row"}
+                >
+                    <Grid className={`title-column ${titleClassName}`}>
+                        <div className={"title-text"}>
+                            {orgName}
+                            <br />
+                            {recvrName}
+                            <br />
+                            {successRate}%
+                        </div>
+                    </Grid>
+                    <ScrollSyncPane enabled>
+                        <Grid row className={"horizontal-scroll"}>
+                            <Grid row className={"week-column"}>
+                                {perDayElements}
+                            </Grid>
+                        </Grid>
+                    </ScrollSyncPane>
+                </Grid>
+            );
         }
+        perDayElements = [];
+        // </editor-fold>
         keyOffset++;
     } // while
     return (
