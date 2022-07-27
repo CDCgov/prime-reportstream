@@ -53,7 +53,7 @@ interface FileHandlerProps {
     handlerType: FileHandlerType;
     fetcher: WatersPost;
     successMessage: string;
-    formLabel: string;
+    // formLabel: string;
     resetText: string;
     submitText: string;
     showSuccessMetadata: boolean;
@@ -66,7 +66,7 @@ const FileHandler = ({
     handlerType,
     fetcher,
     successMessage,
-    formLabel,
+    // formLabel,
     resetText,
     submitText,
     showSuccessMetadata,
@@ -101,6 +101,7 @@ const FileHandler = ({
     const { memberships, oktaToken } = useSessionContext();
     const { organization } = useOrganizationResource();
 
+    console.log("!!! mems and org", memberships, organization);
     const accessToken = oktaToken?.accessToken;
     const parsedName = memberships.state.active?.parsedName;
     const senderName = memberships.state.active?.senderName;
@@ -200,6 +201,13 @@ const FileHandler = ({
         setFileContent("");
         dispatch({ type: FileHandlerActionType.RESET });
     };
+
+    const senderFileType = "";
+
+    const formLabel = useMemo(() => {
+        const fileTypeDescription = "a";
+        return `Select ${fileTypeDescription} formatted file to ${submitText.toLowerCase()}. Make sure that your file has a .${senderFileType} extension.`;
+    }, [senderFileType, submitText]);
 
     return (
         <div className="grid-container usa-section margin-bottom-10">

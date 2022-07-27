@@ -9,7 +9,7 @@ const UploadToPipeline = () => {
             headingText="File Uploader"
             successMessage="Your file has been uploaded"
             handlerType={FileHandlerType.UPLOAD}
-            formLabel="Select an HL7 or CSV formatted file to upload."
+            // formLabel="Select an HL7 or CSV formatted file to upload."
             resetText="Upload another file"
             submitText="Upload"
             showSuccessMetadata={true}
