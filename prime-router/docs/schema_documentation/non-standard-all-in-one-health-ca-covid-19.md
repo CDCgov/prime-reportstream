@@ -748,7 +748,7 @@ Code | Display | System
 1002-5|Native American|LOCAL
 1002-5|1002-5|LOCAL
 2054-5|Black or African American|LOCAL
-2058-6|African American|LOCAL
+2054-5|African American|LOCAL
 2054-5|African American Alaska Native|LOCAL
 2054-5|African American Black|LOCAL
 2054-5|Black|LOCAL
