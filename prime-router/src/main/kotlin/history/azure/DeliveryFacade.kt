@@ -106,24 +106,11 @@ class DeliveryFacade(
         organizationName: String,
         deliveryId: Long,
     ): DeliveryHistory? {
-        return DeliveryHistory(
-            deliveryId,
-            OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
-            null,
-            "c3c8e304-8eff-4882-9000-3645054a30b7",
-            "covid-19",
-            1,
+        return dbDeliveryAccess.fetchAction(
             organizationName,
-            "elr-secondary",
-            null,
-            "covid-19",
-            "HL7_BATCH",
+            deliveryId,
+            DeliveryHistory::class.java
         )
-//        return dbDeliveryAccess.fetchAction(
-//            organizationName,
-//            deliveryId,
-//            DeliveryHistory::class.java
-//        )
     }
 
     companion object {

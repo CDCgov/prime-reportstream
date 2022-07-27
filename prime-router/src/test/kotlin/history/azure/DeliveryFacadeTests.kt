@@ -75,4 +75,43 @@ class DeliveryFacadeTests {
         assertThat(deliveries.first().reportId).isEqualTo(delivery1.reportId)
         assertThat(deliveries.last().reportId).isEqualTo(delivery2.reportId)
     }
+
+    @Test
+    fun `test findDetailedDeliveryHistory`() {
+        val mockDeliveryAccess = mockk<DatabaseDeliveryAccess>()
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val facade = DeliveryFacade(mockDeliveryAccess, mockDbAccess)
+
+        // Good return
+        val goodReturn = DeliveryHistory(
+            284,
+            OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
+            null,
+            "c3c8e304-8eff-4882-9000-3645054a30b7",
+            "covid-19",
+            1,
+            "ca-dph",
+            "elr-secondary",
+            "",
+            "covid-19",
+            "HL7_BATCH",
+        )
+        every {
+            mockDeliveryAccess.fetchAction(
+                any(), any(), DeliveryHistory::class.java
+            )
+        } returns goodReturn
+        every {
+            mockDeliveryAccess.fetchRelatedActions(
+                284, DeliveryHistory::class.java
+            )
+        } returns emptyList()
+
+        assertThat(
+            facade.findDetailedDeliveryHistory(
+                "ca-dph",
+                284,
+            )
+        ).isEqualTo(goodReturn)
+    }
 }
