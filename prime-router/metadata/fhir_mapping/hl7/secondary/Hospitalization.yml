@@ -1,0 +1,61 @@
+preAdmissionIdentifier:
+    valueOf: datatype/Identifier
+    generateList: true
+    expressionType: resource
+    specs:  PV1.5
+
+# added condition to filter out if empty
+admitSource:
+   valueOf: datatype/CodeableConcept
+   condition: $valueIn NOT_NULL
+   expressionType: resource
+   specs: PV1.14
+   vars:
+     valueIn: PV1.14
+
+# added condition to filter out if empty
+reAdmission:
+   valueOf: datatype/CodeableConcept
+   condition: $valueIn NOT_NULL
+   expressionType: resource
+   specs: PV1.13
+   vars:
+     valueIn: PV1.13
+
+# added condition to filter out if empty
+dietPreference:
+   valueOf: datatype/CodeableConcept
+   condition: $valueIn NOT_NULL
+   expressionType: resource
+   specs: PV1.38
+   vars:
+     valueIn: PV1.38
+
+# added condition to filter out if empty
+specialCourtesy:
+   valueOf: datatype/CodeableConcept
+   condition: $valueIn NOT_NULL
+   generateList: true
+   expressionType: resource
+   specs: PV1.16
+   vars:
+     valueIn: PV1.16
+
+# added condition to filter out if empty
+specialArrangement: 
+   valueOf: datatype/CodeableConcept
+   condition: $valueIn NOT_NULL
+   generateList: true
+   expressionType: resource
+   specs: PV1.15 | OBR.30 | OBR.43
+   vars:
+     valueIn: PV1.15 | OBR.30 | OBR.43
+
+# added condition to filter out if empty
+dischargeDisposition:
+   valueOf: datatype/CodeableConcept
+   condition: $valueIn NOT_NULL
+   expressionType: resource
+   specs: PV1.36
+   vars:
+       valueIn: PV1.36
