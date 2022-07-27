@@ -200,11 +200,11 @@ describe("AdminReceiverDashboard tests", () => {
         expect(result4).toBe("");
     });
 
-    test("MainRender", async () => {
+    test("makeDictionary and MainRender tests", async () => {
         const data = _exportForTesting.makeDictionary(DATA); // sorts
         const keys = Object.keys(data);
         expect(keys.length).toBe(6);
-        // make sure sorted correct.
+        // make sure makeDictionary sorted correctly.
         expect(data[keys[3]].organizationName).toBe("oh-doh");
 
         render(
