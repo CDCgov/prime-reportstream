@@ -4,7 +4,6 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
-import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.ReportHistory
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
@@ -27,6 +26,12 @@ abstract class ReportFileFunction(
     private val reportFileFacade: ReportFileFacade,
     internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
+
+    /**
+     * Helper to store currently loaded action to prevent extra DB calls
+     */
+    private var currentAction: Action? = null
+
     /**
      * Get the correct name for an organization based on the name.
      *
@@ -52,6 +57,15 @@ abstract class ReportFileFunction(
      * @return
      */
     abstract fun singleDetailedHistory(queryParams: MutableMap<String, String>, action: Action): ReportHistory?
+
+    /**
+     * Verify that the action being checked has the correct data/parameters
+     * for the type of report being viewed.
+     *
+     * @param action DB Action that we are reviewing
+     * @return true if action is valid, else false
+     */
+    abstract fun actionIsValid(action: Action): Boolean
 
     /**
      * Get a list of reports for a given organization.
@@ -105,36 +119,11 @@ abstract class ReportFileFunction(
     ): HttpResponseMessage {
         try {
             // Do authentication
-            val claims = AuthenticationStrategy.authenticate(request)
-                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+            val authResult = this.authSingleBlocks(request, id)
+            if (authResult != null)
+                return authResult
 
-            logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
-
-            // Figure out whether we're dealing with an action_id or a report_id.
-            val actionId = id.toLongOrNull()
-            val action = if (actionId == null) {
-                val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
-                reportFileFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
-            } else {
-                reportFileFacade.fetchAction(actionId) ?: error("No such actionId $actionId")
-            }
-
-            // Confirm this is actually a submission.
-            if (action.sendingOrg == null || action.actionName != TaskAction.receive) {
-                return HttpUtilities.notFoundResponse(request, "$id is not a submitted report")
-            }
-
-            // Do Authorization.  Confirm these claims allow access to this Action
-            if (!reportFileFacade.checkSenderAccessAuthorization(action, claims)) {
-                logger.warn(
-                    "Invalid Authorization for user ${claims.userName}:" +
-                        " ${request.httpMethod}:${request.uri.path}"
-                )
-                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
-            }
-            logger.info(
-                "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
-            )
+            val action = this.actionFromId(id)
 
             val history = this.singleDetailedHistory(request.queryParameters, action)
             return if (history != null)
@@ -148,6 +137,61 @@ abstract class ReportFileFunction(
             logger.error(ex)
             // Errors above are actionId or UUID not found errors.
             return HttpUtilities.notFoundResponse(request, ex.message)
+        }
+    }
+
+    /**
+     * Check for auth issues when fetching a single result.
+     *
+     * @param request HTML request body.
+     * @param id Either a reportId or actionId to look for matches on.
+     * @return The error response if found, or null if all is well.
+     */
+    internal fun authSingleBlocks(
+        request: HttpRequestMessage<String?>,
+        id: String,
+    ): HttpResponseMessage? {
+        // Do authentication
+        val claims = AuthenticationStrategy.authenticate(request)
+            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+        logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
+
+        val action = this.actionFromId(id)
+
+        return if (!this.actionIsValid(action))
+            HttpUtilities.notFoundResponse(request, "$id is not a valid report")
+        else if (!reportFileFacade.checkSenderAccessAuthorization(action, claims)) {
+            logger.warn(
+                "Invalid Authorization for user ${claims.userName}:" +
+                    " ${request.httpMethod}:${request.uri.path}"
+            )
+            HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+        } else {
+            currentAction = action
+            logger.info(
+                "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
+            )
+            null
+        }
+    }
+
+    /**
+     * Look for an action related to the given id.
+     *
+     * @param id Either a reportId or actionId to look for matches on.
+     * @return The action related to the given id.
+     */
+    private fun actionFromId(id: String): Action {
+        // Figure out whether we're dealing with an action_id or a report_id.
+        val actionId = id.toLongOrNull()
+        return if (currentAction != null && currentAction!!.actionId == actionId)
+            currentAction!!
+        else if (actionId == null) {
+            val reportId = toUuidOrNull(id) ?: error("Bad format: $id must be a num or a UUID")
+            reportFileFacade.fetchActionForReportId(reportId) ?: error("No such reportId: $reportId")
+        } else {
+            reportFileFacade.fetchAction(actionId) ?: error("No such actionId $actionId")
         }
     }
 
@@ -191,10 +235,11 @@ abstract class ReportFileFunction(
              */
             fun extractSortCol(query: Map<String, String>): HistoryDatabaseAccess.SortColumn {
                 val col = query["sortcol"]
-                return if (col == null)
-                    HistoryDatabaseAccess.SortColumn.CREATED_AT
-                else
+                // https://stackoverflow.com/a/41844910/1978219
+                return if (col != null && HistoryDatabaseAccess.SortColumn.values().any { it.name == col })
                     HistoryDatabaseAccess.SortColumn.valueOf(col)
+                else
+                    HistoryDatabaseAccess.SortColumn.CREATED_AT
             }
 
             /**
