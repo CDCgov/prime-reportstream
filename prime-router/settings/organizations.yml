@@ -3139,7 +3139,11 @@
         suppressQstForAoe: true
         truncateHDNamespaceIds: true
         suppressHl7Fields: MSH-19-3, PID-15-3
-        truncateHl7Fields: MSH-3-1, PID-3-3, PID-3-6, ORC-2-2, ORC-7-10-5, OBR-2-2, OBR-3-2, SPM-2-1-2, SPM-2-2-2, ORC-21-1, OBX-23-1
+        truncateHl7Fields: MSH-3-1, PID-3-3, PID-3-6, ORC-2-2, ORC-7-10-5, OBR-2-2, OBR-3-2, SPM-2-1-2, SPM-2-2-2, ORC-21-1, OBX-23-1, OBX-15.1, OBX-23.10
+        replaceValueAwithB:
+          MSH-3: [ "*": "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO" ]
+          MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
+          MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
