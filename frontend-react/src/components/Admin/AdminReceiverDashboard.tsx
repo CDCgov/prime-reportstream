@@ -1,5 +1,5 @@
 import { useResource } from "rest-hooks";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
     DateRangePicker,
     Dropdown,
@@ -198,8 +198,6 @@ const dateShortFormat = (d: Date) => {
 
 // key/value pair
 type DataDictionary = Record<string, AdmConnStatusDataType>;
-// prop drilled down to bottom most components
-// type dateClickHandler = (id: string) => void;
 
 enum SuccessRate {
     UNDEFINED = "UNDEFINED",
@@ -344,19 +342,22 @@ function MainRender(props: {
     filterRowStatus: SuccessRate;
     onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
 }) {
+    const onClick = useCallback(
+        (clickedKey: string) => {
+            // in theory, there might be multiple events for the block, but we're only handling one for now.
+            const subData = props.data[clickedKey] || null;
+            if (!subData) {
+                return;
+            }
+            props?.onDetailsClick([subData]);
+        },
+        [props]
+    );
+
     const keys = Object.keys(props.data);
     if (keys.length === 0) {
         return <div>No Data</div>;
     }
-
-    const onClick = (clickedKey: string) => {
-        // in theory, there might be multiple events for the block, but we're only handling one for now.
-        const subData = props.data[clickedKey] || null;
-        if (!subData) {
-            return;
-        }
-        props?.onDetailsClick([subData]);
-    };
 
     const startDay = props.datesRange[0];
     const endDay = props.datesRange[1];
@@ -551,9 +552,6 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
             new Date(dataItem.connectionCheckStartedAt)
         );
     };
-    const successClass = dataItem.connectionCheckResult
-        ? "success-all"
-        : "failure-all";
 
     return (
         <GridContainer className={"rs-admindash-modal"}>
@@ -576,7 +574,13 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
 
             <Grid row className={"modal-info-row"}>
                 <Grid className={"modal-info-label"}>Result:</Grid>
-                <Grid className={`modal-info-value ${successClass}`}>
+                <Grid
+                    className={`modal-info-value ${
+                        dataItem.connectionCheckSuccessful
+                            ? "success-all"
+                            : "failure-all"
+                    }`}
+                >
                     {dataItem.connectionCheckSuccessful ? "success" : "failed"}
                 </Grid>
             </Grid>
