@@ -290,11 +290,9 @@ class TimeSlots implements IterateTimeSlots {
 
     *[Symbol.iterator]() {
         do {
-            yield [
-                this.current,
-                dateAddHours(this.current, this.skipHours),
-            ] as DatePair;
-            this.current = dateAddHours(this.current, this.skipHours);
+            const endTime = dateAddHours(this.current, this.skipHours);
+            yield [this.current, endTime] as DatePair;
+            this.current = endTime;
         } while (this.current < this.end);
     }
 }
@@ -343,13 +341,9 @@ function MainRender(props: {
     onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
 }) {
     const onClick = useCallback(
-        (clickedKey: string) => {
+        (dataItem: AdmConnStatusDataType) => {
             // in theory, there might be multiple events for the block, but we're only handling one for now.
-            const subData = props.data[clickedKey] || null;
-            if (!subData) {
-                return;
-            }
-            props?.onDetailsClick([subData]);
+            props.onDetailsClick([dataItem]);
         },
         [props]
     );
@@ -419,8 +413,8 @@ function MainRender(props: {
                     currentReceiver = `${currentEntry.organizationName}|${currentEntry.receiverName}`;
                 }
 
-                // render slots for day
                 {
+                    // render slots for day
                     const sliceClassName =
                         SUCCESS_RATE_CLASSNAME_MAP[
                             successForSlice.currentState
@@ -433,18 +427,27 @@ function MainRender(props: {
                             key={`slice:${currentReceiver}|${timeSlotStart}`}
                             className={`slice ${sliceClassName}`}
                             data-keyoffset={keyOffset - 1}
-                            onClick={(evt) => {
-                                if (
-                                    successForSlice.currentState ===
-                                    SuccessRate.UNDEFINED
-                                ) {
-                                    return;
-                                }
-                                const clickKey =
-                                    evt.currentTarget?.dataset["keyoffset"] ||
-                                    "";
-                                onClick(keys[parseInt(clickKey)] || "");
-                            }}
+                            onClick={
+                                successForSlice.currentState ===
+                                SuccessRate.UNDEFINED
+                                    ? undefined // do not even install a click handler noop
+                                    : (evt) => {
+                                          // get saved offset from "data-keyoffset" attribute on this element
+                                          const dataKeyOffset = parseInt(
+                                              evt.currentTarget?.dataset[
+                                                  "keyoffset"
+                                              ] || "-1"
+                                          );
+                                          // sanity check it's within range (should never happen)
+                                          if (
+                                              dataKeyOffset >= 0 &&
+                                              dataKeyOffset < keys.length
+                                          ) {
+                                              const key = keys[dataKeyOffset];
+                                              onClick(props.data[key]);
+                                          }
+                                      }
+                            }
                         >
                             {" "}
                         </Grid>
@@ -502,10 +505,7 @@ function MainRender(props: {
                         key={`perreceiver-row-${keyOffsetStartRow}`}
                         className={"perreceiver-row"}
                     >
-                        <Grid
-                            className={`title-column ${titleClassName}`}
-                            title={`${orgName}\n${recvrName}`}
-                        >
+                        <Grid className={`title-column ${titleClassName}`}>
                             <div className={"title-text"}>
                                 {orgName}
                                 <br />
