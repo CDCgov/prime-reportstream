@@ -76,6 +76,7 @@ class FhirToHl7Converter(
      * Generate HL7 data for an [element] starting at the [focusResource] in the bundle.
      */
     internal fun processElement(element: ConfigSchemaElement, focusResource: Base, context: CustomContext) {
+        logger.trace("Started processing of element ${element.name}...")
         // Add any element level constants to the context
         val elementContext = CustomContext.addConstants(element.constants, context)
         var debugMsg = "Processed element name: ${element.name}, required: ${element.required}, "
@@ -118,6 +119,7 @@ class FhirToHl7Converter(
         }
         // Only log for elements that require values
         if (element.schemaRef == null) logger.debug(debugMsg)
+        logger.trace("End processing of element ${element.name}.")
     }
 
     /**
