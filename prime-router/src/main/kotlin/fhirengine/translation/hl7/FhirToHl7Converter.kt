@@ -62,7 +62,7 @@ class FhirToHl7Converter(
     /**
      * Generate HL7 data for the elements for the given [schema] starting at the [focusResource] in the bundle.
      */
-    internal fun processSchema(schema: ConfigSchema, focusResource: Base, context: CustomContext? = null) {
+    internal fun processSchema(schema: ConfigSchema, focusResource: Base, context: CustomContext = CustomContext()) {
         logger.debug("Processing schema: ${schema.name} with ${schema.elements.size} elements")
         // Add any schema level constants to the context
         // We need to create a new context, so constants exist only within their specific schema tree
@@ -75,12 +75,12 @@ class FhirToHl7Converter(
     /**
      * Generate HL7 data for an [element] starting at the [focusResource] in the bundle.
      */
-    internal fun processElement(element: ConfigSchemaElement, focusResource: Base, context: CustomContext? = null) {
+    internal fun processElement(element: ConfigSchemaElement, focusResource: Base, context: CustomContext) {
         // Add any element level constants to the context
         val elementContext = CustomContext.addConstants(element.constants, context)
 
         // First we need to resolve a resource value if available.
-        val focusResources = getFocusResources(element, focusResource)
+        val focusResources = getFocusResources(element, focusResource, elementContext)
         if (focusResources.isEmpty() && element.required == true) {
             // There are no sources to parse, but the element was required
             throw RequiredElementException(element)
@@ -99,7 +99,7 @@ class FhirToHl7Converter(
                     }
 
                     // A value
-                    element.valueExpressions.isNotEmpty() && element.hl7Spec.isNotEmpty() -> {
+                    element.value.isNotEmpty() && element.hl7Spec.isNotEmpty() -> {
                         val value = getValue(element, singleFocusResource, elementContext)
                         setHl7Value(element, value, context)
                         debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
@@ -125,13 +125,15 @@ class FhirToHl7Converter(
      * at the [focusResource].
      * @return the value for the the element or an empty string if no value found
      */
-    internal fun getValue(element: ConfigSchemaElement, focusResource: Base, context: CustomContext? = null): String {
+    internal fun getValue(element: ConfigSchemaElement, focusResource: Base, context: CustomContext): String {
         var retVal = ""
-        element.valueExpressions.forEach {
-            val value = FhirPathUtils.evaluateString(context, focusResource, bundle, it)
-            if (value.isNotBlank()) {
-                retVal = value
-                return@forEach
+        run findValue@{
+            element.value.forEach {
+                val value = FhirPathUtils.evaluateString(context, focusResource, bundle, it)
+                if (value.isNotBlank()) {
+                    retVal = value
+                    return@findValue
+                }
             }
         }
         return retVal
@@ -144,13 +146,13 @@ class FhirToHl7Converter(
     internal fun getFocusResources(
         element: ConfigSchemaElement,
         previousFocusResource: Base,
-        context: CustomContext? = null
+        context: CustomContext
     ): List<Base> {
-        val resourceList = if (element.resourceExpression == null) {
+        val resourceList = if (element.resource == null) {
             listOf(previousFocusResource)
         } else {
             val evaluatedResource = FhirPathUtils
-                .evaluate(context, previousFocusResource, bundle, element.resourceExpression!!)
+                .evaluate(context, previousFocusResource, bundle, element.resource!!)
             evaluatedResource
         }
 
@@ -170,9 +172,9 @@ class FhirToHl7Converter(
     internal fun canEvaluate(
         element: ConfigSchemaElement,
         focusResource: Base,
-        context: CustomContext? = null
+        context: CustomContext
     ): Boolean {
-        return element.conditionExpression?.let {
+        return element.condition?.let {
             try {
                 FhirPathUtils.evaluateCondition(context, focusResource, bundle, it)
             } catch (e: SchemaException) {
@@ -188,7 +190,7 @@ class FhirToHl7Converter(
     /**
      * Set the [value] an [element]'s HL7 spec.
      */
-    internal fun setHl7Value(element: ConfigSchemaElement, value: String, context: CustomContext? = null) {
+    internal fun setHl7Value(element: ConfigSchemaElement, value: String, context: CustomContext) {
         if (value.isBlank() && element.required == true) {
             // The value is empty, but the element was required
             throw RequiredElementException(element)
@@ -209,6 +211,11 @@ class FhirToHl7Converter(
                     logger.error(msg, e)
                     throw SchemaException(msg, e)
                 } else logger.warn(msg, e)
+            } catch (e: Exception) {
+                if (strict) {
+                    logger.error(e)
+                    throw HL7ConversionException(e.message ?: "", e)
+                } else logger.warn(e.message ?: "", e)
             }
         }
     }

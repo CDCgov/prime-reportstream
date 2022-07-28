@@ -34,7 +34,7 @@ object FhirPathUtils : Logging {
     }
 
     /**
-     * Gets a FHIR base resource from the given [expressionNode] using [bundle] and starting from a specific [focusResource].
+     * Gets a FHIR base resource from the given [expression] using [bundle] and starting from a specific [focusResource].
      * [focusResource] can be the same as [bundle] when starting from the root.
      * [appContext] provides custom context (e.g. variables) used for the evaluation.
      */
@@ -42,21 +42,31 @@ object FhirPathUtils : Logging {
         appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
-        expressionNode: ExpressionNode
+        expression: String
     ): List<Base> {
-        val resources = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
-        return resources.map {
-            if (it.hasType("Reference") && (it as Reference).resource != null) {
-                it.resource as Base
-            } else it
+        return try {
+            val resources = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
+            resources.map {
+                if (it.hasType("Reference") && (it as Reference).resource != null) {
+                    it.resource as Base
+                } else it
+            }
+        } catch (e: Exception) {
+            // This is due to a bug in at least the extension() function
+            logger.debug(
+                "Unknown error while evaluating FHIR expression $expression. " +
+                    "Returning empty resource list.",
+                e
+            )
+            emptyList()
         }
     }
 
     /**
-     * Gets a boolean result from the given [expressionNode] using [bundle] and starting from a specific [focusResource].
+     * Gets a boolean result from the given [expression] using [bundle] and starting from a specific [focusResource].
      * [focusResource] can be the same as [bundle] when starting from the root.
      * [appContext] provides custom context (e.g. variables) used for the evaluation.
-     * Note that if the [expressionNode] does not evaluate to a boolean then the result is false.
+     * Note that if the [expression] does not evaluate to a boolean then the result is false.
      * @return true if the expression evaluates to true, otherwise false
      * @throws SchemaException if the FHIR path does not evaluate to a boolean type
      */
@@ -64,20 +74,30 @@ object FhirPathUtils : Logging {
         appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
-        expressionNode: ExpressionNode
+        expression: String
     ): Boolean {
-        val value = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
-        return if (value.size == 1 && value[0].isBooleanPrimitive) (value[0] as BooleanType).value
-        else {
-            throw SchemaException("Condition did not evaluate to a boolean type")
+        return try {
+            val value = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
+            if (value.size == 1 && value[0].isBooleanPrimitive) (value[0] as BooleanType).value
+            else {
+                throw SchemaException("Condition did not evaluate to a boolean type")
+            }
+        } catch (e: Exception) {
+            // This is due to a bug in at least the extension() function
+            logger.debug(
+                "Unknown error while evaluating FHIR expression $expression for condition. " +
+                    "Setting value of condition to false.",
+                e
+            )
+            false
         }
     }
 
     /**
-     * Gets a string result from the given [expressionNode] using [bundle] and starting from a specific [focusResource].
+     * Gets a string result from the given [expression] using [bundle] and starting from a specific [focusResource].
      * [focusResource] can be the same as [bundle] when starting from the root.
      * [appContext] provides custom context (e.g. variables) used for the evaluation.
-     * Note that if the [expressionNode] does not evaluate to a value that can be converted to a string then the return
+     * Note that if the [expression] does not evaluate to a value that can be converted to a string then the return
      * value will be an empty string.
      * @return a string with the value from the expression, or an empty string
      */
@@ -85,8 +105,8 @@ object FhirPathUtils : Logging {
         appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
-        expressionNode: ExpressionNode
+        expression: String
     ): String {
-        return defaultPathEngine.evaluateToString(appContext, focusResource, bundle, bundle, expressionNode)
+        return defaultPathEngine.evaluateToString(appContext, focusResource, bundle, bundle, parsePath(expression))
     }
 }

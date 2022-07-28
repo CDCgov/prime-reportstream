@@ -166,7 +166,7 @@ class FhirPathCommand : CliktCommand(
             if (pathExpression != null) {
                 // Evaluate the path
                 try {
-                    val value = FhirPathUtils.evaluate(null, bundle, bundle, pathExpression)
+                    val value = FhirPathUtils.evaluate(null, bundle, bundle, path)
                     // Note you can get collections
                     value.forEach {
                         val valueAsString =

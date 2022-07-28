@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
@@ -9,6 +10,7 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DiagnosticReport
@@ -38,17 +40,17 @@ class FhirPathUtilsTests {
         val bundle = Bundle()
         bundle.id = "abc123"
 
-        var path = FhirPathUtils.parsePath("Bundle.id.exists()")
-        assertThat(path).isNotNull()
-        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path!!)).isTrue()
+        var path = "Bundle.id.exists()"
 
-        path = FhirPathUtils.parsePath("Bundle.timestamp.exists()")
-        assertThat(path).isNotNull()
-        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path!!)).isFalse()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path)).isTrue()
 
-        path = FhirPathUtils.parsePath("Bundle.id")
-        assertThat(path).isNotNull()
-        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, path!!) }.isFailure()
+        path = "Bundle.timestamp.exists()"
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path)).isFalse()
+
+        // Bad extension names throw an out of bound exception (a bug in the library)
+        path = "Bundle.entry[0].resource.extension('blah')"
+        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, path) }.isSuccess()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path)).isFalse()
     }
 
     @Test
@@ -70,22 +72,26 @@ class FhirPathUtilsTests {
         bundle.addEntry(entry2)
 
         // First a non reference
-        var path = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(DiagnosticReport)[0]")
-        assertThat(path).isNotNull()
-        var result = FhirPathUtils.evaluate(null, bundle, bundle, path!!)
+        var path = "Bundle.entry.resource.ofType(DiagnosticReport)[0]"
+        var result = FhirPathUtils.evaluate(null, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat(result.size).isEqualTo(1)
         assertThat(result[0]).isInstanceOf(DiagnosticReport::class.java)
         assertThat((result[0] as DiagnosticReport).id).isEqualTo(diagReport.id)
 
         // Now a reference
-        path = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(DiagnosticReport)[0].basedOn")
+        path = "Bundle.entry.resource.ofType(DiagnosticReport)[0].basedOn"
         assertThat(path).isNotNull()
-        result = FhirPathUtils.evaluate(null, bundle, bundle, path!!)
+        result = FhirPathUtils.evaluate(null, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat(result.size).isEqualTo(1)
         assertThat(result[0]).isNotInstanceOf(Reference::class.java)
         assertThat(result[0]).isInstanceOf(ServiceRequest::class.java)
         assertThat((result[0] as ServiceRequest).id).isEqualTo(servRequest.id)
+
+        // Bad extension names throw an out of bound exception (a bug in the library)
+        path = "Bundle.extension('blah')"
+        assertThat { FhirPathUtils.evaluate(null, bundle, bundle, path) }.isSuccess()
+        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
     }
 }
