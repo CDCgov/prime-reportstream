@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
+
 import { FileHandlerForm } from "./FileHandlerForm";
 
 /* 
@@ -45,7 +46,7 @@ describe("FileHandlerForm", () => {
 
         // this is to make sure that after the form is submitted that we remove the input
         // this test id is added by trussworks, so... hopefully they don't change it?
-        const input = screen.queryByTestId("file-input-input"); //
+        const input = screen.queryByTestId("file-input-input");
         expect(input).not.toBeInTheDocument();
 
         const cancelButton = await screen.findByText("Cancel");

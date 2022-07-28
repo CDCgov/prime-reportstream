@@ -37,7 +37,13 @@ export const FileHandlerForm = ({
     submitText,
 }: FileHandlerFormProps) => {
     return (
-        <Form onSubmit={(e) => handleSubmit(e)} className="rs-full-width-form">
+        <Form
+            onSubmit={(e) => {
+                console.log("!!! onsubmit");
+                handleSubmit(e);
+            }}
+            className="rs-full-width-form"
+        >
             {!submitted && (
                 <FormGroup className="margin-bottom-3">
                     <Label
