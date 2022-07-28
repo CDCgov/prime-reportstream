@@ -2,7 +2,8 @@ name: ORU-R01-Base
 hl7Type: ORU_R01
 hl7Version: 2.5.1
 constants:
-  rsext: https://reportstream.cdc.gov/fhir/StructureDefinition/
+  # Prefix for RS custom extension URLs
+  rsext: 'https://reportstream.cdc.gov/fhir/StructureDefinition/'
 elements:
   - name: message-headers
     condition: >
@@ -13,12 +14,12 @@ elements:
     schema: base/message-header
 
   - name: software-segment
-    condition: Bundle.entry.resource.ofType(MessageHeader).exists()
-    resource: Bundle.entry.resource.ofType(MessageHeader)
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     schema: base/software
 
   - name: patient-information
-    resource: Bundle.entry.resource.ofType(Patient)
+    resource: 'Bundle.entry.resource.ofType(Patient)'
     condition: '%resource.count() = 1'
     required: true
     schema: base/patient

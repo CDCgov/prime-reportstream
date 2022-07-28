@@ -3,7 +3,5 @@ elements:
   - name: patient-last-name
     condition: '%resource is Patient and %resource.name.family.exists()'
     required: true
-    value:
-      - '%resource.name.family'
-    hl7Spec:
-      - /PATIENT_RESULT/PATIENT/PID-5-1
+    value: [ '%resource.name.family' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-5-1' ]
