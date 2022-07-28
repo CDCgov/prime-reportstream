@@ -178,6 +178,8 @@ abstract class ReportFileFunction(
 
     /**
      * Look for an action related to the given id.
+     * To reduce DB hits, if this object has a value set on currentAction,
+     * its id will be compared with the input id and returned.
      *
      * @param id Either a reportId or actionId to look for matches on.
      * @return The action related to the given id.
