@@ -171,7 +171,7 @@ class DeliveryFunction(
                 facilityParams.sortColumn,
             )
 
-            val out: List<Facility> = facilities.map {
+            val resultFacilityList: List<Facility> = facilities.map {
                 Facility(
                     it.testingLabName,
                     it.location,
@@ -183,7 +183,7 @@ class DeliveryFunction(
 
             return HttpUtilities.okResponse(
                 request,
-                mapper.writeValueAsString(out)
+                mapper.writeValueAsString(resultFacilityList)
             )
         } catch (e: IllegalArgumentException) {
             return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
