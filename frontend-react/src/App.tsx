@@ -227,7 +227,7 @@ const App = () => {
                                     component={AdminLastMileFailures}
                                 />
                                 <AuthorizedRoute
-                                    path="/admin/senddash"
+                                    path="/admin/send-dash"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={AdminReceiverDashPage}
                                 />
