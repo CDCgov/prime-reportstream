@@ -20,6 +20,9 @@ import {
 import { StyleClass } from "../Table/TableFilters";
 import { formatDate } from "../../utils/misc";
 
+const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
+const SKIP_HOURS = 2; // hrs
+
 /**
  *
  * Cron runs every 2 hours (in production)
@@ -119,9 +122,6 @@ import { formatDate } from "../../utils/misc";
  *         - perday-perslice-column has 4 color states as well
  *
  */
-
-const SKIP_HOURS = 2; // hrs
-const DAY_BACK_DEFAULT = 7 - 1; // N days (-1 because we add a day later for ranges)
 
 /**
  * Declared outside of the function so React doesn't update constantly (also, time is fixed)
@@ -792,4 +792,5 @@ export const _exportForTesting = {
     dateShortFormat,
     makeDictionary,
     MainRender,
+    ModalInfoRender,
 };

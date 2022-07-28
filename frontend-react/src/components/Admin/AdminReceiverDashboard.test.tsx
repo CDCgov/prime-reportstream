@@ -218,7 +218,24 @@ describe("AdminReceiverDashboard tests", () => {
         );
 
         expect(
-            screen.getByText("Mon, 7/11/2022", { exact: false })
+            screen.getByText("Mon, 7/11/2022", {
+                exact: false,
+            })
+        ).toBeInTheDocument();
+    });
+
+    test("ModalInfoRender", async () => {
+        const data = _exportForTesting.makeDictionary(DATA); // sorts
+        const keys = Object.keys(data);
+        const subData = data[keys[0]];
+        render(
+            // eslint-disable-next-line react/jsx-pascal-case
+            <_exportForTesting.ModalInfoRender subData={[subData]} />
+        );
+        expect(
+            screen.getByText("connectionCheckResult dummy result 2397", {
+                exact: false,
+            })
         ).toBeInTheDocument();
     });
 });
