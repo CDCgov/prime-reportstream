@@ -169,7 +169,7 @@ abstract class ReportFileFunction(
             HttpUtilities.unauthorizedResponse(request, authorizationFailure)
         } else {
             currentAction = action
-            logger.info(
+            logger.debug(
                 "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
             )
             null
@@ -248,7 +248,7 @@ abstract class ReportFileFunction(
              */
             fun extractSortCol(query: Map<String, String>): HistoryDatabaseAccess.SortColumn {
                 val col = query["sortcol"]
-                // https://stackoverflow.com/a/41844910/1978219
+                // check if col matches one of the values in HistoryDatabaseAccess.SortColumn
                 return if (col != null && HistoryDatabaseAccess.SortColumn.values().any { it.name == col })
                     HistoryDatabaseAccess.SortColumn.valueOf(col)
                 else
