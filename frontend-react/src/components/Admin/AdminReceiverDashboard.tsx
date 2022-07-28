@@ -20,7 +20,7 @@ import {
 import { StyleClass } from "../Table/TableFilters";
 import { formatDate } from "../../utils/misc";
 
-const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
+const DAY_BACK_DEFAULT = 4 - 1; // N days (-1 because we add a day later for ranges)
 const SKIP_HOURS = 2; // hrs
 
 /**
