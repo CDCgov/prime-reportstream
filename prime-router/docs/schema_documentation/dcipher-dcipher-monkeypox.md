@@ -138,17 +138,17 @@ The patient's city
 
 **Name**: Patient_id
 
-**ReportStream Internal Name**: patient_id
+**ReportStream Internal Name**: patient_id_hash
 
 **Type**: TEXT
 
-**PII**: Yes
+**PII**: No
 
 **Cardinality**: [0..1]
 
 **Documentation**:
 
-Optional patient identifier
+Optional patient identifier. Using a hash to deidentify
 
 ---
 
@@ -434,8 +434,6 @@ The temperature of the sample at the time of testing, if available (typically NU
 **Type**: TEXT
 
 **PII**: No
-
-**Default Value**: LRN-B
 
 **Cardinality**: [0..1]
 
@@ -2395,6 +2393,25 @@ N|Not applicable|HL7
 The patient's gender. There is a valueset defined based on the values in PID-8-1, 
 but downstream consumers are free to define their own accepted values. Please refer to 
 the consumer-specific schema if you have questions.
+
+
+---
+
+**Name**: patient_id
+
+**ReportStream Internal Name**: patient_id
+
+**Type**: TEXT
+
+**PII**: Yes
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The ID for the patient within one of the reporting entities for this lab result. It could be the
+the patient ID from the testing lab, the oder placer, the ordering provider, 
+or even within the PRIME system itself.
 
 
 ---
@@ -4972,18 +4989,6 @@ The text for the specimen source site
 **Type**: TEXT
 
 **PII**: No
-
-**Cardinality**: [0..1]
-
----
-
-**Name**: test_correction_reason
-
-**ReportStream Internal Name**: test_correction_reason
-
-**Type**: TEXT
-
-**PII**: Yes
 
 **Cardinality**: [0..1]
 
