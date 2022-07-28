@@ -53,6 +53,7 @@ import { Support } from "./pages/support/SupportIndex";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
 import { AdminLastMileFailures } from "./pages/admin/AdminLastMileFailures";
 import Validate from "./pages/Validate";
+import { AdminReceiverDashPage } from "./pages/admin/AdminReceiverDashPage";
 import { Product } from "./pages/product/ProductIndex";
 import UploadToPipeline from "./pages/UploadToPipeline";
 
@@ -224,6 +225,11 @@ const App = () => {
                                     path="/admin/lastmile"
                                     authorize={PERMISSIONS.PRIME_ADMIN}
                                     component={AdminLastMileFailures}
+                                />
+                                <AuthorizedRoute
+                                    path="/admin/send-dash"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={AdminReceiverDashPage}
                                 />
                                 <SecureRoute
                                     path="/report-details"
