@@ -78,16 +78,16 @@ class FhirToHl7Converter(
     internal fun processElement(element: ConfigSchemaElement, focusResource: Base, context: CustomContext) {
         // Add any element level constants to the context
         val elementContext = CustomContext.addConstants(element.constants, context)
+        var debugMsg = "Processed element name: ${element.name}, required: ${element.required}, "
 
         // First we need to resolve a resource value if available.
         val focusResources = getFocusResources(element, focusResource, elementContext)
         if (focusResources.isEmpty() && element.required == true) {
             // There are no sources to parse, but the element was required
             throw RequiredElementException(element)
-        }
-        focusResources.forEachIndexed { index, singleFocusResource ->
+        } else if (focusResources.isEmpty()) debugMsg += "resource: NONE"
 
-            var debugMsg = "Processing element name: ${element.name}, required: ${element.required}, "
+        focusResources.forEachIndexed { index, singleFocusResource ->
             if (canEvaluate(element, singleFocusResource, elementContext)) {
                 when {
                     // If this is a schema then process it.
@@ -115,9 +115,9 @@ class FhirToHl7Converter(
             } else {
                 debugMsg += "condition: false, resourceType: ${singleFocusResource.fhirType()}"
             }
-            // Only log for elements that require values
-            if (element.schemaRef == null) logger.debug(debugMsg)
         }
+        // Only log for elements that require values
+        if (element.schemaRef == null) logger.debug(debugMsg)
     }
 
     /**

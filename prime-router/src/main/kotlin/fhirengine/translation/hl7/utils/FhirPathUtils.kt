@@ -44,7 +44,7 @@ object FhirPathUtils : Logging {
         bundle: Bundle,
         expression: String
     ): List<Base> {
-        return try {
+        val retVal = try {
             val resources = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
             resources.map {
                 if (it.hasType("Reference") && (it as Reference).resource != null) {
@@ -60,6 +60,8 @@ object FhirPathUtils : Logging {
             )
             emptyList()
         }
+        logger.trace("Evaluated '$expression' to '$retVal'")
+        return retVal
     }
 
     /**
@@ -76,7 +78,7 @@ object FhirPathUtils : Logging {
         bundle: Bundle,
         expression: String
     ): Boolean {
-        return try {
+        val retVal = try {
             val value = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
             if (value.size == 1 && value[0].isBooleanPrimitive) (value[0] as BooleanType).value
             else {
@@ -91,6 +93,8 @@ object FhirPathUtils : Logging {
             )
             false
         }
+        logger.trace("Evaluated condition '$expression' to '$retVal'")
+        return retVal
     }
 
     /**
@@ -107,6 +111,9 @@ object FhirPathUtils : Logging {
         bundle: Bundle,
         expression: String
     ): String {
-        return defaultPathEngine.evaluateToString(appContext, focusResource, bundle, bundle, parsePath(expression))
+        val retVal = defaultPathEngine
+            .evaluateToString(appContext, focusResource, bundle, bundle, parsePath(expression))
+        logger.trace("Evaluated '$expression' to string '$retVal'")
+        return retVal
     }
 }
