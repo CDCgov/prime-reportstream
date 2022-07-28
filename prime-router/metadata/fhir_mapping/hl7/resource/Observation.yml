@@ -184,8 +184,11 @@ valueRatio_2:
 
 interpretation:
   valueOf: datatype/CodeableConcept
+  condition: $valueIn NOT_NULL
   expressionType: resource
   specs: OBX.8
+  vars:
+    valueIn: OBX.8
 
 note_1:
   valueOf: datatype/Annotation
@@ -205,13 +208,19 @@ note_2:
 
 bodySite:
   valueOf: datatype/CodeableConcept
+  condition: $valueIn NOT_NULL
   expressionType: resource
   specs: OBX.20
+  vars:
+    valueIn: OBX.20
 
 method:
   valueOf: datatype/CodeableConcept
+  condition: $valueIn NOT_NULL
   expressionType: resource
   specs: OBX.17
+  vars:
+    valueIn: OBX.17
 
 referenceRange:
   valueOf: secondary/ReferenceRange
