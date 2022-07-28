@@ -155,7 +155,7 @@ abstract class ReportFileFunction(
         val claims = AuthenticationStrategy.authenticate(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
-        logger.info("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
+        logger.debug("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
 
         val action = this.actionFromId(id)
 
