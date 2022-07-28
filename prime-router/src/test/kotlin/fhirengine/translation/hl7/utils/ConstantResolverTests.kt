@@ -95,6 +95,12 @@ class ConstantResolverTests {
         assertThat(result).isInstanceOf(StringType::class.java)
         assertThat((result as StringType).value).isEqualTo("$urlPrefix$urlSuffix")
 
+        result = FhirPathCustomResolver().resolveConstant(context, "`rsext`", false)
+        assertThat(result).isNotNull()
+        assertThat(result!!.isPrimitive).isTrue()
+        assertThat(result).isInstanceOf(StringType::class.java)
+        assertThat((result as StringType).value).isEqualTo(urlPrefix)
+
         result = FhirPathCustomResolver().resolveConstant(context, "unknownconst", false)
         assertThat(result).isNull()
     }

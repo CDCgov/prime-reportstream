@@ -87,12 +87,25 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
             // Support prefix constant replacement like for URLs similar to %ext in FHIRPathEngine
             name.startsWith("`") -> {
                 val constantNameParts = name.trimStart('`').split("-", limit = 2)
-                if (constantNameParts.size == 2) {
-                    val constantValue = appContext.constants[constantNameParts[0]]
-                    if (constantValue != null)
-                        StringType(constantValue + constantNameParts[1].trimEnd('`'))
-                    else null
-                } else null
+                when (constantNameParts.size) {
+                    // 2 parts means the constant is a prefix and there is a suffix
+                    2 -> {
+                        val constantValue = appContext.constants[constantNameParts[0]]
+                        constantValue?.let {
+                            StringType(constantValue + constantNameParts[1].trimEnd('`'))
+                        }
+                    }
+
+                    // 1 part means the constant is surrounded by `, useful for separating other text from the constant name
+                    1 -> {
+                        val constantValue = appContext.constants[constantNameParts[0].trimEnd('`')]
+                        constantValue?.let {
+                            StringType(constantValue)
+                        }
+                    }
+
+                    else -> null
+                }
             }
 
             // Just a straight constant replacement
