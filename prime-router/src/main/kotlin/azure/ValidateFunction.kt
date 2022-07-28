@@ -27,6 +27,9 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import gov.cdc.prime.router.tokens.AuthenticationStrategy
+import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 
@@ -60,13 +63,14 @@ class ValidateFunction(
     )
 
     /**
-     * validate a submission
+     * entry point for the /validate endpoint, which validates a potential submission without writing
+     * to the database or storing/sending a file
      */
     @FunctionName("validate")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
         @HttpTrigger(
-            name = "req",
+            name = "validate",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.FUNCTION
         ) request: HttpRequestMessage<String?>
@@ -75,13 +79,23 @@ class ValidateFunction(
         if (senderName.isBlank()) {
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
         }
-
-        // Sender should eventually be obtained directly from who is authenticated
-        val sender = workflowEngine.settings.findSender(senderName)
-            ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
-        actionHistory.trackActionParams(request)
-
         return try {
+            val claims = AuthenticationStrategy.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+            // Sender should eventually be obtained directly from who is authenticated
+            val sender = workflowEngine.settings.findSender(senderName)
+                ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
+
+            if (AuthenticationStrategy.validateClaim(
+                    claims,
+                    sender,
+                    request
+                )
+            ) return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+
+            actionHistory.trackActionParams(request)
+
             processRequest(request, sender)
         } catch (ex: Exception) {
             if (ex.message != null) {
@@ -94,7 +108,10 @@ class ValidateFunction(
     }
 
     /**
-     * Does the validate functionality, but does not store anything in the database
+     * Handles an incoming validation request after it has been authenticated via the /validate endpoint.
+     * @param request The incoming request
+     * @param sender The sender record, pulled from the database based on sender name on the request
+     * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
      */
     internal fun processRequest(
         request: HttpRequestMessage<String?>,
@@ -154,7 +171,6 @@ class ValidateFunction(
                 HttpStatus.BAD_REQUEST
             }
 
-        // todo: is 'none' the correct taskAction for this?
         val submission = DetailedSubmissionHistory(
             1,
             TaskAction.none,

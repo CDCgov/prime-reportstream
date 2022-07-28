@@ -779,4 +779,74 @@ class SubmissionReceiverTests {
             queueMock.sendMessage(elrProcessQueueName, any())
         }
     }
+
+//    @Test
+//    fun `test validation receiver validateAndMoveToProcessing, invalid message type hl7`() {
+//        // setup
+//        mockkObject(SubmissionReceiver.Companion)
+//        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+//        val metadata = Metadata(schema = one)
+//        val settings = FileSettings().loadOrganizations(oneOrganization)
+//        val engine = makeEngine(metadata, settings)
+//        val actionHistory = spyk(ActionHistory(TaskAction.none))
+//
+//        val report = Report(
+//            one,
+//            mapOf<String, List<String>>(Pair("test", listOf("1,2"))),
+//            source = ClientSource("ignore", "ignore"),
+//            metadata = metadata
+//        )
+//
+//        val receiver = spyk(
+//            ValidationReceiver(
+//                engine,
+//                actionHistory
+//            )
+//        )
+//
+//        val sender = CovidSender(
+//            "Test Sender",
+//            "test",
+//            Sender.Format.HL7,
+//            schemaName =
+//            "one",
+//            allowDuplicates = true
+//        )
+//        val actionLogs = ActionLogger()
+//        val readResult = ReadResult(report, actionLogs)
+// //        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+// //        val routeResult = emptyList<ActionLog>()
+//
+//        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
+// //        every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
+// //        every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
+// //        every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+// //        every { queueMock.sendMessage(elrProcessQueueName, any()) } returns Unit
+//
+//        // act / assert
+//        assertThat {
+//            receiver.validateAndMoveToProcessing(
+//                sender,
+//                hl7_record_bad_type,
+//                emptyMap(),
+//                Options.None,
+//                emptyList(),
+//                false,
+//                true,
+//                ByteArray(0),
+//                "test.csv",
+//                metadata = metadata
+//            )
+//        }.isFailure()
+//
+//        verify(exactly = 1) {
+//            engine.recordReceivedReport(any(), any(), any(), any(), any())
+//        }
+//
+//        verify(exactly = 0) {
+//            actionHistory.trackLogs(emptyList())
+//            engine.insertProcessTask(any(), any(), any(), any())
+//            queueMock.sendMessage(elrProcessQueueName, any())
+//        }
+//    }
 }

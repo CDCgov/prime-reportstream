@@ -133,6 +133,7 @@ class DetailedSubmissionHistory(
     /**
      * The step in the delivery process for a submission
      * Supported values:
+     *     VALID - successfully validated, but not sent
      *     ERROR - error on initial submission
      *     RECEIVED - passed the received step in the pipeline and awaits processing/routing
      *     NOT_DELIVERING - processed but has no intended receivers
