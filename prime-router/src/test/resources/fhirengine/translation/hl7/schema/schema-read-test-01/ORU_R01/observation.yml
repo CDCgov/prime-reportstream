@@ -1,0 +1,14 @@
+name: ORU-R01-observation
+elements:
+  - name: observation-set-ID
+    value:
+      - '%observationIndex  + 1'
+    hl7Spec:
+      - '%{hl7Order}/OBSERVATION(%{observationIndex})/OBX-1'
+
+  - name: observation-set-ID
+    value:
+      - '%resource.code.coding.code'
+    hl7Spec:
+      - '%{hl7Order}/OBSERVATION(%{observationIndex})/OBX-3-1'
+
