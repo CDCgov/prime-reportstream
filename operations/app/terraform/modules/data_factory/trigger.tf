@@ -14,10 +14,10 @@ resource "azurerm_data_factory_trigger_schedule" "sftp_share_to_archive" {
     days_of_month = []
     days_of_week  = []
     hours = [
-      4,
+      15,
     ]
     minutes = [
-      40,
+      0,
     ]
   }
 
