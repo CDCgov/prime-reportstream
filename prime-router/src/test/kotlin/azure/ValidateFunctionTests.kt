@@ -4,7 +4,6 @@ import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.FullELRSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -195,36 +194,6 @@ class ValidateFunctionTests {
             "content-length" to "4"
         )
         validateFunc.run(req)
-        verify(exactly = 1) { validateFunc.processRequest(any(), any()) }
-    }
-
-    @Test
-    fun `test validate endpoint for full ELR sender`() {
-        // Setup
-        val metadata = UnitTestUtils.simpleMetadata
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-
-        val sender = FullELRSender("Test ELR Sender", "test", Sender.Format.HL7)
-
-        val engine = makeEngine(metadata, settings)
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
-
-        val req = MockHttpRequestMessage("test")
-        val resp = HttpUtilities.okResponse(req, "fakeOkay")
-
-        every { validateFunc.processRequest(any(), any()) } returns resp
-        every { engine.settings.findSender(any()) } returns sender
-
-        req.httpHeaders += mapOf(
-            "client" to "Test ELR Sender",
-            "content-length" to "4"
-        )
-
-        // Invoke function run
-        validateFunc.run(req)
-
-        // processFunction should be called
         verify(exactly = 1) { validateFunc.processRequest(any(), any()) }
     }
 

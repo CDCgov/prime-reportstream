@@ -5,6 +5,8 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.CovidSender
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.common.Environment
 import io.jsonwebtoken.Claims
@@ -125,49 +127,43 @@ class AuthenticationStrategyTests {
     }
 
     @Test
-    fun `test getAccessToken`() {
+    fun `test validate claims`() {
         val req = MockHttpRequestMessage("test")
-        req.httpHeaders["Authorization"] = "Bearer tok1"
-        var tok = AuthenticationStrategy.getAccessToken(req)
-        assertThat(tok).isEqualTo("tok1")
+        // Missing authentication-type header in req!  Means ==> use token auth.
+        val jwtClaims = mockkClass(Claims::class)
+        every { jwtClaims[any()] } returns "simple_report.default.report"
+        mockkConstructor(TokenAuthentication::class)
+        every { anyConstructed<TokenAuthentication>().authenticate(any(), any()) } returns jwtClaims
 
-        req.httpHeaders.clear()
-        req.httpHeaders["authorization"] = "Bearer tok2"
-        tok = AuthenticationStrategy.getAccessToken(req)
-        assertThat(tok).isEqualTo("tok2")
+        val claims = AuthenticationStrategy.authenticate(req)
+        val mismatchedSender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+        val matchingSender = CovidSender(
+            "Test Sender",
+            "simple_report",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
 
-        req.httpHeaders.clear()
-        req.httpHeaders["AUTHORIZATION"] = "Bearer tok3"
-        tok = AuthenticationStrategy.getAccessToken(req)
-        assertThat(tok).isEqualTo("tok3")
+        if (claims != null) {
+            var result = AuthenticationStrategy.validateClaim(claims, mismatchedSender, req)
+            assertThat(result).isFalse()
 
-        req.httpHeaders.clear()
-        req.httpHeaders["authorization"] = "tok4"
-        tok = AuthenticationStrategy.getAccessToken(req)
-        assertThat(tok).isEqualTo("tok4")
+            result = AuthenticationStrategy.validateClaim(claims, matchingSender, req)
+            assertThat(result).isTrue()
 
-        req.httpHeaders.clear()
-        req.httpHeaders["foobar"] = "Bearer tok5"
-        tok = AuthenticationStrategy.getAccessToken(req)
-        assertThat(tok).isNull()
-
-        req.httpHeaders.clear()
-        tok = AuthenticationStrategy.getAccessToken(req)
-        assertThat(tok).isNull()
-
-        req.httpHeaders.clear()
-        req.httpHeaders["foobar"] = "Bearer tok5"
-        tok = AuthenticationStrategy.getAccessToken(req)
-        assertThat(tok).isNull()
-
-        req.httpHeaders.clear()
-        req.httpHeaders["foobar"] = "bearer tok5"
-        tok = AuthenticationStrategy.getAccessToken(req)
-        assertThat(tok).isNull()
-
-        req.httpHeaders.clear()
-        req.httpHeaders["foobar"] = "BEARER tok5"
-        tok = AuthenticationStrategy.getAccessToken(req)
-        assertThat(tok).isNull()
+            // TODO: mock claims in a way so as to NOT change isPrimeAdmin from 'val' to 'var' in AuthenticatedClaims.kt
+            claims.isPrimeAdmin = true
+            result = AuthenticationStrategy.validateClaim(claims, matchingSender, req)
+            assertThat(result).isTrue()
+        }
     }
 }
