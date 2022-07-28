@@ -394,7 +394,7 @@ class SubmissionFunctionTests : Logging {
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
         assertThat(responseBody.overallStatus).isEqualTo(returnBody.overallStatus.toString())
 
-        // Good uuid, but not a with `process` action step report.
+        // Good uuid, but with `process` action step report.
         action.actionName = TaskAction.process
         response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)

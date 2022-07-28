@@ -443,7 +443,7 @@ class DeliveryFunctionTests : Logging {
         assertThat(responseBody.deliveryId.toLong()).isEqualTo(returnBody.actionId)
         assertThat(responseBody.receivingOrg).isEqualTo(returnBody.receivingOrg)
 
-        // Good uuid, but not a with `process` action step report.
+        // Good uuid, but with `process` action step report.
         action.actionName = TaskAction.process
         response = function.getDeliveryDetails(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
