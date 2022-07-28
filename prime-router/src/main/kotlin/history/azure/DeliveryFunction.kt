@@ -194,6 +194,11 @@ class DeliveryFunction(
         }
     }
 
+    /**
+     * Container for extracted History API parameters exclusively related to Deliveries.
+     *
+     * @property sortColumn sort the table by specific column; default created_at.
+     */
     data class FacilityListApiParameters(
         val sortColumn: DatabaseDeliveryAccess.FacilitySortColumn,
     ) {

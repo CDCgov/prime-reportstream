@@ -195,6 +195,17 @@ abstract class ReportFileFunction(
         }
     }
 
+    /**
+     * Container for extracted History API parameters.
+     *
+     * @property sortDir sort the table in ASC or DESC order.
+     * @property sortColumn sort the table by specific column; default created_at.
+     * @property cursor is the OffsetDateTime of the last result in the previous list.
+     * @property since is the OffsetDateTime that dictates how far back returned results date.
+     * @property until is the OffsetDateTime that dictates how recently returned results date.
+     * @property pageSize is an Integer used for setting the number of results per page.
+     * @property showFailed whether to include actions that failed to be sent.
+     */
     data class HistoryApiParameters(
         val sortDir: HistoryDatabaseAccess.SortDir,
         val sortColumn: HistoryDatabaseAccess.SortColumn,
