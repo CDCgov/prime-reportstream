@@ -959,7 +959,7 @@ class ZipCodeToStateMapper : Mapper {
         }
         return ElementResult(
             table.FilterBuilder().equalsIgnoreCase("zipcode", cleanedZip)
-                .findSingleResult("state")
+                .findSingleResult("state_abbr")
         )
     }
 }

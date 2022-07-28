@@ -689,7 +689,7 @@ class MapperTests {
     fun `test zip code to state mapper`() {
         val mapper = ZipCodeToStateMapper()
         val csv = """
-            zipcode,state
+            zipcode,state_abbr
             32303,FL
             42223,TN
             42223,KY
