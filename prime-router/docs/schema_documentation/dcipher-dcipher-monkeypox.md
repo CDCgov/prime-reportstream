@@ -4994,18 +4994,6 @@ The text for the specimen source site
 
 ---
 
-**Name**: test_correction_reason
-
-**ReportStream Internal Name**: test_correction_reason
-
-**Type**: TEXT
-
-**PII**: Yes
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: test_kit_name_id_cwe_version
 
 **ReportStream Internal Name**: test_kit_name_id_cwe_version
