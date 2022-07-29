@@ -698,7 +698,7 @@ class MapperTests {
         val schema = Schema(
             "test", topic = "covid-19",
             elements = listOf(
-                Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "a"),
+                Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "state_abbr"),
             )
         )
         val metadata = Metadata(schema = schema, table = table, tableName = "test")

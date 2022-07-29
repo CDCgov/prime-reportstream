@@ -456,8 +456,9 @@ class LookupMapper : Mapper {
     override val name = "lookup"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.size !in 1..2)
-            error("Schema Error: lookup mapper expected one or two args")
+        if (args.size !in 1..4) {
+            error("Schema Error: lookup mapper expected 2 or 4 args")
+        }
         return args
     }
 
@@ -959,7 +960,7 @@ class ZipCodeToStateMapper : Mapper {
         }
         return ElementResult(
             table.FilterBuilder().equalsIgnoreCase("zipcode", cleanedZip)
-                .findSingleResult("state_abbr")
+                .findSingleResult(element.tableColumn.toString())
         )
     }
 }

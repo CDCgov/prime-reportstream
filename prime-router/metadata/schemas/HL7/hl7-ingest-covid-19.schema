@@ -69,6 +69,12 @@ elements:
 
   - name: patient_state
     type: TABLE
+    pii: false
     table: zip-code-data
-    tableColumn: county
+    tableColumn: state_abbr
+    cardinality: ONE
+    natFlatFileField: Patient_state
+    hhsGuidanceField:
+    hl7Field: PID-11-4
     mapper: zipCodeToState(patient_zip_code)
+    documentation: The patient's state

@@ -508,7 +508,7 @@ elements:
     cardinality: ZERO_OR_ONE
     table: fips-county
     tableColumn: FIPS
-    mapper: lookup(patient_state, patient_county)
+    mapper: lookup(patient_state, $Column:State, patient_county, $Column:County)
     natFlatFileField: Patient_county
     hl7Field: PID-11-9
     documentation: The FIPS code for the patient's county
