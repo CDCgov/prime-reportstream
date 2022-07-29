@@ -6,9 +6,17 @@ import org.hl7.fhir.r4.context.SimpleWorkerContext
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.DateTimeType
+import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.ExpressionNode
+import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.Reference
+import org.hl7.fhir.r4.model.TimeType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * Utilities to handle FHIR Path parsing.
@@ -87,6 +95,40 @@ object FhirPathUtils : Logging {
         bundle: Bundle,
         expressionNode: ExpressionNode
     ): String {
-        return defaultPathEngine.evaluateToString(appContext, focusResource, bundle, bundle, expressionNode)
+        val evaluated = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+        if (evaluated.size == 0) return ""
+        if (evaluated.size > 1 || !evaluated[0].isPrimitive) {
+            // Should only be evaluating primitives here
+            throw IllegalStateException()
+        }
+        return when (val primitive = evaluated[0]) {
+            is InstantType, is DateTimeType -> convertDateTimeToHL7(primitive)
+            is DateType -> convertDateToHL7(primitive)
+            is TimeType -> convertTimeToHL7(primitive)
+            else -> defaultPathEngine.convertToString(primitive)
+        }
+    }
+    fun convertDateTimeToHL7(dateTime: Base): String {
+        val pattern = "YYYYMMddHHmmss.SSSSxxxx"
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern(pattern)
+        val zonedDateTime: ZonedDateTime = ZonedDateTime.parse(dateTime.dateTimeValue().valueAsString)
+
+        return zonedDateTime.format(formatter)
+    }
+
+    fun convertTimeToHL7(timeType: TimeType): String {
+        val pattern = "HHmmss.SSSS"
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern(pattern)
+        val localTime: LocalTime = LocalTime.parse(timeType.valueAsString)
+
+        return localTime.format(formatter)
+    }
+
+    fun convertDateToHL7(date: DateType): String {
+        val pattern = "YYYYMMdd"
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern(pattern)
+        val localDate: LocalDate = LocalDate.parse(date.valueAsString)
+
+        return localDate.format(formatter)
     }
 }
