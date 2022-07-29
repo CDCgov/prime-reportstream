@@ -3313,17 +3313,22 @@
 - name: ok-phd
   description: Oklahoma Public Health Department
   jurisdiction: STATE
+  filters:
+    - topic: "covid-19"
+      jurisdictionalFilter:
+      - orEquals(ordering_facility_state, OK, patient_state, OK)
   stateCode: OK
   receivers:
     - name: elr
       organizationName: ok-phd
       topic: covid-19
       customerStatus: inactive
-      jurisdictionalFilter:
-        - orEquals(ordering_facility_state, OK, patient_state, OK)
       translation:
         type: HL7
         useBatchHeaders: true
+        replaceValueAwithB:
+          MSH-4-1: [ "*": "CDC PRIME REPORTSTREAM"]
+          MSH-4-2: [ "*": "10DRPTSTRM"]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
