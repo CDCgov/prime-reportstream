@@ -47,7 +47,7 @@ const contentString = "some file content";
 
 // doesn't work out of the box as it somehow doesn't come with a .text method
 const fakeFile = new File([new Blob([contentString])], "file.csv", {
-    type: "hl7 ",
+    type: "hl7",
 });
 fakeFile.text = () => Promise.resolve(contentString);
 

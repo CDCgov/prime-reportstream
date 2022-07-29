@@ -96,9 +96,6 @@ const FileHandler = ({
         if (localError) {
             showError(localError);
         }
-        // return () => {
-        //     console.error("WOW WE HAVE UNMOUNTED");
-        // };
     }, [localError]);
 
     const { memberships, oktaToken } = useSessionContext();

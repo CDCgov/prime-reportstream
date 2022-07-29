@@ -2,30 +2,6 @@ import { render, screen, fireEvent } from "@testing-library/react";
 
 import { FileHandlerForm } from "./FileHandlerForm";
 
-/* 
-  here is an example of a mocked File & mocked React file input change event we can use for future tests
-  thx to https://evanteague.medium.com/creating-fake-test-events-with-typescript-jest-778018379d1e
-  doesn't look like it's actually needed here though, as we can't reliably assert that the event is coming
-  through, due to react's fun synthetic event processing
-
-  const contentString = "some file content";
-  const fileBlob = new Blob([contentString]);
-  const fakeFile = fileBlob as File;
-
-  const fakeFileList: FileList = {
-      length: 1,
-      item: () => fakeFile,
-      [Symbol.iterator]: function* () {
-          yield new File([], "");
-      },
-  };
-  const fileChangeEvent = {
-      currentTarget: {
-          files: fakeFileList,
-      },
-  } as React.ChangeEvent<HTMLInputElement>;
-*/
-
 describe("FileHandlerForm", () => {
     test("renders proper submitted, cancellable state", async () => {
         const resetSpy = jest.fn();
