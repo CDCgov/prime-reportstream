@@ -12,6 +12,7 @@ import gov.cdc.prime.router.common.StringUtilities.toIntOrDefault
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.PrincipalLevel
 import org.apache.logging.log4j.kotlin.Logging
+import java.time.OffsetDateTime
 
 /**
  * Functions that are restricted to prime admins
@@ -42,27 +43,63 @@ class AdminApiFunctions(
      * with admin permissions this.getOktaAuthenticator() defaults to SYSTEM_ADMIN above
      */
     @FunctionName("getsendfailures")
-    fun run(
+    fun getSendFailures(
         @HttpTrigger(
             name = "getsendfailures",
-            methods = [HttpMethod.GET, HttpMethod.OPTIONS],
+            methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "adm/getsendfailures" // this can NOT be "admin/" or it fails.
         )
         request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         logger.info("Entering adm/getsendfailures api")
-        return getOktaAuthenticator().checkAccess(request) {
+        return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
             try {
                 val daysToShow = request.queryParameters[daysBackSpanParameter]
                     ?.toIntOrDefault(30) ?: 30
 
                 val results = db.fetchSendFailures(daysToShow)
                 val jsonb = mapper.writeValueAsString(results)
-                HttpUtilities.okResponse(request, jsonb ?: "{}")
+                HttpUtilities.okResponse(request, jsonb ?: "[]")
             } catch (e: Exception) {
                 logger.error("Unable to fetch send failures", e)
                 HttpUtilities.internalErrorResponse(request)
+            }
+        }
+    }
+
+    /**
+     * Fetch the list of send_errors. Spans orgs, so should ONLY be done
+     * with admin permissions this.getOktaAuthenticator() defaults to SYSTEM_ADMIN above
+     */
+    @FunctionName("listreceiversconnstatus")
+    fun listReceiversConnStatus(
+        @HttpTrigger(
+            name = "listreceiversconnstatus",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "adm/listreceiversconnstatus" // this can NOT be "admin/" or it fails.
+        )
+        request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        logger.info("Entering adm/listreceiversconnstatus api")
+        return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
+            try {
+                val startDateTime = OffsetDateTime.parse(request.queryParameters[startDateParam])
+                // endDateParam may be missing and that's ok.
+                val endDateTimeStr = request.queryParameters[endDateParam]
+                val endDateTime =
+                    if (endDateTimeStr != null) OffsetDateTime.parse(endDateTimeStr) else null
+                val results = db.fetchReceiverConnectionCheckResults(startDateTime, endDateTime)
+                val jsonb = mapper.writeValueAsString(results)
+                HttpUtilities.okResponse(request, jsonb ?: "[]")
+            } catch (e: Exception) {
+                logger.error(e)
+                // admin calling so it's ok to reveal more info in error
+                HttpUtilities.badRequestResponse(
+                    request,
+                    "Invalid/missing cgi parameter. Check date formats."
+                )
             }
         }
     }
@@ -72,5 +109,7 @@ class AdminApiFunctions(
          * Name of the query parameter to specify how many days back to show.
          */
         const val daysBackSpanParameter = "days_to_show"
+        const val startDateParam = "start_date"
+        const val endDateParam = "end_date"
     }
 }

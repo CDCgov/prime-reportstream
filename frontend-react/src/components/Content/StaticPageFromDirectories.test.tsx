@@ -8,7 +8,10 @@ import { MarkdownDirectory } from "./MarkdownDirectory";
 import StaticPagesFromDirectories from "./StaticPagesFromDirectories";
 
 const testDirectories = [
-    new MarkdownDirectory("Test Dir", "test-dir", [testMd]),
+    new MarkdownDirectory()
+        .setTitle("Test Dir")
+        .setSlug("test-dir")
+        .addFile(testMd),
 ];
 
 jest.mock("react-router-dom", () => ({

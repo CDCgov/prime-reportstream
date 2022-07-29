@@ -62,6 +62,26 @@ Is the patient employed in health care?
 
 ---
 
+**Name**: Equipment_Model_ID
+
+**ReportStream Internal Name**: equipment_model_id
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Equipment UID
+
+---
+
 **Name**: Device_ID
 
 **ReportStream Internal Name**: equipment_model_name
@@ -2246,6 +2266,30 @@ Is the patient symptomatic?
 **PII**: Yes
 
 **Cardinality**: [0..1]
+
+---
+
+**Name**: Test_Kit_Name_ID
+
+**ReportStream Internal Name**: test_kit_name_id
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification](https://confluence.hl7.org/display/OO/Proposed+HHS+ELR+Submission+Guidance+using+HL7+v2+Messages#ProposedHHSELRSubmissionGuidanceusingHL7v2Messages-DeviceIdentification) 
+
+**Table**: LIVD-SARS-CoV-2
+
+**Table Column**: Testkit Name ID
+
+**Documentation**:
+
+Follows guidence for OBX-17 as defined in the HL7 Confluence page
 
 ---
 
