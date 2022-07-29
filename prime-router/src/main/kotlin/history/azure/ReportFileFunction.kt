@@ -120,16 +120,18 @@ abstract class ReportFileFunction(
         try {
             // Do authentication
             val authResult = this.authSingleBlocks(request, id)
-            if (authResult != null)
-                return authResult
 
-            val action = this.actionFromId(id)
+            return if (authResult != null)
+                authResult
+            else {
+                val action = this.actionFromId(id)
+                val history = this.singleDetailedHistory(request.queryParameters, action)
 
-            val history = this.singleDetailedHistory(request.queryParameters, action)
-            return if (history != null)
-                HttpUtilities.okJSONResponse(request, history)
-            else
-                HttpUtilities.notFoundResponse(request, "History entry ${action.actionId} was not found.")
+                if (history != null)
+                    HttpUtilities.okJSONResponse(request, history)
+                else
+                    HttpUtilities.notFoundResponse(request, "History entry ${action.actionId} was not found.")
+            }
         } catch (e: DataAccessException) {
             logger.error("Unable to fetch history for ID $id", e)
             return HttpUtilities.internalErrorResponse(request)

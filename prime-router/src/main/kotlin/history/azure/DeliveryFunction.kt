@@ -159,32 +159,31 @@ class DeliveryFunction(
         try {
             // Do authentication
             val authResult = this.authSingleBlocks(request, id)
-            if (authResult != null)
-                return authResult
 
-            val params = HistoryApiParameters(request.queryParameters)
-            val facilityParams = FacilityListApiParameters(request.queryParameters)
+            return if (authResult != null)
+                authResult
+            else {
+                val facilities = deliveryFacade.findDeliveryFacilities(
+                    ReportId.fromString(id),
+                    HistoryApiParameters(request.queryParameters).sortDir,
+                    FacilityListApiParameters(request.queryParameters).sortColumn,
+                )
 
-            val facilities = deliveryFacade.findDeliveryFacilities(
-                ReportId.fromString(id),
-                params.sortDir,
-                facilityParams.sortColumn,
-            )
-
-            val resultFacilityList: List<Facility> = facilities.map {
-                Facility(
-                    it.testingLabName,
-                    it.location,
-                    it.testingLabClia,
-                    it.positive,
-                    it.countRecords,
+                HttpUtilities.okResponse(
+                    request,
+                    mapper.writeValueAsString(
+                        facilities.map {
+                            Facility(
+                                it.testingLabName,
+                                it.location,
+                                it.testingLabClia,
+                                it.positive,
+                                it.countRecords,
+                            )
+                        }
+                    )
                 )
             }
-
-            return HttpUtilities.okResponse(
-                request,
-                mapper.writeValueAsString(resultFacilityList)
-            )
         } catch (e: IllegalArgumentException) {
             return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
         } catch (ex: IllegalStateException) {
