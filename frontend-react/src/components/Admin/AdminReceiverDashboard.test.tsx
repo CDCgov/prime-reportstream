@@ -4,6 +4,7 @@ import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
 
+// <editor-fold desc="DATA: AdmConnStatusDataType[]">
 const DATA: AdmConnStatusDataType[] = [
     {
         receiverConnectionCheckResultId: 2397,
@@ -73,11 +74,12 @@ const DATA: AdmConnStatusDataType[] = [
         receiverName: "elr-secondary",
     },
 ];
+// </editor-fold>
 
 describe("AdminReceiverDashboard tests", () => {
     test("misc functions", () => {
-        expect(_exportForTesting.defaultStartDateIso()).toContain("T");
-        expect(_exportForTesting.defaultEndDateIso()).toContain("Z");
+        expect(_exportForTesting.startOfDayIso(new Date())).toContain("T");
+        expect(_exportForTesting.endOfDayIso(new Date())).toContain("Z");
     });
 
     test("TimeSlots", () => {
@@ -104,26 +106,6 @@ describe("AdminReceiverDashboard tests", () => {
             `["2022-07-11T08:00:00.000Z","2022-07-11T16:00:00.000Z","2022-07-12T00:00:00.000Z",` +
                 `"2022-07-12T08:00:00.000Z","2022-07-12T16:00:00.000Z","2022-07-13T00:00:00.000Z"]`
         );
-    });
-
-    test("roundDateDown", () => {
-        expect(
-            _exportForTesting.roundIsoDateDown("2022-07-11T08:09:22.748")
-        ).toBe("2022-07-11T00:00:00.000");
-
-        expect(
-            _exportForTesting.roundIsoDateDown("2022-07-11T08:09:22.748Z")
-        ).toBe("2022-07-11T00:00:00.000Z");
-    });
-
-    test("roundDateUp", () => {
-        expect(
-            _exportForTesting.roundIsoDateUp("2022-07-11T08:09:22.748")
-        ).toBe("2022-07-12T00:00:00.000");
-
-        expect(
-            _exportForTesting.roundIsoDateUp("2022-07-11T08:09:22.748Z")
-        ).toBe("2022-07-12T00:00:00.000Z");
     });
 
     test("dateShortFormat", () => {
@@ -211,17 +193,16 @@ describe("AdminReceiverDashboard tests", () => {
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.MainRender
                 data={data}
-                datesRange={[new Date("2022-07-11"), new Date()]}
+                datesRange={[new Date("2022-07-11"), new Date("2022-07-14")]}
                 filterRowStatus={_exportForTesting.SuccessRate.ALL_SUCCESSFUL}
                 onDetailsClick={(_subdata: AdmConnStatusDataType[]) => {}}
             />
         );
 
-        expect(
-            screen.getByText("Mon, 7/11/2022", {
-                exact: false,
-            })
-        ).toBeInTheDocument();
+        const days = screen.getAllByText(/Mon/);
+        expect(days.length).toBe(3);
+        const orgs = screen.getAllByText(/oh-doh/);
+        expect(orgs.length).toBe(1);
     });
 
     test("ModalInfoRender", async () => {
@@ -232,10 +213,9 @@ describe("AdminReceiverDashboard tests", () => {
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.ModalInfoRender subData={[subData]} />
         );
-        expect(
-            screen.getByText("connectionCheckResult dummy result 2397", {
-                exact: false,
-            })
-        ).toBeInTheDocument();
+        const matches = screen.queryAllByText(
+            "connectionCheckResult dummy result 2397"
+        );
+        expect(matches.length).toBe(1);
     });
 });
