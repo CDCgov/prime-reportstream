@@ -38,7 +38,7 @@ abstract class ReportFileFunction(
      * @param organization Name of organization and service
      * @return Name for the organization
      */
-    abstract fun userOrgName(organization: String): String?
+    abstract fun getOrgName(organization: String): String?
 
     /**
      * Get history entries as a list
@@ -83,7 +83,7 @@ abstract class ReportFileFunction(
             val claims = AuthenticationStrategy.authenticate(request)
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
-            val userOrgName = this.userOrgName(organization)
+            val userOrgName = this.getOrgName(organization)
                 ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream user")
 
             // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.

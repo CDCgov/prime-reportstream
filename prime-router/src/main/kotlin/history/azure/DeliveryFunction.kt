@@ -45,7 +45,7 @@ class DeliveryFunction(
      * @param organization Name of organization and client in the format {orgName}.{client}
      * @return Name for the organization
      */
-    override fun userOrgName(organization: String): String? {
+    override fun getOrgName(organization: String): String? {
         val receiver = workflowEngine.settings.findReceiver(organization)
         receivingOrgSvc = receiver?.name
         return receiver?.organizationName
