@@ -85,7 +85,7 @@
 }
 
 @media (max-width: $tablet) {
-  
+
   .rs-hero__index {
     padding-top: 0;
 
@@ -160,10 +160,10 @@ ul.rb li .timestamp {
 }
 
 // Page styles
-// Content pages for documentation, support, etc 
+// Content pages for documentation, support, etc
 
 .rs-documentation {
-  
+
 
   h1, h2, h3, h4, h5, h6, p, ul, ol, .usa-alert, blockquote {
     @include u-measure(6);
@@ -437,4 +437,151 @@ pre {
 .rs-pagination-arrow-button {
   align-items: center;
   display: inline-flex;
+}
+
+/* used by the receiver dashboard
+    SEE diagrams in AdminRecieverDashboard to understand layout */
+.rs-admindash-component {
+    display: contents;
+    border-bottom: #5d5d52 1px solid;
+
+    .perreceiver-row {
+        flex-wrap: nowrap;
+        width: 100%;
+        border-top: #5d5d52 1px solid;
+        padding-top: 2px;
+
+        .title-column {
+            width: 12em;
+            min-width: 12em;
+            height: 5em;
+            overflow: hidden;
+
+            .title-text {
+                flex-wrap: nowrap;
+                text-overflow: ellipsis;
+                font-weight: bolder;
+                font-size: small;
+                line-height: 150%;
+                min-height: 4.5em;
+                background-color: white;
+                margin: 0.25em;
+                padding: 0.5em;
+            }
+        }
+
+        .week-column {
+            flex-wrap: nowrap;
+            padding-left: 3px;
+            padding-right: 3px;
+
+            .perday-component {
+                width: 8em;
+                height: 5em;
+                flex-wrap: nowrap;
+                padding-left: 0.25em;
+                padding-right: 0;
+                overflow: hidden;
+
+                .title-row {
+                    flex-wrap: nowrap;
+                    font-size: smaller;
+                    font-weight: bold;
+                    background-color: white;
+                    margin: 6px;
+                }
+
+                .slices-row {
+                    display: grid;
+                    height: 3em;
+
+                    .slice {
+                        border-radius: .5em;
+                        border: solid 0.05em #2f2f2f;
+                        cursor: pointer; /* success-undefined removes */
+                    }
+                }
+
+                .slices-row-12 {
+                    /** https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns **/
+                    grid-template-columns: repeat(13, 7.4%);
+                }
+
+                .slices-row-4 {
+                    grid-template-columns: repeat(4, 24%);
+                }
+            }
+        }
+
+        .horizontal-scroll {
+            scroll-margin: 0;
+            overflow-x: scroll; // auto;
+            overflow-y: clip;
+            width: 100%;
+        }
+
+        .success-undefined {
+            background-color: rgb(190, 190, 190);
+            cursor: default !important;
+        }
+
+        .success-all {
+            /* color bind friendly */
+            background-color: rgba(0, 97, 100, 100);
+        }
+
+        .failure-all {
+            background-color: rgba(219, 67, 37, 100);
+        }
+
+        .success-mixed {
+            background: repeating-linear-gradient(
+                    45deg,
+                    #ffffff,
+                    #006164 10px,
+                    #ffffff 10px,
+                    #DB4325 30px
+            );
+        }
+    }
+}
+
+.rs-admindash-modal {
+    .modal-info-title {
+        font-size: larger;
+        font-weight: bolder;
+        background-color: #2e2e2e;
+        color: white;
+        padding: 7px;
+    }
+
+    .modal-info-row {
+        flex-wrap: nowrap;
+    }
+
+    .modal-info-label {
+        width: 25em;
+        font-weight: bolder;
+        color: #2e2e2e;
+        text-align: right;
+        padding: 0.2em;
+    }
+
+    .modal-info-value {
+        width: 120em;
+        padding: 0.2em;
+    }
+
+    .success-all {
+        color: rgba(0, 97, 100, 100);
+    }
+
+    .failure-all {
+        color: rgba(219, 67, 37, 100);
+    }
+}
+
+/* for dashboards, unbounded width is a nice feature */
+.rs-container-unbounded {
+    max-width: fit-content !important;
 }
