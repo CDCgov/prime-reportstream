@@ -10,6 +10,8 @@ import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import ca.uhn.hl7v2.model.v251.message.ORU_R01
+import ca.uhn.hl7v2.util.Terser
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DateType
@@ -105,6 +107,8 @@ class FhirPathUtilsTests {
 
     @Test
     fun `test evaluateString`() {
+        val a = ORU_R01()
+        val terser = Terser(a)
         val bundle = Bundle()
         bundle.timestamp = Date()
 
@@ -116,52 +120,45 @@ class FhirPathUtilsTests {
         var path = FhirPathUtils.parsePath("Bundle.timestamp")
         var result = FhirPathUtils.evaluateString(null, bundle, bundle, path!!)
         assertThat(result).isNotEmpty()
-        assertThat(result).isInstanceOf(String::class.java)
-        assertThat(regex.matches(result)).isTrue()
+        assertThat { terser.set("MSH-7", result) }.isSuccess()
 
         // Test DateTimeType
         path = FhirPathUtils.parsePath("Bundle.entry.resource.effective")
         result = FhirPathUtils.evaluateString(null, bundle, bundle, path!!)
-
         assertThat(result).isNotEmpty()
-        assertThat(result).isInstanceOf(String::class.java)
-        assertThat(regex.matches(result)).isTrue()
+        assertThat { terser.set("MSH-7", result) }.isSuccess()
 
         // Test InstanceType (which boils down to a DateTimeType)
         observation.effective = InstantType("2015-04-11T12:22:01-04:00")
         path = FhirPathUtils.parsePath("Bundle.entry.resource.effective")
         result = FhirPathUtils.evaluateString(null, bundle, bundle, path!!)
-
         assertThat(result).isNotEmpty()
-        assertThat(result).isInstanceOf(String::class.java)
-        assertThat(regex.matches(result)).isTrue()
+        assertThat { terser.set("MSH-7", result) }.isSuccess()
 
         val ext = Extension()
         ext.url = "http://example.com/extensions#someext"
         ext.setValue(DateType("2011-01-02"))
         observation.addExtension(ext)
         // Test DateType
-        path = FhirPathUtils.parsePath("Bundle.entry.resource.extension[0].value")
+        path = FhirPathUtils.parsePath("Bundle.entry.resource.extension.value")
         result = FhirPathUtils.evaluateString(null, bundle, bundle, path!!)
         assertThat(result).isNotEmpty()
-        assertThat(result).isInstanceOf(String::class.java)
-        assertThat(regex.matches(result)).isTrue()
+        assertThat { terser.set("MSH-7", result) }.isSuccess()
 
         // Test TimeType
         ext.setValue(TimeType("13:04:05.098"))
-        path = FhirPathUtils.parsePath("Bundle.entry.resource.extension[0].value")
+        path = FhirPathUtils.parsePath("Bundle.entry.resource.extension.value")
         result = FhirPathUtils.evaluateString(null, bundle, bundle, path!!)
         assertThat(result).isNotEmpty()
-        assertThat(result).isInstanceOf(String::class.java)
-        assertThat(regexTime.matches(result)).isTrue()
+        // OBX-2 is one of the few HL7 fields that accepts a TM
+        assertThat { terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", result) }.isSuccess()
 
         // Test regular string
         bundle.id = "super special id"
         path = FhirPathUtils.parsePath("Bundle.id")
         result = FhirPathUtils.evaluateString(null, bundle, bundle, path!!)
         assertThat(result).isNotEmpty()
-        assertThat(result).isInstanceOf(String::class.java)
-        assertThat(result).isEqualTo(bundle.id)
+        assertThat { terser.set("MSH-10", result) }.isSuccess()
     }
 
     @Test
@@ -169,25 +166,24 @@ class FhirPathUtilsTests {
         val dateTime = DateTimeType("2015-04-11T12:22:01-04:00")
         val result = FhirPathUtils.convertDateTimeToHL7(dateTime)
         assertThat(result).isNotEmpty()
-        assertThat(result).isInstanceOf(String::class.java)
-        assertThat(regex.matches(result)).isTrue()
+        assertThat(result).isEqualTo("20150411122201.0000-0400")
     }
 
     @Test
     fun `test convertTimeToHL7`() {
         val time = TimeType("13:04:05.098")
         val result = FhirPathUtils.convertTimeToHL7(time)
+        print(result)
         assertThat(result).isNotEmpty()
-        assertThat(result).isInstanceOf(String::class.java)
-        assertThat(regexTime.matches(result)).isTrue()
+        assertThat(result).isEqualTo("130405.0980")
     }
 
     @Test
     fun `test convertDateToHL7`() {
         val date = DateType("2011-01-02")
         val result = FhirPathUtils.convertDateToHL7(date)
+        print(result)
         assertThat(result).isNotEmpty()
-        assertThat(result).isInstanceOf(String::class.java)
-        assertThat(regex.matches(result)).isTrue()
+        assertThat(result).isEqualTo("20110102")
     }
 }

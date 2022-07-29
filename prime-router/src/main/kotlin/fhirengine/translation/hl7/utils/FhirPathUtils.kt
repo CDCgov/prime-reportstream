@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.context.SimpleWorkerContext
@@ -96,38 +97,59 @@ object FhirPathUtils : Logging {
         expressionNode: ExpressionNode
     ): String {
         val evaluated = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
-        if (evaluated.size == 0) return ""
-        if (evaluated.size > 1 || !evaluated[0].isPrimitive) {
-            // Should only be evaluating primitives here
-            throw IllegalStateException()
+        var toReturn = ""
+        if (evaluated.isEmpty()) {
+            // Return toReturn as is. An empty string is the appropriate representation.
+        } else if (evaluated.size > 1) {
+            val msg = "Could not evaluate multiple results: $evaluated for path: $expressionNode"
+            logger.error(msg)
+            throw IllegalStateException(msg)
+        } else if (!evaluated[0].isPrimitive) {
+            val msg = "Could not evaluate path: $expressionNode to primitive. ${evaluated[0]} is not a primitive."
+            logger.error(msg)
+            throw HL7ConversionException(msg)
+        } else {
+            toReturn = when (val primitive = evaluated[0]) {
+                is InstantType, is DateTimeType -> convertDateTimeToHL7(primitive)
+                is DateType -> convertDateToHL7(primitive)
+                is TimeType -> convertTimeToHL7(primitive)
+                else -> defaultPathEngine.convertToString(primitive)
+            }
         }
-        return when (val primitive = evaluated[0]) {
-            is InstantType, is DateTimeType -> convertDateTimeToHL7(primitive)
-            is DateType -> convertDateToHL7(primitive)
-            is TimeType -> convertTimeToHL7(primitive)
-            else -> defaultPathEngine.convertToString(primitive)
-        }
+        return toReturn
     }
+
+    /**
+     * Convert a FHIR [dateTime] to the format required by HL7
+     * @return the converted HL7 DTM
+     */
     fun convertDateTimeToHL7(dateTime: Base): String {
-        val pattern = "YYYYMMddHHmmss.SSSSxxxx"
-        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern(pattern)
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("YYYYMMddHHmmss.SSSSxxxx")
         val zonedDateTime: ZonedDateTime = ZonedDateTime.parse(dateTime.dateTimeValue().valueAsString)
 
         return zonedDateTime.format(formatter)
     }
 
+    /**
+     * Convert a FHIR [timeType] to the format required by HL7
+     * @return the converted HL7 TM
+     */
     fun convertTimeToHL7(timeType: TimeType): String {
-        val pattern = "HHmmss.SSSS"
-        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern(pattern)
+        // FHIR TimeType does not include a time zone.
+        // HL7 TM can include a timezone but none will be generated given the FHIR restriction.
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HHmmss.SSSS")
         val localTime: LocalTime = LocalTime.parse(timeType.valueAsString)
 
         return localTime.format(formatter)
     }
 
-    fun convertDateToHL7(date: DateType): String {
-        val pattern = "YYYYMMdd"
-        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern(pattern)
-        val localDate: LocalDate = LocalDate.parse(date.valueAsString)
+    /**
+     * Convert a FHIR [dateType] to the format required by HL7
+     * @return the converted HL7 DTM
+     */
+    fun convertDateToHL7(dateType: DateType): String {
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("YYYYMMdd")
+        val localDate: LocalDate = LocalDate.parse(dateType.valueAsString)
 
         return localDate.format(formatter)
     }
