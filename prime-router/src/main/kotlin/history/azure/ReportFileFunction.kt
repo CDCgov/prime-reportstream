@@ -298,10 +298,10 @@ abstract class ReportFileFunction(
     /**
      * Utility function.  Mimic String.toLongOrNull()
      *
-     * @param str
+     * @param str Potential UUID
      * @return a valid UUID, or null if this [str] cannot be parsed into a valid UUID.
      */
-    private fun toUuidOrNull(str: String): UUID? {
+    internal fun toUuidOrNull(str: String): UUID? {
         return try {
             UUID.fromString(str)
         } catch (e: IllegalArgumentException) {

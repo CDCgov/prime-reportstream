@@ -8,7 +8,6 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -163,8 +162,16 @@ class DeliveryFunction(
             return if (authResult != null)
                 authResult
             else {
+                val actionId = id.toLongOrNull()
+
+                val reportId = if (actionId == null) {
+                    this.toUuidOrNull(id)
+                } else {
+                    deliveryFacade.fetchReportForActionId(actionId)?.reportId
+                }
+
                 val facilities = deliveryFacade.findDeliveryFacilities(
-                    ReportId.fromString(id),
+                    reportId!!,
                     HistoryApiParameters(request.queryParameters).sortDir,
                     FacilityListApiParameters(request.queryParameters).sortColumn,
                 )
