@@ -7,6 +7,7 @@ import {
     FileType,
     FileHandlerActionType,
 } from "../../hooks/UseFileHandler";
+import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 
 import FileHandler, { FileHandlerType } from "./FileHandler";
 
@@ -205,7 +206,9 @@ describe("FileHandler", () => {
         const reportId = await screen.findByText("IDIDID");
         expect(reportId).toHaveClass("margin-top-05");
 
-        const timestampDate = await screen.findByText("31 December 1969");
+        const timestampDate = await screen.findByText(
+            formattedDateFromTimestamp(new Date(0).toString(), "DD MMMM YYYY")
+        );
         expect(timestampDate).toHaveClass("margin-top-05");
     });
 

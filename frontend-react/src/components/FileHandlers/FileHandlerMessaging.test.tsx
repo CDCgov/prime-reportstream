@@ -1,5 +1,7 @@
 import { screen, render, within } from "@testing-library/react";
 
+import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
+
 import {
     FileSuccessDisplay,
     FileErrorDisplay,
@@ -43,7 +45,9 @@ describe("FileSuccessDisplay", () => {
         const reportId = await screen.findByText("IDIDID");
         expect(reportId).toHaveClass("margin-top-05");
 
-        const timestampDate = await screen.findByText("31 December 1969");
+        const timestampDate = await screen.findByText(
+            formattedDateFromTimestamp(new Date(0).toString(), "DD MMMM YYYY")
+        );
         expect(timestampDate).toHaveClass("margin-top-05");
 
         // // this may break if run outside of us east - commenting out until we confirm, or figure out a better way
