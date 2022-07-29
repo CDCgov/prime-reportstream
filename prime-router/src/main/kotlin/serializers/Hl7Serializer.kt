@@ -320,6 +320,8 @@ class Hl7Serializer(
                             element.type == Element.Type.DATE ->
                             decodeHl7DateTime(terser, element, hl7Field, warnings)
 
+                        hl7Field == "NTE-3" -> decodeNTESegments(hapiMsg)
+
                         // Decode an AOE question
                         hl7Field == "AOE" ->
                             decodeAOEQuestion(element, terser)
@@ -2078,6 +2080,9 @@ class Hl7Serializer(
          */
         val CE_FIELDS = listOf("OBX-15-1")
 
+        /** The max length for the formatted text type (FT) in HL7 */
+        private const val maxFormattedTextLength = 65536
+
         // Component specific sub-component length from HL7 specification Chapter 2A
         private val CE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20)
         private val CWE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20, 10, 10, 199)
@@ -2118,6 +2123,42 @@ class Hl7Serializer(
         // Do a lazy init because this table may never be used and it is large
         val ncesLookupTable = lazy {
             Metadata.getInstance().findLookupTable("nces_id") ?: error("Unable to find the NCES ID lookup table.")
+        }
+
+        /**
+         * Walks all the NTE segments and concatenates the values into a single NTE
+         * segment we will write out later on when we deserialize. This is very hackish
+         * and should not be considered a good or permanent solution
+         */
+        fun decodeNTESegments(message: ca.uhn.hl7v2.model.Message): String {
+            // cast the message to an ORU_R01, and if it's not that type of
+            // message, just return an empty string
+            val oruR01: ORU_R01 = (message as? ORU_R01) ?: return ""
+            val sb = StringBuilder()
+
+            // walk all the patient results, and the notes that are listed in there, appending to the stringbuilder
+            oruR01.patienT_RESULTAll.forEach { patientResult ->
+                patientResult.patient.nteAll.forEach { patientNote ->
+                    sb.append(patientNote.comment.joinToString(" ") { it.value })
+                    sb.append(" ")
+                }
+                // inside each patient record is the order observation, which also has notes
+                patientResult.ordeR_OBSERVATIONAll.forEach { orderObservation ->
+                    orderObservation.nteAll.forEach { orderObservationNote ->
+                        sb.append(orderObservationNote.comment.joinToString(" ") { it.value })
+                        sb.append(" ")
+                    }
+                    // and each observation also has its own notes
+                    orderObservation.observationAll.forEach { observation ->
+                        observation.nteAll.forEach { observationNote ->
+                            sb.append(observationNote.comment.joinToString(" ") { it.value })
+                            sb.append(" ") // trailing space is fine, we trim it below
+                        }
+                    }
+                }
+            }
+
+            return sb.toString().trimAndTruncate(maxFormattedTextLength)
         }
     }
 }
