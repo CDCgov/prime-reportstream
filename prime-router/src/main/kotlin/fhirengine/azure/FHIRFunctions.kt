@@ -10,6 +10,8 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
+import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
+import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.Message
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
@@ -19,7 +21,6 @@ import org.apache.logging.log4j.kotlin.Logging
 
 class FHIRFunctions(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-    private val fhirEngine: FHIREngine = FHIRConverter(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.process),
     private val actionLogger: ActionLogger = ActionLogger()
 ) : Logging {
@@ -34,6 +35,8 @@ class FHIRFunctions(
         message: String,
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
+        // this param is here so the azure function can be tested
+        fhirEngine: FHIREngine = FHIRConverter()
     ) {
         val messageContent = readMessage("Convert", message, dequeueCount)
 
@@ -55,6 +58,8 @@ class FHIRFunctions(
         message: String,
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
+        // this param is here so the azure function can be tested
+        fhirEngine: FHIREngine = FHIRRouter()
     ) {
         val messageContent = readMessage("Route", message, dequeueCount)
 
@@ -76,8 +81,11 @@ class FHIRFunctions(
         message: String,
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
+        // this param is here so the azure function can be tested
+        fhirEngine: FHIREngine = FHIRTranslator()
     ) {
         val messageContent = readMessage("Translate", message, dequeueCount)
+
         try {
             fhirEngine.doWork(messageContent, actionLogger, actionHistory)
         } catch (e: Exception) {
