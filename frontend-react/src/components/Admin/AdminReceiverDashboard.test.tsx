@@ -78,8 +78,13 @@ const DATA: AdmConnStatusDataType[] = [
 
 describe("AdminReceiverDashboard tests", () => {
     test("misc functions", () => {
-        expect(_exportForTesting.startOfDayIso(new Date())).toContain("T");
-        expect(_exportForTesting.endOfDayIso(new Date())).toContain("Z");
+        // we're checking these don't throw.
+        const now = new Date();
+        expect(_exportForTesting.startOfDayIso(now)).toContain("T");
+        expect(_exportForTesting.endOfDayIso(now)).toContain("T");
+        expect(_exportForTesting.initialStartDate().toISOString()).toContain(
+            "T"
+        );
     });
 
     test("TimeSlots", () => {
@@ -203,6 +208,9 @@ describe("AdminReceiverDashboard tests", () => {
         expect(days.length).toBe(3);
         const orgs = screen.getAllByText(/oh-doh/);
         expect(orgs.length).toBe(1);
+
+        // no data returned by server
+        expect(_exportForTesting.makeDictionary([])).toStrictEqual({});
     });
 
     test("ModalInfoRender", async () => {

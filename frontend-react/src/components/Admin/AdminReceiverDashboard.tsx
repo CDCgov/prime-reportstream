@@ -774,6 +774,7 @@ export function AdminReceiverDashboard() {
 export const _exportForTesting = {
     startOfDayIso,
     endOfDayIso,
+    initialStartDate,
     TimeSlots,
     SuccessRateTracker,
     SuccessRate,
