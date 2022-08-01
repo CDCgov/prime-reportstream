@@ -14,7 +14,6 @@ import {
     ContentDirectoryTools,
     SlugParams,
 } from "../../components/Content/PageGenerationTools";
-
 import { About } from "../About";
 import { WhereWereLive } from "./WhereWereLive";
 
