@@ -24,7 +24,7 @@ export const FileHandlerSubmitButton = ({
         );
     }
     return (
-        <Button type="submit" disabled={disabled}>
+        <Button disabled={disabled} type={"submit"}>
             {submitText}
         </Button>
     );
