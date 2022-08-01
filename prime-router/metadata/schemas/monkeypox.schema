@@ -421,7 +421,6 @@ elements:
     type: CODE
     pii: false
     cardinality: ZERO_OR_ONE
-    valueSet: hl70189
     hl7Field: PID-22
     documentation: |
       The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
@@ -438,7 +437,6 @@ elements:
     type: CODE
     pii: false
     cardinality: ZERO_OR_ONE
-    valueSet: hl70001
     hl7Field: PID-8-1
     documentation: |
       The patient's gender. There is a valueset defined based on the values in PID-8-1, 
@@ -528,7 +526,6 @@ elements:
   - name: patient_race
     type: CODE
     pii: false
-    valueSet: hl70005
     cardinality: ZERO_OR_ONE
     hl7Field: PID-10
     documentation: |
@@ -572,7 +569,7 @@ elements:
     pii: false
     table: fips-county
     tableColumn: State
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     hl7Field: PID-11-4
     documentation: The patient's state
 
