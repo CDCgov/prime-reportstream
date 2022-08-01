@@ -4,6 +4,7 @@ import { API } from "./NewApi";
 export enum Endpoints {
     DETAIL = "detail",
     ALL_RECEIVERS = "receivers",
+    ALL_SENDERS = "senders",
 }
 
 export class RSOrganization {}
@@ -18,6 +19,7 @@ export interface ReceiversUrlVars {
 
 const OrganizationApi = new API(RSOrganization, "/api/settings/organizations")
     .addEndpoint(Endpoints.DETAIL, "/:org", ["GET"])
-    .addEndpoint(Endpoints.ALL_RECEIVERS, "/:org/receivers", ["GET"]);
+    .addEndpoint(Endpoints.ALL_RECEIVERS, "/:org/receivers", ["GET"])
+    .addEndpoint(Endpoints.ALL_SENDERS, "/:org/senders", ["GET"]);
 
 export default OrganizationApi;

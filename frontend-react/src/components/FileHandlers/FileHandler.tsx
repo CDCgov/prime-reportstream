@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
+import { useSenderResource } from "../../hooks/UseSenderResource";
 import { useOrganizationResource } from "../../hooks/UseOrganizationResource";
 import { WatersPost } from "../../network/api/WatersApiFunctions";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
@@ -99,9 +100,10 @@ const FileHandler = ({
     }, [localError]);
 
     const { memberships, oktaToken } = useSessionContext();
+    const { sender } = useSenderResource();
     const { organization } = useOrganizationResource();
 
-    console.log("!!! mems and org", memberships, organization);
+    console.log("!!! org & sender", organization, sender);
     const accessToken = oktaToken?.accessToken;
     const parsedName = memberships.state.active?.parsedName;
     const senderName = memberships.state.active?.senderName;
