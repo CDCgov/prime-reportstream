@@ -20,7 +20,7 @@ class AuthenticatedClaims {
     /** Name of user as extracted from the subject claim.  Usually an email address */
     val userName: String
     /** Does this user have the prime administrator claim? */
-    var isPrimeAdmin: Boolean
+    val isPrimeAdmin: Boolean
     /** Name of the organization found in these claims */
     val organizationNameClaim: String?
     /** Is this a Sender claim, of the form DHSender_orgname  ? */

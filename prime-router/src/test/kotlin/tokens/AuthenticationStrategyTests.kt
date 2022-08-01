@@ -159,11 +159,27 @@ class AuthenticationStrategyTests {
 
             result = AuthenticationStrategy.validateClaim(claims, matchingSender, req)
             assertThat(result).isTrue()
-
-            // TODO: mock claims in a way so as to NOT change isPrimeAdmin from 'val' to 'var' in AuthenticatedClaims.kt
-            claims.isPrimeAdmin = true
-            result = AuthenticationStrategy.validateClaim(claims, matchingSender, req)
-            assertThat(result).isTrue()
         }
+    }
+
+    @Test
+    fun `test validate claims - isPrimeAdmin`() {
+        val req = MockHttpRequestMessage("test")
+        val userMemberships: Map<String, Any> = mapOf(
+            "organization" to listOf("DHPrimeAdmins"),
+            "sub" to "bob@bob.com"
+        )
+        val claims = AuthenticatedClaims(userMemberships)
+        val matchingSender = CovidSender(
+            "Test Sender",
+            "simple_report",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+
+        val result = AuthenticationStrategy.validateClaim(claims, matchingSender, req)
+        assertThat(result).isTrue()
     }
 }
