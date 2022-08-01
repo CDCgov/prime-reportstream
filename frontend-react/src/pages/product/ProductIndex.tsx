@@ -15,8 +15,8 @@ import {
     SlugParams,
 } from "../../components/Content/PageGenerationTools";
 
-import { WhereWereLive } from "./WhereWereLive";
 import { About } from "../About";
+import { WhereWereLive } from "./WhereWereLive";
 
 /* Data that drives breadcrumb creation and slug appending */
 const slugs: SlugParams[] = [

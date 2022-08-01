@@ -87,6 +87,7 @@ export const Faq = () => {
                 <a
                     className="usa-link"
                     target="_blank"
+                    rel="noreferrer"
                     href="https://www.simplereport.gov/"
                 >
                     SimpleReport
@@ -99,7 +100,8 @@ export const Faq = () => {
                 sure to log in at{" "}
                 <a
                     className="usa-link"
-                    href="http://reportstream.cdc.gov/login"
+                    rel="noreferrer"
+                    href="https://reportstream.cdc.gov/login"
                 >
                     reportstream.cdc.gov/login
                 </a>
@@ -110,6 +112,7 @@ export const Faq = () => {
                 <a
                     className="usa-link"
                     target="_blank"
+                    rel="noreferrer"
                     href="https://reportstream.cdc.gov/support/contact"
                 >
                     contact us
@@ -133,6 +136,8 @@ export const Faq = () => {
                 are sister projects under the{" "}
                 <a
                     className="usa-link"
+                    rel="noreferrer"
+                    target="_blank"
                     href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html"
                 >
                     Pandemic-Ready Interoperability Modernization Effort (PRIME)
