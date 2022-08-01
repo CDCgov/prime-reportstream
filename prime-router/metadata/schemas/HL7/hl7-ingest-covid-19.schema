@@ -72,7 +72,7 @@ elements:
     pii: false
     table: zip-code-data
     tableColumn: state_abbr
-    cardinality: ONE
+    cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_state
     hhsGuidanceField:
     hl7Field: PID-11-4
