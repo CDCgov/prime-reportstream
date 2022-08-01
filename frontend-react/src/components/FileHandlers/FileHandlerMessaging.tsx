@@ -34,7 +34,7 @@ export const FileSuccessDisplay = ({
     return (
         <>
             <StaticAlert type={"success"} heading={heading} message={message} />
-            <div data-testid="sucess-display">
+            <div>
                 <p
                     id="validatedFilename"
                     className="text-normal text-base margin-bottom-0"
@@ -165,7 +165,7 @@ export const FileErrorDisplay = ({
                                     <ErrorRow
                                         error={e}
                                         index={i}
-                                        key={`error{i}`}
+                                        key={`error${i}`}
                                     />
                                 );
                             })}
@@ -215,7 +215,7 @@ export const FileWarningsDisplay = ({
                 <tbody>
                     {warnings.map((w, i) => {
                         return (
-                            <ErrorRow error={w} index={i} key={`warning{i}`} />
+                            <ErrorRow error={w} index={i} key={`warning${i}`} />
                         );
                     })}
                 </tbody>
