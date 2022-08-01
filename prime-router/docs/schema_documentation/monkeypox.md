@@ -1624,14 +1624,6 @@ The patient's drivers license number
 
 **Cardinality**: [0..1]
 
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-H|Hispanic or Latino|HL7
-N|Non Hispanic or Latino|HL7
-U|Unknown|HL7
-
 **Documentation**:
 
 The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
@@ -1667,17 +1659,6 @@ The patient's first name
 **Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-M|Male|HL7
-F|Female|HL7
-O|Other|HL7
-A|Ambiguous|HL7
-U|Unknown|HL7
-N|Not applicable|HL7
 
 **Documentation**:
 
@@ -2642,19 +2623,6 @@ The patient's preferred language
 
 **Cardinality**: [0..1]
 
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-1002-5|American Indian or Alaska Native|HL7
-2028-9|Asian|HL7
-2054-5|Black or African American|HL7
-2076-8|Native Hawaiian or Other Pacific Islander|HL7
-2106-3|White|HL7
-2131-1|Other|HL7
-UNK|Unknown|NULLFL
-ASKU|Asked, but unknown|NULLFL
-
 **Documentation**:
 
 The patient's race. There is a common valueset defined for race values, but some states 
@@ -2767,7 +2735,7 @@ may choose to define different code/value combinations.
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
