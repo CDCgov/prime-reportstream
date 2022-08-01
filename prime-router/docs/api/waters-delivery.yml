@@ -56,7 +56,7 @@ paths:
           description: unauthorized
         '404':
           description: organization does not exist
-  /waters/report/{deliveryId}/delivery:
+  /waters/report/{id}/delivery:
     get:
       operationId: getDeliveryDetails
       summary: Get expanded details for a single report
@@ -65,13 +65,13 @@ paths:
         - OAuth2: [ user ]
         - Server2Server: []
       parameters:
-        - name: reportId
+        - name: id
           in: path
-          description: ID of report whose details we want to see
+          description: ActionID or ReportId of report whose details we want to see
           required: true
           schema:
             type: string
-            format: uuid
+            format: uuid or int
       responses:
         '200':
           description: a report detail object
@@ -85,7 +85,7 @@ paths:
           description: unauthorized
         '404':
           description: report does not exist
-  /waters/deliveries/{deliveryId}/facilities:
+  /waters/report/{id}/facilities:
     get:
       operationId: getDeliveryFacilities
       summary: Get facilities for a single report
@@ -96,11 +96,14 @@ paths:
       parameters:
         - name: reportId
           in: path
-          description: ID of report whose details we want to see
+          description: ActionID or ReportId of report whose facilities we want to see
           required: true
           schema:
             type: string
-            format: uuid
+            format: uuid or int
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
+          enum: [ NAME, CITY, STATE, CLIA, POSITIVE, TOTAL ]
       responses:
         '200':
           description: an array of facilities in the report
@@ -165,10 +168,14 @@ components:
     FacilitiesList:
       type: array
       items:
-        $ref: '#/components/schemas/Facility'
-    Facility:
+        $ref: '#/components/schemas/DeliveryFacility'
+    DeliveryFacility:
       type: object
       properties:
+        reportId:
+          description: the uuid for the referenced report
+          type: string
+          format: uuid
         facility:
           description: the full name of the facility
           type: string
