@@ -31,7 +31,6 @@ export const FileSuccessDisplay = ({
     const { destinations, timestamp, reportId } = extendedMetadata;
     const destinationsDisplay =
         destinations || "There are no known recipients at this time.";
-
     return (
         <>
             <StaticAlert type={"success"} heading={heading} message={message} />
@@ -148,7 +147,10 @@ export const FileErrorDisplay = ({
             {showErrorTable && (
                 <>
                     <h3>Errors</h3>
-                    <table className="usa-table usa-table--borderless">
+                    <table
+                        className="usa-table usa-table--borderless"
+                        data-testid="error-table"
+                    >
                         <thead>
                             <tr>
                                 <th>Requested Edit</th>
@@ -159,7 +161,13 @@ export const FileErrorDisplay = ({
                         </thead>
                         <tbody>
                             {errors.map((e, i) => {
-                                return <ErrorRow error={e} index={i} />;
+                                return (
+                                    <ErrorRow
+                                        error={e}
+                                        index={i}
+                                        key={`error${i}`}
+                                    />
+                                );
                             })}
                         </tbody>
                     </table>
@@ -192,7 +200,10 @@ export const FileWarningsDisplay = ({
         <>
             <StaticAlert type={"warning"} heading={heading} message={message} />
             <h3>Warnings</h3>
-            <table className="usa-table usa-table--borderless">
+            <table
+                className="usa-table usa-table--borderless"
+                data-testid="error-table"
+            >
                 <thead>
                     <tr>
                         <th>Warning</th>
@@ -203,7 +214,9 @@ export const FileWarningsDisplay = ({
                 </thead>
                 <tbody>
                     {warnings.map((w, i) => {
-                        return <ErrorRow error={w} index={i} />;
+                        return (
+                            <ErrorRow error={w} index={i} key={`warning${i}`} />
+                        );
                     })}
                 </tbody>
             </table>
