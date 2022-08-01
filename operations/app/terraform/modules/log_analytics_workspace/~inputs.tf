@@ -88,8 +88,17 @@ variable "storage_partner_id" {
   description = "Storage Partner resource id"
 }
 
-
 variable "action_group_businesshours_id" {
   type        = string
   description = "Businesshours action group resource id"
+}
+
+variable "data_factory_id" {
+  type        = string
+  description = "Data factory resource id"
+}
+
+variable "sftp_instance_01_id" {
+  type        = string
+  description = "SFTP instance 01 resource id"
 }

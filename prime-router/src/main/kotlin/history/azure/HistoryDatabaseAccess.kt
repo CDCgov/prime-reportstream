@@ -201,8 +201,7 @@ abstract class HistoryDatabaseAccess(
         return if (showFailed) {
             filter
         } else {
-            // don't show failed = need to filter by status
-            val failedFilter = ACTION.HTTP_STATUS.between(200, 299)
+            val failedFilter = ACTION.HTTP_STATUS.between(200, 299) // don't show failed = need to filter by status
             filter.and(failedFilter)
         }
     }
@@ -210,13 +209,11 @@ abstract class HistoryDatabaseAccess(
     /**
      * Fetch a single (usually detailed) action of a specific type.
      *
-     * @param organization is the Organization Name returned from the Okta JWT Claim.
      * @param actionId the action id attached to this submission.
      * @param klass the class that the found data will be converted to.
      * @return the submission matching the given query parameters, or null.
      */
     fun <T> fetchAction(
-        organization: String,
         actionId: Long,
         klass: Class<T>
     ): T? {
@@ -225,8 +222,7 @@ abstract class HistoryDatabaseAccess(
                 .select(detailedSelect())
                 .from(ACTION)
                 .where(
-                    organizationFilter(organization)
-                        .and(ACTION.ACTION_ID.eq(actionId))
+                    ACTION.ACTION_ID.eq(actionId)
                 )
                 .fetchOne()?.into(klass)
         }
