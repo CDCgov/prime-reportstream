@@ -6,19 +6,24 @@ import OrganizationsAPI from "../network/api/OrganizationsApi";
 
 import useRequestConfig from "./network/UseRequestConfig";
 
+type SenderKeys = {
+    scope: string;
+    keys: {}[];
+};
+
 type Sender = {
     allowDuplicates: boolean;
     createdAt?: string;
     createdBy?: string;
     customerStatus: string;
     format: string;
-    keys?: null;
+    keys?: SenderKeys;
     name: string;
     organizationName: string;
-    primarySubmissionMethod?: null;
+    primarySubmissionMethod?: string;
     processingType: string;
     schemaName: string;
-    senderType?: null;
+    senderType?: string;
     topic: string;
     version?: number;
 };
@@ -50,24 +55,38 @@ export const useSenderResource = () => {
         error,
         loading,
     } = useRequestConfig(config) as {
-        data: any; // TODO (#5892): Should return Newable object or array of Newable objects.
+        data: Sender[];
         error: string;
         loading: boolean;
     };
 
+    // find the sender that matches the user's sender
+    // (or just return the first one in the list)
     const sender = useMemo(() => {
         if (!senders || !senders.length) {
-            return senders;
+            console.error(
+                "No sender available for organization from API response"
+            );
+            return null;
         }
-        console.log("!!! membersshiop", memberships);
+        console.log("!!! memberships", memberships);
         if (!memberships?.state?.active?.senderName) {
-            return senders[0];
+            console.error("No sender available on active membership");
+            return null;
         }
-        return senders.find(
-            (possibleSender) =>
+        const matchedSender = senders.find(
+            (possibleSender: Sender) =>
                 possibleSender.name === memberships?.state?.active?.senderName
         );
+        if (!matchedSender) {
+            console.error(
+                `No senders match: ${memberships?.state?.active?.senderName}`
+            );
+            return null;
+        }
+        return matchedSender;
     }, [senders, memberships.state.active]);
+
     /* Finally, return the values from the hook. */
     return {
         sender,
