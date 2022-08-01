@@ -1,10 +1,5 @@
 import { renderHook } from "@testing-library/react-hooks";
 
-// import {
-//     getStoredOrg,
-//     getStoredSenderName,
-// } from "../contexts/SessionStorageTools";
-
 import { useSenderResource } from "./UseSenderResource";
 
 const fakeSender = {

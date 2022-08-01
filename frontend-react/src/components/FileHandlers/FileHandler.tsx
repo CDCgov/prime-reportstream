@@ -64,7 +64,6 @@ interface FileHandlerProps {
     handlerType: FileHandlerType;
     fetcher: WatersPost;
     successMessage: string;
-    // formLabel: string;
     resetText: string;
     submitText: string;
     showSuccessMetadata: boolean;
@@ -77,7 +76,6 @@ const FileHandler = ({
     handlerType,
     fetcher,
     successMessage,
-    // formLabel,
     resetText,
     submitText,
     showSuccessMetadata,
@@ -221,7 +219,7 @@ const FileHandler = ({
             return "";
         }
         const fileTypeDescription =
-            sender.format === "CSV" ? "a CSV" : "an HL7";
+            sender.format === "CSV" ? "a CSV" : "an HL7 v2.5.1";
         return `Select ${fileTypeDescription} formatted file to ${submitText.toLowerCase()}. Make sure that your file has a .${sender.format.toLowerCase()} extension.`;
     }, [sender, submitText]);
 
