@@ -39,7 +39,6 @@ private const val OPTION_PARAMETER = "option"
 private const val DEFAULT_PARAMETER = "default"
 private const val ROUTE_TO_PARAMETER = "routeTo"
 private const val ALLOW_DUPLICATES_PARAMETER = "allowDuplicate"
-private const val PROCESSING_TYPE_PARAMETER = "processing"
 private const val TOPIC_PARAMETER = "topic"
 
 /**
@@ -117,8 +116,6 @@ class ValidateFunction(
         request: HttpRequestMessage<String?>,
         sender: Sender
     ): HttpResponseMessage {
-        // determine if we should be following the sync or async workflow
-        val isAsync = processingType(request, sender) == Sender.ProcessingType.async
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
         val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
@@ -147,7 +144,7 @@ class ValidateFunction(
                         validatedRequest.defaults,
                         options,
                         validatedRequest.routeTo,
-                        isAsync,
+                        false,
                         allowDuplicates,
                         rawBody,
                         payloadName
@@ -222,19 +219,6 @@ class ValidateFunction(
         // payloadName can be in the header or in the url parameters.  Return null if not found.
         return request.headers[PAYLOAD_NAME_PARAMETER]
             ?: request.queryParameters[PAYLOAD_NAME_PARAMETER]
-    }
-
-    private fun processingType(request: HttpRequestMessage<String?>, sender: Sender): Sender.ProcessingType {
-        val processingTypeString = request.queryParameters[PROCESSING_TYPE_PARAMETER]
-        return if (processingTypeString == null) {
-            sender.processingType
-        } else {
-            try {
-                Sender.ProcessingType.valueOfIgnoreCase(processingTypeString)
-            } catch (e: IllegalArgumentException) {
-                sender.processingType
-            }
-        }
     }
 
     /**
