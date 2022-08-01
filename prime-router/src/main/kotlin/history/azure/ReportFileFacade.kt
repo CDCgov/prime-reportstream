@@ -2,6 +2,7 @@ package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import org.apache.logging.log4j.kotlin.Logging
@@ -19,6 +20,13 @@ abstract class ReportFileFacade(
      */
     fun fetchActionForReportId(reportId: UUID): Action? {
         return dbAccess.fetchActionForReportId(reportId)
+    }
+
+    /**
+     * @return a single Report associated with this [actionId]
+     */
+    fun fetchReportForActionId(actionId: Long): ReportFile? {
+        return dbAccess.fetchReportForActionId(actionId)
     }
 
     /**

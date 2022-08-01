@@ -949,11 +949,6 @@ elements:
     type: TEXT
     hl7Field: SPM-5-3
 
-  - name: test_correction_reason
-    type: TEXT
-    hl7Field: NTE-3
-    pii: true
-
   - name: test_kit_name_id
     type: TEXT
     hl7Field: OBX-17-1

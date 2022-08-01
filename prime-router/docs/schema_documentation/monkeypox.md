@@ -4446,18 +4446,6 @@ The specimen source, such as Blood or Serum
 
 ---
 
-**Name**: test_correction_reason
-
-**ReportStream Internal Name**: test_correction_reason
-
-**Type**: TEXT
-
-**PII**: Yes
-
-**Cardinality**: [0..1]
-
----
-
 **Name**: test_kit_name_id
 
 **ReportStream Internal Name**: test_kit_name_id

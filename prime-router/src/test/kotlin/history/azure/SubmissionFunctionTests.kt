@@ -261,7 +261,6 @@ class SubmissionFunctionTests : Logging {
             mockDatabaseAccess.fetchAction<SubmissionHistory>(
                 any(),
                 any(),
-                any(),
             )
         } returns testData.first()
 
@@ -387,7 +386,7 @@ class SubmissionFunctionTests : Logging {
         action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any()) } returns returnBody
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
         every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -395,19 +394,20 @@ class SubmissionFunctionTests : Logging {
         assertThat(responseBody.submissionId).isEqualTo(returnBody.actionId)
         assertThat(responseBody.overallStatus).isEqualTo(returnBody.overallStatus.toString())
 
-        // Good uuid, but not a 'receive' step report.
+        // Good uuid, but with `process` action step report.
         action.actionName = TaskAction.process
         response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
-        // Good actionId, but Not found
+        // Good actionId, but with `send` action name
         val goodActionId = "550"
-        action.actionName = TaskAction.receive
+        action.actionName = TaskAction.send
         every { mockSubmissionFacade.fetchAction(any()) } returns null
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
 
         // Good actionId, but Not authorized
+        action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchAction(any()) } returns action
         every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
@@ -416,7 +416,7 @@ class SubmissionFunctionTests : Logging {
         // Happy path with a good actionId
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockSubmissionFacade.fetchAction(any()) } returns action
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any()) } returns returnBody
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
         every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
