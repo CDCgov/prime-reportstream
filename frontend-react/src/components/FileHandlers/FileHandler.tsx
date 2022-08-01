@@ -18,8 +18,18 @@ import {
     FileSuccessDisplay,
     FileWarningsDisplay,
     FileWarningBanner,
+    NoSenderBanner,
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
+
+const FileHandlerSpinner = ({ message }: { message: string }) => (
+    <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-4">
+        <div className="grid-row">
+            <Spinner />
+        </div>
+        <div className="grid-row">{message}</div>
+    </div>
+);
 
 const SERVER_ERROR_MESSAGING = {
     heading: "Error",
@@ -100,10 +110,10 @@ const FileHandler = ({
     }, [localError]);
 
     const { memberships, oktaToken } = useSessionContext();
-    const { sender } = useSenderResource();
-    const { organization } = useOrganizationResource();
+    const { organization, loading: organizationLoading } =
+        useOrganizationResource();
+    const { sender, loading: senderLoading } = useSenderResource();
 
-    console.log("!!! org & sender", organization, sender);
     const accessToken = oktaToken?.accessToken;
     const parsedName = memberships.state.active?.parsedName;
     const senderName = memberships.state.active?.senderName;
@@ -172,6 +182,11 @@ const FileHandler = ({
         }
     };
 
+    const resetState = () => {
+        setFileContent("");
+        dispatch({ type: FileHandlerActionType.RESET });
+    };
+
     const submitted = useMemo(
         () => !!(reportId || errors.length),
         [reportId, errors.length]
@@ -196,20 +211,38 @@ const FileHandler = ({
     }, [handlerType]);
 
     // default to FILE messaging here, partly to simplify typecheck
-    const errorMessaging =
-        errorMessagingMap[handlerType][errorType || ErrorType.FILE];
-
-    const resetState = () => {
-        setFileContent("");
-        dispatch({ type: FileHandlerActionType.RESET });
-    };
-
-    const senderFileType = "";
+    const errorMessaging = useMemo(
+        () => errorMessagingMap[handlerType][errorType || ErrorType.FILE],
+        [errorType, handlerType]
+    );
 
     const formLabel = useMemo(() => {
-        const fileTypeDescription = "a";
-        return `Select ${fileTypeDescription} formatted file to ${submitText.toLowerCase()}. Make sure that your file has a .${senderFileType} extension.`;
-    }, [senderFileType, submitText]);
+        if (!sender) {
+            return "";
+        }
+        const fileTypeDescription =
+            sender.format === "CSV" ? "a CSV" : "an HL7";
+        return `Select ${fileTypeDescription} formatted file to ${submitText.toLowerCase()}. Make sure that your file has a .${sender.format.toLowerCase()} extension.`;
+    }, [sender, submitText]);
+
+    if (senderLoading || organizationLoading) {
+        return <FileHandlerSpinner message="Loading..." />;
+    }
+
+    if (!sender) {
+        return (
+            <div className="grid-container usa-section margin-bottom-10">
+                <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
+                <h2 className="font-sans-lg">{organization?.description}</h2>
+                <NoSenderBanner
+                    action={handlerType}
+                    organization={
+                        organization?.description || "your organization"
+                    }
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="grid-container usa-section margin-bottom-10">
@@ -248,12 +281,7 @@ const FileHandler = ({
                 />
             )}
             {isSubmitting && (
-                <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-4">
-                    <div className="grid-row">
-                        <Spinner />
-                    </div>
-                    <div className="grid-row">Processing file...</div>
-                </div>
+                <FileHandlerSpinner message="Processing file..." />
             )}
             {!isSubmitting && (
                 <FileHandlerForm
