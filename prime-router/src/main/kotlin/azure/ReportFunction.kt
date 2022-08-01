@@ -41,7 +41,7 @@ private const val PROCESSING_TYPE_PARAMETER = "processing"
 class ReportFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
-) : Logging, RequestFunction() {
+) : Logging, RequestFunction(workflowEngine) {
 
     /**
      * POST a report to the router

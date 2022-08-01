@@ -38,7 +38,7 @@ import java.time.OffsetDateTime
 class ValidateFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
-) : Logging, RequestFunction() {
+) : Logging, RequestFunction(workflowEngine) {
 
     /**
      * entry point for the /validate endpoint, which validates a potential submission without writing
