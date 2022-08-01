@@ -383,6 +383,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
     /**
      * Fetch an action for a given [reportId].
+     * @param reportId UUID to search by
      * @param txn an optional database transaction
      * @return an Action, or null if no such reportId exists.
      */
@@ -398,6 +399,26 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(REPORT_FILE.REPORT_ID.eq(reportId))
             .fetchOne()
             ?.into(Action::class.java)
+    }
+
+    /**
+     * Fetch a report for a given [actionId].
+     * @param actionId id to search by
+     * @param txn an optional database transaction
+     * @return a ReportFile, or null if no such actionId exists.
+     */
+    fun fetchReportForActionId(
+        actionId: Long,
+        txn: DataAccessTransaction? = null
+    ): ReportFile? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.select(REPORT_FILE.asterisk())
+            .from(REPORT_FILE)
+            .join(ACTION)
+            .on(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
+            .where(REPORT_FILE.ACTION_ID.eq(actionId))
+            .fetchOne()
+            ?.into(ReportFile::class.java)
     }
 
     /**

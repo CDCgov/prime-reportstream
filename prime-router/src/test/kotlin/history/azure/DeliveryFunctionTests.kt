@@ -18,6 +18,7 @@ import gov.cdc.prime.router.azure.MockSettings
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
@@ -41,6 +42,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import java.time.Instant
 import java.time.OffsetDateTime
+import java.util.UUID
 import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -443,7 +445,7 @@ class DeliveryFunctionTests : Logging {
         assertThat(responseBody.deliveryId.toLong()).isEqualTo(returnBody.actionId)
         assertThat(responseBody.receivingOrg).isEqualTo(returnBody.receivingOrg)
 
-        // Good uuid, but not a with `process` action step report.
+        // Good uuid, but with `process` action step report.
         action.actionName = TaskAction.process
         response = function.getDeliveryDetails(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
@@ -535,6 +537,21 @@ class DeliveryFunctionTests : Logging {
         var response = function.getDeliveryFacilities(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: List<DeliveryFunction.Facility> = mapper.readValue(response.body.toString())
+        assertThat(responseBody.first().facility).isEqualTo(returnBody.last().testingLabName)
+        assertThat(responseBody.first().location).isEqualTo(returnBody.last().location)
+        assertThat(responseBody.first().clia).isEqualTo(returnBody.last().testingLabClia)
+        assertThat(responseBody.first().positive).isEqualTo(returnBody.last().positive)
+        assertThat(responseBody.first().total).isEqualTo(returnBody.last().countRecords)
+
+        // Happy path with a good actionId
+        val reportFile = ReportFile()
+        reportFile.actionId = action.actionId
+        reportFile.reportId = UUID.fromString(goodUuid)
+
+        every { mockDeliveryFacade.fetchReportForActionId(any()) } returns reportFile
+        response = function.getDeliveryFacilities(mockRequest, "550")
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
+        responseBody = mapper.readValue(response.body.toString())
         assertThat(responseBody.first().facility).isEqualTo(returnBody.last().testingLabName)
         assertThat(responseBody.first().location).isEqualTo(returnBody.last().location)
         assertThat(responseBody.first().clia).isEqualTo(returnBody.last().testingLabClia)

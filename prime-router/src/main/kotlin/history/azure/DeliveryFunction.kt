@@ -8,7 +8,6 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -45,7 +44,7 @@ class DeliveryFunction(
      * @param organization Name of organization and client in the format {orgName}.{client}
      * @return Name for the organization
      */
-    override fun userOrgName(organization: String): String? {
+    override fun getOrgName(organization: String): String? {
         val receiver = workflowEngine.settings.findReceiver(organization)
         receivingOrgSvc = receiver?.name
         return receiver?.organizationName
@@ -159,32 +158,39 @@ class DeliveryFunction(
         try {
             // Do authentication
             val authResult = this.authSingleBlocks(request, id)
-            if (authResult != null)
-                return authResult
 
-            val params = HistoryApiParameters(request.queryParameters)
-            val facilityParams = FacilityListApiParameters(request.queryParameters)
+            return if (authResult != null)
+                authResult
+            else {
+                val actionId = id.toLongOrNull()
 
-            val facilities = deliveryFacade.findDeliveryFacilities(
-                ReportId.fromString(id),
-                params.sortDir,
-                facilityParams.sortColumn,
-            )
+                val reportId = if (actionId == null) {
+                    this.toUuidOrNull(id)
+                } else {
+                    deliveryFacade.fetchReportForActionId(actionId)?.reportId
+                }
 
-            val out: List<Facility> = facilities.map {
-                Facility(
-                    it.testingLabName,
-                    it.location,
-                    it.testingLabClia,
-                    it.positive,
-                    it.countRecords,
+                val facilities = deliveryFacade.findDeliveryFacilities(
+                    reportId!!,
+                    HistoryApiParameters(request.queryParameters).sortDir,
+                    FacilityListApiParameters(request.queryParameters).sortColumn,
+                )
+
+                HttpUtilities.okResponse(
+                    request,
+                    mapper.writeValueAsString(
+                        facilities.map {
+                            Facility(
+                                it.testingLabName,
+                                it.location,
+                                it.testingLabClia,
+                                it.positive,
+                                it.countRecords,
+                            )
+                        }
+                    )
                 )
             }
-
-            return HttpUtilities.okResponse(
-                request,
-                mapper.writeValueAsString(out)
-            )
         } catch (e: IllegalArgumentException) {
             return HttpUtilities.badRequestResponse(request, HttpUtilities.errorJson(e.message ?: "Invalid Request"))
         } catch (ex: IllegalStateException) {
@@ -194,6 +200,11 @@ class DeliveryFunction(
         }
     }
 
+    /**
+     * Container for extracted History API parameters exclusively related to Deliveries.
+     *
+     * @property sortColumn sort the table by specific column; default created_at.
+     */
     data class FacilityListApiParameters(
         val sortColumn: DatabaseDeliveryAccess.FacilitySortColumn,
     ) {

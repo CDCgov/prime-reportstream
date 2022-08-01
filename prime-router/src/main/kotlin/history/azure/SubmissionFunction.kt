@@ -32,7 +32,7 @@ class SubmissionFunction(
      * @param organization Name of organization and service
      * @return Name for the organization
      */
-    override fun userOrgName(organization: String): String? {
+    override fun getOrgName(organization: String): String? {
         return workflowEngine.settings.findSender(organization)?.organizationName
     }
 
