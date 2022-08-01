@@ -120,6 +120,18 @@ Identifier for the message received (system-generated)
 
 ---
 
+**Name**: subject_age
+
+**ReportStream Internal Name**: patient_age
+
+**Type**: NUMBER
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
 **Name**: subject_city
 
 **ReportStream Internal Name**: patient_city
@@ -133,6 +145,47 @@ Identifier for the message received (system-generated)
 **Documentation**:
 
 The patient's city
+
+---
+
+**Name**: subject_ethnicity
+
+**ReportStream Internal Name**: patient_ethnicity
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
+consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
+
+
+---
+
+**Name**: subject_sex
+
+**ReportStream Internal Name**: patient_gender
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's gender. There is a valueset defined based on the values in PID-8-1, 
+but downstream consumers are free to define their own accepted values. Please refer to 
+the consumer-specific schema if you have questions.
+
 
 ---
 
@@ -152,6 +205,26 @@ Optional patient identifier. Using a hash to deidentify
 
 ---
 
+**Name**: subject_race
+
+**ReportStream Internal Name**: patient_race
+
+**Type**: CODE
+
+**PII**: No
+
+**Format**: use value found in the Code column
+
+**Cardinality**: [0..1]
+
+**Documentation**:
+
+The patient's race. There is a common valueset defined for race values, but some states 
+may choose to define different code/value combinations.
+
+
+---
+
 **Name**: subject_state
 
 **ReportStream Internal Name**: patient_state
@@ -160,7 +233,7 @@ Optional patient identifier. Using a hash to deidentify
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
@@ -267,7 +340,7 @@ Date/time message was processed at CDC (system-generated)
 
 **Documentation**:
 
-Unique identifier of the facility that sends the message. 
+Unique identifier of the facility that sends the message. Note DCIPHER needs OID here.
 
 ---
 
@@ -2321,34 +2394,6 @@ The patient's drivers license number
 
 ---
 
-**Name**: patient_ethnicity
-
-**ReportStream Internal Name**: patient_ethnicity
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-H|Hispanic or Latino|HL7
-N|Non Hispanic or Latino|HL7
-U|Unknown|HL7
-
-**Documentation**:
-
-The patient's ethnicity. There is a valueset defined based on the values in PID-22, but downstream
-consumers are free to define their own values. Please refer to the consumer-specific schema if you have questions.
-
-
----
-
 **Name**: patient_first_name
 
 **ReportStream Internal Name**: patient_first_name
@@ -2362,38 +2407,6 @@ consumers are free to define their own values. Please refer to the consumer-spec
 **Documentation**:
 
 The patient's first name
-
----
-
-**Name**: patient_gender
-
-**ReportStream Internal Name**: patient_gender
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-M|Male|HL7
-F|Female|HL7
-O|Other|HL7
-A|Ambiguous|HL7
-U|Unknown|HL7
-N|Not applicable|HL7
-
-**Documentation**:
-
-The patient's gender. There is a valueset defined based on the values in PID-8-1, 
-but downstream consumers are free to define their own accepted values. Please refer to 
-the consumer-specific schema if you have questions.
-
 
 ---
 
@@ -3336,39 +3349,6 @@ zun|Zuni|ISO
 **Documentation**:
 
 The patient's preferred language
-
----
-
-**Name**: patient_race
-
-**ReportStream Internal Name**: patient_race
-
-**Type**: CODE
-
-**PII**: No
-
-**Format**: use value found in the Code column
-
-**Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-1002-5|American Indian or Alaska Native|HL7
-2028-9|Asian|HL7
-2054-5|Black or African American|HL7
-2076-8|Native Hawaiian or Other Pacific Islander|HL7
-2106-3|White|HL7
-2131-1|Other|HL7
-UNK|Unknown|NULLFL
-ASKU|Asked, but unknown|NULLFL
-
-**Documentation**:
-
-The patient's race. There is a common valueset defined for race values, but some states 
-may choose to define different code/value combinations.
-
 
 ---
 
