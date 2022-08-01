@@ -34,10 +34,17 @@ class FHIRFunctions(
         @QueueTrigger(name = "message", queueName = elrConvertQueueName)
         message: String,
         // Number of times this message has been dequeued
-        @BindingName("DequeueCount") dequeueCount: Int = 1,
-        // this param is here so the azure function can be tested
-        fhirEngine: FHIREngine = FHIRConverter()
+        @BindingName("DequeueCount") dequeueCount: Int = 1
     ) {
+        doConvert(message, dequeueCount, FHIRConverter())
+    }
+
+    /**
+     * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
+     * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
+     * the [dequeueCount] is tracked as part of the log.
+     */
+    internal fun doConvert(message: String, dequeueCount: Int, fhirEngine: FHIREngine) {
         val messageContent = readMessage("Convert", message, dequeueCount)
 
         try {
@@ -57,10 +64,17 @@ class FHIRFunctions(
         @QueueTrigger(name = "message", queueName = elrRoutingQueueName)
         message: String,
         // Number of times this message has been dequeued
-        @BindingName("DequeueCount") dequeueCount: Int = 1,
-        // this param is here so the azure function can be tested
-        fhirEngine: FHIREngine = FHIRRouter()
+        @BindingName("DequeueCount") dequeueCount: Int = 1
     ) {
+        doRoute(message, dequeueCount, FHIRRouter())
+    }
+
+    /**
+     * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
+     * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
+     * the [dequeueCount] is tracked as part of the log.
+     */
+    internal fun doRoute(message: String, dequeueCount: Int, fhirEngine: FHIRRouter) {
         val messageContent = readMessage("Route", message, dequeueCount)
 
         try {
@@ -80,10 +94,17 @@ class FHIRFunctions(
         @QueueTrigger(name = "message", queueName = elrTranslationQueueName)
         message: String,
         // Number of times this message has been dequeued
-        @BindingName("DequeueCount") dequeueCount: Int = 1,
-        // this param is here so the azure function can be tested
-        fhirEngine: FHIREngine = FHIRTranslator()
+        @BindingName("DequeueCount") dequeueCount: Int = 1
     ) {
+        doTranslate(message, dequeueCount, FHIRTranslator())
+    }
+
+    /**
+     * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
+     * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
+     * the [dequeueCount] is tracked as part of the log.
+     */
+    fun doTranslate(message: String, dequeueCount: Int, fhirEngine: FHIRTranslator) {
         val messageContent = readMessage("Translate", message, dequeueCount)
 
         try {

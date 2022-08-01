@@ -155,7 +155,7 @@ class FhirFunctionTests {
             "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"}"
 
         // act
-        fhirFunc.convert(queueMessage, 1, fhirEngine)
+        fhirFunc.doConvert(queueMessage, 1, fhirEngine)
 
         // assert
         verify(exactly = 1) {
@@ -207,7 +207,7 @@ class FhirFunctionTests {
             "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"}"
 
         // act
-        fhirFunc.route(queueMessage, 1, fhirEngine)
+        fhirFunc.doRoute(queueMessage, 1, fhirEngine)
 
         // assert
         verify(exactly = 1) {
@@ -259,7 +259,7 @@ class FhirFunctionTests {
             "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"}"
 
         // act
-        fhirFunc.translate(queueMessage, 1, fhirEngine)
+        fhirFunc.doTranslate(queueMessage, 1, fhirEngine)
 
         // assert
         verify(exactly = 1) {
