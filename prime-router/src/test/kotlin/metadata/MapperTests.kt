@@ -48,8 +48,8 @@ class MapperTests {
         val indexElement = metadata.findSchema("test")?.findElement("a") ?: fail("")
         val lookupElement = metadata.findSchema("test")?.findElement("c") ?: fail("")
         val mapper = LookupMapper()
-        val args = listOf("a")
-        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a"))
+        val args = listOf("a", "Column:a")
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "Column:a"))
         assertThat(mapper.apply(lookupElement, args, listOf(ElementAndValue(indexElement, "3"))).value)
             .isEqualTo("y")
     }
@@ -76,9 +76,9 @@ class MapperTests {
         val indexElement = metadata.findSchema("test")?.findElement("a") ?: fail("")
         val index2Element = metadata.findSchema("test")?.findElement("b") ?: fail("")
         val mapper = LookupMapper()
-        val args = listOf("a", "b")
+        val args = listOf("a", "Column:a", "b", "Column:b")
         val elementAndValues = listOf(ElementAndValue(indexElement, "3"), ElementAndValue(index2Element, "4"))
-        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "b"))
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "Column:a", "b", "Column:b"))
         assertThat(mapper.apply(lookupElement, args, elementAndValues).value).isEqualTo("y")
     }
 

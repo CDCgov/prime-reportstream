@@ -456,7 +456,7 @@ class LookupMapper : Mapper {
     override val name = "lookup"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.size !in 1..4) {
+        if (args.size !in 2..4) {
             error("Schema Error: lookup mapper expected 2 or 4 args")
         }
         return args
@@ -469,16 +469,20 @@ class LookupMapper : Mapper {
         sender: Sender?
     ): ElementResult {
         return ElementResult(
-            if (values.size != args.size) {
+            // args should be twice size of values as it includes the index column names
+            if (values.size != args.size.div(2)) {
                 null
             } else {
                 val lookupTable = element.tableRef
                     ?: error("Schema Error: could not find table ${element.table}")
                 val tableFilter = lookupTable.FilterBuilder()
-                values.forEach {
-                    val indexColumn = it.element.tableColumn
-                        ?: error("Schema Error: no tableColumn for element ${it.element.name}")
-                    tableFilter.equalsIgnoreCase(indexColumn, it.value)
+                values.forEachIndexed { index, elementAndValue ->
+                    // retrieve column name to use for lookup.
+                    // Specified in sender settings lookup mapper parameters
+                    val indexColumn = args[index.times(2).plus(1)].split(":")[1]
+                    if (indexColumn.isEmpty())
+                        "Schema Error: no tableColumn for element ${elementAndValue.element.name}"
+                    tableFilter.equalsIgnoreCase(indexColumn, elementAndValue.value)
                 }
                 val lookupColumn = element.tableColumn
                     ?: error("Schema Error: no tableColumn for element ${element.name}")
