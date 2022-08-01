@@ -69,7 +69,6 @@ export const useSenderResource = () => {
             );
             return null;
         }
-        console.log("!!! memberships", memberships);
         if (!memberships?.state?.active?.senderName) {
             console.error("No sender available on active membership");
             return null;
