@@ -9,6 +9,7 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
@@ -26,13 +27,6 @@ import java.util.Date
 import kotlin.test.Test
 
 class FhirPathUtilsTests {
-    private var hl7DateTimePattern = "^((?:19|20)\\d{2})(?:(1[0-2]|0[1-9])" +
-        "(?:(3[0-1]|[1-2]\\d|0[1-9])(?:([0-1]\\d|2[0-3])" +
-        "(?:([0-5]\\d)(?:([0-5]\\d(?:\\.\\d{1,4})?)?)?)?)?)?)?([+-](?:[0-1]\\d|2[0-3])[0-5]\\d)?"
-    private var regex = hl7DateTimePattern.toRegex()
-
-    private var hl7TimePattern = "^(?:([0-1]\\d|2[0-3])(?:([0-5]\\d)(?:([0-5]\\d(?:\\.\\d{1,4})?)?)?)?)?"
-    private var regexTime = hl7TimePattern.toRegex()
     @Test
     fun `test parse fhir path`() {
         // We can do some level of validation on a FHIR path string without an actual bundle
