@@ -16,12 +16,14 @@ import {
 } from "../../components/Content/PageGenerationTools";
 
 import { WhereWereLive } from "./WhereWereLive";
+import { About } from "../About";
 
 /* Data that drives breadcrumb creation and slug appending */
 const slugs: SlugParams[] = [
     { key: "OVERVIEW", slug: "overview" },
     { key: "WHERE_WERE_LIVE", slug: "where-were-live" },
     { key: "RELEASE_NOTES", slug: "release-notes" },
+    { key: "ABOUT", slug: "about" },
 ];
 
 /* Tools to help generate Directories */
@@ -43,6 +45,10 @@ const directories: ContentDirectory[] = [
         .setTitle("Release notes")
         .setSlug(DirectoryTools.prependRoot("RELEASE_NOTES"))
         .addFile(ReleaseNotesMd),
+    new ElementDirectory()
+        .setTitle("About")
+        .setSlug(DirectoryTools.prependRoot("ABOUT"))
+        .addElement(About),
 ];
 
 export const Product = () => {
@@ -56,7 +62,7 @@ export const Product = () => {
                     <p id="product-heading-description" className="heading-alt">
                         Product
                         <br />
-                        <span>How ReportStream works</span>
+                        <span>Explore ReportStream and how it works</span>
                     </p>
                 </div>
             </div>
