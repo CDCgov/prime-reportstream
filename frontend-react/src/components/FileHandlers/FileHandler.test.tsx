@@ -246,8 +246,9 @@ describe("FileHandler", () => {
             const destinations = await screen.findByText("1, 2");
             expect(destinations).toHaveClass("margin-top-05");
 
-            const reportId = await screen.findByText("IDIDID");
-            expect(reportId).toHaveClass("margin-top-05");
+            const reportLink = await screen.findByRole("link");
+            expect(reportLink).toHaveTextContent("IDIDID");
+            expect(reportLink).toHaveAttribute("href", "/submissions/IDIDID");
 
             const timestampDate = await screen.findByText(
                 formattedDateFromTimestamp(
