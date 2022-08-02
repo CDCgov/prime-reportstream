@@ -16,21 +16,45 @@ servers:
   - url: http://localhost:7071/api
     description: Developer Environment
 paths:
-  /waters/org/{organization}.{client}/deliveries:
+  /waters/org/{organization}/deliveries:
     get:
       operationId: getDeliveries
-      summary: Get available reports for a STLT
+      summary: Get available reports for all clients of a STLT
       description: Retrieve a list of reports available for download by a STLT
       security:
         - OAuth2: [ user ]
         - Server2Server: []
       parameters:
-        - name: organization
-          in: path
-          description: receiver whose deliveries we want to see
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/organization'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/cursor'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/since'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/until'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/pageSize'
+      responses:
+        '200':
+          description: a list of AvailableReport objects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDeliveriesResponse'
+        '400':
+          description: bad request
+        '401':
+          description: unauthorized
+        '404':
+          description: organization does not exist
+  /waters/org/{organization}.{client}/deliveries:
+    get:
+      operationId: getDeliveriesForClient
+      summary: Get available reports for a STLT, filtered down to client type
+      description: Retrieve a list of reports available for download by a single STLT client
+      security:
+        - OAuth2: [ user ]
+        - Server2Server: []
+      parameters:
+        - $ref: '#/components/parameters/organization'
         - name: client
           in: path
           description: client of the receiver to get deliveries for
@@ -78,7 +102,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Delivery'
+                $ref: '#/components/schemas/DetailedDelivery'
         '400':
           description: bad request
         '401':
@@ -94,7 +118,7 @@ paths:
         - OAuth2: [ user ]
         - Server2Server: []
       parameters:
-        - name: reportId
+        - name: id
           in: path
           description: ActionID or ReportId of report whose facilities we want to see
           required: true
@@ -118,6 +142,14 @@ paths:
         '404':
           description: report does not exist
 components:
+  parameters:
+    organization:
+      name: organization
+      in: path
+      description: receiver whose deliveries we want to see
+      required: true
+      schema:
+        type: string
   securitySchemes:
     OAuth2:
       $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
@@ -165,6 +197,32 @@ components:
           description: format in which the report was originally sent
           type: string
           enum: [ INTERNAL, CSV, CSV_SINGLE, HL7, HL7_BATCH, FHIR ]
+    DetailedDelivery:
+      type: object
+      properties:
+        deliveryId:
+          $ref: '#/components/schemas/Delivery/properties/deliveryId'
+        sent:
+          $ref: '#/components/schemas/Delivery/properties/sent'
+        expires:
+          $ref: '#/components/schemas/Delivery/properties/expires'
+        receivingOrg:
+          $ref: '#/components/schemas/Delivery/properties/receivingOrg'
+        receivingOrgSvc:
+          $ref: '#/components/schemas/Delivery/properties/receivingOrgSvc'
+        reportId:
+          $ref: '#/components/schemas/Delivery/properties/reportId'
+        topic:
+          $ref: '#/components/schemas/Delivery/properties/topic'
+        reportItemCount:
+          $ref: '#/components/schemas/Delivery/properties/reportItemCount'
+        fileName:
+          $ref: '#/components/schemas/Delivery/properties/fileName'
+        fileType:
+          $ref: '#/components/schemas/Delivery/properties/fileType'
+        content:
+          description: file data for the report
+          type: object
     FacilitiesList:
       type: array
       items:
