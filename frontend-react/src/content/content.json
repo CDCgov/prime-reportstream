@@ -1,6 +1,6 @@
 {
     "title": "ReportStream makes it easier to send and collect public health data — for free",
-    "summary": "ReportStream is an open source, cloud based platform that aggregates and delivers COVID-19 test results to health departments",
+    "summary": "ReportStream is an open source, cloud based platform that aggregates and delivers reportable disease test results to health departments",
     "description": "Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection.",
     "heroImg": "rs-diagram.svg",
     "heroImgAlt": "Example screenshot of the ReportStream web application",
@@ -24,13 +24,13 @@
                 },
                 {
                     "title": "Analytics and insights",
-                    "summary": "Get insights on reporting trends and real-time alerts that help you inform and manage your COVID-19 response.",
+                    "summary": "Get insights on reporting trends and real-time alerts that help you inform and manage your reportable disease response.",
                     "icon": "chart-line",
                     "iconDescription": "a chart"
                 },
                 {
                     "title": "A built-in network",
-                    "summary": "ReportStream works directly with COVID-19 test manufacturers, labs, and apps like <a href='https://simplereport.gov' className='usa-link'>SimpleReport</a> to deliver more results to public health departments across the U.S.",
+                    "summary": "ReportStream works directly with disease test manufacturers, labs, and apps like <a href='https://simplereport.gov' className='usa-link'>SimpleReport</a> to deliver more results to public health departments across the U.S.",
                     "icon": "network-wired",
                     "iconDescription": "multiple documents"
                 },
@@ -42,7 +42,7 @@
                 },
                 {
                     "title": "Free and created by the CDC",
-                    "summary": "Developed for COVID-19 test data and public health departments, ReportStream is 100% free.",
+                    "summary": "Developed for disease test data and public health departments, ReportStream is 100% free.",
                     "icon": "cdc-logo.svg",
                     "iconDescription": "CDC logo"
                 }
@@ -110,8 +110,8 @@
         {
             "title": "Interested in learning more about ReportStream?",
             "type": "cta",
-            "summary": "Either way, if you send or analyze COVID-19 data, we'd like to help.",
-            "description": "ReportStream works with public health departments looking to get better quality COVID-19 data from jurisdictions. We also collaborate with testing facilities, data aggregators, manufacturers, and more to send test results to health departments.",
+            "summary": "Either way, if you send or analyze reportable disease data, we'd like to help.",
+            "description": "ReportStream works with public health departments looking to get better quality disease data from jurisdictions. We also collaborate with testing facilities, data aggregators, manufacturers, and more to send test results to health departments.",
             "buttonText": "Get in touch",
             "buttonUrlSubject": "?subject=I'm interested in learning more about ReportStream"
         }

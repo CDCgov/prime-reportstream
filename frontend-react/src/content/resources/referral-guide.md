@@ -1,6 +1,6 @@
 # How to refer users to ReportStream
 
-## This guide provides instructions and communications for referring COVID-19 reporting entities to use ReportStream.
+## This guide provides instructions and communications for referring disease reporting entities to use ReportStream.
 
 _Last updated: May 19, 2022_
 
@@ -9,7 +9,7 @@ _Last updated: May 19, 2022_
 ### Instructions: Referring users to ReportStream
 
 1. Create a new email message from your email application that will be drafted for the prospective user (this is typically the reporting entity’s technical user).
-2. In the subject lineof your email, include a compelling descriptor such as “Recommending this free COVID-19 Reporting Tool”
+2. In the subject lineof your email, include a compelling descriptor such as “Recommending this free Disease Reporting Tool”
 3. In the body of your email, copy and paste the below text under "Sample referral email copy.”
    Replace the instructional text in the brackets with the correct information (example: “[insert name of contact]” can be replaced with the recipient name who will receive this referral email). Make sure all hyperlinks work.
 4. If you haven’t already done so, enter the email address of the testing facility contact in the “To” or recipient field.
@@ -21,9 +21,9 @@ _Last updated: May 19, 2022_
 
 > Hi [insert name of contact],
 >
-> You’re receiving this email because you’re listed as a point of contact who submits electronic lab reporting of COVID-19 test results for your facility.
+> You’re receiving this email because you’re listed as a point of contact who submits electronic lab reporting of disease test results for your facility.
 >
-> One of our primary goals at [insert name of department of health] is to make reporting COVID-19 data less burdensome. Another important goal is to improve test result completeness and to increase the use of “coded” values (SNOMED-CT, LOINC) versus text values, which will greatly improve our ability to analyze and use COVID-19 test result data for epidemiological purposes.
+> One of our primary goals at [insert name of department of health] is to make reporting disease data less burdensome. Another important goal is to improve test result completeness and to increase the use of “coded” values (SNOMED-CT, LOINC) versus text values, which will greatly improve our ability to analyze and use disease test result data for epidemiological purposes.
 >
 > That’s why we’re thrilled to introduce ReportStream to you!
 >
