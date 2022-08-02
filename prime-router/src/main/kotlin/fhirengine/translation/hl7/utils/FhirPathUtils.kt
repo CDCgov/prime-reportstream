@@ -1,14 +1,27 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum
+import ca.uhn.hl7v2.model.v251.datatype.DT
+import ca.uhn.hl7v2.model.v251.datatype.DTM
+import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.context.SimpleWorkerContext
 import org.hl7.fhir.r4.model.Base
+import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.DateTimeType
+import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.ExpressionNode
+import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.Reference
+import org.hl7.fhir.r4.model.TimeType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
+import java.time.DateTimeException
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 /**
  * Utilities to handle FHIR Path parsing.
@@ -18,6 +31,12 @@ object FhirPathUtils : Logging {
      * The FHIR path engine.
      */
     private val defaultPathEngine = FHIRPathEngine(SimpleWorkerContext())
+
+    /**
+     * The HL7 time format. We are converting from a FHIR TimeType which does not include a time zone.
+     * Note that HL7 TM can include a timezone, but timezone is not used in FHIR.
+     */
+    private val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HHmmss.SSSS")
 
     init {
         defaultPathEngine.hostServices = FhirPathCustomResolver()
@@ -111,9 +130,102 @@ object FhirPathUtils : Logging {
         bundle: Bundle,
         expression: String
     ): String {
-        val retVal = defaultPathEngine
-            .evaluateToString(appContext, focusResource, bundle, bundle, parsePath(expression))
-        logger.trace("Evaluated '$expression' to string '$retVal'")
-        return retVal
+        val evaluated = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
+        return when {
+            // If we couldn't evaluate the path we should return an empty string
+            evaluated.isEmpty() -> ""
+
+            evaluated.size > 1 -> {
+                val msg = "Could convert to string multiple FHIR path results for path: $expression"
+                logger.error(msg)
+                throw SchemaException(msg)
+            }
+
+            // Must be a primitive to get a value
+            !evaluated[0].isPrimitive -> {
+                val msg = "Could not evaluate path $expression to string as it is not a primitive."
+                logger.error(msg)
+                throw SchemaException(msg)
+            }
+            // InstantType and DateTimeType are both subclasses of BaseDateTime and can use the same helper
+            evaluated[0] is InstantType || evaluated[0] is DateTimeType -> {
+                convertDateTimeToHL7(evaluated[0] as BaseDateTimeType)
+            }
+            evaluated[0] is DateType -> convertDateToHL7(evaluated[0] as DateType)
+
+            evaluated[0] is TimeType -> convertTimeToHL7(evaluated[0] as TimeType)
+
+            // Use the string representation of the value for any other types.
+            else -> evaluated[0].toString()
+        }
+    }
+
+    /**
+     * Convert a FHIR [dateTime] to the format required by HL7
+     * @return the converted HL7 DTM
+     */
+    fun convertDateTimeToHL7(dateTime: BaseDateTimeType): String {
+        val hl7DateTime = DTM(null)
+
+        when (dateTime.precision) {
+            TemporalPrecisionEnum.YEAR,
+            TemporalPrecisionEnum.MONTH,
+            TemporalPrecisionEnum.DAY ->
+                hl7DateTime.setDatePrecision(dateTime.year, dateTime.month + 1, dateTime.day)
+
+            TemporalPrecisionEnum.MINUTE ->
+                hl7DateTime.setDateMinutePrecision(
+                    dateTime.year, dateTime.month + 1, dateTime.day,
+                    dateTime.hour, dateTime.minute
+                )
+
+            else ->
+                hl7DateTime.setDateSecondPrecision(
+                    dateTime.year, dateTime.month + 1, dateTime.day, dateTime.hour, dateTime.minute,
+                    (dateTime.second * ((dateTime.nanos ?: 0) / 1000000).toFloat())
+                )
+        }
+        dateTime.timeZone?.let {
+            // This is strange way to set the timezone offset, but it is an integer with the leftmost two digits as the hour
+            // and the rightmost two digits as minutes (e.g. -0400)
+            val hour = dateTime.timeZone.rawOffset / 1000 / 60 / 60
+            val min = dateTime.timeZone.rawOffset / 1000 / 60 % 60
+            hl7DateTime.setOffset(hour * 100 + min)
+        }
+
+        return hl7DateTime.toString()
+    }
+
+    /**
+     * Convert a FHIR [time] to the format required by HL7
+     * @return the converted HL7 TM
+     */
+    fun convertTimeToHL7(time: TimeType): String {
+        try {
+            val localTime: LocalTime = LocalTime.parse(time.valueAsString)
+            return localTime.format(timeFormatter)
+        } catch (e: DateTimeParseException) {
+            val msg = "Could not parse time $time to LocalTime."
+            logger.error(msg, e)
+            throw HL7ConversionException(msg, e)
+        } catch (e: DateTimeException) {
+            val msg = "Could not format time $time to LocalTime."
+            logger.error(msg, e)
+            throw HL7ConversionException(msg, e)
+        }
+    }
+
+    /**
+     * Convert a FHIR [date] to the format required by HL7
+     * @return the converted HL7 DTM
+     */
+    fun convertDateToHL7(date: DateType): String {
+        val hl7Date = DT(null)
+        when (date.precision) {
+            TemporalPrecisionEnum.YEAR -> hl7Date.setYearPrecision(date.year)
+            TemporalPrecisionEnum.MONTH -> hl7Date.setYearMonthPrecision(date.year, date.month + 1)
+            else -> hl7Date.setYearMonthDayPrecision(date.year, date.month + 1, date.day)
+        }
+        return hl7Date.toString()
     }
 }
