@@ -180,28 +180,19 @@ object FhirPathUtils : Logging {
             return hl7DateTime
         }
 
+        val hl7DateTime = DTM(null)
+
         return when (dateTime.precision) {
             // HL7 Date time does not support only year, or year and month
-            TemporalPrecisionEnum.YEAR -> {
-                val hl7Date = DT(null)
-                hl7Date.setYearPrecision(dateTime.year)
-                hl7Date.toString()
-            }
+            TemporalPrecisionEnum.YEAR -> "%d".format(dateTime.year)
 
-            TemporalPrecisionEnum.MONTH -> {
-                val hl7Date = DT(null)
-                hl7Date.setYearMonthPrecision(dateTime.year, dateTime.month + 1)
-                hl7Date.toString()
-            }
+            TemporalPrecisionEnum.MONTH -> "%d%02d".format(dateTime.year, dateTime.month + 1)
 
-            TemporalPrecisionEnum.DAY -> {
-                val hl7DateTime = DTM(null)
-                hl7DateTime.setDatePrecision(dateTime.year, dateTime.month + 1, dateTime.day)
-                hl7DateTime.toString()
-            }
+            TemporalPrecisionEnum.DAY -> "%d%02d%02d".format(dateTime.year, dateTime.month + 1, dateTime.day)
+
+            // Note hour precision is not supported by the FHIR data type
 
             TemporalPrecisionEnum.MINUTE -> {
-                val hl7DateTime = DTM(null)
                 hl7DateTime.setDateMinutePrecision(
                     dateTime.year, dateTime.month + 1, dateTime.day,
                     dateTime.hour, dateTime.minute
@@ -210,7 +201,6 @@ object FhirPathUtils : Logging {
             }
 
             else -> {
-                val hl7DateTime = DTM(null)
                 var secs = dateTime.second.toFloat()
                 if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
                 hl7DateTime.setDateSecondPrecision(
