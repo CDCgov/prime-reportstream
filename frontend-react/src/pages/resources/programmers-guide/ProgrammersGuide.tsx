@@ -7,11 +7,11 @@ export const ProgrammersGuide = () => {
         <>
             <Helmet>
                 <title>
-                    Programmer's Guide | Resources |{" "}
+                    API Programmer's Guide | Resources |{" "}
                     {process.env.REACT_APP_TITLE}
                 </title>
             </Helmet>
-            <h1 id="anchor-top">Programmer's guide</h1>
+            <h1 id="anchor-top">API Programmer's guide</h1>
             <h2>
                 Full documentation for interacting with the ReportStream API
             </h2>

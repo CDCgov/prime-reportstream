@@ -38,6 +38,7 @@
         "react-router-dom": "^5.2.0",
         "react-scroll-sync": "^0.9.0",
         "react-toastify": "^8.2.0",
+        "rehype-raw": "^6.1.1",
         "rehype-slug": "^5.0.1",
         "remark-gfm": "^3.0.1",
         "remark-toc": "^8.0.1",
