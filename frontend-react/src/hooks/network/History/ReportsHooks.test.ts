@@ -5,7 +5,7 @@ import { MembershipController, MemberType } from "../../UseOktaMemberships";
 import { SessionController } from "../../UseSessionStorage";
 import { historyServer } from "../../../__mocks__/HistoryMockServer";
 
-import { useReportsList } from "./ReportsHooks";
+import { useReportsDetail, useReportsList } from "./ReportsHooks";
 
 describe("ReportsHooks", () => {
     beforeAll(() => historyServer.listen());
@@ -34,5 +34,29 @@ describe("ReportsHooks", () => {
         await waitForNextUpdate();
         expect(result.current.loading).toBeFalsy();
         expect(result.current.data).toHaveLength(3);
+    });
+    test("useReportDetail", async () => {
+        mockSessionContext.mockReturnValue({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
+            memberships: {
+                state: {
+                    active: {
+                        memberType: MemberType.RECEIVER,
+                        parsedName: "testOrg",
+                        senderName: undefined,
+                    },
+                },
+            } as MembershipController,
+            store: {} as SessionController, // TS yells about removing this because of types
+        });
+        const { result, waitForNextUpdate } = renderHook(() =>
+            useReportsDetail("123")
+        );
+        expect(result.current.loading).toBeTruthy();
+        await waitForNextUpdate();
+        expect(result.current.loading).toBeFalsy();
+        expect(result.current.data.reportId).toEqual("123");
     });
 });

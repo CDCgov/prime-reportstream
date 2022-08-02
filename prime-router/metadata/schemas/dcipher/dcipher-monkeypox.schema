@@ -8,10 +8,9 @@ extends: monkeypox
 elements:
 
 
-  - name: reporting_facility_clia  #testing_lab_id = obx-23.10
+  - name: reporting_facility_clia
     csvFields: [{ name: testing_facility_oid  }]
-    documentation: Unique identifier of the facility that sends the message. 
-    #note: going to have some discrepancies here.
+    documentation: Unique identifier of the facility that sends the message. Note DCIPHER needs OID here.
 
   - name: testing_lab_name
     csvFields: [{ name: testing_facility_name  }]
@@ -217,6 +216,19 @@ elements:
 
   - name: patient_zip_code
     csvFields: [{ name: subject_zip }]
+
+  - name: patient_age
+    type: NUMBER
+    csvFields: [{ name: subject_age }]
+
+  - name: patient_race
+    csvFields: [{ name: subject_race }]
+
+  - name: patient_ethnicity
+    csvFields: [{ name: subject_ethnicity }]
+
+  - name: patient_gender
+    csvFields: [{ name: subject_sex }]
 
   - name: processing_date
     type: DATETIME
