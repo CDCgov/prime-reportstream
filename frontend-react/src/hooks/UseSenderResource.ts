@@ -63,6 +63,9 @@ export const useSenderResource = () => {
     // find the sender that matches the user's sender
     // (or just return the first one in the list)
     const sender = useMemo(() => {
+        if (loading || error) {
+            return null;
+        }
         if (!senders || !senders.length) {
             console.error(
                 "No sender available for organization from API response"
@@ -84,7 +87,7 @@ export const useSenderResource = () => {
             return null;
         }
         return matchedSender;
-    }, [senders, memberships.state.active]);
+    }, [senders, memberships.state.active, error, loading]);
 
     /* Finally, return the values from the hook. */
     return {

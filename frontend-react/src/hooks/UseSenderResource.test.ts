@@ -26,6 +26,28 @@ jest.mock("./network/UseRequestConfig", () => ({
 }));
 
 describe("useSenderResource", () => {
+    test("returns null while loading", () => {
+        mockUseRequestConfig.mockReturnValue({
+            data: [fakeSender],
+            loading: true,
+        });
+        mockUseSessionContext.mockReturnValue({
+            memberships: {
+                state: {
+                    active: {
+                        senderName: "senderName",
+                    },
+                },
+            },
+        });
+
+        const {
+            result: {
+                current: { sender },
+            },
+        } = renderHook(() => useSenderResource());
+        expect(sender).toEqual(null);
+    });
     test("returns null if no sender available on membership", () => {
         mockUseRequestConfig.mockReturnValue({
             data: [fakeSender],

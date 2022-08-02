@@ -110,6 +110,7 @@ const FileHandler = ({
     const { memberships, oktaToken } = useSessionContext();
     const { organization, loading: organizationLoading } =
         useOrganizationResource();
+    // need to fetch sender from API to grab cvs vs hl7 format info
     const { sender, loading: senderLoading } = useSenderResource();
 
     const accessToken = oktaToken?.accessToken;
