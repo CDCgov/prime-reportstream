@@ -527,20 +527,20 @@ pre {
 
         .success-all {
             /* color bind friendly */
-            background-color: rgba(0, 97, 100, 100);
+            background-color: var(--toastify-color-success);
         }
 
         .failure-all {
-            background-color: rgba(219, 67, 37, 100);
+            background-color: var(--toastify-color-error);
         }
 
         .success-mixed {
             background: repeating-linear-gradient(
-                    45deg,
-                    #ffffff,
-                    #006164 10px,
-                    #ffffff 10px,
-                    #DB4325 30px
+                45deg,
+                #ffffff,
+                var(--toastify-color-success) 10px,
+                #ffffff 10px,
+                var(--toastify-color-error) 30px
             );
         }
     }
@@ -573,11 +573,11 @@ pre {
     }
 
     .success-all {
-        color: rgba(0, 97, 100, 100);
+        color: var(--toastify-color-success);
     }
 
     .failure-all {
-        color: rgba(219, 67, 37, 100);
+        color: var(--toastify-color-error);
     }
 }
 
