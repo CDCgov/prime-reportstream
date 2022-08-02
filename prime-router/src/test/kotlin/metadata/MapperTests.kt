@@ -693,6 +693,7 @@ class MapperTests {
             32303,FL
             42223,TN
             42223,KY
+            12345-1234,LA
         """.trimIndent()
         val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
         val schema = Schema(

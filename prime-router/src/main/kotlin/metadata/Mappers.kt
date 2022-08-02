@@ -470,18 +470,21 @@ class LookupMapper : Mapper {
     ): ElementResult {
         return ElementResult(
             // args should be twice size of values as it includes the index column names
-            if (values.size != args.size.div(2)) {
+            // ex: lookup(patient_state, $Column:State, patient_county, $Column:County)
+            // there are four args two represent fields with values. Two are lookup table columns
+            if (values.size.times(2) != args.size) {
                 null
             } else {
                 val lookupTable = element.tableRef
                     ?: error("Schema Error: could not find table ${element.table}")
                 val tableFilter = lookupTable.FilterBuilder()
                 values.forEachIndexed { index, elementAndValue ->
-                    // retrieve column name to use for lookup.
+                    // retrieve column name to use for lookup
                     // Specified in sender settings lookup mapper parameters
+                    // ex: lookup(patient_state, $Column:State, patient_county, $Column:County)
                     val indexColumn = args[index.times(2).plus(1)].split(":")[1]
                     if (indexColumn.isEmpty())
-                        "Schema Error: no tableColumn for element ${elementAndValue.element.name}"
+                        error("Schema Error: no tableColumn for element ${elementAndValue.element.name}")
                     tableFilter.equalsIgnoreCase(indexColumn, elementAndValue.value)
                 }
                 val lookupColumn = element.tableColumn
