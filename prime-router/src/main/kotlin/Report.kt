@@ -66,7 +66,7 @@ enum class Options {
     companion object {
         /**
          * Handles invalid values, which are technically not allowed in an enum. In this case if the [input]
-         *  is not one that is supported, it will be set to None
+         *  is not one that is supported, it will be set to None.
          */
         fun valueOfOrNone(input: String): Options {
             return try {
