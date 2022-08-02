@@ -840,7 +840,7 @@ class SubmissionReceiverTests {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
-            queueMock.sendMessage(elrProcessQueueName, any())
+            queueMock.sendMessage(elrConvertQueueName, any())
         }
     }
 
@@ -903,7 +903,7 @@ class SubmissionReceiverTests {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
-            queueMock.sendMessage(elrProcessQueueName, any())
+            queueMock.sendMessage(elrConvertQueueName, any())
         }
     }
 
@@ -964,7 +964,7 @@ class SubmissionReceiverTests {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
-            queueMock.sendMessage(elrProcessQueueName, any())
+            queueMock.sendMessage(elrConvertQueueName, any())
         }
     }
 }
