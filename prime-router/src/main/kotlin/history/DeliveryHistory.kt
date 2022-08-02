@@ -40,7 +40,7 @@ class DeliveryHistory(
     topic: String? = null,
     @JsonProperty("reportItemCount")
     reportItemCount: Int? = null,
-    val receivingOrg: String? = "",
+    val receivingOrg: String,
     val receivingOrgSvc: String? = "",
     @JsonIgnore
     val bodyUrl: String? = null,
