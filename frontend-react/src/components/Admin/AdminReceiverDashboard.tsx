@@ -42,10 +42,9 @@ const SKIP_HOURS = 2; // hrs
  *       foreach per-day loop:
  *          foreach per-timeblock loop: (also called "slice" in this code)
  *
- * And since the key-value dictionary is sorted this way, then there's a single
- * cursor moving through it. (NOTE: there might be missing days or slices in the dictionary.
+ * NOTE: there might be missing days or slices in the dictionary.
  * This can happen when a new receiver is onboarded in the middle of the data.
- * Or if the CRON job doesn't run because of deploy or outage leaving slice holes)
+ * Or if the CRON job doesn't run because of deploy or outage leaving slice holes.
  *
  *
  * Layout can be confusing, so hopefully this helps.
@@ -185,9 +184,6 @@ const dateShortFormat = (d: Date) => {
     );
 };
 
-// key/value pair
-type DataDictionary = Record<string, AdmConnStatusDataType>;
-
 enum SuccessRate {
     UNDEFINED = "UNDEFINED",
     ALL_SUCCESSFUL = "ALL_SUCCESSFUL",
@@ -290,41 +286,39 @@ class TimeSlots implements IterateTimeSlots {
  * build the dictionary with a special path+key
  * @param dataIn
  */
-function makeDictionary(dataIn: AdmConnStatusDataType[]): DataDictionary {
-    // empty case
-    if (Object.keys(dataIn).length === 0) {
-        return {};
-    }
+const sortStatusData = (
+    dataIn: AdmConnStatusDataType[]
+): AdmConnStatusDataType[] => {
+    const strcmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
-    const data: DataDictionary = {};
-    let needsSorting = false;
-
-    let lastkey = "";
-    for (let item of dataIn) {
-        const key = `${item.organizationName}|${item.receiverName}\t${item.connectionCheckStartedAt}`;
-        data[key] = item;
-        if (lastkey > key) {
-            needsSorting = true;
+    const sortCompare = (
+        d1: AdmConnStatusDataType,
+        d2: AdmConnStatusDataType
+    ) => {
+        // sorting by organizationName, then receiverName, then connectionCheckStartedAt
+        const orgNameCmp = strcmp(d1.organizationName, d2.organizationName);
+        // orgNameCmp === 0 means same
+        if (orgNameCmp !== 0) {
+            return orgNameCmp;
         }
-        lastkey = key;
+        const receiverNameCmp = strcmp(d1.receiverName, d2.receiverName);
+        if (receiverNameCmp !== 0) {
+            return receiverNameCmp;
+        }
+        return strcmp(d1.connectionCheckStartedAt, d2.connectionCheckStartedAt);
+    };
+
+    // empty case
+    if (dataIn.length === 0) {
+        return [];
     }
 
-    if (!needsSorting) {
-        return data;
-    }
-
-    // temp doubles data size
-    const emptyResult: DataDictionary = {}; // keeps ts compiler happy
-    return Object.keys(data)
-        .sort()
-        .reduce((obj, key) => {
-            obj[key] = data[key] || {};
-            return obj;
-        }, emptyResult);
-}
+    dataIn.sort(sortCompare);
+    return dataIn; // we modified array in place, but this syntax is handy.
+};
 
 function MainRender(props: {
-    data: DataDictionary;
+    data: AdmConnStatusDataType[];
     datesRange: DatePair;
     filterRowStatus: SuccessRate;
     onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
@@ -337,26 +331,24 @@ function MainRender(props: {
         [props]
     );
 
-    const keys = Object.keys(props.data);
-    if (keys.length === 0) {
+    if (props.data.length === 0) {
         return <div>No Data</div>;
     }
 
     const startDay = props.datesRange[0];
     const endDay = props.datesRange[1];
 
-    // we use double cursors (move through time and through entries)
-    let keyOffset = 0;
+    // we use double cursors (primary moves through time and secondary through data entries)
+    let offset = 0;
     // readability
     const perReceiverElements: JSX.Element[] = [];
     let perDayElements: JSX.Element[] = [];
     let sliceElements: JSX.Element[] = [];
     // loop over all receivers (each is its own row)
-    while (keyOffset < keys.length) {
+    while (offset < props.data.length) {
         const successForRow = new SuccessRateTracker();
-        const keyOffsetStartRow = keyOffset; // used during render
-        let currentKey = keys[keyOffset];
-        let currentEntry = props.data[currentKey];
+        const offsetStartRow = offset; // used during render
+        let currentEntry = props.data[offset];
         let currentDate = new Date(currentEntry.connectionCheckCompletedAt);
         let currentReceiver = `${currentEntry.organizationName}|${currentEntry.receiverName}`;
         let rowReceiver = currentReceiver; // used to know when we've run out of row data
@@ -373,7 +365,7 @@ function MainRender(props: {
 
                 // loop over keys that are in this range. Build aggregates for success, needed for layout
                 while (
-                    keyOffset < keys.length &&
+                    offset < props.data.length &&
                     dateIsInRange(currentDate, [timeSlotStart, timeSlotEnd]) &&
                     rowReceiver === currentReceiver
                 ) {
@@ -385,12 +377,11 @@ function MainRender(props: {
                     successForRow.updateState(wasSuccessful);
 
                     // next entry
-                    keyOffset++;
-                    if (keyOffset >= keys.length) {
+                    offset++;
+                    if (offset >= props.data.length) {
                         break;
                     }
-                    currentKey = keys[keyOffset];
-                    currentEntry = props.data[currentKey];
+                    currentEntry = props.data[offset];
                     currentDate = new Date(
                         currentEntry.connectionCheckCompletedAt
                     );
@@ -407,25 +398,24 @@ function MainRender(props: {
                         row
                         key={`slice:${currentReceiver}|${timeSlotStart}`}
                         className={`slice ${sliceClassName}`}
-                        data-keyoffset={keyOffset - 1}
+                        data-offset={offset - 1}
                         onClick={
                             successForSlice.currentState ===
                             SuccessRate.UNDEFINED
                                 ? undefined // do not even install a click handler noop
                                 : (evt) => {
-                                      // get saved offset from "data-keyoffset" attribute on this element
-                                      const dataKeyOffset = parseInt(
+                                      // get saved offset from "data-offset" attribute on this element
+                                      const dataOffset = parseInt(
                                           evt.currentTarget?.dataset[
-                                              "keyoffset"
+                                              "offset"
                                           ] || "-1"
                                       );
                                       // sanity check it's within range (should never happen)
                                       if (
-                                          dataKeyOffset >= 0 &&
-                                          dataKeyOffset < keys.length
+                                          dataOffset >= 0 &&
+                                          dataOffset < props.data.length
                                       ) {
-                                          const key = keys[dataKeyOffset];
-                                          onClick(props.data[key]);
+                                          onClick(props.data[dataOffset]);
                                       }
                                   }
                         }
@@ -464,9 +454,8 @@ function MainRender(props: {
 
         if (showRow) {
             // we saved the start of this block of data, grab the information from there.
-            const key = keys[keyOffsetStartRow];
-            const orgName = props.data[key].organizationName;
-            const recvrName = props.data[key].receiverName;
+            const orgName = props.data[offsetStartRow].organizationName;
+            const recvrName = props.data[offsetStartRow].receiverName;
             const successRate = Math.round(
                 (100 * successForRow.countSuccess) /
                     (successForRow.countSuccess + successForRow.countFailed)
@@ -477,7 +466,7 @@ function MainRender(props: {
             perReceiverElements.push(
                 <Grid
                     row
-                    key={`perreceiver-row-${keyOffsetStartRow}`}
+                    key={`perreceiver-row-${offsetStartRow}`}
                     className={"perreceiver-row"}
                 >
                     <Grid className={`title-column ${titleClassName}`}>
@@ -607,7 +596,7 @@ export function AdminReceiverDashboard() {
         AdmConnStatusDataType[]
     >([]);
 
-    const data = makeDictionary(
+    const data = sortStatusData(
         results.filter(
             (eachRow) =>
                 eachRow.filterOnName(filterReceivers) &&
@@ -780,7 +769,7 @@ export const _exportForTesting = {
     SuccessRate,
     durationFormatShort,
     dateShortFormat,
-    makeDictionary,
+    sortStatusData,
     MainRender,
     ModalInfoRender,
 };

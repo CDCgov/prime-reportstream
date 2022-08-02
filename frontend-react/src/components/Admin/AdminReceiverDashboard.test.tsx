@@ -187,12 +187,11 @@ describe("AdminReceiverDashboard tests", () => {
         expect(result4).toBe("");
     });
 
-    test("makeDictionary and MainRender tests", async () => {
-        const data = _exportForTesting.makeDictionary(DATA); // sorts
-        const keys = Object.keys(data);
-        expect(keys.length).toBe(6);
-        // make sure makeDictionary sorted correctly.
-        expect(data[keys[3]].organizationName).toBe("oh-doh");
+    test("sortStatusData and MainRender tests", async () => {
+        const data = _exportForTesting.sortStatusData(DATA); // sorts
+        expect(data.length).toBe(6);
+        // make sure sortStatusData sorted correctly.
+        expect(data[3].organizationName).toBe("oh-doh");
 
         render(
             // eslint-disable-next-line react/jsx-pascal-case
@@ -210,13 +209,12 @@ describe("AdminReceiverDashboard tests", () => {
         expect(orgs.length).toBe(1);
 
         // no data returned by server
-        expect(_exportForTesting.makeDictionary([])).toStrictEqual({});
+        expect(_exportForTesting.sortStatusData([])).toStrictEqual([]);
     });
 
     test("ModalInfoRender", async () => {
-        const data = _exportForTesting.makeDictionary(DATA); // sorts
-        const keys = Object.keys(data);
-        const subData = data[keys[0]];
+        const data = _exportForTesting.sortStatusData(DATA); // sorts
+        const subData = data[0];
         render(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.ModalInfoRender subData={[subData]} />
