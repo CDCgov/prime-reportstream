@@ -24,11 +24,13 @@ interface RSReportInterface {
     fileName: string;
     mimeType: string;
 }
-const ReportsApi = new API(RSReport, "/api/history/report").addEndpoint(
-    "list",
-    "",
-    ["GET"]
-);
+const ReportsApi = new API(RSReport, "/api/history/report")
+    .addEndpoint("list", "", ["GET"])
+    .addEndpoint("detail", "/:id", ["GET"]);
+
+export interface ReportDetailParams {
+    id: string;
+}
 
 export default ReportsApi;
 export { RSReport };
