@@ -85,6 +85,8 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
                 throw PathEngineException("No context available to resolve constant '$name'")
 
             // Support prefix constant replacement like for URLs similar to %ext in FHIRPathEngine
+            // E.g., '%resource.source.extension(%`rsext-source-software-vendor-org`).value' where
+            // rsext is the defined constant.
             name.startsWith("`") -> {
                 val constantNameParts = name.trimStart('`').split("-", limit = 2)
                 when (constantNameParts.size) {
