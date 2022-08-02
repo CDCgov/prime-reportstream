@@ -162,7 +162,10 @@ class FhirPathUtilsTests {
 
     @Test
     fun `test convertDateTimeToHL7`() {
-        // Year or year and month only is not supported by FHIR type
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015")))
+            .isEqualTo("2015")
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04")))
+            .isEqualTo("201504")
         assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05")))
             .isEqualTo("20150405")
         // Hour only or hour and minute only is not supported by FHIR type

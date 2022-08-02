@@ -165,38 +165,61 @@ object FhirPathUtils : Logging {
      * @return the converted HL7 DTM
      */
     fun convertDateTimeToHL7(dateTime: BaseDateTimeType): String {
-        val hl7DateTime = DTM(null)
+        /**
+         * Set the timezone for an [hl7DateTime] if a timezone was specified.
+         * @return the updated [hl7DateTime] object
+         */
+        fun setTimezone(hl7DateTime: DTM): DTM {
+            dateTime.timeZone?.let {
+                // This is strange way to set the timezone offset, but it is an integer with the leftmost two digits as the hour
+                // and the rightmost two digits as minutes (e.g. -0400)
+                val hour = dateTime.timeZone.rawOffset / 1000 / 60 / 60
+                val min = dateTime.timeZone.rawOffset / 1000 / 60 % 60
+                hl7DateTime.setOffset(hour * 100 + min)
+            }
+            return hl7DateTime
+        }
 
-        when (dateTime.precision) {
-            TemporalPrecisionEnum.YEAR,
-            TemporalPrecisionEnum.MONTH,
-            TemporalPrecisionEnum.DAY ->
+        return when (dateTime.precision) {
+            // HL7 Date time does not support only year, or year and month
+            TemporalPrecisionEnum.YEAR -> {
+                val hl7Date = DT(null)
+                hl7Date.setYearPrecision(dateTime.year)
+                hl7Date.toString()
+            }
+
+            TemporalPrecisionEnum.MONTH -> {
+                val hl7Date = DT(null)
+                hl7Date.setYearMonthPrecision(dateTime.year, dateTime.month + 1)
+                hl7Date.toString()
+            }
+
+            TemporalPrecisionEnum.DAY -> {
+                val hl7DateTime = DTM(null)
                 hl7DateTime.setDatePrecision(dateTime.year, dateTime.month + 1, dateTime.day)
+                hl7DateTime.toString()
+            }
 
-            TemporalPrecisionEnum.MINUTE ->
+            TemporalPrecisionEnum.MINUTE -> {
+                val hl7DateTime = DTM(null)
                 hl7DateTime.setDateMinutePrecision(
                     dateTime.year, dateTime.month + 1, dateTime.day,
                     dateTime.hour, dateTime.minute
                 )
+                setTimezone(hl7DateTime).toString()
+            }
 
             else -> {
+                val hl7DateTime = DTM(null)
                 var secs = dateTime.second.toFloat()
                 if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
                 hl7DateTime.setDateSecondPrecision(
                     dateTime.year, dateTime.month + 1, dateTime.day, dateTime.hour, dateTime.minute,
                     secs
                 )
+                setTimezone(hl7DateTime).toString()
             }
         }
-        dateTime.timeZone?.let {
-            // This is strange way to set the timezone offset, but it is an integer with the leftmost two digits as the hour
-            // and the rightmost two digits as minutes (e.g. -0400)
-            val hour = dateTime.timeZone.rawOffset / 1000 / 60 / 60
-            val min = dateTime.timeZone.rawOffset / 1000 / 60 % 60
-            hl7DateTime.setOffset(hour * 100 + min)
-        }
-
-        return hl7DateTime.toString()
     }
 
     /**
