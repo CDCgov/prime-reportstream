@@ -66,7 +66,7 @@ enum class Options {
     companion object {
         /**
          * Handles invalid values, which are technically not allowed in an enum. In this case if the [input]
-         *  is not one that is supported, it will be set to None
+         *  is not one that is supported, it will be set to None.
          */
         fun valueOfOrNone(input: String): Options {
             return try {
@@ -345,13 +345,14 @@ class Report : Logging {
         numberOfMessages: Int,
         metadata: Metadata? = null,
         itemLineage: List<ItemLineage>? = null,
+        destination: Receiver? = null
     ) {
         this.id = UUID.randomUUID()
         // ELR submissions do not need a schema, but it is required by the database to maintain legacy functionality
         this.schema = Schema("None", Topic.FULL_ELR.json_val)
         this.sources = sources
         this.bodyFormat = bodyFormat
-        this.destination = null
+        this.destination = destination
         this.createdDateTime = OffsetDateTime.now()
         this.itemLineages = itemLineage
         // we do not need the 'table' representation in this instance
