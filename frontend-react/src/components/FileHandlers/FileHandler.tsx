@@ -2,12 +2,13 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { useOrganizationResource } from "../../hooks/UseOrganizationResouce";
+import { useOrganizationResource } from "../../hooks/UseOrganizationResource";
 import { WatersPost } from "../../network/api/WatersApiFunctions";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
     FileHandlerActionType,
     ErrorType,
+    FileType,
 } from "../../hooks/UseFileHandler";
 import { parseCsvForError } from "../../utils/FileUtils";
 
@@ -108,16 +109,15 @@ const FileHandler = ({
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
-        if (!event?.currentTarget?.files?.length) {
+        if (!event?.target?.files?.length) {
             // no files selected
             return;
         }
-        const file = event.currentTarget.files.item(0);
+        const file = event.target.files.item(0);
         if (!file) {
             // shouldn't happen but keeps linter happy
             return;
         }
-
         // unfortunate that we have to do this a bit early in order to keep
         // async code out of the reducer, but oh well - DWS
         const content = await file.text();
@@ -176,18 +176,18 @@ const FileHandler = ({
 
     const successDescription = useMemo(() => {
         let suffix = "";
-        if (handlerType === "upload") {
+        if (handlerType === FileHandlerType.UPLOAD) {
             suffix = " and will be transmitted";
         }
         const schemaDescription =
-            fileType === "HL7"
+            fileType === FileType.HL7
                 ? "ReportStream standard HL7 v2.5.1"
                 : "standard CSV";
         return `Your file meets the ${schemaDescription} schema${suffix}.`;
     }, [fileType, handlerType]);
 
     const warningDescription = useMemo(() => {
-        return handlerType === "upload"
+        return handlerType === FileHandlerType.UPLOAD
             ? "Your file has been transmitted"
             : "Your file has passed validation";
     }, [handlerType]);
@@ -212,7 +212,7 @@ const FileHandler = ({
                 <FileWarningsDisplay
                     warnings={warnings}
                     heading="We found non-critical issues in your file"
-                    message={`The following warnings were returned while processing your file. ${warningDescription}, but these warning areas can be addressed to enhance clarity."`}
+                    message={`The following warnings were returned while processing your file. ${warningDescription}, but these warning areas can be addressed to enhance clarity.`}
                 />
             )}
             {reportId && (
