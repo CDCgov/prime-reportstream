@@ -52,6 +52,7 @@ const DirectoryTools = new ContentDirectoryTools()
     .setSlugs(slugs);
 
 /* An array of directories to be rendered */
+
 const directories = [
     new ElementDirectory()
         .setTitle("Account registration guide")
@@ -69,7 +70,7 @@ const directories = [
         .setTitle("Getting started: Public health departments")
         .setSlug(DirectoryTools.prependRoot("GETTING_STARTED_PHD"))
         .setDescription(
-            "Overview of the process for connecting your health department to ReportStream."
+            "Step-by-step process for connecting your jurisdiction to ReportStream."
         )
         .addElement(
             contentContainer(
@@ -83,7 +84,7 @@ const directories = [
         .setTitle("ELR onboarding checklist")
         .setSlug(DirectoryTools.prependRoot("ELR_CHECKLIST"))
         .setDescription(
-            "Checklist of required information for public health departments to set up an ELR connection"
+            "Checklist of required information for public health departments to set up an ELR connection."
         )
         .addElement(
             contentContainer(
@@ -92,21 +93,23 @@ const directories = [
             )
         ),
     new ElementDirectory()
-        .setTitle("Programmer's guide")
+        .setTitle("API Programmer's guide")
         .setSlug(DirectoryTools.prependRoot("PROGRAMMERS_GUIDE"))
         .setDescription(
-            "Instructions and tools for testing facilities and organizations reporting data via the ReportStream Restful (REST) API."
+            "Checklist of requirements for  setting up an ELR connection at your public health department."
         )
         .addElement(
             contentContainer(
                 <ProgrammersGuide />,
-                DirectoryTools.makeCrumb("Programmer's guide")
+                DirectoryTools.makeCrumb("API Programmer's guide")
             )
         ),
     new ElementDirectory()
-        .setTitle("CSV schema documentation")
+        .setTitle("CSV schema documentation guide")
         .setSlug(DirectoryTools.prependRoot("SCHEMA_DOCUMENTATION"))
-        .setDescription("How to format data for reporting via CSV upload.")
+        .setDescription(
+            "General formatting guidelines and data elements guidance  for CSV upload submissions."
+        )
         .addElement(
             contentContainer(
                 <CsvSchemaDocumentation />,
@@ -129,7 +132,7 @@ const directories = [
         .setTitle("CSV download guide")
         .setSlug(DirectoryTools.prependRoot("DOWNLOAD_GUIDE"))
         .setDescription(
-            "Instructions for public health departments to download data as comma separated values (CSV)."
+            "Instructions for downloading data as comma separated values (CSV) for your public health department."
         )
         .addElement(
             contentContainer(
@@ -141,7 +144,7 @@ const directories = [
         .setTitle("ReportStream referral guide")
         .setSlug(DirectoryTools.prependRoot("REFERRAL_GUIDE"))
         .setDescription(
-            "Instructions and templates for public health departments to onboard reporting entities in their jurisdiction."
+            "Instructions and templates for referring reporting entities to use ReportStream in your jurisdiction."
         )
         .addElement(
             contentContainer(
@@ -153,7 +156,7 @@ const directories = [
         .setTitle("System and settings")
         .setSlug(DirectoryTools.prependRoot("SYSTEM"))
         .setDescription(
-            "Information about the ReportStream platform, including data configuration, formats, and transport."
+            "Information about the ReportStream platform, including data storage, configuration, formatting, transport. "
         )
         .addElement(
             contentContainer(
@@ -200,7 +203,10 @@ export const ResourcesIndex = () => {
             <div className="rs-hero__index">
                 <div className="grid-container">
                     <h1>Resources</h1>
-                    <h2>Explore guides, tools, and documentation</h2>
+                    <h2>
+                        Explore guides, tools, and resources to optimize
+                        ReportStream{" "}
+                    </h2>
                 </div>
             </div>
             <div className="grid-container usa-prose margin-top-6">

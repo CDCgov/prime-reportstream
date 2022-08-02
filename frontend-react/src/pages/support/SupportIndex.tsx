@@ -34,7 +34,7 @@ const directories: ContentDirectory[] = [
         .setTitle("Contact")
         .setSlug(DirectoryTools.prependRoot("CONTACT"))
         .setDescription(
-            "Want to get in touch with ReportStream? Email us at reportstream@cdc.gov."
+            "Questions, issues, or a bug to report? We're happy to help!"
         )
         .addElement(
             contentContainer(<Contact />, DirectoryTools.makeCrumb("Contact"))
@@ -76,7 +76,7 @@ export const SupportIndex = () => {
             <div className="rs-hero__index">
                 <div className="grid-container">
                     <h1>Support</h1>
-                    <h2>Have questions? Here are a few ways we can help.</h2>
+                    <h2>Have questions? Here are a few ways we can help</h2>
                 </div>
             </div>
             <div className="grid-container usa-prose margin-top-6">

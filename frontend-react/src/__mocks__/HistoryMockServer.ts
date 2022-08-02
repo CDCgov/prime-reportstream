@@ -25,9 +25,9 @@ const handlers = [
     ),
     /* Successfully returns a Report */
     rest.get(
-        "https://test.prime.cdc.gov/api/history/report/1",
+        "https://test.prime.cdc.gov/api/history/report/123",
         (req, res, ctx) => {
-            return res(ctx.status(200), ctx.json(new ReportResource("1")));
+            return res(ctx.status(200), ctx.json(new ReportResource("123")));
         }
     ),
 ];

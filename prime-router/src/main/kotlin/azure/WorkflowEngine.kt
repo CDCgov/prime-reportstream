@@ -772,6 +772,7 @@ class WorkflowEngine(
             return when (currentEventAction) {
                 Event.EventAction.RECEIVE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.PROCESS -> Tables.TASK.PROCESSED_AT
+                Event.EventAction.ROUTE -> Tables.TASK.ROUTED_AT
                 Event.EventAction.TRANSLATE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.REBATCH -> Tables.TASK.TRANSLATED_AT // overwrites prior date
                 Event.EventAction.BATCH -> Tables.TASK.BATCHED_AT

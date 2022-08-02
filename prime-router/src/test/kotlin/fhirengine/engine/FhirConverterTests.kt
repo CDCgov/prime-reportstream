@@ -14,7 +14,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
-import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -31,7 +31,7 @@ import java.util.UUID
 import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class FhirEngineTests {
+class FhirConverterTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
@@ -81,9 +81,9 @@ class FhirEngineTests {
         "2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body " +
         "structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
 
-    private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
+    private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build()
+            .blobAccess(blobMock).queueAccess(queueMock).build(taskAction)
     }
 
     @BeforeEach
@@ -102,9 +102,8 @@ class FhirEngineTests {
         val metadata = Metadata(schema = one)
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
-        val hL7Reader = spyk(HL7Reader(actionLogger))
 
-        val engine = makeFhirEngine(metadata, settings)
+        val engine = makeFhirEngine(metadata, settings, TaskAction.process)
         val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
 
         val bodyFormat = Report.Format.FHIR
@@ -120,7 +119,7 @@ class FhirEngineTests {
             .returns(Unit)
 
         // act
-        engine.processHL7(message, actionLogger, actionHistory, hL7Reader, metadata)
+        engine.doWork(message, actionLogger, actionHistory, metadata)
 
         // assert
         verify(exactly = 1) {
