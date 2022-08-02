@@ -633,7 +633,7 @@ export function AdminReceiverDashboard() {
             </section>
             <SiteAlert variant="info">
                 {
-                    "Times show are in YOUR LOCAL timezone. Be aware that receivers and servers may be in different zones."
+                    "Times shown are in YOUR LOCAL timezone. Be aware that receivers and servers may be in different zones."
                 }
             </SiteAlert>
             <form autoComplete="off" className="grid-row margin-0">
