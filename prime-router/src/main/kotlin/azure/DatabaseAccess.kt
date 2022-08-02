@@ -383,6 +383,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
     /**
      * Fetch an action for a given [reportId].
+     * @param reportId UUID to search by
      * @param txn an optional database transaction
      * @return an Action, or null if no such reportId exists.
      */
@@ -398,6 +399,26 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(REPORT_FILE.REPORT_ID.eq(reportId))
             .fetchOne()
             ?.into(Action::class.java)
+    }
+
+    /**
+     * Fetch a report for a given [actionId].
+     * @param actionId id to search by
+     * @param txn an optional database transaction
+     * @return a ReportFile, or null if no such actionId exists.
+     */
+    fun fetchReportForActionId(
+        actionId: Long,
+        txn: DataAccessTransaction? = null
+    ): ReportFile? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.select(REPORT_FILE.asterisk())
+            .from(REPORT_FILE)
+            .join(ACTION)
+            .on(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
+            .where(REPORT_FILE.ACTION_ID.eq(actionId))
+            .fetchOne()
+            ?.into(ReportFile::class.java)
     }
 
     /**
@@ -843,6 +864,77 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .set(RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT, initiatedOn)
             .set(RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_COMPLETED_AT, completedOn)
             .execute()
+    }
+
+    /**
+     * The ReceiverConnectionCheckResult needs a join to get
+     * the organizationName from the organizationId and
+     * the receiverName from the receiverId.
+     * Would be nice to extend the Java generated ReceiverConnectionCheckResult, but
+     * I cannot figure out the Kotlin syntax to do it and make initialization/reflection work.
+     */
+    data class ReceiverConnectionCheckResultJoined(
+        // Fields for ReceiverConnectionCheckResult
+        var receiverConnectionCheckResultId: Long, // react client can use as uniqueid
+        val organizationId: Int, // mapped to organizationName
+        val receiverId: Int, // mapped to receiverName
+        val connectionCheckResult: String? = null, // this is a long java debug message
+        val connectionCheckSuccessful: Boolean,
+        val connectionCheckStartedAt: OffsetDateTime,
+        val connectionCheckCompletedAt: OffsetDateTime,
+        // Fields added by our join below
+        val organizationName: String? = null,
+        val receiverName: String? = null,
+    )
+
+    /**
+     * Returns recent connection check results. start and end time are queried
+     * against the CONNECTION_CHECK_STARTED_AT column
+     *
+     * Example of how to do a multiple inner join across the same table but giving
+     * each a differents "as" name without needing a stored procedure.
+     *
+     * @param startDateTime Earliest date to match (greater or equal)
+     * @param endDateTime Optional end date (defaults to "current")
+     */
+    fun fetchReceiverConnectionCheckResults(
+        startDateTime: OffsetDateTime,
+        endDateTime: OffsetDateTime? = null,
+        txn: DataAccessTransaction? = null
+    ): List<ReceiverConnectionCheckResultJoined> {
+        val orgInnerTable = SETTING.`as`("org")
+        val recvrInnerTable = SETTING.`as`("recvr")
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.select(
+            RECEIVER_CONNECTION_CHECK_RESULTS.asterisk(),
+            // two joins on same table, so need different field names.
+            orgInnerTable.NAME.`as`("organization_name"),
+            recvrInnerTable.NAME.`as`("receiver_name"),
+        )
+            .from(RECEIVER_CONNECTION_CHECK_RESULTS)
+            // org name join
+            .innerJoin(SETTING.asTable(orgInnerTable))
+            .on(RECEIVER_CONNECTION_CHECK_RESULTS.ORGANIZATION_ID.eq(orgInnerTable.SETTING_ID))
+            // receiver name join
+            .innerJoin(SETTING.asTable(recvrInnerTable))
+            .on(RECEIVER_CONNECTION_CHECK_RESULTS.RECEIVER_ID.eq(recvrInnerTable.SETTING_ID))
+            .where(
+                // endDateTime is optional parameter and null means NO end date
+                when (endDateTime == null) {
+                    true ->
+                        RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.ge(startDateTime)
+                    false ->
+                        RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.ge(startDateTime)
+                            .and(RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.le(endDateTime))
+                }
+            )
+            // sort order preferred by client
+            .orderBy(
+                orgInnerTable.NAME.asc(),
+                recvrInnerTable.NAME.asc(),
+                RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.asc()
+            )
+            .fetchInto(ReceiverConnectionCheckResultJoined::class.java)
     }
 
     fun refreshMaterializedViews(tableName: String, txn: DataAccessTransaction? = null) {

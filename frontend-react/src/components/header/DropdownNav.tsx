@@ -66,6 +66,7 @@ export const AdminDropdown = () => {
         makeNonStaticOption("Feature Flags", "features"),
         makeNonStaticOption("Guides", "guides/create-markdown-pages"),
         makeNonStaticOption("Last Mile Failures", "lastmile"),
+        makeNonStaticOption("Receiver Status Dashboard", "send-dash"),
     ];
     if (CheckFeatureFlag("value-sets"))
         pages.push(makeNonStaticOption("Value Sets", "value-sets"));

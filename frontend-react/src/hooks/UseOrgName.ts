@@ -1,4 +1,4 @@
-import { useOrganizationResource } from "./UseOrganizationResouce";
+import { useOrganizationResource } from "./UseOrganizationResource";
 
 function useOrgName(): string {
     const { organization } = useOrganizationResource();
