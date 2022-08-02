@@ -179,11 +179,14 @@ object FhirPathUtils : Logging {
                     dateTime.hour, dateTime.minute
                 )
 
-            else ->
+            else -> {
+                var secs = dateTime.second.toFloat()
+                if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
                 hl7DateTime.setDateSecondPrecision(
                     dateTime.year, dateTime.month + 1, dateTime.day, dateTime.hour, dateTime.minute,
-                    (dateTime.second * ((dateTime.nanos ?: 0) / 1000000).toFloat())
+                    secs
                 )
+            }
         }
         dateTime.timeZone?.let {
             // This is strange way to set the timezone offset, but it is an integer with the leftmost two digits as the hour

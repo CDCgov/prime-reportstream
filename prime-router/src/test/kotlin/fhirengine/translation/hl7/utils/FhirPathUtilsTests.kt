@@ -162,27 +162,30 @@ class FhirPathUtilsTests {
 
     @Test
     fun `test convertDateTimeToHL7`() {
-        val dateTime = DateTimeType("2015-04-11T12:22:01-04:00")
-        val result = FhirPathUtils.convertDateTimeToHL7(dateTime)
-        assertThat(result).isNotEmpty()
-        assertThat(result).isEqualTo("20150411122201-0400")
+        // Year or year and month only is not supported by FHIR type
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05")))
+            .isEqualTo("20150405")
+        // Hour only or hour and minute only is not supported by FHIR type
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11")))
+            .isEqualTo("20150405122211")
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567")))
+            .isEqualTo("20150405122211.567")
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567891")))
+            .isEqualTo("20150405122211.5679") // Note the rounding
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-11T12:22:01-04:00")))
+            .isEqualTo("20150411122201-0400")
     }
 
     @Test
     fun `test convertTimeToHL7`() {
         val time = TimeType("13:04:05.098")
-        val result = FhirPathUtils.convertTimeToHL7(time)
-        print(result)
-        assertThat(result).isNotEmpty()
-        assertThat(result).isEqualTo("130405.0980")
+        assertThat(FhirPathUtils.convertTimeToHL7(time)).isEqualTo("130405.0980")
     }
 
     @Test
     fun `test convertDateToHL7`() {
-        val date = DateType("2011-01-02")
-        val result = FhirPathUtils.convertDateToHL7(date)
-        print(result)
-        assertThat(result).isNotEmpty()
-        assertThat(result).isEqualTo("20110102")
+        assertThat(FhirPathUtils.convertDateToHL7(DateType("2011-01-02"))).isEqualTo("20110102")
+        assertThat(FhirPathUtils.convertDateToHL7(DateType("2011-01"))).isEqualTo("201101")
+        assertThat(FhirPathUtils.convertDateToHL7(DateType("2011"))).isEqualTo("2011")
     }
 }
