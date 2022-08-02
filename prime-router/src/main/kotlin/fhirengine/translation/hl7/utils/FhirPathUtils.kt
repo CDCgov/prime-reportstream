@@ -30,7 +30,7 @@ object FhirPathUtils : Logging {
     /**
      * The FHIR path engine.
      */
-    private val defaultPathEngine = FHIRPathEngine(SimpleWorkerContext())
+    private val pathEngine = FHIRPathEngine(SimpleWorkerContext())
 
     /**
      * The HL7 time format. We are converting from a FHIR TimeType which does not include a time zone.
@@ -39,7 +39,7 @@ object FhirPathUtils : Logging {
     private val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HHmmss.SSSS")
 
     init {
-        defaultPathEngine.hostServices = FhirPathCustomResolver()
+        pathEngine.hostServices = FhirPathCustomResolver()
     }
 
     /**
@@ -49,7 +49,7 @@ object FhirPathUtils : Logging {
      */
     fun parsePath(fhirPath: String?): ExpressionNode? {
         return if (fhirPath == null) null
-        else defaultPathEngine.parse(fhirPath)
+        else pathEngine.parse(fhirPath)
     }
 
     /**
@@ -64,7 +64,7 @@ object FhirPathUtils : Logging {
         expression: String
     ): List<Base> {
         val retVal = try {
-            val resources = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
+            val resources = pathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
             resources.map {
                 if (it.hasType("Reference") && (it as Reference).resource != null) {
                     it.resource as Base
@@ -98,7 +98,7 @@ object FhirPathUtils : Logging {
         expression: String
     ): Boolean {
         val retVal = try {
-            val value = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
+            val value = pathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
             if (value.size == 1 && value[0].isBooleanPrimitive) (value[0] as BooleanType).value
             else {
                 throw SchemaException("Condition did not evaluate to a boolean type")
@@ -130,7 +130,7 @@ object FhirPathUtils : Logging {
         bundle: Bundle,
         expression: String
     ): String {
-        val evaluated = defaultPathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
+        val evaluated = pathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
         return when {
             // If we couldn't evaluate the path we should return an empty string
             evaluated.isEmpty() -> ""
@@ -156,7 +156,7 @@ object FhirPathUtils : Logging {
             evaluated[0] is TimeType -> convertTimeToHL7(evaluated[0] as TimeType)
 
             // Use the string representation of the value for any other types.
-            else -> evaluated[0].toString()
+            else -> pathEngine.convertToString(evaluated[0])
         }
     }
 
@@ -183,7 +183,6 @@ object FhirPathUtils : Logging {
         val hl7DateTime = DTM(null)
 
         return when (dateTime.precision) {
-            // HL7 Date time does not support only year, or year and month
             TemporalPrecisionEnum.YEAR -> "%d".format(dateTime.year)
 
             TemporalPrecisionEnum.MONTH -> "%d%02d".format(dateTime.year, dateTime.month + 1)
