@@ -57,6 +57,13 @@ const val passwordVariable = "POSTGRES_PASSWORD"
 // general max length of free from metadata strings since jooq/postgres
 // does not truncate values when persisting to the database
 const val METADATA_MAX_LENGTH = 512
+// max number of records that should be returned by any query to prevent
+// memory pressure. It's mostly to limit abuse. Used in `.top(MAX_RECORDS_TO_RETURN)`
+// listreceiversconnstatus is just a ton of data
+// (12 rows/day per Receiver config ~135 in staging today).
+// It's useful to see about 5 days worth of queries, so12*150*5 = 9000 rows
+// It may be better to separate out this const for different queriers.
+const val MAX_RECORDS_TO_RETURN = 9000
 
 typealias DataAccessTransaction = Configuration
 
@@ -934,6 +941,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 recvrInnerTable.NAME.asc(),
                 RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.asc()
             )
+            .limit(MAX_RECORDS_TO_RETURN)
             .fetchInto(ReceiverConnectionCheckResultJoined::class.java)
     }
 
@@ -954,6 +962,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
             .selectFrom(Routines.listSendFailures(daysBackSpan))
+            .limit(MAX_RECORDS_TO_RETURN)
             .fetchInto(ListSendFailures::class.java)
     }
 
