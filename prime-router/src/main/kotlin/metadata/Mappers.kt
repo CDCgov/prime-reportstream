@@ -248,7 +248,7 @@ class UseMapper : Mapper {
 /**
  *
  */
-class PatientAgeMapper: Mapper {
+class PatientAgeMapper : Mapper {
     /** the name of the mapper */
     override val name = "patientAge"
 
