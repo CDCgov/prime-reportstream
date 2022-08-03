@@ -1,4 +1,4 @@
-package azure
+package gov.cdc.prime.router.azure
 
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -9,8 +9,6 @@ import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.WorkflowEngine
 
 const val CLIENT_PARAMETER = "client"
 const val PAYLOAD_NAME_PARAMETER = "payloadname"
@@ -23,7 +21,7 @@ const val TOPIC_PARAMETER = "topic"
 /**
  * Base class for ReportFunction and ValidateFunction
  */
-open class RequestFunction(
+abstract class RequestFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine()
 ) {
     /**

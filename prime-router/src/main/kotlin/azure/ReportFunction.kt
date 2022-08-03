@@ -1,9 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import azure.ALLOW_DUPLICATES_PARAMETER
-import azure.CLIENT_PARAMETER
-import azure.OPTION_PARAMETER
-import azure.RequestFunction
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage

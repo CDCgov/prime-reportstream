@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import azure.RequestFunction
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.CovidSender
