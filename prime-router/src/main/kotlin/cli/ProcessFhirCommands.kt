@@ -135,6 +135,17 @@ class FhirPathCommand : CliktCommand(
     private val inputFile by option("-i", "--input-file", help = "Input file to process")
         .file(true, canBeDir = false, mustBeReadable = true).required()
 
+    /**
+     * A parser to print out the contents of a resource.
+     */
+    private val fhirResourceParser = FhirContext.forR4().newJsonParser()
+
+    init {
+        fhirResourceParser.setPrettyPrint(true)
+        fhirResourceParser.isOmitResourceId = true
+        fhirResourceParser.isSummaryMode = true
+    }
+
     override fun run() {
         // Read the contents of the file
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
@@ -166,7 +177,7 @@ class FhirPathCommand : CliktCommand(
             if (pathExpression != null) {
                 // Evaluate the path
                 try {
-                    val value = FhirPathUtils.evaluate(null, bundle, bundle, pathExpression)
+                    val value = FhirPathUtils.evaluate(null, bundle, bundle, path)
                     // Note you can get collections
                     value.forEach {
                         val valueAsString =
@@ -175,17 +186,17 @@ class FhirPathCommand : CliktCommand(
 
                                 // Resource are large, so lets pretty print them
                                 it is IBaseResource -> {
-                                    val encodedResource = FhirContext.forR4().newJsonParser().encodeResourceToString(it)
-                                    val jsonObject = JacksonMapperUtilities.defaultMapper
-                                        .readValue(encodedResource, Any::class.java)
-                                    JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
+                                    fhirResourceParser.encodeResourceToString(it)
                                 }
 
                                 // Bundle entries
                                 it is BundleEntryComponent -> "Entry: ${it.fullUrl}"
 
                                 // Non-base resources
-                                else -> "Resource: $it"
+                                else -> {
+                                    // TODO: How can we print out non IBaseResource resources?
+                                    "Resource: $it"
+                                }
                             }
 
                         // Print out the value, but add a dash to each collection entry if more than one
