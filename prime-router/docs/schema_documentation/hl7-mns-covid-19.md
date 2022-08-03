@@ -2754,7 +2754,7 @@ The patient's race. There is a common valueset defined for race values, but some
 
 **PII**: No
 
-**Cardinality**: [1..1]
+**Cardinality**: [0..1]
 
 **Table**: fips-county
 
@@ -2763,6 +2763,22 @@ The patient's race. There is a common valueset defined for race values, but some
 **Documentation**:
 
 The patient's state
+
+---
+
+**Name**: patient_state_zip_lookup
+
+**ReportStream Internal Name**: patient_state_zip_lookup
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: zip-code-data
+
+**Table Column**: state_abbr
 
 ---
 
