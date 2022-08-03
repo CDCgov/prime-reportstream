@@ -853,6 +853,8 @@ class Report : Logging {
                     it.testPerformed = row.getStringOrNull("test_performed_name").trimToNull()
                     it.testOrdered = row.getStringOrNull("ordered_test_name").trimToNull()
                     it.testOrderedCode = row.getStringOrNull("ordered_test_code").trimToNull()
+                    // trap the processing mode code as well
+                    it.processingModeCode = row.getStringOrNull("processing_mode_code").trimToNull()
                 }
             }
         } catch (e: Exception) {
@@ -943,6 +945,8 @@ class Report : Logging {
                     it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
                     it.testPerformedLoincCode = row.getStringOrNull("test_performed_code").trimToNull()
                     it.organizationName = row.getStringOrNull("organization_name").trimToNull()
+                    // trap the processing mode code from submissions as well
+                    it.processingModeCode = row.getStringOrNull("processing_mode_code").trimToNull()
                 }
             }
         } catch (e: Exception) {
