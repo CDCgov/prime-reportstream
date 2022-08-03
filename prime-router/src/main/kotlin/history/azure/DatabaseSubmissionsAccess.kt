@@ -18,7 +18,7 @@ import org.jooq.impl.SQLDataType
  * Class to access lookup tables stored in the database.
  */
 class DatabaseSubmissionsAccess(
-    db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    db: DatabaseAccess = BaseEngine.databaseAccessSingleton
 ) : HistoryDatabaseAccess(db) {
 
     /**
@@ -30,7 +30,7 @@ class DatabaseSubmissionsAccess(
      */
     override fun organizationFilter(
         organization: String,
-        orgService: String?,
+        orgService: String?
     ): Condition {
         var senderFilter = ACTION.ACTION_NAME.eq(TaskAction.receive)
             .and(ACTION.SENDING_ORG.eq(organization))
@@ -109,7 +109,7 @@ class DatabaseSubmissionsAccess(
                     .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
             ).`as`("reports").convertFrom { r ->
                 r?.into(DetailedReport::class.java)
-            },
+            }
         )
     }
 
@@ -144,7 +144,7 @@ class DatabaseSubmissionsAccess(
             DSL.select(
                 Tables.REPORT_LINEAGE.ACTION_ID,
                 Tables.REPORT_LINEAGE.CHILD_REPORT_ID,
-                Tables.REPORT_LINEAGE.PARENT_REPORT_ID,
+                Tables.REPORT_LINEAGE.PARENT_REPORT_ID
             )
                 .from(Tables.REPORT_LINEAGE)
                 .where(Tables.REPORT_LINEAGE.ACTION_ID.eq(actionId))
@@ -152,7 +152,7 @@ class DatabaseSubmissionsAccess(
                     DSL.select(
                         Tables.REPORT_LINEAGE.ACTION_ID,
                         Tables.REPORT_LINEAGE.CHILD_REPORT_ID,
-                        Tables.REPORT_LINEAGE.PARENT_REPORT_ID,
+                        Tables.REPORT_LINEAGE.PARENT_REPORT_ID
                     )
                         .from(DSL.table(DSL.name("t")))
                         .join(Tables.REPORT_LINEAGE)
