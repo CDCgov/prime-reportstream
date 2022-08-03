@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -47,6 +48,24 @@ class ValidateFunctionTests {
             )
         ),
     )
+
+    val csvString_2Records = "senderId,processingModeCode,testOrdered,testName,testResult,testPerformed," +
+        "testResultDate,testReportDate,deviceIdentifier,deviceName,specimenId,testId,patientAge,patientRace," +
+        "patientEthnicity,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname," +
+        "orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName," +
+        "performingFacilityState,performingFacilityZip,specimenSource,patientUniqueId,patientUniqueIdHash," +
+        "patientState,firstTest,previousTestType,previousTestResult,healthcareEmployee,symptomatic,symptomsList," +
+        "hospitalized,symptomsIcu,congregateResident,congregateResidentType,pregnant\n" +
+        "abbott,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid " +
+        "immunoassay,419984006,95209-3,202112181841-0500,202112151325-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx " +
+        "UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,3,2131-1,2135-2,F,19931,Sussex,1404270765," +
+        "Reichert,NormanA,19931,97D0667471,Any lab USA,DE,19931,122554006,esyuj9,vhd3cfvvt,DE,NO,bgq0b2e,840533007," +
+        "NO,NO,h8jev96rc,YES,YES,YES,257628001,60001007\n" +
+        "abbott,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid " +
+        "immunoassay,419984006,95209-3,202112181841-0500,202112151325-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx " +
+        "UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,3,2131-1,2135-2,F,19931,Sussex,1404270765," +
+        "Reicherts,NormanB,19931,97D0667471,Any lab USA,DE,19931,122554006,esyuj9,vhd3cfvvt,DE,NO,bgq0b2e," +
+        "840533007,NO,NO,h8jev96rc,YES,YES,YES,257628001,60001007"
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
@@ -284,5 +303,40 @@ class ValidateFunctionTests {
 
         // verify
         assert(res.statusCode == 400)
+    }
+
+    @Test
+    fun `test processFunction`() {
+        // setup steps
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val validateFunc = spyk(ValidateFunction(engine, actionHistory))
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.CSV,
+            schemaName =
+            "one",
+            allowDuplicates = false
+        )
+
+        val req = MockHttpRequestMessage(csvString_2Records)
+
+        every { validateFunc.validateRequest(any()) } returns RequestFunction.ValidatedRequest(
+            csvString_2Records,
+            sender = sender
+        )
+
+        every { accessSpy.isDuplicateItem(any(), any()) } returns true
+
+        // act
+        val resp = validateFunc.processRequest(req, sender)
+
+        // assert
+        verify(exactly = 2) { engine.isDuplicateItem(any()) }
+        assert(resp.status.equals(HttpStatus.BAD_REQUEST))
     }
 }
