@@ -700,11 +700,8 @@ class SubmissionReceiverTests {
         // assert
         assertTrue(exceptionThrown)
 
-        verify(exactly = 1) {
-            engine.recordReceivedReport(any(), any(), any(), any(), any())
-        }
-
         verify(exactly = 0) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
             queueMock.sendMessage(elrConvertQueueName, any())
@@ -770,11 +767,8 @@ class SubmissionReceiverTests {
             )
         }.isFailure()
 
-        verify(exactly = 1) {
-            engine.recordReceivedReport(any(), any(), any(), any(), any())
-        }
-
         verify(exactly = 0) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
             queueMock.sendMessage(elrConvertQueueName, any())
