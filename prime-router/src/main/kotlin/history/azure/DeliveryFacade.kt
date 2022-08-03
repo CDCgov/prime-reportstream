@@ -74,24 +74,10 @@ class DeliveryFacade(
     fun findDetailedDeliveryHistory(
         deliveryId: Long,
     ): DeliveryHistory? {
-        return DeliveryHistory(
+        return dbDeliveryAccess.fetchAction(
             deliveryId,
-            OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
-            null,
-            "c3c8e304-8eff-4882-9000-3645054a30b7",
-            "covid-19",
-            1,
-            "ak-phd",
-            "elr-secondary",
-            null,
-            "covid-19",
-            "HL7_BATCH",
+            DeliveryHistory::class.java
         )
-//        return dbDeliveryAccess.fetchAction(
-//            organizationName,
-//            deliveryId,
-//            DeliveryHistory::class.java
-//        )
     }
 
     /**
