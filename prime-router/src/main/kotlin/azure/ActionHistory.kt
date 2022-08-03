@@ -613,6 +613,19 @@ class ActionHistory : Logging {
         insertItemLineages(itemLineages, txn)
 
         actionLogs.forEach {
+            // if we have an action log that is for a report that is not being recorded, remove the link to the report.
+            // this is a valid use case when the client submission is incorrect - a report is created in memory but
+            // is not stored in the database or blob store, but we will want the action log
+            if (it.reportId != null &&
+                !(
+                    reportsReceived.containsKey(it.reportId) ||
+                        reportsOut.containsKey(it.reportId) ||
+                        filteredOutReports.containsKey(it.reportId) ||
+                        reportsIn.containsKey(it.reportId)
+                    )
+            ) {
+                it.reportId = null
+            }
             val detailRecord = DSL.using(txn).newRecord(ACTION_LOG, it)
             detailRecord.store()
         }
