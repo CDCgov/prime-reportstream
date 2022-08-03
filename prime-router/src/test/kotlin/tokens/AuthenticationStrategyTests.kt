@@ -127,6 +127,52 @@ class AuthenticationStrategyTests {
     }
 
     @Test
+    fun `test getAccessToken`() {
+        val req = MockHttpRequestMessage("test")
+        req.httpHeaders["Authorization"] = "Bearer tok1"
+        var tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isEqualTo("tok1")
+
+        req.httpHeaders.clear()
+        req.httpHeaders["authorization"] = "Bearer tok2"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isEqualTo("tok2")
+
+        req.httpHeaders.clear()
+        req.httpHeaders["AUTHORIZATION"] = "Bearer tok3"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isEqualTo("tok3")
+
+        req.httpHeaders.clear()
+        req.httpHeaders["authorization"] = "tok4"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isEqualTo("tok4")
+
+        req.httpHeaders.clear()
+        req.httpHeaders["foobar"] = "Bearer tok5"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isNull()
+
+        req.httpHeaders.clear()
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isNull()
+
+        req.httpHeaders.clear()
+        req.httpHeaders["foobar"] = "Bearer tok5"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isNull()
+
+        req.httpHeaders.clear()
+        req.httpHeaders["foobar"] = "bearer tok5"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isNull()
+
+        req.httpHeaders.clear()
+        req.httpHeaders["foobar"] = "BEARER tok5"
+        tok = AuthenticationStrategy.getAccessToken(req)
+        assertThat(tok).isNull()
+    }
+    @Test
     fun `test validate claims`() {
         val req = MockHttpRequestMessage("test")
         // Missing authentication-type header in req!  Means ==> use token auth.
