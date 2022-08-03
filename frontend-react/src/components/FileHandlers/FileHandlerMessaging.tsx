@@ -4,6 +4,7 @@ import {
     formattedDateFromTimestamp,
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
+import { capitalizeFirst } from "../../utils/misc";
 import { StaticAlert } from "../StaticAlert";
 import { ResponseError } from "../../network/api/WatersApi";
 
@@ -261,7 +262,7 @@ export const NoSenderBanner = ({
     return (
         <StaticAlert
             type={"error"}
-            heading={`${action} unavailable`}
+            heading={`${capitalizeFirst(action)} unavailable`}
             message={`No valid sender found for ${organization}`}
         />
     );

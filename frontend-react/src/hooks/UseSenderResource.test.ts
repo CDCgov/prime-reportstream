@@ -28,7 +28,7 @@ jest.mock("./network/UseRequestConfig", () => ({
 describe("useSenderResource", () => {
     test("returns null while loading", () => {
         mockUseRequestConfig.mockReturnValue({
-            data: [fakeSender],
+            data: fakeSender,
             loading: true,
         });
         mockUseSessionContext.mockReturnValue({
@@ -50,7 +50,7 @@ describe("useSenderResource", () => {
     });
     test("returns null if no sender available on membership", () => {
         mockUseRequestConfig.mockReturnValue({
-            data: [fakeSender],
+            data: fakeSender,
         });
         mockUseSessionContext.mockReturnValue({
             memberships: {
@@ -67,9 +67,9 @@ describe("useSenderResource", () => {
         } = renderHook(() => useSenderResource());
         expect(sender).toEqual(null);
     });
-    test("returns null if no sender from API doesn't match membership", () => {
+    test("returns null if no sender returned from API", () => {
         mockUseRequestConfig.mockReturnValue({
-            data: [fakeSender],
+            data: undefined,
         });
         mockUseSessionContext.mockReturnValue({
             memberships: {
@@ -90,7 +90,7 @@ describe("useSenderResource", () => {
     });
     test("returns correct sender match", () => {
         mockUseRequestConfig.mockReturnValue({
-            data: [fakeSender],
+            data: fakeSender,
         });
         mockUseSessionContext.mockReturnValue({
             memberships: {
