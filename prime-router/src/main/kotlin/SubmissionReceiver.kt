@@ -9,8 +9,8 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.fhirengine.azure.elrProcessQueueName
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 
 /**
@@ -279,7 +279,7 @@ class ELRReceiver : SubmissionReceiver {
 
         // move to processing (send to <elrProcessQueueName> queue)
         workflowEngine.queue.sendMessage(
-            elrProcessQueueName,
+            elrConvertQueueName,
             RawSubmission(
                 report.id,
                 blobInfo.blobUrl,

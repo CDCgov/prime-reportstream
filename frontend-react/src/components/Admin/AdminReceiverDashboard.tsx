@@ -8,10 +8,12 @@ import {
     Label,
     Modal,
     ModalRef,
+    SiteAlert,
     TextInput,
     Tooltip,
 } from "@trussworks/react-uswds";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
+import moment from "moment";
 
 import {
     AdmConnStatusResource,
@@ -19,6 +21,9 @@ import {
 } from "../../resources/AdmConnStatusResource";
 import { StyleClass } from "../Table/TableFilters";
 import { formatDate } from "../../utils/misc";
+
+const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
+const SKIP_HOURS = 2; // hrs
 
 /**
  *
@@ -120,38 +125,22 @@ import { formatDate } from "../../utils/misc";
  *
  */
 
-const SKIP_HOURS = 2; // hrs
-const DAY_BACK_DEFAULT = 7 - 1; // N days (-1 because we add a day later for ranges)
-
 /**
  * Declared outside of the function so React doesn't update constantly (also, time is fixed)
  * Usage: `yesterday()`
  * @param d {Date}
  * @return {string}
  */
-const defaultStartDateIso = (d = new Date()) => {
-    d.setHours(-24 * DAY_BACK_DEFAULT, 0, 0, 0); // DAY_BACK_DEFAULT days ago
-    return d.toISOString();
+const startOfDayIso = (d: Date) => {
+    return moment(d).startOf("day").toISOString();
 };
 
-const defaultEndDateIso = (d = new Date()) => {
-    d.setHours(0, 0, 0, 0);
-    return d.toISOString();
+const endOfDayIso = (d: Date) => {
+    return moment(d).endOf("day").toISOString();
 };
 
-const roundIsoDateDown = (iso: string) => {
-    const parts = iso.split("T");
-    const endsInZ = iso[iso.length - 1] === "Z";
-    return `${parts[0]}T00:00:00.000${endsInZ ? "Z" : ""}`;
-};
-
-const roundIsoDateUp = (iso: string) => {
-    const d = new Date(iso);
-    d.setDate(d.getDate() + 1); // add 1 day
-    const isoNewD = d.toISOString();
-    const parts = isoNewD.split("T");
-    const endsInZ = iso[iso.length - 1] === "Z";
-    return `${parts[0]}T00:00:00.000${endsInZ ? "Z" : ""}`;
+const initialStartDate = () => {
+    return moment().subtract(DAY_BACK_DEFAULT, "days").toDate();
 };
 
 /**
@@ -355,8 +344,6 @@ function MainRender(props: {
 
     const startDay = props.datesRange[0];
     const endDay = props.datesRange[1];
-    // the range is midnight to midnight, so the endDay needs to be +1 to be correct
-    endDay.setDate(endDay.getDate() + 1);
 
     // we use double cursors (move through time and through entries)
     let keyOffset = 0;
@@ -364,7 +351,6 @@ function MainRender(props: {
     const perReceiverElements: JSX.Element[] = [];
     let perDayElements: JSX.Element[] = [];
     let sliceElements: JSX.Element[] = [];
-
     // loop over all receivers (each is its own row)
     while (keyOffset < keys.length) {
         const successForRow = new SuccessRateTracker();
@@ -378,7 +364,6 @@ function MainRender(props: {
         // loop over all days
         const daySlots = new TimeSlots([startDay, endDay], 24);
         for (let [daySlotStart, daySlotEnd] of daySlots) {
-            const successForDay = new SuccessRateTracker();
             const timeSlots = new TimeSlots(
                 [daySlotStart, daySlotEnd],
                 SKIP_HOURS
@@ -386,7 +371,7 @@ function MainRender(props: {
             for (let [timeSlotStart, timeSlotEnd] of timeSlots) {
                 const successForSlice = new SuccessRateTracker();
 
-                // loop over keys that are in this range. Build aggregates
+                // loop over keys that are in this range. Build aggregates for success, needed for layout
                 while (
                     keyOffset < keys.length &&
                     dateIsInRange(currentDate, [timeSlotStart, timeSlotEnd]) &&
@@ -397,7 +382,6 @@ function MainRender(props: {
                     const wasSuccessful =
                         currentEntry.connectionCheckSuccessful;
                     successForSlice.updateState(wasSuccessful);
-                    successForDay.updateState(wasSuccessful);
                     successForRow.updateState(wasSuccessful);
 
                     // next entry
@@ -450,7 +434,7 @@ function MainRender(props: {
                     </Grid>
                 );
                 // </editor-fold>
-            }
+            } // per-day time slice loop
 
             // <editor-fold desc="Per-Day render">
             const dateStr = dateShortFormat(daySlotStart);
@@ -517,7 +501,6 @@ function MainRender(props: {
         }
         perDayElements = [];
         // </editor-fold>
-        keyOffset++;
     } // while
     return (
         //
@@ -604,7 +587,9 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
 }
 
 export function AdminReceiverDashboard() {
-    const [startDate, setStartDate] = useState<string>(defaultStartDateIso());
+    const [startDate, setStartDate] = useState<string>(
+        startOfDayIso(initialStartDate())
+    );
     const [endDate, setEndDate] = useState<string | undefined>(); // may be null because it's optional
     const results = useResource(AdmConnStatusResource.list(), {
         startDate,
@@ -646,6 +631,11 @@ export function AdminReceiverDashboard() {
                 Each slot is a 2hr time slice. Colored slots had a check run.
                 Clicking on a slot shows details.
             </section>
+            <SiteAlert variant="info">
+                {
+                    "Times shown are in YOUR LOCAL timezone. Be aware that receivers and servers may be in different zones."
+                }
+            </SiteAlert>
             <form autoComplete="off" className="grid-row margin-0">
                 <div className="flex-auto margin-1">
                     <DateRangePicker
@@ -654,23 +644,23 @@ export function AdminReceiverDashboard() {
                         startDatePickerProps={{
                             id: "start-date",
                             name: "start-date-picker",
-                            defaultValue: defaultStartDateIso(),
-                            onChange: (s) =>
-                                setStartDate(
-                                    s
-                                        ? new Date(s).toISOString()
-                                        : defaultStartDateIso()
-                                ),
+                            defaultValue: startDate,
+                            onChange: (s) => {
+                                if (s) {
+                                    setStartDate(startOfDayIso(new Date(s)));
+                                }
+                            },
                         }}
                         endDateLabel="Until (End Range):"
                         endDatePickerProps={{
                             id: "end-date",
                             name: "end-date-picker",
-                            defaultValue: defaultEndDateIso(),
-                            onChange: (s) =>
-                                setEndDate(
-                                    s ? new Date(s).toISOString() : undefined
-                                ),
+                            defaultValue: "",
+                            onChange: (s) => {
+                                if (s) {
+                                    setEndDate(endOfDayIso(new Date(s)));
+                                }
+                            },
                         }}
                     />
                 </div>
@@ -763,11 +753,12 @@ export function AdminReceiverDashboard() {
                 filterRowStatus={filterRowSuccessState}
                 datesRange={[
                     new Date(startDate),
-                    endDate ? new Date(endDate) : new Date(),
+                    endDate
+                        ? new Date(endOfDayIso(new Date(endDate)))
+                        : new Date(endOfDayIso(new Date())),
                 ]}
                 onDetailsClick={showDetailsModal}
             />
-
             <Modal
                 isLarge={true}
                 className="rs-compare-modal"
@@ -781,15 +772,15 @@ export function AdminReceiverDashboard() {
 }
 
 export const _exportForTesting = {
-    defaultStartDateIso,
-    defaultEndDateIso,
+    startOfDayIso,
+    endOfDayIso,
+    initialStartDate,
     TimeSlots,
-    roundIsoDateDown,
-    roundIsoDateUp,
     SuccessRateTracker,
     SuccessRate,
     durationFormatShort,
     dateShortFormat,
     makeDictionary,
     MainRender,
+    ModalInfoRender,
 };
