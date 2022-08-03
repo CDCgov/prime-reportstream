@@ -262,7 +262,7 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: FIPS
-    mapper: lookup(ordering_facility_state, ordering_facility_county)
+    mapper: lookup(ordering_facility_state, $Column:State, ordering_facility_county, $Column:County)
     hl7Field: ORC-22-9
 
   - name: ordering_facility_country
@@ -340,7 +340,7 @@ elements:
     pii: false
     table: fips-county
     tableColumn: FIPS
-    mapper: lookup(ordering_provider_state, ordering_provider_county)
+    mapper: lookup(ordering_provider_state, $Column:State, ordering_provider_county, $Column:County)
     hl7Field: ORC-24-9
     documentation: The FIPS code for the ordering provider
 
@@ -508,7 +508,7 @@ elements:
     cardinality: ZERO_OR_ONE
     table: fips-county
     tableColumn: FIPS
-    mapper: lookup(patient_state, patient_county)
+    mapper: lookup(patient_state, $Column:State, patient_county, $Column:County)
     natFlatFileField: Patient_county
     hl7Field: PID-11-9
     documentation: The FIPS code for the patient's county
@@ -1202,7 +1202,7 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: FIPS
-    mapper: lookup(testing_lab_state, testing_lab_county)
+    mapper: lookup(testing_lab_state, $Column:State, testing_lab_county, $Column:County)
     natFlatFileField: Testing_lab_county
     hhsGuidanceField:
     hl7Field: OBX-24-9
