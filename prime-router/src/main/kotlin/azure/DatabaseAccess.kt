@@ -1037,6 +1037,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 null,
                 null,
                 null,
+                null,
                 null
             )
         }
@@ -1057,6 +1058,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 bodyFormat,
                 bodyUrl,
                 report.createdDateTime,
+                null,
                 null,
                 null,
                 null,
