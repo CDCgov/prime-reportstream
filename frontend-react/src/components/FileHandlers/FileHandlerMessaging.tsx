@@ -4,6 +4,7 @@ import {
     formattedDateFromTimestamp,
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
+import { capitalizeFirst } from "../../utils/misc";
 import { StaticAlert } from "../StaticAlert";
 import { ResponseError } from "../../network/api/WatersApi";
 
@@ -246,5 +247,23 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
                 )}
             </td>
         </tr>
+    );
+};
+
+interface NoSenderBannerProps {
+    action: string;
+    organization: string;
+}
+
+export const NoSenderBanner = ({
+    action,
+    organization,
+}: NoSenderBannerProps) => {
+    return (
+        <StaticAlert
+            type={"error"}
+            heading={`${capitalizeFirst(action)} unavailable`}
+            message={`No valid sender found for ${organization}`}
+        />
     );
 };
