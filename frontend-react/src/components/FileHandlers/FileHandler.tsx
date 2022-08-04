@@ -2,12 +2,14 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { useOrganizationResource } from "../../hooks/UseOrganizationResouce";
+import { useSenderResource } from "../../hooks/UseSenderResource";
+import { useOrganizationResource } from "../../hooks/UseOrganizationResource";
 import { WatersPost } from "../../network/api/WatersApiFunctions";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
 import useFileHandler, {
     FileHandlerActionType,
     ErrorType,
+    FileType,
 } from "../../hooks/UseFileHandler";
 import { parseCsvForError } from "../../utils/FileUtils";
 
@@ -16,8 +18,18 @@ import {
     FileSuccessDisplay,
     FileWarningsDisplay,
     FileWarningBanner,
+    NoSenderBanner,
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
+
+const FileHandlerSpinner = ({ message }: { message: string }) => (
+    <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-4">
+        <div className="grid-row">
+            <Spinner />
+        </div>
+        <div className="grid-row">{message}</div>
+    </div>
+);
 
 const SERVER_ERROR_MESSAGING = {
     heading: "Error",
@@ -52,7 +64,6 @@ interface FileHandlerProps {
     handlerType: FileHandlerType;
     fetcher: WatersPost;
     successMessage: string;
-    formLabel: string;
     resetText: string;
     submitText: string;
     showSuccessMetadata: boolean;
@@ -65,7 +76,6 @@ const FileHandler = ({
     handlerType,
     fetcher,
     successMessage,
-    formLabel,
     resetText,
     submitText,
     showSuccessMetadata,
@@ -98,7 +108,10 @@ const FileHandler = ({
     }, [localError]);
 
     const { memberships, oktaToken } = useSessionContext();
-    const { organization } = useOrganizationResource();
+    const { organization, loading: organizationLoading } =
+        useOrganizationResource();
+    // need to fetch sender from API to grab cvs vs hl7 format info
+    const { sender, loading: senderLoading } = useSenderResource();
 
     const accessToken = oktaToken?.accessToken;
     const parsedName = memberships.state.active?.parsedName;
@@ -108,16 +121,15 @@ const FileHandler = ({
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
-        if (!event?.currentTarget?.files?.length) {
+        if (!event?.target?.files?.length) {
             // no files selected
             return;
         }
-        const file = event.currentTarget.files.item(0);
+        const file = event.target.files.item(0);
         if (!file) {
             // shouldn't happen but keeps linter happy
             return;
         }
-
         // unfortunate that we have to do this a bit early in order to keep
         // async code out of the reducer, but oh well - DWS
         const content = await file.text();
@@ -169,6 +181,11 @@ const FileHandler = ({
         }
     };
 
+    const resetState = () => {
+        setFileContent("");
+        dispatch({ type: FileHandlerActionType.RESET });
+    };
+
     const submitted = useMemo(
         () => !!(reportId || errors.length),
         [reportId, errors.length]
@@ -176,30 +193,55 @@ const FileHandler = ({
 
     const successDescription = useMemo(() => {
         let suffix = "";
-        if (handlerType === "upload") {
+        if (handlerType === FileHandlerType.UPLOAD) {
             suffix = " and will be transmitted";
         }
         const schemaDescription =
-            fileType === "HL7"
+            fileType === FileType.HL7
                 ? "ReportStream standard HL7 v2.5.1"
                 : "standard CSV";
         return `Your file meets the ${schemaDescription} schema${suffix}.`;
     }, [fileType, handlerType]);
 
     const warningDescription = useMemo(() => {
-        return handlerType === "upload"
+        return handlerType === FileHandlerType.UPLOAD
             ? "Your file has been transmitted"
             : "Your file has passed validation";
     }, [handlerType]);
 
     // default to FILE messaging here, partly to simplify typecheck
-    const errorMessaging =
-        errorMessagingMap[handlerType][errorType || ErrorType.FILE];
+    const errorMessaging = useMemo(
+        () => errorMessagingMap[handlerType][errorType || ErrorType.FILE],
+        [errorType, handlerType]
+    );
 
-    const resetState = () => {
-        setFileContent("");
-        dispatch({ type: FileHandlerActionType.RESET });
-    };
+    const formLabel = useMemo(() => {
+        if (!sender) {
+            return "";
+        }
+        const fileTypeDescription =
+            sender.format === "CSV" ? "a CSV" : "an HL7 v2.5.1";
+        return `Select ${fileTypeDescription} formatted file to ${submitText.toLowerCase()}. Make sure that your file has a .${sender.format.toLowerCase()} extension.`;
+    }, [sender, submitText]);
+
+    if (senderLoading || organizationLoading) {
+        return <FileHandlerSpinner message="Loading..." />;
+    }
+
+    if (!sender) {
+        return (
+            <div className="grid-container usa-section margin-bottom-10">
+                <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
+                <h2 className="font-sans-lg">{organization?.description}</h2>
+                <NoSenderBanner
+                    action={handlerType}
+                    organization={
+                        organization?.description || "your organization"
+                    }
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="grid-container usa-section margin-bottom-10">
@@ -212,7 +254,7 @@ const FileHandler = ({
                 <FileWarningsDisplay
                     warnings={warnings}
                     heading="We found non-critical issues in your file"
-                    message={`The following warnings were returned while processing your file. ${warningDescription}, but these warning areas can be addressed to enhance clarity."`}
+                    message={`The following warnings were returned while processing your file. ${warningDescription}, but these warning areas can be addressed to enhance clarity.`}
                 />
             )}
             {reportId && (
@@ -238,12 +280,7 @@ const FileHandler = ({
                 />
             )}
             {isSubmitting && (
-                <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-4">
-                    <div className="grid-row">
-                        <Spinner />
-                    </div>
-                    <div className="grid-row">Processing file...</div>
-                </div>
+                <FileHandlerSpinner message="Processing file..." />
             )}
             {!isSubmitting && (
                 <FileHandlerForm

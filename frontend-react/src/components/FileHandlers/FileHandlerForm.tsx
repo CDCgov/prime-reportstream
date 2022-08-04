@@ -61,7 +61,7 @@ export const FileHandlerForm = ({
                 <div className="grid-col flex-1 display-flex flex-column flex-align-start">
                     {cancellable && (
                         <Button onClick={resetState} type="button" outline>
-                            <span>Cancel</span>
+                            Cancel
                         </Button>
                     )}
                 </div>

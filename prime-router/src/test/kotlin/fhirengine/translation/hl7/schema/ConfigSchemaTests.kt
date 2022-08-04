@@ -6,7 +6,6 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
-import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import kotlin.test.Test
 
@@ -91,7 +90,6 @@ class ConfigSchemaTests {
 
         element = ConfigSchemaElement("name", value = listOf("Bundle", "Bundle.id"), hl7Spec = listOf("MSH-7"))
         assertThat(element.validate()).isEmpty()
-        assertThat(element.valueExpressions.size).isEqualTo(2)
 
         element = ConfigSchemaElement("name", value = listOf("Bundle"), hl7Spec = listOf("MSH-7"), schema = "schema")
         assertThat(element.validate()).isNotEmpty()
@@ -110,9 +108,6 @@ class ConfigSchemaTests {
             hl7Spec = listOf("MSH-7")
         )
         assertThat(element.validate()).isEmpty()
-        assertThat(element.valueExpressions).isNotNull()
-        assertThat(element.resourceExpression).isNotNull()
-        assertThat(element.conditionExpression).isNotNull()
 
         // FHIR Path errors
         element = ConfigSchemaElement(

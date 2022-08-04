@@ -9,8 +9,8 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.fhirengine.azure.elrProcessQueueName
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 
 /**
@@ -145,14 +145,14 @@ class TopicReceiver : SubmissionReceiver {
             )
         }
 
-        workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
-        )
-
         // if there are any errors, kick this out.
         if (actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
+
+        workflowEngine.recordReceivedReport(
+            report, rawBody, sender, actionHistory, payloadName
+        )
 
         actionHistory.trackLogs(actionLogs.logs)
 
@@ -257,11 +257,6 @@ class ELRReceiver : SubmissionReceiver {
             )
         }
 
-        // record that the submission was received
-        val blobInfo = workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
-        )
-
         // check for valid message type
         messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
 
@@ -269,6 +264,11 @@ class ELRReceiver : SubmissionReceiver {
         if (actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
+
+        // record that the submission was received
+        val blobInfo = workflowEngine.recordReceivedReport(
+            report, rawBody, sender, actionHistory, payloadName
+        )
 
         // track logs
         actionHistory.trackLogs(actionLogs.logs)
@@ -279,7 +279,7 @@ class ELRReceiver : SubmissionReceiver {
 
         // move to processing (send to <elrProcessQueueName> queue)
         workflowEngine.queue.sendMessage(
-            elrProcessQueueName,
+            elrConvertQueueName,
             RawSubmission(
                 report.id,
                 blobInfo.blobUrl,
@@ -309,6 +309,52 @@ class ELRReceiver : SubmissionReceiver {
         if (messageType != "ORU_R01") {
             actionLogs.getItemLogger(itemIndex)
                 .error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
+        }
+    }
+}
+
+/**
+ * Receiver for submissions with a specific topic, contains all logic to parse and move
+ * a topic'd submission to the next step in the pipeline
+ */
+class ValidationReceiver : SubmissionReceiver {
+    constructor(
+        workflowEngine: WorkflowEngine = WorkflowEngine(),
+        actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
+    ) : super(workflowEngine, actionHistory)
+
+    /**
+     * This validates, but does *not* move to processing
+     */
+    override fun validateAndMoveToProcessing(
+        sender: Sender,
+        content: String,
+        defaults: Map<String, String>,
+        options: Options,
+        routeTo: List<String>,
+        isAsync: Boolean,
+        allowDuplicates: Boolean,
+        rawBody: ByteArray,
+        payloadName: String?,
+        metadata: Metadata?
+    ) {
+        // parse, check for parse errors
+        // todo: if we want this to work for full elr validation, we will need to do some other changes since this
+        //  uses the topic parser, not the full ELR parser
+        val (report, actionLogs) = this.workflowEngine.parseTopicReport(sender as TopicSender, content, defaults)
+
+        // prevent duplicates if configured to not allow them
+        if (!allowDuplicates) {
+            doDuplicateDetection(
+                workflowEngine,
+                report,
+                actionLogs
+            )
+        }
+
+        // if there are any errors or warnings, kick this out.
+        if (!actionLogs.isEmpty()) {
+            throw actionLogs.exception
         }
     }
 }

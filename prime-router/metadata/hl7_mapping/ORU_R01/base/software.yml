@@ -1,0 +1,68 @@
+name: ORU-R01-software
+elements:
+  - name: software-vendor-name
+    # software-vendor-org is a reference
+    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
+    value: [ '%resource.name' ]
+    hl7Spec: [ SFT-1-1 ]
+
+  - name: software-vendor-name-type
+    # software-vendor-org is a reference
+    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
+    condition: '%resource.name.exists()'
+    value:
+      - '%resource.extension(%`rsext-organization-name-type`).value.coding.code'
+      - '''L'''
+    hl7Spec: [ SFT-1-2 ]
+
+  - name: software-vendor-assigning-authority-namespace
+    # software-vendor-org is a reference
+    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
+    value: [ '%resource.extension(%`rsext-assigning-authority-namespace-id`).value' ]
+    hl7Spec: [ SFT-1-6-1 ]
+
+  - name: software-vendor-assigning-authority-uid
+    # software-vendor-org is a reference
+    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
+    condition: '%resource.extension(%`rsext-assigning-authority-universal-id`).value is Oid'
+    value: [ '%resource.extension(%`rsext-assigning-authority-universal-id`).value.toString().replace(''urn:oid:'','''')' ]
+    hl7Spec: [ SFT-1-6-2 ]
+
+  - name: software-vendor-assigning-authority-system
+    # software-vendor-org is a reference
+    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
+    condition: '%resource.extension(%`rsext-assigning-authority-universal-id`).value is Oid'
+    value: [ '''ISO''' ]
+    hl7Spec: [ SFT-1-6-3 ]
+
+  - name: software-vendor-identifier-code
+    # software-vendor-org is a reference
+    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
+    value: [ '%resource.type.coding.code' ]
+    hl7Spec: [ SFT-1-7 ]
+
+  - name: software-vendor-identifier
+    # software-vendor-org is a reference
+    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
+    value: [ '%resource.identifier[0].value' ]
+    hl7Spec: [ SFT-1-10 ]
+
+  - name: software-version
+    value: [ '%resource.source.version']
+    hl7Spec: [ SFT-2 ]
+
+  - name: software-name
+    value: [ '%resource.source.software' ]
+    hl7Spec: [ SFT-3 ]
+
+  - name: software-id
+    value: [ '%resource.source.extension(%`rsext-source-software-binary-id`).value' ]
+    hl7Spec: [ SFT-4 ]
+
+  - name: software-description
+    value: [ '%resource.source.extension(%`rsext-source-software-description`).value' ]
+    hl7Spec: [ SFT-5 ]
+
+  - name: software-install-date
+    value: [ '%resource.source.extension(%`rsext-source-software-install-date`).value' ]
+    hl7Spec: [ SFT-6 ]
