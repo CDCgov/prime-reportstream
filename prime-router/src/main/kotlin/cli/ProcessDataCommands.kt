@@ -116,6 +116,12 @@ class ProcessData(
         ).convert { InputClientInfo.InputClient(it) }
     ).single()
 
+    private val testFileSettingsInstance by option(
+        "--test-dir-setting",
+        metavar = "<path>",
+        help = "Test organization setting dir"
+    )
+
     // Actions
     private val validate by option(
         "--validate",
@@ -376,7 +382,8 @@ class ProcessData(
     override fun run() {
         // Load the schema and receivers
         val metadata = metadataInstance ?: Metadata.getInstance()
-        val fileSettings = fileSettingsInstance ?: FileSettings(FileSettings.defaultSettingsDirectory)
+        val fileSettings = testFileSettingsInstance?.let { FileSettings(it) }
+            ?: (fileSettingsInstance ?: FileSettings(FileSettings.defaultSettingsDirectory))
         val csvSerializer = CsvSerializer(metadata)
         val hl7Serializer = Hl7Serializer(metadata, fileSettings)
         echo("Loaded schema and receivers")
