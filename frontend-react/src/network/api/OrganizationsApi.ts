@@ -3,21 +3,24 @@ import { API } from "./NewApi";
 
 export enum Endpoints {
     DETAIL = "detail",
-    ALL_RECEIVERS = "receivers",
 }
-
+/** A class representing an Organization object from the API */
 export class RSOrganization {}
-/** @deprecated For compile-time type checks while #5892 is worked on */
-export interface RSOrganizationInterface {
-    name: string;
-}
 
 export interface ReceiversUrlVars {
     org: string;
 }
-
-const OrganizationApi = new API(RSOrganization, "/api/settings/organizations")
-    .addEndpoint(Endpoints.DETAIL, "/:org", ["GET"])
-    .addEndpoint(Endpoints.ALL_RECEIVERS, "/:org/receivers", ["GET"]);
+/**
+ * Contains the API information to get RSReceivers from the API
+ * 1. Resource: {@link RSOrganization}
+ * 2. Endpoints:
+ *      <ul>
+ *          <li>"detail" -> Fetches details for a single org </li>
+ *      </ul>
+ */
+const OrganizationApi = new API(
+    RSOrganization,
+    "/api/settings/organizations"
+).addEndpoint(Endpoints.DETAIL, "/:org", ["GET"]);
 
 export default OrganizationApi;
