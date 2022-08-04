@@ -137,8 +137,8 @@ class ReportFunction(
         val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
         val httpStatus: HttpStatus =
             try {
-                val options = Options.valueOfOrNone(optionsText)
-                if (Options.isDeprecated(options)) {
+                val option = Options.valueOfOrNone(optionsText)
+                if (option.isDeprecated()) {
                     actionHistory.trackLogs(
                         ActionLog(InvalidParamMessage("$optionsText is deprecated"), type = ActionLogLevel.warning)
                     )
@@ -157,7 +157,7 @@ class ReportFunction(
                 }
 
                 // Only process the report if we are not checking for connection or validation.
-                if (options != Options.CheckConnections && options != Options.ValidatePayload) {
+                if (option != Options.CheckConnections && option != Options.ValidatePayload) {
                     val receiver = SubmissionReceiver.getSubmissionReceiver(sender, workflowEngine, actionHistory)
 
                     // send report on its way, either via the COVID pipeline or the full ELR pipeline
@@ -165,7 +165,7 @@ class ReportFunction(
                         sender,
                         validatedRequest.content,
                         validatedRequest.defaults,
-                        options,
+                        option,
                         validatedRequest.routeTo,
                         isAsync,
                         allowDuplicates,

@@ -65,6 +65,13 @@ enum class Options {
     @OptionDeprecated
     SkipInvalidItems;
 
+    /**
+     * Checks to see if the enum constant has an @OptionDeprecated annotation.
+     * If the annotation is present, the constant is no longer in use.
+     */
+    fun isDeprecated(): Boolean = this.declaringClass.getField(this.name)
+        .getAnnotation(OptionDeprecated::class.java) != null
+
     companion object {
         class InvalidOptionException(message: String) : Exception(message)
 
@@ -80,8 +87,6 @@ enum class Options {
                 throw InvalidOptionException(msg)
             }
         }
-        fun isDeprecated(enum: Options): Boolean = enum.declaringClass.getField(enum.name)
-            .getAnnotation(OptionDeprecated::class.java) != null
     }
 }
 
