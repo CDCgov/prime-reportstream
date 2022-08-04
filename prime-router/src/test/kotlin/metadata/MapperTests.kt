@@ -48,8 +48,8 @@ class MapperTests {
         val indexElement = metadata.findSchema("test")?.findElement("a") ?: fail("")
         val lookupElement = metadata.findSchema("test")?.findElement("c") ?: fail("")
         val mapper = LookupMapper()
-        val args = listOf("a")
-        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a"))
+        val args = listOf("a", "Column:a")
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "Column:a"))
         assertThat(mapper.apply(lookupElement, args, listOf(ElementAndValue(indexElement, "3"))).value)
             .isEqualTo("y")
     }
@@ -76,9 +76,9 @@ class MapperTests {
         val indexElement = metadata.findSchema("test")?.findElement("a") ?: fail("")
         val index2Element = metadata.findSchema("test")?.findElement("b") ?: fail("")
         val mapper = LookupMapper()
-        val args = listOf("a", "b")
+        val args = listOf("a", "Column:a", "b", "Column:b")
         val elementAndValues = listOf(ElementAndValue(indexElement, "3"), ElementAndValue(index2Element, "4"))
-        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "b"))
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "Column:a", "b", "Column:b"))
         assertThat(mapper.apply(lookupElement, args, elementAndValues).value).isEqualTo("y")
     }
 
@@ -686,6 +686,61 @@ class MapperTests {
     }
 
     @Test
+    fun `test zip code to state mapper`() {
+        val mapper = ZipCodeToStateMapper()
+        val csv = """
+            zipcode,state_abbr
+            32303,FL
+            42223,TN
+            42223,KY
+            12345-1234,LA
+        """.trimIndent()
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
+        val schema = Schema(
+            "test", topic = "covid-19",
+            elements = listOf(
+                Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "state_abbr"),
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
+        val lookupElement = metadata.findSchema("test")?.findElement("a") ?: fail("Schema element missing")
+
+        // Test when value has a hyphen and extension
+        val valuesWithHyphen = listOf(
+            ElementAndValue(Element("patient_zip_code"), "32303-4509")
+        )
+
+        val expectedWithHyphen = "FL"
+        val actualWithHyphen = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithHyphen)
+        assertThat(actualWithHyphen.value).isEqualTo(expectedWithHyphen)
+
+        // Test when multiple values are returned from lookup
+        val valuesWithTwoStates = listOf(
+            ElementAndValue(Element("patient_zip_code"), "42223")
+        )
+
+        val expectedWithTwoStates = null
+        val actualWithTwoStates = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithTwoStates)
+        assertThat(actualWithTwoStates.value).isEqualTo(expectedWithTwoStates)
+
+        // Test when zip code does not exist in table
+        val valuesWithFakeZip = listOf(
+            ElementAndValue(Element("patient_zip_code"), "fakeZip")
+        )
+        val expectedWithFakeZip = null
+        val actualWithFakeZip = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithFakeZip)
+        assertThat(actualWithFakeZip.value).isEqualTo(expectedWithFakeZip)
+
+        // Test when zip code is blank
+        val valuesWithBlankZip = listOf(
+            ElementAndValue(Element("patient_zip_code"), "")
+        )
+        val expectedWithBlankZip = null
+        val actualWithBlankZip = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithBlankZip)
+        assertThat(actualWithBlankZip.value).isEqualTo(expectedWithBlankZip)
+    }
+
+    @Test
     fun `test HashMapper`() {
         val mapper = HashMapper()
         val elementA = Element("a")
@@ -816,34 +871,6 @@ class MapperTests {
         val args = listOf("a", "NPI")
         val values = listOf(ElementAndValue(elementA, "xyz"))
         assertThat(mapper.apply(elementA, args, values).value).isNull()
-    }
-
-    @Test
-    fun `test LookupSenderValuesetsMapper`() {
-        val table = LookupTable.read("./src/test/resources/metadata/tables/sender_valuesets.csv")
-        val schema = Schema(
-            "test", topic = "covid-19",
-            elements = listOf(
-                Element(
-                    "pregnant", type = Element.Type.TABLE, table = "sender_valuesets", tableColumn = "result",
-                    mapperOverridesValue = true
-                )
-            )
-        )
-        val metadata = Metadata(schema = schema, table = table, tableName = "sender_valuesets")
-        val indexElement = Element("sender_id")
-        val lookupElement = metadata.findSchema("test")?.findElement("pregnant") ?: fail("")
-        val mapper = LookupSenderValuesetsMapper()
-        val args = listOf("sender_id", "pregnant")
-        val elementAndValues = listOf(ElementAndValue(indexElement, "all"), ElementAndValue(lookupElement, "y"))
-        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("sender_id", "pregnant"))
-        assertThat(mapper.apply(lookupElement, args, elementAndValues).value).isEqualTo("77386006")
-
-        val elementAndValuesUNK = listOf(
-            ElementAndValue(indexElement, "all"),
-            ElementAndValue(lookupElement, "yas queen")
-        )
-        assertThat(mapper.apply(lookupElement, args, elementAndValuesUNK).value).isNull()
     }
 
     @Test

@@ -19,7 +19,7 @@ import kotlin.test.Test
 class SubmissionsFacadeTests {
     @Test
     fun `test organization validation`() {
-        val mockSubmissionAccess = mockk<ReportFileAccess>()
+        val mockSubmissionAccess = mockk<HistoryDatabaseAccess>()
         val mockDbAccess = mockk<DatabaseAccess>()
         val facade = SubmissionsFacade(mockSubmissionAccess, mockDbAccess)
 
@@ -27,8 +27,8 @@ class SubmissionsFacadeTests {
             facade.findSubmissionsAsJson(
                 "",
                 null,
-                ReportFileAccess.SortDir.ASC,
-                ReportFileAccess.SortColumn.CREATED_AT,
+                HistoryDatabaseAccess.SortDir.ASC,
+                HistoryDatabaseAccess.SortColumn.CREATED_AT,
                 null,
                 null,
                 null,
@@ -41,8 +41,8 @@ class SubmissionsFacadeTests {
             facade.findSubmissionsAsJson(
                 "  \t\n",
                 null,
-                ReportFileAccess.SortDir.ASC,
-                ReportFileAccess.SortColumn.CREATED_AT,
+                HistoryDatabaseAccess.SortDir.ASC,
+                HistoryDatabaseAccess.SortColumn.CREATED_AT,
                 null,
                 null,
                 null,
@@ -64,7 +64,8 @@ class SubmissionsFacadeTests {
         )
         every {
             mockSubmissionAccess.fetchAction(
-                any(), any(), DetailedSubmissionHistory::class.java
+                any(),
+                DetailedSubmissionHistory::class.java
             )
         } returns goodReturn
         every {
@@ -72,7 +73,7 @@ class SubmissionsFacadeTests {
                 550, DetailedSubmissionHistory::class.java
             )
         } returns emptyList()
-        assertThat(facade.findDetailedSubmissionHistory("org", 550)).isEqualTo(goodReturn)
+        assertThat(facade.findDetailedSubmissionHistory(550)).isEqualTo(goodReturn)
     }
 
     @Test

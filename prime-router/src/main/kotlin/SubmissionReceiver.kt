@@ -9,8 +9,8 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.fhirengine.azure.elrProcessQueueName
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 
 /**
@@ -112,10 +112,10 @@ abstract class SubmissionReceiver(
 }
 
 /**
- * Receiver for COVID submissions, contains all logic to parse and move a covid submission to the next step
- * in the pipeline
+ * Receiver for submissions with a specific topic, contains all logic to parse and move
+ * a topic'd submission to the next step in the pipeline
  */
-class CovidReceiver : SubmissionReceiver {
+class TopicReceiver : SubmissionReceiver {
     constructor(
         workflowEngine: WorkflowEngine = WorkflowEngine(),
         actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
@@ -134,8 +134,7 @@ class CovidReceiver : SubmissionReceiver {
         metadata: Metadata?
     ) {
         // parse, check for parse errors
-
-        val (report, actionLogs) = this.workflowEngine.parseCovidReport(sender as CovidSender, content, defaults)
+        val (report, actionLogs) = this.workflowEngine.parseTopicReport(sender as TopicSender, content, defaults)
 
         // prevent duplicates if configured to not allow them
         if (!allowDuplicates) {
@@ -146,14 +145,14 @@ class CovidReceiver : SubmissionReceiver {
             )
         }
 
-        workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
-        )
-
         // if there are any errors, kick this out.
         if (actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
+
+        workflowEngine.recordReceivedReport(
+            report, rawBody, sender, actionHistory, payloadName
+        )
 
         actionHistory.trackLogs(actionLogs.logs)
 
@@ -191,7 +190,6 @@ class CovidReceiver : SubmissionReceiver {
         defaults: Map<String, String>,
         routeTo: List<String>
     ) {
-
         val report = parsedReport.copy()
         val senderSource = parsedReport.sources.firstOrNull()
             ?: error("Unable to process report ${report.id} because sender sources collection is empty.")
@@ -259,18 +257,18 @@ class ELRReceiver : SubmissionReceiver {
             )
         }
 
-        // record that the submission was received
-        val blobInfo = workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
-        )
-
         // check for valid message type
-        messages.forEach { checkValidMessageType(it, actionLogs) }
+        messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
 
         // if there are any errors, kick this out.
         if (actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
+
+        // record that the submission was received
+        val blobInfo = workflowEngine.recordReceivedReport(
+            report, rawBody, sender, actionHistory, payloadName
+        )
 
         // track logs
         actionHistory.trackLogs(actionLogs.logs)
@@ -281,7 +279,7 @@ class ELRReceiver : SubmissionReceiver {
 
         // move to processing (send to <elrProcessQueueName> queue)
         workflowEngine.queue.sendMessage(
-            elrProcessQueueName,
+            elrConvertQueueName,
             RawSubmission(
                 report.id,
                 blobInfo.blobUrl,
@@ -295,7 +293,11 @@ class ELRReceiver : SubmissionReceiver {
         )
     }
 
-    internal fun checkValidMessageType(message: Message, actionLogs: ActionLogger) {
+    /**
+     * Checks that a [message] is of the supported type(s), and uses the [actionLogs] to add an error
+     * message for item with index [itemIndex] if it is not.
+     */
+    internal fun checkValidMessageType(message: Message, actionLogs: ActionLogger, itemIndex: Int) {
         val header = message.get("MSH")
         check(header is MSH)
         val messageType = header.messageType.msg1_MessageCode.value +
@@ -305,7 +307,8 @@ class ELRReceiver : SubmissionReceiver {
         // TODO: This may need to be a configurable value in the future, if we ever support message types other
         //  than ORU_RO1. As of 6/15/2022 multiple message type support is out of scope
         if (messageType != "ORU_R01") {
-            actionLogs.error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
+            actionLogs.getItemLogger(itemIndex)
+                .error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
         }
     }
 }

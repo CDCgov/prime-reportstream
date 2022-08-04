@@ -2,10 +2,14 @@ import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 
-import { MarkdownDirectory } from "../Markdown/MarkdownDirectory";
+import { MarkdownDirectory } from "../Content/MarkdownDirectory";
 import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 
-type NonStaticOption = Omit<MarkdownDirectory, "files">;
+export interface NonStaticOption {
+    title: string;
+    slug: string;
+}
+
 interface DropdownNavProps {
     label: string;
     root: string;
@@ -19,7 +23,7 @@ export const makeNonStaticOption = (
     return { title, slug };
 };
 
-const DropdownNav = ({ label, root, directories }: DropdownNavProps) => {
+export const DropdownNav = ({ label, root, directories }: DropdownNavProps) => {
     const [isOpen, setIsOpen] = useState(false);
     /* Used since setIsOpen cannot be directly called in useEffect */
     const handleClick = () => setIsOpen(false);
@@ -62,47 +66,11 @@ export const AdminDropdown = () => {
         makeNonStaticOption("Feature Flags", "features"),
         makeNonStaticOption("Guides", "guides/create-markdown-pages"),
         makeNonStaticOption("Last Mile Failures", "lastmile"),
+        makeNonStaticOption("Receiver Status Dashboard", "send-dash"),
     ];
     if (CheckFeatureFlag("value-sets"))
         pages.push(makeNonStaticOption("Value Sets", "value-sets"));
     return <DropdownNav label={"Admin"} root={"/admin"} directories={pages} />;
-};
-
-export const GettingStartedDropdown = () => {
-    return (
-        <DropdownNav
-            label="Getting Started"
-            root="/getting-started"
-            directories={[
-                makeNonStaticOption(
-                    "Public health departments",
-                    "public-health-departments/overview"
-                ),
-                makeNonStaticOption(
-                    "Testing facilities",
-                    "testing-facilities/overview"
-                ),
-            ]}
-        />
-    );
-};
-
-export const HowItWorksDropdown = () => {
-    return (
-        <DropdownNav
-            label="How It Works"
-            root="/how-it-works"
-            directories={[
-                makeNonStaticOption("About", "about"),
-                makeNonStaticOption("Where we're live", "where-were-live"),
-                makeNonStaticOption(
-                    "System and settings",
-                    "system-and-settings"
-                ),
-                makeNonStaticOption("Security practices", "security-practices"),
-            ]}
-        />
-    );
 };
 
 export default DropdownNav;

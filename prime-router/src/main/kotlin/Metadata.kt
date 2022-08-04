@@ -18,7 +18,6 @@ import gov.cdc.prime.router.metadata.IfThenElseMapper
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
 import gov.cdc.prime.router.metadata.LookupMapper
 import gov.cdc.prime.router.metadata.LookupSenderAutomationValuesets
-import gov.cdc.prime.router.metadata.LookupSenderValuesetsMapper
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.Mapper
 import gov.cdc.prime.router.metadata.Mappers
@@ -38,6 +37,7 @@ import gov.cdc.prime.router.metadata.TrimBlanksMapper
 import gov.cdc.prime.router.metadata.UseMapper
 import gov.cdc.prime.router.metadata.UseSenderSettingMapper
 import gov.cdc.prime.router.metadata.ZipCodeToCountyMapper
+import gov.cdc.prime.router.metadata.ZipCodeToStateMapper
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.io.File
@@ -71,11 +71,11 @@ class Metadata : Logging {
         StripNumericDataMapper(),
         SplitMapper(),
         ZipCodeToCountyMapper(),
+        ZipCodeToStateMapper(),
         SplitByCommaMapper(),
         TimestampMapper(),
         HashMapper(),
         NullMapper(),
-        LookupSenderValuesetsMapper(),
         NpiLookupMapper(),
         CountryMapper(),
         LookupSenderAutomationValuesets(),

@@ -1,21 +1,4 @@
-// Was index.css
-.prime-user-account {
-  font-size: .88rem;
-  vertical-align: u-text("vertical-align");
-  line-height: 1.25rem;
-}
-
-.prime-table {
-  width: 100%;
-}
-
-.prime-table thead th {
-  border-bottom: 2px solid;
-}
-
-.prime-table tbody td, .prime-table tbody th {
-  border-color: #dfe1e2;
-}
+// USWDS identifier
 
 .prime-identifier {
   background-color: #f0f0f0;
@@ -36,6 +19,31 @@
   color: #71767a;
 }
 
+// Navigation
+
+// Environment watermark above RS wordmark
+.rs-oktapreview-watermark {
+  transform: rotate(343deg);
+  position: absolute;
+  opacity: .6;
+  top: 1em;
+  color: crimson;
+  overflow: hidden;
+  font-weight: 900;
+}
+
+.prime-user-account {
+  font-size: .88rem;
+  vertical-align: middle;
+  line-height: 1.25rem;
+}
+
+#okta-sign-in {
+  margin-top: 0;
+}
+
+// RS hero
+
 .rs-hero {
   background-color: #f0f0f0;
 }
@@ -44,31 +52,68 @@
   align-items: center;
 }
 
+// RS HERO - INDEX PAGES
+
+.rs-hero__index {
+  border-bottom: 1px solid color('base-lighter');
+  padding-top: units(3);
+  padding-bottom: units(4);
+  margin-bottom: units(6);
+
+  h1, h2 {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0;
+  }
+
+  h2 {
+    color: color('gray-cool-50');
+    font-size: size('sans', 'xl');
+  }
+
+  .heading-alt {
+    font-size: size('sans', 'xl');
+    @include u-text('bold');
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0;
+
+    span {
+      color: color('gray-cool-50');
+    }
+  }
+}
+
+@media (max-width: $tablet) {
+
+  .rs-hero__index {
+    padding-top: 0;
+
+    h1, h2 {
+      line-height: line-height('heading', 2);
+    }
+  }
+
+}
+
+// Tables
+
+.prime-table {
+  width: 100%;
+}
+
+.prime-table thead th {
+  border-bottom: 2px solid;
+}
+
+.prime-table tbody td, .prime-table tbody th {
+  border-color: #dfe1e2;
+}
+
 h3 img[src*="svg"] {
   vertical-align: text-top;
   margin-right: 5px;
   float: left;
-}
-
-#okta-sign-in {
-  margin-top: 0;
-}
-
-.rs-documentation ul li {
-  margin-bottom: 0.75rem;
-}
-
-.rs-documentation ul li ul li ul {
-  margin-top: 0.5rem;
-}
-
-.rs-documentation h3 {
-  margin-bottom: 0;
-  margin-top: 2rem;
-}
-
-.rs-documentation h4 {
-  margin-bottom: 0.5rem;
 }
 
 /// actions
@@ -114,78 +159,50 @@ ul.rb li .timestamp {
   font-weight: bold;
 }
 
-/// USDS overrides
+// Page styles
+// Content pages for documentation, support, etc
 
-.prime-user-account {
-  font-size: .88rem;
-  vertical-align: middle;
-  line-height: 1.25rem;
-}
+.rs-documentation {
 
-.prime-table {
-  width: 100%;
-}
 
-.prime-table thead th {
-  border-bottom: 2px solid;
-}
+  h1, h2, h3, h4, h5, h6, p, ul, ol, .usa-alert, blockquote {
+    @include u-measure(6);
+  }
 
-.prime-table tbody td, .prime-table tbody th {
-  border-color: #dfe1e2;
-}
+  h1 {
+    margin: 0;
+  }
 
-.prime-identifier {
-  background-color: #f0f0f0;
-  color: #1b1b1b;
-}
+  h2 {
+    font-size: size('sans', 'lg');
+    @include u-text('normal');
+    color: color('base');
+  }
 
-.prime-identifier .prime-identifier__domain {
-  color: #565c65;
-}
+  section, hr {
+    border-top: 1px solid color('base-lighter');
+    margin-top: units(4);
+    padding-top: units(3);
+  }
+  // for achieving the same as the above <section> class, but in .md content
+  hr {
+    height: 1px;
+    border-right: none;
+    border-bottom: none;
+    border-left: none;
+  }
 
-.prime-identifier .prime-identifier__disclaimer a:link,
-.prime-identifier .prime-identifier__disclaimer a:visited,
-.prime-identifier .prime-identifier__disclaimer a:active {
-  color: #1b1b1b;
-}
+  h3 {
+    margin-top: 0;
+    font-size: size('sans', 'lg');
+  }
 
-.prime-identifier .prime-identifier__disclaimer a:hover {
-  color: #71767a;
-}
-
-.rs-hero {
-  background-color: #f0f0f0;
-}
-
-.rs-hero__flex-center {
-  align-items: center;
-}
-
-h3 img[src*="svg"] {
-  vertical-align: text-top;
-  margin-right: 5px;
-  float: left;
-}
-
-#okta-sign-in {
-  margin-top: 0;
-}
-
-.rs-documentation ul li {
-  margin-bottom: 0.75rem;
-}
-
-.rs-documentation ul li ul li ul {
-  margin-top: 0.5rem;
-}
-
-.rs-documentation h3 {
-  margin-bottom: 0;
-  margin-top: 2rem;
-}
-
-.rs-documentation h4 {
-  margin-bottom: 0.5rem;
+  blockquote {
+    background-color: color('base-lightest');
+    padding: units(1) units(3);
+    margin: units(3) 0 units(3) 0;
+    width: inherit;
+  }
 }
 
 .rs-documentation__values {
@@ -228,15 +245,7 @@ h3 img[src*="svg"] {
   }
 }
 
-.rs-oktapreview-watermark {
-    transform: rotate(343deg);
-    position: absolute;
-    opacity: .6;
-    top: 1em;
-    color: crimson;
-    overflow: hidden;
-    font-weight: 900;
-}
+// Where we're live
 
 .rs-livestate-two-column {
     list-style: unset;
@@ -385,6 +394,13 @@ h3 img[src*="svg"] {
     max-width: 100vw;
 }
 
+.rs-full-width-form {
+  max-width: 100%;
+  .usa-file-input {
+    max-width: 100%;
+  }
+}
+
 .fixed-tooltip {
     background: transparent;
     color: #005ea2;
@@ -421,4 +437,151 @@ pre {
 .rs-pagination-arrow-button {
   align-items: center;
   display: inline-flex;
+}
+
+/* used by the receiver dashboard
+    SEE diagrams in AdminRecieverDashboard to understand layout */
+.rs-admindash-component {
+    display: contents;
+    border-bottom: #5d5d52 1px solid;
+
+    .perreceiver-row {
+        flex-wrap: nowrap;
+        width: 100%;
+        border-top: #5d5d52 1px solid;
+        padding-top: 2px;
+
+        .title-column {
+            width: 12em;
+            min-width: 12em;
+            height: 5em;
+            overflow: hidden;
+
+            .title-text {
+                flex-wrap: nowrap;
+                text-overflow: ellipsis;
+                font-weight: bolder;
+                font-size: small;
+                line-height: 150%;
+                min-height: 4.5em;
+                background-color: white;
+                margin: 0.25em;
+                padding: 0.5em;
+            }
+        }
+
+        .week-column {
+            flex-wrap: nowrap;
+            padding-left: 3px;
+            padding-right: 3px;
+
+            .perday-component {
+                width: 8em;
+                height: 5em;
+                flex-wrap: nowrap;
+                padding-left: 0.25em;
+                padding-right: 0;
+                overflow: hidden;
+
+                .title-row {
+                    flex-wrap: nowrap;
+                    font-size: smaller;
+                    font-weight: bold;
+                    background-color: white;
+                    margin: 6px;
+                }
+
+                .slices-row {
+                    display: grid;
+                    height: 3em;
+
+                    .slice {
+                        border-radius: .5em;
+                        border: solid 0.05em #2f2f2f;
+                        cursor: pointer; /* success-undefined removes */
+                    }
+                }
+
+                .slices-row-12 {
+                    /** https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns **/
+                    grid-template-columns: repeat(13, 7.4%);
+                }
+
+                .slices-row-4 {
+                    grid-template-columns: repeat(4, 24%);
+                }
+            }
+        }
+
+        .horizontal-scroll {
+            scroll-margin: 0;
+            overflow-x: scroll; // auto;
+            overflow-y: clip;
+            width: 100%;
+        }
+
+        .success-undefined {
+            background-color: rgb(190, 190, 190);
+            cursor: default !important;
+        }
+
+        .success-all {
+            /* color bind friendly */
+            background-color: var(--toastify-color-success);
+        }
+
+        .failure-all {
+            background-color: var(--toastify-color-error);
+        }
+
+        .success-mixed {
+            background: repeating-linear-gradient(
+                45deg,
+                #ffffff,
+                var(--toastify-color-success) 10px,
+                #ffffff 10px,
+                var(--toastify-color-error) 30px
+            );
+        }
+    }
+}
+
+.rs-admindash-modal {
+    .modal-info-title {
+        font-size: larger;
+        font-weight: bolder;
+        background-color: #2e2e2e;
+        color: white;
+        padding: 7px;
+    }
+
+    .modal-info-row {
+        flex-wrap: nowrap;
+    }
+
+    .modal-info-label {
+        width: 25em;
+        font-weight: bolder;
+        color: #2e2e2e;
+        text-align: right;
+        padding: 0.2em;
+    }
+
+    .modal-info-value {
+        width: 120em;
+        padding: 0.2em;
+    }
+
+    .success-all {
+        color: var(--toastify-color-success);
+    }
+
+    .failure-all {
+        color: var(--toastify-color-error);
+    }
+}
+
+/* for dashboards, unbounded width is a nice feature */
+.rs-container-unbounded {
+    max-width: fit-content !important;
 }

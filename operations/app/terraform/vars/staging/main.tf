@@ -144,6 +144,7 @@ module "function_app" {
   client_config_key_vault_id        = module.key_vault.client_config_key_vault_id
   app_config_key_vault_id           = module.key_vault.app_config_key_vault_id
   dns_ip                            = local.network.dns_ip
+  function_runtime_version          = local.app.function_runtime_version
 }
 
 module "front_door" {
@@ -156,6 +157,17 @@ module "front_door" {
   is_metabase_env             = local.init.is_metabase_env
   public_primary_web_endpoint = module.storage.sa_public_primary_web_endpoint
   application_key_vault_id    = module.key_vault.application_key_vault_id
+}
+
+module "sftp" {
+  source                      = "../../modules/sftp"
+  environment                 = local.init.environment
+  resource_group              = local.init.resource_group_name
+  resource_prefix             = local.init.resource_prefix
+  location                    = local.init.location
+  key_vault_id                = module.key_vault.application_key_vault_id
+  terraform_caller_ip_address = local.network.terraform_caller_ip_address
+  nat_gateway_id              = module.nat_gateway.nat_gateway_id
 }
 
 module "sftp_container" {
@@ -214,6 +226,8 @@ module "log_analytics_workspace" {
   storage_public_id             = module.storage.storage_public_id
   storage_partner_id            = module.storage.storage_partner_id
   action_group_businesshours_id = module.application_insights.action_group_businesshours_id
+  data_factory_id               = module.data_factory.data_factory_id
+  sftp_instance_01_id           = module.sftp.sftp_instance_ids[0]
 }
 
 module "application_insights" {
@@ -228,4 +242,22 @@ module "application_insights" {
   postgres_server_id          = module.database.postgres_server_id
   service_plan_id             = module.app_service_plan.service_plan_id
   workspace_id                = module.log_analytics_workspace.law_id
+}
+
+##########
+## 06-Integration
+##########
+
+module "data_factory" {
+  source                       = "../../modules/data_factory"
+  environment                  = local.init.environment
+  resource_group               = local.init.resource_group_name
+  resource_prefix              = local.init.resource_prefix
+  location                     = local.init.location
+  key_vault_id                 = module.key_vault.application_key_vault_id
+  terraform_caller_ip_address  = local.network.terraform_caller_ip_address
+  sa_primary_connection_string = module.storage.sa_primary_connection_string
+  storage_account_id           = module.storage.storage_account_id
+  sftp_storage                 = module.sftp.sftp_storage
+  sftp_shares                  = module.sftp.sftp_shares
 }

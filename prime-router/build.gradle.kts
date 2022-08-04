@@ -26,9 +26,10 @@ import java.io.FileInputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
+import kotlin.collections.mutableMapOf
 
 plugins {
-    kotlin("jvm") version "1.6.21"
+    kotlin("jvm") version "1.7.0"
     id("org.flywaydb.flyway") version "8.5.13"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -36,12 +37,12 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.6.20"
+    id("org.jetbrains.dokka") version "1.7.0"
     id("com.avast.gradle.docker-compose") version "0.16.4"
 }
 
 group = "gov.cdc.prime"
-version = "0.1-SNAPSHOT"
+version = "0.2-SNAPSHOT"
 description = "prime-router"
 val azureAppName = "prime-data-hub-router"
 val azureFunctionsDir = "azure-functions"
@@ -84,17 +85,23 @@ val jooqPackageName = "gov.cdc.prime.router.azure.db"
  * Add the `VAULT_TOKEN` in the local vault to the [env] map
  */
 fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
-    val file = File(".vault/env/.env.local")
-    if (!file.exists()) return
+    val vaultFile = File(project.projectDir, ".vault/env/.env.local")
+    if (!vaultFile.exists()) {
+        vaultFile.createNewFile()
+        throw GradleException("Your vault configuration has not been initialized. Start/Restart your vault container.")
+    }
     val prop = Properties()
-    FileInputStream(file).use { prop.load(it) }
+    FileInputStream(vaultFile).use { prop.load(it) }
     prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
+    if (!env.contains("CREDENTIAL_STORAGE_METHOD") || env["CREDENTIAL_STORAGE_METHOD"] != "HASHICORP_VAULT") {
+        throw GradleException("Your vault configuration is incorrect.  Check your ${vaultFile.absolutePath} file.")
+    }
 }
 
 defaultTasks("package")
 
 val ktorVersion = "1.6.8"
-val kotlinVersion = "1.6.21"
+val kotlinVersion = "1.7.0"
 jacoco.toolVersion = "0.8.7"
 
 // Set the compiler JVM target
@@ -107,6 +114,8 @@ val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "11"
 compileKotlin.kotlinOptions.allWarningsAsErrors = true
+// if you set this to true, you will get a warning, which then gets treated as an error
+compileKotlin.kotlinOptions.useK2 = false
 compileTestKotlin.kotlinOptions.jvmTarget = "11"
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
@@ -384,6 +393,17 @@ tasks.register("reloadTables") {
     finalizedBy("primeCLI")
 }
 
+tasks.register("reloadCredentials") {
+    dependsOn("composeUp")
+    group = rootProject.description ?: ""
+    description = "Load the SFTP credentials used for local testing to the vault"
+    project.extra["cliArgs"] = listOf(
+        "create-credential", "--type=UserPass", "--persist=DEFAULT-SFTP", "--user",
+        "foo", "--pass", "pass"
+    )
+    finalizedBy("primeCLI")
+}
+
 /**
  * Packaging and running related tasks
  */
@@ -468,7 +488,7 @@ dockerCompose {
 //    projectName = "prime-router" // docker-composer has this setter broken as of 0.16.4
     setProjectName("prime-router") // this is a workaround for the broken setter for projectName
     useComposeFiles.addAll("docker-compose.yml")
-    startedServices.addAll("sftp", "ftps", "soap-webservice", "vault", "azurite")
+    startedServices.addAll("sftp", "soap-webservice", "vault", "azurite")
     stopContainers.set(false)
     waitForTcpPorts.set(false)
 }
@@ -650,16 +670,16 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.3.3")
+    jooqGenerator("org.postgresql:postgresql:42.4.0")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:1.4.2")
-    implementation("com.azure:azure-core:1.26.0")
+    implementation("com.azure:azure-core:1.30.0")
     implementation("com.azure:azure-core-http-netty:1.12.2")
-    implementation("com.azure:azure-storage-blob:12.14.4") {
+    implementation("com.azure:azure-storage-blob:12.17.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.12.2") {
@@ -680,7 +700,7 @@ dependencies {
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.4.1")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.3") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
@@ -691,7 +711,7 @@ dependencies {
     }
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.18")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.7.1")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.0.3")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.49")
@@ -714,7 +734,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:8.5.8")
-    implementation("org.commonmark:commonmark:0.18.2")
+    implementation("org.commonmark:commonmark:0.19.0")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("com.helger.as2:as2-lib:4.10.1")
     // Prevent mixed versions of these libs based on different versions being included by different packages
@@ -737,6 +757,8 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:5.2.2")
     implementation("commons-io:commons-io: 2.11.0")
     implementation("com.anyascii:anyascii:0.3.1")
+// force jsoup since skrapeit-html-parser@1.2.1 has not updated
+    implementation("org.jsoup:jsoup:1.14.2")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
@@ -752,7 +774,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.12.3")
+    testImplementation("io.mockk:mockk:1.12.4")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")

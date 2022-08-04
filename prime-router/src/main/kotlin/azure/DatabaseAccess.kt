@@ -22,6 +22,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
+import gov.cdc.prime.router.azure.db.tables.pojos.ElrResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.JtiCache
 import gov.cdc.prime.router.azure.db.tables.pojos.ListSendFailures
@@ -30,6 +31,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.SenderItems
 import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.db.tables.records.CovidResultMetadataRecord
+import gov.cdc.prime.router.azure.db.tables.records.ElrResultMetadataRecord
 import gov.cdc.prime.router.azure.db.tables.records.TaskRecord
 import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
@@ -381,6 +383,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
 
     /**
      * Fetch an action for a given [reportId].
+     * @param reportId UUID to search by
      * @param txn an optional database transaction
      * @return an Action, or null if no such reportId exists.
      */
@@ -396,6 +399,26 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .where(REPORT_FILE.REPORT_ID.eq(reportId))
             .fetchOne()
             ?.into(Action::class.java)
+    }
+
+    /**
+     * Fetch a report for a given [actionId].
+     * @param actionId id to search by
+     * @param txn an optional database transaction
+     * @return a ReportFile, or null if no such actionId exists.
+     */
+    fun fetchReportForActionId(
+        actionId: Long,
+        txn: DataAccessTransaction? = null
+    ): ReportFile? {
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.select(REPORT_FILE.asterisk())
+            .from(REPORT_FILE)
+            .join(ACTION)
+            .on(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
+            .where(REPORT_FILE.ACTION_ID.eq(actionId))
+            .fetchOne()
+            ?.into(ReportFile::class.java)
     }
 
     /**
@@ -843,6 +866,77 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .execute()
     }
 
+    /**
+     * The ReceiverConnectionCheckResult needs a join to get
+     * the organizationName from the organizationId and
+     * the receiverName from the receiverId.
+     * Would be nice to extend the Java generated ReceiverConnectionCheckResult, but
+     * I cannot figure out the Kotlin syntax to do it and make initialization/reflection work.
+     */
+    data class ReceiverConnectionCheckResultJoined(
+        // Fields for ReceiverConnectionCheckResult
+        var receiverConnectionCheckResultId: Long, // react client can use as uniqueid
+        val organizationId: Int, // mapped to organizationName
+        val receiverId: Int, // mapped to receiverName
+        val connectionCheckResult: String? = null, // this is a long java debug message
+        val connectionCheckSuccessful: Boolean,
+        val connectionCheckStartedAt: OffsetDateTime,
+        val connectionCheckCompletedAt: OffsetDateTime,
+        // Fields added by our join below
+        val organizationName: String? = null,
+        val receiverName: String? = null,
+    )
+
+    /**
+     * Returns recent connection check results. start and end time are queried
+     * against the CONNECTION_CHECK_STARTED_AT column
+     *
+     * Example of how to do a multiple inner join across the same table but giving
+     * each a differents "as" name without needing a stored procedure.
+     *
+     * @param startDateTime Earliest date to match (greater or equal)
+     * @param endDateTime Optional end date (defaults to "current")
+     */
+    fun fetchReceiverConnectionCheckResults(
+        startDateTime: OffsetDateTime,
+        endDateTime: OffsetDateTime? = null,
+        txn: DataAccessTransaction? = null
+    ): List<ReceiverConnectionCheckResultJoined> {
+        val orgInnerTable = SETTING.`as`("org")
+        val recvrInnerTable = SETTING.`as`("recvr")
+        val ctx = if (txn != null) DSL.using(txn) else create
+        return ctx.select(
+            RECEIVER_CONNECTION_CHECK_RESULTS.asterisk(),
+            // two joins on same table, so need different field names.
+            orgInnerTable.NAME.`as`("organization_name"),
+            recvrInnerTable.NAME.`as`("receiver_name"),
+        )
+            .from(RECEIVER_CONNECTION_CHECK_RESULTS)
+            // org name join
+            .innerJoin(SETTING.asTable(orgInnerTable))
+            .on(RECEIVER_CONNECTION_CHECK_RESULTS.ORGANIZATION_ID.eq(orgInnerTable.SETTING_ID))
+            // receiver name join
+            .innerJoin(SETTING.asTable(recvrInnerTable))
+            .on(RECEIVER_CONNECTION_CHECK_RESULTS.RECEIVER_ID.eq(recvrInnerTable.SETTING_ID))
+            .where(
+                // endDateTime is optional parameter and null means NO end date
+                when (endDateTime == null) {
+                    true ->
+                        RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.ge(startDateTime)
+                    false ->
+                        RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.ge(startDateTime)
+                            .and(RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.le(endDateTime))
+                }
+            )
+            // sort order preferred by client
+            .orderBy(
+                orgInnerTable.NAME.asc(),
+                recvrInnerTable.NAME.asc(),
+                RECEIVER_CONNECTION_CHECK_RESULTS.CONNECTION_CHECK_STARTED_AT.asc()
+            )
+            .fetchInto(ReceiverConnectionCheckResultJoined::class.java)
+    }
+
     fun refreshMaterializedViews(tableName: String, txn: DataAccessTransaction? = null) {
         val ctx = if (txn != null) DSL.using(txn) else create
         Routines.refreshMaterializedViews(ctx.configuration(), tableName)
@@ -943,6 +1037,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 null,
                 null,
                 null,
+                null,
                 null
             )
         }
@@ -969,6 +1064,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                 null,
                 null,
                 null,
+                null,
                 null
             )
         }
@@ -980,7 +1076,94 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
          * @param testData : the report meta data to persist
          * @param txn : the database transaction to use for this insert/update
          */
-        fun saveTestData(testData: List<CovidResultMetadata>, txn: DataAccessTransaction) {
+        fun saveTestData(testData: List<ElrResultMetadata>, txn: DataAccessTransaction) {
+            DSL.using(txn)
+                .batchInsert(
+                    testData.map { td ->
+                        ElrResultMetadataRecord().also { record ->
+                            record.messageId = td.messageId?.take(METADATA_MAX_LENGTH)
+                            record.previousMessageId = td.previousMessageId?.take(METADATA_MAX_LENGTH)
+                            record.topic = td.topic?.take(METADATA_MAX_LENGTH)
+                            record.reportId = td.reportId
+                            record.reportIndex = td.reportIndex
+                            record.sendingApplicationId = td.sendingApplicationId?.take(METADATA_MAX_LENGTH)
+                            record.sendingApplicationName = td.sendingApplicationName?.take(METADATA_MAX_LENGTH)
+                            record.orderingProviderName =
+                                td.orderingProviderName?.take(METADATA_MAX_LENGTH)
+                            record.orderingProviderCounty =
+                                td.orderingProviderCounty?.take(METADATA_MAX_LENGTH)
+                            record.orderingProviderId =
+                                td.orderingProviderId?.take(METADATA_MAX_LENGTH)
+                            record.orderingProviderPostalCode = td.orderingProviderPostalCode
+                            record.orderingProviderState =
+                                td.orderingProviderState?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityCity =
+                                td.orderingFacilityCity?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityCounty =
+                                td.orderingFacilityCounty?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityId = td.orderingFacilityId?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityName =
+                                td.orderingFacilityName?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityPostalCode = td.orderingFacilityPostalCode
+                            record.orderingFacilityState =
+                                td.orderingFacilityState?.take(METADATA_MAX_LENGTH)
+                            record.orderingFacilityCity = td.orderingFacilityCity?.take(METADATA_MAX_LENGTH)
+                            record.organizationName =
+                                td.organizationName?.take(METADATA_MAX_LENGTH)
+                            record.testResult = td.testResult?.take(METADATA_MAX_LENGTH)
+                            record.testResultCode = td.testResultCode
+                            record.equipmentModel = td.equipmentModel?.take(METADATA_MAX_LENGTH)
+                            record.specimenCollectionDateTime = td.specimenCollectionDateTime
+                            record.specimenReceivedDateTime = td.specimenReceivedDateTime
+                            record.specimenCollectionMethod = td.specimenCollectionMethod
+                            record.specimenCollectionSite = td.specimenCollectionSite
+                            record.specimenSourceSite = td.specimenSourceSite
+                            record.testingFacilityCity = td.testingFacilityCity?.take(METADATA_MAX_LENGTH)
+                            record.testingFacilityId = td.testingFacilityId
+                            record.testingFacilityCounty =
+                                td.testingFacilityCounty?.take(METADATA_MAX_LENGTH)
+                            record.testingFacilityName = td.testingFacilityName?.take(METADATA_MAX_LENGTH)
+                            record.testingFacilityPostalCode = td.testingFacilityPostalCode
+                            record.testingFacilityState =
+                                td.testingFacilityState?.take(METADATA_MAX_LENGTH)
+                            record.patientAge = td.patientAge
+                            record.patientCounty = td.patientCounty?.take(METADATA_MAX_LENGTH)
+                            record.patientCountry = td.patientCountry?.take(METADATA_MAX_LENGTH)
+                            record.patientEthnicity = td.patientEthnicity
+                            record.patientEthnicityCode = td.patientEthnicityCode
+                            record.patientGender = td.patientGender
+                            record.patientGenderCode = td.patientGenderCode
+                            record.patientPostalCode = td.patientPostalCode
+                            record.patientRace = td.patientRace
+                            record.patientRaceCode = td.patientRaceCode
+                            record.patientState = td.patientState?.take(METADATA_MAX_LENGTH)
+                            record.patientTribalCitizenship = td.patientTribalCitizenship?.take(METADATA_MAX_LENGTH)
+                            record.patientTribalCitizenshipCode =
+                                td.patientTribalCitizenshipCode?.take(METADATA_MAX_LENGTH)
+                            record.patientPreferredLanguage = td.patientPreferredLanguage?.take(METADATA_MAX_LENGTH)
+                            record.patientNationality = td.patientNationality?.take(METADATA_MAX_LENGTH)
+                            record.reasonForStudy = td.reasonForStudy?.take(METADATA_MAX_LENGTH)
+                            record.reasonForStudyCode = td.reasonForStudyCode?.take(METADATA_MAX_LENGTH)
+                            record.siteOfCare = td.siteOfCare?.take(METADATA_MAX_LENGTH)
+                            record.senderId = td.senderId?.take(METADATA_MAX_LENGTH)
+                            record.testKitNameId = td.testKitNameId?.take(METADATA_MAX_LENGTH)
+                            record.testPerformedCode = td.testPerformedCode?.take(METADATA_MAX_LENGTH)
+                            record.testPerformed = td.testPerformed?.take(METADATA_MAX_LENGTH)
+                            record.testOrdered = td.testOrdered?.take(METADATA_MAX_LENGTH)
+                            record.testOrderedCode = td.testOrderedCode?.take(METADATA_MAX_LENGTH)
+                            record.testResult = td.testResult?.take(METADATA_MAX_LENGTH)
+                            record.testResultCode = td.testResultCode?.take(METADATA_MAX_LENGTH)
+                        }
+                    }
+                )
+                .execute()
+        }
+
+        /**
+         * This is the old way, this is not the new way. Saves just the COVID-specific
+         * report metadata to the table. We want to migrate this to the newer version.
+         */
+        fun saveCovidTestData(testData: List<CovidResultMetadata>, txn: DataAccessTransaction) {
             DSL.using(txn)
                 .batchInsert(
                     testData.map { td ->

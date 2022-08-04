@@ -20,7 +20,7 @@ SERVICES=() # empty list means all services for docker-compose
 BUILD_SERVICES=()
 if [ "$(uname -m)" = "arm64" ] && [[ $(uname -av) == *"Darwin"* ]]; then
   PROFILE=apple_silicon
-  SERVICES=(sftp azurite ftps vault) # Only these services are M1 compatible
+  SERVICES=(sftp azurite vault) # Only these services are M1 compatible
   BUILD_SERVICES=(postgresql)
 fi
 
@@ -275,7 +275,7 @@ function ensure_build_dependencies() {
 
 # Ensures that the binaries exist
 function ensure_binaries() {
-  CANARY="./build/azure-functions/prime-data-hub-router/prime-router-0.1-SNAPSHOT.jar"
+  CANARY="./build/azure-functions/prime-data-hub-router/prime-router-0.2-SNAPSHOT.jar"
   if [[ ! -f "${CANARY?}" ]]; then
     ensure_build_dependencies
 

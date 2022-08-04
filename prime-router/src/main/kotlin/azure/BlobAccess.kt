@@ -128,6 +128,7 @@ class BlobAccess(
                 Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName"
                 Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName"
                 Event.EventAction.PROCESS -> "process/$subfolderNameChecked$reportName"
+                Event.EventAction.ROUTE -> "route/$subfolderNameChecked$reportName"
                 Event.EventAction.TRANSLATE -> "translate/$subfolderNameChecked$reportName"
                 else -> "other/$subfolderNameChecked$reportName"
             }
@@ -174,7 +175,7 @@ class BlobAccess(
          */
         fun downloadBlob(blobUrl: String): ByteArray {
             val stream = ByteArrayOutputStream()
-            stream.use { getBlobClient(blobUrl).download(it) }
+            stream.use { getBlobClient(blobUrl).downloadStream(it) }
             return stream.toByteArray()
         }
 

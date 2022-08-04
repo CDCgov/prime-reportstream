@@ -1,4 +1,6 @@
-export type SubmissionDate = {
+import moment from "moment";
+
+export type DateTimeData = {
     dateString: string;
     timeString: string;
 };
@@ -10,13 +12,13 @@ export type SubmissionDate = {
     @param dateTimeString - the value representing when a report was sent, returned
     by the API  
     
-    @returns SubmissionDate | null
+    @returns DateTimeData | null
     dateString format: 1 Jan 2022
     timeString format: 16:30
 */
 export const generateDateTitles = (
     dateTimeString: string
-): SubmissionDate | null => {
+): DateTimeData | null => {
     const dateRegex = /\d{1,2} [a-z,A-Z]{3} \d{4}/;
     const timeRegex = /\d{1,2}:\d{2}/;
 
@@ -24,7 +26,7 @@ export const generateDateTitles = (
     const monthString = parseMonth(date.getMonth());
 
     const dateString = `${date.getDate()} ${monthString} ${date.getFullYear()}`;
-    const timeString = `${date.getHours()}:${date.getMinutes()}`;
+    const timeString = `${date.getHours()}:${getPaddedMinutes(date)}`;
 
     if (!dateString.match(dateRegex) || !timeString.match(timeRegex))
         return null;
@@ -33,6 +35,11 @@ export const generateDateTitles = (
         dateString: dateString,
         timeString: timeString,
     };
+};
+
+const getPaddedMinutes = (date: Date) => {
+    const minutes = date.getMinutes().toString();
+    return minutes.length > 1 ? minutes : `0${minutes}`;
 };
 
 const parseMonth = (numericMonth: number) => {
@@ -51,4 +58,17 @@ const parseMonth = (numericMonth: number) => {
         "Dec",
     ];
     return monthNames[numericMonth];
+};
+
+export const formattedDateFromTimestamp = (
+    timestamp: string,
+    format: string
+) => {
+    const timestampDate = new Date(timestamp);
+    // TODO: refactor to remove dependency on moment
+    return moment(timestampDate).format(format);
+};
+
+export const timeZoneAbbreviated = () => {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
 };

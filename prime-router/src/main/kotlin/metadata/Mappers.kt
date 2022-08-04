@@ -456,8 +456,9 @@ class LookupMapper : Mapper {
     override val name = "lookup"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.size !in 1..2)
-            error("Schema Error: lookup mapper expected one or two args")
+        if (args.size !in 2..4) {
+            error("Schema Error: lookup mapper expected 2 or 4 args")
+        }
         return args
     }
 
@@ -468,62 +469,27 @@ class LookupMapper : Mapper {
         sender: Sender?
     ): ElementResult {
         return ElementResult(
-            if (values.size != args.size) {
+            // args should be twice size of values as it includes the index column names
+            // ex: lookup(patient_state, $Column:State, patient_county, $Column:County)
+            // there are four args two represent fields with values. Two are lookup table columns
+            if (values.size.times(2) != args.size) {
                 null
             } else {
                 val lookupTable = element.tableRef
                     ?: error("Schema Error: could not find table ${element.table}")
                 val tableFilter = lookupTable.FilterBuilder()
-                values.forEach {
-                    val indexColumn = it.element.tableColumn
-                        ?: error("Schema Error: no tableColumn for element ${it.element.name}")
-                    tableFilter.equalsIgnoreCase(indexColumn, it.value)
+                values.forEachIndexed { index, elementAndValue ->
+                    // retrieve column name to use for lookup
+                    // Specified in sender settings lookup mapper parameters
+                    // ex: lookup(patient_state, $Column:State, patient_county, $Column:County)
+                    val indexColumn = args[index.times(2).plus(1)].split(":")[1]
+                    if (indexColumn.isEmpty())
+                        error("Schema Error: no tableColumn for element ${elementAndValue.element.name}")
+                    tableFilter.equalsIgnoreCase(indexColumn, elementAndValue.value)
                 }
                 val lookupColumn = element.tableColumn
                     ?: error("Schema Error: no tableColumn for element ${element.name}")
                 tableFilter.findSingleResult(lookupColumn)
-            }
-        )
-    }
-}
-
-/**
- * The LookupSenderValuesetsMapper is used to lookup values from the "sender_valuesets" table/csv
- * The args for the mapper are:
- *      args[0] --> lookupColumn = the primary lookup field (usually "sender_id")
- *      args[1] --> questionColumn = the secondary lookup field, expected to be the element name (i.e. patient_gender)
- * The mapper uses the above arguments + the question's answer to retrieve a row from the table
- */
-class LookupSenderValuesetsMapper : Mapper {
-    override val name = "lookupSenderValuesets"
-
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return args
-    }
-
-    override fun apply(
-        element: Element,
-        args: List<String>,
-        values: List<ElementAndValue>,
-        sender: Sender?
-    ): ElementResult {
-        return ElementResult(
-            if (values.size != args.size) {
-                null
-            } else {
-                val lookupTable = element.tableRef
-                    ?: error("Schema Error: could not find table ${element.table}")
-
-                val lookupColumn = args[0]
-                val lookupValue = values.find { it.element.name == lookupColumn }?.value ?: return ElementResult(null)
-                val questionColumn = args[1]
-                val answer = values.find { it.element.name == questionColumn }?.value ?: return ElementResult(null)
-
-                lookupTable.FilterBuilder()
-                    .equalsIgnoreCase(lookupColumn, lookupValue)
-                    .equalsIgnoreCase("element_name", element.name)
-                    .equalsIgnoreCase("free_text_substring", answer)
-                    .findSingleResult("result")
             }
         )
     }
@@ -971,6 +937,37 @@ class ZipCodeToCountyMapper : Mapper {
         return ElementResult(
             table.FilterBuilder().equalsIgnoreCase("zipcode", cleanedZip)
                 .findSingleResult("county")
+        )
+    }
+}
+/**
+ * [ZipCodeToStateMapper] runs a lookup using zip code and returns the single associated state. Null is returned if
+ * no zip code is provided, the zip code is not found, or if multiple records are found in the lookup.
+ */
+
+class ZipCodeToStateMapper : Mapper {
+    override val name = "zipCodeToState"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return args
+    }
+
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        val table = element.tableRef ?: error("Cannot perform lookup on a null table")
+        val zipCode = values.firstOrNull()?.value ?: return ElementResult(null)
+        val cleanedZip = if (zipCode.contains("-")) {
+            zipCode.split("-").first()
+        } else {
+            zipCode
+        }
+        return ElementResult(
+            table.FilterBuilder().equalsIgnoreCase("zipcode", cleanedZip)
+                .findSingleResult(element.tableColumn.toString())
         )
     }
 }
