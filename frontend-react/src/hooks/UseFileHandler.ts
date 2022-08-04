@@ -10,7 +10,7 @@ export enum ErrorType {
     FILE = "file",
 }
 
-enum FileType {
+export enum FileType {
     "CSV" = "CSV",
     "HL7" = "HL7",
 }

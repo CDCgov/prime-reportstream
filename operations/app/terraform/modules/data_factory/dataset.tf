@@ -44,7 +44,7 @@ resource "azurerm_data_factory_dataset_binary" "sftp_archive" {
     container                = "sftparchive"
     dynamic_filename_enabled = false
     dynamic_path_enabled     = true
-    path                     = "@concat(dataset().sharename,'/',string(ticks(utcNow())))"
+    path                     = "@concat(dataset().sharename,'/',string(formatDateTime(utcNow(),'yyyyMMddHH')))"
   }
 
   timeouts {}
