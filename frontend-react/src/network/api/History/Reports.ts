@@ -1,9 +1,10 @@
 import { API } from "../NewApi";
 import ActionResource from "../../../resources/ActionResource";
 /**
- * @deprecated For compile-time type checks while #5892 is worked on
+ * @deprecated Replaced by deliveries endpoint resource
  */
 class RSReport {}
+/** A class representing a Delivery object from the API */
 class RSDelivery {
     deliveryId: number = -1;
     sent: string = "";
@@ -50,6 +51,15 @@ export interface ReportDetailParams {
     id: string;
 }
 
+/**
+ * Contains the API information for the ReportStream Deliveries API
+ * 1. Resource: {@link RSDelivery}
+ * 2. Endpoints:
+ *      <ul>
+ *          <li>"list" -> A list of deliveries for an organization and service (i.e. md-phd.elr-secondary)</li>
+ *          <li>"detail" -> A single delivery item with more detail, including file content for download</li>
+ *      </ul>
+ */
 export const DeliveryApi = new API(RSDelivery, "/api/waters")
     .addEndpoint("list", "/:orgAndService/deliveries", ["GET"])
     .addEndpoint("detail", "/delivery/:deliveryId/detail", ["GET"]);
