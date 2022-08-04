@@ -13,7 +13,6 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionError
-import gov.cdc.prime.router.cli.main
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.FileSettings
@@ -26,6 +25,7 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
+import gov.cdc.prime.router.cli.main
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -349,12 +349,12 @@ NTE|1|L|This is a final comment|RE"""
         val testSettingDir = "src/testIntegration/resources/settings"
         val testOutputFile = "build/tmp/testIntegration/pdi-covid-19-nh-InT-output.hl7"
 
-
         // Prepare test arguments
         val args: Array<String> = arrayOf(
             "data", "--input", testInputFile,
             "--test-dir-setting", testSettingDir,
-            "--input-schema", "primedatainput/pdi-covid-19", "--output", testOutputFile, "--route")
+            "--input-schema", "primedatainput/pdi-covid-19", "--output", testOutputFile, "--route"
+        )
 
         // Execute primeCLI command.  Note, upon success, it will generate the HL7 output file in $testOutputFile
         main(args)
