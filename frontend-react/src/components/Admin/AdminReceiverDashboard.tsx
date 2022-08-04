@@ -1,5 +1,5 @@
 import { useResource } from "rest-hooks";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
     DateRangePicker,
     Dropdown,
@@ -21,9 +21,14 @@ import {
 } from "../../resources/AdmConnStatusResource";
 import { StyleClass } from "../Table/TableFilters";
 import { formatDate } from "../../utils/misc";
+import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
 
 const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
 const SKIP_HOURS = 2; // hrs
+
+const FILTER_RENDERED_ROWS_REMOVE_ROWS = CheckFeatureFlag(
+    "FILTER_RENDERED_ROWS_REMOVE_ROWS"
+);
 
 /**
  *
@@ -240,6 +245,18 @@ const SUCCESS_RATE_CLASSNAME_MAP = {
     [SuccessRate.MIXED_SUCCESS]: "success-mixed",
 };
 
+enum MatchingFilter {
+    NO_FILTER,
+    FILTER_NOT_MATCHED,
+    FILTER_IS_MATCHED,
+}
+
+const MATCHING_FILTER_CLASSNAME_MAP = {
+    [MatchingFilter.NO_FILTER]: "",
+    [MatchingFilter.FILTER_NOT_MATCHED]: "success-result-hidden",
+    [MatchingFilter.FILTER_IS_MATCHED]: "",
+};
+
 function dateAddHours(d: Date, h: number): Date {
     const result = new Date(d); // copy value
     result.setHours(result.getHours() + h);
@@ -317,33 +334,23 @@ const sortStatusData = (
     return dataIn; // we modified array in place, but this syntax is handy.
 };
 
-function MainRender(props: {
+// PreRenderedRowComponents breaks out row status and org+reciever name into props
+// so parent can more quickly filter at a higher level without changing the whole DOM
+function renderAllReceiverRows(props: {
     data: AdmConnStatusDataType[];
-    datesRange: DatePair;
-    filterRowStatus: SuccessRate;
-    onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
-}) {
-    const onClick = useCallback(
-        (dataItem: AdmConnStatusDataType) => {
-            // in theory, there might be multiple events for the block, but we're only handling one for now.
-            props.onDetailsClick([dataItem]);
-        },
-        [props]
-    );
-
-    if (props.data.length === 0) {
-        return <div>No Data</div>;
-    }
-
-    const startDay = props.datesRange[0];
-    const endDay = props.datesRange[1];
-
-    // we use double cursors (primary moves through time and secondary through data entries)
-    let offset = 0;
-    // readability
-    const perReceiverElements: JSX.Element[] = [];
+    startDay: Date;
+    endDay: Date;
+    filterErrorText: string;
+    onClick: (dataItem: AdmConnStatusDataType) => void;
+}): JSX.Element[] {
+    const filterErrorText = props.filterErrorText.trim().toLowerCase();
+    const perReceiverRowElements: JSX.Element[] = [];
     let perDayElements: JSX.Element[] = [];
     let sliceElements: JSX.Element[] = [];
+    let visibleSliceCount = 0; // used when error filtering
+    // we use double cursors (primary moves through time and secondary through data entries)
+    let offset = 0;
+    console.log(`renderAllReceiverRows called`);
     // loop over all receivers (each is its own row)
     while (offset < props.data.length) {
         const successForRow = new SuccessRateTracker();
@@ -354,7 +361,7 @@ function MainRender(props: {
         let rowReceiver = currentReceiver; // used to know when we've run out of row data
 
         // loop over all days
-        const daySlots = new TimeSlots([startDay, endDay], 24);
+        const daySlots = new TimeSlots([props.startDay, props.endDay], 24);
         for (let [daySlotStart, daySlotEnd] of daySlots) {
             const timeSlots = new TimeSlots(
                 [daySlotStart, daySlotEnd],
@@ -363,7 +370,15 @@ function MainRender(props: {
             for (let [timeSlotStart, timeSlotEnd] of timeSlots) {
                 const successForSlice = new SuccessRateTracker();
 
-                // loop over keys that are in this range. Build aggregates for success, needed for layout
+                let filteredSlice =
+                    filterErrorText.length === 0
+                        ? MatchingFilter.NO_FILTER
+                        : MatchingFilter.FILTER_NOT_MATCHED;
+
+                // iterate over DATA that might be within this range.
+                // Build aggregates for success, needed for layout.
+                // NOTE: there might NOT BE ANY data for this slice...
+                //   OR: there might be MULTIPLE matches within this time slice!
                 while (
                     offset < props.data.length &&
                     dateIsInRange(currentDate, [timeSlotStart, timeSlotEnd]) &&
@@ -375,6 +390,25 @@ function MainRender(props: {
                         currentEntry.connectionCheckSuccessful;
                     successForSlice.updateState(wasSuccessful);
                     successForRow.updateState(wasSuccessful);
+
+                    // if we're doing an error search, then we want to hide none matching slices.
+                    // Don't bother comparing if filterErrorText is empty
+                    if (filteredSlice !== MatchingFilter.FILTER_IS_MATCHED) {
+                        filteredSlice =
+                            filterErrorText.length === 0
+                                ? MatchingFilter.NO_FILTER
+                                : currentEntry.connectionCheckResult
+                                      .toLowerCase()
+                                      .includes(filterErrorText)
+                                ? MatchingFilter.FILTER_IS_MATCHED
+                                : MatchingFilter.FILTER_NOT_MATCHED;
+
+                        if (
+                            filteredSlice !== MatchingFilter.FILTER_NOT_MATCHED
+                        ) {
+                            visibleSliceCount++;
+                        }
+                    }
 
                     // next entry
                     offset++;
@@ -392,13 +426,17 @@ function MainRender(props: {
                 const sliceClassName =
                     SUCCESS_RATE_CLASSNAME_MAP[successForSlice.currentState];
 
-                // we can use the currentkey in the data dict as a unique key for this cell
+                const sliceFilterClassName =
+                    MATCHING_FILTER_CLASSNAME_MAP[filteredSlice];
+
                 sliceElements.push(
                     <Grid
                         row
                         key={`slice:${currentReceiver}|${timeSlotStart}`}
-                        className={`slice ${sliceClassName}`}
+                        className={`slice ${sliceClassName} ${sliceFilterClassName}`}
                         data-offset={offset - 1}
+                        data-slice-success-count={successForSlice.countSuccess}
+                        data-slice-failed-count={successForSlice.countFailed}
                         onClick={
                             successForSlice.currentState ===
                             SuccessRate.UNDEFINED
@@ -415,7 +453,7 @@ function MainRender(props: {
                                           dataOffset >= 0 &&
                                           dataOffset < props.data.length
                                       ) {
-                                          onClick(props.data[dataOffset]);
+                                          props.onClick(props.data[dataOffset]);
                                       }
                                   }
                         }
@@ -447,55 +485,186 @@ function MainRender(props: {
         } // for dayslots
 
         // <editor-fold desc="Per-Receiver render">
-        const showRow =
-            props.filterRowStatus !== SuccessRate.UNDEFINED
-                ? props.filterRowStatus === successForRow.currentState
-                : true;
+        // we saved the start of this block of data, grab the information from there.
+        const orgName = props.data[offsetStartRow].organizationName;
+        const recvrName = props.data[offsetStartRow].receiverName;
+        const combinedName = `${orgName} ${recvrName}`.toLowerCase();
+        const successRate = Math.round(
+            (100 * successForRow.countSuccess) /
+                (successForRow.countSuccess + successForRow.countFailed)
+        );
+        const titleClassName =
+            SUCCESS_RATE_CLASSNAME_MAP[successForRow.currentState];
 
-        if (showRow) {
-            // we saved the start of this block of data, grab the information from there.
-            const orgName = props.data[offsetStartRow].organizationName;
-            const recvrName = props.data[offsetStartRow].receiverName;
-            const successRate = Math.round(
-                (100 * successForRow.countSuccess) /
-                    (successForRow.countSuccess + successForRow.countFailed)
-            );
-            const titleClassName =
-                SUCCESS_RATE_CLASSNAME_MAP[successForRow.currentState];
+        // if we have error text, then check if we filtered out all the slices
+        const allSlicesFiltered = filterErrorText.length
+            ? visibleSliceCount === 0
+            : false;
 
-            perReceiverElements.push(
-                <Grid
-                    row
-                    key={`perreceiver-row-${offsetStartRow}`}
-                    className={"perreceiver-row"}
-                >
-                    <Grid className={`title-column ${titleClassName}`}>
-                        <div className={"title-text"}>
-                            {orgName}
-                            <br />
-                            {recvrName}
-                            <br />
-                            {successRate}%
-                        </div>
-                    </Grid>
-                    <ScrollSyncPane enabled>
-                        <Grid row className={"horizontal-scroll"}>
-                            <Grid row className={"week-column"}>
-                                {perDayElements}
-                            </Grid>
-                        </Grid>
-                    </ScrollSyncPane>
+        // cheat confession: using `data-` props allow us to stick properties
+        // on components without type checking requiring it be a formal prop.
+        perReceiverRowElements.push(
+            <Grid
+                row
+                key={`perreceiver-${combinedName}-${perReceiverRowElements.length}`}
+                className={"perreceiver-row"}
+                data-rowstatus={successForRow.currentState}
+                data-orgrecvname={combinedName}
+                data-allslicesfiltered={allSlicesFiltered}
+            >
+                <Grid className={`title-column ${titleClassName}`}>
+                    <div className={"title-text"}>
+                        {orgName}
+                        <br />
+                        {recvrName}
+                        <br />
+                        {successRate}%
+                    </div>
                 </Grid>
-            );
-        }
+                <ScrollSyncPane enabled>
+                    <Grid row className={"horizontal-scroll"}>
+                        <Grid row className={"week-column"}>
+                            {perDayElements}
+                        </Grid>
+                    </Grid>
+                </ScrollSyncPane>
+            </Grid>
+        );
         perDayElements = [];
+        visibleSliceCount = 0;
         // </editor-fold>
     } // while
+    return perReceiverRowElements;
+}
+
+function FilterRenderedRows(props: {
+    renderedRows: JSX.Element[];
+    filterRowStatus: SuccessRate;
+    filterRowReceiver: string;
+    filterErrorText: string;
+    onClick: (dataItem: AdmConnStatusDataType) => void;
+}) {
+    const filterRowStatus = props.filterRowStatus.toUpperCase(); // enum is uppercased
+    const filterRowReceiver = props.filterRowReceiver.toLowerCase();
+    const filterErrorText = props.filterErrorText.trim().toUpperCase();
+    const renderedRows = props.renderedRows;
+
+    // NOTE. we wrap each row in a noop div to simply change the visibility attribute.
+    //       This is faster because the DOM isn't heavily modified, just the classNames
+    //       for existing rows are changed!
+    let atLeastOneRowVisible = false;
+    const resultArray: JSX.Element[] = [];
+    for (let offset = 0; offset < renderedRows.length; offset++) {
+        const renderedRow = renderedRows[offset];
+        const rowStatus = renderedRow.props["data-rowstatus"] || "";
+        const orgRecvName = renderedRow.props["data-orgrecvname"] || "";
+        const allSlicesFilteredOut =
+            renderedRow.props["data-allslicesfiltered"] || false;
+        const key = renderedRow.key;
+
+        // filters remove rows.
+        const hideRowBasedOnStatus =
+            filterRowStatus !== SuccessRate.UNDEFINED
+                ? rowStatus !== filterRowStatus
+                : false;
+
+        const hideRowBasedOnRecv =
+            filterRowReceiver !== ""
+                ? !orgRecvName.includes(filterRowReceiver)
+                : false;
+
+        const hideRowBasedOnErrorFilter =
+            filterErrorText !== "" ? allSlicesFilteredOut : false;
+
+        const hiddenClassName =
+            hideRowBasedOnStatus ||
+            hideRowBasedOnRecv ||
+            hideRowBasedOnErrorFilter
+                ? "is-hidden"
+                : "";
+
+        // if all rows are hidden show a message.
+        atLeastOneRowVisible =
+            atLeastOneRowVisible ||
+            (!hideRowBasedOnStatus && !hideRowBasedOnRecv);
+
+        // TWO DIFFERENT APPROACHES
+        if (FILTER_RENDERED_ROWS_REMOVE_ROWS) {
+            // REMOVE unused rows from the DOM
+            const hideRow =
+                hideRowBasedOnStatus ||
+                hideRowBasedOnRecv ||
+                hideRowBasedOnErrorFilter;
+            if (!hideRow) {
+                resultArray.push(renderedRow);
+            }
+        } else {
+            // HIDE the unused rows from the DOM (faster render since outer span's class is only changed)
+            resultArray.push(
+                <span className={hiddenClassName} key={`wrapper-${key}`}>
+                    {renderedRow}
+                </span>
+            );
+        }
+    }
+
+    if (!atLeastOneRowVisible) {
+        return <>No rows matching time range and any filters</>;
+    }
+
+    return <>{resultArray}</>;
+}
+
+function MainRender(props: {
+    data: AdmConnStatusDataType[];
+    datesRange: DatePair;
+    filterRowStatus: SuccessRate;
+    filterErrorText: string;
+    filterRowReceiver: string;
+    onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
+}) {
+    const onClick = useCallback(
+        (dataItem: AdmConnStatusDataType) => {
+            // in theory, there might be multiple events for the block, but we're only handling one for now.
+            props.onDetailsClick([dataItem]);
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [props.onDetailsClick]
+    );
+    // Example: if we decide to filter data[1], then we filter renderedRows[1]
+    // this prevents the expensive row renders when a filter happens
+    // (since they filter out WHOLE rows).
+    const startDay = props.datesRange[0];
+    const endDay = props.datesRange[1];
+    const renderedRows = useMemo(
+        () =>
+            renderAllReceiverRows({
+                data: props.data,
+                startDay,
+                endDay,
+                filterErrorText: props.filterErrorText,
+                onClick,
+            }),
+        // memo cannot track date changes correctly, leave them out of deps!
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [props.data, props.filterErrorText]
+    );
+
+    if (renderedRows.length === 0) {
+        return <div>No Data</div>;
+    }
+
     return (
         //
         <ScrollSync horizontal enabled>
             <GridContainer className={"rs-admindash-component"}>
-                {perReceiverElements}
+                <FilterRenderedRows
+                    renderedRows={renderedRows}
+                    filterRowStatus={props.filterRowStatus}
+                    filterRowReceiver={props.filterRowReceiver}
+                    filterErrorText={props.filterErrorText}
+                    onClick={onClick}
+                />
             </GridContainer>
         </ScrollSync>
     );
@@ -596,20 +765,14 @@ export function AdminReceiverDashboard() {
         AdmConnStatusDataType[]
     >([]);
 
-    const data = sortStatusData(
-        results.filter(
-            (eachRow) =>
-                eachRow.filterOnName(filterReceivers) &&
-                eachRow.filterOnCheckResultStr(filterErrorResults)
-        )
-    );
-
-    const showDetailsModal = (subData: AdmConnStatusDataType[]) => {
+    const showDetailsModal = useCallback((subData: AdmConnStatusDataType[]) => {
         if (subData.length) {
             setCurrentDataForModal(subData);
             modalShowInfoRef?.current?.toggleModal(undefined, true);
         }
-    };
+    }, []);
+
+    const data = useMemo(() => sortStatusData(results), [results]);
 
     return (
         <section className="grid-container">
@@ -739,13 +902,15 @@ export function AdminReceiverDashboard() {
             </form>
             <MainRender
                 data={data}
-                filterRowStatus={filterRowSuccessState}
                 datesRange={[
                     new Date(startDate),
                     endDate
                         ? new Date(endOfDayIso(new Date(endDate)))
                         : new Date(endOfDayIso(new Date())),
                 ]}
+                filterRowStatus={filterRowSuccessState}
+                filterErrorText={filterErrorResults}
+                filterRowReceiver={filterReceivers}
                 onDetailsClick={showDetailsModal}
             />
             <Modal

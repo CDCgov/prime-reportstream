@@ -543,6 +543,14 @@ pre {
                 var(--toastify-color-error) 30px
             );
         }
+
+        .success-result-hidden {
+            opacity: 30%;
+        }
+    }
+
+    .is-hidden {
+        display: none;
     }
 }
 

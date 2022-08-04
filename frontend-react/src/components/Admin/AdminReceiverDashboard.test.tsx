@@ -199,6 +199,8 @@ describe("AdminReceiverDashboard tests", () => {
                 data={data}
                 datesRange={[new Date("2022-07-11"), new Date("2022-07-14")]}
                 filterRowStatus={_exportForTesting.SuccessRate.ALL_SUCCESSFUL}
+                filterErrorText={""}
+                filterRowReceiver={""}
                 onDetailsClick={(_subdata: AdmConnStatusDataType[]) => {}}
             />
         );
