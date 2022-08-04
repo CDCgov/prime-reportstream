@@ -9,8 +9,8 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.fhirengine.azure.elrProcessQueueName
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 
 /**
@@ -145,14 +145,14 @@ class TopicReceiver : SubmissionReceiver {
             )
         }
 
-        workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
-        )
-
         // if there are any errors, kick this out.
         if (actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
+
+        workflowEngine.recordReceivedReport(
+            report, rawBody, sender, actionHistory, payloadName
+        )
 
         actionHistory.trackLogs(actionLogs.logs)
 
@@ -257,11 +257,6 @@ class ELRReceiver : SubmissionReceiver {
             )
         }
 
-        // record that the submission was received
-        val blobInfo = workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
-        )
-
         // check for valid message type
         messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
 
@@ -269,6 +264,11 @@ class ELRReceiver : SubmissionReceiver {
         if (actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
+
+        // record that the submission was received
+        val blobInfo = workflowEngine.recordReceivedReport(
+            report, rawBody, sender, actionHistory, payloadName
+        )
 
         // track logs
         actionHistory.trackLogs(actionLogs.logs)
@@ -279,7 +279,7 @@ class ELRReceiver : SubmissionReceiver {
 
         // move to processing (send to <elrProcessQueueName> queue)
         workflowEngine.queue.sendMessage(
-            elrProcessQueueName,
+            elrConvertQueueName,
             RawSubmission(
                 report.id,
                 blobInfo.blobUrl,

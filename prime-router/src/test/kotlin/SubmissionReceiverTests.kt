@@ -8,7 +8,7 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.fhirengine.azure.elrProcessQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.serializers.ReadResult
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -608,7 +608,7 @@ class SubmissionReceiverTests {
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(elrProcessQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(elrConvertQueueName, any()) } returns Unit
 
         // act
         receiver.validateAndMoveToProcessing(
@@ -630,7 +630,7 @@ class SubmissionReceiverTests {
             SubmissionReceiver.doDuplicateDetection(any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
-            queueMock.sendMessage(elrProcessQueueName, any())
+            queueMock.sendMessage(elrConvertQueueName, any())
         }
     }
 
@@ -675,7 +675,7 @@ class SubmissionReceiverTests {
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(elrProcessQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(elrConvertQueueName, any()) } returns Unit
 
         // act
         var exceptionThrown = false
@@ -699,14 +699,11 @@ class SubmissionReceiverTests {
         // assert
         assertTrue(exceptionThrown)
 
-        verify(exactly = 1) {
-            engine.recordReceivedReport(any(), any(), any(), any(), any())
-        }
-
         verify(exactly = 0) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
-            queueMock.sendMessage(elrProcessQueueName, any())
+            queueMock.sendMessage(elrConvertQueueName, any())
         }
     }
 
@@ -751,7 +748,7 @@ class SubmissionReceiverTests {
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(elrProcessQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(elrConvertQueueName, any()) } returns Unit
 
         // act / assert
         assertThat {
@@ -769,14 +766,11 @@ class SubmissionReceiverTests {
             )
         }.isFailure()
 
-        verify(exactly = 1) {
-            engine.recordReceivedReport(any(), any(), any(), any(), any())
-        }
-
         verify(exactly = 0) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
-            queueMock.sendMessage(elrProcessQueueName, any())
+            queueMock.sendMessage(elrConvertQueueName, any())
         }
     }
 }
