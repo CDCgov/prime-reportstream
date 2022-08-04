@@ -108,6 +108,20 @@ abstract class SubmissionReceiver(
                 actionLogs.error(DuplicateSubmissionMessage(payloadName))
             }
         }
+
+        internal fun getSubmissionReceiver(
+            sender: Sender,
+            workflowEngine: WorkflowEngine,
+            actionHistory: ActionHistory
+        ): SubmissionReceiver {
+            val receiver by lazy {
+                when (sender) {
+                    is CovidSender, is MonkeypoxSender -> TopicReceiver(workflowEngine, actionHistory)
+                    else -> ELRReceiver(workflowEngine, actionHistory)
+                }
+            }
+            return receiver
+        }
     }
 }
 

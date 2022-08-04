@@ -61,9 +61,13 @@ enum class Options {
     ValidatePayload,
     CheckConnections,
     SkipSend,
-    SendImmediately;
+    SendImmediately,
+    @OptionDeprecated
+    SkipInvalidItems;
 
     companion object {
+        class InvalidOptionException(message: String) : Exception(message)
+
         /**
          * Handles invalid values, which are technically not allowed in an enum. In this case if the [input]
          *  is not one that is supported, it will be set to None.
@@ -72,12 +76,16 @@ enum class Options {
             return try {
                 valueOf(input)
             } catch (ex: IllegalArgumentException) {
-                None
+                val msg = "$input is not a valid Option. Valid options: ${Options.values().joinToString()}"
+                throw InvalidOptionException(msg)
             }
         }
+        fun isDeprecated(enum: Options): Boolean = enum.declaringClass.getField(enum.name)
+            .getAnnotation(OptionDeprecated::class.java) != null
     }
 }
 
+annotation class OptionDeprecated()
 /**
  * ReportStreamFilterResult records useful information about rows filtered by one filter call.  One filter
  * might filter many rows. ReportStreamFilterResult entries are only created when filter logging is on.  This is to
