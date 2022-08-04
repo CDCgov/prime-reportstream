@@ -62,6 +62,7 @@ export const useApiEndpoint = <P extends StringIndexed, D = any>(
          * ...I am sorry */
         [oktaToken?.accessToken, adminSafeOrgName] //eslint-disable-line
     );
+    // TODO: maybe reactive problems stem from this
     const { data, error, loading, trigger } = useRequestConfig(
         config
     ) as BasicAPIResponse<D>;

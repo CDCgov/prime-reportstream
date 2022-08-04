@@ -2,7 +2,7 @@ import { fireEvent, screen } from "@testing-library/react";
 
 import { renderWithRouter } from "../../../utils/CustomRenderUtils";
 import { historyServer } from "../../../__mocks__/HistoryMockServer";
-import * as ReportsHooks from "../../../hooks/network/History/ReportsHooks";
+import * as ReportsHooks from "../../../hooks/network/History/DeliveryHooks";
 import { RSReportInterface } from "../../../network/api/History/Reports";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import {

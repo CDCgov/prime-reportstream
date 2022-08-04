@@ -5,7 +5,7 @@ import { MembershipController, MemberType } from "../../UseOktaMemberships";
 import { SessionController } from "../../UseSessionStorage";
 import { historyServer } from "../../../__mocks__/HistoryMockServer";
 
-import { useReportsDetail, useReportsList } from "./ReportsHooks";
+import { useReportsDetail, useReportsList } from "./DeliveryHooks";
 
 describe("ReportsHooks", () => {
     beforeAll(() => historyServer.listen());

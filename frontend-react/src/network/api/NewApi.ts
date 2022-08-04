@@ -35,17 +35,17 @@ export interface RSRequestHeaders extends AxiosRequestHeaders {
     authorization: string;
     organization: string;
 }
+/* Prevents overriding RSRequestConfig values */
+export interface AdvancedConfig<D>
+    extends Omit<AxiosRequestConfig<D>, "url" | "method" | "headers"> {
+    requireTrigger?: boolean;
+}
 /* Make some fields required or overwrite types */
-export interface RSRequestConfig extends AxiosRequestConfig {
+export interface RSRequestConfig<D = any> extends AdvancedConfig<D> {
     url: string;
     method: Method;
     headers: RSRequestHeaders;
 }
-/* Prevents overriding RSRequestConfig values */
-export type AdvancedConfig<D> = Omit<
-    AxiosRequestConfig<D>,
-    "url" | "method" | "headers"
->;
 /* Basic state for API calls */
 export interface BasicAPIResponse<T> {
     data: T;

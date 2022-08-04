@@ -5,7 +5,7 @@ import ActionResource from "../../../resources/ActionResource";
  */
 class RSReport {}
 /** A class representing a Delivery object from the API */
-class RSDelivery {
+export class RSDelivery {
     deliveryId: number = -1;
     sent: string = "";
     expires: string = "";
@@ -60,7 +60,7 @@ export interface ReportDetailParams {
  *          <li>"detail" -> A single delivery item with more detail, including file content for download</li>
  *      </ul>
  */
-export const DeliveryApi = new API(RSDelivery, "/api/waters")
+export const DeliveryApi = new API(RSDelivery, "/api/waters/org")
     .addEndpoint("list", "/:orgAndService/deliveries", ["GET"])
     .addEndpoint("detail", "/delivery/:deliveryId/detail", ["GET"]);
 

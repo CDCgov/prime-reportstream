@@ -1,17 +1,17 @@
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
-import { getUniqueReceiverSvc } from "../../../utils/ReportUtils";
 import Table, { TableConfig } from "../../../components/Table/Table";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
 import Spinner from "../../../components/Spinner";
-import { useReportsList } from "../../../hooks/network/History/ReportsHooks";
-import { RSReportInterface } from "../../../network/api/History/Reports";
+import { useReportsList } from "../../../hooks/network/History/DeliveryHooks";
 import { useSessionContext } from "../../../contexts/SessionContext";
 import { showError } from "../../../components/AlertNotifications";
+import { useReceiversList } from "../../../hooks/network/Organizations/ReceiversHooks";
+import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 
-import TableButtonGroup from "./TableButtonGroup";
+import ServicesDropdown from "./ServicesDropdown";
 import { getReportAndDownload } from "./ReportsUtils";
 
 /** @todo: page size default set to 10 once paginated */
@@ -26,34 +26,40 @@ const filterManagerDefaults: FilterManagerDefaults = {
 };
 
 interface ReceiverFeeds {
-    activeFeed: RSReportInterface[] | undefined;
-    setActiveFeed: Dispatch<SetStateAction<string | undefined>>;
-    feeds: string[] | undefined;
+    services: RSReceiver[];
+    activeService: RSReceiver | undefined;
+    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
 }
-const useReceiverFeeds = (reports: RSReportInterface[]): ReceiverFeeds => {
-    /* Keeps a list of all feeds for a receiver */
-    const receiverSVCs: string[] = useMemo(
-        () => Array.from(getUniqueReceiverSvc(reports)),
-        [reports]
+/** Fetches a list of receivers for your active organization, and provides a controller to switch
+ * between them */
+const useReceiverFeeds = (): ReceiverFeeds => {
+    const { memberships } = useSessionContext();
+    const { data: receivers, trigger: getReceiversList } = useReceiversList(
+        memberships.state.active?.parsedName
     );
-    const [chosen, setChosen] = useState<string | undefined>(undefined);
-    /* Once reports are fetched, this effect updates the chosen feed to the first feed */
+    const [active, setActive] = useState<RSReceiver | undefined>();
     useEffect(() => {
-        if (reports?.length >= 1 && receiverSVCs.length >= 1) {
-            setChosen(receiverSVCs[0]);
+        // IF memberships.state.active?.parsedName is not undefined
+        if (
+            memberships.state.active?.parsedName !== undefined &&
+            receivers === undefined
+        ) {
+            // Trigger useReceiversList()
+            getReceiversList();
         }
-    }, [receiverSVCs, reports]);
-    /* Provides only the feed's objects */
-    const filteredReports = useMemo(
-        () =>
-            reports?.filter((report) => report.receivingOrgSvc === chosen) ||
-            [],
-        [chosen, reports]
-    );
+        // Ignoring getReceiverList() as dep
+    }, [memberships.state.active?.parsedName, receivers]); //eslint-disable-line
+
+    useEffect(() => {
+        if (receivers?.length) {
+            setActive(receivers[0]);
+        }
+    }, [receivers]);
+
     return {
-        activeFeed: filteredReports,
-        setActiveFeed: setChosen,
-        feeds: receiverSVCs,
+        services: receivers,
+        activeService: active,
+        setActiveService: setActive,
     };
 };
 
@@ -64,9 +70,39 @@ const useReceiverFeeds = (reports: RSReportInterface[]): ReceiverFeeds => {
 */
 function ReportsTable() {
     const { memberships, oktaToken } = useSessionContext();
-    const { data: reports, loading, error } = useReportsList();
-    const { activeFeed, setActiveFeed, feeds } = useReceiverFeeds(reports);
+    const { services, activeService, setActiveService } = useReceiverFeeds();
+    // TODO: Doesn't update parameters because of the config memo dependency array
+    const {
+        data: deliveries,
+        loading,
+        error,
+        trigger: getReportsList,
+    } = useReportsList(
+        memberships.state.active?.parsedName,
+        activeService?.name
+    );
     const filterManager = useFilterManager(filterManagerDefaults);
+
+    useEffect(
+        () => {
+            // IF parsedName and activeService.name are FOR SURE valid values
+            // AND we don't have any deliveries yet (i.e. first fetch *has not* triggered)
+            if (
+                deliveries === undefined &&
+                memberships.state.active?.parsedName !== undefined &&
+                activeService?.name !== undefined
+            ) {
+                // Trigger useReportsList()
+                getReportsList();
+            }
+        },
+        // Ignoring getReportsList as dep
+        [ //eslint-disable-line
+            activeService,
+            deliveries,
+            memberships.state.active?.parsedName,
+        ]
+    );
 
     useEffect(() => {
         if (error !== "") {
@@ -123,20 +159,27 @@ function ReportsTable() {
                 },
             },
         ],
-        rows: activeFeed || [],
+        rows: deliveries || [],
     };
 
     if (loading) return <Spinner />;
 
     return (
         <>
-            <div className="grid-col-12">
-                {feeds && feeds.length > 1 ? (
-                    <TableButtonGroup
-                        senders={feeds}
-                        chosenCallback={setActiveFeed}
+            <div className="grid-container grid-col-12">
+                {services && services?.length > 1 ? (
+                    <ServicesDropdown
+                        services={services}
+                        chosenCallback={setActiveService}
                     />
-                ) : null}
+                ) : (
+                    <p>
+                        Default service:{" "}
+                        <strong>
+                            {services?.[0].name.toUpperCase() || ""}
+                        </strong>
+                    </p>
+                )}
             </div>
             <div className="grid-col-12">
                 <Table
@@ -146,7 +189,7 @@ function ReportsTable() {
             </div>
             <div className="grid-container margin-bottom-10">
                 <div className="grid-col-12">
-                    {activeFeed?.length === 0 ? <p>No results</p> : null}
+                    {deliveries?.length === 0 ? <p>No results</p> : null}
                 </div>
             </div>
         </>

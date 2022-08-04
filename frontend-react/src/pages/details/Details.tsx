@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
-import { useReportsDetail } from "../../hooks/network/History/ReportsHooks";
+import { useReportsDetail } from "../../hooks/network/History/DeliveryHooks";
 
 import Summary from "./Summary";
 import ReportDetails from "./ReportDetails";

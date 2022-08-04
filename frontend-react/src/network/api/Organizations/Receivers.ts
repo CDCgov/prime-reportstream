@@ -1,7 +1,7 @@
 import { API } from "../NewApi";
 /** A class representing a Receiver object from the API */
 export class RSReceiver {
-    name: string = "";
+    name: string = "elr";
     organizationName: string = "";
 }
 /**
