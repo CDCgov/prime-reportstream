@@ -1,5 +1,6 @@
 import { screen, render, within } from "@testing-library/react";
 
+import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
 
 import {
@@ -13,7 +14,7 @@ import {
 // think of a better way to do it. Is there a better pattern for this? - DWS
 describe("FileSuccessDisplay", () => {
     test("renders expected content", async () => {
-        render(
+        renderWithRouter(
             <FileSuccessDisplay
                 fileName={"file.file"}
                 heading={"THE HEADING"}
@@ -42,8 +43,9 @@ describe("FileSuccessDisplay", () => {
         const destinations = await screen.findByText("1, 2");
         expect(destinations).toHaveClass("margin-top-05");
 
-        const reportId = await screen.findByText("IDIDID");
-        expect(reportId).toHaveClass("margin-top-05");
+        const reportLink = await screen.findByRole("link");
+        expect(reportLink).toHaveTextContent("IDIDID");
+        expect(reportLink).toHaveAttribute("href", "/submissions/IDIDID");
 
         const timestampDate = await screen.findByText(
             formattedDateFromTimestamp(new Date(0).toString(), "DD MMMM YYYY")
