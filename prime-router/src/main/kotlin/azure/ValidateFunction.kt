@@ -46,7 +46,7 @@ class ValidateFunction(
         @HttpTrigger(
             name = "validate",
             methods = [HttpMethod.POST],
-            authLevel = AuthorizationLevel.FUNCTION
+            authLevel = AuthorizationLevel.ANONYMOUS
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         val senderName = extractClient(request)
