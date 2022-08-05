@@ -1,4 +1,9 @@
-import { useApiEndpoint } from "../UseApiEndpoint";
+import { useMemo } from "react";
+import { Method } from "axios";
+
+import { useMemoizedConfig, useMemoizedConfigParams } from "../UseApiEndpoint";
+import useRequestConfig from "../UseRequestConfig";
+import { BasicAPIResponse } from "../../../network/api/NewApi";
 import {
     ReceiverApi,
     ReceiverListParams,
@@ -9,12 +14,18 @@ import {
  * > **This call requires the use of `trigger()`**
  *
  * @param org {string?} The user's active memebership `parsedName` */
-export const useReceiversList = (org?: string) =>
-    // Uses Partial<T> because we require the trigger and conditionally call
-    useApiEndpoint<Partial<ReceiverListParams>, RSReceiver[]>(
-        ReceiverApi,
-        "list",
-        "GET",
-        { org: org },
-        { requireTrigger: true }
+export const useReceiversList = (org?: string) => {
+    const memoizedOrg = useMemo(() => org, [org]);
+    const configParams = useMemoizedConfigParams<ReceiverListParams>(
+        {
+            api: ReceiverApi,
+            endpointKey: "list",
+            method: "GET" as Method,
+            parameters: { org: memoizedOrg || "" },
+            advancedConfig: { requireTrigger: true },
+        },
+        [memoizedOrg]
     );
+    const config = useMemoizedConfig(configParams);
+    return useRequestConfig(config) as BasicAPIResponse<RSReceiver[]>;
+};

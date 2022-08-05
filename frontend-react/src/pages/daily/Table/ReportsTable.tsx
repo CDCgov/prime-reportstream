@@ -29,6 +29,7 @@ interface ReceiverFeeds {
     services: RSReceiver[];
     activeService: RSReceiver | undefined;
     setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+    getReceiversList: () => void;
 }
 /** Fetches a list of receivers for your active organization, and provides a controller to switch
  * between them */
@@ -38,17 +39,17 @@ const useReceiverFeeds = (): ReceiverFeeds => {
         memberships.state.active?.parsedName
     );
     const [active, setActive] = useState<RSReceiver | undefined>();
-    useEffect(() => {
-        // IF memberships.state.active?.parsedName is not undefined
-        if (
-            memberships.state.active?.parsedName !== undefined &&
-            receivers === undefined
-        ) {
-            // Trigger useReceiversList()
-            getReceiversList();
-        }
-        // Ignoring getReceiverList() as dep
-    }, [memberships.state.active?.parsedName, receivers]); //eslint-disable-line
+    // useEffect(() => {
+    //     // IF memberships.state.active?.parsedName is not undefined
+    //     if (
+    //         memberships.state.active?.parsedName !== undefined &&
+    //         receivers === undefined
+    //     ) {
+    //         // Trigger useReceiversList()
+    //         getReceiversList();
+    //     }
+    //     // Ignoring getReceiverList() as dep
+    // }, [memberships.state.active?.parsedName, receivers]); //eslint-disable-line
 
     useEffect(() => {
         if (receivers?.length) {
@@ -60,6 +61,7 @@ const useReceiverFeeds = (): ReceiverFeeds => {
         services: receivers,
         activeService: active,
         setActiveService: setActive,
+        getReceiversList,
     };
 };
 
@@ -70,7 +72,8 @@ const useReceiverFeeds = (): ReceiverFeeds => {
 */
 function ReportsTable() {
     const { memberships, oktaToken } = useSessionContext();
-    const { services, activeService, setActiveService } = useReceiverFeeds();
+    const { services, activeService, setActiveService, getReceiversList } =
+        useReceiverFeeds();
     // TODO: Doesn't update parameters because of the config memo dependency array
     const {
         data: deliveries,
@@ -82,6 +85,9 @@ function ReportsTable() {
         activeService?.name
     );
     const filterManager = useFilterManager(filterManagerDefaults);
+    useEffect(() => {
+        getReceiversList();
+    }, []);
 
     useEffect(
         () => {
@@ -170,6 +176,7 @@ function ReportsTable() {
                 {services && services?.length > 1 ? (
                     <ServicesDropdown
                         services={services}
+                        active={activeService?.name || ""}
                         chosenCallback={setActiveService}
                     />
                 ) : (
