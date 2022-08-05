@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.cli
 
 import ca.uhn.fhir.context.FhirContext
+import ca.uhn.fhir.fhirpath.FhirPathExecutionException
 import ca.uhn.hl7v2.model.Message
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
@@ -15,9 +16,11 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
-import org.hl7.fhir.instance.model.api.IBaseResource
+import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent
+import org.hl7.fhir.r4.model.Reference
+import org.hl7.fhir.r4.model.Resource
 
 /**
  * Process data into/from FHIR.
@@ -140,6 +143,9 @@ class FhirPathCommand : CliktCommand(
      */
     private val fhirResourceParser = FhirContext.forR4().newJsonParser()
 
+    private var focusPath = "Bundle"
+    private var focusResource: Base? = null
+
     init {
         fhirResourceParser.setPrettyPrint(true)
         fhirResourceParser.isOmitResourceId = true
@@ -151,65 +157,159 @@ class FhirPathCommand : CliktCommand(
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
         val bundle = FhirTranscoder.decode(contents)
+        focusResource = bundle
+
         echo("", true)
         echo("Using the FHIR bundle in ${inputFile.absolutePath}...", true)
+        echo("Special commands:", true)
+        echo("  resource [= | :] <FHIR Path>   - Sets %resource to a given FHIR path", true)
         echo("Press CTRL-C or ENTER to exit.", true)
 
         // Loop until you press CTRL-C or ENTER at the prompt.
         while (true) {
+            echo("", true)
+            echo("%resource = $focusPath")
             print("FHIR path> ") // This needs to be a print as an echo does not show on the same line
-            val path = readln()
+            val input = readln()
 
             // If no path then just quit.
-            if (path.isBlank()) {
+            if (input.isBlank()) {
                 echo("Exiting...")
                 break
             }
 
-            // Check the syntax for the FHIR path
-            val pathExpression = try {
-                FhirPathUtils.parsePath(path) ?: throw Exception()
-            } catch (e: Exception) {
-                echo("Invalid FHIR path specified.", true)
-                null
-            }
-
-            if (pathExpression != null) {
-                // Evaluate the path
-                try {
-                    val value = FhirPathUtils.evaluate(null, bundle, bundle, path)
-                    // Note you can get collections
-                    value.forEach {
-                        val valueAsString =
-                            when {
-                                it.isPrimitive -> "Primitive: $it"
-
-                                // Resource are large, so lets pretty print them
-                                it is IBaseResource -> {
-                                    fhirResourceParser.encodeResourceToString(it)
-                                }
-
-                                // Bundle entries
-                                it is BundleEntryComponent -> "Entry: ${it.fullUrl}"
-
-                                // Non-base resources
-                                else -> {
-                                    // TODO: How can we print out non IBaseResource resources?
-                                    "Resource: $it"
-                                }
-                            }
-
-                        // Print out the value, but add a dash to each collection entry if more than one
-                        echo("${if (value.size > 1) "- " else ""}$valueAsString", true)
+            try {
+                // Process the input checking for special/custom commands
+                when {
+                    input.startsWith("resource") -> {
+                        setFocusResource(input, bundle)
                     }
-                    if (value.size > 1) echo("--- Return size = ${value.size}  ---")
-                } catch (e: NotImplementedError) {
-                    echo("One or more FHIR path functions specified are not implemented in the library")
+                    else -> evaluatePath(input, bundle)
                 }
+            } catch (e: FhirPathExecutionException) {
+                echo("Invalid FHIR path specified.", true)
+            }
+        }
+    }
+
+    /**
+     * Set the focus resource only is the path specified in the [input] string points to a resource or
+     * reference in the [bundle].
+     */
+    private fun setFocusResource(input: String, bundle: Bundle) {
+        fun setFocusPath(newPath: String) {
+            focusPath = if (newPath.startsWith("%resource"))
+                newPath.replace("%resource", focusPath)
+            else newPath
+        }
+
+        val inputParts = input.split("=", ":", limit = 2)
+        if (inputParts.size != 2)
+            echo("Setting %resource must be in the form of 'resource[= | :]<FHIR path>'")
+        else {
+            val path = inputParts[1].trim().trimStart('\'').trimEnd('\'')
+            val pathExpression = FhirPathUtils.parsePath(path) ?: throw FhirPathExecutionException("Invalid FHIR path")
+            val resourceList = FhirPathUtils.pathEngine.evaluate(null, focusResource!!, bundle, bundle, pathExpression)
+            when {
+                resourceList.size != 1 ->
+                    echo("Resource path must evaluate to 1 resource, but got ${resourceList.size}")
+
+                resourceList[0].isResource -> {
+                    setFocusPath(path)
+                    focusResource = resourceList[0] as Resource
+                }
+
+                resourceList[0] is Reference -> {
+                    setFocusPath(path)
+                    focusResource = (resourceList[0] as Reference).resource as Resource
+                }
+
+                else ->
+                    echo(
+                        "Resource path must evaluate to a Reference or Resource, but was " +
+                            resourceList[0].fhirType()
+                    )
+            }
+        }
+    }
+
+    /**
+     * Evaluate a FHIR path from the given [input] string in the [bundle].
+     */
+    private fun evaluatePath(input: String, bundle: Bundle) {
+        // Check the syntax for the FHIR path
+        try {
+            val pathExpression = FhirPathUtils.parsePath(input) ?: throw FhirPathExecutionException("Invalid FHIR path")
+            val values = try {
+                FhirPathUtils.pathEngine.evaluate(null, focusResource, bundle, bundle, pathExpression)
+            } catch (e: IndexOutOfBoundsException) {
+                // This happens when a value for an extension is speced, but the extension does not exist.
+                emptyList()
             }
 
-            echo("----------------------------------------------------", true)
-            echo("", true)
+            values.forEach {
+                // Print out the value, but add a dash to each collection entry if more than one
+                echo("${if (values.size > 1) "- " else ""}${fhirBaseAsString(it)}", true)
+            }
+            echo("Number of results = ${values.size} ----------------------------", true)
+        } catch (e: NotImplementedError) {
+            echo("One or more FHIR path functions specified are not implemented in the library")
+        }
+    }
+
+    /**
+     * Convert a [value] that is a FHIR base to a string.
+     * @return a string representing the contents of the FHIR base
+     */
+    private fun fhirBaseAsString(value: Base): String {
+        return when {
+            value.isPrimitive -> "Primitive: $value"
+
+            // Bundle entries
+            value is BundleEntryComponent -> "Entry: ${value.fullUrl}"
+
+            // References
+            value is Reference ->
+                "Reference to ${value.reference} - set as %resource to navigate into it"
+
+            // Resources
+            else -> {
+                val stringValue = StringBuilder()
+                stringValue.append("{${System.lineSeparator()}")
+                value.children().forEach { property ->
+                    when {
+                        property.values.isEmpty() ->
+                            stringValue.append("")
+
+                        property.isList -> {
+                            stringValue.append("  \"${property.name}\": [ \n")
+                            property.values.forEach { value ->
+                                stringValue.append("    ")
+                                if (value.isPrimitive) stringValue.append("\"${value.primitiveValue()}\",")
+                                else stringValue.append("$value,")
+                                stringValue.append("\n")
+                            }
+                            stringValue.append("  ] \n")
+                        }
+
+                        property.values[0].isPrimitive -> {
+                            stringValue.append("  \"${property.name}\": ")
+                            stringValue.append("\"${property.values[0].primitiveValue()}\"")
+                            stringValue.append("\n")
+                        }
+
+                        else -> {
+                            stringValue.append("  \"${property.name}\": ")
+                            if (property.values[0] is Reference)
+                                stringValue.append("Reference to ${(property.values[0] as Reference).reference}")
+                            else stringValue.append("${property.values[0]}")
+                            stringValue.append("\n")
+                        }
+                    }
+                }
+                stringValue.append("}${System.lineSeparator()}")
+                stringValue.toString()
+            }
         }
     }
 }

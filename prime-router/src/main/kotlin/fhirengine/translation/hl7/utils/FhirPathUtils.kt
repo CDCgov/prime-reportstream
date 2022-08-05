@@ -30,7 +30,7 @@ object FhirPathUtils : Logging {
     /**
      * The FHIR path engine.
      */
-    private val pathEngine = FHIRPathEngine(SimpleWorkerContext())
+    val pathEngine = FHIRPathEngine(SimpleWorkerContext())
 
     /**
      * The HL7 time format. We are converting from a FHIR TimeType which does not include a time zone.
