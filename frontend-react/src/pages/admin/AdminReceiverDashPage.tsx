@@ -13,11 +13,6 @@ export function AdminReceiverDashPage() {
             <Helmet>
                 <title>Admin Destination Dashboard</title>
             </Helmet>
-            <section className="grid-container margin-bottom-5">
-                <h3 className="margin-bottom-0">
-                    <Suspense fallback={<Spinner />} />
-                </h3>
-            </section>
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="message" />}
             >

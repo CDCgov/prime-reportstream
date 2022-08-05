@@ -342,8 +342,14 @@ class ActionHistory : Logging {
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
 
-        // add to queue
-        if (event.eventAction != Event.EventAction.BATCH)
+        // batch queue messages are added by the batchDecider, not ActionHistory.
+        // TODO: Need to update this process to have a better way to determine what messages should be sent
+        //  automatically as part of queueMessages and what are being send manually as part of the parent function.
+        //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
+        if (event.eventAction != Event.EventAction.BATCH &&
+            event.eventAction != Event.EventAction.ROUTE &&
+            event.eventAction != Event.EventAction.TRANSLATE
+        )
             trackEvent(event)
     }
 
@@ -401,7 +407,13 @@ class ActionHistory : Logging {
         trackItemLineages(report)
 
         // batch queue messages are added by the batchDecider, not ActionHistory
-        if (event.eventAction != Event.EventAction.BATCH)
+        // TODO: Need to update this process to have a better way to determine what messages should be sent
+        //  automatically as part of queueMessages and what are being send manually as part of the parent function.
+        //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
+        if (event.eventAction != Event.EventAction.BATCH &&
+            event.eventAction != Event.EventAction.ROUTE &&
+            event.eventAction != Event.EventAction.TRANSLATE
+        )
             trackEvent(event) // to be sent to queue later.
     }
 
@@ -429,7 +441,13 @@ class ActionHistory : Logging {
         trackFilteredItems(report)
 
         // batch queue messages are added by the batchDecider, not ActionHistory
-        if (event.eventAction != Event.EventAction.BATCH)
+        // TODO: Need to update this process to have a better way to determine what messages should be sent
+        //  automatically as part of queueMessages and what are being send manually as part of the parent function.
+        //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
+        if (event.eventAction != Event.EventAction.BATCH &&
+            event.eventAction != Event.EventAction.ROUTE &&
+            event.eventAction != Event.EventAction.TRANSLATE
+        )
             trackEvent(event) // to be sent to queue later.
     }
 
@@ -595,6 +613,19 @@ class ActionHistory : Logging {
         insertItemLineages(itemLineages, txn)
 
         actionLogs.forEach {
+            // if we have an action log that is for a report that is not being recorded, remove the link to the report.
+            // this is a valid use case when the client submission is incorrect - a report is created in memory but
+            // is not stored in the database or blob store, but we will want the action log
+            if (it.reportId != null &&
+                !(
+                    reportsReceived.containsKey(it.reportId) ||
+                        reportsOut.containsKey(it.reportId) ||
+                        filteredOutReports.containsKey(it.reportId) ||
+                        reportsIn.containsKey(it.reportId)
+                    )
+            ) {
+                it.reportId = null
+            }
             val detailRecord = DSL.using(txn).newRecord(ACTION_LOG, it)
             detailRecord.store()
         }

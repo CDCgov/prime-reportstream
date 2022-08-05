@@ -54,7 +54,7 @@ class DeliveryHistoryTests {
             null,
             14,
             "ca-dph",
-            "elr-secondary",
+            null,
             null,
             "test-schema",
             "CSV"
@@ -62,7 +62,7 @@ class DeliveryHistoryTests {
             assertThat(actionId).isEqualTo(922)
             assertThat(createdAt).isEqualTo(OffsetDateTime.parse("2022-04-19T18:04:26.534Z"))
             assertThat(receivingOrg).isEqualTo("ca-dph")
-            assertThat(receivingOrgSvc).isEqualTo("elr-secondary")
+            assertThat(receivingOrgSvc).isNull()
             assertThat(externalName).isEqualTo("")
             assertThat(reportId).isNull()
             assertThat(topic).isNull()

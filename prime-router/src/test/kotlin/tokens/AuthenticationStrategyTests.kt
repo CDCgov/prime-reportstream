@@ -5,6 +5,8 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.CovidSender
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.common.Environment
 import io.jsonwebtoken.Claims
@@ -169,5 +171,61 @@ class AuthenticationStrategyTests {
         req.httpHeaders["foobar"] = "BEARER tok5"
         tok = AuthenticationStrategy.getAccessToken(req)
         assertThat(tok).isNull()
+    }
+    @Test
+    fun `test validate claims`() {
+        val req = MockHttpRequestMessage("test")
+        // Missing authentication-type header in req!  Means ==> use token auth.
+        val jwtClaims = mockkClass(Claims::class)
+        every { jwtClaims[any()] } returns "simple_report.default.report"
+        mockkConstructor(TokenAuthentication::class)
+        every { anyConstructed<TokenAuthentication>().authenticate(any(), any()) } returns jwtClaims
+
+        val claims = AuthenticationStrategy.authenticate(req)
+        val mismatchedSender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+        val matchingSender = CovidSender(
+            "Test Sender",
+            "simple_report",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+
+        if (claims != null) {
+            var result = AuthenticationStrategy.validateClaim(claims, mismatchedSender, req)
+            assertThat(result).isFalse()
+
+            result = AuthenticationStrategy.validateClaim(claims, matchingSender, req)
+            assertThat(result).isTrue()
+        }
+    }
+
+    @Test
+    fun `test validate claims - isPrimeAdmin`() {
+        val req = MockHttpRequestMessage("test")
+        val userMemberships: Map<String, Any> = mapOf(
+            "organization" to listOf("DHPrimeAdmins"),
+            "sub" to "bob@bob.com"
+        )
+        val claims = AuthenticatedClaims(userMemberships)
+        val matchingSender = CovidSender(
+            "Test Sender",
+            "simple_report",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+
+        val result = AuthenticationStrategy.validateClaim(claims, matchingSender, req)
+        assertThat(result).isTrue()
     }
 }

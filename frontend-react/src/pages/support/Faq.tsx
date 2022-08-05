@@ -10,12 +10,22 @@ export const Faq = () => {
             <h1>Frequently asked questions</h1>
             <h2>Answers to common questions about ReportStream</h2>
             <hr />
+            <h3>How do I reset my password?</h3>
+            <p>
+                If you forgot your password, follow the instructions under the
+                "Need help signing in?" link on the login page at{" "}
+                <Link to="/login" key="login" className="usa-link">
+                    reportstream.cdc.gov/login
+                </Link>
+                .
+            </p>
+            <hr />
             <h3>How much does ReportStream cost?</h3>
             <p>
                 ReportStream is 100% free. Development is supported by the CDC.
             </p>
             <hr />
-            <h3>Where can you use ReportStream?</h3>
+            <h3>Where is ReportStream used?</h3>
             <p>
                 ReportStream is currently live or getting set up in
                 jurisdictions across the United States. Take a look at the
@@ -68,57 +78,45 @@ export const Faq = () => {
             </p>
             <hr />
             <h3>
-                I just activated my ReportStream account, why can't I log in?
+                I just activated my ReportStream account, why can't I log in?{" "}
             </h3>
+
             <p>
-                ReportStream, as part of the{" "}
+                ReportStream shares some resources with other projects operated
+                by the CDC (e.g.{" "}
                 <a
                     className="usa-link"
-                    href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html"
                     target="_blank"
-                    rel="noreferrer noopener"
+                    rel="noreferrer"
+                    href="https://www.simplereport.gov/"
                 >
-                    Pandemic-Ready Interoperability Modernization Effort (PRIME)
+                    SimpleReport
                 </a>
-                , shares some resources with other projects operated by the CDC.
+                ).
             </p>
             <p>
                 Some aspects of the registration process may contain references
-                to{" "}
-                <a className="usa-link" href="https://simplereport.gov">
-                    SimpleReport
-                </a>
-                , a PRIME project that ReportStream closely collaborates with.
-                To access your user account, be sure to log in at{" "}
-                <Link to="/login" key="login" className="usa-link">
+                to SimpleReport. To access your ReportStream user account, be
+                sure to log in at{" "}
+                <a
+                    className="usa-link"
+                    rel="noreferrer"
+                    href="https://reportstream.cdc.gov/login"
+                >
                     reportstream.cdc.gov/login
-                </Link>
-                .
+                </a>
+                .{" "}
             </p>
             <p>
                 For any other issues logging in,{" "}
-                <a className="usa-link" href="/support/contact">
+                <a
+                    className="usa-link"
+                    target="_blank"
+                    rel="noreferrer"
+                    href="https://reportstream.cdc.gov/support/contact"
+                >
                     contact us
                 </a>
-                .
-            </p>
-            <hr />
-            <h3>How do I reset my password?</h3>
-            <p>
-                If you forgot your password, follow the instructions under the
-                "Need help signing in?" link on the login page at{" "}
-                <Link to="/login" key="login" className="usa-link">
-                    reportstream.cdc.gov/login
-                </Link>
-                .
-            </p>
-            <p>
-                If you want to update your password, log out of the application
-                and follow the instructions under the "Need help signing in?"
-                link on the login page at{" "}
-                <Link to="/login" key="login" className="usa-link">
-                    reportstream.cdc.gov/login
-                </Link>
                 .
             </p>
             <hr />
@@ -138,6 +136,8 @@ export const Faq = () => {
                 are sister projects under the{" "}
                 <a
                     className="usa-link"
+                    rel="noreferrer"
+                    target="_blank"
                     href="https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html"
                 >
                     Pandemic-Ready Interoperability Modernization Effort (PRIME)
@@ -145,16 +145,17 @@ export const Faq = () => {
                 , operated by the CDC.
             </p>
             <p>
-                ReportStream is an open source, cloud based platform that
-                aggregates COVID-19 test results from healthcare clinics,
-                hospitals, laboratories, and other organizations, and delivers
-                them to public health departments.
+                ReportStream is an open source, cloud- based platform that
+                aggregates reportable disease test results from healthcare
+                clinics, hospitals, laboratories, and other organizations, and
+                delivers them to public health departments.
             </p>
             <p>
                 SimpleReport is a cloud-based application that helps
-                organizations to collect and submit COVID-19 test results to
-                public health. Data submitted with SimpleReport is routed
-                through ReportStream and delivered to public health departments.
+                organizations to collect and submit reportable disease test
+                results to public health. Data submitted with SimpleReport is
+                routed through ReportStream and delivered to public health
+                departments.
             </p>
         </>
     );
