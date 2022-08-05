@@ -138,9 +138,15 @@ class ReportFunction(
         val httpStatus: HttpStatus =
             try {
                 val option = Options.valueOfOrNone(optionsText)
-                if (option.isDeprecated()) {
+                if (option.isDeprecated) {
                     actionHistory.trackLogs(
-                        ActionLog(InvalidParamMessage("$optionsText is deprecated"), type = ActionLogLevel.warning)
+                        ActionLog(
+                            InvalidParamMessage(
+                                "Url Options Parameter, $optionsText has been deprecated. " +
+                                    "Valid options: ${Options.values().joinToString()}"
+                            ),
+                            type = ActionLogLevel.warning
+                        )
                     )
                 }
                 val payloadName = extractPayloadName(request)
@@ -189,7 +195,7 @@ class ReportFunction(
                     ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
                 )
                 HttpStatus.BAD_REQUEST
-            } catch (e: Options.Companion.InvalidOptionException) {
+            } catch (e: Options.InvalidOptionException) {
                 actionHistory.trackLogs(
                     ActionLog(InvalidParamMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
                 )

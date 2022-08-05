@@ -65,16 +65,17 @@ enum class Options {
     @OptionDeprecated
     SkipInvalidItems;
 
+    class InvalidOptionException(message: String) : Exception(message)
+
     /**
      * Checks to see if the enum constant has an @OptionDeprecated annotation.
      * If the annotation is present, the constant is no longer in use.
      */
-    fun isDeprecated(): Boolean = this.declaringClass.getField(this.name)
+
+    val isDeprecated = this.declaringClass.getField(this.name)
         .getAnnotation(OptionDeprecated::class.java) != null
 
     companion object {
-        class InvalidOptionException(message: String) : Exception(message)
-
         /**
          * Handles invalid values, which are technically not allowed in an enum. In this case if the [input]
          *  is not one that is supported, it will be set to None.

@@ -2,9 +2,11 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import java.io.ByteArrayInputStream
@@ -759,8 +761,17 @@ class OptionTests {
 
         val noneOption = Options.valueOfOrNone("None")
         assertThat(noneOption).equals(Options.None)
+
         val invalidOption = "INVALID OPTION"
-        val msg = "$invalidOption is not a valid Option. Valid options: ${Options.values().joinToString()}"
-        assertFailsWith<Options.Companion.InvalidOptionException>(msg) { Options.valueOfOrNone(invalidOption) }
+        assertFailsWith<Options.InvalidOptionException>() { Options.valueOfOrNone(invalidOption) }
+    }
+
+    @Test
+    fun `test isDeprecated`() {
+        val deprecatedOption = Options.valueOfOrNone("SkipInvalidItems")
+        assertThat(deprecatedOption.isDeprecated).isTrue()
+
+        val option = Options.valueOfOrNone("SkipSend")
+        assertThat(option.isDeprecated).isFalse()
     }
 }

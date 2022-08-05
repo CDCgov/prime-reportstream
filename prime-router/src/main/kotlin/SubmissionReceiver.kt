@@ -110,10 +110,8 @@ abstract class SubmissionReceiver(
         }
 
         /**
-         * Determines what time of submission receiver to use based on [sender]
-         * @param [sender] the type of sender submitting a report
-         * @param [workflowEngine] the workflow engine needed to create the receiver
-         * @param [actionHistory] the ActionHistory instance needed to create the receiver
+         * Determines what type of submission receiver to use based on [sender]
+         * Creates a new SubmissionReceiver using the given the [workflowEngine] and [actionHistory]
          * @return Returns either a TopicReceiver or ELRReceiver based on the sender
          */
         internal fun getSubmissionReceiver(
