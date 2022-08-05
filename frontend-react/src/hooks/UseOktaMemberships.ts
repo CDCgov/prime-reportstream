@@ -2,6 +2,7 @@ import React, { useEffect, useReducer } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 
 import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
+// import { setStoredOrg } from "../contexts/SessionStorageTools";
 
 export enum MemberType {
     SENDER = "sender",
@@ -126,14 +127,22 @@ export const membershipReducer = (
     const { type, payload } = action;
     switch (type) {
         case MembershipActionType.SWITCH:
+            const newActiveMembership =
+                state.memberships?.get(payload as string) || state.active;
+            // setStoredOrg(newActiveMembership);
+            console.log("!!! set in state on SWITCH", newActiveMembership);
             return {
                 ...state,
-                active:
-                    state.memberships?.get(payload as string) || state.active,
+                active: newActiveMembership,
             };
         case MembershipActionType.UPDATE:
+            console.log(
+                "!!! set in state on UPDATE",
+                membershipsFromToken(payload as AccessToken).active
+            );
             return membershipsFromToken(payload as AccessToken);
         case MembershipActionType.ADMIN_OVERRIDE:
+            console.log("!!! set in state on ADMIN_OVERRIDE", payload);
             return {
                 ...state,
                 active: {

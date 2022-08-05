@@ -19,6 +19,10 @@ export const Login = () => {
         const parsedOrgs = parseOrgs(getOktaGroups(tokens?.accessToken));
         const newOrg = parsedOrgs[0]?.org || "";
         const newSender = parsedOrgs[0]?.senderName || undefined;
+        console.log(
+            "!!! set on login",
+            newOrg === "PrimeAdmins" ? "ignore" : newOrg
+        );
         store.updateSessionStorage({
             // Sets admins to `ignore` org
             org: newOrg === "PrimeAdmins" ? "ignore" : newOrg,

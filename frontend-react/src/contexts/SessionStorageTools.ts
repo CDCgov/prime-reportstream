@@ -31,10 +31,15 @@ export function setStoredOktaToken(value: string) {
 }
 
 export function getStoredOrg(): string | undefined {
+    console.log(
+        "~~~ read session org",
+        sessionStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || undefined
+    );
     return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || undefined;
 }
 
 export function setStoredOrg(val: string) {
+    console.log("!!! set in session", val);
     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, val);
     updateApiSessions(headersFromStoredSession());
 }
