@@ -12,7 +12,6 @@ export enum MemberType {
 }
 
 export enum MembershipActionType {
-    SWITCH = "switch",
     UPDATE = "update",
     ADMIN_OVERRIDE = "override",
 }
@@ -126,15 +125,6 @@ export const membershipReducer = (
 ) => {
     const { type, payload } = action;
     switch (type) {
-        case MembershipActionType.SWITCH:
-            const newActiveMembership =
-                state.memberships?.get(payload as string) || state.active;
-            // setStoredOrg(newActiveMembership);
-            console.log("!!! set in state on SWITCH", newActiveMembership);
-            return {
-                ...state,
-                active: newActiveMembership,
-            };
         case MembershipActionType.UPDATE:
             console.log(
                 "!!! set in state on UPDATE",
