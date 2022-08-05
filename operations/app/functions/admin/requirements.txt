@@ -8,3 +8,4 @@ azure-identity
 azure.keyvault.secrets
 psycopg2-binary
 ping3
+dnspython
