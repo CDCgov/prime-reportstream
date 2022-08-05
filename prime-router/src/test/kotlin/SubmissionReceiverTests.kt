@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isFailure
+import assertk.assertions.isSuccess
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -765,6 +766,193 @@ class SubmissionReceiverTests {
                 metadata = metadata
             )
         }.isFailure()
+
+        verify(exactly = 0) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
+            actionHistory.trackLogs(emptyList())
+            engine.insertProcessTask(any(), any(), any(), any())
+            queueMock.sendMessage(elrConvertQueueName, any())
+        }
+    }
+
+    @Test
+    fun `test validation receiver validateAndMoveToProcessing, error on parsing`() {
+        // setup
+        mockkObject(SubmissionReceiver.Companion)
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.none))
+
+        val report = Report(
+            one,
+            mapOf<String, List<String>>(Pair("test", listOf("1,2"))),
+            source = ClientSource("ignore", "ignore"),
+            metadata = metadata
+        )
+
+        val receiver = spyk(
+            ValidationReceiver(
+                engine,
+                actionHistory
+            )
+        )
+
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+        val actionLogs = ActionLogger()
+        val itemLogger = actionLogs.getItemLogger(1)
+        itemLogger.error(InvalidHL7Message("Invalid HL7 file"))
+        val readResult = ReadResult(report, actionLogs)
+
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
+
+        // act / assert
+        assertThat {
+            receiver.validateAndMoveToProcessing(
+                sender,
+                hl7_record_bad_type,
+                emptyMap(),
+                Options.None,
+                emptyList(),
+                false,
+                true,
+                ByteArray(0),
+                "test.csv",
+                metadata = metadata
+            )
+        }.isFailure()
+
+        verify(exactly = 0) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
+            actionHistory.trackLogs(emptyList())
+            engine.insertProcessTask(any(), any(), any(), any())
+            queueMock.sendMessage(elrConvertQueueName, any())
+        }
+    }
+
+    @Test
+    fun `test validation receiver validateAndMoveToProcessing, warning on parsing`() {
+        // setup
+        mockkObject(SubmissionReceiver.Companion)
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.none))
+
+        val report = Report(
+            one,
+            mapOf<String, List<String>>(Pair("test", listOf("1,2"))),
+            source = ClientSource("ignore", "ignore"),
+            metadata = metadata
+        )
+
+        val receiver = spyk(
+            ValidationReceiver(
+                engine,
+                actionHistory
+            )
+        )
+
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+        val actionLogs = ActionLogger()
+        val itemLogger = actionLogs.getItemLogger(1)
+        itemLogger.warn(InvalidHL7Message("Invalid HL7 file"))
+        val readResult = ReadResult(report, actionLogs)
+
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
+
+        // act / assert
+        assertThat {
+            receiver.validateAndMoveToProcessing(
+                sender,
+                hl7_record_bad_type,
+                emptyMap(),
+                Options.None,
+                emptyList(),
+                false,
+                true,
+                ByteArray(0),
+                "test.csv",
+                metadata = metadata
+            )
+        }.isFailure()
+
+        verify(exactly = 0) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
+            actionHistory.trackLogs(emptyList())
+            engine.insertProcessTask(any(), any(), any(), any())
+            queueMock.sendMessage(elrConvertQueueName, any())
+        }
+    }
+
+    @Test
+    fun `test validation receiver validateAndMoveToProcessing, happy path`() {
+        // setup
+        mockkObject(SubmissionReceiver.Companion)
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.none))
+
+        val report = Report(
+            one,
+            mapOf<String, List<String>>(Pair("test", listOf("1,2"))),
+            source = ClientSource("ignore", "ignore"),
+            metadata = metadata
+        )
+
+        val receiver = spyk(
+            ValidationReceiver(
+                engine,
+                actionHistory
+            )
+        )
+
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+        val actionLogs = ActionLogger()
+        val readResult = ReadResult(report, actionLogs)
+
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
+
+        // act / assert
+        assertThat {
+            receiver.validateAndMoveToProcessing(
+                sender,
+                hl7_record_bad_type,
+                emptyMap(),
+                Options.None,
+                emptyList(),
+                false,
+                true,
+                ByteArray(0),
+                "test.csv",
+                metadata = metadata
+            )
+        }.isSuccess()
 
         verify(exactly = 0) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())

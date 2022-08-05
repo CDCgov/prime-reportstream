@@ -12,43 +12,39 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
-import gov.cdc.prime.router.CovidSender
-import gov.cdc.prime.router.ELRReceiver
 import gov.cdc.prime.router.InvalidReportMessage
-import gov.cdc.prime.router.MonkeypoxSender
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Sender.ProcessingType
-import gov.cdc.prime.router.TopicReceiver
+import gov.cdc.prime.router.ValidationReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.history.azure.SubmissionsFacade
+import gov.cdc.prime.router.history.DetailedActionLog
+import gov.cdc.prime.router.history.DetailedReport
+import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
-
-private const val PROCESSING_TYPE_PARAMETER = "processing"
+import java.time.OffsetDateTime
 
 /**
  * Azure Functions with HTTP Trigger.
  * This is basically the "front end" of the Hub. Reports come in here.
  */
-class ReportFunction(
+class ValidateFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
 ) : Logging, RequestFunction(workflowEngine) {
 
     /**
-     * POST a report to the router
-     *
-     * @see ../../../docs/api/reports.yml
+     * entry point for the /validate endpoint, which validates a potential submission without writing
+     * to the database or storing/sending a file
      */
-    @FunctionName("reports")
+    @FunctionName("validate")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
         @HttpTrigger(
-            name = "req",
+            name = "validate",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.FUNCTION
         ) request: HttpRequestMessage<String?>
@@ -57,13 +53,23 @@ class ReportFunction(
         if (senderName.isBlank()) {
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
         }
-
-        // Sender should eventually be obtained directly from who is authenticated
-        val sender = workflowEngine.settings.findSender(senderName)
-            ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
-        actionHistory.trackActionParams(request)
-
         return try {
+            val claims = AuthenticationStrategy.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+            // Sender should eventually be obtained directly from who is authenticated
+            val sender = workflowEngine.settings.findSender(senderName)
+                ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
+
+            if (!AuthenticationStrategy.validateClaim(
+                    claims,
+                    sender,
+                    request
+                )
+            ) return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+
+            actionHistory.trackActionParams(request)
+
             processRequest(request, sender)
         } catch (ex: Exception) {
             if (ex.message != null) {
@@ -76,54 +82,7 @@ class ReportFunction(
     }
 
     /**
-     * The Waters API, in memory of Dr. Michael Waters
-     * (The older version of this API is "/api/reports")
-     * POST a report to the router, using FHIR auth security
-     */
-    @FunctionName("waters")
-    @StorageAccount("AzureWebJobsStorage")
-    fun submitToWaters(
-        @HttpTrigger(
-            name = "waters",
-            methods = [HttpMethod.POST],
-            authLevel = AuthorizationLevel.ANONYMOUS
-        ) request: HttpRequestMessage<String?>
-    ): HttpResponseMessage {
-        val senderName = extractClient(request)
-        if (senderName.isBlank()) {
-            return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
-        }
-
-        actionHistory.trackActionParams(request)
-        try {
-            val claims = AuthenticationStrategy.authenticate(request)
-                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-
-            val sender = workflowEngine.settings.findSender(senderName)
-                ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown client")
-
-            if (!AuthenticationStrategy.validateClaim(
-                    claims,
-                    sender,
-                    request
-                )
-            ) return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
-
-            return processRequest(request, sender)
-        } catch (ex: Exception) {
-            if (ex.message != null) {
-                logger.error(ex.message!!, ex)
-            } else {
-                logger.error(ex)
-            }
-            return HttpUtilities.internalErrorResponse(request)
-        }
-    }
-
-    /**
-     * Handles an incoming request after it has been authenticated by either /reports or /waters endpoint.
-     * Does basic validation and either pushes it into the sync or async pipeline, based on the value
-     * of the incoming PROCESSING_TYPE_PARAMETER query string value
+     * Handles an incoming validation request after it has been authenticated via the /validate endpoint.
      * @param request The incoming request
      * @param sender The sender record, pulled from the database based on sender name on the request
      * @return Returns an HttpResponseMessage indicating the result of the operation and any resulting information
@@ -132,8 +91,6 @@ class ReportFunction(
         request: HttpRequestMessage<String?>,
         sender: Sender
     ): HttpResponseMessage {
-        // determine if we should be following the sync or async workflow
-        val isAsync = processingType(request, sender) == ProcessingType.async
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
         val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
@@ -141,8 +98,6 @@ class ReportFunction(
             try {
                 val options = Options.valueOfOrNone(optionsText)
                 val payloadName = extractPayloadName(request)
-                // track the sending organization and client based on the header
-                actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
                 val validatedRequest = validateRequest(request)
                 val rawBody = validatedRequest.content.toByteArray()
 
@@ -155,10 +110,7 @@ class ReportFunction(
 
                 // Only process the report if we are not checking for connection or validation.
                 if (options != Options.CheckConnections && options != Options.ValidatePayload) {
-                    val receiver = when (sender) {
-                        is CovidSender, is MonkeypoxSender -> TopicReceiver(workflowEngine, actionHistory)
-                        else -> ELRReceiver(workflowEngine, actionHistory)
-                    }
+                    val receiver = ValidationReceiver(workflowEngine, actionHistory)
 
                     // send report on its way, either via the COVID pipeline or the full ELR pipeline
                     receiver.validateAndMoveToProcessing(
@@ -167,7 +119,7 @@ class ReportFunction(
                         validatedRequest.defaults,
                         options,
                         validatedRequest.routeTo,
-                        isAsync,
+                        false,
                         allowDuplicates,
                         rawBody,
                         payloadName
@@ -191,43 +143,36 @@ class ReportFunction(
                 HttpStatus.BAD_REQUEST
             }
 
-        actionHistory.trackActionResult(httpStatus)
-        workflowEngine.recordAction(actionHistory)
-
-        check(actionHistory.action.actionId > 0)
-        val submission = SubmissionsFacade.instance.findDetailedSubmissionHistory(
-            actionHistory.action.actionId
+        val submission = DetailedSubmissionHistory(
+            1,
+            TaskAction.none,
+            OffsetDateTime.now(),
+            httpStatus.value(),
+            mutableListOf<DetailedReport>(),
+            actionHistory.actionLogs.map {
+                DetailedActionLog(
+                    it.scope,
+                    it.reportId,
+                    it.index,
+                    it.trackingId,
+                    it.type,
+                    it.detail
+                )
+            }
         )
-        val response = request.createResponseBuilder(httpStatus)
+
+        // set status for validation response
+        submission.overallStatus = if (httpStatus == HttpStatus.BAD_REQUEST)
+            DetailedSubmissionHistory.Status.ERROR
+        else
+            DetailedSubmissionHistory.Status.VALID
+
+        return request.createResponseBuilder(httpStatus)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .body(
                 JacksonMapperUtilities.allowUnknownsMapper
                     .writeValueAsString(submission)
             )
-            .header(
-                HttpHeaders.LOCATION,
-                request.uri.resolve(
-                    "/api/history/${sender.organizationName}/submissions/${actionHistory.action.actionId}"
-                ).toString()
-            )
             .build()
-
-        // queue messages here after all task / action records are in
-        actionHistory.queueMessages(workflowEngine)
-
-        return response
-    }
-
-    private fun processingType(request: HttpRequestMessage<String?>, sender: Sender): ProcessingType {
-        val processingTypeString = request.queryParameters[PROCESSING_TYPE_PARAMETER]
-        return if (processingTypeString == null) {
-            sender.processingType
-        } else {
-            try {
-                ProcessingType.valueOfIgnoreCase(processingTypeString)
-            } catch (e: IllegalArgumentException) {
-                sender.processingType
-            }
-        }
     }
 }
