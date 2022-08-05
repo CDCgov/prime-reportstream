@@ -63,7 +63,7 @@ class MockHttpRequestMessage(val content: String? = null) : HttpRequestMessage<S
         return this.httpHeaders
     }
 
-    override fun getQueryParameters(): Map<String, String> {
+    override fun getQueryParameters(): MutableMap<String, String> {
         return this.parameters
     }
 
