@@ -455,6 +455,8 @@ open class BaseHistoryFunction : Logging {
         /**
          * @return true if the [oktaOrgs] list included a PrimeAdmin role,
          * or if [requestedOrgName] is one of the organizations in [oktaOrgs].
+         * In all other cases, the user is not authorized, and this returns false.
+         *
          * The comparison treats dashes and underscores as identical.
          *
          * This is needed, temporarily, as a step to support fixing group names in Okta to exactly match
@@ -464,9 +466,9 @@ open class BaseHistoryFunction : Logging {
             if (requestedOrgName.isBlank()) return false
             oktaOrgs.forEach {
                 when {
-                    it == null -> { } // do nothing ; skip
+                    it == null -> { } // do nothing ; skip.
                     it.contains("DHPrimeAdmins") -> return true
-                    it.replace("_", "-") == "DH${requestedOrgName.replace('_', '-')}"
+                    it.replace('_', '-') == "DH${requestedOrgName.replace('_', '-')}"
                     -> return true
                 }
             }
