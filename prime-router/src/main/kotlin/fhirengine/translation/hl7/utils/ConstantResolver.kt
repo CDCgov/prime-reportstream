@@ -22,8 +22,8 @@ data class CustomContext(val constants: MutableMap<String, String> = mutableMapO
          * Add [constants] to a context.
          * @return a new context with the [constants] added or the existing context of no new constants are specified
          */
-        fun addConstants(constants: Map<String, String>, previousContext: CustomContext?): CustomContext? {
-            return if (constants.isEmpty()) previousContext
+        fun addConstants(constants: Map<String, String>, previousContext: CustomContext?): CustomContext {
+            return if (constants.isEmpty()) previousContext ?: CustomContext()
             else {
                 val newContext = previousContext?.copy() ?: CustomContext()
                 constants.forEach { newContext.constants[it.key] = it.value }
@@ -35,7 +35,7 @@ data class CustomContext(val constants: MutableMap<String, String> = mutableMapO
          * Add constant with [key] and [value] to a context.
          * @return a new context with the constant added or the existing context of no new constant is specified
          */
-        fun addConstant(key: String, value: String, previousContext: CustomContext?): CustomContext? {
+        fun addConstant(key: String, value: String, previousContext: CustomContext?): CustomContext {
             return addConstants(mapOf(key to value), previousContext)
         }
     }
@@ -76,20 +76,49 @@ object ConstantSubstitutor {
  * Custom resolver for the FHIR path engine.
  */
 class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
-    override fun resolveConstant(appContext: Any?, name: String?, beforeContext: Boolean): Base {
+    override fun resolveConstant(appContext: Any?, name: String?, beforeContext: Boolean): Base? {
         // Name is always passed in from the FHIR path engine
         require(!name.isNullOrBlank())
 
         return when {
             appContext == null || appContext !is CustomContext ->
                 throw PathEngineException("No context available to resolve constant '$name'")
+
+            // Support prefix constant replacement like for URLs similar to %ext in FHIRPathEngine
+            // E.g., '%resource.source.extension(%`rsext-source-software-vendor-org`).value' where
+            // rsext is the defined constant.
+            name.startsWith("`") -> {
+                val constantNameParts = name.trimStart('`').split("-", limit = 2)
+                when (constantNameParts.size) {
+                    // 2 parts means the constant is a prefix and there is a suffix
+                    2 -> {
+                        val constantValue = appContext.constants[constantNameParts[0]]
+                        constantValue?.let {
+                            StringType(constantValue + constantNameParts[1].trimEnd('`'))
+                        }
+                    }
+
+                    // 1 part means the constant is surrounded by `, useful for separating other text from the constant name
+                    1 -> {
+                        val constantValue = appContext.constants[constantNameParts[0].trimEnd('`')]
+                        constantValue?.let {
+                            StringType(constantValue)
+                        }
+                    }
+
+                    else -> null
+                }
+            }
+
+            // Just a straight constant replacement
             appContext.constants.contains(name) -> {
                 // Return the type depending on the contents of the variable
                 if (NumberUtils.isDigits(appContext.constants[name]))
                     IntegerType(NumberUtils.createInteger(appContext.constants[name]))
                 else StringType(appContext.constants[name])
             }
-            else -> throw PathEngineException("'$name' was not found in the provided context")
+            // Must return null as the resolver is called by the FhirPathEngine to test for non-constants too
+            else -> null
         }
     }
 

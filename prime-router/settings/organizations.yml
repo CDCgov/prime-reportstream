@@ -1316,7 +1316,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3
+        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3, OBX-17-1
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
         suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
@@ -1346,7 +1346,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3
+        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3, OBX-17-1
         suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
       transport:
         type: SFTP
@@ -3144,6 +3144,8 @@
           MSH-3: [ "*": "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO" ]
           MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
           MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
+          ORC-2: [ "*": "^RX MART PHARMACY^RX MART PHARMACY^CLIA"]
+          OBR-2: [ "*": "^RX MART PHARMACY^RX MART PHARMACY^CLIA"]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

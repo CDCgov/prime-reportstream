@@ -61,23 +61,37 @@ enum class Options {
     ValidatePayload,
     CheckConnections,
     SkipSend,
-    SendImmediately;
+    SendImmediately,
+    @OptionDeprecated
+    SkipInvalidItems;
+
+    class InvalidOptionException(message: String) : Exception(message)
+
+    /**
+     * Checks to see if the enum constant has an @OptionDeprecated annotation.
+     * If the annotation is present, the constant is no longer in use.
+     */
+
+    val isDeprecated = this.declaringClass.getField(this.name)
+        .getAnnotation(OptionDeprecated::class.java) != null
 
     companion object {
         /**
          * Handles invalid values, which are technically not allowed in an enum. In this case if the [input]
-         *  is not one that is supported, it will be set to None
+         *  is not one that is supported, it will be set to None.
          */
         fun valueOfOrNone(input: String): Options {
             return try {
                 valueOf(input)
             } catch (ex: IllegalArgumentException) {
-                None
+                val msg = "$input is not a valid Option. Valid options: ${Options.values().joinToString()}"
+                throw InvalidOptionException(msg)
             }
         }
     }
 }
 
+annotation class OptionDeprecated()
 /**
  * ReportStreamFilterResult records useful information about rows filtered by one filter call.  One filter
  * might filter many rows. ReportStreamFilterResult entries are only created when filter logging is on.  This is to
@@ -345,13 +359,14 @@ class Report : Logging {
         numberOfMessages: Int,
         metadata: Metadata? = null,
         itemLineage: List<ItemLineage>? = null,
+        destination: Receiver? = null
     ) {
         this.id = UUID.randomUUID()
         // ELR submissions do not need a schema, but it is required by the database to maintain legacy functionality
         this.schema = Schema("None", Topic.FULL_ELR.json_val)
         this.sources = sources
         this.bodyFormat = bodyFormat
-        this.destination = null
+        this.destination = destination
         this.createdDateTime = OffsetDateTime.now()
         this.itemLineages = itemLineage
         // we do not need the 'table' representation in this instance

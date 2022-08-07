@@ -138,7 +138,7 @@ elements:
     type: TABLE
     table: fips-county
     tableColumn: FIPS
-    mapper: lookup(ordering_facility_state, ordering_facility_county)
+    mapper: lookup(ordering_facility_state, $Column:State, ordering_facility_county, $Column:County)
     hl7Field: ORC-22-9
 
   - name: ordering_facility_country

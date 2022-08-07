@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
@@ -48,17 +49,17 @@ class FhirPathUtilsTests {
         val bundle = Bundle()
         bundle.id = "abc123"
 
-        var path = FhirPathUtils.parsePath("Bundle.id.exists()")
-        assertThat(path).isNotNull()
-        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path!!)).isTrue()
+        var path = "Bundle.id.exists()"
 
-        path = FhirPathUtils.parsePath("Bundle.timestamp.exists()")
-        assertThat(path).isNotNull()
-        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path!!)).isFalse()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path)).isTrue()
 
-        path = FhirPathUtils.parsePath("Bundle.id")
-        assertThat(path).isNotNull()
-        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, path!!) }.isFailure()
+        path = "Bundle.timestamp.exists()"
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path)).isFalse()
+
+        // Bad extension names throw an out of bound exception (a bug in the library)
+        path = "Bundle.entry[0].resource.extension('blah')"
+        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, path) }.isSuccess()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path)).isFalse()
     }
 
     @Test
@@ -80,23 +81,27 @@ class FhirPathUtilsTests {
         bundle.addEntry(entry2)
 
         // First a non reference
-        var path = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(DiagnosticReport)[0]")
-        assertThat(path).isNotNull()
-        var result = FhirPathUtils.evaluate(null, bundle, bundle, path!!)
+        var path = "Bundle.entry.resource.ofType(DiagnosticReport)[0]"
+        var result = FhirPathUtils.evaluate(null, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat(result.size).isEqualTo(1)
         assertThat(result[0]).isInstanceOf(DiagnosticReport::class.java)
         assertThat((result[0] as DiagnosticReport).id).isEqualTo(diagReport.id)
 
         // Now a reference
-        path = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(DiagnosticReport)[0].basedOn")
+        path = "Bundle.entry.resource.ofType(DiagnosticReport)[0].basedOn"
         assertThat(path).isNotNull()
-        result = FhirPathUtils.evaluate(null, bundle, bundle, path!!)
+        result = FhirPathUtils.evaluate(null, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat(result.size).isEqualTo(1)
         assertThat(result[0]).isNotInstanceOf(Reference::class.java)
         assertThat(result[0]).isInstanceOf(ServiceRequest::class.java)
         assertThat((result[0] as ServiceRequest).id).isEqualTo(servRequest.id)
+
+        // Bad extension names throw an out of bound exception (a bug in the library)
+        path = "Bundle.extension('blah')"
+        assertThat { FhirPathUtils.evaluate(null, bundle, bundle, path) }.isSuccess()
+        assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
     }
 
     @Test
@@ -111,21 +116,21 @@ class FhirPathUtilsTests {
         bundle.addEntry().resource = observation
 
         // Test timestamp of java Date
-        var path = FhirPathUtils.parsePath("Bundle.timestamp")
-        var result = FhirPathUtils.evaluateString(null, bundle, bundle, path!!)
+        var path = "Bundle.timestamp"
+        var result = FhirPathUtils.evaluateString(null, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat { terser.set("MSH-7", result) }.isSuccess()
 
         // Test DateTimeType
-        path = FhirPathUtils.parsePath("Bundle.entry.resource.effective")
-        result = FhirPathUtils.evaluateString(null, bundle, bundle, path!!)
+        path = "Bundle.entry.resource.effective"
+        result = FhirPathUtils.evaluateString(null, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat { terser.set("MSH-7", result) }.isSuccess()
 
         // Test InstanceType (which boils down to a DateTimeType)
         observation.effective = InstantType("2015-04-11T12:22:01-04:00")
-        path = FhirPathUtils.parsePath("Bundle.entry.resource.effective")
-        result = FhirPathUtils.evaluateString(null, bundle, bundle, path!!)
+        path = "Bundle.entry.resource.effective"
+        result = FhirPathUtils.evaluateString(null, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat { terser.set("MSH-7", result) }.isSuccess()
 
@@ -134,50 +139,56 @@ class FhirPathUtilsTests {
         ext.setValue(DateType("2011-01-02"))
         observation.addExtension(ext)
         // Test DateType
-        path = FhirPathUtils.parsePath("Bundle.entry.resource.extension.value")
-        result = FhirPathUtils.evaluateString(null, bundle, bundle, path!!)
+        path = "Bundle.entry.resource.extension.value"
+        result = FhirPathUtils.evaluateString(null, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat { terser.set("MSH-7", result) }.isSuccess()
 
         // Test TimeType
         ext.setValue(TimeType("13:04:05.098"))
-        path = FhirPathUtils.parsePath("Bundle.entry.resource.extension.value")
-        result = FhirPathUtils.evaluateString(null, bundle, bundle, path!!)
+        path = "Bundle.entry.resource.extension.value"
+        result = FhirPathUtils.evaluateString(null, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         // OBX-2 is one of the few HL7 fields that accepts a TM
         assertThat { terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", result) }.isSuccess()
 
         // Test regular string
         bundle.id = "super special id"
-        path = FhirPathUtils.parsePath("Bundle.id")
-        result = FhirPathUtils.evaluateString(null, bundle, bundle, path!!)
+        path = "Bundle.id"
+        result = FhirPathUtils.evaluateString(null, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat { terser.set("MSH-10", result) }.isSuccess()
     }
 
     @Test
     fun `test convertDateTimeToHL7`() {
-        val dateTime = DateTimeType("2015-04-11T12:22:01-04:00")
-        val result = FhirPathUtils.convertDateTimeToHL7(dateTime)
-        assertThat(result).isNotEmpty()
-        assertThat(result).isEqualTo("20150411122201.0000-0400")
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015")))
+            .isEqualTo("2015")
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04")))
+            .isEqualTo("201504")
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05")))
+            .isEqualTo("20150405")
+        // Hour only or hour and minute only is not supported by FHIR type
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11")))
+            .isEqualTo("20150405122211")
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567")))
+            .isEqualTo("20150405122211.567")
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567891")))
+            .isEqualTo("20150405122211.5679") // Note the rounding
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-11T12:22:01-04:00")))
+            .isEqualTo("20150411122201-0400")
     }
 
     @Test
     fun `test convertTimeToHL7`() {
         val time = TimeType("13:04:05.098")
-        val result = FhirPathUtils.convertTimeToHL7(time)
-        print(result)
-        assertThat(result).isNotEmpty()
-        assertThat(result).isEqualTo("130405.0980")
+        assertThat(FhirPathUtils.convertTimeToHL7(time)).isEqualTo("130405.0980")
     }
 
     @Test
     fun `test convertDateToHL7`() {
-        val date = DateType("2011-01-02")
-        val result = FhirPathUtils.convertDateToHL7(date)
-        print(result)
-        assertThat(result).isNotEmpty()
-        assertThat(result).isEqualTo("20110102")
+        assertThat(FhirPathUtils.convertDateToHL7(DateType("2011-01-02"))).isEqualTo("20110102")
+        assertThat(FhirPathUtils.convertDateToHL7(DateType("2011-01"))).isEqualTo("201101")
+        assertThat(FhirPathUtils.convertDateToHL7(DateType("2011"))).isEqualTo("2011")
     }
 }

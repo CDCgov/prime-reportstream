@@ -19,17 +19,17 @@ import org.junit.jupiter.api.Test
 class ConstantResolverTests {
     @Test
     fun `test custom context`() {
-        assertThat(CustomContext.addConstants(mapOf(), null)).isNull()
+        assertThat(CustomContext.addConstants(mapOf(), null)).isNotNull()
 
         val constant = sortedMapOf("name1" to "value1")
         var context = CustomContext.addConstant(constant.firstKey(), constant[constant.firstKey()]!!, null)
         assertThat(context).isNotNull()
-        assertThat(context!!.constants).isNotEmpty()
+        assertThat(context.constants).isNotEmpty()
         assertThat(context.constants[constant.firstKey()]).isEqualTo(constant[constant.firstKey()])
 
         context = CustomContext.addConstants(constant, null)
         assertThat(context).isNotNull()
-        assertThat(context!!.constants).isNotEmpty()
+        assertThat(context.constants).isNotEmpty()
         assertThat(context.constants[constant.firstKey()]).isEqualTo(constant[constant.firstKey()])
 
         // Check that a new context is returned
@@ -66,8 +66,9 @@ class ConstantResolverTests {
             .isFailure().hasClass(PathEngineException::class.java)
 
         val integerValue = 99
-        val constant = sortedMapOf("const1" to "value1", "int1" to integerValue.toString())
-        val context = CustomContext.addConstants(constant, null)
+        val urlPrefix = "https://reportstream.cdc.gov/fhir/StructureDefinition/"
+        val constants = sortedMapOf("const1" to "value1", "int1" to integerValue.toString(), "rsext" to urlPrefix)
+        val context = CustomContext.addConstants(constants, null)
         assertThat { FhirPathCustomResolver().resolveConstant(null, "const2", false) }
             .isFailure().hasClass(PathEngineException::class.java)
         assertThat { FhirPathCustomResolver().resolveConstant(null, "const1", false) }
@@ -75,13 +76,32 @@ class ConstantResolverTests {
 
         // Now lets resolve a constant
         var result = FhirPathCustomResolver().resolveConstant(context, "const1", false)
-        assertThat(result.isPrimitive).isTrue()
+        assertThat(result).isNotNull()
+        assertThat(result!!.isPrimitive).isTrue()
         assertThat(result).isInstanceOf(StringType::class.java)
-        assertThat((result as StringType).value).isEqualTo(constant[constant.firstKey()])
+        assertThat((result as StringType).value).isEqualTo(constants[constants.firstKey()])
 
         result = FhirPathCustomResolver().resolveConstant(context, "int1", false)
-        assertThat(result.isPrimitive).isTrue()
+        assertThat(result).isNotNull()
+        assertThat(result!!.isPrimitive).isTrue()
         assertThat(result).isInstanceOf(IntegerType::class.java)
         assertThat((result as IntegerType).value).isEqualTo(integerValue)
+
+        // Text the ability to resolve constants with suffix
+        val urlSuffix = "SomeSuffix"
+        result = FhirPathCustomResolver().resolveConstant(context, "`rsext-$urlSuffix`", false)
+        assertThat(result).isNotNull()
+        assertThat(result!!.isPrimitive).isTrue()
+        assertThat(result).isInstanceOf(StringType::class.java)
+        assertThat((result as StringType).value).isEqualTo("$urlPrefix$urlSuffix")
+
+        result = FhirPathCustomResolver().resolveConstant(context, "`rsext`", false)
+        assertThat(result).isNotNull()
+        assertThat(result!!.isPrimitive).isTrue()
+        assertThat(result).isInstanceOf(StringType::class.java)
+        assertThat((result as StringType).value).isEqualTo(urlPrefix)
+
+        result = FhirPathCustomResolver().resolveConstant(context, "unknownconst", false)
+        assertThat(result).isNull()
     }
 }
