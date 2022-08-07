@@ -392,21 +392,20 @@ function renderAllReceiverRows(props: {
                     successForRow.updateState(wasSuccessful);
 
                     // if we're doing an error search, then we want to hide none matching slices.
-                    // Don't bother comparing if filterErrorText is empty
-                    if (filteredSlice !== MatchingFilter.FILTER_IS_MATCHED) {
-                        filteredSlice =
-                            filterErrorText.length === 0
-                                ? MatchingFilter.NO_FILTER
-                                : currentEntry.connectionCheckResult
-                                      .toLowerCase()
-                                      .includes(filterErrorText)
-                                ? MatchingFilter.FILTER_IS_MATCHED
-                                : MatchingFilter.FILTER_NOT_MATCHED;
-
+                    if (
+                        filterErrorText.length &&
+                        filteredSlice !== MatchingFilter.FILTER_IS_MATCHED
+                    ) {
+                        filteredSlice = MatchingFilter.NO_FILTER; // default
                         if (
-                            filteredSlice !== MatchingFilter.FILTER_NOT_MATCHED
+                            currentEntry.connectionCheckResult
+                                .toLowerCase()
+                                .includes(filterErrorText)
                         ) {
+                            filteredSlice = MatchingFilter.FILTER_IS_MATCHED;
                             visibleSliceCount++;
+                        } else {
+                            filteredSlice = MatchingFilter.FILTER_NOT_MATCHED;
                         }
                     }
 
@@ -449,25 +448,25 @@ function renderAllReceiverRows(props: {
                                 : (evt) => {
                                       // get saved offset from "data-offset" attribute on this element
                                       const target = evt.currentTarget;
-                                      const dataOffset = parseInt(
+                                      const sliceStart = parseInt(
                                           target?.dataset["offset"] || "-1"
                                       );
-                                      let dataOffsetEnd = parseInt(
+                                      let sliceEnd = parseInt(
                                           target?.dataset["offsetEnd"] || "-1"
                                       );
                                       // sanity check it's within range (should never happen)
                                       if (
-                                          dataOffset >= 0 &&
-                                          dataOffset < props.data.length
+                                          sliceStart >= 0 &&
+                                          sliceStart < props.data.length
                                       ) {
                                           // should never happen, but safety
-                                          dataOffsetEnd =
-                                              dataOffsetEnd > dataOffset
-                                                  ? dataOffsetEnd
-                                                  : dataOffset;
+                                          sliceEnd =
+                                              sliceEnd > sliceStart
+                                                  ? sliceEnd
+                                                  : sliceStart;
                                           const subsetData = props.data.slice(
-                                              dataOffset,
-                                              dataOffsetEnd
+                                              sliceStart,
+                                              sliceEnd
                                           );
                                           props.onClick(subsetData);
                                       }
