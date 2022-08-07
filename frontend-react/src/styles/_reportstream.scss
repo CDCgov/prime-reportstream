@@ -549,8 +549,10 @@ pre {
         }
     }
 
+    /* this is added to slice cells when an error search is done and a cell doesn't match */
     .is-hidden {
         display: none;
+        cursor: none;
     }
 }
 
@@ -587,6 +589,11 @@ pre {
     .failure-all {
         color: var(--toastify-color-error);
     }
+}
+
+.rs-admindash-warn-font {
+    color: var(--toastify-color-error);
+    font-weight: bold;
 }
 
 /* for dashboards, unbounded width is a nice feature */

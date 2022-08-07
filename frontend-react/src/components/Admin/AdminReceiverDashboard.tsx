@@ -1,6 +1,7 @@
 import { useResource } from "rest-hooks";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
+    Button,
     DateRangePicker,
     Dropdown,
     Grid,
@@ -8,6 +9,7 @@ import {
     Label,
     Modal,
     ModalRef,
+    ModalToggleButton,
     SiteAlert,
     TextInput,
     Tooltip,
@@ -19,16 +21,13 @@ import {
     AdmConnStatusResource,
     AdmConnStatusDataType,
 } from "../../resources/AdmConnStatusResource";
-import { StyleClass } from "../Table/TableFilters";
 import { formatDate } from "../../utils/misc";
-import { CheckFeatureFlag } from "../../pages/misc/FeatureFlags";
+import { StyleClass } from "../Table/TableFilters";
 
 const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
-const SKIP_HOURS = 2; // hrs
-
-const FILTER_RENDERED_ROWS_REMOVE_ROWS = CheckFeatureFlag(
-    "FILTER_RENDERED_ROWS_REMOVE_ROWS"
-);
+const SKIP_HOURS = 2; // hrs - should be factor of 24 (e.g. 12,6,4,3,2)
+const MAX_DAYS = 10;
+const MAX_DAYS_MS = MAX_DAYS * 24 * 60 * 60 * 1000;
 
 /**
  *
@@ -341,8 +340,9 @@ function renderAllReceiverRows(props: {
     startDay: Date;
     endDay: Date;
     filterErrorText: string;
-    onClick: (dataItem: AdmConnStatusDataType) => void;
+    onClick: (dataItems: AdmConnStatusDataType[]) => void;
 }): JSX.Element[] {
+    console.log("renderAllReceiverRows");
     const filterErrorText = props.filterErrorText.trim().toLowerCase();
     const perReceiverRowElements: JSX.Element[] = [];
     let perDayElements: JSX.Element[] = [];
@@ -350,7 +350,7 @@ function renderAllReceiverRows(props: {
     let visibleSliceCount = 0; // used when error filtering
     // we use double cursors (primary moves through time and secondary through data entries)
     let offset = 0;
-    console.log(`renderAllReceiverRows called`);
+
     // loop over all receivers (each is its own row)
     while (offset < props.data.length) {
         const successForRow = new SuccessRateTracker();
@@ -429,31 +429,47 @@ function renderAllReceiverRows(props: {
                 const sliceFilterClassName =
                     MATCHING_FILTER_CLASSNAME_MAP[filteredSlice];
 
+                // it's possible to match more than on data entry per slice
+                const dataCount =
+                    successForSlice.countSuccess + successForSlice.countFailed;
+                const dataOffset = offset - dataCount;
+                const dataOffsetEnd = offset;
+
                 sliceElements.push(
                     <Grid
                         row
                         key={`slice:${currentReceiver}|${timeSlotStart}`}
                         className={`slice ${sliceClassName} ${sliceFilterClassName}`}
-                        data-offset={offset - 1}
-                        data-slice-success-count={successForSlice.countSuccess}
-                        data-slice-failed-count={successForSlice.countFailed}
+                        data-offset={dataOffset}
+                        data-offset-end={dataOffsetEnd}
                         onClick={
                             successForSlice.currentState ===
                             SuccessRate.UNDEFINED
                                 ? undefined // do not even install a click handler noop
                                 : (evt) => {
                                       // get saved offset from "data-offset" attribute on this element
+                                      const target = evt.currentTarget;
                                       const dataOffset = parseInt(
-                                          evt.currentTarget?.dataset[
-                                              "offset"
-                                          ] || "-1"
+                                          target?.dataset["offset"] || "-1"
+                                      );
+                                      let dataOffsetEnd = parseInt(
+                                          target?.dataset["offsetEnd"] || "-1"
                                       );
                                       // sanity check it's within range (should never happen)
                                       if (
                                           dataOffset >= 0 &&
                                           dataOffset < props.data.length
                                       ) {
-                                          props.onClick(props.data[dataOffset]);
+                                          // should never happen, but safety
+                                          dataOffsetEnd =
+                                              dataOffsetEnd > dataOffset
+                                                  ? dataOffsetEnd
+                                                  : dataOffset;
+                                          const subsetData = props.data.slice(
+                                              dataOffset,
+                                              dataOffsetEnd
+                                          );
+                                          props.onClick(subsetData);
                                       }
                                   }
                         }
@@ -537,22 +553,23 @@ function renderAllReceiverRows(props: {
     return perReceiverRowElements;
 }
 
+/**
+ * Some filtering doesn't need to modify rows, just show/hide rows.
+ * This function loops over "pre-rendered" rows and decide which to
+ * include.
+ */
 function FilterRenderedRows(props: {
     renderedRows: JSX.Element[];
     filterRowStatus: SuccessRate;
     filterRowReceiver: string;
     filterErrorText: string;
-    onClick: (dataItem: AdmConnStatusDataType) => void;
+    onClick: (dataItem: AdmConnStatusDataType[]) => void;
 }) {
     const filterRowStatus = props.filterRowStatus.toUpperCase(); // enum is uppercased
     const filterRowReceiver = props.filterRowReceiver.toLowerCase();
     const filterErrorText = props.filterErrorText.trim().toUpperCase();
     const renderedRows = props.renderedRows;
 
-    // NOTE. we wrap each row in a noop div to simply change the visibility attribute.
-    //       This is faster because the DOM isn't heavily modified, just the classNames
-    //       for existing rows are changed!
-    let atLeastOneRowVisible = false;
     const resultArray: JSX.Element[] = [];
     for (let offset = 0; offset < renderedRows.length; offset++) {
         const renderedRow = renderedRows[offset];
@@ -560,7 +577,6 @@ function FilterRenderedRows(props: {
         const orgRecvName = renderedRow.props["data-orgrecvname"] || "";
         const allSlicesFilteredOut =
             renderedRow.props["data-allslicesfiltered"] || false;
-        const key = renderedRow.key;
 
         // filters remove rows.
         const hideRowBasedOnStatus =
@@ -573,42 +589,21 @@ function FilterRenderedRows(props: {
                 ? !orgRecvName.includes(filterRowReceiver)
                 : false;
 
+        // this filter removed ALL slices from the day, so hide the row
         const hideRowBasedOnErrorFilter =
             filterErrorText !== "" ? allSlicesFilteredOut : false;
 
-        const hiddenClassName =
+        const hideRow =
             hideRowBasedOnStatus ||
             hideRowBasedOnRecv ||
-            hideRowBasedOnErrorFilter
-                ? "is-hidden"
-                : "";
+            hideRowBasedOnErrorFilter;
 
-        // if all rows are hidden show a message.
-        atLeastOneRowVisible =
-            atLeastOneRowVisible ||
-            (!hideRowBasedOnStatus && !hideRowBasedOnRecv);
-
-        // TWO DIFFERENT APPROACHES
-        if (FILTER_RENDERED_ROWS_REMOVE_ROWS) {
-            // REMOVE unused rows from the DOM
-            const hideRow =
-                hideRowBasedOnStatus ||
-                hideRowBasedOnRecv ||
-                hideRowBasedOnErrorFilter;
-            if (!hideRow) {
-                resultArray.push(renderedRow);
-            }
-        } else {
-            // HIDE the unused rows from the DOM (faster render since outer span's class is only changed)
-            resultArray.push(
-                <span className={hiddenClassName} key={`wrapper-${key}`}>
-                    {renderedRow}
-                </span>
-            );
+        if (!hideRow) {
+            resultArray.push(renderedRow);
         }
     }
 
-    if (!atLeastOneRowVisible) {
+    if (resultArray.length === 0) {
         return <>No rows matching time range and any filters</>;
     }
 
@@ -624,9 +619,9 @@ function MainRender(props: {
     onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
 }) {
     const onClick = useCallback(
-        (dataItem: AdmConnStatusDataType) => {
+        (dataItems: AdmConnStatusDataType[]) => {
             // in theory, there might be multiple events for the block, but we're only handling one for now.
-            props.onDetailsClick([dataItem]);
+            props.onDetailsClick(dataItems);
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [props.onDetailsClick]
@@ -674,11 +669,8 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
     if (!props?.subData.length) {
         return <>No Data Found</>;
     }
-    // note: if we ever have the timeslots > cron job so there are multiple
-    // results per slot, then this needs to be expended to show more.
-    const dataItem = props.subData[0];
 
-    const duration = () => {
+    const duration = (dataItem: AdmConnStatusDataType) => {
         return durationFormatShort(
             new Date(dataItem.connectionCheckCompletedAt),
             new Date(dataItem.connectionCheckStartedAt)
@@ -687,60 +679,162 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
 
     return (
         <GridContainer className={"rs-admindash-modal"}>
-            <Grid className={"modal-info-title"}>
-                Results for connection verification check
-            </Grid>
-            <Grid row className={"modal-info-row"}>
-                <Grid className={"modal-info-label"}>Org:</Grid>
-                <Grid className={"modal-info-value"}>
-                    {dataItem.organizationName} (id: {dataItem.organizationId})
-                </Grid>
-            </Grid>
-
-            <Grid row className={"modal-info-row"}>
-                <Grid className={"modal-info-label "}>Receiver:</Grid>
-                <Grid className={"modal-info-value"}>
-                    {dataItem.receiverName} (id: {dataItem.receiverId})
-                </Grid>
-            </Grid>
-
-            <Grid row className={"modal-info-row"}>
-                <Grid className={"modal-info-label"}>Result:</Grid>
+            {props.subData.map((dataItem) => (
                 <Grid
-                    className={`modal-info-value ${
-                        dataItem.connectionCheckSuccessful
-                            ? "success-all"
-                            : "failure-all"
-                    }`}
+                    key={`dlog-item-${dataItem.receiverConnectionCheckResultId}`}
                 >
-                    {dataItem.connectionCheckSuccessful ? "success" : "failed"}
-                </Grid>
-            </Grid>
+                    <Grid className={"modal-info-title"}>
+                        Results for connection verification check
+                    </Grid>
+                    <Grid row className={"modal-info-row"}>
+                        <Grid className={"modal-info-label"}>Org:</Grid>
+                        <Grid className={"modal-info-value"}>
+                            {dataItem.organizationName} (id:{" "}
+                            {dataItem.organizationId})
+                        </Grid>
+                    </Grid>
 
-            <Grid row className={"modal-info-row"}>
-                <Grid className={"modal-info-label"}>Started At:</Grid>
-                <Grid className={"modal-info-value"}>
-                    {formatDate(dataItem.connectionCheckStartedAt)}
-                    <br />
-                    {dataItem.connectionCheckStartedAt}
-                </Grid>
-            </Grid>
+                    <Grid row className={"modal-info-row"}>
+                        <Grid className={"modal-info-label "}>Receiver:</Grid>
+                        <Grid className={"modal-info-value"}>
+                            {dataItem.receiverName} (id: {dataItem.receiverId})
+                        </Grid>
+                    </Grid>
 
-            <Grid row className={"modal-info-row"}>
-                <Grid className={"modal-info-label"}>Time to complete:</Grid>
-                <Grid className={"modal-info-value"}>
-                    {duration()}
-                    <br />
-                </Grid>
-            </Grid>
+                    <Grid row className={"modal-info-row"}>
+                        <Grid className={"modal-info-label"}>Result:</Grid>
+                        <Grid
+                            className={`modal-info-value ${
+                                dataItem.connectionCheckSuccessful
+                                    ? "success-all"
+                                    : "failure-all"
+                            }`}
+                        >
+                            {dataItem.connectionCheckSuccessful
+                                ? "success"
+                                : "failed"}
+                        </Grid>
+                    </Grid>
 
-            <Grid row className={"modal-info-row"}>
-                <Grid className={"modal-info-label"}>Result message:</Grid>
-                <Grid className={"modal-info-value"}>
-                    {dataItem.connectionCheckResult}
+                    <Grid row className={"modal-info-row"}>
+                        <Grid className={"modal-info-label"}>Started At:</Grid>
+                        <Grid className={"modal-info-value"}>
+                            {formatDate(dataItem.connectionCheckStartedAt)}
+                            <br />
+                            {dataItem.connectionCheckStartedAt}
+                        </Grid>
+                    </Grid>
+
+                    <Grid row className={"modal-info-row"}>
+                        <Grid className={"modal-info-label"}>
+                            Time to complete:
+                        </Grid>
+                        <Grid className={"modal-info-value"}>
+                            {duration(dataItem)}
+                            <br />
+                        </Grid>
+                    </Grid>
+
+                    <Grid row className={"modal-info-row"}>
+                        <Grid className={"modal-info-label"}>
+                            Result message:
+                        </Grid>
+                        <Grid className={"modal-info-value"}>
+                            {dataItem.connectionCheckResult}
+                        </Grid>
+                    </Grid>
                 </Grid>
-            </Grid>
+            ))}
         </GridContainer>
+    );
+}
+
+/**
+ * We want to control date picking better than the default control allows.
+ * Reasons:
+ *  - We limit the max range allowed to limit large data requests.
+ *  - We want start AND end picked before the expensive fetch.
+ *  - Picker fields are LARGE and take up a bunch of space.
+ */
+function DateRangePickingAtomic(props: {
+    defaultStartDate: string;
+    defaultEndDate: string;
+    onChange: (props: { startDate: string; endDate: string }) => void;
+}) {
+    const [startDate, setStartDate] = useState<string>(props.defaultStartDate);
+    const [endDate, setEndDate] = useState<string>(props.defaultEndDate); // may be null because it's optional
+    const modalRef = useRef<ModalRef>(null);
+
+    // for readability
+    const isDateRangeOk = useCallback(() => {
+        const msEnd =
+            endDate !== "" ? new Date(endDate).getTime() : new Date().getTime();
+        const msStart = new Date(startDate).getTime();
+        return msEnd - msStart < MAX_DAYS_MS;
+    }, [startDate, endDate]);
+
+    const formatDateFromString = (d: string) => {
+        if (d === "") return "now";
+        return new Date(d).toLocaleDateString();
+    };
+
+    return (
+        <>
+            <span className={""}>
+                🗓 {formatDateFromString(startDate)} -{" "}
+                {formatDateFromString(endDate)}
+            </span>
+            <ModalToggleButton
+                modalRef={modalRef}
+                opener
+                className="padding-1 margin-1 usa-button--outline"
+            >
+                Change...
+            </ModalToggleButton>
+            <Modal ref={modalRef} id={"date-range-picker"}>
+                <div>Select date range to show. (Max 10 days span)</div>
+                <DateRangePicker
+                    className={`${StyleClass.DATE_CONTAINER} margin-bottom-5`}
+                    startDateLabel="From (Start Range):"
+                    startDatePickerProps={{
+                        id: "start-date",
+                        name: "start-date-picker",
+                        defaultValue: startDate,
+                        onChange: (s) => {
+                            if (s) {
+                                setStartDate(startOfDayIso(new Date(s)));
+                            }
+                        },
+                    }}
+                    endDateLabel="Until (End Range):"
+                    endDatePickerProps={{
+                        id: "end-date",
+                        name: "end-date-picker",
+                        defaultValue: props.defaultEndDate,
+                        onChange: (s) => {
+                            if (s) {
+                                setEndDate(endOfDayIso(new Date(s)));
+                            }
+                        },
+                    }}
+                />
+                <Button
+                    type="button"
+                    disabled={!isDateRangeOk()}
+                    onClick={() => {
+                        modalRef.current?.toggleModal(undefined, false);
+                        props.onChange({ startDate, endDate });
+                    }}
+                >
+                    Update
+                </Button>
+                {isDateRangeOk() ? null : (
+                    <span className={"rs-admindash-warn-font"}>
+                        Dates are too far apart (too many days)
+                    </span>
+                )}
+            </Modal>
+        </>
     );
 }
 
@@ -790,29 +884,18 @@ export function AdminReceiverDashboard() {
             </SiteAlert>
             <form autoComplete="off" className="grid-row margin-0">
                 <div className="flex-auto margin-1">
-                    <DateRangePicker
-                        className={`${StyleClass.DATE_CONTAINER} margin-0`}
-                        startDateLabel="From (Start Range):"
-                        startDatePickerProps={{
-                            id: "start-date",
-                            name: "start-date-picker",
-                            defaultValue: startDate,
-                            onChange: (s) => {
-                                if (s) {
-                                    setStartDate(startOfDayIso(new Date(s)));
-                                }
-                            },
-                        }}
-                        endDateLabel="Until (End Range):"
-                        endDatePickerProps={{
-                            id: "end-date",
-                            name: "end-date-picker",
-                            defaultValue: "",
-                            onChange: (s) => {
-                                if (s) {
-                                    setEndDate(endOfDayIso(new Date(s)));
-                                }
-                            },
+                    <Label
+                        className="font-sans-xs usa-label text-no-wrap"
+                        htmlFor="input_filter_receivers"
+                    >
+                        Date range:
+                    </Label>
+                    <DateRangePickingAtomic
+                        defaultStartDate={startOfDayIso(initialStartDate())}
+                        defaultEndDate={""}
+                        onChange={(props) => {
+                            setStartDate(props.startDate);
+                            setEndDate(props.endDate);
                         }}
                     />
                 </div>
