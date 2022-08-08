@@ -191,6 +191,7 @@ class FhirPathCommand : CliktCommand(
                     input.startsWith("resource") -> {
                         setFocusResource(input, bundle)
                     }
+
                     else -> {
                         evaluatePath(input, bundle)
                         lastPath = input
@@ -214,7 +215,7 @@ class FhirPathCommand : CliktCommand(
         }
 
         val inputParts = input.split("=", ":", limit = 2)
-        if (inputParts.size != 2)
+        if (inputParts.size != 2 || inputParts[1].isBlank())
             echo("Setting %resource must be in the form of 'resource[= | :]<FHIR path>'")
         else {
             val path = inputParts[1].trim().trimStart('\'').trimEnd('\'')
