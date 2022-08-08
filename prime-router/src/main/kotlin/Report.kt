@@ -61,7 +61,19 @@ enum class Options {
     ValidatePayload,
     CheckConnections,
     SkipSend,
-    SendImmediately;
+    SendImmediately,
+    @OptionDeprecated
+    SkipInvalidItems;
+
+    class InvalidOptionException(message: String) : Exception(message)
+
+    /**
+     * Checks to see if the enum constant has an @OptionDeprecated annotation.
+     * If the annotation is present, the constant is no longer in use.
+     */
+
+    val isDeprecated = this.declaringClass.getField(this.name)
+        .getAnnotation(OptionDeprecated::class.java) != null
 
     companion object {
         /**
@@ -72,12 +84,14 @@ enum class Options {
             return try {
                 valueOf(input)
             } catch (ex: IllegalArgumentException) {
-                None
+                val msg = "$input is not a valid Option. Valid options: ${Options.values().joinToString()}"
+                throw InvalidOptionException(msg)
             }
         }
     }
 }
 
+annotation class OptionDeprecated()
 /**
  * ReportStreamFilterResult records useful information about rows filtered by one filter call.  One filter
  * might filter many rows. ReportStreamFilterResult entries are only created when filter logging is on.  This is to

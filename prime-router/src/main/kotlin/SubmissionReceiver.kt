@@ -108,6 +108,25 @@ abstract class SubmissionReceiver(
                 actionLogs.error(DuplicateSubmissionMessage(payloadName))
             }
         }
+
+        /**
+         * Determines what type of submission receiver to use based on [sender]
+         * Creates a new SubmissionReceiver using the given the [workflowEngine] and [actionHistory]
+         * @return Returns either a TopicReceiver or ELRReceiver based on the sender
+         */
+        internal fun getSubmissionReceiver(
+            sender: Sender,
+            workflowEngine: WorkflowEngine,
+            actionHistory: ActionHistory
+        ): SubmissionReceiver {
+            val receiver by lazy {
+                when (sender) {
+                    is CovidSender, is MonkeypoxSender -> TopicReceiver(workflowEngine, actionHistory)
+                    else -> ELRReceiver(workflowEngine, actionHistory)
+                }
+            }
+            return receiver
+        }
     }
 }
 
@@ -145,14 +164,14 @@ class TopicReceiver : SubmissionReceiver {
             )
         }
 
-        workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
-        )
-
         // if there are any errors, kick this out.
         if (actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
+
+        workflowEngine.recordReceivedReport(
+            report, rawBody, sender, actionHistory, payloadName
+        )
 
         actionHistory.trackLogs(actionLogs.logs)
 
@@ -257,11 +276,6 @@ class ELRReceiver : SubmissionReceiver {
             )
         }
 
-        // record that the submission was received
-        val blobInfo = workflowEngine.recordReceivedReport(
-            report, rawBody, sender, actionHistory, payloadName
-        )
-
         // check for valid message type
         messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
 
@@ -269,6 +283,11 @@ class ELRReceiver : SubmissionReceiver {
         if (actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
+
+        // record that the submission was received
+        val blobInfo = workflowEngine.recordReceivedReport(
+            report, rawBody, sender, actionHistory, payloadName
+        )
 
         // track logs
         actionHistory.trackLogs(actionLogs.logs)
@@ -309,6 +328,52 @@ class ELRReceiver : SubmissionReceiver {
         if (messageType != "ORU_R01") {
             actionLogs.getItemLogger(itemIndex)
                 .error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
+        }
+    }
+}
+
+/**
+ * Receiver for submissions with a specific topic, contains all logic to parse and move
+ * a topic'd submission to the next step in the pipeline
+ */
+class ValidationReceiver : SubmissionReceiver {
+    constructor(
+        workflowEngine: WorkflowEngine = WorkflowEngine(),
+        actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
+    ) : super(workflowEngine, actionHistory)
+
+    /**
+     * This validates, but does *not* move to processing
+     */
+    override fun validateAndMoveToProcessing(
+        sender: Sender,
+        content: String,
+        defaults: Map<String, String>,
+        options: Options,
+        routeTo: List<String>,
+        isAsync: Boolean,
+        allowDuplicates: Boolean,
+        rawBody: ByteArray,
+        payloadName: String?,
+        metadata: Metadata?
+    ) {
+        // parse, check for parse errors
+        // todo: if we want this to work for full elr validation, we will need to do some other changes since this
+        //  uses the topic parser, not the full ELR parser
+        val (report, actionLogs) = this.workflowEngine.parseTopicReport(sender as TopicSender, content, defaults)
+
+        // prevent duplicates if configured to not allow them
+        if (!allowDuplicates) {
+            doDuplicateDetection(
+                workflowEngine,
+                report,
+                actionLogs
+            )
+        }
+
+        // if there are any errors or warnings, kick this out.
+        if (!actionLogs.isEmpty()) {
+            throw actionLogs.exception
         }
     }
 }
