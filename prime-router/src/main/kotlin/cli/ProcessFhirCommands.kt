@@ -23,6 +23,7 @@ import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.Resource
+import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 
 /**
  * Process data into/from FHIR.
@@ -160,10 +161,13 @@ class FhirPathCommand : CliktCommand(
             echo("", true)
             echo("Using the FHIR bundle in ${inputFile.absolutePath}...", true)
             echo("Special commands:", true)
-            echo("\t!!                                 - replaced with the last path used", true)
-            echo("\tquit, exit                         - exit the tool", true)
-            echo("\treset                              - Sets %resource to Bundle", true)
-            echo("\tresource [= | :] [']<FHIR Path>['] - Sets %resource to a given FHIR path", true)
+            echo(
+                "\t!![FHIR path]                     - appends specified FHIR path to the end of the last path",
+                true
+            )
+            echo("\tquit, exit                       - exit the tool", true)
+            echo("\treset                            - Sets %resource to Bundle", true)
+            echo("\tresource [=|:] [']<FHIR Path>['] - Sets %resource to a given FHIR path", true)
         }
         // Read the contents of the file
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
@@ -271,6 +275,8 @@ class FhirPathCommand : CliktCommand(
             echo("Number of results = ${values.size} ----------------------------", true)
         } catch (e: NotImplementedError) {
             echo("One or more FHIR path functions specified are not implemented in the library")
+        } catch (e: FHIRLexerException) {
+            echo("Invalid FHIR path specified")
         }
     }
 
