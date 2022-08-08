@@ -342,7 +342,6 @@ function renderAllReceiverRows(props: {
     filterErrorText: string;
     onClick: (dataItems: AdmConnStatusDataType[]) => void;
 }): JSX.Element[] {
-    console.log("renderAllReceiverRows");
     const filterErrorText = props.filterErrorText.trim().toLowerCase();
     const perReceiverRowElements: JSX.Element[] = [];
     let perDayElements: JSX.Element[] = [];
@@ -396,7 +395,6 @@ function renderAllReceiverRows(props: {
                         filterErrorText.length &&
                         filteredSlice !== MatchingFilter.FILTER_IS_MATCHED
                     ) {
-                        filteredSlice = MatchingFilter.NO_FILTER; // default
                         if (
                             currentEntry.connectionCheckResult
                                 .toLowerCase()
@@ -428,6 +426,9 @@ function renderAllReceiverRows(props: {
                 const sliceFilterClassName =
                     MATCHING_FILTER_CLASSNAME_MAP[filteredSlice];
 
+                const isClickable =
+                    successForSlice.currentState !== SuccessRate.UNDEFINED;
+
                 // it's possible to match more than on data entry per slice
                 const dataCount =
                     successForSlice.countSuccess + successForSlice.countFailed;
@@ -441,9 +442,10 @@ function renderAllReceiverRows(props: {
                         className={`slice ${sliceClassName} ${sliceFilterClassName}`}
                         data-offset={dataOffset}
                         data-offset-end={dataOffsetEnd}
+                        role="button"
+                        aria-disabled={!isClickable}
                         onClick={
-                            successForSlice.currentState ===
-                            SuccessRate.UNDEFINED
+                            !isClickable
                                 ? undefined // do not even install a click handler noop
                                 : (evt) => {
                                       // get saved offset from "data-offset" attribute on this element
@@ -1008,6 +1010,7 @@ export function AdminReceiverDashboard() {
 }
 
 export const _exportForTesting = {
+    SKIP_HOURS,
     startOfDayIso,
     endOfDayIso,
     initialStartDate,

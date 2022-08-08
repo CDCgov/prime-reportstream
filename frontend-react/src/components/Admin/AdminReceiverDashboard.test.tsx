@@ -1,10 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
 
-// <editor-fold desc="DATA: AdmConnStatusDataType[]">
+// <editor-fold defaultstate="collapsed" desc="DATA: AdmConnStatusDataType[]">
 const DATA: AdmConnStatusDataType[] = [
     {
         receiverConnectionCheckResultId: 2397,
@@ -193,7 +193,7 @@ describe("AdminReceiverDashboard tests", () => {
         // make sure sortStatusData sorted correctly.
         expect(data[3].organizationName).toBe("oh-doh");
 
-        render(
+        const { baseElement } = render(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.MainRender
                 data={data}
@@ -209,9 +209,35 @@ describe("AdminReceiverDashboard tests", () => {
         expect(days.length).toBe(3);
         const orgs = screen.getAllByText(/oh-doh/);
         expect(orgs.length).toBe(1);
-
-        // no data returned by server
         expect(_exportForTesting.sortStatusData([])).toStrictEqual([]);
+
+        // role options does NOT support "aria-disabled=false". lame.
+        // No easy way to find active buttons
+        const slices = await screen.findAllByRole("button", {});
+
+        // broken out for readability
+        const slicesPerDay = 24 / _exportForTesting.SKIP_HOURS;
+        const numDays = 3; // based on datesRange
+        const numReceivers = 3; // based on DATA
+        const totalSlices = numReceivers * numDays * slicesPerDay;
+        expect(slices.length).toBe(totalSlices); // based on receivers x days x 12 slices/day
+
+        // find a slice that is clickable. How?
+        // We can't access className in jest's virtual DOM.
+        // We can't access "aria-disabled" for the button with jest's virtual DOM.
+        // ONLY solution is to j
+        const clickableSlices = baseElement.querySelectorAll(
+            `[role="button"][aria-disabled="false"]`
+        );
+
+        expect(clickableSlices.length).toBe(3); // based on Data and slices
+
+        fireEvent.click(clickableSlices[0]);
+
+        // Seems like we need a cypress test to verify modal is shown
+        // expect(
+        //     screen.getAllByText(/Results for connection verification check/)
+        // ).toBeInTheDocument();
     });
 
     test("ModalInfoRender", async () => {
