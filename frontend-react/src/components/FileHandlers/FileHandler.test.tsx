@@ -1,7 +1,11 @@
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 
 import { renderWithSession } from "../../utils/CustomRenderUtils";
-import { ResponseError, WatersResponse } from "../../network/api/WatersApi";
+import {
+    EndpointName,
+    ResponseError,
+    WatersResponse,
+} from "../../network/api/WatersApi";
 import {
     INITIAL_STATE,
     FileType,
@@ -184,7 +188,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName="waters"
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -227,7 +231,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={true}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName="waters"
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -284,7 +288,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={true}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName="validate"
+                    endpointName={EndpointName.VALIDATE}
                 />
             );
 
@@ -330,7 +334,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName="waters"
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -369,7 +373,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={true}
                     warningText="THIS IS A WARNING"
-                    endpointName="waters"
+                    endpointName={EndpointName.WATERS}
                 />
             );
             const message = await screen.findByText("THIS IS A WARNING");
@@ -394,7 +398,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName="waters"
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -437,7 +441,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName="waters"
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -485,7 +489,7 @@ describe("FileHandler", () => {
                 contentString, //fileContent
                 "", //parsedName
                 "", //accessToken
-                "waters" // endpointName
+                EndpointName.WATERS
             );
             expect(mockDispatch).toHaveBeenCalledWith({
                 type: FileHandlerActionType.REQUEST_COMPLETE,
@@ -511,7 +515,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName="waters"
+                    endpointName={EndpointName.WATERS}
                 />
             );
 

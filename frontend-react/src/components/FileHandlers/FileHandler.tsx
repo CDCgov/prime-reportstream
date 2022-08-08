@@ -232,7 +232,6 @@ const FileHandler = ({
         return <FileHandlerSpinner message="Loading..." />;
     }
 
-    console.log();
     if (!sender) {
         return (
             <div className="grid-container usa-section margin-bottom-10">
