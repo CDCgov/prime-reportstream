@@ -232,14 +232,9 @@ class FhirPathCommand : CliktCommand(
                     focusResource = resourceList[0] as Resource
                 }
 
-                resourceList[0] is Reference -> {
-                    setFocusPath(path)
-                    focusResource = (resourceList[0] as Reference).resource as Resource
-                }
-
                 else ->
                     echo(
-                        "Resource path must evaluate to a Reference or Resource, but was " +
+                        "Resource path must evaluate to a Resource, but was " +
                             resourceList[0].fhirType()
                     )
             }
@@ -280,7 +275,7 @@ class FhirPathCommand : CliktCommand(
 
             // References
             value is Reference ->
-                "Reference to ${value.reference} - set as %resource or use resolve() to navigate into it"
+                "Reference to ${value.reference} - use resolve() to navigate into it"
 
             // An extension
             value is Extension -> {
