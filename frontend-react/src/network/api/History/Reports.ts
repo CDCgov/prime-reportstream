@@ -23,8 +23,21 @@ export interface RSReportInterface {
     fileName: string;
     mimeType: string;
 }
+export interface RSDeliveryInterface {
+    deliveryId: number;
+    sent: string;
+    expires: string;
+    receivingOrg: string;
+    receivingOrgSvc: string;
+    reportId: string;
+    topic: string;
+    reportItemCount: number;
+    fileName: string;
+    fileType: string;
+    externalName: string;
+}
 /** A class representing a Delivery object from the API */
-export class RSDelivery {
+export class RSDelivery implements RSDeliveryInterface {
     deliveryId: number = -1;
     sent: string = "";
     expires: string = "";
@@ -37,11 +50,8 @@ export class RSDelivery {
     fileType: string = "";
     externalName: string = "";
 
-    constructor(reportId: string) {
-        this.reportId = reportId;
-    }
-    mockResource(reportId: string) {
-        return new RSDelivery(reportId);
+    constructor(args: Partial<RSDeliveryInterface>) {
+        Object.assign(this, args);
     }
 }
 /**

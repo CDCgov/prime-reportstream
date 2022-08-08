@@ -28,7 +28,13 @@ const handlers = [
     rest.get(
         "https://test.prime.cdc.gov/api/settings/organizations/testOrg/receivers",
         (req, res, ctx) => {
-            const array = [new RSReceiver(), new RSReceiver()];
+            const array = [
+                new RSReceiver({ name: "elr", organizationName: "testOrg" }),
+                new RSReceiver({
+                    name: "elr-two",
+                    organizationName: "testOrg",
+                }),
+            ];
             return res(ctx.status(200), ctx.json(array));
         }
     ),

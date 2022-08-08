@@ -1,8 +1,17 @@
 import { API } from "../NewApi";
+
+export interface RSReceiverInterface {
+    name: string;
+    organizationName: string;
+}
 /** A class representing a Receiver object from the API */
-export class RSReceiver {
-    name: string = "elr";
+export class RSReceiver implements RSReceiverInterface {
+    name: string = "";
     organizationName: string = "";
+
+    constructor(args: Partial<RSReceiverInterface>) {
+        Object.assign(this, args);
+    }
 }
 /**
  * Contains the API information to get RSReceivers from the API

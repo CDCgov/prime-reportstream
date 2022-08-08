@@ -16,9 +16,9 @@ const handlers = [
             return res(
                 ctx.status(200),
                 ctx.json([
-                    new RSDelivery("1"),
-                    new RSDelivery("2"),
-                    new RSDelivery("3"),
+                    new RSDelivery({ reportId: "1" }),
+                    new RSDelivery({ reportId: "2" }),
+                    new RSDelivery({ reportId: "3" }),
                 ])
             );
         }
@@ -27,7 +27,10 @@ const handlers = [
     rest.get(
         "https://test.prime.cdc.gov/api/waters/report/123/delivery",
         (req, res, ctx) => {
-            return res(ctx.status(200), ctx.json(new RSDelivery("123")));
+            return res(
+                ctx.status(200),
+                ctx.json(new RSDelivery({ reportId: "123" }))
+            );
         }
     ),
 ];
