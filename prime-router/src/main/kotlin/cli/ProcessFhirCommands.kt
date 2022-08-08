@@ -1,9 +1,11 @@
 package gov.cdc.prime.router.cli
 
 import ca.uhn.fhir.context.FhirContext
+import ca.uhn.fhir.fhirpath.FhirPathExecutionException
 import ca.uhn.hl7v2.model.Message
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
+import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
@@ -12,12 +14,16 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
-import org.hl7.fhir.instance.model.api.IBaseResource
+import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent
+import org.hl7.fhir.r4.model.Extension
+import org.hl7.fhir.r4.model.Reference
+import org.hl7.fhir.r4.model.Resource
+import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 
 /**
  * Process data into/from FHIR.
@@ -140,6 +146,10 @@ class FhirPathCommand : CliktCommand(
      */
     private val fhirResourceParser = FhirContext.forR4().newJsonParser()
 
+    private var focusPath = "Bundle"
+    private var focusResource: Base? = null
+    private var fhirPathContext: CustomContext? = null
+
     init {
         fhirResourceParser.setPrettyPrint(true)
         fhirResourceParser.isOmitResourceId = true
@@ -147,69 +157,199 @@ class FhirPathCommand : CliktCommand(
     }
 
     override fun run() {
+        fun printHelp() {
+            echo("", true)
+            echo("Using the FHIR bundle in ${inputFile.absolutePath}...", true)
+            echo("Special commands:", true)
+            echo(
+                "\t!![FHIR path]                     - appends specified FHIR path to the end of the last path",
+                true
+            )
+            echo("\tquit, exit                       - exit the tool", true)
+            echo("\treset                            - Sets %resource to Bundle", true)
+            echo("\tresource [=|:] [']<FHIR Path>['] - Sets %resource to a given FHIR path", true)
+        }
         // Read the contents of the file
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
         val bundle = FhirTranscoder.decode(contents)
-        echo("", true)
-        echo("Using the FHIR bundle in ${inputFile.absolutePath}...", true)
-        echo("Press CTRL-C or ENTER to exit.", true)
+        focusResource = bundle
+        fhirPathContext = CustomContext(
+            bundle, mutableMapOf("rsext" to "https://reportstream.cdc.gov/fhir/StructureDefinition/")
+        )
+        printHelp()
 
         // Loop until you press CTRL-C or ENTER at the prompt.
+        var lastPath = ""
         while (true) {
+            echo("", true)
+            echo("%resource = $focusPath")
+            echo("Last path = $lastPath")
             print("FHIR path> ") // This needs to be a print as an echo does not show on the same line
-            val path = readln()
+            val input = readln()
 
-            // If no path then just quit.
-            if (path.isBlank()) {
-                echo("Exiting...")
-                break
-            }
+            try {
+                // Process the input checking for special/custom commands
+                when {
+                    input.isBlank() -> printHelp()
 
-            // Check the syntax for the FHIR path
-            val pathExpression = try {
-                FhirPathUtils.parsePath(path) ?: throw Exception()
-            } catch (e: Exception) {
-                echo("Invalid FHIR path specified.", true)
-                null
-            }
+                    input == "quit" || input == "exit" ->
+                        throw ProgramResult(0)
 
-            if (pathExpression != null) {
-                // Evaluate the path
-                try {
-                    val value = FhirPathUtils.evaluate(null, bundle, bundle, path)
-                    // Note you can get collections
-                    value.forEach {
-                        val valueAsString =
-                            when {
-                                it.isPrimitive -> "Primitive: $it"
+                    input.startsWith("resource") -> setFocusResource(input, bundle)
 
-                                // Resource are large, so lets pretty print them
-                                it is IBaseResource -> {
-                                    fhirResourceParser.encodeResourceToString(it)
-                                }
+                    input == "reset" -> setFocusResource("Bundle", bundle)
 
-                                // Bundle entries
-                                it is BundleEntryComponent -> "Entry: ${it.fullUrl}"
-
-                                // Non-base resources
-                                else -> {
-                                    // TODO: How can we print out non IBaseResource resources?
-                                    "Resource: $it"
-                                }
-                            }
-
-                        // Print out the value, but add a dash to each collection entry if more than one
-                        echo("${if (value.size > 1) "- " else ""}$valueAsString", true)
+                    else -> {
+                        val path = if (input.startsWith("!!")) input.replace("!!", lastPath)
+                        else input
+                        if (path.isBlank()) printHelp()
+                        else {
+                            evaluatePath(path, bundle)
+                            lastPath = path
+                        }
                     }
-                    if (value.size > 1) echo("--- Return size = ${value.size}  ---")
-                } catch (e: NotImplementedError) {
-                    echo("One or more FHIR path functions specified are not implemented in the library")
+                }
+            } catch (e: FhirPathExecutionException) {
+                echo("Invalid FHIR path specified.", true)
+            }
+        }
+    }
+
+    /**
+     * Set the focus resource only is the path specified in the [input] string points to a resource or
+     * reference in the [bundle].
+     */
+    private fun setFocusResource(input: String, bundle: Bundle) {
+        fun setFocusPath(newPath: String) {
+            focusPath = if (newPath.startsWith("%resource"))
+                newPath.replace("%resource", focusPath)
+            else newPath
+        }
+
+        val inputParts = input.split("=", ":", limit = 2)
+        if (inputParts.size != 2 || inputParts[1].isBlank())
+            echo("Setting %resource must be in the form of 'resource[= | :]<FHIR path>'")
+        else {
+            val path = inputParts[1].trim().trimStart('\'').trimEnd('\'')
+            val pathExpression = FhirPathUtils.parsePath(path) ?: throw FhirPathExecutionException("Invalid FHIR path")
+            val resourceList = FhirPathUtils.pathEngine.evaluate(
+                fhirPathContext, focusResource!!, bundle, bundle, pathExpression
+            )
+            when {
+                resourceList.size != 1 ->
+                    echo("Resource path must evaluate to 1 resource, but got ${resourceList.size}")
+
+                resourceList[0].isResource -> {
+                    setFocusPath(path)
+                    focusResource = resourceList[0] as Resource
+                }
+
+                else ->
+                    echo(
+                        "Resource path must evaluate to a Resource, but was " +
+                            resourceList[0].fhirType()
+                    )
+            }
+        }
+    }
+
+    /**
+     * Evaluate a FHIR path from the given [input] string in the [bundle].
+     */
+    private fun evaluatePath(input: String, bundle: Bundle) {
+        // Check the syntax for the FHIR path
+        try {
+            val pathExpression = FhirPathUtils.parsePath(input) ?: throw FhirPathExecutionException("Invalid FHIR path")
+            val values = try {
+                FhirPathUtils.pathEngine.evaluate(fhirPathContext, focusResource, bundle, bundle, pathExpression)
+            } catch (e: IndexOutOfBoundsException) {
+                // This happens when a value for an extension is speced, but the extension does not exist.
+                emptyList()
+            }
+
+            values.forEach {
+                // Print out the value, but add a dash to each collection entry if more than one
+                echo("${if (values.size > 1) "- " else ""}${fhirBaseAsString(it)}", true)
+            }
+            echo("Number of results = ${values.size} ----------------------------", true)
+        } catch (e: NotImplementedError) {
+            echo("One or more FHIR path functions specified are not implemented in the library")
+        } catch (e: FHIRLexerException) {
+            echo("Invalid FHIR path specified")
+        }
+    }
+
+    /**
+     * Convert a [value] that is a FHIR base to a string.
+     * @return a string representing the contents of the FHIR base
+     */
+    private fun fhirBaseAsString(value: Base): String {
+        return when {
+            value.isPrimitive -> "Primitive: $value"
+
+            // References
+            value is Reference ->
+                "Reference to ${value.reference} - use resolve() to navigate into it"
+
+            // An extension
+            value is Extension -> {
+                "extension('${value.url}')"
+            }
+
+            // This base is a resource
+            else ->
+                fhirPropertiesAsString(value)
+        }
+    }
+
+    /**
+     * Generate a string representation of all the properties in a resource
+     */
+    private fun fhirPropertiesAsString(value: Base): String {
+        val stringValue = StringBuilder()
+        stringValue.append("{  ")
+        value.children().forEach { property ->
+            when {
+                // Empty values
+                property.values.isEmpty() ->
+                    stringValue.append("")
+
+                // An array
+                property.isList -> {
+                    stringValue.append("\n\t\"${property.name}\": [ \n")
+                    property.values.forEach { value ->
+                        stringValue.append("\t\t")
+                        if (value is Extension) stringValue.append("extension('${value.url}'),")
+                        else stringValue.append("$value,")
+                        stringValue.append("\n")
+                    }
+                    stringValue.append("  ]")
+                }
+
+                // A reference
+                property.values[0] is Reference -> {
+                    stringValue.append("\n\t\"${property.name}\": ")
+                    stringValue.append("Reference to ${(property.values[0] as Reference).reference}")
+                }
+
+                // An extension
+                property.values[0] is Extension -> {
+                    stringValue.append("\n\t\"${property.name}\": ")
+                    stringValue.append("extension('${(property.values[0] as Extension).url}')")
+                }
+
+                // A primitive
+                property.values[0].isPrimitive -> {
+                    stringValue.append("\n\t\"${property.name}\": \"${property.values[0]}\"")
+                }
+
+                else -> {
+                    stringValue.append("\n\t\"${property.name}\": ${property.values[0]}")
                 }
             }
-
-            echo("----------------------------------------------------", true)
-            echo("", true)
         }
+        stringValue.append("\n}\n")
+        return stringValue.toString()
     }
 }
