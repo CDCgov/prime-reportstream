@@ -6,6 +6,7 @@ import {
     DeliveryDetailParams,
     DeliveryListParams,
     RSDelivery,
+    RSReportInterface,
 } from "../../../network/api/History/Reports";
 import {
     useMemoizedConfig,
@@ -33,7 +34,9 @@ const useReportsList = (org?: string, service?: string) => {
         [orgAndService]
     );
     const config = useMemoizedConfig(configParams);
-    return useRequestConfig(config) as BasicAPIResponse<RSDelivery[]>;
+    return useRequestConfig(config) as BasicAPIResponse<
+        RSDelivery[] | RSReportInterface[]
+    >;
 };
 
 /** Hook consumes the ReportsApi "detail" endpoint and delivers the response
