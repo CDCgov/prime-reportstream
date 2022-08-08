@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 import {
     formattedDateFromTimestamp,
@@ -50,7 +51,11 @@ export const FileSuccessDisplay = ({
                                 <p className="text-normal text-base margin-bottom-0">
                                     Confirmation Code
                                 </p>
-                                <p className="margin-top-05">{reportId}</p>
+                                <p className="margin-top-05">
+                                    <Link to={`/submissions/${reportId}`}>
+                                        {reportId}
+                                    </Link>
+                                </p>
                             </div>
                         )}
                         {timestamp && (

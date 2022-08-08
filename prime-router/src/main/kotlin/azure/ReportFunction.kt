@@ -12,14 +12,12 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
-import gov.cdc.prime.router.CovidSender
-import gov.cdc.prime.router.ELRReceiver
+import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
-import gov.cdc.prime.router.MonkeypoxSender
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
-import gov.cdc.prime.router.TopicReceiver
+import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
@@ -139,7 +137,18 @@ class ReportFunction(
         val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
         val httpStatus: HttpStatus =
             try {
-                val options = Options.valueOfOrNone(optionsText)
+                val option = Options.valueOfOrNone(optionsText)
+                if (option.isDeprecated) {
+                    actionHistory.trackLogs(
+                        ActionLog(
+                            InvalidParamMessage(
+                                "Url Options Parameter, $optionsText has been deprecated. " +
+                                    "Valid options: ${Options.values().joinToString()}"
+                            ),
+                            type = ActionLogLevel.warning
+                        )
+                    )
+                }
                 val payloadName = extractPayloadName(request)
                 // track the sending organization and client based on the header
                 actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
@@ -154,18 +163,15 @@ class ReportFunction(
                 }
 
                 // Only process the report if we are not checking for connection or validation.
-                if (options != Options.CheckConnections && options != Options.ValidatePayload) {
-                    val receiver = when (sender) {
-                        is CovidSender, is MonkeypoxSender -> TopicReceiver(workflowEngine, actionHistory)
-                        else -> ELRReceiver(workflowEngine, actionHistory)
-                    }
+                if (option != Options.CheckConnections && option != Options.ValidatePayload) {
+                    val receiver = SubmissionReceiver.getSubmissionReceiver(sender, workflowEngine, actionHistory)
 
                     // send report on its way, either via the COVID pipeline or the full ELR pipeline
                     receiver.validateAndMoveToProcessing(
                         sender,
                         validatedRequest.content,
                         validatedRequest.defaults,
-                        options,
+                        option,
                         validatedRequest.routeTo,
                         isAsync,
                         allowDuplicates,
@@ -187,6 +193,11 @@ class ReportFunction(
             } catch (e: IllegalStateException) {
                 actionHistory.trackLogs(
                     ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
+                )
+                HttpStatus.BAD_REQUEST
+            } catch (e: Options.InvalidOptionException) {
+                actionHistory.trackLogs(
+                    ActionLog(InvalidParamMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
                 )
                 HttpStatus.BAD_REQUEST
             }
