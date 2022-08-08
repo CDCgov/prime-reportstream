@@ -7,7 +7,10 @@ import {
     DeliveryListParams,
     RSDelivery,
 } from "../../../network/api/History/Reports";
-import { useMemoizedConfig, useMemoizedConfigParams } from "../UseApiEndpoint";
+import {
+    useMemoizedConfig,
+    useMemoizedConfigParams,
+} from "../UseMemoizedConfig";
 import { BasicAPIResponse } from "../../../network/api/NewApi";
 import useRequestConfig from "../UseRequestConfig";
 
@@ -35,18 +38,18 @@ const useReportsList = (org?: string, service?: string) => {
 
 /** Hook consumes the ReportsApi "detail" endpoint and delivers the response
  *
- * @param deliveryId {number} Pass in the reportId to query the API
+ * @param id {string | number} Pass in the reportId OR deliveryId to query a single delivery
  * @returns {BasicAPIResponse<RSReportInterface>}
  * */
-const useReportsDetail = (deliveryId: number) => {
-    const memoizedId = useMemo(() => deliveryId, [deliveryId]);
+const useReportsDetail = (id: string | number) => {
+    const memoizedId = useMemo(() => `${id}`, [id]); // Stringify & memoize
     const configParams = useMemoizedConfigParams<DeliveryDetailParams>(
         {
             api: DeliveryApi,
             endpointKey: "detail",
             method: "GET" as Method,
-            parameters: { deliveryId: memoizedId },
-            advancedConfig: { requireTrigger: true },
+            parameters: { id: memoizedId },
+            // advancedConfig: { requireTrigger: true },
         },
         [memoizedId]
     );

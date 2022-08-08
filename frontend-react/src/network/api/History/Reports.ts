@@ -1,27 +1,10 @@
 import { API } from "../NewApi";
 import ActionResource from "../../../resources/ActionResource";
 /**
- * @deprecated Replaced by deliveries endpoint resource
- */
-class RSReport {}
-/** A class representing a Delivery object from the API */
-export class RSDelivery {
-    deliveryId: number = -1;
-    sent: string = "";
-    expires: string = "";
-    receivingOrg: string = "";
-    receivingOrgSvc: string = "";
-    reportId: string = "";
-    topic: string = "";
-    reportItemCount: number = -1;
-    fileName: string = "";
-    fileType: string = "";
-    externalName: string = "";
-}
-/**
+ * @todo Remove once refactored out of Report download call (when RSDelivery.content exists)
  * @deprecated For compile-time type checks while #5892 is worked on
  */
-interface RSReportInterface {
+export interface RSReportInterface {
     sent: number;
     via: string;
     positive: number;
@@ -40,17 +23,27 @@ interface RSReportInterface {
     fileName: string;
     mimeType: string;
 }
-/**
- * @deprecated Working to remove this and implement DeliveryApi
- */
-const ReportsApi = new API(RSReport, "/api/history/report")
-    .addEndpoint("list", "", ["GET"])
-    .addEndpoint("detail", "/:id", ["GET"]);
+/** A class representing a Delivery object from the API */
+export class RSDelivery {
+    deliveryId: number = -1;
+    sent: string = "";
+    expires: string = "";
+    receivingOrg: string = "";
+    receivingOrgSvc: string = "";
+    reportId: string = "";
+    topic: string = "";
+    reportItemCount: number = -1;
+    fileName: string = "";
+    fileType: string = "";
+    externalName: string = "";
 
-export interface ReportDetailParams {
-    id: string;
+    constructor(reportId: string) {
+        this.reportId = reportId;
+    }
+    mockResource(reportId: string) {
+        return new RSDelivery(reportId);
+    }
 }
-
 /**
  * Contains the API information for the ReportStream Deliveries API
  * 1. Resource: {@link RSDelivery}
@@ -60,17 +53,13 @@ export interface ReportDetailParams {
  *          <li>"detail" -> A single delivery item with more detail, including file content for download</li>
  *      </ul>
  */
-export const DeliveryApi = new API(RSDelivery, "/api/waters/org")
-    .addEndpoint("list", "/:orgAndService/deliveries", ["GET"])
-    .addEndpoint("detail", "/delivery/:deliveryId/detail", ["GET"]);
+export const DeliveryApi = new API(RSDelivery, "/api/waters")
+    .addEndpoint("list", "/org/:orgAndService/deliveries", ["GET"])
+    .addEndpoint("detail", "/report/:id/delivery", ["GET"]);
 
 export interface DeliveryListParams {
     orgAndService: string;
 }
 export interface DeliveryDetailParams {
-    deliveryId: number;
+    id: string;
 }
-
-export default ReportsApi;
-export { RSReport };
-export type { RSReportInterface };

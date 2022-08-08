@@ -1,7 +1,10 @@
 import { useMemo } from "react";
 import { Method } from "axios";
 
-import { useMemoizedConfig, useMemoizedConfigParams } from "../UseApiEndpoint";
+import {
+    useMemoizedConfig,
+    useMemoizedConfigParams,
+} from "../UseMemoizedConfig";
 import useRequestConfig from "../UseRequestConfig";
 import { BasicAPIResponse } from "../../../network/api/NewApi";
 import {
@@ -13,7 +16,7 @@ import {
 /** Retrieves a list of Receivers for an org from the API
  * > **This call requires the use of `trigger()`**
  *
- * @param org {string?} The user's active memebership `parsedName` */
+ * @param org {string?} The user's active membership `parsedName` */
 export const useReceiversList = (org?: string) => {
     const memoizedOrg = useMemo(() => org, [org]);
     const configParams = useMemoizedConfigParams<ReceiverListParams>(

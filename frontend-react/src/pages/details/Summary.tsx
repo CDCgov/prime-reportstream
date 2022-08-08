@@ -1,15 +1,14 @@
 import { NavLink } from "react-router-dom";
 
 import ReportLink from "../daily/Table/ReportLink";
-import ReportResource from "../../resources/ReportResource";
 import { useOrgName } from "../../hooks/UseOrgName";
-import { RSReportInterface } from "../../network/api/History/Reports";
+import { RSDelivery } from "../../network/api/History/Reports";
 
 interface Props {
     /* REQUIRED
     Passing in a report allows this component to extract key properties (id) 
     and display them on the Details page. */
-    report: ReportResource | RSReportInterface | undefined;
+    report: RSDelivery | undefined;
 }
 
 function Summary(props: Props) {

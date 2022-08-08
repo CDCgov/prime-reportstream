@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react-hooks";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
@@ -45,6 +45,8 @@ describe("ReceiversHooks", () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useReceiversList("testOrg")
         );
+        expect(result.current.loading).toBeFalsy();
+        act(() => result.current.trigger());
         expect(result.current.loading).toBeTruthy();
         await waitForNextUpdate();
         expect(result.current.loading).toBeFalsy();

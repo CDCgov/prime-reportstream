@@ -41,6 +41,9 @@ const handlers = [
     rest.get(firstSender, (req, res, ctx) => {
         return res(ctx.status(200));
     }),
+    rest.get(`${base}/testOrg/receivers`, (req, res, context) => {
+        return res(context.status(200));
+    }),
 ];
 
 export const orgServer = setupServer(...handlers);
