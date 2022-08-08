@@ -8,14 +8,15 @@ on:
       - test
   push:
     branches:
-      - master
       - production
+      - master
+      - test
   schedule:
     - cron: "0 * * * *"
 
 jobs:
   pre_job:
-    name: "Set Build Environment"
+    name: Set Build Environment
     runs-on: ubuntu-latest
     outputs:
       env_name: ${{ env.VALIDATE_ENV }}
