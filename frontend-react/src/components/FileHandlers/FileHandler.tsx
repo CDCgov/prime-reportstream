@@ -99,6 +99,7 @@ const FileHandler = ({
         errorType,
         warnings,
         localError,
+        overallStatus,
     } = state;
 
     useEffect(() => {
@@ -257,7 +258,7 @@ const FileHandler = ({
                     message={`The following warnings were returned while processing your file. ${warningDescription}, but these warning areas can be addressed to enhance clarity.`}
                 />
             )}
-            {reportId && (
+            {(reportId || overallStatus === "Valid") && (
                 <FileSuccessDisplay
                     fileName={fileName}
                     extendedMetadata={{
