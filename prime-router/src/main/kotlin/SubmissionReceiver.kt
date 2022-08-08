@@ -108,6 +108,25 @@ abstract class SubmissionReceiver(
                 actionLogs.error(DuplicateSubmissionMessage(payloadName))
             }
         }
+
+        /**
+         * Determines what type of submission receiver to use based on [sender]
+         * Creates a new SubmissionReceiver using the given the [workflowEngine] and [actionHistory]
+         * @return Returns either a TopicReceiver or ELRReceiver based on the sender
+         */
+        internal fun getSubmissionReceiver(
+            sender: Sender,
+            workflowEngine: WorkflowEngine,
+            actionHistory: ActionHistory
+        ): SubmissionReceiver {
+            val receiver by lazy {
+                when (sender) {
+                    is CovidSender, is MonkeypoxSender -> TopicReceiver(workflowEngine, actionHistory)
+                    else -> ELRReceiver(workflowEngine, actionHistory)
+                }
+            }
+            return receiver
+        }
     }
 }
 
