@@ -5,6 +5,7 @@ import ca.uhn.fhir.fhirpath.FhirPathExecutionException
 import ca.uhn.hl7v2.model.Message
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
+import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
@@ -155,6 +156,15 @@ class FhirPathCommand : CliktCommand(
     }
 
     override fun run() {
+        fun printHelp() {
+            echo("", true)
+            echo("Using the FHIR bundle in ${inputFile.absolutePath}...", true)
+            echo("Special commands:", true)
+            echo("\t!!                                 - replaced with the last path used", true)
+            echo("\tquit, exit                         - exit the tool", true)
+            echo("\treset                              - Sets %resource to Bundle", true)
+            echo("\tresource [= | :] [']<FHIR Path>['] - Sets %resource to a given FHIR path", true)
+        }
         // Read the contents of the file
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
@@ -163,12 +173,7 @@ class FhirPathCommand : CliktCommand(
         fhirPathContext = CustomContext(
             bundle, mutableMapOf("rsext" to "https://reportstream.cdc.gov/fhir/StructureDefinition/")
         )
-
-        echo("", true)
-        echo("Using the FHIR bundle in ${inputFile.absolutePath}...", true)
-        echo("Special commands:", true)
-        echo("  resource [= | :] <FHIR Path>   - Sets %resource to a given FHIR path", true)
-        echo("Press CTRL-C or ENTER to exit.", true)
+        printHelp()
 
         // Loop until you press CTRL-C or ENTER at the prompt.
         var lastPath = ""
@@ -179,22 +184,26 @@ class FhirPathCommand : CliktCommand(
             print("FHIR path> ") // This needs to be a print as an echo does not show on the same line
             val input = readln()
 
-            // If no path then just quit.
-            if (input.isBlank()) {
-                echo("Exiting...")
-                break
-            }
-
             try {
                 // Process the input checking for special/custom commands
                 when {
-                    input.startsWith("resource") -> {
-                        setFocusResource(input, bundle)
-                    }
+                    input.isBlank() -> printHelp()
+
+                    input == "quit" || input == "exit" ->
+                        throw ProgramResult(0)
+
+                    input.startsWith("resource") -> setFocusResource(input, bundle)
+
+                    input == "reset" -> setFocusResource("Bundle", bundle)
 
                     else -> {
-                        evaluatePath(input, bundle)
-                        lastPath = input
+                        val path = if (input.startsWith("!!")) input.replace("!!", lastPath)
+                        else input
+                        if (path.isBlank()) printHelp()
+                        else {
+                            evaluatePath(path, bundle)
+                            lastPath = path
+                        }
                     }
                 }
             } catch (e: FhirPathExecutionException) {
