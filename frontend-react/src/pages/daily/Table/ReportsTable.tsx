@@ -32,7 +32,7 @@ interface ReceiverFeeds {
 }
 /** Fetches a list of receivers for your active organization, and provides a controller to switch
  * between them */
-const useReceiverFeeds = (): ReceiverFeeds => {
+export const useReceiverFeeds = (): ReceiverFeeds => {
     const { memberships } = useSessionContext();
     const { data: receivers, trigger: getReceiversList } = useReceiversList(
         memberships.state.active?.parsedName
