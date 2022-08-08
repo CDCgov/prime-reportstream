@@ -69,6 +69,7 @@ interface FileHandlerProps {
     showSuccessMetadata: boolean;
     showWarningBanner: boolean;
     warningText?: string;
+    endpointName: string;
 }
 
 const FileHandler = ({
@@ -81,6 +82,7 @@ const FileHandler = ({
     showSuccessMetadata,
     showWarningBanner,
     warningText,
+    endpointName,
 }: FileHandlerProps) => {
     const { state, dispatch } = useFileHandler();
     const [fileContent, setFileContent] = useState("");
@@ -169,7 +171,8 @@ const FileHandler = ({
                 contentType as string,
                 fileContent,
                 parsedName || "",
-                accessToken || ""
+                accessToken || "",
+                endpointName
             );
             // handles error and success cases via reducer
             dispatch({
@@ -188,8 +191,8 @@ const FileHandler = ({
     };
 
     const submitted = useMemo(
-        () => !!(reportId || errors.length),
-        [reportId, errors.length]
+        () => !!(reportId || errors.length || overallStatus),
+        [reportId, errors.length, overallStatus]
     );
 
     const successDescription = useMemo(() => {
@@ -229,6 +232,7 @@ const FileHandler = ({
         return <FileHandlerSpinner message="Loading..." />;
     }
 
+    console.log();
     if (!sender) {
         return (
             <div className="grid-container usa-section margin-bottom-10">

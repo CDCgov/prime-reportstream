@@ -38,10 +38,8 @@ export interface ResponseError {
     rowList?: string;
 }
 
-const WatersApi: API = new API(WatersResponse, "/api").addEndpoint(
-    "waters",
-    "/waters",
-    ["POST"]
-);
+const WatersApi: API = new API(WatersResponse, "/api")
+    .addEndpoint("waters", "/waters", ["POST"])
+    .addEndpoint("validate", "/validate", ["POST"]);
 
 export default WatersApi;

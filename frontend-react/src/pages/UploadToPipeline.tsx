@@ -17,6 +17,7 @@ const UploadToPipeline = () => {
             warningText={
                 "Uploading files on this page will result in data being transmitted to public health authorities. Use caution when uploading data."
             }
+            endpointName={"waters"}
         />
     );
 };

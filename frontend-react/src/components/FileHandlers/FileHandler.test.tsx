@@ -96,6 +96,7 @@ describe("FileHandler", () => {
                 showSuccessMetadata={false}
                 showWarningBanner={false}
                 warningText=""
+                endpointName="waters"
             />
         );
         const spinner = await screen.findByLabelText("loading-indicator");
@@ -122,6 +123,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName="waters"
                 />
             );
 
@@ -154,6 +156,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName="waters"
                 />
             );
 
@@ -181,6 +184,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName="waters"
                 />
             );
 
@@ -223,6 +227,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={true}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName="waters"
                 />
             );
 
@@ -278,6 +283,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={true}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName="validate"
                 />
             );
 
@@ -323,6 +329,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName="waters"
                 />
             );
 
@@ -361,6 +368,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={true}
                     warningText="THIS IS A WARNING"
+                    endpointName="waters"
                 />
             );
             const message = await screen.findByText("THIS IS A WARNING");
@@ -385,6 +393,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName="waters"
                 />
             );
 
@@ -427,6 +436,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName="waters"
                 />
             );
 
@@ -473,7 +483,8 @@ describe("FileHandler", () => {
                 undefined, //contentType
                 contentString, //fileContent
                 "", //parsedName
-                "" //accessToken
+                "", //accessToken
+                "waters" // endpointName
             );
             expect(mockDispatch).toHaveBeenCalledWith({
                 type: FileHandlerActionType.REQUEST_COMPLETE,
@@ -499,6 +510,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName="waters"
                 />
             );
 

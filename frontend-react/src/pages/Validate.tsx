@@ -1,7 +1,8 @@
 import FileHandler, {
     FileHandlerType,
 } from "../components/FileHandlers/FileHandler";
-import validateApiFunctions from "../network/api/ValidateApiFunctions";
+// import validateApiFunctions from "../network/api/ValidateApiFunctions";
+import watersApiFunctions from "../network/api/WatersApiFunctions";
 
 const Validate = () => {
     return (
@@ -12,8 +13,9 @@ const Validate = () => {
             resetText="Validate another file"
             submitText="Validate"
             showSuccessMetadata={false}
-            fetcher={validateApiFunctions.postData}
+            fetcher={watersApiFunctions.postData}
             showWarningBanner={false}
+            endpointName="validate"
         />
     );
 };

@@ -248,6 +248,7 @@ describe("useFileHandler", () => {
             fileInputResetValue: 1,
             reportId: "1",
             successTimestamp: new Date(0).toString(),
+            overallStatus: undefined,
         });
     });
 
@@ -271,6 +272,7 @@ describe("useFileHandler", () => {
             cancellable: true,
             warnings: [fakeWarning],
             errorType: "file",
+            overallStatus: undefined,
         });
     });
 });
