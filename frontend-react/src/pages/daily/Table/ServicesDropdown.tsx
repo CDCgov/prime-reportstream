@@ -1,5 +1,3 @@
-import { Dropdown } from "@trussworks/react-uswds";
-
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 
 interface Props {
@@ -15,7 +13,7 @@ interface Props {
     A function passed in by the parent prop to sync chosen state
     This can be seen in-use by <ReportsTable>. The chosen state in sync'd
     and ReportsTable filters by the chosen sender */
-    chosenCallback: Function;
+    chosenCallback: (s: string) => void;
 }
 
 /*
@@ -25,10 +23,11 @@ interface Props {
 */
 function ServicesDropdown(props: Props) {
     return (
-        <Dropdown
+        <select
+            className="usa-select"
             id="services-dropdown"
             name="services-dropdown"
-            value={props.active}
+            defaultValue={props.active}
             onChange={(event) => props.chosenCallback(event.target.value)}
         >
             {props.services.map((service, idx) => (
@@ -36,7 +35,7 @@ function ServicesDropdown(props: Props) {
                     {service.name}
                 </option>
             ))}
-        </Dropdown>
+        </select>
     );
 }
 

@@ -1,7 +1,7 @@
-import { useMemo } from "react";
 import { Method } from "axios";
 
 import {
+    useAdminSafeOrgName,
     useMemoizedConfig,
     useMemoizedConfigParams,
 } from "../UseMemoizedConfig";
@@ -18,16 +18,16 @@ import {
  *
  * @param org {string?} The user's active membership `parsedName` */
 export const useReceiversList = (org?: string) => {
-    const memoizedOrg = useMemo(() => org, [org]);
+    const memoizedSafeOrg = useAdminSafeOrgName(org);
     const configParams = useMemoizedConfigParams<ReceiverListParams>(
         {
             api: ReceiverApi,
             endpointKey: "list",
             method: "GET" as Method,
-            parameters: { org: memoizedOrg || "" },
+            parameters: { org: memoizedSafeOrg || "" },
             advancedConfig: { requireTrigger: true },
         },
-        [memoizedOrg]
+        [memoizedSafeOrg]
     );
     const config = useMemoizedConfig(configParams);
     return useRequestConfig(config) as BasicAPIResponse<RSReceiver[]>;

@@ -9,6 +9,7 @@ import {
     RSReportInterface,
 } from "../../../network/api/History/Reports";
 import {
+    useAdminSafeOrgName,
     useMemoizedConfig,
     useMemoizedConfigParams,
 } from "../UseMemoizedConfig";
@@ -22,7 +23,11 @@ import useRequestConfig from "../UseRequestConfig";
  * @returns {BasicAPIResponse<RSReportInterface[]>}
  * */
 const useReportsList = (org?: string, service?: string) => {
-    const orgAndService = useMemo(() => `${org}.${service}`, [org, service]);
+    const adminSafeOrgName = useAdminSafeOrgName(org);
+    const orgAndService = useMemo(
+        () => `${adminSafeOrgName}.${service}`,
+        [adminSafeOrgName, service]
+    );
     const configParams = useMemoizedConfigParams<DeliveryListParams>(
         {
             api: DeliveryApi,
@@ -52,7 +57,6 @@ const useReportsDetail = (id: string | number) => {
             endpointKey: "detail",
             method: "GET" as Method,
             parameters: { id: memoizedId },
-            // advancedConfig: { requireTrigger: true },
         },
         [memoizedId]
     );

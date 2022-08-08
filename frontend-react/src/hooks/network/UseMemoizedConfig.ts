@@ -11,7 +11,7 @@ import {
 /** Helper hook that converts `PrimeAdmins` to `ignore`
  * @todo Ticket to make PrimeAdmins an RS org {@link https://github.com/CDCgov/prime-reportstream/issues/4140 #4140}
  * @param orgName {string|undefined} Active membership `parsedName` */
-const useAdminSafeOrgName = (orgName: string | undefined) => {
+export const useAdminSafeOrgName = (orgName: string | undefined) => {
     return useMemo(
         () => (orgName === "PrimeAdmins" ? "ignore" : orgName),
         [orgName]

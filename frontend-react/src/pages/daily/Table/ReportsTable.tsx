@@ -118,6 +118,10 @@ function ReportsTable() {
         );
     };
 
+    const handleSetActive = (name: string) => {
+        setActiveService(services.find((item) => item.name === name));
+    };
+
     const resultsTableConfig: TableConfig = {
         columns: [
             {
@@ -171,7 +175,7 @@ function ReportsTable() {
                     <ServicesDropdown
                         services={services}
                         active={activeService?.name || ""}
-                        chosenCallback={setActiveService}
+                        chosenCallback={handleSetActive}
                     />
                 ) : (
                     <p>
