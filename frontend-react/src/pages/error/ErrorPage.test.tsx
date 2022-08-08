@@ -67,7 +67,9 @@ describe("testing ErrorPage", () => {
     it("NetworkErrorBoundary 500", () => {
         render(
             <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="page" />}
+                fallbackComponent={(props) => (
+                    <ErrorPage type="page" error={props.error} />
+                )}
             >
                 <Throw500 />
                 <div>never renders</div>

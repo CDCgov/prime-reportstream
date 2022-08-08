@@ -1,6 +1,7 @@
 import { Alert } from "@trussworks/react-uswds";
 import React from "react";
 import Helmet from "react-helmet";
+import { NetworkError } from "@rest-hooks/rest";
 
 import { NotFound } from "./NotFound";
 import { UnsupportedBrowser } from "./UnsupportedBrowser";
@@ -13,11 +14,12 @@ export enum CODES {
     UNSUPPORTED_BROWSER = "unsupported-browser",
     NOT_FOUND_404 = "not-found",
     UNKNOWN = "unknown-error",
+    UNAUTHORIZED_401 = "unauthorized",
 }
 
 interface ErrorPageProps {
+    error?: NetworkError;
     code?: CODES;
-    error?: string;
     errorInfo?: React.ErrorInfo;
     type?: "page" | "message";
 }
@@ -74,27 +76,65 @@ const GenericErrorPage = () => {
     );
 };
 
+const NeedLogin = () => {
+    // const currentUrl = window.location.origin;
+    return (
+        <>
+            <Helmet>
+                <title>Login Required | {process.env.REACT_APP_TITLE}</title>
+            </Helmet>
+            <div className="usa-prose">
+                <h1>You've been logged out.</h1>
+                <p>
+                    The application has logged out of your sign-in for security
+                    reasons. Log back in to continue.
+                </p>
+                <div className="margin-y-5">
+                    <ul className="usa-button-group">
+                        <li className="usa-button-group__item">
+                            <a href="./login" className="usa-button">
+                                Login
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </>
+    );
+};
+
 export const ErrorPage = (props: React.PropsWithChildren<ErrorPageProps>) => {
     const CODES_MAP = {
         [CODES.UNSUPPORTED_BROWSER]: <UnsupportedBrowser />,
         [CODES.NOT_FOUND_404]: <NotFound />,
-        [CODES.UNKNOWN]: <GenericErrorPage />, // Only used for default to keep ts happy. expand?
+        [CODES.UNKNOWN]: <GenericErrorPage />,
+        [CODES.UNAUTHORIZED_401]: <NeedLogin />,
     };
+    const code =
+        props.code ||
+        (props.error?.message.toLowerCase() as CODES) || // we do a keys().includes() check below
+        CODES.UNKNOWN;
 
-    const code = props.code || CODES.UNKNOWN;
+    const codeComponent = Object.keys(CODES_MAP).includes(code)
+        ? CODES_MAP[code] // @ts-ignore
+        : CODES_MAP[CODES.UNKNOWN];
 
     if (Object.keys(CODES_MAP).includes(code)) {
-        return <ErrorPageWrapper>{CODES_MAP[code] || ""}</ErrorPageWrapper>;
+        return (
+            <ErrorPageWrapper error={props.error}>
+                {codeComponent || ""}
+            </ErrorPageWrapper>
+        );
     }
     if (props.type === "message") {
         return (
-            <ErrorMessageWrapper>
+            <ErrorMessageWrapper error={props.error}>
                 <GenericErrorMessage />
             </ErrorMessageWrapper>
         );
     } else {
         return (
-            <ErrorPageWrapper>
+            <ErrorPageWrapper error={props.error}>
                 <GenericErrorPage />
             </ErrorPageWrapper>
         );

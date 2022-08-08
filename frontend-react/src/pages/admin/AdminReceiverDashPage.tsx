@@ -1,6 +1,6 @@
 import { NetworkErrorBoundary } from "rest-hooks";
 import { Helmet } from "react-helmet";
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 
 import { ErrorPage } from "../error/ErrorPage";
 import Spinner from "../../components/Spinner";
@@ -13,14 +13,16 @@ export function AdminReceiverDashPage() {
             <Helmet>
                 <title>Admin Destination Dashboard</title>
             </Helmet>
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="message" />}
-            >
-                <Suspense fallback={<Spinner />}>
+            <Suspense fallback={<Spinner />}>
+                <NetworkErrorBoundary
+                    fallbackComponent={(props) => (
+                        <ErrorPage type="message" error={props.error} />
+                    )}
+                >
                     <section className="grid-container margin-top-0" />
                     <AdminReceiverDashboard />
-                </Suspense>
-            </NetworkErrorBoundary>
+                </NetworkErrorBoundary>
+            </Suspense>
             <HipaaNotice />
         </>
     );

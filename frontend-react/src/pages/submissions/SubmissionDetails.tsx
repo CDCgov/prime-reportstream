@@ -152,13 +152,15 @@ function SubmissionDetails() {
     return (
         <>
             <Crumbs crumbList={crumbs} />
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="page" />}
-            >
-                <Suspense fallback={<Spinner size="fullpage" />}>
+            <Suspense fallback={<Spinner size="fullpage" />}>
+                <NetworkErrorBoundary
+                    fallbackComponent={(props) => (
+                        <ErrorPage type="page" error={props.error} />
+                    )}
+                >
                     <SubmissionDetailsContent />
-                </Suspense>
-            </NetworkErrorBoundary>
+                </NetworkErrorBoundary>
+            </Suspense>
         </>
     );
 }

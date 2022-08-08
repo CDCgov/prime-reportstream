@@ -108,20 +108,22 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
     };
 
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
-            <section className="grid-container margin-bottom-5">
-                <Suspense
-                    fallback={
-                        <span className="text-normal text-base">
-                            <Spinner />
-                        </span>
-                    }
+        <section className="grid-container margin-bottom-5">
+            <Suspense
+                fallback={
+                    <span className="text-normal text-base">
+                        <Spinner />
+                    </span>
+                }
+            >
+                <NetworkErrorBoundary
+                    fallbackComponent={(props) => (
+                        <ErrorPage type="message" error={props.error} />
+                    )}
                 >
                     <FormComponent />
-                </Suspense>
-            </section>
-        </NetworkErrorBoundary>
+                </NetworkErrorBoundary>
+            </Suspense>
+        </section>
     );
 }

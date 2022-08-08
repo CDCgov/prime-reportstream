@@ -1,5 +1,5 @@
 import { NetworkErrorBoundary } from "rest-hooks";
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
@@ -36,7 +36,9 @@ const DetailsContent = () => {
             <Summary report={report} />
             <ReportDetails report={report} />
             <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="message" />}
+                fallbackComponent={(props) => (
+                    <ErrorPage type="message" error={props.error} />
+                )}
             >
                 <Suspense fallback={<Spinner />}>
                     <FacilitiesTable reportId={reportId} />
@@ -50,12 +52,14 @@ const DetailsContent = () => {
 /** @todo Refactor as part of {@link https://github.com/CDCgov/prime-reportstream/issues/4790 #4790} */
 export const Details = () => {
     return (
-        <Suspense fallback={<Spinner size="fullpage" />}>
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="page" />}
-            >
+        <NetworkErrorBoundary
+            fallbackComponent={(props) => (
+                <ErrorPage type="page" error={props.error} />
+            )}
+        >
+            <Suspense fallback={<Spinner />}>
                 <DetailsContent />
-            </NetworkErrorBoundary>
-        </Suspense>
+            </Suspense>
+        </NetworkErrorBoundary>
     );
 };

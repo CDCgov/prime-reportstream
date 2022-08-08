@@ -121,7 +121,9 @@ const App = () => {
             <SessionProvider oktaHook={useOktaAuth}>
                 <Suspense fallback={<Spinner size={"fullpage"} />}>
                     <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage type="page" />}
+                        fallbackComponent={(props) => (
+                            <ErrorPage type="page" error={props.error} />
+                        )}
                     >
                         <DAPHeader
                             env={process.env.REACT_APP_ENV?.toString()}

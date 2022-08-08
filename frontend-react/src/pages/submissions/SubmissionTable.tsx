@@ -239,18 +239,20 @@ function SubmissionTable() {
         FeatureFlagName.NUMBERED_PAGINATION
     );
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="message" />}
-        >
-            <Suspense fallback={<Spinner />}>
+        <Suspense fallback={<Spinner />}>
+            <NetworkErrorBoundary
+                fallbackComponent={(props) => (
+                    <ErrorPage type="message" error={props.error} />
+                )}
+            >
                 {isNumberedPaginationOn && (
                     <SubmissionTableWithNumberedPagination />
                 )}
                 {!isNumberedPaginationOn && (
                     <SubmissionTableWithCursorManager />
                 )}
-            </Suspense>
-        </NetworkErrorBoundary>
+            </NetworkErrorBoundary>
+        </Suspense>
     );
 }
 

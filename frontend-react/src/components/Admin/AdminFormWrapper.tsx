@@ -13,9 +13,7 @@ export function AdminFormWrapper({
     children,
 }: React.PropsWithChildren<AdminFormWrapperProps>) {
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
+        <>
             <section className="grid-container margin-bottom-5">
                 {header}
             </section>
@@ -26,8 +24,14 @@ export function AdminFormWrapper({
                     </span>
                 }
             >
-                {children}
+                <NetworkErrorBoundary
+                    fallbackComponent={(props) => (
+                        <ErrorPage type="page" error={props.error} />
+                    )}
+                >
+                    {children}
+                </NetworkErrorBoundary>
             </Suspense>
-        </NetworkErrorBoundary>
+        </>
     );
 }
