@@ -100,7 +100,7 @@ describe("FileHandler", () => {
                 showSuccessMetadata={false}
                 showWarningBanner={false}
                 warningText=""
-                endpointName="waters"
+                endpointName={EndpointName.WATERS}
             />
         );
         const spinner = await screen.findByLabelText("loading-indicator");
@@ -127,7 +127,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName="waters"
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -160,7 +160,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
-                    endpointName="waters"
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
