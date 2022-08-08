@@ -2,7 +2,10 @@ import React, { useEffect, useReducer } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 
 import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
-// import { setStoredOrg } from "../contexts/SessionStorageTools";
+import {
+    setSessionMembershipState,
+    getSessionMembershipState,
+} from "../contexts/SessionStorageTools";
 
 export enum MemberType {
     SENDER = "sender",
@@ -14,6 +17,7 @@ export enum MemberType {
 export enum MembershipActionType {
     UPDATE = "update",
     ADMIN_OVERRIDE = "override",
+    RESET = "reset",
 }
 
 export interface MembershipSettings {
@@ -39,7 +43,7 @@ export interface MembershipController {
 export interface MembershipAction {
     type: MembershipActionType;
     // Only need to pass name of an org to swap to
-    payload: string | AccessToken | Partial<MembershipSettings>;
+    payload?: string | MembershipState | Partial<MembershipSettings>;
 }
 
 export const getTypeOfGroup = (org: string) => {
@@ -119,7 +123,7 @@ export const membershipsFromToken = (token: AccessToken): MembershipState => {
     };
 };
 
-export const membershipReducer = (
+const calculateNewState = (
     state: MembershipState,
     action: MembershipAction
 ) => {
@@ -128,27 +132,46 @@ export const membershipReducer = (
         case MembershipActionType.UPDATE:
             console.log(
                 "!!! set in state on UPDATE",
-                membershipsFromToken(payload as AccessToken).active
+                payload
+                // membershipsFromToken(payload as AccessToken).active
             );
-            return membershipsFromToken(payload as AccessToken);
+            return payload as MembershipState;
+        // return membershipsFromToken(payload as AccessToken);
         case MembershipActionType.ADMIN_OVERRIDE:
             console.log("!!! set in state on ADMIN_OVERRIDE", payload);
-            return {
+            const newState = {
                 ...state,
                 active: {
                     ...state.active,
                     ...(payload as MembershipSettings),
                 },
             };
+            return newState;
+        case MembershipActionType.RESET:
+            return defaultState;
         default:
             return state;
     }
 };
 
+// try to read from existing stored state
+const getInitialState = () => {
+    return { ...defaultState, ...getSessionMembershipState() };
+};
+
+export const membershipReducer = (
+    state: MembershipState,
+    action: MembershipAction
+) => {
+    const newState = calculateNewState(state, action);
+    setSessionMembershipState(JSON.stringify(newState));
+    return newState;
+};
+
 export const useOktaMemberships = (
     token: AccessToken | undefined
 ): MembershipController => {
-    const [state, dispatch] = useReducer(membershipReducer, defaultState);
+    const [state, dispatch] = useReducer(membershipReducer, getInitialState());
 
     // need to make sure this doesn't run on an infinite loop in a real world situation
     // may need to drill down on the dependency array if it does, or refactor this hook
@@ -157,7 +180,7 @@ export const useOktaMemberships = (
         if (token) {
             dispatch({
                 type: MembershipActionType.UPDATE,
-                payload: token,
+                payload: membershipsFromToken(token),
             });
         }
     }, [token?.claims]); // eslint-disable-line react-hooks/exhaustive-deps

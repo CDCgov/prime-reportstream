@@ -9,28 +9,31 @@ import { getOktaGroups, parseOrgs } from "../utils/OrganizationUtils";
 import { setStoredOktaToken } from "../contexts/SessionStorageTools";
 import { oktaSignInConfig } from "../oktaConfig";
 import { useSessionContext } from "../contexts/SessionContext";
-import { MembershipActionType } from "../hooks/UseOktaMemberships";
+import {
+    MembershipActionType,
+    membershipsFromToken,
+} from "../hooks/UseOktaMemberships";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
     const { store, memberships } = useSessionContext();
 
     const onSuccess = (tokens: Tokens | undefined) => {
-        const parsedOrgs = parseOrgs(getOktaGroups(tokens?.accessToken));
+        const accessToken = tokens?.accessToken || ({} as AccessToken);
+        const parsedMemberships = membershipsFromToken(accessToken);
+        const parsedOrgs = parseOrgs(getOktaGroups(accessToken));
         const newOrg = parsedOrgs[0]?.org || "";
         const newSender = parsedOrgs[0]?.senderName || undefined;
-        console.log(
-            "!!! set on login",
-            newOrg === "PrimeAdmins" ? "ignore" : newOrg
-        );
+        console.log("!!! set on login", newOrg);
+        // TODO: rename this. Maybe move `session storage` (org storage) idea in line with membership storage
         store.updateSessionStorage({
             // Sets admins to `ignore` org
-            org: newOrg === "PrimeAdmins" ? "ignore" : newOrg,
+            org: newOrg,
             senderName: newSender,
         });
         memberships.dispatch({
             type: MembershipActionType.UPDATE,
-            payload: tokens?.accessToken || ({} as AccessToken),
+            payload: parsedMemberships,
         });
         setStoredOktaToken(tokens?.accessToken?.accessToken || "");
         oktaAuth.handleLoginRedirect(tokens);
@@ -38,6 +41,10 @@ export const Login = () => {
 
     const onError = (err: any) => {
         setStoredOktaToken(""); // clear on error.
+        store.updateSessionStorage({});
+        memberships.dispatch({
+            type: MembershipActionType.RESET,
+        });
         console.log("error logging in", err);
     };
 
