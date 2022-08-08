@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - production
+      - master
+      - test
   push:
     branches:
       - master
@@ -34,7 +36,7 @@ jobs:
             echo "VALIDATE_ENV=${{ steps.build_vars.outputs.env_name }}" >> $GITHUB_ENV
           fi
 
-  validate_resources:
+  validate_dns:
     name: Check resources for ${{ needs.pre_job.outputs.env_name }}
     needs:
       - pre_job
@@ -53,6 +55,14 @@ jobs:
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-      - name: Validate DNS
-        shell: bash
-        run: dig google.com @10.0.2.4
+      - name: Restart DNS if failure
+        uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+        with:
+          timeout_seconds: 60
+          max_attempts: 3
+          retry_wait_seconds: 180
+          command: dig google.com @10.0.2.4
+          shell: bash
+          on_retry_command: >-
+            az container restart --name pdh${{ needs.pre_job.outputs.env_name }}-dns 
+            --resource-group prime-data-hub-${{ needs.pre_job.outputs.env_name }}
