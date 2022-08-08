@@ -15,7 +15,6 @@ import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.ExpressionNode
 import org.hl7.fhir.r4.model.InstantType
-import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.TimeType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import java.time.DateTimeException
@@ -64,12 +63,7 @@ object FhirPathUtils : Logging {
         expression: String
     ): List<Base> {
         val retVal = try {
-            val resources = pathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
-            resources.map {
-                if (it.hasType("Reference") && (it as Reference).resource != null) {
-                    it.resource as Base
-                } else it
-            }
+            pathEngine.evaluate(appContext, focusResource, bundle, bundle, parsePath(expression))
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
             logger.debug(

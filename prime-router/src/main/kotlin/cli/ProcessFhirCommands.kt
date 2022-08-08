@@ -13,12 +13,13 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent
+import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.Resource
 
@@ -145,6 +146,7 @@ class FhirPathCommand : CliktCommand(
 
     private var focusPath = "Bundle"
     private var focusResource: Base? = null
+    private var fhirPathContext: CustomContext? = null
 
     init {
         fhirResourceParser.setPrettyPrint(true)
@@ -158,6 +160,9 @@ class FhirPathCommand : CliktCommand(
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
         val bundle = FhirTranscoder.decode(contents)
         focusResource = bundle
+        fhirPathContext = CustomContext(
+            bundle, mutableMapOf("rsext" to "https://reportstream.cdc.gov/fhir/StructureDefinition/")
+        )
 
         echo("", true)
         echo("Using the FHIR bundle in ${inputFile.absolutePath}...", true)
@@ -166,9 +171,11 @@ class FhirPathCommand : CliktCommand(
         echo("Press CTRL-C or ENTER to exit.", true)
 
         // Loop until you press CTRL-C or ENTER at the prompt.
+        var lastPath = ""
         while (true) {
             echo("", true)
             echo("%resource = $focusPath")
+            echo("Last path = $lastPath")
             print("FHIR path> ") // This needs to be a print as an echo does not show on the same line
             val input = readln()
 
@@ -184,7 +191,10 @@ class FhirPathCommand : CliktCommand(
                     input.startsWith("resource") -> {
                         setFocusResource(input, bundle)
                     }
-                    else -> evaluatePath(input, bundle)
+                    else -> {
+                        evaluatePath(input, bundle)
+                        lastPath = input
+                    }
                 }
             } catch (e: FhirPathExecutionException) {
                 echo("Invalid FHIR path specified.", true)
@@ -209,7 +219,9 @@ class FhirPathCommand : CliktCommand(
         else {
             val path = inputParts[1].trim().trimStart('\'').trimEnd('\'')
             val pathExpression = FhirPathUtils.parsePath(path) ?: throw FhirPathExecutionException("Invalid FHIR path")
-            val resourceList = FhirPathUtils.pathEngine.evaluate(null, focusResource!!, bundle, bundle, pathExpression)
+            val resourceList = FhirPathUtils.pathEngine.evaluate(
+                fhirPathContext, focusResource!!, bundle, bundle, pathExpression
+            )
             when {
                 resourceList.size != 1 ->
                     echo("Resource path must evaluate to 1 resource, but got ${resourceList.size}")
@@ -241,7 +253,7 @@ class FhirPathCommand : CliktCommand(
         try {
             val pathExpression = FhirPathUtils.parsePath(input) ?: throw FhirPathExecutionException("Invalid FHIR path")
             val values = try {
-                FhirPathUtils.pathEngine.evaluate(null, focusResource, bundle, bundle, pathExpression)
+                FhirPathUtils.pathEngine.evaluate(fhirPathContext, focusResource, bundle, bundle, pathExpression)
             } catch (e: IndexOutOfBoundsException) {
                 // This happens when a value for an extension is speced, but the extension does not exist.
                 emptyList()
@@ -265,51 +277,68 @@ class FhirPathCommand : CliktCommand(
         return when {
             value.isPrimitive -> "Primitive: $value"
 
-            // Bundle entries
-            value is BundleEntryComponent -> "Entry: ${value.fullUrl}"
-
             // References
             value is Reference ->
-                "Reference to ${value.reference} - set as %resource to navigate into it"
+                "Reference to ${value.reference} - set as %resource or use resolve() to navigate into it"
 
-            // Resources
-            else -> {
-                val stringValue = StringBuilder()
-                stringValue.append("{${System.lineSeparator()}")
-                value.children().forEach { property ->
-                    when {
-                        property.values.isEmpty() ->
-                            stringValue.append("")
+            // An extension
+            value is Extension -> {
+                "extension('${value.url}')"
+            }
 
-                        property.isList -> {
-                            stringValue.append("  \"${property.name}\": [ \n")
-                            property.values.forEach { value ->
-                                stringValue.append("    ")
-                                if (value.isPrimitive) stringValue.append("\"${value.primitiveValue()}\",")
-                                else stringValue.append("$value,")
-                                stringValue.append("\n")
-                            }
-                            stringValue.append("  ] \n")
-                        }
+            // This base is a resource
+            else ->
+                fhirPropertiesAsString(value)
+        }
+    }
 
-                        property.values[0].isPrimitive -> {
-                            stringValue.append("  \"${property.name}\": ")
-                            stringValue.append("\"${property.values[0].primitiveValue()}\"")
-                            stringValue.append("\n")
-                        }
+    /**
+     * Generate a string representation of all the properties in a resource
+     */
+    private fun fhirPropertiesAsString(value: Base): String {
+        val stringValue = StringBuilder()
+        stringValue.append("{  ")
+        value.children().forEach { property ->
+            when {
+                // Empty values
+                property.values.isEmpty() ->
+                    stringValue.append("")
 
-                        else -> {
-                            stringValue.append("  \"${property.name}\": ")
-                            if (property.values[0] is Reference)
-                                stringValue.append("Reference to ${(property.values[0] as Reference).reference}")
-                            else stringValue.append("${property.values[0]}")
-                            stringValue.append("\n")
-                        }
+                // An array
+                property.isList -> {
+                    stringValue.append("\n\t\"${property.name}\": [ \n")
+                    property.values.forEach { value ->
+                        stringValue.append("\t\t")
+                        if (value is Extension) stringValue.append("extension('${value.url}'),")
+                        else stringValue.append("$value,")
+                        stringValue.append("\n")
                     }
+                    stringValue.append("  ]")
                 }
-                stringValue.append("}${System.lineSeparator()}")
-                stringValue.toString()
+
+                // A reference
+                property.values[0] is Reference -> {
+                    stringValue.append("\n\t\"${property.name}\": ")
+                    stringValue.append("Reference to ${(property.values[0] as Reference).reference}")
+                }
+
+                // An extension
+                property.values[0] is Extension -> {
+                    stringValue.append("\n\t\"${property.name}\": ")
+                    stringValue.append("extension('${(property.values[0] as Extension).url}')")
+                }
+
+                // A primitive
+                property.values[0].isPrimitive -> {
+                    stringValue.append("\n\t\"${property.name}\": \"${property.values[0]}\"")
+                }
+
+                else -> {
+                    stringValue.append("\n\t\"${property.name}\": ${property.values[0]}")
+                }
             }
         }
+        stringValue.append("\n}\n")
+        return stringValue.toString()
     }
 }
