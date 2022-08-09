@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 26,
+            "activePatchIndex": 27,
             "patches": [
                 {
                     "date": 1660057706276,
@@ -112,6 +112,10 @@
                 {
                     "date": 1660076060397,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -31,9 +31,9 @@\n \r\n       - name: Upload Trivy scan results to GitHub Security tab\r\n         uses: github/codeql-action/upload-sarif@v2\r\n         with:\r\n-          sarif_file: \"trivy-repo-results.sarif\"\r\n+          sarif_file: ${{ steps.gitleaks.outputs.report }}\r\n \r\n       # - name: Get the output from the gitleaks step\r\n       #   run: |\r\n       #     echo \"exitcode: ${{ steps.gitleaks.outputs.exitcode }}\"\r\n"
+                },
+                {
+                    "date": 1660076584013,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -12,28 +12,28 @@\n           fetch-depth: \"0\"\r\n \r\n       - name: Run Gitleaks\r\n         id: gitleaks\r\n-        uses: DariuszPorowski/github-action-gitleaks@v2\r\n+        uses: DariuszPorowski/github-action-gitleaks@v2 --since '2021-08-01T00:00:00-0400'\r\n         with:\r\n           report_format: \"sarif\"\r\n           fail: false\r\n       \r\n-      - name: Run Trivy vulnerability scanner in repo mode\r\n-        uses: aquasecurity/trivy-action@cb606dfdb0d2b3698ace62192088ef4f5360b24f\r\n-        with:\r\n-          scan-type: \"fs\"\r\n-          scan-ref: \".\"\r\n-          ignore-unfixed: true\r\n-          format: \"template\"\r\n-          template: \"@/contrib/sarif.tpl\"\r\n-          output: \"trivy-repo-results.sarif\"\r\n-          severity: \"HIGH,CRITICAL\"\r\n+      # - name: Run Trivy vulnerability scanner in repo mode\r\n+      #   uses: aquasecurity/trivy-action@cb606dfdb0d2b3698ace62192088ef4f5360b24f\r\n+      #   with:\r\n+      #     scan-type: \"fs\"\r\n+      #     scan-ref: \".\"\r\n+      #     ignore-unfixed: true\r\n+      #     format: \"template\"\r\n+      #     template: \"@/contrib/sarif.tpl\"\r\n+      #     output: \"trivy-repo-results.sarif\"\r\n+      #     severity: \"HIGH,CRITICAL\"\r\n \r\n-      - name: Upload Trivy scan results to GitHub Security tab\r\n-        uses: github/codeql-action/upload-sarif@v2\r\n-        with:\r\n-          sarif_file: ${{ steps.gitleaks.outputs.report }}\r\n+      # - name: Upload Trivy scan results to GitHub Security tab\r\n+      #   uses: github/codeql-action/upload-sarif@v2\r\n+      #   with:\r\n+      #     sarif_file: \"trivy-repo-results.sarif\"\r\n \r\n       # - name: Get the output from the gitleaks step\r\n       #   run: |\r\n       #     echo \"exitcode: ${{ steps.gitleaks.outputs.exitcode }}\"\r\n"
                 }
             ],
             "date": 1660057706276,
