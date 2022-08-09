@@ -1,7 +1,8 @@
-import watersApiFunctions from "../network/api/WatersApiFunctions";
 import FileHandler, {
     FileHandlerType,
 } from "../components/FileHandlers/FileHandler";
+import watersApiFunctions from "../network/api/WatersApiFunctions";
+import { EndpointName } from "../network/api/WatersApi";
 
 const Validate = () => {
     return (
@@ -14,6 +15,7 @@ const Validate = () => {
             showSuccessMetadata={false}
             fetcher={watersApiFunctions.postData}
             showWarningBanner={false}
+            endpointName={EndpointName.VALIDATE}
         />
     );
 };

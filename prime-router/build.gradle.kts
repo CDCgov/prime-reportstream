@@ -717,7 +717,7 @@ dependencies {
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.49")
     implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.1")
-    implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
+    implementation("com.okta.jwt:okta-jwt-verifier:0.5.3")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
         exclude(group = "org.json", module = "json")
     }
@@ -743,7 +743,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
 
     implementation("commons-net:commons-net:3.8.0")
-    implementation("com.cronutils:cron-utils:9.1.6")
+    implementation("com.cronutils:cron-utils:9.2.0")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("de.m3y.kformat:kformat:0.9")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
@@ -760,7 +760,7 @@ dependencies {
 // force jsoup since skrapeit-html-parser@1.2.1 has not updated
     implementation("org.jsoup:jsoup:1.14.2")
 
-    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
+    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.3")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")

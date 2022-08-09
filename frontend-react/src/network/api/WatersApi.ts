@@ -38,10 +38,12 @@ export interface ResponseError {
     rowList?: string;
 }
 
-const WatersApi: API = new API(WatersResponse, "/api").addEndpoint(
-    "waters",
-    "/waters",
-    ["POST"]
-);
+export enum EndpointName {
+    WATERS = "waters",
+    VALIDATE = "validate",
+}
+const WatersApi: API = new API(WatersResponse, "/api")
+    .addEndpoint(EndpointName.WATERS.toString(), "/waters", ["POST"])
+    .addEndpoint(EndpointName.VALIDATE.toString(), "/validate", ["POST"]);
 
 export default WatersApi;
