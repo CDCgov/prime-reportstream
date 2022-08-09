@@ -27,6 +27,7 @@ import gov.cdc.prime.router.metadata.NullMapper
 import gov.cdc.prime.router.metadata.Obx17Mapper
 import gov.cdc.prime.router.metadata.Obx17TypeMapper
 import gov.cdc.prime.router.metadata.Obx8Mapper
+import gov.cdc.prime.router.metadata.PatientAgeMapper
 import gov.cdc.prime.router.metadata.SplitByCommaMapper
 import gov.cdc.prime.router.metadata.SplitMapper
 import gov.cdc.prime.router.metadata.StripNonNumericDataMapper
@@ -37,6 +38,7 @@ import gov.cdc.prime.router.metadata.TrimBlanksMapper
 import gov.cdc.prime.router.metadata.UseMapper
 import gov.cdc.prime.router.metadata.UseSenderSettingMapper
 import gov.cdc.prime.router.metadata.ZipCodeToCountyMapper
+import gov.cdc.prime.router.metadata.ZipCodeToStateMapper
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.io.File
@@ -70,6 +72,7 @@ class Metadata : Logging {
         StripNumericDataMapper(),
         SplitMapper(),
         ZipCodeToCountyMapper(),
+        ZipCodeToStateMapper(),
         SplitByCommaMapper(),
         TimestampMapper(),
         HashMapper(),
@@ -77,7 +80,8 @@ class Metadata : Logging {
         NpiLookupMapper(),
         CountryMapper(),
         LookupSenderAutomationValuesets(),
-        IfThenElseMapper()
+        IfThenElseMapper(),
+        PatientAgeMapper()
     )
     private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),

@@ -138,7 +138,7 @@ abstract class Sender(
     }
 
     @get:JsonIgnore
-    val fullName: String get() = "$organizationName${fullNameSeparator}$name"
+    val fullName: String get() = ClientSource(organizationName, name).name
 
     /**
      * Calculate the customer's default processingModeCode based on their

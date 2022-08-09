@@ -72,7 +72,7 @@ elements:
       cardinality: ZERO_OR_ONE
       table: fips-county
       tableColumn: FIPS
-      mapper: lookup(patient_state, patient_county)
+      mapper: lookup(patient_state, $Column:State, patient_county, $Column:County)
 
     - name: patient_phone_number
       csvFields: [{name: Patient Phone Number}]

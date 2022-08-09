@@ -8,6 +8,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ElrResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
+import gov.cdc.prime.router.common.DateUtilities.toYears
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
@@ -25,8 +26,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.xml.bind.DatatypeConverter
-import kotlin.math.abs
-import kotlin.math.floor
 import kotlin.random.Random
 
 /**
@@ -61,7 +60,19 @@ enum class Options {
     ValidatePayload,
     CheckConnections,
     SkipSend,
-    SendImmediately;
+    SendImmediately,
+    @OptionDeprecated
+    SkipInvalidItems;
+
+    class InvalidOptionException(message: String) : Exception(message)
+
+    /**
+     * Checks to see if the enum constant has an @OptionDeprecated annotation.
+     * If the annotation is present, the constant is no longer in use.
+     */
+
+    val isDeprecated = this.declaringClass.getField(this.name)
+        .getAnnotation(OptionDeprecated::class.java) != null
 
     companion object {
         /**
@@ -72,12 +83,14 @@ enum class Options {
             return try {
                 valueOf(input)
             } catch (ex: IllegalArgumentException) {
-                None
+                val msg = "$input is not a valid Option. Valid options: ${Options.values().joinToString()}"
+                throw InvalidOptionException(msg)
             }
         }
     }
 }
 
+annotation class OptionDeprecated()
 /**
  * ReportStreamFilterResult records useful information about rows filtered by one filter call.  One filter
  * might filter many rows. ReportStreamFilterResult entries are only created when filter logging is on.  This is to
@@ -968,13 +981,6 @@ class Report : Logging {
      *  @return age - result of patient's age.
      */
     private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: OffsetDateTime?): String? {
-        /**
-         * Get the age in years from the [duration]
-         */
-        fun getAgeInYearsFromDuration(duration: Duration): Int {
-            return floor(abs(duration.toDays() / 365.0)).toInt()
-        }
-
         return if (
             (!patient_age.isNullOrBlank()) &&
             patient_age.all { Character.isDigit(it) } &&
@@ -990,7 +996,7 @@ class Report : Logging {
                 if (patient_dob == null || specimenCollectionDate == null) return null
                 val d = DateUtilities.parseDate(patient_dob).toOffsetDateTime()
                 if (d.isBefore(specimenCollectionDate)) {
-                    getAgeInYearsFromDuration(Duration.between(d, specimenCollectionDate)).toString()
+                    Duration.between(d, specimenCollectionDate).toYears().toString()
                 } else {
                     null
                 }

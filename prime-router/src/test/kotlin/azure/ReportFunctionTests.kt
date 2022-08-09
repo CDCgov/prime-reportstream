@@ -13,6 +13,8 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.SubmissionReceiver
+import gov.cdc.prime.router.TopicReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationStrategy
@@ -69,23 +71,6 @@ class ReportFunctionTests {
         "UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,3,2131-1,2135-2,F,19931,Sussex,1404270765," +
         "Reicherts,NormanB,19931,97D0667471,Any lab USA,DE,19931,122554006,esyuj9,vhd3cfvvt,DE,NO,bgq0b2e," +
         "840533007,NO,NO,h8jev96rc,YES,YES,YES,257628001,60001007"
-    val csvString_2Records_diff = "senderId,processingModeCode,testOrdered,testName,testResult,testPerformed," +
-        "testResultDate,testReportDate,deviceIdentifier,deviceName,specimenId,testId,patientAge,patientRace," +
-        "patientEthnicity,patientSex,patientZip,patientCounty,orderingProviderNpi,orderingProviderLname," +
-        "orderingProviderFname,orderingProviderZip,performingFacility,performingFacilityName," +
-        "performingFacilityState,performingFacilityZip,specimenSource,patientUniqueId,patientUniqueIdHash," +
-        "patientState,firstTest,previousTestType,previousTestResult,healthcareEmployee,symptomatic,symptomsList," +
-        "hospitalized,symptomsIcu,congregateResident,congregateResidentType,pregnant\n" +
-        "abbottt,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid " +
-        "immunoassay,419984006,95209-3,202112181841-0500,202112151325-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx " +
-        "UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,3,2131-1,2135-2,F,19931,Sussex,1404270765," +
-        "ReichertA,NormanBA,19931,97D0667471,Any lab USA,DE,19931,122554006,esyuj9,vhd3cfvvt,DE,NO,bgq0b2e,840533007," +
-        "NO,NO,h8jev96rc,YES,YES,YES,257628001,60001007\n" +
-        "abbott,P,95209-3,SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid " +
-        "immunoassayy,419984006,95209-3,202112181841-0500,202112151325-0500,LumiraDx SARS-CoV-2 Ag Test_LumiraDx " +
-        "UK Ltd.,LumiraDx SARS-CoV-2 Ag Test*,SomeEntityID,SomeEntityID,3,2131-1,2135-2,F,19931,Sussex,1404270765," +
-        "Reicherts,NormanB,19931,97D0667471,Any lab USA,DE,19931,122554006,esyuj9,vhd3cfvvt,DE,NO,bgq0b2e," +
-        "840533007,NO,NO,h8jev96rc,YES,YES,YES,257628001,60001007"
 
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
@@ -132,7 +117,56 @@ class ReportFunctionTests {
         every { engine.settings.findSender(any()) } returns sender // This test only works with org = simple_report
         return Pair(reportFunc, req)
     }
+    /** Do all the setup required to be able to run any process request tests**/
+    private fun setupForProcessRequestTests(actionHistory: ActionHistory):
+        Triple<ReportFunction, MockHttpRequestMessage, Sender> {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
 
+        val engine = makeEngine(metadata, settings)
+        val reportFunc = spyk(ReportFunction(engine, actionHistory))
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.CSV,
+            schemaName =
+            "one",
+            allowDuplicates = false
+        )
+        val blobInfo = BlobAccess.BlobInfo(Report.Format.CSV, "test", ByteArray(0))
+
+        val req = MockHttpRequestMessage(csvString_2Records)
+        req.httpHeaders += mapOf(
+            "client" to "Test Sender",
+            "content-length" to "4",
+        )
+        every { reportFunc.validateRequest(any()) } returns RequestFunction.ValidatedRequest(
+            csvString_2Records,
+            sender = sender
+        )
+        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAll(any()) } returns Unit
+        every { actionHistory.trackLogs(any<ActionLog>()) } returns Unit
+        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "Test Sender"
+        mockkObject(SubmissionReceiver.Companion)
+        var mockReceiver = spyk(TopicReceiver(engine, actionHistory))
+        every { SubmissionReceiver.getSubmissionReceiver(any(), any(), any()) } returns mockReceiver
+
+        every {
+            mockReceiver.validateAndMoveToProcessing(
+                any(), any(), any(), any(), any(), any(), any(), any(), any()
+            )
+        } returns Unit
+
+        every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
+        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
+        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
+        every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+        every { accessSpy.isDuplicateItem(any(), any()) } returns false
+        return Triple(reportFunc, req, sender)
+    }
     /** basic /submitToWaters endpoint tests **/
 
     @Test
@@ -320,7 +354,7 @@ class ReportFunctionTests {
         )
 
         // Invoke function run
-        var res = reportFunc.run(req)
+        val res = reportFunc.run(req)
 
         // verify
         assert(res.statusCode == 400)
@@ -377,7 +411,7 @@ class ReportFunctionTests {
 
         val req = MockHttpRequestMessage(csvString_2Records)
 
-        every { reportFunc.validateRequest(any()) } returns ReportFunction.ValidatedRequest(
+        every { reportFunc.validateRequest(any()) } returns RequestFunction.ValidatedRequest(
             csvString_2Records,
             sender = sender
         )
@@ -396,11 +430,56 @@ class ReportFunctionTests {
         every { accessSpy.isDuplicateItem(any(), any()) } returns true
 
         // act
-        var resp = reportFunc.processRequest(req, sender)
+        val resp = reportFunc.processRequest(req, sender)
 
         // assert
         verify(exactly = 2) { engine.isDuplicateItem(any()) }
         verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
         assert(resp.status.equals(HttpStatus.BAD_REQUEST))
+    }
+
+    @Test
+    fun `test processRequest invalid Option`() {
+        // setup steps
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        var (reportFunc, req, sender) = setupForProcessRequestTests(actionHistory)
+        req.queryParameters["option"] = "INVALID OPTION"
+
+        // act on invalid options
+        var resp = reportFunc.processRequest(req, sender)
+
+        // No report is created and an error is returned to explain the issue
+        assert(resp.status.equals(HttpStatus.BAD_REQUEST))
+        verify(exactly = 1) { actionHistory.trackLogs(any<ActionLog>()) }
+    }
+
+    @Test
+    fun `test processRequest Options deprecated`() {
+        // setup steps
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        var (reportFunc, req, sender) = setupForProcessRequestTests(actionHistory)
+        req.queryParameters["option"] = "SkipInvalidItems"
+
+        // act on invalid options
+        var resp = reportFunc.processRequest(req, sender)
+
+        // Report still created but a warning is returned
+        assert(resp.status.equals(HttpStatus.CREATED))
+        verify(exactly = 1) { actionHistory.trackLogs(any<ActionLog>()) }
+    }
+
+    @Test
+    fun `test processRequest Options happy path`() {
+        // setup steps
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        var (reportFunc, req, sender) = setupForProcessRequestTests(actionHistory)
+        req.queryParameters["option"] = "ValidatePayload"
+
+        // act on invalid options
+        var resp = reportFunc.processRequest(req, sender)
+
+        // Report Validated and no warnings returned
+        assert(resp.status.equals(HttpStatus.OK))
+        verify(exactly = 0) { actionHistory.trackLogs(any<ActionLog>()) }
     }
 }

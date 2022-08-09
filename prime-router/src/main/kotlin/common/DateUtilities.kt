@@ -4,6 +4,7 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import java.time.DateTimeException
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -15,6 +16,8 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.time.temporal.TemporalAccessor
 import java.util.Locale
+import kotlin.math.abs
+import kotlin.math.floor
 
 /**
  * A collection of methods for dealing with dates and date times, parsing and formatting
@@ -375,6 +378,19 @@ object DateUtilities {
      */
     private fun getBestDateTime(value: String): OffsetDateTime {
         return parseDate(value).toOffsetDateTime()
+    }
+
+    /**
+     * Convert a [Duration] to an integer years value. It takes the [Duration.toDays] value
+     * and divides it by 365.0, and then takes the [floor] of that value. This is obviously
+     * a rough calculation given the fact that there is the possibility of a shift in the year
+     * based on the number of leap years in the duration. For example, someone born in 2000, and
+     * living until 2100 would experience 25 leap years, which means that we could shift on the
+     * number of years calculated from this slightly based on birthdate, but it's an outside
+     * chance, so it's acceptable
+     */
+    fun Duration.toYears(): Int {
+        return floor(abs(this.toDays() / 365.0)).toInt()
     }
 
     /**

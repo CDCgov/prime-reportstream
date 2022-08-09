@@ -18,7 +18,6 @@ import kotlin.test.assertFails
 import kotlin.test.fail
 
 class MapperTests {
-
     @Test
     fun `test MiddleInitialMapper`() {
         val mapper = MiddleInitialMapper()
@@ -48,8 +47,8 @@ class MapperTests {
         val indexElement = metadata.findSchema("test")?.findElement("a") ?: fail("")
         val lookupElement = metadata.findSchema("test")?.findElement("c") ?: fail("")
         val mapper = LookupMapper()
-        val args = listOf("a")
-        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a"))
+        val args = listOf("a", "Column:a")
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "Column:a"))
         assertThat(mapper.apply(lookupElement, args, listOf(ElementAndValue(indexElement, "3"))).value)
             .isEqualTo("y")
     }
@@ -76,9 +75,9 @@ class MapperTests {
         val indexElement = metadata.findSchema("test")?.findElement("a") ?: fail("")
         val index2Element = metadata.findSchema("test")?.findElement("b") ?: fail("")
         val mapper = LookupMapper()
-        val args = listOf("a", "b")
+        val args = listOf("a", "Column:a", "b", "Column:b")
         val elementAndValues = listOf(ElementAndValue(indexElement, "3"), ElementAndValue(index2Element, "4"))
-        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "b"))
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "Column:a", "b", "Column:b"))
         assertThat(mapper.apply(lookupElement, args, elementAndValues).value).isEqualTo("y")
     }
 
@@ -686,6 +685,61 @@ class MapperTests {
     }
 
     @Test
+    fun `test zip code to state mapper`() {
+        val mapper = ZipCodeToStateMapper()
+        val csv = """
+            zipcode,state_abbr
+            32303,FL
+            42223,TN
+            42223,KY
+            12345-1234,LA
+        """.trimIndent()
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
+        val schema = Schema(
+            "test", topic = "covid-19",
+            elements = listOf(
+                Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "state_abbr"),
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
+        val lookupElement = metadata.findSchema("test")?.findElement("a") ?: fail("Schema element missing")
+
+        // Test when value has a hyphen and extension
+        val valuesWithHyphen = listOf(
+            ElementAndValue(Element("patient_zip_code"), "32303-4509")
+        )
+
+        val expectedWithHyphen = "FL"
+        val actualWithHyphen = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithHyphen)
+        assertThat(actualWithHyphen.value).isEqualTo(expectedWithHyphen)
+
+        // Test when multiple values are returned from lookup
+        val valuesWithTwoStates = listOf(
+            ElementAndValue(Element("patient_zip_code"), "42223")
+        )
+
+        val expectedWithTwoStates = null
+        val actualWithTwoStates = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithTwoStates)
+        assertThat(actualWithTwoStates.value).isEqualTo(expectedWithTwoStates)
+
+        // Test when zip code does not exist in table
+        val valuesWithFakeZip = listOf(
+            ElementAndValue(Element("patient_zip_code"), "fakeZip")
+        )
+        val expectedWithFakeZip = null
+        val actualWithFakeZip = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithFakeZip)
+        assertThat(actualWithFakeZip.value).isEqualTo(expectedWithFakeZip)
+
+        // Test when zip code is blank
+        val valuesWithBlankZip = listOf(
+            ElementAndValue(Element("patient_zip_code"), "")
+        )
+        val expectedWithBlankZip = null
+        val actualWithBlankZip = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithBlankZip)
+        assertThat(actualWithBlankZip.value).isEqualTo(expectedWithBlankZip)
+    }
+
+    @Test
     fun `test HashMapper`() {
         val mapper = HashMapper()
         val elementA = Element("a")
@@ -1090,6 +1144,78 @@ class MapperTests {
         }
         listOf(ElementAndValue(countryElement, ""), ElementAndValue(patientPostalCodeElement, "H0H0H0")).also {
             assertThat(mapper.apply(countryElement, args, it).value).isEqualTo("CAN")
+        }
+    }
+
+    @Test
+    fun `test patient age mapper`() {
+        // arrange
+        val args = listOf("patient_age", "patient_dob", "specimen_collection_date_time")
+        val patientAgeElement = Element("patient_age")
+        val patientDobElement = Element("patient_dob")
+        val specimenCollectionDateElement = Element("specimen_collection_date_time")
+        // build our test cases
+        val testCases = mapOf(
+            // test case 1 - age pass through
+            listOf(
+                ElementAndValue(patientAgeElement, "18"),
+                ElementAndValue(patientDobElement, ""),
+                ElementAndValue(specimenCollectionDateElement, "")
+            ) to "18",
+            // test case 2 - age pass through but with values. we're ignoring the values and using the
+            // age passed in instead because that's the more meaningful value
+            listOf(
+                ElementAndValue(patientAgeElement, "18"),
+                ElementAndValue(patientDobElement, "6/1/1900"),
+                ElementAndValue(specimenCollectionDateElement, "6/2/2018")
+            ) to "18",
+            // test case 3 - age is missing. calculate based on the dob and specimen collection date time
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "6/1/2000"),
+                ElementAndValue(specimenCollectionDateElement, "6/2/2018")
+            ) to "18",
+            // test case 4 - age is missing. calculate based on the dob and specimen collection date time
+            // but the DOB is AFTER the specimen collection date, so we should return null
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "6/1/2018"),
+                ElementAndValue(specimenCollectionDateElement, "6/2/2017")
+            ) to null,
+            // test case 5 - everything is null or empty, return the same
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, ""),
+                ElementAndValue(specimenCollectionDateElement, "")
+            ) to null,
+            // test case 6 - DOB is one minute before specimen collection. age is zero
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "2022-04-01T16:00:00Z"),
+                ElementAndValue(specimenCollectionDateElement, "2022-04-01T16:01:00Z")
+            ) to "0",
+            // test case 7 - DOB is assumed to be 00:00:00 UTC so it should return zero
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "2022-04-01"),
+                ElementAndValue(specimenCollectionDateElement, "2022-04-01T16:01:00Z")
+            ) to "0",
+            // test case 8 - we aren't worried about future date checking. this is very permissive
+            // if someone passes us a specimen collection date in the future we will still calculate
+            // this is also verifying that our naïve math around dividing number of days by 365
+            // and calculating the floor won't return a bad result
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "2000-05-13"),
+                ElementAndValue(specimenCollectionDateElement, "2100-05-13")
+            ) to "100",
+        )
+        // run all our test cases
+        PatientAgeMapper().run {
+            testCases.forEach {
+                val elementsAndValues = it.key
+                assertThat(this.apply(patientAgeElement, args, elementsAndValues).value).isEqualTo(it.value)
+            }
         }
     }
 }

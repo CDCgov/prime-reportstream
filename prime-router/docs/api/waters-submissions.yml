@@ -50,7 +50,7 @@ components:
       type: object
       properties:
         submissionId:
-          description: the row number for this report's action log
+          description: the ID for this submission
           type: integer
         timestamp:
           description: the timestamp for this report submission
@@ -63,7 +63,7 @@ components:
           description: response given to the sender upon submission
           type: integer
         id:
-          description: the uuid for this submission
+          description: the report uuid of this submission
           type: string
           format: uuid
         topic:
@@ -72,6 +72,9 @@ components:
         reportItemCount:
           description: total number of individual reports sent to the Hub (in a csv, the number of data lines sent)
           type: integer
+        externalName:
+          description: custom report name if one was specified by the sender
+          type: string
 
   securitySchemes:
     OAuth2:

@@ -9,7 +9,8 @@ export type WatersPost = (
     contentType: string,
     fileContent: string,
     organizationName: string,
-    accessToken: string
+    accessToken: string,
+    endpointName: string
 ) => Promise<WatersResponse>;
 
 const postData: WatersPost = async (
@@ -18,7 +19,8 @@ const postData: WatersPost = async (
     contentType,
     fileContent,
     organizationName,
-    accessToken
+    accessToken,
+    endpointName
 ) => {
     let textBody;
     let response;
@@ -28,7 +30,7 @@ const postData: WatersPost = async (
         const config: RSRequestConfig | SimpleError = createRequestConfig<{
             org: string;
             sender: string;
-        }>(WatersApi, "waters", "POST", accessToken, organizationName);
+        }>(WatersApi, endpointName, "POST", accessToken, organizationName);
 
         if (!(config instanceof SimpleError)) {
             // TODO: Extend custom headers for NewApi

@@ -219,6 +219,8 @@ elements:
 
   - name: patient_age
     type: NUMBER
+    # add a mapper for the patient age to calculate if we can
+    mapper: patientAge(patient_age, patient_dob, specimen_collection_date_time)
     csvFields: [{ name: subject_age }]
 
   - name: patient_race
