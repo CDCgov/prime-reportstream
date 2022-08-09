@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 19,
+            "activePatchIndex": 20,
             "patches": [
                 {
                     "date": 1660057706276,
@@ -84,6 +84,10 @@
                 {
                     "date": 1660065000377,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,9 +11,9 @@\n           # Fetch the full history\r\n           fetch-depth: 0\r\n \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n-        run: VERBOSE=1 .environment/gitleaks/run-gitleaks.sh --depth 10\r\n+        run: .environment/gitleaks/run-gitleaks.sh --depth 10\r\n \r\n       - name: \"Output non-sensitive log\"\r\n         if: always()\r\n         run: cat \"gitleaks.log\"\r\n"
+                },
+                {
+                    "date": 1660065064002,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,9 +11,9 @@\n           # Fetch the full history\r\n           fetch-depth: 0\r\n \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n-        run: .environment/gitleaks/run-gitleaks.sh --depth 10\r\n+        run: .environment/gitleaks/run-gitleaks.sh \r\n \r\n       - name: \"Output non-sensitive log\"\r\n         if: always()\r\n         run: cat \"gitleaks.log\"\r\n"
                 }
             ],
             "date": 1660057706276,
