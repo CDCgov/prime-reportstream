@@ -7,6 +7,7 @@ import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isNullOrEmpty
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLogLevel
@@ -315,7 +316,7 @@ class SubmissionHistoryTests {
             assertThat(createdAt).isNotNull()
             assertThat(reportId).isNull()
             assertThat(httpStatus).isNull()
-            assertThat(sender).isNull()
+            assertThat(sender).isNullOrEmpty()
             assertThat(topic).isNull()
             assertThat(reportItemCount).isNull()
             assertThat(externalName).isEqualTo("")
@@ -336,7 +337,7 @@ class SubmissionHistoryTests {
             assertThat(createdAt).isNotNull()
             assertThat(reportId).isNull()
             assertThat(httpStatus).isEqualTo(201)
-            assertThat(sender).isNull()
+            assertThat(sender).isNullOrEmpty()
             assertThat(topic).isNull()
             assertThat(reportItemCount).isNull()
             assertThat(externalName).isEqualTo("")
@@ -358,7 +359,7 @@ class SubmissionHistoryTests {
             assertThat(createdAt).isNotNull()
             assertThat(reportId).isNull()
             assertThat(httpStatus).isNull()
-            assertThat(sender).isNull()
+            assertThat(sender).isNullOrEmpty()
             assertThat(topic).isNull()
             assertThat(reportItemCount).isNull()
             assertThat(externalName).isEqualTo("")
@@ -805,7 +806,7 @@ class SubmissionHistoryTests {
         )
         val refUUID = UUID.randomUUID()
         val now = OffsetDateTime.now()
-        var reports = listOf(
+        val reports = listOf(
             inputReport,
             DetailedReport(
                 refUUID, "recvOrg1",
@@ -844,7 +845,7 @@ class SubmissionHistoryTests {
             emptyList(),
         ).run {
             // First destination has a transport set therefore sendingAt
-            assertThat(destinations.first().sendingAt).equals(now)
+            assertThat(destinations.first().sendingAt).isEqualTo(now)
             assertThat(destinations.last().sendingAt).isNull()
         }
     }
