@@ -249,8 +249,8 @@ describe("AdminReceiverDashboard tests", () => {
                         filterRowStatus={
                             _exportForTesting.SuccessRate.ALL_SUCCESSFUL
                         }
-                        filterErrorText={""}
-                        filterRowReceiver={""}
+                        filterErrorText={" "}
+                        filterRowReceiver={"-"}
                         onDetailsClick={(
                             _subdata: AdmConnStatusDataType[]
                         ) => {}}
@@ -305,5 +305,27 @@ describe("AdminReceiverDashboard tests", () => {
             "connectionCheckResult dummy result 2397"
         );
         expect(matches.length).toBe(1);
+    });
+
+    test("ModalInfoRender empty", async () => {
+        const data = _exportForTesting.sortStatusData(mockData); // sorts
+        const subData = data[0];
+        render(
+            // eslint-disable-next-line react/jsx-pascal-case
+            <_exportForTesting.ModalInfoRender subData={[]} />
+        );
+        expect(screen.getByText(/No Data Found/)).toBeInTheDocument();
+    });
+
+    test("DateRangePickingAtomic", async () => {
+        render(
+            // eslint-disable-next-line react/jsx-pascal-case
+            <_exportForTesting.DateRangePickingAtomic
+                defaultStartDate="2022-07-11T00:00:00.000Z"
+                defaultEndDate="2022-07-13T00:00:00.000Z"
+                onChange={(_props) => {}}
+            />
+        );
+        expect(screen.getByText(/7\/11\/2022/)).toBeInTheDocument();
     });
 });

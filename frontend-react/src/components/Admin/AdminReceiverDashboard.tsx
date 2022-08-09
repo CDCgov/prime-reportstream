@@ -1033,4 +1033,5 @@ export const _exportForTesting = {
     sortStatusData,
     MainRender,
     ModalInfoRender,
+    DateRangePickingAtomic,
 };
