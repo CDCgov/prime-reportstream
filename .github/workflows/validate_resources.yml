@@ -24,18 +24,20 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
-      - name: Build vars
+      - name: Build vars if not schedule
+        if: github.event_name != 'schedule'
         id: build_vars
         uses: ./.github/actions/build-vars
 
-      - name: Force env if schedule
+      - name: Set env if not schedule
+        if: github.event_name != 'schedule'
         shell: bash
-        run: |
-          if [[ ${{ github.event_name == 'schedule' }} == 'true' ]]; then
-            echo "VALIDATE_ENV=prod" >> $GITHUB_ENV
-          else
-            echo "VALIDATE_ENV=${{ steps.build_vars.outputs.env_name }}" >> $GITHUB_ENV
-          fi
+        run: echo "VALIDATE_ENV=${{ steps.build_vars.outputs.env_name }}" >> $GITHUB_ENV
+
+      - name: Force env if schedule
+        if: github.event_name == 'schedule'
+        shell: bash
+        run: echo "VALIDATE_ENV=prod" >> $GITHUB_ENV
 
   validate_dns:
     name: Check resources for ${{ needs.pre_job.outputs.env_name }}
