@@ -31,10 +31,11 @@ const DetailsContent = () => {
     const reportId = queryMap?.["reportId"] || "";
     const { data: report, loading } = useReportsDetail(reportId);
 
+    if (loading) return <Spinner size="fullpage" />;
     return (
         <>
             <Summary report={report} />
-            {loading ? <Spinner /> : <ReportDetails report={report} />}
+            <ReportDetails report={report} />
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="message" />}
             >
