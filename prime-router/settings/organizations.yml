@@ -3144,8 +3144,6 @@
           MSH-3: [ "*": "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO" ]
           MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
           MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
-          ORC-2: [ "*": "^RX MART PHARMACY^RX MART PHARMACY^CLIA"]
-          OBR-2: [ "*": "^RX MART PHARMACY^RX MART PHARMACY^CLIA"]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
