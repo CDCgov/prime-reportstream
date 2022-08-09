@@ -1,17 +1,23 @@
 package gov.cdc.prime.router.metadata
 
+import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.ElementResult
+import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
+import gov.cdc.prime.router.common.DateUtilities.toYears
 import gov.cdc.prime.router.common.NPIUtilities
+import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import java.security.MessageDigest
+import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import javax.xml.bind.DatatypeConverter
 import kotlin.reflect.full.memberProperties
 
@@ -236,6 +242,87 @@ class UseMapper : Mapper {
                 }
             }
         )
+    }
+}
+
+/**
+ *
+ */
+class PatientAgeMapper : Mapper {
+    /** the name of the mapper */
+    override val name = "patientAge"
+
+    /** what values are passed in */
+    override fun valueNames(element: Element, args: List<String>) = args
+
+    /** */
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        // pull our values
+        val patientAge = values.firstOrNull { ev -> ev.element.name == "patient_age" }?.value.trimToNull()
+        val specimenCollectionDate = values.firstOrNull { ev ->
+            ev.element.name == "specimen_collection_date_time"
+        }?.value.trimToNull()
+        val patientDob = values.firstOrNull { ev -> ev.element.name == "patient_dob" }?.value.trimToNull()
+        // get our error and warning collections
+        val errors: MutableList<ActionLogDetail> = mutableListOf()
+        val warnings: MutableList<ActionLogDetail> = mutableListOf()
+        // calculate a result
+        val result = when {
+            // if they give us a patient age, use that
+            patientAge != null -> patientAge
+            // if we have both a patient age and a DOB calculate
+            specimenCollectionDate != null && patientDob != null -> {
+                // parse out the DOB
+                val d = try {
+                    DateUtilities.parseDate(patientDob).toOffsetDateTime()
+                } catch (e: DateTimeParseException) {
+                    // DO NOT OUTPUT THE PATIENT DOB HERE IN THE ERROR MESSAGE. That would be PII leakage
+                    errors.add(InvalidParamMessage("Unable to parse provided patient DOB to offset date time"))
+                    null
+                }
+                // parse out the specimen collection date
+                val s = try {
+                    DateUtilities.parseDate(specimenCollectionDate).toOffsetDateTime()
+                } catch (e: DateTimeParseException) {
+                    // Specimen collection date is not PII but let's not leak that either
+                    errors.add(
+                        InvalidParamMessage(
+                            "Unable to parse provided specimen collection date to offset date time"
+                        )
+                    )
+                    null
+                }
+                // if both are not null, meaning they both parsed, we can attempt to calculate the age
+                if (d != null && s != null) {
+                    // check to make sure the birth date is before the specimen collection date
+                    if (d.isBefore(s)) {
+                        Duration.between(d, s).toYears().toString()
+                    } else {
+                        // add a warning about the patient DOB and specimen collection date not
+                        // being able to be calculated DOB should be before the specimen collection date
+                        warnings.add(
+                            // don't leak the DOB here either, because it's still PII
+                            InvalidParamMessage(
+                                "Patient DOB is after specimen collection date, " +
+                                    "so cannot correctly calculate patient age"
+                            )
+                        )
+                        null
+                    }
+                } else {
+                    null
+                }
+            }
+            // we have no good datapoints to work off of, so use null
+            else -> null
+        }
+
+        return ElementResult(result, errors, warnings)
     }
 }
 

@@ -15,7 +15,8 @@ describe("test all hooks and methods", () => {
             "application/hl7-v2",
             "fileContents",
             "test-org",
-            "[token]"
+            "[token]",
+            "waters"
         );
         expect(successData.id).toEqual("uuid-string");
     });
@@ -27,7 +28,8 @@ describe("test all hooks and methods", () => {
             "application/hl7-v2",
             "badData",
             "test-org",
-            "[token]"
+            "[token]",
+            "waters"
         );
         expect(failureData.id).toEqual(null);
         expect(failureData.errorCount).toEqual(1);
@@ -46,7 +48,8 @@ describe("test all hooks and methods", () => {
             "application/hl7-v2",
             "",
             "test-org",
-            "[token]"
+            "[token]",
+            "waters"
         );
         expect(failureData.ok).toEqual(false);
         if (failureData.errors) {

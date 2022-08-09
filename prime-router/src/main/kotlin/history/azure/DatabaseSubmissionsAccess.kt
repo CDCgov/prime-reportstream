@@ -33,10 +33,10 @@ class DatabaseSubmissionsAccess(
         orgService: String?
     ): Condition {
         var senderFilter = ACTION.ACTION_NAME.eq(TaskAction.receive)
-            .and(ACTION.SENDING_ORG.eq(organization))
+            .and(REPORT_FILE.SENDING_ORG.eq(organization))
 
         if (orgService != null) {
-            senderFilter = senderFilter.and(ACTION.SENDING_ORG_CLIENT.eq(orgService))
+            senderFilter = senderFilter.and(REPORT_FILE.SENDING_ORG_CLIENT.eq(orgService))
         }
 
         return senderFilter

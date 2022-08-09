@@ -27,6 +27,7 @@ import gov.cdc.prime.router.metadata.NullMapper
 import gov.cdc.prime.router.metadata.Obx17Mapper
 import gov.cdc.prime.router.metadata.Obx17TypeMapper
 import gov.cdc.prime.router.metadata.Obx8Mapper
+import gov.cdc.prime.router.metadata.PatientAgeMapper
 import gov.cdc.prime.router.metadata.SplitByCommaMapper
 import gov.cdc.prime.router.metadata.SplitMapper
 import gov.cdc.prime.router.metadata.StripNonNumericDataMapper
@@ -79,7 +80,8 @@ class Metadata : Logging {
         NpiLookupMapper(),
         CountryMapper(),
         LookupSenderAutomationValuesets(),
-        IfThenElseMapper()
+        IfThenElseMapper(),
+        PatientAgeMapper()
     )
     private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),
