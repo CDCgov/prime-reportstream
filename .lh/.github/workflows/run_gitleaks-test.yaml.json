@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 30,
+            "activePatchIndex": 31,
             "patches": [
                 {
                     "date": 1660057706276,
@@ -128,6 +128,10 @@
                 {
                     "date": 1660077502024,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,9 +14,9 @@\n       - name: Run Gitleaks\r\n         id: gitleaks\r\n         uses: DariuszPorowski/github-action-gitleaks@v2 \r\n         with:\r\n-          report_format: \"sarif\"\r\n+          report_format: \"csv\"\r\n           fail: false\r\n           depth: 10\r\n           #since: '2021-08-01T00:00:00-0400'\r\n       \r\n"
+                },
+                {
+                    "date": 1660077629988,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -17,8 +17,9 @@\n         with:\r\n           report_format: \"csv\"\r\n           fail: false\r\n           depth: 10\r\n+          report-path: .\r\n           #since: '2021-08-01T00:00:00-0400'\r\n       \r\n       # - name: Run Trivy vulnerability scanner in repo mode\r\n       #   uses: aquasecurity/trivy-action@cb606dfdb0d2b3698ace62192088ef4f5360b24f\r\n"
                 }
             ],
             "date": 1660057706276,
