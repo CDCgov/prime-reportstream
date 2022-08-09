@@ -418,7 +418,7 @@ elements:
     documentation: The patient's drivers license number
 
   - name: patient_ethnicity
-    type: CODE
+    type: TEXT
     pii: false
     cardinality: ZERO_OR_ONE
     hl7Field: PID-22

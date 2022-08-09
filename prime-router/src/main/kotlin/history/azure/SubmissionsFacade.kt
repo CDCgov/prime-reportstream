@@ -24,7 +24,7 @@ class SubmissionsFacade(
      * Serializes a list of Actions into a String.
      *
      * @param organization from JWT Claim.
-     * @param sendingOrgClient is a specifier for the sending organization's client.
+     * @param sendingOrgService is a specifier for the sending organization's client.
      * @param sortDir sort the table by date in ASC or DESC order.
      * @param sortColumn sort the table by a specific column; defaults to sorting by created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -37,7 +37,7 @@ class SubmissionsFacade(
      */
     fun findSubmissionsAsJson(
         organization: String,
-        sendingOrgClient: String?,
+        sendingOrgService: String?,
         sortDir: HistoryDatabaseAccess.SortDir,
         sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
@@ -48,7 +48,7 @@ class SubmissionsFacade(
     ): String {
         val result = findSubmissions(
             organization,
-            sendingOrgClient,
+            sendingOrgService,
             sortDir,
             sortColumn,
             cursor,
@@ -64,7 +64,7 @@ class SubmissionsFacade(
      * Find submissions based on various parameters.
      *
      * @param organization from JWT Claim.
-     * @param sendingOrgClient is a specifier for the sending organization's client.
+     * @param sendingOrgService is a specifier for the sending organization's client.
      * @param sortDir sort the table by date in ASC or DESC order; defaults to DESC.
      * @param sortColumn sort the table by a specific column; defaults to sorting by CREATED_AT.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -77,7 +77,7 @@ class SubmissionsFacade(
      */
     private fun findSubmissions(
         organization: String,
-        sendingOrgClient: String?,
+        sendingOrgService: String?,
         sortDir: HistoryDatabaseAccess.SortDir,
         sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
@@ -92,7 +92,7 @@ class SubmissionsFacade(
 
         return dbSubmissionAccess.fetchActions(
             organization,
-            sendingOrgClient,
+            sendingOrgService,
             sortDir,
             sortColumn,
             cursor,

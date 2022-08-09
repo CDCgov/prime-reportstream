@@ -12,6 +12,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.USTimeZone
 import gov.cdc.prime.router.common.DateUtilities.toLocalDateTime
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
+import gov.cdc.prime.router.common.DateUtilities.toYears
 import gov.cdc.prime.router.common.DateUtilities.toZonedDateTime
 import gov.cdc.prime.router.unittest.UnitTestUtils.createConfig
 import io.mockk.every
@@ -418,11 +419,36 @@ class DateUtilitiesTests {
         }
     }
 
+    @Test
+    fun `test calculate duration as years`() {
+        // arrange our test cases
+        val testCases = mapOf(
+            Pair("2022-01-01", "2022-01-01") to 0,
+            Pair("2022-01-01", "2022-12-31") to 0,
+            Pair("2022-01-01", "2023-12-31") to 1,
+            Pair("2023-12-31", "2022-01-01") to 1,
+            Pair("2100-05-01", "2000-05-01") to 100,
+            Pair("2100-05-01T05:01:00", "2000-05-01") to 100,
+        )
+        // act and assert
+        testCases.forEach {
+            it.run {
+                val d1 = DateUtilities.parseDate(this.key.first).toOffsetDateTime()
+                val d2 = DateUtilities.parseDate(this.key.second).toOffsetDateTime()
+                Duration.between(d1, d2).run {
+                    assertThat(this.toYears()).isEqualTo(it.value)
+                }
+            }
+        }
+    }
+
     companion object {
         // this regex checks for 14 digits, then a period, three digits, and then the offset
         val highPrecisionTimeStampRegex = "\\d{14}\\.\\d{4}[-|+]\\d{4}".toRegex()
+
         // this regex checks for 12 digits, and then the offset sign, and then four more digits
         val lowPrecisionTimeStampRegex = "^\\d{14}[-|+]\\d{4}".toRegex()
+
         // a const value for the zoned date time type
         const val zonedDateTimeValue = "2022-01-04T11:00:00-05:00[US/Eastern]"
     }
