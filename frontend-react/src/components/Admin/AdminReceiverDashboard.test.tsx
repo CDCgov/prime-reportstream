@@ -240,7 +240,7 @@ describe("AdminReceiverDashboard tests", () => {
                 <NetworkErrorBoundary
                     fallbackComponent={() => <ErrorPage type="message" />}
                 >
-                    // eslint-disable-next-line react/jsx-pascal-case
+                    {/*eslint-disable-next-line react/jsx-pascal-case*/}
                     <_exportForTesting.MainRender
                         datesRange={[
                             new Date("2022-07-11"),

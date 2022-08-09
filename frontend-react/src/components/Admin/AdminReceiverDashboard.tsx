@@ -571,9 +571,6 @@ function FilterRenderedRows(props: {
     filterErrorText: string;
     onClick: (dataItem: AdmConnStatusDataType[]) => void;
 }) {
-    const filterRowStatus = props.filterRowStatus.toUpperCase(); // enum is uppercased
-    const filterRowReceiver = props.filterRowReceiver.toLowerCase();
-    const filterErrorText = props.filterErrorText.trim().toUpperCase();
     const renderedRows = props.renderedRows;
 
     const resultArray: JSX.Element[] = [];
@@ -586,18 +583,18 @@ function FilterRenderedRows(props: {
 
         // filters remove rows.
         const hideRowBasedOnStatus =
-            filterRowStatus !== SuccessRate.UNDEFINED
-                ? rowStatus !== filterRowStatus
+            props.filterRowStatus !== SuccessRate.UNDEFINED
+                ? rowStatus !== props.filterRowStatus
                 : false;
 
         const hideRowBasedOnRecv =
-            filterRowReceiver !== ""
-                ? !orgRecvName.includes(filterRowReceiver)
+            props.filterRowReceiver !== ""
+                ? !orgRecvName.includes(props.filterRowReceiver)
                 : false;
 
         // this filter removed ALL slices from the day, so hide the row
         const hideRowBasedOnErrorFilter =
-            filterErrorText !== "" ? allSlicesFilteredOut : false;
+            props.filterErrorText !== "" ? allSlicesFilteredOut : false;
 
         const hideRow =
             hideRowBasedOnStatus ||
@@ -1000,8 +997,10 @@ export function AdminReceiverDashboard() {
                                 : new Date(endOfDayIso(new Date())),
                         ]}
                         filterRowStatus={filterRowSuccessState}
-                        filterErrorText={filterErrorResults}
-                        filterRowReceiver={filterReceivers}
+                        filterErrorText={filterErrorResults
+                            .trim()
+                            .toLowerCase()}
+                        filterRowReceiver={filterReceivers.trim().toLowerCase()}
                         onDetailsClick={showDetailsModal}
                     />
                 </NetworkErrorBoundary>
