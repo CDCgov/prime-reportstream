@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 12,
+            "activePatchIndex": 13,
             "patches": [
                 {
                     "date": 1660057706276,
@@ -56,6 +56,10 @@
                 {
                     "date": 1660063609129,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,9 @@\n name: Run Gitleaks on the PRIME ReportStream code-base\r\n \r\n on:\r\n   schedule:\r\n-    # at GitHub midnight on the default branch\r\n+    # At GitHub midnight on the default branch\r\n     - cron: \"0 0 * * *\"\r\n \r\n jobs:\r\n   gitleaks:\r\n"
+                },
+                {
+                    "date": 1660063666890,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,10 +1,7 @@\n name: Run Gitleaks on the PRIME ReportStream code-base\r\n \r\n-on:\r\n-  schedule:\r\n-    # At GitHub midnight on the default branch\r\n-    - cron: \"0 0 * * *\"\r\n+on: [push]\r\n \r\n jobs:\r\n   gitleaks:\r\n     runs-on: ubuntu-latest\r\n"
                 }
             ],
             "date": 1660057706276,
