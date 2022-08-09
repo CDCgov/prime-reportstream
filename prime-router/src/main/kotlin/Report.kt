@@ -824,8 +824,8 @@ class Report : Logging {
                     it.reasonForStudy = row.getStringOrNull("reason_for_study_text")
                     it.reasonForStudyCode = row.getStringOrNull("reason_for_study_id")
 
-                    it.testResultCode = row.getStringOrNull("test_result_text").trimToNull()
-                    it.testResult = row.getStringOrNull("test_result_id").trimToNull()
+                    it.testResultCode = row.getStringOrNull("test_result_id").trimToNull()
+                    it.testResult = row.getStringOrNull("test_result_text").trimToNull()
                     it.equipmentModel = row.getStringOrNull("equipment_model_name").trimToNull()
                     it.specimenCollectionDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
                         if (!dt.isNullOrEmpty()) {
