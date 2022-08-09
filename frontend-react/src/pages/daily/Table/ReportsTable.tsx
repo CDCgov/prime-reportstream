@@ -26,6 +26,7 @@ const filterManagerDefaults: FilterManagerDefaults = {
 };
 
 interface ReceiverFeeds {
+    loadingServices: boolean;
     services: RSReceiver[];
     activeService: RSReceiver | undefined;
     setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
@@ -34,9 +35,11 @@ interface ReceiverFeeds {
  * between them */
 export const useReceiverFeeds = (): ReceiverFeeds => {
     const { memberships } = useSessionContext();
-    const { data: receivers, trigger: getReceiversList } = useReceiversList(
-        memberships.state.active?.parsedName
-    );
+    const {
+        data: receivers,
+        loading,
+        trigger: getReceiversList,
+    } = useReceiversList(memberships.state.active?.parsedName);
     const [active, setActive] = useState<RSReceiver | undefined>();
     useEffect(() => {
         // IF memberships.state.active?.parsedName is not undefined
@@ -57,6 +60,7 @@ export const useReceiverFeeds = (): ReceiverFeeds => {
     }, [receivers]);
 
     return {
+        loadingServices: loading,
         services: receivers,
         activeService: active,
         setActiveService: setActive,
@@ -70,7 +74,8 @@ export const useReceiverFeeds = (): ReceiverFeeds => {
 */
 function ReportsTable() {
     const { memberships, oktaToken } = useSessionContext();
-    const { services, activeService, setActiveService } = useReceiverFeeds();
+    const { loadingServices, services, activeService, setActiveService } =
+        useReceiverFeeds();
     // TODO: Doesn't update parameters because of the config memo dependency array
     const {
         data: deliveries,
@@ -166,7 +171,7 @@ function ReportsTable() {
         rows: deliveries || [],
     };
 
-    if (loading) return <Spinner />;
+    if (loading || loadingServices) return <Spinner />;
 
     return (
         <>
