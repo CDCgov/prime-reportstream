@@ -7,6 +7,7 @@ import {
     splitOn,
     VersionWarningType,
     toHumanReadable,
+    capitalizeFirst,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
 
@@ -79,5 +80,17 @@ describe("toHumanReadable", () => {
 
     test("fixes up a camel case string", () => {
         expect(toHumanReadable("hiTherePeople")).toEqual("Hi There People");
+    });
+});
+
+describe("capitalizeFirst", () => {
+    test("returns something falsey if there isn't anything to capitalize", () => {
+        expect(capitalizeFirst("")).toEqual("");
+    });
+    test("returns original string with first letter capitalized", () => {
+        expect(capitalizeFirst("all")).toEqual("All");
+        expect(capitalizeFirst("vdpoiENUpajfPWEOIWA")).toEqual(
+            "VdpoiENUpajfPWEOIWA"
+        );
     });
 });

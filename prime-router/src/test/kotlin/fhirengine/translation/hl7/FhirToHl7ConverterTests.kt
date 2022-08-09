@@ -7,14 +7,13 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
-import assertk.assertions.isNotNull
 import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.justRun
@@ -22,7 +21,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifySequence
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent
 import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.ServiceRequest
 import kotlin.test.Test
@@ -37,13 +35,13 @@ class FhirToHl7ConverterTests {
         var converter = FhirToHl7Converter(Bundle(), mockSchema, terser = mockTerser)
 
         // Required element
-        assertThat { converter.setHl7Value(element, "") }.isFailure()
+        assertThat { converter.setHl7Value(element, "", CustomContext()) }.isFailure()
             .hasClass(RequiredElementException::class.java)
 
         // Test the value is set for all specified HL7 fields
         element = ConfigSchemaElement("name", hl7Spec = listOf("MSH-10", "MSH-11", "MSH-12"))
         justRun { mockTerser.set(any(), any()) }
-        converter.setHl7Value(element, fieldValue)
+        converter.setHl7Value(element, fieldValue, CustomContext())
         verifySequence {
             mockTerser.set(element.hl7Spec[0], fieldValue)
             mockTerser.set(element.hl7Spec[1], fieldValue)
@@ -52,24 +50,28 @@ class FhirToHl7ConverterTests {
 
         // Not strict errors
         every { mockTerser.set(any(), any()) } throws HL7Exception("some text")
-        assertThat { converter.setHl7Value(element, fieldValue) }.isSuccess()
+        assertThat { converter.setHl7Value(element, fieldValue, CustomContext()) }.isSuccess()
 
         clearAllMocks()
 
         every { mockTerser.set(any(), any()) } throws IllegalArgumentException("some text")
-        assertThat { converter.setHl7Value(element, fieldValue) }.isSuccess()
+        assertThat { converter.setHl7Value(element, fieldValue, CustomContext()) }.isSuccess()
 
         clearAllMocks()
 
         // Strict errors
         converter = FhirToHl7Converter(Bundle(), mockSchema, true, mockTerser)
         every { mockTerser.set(element.hl7Spec[0], any()) } throws HL7Exception("some text")
-        assertThat { converter.setHl7Value(element, fieldValue) }.isFailure()
+        assertThat { converter.setHl7Value(element, fieldValue, CustomContext()) }.isFailure()
             .hasClass(HL7ConversionException::class.java)
 
         every { mockTerser.set(element.hl7Spec[0], any()) } throws IllegalArgumentException("some text")
-        assertThat { converter.setHl7Value(element, fieldValue) }.isFailure()
+        assertThat { converter.setHl7Value(element, fieldValue, CustomContext()) }.isFailure()
             .hasClass(SchemaException::class.java)
+
+        every { mockTerser.set(element.hl7Spec[0], any()) } throws Exception("some text")
+        assertThat { converter.setHl7Value(element, fieldValue, CustomContext()) }.isFailure()
+            .hasClass(HL7ConversionException::class.java)
     }
 
     @Test
@@ -82,22 +84,16 @@ class FhirToHl7ConverterTests {
         val converter = FhirToHl7Converter(bundle, mockSchema, terser = mockTerser)
 
         var element = ConfigSchemaElement("name")
-        assertThat(converter.canEvaluate(element, bundle)).isTrue()
+        assertThat(converter.canEvaluate(element, bundle, CustomContext())).isTrue()
 
-        var pathExpression = FhirPathUtils.parsePath("Bundle.id.exists()")
-        assertThat(pathExpression).isNotNull()
-        element = ConfigSchemaElement("name", conditionExpression = pathExpression)
-        assertThat(converter.canEvaluate(element, bundle)).isTrue()
+        element = ConfigSchemaElement("name", condition = "Bundle.id.exists()")
+        assertThat(converter.canEvaluate(element, bundle, CustomContext())).isTrue()
 
-        pathExpression = FhirPathUtils.parsePath("Bundle.id = 'someothervalue'")
-        assertThat(pathExpression).isNotNull()
-        element = ConfigSchemaElement("name", conditionExpression = pathExpression)
-        assertThat(converter.canEvaluate(element, bundle)).isFalse()
+        element = ConfigSchemaElement("name", condition = "Bundle.id = 'someothervalue'")
+        assertThat(converter.canEvaluate(element, bundle, CustomContext())).isFalse()
 
-        pathExpression = FhirPathUtils.parsePath("Bundle.id") // Not a boolean
-        assertThat(pathExpression).isNotNull()
-        element = ConfigSchemaElement("name", conditionExpression = pathExpression)
-        assertThat(converter.canEvaluate(element, bundle)).isFalse()
+        element = ConfigSchemaElement("name", condition = "Bundle.id")
+        assertThat(converter.canEvaluate(element, bundle, CustomContext())).isFalse()
     }
 
     @Test
@@ -109,53 +105,45 @@ class FhirToHl7ConverterTests {
         resource.id = "def456"
         resource.destination = listOf(MessageHeader.MessageDestinationComponent())
         resource.destination[0].name = "a destination"
-        val entry = BundleEntryComponent()
-        entry.resource = resource
-        bundle.addEntry(entry)
+        bundle.addEntry().resource = resource
 
         val converter = FhirToHl7Converter(bundle, mockSchema)
 
         var element = ConfigSchemaElement("name")
-        var focusResources = converter.getFocusResources(element, bundle)
+        var focusResources = converter.getFocusResources(element, bundle, CustomContext())
         assertThat(focusResources).isNotEmpty()
         assertThat(focusResources[0]).isEqualTo(bundle)
 
-        var resourceExpression = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(MessageHeader)")
-        assertThat(resourceExpression).isNotNull()
-        element = ConfigSchemaElement("name", resourceExpression = resourceExpression)
-        focusResources = converter.getFocusResources(element, bundle)
+        element = ConfigSchemaElement("name", resource = "Bundle.entry.resource.ofType(MessageHeader)")
+        focusResources = converter.getFocusResources(element, bundle, CustomContext())
         assertThat(focusResources).isNotEmpty()
         assertThat(focusResources[0]).isEqualTo(resource)
 
-        resourceExpression = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(Patient)")
-        assertThat(resourceExpression).isNotNull()
-        element = ConfigSchemaElement("name", resourceExpression = resourceExpression)
-        focusResources = converter.getFocusResources(element, bundle)
+        element = ConfigSchemaElement("name", resource = "Bundle.entry.resource.ofType(Patient)")
+        focusResources = converter.getFocusResources(element, bundle, CustomContext())
         assertThat(focusResources).isEmpty()
 
-        resourceExpression = FhirPathUtils.parsePath("1")
-        assertThat(resourceExpression).isNotNull()
-        element = ConfigSchemaElement("name", resourceExpression = resourceExpression)
-        assertThat { converter.getFocusResources(element, bundle) }.isFailure().hasClass(SchemaException::class.java)
+        element = ConfigSchemaElement("name", resource = "1")
+        assertThat { converter.getFocusResources(element, bundle, CustomContext()) }.isFailure()
+            .hasClass(SchemaException::class.java)
 
-        resourceExpression = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(MessageHeader).destination[0].name")
-        assertThat(resourceExpression).isNotNull()
-        element = ConfigSchemaElement("name", resourceExpression = resourceExpression)
-        assertThat { converter.getFocusResources(element, bundle) }.isFailure().hasClass(SchemaException::class.java)
+        element = ConfigSchemaElement(
+            "name", resource = "Bundle.entry.resource.ofType(MessageHeader).destination[0].name"
+        )
+        assertThat { converter.getFocusResources(element, bundle, CustomContext()) }.isFailure()
+            .hasClass(SchemaException::class.java)
 
         // Let's test how the FHIR library handles the focus resource
-        resourceExpression = FhirPathUtils.parsePath("Bundle.entry.resource.ofType(MessageHeader).destination")
-        val valueExpression = FhirPathUtils.parsePath("%resource.name")
-        assertThat(resourceExpression).isNotNull()
-        assertThat(valueExpression).isNotNull()
         element = ConfigSchemaElement(
-            "name", resourceExpression = resourceExpression, valueExpressions = listOf(valueExpression!!)
+            "name", resource = "Bundle.entry.resource.ofType(MessageHeader).destination",
+            value = listOf("%resource.name")
         )
-        focusResources = converter.getFocusResources(element, bundle)
+        focusResources = converter.getFocusResources(element, bundle, CustomContext())
         assertThat(focusResources).isNotEmpty()
         assertThat(focusResources.size).isEqualTo(1)
         assertThat(focusResources).isEqualTo(resource.destination)
-        assertThat(converter.getValue(element, focusResources[0])).isEqualTo(resource.destination[0].name)
+        assertThat(converter.getValue(element, focusResources[0], CustomContext()))
+            .isEqualTo(resource.destination[0].name)
     }
 
     @Test
@@ -165,19 +153,14 @@ class FhirToHl7ConverterTests {
         bundle.id = "abc123"
         val converter = FhirToHl7Converter(bundle, mockSchema)
 
-        val pathWithValue = FhirPathUtils.parsePath("Bundle.id")
-        val pathNoValue = FhirPathUtils.parsePath("Bundle.timestamp")
-        assertThat(pathWithValue).isNotNull()
-        assertThat(pathNoValue).isNotNull()
+        var element = ConfigSchemaElement("name", value = listOf("Bundle.id", "Bundle.timestamp"))
+        assertThat(converter.getValue(element, bundle, CustomContext())).isEqualTo(bundle.id)
 
-        var element = ConfigSchemaElement("name", valueExpressions = listOf(pathWithValue!!, pathNoValue!!))
-        assertThat(converter.getValue(element, bundle)).isEqualTo(bundle.id)
+        element = ConfigSchemaElement("name", value = listOf("Bundle.timestamp", "Bundle.id"))
+        assertThat(converter.getValue(element, bundle, CustomContext())).isEqualTo(bundle.id)
 
-        element = ConfigSchemaElement("name", valueExpressions = listOf(pathNoValue, pathWithValue))
-        assertThat(converter.getValue(element, bundle)).isEqualTo(bundle.id)
-
-        element = ConfigSchemaElement("name", valueExpressions = listOf(pathNoValue, pathNoValue))
-        assertThat(converter.getValue(element, bundle)).isEmpty()
+        element = ConfigSchemaElement("name", value = listOf("Bundle.timestamp", "Bundle.timestamp"))
+        assertThat(converter.getValue(element, bundle, CustomContext())).isEmpty()
     }
 
     @Test
@@ -187,68 +170,64 @@ class FhirToHl7ConverterTests {
         val bundle = Bundle()
         bundle.id = "abc123"
         val converter = FhirToHl7Converter(bundle, mockSchema, terser = mockTerser)
-        val pathWithValue = FhirPathUtils.parsePath("Bundle.id")
-        val pathNoValue = FhirPathUtils.parsePath("Bundle.timestamp")
-        val conditionTrue = FhirPathUtils.parsePath("Bundle.id.exists()")
-        val conditionFalse = FhirPathUtils.parsePath("Bundle.timestamp.exists()")
-        assertThat(pathWithValue).isNotNull()
-        assertThat(pathNoValue).isNotNull()
-        assertThat(conditionTrue).isNotNull()
-        assertThat(conditionFalse).isNotNull()
+        val pathWithValue = "Bundle.id"
+        val pathNoValue = "Bundle.timestamp"
+        val conditionTrue = "Bundle.id.exists()"
+        val conditionFalse = "Bundle.timestamp.exists()"
 
         // Condition is false and was not required
         var element = ConfigSchemaElement(
-            "name", conditionExpression = conditionFalse,
-            valueExpressions = listOf(pathNoValue!!)
+            "name", condition = conditionFalse,
+            value = listOf(pathNoValue)
         )
-        assertThat { converter.processElement(element, bundle) }.isSuccess()
+        assertThat { converter.processElement(element, bundle, CustomContext()) }.isSuccess()
 
         // Condition is false and was required
         element = ConfigSchemaElement(
-            "name", required = true, conditionExpression = conditionFalse,
-            valueExpressions = listOf(pathNoValue)
+            "name", required = true, condition = conditionFalse,
+            value = listOf(pathNoValue)
         )
-        assertThat { converter.processElement(element, bundle) }.isFailure()
+        assertThat { converter.processElement(element, bundle, CustomContext()) }.isFailure()
             .hasClass(RequiredElementException::class.java)
 
         // Illegal states
         element = ConfigSchemaElement(
-            "name", conditionExpression = conditionTrue,
-            valueExpressions = listOf(pathNoValue)
+            "name", condition = conditionTrue,
+            value = listOf(pathNoValue)
         )
-        assertThat { converter.processElement(element, bundle) }.isFailure()
+        assertThat { converter.processElement(element, bundle, CustomContext()) }.isFailure()
             .hasClass(java.lang.IllegalStateException::class.java)
         element = ConfigSchemaElement(
-            "name", conditionExpression = conditionTrue,
-            valueExpressions = listOf(pathWithValue!!)
+            "name", condition = conditionTrue,
+            value = listOf(pathWithValue)
         )
-        assertThat { converter.processElement(element, bundle) }.isFailure()
+        assertThat { converter.processElement(element, bundle, CustomContext()) }.isFailure()
             .hasClass(java.lang.IllegalStateException::class.java)
 
         // Process a value
         element = ConfigSchemaElement(
-            "name", conditionExpression = conditionTrue,
-            valueExpressions = listOf(pathWithValue), hl7Spec = listOf("MSH-10")
+            "name", condition = conditionTrue,
+            value = listOf(pathWithValue), hl7Spec = listOf("MSH-10")
         )
         justRun { mockTerser.set(any(), any()) }
-        converter.processElement(element, bundle)
+        converter.processElement(element, bundle, CustomContext())
         verify(exactly = 1) { mockTerser.set(element.hl7Spec[0], any()) }
 
         // Process a schema
         element = ConfigSchemaElement(
-            "name", conditionExpression = conditionTrue,
-            valueExpressions = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
+            "name", condition = conditionTrue,
+            value = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
         )
         val schema = ConfigSchema("schema name", elements = listOf(element))
         val elementWithSchema = ConfigSchemaElement("name", schemaRef = schema)
-        converter.processElement(elementWithSchema, bundle)
+        converter.processElement(elementWithSchema, bundle, CustomContext())
         verify(exactly = 1) { mockTerser.set(element.hl7Spec[0], any()) }
 
         // Test when a resource has no value
         element = ConfigSchemaElement(
-            "name", resourceExpression = pathNoValue, required = true
+            "name", resource = pathNoValue, required = true
         )
-        assertThat { converter.processElement(element, bundle) }.isFailure()
+        assertThat { converter.processElement(element, bundle, CustomContext()) }.isFailure()
             .hasClass(RequiredElementException::class.java)
     }
 
@@ -262,29 +241,21 @@ class FhirToHl7ConverterTests {
         servRequest1.id = "def456"
         val servRequest2 = ServiceRequest()
         servRequest2.id = "ghi789"
-        val entry1 = BundleEntryComponent()
-        entry1.resource = servRequest1
-        val entry2 = BundleEntryComponent()
-        entry2.resource = servRequest2
-        bundle.addEntry(entry1)
-        bundle.addEntry(entry2)
+        bundle.addEntry().resource = servRequest1
+        bundle.addEntry().resource = servRequest2
 
         val converter = FhirToHl7Converter(bundle, mockSchema, terser = mockTerser)
 
-        val pathToCollection = FhirPathUtils.parsePath("Bundle.entry")
-        val valueExpression = FhirPathUtils.parsePath("1")
-        assertThat(pathToCollection)
-        assertThat(valueExpression)
         val childElement = ConfigSchemaElement(
-            "childElement", valueExpressions = listOf(valueExpression!!),
+            "childElement", value = listOf("1"),
             hl7Spec = listOf("/PATIENT_RESULT/ORDER_OBSERVATION(%{myindexvar})/OBX-1")
         )
         val childSchema = ConfigSchema("childSchema", elements = listOf(childElement))
         val element = ConfigSchemaElement(
-            "name", resourceExpression = pathToCollection, resourceIndex = "myindexvar", schemaRef = childSchema
+            "name", resource = "Bundle.entry", resourceIndex = "myindexvar", schemaRef = childSchema
         )
         justRun { mockTerser.set(any(), any()) }
-        converter.processElement(element, bundle)
+        converter.processElement(element, bundle, CustomContext())
         verifySequence {
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION(0)/OBX-1", any())
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION(1)/OBX-1", any())
@@ -296,11 +267,10 @@ class FhirToHl7ConverterTests {
         val bundle = Bundle()
         bundle.id = "abc123"
 
-        val pathWithValue = FhirPathUtils.parsePath("Bundle.id")
-        assertThat(pathWithValue).isNotNull()
+        val pathWithValue = "Bundle.id"
 
         var element = ConfigSchemaElement(
-            "name", valueExpressions = listOf(pathWithValue!!), hl7Spec = listOf("MSH-11")
+            "name", value = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
         )
         var schema = ConfigSchema("schema name", hl7Type = "ORU_R01", hl7Version = "2.5.1", elements = listOf(element))
         val message = FhirToHl7Converter(bundle, schema).convert()
@@ -309,12 +279,12 @@ class FhirToHl7ConverterTests {
 
         // Hit the sanity checks
         element = ConfigSchemaElement(
-            "name", valueExpressions = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
+            "name", value = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
         )
         schema = ConfigSchema("schema name", hl7Type = "ORU_R01", elements = listOf(element))
         assertThat { FhirToHl7Converter(bundle, schema).convert() }.isFailure()
         element = ConfigSchemaElement(
-            "name", valueExpressions = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
+            "name", value = listOf(pathWithValue), hl7Spec = listOf("MSH-11")
         )
         schema = ConfigSchema("schema name", hl7Version = "2.5.1", elements = listOf(element))
         assertThat { FhirToHl7Converter(bundle, schema).convert() }.isFailure()

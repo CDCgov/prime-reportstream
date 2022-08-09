@@ -2,6 +2,7 @@ import watersApiFunctions from "../network/api/WatersApiFunctions";
 import FileHandler, {
     FileHandlerType,
 } from "../components/FileHandlers/FileHandler";
+import { EndpointName } from "../network/api/WatersApi";
 
 const UploadToPipeline = () => {
     return (
@@ -9,7 +10,6 @@ const UploadToPipeline = () => {
             headingText="File Uploader"
             successMessage="Your file has been uploaded"
             handlerType={FileHandlerType.UPLOAD}
-            formLabel="Select an HL7 or CSV formatted file to upload."
             resetText="Upload another file"
             submitText="Upload"
             showSuccessMetadata={true}
@@ -18,6 +18,7 @@ const UploadToPipeline = () => {
             warningText={
                 "Uploading files on this page will result in data being transmitted to public health authorities. Use caution when uploading data."
             }
+            endpointName={EndpointName.WATERS}
         />
     );
 };

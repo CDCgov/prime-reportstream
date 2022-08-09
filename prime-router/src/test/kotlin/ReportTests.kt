@@ -2,14 +2,17 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import java.io.ByteArrayInputStream
 import kotlin.test.Ignore
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 import kotlin.test.fail
 
 class ReportTests {
@@ -744,5 +747,31 @@ class ReportTests {
         assertThat(testTime).isEqualTo("20220101")
         assertThat(specimenId).isEqualTo("")
         assertThat(observation).isEqualTo("null")
+    }
+}
+
+class OptionTests {
+    @Test
+    fun `test valueOfOrNone`() {
+        val option = Options.valueOfOrNone("SkipSend")
+        assertThat(option).equals(Options.SkipSend)
+
+        val deprecatedOption = Options.valueOfOrNone("SkipInvalidItems")
+        assertThat(deprecatedOption).equals(Options.SkipInvalidItems)
+
+        val noneOption = Options.valueOfOrNone("None")
+        assertThat(noneOption).equals(Options.None)
+
+        val invalidOption = "INVALID OPTION"
+        assertFailsWith<Options.InvalidOptionException>() { Options.valueOfOrNone(invalidOption) }
+    }
+
+    @Test
+    fun `test isDeprecated`() {
+        val deprecatedOption = Options.valueOfOrNone("SkipInvalidItems")
+        assertThat(deprecatedOption.isDeprecated).isTrue()
+
+        val option = Options.valueOfOrNone("SkipSend")
+        assertThat(option.isDeprecated).isFalse()
     }
 }

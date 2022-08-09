@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
@@ -49,6 +50,7 @@ class SubmissionFunctionTests : Logging {
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     private val organizationName = "test-lab"
+    private val organizationClient = "default"
     private val oktaClaimsOrganizationName = "DHSender_$organizationName"
     private val otherOrganizationName = "test-lab-2"
 
@@ -91,8 +93,9 @@ class SubmissionFunctionTests : Logging {
             externalName = "test-name.csv",
             reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
             schemaTopic = "covid-19",
-            reportItemCount = 3,
+            itemCount = 3,
             sendingOrg = organizationName,
+            sendingOrgClient = organizationClient,
             httpStatus = 201,
         ),
         SubmissionHistory(
@@ -101,8 +104,9 @@ class SubmissionFunctionTests : Logging {
             externalName = "test-name.csv",
             reportId = null,
             schemaTopic = null,
-            reportItemCount = null,
+            itemCount = null,
             sendingOrg = organizationName,
+            sendingOrgClient = organizationClient,
             httpStatus = 400,
         )
     )
@@ -134,7 +138,7 @@ class SubmissionFunctionTests : Logging {
                         ExpectedSubmissionList(
                             submissionId = 8,
                             timestamp = OffsetDateTime.parse("2021-11-30T16:36:54.919Z"),
-                            sender = organizationName,
+                            sender = ClientSource(organizationName, organizationClient).name,
                             httpStatus = 201,
                             externalName = "test-name.csv",
                             id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
@@ -144,7 +148,7 @@ class SubmissionFunctionTests : Logging {
                         ExpectedSubmissionList(
                             submissionId = 7,
                             timestamp = OffsetDateTime.parse("2021-11-30T16:36:48.307Z"),
-                            sender = organizationName,
+                            sender = ClientSource(organizationName, organizationClient).name,
                             httpStatus = 400,
                             externalName = "test-name.csv",
                             id = null,

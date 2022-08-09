@@ -1,9 +1,11 @@
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 import {
     formattedDateFromTimestamp,
     timeZoneAbbreviated,
 } from "../../utils/DateTimeUtils";
+import { capitalizeFirst } from "../../utils/misc";
 import { StaticAlert } from "../StaticAlert";
 import { ResponseError } from "../../network/api/WatersApi";
 
@@ -49,7 +51,11 @@ export const FileSuccessDisplay = ({
                                 <p className="text-normal text-base margin-bottom-0">
                                     Confirmation Code
                                 </p>
-                                <p className="margin-top-05">{reportId}</p>
+                                <p className="margin-top-05">
+                                    <Link to={`/submissions/${reportId}`}>
+                                        {reportId}
+                                    </Link>
+                                </p>
                             </div>
                         )}
                         {timestamp && (
@@ -246,5 +252,23 @@ const ErrorRow = ({ error, index }: ErrorRowProps) => {
                 )}
             </td>
         </tr>
+    );
+};
+
+interface NoSenderBannerProps {
+    action: string;
+    organization: string;
+}
+
+export const NoSenderBanner = ({
+    action,
+    organization,
+}: NoSenderBannerProps) => {
+    return (
+        <StaticAlert
+            type={"error"}
+            heading={`${capitalizeFirst(action)} unavailable`}
+            message={`No valid sender found for ${organization}`}
+        />
     );
 };
