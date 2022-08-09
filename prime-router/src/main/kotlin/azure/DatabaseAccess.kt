@@ -1153,6 +1153,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                             record.testOrderedCode = td.testOrderedCode?.take(METADATA_MAX_LENGTH)
                             record.testResult = td.testResult?.take(METADATA_MAX_LENGTH)
                             record.testResultCode = td.testResultCode?.take(METADATA_MAX_LENGTH)
+                            record.processingModeCode = td.processingModeCode?.take(METADATA_MAX_LENGTH)
                         }
                     }
                 )
@@ -1219,6 +1220,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                             record.senderId = td.senderId?.take(METADATA_MAX_LENGTH)
                             record.testKitNameId = td.testKitNameId?.take(METADATA_MAX_LENGTH)
                             record.testPerformedLoincCode = td.testPerformedLoincCode?.take(METADATA_MAX_LENGTH)
+                            record.processingModeCode = td.processingModeCode?.take(METADATA_MAX_LENGTH)
                         }
                     }
                 )
