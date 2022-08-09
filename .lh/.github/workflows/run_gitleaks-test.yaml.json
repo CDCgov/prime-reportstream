@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 6,
+            "activePatchIndex": 7,
             "patches": [
                 {
                     "date": 1660057706276,
@@ -32,6 +32,10 @@
                 {
                     "date": 1660059691068,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,9 +14,9 @@\n           # Fetch the full history\r\n           fetch-depth: 0\r\n \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n-        run: .environment/gitleaks/run-gitleaks.sh #--since '2021-08-01'\r\n+        run: .environment/gitleaks/run-gitleaks.sh --commit-since-duration #--since '2021-08-01'\r\n \r\n       - name: \"Output non-sensitive log\"\r\n         if: always()\r\n         run: cat \"gitleaks.log\"\r\n"
+                },
+                {
+                    "date": 1660060703536,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,9 +14,9 @@\n           # Fetch the full history\r\n           fetch-depth: 0\r\n \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n-        run: .environment/gitleaks/run-gitleaks.sh --commit-since-duration #--since '2021-08-01'\r\n+        run: .environment/gitleaks/run-gitleaks.sh  #--since '2021-08-01T00:00:00-0400'\r\n \r\n       - name: \"Output non-sensitive log\"\r\n         if: always()\r\n         run: cat \"gitleaks.log\"\r\n"
                 }
             ],
             "date": 1660057706276,
