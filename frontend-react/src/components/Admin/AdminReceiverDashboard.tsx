@@ -1,5 +1,5 @@
-import { useResource } from "rest-hooks";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import { NetworkErrorBoundary, useResource } from "rest-hooks";
+import React, { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import {
     Button,
     DateRangePicker,
@@ -23,6 +23,8 @@ import {
 } from "../../resources/AdmConnStatusResource";
 import { formatDate } from "../../utils/misc";
 import { StyleClass } from "../Table/TableFilters";
+import Spinner from "../Spinner";
+import { ErrorPage } from "../../pages/error/ErrorPage";
 
 const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
 const SKIP_HOURS = 2; // hrs - should be factor of 24 (e.g. 12,6,4,3,2)
@@ -144,6 +146,10 @@ const endOfDayIso = (d: Date) => {
 
 const initialStartDate = () => {
     return moment().subtract(DAY_BACK_DEFAULT, "days").toDate();
+};
+
+const initialEndDate = () => {
+    return new Date();
 };
 
 /**
@@ -269,6 +275,8 @@ function dateIsInRange(d: Date, range: DatePair): boolean {
     return d >= range[0] && d < range[1];
 }
 
+const strcmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+
 /**
  *  simple iterator to make other code more readable.
  *  Usage:
@@ -305,12 +313,12 @@ class TimeSlots implements IterateTimeSlots {
 const sortStatusData = (
     dataIn: AdmConnStatusDataType[]
 ): AdmConnStatusDataType[] => {
-    const strcmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+    // empty case
+    if (dataIn.length === 0) {
+        return [];
+    }
 
-    const sortCompare = (
-        d1: AdmConnStatusDataType,
-        d2: AdmConnStatusDataType
-    ) => {
+    dataIn.sort((d1: AdmConnStatusDataType, d2: AdmConnStatusDataType) => {
         // sorting by organizationName, then receiverName, then connectionCheckStartedAt
         const orgNameCmp = strcmp(d1.organizationName, d2.organizationName);
         // orgNameCmp === 0 means same
@@ -322,23 +330,16 @@ const sortStatusData = (
             return receiverNameCmp;
         }
         return strcmp(d1.connectionCheckStartedAt, d2.connectionCheckStartedAt);
-    };
-
-    // empty case
-    if (dataIn.length === 0) {
-        return [];
-    }
-
-    dataIn.sort(sortCompare);
-    return dataIn; // we modified array in place, but this syntax is handy.
+    });
+    return dataIn; // we modified array in place, but returning value is handy for chaining.
 };
 
 // PreRenderedRowComponents breaks out row status and org+reciever name into props
 // so parent can more quickly filter at a higher level without changing the whole DOM
 function renderAllReceiverRows(props: {
     data: AdmConnStatusDataType[];
-    startDay: Date;
-    endDay: Date;
+    startDate: Date;
+    endDate: Date;
     filterErrorText: string;
     onClick: (dataItems: AdmConnStatusDataType[]) => void;
 }): JSX.Element[] {
@@ -360,7 +361,7 @@ function renderAllReceiverRows(props: {
         let rowReceiver = currentReceiver; // used to know when we've run out of row data
 
         // loop over all days
-        const daySlots = new TimeSlots([props.startDay, props.endDay], 24);
+        const daySlots = new TimeSlots([props.startDate, props.endDate], 24);
         for (let [daySlotStart, daySlotEnd] of daySlots) {
             const timeSlots = new TimeSlots(
                 [daySlotStart, daySlotEnd],
@@ -369,7 +370,7 @@ function renderAllReceiverRows(props: {
             for (let [timeSlotStart, timeSlotEnd] of timeSlots) {
                 const successForSlice = new SuccessRateTracker();
 
-                let filteredSlice =
+                let errorFilterMatchedSlice =
                     filterErrorText.length === 0
                         ? MatchingFilter.NO_FILTER
                         : MatchingFilter.FILTER_NOT_MATCHED;
@@ -393,17 +394,20 @@ function renderAllReceiverRows(props: {
                     // if we're doing an error search, then we want to hide none matching slices.
                     if (
                         filterErrorText.length &&
-                        filteredSlice !== MatchingFilter.FILTER_IS_MATCHED
+                        errorFilterMatchedSlice !==
+                            MatchingFilter.FILTER_IS_MATCHED
                     ) {
                         if (
                             currentEntry.connectionCheckResult
                                 .toLowerCase()
                                 .includes(filterErrorText)
                         ) {
-                            filteredSlice = MatchingFilter.FILTER_IS_MATCHED;
+                            errorFilterMatchedSlice =
+                                MatchingFilter.FILTER_IS_MATCHED;
                             visibleSliceCount++;
                         } else {
-                            filteredSlice = MatchingFilter.FILTER_NOT_MATCHED;
+                            errorFilterMatchedSlice =
+                                MatchingFilter.FILTER_NOT_MATCHED;
                         }
                     }
 
@@ -420,11 +424,12 @@ function renderAllReceiverRows(props: {
                 }
 
                 // <editor-fold desc="Time slices for a given day render">
+                // TODO: turn slices into their own Components and move the `data` items into props
                 const sliceClassName =
                     SUCCESS_RATE_CLASSNAME_MAP[successForSlice.currentState];
 
                 const sliceFilterClassName =
-                    MATCHING_FILTER_CLASSNAME_MAP[filteredSlice];
+                    MATCHING_FILTER_CLASSNAME_MAP[errorFilterMatchedSlice];
 
                 const isClickable =
                     successForSlice.currentState !== SuccessRate.UNDEFINED;
@@ -603,22 +608,24 @@ function FilterRenderedRows(props: {
             resultArray.push(renderedRow);
         }
     }
-
-    if (resultArray.length === 0) {
-        return <>No rows matching time range and any filters</>;
-    }
-
-    return <>{resultArray}</>;
+    return resultArray;
 }
 
 function MainRender(props: {
-    data: AdmConnStatusDataType[];
     datesRange: DatePair;
     filterRowStatus: SuccessRate;
     filterErrorText: string;
     filterRowReceiver: string;
     onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
 }) {
+    const startDate = props.datesRange[0];
+    const endDate = props.datesRange[1];
+    const results = useResource(AdmConnStatusResource.list(), {
+        startDate: startOfDayIso(startDate),
+        endDate: endOfDayIso(endDate),
+    });
+    const data = useMemo(() => sortStatusData(results), [results]);
+
     const onClick = useCallback(
         (dataItems: AdmConnStatusDataType[]) => {
             // in theory, there might be multiple events for the block, but we're only handling one for now.
@@ -630,20 +637,19 @@ function MainRender(props: {
     // Example: if we decide to filter data[1], then we filter renderedRows[1]
     // this prevents the expensive row renders when a filter happens
     // (since they filter out WHOLE rows).
-    const startDay = props.datesRange[0];
-    const endDay = props.datesRange[1];
+
     const renderedRows = useMemo(
         () =>
             renderAllReceiverRows({
-                data: props.data,
-                startDay,
-                endDay,
+                data,
+                startDate,
+                endDate,
                 filterErrorText: props.filterErrorText,
                 onClick,
             }),
         // memo cannot track date changes correctly, leave them out of deps!
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [props.data, props.filterErrorText]
+        [data, props.filterErrorText]
     );
 
     if (renderedRows.length === 0) {
@@ -654,13 +660,13 @@ function MainRender(props: {
         //
         <ScrollSync horizontal enabled>
             <GridContainer className={"rs-admindash-component"}>
-                <FilterRenderedRows
-                    renderedRows={renderedRows}
-                    filterRowStatus={props.filterRowStatus}
-                    filterRowReceiver={props.filterRowReceiver}
-                    filterErrorText={props.filterErrorText}
-                    onClick={onClick}
-                />
+                {FilterRenderedRows({
+                    renderedRows,
+                    filterRowStatus: props.filterRowStatus,
+                    filterRowReceiver: props.filterRowReceiver,
+                    filterErrorText: props.filterErrorText,
+                    onClick,
+                }) || <div>No data matching filters</div>}
             </GridContainer>
         </ScrollSync>
     );
@@ -679,7 +685,8 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
     };
 
     return (
-        <GridContainer className={"rs-admindash-modal"}>
+        <GridContainer className={"rs-admindash-modal-container"}>
+            {/* We support multiple results per slice */}
             {props.subData.map((dataItem) => (
                 <Grid
                     key={`dlog-item-${dataItem.receiverConnectionCheckResultId}`}
@@ -781,8 +788,9 @@ function DateRangePickingAtomic(props: {
 
     return (
         <>
-            <span className={""}>
-                🗓 {formatDateFromString(startDate)} -{" "}
+            <span>
+                🗓 {formatDateFromString(startDate)}
+                {" — "}
                 {formatDateFromString(endDate)}
             </span>
             <ModalToggleButton
@@ -831,7 +839,7 @@ function DateRangePickingAtomic(props: {
                 </Button>
                 {isDateRangeOk() ? null : (
                     <span className={"rs-admindash-warn-font"}>
-                        Dates are too far apart (too many days)
+                        Dates are too far apart (too many days - max 10 days)
                     </span>
                 )}
             </Modal>
@@ -843,11 +851,9 @@ export function AdminReceiverDashboard() {
     const [startDate, setStartDate] = useState<string>(
         startOfDayIso(initialStartDate())
     );
-    const [endDate, setEndDate] = useState<string | undefined>(); // may be null because it's optional
-    const results = useResource(AdmConnStatusResource.list(), {
-        startDate,
-        endDate,
-    });
+    const [endDate, setEndDate] = useState<string>(
+        initialEndDate().toISOString()
+    );
     // this is the text input box filter
     const [filterReceivers, setFilterReceivers] = useState("");
     const [filterErrorResults, setFilterErrorResults] = useState("");
@@ -866,8 +872,6 @@ export function AdminReceiverDashboard() {
             modalShowInfoRef?.current?.toggleModal(undefined, true);
         }
     }, []);
-
-    const data = useMemo(() => sortStatusData(results), [results]);
 
     return (
         <section className="grid-container">
@@ -893,7 +897,7 @@ export function AdminReceiverDashboard() {
                     </Label>
                     <DateRangePickingAtomic
                         defaultStartDate={startOfDayIso(initialStartDate())}
-                        defaultEndDate={""}
+                        defaultEndDate={initialEndDate().toISOString()}
                         onChange={(props) => {
                             setStartDate(props.startDate);
                             setEndDate(props.endDate);
@@ -984,22 +988,27 @@ export function AdminReceiverDashboard() {
                     </Tooltip>
                 </div>
             </form>
-            <MainRender
-                data={data}
-                datesRange={[
-                    new Date(startDate),
-                    endDate
-                        ? new Date(endOfDayIso(new Date(endDate)))
-                        : new Date(endOfDayIso(new Date())),
-                ]}
-                filterRowStatus={filterRowSuccessState}
-                filterErrorText={filterErrorResults}
-                filterRowReceiver={filterReceivers}
-                onDetailsClick={showDetailsModal}
-            />
+            <Suspense fallback={<Spinner />}>
+                <NetworkErrorBoundary
+                    fallbackComponent={() => <ErrorPage type="message" />}
+                >
+                    <MainRender
+                        datesRange={[
+                            new Date(startDate),
+                            endDate
+                                ? new Date(endOfDayIso(new Date(endDate)))
+                                : new Date(endOfDayIso(new Date())),
+                        ]}
+                        filterRowStatus={filterRowSuccessState}
+                        filterErrorText={filterErrorResults}
+                        filterRowReceiver={filterReceivers}
+                        onDetailsClick={showDetailsModal}
+                    />
+                </NetworkErrorBoundary>
+            </Suspense>
             <Modal
                 isLarge={true}
-                className="rs-compare-modal"
+                className="rs-admindash-modal"
                 ref={modalShowInfoRef}
                 id={"showSuccessDetails"}
             >
@@ -1014,6 +1023,9 @@ export const _exportForTesting = {
     startOfDayIso,
     endOfDayIso,
     initialStartDate,
+    initialEndDate,
+    strcmp,
+    dateIsInRange,
     TimeSlots,
     SuccessRateTracker,
     SuccessRate,

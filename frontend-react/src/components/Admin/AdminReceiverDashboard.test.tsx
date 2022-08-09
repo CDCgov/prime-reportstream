@@ -1,11 +1,14 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { NetworkErrorBoundary } from "rest-hooks";
+import React, { Suspense } from "react";
 
 import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
+import { ErrorPage } from "../../pages/error/ErrorPage";
 
 import { _exportForTesting } from "./AdminReceiverDashboard";
 
-// <editor-fold defaultstate="collapsed" desc="DATA: AdmConnStatusDataType[]">
-const DATA: AdmConnStatusDataType[] = [
+// <editor-fold defaultstate="collapsed" desc="mockData: AdmConnStatusDataType[]">
+const mockData: AdmConnStatusDataType[] = [
     {
         receiverConnectionCheckResultId: 2397,
         organizationId: 61,
@@ -76,6 +79,20 @@ const DATA: AdmConnStatusDataType[] = [
 ];
 // </editor-fold>
 
+jest.mock("rest-hooks", () => ({
+    useResource: () => {
+        return mockData;
+    },
+    useController: () => {
+        // fetch is destructured as fetchController in component
+        return { fetch: () => mockData };
+    },
+    // Must return children when mocking, otherwise nothing inside renders
+    NetworkErrorBoundary: ({ children }: { children: JSX.Element[] }) => {
+        return <>{children}</>;
+    },
+}));
+
 describe("AdminReceiverDashboard tests", () => {
     test("misc functions", () => {
         // we're checking these don't throw.
@@ -85,6 +102,29 @@ describe("AdminReceiverDashboard tests", () => {
         expect(_exportForTesting.initialStartDate().toISOString()).toContain(
             "T"
         );
+        expect(_exportForTesting.initialEndDate().toISOString()).toContain("T");
+        expect(_exportForTesting.strcmp("A", "a")).toBe(-1);
+        expect(_exportForTesting.strcmp("a", "a")).toBe(0);
+        expect(_exportForTesting.strcmp("a", "A")).toBe(1);
+
+        expect(
+            _exportForTesting.dateIsInRange(new Date("1/2/2020"), [
+                new Date("1/1/2020"),
+                new Date("1/3/2020"),
+            ])
+        ).toBe(true);
+        expect(
+            _exportForTesting.dateIsInRange(new Date("1/2/2020"), [
+                new Date("1/1/2020"),
+                new Date("1/1/2020"),
+            ])
+        ).toBe(false);
+        expect(
+            _exportForTesting.dateIsInRange(new Date("1/1/2020"), [
+                new Date("1/1/2020"),
+                new Date("1/2/2020"),
+            ])
+        ).toBe(true);
     });
 
     test("TimeSlots", () => {
@@ -187,22 +227,36 @@ describe("AdminReceiverDashboard tests", () => {
         expect(result4).toBe("");
     });
 
-    test("sortStatusData and MainRender tests", async () => {
-        const data = _exportForTesting.sortStatusData(DATA); // sorts
+    test("sortStatusData", async () => {
+        const data = _exportForTesting.sortStatusData(mockData); // sorts
         expect(data.length).toBe(6);
         // make sure sortStatusData sorted correctly.
         expect(data[3].organizationName).toBe("oh-doh");
+    });
 
+    test("sortStatusData and MainRender tests", async () => {
         const { baseElement } = render(
-            // eslint-disable-next-line react/jsx-pascal-case
-            <_exportForTesting.MainRender
-                data={data}
-                datesRange={[new Date("2022-07-11"), new Date("2022-07-14")]}
-                filterRowStatus={_exportForTesting.SuccessRate.ALL_SUCCESSFUL}
-                filterErrorText={""}
-                filterRowReceiver={""}
-                onDetailsClick={(_subdata: AdmConnStatusDataType[]) => {}}
-            />
+            <Suspense fallback={<></>}>
+                <NetworkErrorBoundary
+                    fallbackComponent={() => <ErrorPage type="message" />}
+                >
+                    // eslint-disable-next-line react/jsx-pascal-case
+                    <_exportForTesting.MainRender
+                        datesRange={[
+                            new Date("2022-07-11"),
+                            new Date("2022-07-14"),
+                        ]}
+                        filterRowStatus={
+                            _exportForTesting.SuccessRate.ALL_SUCCESSFUL
+                        }
+                        filterErrorText={""}
+                        filterRowReceiver={""}
+                        onDetailsClick={(
+                            _subdata: AdmConnStatusDataType[]
+                        ) => {}}
+                    />
+                </NetworkErrorBoundary>
+            </Suspense>
         );
 
         const days = screen.getAllByText(/Mon/);
@@ -218,7 +272,7 @@ describe("AdminReceiverDashboard tests", () => {
         // broken out for readability
         const slicesPerDay = 24 / _exportForTesting.SKIP_HOURS;
         const numDays = 3; // based on datesRange
-        const numReceivers = 3; // based on DATA
+        const numReceivers = 3; // based on mockData
         const totalSlices = numReceivers * numDays * slicesPerDay;
         expect(slices.length).toBe(totalSlices); // based on receivers x days x 12 slices/day
 
@@ -241,7 +295,7 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("ModalInfoRender", async () => {
-        const data = _exportForTesting.sortStatusData(DATA); // sorts
+        const data = _exportForTesting.sortStatusData(mockData); // sorts
         const subData = data[0];
         render(
             // eslint-disable-next-line react/jsx-pascal-case
