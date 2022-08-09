@@ -4,13 +4,10 @@ on:
   pull_request:
     branches:
       - master
-  push:
-    branches:
-      - josiahsiegel/test/workflow
 
 jobs:
   pre_job:
-    name: "Set Build Environment"
+    name: Test job
     runs-on: ubuntu-latest
     outputs:
       env_name: ${{ steps.build_vars.outputs.env_name }}
