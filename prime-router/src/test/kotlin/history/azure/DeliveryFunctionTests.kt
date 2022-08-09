@@ -438,7 +438,7 @@ class DeliveryFunctionTests : Logging {
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
-        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns true
         response = function.getDeliveryDetails(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: ExpectedDelivery = mapper.readValue(response.body.toString())
@@ -460,7 +460,7 @@ class DeliveryFunctionTests : Logging {
         // Good actionId, but Not authorized
         action.actionName = TaskAction.send
         every { mockDeliveryFacade.fetchAction(any()) } returns action
-        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns false // not authorized
         response = function.getDeliveryDetails(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
@@ -468,7 +468,7 @@ class DeliveryFunctionTests : Logging {
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockDeliveryFacade.fetchAction(any()) } returns action
         every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
-        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns true
         response = function.getDeliveryDetails(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         responseBody = mapper.readValue(response.body.toString())
@@ -530,7 +530,7 @@ class DeliveryFunctionTests : Logging {
         action.actionName = TaskAction.send
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns true
 
         mockRequest.parameters["sortCol"] = "facility"
         mockRequest.parameters["sortDir"] = "DESC"
@@ -583,7 +583,7 @@ class DeliveryFunctionTests : Logging {
         // Good actionId, but Not authorized
         action.actionName = TaskAction.send
         every { mockDeliveryFacade.fetchAction(any()) } returns action
-        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns false // not authorized
         response = function.getDeliveryFacilities(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 

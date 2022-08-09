@@ -337,15 +337,4 @@ class TokenAuthenticationTests {
         // if claims is non-null then the sender's accessToken is valid.
         assertNull(claims)
     }
-
-    @Test
-    fun `test scopeListContainsScope`() {
-        assertTrue(Scope.scopeListContainsScope("a", "a"))
-        assertTrue(Scope.scopeListContainsScope("a:b c:d e:f", "a:b"))
-        assertFalse(Scope.scopeListContainsScope("a:b c:d e:f", "a:b "))
-        assertFalse(Scope.scopeListContainsScope("", ""))
-        assertFalse(Scope.scopeListContainsScope("xx", "x"))
-        assertFalse(Scope.scopeListContainsScope("x   x", ""))
-        assertFalse(Scope.scopeListContainsScope("x   x", " "))
-    }
 }

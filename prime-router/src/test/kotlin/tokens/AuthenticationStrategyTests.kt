@@ -2,6 +2,7 @@ package gov.cdc.prime.router.tokens
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
@@ -51,8 +52,8 @@ class AuthenticationStrategyTests {
         )
         mockkObject(OktaAuthentication)
         // Okta style token. There's a logger call that uses 'sub'
-        val jwt = mapOf("sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, "simple_report")
+        val jwt = mapOf(oktaMembershipClaim to listOf("DHsimple_report"), "sub" to "c@rlos.com")
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = true)
         every { OktaAuthentication.authenticate(any()) } returns claims
         assertThat(AuthenticationStrategy.authenticate(req)).isEqualTo(claims)
     }
@@ -72,20 +73,22 @@ class AuthenticationStrategyTests {
     @Test
     fun `test authenticate server2server happy path`() {
         val req = MockHttpRequestMessage("test")
-        // Missing authentication-type header in req!  Means ==> use token auth.
+        // Missing authentication-type header in req.  Not an error.  Means ==> use token auth.
         val jwtClaims = mockkClass(Claims::class)
         every { jwtClaims[any()] } returns "simple_report.default.report"
         mockkConstructor(TokenAuthentication::class)
         every { anyConstructed<TokenAuthentication>().authenticate(any(), any()) } returns jwtClaims
         val claims = AuthenticationStrategy.authenticate(req)
-        assertThat(claims?.organizationNameClaim).isEqualTo("simple_report")
-        assertThat(claims?.isSenderOrgClaim).isEqualTo(false)
+        assertThat(claims?.scopes?.size).isEqualTo(1)
+        assertThat(claims?.scopes?.contains("simple_report.default.report")).isEqualTo(true)
         assertThat(claims?.isPrimeAdmin).isEqualTo(false)
 
-        // Incorrect authentication-type header! Means ==> use token auth; not treated as an error
+        // Incorrect authentication-type header.  Still means ==> use token auth; not treated as an error
         req.httpHeaders += mapOf("authentication-type" to "bogus")
-        assertThat(AuthenticationStrategy.authenticate(req)?.organizationNameClaim)
-            .isEqualTo("simple_report")
+        val claims2 = AuthenticationStrategy.authenticate(req)
+        assertThat(claims2?.scopes?.size).isEqualTo(1)
+        assertThat(claims2?.scopes?.contains("simple_report.default.report")).isEqualTo(true)
+        assertThat(claims2?.isPrimeAdmin).isEqualTo(false)
     }
 
     @Test
@@ -94,8 +97,7 @@ class AuthenticationStrategyTests {
         mockkConstructor(TokenAuthentication::class)
         // The token was not authorized by checkAccessToken, so it returns null
         every { anyConstructed<TokenAuthentication>().authenticate(any(), any()) } returns null
-        assertThat(AuthenticationStrategy.authenticate(req)?.organizationNameClaim)
-            .isNull()
+        assertThat(AuthenticationStrategy.authenticate(req)).isNull()
     }
 
     @Test
@@ -106,24 +108,21 @@ class AuthenticationStrategyTests {
         every { jwtClaims[any()] } returns "foo.bar.report"
         mockkConstructor(TokenAuthentication::class)
         every { anyConstructed<TokenAuthentication>().authenticate(any(), any()) } returns jwtClaims
-        assertThat(AuthenticationStrategy.authenticate(req)?.organizationNameClaim)
-            .isEqualTo("foo")
+        val claims1 = AuthenticationStrategy.authenticate(req)
+        assertThat(claims1?.scopes?.size).isEqualTo(1)
+        assertThat(claims1?.scopes?.contains("foo.bar.report")).isEqualTo(true)
 
         every { jwtClaims[any()] } returns "foo.bar"
-        assertThat(AuthenticationStrategy.authenticate(req)?.organizationNameClaim)
-            .isNull()
+        assertThat { AuthenticationStrategy.authenticate(req) }.isFailure()
 
         every { jwtClaims[any()] } returns "foo"
-        assertThat(AuthenticationStrategy.authenticate(req)?.organizationNameClaim)
-            .isNull()
+        assertThat { AuthenticationStrategy.authenticate(req) }.isFailure()
 
         every { jwtClaims[any()] } returns ""
-        assertThat(AuthenticationStrategy.authenticate(req)?.organizationNameClaim)
-            .isNull()
+        assertThat { AuthenticationStrategy.authenticate(req) }.isFailure()
 
         every { jwtClaims[any()] } returns "    "
-        assertThat(AuthenticationStrategy.authenticate(req)?.organizationNameClaim)
-            .isNull()
+        assertThat { AuthenticationStrategy.authenticate(req) }.isFailure()
     }
 
     @Test
@@ -175,14 +174,14 @@ class AuthenticationStrategyTests {
     @Test
     fun `test validate claims`() {
         val req = MockHttpRequestMessage("test")
-        // Missing authentication-type header in req!  Means ==> use token auth.
+        // Missing authentication-type header in req!  Means ==> use server2server auth.
         val jwtClaims = mockkClass(Claims::class)
-        every { jwtClaims[any()] } returns "simple_report.default.report"
+        every { jwtClaims[any()] } returns "simple_report.*.report"
         mockkConstructor(TokenAuthentication::class)
         every { anyConstructed<TokenAuthentication>().authenticate(any(), any()) } returns jwtClaims
 
         val claims = AuthenticationStrategy.authenticate(req)
-        val mismatchedSender = CovidSender(
+        val mismatchedOrg = CovidSender(
             "Test Sender",
             "test",
             Sender.Format.HL7,
@@ -190,7 +189,7 @@ class AuthenticationStrategyTests {
             "one",
             allowDuplicates = true
         )
-        val matchingSender = CovidSender(
+        val matchingOrg = CovidSender(
             "Test Sender",
             "simple_report",
             Sender.Format.HL7,
@@ -200,32 +199,8 @@ class AuthenticationStrategyTests {
         )
 
         if (claims != null) {
-            var result = AuthenticationStrategy.validateClaim(claims, mismatchedSender, req)
-            assertThat(result).isFalse()
-
-            result = AuthenticationStrategy.validateClaim(claims, matchingSender, req)
-            assertThat(result).isTrue()
+            assertThat(claims.authorizedForSubmission(mismatchedOrg, req)).isFalse()
+            assertThat(claims.authorizedForSubmission(matchingOrg, req)).isTrue()
         }
-    }
-
-    @Test
-    fun `test validate claims - isPrimeAdmin`() {
-        val req = MockHttpRequestMessage("test")
-        val userMemberships: Map<String, Any> = mapOf(
-            "organization" to listOf("DHPrimeAdmins"),
-            "sub" to "bob@bob.com"
-        )
-        val claims = AuthenticatedClaims(userMemberships)
-        val matchingSender = CovidSender(
-            "Test Sender",
-            "simple_report",
-            Sender.Format.HL7,
-            schemaName =
-            "one",
-            allowDuplicates = true
-        )
-
-        val result = AuthenticationStrategy.validateClaim(claims, matchingSender, req)
-        assertThat(result).isTrue()
     }
 }

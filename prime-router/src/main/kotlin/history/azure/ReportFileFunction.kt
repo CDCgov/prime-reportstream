@@ -87,17 +87,16 @@ abstract class ReportFileFunction(
                 ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream user")
 
             // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.
-            if ((claims.organizationNameClaim != userOrgName) && !claims.isPrimeAdmin) {
+            if (!reportFileFacade.checkSenderAccessAuthorization(claims, userOrgName, request)) {
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
                         " ${request.httpMethod}:${request.uri.path}." +
-                        " ERR: Claim org is ${claims.organizationNameClaim} but client id is $userOrgName"
+                        " ERR: Claims scopes are ${claims.scopes} but client id is $userOrgName"
                 )
                 return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
             logger.info(
-                "Authorized request by org ${claims.organizationNameClaim}" +
-                    " to via client id $userOrgName."
+                "Authorized request by org ${claims.scopes} to getList on organization $userOrgName."
             )
 
             return HttpUtilities.okResponse(request, this.historyAsJson(request.queryParameters, userOrgName))
@@ -149,7 +148,7 @@ abstract class ReportFileFunction(
      * @param id Either a reportId or actionId to look for matches on.
      * @return The error response if found, or null if all is well.
      */
-    internal fun authSingleBlocks(
+    fun authSingleBlocks(
         request: HttpRequestMessage<String?>,
         id: String,
     ): HttpResponseMessage? {
@@ -163,7 +162,7 @@ abstract class ReportFileFunction(
 
         return if (!this.actionIsValid(action))
             HttpUtilities.notFoundResponse(request, "$id is not a valid report")
-        else if (!reportFileFacade.checkSenderAccessAuthorization(action, claims)) {
+        else if (!reportFileFacade.checkSenderAccessAuthorization(claims, action.sendingOrg, request)) {
             logger.warn(
                 "Invalid Authorization for user ${claims.userName}:" +
                     " ${request.httpMethod}:${request.uri.path}"
@@ -172,7 +171,7 @@ abstract class ReportFileFunction(
         } else {
             currentAction = action
             logger.debug(
-                "Authorized request by ${claims.organizationNameClaim} to read ${action.sendingOrg}/submissions"
+                "Authorized request with scope ${claims.scopes} to read ${action.sendingOrg}/submissions"
             )
             null
         }

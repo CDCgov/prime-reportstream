@@ -1,13 +1,11 @@
 package gov.cdc.prime.router.tokens
 
-import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.okta.jwt.Jwt
 import com.okta.jwt.JwtVerificationException
 import com.okta.jwt.JwtVerifiers
-import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -18,9 +16,9 @@ const val oktaGroupPrefix = "DH"
 const val oktaSenderGroupPrefix = "DHSender_"
 const val oktaAdminGroupSuffix = "Admins"
 const val oktaSystemAdminGroup = "DHPrimeAdmins"
-const val oktaSubjectClaim = "sub"
 const val oktaMembershipClaim = "organization"
 const val envVariableForOktaBaseUrl = "OKTA_baseUrl"
+const val subjectClaim = "sub"
 
 /**
  * Allowed roles for human interaction with ReportStream
@@ -80,7 +78,7 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                 val jwt = decodeJwt(accessToken)
 
                 // Extract claims into a more usable form
-                val claims = AuthenticatedClaims(jwt.claims)
+                val claims = AuthenticatedClaims(jwt.claims, isOktaAuth = true)
                 logger.info("Authenticated request by ${claims.userName}: $httpMethod:$path")
                 return claims
             } catch (e: JwtVerificationException) {
@@ -98,6 +96,64 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                 .build()
             // Perform authentication.  Throws exception if authentication fails.
             return jwtVerifier.decode(accessToken)
+        }
+
+        /**
+         * @return true iff at least one of the user's [claims] exactly matches one of the required memberships.
+         * The set of required memberships is calculated here based on the [requiredMinimumLevel],
+         * the [requiredOrganizationName], and the [requireSenderClaim].
+         *
+         * If [requireSenderClaim] is true, then this user must have a claim of the form DHSender_organizationName,
+         * or be an admin.
+         * If [requireSenderClaim] is false,then this user must have a claim of the form DHorganizationName, or
+         * DHSender_organizationName, or be an admin.
+         * [requiredOrganizationName] is the optional organization the caller desires to be associated with.
+         * Note:  underscores and dashes in both claims and [requiredOrganizationName] are treated as identical.
+         * That is, for example, DHa_b-c is the same organization as DHa-b_c.  This is to cover for widespread
+         * inconsistencies between how Okta and Settings handle "-" and "_".
+         */
+        fun authorizeByMembership(
+            claims: AuthenticatedClaims,
+            requiredMinimumLevel: PrincipalLevel,
+            requiredOrganizationName: String?,
+            requireSenderClaim: Boolean = false
+        ): Boolean {
+            @Suppress("UNCHECKED_CAST")
+            val membershipsFromOkta = (claims.jwtClaims[oktaMembershipClaim] as? Collection<String> ?: return false)
+                .filter { !it.isNullOrBlank() }
+                .map { it.replace("-", "_") }
+            // Requirement: User's claims must exactly match one of these strings to be authorized.
+            val requiredMemberships = when (requiredMinimumLevel) {
+                PrincipalLevel.SYSTEM_ADMIN -> listOf(oktaSystemAdminGroup)
+                PrincipalLevel.ORGANIZATION_ADMIN -> {
+                    listOf(
+                        "$oktaGroupPrefix$requiredOrganizationName$oktaAdminGroupSuffix",
+                        oktaSystemAdminGroup
+                    )
+                }
+                PrincipalLevel.USER ->
+                    listOfNotNull(
+                        if (!requireSenderClaim) "$oktaGroupPrefix$requiredOrganizationName" else null,
+                        "$oktaSenderGroupPrefix$requiredOrganizationName",
+                        "$oktaGroupPrefix$requiredOrganizationName$oktaAdminGroupSuffix",
+                        oktaSystemAdminGroup
+                    )
+            }.map { it.replace("-", "_") }
+
+            requiredMemberships.forEach {
+                if (membershipsFromOkta.contains(it)) {
+                    logger.info(
+                        "User ${claims.userName}" +
+                            " memberships $membershipsFromOkta matched requested membership $it"
+                    )
+                    return true
+                }
+            }
+            logger.warn(
+                "User ${claims.userName}" +
+                    " memberships $membershipsFromOkta did NOT match requested $requiredMemberships"
+            )
+            return false
         }
     }
 
@@ -137,79 +193,5 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
                 logger.error(ex)
             return HttpUtilities.internalErrorResponse(request)
         }
-    }
-
-    /**
-     * @return true iff at least one of the user's [claims] exactly matches one of the required memberships.
-     * The set of required memberships is calculated here based on the [requiredMinimumLevel],
-     * the [requiredOrganizationName], and the [requireSenderClaim].
-     *
-     * If [requireSenderClaim] is true, then this user must have a claim of the form DHSender_organizationName,
-     * or be an admin.
-     * If [requireSenderClaim] is false,then this user must have a claim of the form DHorganizationName, or
-     * DHSender_organizationName, or be an admin.
-     * [requiredOrganizationName] is the optional organization the caller desires to be associated with.
-     * Note:  underscores and dashes in both claims and [requiredOrganizationName] are treated as identical.
-     * That is, for example, DHa_b-c is the same organization as DHa-b_c.  This is to cover for widespread
-     * inconsistencies between how Okta and Settings handle "-" and "_".
-     */
-    fun authorizeByMembership(
-        claims: AuthenticatedClaims,
-        requiredMinimumLevel: PrincipalLevel,
-        requiredOrganizationName: String?,
-        requireSenderClaim: Boolean = false
-    ): Boolean {
-        @Suppress("UNCHECKED_CAST")
-        val membershipsFromOkta = (claims.jwtClaims[oktaMembershipClaim] as? Collection<String> ?: return false)
-            .filter { !it.isNullOrBlank() }
-            .map { it.replace("-", "_") }
-        // Requirement: User's claims must exactly match one of these strings to be authorized.
-        val requiredMemberships = when (requiredMinimumLevel) {
-            PrincipalLevel.SYSTEM_ADMIN -> listOf(oktaSystemAdminGroup)
-            PrincipalLevel.ORGANIZATION_ADMIN -> {
-                listOf(
-                    "$oktaGroupPrefix$requiredOrganizationName$oktaAdminGroupSuffix",
-                    oktaSystemAdminGroup
-                )
-            }
-            PrincipalLevel.USER ->
-                listOfNotNull(
-                    if (!requireSenderClaim) "$oktaGroupPrefix$requiredOrganizationName" else null,
-                    "$oktaSenderGroupPrefix$requiredOrganizationName",
-                    "$oktaGroupPrefix$requiredOrganizationName$oktaAdminGroupSuffix",
-                    oktaSystemAdminGroup
-                )
-        }.map { it.replace("-", "_") }
-
-        requiredMemberships.forEach {
-            if (membershipsFromOkta.contains(it)) {
-                logger.info(
-                    "User ${claims.userName}" +
-                        " memberships $membershipsFromOkta matched requested membership $it"
-                )
-                return true
-            }
-        }
-        logger.warn(
-            "User ${claims.userName}" +
-                " memberships $membershipsFromOkta did NOT match requested $requiredMemberships"
-        )
-        return false
-    }
-
-    /**
-     * For endpoints that need to check if the organization is in the database
-     */
-    fun checkOrganizationExists(context: ExecutionContext, userName: String, orgName: String?): Organization? {
-        var organization: Organization? = null
-        if (orgName != null) {
-            organization = WorkflowEngine().settings.findOrganization(orgName.replace('_', '-'))
-            if (organization != null) {
-                return organization
-            } else {
-                context.logger.info("User $userName failed auth: Organization $orgName is unknown to the system.")
-            }
-        }
-        return organization
     }
 }

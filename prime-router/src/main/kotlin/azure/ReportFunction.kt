@@ -100,12 +100,9 @@ class ReportFunction(
             val sender = workflowEngine.settings.findSender(senderName)
                 ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown client")
 
-            if (!AuthenticationStrategy.validateClaim(
-                    claims,
-                    sender,
-                    request
-                )
-            ) return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            if (!claims.authorizedForSubmission(sender, request)) {
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
 
             return processRequest(request, sender)
         } catch (ex: Exception) {

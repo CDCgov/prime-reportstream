@@ -387,7 +387,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
-        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
@@ -409,7 +409,7 @@ class SubmissionFunctionTests : Logging {
         // Good actionId, but Not authorized
         action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchAction(any()) } returns action
-        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns false // unauthorized
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
@@ -417,7 +417,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockSubmissionFacade.fetchAction(any()) } returns action
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
-        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         responseBody = mapper.readValue(response.body.toString())

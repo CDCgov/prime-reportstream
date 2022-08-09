@@ -1,108 +1,120 @@
 package gov.cdc.prime.router.tokens
 
+import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.Sender
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
+import org.apache.logging.log4j.kotlin.Logging
 
 /**
  * This represents a set of claims coming from Okta that have been authenticated (but may or may not
  * have been authorized). For convenience, certain claims have been pulled out into more readable/usable forms,
  * using helper methods in the class, called during object construction.
  */
-class AuthenticatedClaims {
+class AuthenticatedClaims : Logging {
     /**
      * Raw claims map, typically as sent in a JWT
      */
     val jwtClaims: Map<String, Any>
 
-    // For Okta, these below are all derived from the raw jwtClaims.
+    // All of these below are _derived_ from the raw jwtClaims.
 
     /** Name of user as extracted from the subject claim.  Usually an email address */
     val userName: String
+
     /** Does this user have the prime administrator claim? */
     val isPrimeAdmin: Boolean
-    /** Name of the organization found in these claims */
-    val organizationNameClaim: String?
-    /** Is this a Sender claim, of the form DHSender_orgname  ? */
-    val isSenderOrgClaim: Boolean
+
+    /** Set of scopes associated with these claims.   Scopes are the "common language" between
+     * Okta and server2server auth.   Okta "DH" claims are mapped to scopes,
+     * or are created directly from server2server claims.
+     */
+    val scopes: Set<String>
 
     /**
-     * This constructor assumes certain claims that are found in Okta. Only use this for Okta claims.
+     * [_jwtClaims]  The raw list of claims
+     * [isOktaAuth] true if the claims came from Okta (eg, groups like "DHmd-phd").  false if the claims came from
+     * server2server auth (eg, scopes like md-phd.default.report)
+     *
+     * Each value passed must have been already authenticated.  This is for claims, *not* for required authorizations.
      */
-    constructor(_jwtClaims: Map<String, Any>) {
+    constructor(_jwtClaims: Map<String, Any>, isOktaAuth: Boolean) {
         this.jwtClaims = _jwtClaims
-        this.userName = _jwtClaims[oktaSubjectClaim]?.toString() ?: error("No username in claims")
-        @Suppress("UNCHECKED_CAST")
-        val memberships = jwtClaims[oktaMembershipClaim] as? Collection<String> ?: error("No memberships in claims")
-        val orgNamePair = extractOrganizationNameFromOktaMembership(memberships)
-        this.isPrimeAdmin = isPrimeAdmin(memberships)
-        this.organizationNameClaim = orgNamePair?.first // might be null
-        this.isSenderOrgClaim = orgNamePair?.second ?: false
-    }
-
-    /**
-
-     * Use this for claims not coming from a human being (that is, not using Okta).
-     * For example, use this for claims for server-to-server auth.
-     * Each value passed must have been authenticated.  These are *not* for requested or required authorizations.
-     *
-     * [_jwtClaims]  The raw list of claims.
-     * [_organizationNameClaim] The organization Name of this server. (Not the full name, eg oh-doh, not oh-doh.elr)
-     * [_isPrimeAdmin] true if this server claims to act as a PrimeAdmin
-     * [_isSenderOrgClaim] true if this claims set is from a Sender organization.  Certain queries (eg, give me
-     * a list of submissions) only make sense if the Organization has at least one Sender in it.
-     *
-     * The latter args are optional.   If not provided, this constructor will attempt to extract the values in the jwt
-     * claims, following our Okta claim forms (eg, "DH...", etc).   Otherwise it will default to least privilege.
-     */
-    constructor(
-        _jwtClaims: Map<String, Any>,
-        _organizationNameClaim: String? = null,
-        _isPrimeAdmin: Boolean? = null,
-        _isSenderOrgClaim: Boolean? = null,
-    ) {
-        this.jwtClaims = _jwtClaims
-        this.userName = _jwtClaims[oktaSubjectClaim]?.toString() ?: error("No username in claims")
-        @Suppress("UNCHECKED_CAST")
-        val memberships = jwtClaims[oktaMembershipClaim] as? Collection<String> ?: emptyList()
-        val orgNamePair = extractOrganizationNameFromOktaMembership(memberships)
-        this.isPrimeAdmin = _isPrimeAdmin ?: isPrimeAdmin(memberships)
-        this.organizationNameClaim = _organizationNameClaim ?: orgNamePair?.first // might be null
-        this.isSenderOrgClaim = _isSenderOrgClaim ?: orgNamePair?.second ?: false
-    }
-
-    /**
-     * Derive useful info from jwtClaims on [memberships].
-     * @return the *first* well-formed ReportStream organizationName found in [memberships].
-     * (So this won't work if user has many organization claims.)
-     *
-     * At the same time, this determines if it's a Sender or Receiver claim.
-     * Returns Pair(organizationName, true) if this organizationName claim is a Sender claim.
-     * Returns Pair(organizationName, false) if this organizationName claim is a Receiver claim.
-     * Returns null if no well-formed organizationName is found in [memberships]
-     * Ignores the PrimeAdmins claim.
-     */
-    private fun extractOrganizationNameFromOktaMembership(memberships: Collection<String>): Pair<String?, Boolean>? {
-        if (memberships.isEmpty()) return null
-        // examples:   DHSender_ignore, DHPrimeAdmins, DHSender_all-in-one-health-ca, DHaz_phd, DHignore
-        // should return, resp.:  (ignore, true), <nothing>, (all-in-one-health-ca, true, (az_phd, false, (ignore, true)
-        memberships.forEach {
-            if (it == oktaSystemAdminGroup) return@forEach // skip
-            if (it.startsWith(oktaSenderGroupPrefix)) return Pair(it.removePrefix(oktaSenderGroupPrefix), true)
-            if (it.startsWith(oktaGroupPrefix)) return Pair(it.removePrefix(oktaGroupPrefix), false)
+        this.userName = _jwtClaims[subjectClaim]?.toString() ?: error("No username in claims")
+        if (isOktaAuth) {
+            @Suppress("UNCHECKED_CAST")
+            val memberships = jwtClaims[oktaMembershipClaim] as? Collection<String> ?: error("No memberships in claims")
+            this.scopes = Scope.mapOktaGroupsToScopes(memberships)
+        } else {
+            // todo this assumes a single scope.  Need to add support for multiple scopes.
+            val claimsScope = _jwtClaims["scope"] as String
+            if (claimsScope.isEmpty())
+                error("For $userName, server2server token had no scope defined. Not authenticated")
+            if (!Scope.isValidScope(claimsScope))
+                error("For $userName, server2server scope $claimsScope: invalid format")
+            this.scopes = setOf(claimsScope)
         }
-        return null
+        this.isPrimeAdmin = scopes.contains(Scope.primeAdminScope)
+        // todo : have the TokenAuthentication.authenticate return type AuthenticatedClaims.
     }
 
     /**
-     * Derive whether this user is an Admin based on claims [memberships].
-     * @return true if a well-formed Administrator claim is in [memberships].  False otherwise.
+     * This uses the [claims] to determine if access is authorized to call the /validate and /waters endpoints for
+     * sender [requiredSender].  The [request] is only used for logging.
+     * @return true if the request to submit data on behalf of [requiredSender]
+     * is authorized based on the [claims], false otherwise.
      */
-    private fun isPrimeAdmin(memberships: Collection<String>): Boolean {
-        memberships.forEach {
-            if (it == oktaSystemAdminGroup) return true
+    fun authorizedForSubmission(
+        requiredSender: Sender,
+        request: HttpRequestMessage<String?>
+    ): Boolean {
+        return authorizedForSubmission(requiredSender.organizationName, requiredSender.name, request)
+    }
+
+    /**
+     * This uses the [claims] to determine if access is authorized to call the /validate and /waters endpoints for
+     * org [requiredOrganization] and optional sender [requiredSender].  The [request] is only used for logging.
+     *
+     * @return true if the request to submit data on behalf of the [requiredOrganization] is
+     * authorized based on the [claims], false otherwise.
+     */
+    fun authorizedForSubmission(
+        requiredOrganization: String,
+        requiredSender: String? = null,
+        request: HttpRequestMessage<String?>
+    ): Boolean {
+        if (requiredOrganization.isBlank()) {
+            logger.warn(
+                "Unauthorized.  Missing required Org" +
+                    " for user ${this.userName}: ${request.httpMethod}:${request.uri.path}."
+            )
+            return false
         }
-        return false
+        // User must have one of these scopes to be authorized
+        val requiredScopes = mutableSetOf(
+            Scope.primeAdminScope,
+            "$requiredOrganization.*.user", // eg, md-phd.*.user
+            "$requiredOrganization.*.admin", // eg, md-phd.*.admin
+            "$requiredOrganization.*.report", // eg, md-phd.default.report
+        )
+        if (requiredSender != null) {
+            requiredScopes += "$requiredOrganization.$requiredSender.user" // eg, md-phd.default.user
+            requiredScopes += "$requiredOrganization.$requiredSender.admin" // eg, md-phd.default.admin
+            requiredScopes += "$requiredOrganization.$requiredSender.report" // eg, md-phd.default.report
+        }
+        return if (Scope.authorized(this.scopes, requiredScopes)) {
+            logger.info(
+                "Authorized request by user with claims ${this.scopes}" +
+                    " to submit data via client id $requiredOrganization.  Beginning to ingest report"
+            )
+            true
+        } else {
+            logger.warn(
+                "Invalid Authorization for user ${this.userName}: ${request.httpMethod}:${request.uri.path}." +
+                    " ERR: Claims from user are ${this.scopes} but required scopes are $requiredScopes"
+            )
+            false
+        }
     }
 
     companion object {
@@ -114,14 +126,14 @@ class AuthenticatedClaims {
         fun generateTestClaims(sender: Sender? = null): AuthenticatedClaims {
             val tmpOrg = sender?.organizationName ?: "ignore"
             val jwtClaims: Map<String, Any> = mapOf(
-                "organization" to listOf("$oktaSenderGroupPrefix$tmpOrg", oktaSystemAdminGroup),
+                oktaMembershipClaim to listOf("$oktaSenderGroupPrefix$tmpOrg", oktaSystemAdminGroup),
                 "sub" to "local@test.com",
             )
-            return AuthenticatedClaims(jwtClaims)
+            return AuthenticatedClaims(jwtClaims, isOktaAuth = true)
         }
 
         /**
-         * Create fake twolegged TokenAuthentication claims, for testing.
+         * Create fake server2server TokenAuthentication claims, for testing.
          * Extract the orgname from the [scope] which must be well-formed per rules in [Scope]
          * @return fake claims, for testing.
          */
