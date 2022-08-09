@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1660057706276,
@@ -12,6 +12,10 @@
                 {
                     "date": 1660057798455,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,10 +1,10 @@\n name: Run Gitleaks on the PRIME ReportStream code-base\r\n \r\n on:\r\n-  schedule:\r\n-    # at GitHub midnight on the default branch\r\n-    - cron: \"0 0 * * *\"\r\n+  push:\r\n+    branches:\r\n+      - feature/lucasdze-test\r\n \r\n jobs:\r\n   gitleaks:\r\n     runs-on: ubuntu-latest\r\n@@ -14,9 +14,9 @@\n           # Fetch the full history\r\n           fetch-depth: 0\r\n \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n-        run: .environment/gitleaks/run-gitleaks.sh '2021-08-01T00:00:00-0400'\r\n+        run: .environment/gitleaks/run-gitleaks.sh --since '2021-08-01T00:00:00-0400'\r\n \r\n       - name: \"Output non-sensitive log\"\r\n         if: always()\r\n         run: cat \"gitleaks.log\"\r\n"
+                },
+                {
+                    "date": 1660057948256,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,9 +14,9 @@\n           # Fetch the full history\r\n           fetch-depth: 0\r\n \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n-        run: .environment/gitleaks/run-gitleaks.sh --since '2021-08-01T00:00:00-0400'\r\n+        run: .environment/gitleaks/run-gitleaks.sh --commit-since '2021-08-01T00:00:00-0400'\r\n \r\n       - name: \"Output non-sensitive log\"\r\n         if: always()\r\n         run: cat \"gitleaks.log\"\r\n"
                 }
             ],
             "date": 1660057706276,
