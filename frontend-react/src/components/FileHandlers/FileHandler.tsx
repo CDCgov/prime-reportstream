@@ -69,6 +69,7 @@ interface FileHandlerProps {
     showSuccessMetadata: boolean;
     showWarningBanner: boolean;
     warningText?: string;
+    endpointName: string;
 }
 
 const FileHandler = ({
@@ -81,6 +82,7 @@ const FileHandler = ({
     showSuccessMetadata,
     showWarningBanner,
     warningText,
+    endpointName,
 }: FileHandlerProps) => {
     const { state, dispatch } = useFileHandler();
     const [fileContent, setFileContent] = useState("");
@@ -99,6 +101,7 @@ const FileHandler = ({
         errorType,
         warnings,
         localError,
+        overallStatus,
     } = state;
 
     useEffect(() => {
@@ -168,7 +171,8 @@ const FileHandler = ({
                 contentType as string,
                 fileContent,
                 parsedName || "",
-                accessToken || ""
+                accessToken || "",
+                endpointName
             );
             // handles error and success cases via reducer
             dispatch({
@@ -187,8 +191,8 @@ const FileHandler = ({
     };
 
     const submitted = useMemo(
-        () => !!(reportId || errors.length),
-        [reportId, errors.length]
+        () => !!(reportId || errors.length || overallStatus),
+        [reportId, errors.length, overallStatus]
     );
 
     const successDescription = useMemo(() => {
@@ -257,7 +261,7 @@ const FileHandler = ({
                     message={`The following warnings were returned while processing your file. ${warningDescription}, but these warning areas can be addressed to enhance clarity.`}
                 />
             )}
-            {reportId && (
+            {(reportId || overallStatus === "Valid") && (
                 <FileSuccessDisplay
                     fileName={fileName}
                     extendedMetadata={{

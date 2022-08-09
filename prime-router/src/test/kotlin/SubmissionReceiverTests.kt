@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isFailure
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isSuccess
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
@@ -960,5 +961,34 @@ class SubmissionReceiverTests {
             engine.insertProcessTask(any(), any(), any(), any())
             queueMock.sendMessage(elrConvertQueueName, any())
         }
+    }
+
+    @Test
+    fun `test getSubmissionReceiver`() {
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+
+        val result = SubmissionReceiver.getSubmissionReceiver(sender, engine, actionHistory)
+        assertThat(result).isInstanceOf(TopicReceiver::class.java)
+
+        val fullELRSender = FullELRSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            allowDuplicates = true
+        )
+        val fullELRResult = SubmissionReceiver.getSubmissionReceiver(fullELRSender, engine, actionHistory)
+        assertThat(fullELRResult).isInstanceOf(ELRReceiver::class.java)
     }
 }

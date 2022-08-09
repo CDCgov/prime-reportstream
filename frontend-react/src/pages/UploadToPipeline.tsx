@@ -2,6 +2,7 @@ import watersApiFunctions from "../network/api/WatersApiFunctions";
 import FileHandler, {
     FileHandlerType,
 } from "../components/FileHandlers/FileHandler";
+import { EndpointName } from "../network/api/WatersApi";
 
 const UploadToPipeline = () => {
     return (
@@ -17,6 +18,7 @@ const UploadToPipeline = () => {
             warningText={
                 "Uploading files on this page will result in data being transmitted to public health authorities. Use caution when uploading data."
             }
+            endpointName={EndpointName.WATERS}
         />
     );
 };
