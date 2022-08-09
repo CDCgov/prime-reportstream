@@ -6,13 +6,27 @@ jobs:
   gitleaks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
-          # Fetch the full history
-          fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
+          fetch-depth: "0"
 
-      
+      - name: Run Gitleaks
+        id: gitleaks
+        uses: DariuszPorowski/github-action-gitleaks@v2
+        with:
+          report_format: "sarif"
+          fail: false
+
+      - name: Get the output from the gitleaks step
+        run: |
+          echo "exitcode: ${{ steps.gitleaks.outputs.exitcode }}"
+          echo "result: ${{ steps.gitleaks.outputs.result }}"
+          echo "output: ${{ steps.gitleaks.outputs.output }}"
+          echo "command: ${{ steps.gitleaks.outputs.command }}"
+          echo "report: ${{ steps.gitleaks.outputs.report }}"
+      - name: Upload SARIF report
+        if: steps.gitleaks.outputs.exitcode == 1
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ steps.gitleaks.outputs.report }}
