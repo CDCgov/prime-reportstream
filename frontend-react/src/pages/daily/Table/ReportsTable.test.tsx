@@ -8,15 +8,11 @@ import {
     MemberType,
 } from "../../../hooks/UseOktaMemberships";
 import { SessionController } from "../../../hooks/UseSessionStorage";
-import {
-    deliveriesGenerator,
-    mockDeliveryListHook,
-} from "../../../hooks/network/History/__mocks__/DeliveryHooks";
-import {
-    mockReceiverHook,
-    receiversGenerator,
-} from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { mockDeliveryListHook } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { mockReceiverHook } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { orgServer } from "../../../__mocks__/OrganizationMockServer";
+import { deliveriesGenerator } from "../../../network/api/History/Reports";
+import { receiversGenerator } from "../../../network/api/Organizations/Receivers";
 
 import ReportsTable, { useReceiverFeeds } from "./ReportsTable";
 

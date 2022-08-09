@@ -13,6 +13,18 @@ export class RSReceiver implements RSReceiverInterface {
         Object.assign(this, args);
     }
 }
+/** TEST UTILITY - generates `RSReceiver[]`, each with a unique `name` (starting from "elr-0")
+ *
+ * @param count {number} How many unique receivers you want. */
+export const receiversGenerator = (count: number) => {
+    const receivers: RSReceiver[] = [];
+    for (let i = 0; i < count; i++) {
+        receivers.push(
+            new RSReceiver({ name: `elr-${i}`, organizationName: "testOrg" })
+        );
+    }
+    return receivers;
+};
 /**
  * Contains the API information to get RSReceivers from the API
  * 1. Resource: {@link RSReceiver}

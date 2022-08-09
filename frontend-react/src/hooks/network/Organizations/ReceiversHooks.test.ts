@@ -5,7 +5,7 @@ import { setupServer } from "msw/node";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MembershipController, MemberType } from "../../UseOktaMemberships";
 import { SessionController } from "../../UseSessionStorage";
-import { RSReceiver } from "../../../network/api/Organizations/Receivers";
+import { receiversGenerator } from "../../../network/api/Organizations/Receivers";
 
 import { useReceiversList } from "./ReceiversHooks";
 
@@ -28,13 +28,7 @@ const handlers = [
     rest.get(
         "https://test.prime.cdc.gov/api/settings/organizations/testOrg/receivers",
         (req, res, ctx) => {
-            const array = [
-                new RSReceiver({ name: "elr", organizationName: "testOrg" }),
-                new RSReceiver({
-                    name: "elr-two",
-                    organizationName: "testOrg",
-                }),
-            ];
+            const array = receiversGenerator(3);
             return res(ctx.status(200), ctx.json(array));
         }
     ),
@@ -46,16 +40,21 @@ describe("ReceiversHooks", () => {
     beforeAll(() => server.listen());
     afterEach(() => server.resetHandlers());
     afterAll(() => server.close());
-    test("useReceiversList", async () => {
+    beforeEach(() => {
         mockSessionContext.mockReturnValue(fakeSession);
+    });
+    test("useReceiversList", async () => {
         const { result, waitForNextUpdate } = renderHook(() =>
             useReceiversList("testOrg")
         );
+        // enforce { requiresTrigger: true }
         expect(result.current.loading).toBeFalsy();
+        // trigger call
         act(() => result.current.trigger());
         expect(result.current.loading).toBeTruthy();
         await waitForNextUpdate();
         expect(result.current.loading).toBeFalsy();
-        expect(result.current.data).toHaveLength(2);
+        // received the array
+        expect(result.current.data).toHaveLength(3);
     });
 });
