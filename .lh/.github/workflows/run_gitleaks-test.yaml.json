@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 9,
+            "activePatchIndex": 10,
             "patches": [
                 {
                     "date": 1660057706276,
@@ -44,6 +44,10 @@
                 {
                     "date": 1660062262334,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,9 +14,25 @@\n           # Fetch the full history\r\n           fetch-depth: 0\r\n \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n-        run: .environment/gitleaks/run-gitleaks.sh --help #--since '2021-08-01T00:00:00-0400'\r\n+        run: .environment/gitleaks/run-gitleaks.sh  #--since '2021-08-01T00:00:00-0400'\r\n+        with:\r\n+          report_format: \"sarif\"\r\n+          fail: false\r\n \r\n-      - name: \"Output non-sensitive log\"\r\n-        if: always()\r\n-        run: cat \"gitleaks.log\"\r\n+      - name: Get the output from the gitleaks step\r\n+        run: |\r\n+          echo \"exitcode: ${{ steps.gitleaks.outputs.exitcode }}\"\r\n+          echo \"result: ${{ steps.gitleaks.outputs.result }}\"\r\n+          echo \"output: ${{ steps.gitleaks.outputs.output }}\"\r\n+          echo \"command: ${{ steps.gitleaks.outputs.command }}\"\r\n+          echo \"report: ${{ steps.gitleaks.outputs.report }}\"\r\n+      - name: Upload SARIF report\r\n+        if: steps.gitleaks.outputs.exitcode == 1\r\n+        uses: github/codeql-action/upload-sarif@v2\r\n+        with:\r\n+          sarif_file: ${{ steps.gitleaks.outputs.report }}\r\n+\r\n+      # - name: \"Output non-sensitive log\"\r\n+      #   if: always()\r\n+      #   run: cat \"gitleaks.log\"\r\n"
+                },
+                {
+                    "date": 1660062392450,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,11 +15,11 @@\n           fetch-depth: 0\r\n \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n         run: .environment/gitleaks/run-gitleaks.sh  #--since '2021-08-01T00:00:00-0400'\r\n-        with:\r\n-          report_format: \"sarif\"\r\n-          fail: false\r\n+        # with:\r\n+        #   report_format: \"sarif\"\r\n+        #   fail: false\r\n \r\n       - name: Get the output from the gitleaks step\r\n         run: |\r\n           echo \"exitcode: ${{ steps.gitleaks.outputs.exitcode }}\"\r\n"
                 }
             ],
             "date": 1660057706276,
