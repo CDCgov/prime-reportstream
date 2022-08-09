@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import { showError } from "../AlertNotifications";
 import { useSessionContext } from "../../contexts/SessionContext";
+import { useSenderResource } from "../../hooks/UseSenderResource";
 import { useOrganizationResource } from "../../hooks/UseOrganizationResource";
 import { WatersPost } from "../../network/api/WatersApiFunctions";
 import Spinner from "../Spinner"; // TODO: refactor to use suspense
@@ -17,8 +18,18 @@ import {
     FileSuccessDisplay,
     FileWarningsDisplay,
     FileWarningBanner,
+    NoSenderBanner,
 } from "./FileHandlerMessaging";
 import { FileHandlerForm } from "./FileHandlerForm";
+
+const FileHandlerSpinner = ({ message }: { message: string }) => (
+    <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-4">
+        <div className="grid-row">
+            <Spinner />
+        </div>
+        <div className="grid-row">{message}</div>
+    </div>
+);
 
 const SERVER_ERROR_MESSAGING = {
     heading: "Error",
@@ -53,7 +64,6 @@ interface FileHandlerProps {
     handlerType: FileHandlerType;
     fetcher: WatersPost;
     successMessage: string;
-    formLabel: string;
     resetText: string;
     submitText: string;
     showSuccessMetadata: boolean;
@@ -66,7 +76,6 @@ const FileHandler = ({
     handlerType,
     fetcher,
     successMessage,
-    formLabel,
     resetText,
     submitText,
     showSuccessMetadata,
@@ -99,7 +108,10 @@ const FileHandler = ({
     }, [localError]);
 
     const { memberships, oktaToken } = useSessionContext();
-    const { organization } = useOrganizationResource();
+    const { organization, loading: organizationLoading } =
+        useOrganizationResource();
+    // need to fetch sender from API to grab cvs vs hl7 format info
+    const { sender, loading: senderLoading } = useSenderResource();
 
     const accessToken = oktaToken?.accessToken;
     const parsedName = memberships.state.active?.parsedName;
@@ -169,6 +181,11 @@ const FileHandler = ({
         }
     };
 
+    const resetState = () => {
+        setFileContent("");
+        dispatch({ type: FileHandlerActionType.RESET });
+    };
+
     const submitted = useMemo(
         () => !!(reportId || errors.length),
         [reportId, errors.length]
@@ -193,13 +210,38 @@ const FileHandler = ({
     }, [handlerType]);
 
     // default to FILE messaging here, partly to simplify typecheck
-    const errorMessaging =
-        errorMessagingMap[handlerType][errorType || ErrorType.FILE];
+    const errorMessaging = useMemo(
+        () => errorMessagingMap[handlerType][errorType || ErrorType.FILE],
+        [errorType, handlerType]
+    );
 
-    const resetState = () => {
-        setFileContent("");
-        dispatch({ type: FileHandlerActionType.RESET });
-    };
+    const formLabel = useMemo(() => {
+        if (!sender) {
+            return "";
+        }
+        const fileTypeDescription =
+            sender.format === "CSV" ? "a CSV" : "an HL7 v2.5.1";
+        return `Select ${fileTypeDescription} formatted file to ${submitText.toLowerCase()}. Make sure that your file has a .${sender.format.toLowerCase()} extension.`;
+    }, [sender, submitText]);
+
+    if (senderLoading || organizationLoading) {
+        return <FileHandlerSpinner message="Loading..." />;
+    }
+
+    if (!sender) {
+        return (
+            <div className="grid-container usa-section margin-bottom-10">
+                <h1 className="margin-top-0 margin-bottom-5">{headingText}</h1>
+                <h2 className="font-sans-lg">{organization?.description}</h2>
+                <NoSenderBanner
+                    action={handlerType}
+                    organization={
+                        organization?.description || "your organization"
+                    }
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="grid-container usa-section margin-bottom-10">
@@ -238,12 +280,7 @@ const FileHandler = ({
                 />
             )}
             {isSubmitting && (
-                <div className="grid-col flex-1 display-flex flex-column flex-align-center margin-top-4">
-                    <div className="grid-row">
-                        <Spinner />
-                    </div>
-                    <div className="grid-row">Processing file...</div>
-                </div>
+                <FileHandlerSpinner message="Processing file..." />
             )}
             {!isSubmitting && (
                 <FileHandlerForm

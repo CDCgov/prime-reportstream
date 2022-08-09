@@ -1316,7 +1316,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3
+        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3, OBX-17-1
         reportingFacilityName: CDC PRIME
         reportingFacilityId: 11D2030855
         suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
@@ -1346,7 +1346,7 @@
         receivingFacilityName: NJDOH
         receivingFacilityOID: 2.16.840.1.113883.3.1299
         truncateHDNamespaceIds: true
-        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3
+        truncateHl7Fields: OBX-23-1, ORC-12-3, OBR-16-3, OBX-17-1
         suppressHl7Fields: "OBX-18-1,OBX-18-2,OBX-18-3"
       transport:
         type: SFTP
