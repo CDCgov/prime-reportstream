@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1660174393754,
@@ -12,6 +12,10 @@
                 {
                     "date": 1660174704627,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,5 @@\n-name: gitleaks\r\n+name: gitleaks Public\r\n \r\n on: [push,]\r\n \r\n jobs:\r\n"
+                },
+                {
+                    "date": 1660175254073,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -17,16 +17,5 @@\n         with:\r\n           report_format: \"sarif\"\r\n           fail: false\r\n \r\n-      - name: Get the output from the gitleaks step\r\n-        run: |\r\n-          echo \"exitcode: ${{ steps.gitleaks.outputs.exitcode }}\"\r\n-          echo \"result: ${{ steps.gitleaks.outputs.result }}\"\r\n-          echo \"output: ${{ steps.gitleaks.outputs.output }}\"\r\n-          echo \"command: ${{ steps.gitleaks.outputs.command }}\"\r\n-          echo \"report: ${{ steps.gitleaks.outputs.report }}\"\r\n-      - name: Upload SARIF report\r\n-        if: steps.gitleaks.outputs.exitcode == 1\r\n-        uses: github/codeql-action/upload-sarif@v2\r\n-        with:\r\n-          sarif_file: ${{ steps.gitleaks.outputs.report }}\n\\ No newline at end of file\n+      \n\\ No newline at end of file\n"
                 }
             ],
             "date": 1660174393754,
