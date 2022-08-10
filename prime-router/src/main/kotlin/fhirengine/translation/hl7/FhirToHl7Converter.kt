@@ -162,11 +162,6 @@ class FhirToHl7Converter(
             evaluatedResource
         }
 
-        // This must be resources
-        resourceList.forEach {
-            if (it.isPrimitive)
-                throw SchemaException("Invalid FHIR path ${element.resource}: must evaluate to a FHIR resource.")
-        }
         return resourceList
     }
 
