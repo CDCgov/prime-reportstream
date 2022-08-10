@@ -1,0 +1,32 @@
+name: gitleaks
+
+on: [push,]
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: "0"
+
+      - name: Run Gitleaks
+        id: gitleaks
+        uses: DariuszPorowski/github-action-gitleaks@v2
+        with:
+          report_format: "sarif"
+          fail: false
+
+      - name: Get the output from the gitleaks step
+        run: |
+          echo "exitcode: ${{ steps.gitleaks.outputs.exitcode }}"
+          echo "result: ${{ steps.gitleaks.outputs.result }}"
+          echo "output: ${{ steps.gitleaks.outputs.output }}"
+          echo "command: ${{ steps.gitleaks.outputs.command }}"
+          echo "report: ${{ steps.gitleaks.outputs.report }}"
+      - name: Upload SARIF report
+        if: steps.gitleaks.outputs.exitcode == 1
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ steps.gitleaks.outputs.report }}
