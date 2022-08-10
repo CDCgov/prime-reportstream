@@ -433,11 +433,7 @@ open class BaseHistoryFunction : Logging {
             @Suppress("UNCHECKED_CAST")
             oktaOrganizations = jwt.claims["organization"] as List<String>
 
-            accessOrgName = when {
-                oktaOrganizations.contains("DHPrimeAdmins") ||
-                    oktaOrganizations.contains(toOktaOrgName(requestOrgName)) -> requestOrgName
-                else -> null
-            }
+            accessOrgName = if (isAuthorizedIgnoreDashes(oktaOrganizations, requestOrgName)) requestOrgName else null
         } catch (ex: Throwable) {
             logger.warn("Unable authenticate user: ${ex.message}: ${ex.cause?.message ?: ""}")
             logger.debug(ex)
@@ -445,9 +441,7 @@ open class BaseHistoryFunction : Logging {
         }
 
         if (userName.isNullOrBlank() || accessOrgName.isNullOrBlank()) return null
-        /*   NOTE: This was noted as taking an Okta org name and converting it, but that was prior to
-         *   the React front-end sending the org in the proper format xx-phd.
-         */
+
         val dbOrganization = workflowEngine.settings.findOrganization(accessOrgName)
         return if (dbOrganization != null) {
             AuthClaims(userName, dbOrganization)
@@ -457,7 +451,28 @@ open class BaseHistoryFunction : Logging {
         }
     }
 
-    private fun toOktaOrgName(orgNameHeader: String): String {
-        return "DH${orgNameHeader.replace('-', '_')}"
+    companion object {
+        /**
+         * @return true if the [oktaOrgs] list included a PrimeAdmin role,
+         * or if [requestedOrgName] is one of the organizations in [oktaOrgs].
+         * In all other cases, the user is not authorized, and this returns false.
+         *
+         * The comparison treats dashes and underscores as identical.
+         *
+         * This is needed, temporarily, as a step to support fixing group names in Okta to exactly match
+         * organization names in settings.   Detailed explanation is in #6263.
+         */
+        fun isAuthorizedIgnoreDashes(oktaOrgs: List<String?>, requestedOrgName: String): Boolean {
+            if (requestedOrgName.isBlank()) return false
+            oktaOrgs.forEach {
+                when {
+                    it == null -> { } // do nothing ; skip.
+                    it.contains("DHPrimeAdmins") -> return true
+                    it.replace('_', '-') == "DH${requestedOrgName.replace('_', '-')}"
+                    -> return true
+                }
+            }
+            return false
+        }
     }
 }
