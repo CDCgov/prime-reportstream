@@ -1,0 +1,33 @@
+name: ORU-R01-xcn-contact
+elements:
+  - name: id-number
+    value: [ '%resource.identifier.value' ]
+    hl7Spec: [ '%{hl7ContactField}-1' ]
+
+  - name: family-name
+    value: [ '%resource.name.family' ]
+    hl7Spec: [ '%{hl7ContactField}-2' ]
+
+  - name: given-name
+    value: [ '%resource.name.given[0]' ]
+    hl7Spec: [ '%{hl7ContactField}-3' ]
+
+  - name: other-given-names
+    value: [ '%resource.name.given.tail()' ]
+    hl7Spec: [ '%{hl7ContactField}-4' ]
+
+  - name: degree
+    value: [ '%resource.name.suffix' ]
+    hl7Spec: [ '%{hl7ContactField}-7' ]
+
+  - name: assigning-auth
+    value: [ '%resource.identifier.system' ]
+    hl7Spec: [ '%{hl7ContactField}-9-1' ]
+
+#  - name: assigning-auth-rename
+#    value: [ '%resource.identifier.value' ]
+#    hl7Spec: [ '%{hl7ContactField}-9-2' ]
+
+  - name: type
+    value: [ '%resource.identifier.type.code' ]
+    hl7Spec: [ '%{hl7ContactField}-13' ]
