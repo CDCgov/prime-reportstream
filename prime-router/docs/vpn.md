@@ -151,12 +151,4 @@ openssl pkcs12 -in "${VPN_USERNAME}Cert.pem" -inkey "${VPN_USERNAME}Key.pem" -ce
 
 ## Revoke a VPN Profile
 
-If a VPN profile needs to be revoked for any reason this can be done via Azure.
-
-* Generate a thumbprint of the VPN profile's user certificate:
-
-```
-openssl x509 -in ${USEERNAME}Cert.pem -fingerprint -noout
-```
-
-* Add the thumbprint to `root_revoked_certificate` block of the Terraform [`virtual_network_gateway` resource](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_gateway)
+ * [Instructions](../../operations/vpn/README.md)
