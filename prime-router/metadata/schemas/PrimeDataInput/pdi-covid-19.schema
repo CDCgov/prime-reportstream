@@ -36,9 +36,15 @@ elements:
   - name: specimen_type
     csvFields: [{name: Specimen_type_code}]
 
+  - name: test_kit_name_id
+    csvFields: [{name: Test_Kit_Name_ID}]
+
   # The type of device used for the test.  eg, BinaxNOW COVID-19 Ag Card
   - name: equipment_model_name
     csvFields: [{name: Device_ID}]
+
+  - name: equipment_model_id
+    csvFields: [{name: Equipment_Model_ID}]
 
   # Identifier for the specific piece of equipment used.
   - name: equipment_instance_id

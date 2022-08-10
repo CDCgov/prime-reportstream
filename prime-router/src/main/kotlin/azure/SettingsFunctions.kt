@@ -244,7 +244,7 @@ open class BaseFunction(
         organizationName: String,
         clazz: Class<T>
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, "") {
+        return oktaAuthentication.checkAccess(request, organizationName) {
             val (result, outputBody) = facade.findSettingsAsJson(organizationName, clazz)
             facadeResultToResponse(request, result, outputBody)
         }

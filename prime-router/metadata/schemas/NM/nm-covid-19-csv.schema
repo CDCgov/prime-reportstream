@@ -170,7 +170,7 @@ elements:
     type: TABLE
     table: LIVD-SARS-CoV-2
     tableColumn: Component
-    mapper: lookup(equipment_model_name)
+    mapper: lookup(equipment_model_name, $Column:Model)
     csvFields:
       - name: ResultTestDesc
 

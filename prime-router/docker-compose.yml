@@ -44,7 +44,7 @@ services:
 
   # Azurite is the Azure storage emulator for local development
   azurite:
-    image: mcr.microsoft.com/azure-storage/azurite:3.16.0
+    image: mcr.microsoft.com/azure-storage/azurite:3.18.0
     # uncomment the line below to skip x-ms-version checks
     # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
     volumes:
@@ -86,30 +86,6 @@ services:
     volumes:
       - ../.environment/soap_service:/root/.castlemock
       - ../.environment/soap_service:/castlemock/castlemock
-    networks:
-      - prime-router_build
-
-  # local FTPS Server
-  ftps:
-    image: stilliard/pure-ftpd
-    ports:
-      - "21000:21"
-      - "30000-30009:30000-30009"
-    volumes:
-      - ./build/ftps:/home/ftpusers
-      - ./build/ftps:/etc/ssl/private
-      - ./build/ftps:/etc/pure-ftpd/passwd/
-      - ./build/ftps:/var/log/pure-ftpd/
-    environment:
-      PUBLICHOST: "ftps"
-      FTP_USER_NAME: ftps
-      FTP_USER_PASS: ftps
-      FTP_USER_HOME: /home/test-user
-      ADDED_FLAGS: "--tls=2 -d"
-      TLS_CN: "localhost"
-      TLS_ORG: "TestOrg"
-      TLS_C: "DE"
-    restart: always
     networks:
       - prime-router_build
 

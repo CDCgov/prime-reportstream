@@ -40,7 +40,7 @@ export default class OrgSettingsResource extends OrgSettingsBaseResource {
         }
         // combine all elements to be searched.
         const fullstr =
-            `${this.name} ${this.description} ${this.jurisdiction} ${this.stateCode} ${this.stateCode}`.toLowerCase();
+            `${this.name} ${this.description} ${this.jurisdiction} ${this.stateCode} ${this.countyName}`.toLowerCase();
         return fullstr.includes(`${search.toLowerCase()}`);
     }
 }

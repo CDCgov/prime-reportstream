@@ -18,6 +18,7 @@ export const StaticAlert = ({
         "usa-alert": true,
         "usa-alert--success": type === "success",
         "usa-alert--error": type === "error",
+        "usa-alert--warning": type === "warning",
     });
     return (
         <div className={alertClasses} role="alert">

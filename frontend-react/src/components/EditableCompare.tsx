@@ -8,6 +8,7 @@ import {
     useRef,
     useState,
 } from "react";
+import DOMPurify from "dompurify";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
 import { Diff, SES_TYPE } from "../utils/diff";
@@ -172,7 +173,7 @@ export const EditableCompare = forwardRef(
                                 className="rs-editable-compare-base rs-editable-compare-static"
                                 contentEditable={false}
                                 dangerouslySetInnerHTML={{
-                                    __html: `${props.original}`,
+                                    __html: DOMPurify.sanitize(props.original),
                                 }}
                             />
                         </ScrollSyncPane>
@@ -182,7 +183,9 @@ export const EditableCompare = forwardRef(
                                 ref={editDiffBackgroundRef}
                                 className="rs-editable-compare-base rs-editable-compare-background"
                                 dangerouslySetInnerHTML={{
-                                    __html: `${leftHandSideHighlightHtml}`,
+                                    __html: DOMPurify.sanitize(
+                                        leftHandSideHighlightHtml
+                                    ),
                                 }}
                             />
                         </ScrollSyncPane>
@@ -213,7 +216,9 @@ export const EditableCompare = forwardRef(
                                 dangerouslySetInnerHTML={{
                                     // the extra `<br/>` is required for some odd reason.
                                     // It's in the shadowdom of the textarea.
-                                    __html: `${rightHandSideHighlightHtml}<br/>`,
+                                    __html: `${DOMPurify.sanitize(
+                                        rightHandSideHighlightHtml
+                                    )}<br/>`,
                                 }}
                             />
                         </ScrollSyncPane>

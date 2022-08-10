@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.fasterxml.jackson.annotation.JsonValue
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -20,22 +21,19 @@ import java.time.OffsetDateTime
  *
  * @property actionId reference to the `action` table for the action that created this file
  * @property createdAt when the file was created
- * @property sendingOrg the name of the organization that sent this submission
- * @property httpStatus response code for the user fetching this report file
  * @property externalName actual filename of the file
  * @property reportId unique identifier for this specific report file
- * @property schemaTopic the kind of data contained in the report (e.g. "covid-19")
- * @property itemCount number of tests (data rows) contained in the report
+ * @property topic the kind of data contained in the report (e.g. "covid-19")
+ * @property reportItemCount number of tests (data rows) contained in the report
+ * @property sendingOrg the name of the organization that sent this submission
+ * @property httpStatus response code for the user fetching this submission
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-class SubmissionHistory(
+open class SubmissionHistory(
     @JsonProperty("submissionId")
     actionId: Long,
     @JsonProperty("timestamp")
     createdAt: OffsetDateTime,
-    @JsonProperty("sender")
-    val sendingOrg: String,
-    httpStatus: Int,
     @JsonInclude(Include.NON_NULL)
     externalName: String? = "",
     @JsonProperty("id")
@@ -43,26 +41,43 @@ class SubmissionHistory(
     @JsonProperty("topic")
     schemaTopic: String? = null,
     @JsonProperty("reportItemCount")
-    itemCount: Int? = null
-) : ReportFileHistory(
+    itemCount: Int? = null,
+    @JsonIgnore
+    val sendingOrg: String? = "",
+    val httpStatus: Int? = null,
+    @JsonIgnore
+    val sendingOrgClient: String? = "",
+) : ReportHistory(
     actionId,
     createdAt,
-    httpStatus,
     externalName,
     reportId,
     schemaTopic,
     itemCount,
-)
+) {
+    /**
+     * The sender of the input report.
+     */
+    var sender: String? = ""
+    init {
+        sender = when {
+            sendingOrg.isNullOrBlank() -> ""
+            sendingOrgClient.isNullOrBlank() -> sendingOrg
+            else -> ClientSource(sendingOrg, sendingOrgClient).name
+        }
+    }
+}
 
 /**
- * A `DetailedSubmissionHistory` represents the detailed life history of a submission of a message from a sender.
+ * This class provides a detailed view for data in the `report_file` table and data from other related sources.
+ * Due to the large amount of data and logic used here, instead use ReportFileHistory for lists.
  *
- * @property actionId of the Submission is `action_id` from the `action` table
- * @property actionName of the Submission is `action_name` from the `action` table
- * @property createdAt of the Submission is `created_at` from the the `action` table
- * @property httpStatus of the Submission is `http_status` from the the `action` table
- * @property reports of the Submission are the Reports related to the action from the `report_file` table
- * @property logs of the Submission are the Logs produced by the submission from the `action_log` table
+ * @property actionId reference to the `action` table for the action that created this file
+ * @property actionName the type of action that created this report file
+ * @property createdAt when the file was created
+ * @property httpStatus response code for the user fetching this report file
+ * @property reports other reports that are related to this report file's action log
+ * @property logs container for logs generated throughout the fetching of this report file
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder(
@@ -74,33 +89,61 @@ class SubmissionHistory(
 class DetailedSubmissionHistory(
     @JsonProperty("submissionId")
     actionId: Long,
-    actionName: TaskAction,
+    val actionName: TaskAction,
     @JsonProperty("timestamp")
     createdAt: OffsetDateTime,
     httpStatus: Int? = null,
-    reports: MutableList<DetailedReport>?,
-    logs: List<DetailedActionLog> = emptyList()
-) : DetailedReportFileHistory(
+    @JsonIgnore
+    val reports: MutableList<DetailedReport>? = mutableListOf(),
+    @JsonIgnore
+    var logs: List<DetailedActionLog> = emptyList(),
+) : SubmissionHistory(
     actionId,
-    actionName,
     createdAt,
-    httpStatus,
-    reports,
-    logs,
+    "",
+    null,
+    null,
+    null,
+    null,
+    httpStatus
 ) {
+    /**
+     * Alias for the reportId
+     * Legacy support needs this older property
+     */
+    val id: String? get() {
+        return reportId
+    }
+
+    /**
+     * Errors logged for this Report File.
+     */
+    val errors = mutableListOf<ConsolidatedActionLog>()
+
+    /**
+     * Warnings logged for this Report File.
+     */
+    val warnings = mutableListOf<ConsolidatedActionLog>()
+
+    /**
+     * The number of warnings.  Note this is not the number of consolidated warnings.
+     */
+    val warningCount = logs.count { it.type == ActionLogLevel.warning }
+
+    /**
+     * The number of errors.  Note this is not the number of consolidated errors.
+     */
+    val errorCount = logs.count { it.type == ActionLogLevel.error }
+
     /**
      * The destinations.
      */
     var destinations = mutableListOf<Destination>()
 
     /**
-     * The sender of the input report.
-     */
-    var sender: String? = null
-
-    /**
      * The step in the delivery process for a submission
      * Supported values:
+     *     VALID - successfully validated, but not sent
      *     ERROR - error on initial submission
      *     RECEIVED - passed the received step in the pipeline and awaits processing/routing
      *     NOT_DELIVERING - processed but has no intended receivers
@@ -113,7 +156,8 @@ class DetailedSubmissionHistory(
      *     it'll just sit in the waitingToDeliver or
      *     partiallyDelivered state until someone fixes it.
      */
-    enum class Status(val printableName: String) {
+    enum class Status(private val printableName: String) {
+        VALID("Valid"),
         ERROR("Error"),
         RECEIVED("Received"),
         NOT_DELIVERING("Not Delivering"),
@@ -163,13 +207,16 @@ class DetailedSubmissionHistory(
                 val filteredReportItems = filterLogs.map {
                     ReportStreamFilterResultForResponse(it.detail as ReportStreamFilterResult)
                 }
+                // If there is no transport defined, there will not be a next action so sending at
+                // should be null.
+                val nextActionTime = if (report.receiverHasTransport) report.nextActionAt else null
                 destinations.add(
                     Destination(
                         report.receivingOrg,
                         report.receivingOrgSvc!!,
                         filteredReportRows,
                         filteredReportItems,
-                        report.nextActionAt,
+                        nextActionTime,
                         report.itemCount,
                         report.itemCountBeforeQualFilter,
                     )
@@ -179,15 +226,58 @@ class DetailedSubmissionHistory(
             // For the report received from a sender
             if (report.sendingOrg != null) {
                 // There can only be one!
-                check(id == null)
+                check(reportId == null)
                 // Reports with errors do not show an ID
-                id = if (errorCount == 0) report.reportId.toString() else null
+                reportId = if (errorCount == 0) report.reportId.toString() else null
                 externalName = report.externalName
                 reportItemCount = report.itemCount
                 sender = ClientSource(report.sendingOrg, report.sendingOrgClient ?: "").name
                 topic = report.schemaTopic
             }
         }
+        errors.addAll(consolidateLogs(ActionLogLevel.error))
+        warnings.addAll(consolidateLogs(ActionLogLevel.warning))
+    }
+
+    /**
+     * Consolidate the [logs] filtered by an optional [filterBy] action level, so to list similar messages once
+     * with a list of items they relate to.
+     * @return the consolidated list of logs
+     */
+    internal fun consolidateLogs(filterBy: ActionLogLevel? = null):
+        List<ConsolidatedActionLog> {
+        val consolidatedList = mutableListOf<ConsolidatedActionLog>()
+
+        // First filter the logs and sort by the message.  This first sorting can take care of sorting old messages
+        // that contain index numbers like "Report 3: ..."
+        val filteredList = when (filterBy) {
+            null -> logs
+            else -> logs.filter { it.type == filterBy }
+        }.sortedBy { it.detail.message }
+        // Now order the list so that logs contain first non-item messages, then item messages, and item messages
+        // are sorted by index.
+        val orderedList = (
+            filteredList.filter { it.scope != ActionLogScope.item }.sortedBy { it.scope } +
+                filteredList.filter { it.scope == ActionLogScope.item }.sortedBy { it.index }
+            ).toMutableList()
+        // Now consolidate the list
+        while (orderedList.isNotEmpty()) {
+            // Grab the first log.
+            val consolidatedLog = ConsolidatedActionLog(orderedList.first())
+            orderedList.removeFirst()
+            // Now find similar logs and consolidate it.  Note by using the iterator we can delete on the fly.
+            with(orderedList.iterator()) {
+                forEach { log ->
+                    if (consolidatedLog.canBeConsolidatedWith(log)) {
+                        consolidatedLog.add(log)
+                        remove()
+                    }
+                }
+            }
+            consolidatedList.add(consolidatedLog)
+        }
+
+        return consolidatedList
     }
 
     /**
@@ -325,7 +415,7 @@ class DetailedSubmissionHistory(
              * so it will be treated as status RECEIVED as well.
              */
             return Status.RECEIVED
-        } else if (realDestinations.size == 0) {
+        } else if (realDestinations.isEmpty()) {
             return Status.NOT_DELIVERING
         }
 
@@ -334,14 +424,14 @@ class DetailedSubmissionHistory(
         realDestinations.forEach {
             var sentItemCount = 0
 
-            it.sentReports.forEach {
-                sentItemCount += it.itemCount
+            it.sentReports.forEach { sentReport ->
+                sentItemCount += sentReport.itemCount
             }
 
             var downloadedItemCount = 0
 
-            it.downloadedReports.forEach {
-                downloadedItemCount += it.itemCount
+            it.downloadedReports.forEach { downloadedReport ->
+                downloadedItemCount += downloadedReport.itemCount
             }
 
             if (sentItemCount >= it.itemCount || downloadedItemCount >= it.itemCount) {

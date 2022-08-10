@@ -83,19 +83,20 @@ export function getVersionWarning(
 ): string {
     switch (warningType) {
         case VersionWarningType.POPUP:
-            return `WARNING! A newer version of this setting now exists in the database'`;
+            return "WARNING! A newer version of this setting now exists in the database";
         case VersionWarningType.FULL:
             return `WARNING! A change has been made to the setting you're trying to update by 
-                    '${settings?.meta?.createdBy}'. Please coordinate with that user and return to update the setting 
+                    '${
+                        settings?.createdBy || "UNKNOWN"
+                    }'. Please coordinate with that user and return to update the setting 
                     again, if needed`;
     }
-
-    return "";
 }
 
 export function formatDate(date: string): string {
     try {
         // 'Thu, 3/31/2022, 4:50 AM'
+        // Note that this returns Epoch when receiving a null date string
         return new Intl.DateTimeFormat("en-US", {
             weekday: "short",
             year: "numeric",
@@ -126,4 +127,13 @@ export const toHumanReadable = (machineString: string): string => {
         (_match: string, capture: string) => ` ${capture.toUpperCase()}`
     );
     return fixCaps.trim();
+};
+
+// ... capitalizes the first letter in a string
+export const capitalizeFirst = (uncapped: string): string => {
+    if (!uncapped || !uncapped.length) {
+        return uncapped;
+    }
+    const newFirst = uncapped[0].toUpperCase();
+    return `${newFirst}${uncapped.substring(1)}`;
 };

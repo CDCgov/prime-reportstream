@@ -66,3 +66,17 @@ elements:
   # County can be ORC-22-8, but preferred is county code in ORC-22-9
   - name: ordering_facility_county
     hl7Field: ORC-22-8
+
+  - name: patient_state_zip_lookup
+    type: TABLE
+    pii: false
+    table: zip-code-data
+    tableColumn: state_abbr
+    mapper: zipCodeToState(patient_zip_code)
+
+  - name: patient_state
+    mapper: use(patient_state, patient_state_zip_lookup)
+    cardinality: ZERO_OR_ONE
+    natFlatFileField: Patient_state
+    hhsGuidanceField:
+    hl7Field: PID-11-4

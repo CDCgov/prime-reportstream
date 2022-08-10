@@ -52,6 +52,7 @@ describe("useOktaMemberships", () => {
                     {
                         parsedName: "PrimeAdmins",
                         memberType: MemberType.PRIME_ADMIN,
+                        senderName: undefined,
                     },
                 ],
                 [
@@ -59,6 +60,7 @@ describe("useOktaMemberships", () => {
                     {
                         parsedName: "ignore",
                         memberType: MemberType.SENDER,
+                        senderName: "default",
                     },
                 ],
                 [
@@ -66,6 +68,7 @@ describe("useOktaMemberships", () => {
                     {
                         parsedName: "md-phd",
                         memberType: MemberType.RECEIVER,
+                        senderName: undefined,
                     },
                 ],
             ])

@@ -1,0 +1,70 @@
+name: Validate Resources
+
+on:
+  pull_request:
+    branches:
+      - production
+      - master
+      - test
+  push:
+    branches:
+      - production
+      - master
+      - test
+  schedule:
+    - cron: "0 * * * *"
+
+jobs:
+  pre_job:
+    name: Set Build Environment
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ env.VALIDATE_ENV }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
+      - name: Force env if schedule
+        shell: bash
+        run: |
+          if [[ ${{ github.event_name == 'schedule' }} == 'true' ]]; then
+            echo "VALIDATE_ENV=prod" >> $GITHUB_ENV
+          else
+            echo "VALIDATE_ENV=${{ steps.build_vars.outputs.env_name }}" >> $GITHUB_ENV
+          fi
+
+  validate_dns:
+    name: Check resources for ${{ needs.pre_job.outputs.env_name }}
+    if: needs.pre_job.outputs.env_name
+    needs:
+      - pre_job
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    concurrency: ${{ needs.pre_job.outputs.env_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+      - name: Restart DNS if failure
+        uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+        with:
+          timeout_seconds: 60
+          max_attempts: 3
+          retry_wait_seconds: 180
+          command: dig google.com @10.0.2.4
+          shell: bash
+          on_retry_command: >-
+            az container restart --name pdh${{ needs.pre_job.outputs.env_name }}-dns 
+            --resource-group prime-data-hub-${{ needs.pre_job.outputs.env_name }}

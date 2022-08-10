@@ -73,6 +73,7 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
         null,
         null,
         null,
+        null,
         null
     )
 

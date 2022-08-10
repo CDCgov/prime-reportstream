@@ -19,7 +19,8 @@ RUN if [ -n "$INSECURE_SSL" ] && [ "$INSECURE_SSL" = "true" ]; then \
     fi
 
 # Standard stuff needed for Azure setup
-RUN apt-get update && \
+RUN apt-get clean && \
+    apt-get --allow-releaseinfo-change --allow-releaseinfo-change-suite update && \
     apt-get upgrade -y && \
     apt-get --yes install gpg curl lsb-release gnupg ca-certificates apt-transport-https
 
