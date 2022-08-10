@@ -36,6 +36,7 @@ export interface FileHandlerState {
     errorType?: ErrorType;
     warnings: ResponseError[];
     localError: string;
+    overallStatus: string;
 }
 
 export enum FileHandlerActionType {
@@ -77,6 +78,7 @@ export const INITIAL_STATE = {
     cancellable: false,
     warnings: [],
     localError: "",
+    overallStatus: "",
 };
 
 // Currently returning a static object, but leaving this as a function
@@ -95,6 +97,7 @@ function getPreSubmitState(): Partial<FileHandlerState> {
             "successTimestamp",
             "warnings",
             "localError",
+            "overallStatus",
         ]),
         isSubmitting: true,
     };
@@ -168,7 +171,15 @@ function calculateRequestCompleteState(
     payload: RequestCompletePayload
 ): Partial<FileHandlerState> {
     const {
-        response: { destinations, id, timestamp, errors, status, warnings },
+        response: {
+            destinations,
+            id,
+            timestamp,
+            errors,
+            status,
+            warnings,
+            overallStatus,
+        },
     } = payload;
 
     const destinationList = destinations?.length
@@ -186,6 +197,7 @@ function calculateRequestCompleteState(
         // pulled from old Upload implementation. Not sure why id is being renamed here, when reportId also exists on the response
         reportId: id || "",
         successTimestamp: errors?.length ? "" : timestamp,
+        overallStatus: overallStatus,
     };
 }
 

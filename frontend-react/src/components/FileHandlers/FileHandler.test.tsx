@@ -1,7 +1,11 @@
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 
 import { renderWithSession } from "../../utils/CustomRenderUtils";
-import { ResponseError, WatersResponse } from "../../network/api/WatersApi";
+import {
+    EndpointName,
+    ResponseError,
+    WatersResponse,
+} from "../../network/api/WatersApi";
 import {
     INITIAL_STATE,
     FileType,
@@ -96,6 +100,7 @@ describe("FileHandler", () => {
                 showSuccessMetadata={false}
                 showWarningBanner={false}
                 warningText=""
+                endpointName={EndpointName.WATERS}
             />
         );
         const spinner = await screen.findByLabelText("loading-indicator");
@@ -122,6 +127,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -154,6 +160,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -181,6 +188,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -223,6 +231,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={true}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -246,8 +255,58 @@ describe("FileHandler", () => {
             const destinations = await screen.findByText("1, 2");
             expect(destinations).toHaveClass("margin-top-05");
 
-            const reportId = await screen.findByText("IDIDID");
-            expect(reportId).toHaveClass("margin-top-05");
+            const reportLink = await screen.findByRole("link");
+            expect(reportLink).toHaveTextContent("IDIDID");
+            expect(reportLink).toHaveAttribute("href", "/submissions/IDIDID");
+
+            const timestampDate = await screen.findByText(
+                formattedDateFromTimestamp(
+                    new Date(0).toString(),
+                    "DD MMMM YYYY"
+                )
+            );
+            expect(timestampDate).toHaveClass("margin-top-05");
+        });
+
+        test("renders as expected when FileHandlerType = VALIDATION (success)", async () => {
+            mockState({
+                ...INITIAL_STATE,
+                fileType: FileType.HL7,
+                destinations: "1, 2",
+                reportId: null,
+                successTimestamp: new Date(0).toString(),
+                overallStatus: "Valid",
+            });
+            renderWithSession(
+                <FileHandler
+                    headingText="handler heading"
+                    handlerType={FileHandlerType.VALIDATION}
+                    fetcher={() => Promise.resolve({} as WatersResponse)}
+                    successMessage="it was a success"
+                    resetText=""
+                    submitText=""
+                    showSuccessMetadata={true}
+                    showWarningBanner={false}
+                    warningText=""
+                    endpointName={EndpointName.VALIDATE}
+                />
+            );
+
+            const errorTable = screen.queryByTestId("error-table");
+            expect(errorTable).not.toBeInTheDocument();
+
+            // testing creation of success messaging for upload + hl7
+            // for now, assuming that if this works, it will work for the other 3 combinations as well
+            const message = await screen.findByText(
+                "Your file meets the ReportStream standard HL7 v2.5.1 schema."
+            );
+            expect(message).toHaveClass("usa-alert__text");
+
+            const heading = await screen.findByText("it was a success");
+            expect(heading).toHaveClass("usa-alert__heading");
+
+            const destinations = await screen.findByText("1, 2");
+            expect(destinations).toHaveClass("margin-top-05");
 
             const timestampDate = await screen.findByText(
                 formattedDateFromTimestamp(
@@ -267,7 +326,7 @@ describe("FileHandler", () => {
             renderWithSession(
                 <FileHandler
                     headingText="handler heading"
-                    handlerType={FileHandlerType.UPLOAD}
+                    handlerType={FileHandlerType.VALIDATION}
                     fetcher={() => Promise.resolve({} as WatersResponse)}
                     successMessage="it was a success"
                     resetText=""
@@ -275,6 +334,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -288,7 +348,7 @@ describe("FileHandler", () => {
             // testing creation of error messaging for upload
             // for now, assuming that if this works, it will work for validation as well
             const message = await screen.findByText(
-                "The following warnings were returned while processing your file. Your file has been transmitted, but these warning areas can be addressed to enhance clarity."
+                "The following warnings were returned while processing your file. Your file has passed validation, but these warning areas can be addressed to enhance clarity."
             );
             expect(message).toHaveClass("usa-alert__text");
 
@@ -313,6 +373,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={true}
                     warningText="THIS IS A WARNING"
+                    endpointName={EndpointName.WATERS}
                 />
             );
             const message = await screen.findByText("THIS IS A WARNING");
@@ -337,6 +398,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -379,6 +441,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName={EndpointName.WATERS}
                 />
             );
 
@@ -425,7 +488,8 @@ describe("FileHandler", () => {
                 undefined, //contentType
                 contentString, //fileContent
                 "", //parsedName
-                "" //accessToken
+                "", //accessToken
+                EndpointName.WATERS
             );
             expect(mockDispatch).toHaveBeenCalledWith({
                 type: FileHandlerActionType.REQUEST_COMPLETE,
@@ -451,6 +515,7 @@ describe("FileHandler", () => {
                     showSuccessMetadata={false}
                     showWarningBanner={false}
                     warningText=""
+                    endpointName={EndpointName.WATERS}
                 />
             );
 

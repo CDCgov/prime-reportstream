@@ -152,11 +152,9 @@ The patient's city
 
 **ReportStream Internal Name**: patient_ethnicity
 
-**Type**: CODE
+**Type**: TEXT
 
 **PII**: No
-
-**Format**: use value found in the Code column
 
 **Cardinality**: [0..1]
 
