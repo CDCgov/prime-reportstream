@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 32,
+            "activePatchIndex": 34,
             "patches": [
                 {
                     "date": 1660057706276,
@@ -136,6 +136,14 @@
                 {
                     "date": 1660078002538,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -12,9 +12,9 @@\n           fetch-depth: \"0\"\r\n \r\n       - name: Run Gitleaks\r\n         id: gitleaks\r\n-        uses: DariuszPorowski/github-action-gitleaks@v2 \r\n+        uses: DariuszPorowski/github-action-gitleaks@latest \r\n         with:\r\n           report_format: \"csv\"\r\n           fail: false\r\n           depth: 10\r\n"
+                },
+                {
+                    "date": 1660164550167,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,48 +5,15 @@\n jobs:\r\n   gitleaks:\r\n     runs-on: ubuntu-latest\r\n     steps:\r\n-      - name: Checkout\r\n-        uses: actions/checkout@v3\r\n+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b\r\n         with:\r\n-          fetch-depth: \"0\"\r\n+          # Fetch the full history\r\n+          fetch-depth: 0\r\n \r\n-      - name: Run Gitleaks\r\n-        id: gitleaks\r\n-        uses: DariuszPorowski/github-action-gitleaks@latest \r\n-        with:\r\n-          report_format: \"csv\"\r\n-          fail: false\r\n-          depth: 10\r\n-          report-path: .\r\n-          #since: '2021-08-01T00:00:00-0400'\r\n-      \r\n-      # - name: Run Trivy vulnerability scanner in repo mode\r\n-      #   uses: aquasecurity/trivy-action@cb606dfdb0d2b3698ace62192088ef4f5360b24f\r\n-      #   with:\r\n-      #     scan-type: \"fs\"\r\n-      #     scan-ref: \".\"\r\n-      #     ignore-unfixed: true\r\n-      #     format: \"template\"\r\n-      #     template: \"@/contrib/sarif.tpl\"\r\n-      #     output: \"trivy-repo-results.sarif\"\r\n-      #     severity: \"HIGH,CRITICAL\"\r\n+      - name: \"Run Gitleaks on a selected part of our history\"\r\n+        run: .environment/gitleaks/run-gitleaks.sh | tee output.txt\r\n \r\n-      # - name: Upload Trivy scan results to GitHub Security tab\r\n-      #   uses: github/codeql-action/upload-sarif@v2\r\n-      #   with:\r\n-      #     sarif_file: \"trivy-repo-results.sarif\"\r\n-\r\n-      # - name: Get the output from the gitleaks step\r\n-      #   run: |\r\n-      #     echo \"exitcode: ${{ steps.gitleaks.outputs.exitcode }}\"\r\n-      #     echo \"result: ${{ steps.gitleaks.outputs.result }}\"\r\n-      #     echo \"output: ${{ steps.gitleaks.outputs.output }}\"\r\n-      #     echo \"command: ${{ steps.gitleaks.outputs.command }}\"\r\n-      #     echo \"report: ${{ steps.gitleaks.outputs.report }}\"\r\n-\r\n-      # - name: Upload SARIF report\r\n-      #   if: steps.gitleaks.outputs.exitcode == 1\r\n-      #   uses: github/codeql-action/upload-sarif@v2\r\n-      #   with:\r\n-      #     sarif_file: ${{ steps.gitleaks.outputs.report }}\r\n+      - name: \"Output non-sensitive log\"\r\n+        if: always()\r\n+        run: cat \"gitleaks.log\"\r\n"
+                },
+                {
+                    "date": 1660164564064,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -13,7 +13,7 @@\n \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n         run: .environment/gitleaks/run-gitleaks.sh | tee output.txt\r\n \r\n-      - name: \"Output non-sensitive log\"\r\n-        if: always()\r\n-        run: cat \"gitleaks.log\"\r\n+      # - name: \"Output non-sensitive log\"\r\n+      #   if: always()\r\n+      #   run: cat \"gitleaks.log\"\r\n"
                 }
             ],
             "date": 1660057706276,

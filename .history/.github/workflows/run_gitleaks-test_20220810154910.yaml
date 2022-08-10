@@ -14,6 +14,6 @@ jobs:
       - name: "Run Gitleaks on a selected part of our history"
         run: .environment/gitleaks/run-gitleaks.sh | tee output.txt
 
-      # - name: "Output non-sensitive log"
-      #   if: always()
-      #   run: cat "gitleaks.log"
+      - name: "Output non-sensitive log"
+        if: always()
+        run: cat "gitleaks.log"
