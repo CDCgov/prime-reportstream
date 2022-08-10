@@ -130,11 +130,7 @@ class ValidateFunction(
                 } else HttpStatus.OK
             } catch (e: ActionError) {
                 actionHistory.trackLogs(e.details)
-                // if only warnings come back (with no errors), return as Valid
-                if (e.details.count { it.type == ActionLogLevel.error } > 0)
-                    HttpStatus.BAD_REQUEST
-                else
-                    HttpStatus.OK
+                HttpStatus.BAD_REQUEST
             } catch (e: IllegalArgumentException) {
                 actionHistory.trackLogs(
                     ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
