@@ -76,6 +76,17 @@ enum class Options {
 
     companion object {
         /**
+         * ActiveValues is a list of the non-deprecated options that can be used when submitting a report
+         */
+
+        val activeValues = mutableListOf<Options>()
+        init {
+            Options.values().forEach {
+                if (!it.isDeprecated) activeValues.add(it)
+            }
+        }
+
+        /**
          * Handles invalid values, which are technically not allowed in an enum. In this case if the [input]
          *  is not one that is supported, it will be set to None.
          */
@@ -83,7 +94,7 @@ enum class Options {
             return try {
                 valueOf(input)
             } catch (ex: IllegalArgumentException) {
-                val msg = "$input is not a valid Option. Valid options: ${Options.values().joinToString()}"
+                val msg = "$input is not a valid Option. Valid options: ${Options.activeValues.joinToString()}"
                 throw InvalidOptionException(msg)
             }
         }
