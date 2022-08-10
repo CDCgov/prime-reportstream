@@ -22,7 +22,6 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Reference
-import org.hl7.fhir.r4.model.Resource
 import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 
 /**
@@ -236,21 +235,14 @@ class FhirPathCommand : CliktCommand(
             val resourceList = FhirPathUtils.pathEngine.evaluate(
                 fhirPathContext, focusResource!!, bundle, bundle, pathExpression
             )
-            when {
-                resourceList.size != 1 ->
-                    echo("Resource path must evaluate to 1 resource, but got ${resourceList.size}")
-
-                resourceList[0].isResource -> {
-                    setFocusPath(path)
-                    focusResource = resourceList[0] as Resource
-                }
-
-                else ->
-                    echo(
-                        "Resource path must evaluate to a Resource, but was " +
-                            resourceList[0].fhirType()
-                    )
-            }
+            if (resourceList.size == 1) {
+                setFocusPath(path)
+                focusResource = resourceList[0] as Base
+            } else
+                echo(
+                    "Resource path must evaluate to 1 resource, but got a collection of " +
+                        "${resourceList.size} resources"
+                )
         }
     }
 
