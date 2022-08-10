@@ -119,6 +119,7 @@ class SenderFilesFunctionTests {
             null,
             null,
             null,
+            null
         )
     }
 
