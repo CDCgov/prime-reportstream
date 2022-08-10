@@ -1,0 +1,64 @@
+name: ORU-R01-contact
+elements:
+  - name: contact-family-name
+    condition: '%resource.name.family.exists()'
+    value: [ '%resource.name.family' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-2-1' ]
+
+  - name: contact-given-name
+    condition: '%resource.name.given.exists()'
+    value: [ '%resource.name.given[0]' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-2-2' ]
+
+  - name: contact-second-name
+    condition: '%resource.name.given.exists() and %resource.name.given.count() >= 2'
+    value: [ '%resource.name.given.tail().toString().replace('','', '' '')' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-2-3' ]
+
+  - name: contact-relationship-id
+    condition: '%resource.relationship.coding.count() >= 2'
+    value: [ '%resource.relationship.coding[1].code' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-1' ]
+
+  - name: contact-relationship-text
+    resource: '%resource.relationship'
+    condition: '%resource.text.exists()'
+    value: [ '%resource.text' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-2' ]
+
+  - name: contact-relationship-system
+    condition: '%resource.relationship.coding.count() >= 2'
+    value: [ '%resource.relationship.coding[1].system' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-3' ]
+
+  - name: contact-relationship-alternate-id
+    resource: '%resource.relationship.extension(%`rsext-alternate-identifier`).value'
+    condition: '%resource.coding.code.exists()'
+    value: [ '%resource.coding.code' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-4' ]
+
+  - name: contact-relationship-alternate-text
+    resource: '%resource.relationship.extension(%`rsext-alternate-identifier`).value'
+    condition: '%resource.coding.display.exists()'
+    value: [ '%resource.coding.display' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-5' ]
+
+  - name: contact-relationship-alternate-system
+    resource: '%resource.relationship.extension(%`rsext-alternate-identifier`).value'
+    condition: '%resource.coding.system.exists()'
+    value: [ '%resource.coding.system' ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-6' ]
+
+  - name: contact-address
+    resource: '%resource.address'
+    condition: '%resource.exists()'
+    constants:
+      hl7AddressField: '/PATIENT_RESULT/PATIENT/NK1-4'
+    schema: xad-extended-address
+
+  - name: phone-number-country-code
+    resource: '%resource.telecom'
+    condition: '%resource.exists()'
+    constants:
+      hl7TelecomField: '/PATIENT_RESULT/PATIENT/NK1-5'
+    schema: telecom

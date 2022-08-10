@@ -6,6 +6,7 @@ import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookup
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.exceptions.PathEngineException
+import org.hl7.fhir.r4.model.Address.AddressUse
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.IntegerType
@@ -13,6 +14,7 @@ import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TypeDetails
 import org.hl7.fhir.r4.model.ValueSet
 import org.hl7.fhir.r4.utils.FHIRPathEngine
+import org.hl7.fhir.r4.utils.FHIRPathEngine.IEvaluationContext.FunctionDetails
 
 /**
  * Context used for resolving [constants].
@@ -74,6 +76,33 @@ object ConstantSubstitutor {
 }
 
 /**
+ * Custom FHIR commands created by report stream to help map from FHIR -> HL7
+ * only used in cases when the same logic couldn't be accomplished using the FHIRPath
+ */
+object CustomFHIRCommands {
+
+    /**
+     * Converts a FHIR AddressUse enum to the HL7 v2.5.1 - 0190 - Address type
+     */
+    fun convertAddressUse(focus: MutableList<Base>): MutableList<Base> {
+        return when (AddressUse.fromCode(focus[0].toString())) {
+            AddressUse.HOME -> mutableListOf<Base>(StringType("H"))
+            AddressUse.WORK -> mutableListOf<Base>(StringType("O"))
+            AddressUse.OLD -> mutableListOf<Base>(StringType("BA"))
+            AddressUse.TEMP -> mutableListOf<Base>(StringType("C"))
+            else -> mutableListOf<Base>()
+        }
+    }
+    private val regex = """([+](\d{1,3}|1-\d{3}) (\d{3})|\((\d{3})\)) (\d{3}) (\d{4,6})""".toRegex()
+    fun getPhoneCountryCode(focus: MutableList<Base>): MutableList<Base>? {
+        val matchResult = regex.find(focus[0].toString())
+        val countryCode = matchResult?.groups?.get(2)?.value?.toInt()
+        return if (countryCode != null) mutableListOf<Base>(IntegerType(countryCode))
+        else mutableListOf<Base>()
+    }
+}
+
+/**
  * Custom resolver for the FHIR path engine.
  */
 class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
@@ -131,8 +160,13 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
         throw NotImplementedError("Not implemented")
     }
 
-    override fun resolveFunction(functionName: String?): FHIRPathEngine.IEvaluationContext.FunctionDetails {
-        throw NotImplementedError("Not implemented")
+    override fun resolveFunction(functionName: String?): FunctionDetails? {
+        check(!functionName.isNullOrBlank())
+        return when (functionName) {
+            "RSAddressUse" -> FunctionDetails("convert FHIR address type to HL7", 0, 0)
+            "RSPhoneNumberCountryCode" -> FunctionDetails("extract country code from FHIR phone number", 0, 0)
+            else -> null
+        }
     }
 
     override fun checkFunction(
@@ -148,8 +182,20 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
         focus: MutableList<Base>?,
         functionName: String?,
         parameters: MutableList<MutableList<Base>>?
-    ): MutableList<Base> {
-        throw NotImplementedError("Not implemented")
+    ): MutableList<Base>? {
+        check(focus != null)
+        check(!functionName.isNullOrBlank())
+        return (
+            when (functionName) {
+                "RSAddressUse" -> {
+                    CustomFHIRCommands.convertAddressUse(focus)
+                }
+                "RSPhoneNumberCountryCode" -> {
+                    CustomFHIRCommands.getPhoneCountryCode(focus)
+                }
+                else -> mutableListOf<Base>()
+            }
+            )
     }
 
     override fun resolveReference(appContext: Any?, url: String?): Base? {

@@ -1,0 +1,6 @@
+name: ORU-R01-telecom
+elements:
+  - name: country-code
+    condition: '%resource.value.exists()'
+    value: [ '%resource.value.RSPhoneNumberCountryCode()' ]
+    hl7Spec: [ '%{hl7TelecomField}-5' ]

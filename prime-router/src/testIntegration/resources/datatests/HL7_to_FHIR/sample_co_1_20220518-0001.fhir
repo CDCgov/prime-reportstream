@@ -10747,7 +10747,7 @@
           "use" : "official",
           "text" : "GENARO SURYAN",
           "family" : "SURYAN",
-          "given" : [ "GENARO" ]
+          "given" : [ "GENARO", "YOO", "LOO", "YOLO" ]
         },
         "telecom" : [ {
           "system" : "phone",
@@ -10756,8 +10756,9 @@
         } ],
         "address" : {
           "use" : "home",
-          "line" : [ "4861 20TH AVE" ],
+          "line" : [ "4861 20TH AVE", "Apt 3" ],
           "city" : "THUNDER MOUNTAIN",
+          "district": "AMADOR",
           "state" : "NV",
           "postalCode" : "99999",
           "country" : "USA"
