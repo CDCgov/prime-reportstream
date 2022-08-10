@@ -1,6 +1,6 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
-import { AccessToken } from "@okta/okta-auth-js";
+import { AccessToken, OktaAuth } from "@okta/okta-auth-js";
 
 // import useSessionStorage, {
 //     SessionController,
@@ -41,6 +41,30 @@ export const SessionContext = createContext<ISessionContext>({
     // store: {} as SessionController,
 });
 
+const setOktaListeners = (oktaAuth: OktaAuth) => {
+    // TOKEN MANAGER EVENTS
+    oktaAuth.tokenManager.on("added", () =>
+        console.log("TOKEN MANAGER: added")
+    );
+    oktaAuth.tokenManager.on("expired", () =>
+        console.log("TOKEN MANAGER: expired")
+    );
+    oktaAuth.tokenManager.on("error", () =>
+        console.log("TOKEN MANAGER: error")
+    );
+    oktaAuth.tokenManager.on("renewed", () =>
+        console.log("TOKEN MANAGER: renewed")
+    );
+    oktaAuth.tokenManager.on("removed", () =>
+        console.log("TOKEN MANAGER: removed")
+    );
+
+    // AUTH STATE MANAGER EVENTS
+    oktaAuth.authStateManager.subscribe((state) =>
+        console.log("AUTH STATE MANAGER: state change", state)
+    );
+};
+
 // accepts `oktaHook` as a parameter in order to allow mocking of this provider's okta based
 // behavior for testing. In non test cases this hook will be the `useOktaAuth` hook from
 // `okta-react`
@@ -49,11 +73,20 @@ const SessionProvider = ({
     oktaHook,
 }: React.PropsWithChildren<ISessionProviderProps>) => {
     // todo, watch authState to look for logouts
-    const { authState } = oktaHook();
+    const { authState, oktaAuth } = oktaHook();
 
-    // const store = useSessionStorage();
-    // const memberships = useOktaMemberships(authState?.accessToken);
+    let oktaInitialized = false;
 
+    useEffect(() => {
+        if (oktaAuth) {
+            oktaInitialized = true;
+        }
+    }, [oktaAuth]);
+    useEffect(() => {
+        if (oktaInitialized) {
+            setOktaListeners(oktaAuth);
+        }
+    }, [oktaInitialized]);
     const {
         state: { memberships, activeMembership },
         dispatch,
@@ -65,7 +98,6 @@ const SessionProvider = ({
                 memberships,
                 activeMembership,
                 dispatch,
-                // store: store,
             }}
         >
             {children}

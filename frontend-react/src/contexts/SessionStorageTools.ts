@@ -3,12 +3,16 @@
  * it if you can think of a better spot. */
 
 import { AxiosRequestHeaders } from "axios";
-import { MembershipState } from "../hooks/UseOktaMemberships";
+import {
+    MembershipSettings,
+    MembershipState,
+} from "../hooks/UseOktaMemberships";
 
 import { updateApiSessions } from "../network/Apis";
 
 const headersFromStoredSession = (): AxiosRequestHeaders => ({
     Authorization: `Bearer ${getStoredOktaToken() || ""}`,
+    // TODO: make sure weird API edge case for `updateApiSessions` is handled
     Organization: getStoredOrg() || "",
 });
 
@@ -18,6 +22,7 @@ export enum GLOBAL_STORAGE_KEYS {
     SENDER_NAME = "global-sender-name",
     OKTA_ACCESS_TOKEN = "global-okta-token",
     MEMBERSHIP_STATE = "global-membership-state",
+    ORGANIZATION_OVERRIDE = "global-organization-override",
 }
 
 export function getStoredOktaToken(): string | undefined {
@@ -32,7 +37,7 @@ export function setStoredOktaToken(value: string) {
     updateApiSessions(headersFromStoredSession());
 }
 
-// TODO: use this to pull data from membership state
+// TODO: refactor this out of existing code
 export function getStoredOrg(): string | undefined {
     console.log(
         "~~~ read session org",
@@ -41,40 +46,49 @@ export function getStoredOrg(): string | undefined {
     return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || undefined;
 }
 
+// TODO: refactor this out of existing code
 export function setStoredOrg(val: string) {
     console.log("!!! set in session", val);
     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, val);
     updateApiSessions(headersFromStoredSession());
 }
 
-export function getStoredSenderName(): string | undefined {
-    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.SENDER_NAME) || undefined;
-}
+// export function getStoredSenderName(): string | undefined {
+//     return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.SENDER_NAME) || undefined;
+// }
 
-export function setStoredSenderName(val: string) {
-    sessionStorage.setItem(GLOBAL_STORAGE_KEYS.SENDER_NAME, val);
-}
+// export function setStoredSenderName(val: string) {
+//     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.SENDER_NAME, val);
+// }
 
-export function getSessionMembershipState(): MembershipState {
-    const stateString = sessionStorage.getItem(
-        GLOBAL_STORAGE_KEYS.MEMBERSHIP_STATE
-    );
-    if (!stateString) {
+const fetchJsonFromSession = (storageKey: string) => {
+    const storedString = sessionStorage.getItem(storageKey);
+    if (!storedString) {
         return {};
     }
     try {
-        const stateJson = JSON.parse(stateString);
-        return stateJson;
+        const sessionJson = JSON.parse(storedString);
+        return sessionJson;
     } catch {
         return {};
     }
-    // return (
-    //     sessionStorage.getItem(GLOBAL_STORAGE_KEYS.MEMBERSHIP_STATE) ||
-    //     undefined
-    // );
+};
+
+// not sure this is actually necessary. Okta should handle refresh of non-admin related state
+export function getOrganizationOverride(): MembershipSettings {
+    return fetchJsonFromSession(GLOBAL_STORAGE_KEYS.ORGANIZATION_OVERRIDE);
 }
 
-export function setSessionMembershipState(membershipState: string) {
+export function storeOrganizationOverride(override: string) {
+    sessionStorage.setItem(GLOBAL_STORAGE_KEYS.ORGANIZATION_OVERRIDE, override);
+}
+
+// not sure this is actually necessary. Okta should handle refresh of non-admin related state
+export function getSessionMembershipState(): MembershipState {
+    return fetchJsonFromSession(GLOBAL_STORAGE_KEYS.MEMBERSHIP_STATE);
+}
+
+export function storeSessionMembershipState(membershipState: string) {
     sessionStorage.setItem(
         GLOBAL_STORAGE_KEYS.MEMBERSHIP_STATE,
         membershipState

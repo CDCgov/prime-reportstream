@@ -3,8 +3,10 @@ import { AccessToken, AuthState } from "@okta/okta-auth-js";
 
 import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
 import {
-    setSessionMembershipState,
+    storeSessionMembershipState,
     getSessionMembershipState,
+    storeOrganizationOverride,
+    getOrganizationOverride,
 } from "../contexts/SessionStorageTools";
 
 export enum MemberType {
@@ -30,8 +32,6 @@ export interface MembershipSettings {
     // Optional sender name
     senderName?: string;
 }
-
-export interface SessionSettings extends MembershipSettings {}
 
 export interface MembershipState {
     activeMembership?: MembershipSettings;
@@ -111,8 +111,6 @@ export const makeMembershipMapFromToken = (
 const defaultState: MembershipState = {
     activeMembership: undefined,
     memberships: undefined,
-    // senderName: "",
-    // org: "",
 };
 export const membershipsFromToken = (token: AccessToken): MembershipState => {
     // One big undefined check to see if we have what we need for the next line
@@ -134,6 +132,21 @@ export const membershipsFromToken = (token: AccessToken): MembershipState => {
     };
 };
 
+// allows for overriding active membership with override previously set in session storage
+const calculateNewMemberships = (
+    updatedMembershipState: MembershipState
+): MembershipState => {
+    console.log("!!! set in state on SET_MEMBERSHIPS", updatedMembershipState);
+    const override = getOrganizationOverride();
+    return {
+        ...updatedMembershipState,
+        activeMembership: {
+            ...updatedMembershipState.activeMembership,
+            ...override,
+        },
+    };
+};
+
 const calculateNewState = (
     state: MembershipState,
     action: MembershipAction
@@ -141,13 +154,7 @@ const calculateNewState = (
     const { type, payload } = action;
     switch (type) {
         case MembershipActionType.SET_MEMBERSHIPS:
-            console.log(
-                "!!! set in state on SET_MEMBERSHIPS",
-                payload
-                // membershipsFromToken(payload as AccessToken).active
-            );
-            return payload as MembershipState;
-        // return membershipsFromToken(payload as AccessToken);
+            return calculateNewMemberships(payload as MembershipState);
         case MembershipActionType.ADMIN_OVERRIDE:
             console.log("!!! set in state on ADMIN_OVERRIDE", payload);
             const newState = {
@@ -157,6 +164,7 @@ const calculateNewState = (
                     ...(payload as MembershipSettings),
                 },
             };
+            storeOrganizationOverride(JSON.stringify(payload));
             return newState;
         case MembershipActionType.RESET:
             return defaultState;
@@ -175,7 +183,8 @@ export const membershipReducer = (
     action: MembershipAction
 ) => {
     const newState = calculateNewState(state, action);
-    setSessionMembershipState(JSON.stringify(newState));
+    // with this, session storage will always mirror app state
+    storeSessionMembershipState(JSON.stringify(newState));
     return newState;
 };
 
@@ -185,25 +194,28 @@ export const useOktaMemberships = (
 ): MembershipController => {
     const [state, dispatch] = useReducer(membershipReducer, getInitialState());
 
-    const { accessToken } = authState || {};
+    const token = authState?.accessToken;
 
     // need to make sure this doesn't run on an infinite loop in a real world situation
     // may need to drill down on the dependency array if it does, or refactor this hook
     // to deal solely with claims rather than tokens.
     useEffect(() => {
-        console.log("!!! here a token", accessToken);
-        if (accessToken) {
+        console.log("!!! here a token", token);
+        if (token) {
             // update session (or do that within reducer)
             dispatch({
                 type: MembershipActionType.SET_MEMBERSHIPS,
-                payload: membershipsFromToken(accessToken),
+                payload: membershipsFromToken(token),
             });
-        } else {
-            // TODO: log out if no token
+        }
+        // this signifies a log out
+        if (authState && !authState.isAuthenticated) {
             console.log("%%%% this is where we need to log out");
+            // clear override as well. this will error on json parse and result in {} being fed back on a read
+            storeOrganizationOverride("");
             dispatch({ type: MembershipActionType.RESET });
         }
-    }, [accessToken?.claims]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [token?.claims]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return { state, dispatch };
 };
