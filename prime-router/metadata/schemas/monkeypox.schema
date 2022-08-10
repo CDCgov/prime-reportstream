@@ -202,7 +202,7 @@ elements:
     documentation: The city of the provider
 
   - name: ordering_provider_county
-    type: TABLE
+    type: TEXT
     pii: false
     table: fips-county
     tableColumn: County
@@ -325,7 +325,8 @@ elements:
   - name: organization_name
     type: TEXT
     documentation: |
-      The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
+      The SimpleReport concept of organization. It refers to organization for the 
+      ordering & performing facility
 
   - name: patient_account_number_id
     type: TEXT

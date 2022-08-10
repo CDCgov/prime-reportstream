@@ -1463,7 +1463,7 @@ class Report : Logging {
          * Tries to get a value in the underlying row for the column name, and if it doesn't exist, returns null
          */
         private fun Row.getStringOrNull(columnName: String): String? {
-            return this.getStringOrDefault(columnName, null)
+            return this.getStringOrDefault(columnName, null).trimToNull()
         }
     }
 }

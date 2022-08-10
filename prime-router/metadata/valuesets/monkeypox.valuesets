@@ -40,7 +40,7 @@
 - name: monkeypox/test_code
   system: LOINC
   reference: The short name for a non-variola orthopox test.
-  referencedUrl: "https://www.cdc.gov/poxvirus/monkeypox/lab-personnel/report-results.html"
+  referenceUrl: "https://www.cdc.gov/poxvirus/monkeypox/lab-personnel/report-results.html"
   values:
       - code: "41853-3"
         display: "Orthopoxvirus"
@@ -66,7 +66,7 @@
 - name: monkeypox/test_long_name
   system: LOINC
   reference: The long name for the ordered and performed test for non-variola orthopox
-  referencedUrl: "https://www.cdc.gov/poxvirus/monkeypox/lab-personnel/report-results.html"
+  referenceUrl: "https://www.cdc.gov/poxvirus/monkeypox/lab-personnel/report-results.html"
   values:
       - code: "41853-3"
         display: "Orthopoxvirus DNA [Presence] in Specimen by NAA with probe detection"
