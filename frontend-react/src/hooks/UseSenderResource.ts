@@ -31,12 +31,11 @@ type Sender = {
 
 export const useSenderResource = () => {
     /* Access the session. */
-    const { memberships, oktaToken } = useSessionContext();
+    const { memberships, activeMembership, oktaToken } = useSessionContext();
     /* Create a stable config reference with useMemo(). */
     const config = useMemo(
         () => {
-            const { state: { active: { parsedName, senderName } = {} } = {} } =
-                memberships;
+            const { parsedName, senderName } = activeMembership || {};
             if (!senderName || !parsedName) {
                 return new SimpleError("Missing sender or organization");
             }
@@ -45,10 +44,10 @@ export const useSenderResource = () => {
                 "sender",
                 "GET",
                 oktaToken?.accessToken,
-                memberships.state.active?.parsedName,
+                activeMembership?.parsedName,
                 {
-                    org: memberships.state.active?.parsedName || "",
-                    sender: memberships.state.active?.senderName || "",
+                    org: activeMembership?.parsedName || "",
+                    sender: activeMembership?.senderName || "",
                 }
             );
         },
@@ -81,12 +80,12 @@ export const useSenderResource = () => {
             );
             return null;
         }
-        if (!memberships?.state?.active?.senderName) {
+        if (!activeMembership?.senderName) {
             console.error("No sender available on active membership");
             return null;
         }
         return senderResponse;
-    }, [senderResponse, memberships.state.active, error, loading]);
+    }, [senderResponse, activeMembership, error, loading]);
 
     /* Finally, return the values from the hook. */
     return {

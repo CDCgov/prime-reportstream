@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer } from "react";
-import { AccessToken } from "@okta/okta-auth-js";
+import { AccessToken, AuthState } from "@okta/okta-auth-js";
 
 import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
 import {
@@ -14,10 +14,12 @@ export enum MemberType {
     NON_STAND = "non-standard",
 }
 
+// TODO: update all member specific nomenclature to use SESSION
 export enum MembershipActionType {
-    UPDATE = "update",
+    // UPDATE_MEMBERSHIP = "updateMembership",
     ADMIN_OVERRIDE = "override",
     RESET = "reset",
+    SET_MEMBERSHIPS = "setMemberships",
 }
 
 export interface MembershipSettings {
@@ -29,11 +31,18 @@ export interface MembershipSettings {
     senderName?: string;
 }
 
+export interface SessionSettings extends MembershipSettings {}
+
 export interface MembershipState {
-    active?: MembershipSettings;
+    activeMembership?: MembershipSettings;
     // Key is the OKTA group name, settings has parsedName
     memberships?: Map<string, MembershipSettings>;
 }
+
+// export interface SessionState extends MembershipState {
+//     org: string;
+//     senderName: string;
+// }
 
 export interface MembershipController {
     state: MembershipState;
@@ -100,8 +109,10 @@ export const makeMembershipMapFromToken = (
 };
 
 const defaultState: MembershipState = {
-    active: undefined,
+    activeMembership: undefined,
     memberships: undefined,
+    // senderName: "",
+    // org: "",
 };
 export const membershipsFromToken = (token: AccessToken): MembershipState => {
     // One big undefined check to see if we have what we need for the next line
@@ -118,7 +129,7 @@ export const membershipsFromToken = (token: AccessToken): MembershipState => {
     const [first] = claimData.keys();
     const active = claimData.get(first);
     return {
-        active: active,
+        activeMembership: active,
         memberships: claimData,
     };
 };
@@ -129,9 +140,9 @@ const calculateNewState = (
 ) => {
     const { type, payload } = action;
     switch (type) {
-        case MembershipActionType.UPDATE:
+        case MembershipActionType.SET_MEMBERSHIPS:
             console.log(
-                "!!! set in state on UPDATE",
+                "!!! set in state on SET_MEMBERSHIPS",
                 payload
                 // membershipsFromToken(payload as AccessToken).active
             );
@@ -141,8 +152,8 @@ const calculateNewState = (
             console.log("!!! set in state on ADMIN_OVERRIDE", payload);
             const newState = {
                 ...state,
-                active: {
-                    ...state.active,
+                activeMembership: {
+                    ...state.activeMembership,
                     ...(payload as MembershipSettings),
                 },
             };
@@ -169,21 +180,30 @@ export const membershipReducer = (
 };
 
 export const useOktaMemberships = (
-    token: AccessToken | undefined
+    // token: AccessToken | undefined
+    authState: AuthState | null
 ): MembershipController => {
     const [state, dispatch] = useReducer(membershipReducer, getInitialState());
+
+    const { accessToken } = authState || {};
 
     // need to make sure this doesn't run on an infinite loop in a real world situation
     // may need to drill down on the dependency array if it does, or refactor this hook
     // to deal solely with claims rather than tokens.
     useEffect(() => {
-        if (token) {
+        console.log("!!! here a token", accessToken);
+        if (accessToken) {
+            // update session (or do that within reducer)
             dispatch({
-                type: MembershipActionType.UPDATE,
-                payload: membershipsFromToken(token),
+                type: MembershipActionType.SET_MEMBERSHIPS,
+                payload: membershipsFromToken(accessToken),
             });
+        } else {
+            // TODO: log out if no token
+            console.log("%%%% this is where we need to log out");
+            dispatch({ type: MembershipActionType.RESET });
         }
-    }, [token?.claims]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [accessToken?.claims]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return { state, dispatch };
 };

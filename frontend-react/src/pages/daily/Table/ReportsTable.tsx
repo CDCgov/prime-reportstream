@@ -63,7 +63,7 @@ const useReceiverFeeds = (reports: RSReportInterface[]): ReceiverFeeds => {
     component.
 */
 function ReportsTable() {
-    const { memberships, oktaToken } = useSessionContext();
+    const { oktaToken, activeMembership } = useSessionContext();
     const { data: reports, loading, error } = useReportsList();
     const { activeFeed, setActiveFeed, feeds } = useReceiverFeeds(reports);
     const filterManager = useFilterManager(filterManagerDefaults);
@@ -78,7 +78,7 @@ function ReportsTable() {
         getReportAndDownload(
             id,
             oktaToken?.accessToken || "",
-            memberships.state.active?.parsedName || ""
+            activeMembership?.parsedName || ""
         );
     };
 

@@ -52,23 +52,23 @@ test("getOktaGroups", () => {
     expect(noOrg).toEqual([]);
 });
 
-test("getRSOrgs", () => {
-    const all = getRSOrgs(goodAccessToken);
-    const senders = getRSOrgs(goodAccessToken, RSOrgType.SENDER);
-    const receivers = getRSOrgs(goodAccessToken, RSOrgType.RECEIVER);
-    const admins = getRSOrgs(goodAccessToken, RSOrgType.ADMIN);
+// test("getRSOrgs", () => {
+//     const all = getRSOrgs(goodAccessToken);
+//     const senders = getRSOrgs(goodAccessToken, RSOrgType.SENDER);
+//     const receivers = getRSOrgs(goodAccessToken, RSOrgType.RECEIVER);
+//     const admins = getRSOrgs(goodAccessToken, RSOrgType.ADMIN);
 
-    expect(all).toEqual([
-        "PrimeAdmins",
-        "ignoreAdmins", // Currently not a real use case!
-        "ignore",
-        "xx-phd",
-        "ignore.ignore-waters",
-    ]);
-    expect(senders).toEqual(["ignore", "ignore.ignore-waters"]);
-    expect(receivers).toEqual(["xx-phd"]);
-    expect(admins).toEqual(["PrimeAdmins", "ignoreAdmins"]);
-});
+//     expect(all).toEqual([
+//         "PrimeAdmins",
+//         "ignoreAdmins", // Currently not a real use case!
+//         "ignore",
+//         "xx-phd",
+//         "ignore.ignore-waters",
+//     ]);
+//     expect(senders).toEqual(["ignore", "ignore.ignore-waters"]);
+//     expect(receivers).toEqual(["xx-phd"]);
+//     expect(admins).toEqual(["PrimeAdmins", "ignoreAdmins"]);
+// });
 
 test("parseOrgs", () => {
     const parsed = parseOrgs([

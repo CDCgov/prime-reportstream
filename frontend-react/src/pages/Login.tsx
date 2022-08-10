@@ -5,8 +5,8 @@ import { SiteAlert } from "@trussworks/react-uswds";
 import { AccessToken, Tokens } from "@okta/okta-auth-js";
 
 import OktaSignInWidget from "../components/OktaSignInWidget";
-import { getOktaGroups, parseOrgs } from "../utils/OrganizationUtils";
-import { setStoredOktaToken } from "../contexts/SessionStorageTools";
+// import { getOktaGroups, parseOrgs } from "../utils/OrganizationUtils";
+// import { setStoredOktaToken } from "../contexts/SessionStorageTools";
 import { oktaSignInConfig } from "../oktaConfig";
 import { useSessionContext } from "../contexts/SessionContext";
 import {
@@ -16,33 +16,39 @@ import {
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
-    const { store, memberships } = useSessionContext();
+    // const { store, memberships } = useSessionContext();
+    const { dispatch } = useSessionContext();
 
     const onSuccess = (tokens: Tokens | undefined) => {
         const accessToken = tokens?.accessToken || ({} as AccessToken);
         const parsedMemberships = membershipsFromToken(accessToken);
-        const parsedOrgs = parseOrgs(getOktaGroups(accessToken));
-        const newOrg = parsedOrgs[0]?.org || "";
-        const newSender = parsedOrgs[0]?.senderName || undefined;
-        console.log("!!! set on login", newOrg);
+        // const parsedOrgs = parseOrgs(getOktaGroups(accessToken));
+        // const newOrg = parsedOrgs[0]?.org || "";
+        // const newSender = parsedOrgs[0]?.senderName || undefined;
+        // console.log("!!! set on login", newOrg);
         // TODO: rename this. Maybe move `session storage` (org storage) idea in line with membership storage
-        store.updateSessionStorage({
-            // Sets admins to `ignore` org
-            org: newOrg,
-            senderName: newSender,
-        });
-        memberships.dispatch({
-            type: MembershipActionType.UPDATE,
+        // store.updateSessionStorage({
+        //     // Sets admins to `ignore` org
+        //     org: newOrg,
+        //     senderName: newSender,
+        // });
+        // memberships.dispatch({
+        //     type: MembershipActionType.UPDATE_MEMBERSHIP,
+        //     payload: parsedMemberships,
+        // });
+        dispatch({
+            type: MembershipActionType.SET_MEMBERSHIPS,
             payload: parsedMemberships,
         });
-        setStoredOktaToken(tokens?.accessToken?.accessToken || "");
+        // TODO, handle this in the useSession reducer
+        // setStoredOktaToken(tokens?.accessToken?.accessToken || "");
         oktaAuth.handleLoginRedirect(tokens);
     };
 
     const onError = (err: any) => {
-        setStoredOktaToken(""); // clear on error.
-        store.updateSessionStorage({});
-        memberships.dispatch({
+        // setStoredOktaToken(""); // clear on error.
+        // store.updateSessionStorage({});
+        dispatch({
             type: MembershipActionType.RESET,
         });
         console.log("error logging in", err);

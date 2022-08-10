@@ -2,18 +2,29 @@ import React, { createContext, useContext } from "react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import { AccessToken } from "@okta/okta-auth-js";
 
-import useSessionStorage, {
-    SessionController,
-} from "../hooks/UseSessionStorage";
+// import useSessionStorage, {
+//     SessionController,
+// } from "../hooks/UseSessionStorage";
+// import {
+//     MembershipController,
+//     useSession,
+//     MembershipAction,
+// } from "../hooks/UseSession";
 import {
-    MembershipController,
+    MembershipSettings,
+    // MembershipController,
     useOktaMemberships,
+    MembershipAction,
 } from "../hooks/UseOktaMemberships";
 
 export interface ISessionContext {
-    memberships: MembershipController;
-    store: SessionController;
+    memberships?: Map<string, MembershipSettings>;
+    // store: SessionController;
+    // org: string;
+    // senderName: string;
+    activeMembership?: MembershipSettings;
     oktaToken?: Partial<AccessToken>;
+    dispatch: React.Dispatch<MembershipAction>;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -24,8 +35,10 @@ interface ISessionProviderProps {
 
 export const SessionContext = createContext<ISessionContext>({
     oktaToken: {} as Partial<AccessToken>,
-    memberships: {} as MembershipController,
-    store: {} as SessionController,
+    memberships: new Map(),
+    activeMembership: {} as MembershipSettings,
+    dispatch: () => {},
+    // store: {} as SessionController,
 });
 
 // accepts `oktaHook` as a parameter in order to allow mocking of this provider's okta based
@@ -35,16 +48,24 @@ const SessionProvider = ({
     children,
     oktaHook,
 }: React.PropsWithChildren<ISessionProviderProps>) => {
+    // todo, watch authState to look for logouts
     const { authState } = oktaHook();
-    const store = useSessionStorage();
-    const memberships = useOktaMemberships(authState?.accessToken);
 
+    // const store = useSessionStorage();
+    // const memberships = useOktaMemberships(authState?.accessToken);
+
+    const {
+        state: { memberships, activeMembership },
+        dispatch,
+    } = useOktaMemberships(authState);
     return (
         <SessionContext.Provider
             value={{
                 oktaToken: authState?.accessToken,
                 memberships,
-                store: store,
+                activeMembership,
+                dispatch,
+                // store: store,
             }}
         >
             {children}

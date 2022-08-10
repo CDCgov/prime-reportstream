@@ -12,13 +12,13 @@ import ReportsApi, {
 import useRequestConfig from "../UseRequestConfig";
 
 const useReportsList = () => {
-    const { memberships, oktaToken } = useSessionContext();
+    const { memberships, activeMembership, oktaToken } = useSessionContext();
     const adminSafeOrgName = useMemo(
         () =>
-            memberships.state.active?.parsedName === "PrimeAdmins"
+            activeMembership?.parsedName === "PrimeAdmins"
                 ? "ignore"
-                : memberships.state.active?.parsedName,
-        [memberships.state.active?.parsedName]
+                : activeMembership?.parsedName,
+        [activeMembership?.parsedName]
     );
     const config = useMemo(
         () =>
@@ -44,13 +44,13 @@ const useReportsList = () => {
 };
 
 const useReportsDetail = (reportId: string) => {
-    const { memberships, oktaToken } = useSessionContext();
+    const { activeMembership, oktaToken } = useSessionContext();
     const adminSafeOrgName = useMemo(
         () =>
-            memberships.state.active?.parsedName === "PrimeAdmins"
+            activeMembership?.parsedName === "PrimeAdmins"
                 ? "ignore"
-                : memberships.state.active?.parsedName,
-        [memberships.state.active?.parsedName]
+                : activeMembership?.parsedName,
+        [activeMembership?.parsedName]
     );
     const config = useMemo(
         () =>
