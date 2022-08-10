@@ -18,7 +18,7 @@ Ideally some of these items can be done by person offboarding
 - [ ] Reassign any github issues
 - [ ] Verify no open git PRs
 - [ ] Delete any old, open branches (maybe work in progress)
-- [ ] Run `/reminder list` in slack and remove/move any reminders 
+- [ ] Run `/reminder list` in slack and remove/transfer any reminders 
 - [ ] Set Away message in CDC Outlook saying they've left and who to contact instead. 
 This is required since it takes time for CDC to deactivate their account.
 
