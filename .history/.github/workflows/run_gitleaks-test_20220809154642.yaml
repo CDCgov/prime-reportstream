@@ -1,0 +1,52 @@
+name: Run Gitleaks on the PRIME ReportStream code-base
+
+on: [push]
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: "0"
+
+      - name: Run Gitleaks
+        id: gitleaks
+        uses: DariuszPorowski/github-action-gitleaks@latest 
+        with:
+          report_format: "csv"
+          fail: false
+          depth: 10
+          report-path: .
+          #since: '2021-08-01T00:00:00-0400'
+      
+      # - name: Run Trivy vulnerability scanner in repo mode
+      #   uses: aquasecurity/trivy-action@cb606dfdb0d2b3698ace62192088ef4f5360b24f
+      #   with:
+      #     scan-type: "fs"
+      #     scan-ref: "."
+      #     ignore-unfixed: true
+      #     format: "template"
+      #     template: "@/contrib/sarif.tpl"
+      #     output: "trivy-repo-results.sarif"
+      #     severity: "HIGH,CRITICAL"
+
+      # - name: Upload Trivy scan results to GitHub Security tab
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   with:
+      #     sarif_file: "trivy-repo-results.sarif"
+
+      # - name: Get the output from the gitleaks step
+      #   run: |
+      #     echo "exitcode: ${{ steps.gitleaks.outputs.exitcode }}"
+      #     echo "result: ${{ steps.gitleaks.outputs.result }}"
+      #     echo "output: ${{ steps.gitleaks.outputs.output }}"
+      #     echo "command: ${{ steps.gitleaks.outputs.command }}"
+      #     echo "report: ${{ steps.gitleaks.outputs.report }}"
+
+      # - name: Upload SARIF report
+      #   if: steps.gitleaks.outputs.exitcode == 1
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   with:
+      #     sarif_file: ${{ steps.gitleaks.outputs.report }}
