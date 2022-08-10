@@ -1,6 +1,7 @@
-import { useResource } from "rest-hooks";
-import React, { useCallback, useRef, useState } from "react";
+import { NetworkErrorBoundary, useResource } from "rest-hooks";
+import React, { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import {
+    Button,
     DateRangePicker,
     Dropdown,
     Grid,
@@ -8,6 +9,7 @@ import {
     Label,
     Modal,
     ModalRef,
+    ModalToggleButton,
     SiteAlert,
     TextInput,
     Tooltip,
@@ -19,11 +21,15 @@ import {
     AdmConnStatusResource,
     AdmConnStatusDataType,
 } from "../../resources/AdmConnStatusResource";
-import { StyleClass } from "../Table/TableFilters";
 import { formatDate } from "../../utils/misc";
+import { StyleClass } from "../Table/TableFilters";
+import Spinner from "../Spinner";
+import { ErrorPage } from "../../pages/error/ErrorPage";
 
 const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
-const SKIP_HOURS = 2; // hrs
+const SKIP_HOURS = 2; // hrs - should be factor of 24 (e.g. 12,6,4,3,2)
+const MAX_DAYS = 10;
+const MAX_DAYS_MS = MAX_DAYS * 24 * 60 * 60 * 1000;
 
 /**
  *
@@ -42,10 +48,9 @@ const SKIP_HOURS = 2; // hrs
  *       foreach per-day loop:
  *          foreach per-timeblock loop: (also called "slice" in this code)
  *
- * And since the key-value dictionary is sorted this way, then there's a single
- * cursor moving through it. (NOTE: there might be missing days or slices in the dictionary.
+ * NOTE: there might be missing days or slices in the dictionary.
  * This can happen when a new receiver is onboarded in the middle of the data.
- * Or if the CRON job doesn't run because of deploy or outage leaving slice holes)
+ * Or if the CRON job doesn't run because of deploy or outage leaving slice holes.
  *
  *
  * Layout can be confusing, so hopefully this helps.
@@ -143,6 +148,10 @@ const initialStartDate = () => {
     return moment().subtract(DAY_BACK_DEFAULT, "days").toDate();
 };
 
+const initialEndDate = () => {
+    return new Date();
+};
+
 /**
  * Result string is like "12h 34m 05.678s"
  * No duration returns ""
@@ -184,9 +193,6 @@ const dateShortFormat = (d: Date) => {
         `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
     );
 };
-
-// key/value pair
-type DataDictionary = Record<string, AdmConnStatusDataType>;
 
 enum SuccessRate {
     UNDEFINED = "UNDEFINED",
@@ -244,6 +250,18 @@ const SUCCESS_RATE_CLASSNAME_MAP = {
     [SuccessRate.MIXED_SUCCESS]: "success-mixed",
 };
 
+enum MatchingFilter {
+    NO_FILTER,
+    FILTER_NOT_MATCHED,
+    FILTER_IS_MATCHED,
+}
+
+const MATCHING_FILTER_CLASSNAME_MAP = {
+    [MatchingFilter.NO_FILTER]: "",
+    [MatchingFilter.FILTER_NOT_MATCHED]: "success-result-hidden",
+    [MatchingFilter.FILTER_IS_MATCHED]: "",
+};
+
 function dateAddHours(d: Date, h: number): Date {
     const result = new Date(d); // copy value
     result.setHours(result.getHours() + h);
@@ -256,6 +274,8 @@ type DatePair = [Date, Date];
 function dateIsInRange(d: Date, range: DatePair): boolean {
     return d >= range[0] && d < range[1];
 }
+
+const strcmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
 /**
  *  simple iterator to make other code more readable.
@@ -290,79 +310,58 @@ class TimeSlots implements IterateTimeSlots {
  * build the dictionary with a special path+key
  * @param dataIn
  */
-function makeDictionary(dataIn: AdmConnStatusDataType[]): DataDictionary {
+const sortStatusData = (
+    dataIn: AdmConnStatusDataType[]
+): AdmConnStatusDataType[] => {
     // empty case
-    if (Object.keys(dataIn).length === 0) {
-        return {};
+    if (dataIn.length === 0) {
+        return [];
     }
 
-    const data: DataDictionary = {};
-    let needsSorting = false;
-
-    let lastkey = "";
-    for (let item of dataIn) {
-        const key = `${item.organizationName}|${item.receiverName}\t${item.connectionCheckStartedAt}`;
-        data[key] = item;
-        if (lastkey > key) {
-            needsSorting = true;
+    dataIn.sort((d1: AdmConnStatusDataType, d2: AdmConnStatusDataType) => {
+        // sorting by organizationName, then receiverName, then connectionCheckStartedAt
+        const orgNameCmp = strcmp(d1.organizationName, d2.organizationName);
+        // orgNameCmp === 0 means same
+        if (orgNameCmp !== 0) {
+            return orgNameCmp;
         }
-        lastkey = key;
-    }
+        const receiverNameCmp = strcmp(d1.receiverName, d2.receiverName);
+        if (receiverNameCmp !== 0) {
+            return receiverNameCmp;
+        }
+        return strcmp(d1.connectionCheckStartedAt, d2.connectionCheckStartedAt);
+    });
+    return dataIn; // we modified array in place, but returning value is handy for chaining.
+};
 
-    if (!needsSorting) {
-        return data;
-    }
-
-    // temp doubles data size
-    const emptyResult: DataDictionary = {}; // keeps ts compiler happy
-    return Object.keys(data)
-        .sort()
-        .reduce((obj, key) => {
-            obj[key] = data[key] || {};
-            return obj;
-        }, emptyResult);
-}
-
-function MainRender(props: {
-    data: DataDictionary;
-    datesRange: DatePair;
-    filterRowStatus: SuccessRate;
-    onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
-}) {
-    const onClick = useCallback(
-        (dataItem: AdmConnStatusDataType) => {
-            // in theory, there might be multiple events for the block, but we're only handling one for now.
-            props.onDetailsClick([dataItem]);
-        },
-        [props]
-    );
-
-    const keys = Object.keys(props.data);
-    if (keys.length === 0) {
-        return <div>No Data</div>;
-    }
-
-    const startDay = props.datesRange[0];
-    const endDay = props.datesRange[1];
-
-    // we use double cursors (move through time and through entries)
-    let keyOffset = 0;
-    // readability
-    const perReceiverElements: JSX.Element[] = [];
+// PreRenderedRowComponents breaks out row status and org+reciever name into props
+// so parent can more quickly filter at a higher level without changing the whole DOM
+function renderAllReceiverRows(props: {
+    data: AdmConnStatusDataType[];
+    startDate: Date;
+    endDate: Date;
+    filterErrorText: string;
+    onClick: (dataItems: AdmConnStatusDataType[]) => void;
+}): JSX.Element[] {
+    const filterErrorText = props.filterErrorText.trim().toLowerCase();
+    const perReceiverRowElements: JSX.Element[] = [];
     let perDayElements: JSX.Element[] = [];
     let sliceElements: JSX.Element[] = [];
+    let visibleSliceCount = 0; // used when error filtering
+    // we use double cursors (primary moves through time and secondary through data entries)
+    let offset = 0;
+
     // loop over all receivers (each is its own row)
-    while (keyOffset < keys.length) {
+    while (offset < props.data.length) {
         const successForRow = new SuccessRateTracker();
-        const keyOffsetStartRow = keyOffset; // used during render
-        let currentKey = keys[keyOffset];
-        let currentEntry = props.data[currentKey];
+        const offsetStartRow = offset; // used during render
+        let currentEntry = props.data[offset];
         let currentDate = new Date(currentEntry.connectionCheckCompletedAt);
         let currentReceiver = `${currentEntry.organizationName}|${currentEntry.receiverName}`;
         let rowReceiver = currentReceiver; // used to know when we've run out of row data
 
         // loop over all days
-        const daySlots = new TimeSlots([startDay, endDay], 24);
+        const daySlots = new TimeSlots([props.startDate, props.endDate], 24);
         for (let [daySlotStart, daySlotEnd] of daySlots) {
             const timeSlots = new TimeSlots(
                 [daySlotStart, daySlotEnd],
@@ -371,9 +370,17 @@ function MainRender(props: {
             for (let [timeSlotStart, timeSlotEnd] of timeSlots) {
                 const successForSlice = new SuccessRateTracker();
 
-                // loop over keys that are in this range. Build aggregates for success, needed for layout
+                let errorFilterMatchedSlice =
+                    filterErrorText.length === 0
+                        ? MatchingFilter.NO_FILTER
+                        : MatchingFilter.FILTER_NOT_MATCHED;
+
+                // iterate over DATA that might be within this range.
+                // Build aggregates for success, needed for layout.
+                // NOTE: there might NOT BE ANY data for this slice...
+                //   OR: there might be MULTIPLE matches within this time slice!
                 while (
-                    keyOffset < keys.length &&
+                    offset < props.data.length &&
                     dateIsInRange(currentDate, [timeSlotStart, timeSlotEnd]) &&
                     rowReceiver === currentReceiver
                 ) {
@@ -384,13 +391,32 @@ function MainRender(props: {
                     successForSlice.updateState(wasSuccessful);
                     successForRow.updateState(wasSuccessful);
 
+                    // if we're doing an error search, then we want to hide none matching slices.
+                    if (
+                        filterErrorText.length &&
+                        errorFilterMatchedSlice !==
+                            MatchingFilter.FILTER_IS_MATCHED
+                    ) {
+                        if (
+                            currentEntry.connectionCheckResult
+                                .toLowerCase()
+                                .includes(filterErrorText)
+                        ) {
+                            errorFilterMatchedSlice =
+                                MatchingFilter.FILTER_IS_MATCHED;
+                            visibleSliceCount++;
+                        } else {
+                            errorFilterMatchedSlice =
+                                MatchingFilter.FILTER_NOT_MATCHED;
+                        }
+                    }
+
                     // next entry
-                    keyOffset++;
-                    if (keyOffset >= keys.length) {
+                    offset++;
+                    if (offset >= props.data.length) {
                         break;
                     }
-                    currentKey = keys[keyOffset];
-                    currentEntry = props.data[currentKey];
+                    currentEntry = props.data[offset];
                     currentDate = new Date(
                         currentEntry.connectionCheckCompletedAt
                     );
@@ -398,34 +424,58 @@ function MainRender(props: {
                 }
 
                 // <editor-fold desc="Time slices for a given day render">
+                // TODO: turn slices into their own Components and move the `data` items into props
                 const sliceClassName =
                     SUCCESS_RATE_CLASSNAME_MAP[successForSlice.currentState];
 
-                // we can use the currentkey in the data dict as a unique key for this cell
+                const sliceFilterClassName =
+                    MATCHING_FILTER_CLASSNAME_MAP[errorFilterMatchedSlice];
+
+                const isClickable =
+                    successForSlice.currentState !== SuccessRate.UNDEFINED;
+
+                // it's possible to match more than on data entry per slice
+                const dataCount =
+                    successForSlice.countSuccess + successForSlice.countFailed;
+                const dataOffset = offset - dataCount;
+                const dataOffsetEnd = offset;
+
                 sliceElements.push(
                     <Grid
                         row
                         key={`slice:${currentReceiver}|${timeSlotStart}`}
-                        className={`slice ${sliceClassName}`}
-                        data-keyoffset={keyOffset - 1}
+                        className={`slice ${sliceClassName} ${sliceFilterClassName}`}
+                        data-offset={dataOffset}
+                        data-offset-end={dataOffsetEnd}
+                        role="button"
+                        aria-disabled={!isClickable}
                         onClick={
-                            successForSlice.currentState ===
-                            SuccessRate.UNDEFINED
+                            !isClickable
                                 ? undefined // do not even install a click handler noop
                                 : (evt) => {
-                                      // get saved offset from "data-keyoffset" attribute on this element
-                                      const dataKeyOffset = parseInt(
-                                          evt.currentTarget?.dataset[
-                                              "keyoffset"
-                                          ] || "-1"
+                                      // get saved offset from "data-offset" attribute on this element
+                                      const target = evt.currentTarget;
+                                      const sliceStart = parseInt(
+                                          target?.dataset["offset"] || "-1"
+                                      );
+                                      let sliceEnd = parseInt(
+                                          target?.dataset["offsetEnd"] || "-1"
                                       );
                                       // sanity check it's within range (should never happen)
                                       if (
-                                          dataKeyOffset >= 0 &&
-                                          dataKeyOffset < keys.length
+                                          sliceStart >= 0 &&
+                                          sliceStart < props.data.length
                                       ) {
-                                          const key = keys[dataKeyOffset];
-                                          onClick(props.data[key]);
+                                          // should never happen, but safety
+                                          sliceEnd =
+                                              sliceEnd > sliceStart
+                                                  ? sliceEnd
+                                                  : sliceStart;
+                                          const subsetData = props.data.slice(
+                                              sliceStart,
+                                              sliceEnd
+                                          );
+                                          props.onClick(subsetData);
                                       }
                                   }
                         }
@@ -457,56 +507,163 @@ function MainRender(props: {
         } // for dayslots
 
         // <editor-fold desc="Per-Receiver render">
-        const showRow =
-            props.filterRowStatus !== SuccessRate.UNDEFINED
-                ? props.filterRowStatus === successForRow.currentState
-                : true;
+        // we saved the start of this block of data, grab the information from there.
+        const orgName = props.data[offsetStartRow].organizationName;
+        const recvrName = props.data[offsetStartRow].receiverName;
+        const combinedName = `${orgName} ${recvrName}`.toLowerCase();
+        const successRate = Math.round(
+            (100 * successForRow.countSuccess) /
+                (successForRow.countSuccess + successForRow.countFailed)
+        );
+        const titleClassName =
+            SUCCESS_RATE_CLASSNAME_MAP[successForRow.currentState];
 
-        if (showRow) {
-            // we saved the start of this block of data, grab the information from there.
-            const key = keys[keyOffsetStartRow];
-            const orgName = props.data[key].organizationName;
-            const recvrName = props.data[key].receiverName;
-            const successRate = Math.round(
-                (100 * successForRow.countSuccess) /
-                    (successForRow.countSuccess + successForRow.countFailed)
-            );
-            const titleClassName =
-                SUCCESS_RATE_CLASSNAME_MAP[successForRow.currentState];
+        // if we have error text, then check if we filtered out all the slices
+        const allSlicesFiltered = filterErrorText.length
+            ? visibleSliceCount === 0
+            : false;
 
-            perReceiverElements.push(
-                <Grid
-                    row
-                    key={`perreceiver-row-${keyOffsetStartRow}`}
-                    className={"perreceiver-row"}
-                >
-                    <Grid className={`title-column ${titleClassName}`}>
-                        <div className={"title-text"}>
-                            {orgName}
-                            <br />
-                            {recvrName}
-                            <br />
-                            {successRate}%
-                        </div>
-                    </Grid>
-                    <ScrollSyncPane enabled>
-                        <Grid row className={"horizontal-scroll"}>
-                            <Grid row className={"week-column"}>
-                                {perDayElements}
-                            </Grid>
-                        </Grid>
-                    </ScrollSyncPane>
+        // cheat confession: using `data-` props allow us to stick properties
+        // on components without type checking requiring it be a formal prop.
+        perReceiverRowElements.push(
+            <Grid
+                row
+                key={`perreceiver-${combinedName}-${perReceiverRowElements.length}`}
+                className={"perreceiver-row"}
+                data-rowstatus={successForRow.currentState}
+                data-orgrecvname={combinedName}
+                data-allslicesfiltered={allSlicesFiltered}
+            >
+                <Grid className={`title-column ${titleClassName}`}>
+                    <div className={"title-text"}>
+                        {orgName}
+                        <br />
+                        {recvrName}
+                        <br />
+                        {successRate}%
+                    </div>
                 </Grid>
-            );
-        }
+                <ScrollSyncPane enabled>
+                    <Grid row className={"horizontal-scroll"}>
+                        <Grid row className={"week-column"}>
+                            {perDayElements}
+                        </Grid>
+                    </Grid>
+                </ScrollSyncPane>
+            </Grid>
+        );
         perDayElements = [];
+        visibleSliceCount = 0;
         // </editor-fold>
     } // while
+    return perReceiverRowElements;
+}
+
+/**
+ * Some filtering doesn't need to modify rows, just show/hide rows.
+ * This function loops over "pre-rendered" rows and decide which to
+ * include.
+ */
+function FilterRenderedRows(props: {
+    renderedRows: JSX.Element[];
+    filterRowStatus: SuccessRate;
+    filterRowReceiver: string;
+    filterErrorText: string;
+    onClick: (dataItem: AdmConnStatusDataType[]) => void;
+}) {
+    const renderedRows = props.renderedRows;
+
+    const resultArray: JSX.Element[] = [];
+    for (let offset = 0; offset < renderedRows.length; offset++) {
+        const renderedRow = renderedRows[offset];
+        const rowStatus = renderedRow.props["data-rowstatus"] || "";
+        const orgRecvName = renderedRow.props["data-orgrecvname"] || "";
+        const allSlicesFilteredOut =
+            renderedRow.props["data-allslicesfiltered"] || false;
+
+        // filters remove rows.
+        const hideRowBasedOnStatus =
+            props.filterRowStatus !== SuccessRate.UNDEFINED
+                ? rowStatus !== props.filterRowStatus
+                : false;
+
+        const hideRowBasedOnRecv =
+            props.filterRowReceiver !== ""
+                ? !orgRecvName.includes(props.filterRowReceiver)
+                : false;
+
+        // this filter removed ALL slices from the day, so hide the row
+        const hideRowBasedOnErrorFilter =
+            props.filterErrorText !== "" ? allSlicesFilteredOut : false;
+
+        const hideRow =
+            hideRowBasedOnStatus ||
+            hideRowBasedOnRecv ||
+            hideRowBasedOnErrorFilter;
+
+        if (!hideRow) {
+            resultArray.push(renderedRow);
+        }
+    }
+    return resultArray;
+}
+
+function MainRender(props: {
+    datesRange: DatePair;
+    filterRowStatus: SuccessRate;
+    filterErrorText: string;
+    filterRowReceiver: string;
+    onDetailsClick: (subData: AdmConnStatusDataType[]) => void;
+}) {
+    const startDate = props.datesRange[0];
+    const endDate = props.datesRange[1];
+    const results = useResource(AdmConnStatusResource.list(), {
+        startDate: startOfDayIso(startDate),
+        endDate: endOfDayIso(endDate),
+    });
+    const data = useMemo(() => sortStatusData(results), [results]);
+
+    const onClick = useCallback(
+        (dataItems: AdmConnStatusDataType[]) => {
+            // in theory, there might be multiple events for the block, but we're only handling one for now.
+            props.onDetailsClick(dataItems);
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [props.onDetailsClick]
+    );
+    // Example: if we decide to filter data[1], then we filter renderedRows[1]
+    // this prevents the expensive row renders when a filter happens
+    // (since they filter out WHOLE rows).
+
+    const renderedRows = useMemo(
+        () =>
+            renderAllReceiverRows({
+                data,
+                startDate,
+                endDate,
+                filterErrorText: props.filterErrorText,
+                onClick,
+            }),
+        // memo cannot track date changes correctly, leave them out of deps!
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [data, props.filterErrorText]
+    );
+
+    if (renderedRows.length === 0) {
+        return <div>No Data</div>;
+    }
+
     return (
         //
         <ScrollSync horizontal enabled>
             <GridContainer className={"rs-admindash-component"}>
-                {perReceiverElements}
+                {FilterRenderedRows({
+                    renderedRows,
+                    filterRowStatus: props.filterRowStatus,
+                    filterRowReceiver: props.filterRowReceiver,
+                    filterErrorText: props.filterErrorText,
+                    onClick,
+                }) || <div>No data matching filters</div>}
             </GridContainer>
         </ScrollSync>
     );
@@ -516,11 +673,8 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
     if (!props?.subData.length) {
         return <>No Data Found</>;
     }
-    // note: if we ever have the timeslots > cron job so there are multiple
-    // results per slot, then this needs to be expended to show more.
-    const dataItem = props.subData[0];
 
-    const duration = () => {
+    const duration = (dataItem: AdmConnStatusDataType) => {
         return durationFormatShort(
             new Date(dataItem.connectionCheckCompletedAt),
             new Date(dataItem.connectionCheckStartedAt)
@@ -528,61 +682,165 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
     };
 
     return (
-        <GridContainer className={"rs-admindash-modal"}>
-            <Grid className={"modal-info-title"}>
-                Results for connection verification check
-            </Grid>
-            <Grid row className={"modal-info-row"}>
-                <Grid className={"modal-info-label"}>Org:</Grid>
-                <Grid className={"modal-info-value"}>
-                    {dataItem.organizationName} (id: {dataItem.organizationId})
-                </Grid>
-            </Grid>
-
-            <Grid row className={"modal-info-row"}>
-                <Grid className={"modal-info-label "}>Receiver:</Grid>
-                <Grid className={"modal-info-value"}>
-                    {dataItem.receiverName} (id: {dataItem.receiverId})
-                </Grid>
-            </Grid>
-
-            <Grid row className={"modal-info-row"}>
-                <Grid className={"modal-info-label"}>Result:</Grid>
+        <GridContainer className={"rs-admindash-modal-container"}>
+            {/* We support multiple results per slice */}
+            {props.subData.map((dataItem) => (
                 <Grid
-                    className={`modal-info-value ${
-                        dataItem.connectionCheckSuccessful
-                            ? "success-all"
-                            : "failure-all"
-                    }`}
+                    key={`dlog-item-${dataItem.receiverConnectionCheckResultId}`}
                 >
-                    {dataItem.connectionCheckSuccessful ? "success" : "failed"}
-                </Grid>
-            </Grid>
+                    <Grid className={"modal-info-title"}>
+                        Results for connection verification check
+                    </Grid>
+                    <Grid row className={"modal-info-row"}>
+                        <Grid className={"modal-info-label"}>Org:</Grid>
+                        <Grid className={"modal-info-value"}>
+                            {dataItem.organizationName} (id:{" "}
+                            {dataItem.organizationId})
+                        </Grid>
+                    </Grid>
 
-            <Grid row className={"modal-info-row"}>
-                <Grid className={"modal-info-label"}>Started At:</Grid>
-                <Grid className={"modal-info-value"}>
-                    {formatDate(dataItem.connectionCheckStartedAt)}
-                    <br />
-                    {dataItem.connectionCheckStartedAt}
-                </Grid>
-            </Grid>
+                    <Grid row className={"modal-info-row"}>
+                        <Grid className={"modal-info-label "}>Receiver:</Grid>
+                        <Grid className={"modal-info-value"}>
+                            {dataItem.receiverName} (id: {dataItem.receiverId})
+                        </Grid>
+                    </Grid>
 
-            <Grid row className={"modal-info-row"}>
-                <Grid className={"modal-info-label"}>Time to complete:</Grid>
-                <Grid className={"modal-info-value"}>
-                    {duration()}
-                    <br />
-                </Grid>
-            </Grid>
+                    <Grid row className={"modal-info-row"}>
+                        <Grid className={"modal-info-label"}>Result:</Grid>
+                        <Grid
+                            className={`modal-info-value ${
+                                dataItem.connectionCheckSuccessful
+                                    ? "success-all"
+                                    : "failure-all"
+                            }`}
+                        >
+                            {dataItem.connectionCheckSuccessful
+                                ? "success"
+                                : "failed"}
+                        </Grid>
+                    </Grid>
 
-            <Grid row className={"modal-info-row"}>
-                <Grid className={"modal-info-label"}>Result message:</Grid>
-                <Grid className={"modal-info-value"}>
-                    {dataItem.connectionCheckResult}
+                    <Grid row className={"modal-info-row"}>
+                        <Grid className={"modal-info-label"}>Started At:</Grid>
+                        <Grid className={"modal-info-value"}>
+                            {formatDate(dataItem.connectionCheckStartedAt)}
+                            <br />
+                            {dataItem.connectionCheckStartedAt}
+                        </Grid>
+                    </Grid>
+
+                    <Grid row className={"modal-info-row"}>
+                        <Grid className={"modal-info-label"}>
+                            Time to complete:
+                        </Grid>
+                        <Grid className={"modal-info-value"}>
+                            {duration(dataItem)}
+                            <br />
+                        </Grid>
+                    </Grid>
+
+                    <Grid row className={"modal-info-row"}>
+                        <Grid className={"modal-info-label"}>
+                            Result message:
+                        </Grid>
+                        <Grid className={"modal-info-value"}>
+                            {dataItem.connectionCheckResult}
+                        </Grid>
+                    </Grid>
                 </Grid>
-            </Grid>
+            ))}
         </GridContainer>
+    );
+}
+
+/**
+ * We want to control date picking better than the default control allows.
+ * Reasons:
+ *  - We limit the max range allowed to limit large data requests.
+ *  - We want start AND end picked before the expensive fetch.
+ *  - Picker fields are LARGE and take up a bunch of space.
+ */
+function DateRangePickingAtomic(props: {
+    defaultStartDate: string;
+    defaultEndDate: string;
+    onChange: (props: { startDate: string; endDate: string }) => void;
+}) {
+    const [startDate, setStartDate] = useState<string>(props.defaultStartDate);
+    const [endDate, setEndDate] = useState<string>(props.defaultEndDate); // may be null because it's optional
+    const modalRef = useRef<ModalRef>(null);
+
+    // for readability
+    const isDateRangeOk = useCallback(() => {
+        const msEnd =
+            endDate !== "" ? new Date(endDate).getTime() : new Date().getTime();
+        const msStart = new Date(startDate).getTime();
+        return msEnd - msStart < MAX_DAYS_MS;
+    }, [startDate, endDate]);
+
+    const formatDateFromString = (d: string) => {
+        if (d === "") return "now";
+        return new Date(d).toLocaleDateString();
+    };
+
+    return (
+        <>
+            <span>
+                🗓 {formatDateFromString(startDate)}
+                {" — "}
+                {formatDateFromString(endDate)}
+            </span>
+            <ModalToggleButton
+                modalRef={modalRef}
+                opener
+                className="padding-1 margin-1 usa-button--outline"
+            >
+                Change...
+            </ModalToggleButton>
+            <Modal ref={modalRef} id={"date-range-picker"}>
+                <div>Select date range to show. (Max 10 days span)</div>
+                <DateRangePicker
+                    className={`${StyleClass.DATE_CONTAINER} margin-bottom-5`}
+                    startDateLabel="From (Start Range):"
+                    startDatePickerProps={{
+                        id: "start-date",
+                        name: "start-date-picker",
+                        defaultValue: startDate,
+                        onChange: (s) => {
+                            if (s) {
+                                setStartDate(startOfDayIso(new Date(s)));
+                            }
+                        },
+                    }}
+                    endDateLabel="Until (End Range):"
+                    endDatePickerProps={{
+                        id: "end-date",
+                        name: "end-date-picker",
+                        defaultValue: props.defaultEndDate,
+                        onChange: (s) => {
+                            if (s) {
+                                setEndDate(endOfDayIso(new Date(s)));
+                            }
+                        },
+                    }}
+                />
+                <Button
+                    type="button"
+                    disabled={!isDateRangeOk()}
+                    onClick={() => {
+                        modalRef.current?.toggleModal(undefined, false);
+                        props.onChange({ startDate, endDate });
+                    }}
+                >
+                    Update
+                </Button>
+                {isDateRangeOk() ? null : (
+                    <span className={"rs-admindash-warn-font"}>
+                        Dates are too far apart (too many days - max 10 days)
+                    </span>
+                )}
+            </Modal>
+        </>
     );
 }
 
@@ -590,11 +848,9 @@ export function AdminReceiverDashboard() {
     const [startDate, setStartDate] = useState<string>(
         startOfDayIso(initialStartDate())
     );
-    const [endDate, setEndDate] = useState<string | undefined>(); // may be null because it's optional
-    const results = useResource(AdmConnStatusResource.list(), {
-        startDate,
-        endDate,
-    });
+    const [endDate, setEndDate] = useState<string>(
+        initialEndDate().toISOString()
+    );
     // this is the text input box filter
     const [filterReceivers, setFilterReceivers] = useState("");
     const [filterErrorResults, setFilterErrorResults] = useState("");
@@ -607,20 +863,12 @@ export function AdminReceiverDashboard() {
         AdmConnStatusDataType[]
     >([]);
 
-    const data = makeDictionary(
-        results.filter(
-            (eachRow) =>
-                eachRow.filterOnName(filterReceivers) &&
-                eachRow.filterOnCheckResultStr(filterErrorResults)
-        )
-    );
-
-    const showDetailsModal = (subData: AdmConnStatusDataType[]) => {
+    const showDetailsModal = useCallback((subData: AdmConnStatusDataType[]) => {
         if (subData.length) {
             setCurrentDataForModal(subData);
             modalShowInfoRef?.current?.toggleModal(undefined, true);
         }
-    };
+    }, []);
 
     return (
         <section className="grid-container">
@@ -638,29 +886,18 @@ export function AdminReceiverDashboard() {
             </SiteAlert>
             <form autoComplete="off" className="grid-row margin-0">
                 <div className="flex-auto margin-1">
-                    <DateRangePicker
-                        className={`${StyleClass.DATE_CONTAINER} margin-0`}
-                        startDateLabel="From (Start Range):"
-                        startDatePickerProps={{
-                            id: "start-date",
-                            name: "start-date-picker",
-                            defaultValue: startDate,
-                            onChange: (s) => {
-                                if (s) {
-                                    setStartDate(startOfDayIso(new Date(s)));
-                                }
-                            },
-                        }}
-                        endDateLabel="Until (End Range):"
-                        endDatePickerProps={{
-                            id: "end-date",
-                            name: "end-date-picker",
-                            defaultValue: "",
-                            onChange: (s) => {
-                                if (s) {
-                                    setEndDate(endOfDayIso(new Date(s)));
-                                }
-                            },
+                    <Label
+                        className="font-sans-xs usa-label text-no-wrap"
+                        htmlFor="input_filter_receivers"
+                    >
+                        Date range:
+                    </Label>
+                    <DateRangePickingAtomic
+                        defaultStartDate={startOfDayIso(initialStartDate())}
+                        defaultEndDate={initialEndDate().toISOString()}
+                        onChange={(props) => {
+                            setStartDate(props.startDate);
+                            setEndDate(props.endDate);
                         }}
                     />
                 </div>
@@ -748,20 +985,29 @@ export function AdminReceiverDashboard() {
                     </Tooltip>
                 </div>
             </form>
-            <MainRender
-                data={data}
-                filterRowStatus={filterRowSuccessState}
-                datesRange={[
-                    new Date(startDate),
-                    endDate
-                        ? new Date(endOfDayIso(new Date(endDate)))
-                        : new Date(endOfDayIso(new Date())),
-                ]}
-                onDetailsClick={showDetailsModal}
-            />
+            <Suspense fallback={<Spinner />}>
+                <NetworkErrorBoundary
+                    fallbackComponent={() => <ErrorPage type="message" />}
+                >
+                    <MainRender
+                        datesRange={[
+                            new Date(startDate),
+                            endDate
+                                ? new Date(endOfDayIso(new Date(endDate)))
+                                : new Date(endOfDayIso(new Date())),
+                        ]}
+                        filterRowStatus={filterRowSuccessState}
+                        filterErrorText={filterErrorResults
+                            .trim()
+                            .toLowerCase()}
+                        filterRowReceiver={filterReceivers.trim().toLowerCase()}
+                        onDetailsClick={showDetailsModal}
+                    />
+                </NetworkErrorBoundary>
+            </Suspense>
             <Modal
                 isLarge={true}
-                className="rs-compare-modal"
+                className="rs-admindash-modal"
                 ref={modalShowInfoRef}
                 id={"showSuccessDetails"}
             >
@@ -772,15 +1018,20 @@ export function AdminReceiverDashboard() {
 }
 
 export const _exportForTesting = {
+    SKIP_HOURS,
     startOfDayIso,
     endOfDayIso,
     initialStartDate,
+    initialEndDate,
+    strcmp,
+    dateIsInRange,
     TimeSlots,
     SuccessRateTracker,
     SuccessRate,
     durationFormatShort,
     dateShortFormat,
-    makeDictionary,
+    sortStatusData,
     MainRender,
     ModalInfoRender,
+    DateRangePickingAtomic,
 };
