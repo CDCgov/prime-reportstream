@@ -125,8 +125,8 @@ class ValidateFunction(
                         payloadName
                     )
 
-                    // return CREATED status, report submission was successful
-                    HttpStatus.CREATED
+                    // return OK status, report validation was successful
+                    HttpStatus.OK
                 } else HttpStatus.OK
             } catch (e: ActionError) {
                 actionHistory.trackLogs(e.details)
@@ -134,7 +134,7 @@ class ValidateFunction(
                 if (e.details.count { it.type == ActionLogLevel.error } > 0)
                     HttpStatus.BAD_REQUEST
                 else
-                    HttpStatus.CREATED
+                    HttpStatus.OK
             } catch (e: IllegalArgumentException) {
                 actionHistory.trackLogs(
                     ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
