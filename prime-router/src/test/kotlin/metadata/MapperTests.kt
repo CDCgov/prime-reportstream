@@ -18,7 +18,6 @@ import kotlin.test.assertFails
 import kotlin.test.fail
 
 class MapperTests {
-
     @Test
     fun `test MiddleInitialMapper`() {
         val mapper = MiddleInitialMapper()
@@ -1145,6 +1144,78 @@ class MapperTests {
         }
         listOf(ElementAndValue(countryElement, ""), ElementAndValue(patientPostalCodeElement, "H0H0H0")).also {
             assertThat(mapper.apply(countryElement, args, it).value).isEqualTo("CAN")
+        }
+    }
+
+    @Test
+    fun `test patient age mapper`() {
+        // arrange
+        val args = listOf("patient_age", "patient_dob", "specimen_collection_date_time")
+        val patientAgeElement = Element("patient_age")
+        val patientDobElement = Element("patient_dob")
+        val specimenCollectionDateElement = Element("specimen_collection_date_time")
+        // build our test cases
+        val testCases = mapOf(
+            // test case 1 - age pass through
+            listOf(
+                ElementAndValue(patientAgeElement, "18"),
+                ElementAndValue(patientDobElement, ""),
+                ElementAndValue(specimenCollectionDateElement, "")
+            ) to "18",
+            // test case 2 - age pass through but with values. we're ignoring the values and using the
+            // age passed in instead because that's the more meaningful value
+            listOf(
+                ElementAndValue(patientAgeElement, "18"),
+                ElementAndValue(patientDobElement, "6/1/1900"),
+                ElementAndValue(specimenCollectionDateElement, "6/2/2018")
+            ) to "18",
+            // test case 3 - age is missing. calculate based on the dob and specimen collection date time
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "6/1/2000"),
+                ElementAndValue(specimenCollectionDateElement, "6/2/2018")
+            ) to "18",
+            // test case 4 - age is missing. calculate based on the dob and specimen collection date time
+            // but the DOB is AFTER the specimen collection date, so we should return null
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "6/1/2018"),
+                ElementAndValue(specimenCollectionDateElement, "6/2/2017")
+            ) to null,
+            // test case 5 - everything is null or empty, return the same
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, ""),
+                ElementAndValue(specimenCollectionDateElement, "")
+            ) to null,
+            // test case 6 - DOB is one minute before specimen collection. age is zero
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "2022-04-01T16:00:00Z"),
+                ElementAndValue(specimenCollectionDateElement, "2022-04-01T16:01:00Z")
+            ) to "0",
+            // test case 7 - DOB is assumed to be 00:00:00 UTC so it should return zero
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "2022-04-01"),
+                ElementAndValue(specimenCollectionDateElement, "2022-04-01T16:01:00Z")
+            ) to "0",
+            // test case 8 - we aren't worried about future date checking. this is very permissive
+            // if someone passes us a specimen collection date in the future we will still calculate
+            // this is also verifying that our naïve math around dividing number of days by 365
+            // and calculating the floor won't return a bad result
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "2000-05-13"),
+                ElementAndValue(specimenCollectionDateElement, "2100-05-13")
+            ) to "100",
+        )
+        // run all our test cases
+        PatientAgeMapper().run {
+            testCases.forEach {
+                val elementsAndValues = it.key
+                assertThat(this.apply(patientAgeElement, args, elementsAndValues).value).isEqualTo(it.value)
+            }
         }
     }
 }

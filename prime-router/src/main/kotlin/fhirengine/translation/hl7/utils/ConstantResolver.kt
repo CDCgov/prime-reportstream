@@ -7,6 +7,7 @@ import org.apache.commons.text.lookup.StringLookup
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.exceptions.PathEngineException
 import org.hl7.fhir.r4.model.Base
+import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TypeDetails
@@ -16,16 +17,16 @@ import org.hl7.fhir.r4.utils.FHIRPathEngine
 /**
  * Context used for resolving [constants].
  */
-data class CustomContext(val constants: MutableMap<String, String> = mutableMapOf()) {
+data class CustomContext(val bundle: Bundle, val constants: MutableMap<String, String> = mutableMapOf()) {
     companion object {
         /**
          * Add [constants] to a context.
          * @return a new context with the [constants] added or the existing context of no new constants are specified
          */
-        fun addConstants(constants: Map<String, String>, previousContext: CustomContext?): CustomContext {
-            return if (constants.isEmpty()) previousContext ?: CustomContext()
+        fun addConstants(constants: Map<String, String>, previousContext: CustomContext): CustomContext {
+            return if (constants.isEmpty()) previousContext
             else {
-                val newContext = previousContext?.copy() ?: CustomContext()
+                val newContext = previousContext.copy()
                 constants.forEach { newContext.constants[it.key] = it.value }
                 newContext
             }
@@ -35,7 +36,7 @@ data class CustomContext(val constants: MutableMap<String, String> = mutableMapO
          * Add constant with [key] and [value] to a context.
          * @return a new context with the constant added or the existing context of no new constant is specified
          */
-        fun addConstant(key: String, value: String, previousContext: CustomContext?): CustomContext {
+        fun addConstant(key: String, value: String, previousContext: CustomContext): CustomContext {
             return addConstants(mapOf(key to value), previousContext)
         }
     }
@@ -151,8 +152,14 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
         throw NotImplementedError("Not implemented")
     }
 
-    override fun resolveReference(appContext: Any?, url: String?): Base {
-        throw NotImplementedError("Not implemented")
+    override fun resolveReference(appContext: Any?, url: String?): Base? {
+        // Name is always passed in from the FHIR path engine
+        require(!url.isNullOrBlank())
+
+        return when (appContext) {
+            null, !is CustomContext -> throw PathEngineException("No context available to resolve constant '$url'")
+            else -> appContext.bundle.entry.find { it.fullUrl == url }?.resource
+        }
     }
 
     override fun conformsToProfile(appContext: Any?, item: Base?, url: String?): Boolean {
