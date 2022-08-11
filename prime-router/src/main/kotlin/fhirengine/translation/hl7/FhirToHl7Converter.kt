@@ -62,7 +62,11 @@ class FhirToHl7Converter(
     /**
      * Generate HL7 data for the elements for the given [schema] starting at the [focusResource] in the bundle.
      */
-    internal fun processSchema(schema: ConfigSchema, focusResource: Base, context: CustomContext = CustomContext()) {
+    internal fun processSchema(
+        schema: ConfigSchema,
+        focusResource: Base,
+        context: CustomContext = CustomContext(bundle)
+    ) {
         logger.debug("Processing schema: ${schema.name} with ${schema.elements.size} elements")
         // Add any schema level constants to the context
         // We need to create a new context, so constants exist only within their specific schema tree
@@ -158,11 +162,6 @@ class FhirToHl7Converter(
             evaluatedResource
         }
 
-        // This must be resources
-        resourceList.forEach {
-            if (it.isPrimitive)
-                throw SchemaException("Invalid FHIR path ${element.resource}: must evaluate to a FHIR resource.")
-        }
         return resourceList
     }
 
