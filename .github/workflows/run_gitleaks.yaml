@@ -11,12 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
         with:
-          # Fetch the full history
-          fetch-depth: 0
-
+          # Fetch the selected history
+          fetch-depth: 12
+          
       - name: "Run Gitleaks on a selected part of our history"
-        run: .environment/gitleaks/run-gitleaks.sh --since '2021-08-01T00:00:00-0400'
-
-      - name: "Output non-sensitive log"
-        if: always()
-        run: cat "gitleaks.log"
+        run: .environment/gitleaks/run-gitleaks.sh > output.log 
+        
+      - name: Output the log file
+        run:
+          cat output.log
+      
