@@ -1,4 +1,8 @@
 import { AxiosRequestHeaders } from "axios";
+import {
+    getStoredOktaToken,
+    getStoredOrg,
+} from "../contexts/SessionStorageTools";
 
 // this is duplicative with the Api class, but in order to split the functionality in this file
 // out to enable testing, we need a definition of Api that can function outside of the class declaration
@@ -12,9 +16,16 @@ interface ReportStreamApi {
 
 const apis: ReportStreamApi[] = [];
 
+const headersFromStoredSession = (): AxiosRequestHeaders => ({
+    Authorization: `Bearer ${getStoredOktaToken() || ""}`,
+    // TODO: make sure weird API edge case for `updateApiSessions` is handled
+    Organization: getStoredOrg() || "",
+});
+
 // update auth / session info for all registered APIs
 // to be run whenever auth or session information is updated in the application
-export const updateApiSessions = (headers: AxiosRequestHeaders) => {
+export const updateApiSessions = () => {
+    const headers = headersFromStoredSession();
     apis.forEach((api) => api.updateSession(headers));
 };
 

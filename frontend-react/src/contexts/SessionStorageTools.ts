@@ -2,64 +2,19 @@
  * right, but by no means is it a context. Feel free to move
  * it if you can think of a better spot. */
 
-import { AxiosRequestHeaders } from "axios";
-
 import {
     MembershipSettings,
     MembershipState,
 } from "../hooks/UseOktaMemberships";
-import { updateApiSessions } from "../network/Apis";
-
-const headersFromStoredSession = (): AxiosRequestHeaders => ({
-    Authorization: `Bearer ${getStoredOktaToken() || ""}`,
-    // TODO: make sure weird API edge case for `updateApiSessions` is handled
-    Organization: getStoredOrg() || "",
-});
 
 export enum GLOBAL_STORAGE_KEYS {
     GLOBAL_BASE = "global-context-",
     GLOBAL_ORG = "global-context-org",
     SENDER_NAME = "global-sender-name",
-    OKTA_ACCESS_TOKEN = "global-okta-token",
+    OKTA_ACCESS_TOKEN = "okta-token-storage", // set by okta
     MEMBERSHIP_STATE = "global-membership-state",
     ORGANIZATION_OVERRIDE = "global-organization-override",
 }
-
-export function getStoredOktaToken(): string | undefined {
-    return (
-        sessionStorage.getItem(GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN) ||
-        undefined
-    );
-}
-
-export function setStoredOktaToken(value: string) {
-    sessionStorage.setItem(GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN, value);
-    updateApiSessions(headersFromStoredSession());
-}
-
-// TODO: refactor this out of existing code
-export function getStoredOrg(): string | undefined {
-    console.log(
-        "~~~ read session org",
-        sessionStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || undefined
-    );
-    return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG) || undefined;
-}
-
-// TODO: refactor this out of existing code
-export function setStoredOrg(val: string) {
-    console.log("!!! set in session", val);
-    sessionStorage.setItem(GLOBAL_STORAGE_KEYS.GLOBAL_ORG, val);
-    updateApiSessions(headersFromStoredSession());
-}
-
-// export function getStoredSenderName(): string | undefined {
-//     return sessionStorage.getItem(GLOBAL_STORAGE_KEYS.SENDER_NAME) || undefined;
-// }
-
-// export function setStoredSenderName(val: string) {
-//     sessionStorage.setItem(GLOBAL_STORAGE_KEYS.SENDER_NAME, val);
-// }
 
 const fetchJsonFromSession = (storageKey: string) => {
     const storedString = sessionStorage.getItem(storageKey);
@@ -74,7 +29,36 @@ const fetchJsonFromSession = (storageKey: string) => {
     }
 };
 
-// not sure this is actually necessary. Okta should handle refresh of non-admin related state
+// temporary solution.
+// TODO: replace all occurrances of this with reads from SessionContext
+export function getStoredOktaToken(): string | undefined {
+    const tokenJsonString = sessionStorage.getItem(
+        GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN
+    );
+    if (!tokenJsonString) {
+        return "";
+    }
+    try {
+        const tokenJson = JSON.parse(tokenJsonString);
+        return tokenJson.accessToken.accessToken;
+    } catch (e) {
+        console.error("Error retrieving access token", e);
+        return "";
+    }
+}
+
+// temporary solution to read from stored override if available,
+// or from stored membership state
+// TODO: replace all occurrances of this with reads from SessionContext state
+export function getStoredOrg(): string | undefined {
+    const override = getOrganizationOverride();
+    if (override && override.parsedName) {
+        return override.parsedName;
+    }
+    const sessionJson = getSessionMembershipState();
+    return sessionJson?.activeMembership?.parsedName || "";
+}
+
 export function getOrganizationOverride(): MembershipSettings {
     return fetchJsonFromSession(GLOBAL_STORAGE_KEYS.ORGANIZATION_OVERRIDE);
 }

@@ -8,6 +8,7 @@ import {
     storeOrganizationOverride,
     getOrganizationOverride,
 } from "../contexts/SessionStorageTools";
+import { updateApiSessions } from "../network/Apis";
 
 export enum MemberType {
     SENDER = "sender",
@@ -180,6 +181,8 @@ export const membershipReducer = (
     const newState = calculateNewState(state, action);
     // with this, session storage will always mirror app state
     storeSessionMembershipState(JSON.stringify(newState));
+    // to keep any requests using Api.ts up to date with auth headers
+    updateApiSessions();
     return newState;
 };
 
