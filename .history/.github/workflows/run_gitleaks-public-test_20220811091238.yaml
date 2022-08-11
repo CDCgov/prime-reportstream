@@ -1,6 +1,6 @@
 name: gitleaks Public
 
-on: [push]
+on: [push,]
 
 jobs:
   gitleaks:

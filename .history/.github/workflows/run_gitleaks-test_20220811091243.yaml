@@ -12,6 +12,6 @@ jobs:
           fetch-depth: 10
           
       - name: "Run Gitleaks on a selected part of our history"
-        run: .environment/gitleaks/run-gitleaks.sh 
+        run: .environment/gitleaks/run-gitleaks.sh | tee output.txt
 
       
