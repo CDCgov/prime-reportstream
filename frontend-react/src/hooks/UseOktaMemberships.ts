@@ -39,11 +39,6 @@ export interface MembershipState {
     memberships?: Map<string, MembershipSettings>;
 }
 
-// export interface SessionState extends MembershipState {
-//     org: string;
-//     senderName: string;
-// }
-
 export interface MembershipController {
     state: MembershipState;
     dispatch: React.Dispatch<MembershipAction>;
@@ -136,7 +131,6 @@ export const membershipsFromToken = (token: AccessToken): MembershipState => {
 const calculateNewMemberships = (
     updatedMembershipState: MembershipState
 ): MembershipState => {
-    console.log("!!! set in state on SET_MEMBERSHIPS", updatedMembershipState);
     const override = getOrganizationOverride();
     return {
         ...updatedMembershipState,
@@ -147,6 +141,8 @@ const calculateNewMemberships = (
     };
 };
 
+// determines the new state and returns it
+// this is most of the actual reducer logic
 const calculateNewState = (
     state: MembershipState,
     action: MembershipAction
@@ -156,7 +152,6 @@ const calculateNewState = (
         case MembershipActionType.SET_MEMBERSHIPS:
             return calculateNewMemberships(payload as MembershipState);
         case MembershipActionType.ADMIN_OVERRIDE:
-            console.log("!!! set in state on ADMIN_OVERRIDE", payload);
             const newState = {
                 ...state,
                 activeMembership: {
@@ -200,9 +195,7 @@ export const useOktaMemberships = (
     // may need to drill down on the dependency array if it does, or refactor this hook
     // to deal solely with claims rather than tokens.
     useEffect(() => {
-        console.log("!!! here a token", token);
         if (token) {
-            // update session (or do that within reducer)
             dispatch({
                 type: MembershipActionType.SET_MEMBERSHIPS,
                 payload: membershipsFromToken(token),
@@ -210,7 +203,6 @@ export const useOktaMemberships = (
         }
         // this signifies a log out
         if (authState && !authState.isAuthenticated) {
-            console.log("%%%% this is where we need to log out");
             // clear override as well. this will error on json parse and result in {} being fed back on a read
             storeOrganizationOverride("");
             dispatch({ type: MembershipActionType.RESET });

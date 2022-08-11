@@ -2,26 +2,14 @@ import React, { createContext, useContext, useEffect } from "react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import { AccessToken, OktaAuth } from "@okta/okta-auth-js";
 
-// import useSessionStorage, {
-//     SessionController,
-// } from "../hooks/UseSessionStorage";
-// import {
-//     MembershipController,
-//     useSession,
-//     MembershipAction,
-// } from "../hooks/UseSession";
 import {
     MembershipSettings,
-    // MembershipController,
     useOktaMemberships,
     MembershipAction,
 } from "../hooks/UseOktaMemberships";
 
 export interface ISessionContext {
     memberships?: Map<string, MembershipSettings>;
-    // store: SessionController;
-    // org: string;
-    // senderName: string;
     activeMembership?: MembershipSettings;
     oktaToken?: Partial<AccessToken>;
     dispatch: React.Dispatch<MembershipAction>;
@@ -38,7 +26,6 @@ export const SessionContext = createContext<ISessionContext>({
     memberships: new Map(),
     activeMembership: {} as MembershipSettings,
     dispatch: () => {},
-    // store: {} as SessionController,
 });
 
 const setOktaListeners = (oktaAuth: OktaAuth) => {
@@ -72,7 +59,6 @@ const SessionProvider = ({
     children,
     oktaHook,
 }: React.PropsWithChildren<ISessionProviderProps>) => {
-    // todo, watch authState to look for logouts
     const { authState, oktaAuth } = oktaHook();
 
     let oktaInitialized = false;
@@ -87,6 +73,7 @@ const SessionProvider = ({
             setOktaListeners(oktaAuth);
         }
     }, [oktaInitialized]);
+
     const {
         state: { memberships, activeMembership },
         dispatch,

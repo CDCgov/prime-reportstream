@@ -64,7 +64,6 @@ const SupportIA = () => (
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
     const { activeMembership } = useSessionContext();
-    console.log("@@@ activeMemberhip", activeMembership);
     const [expanded, setExpanded] = useState(false);
     let itemsMenu = [<ProductIA />, <ResourcesIA />, <SupportIA />];
 

@@ -3,11 +3,11 @@
  * it if you can think of a better spot. */
 
 import { AxiosRequestHeaders } from "axios";
+
 import {
     MembershipSettings,
     MembershipState,
 } from "../hooks/UseOktaMemberships";
-
 import { updateApiSessions } from "../network/Apis";
 
 const headersFromStoredSession = (): AxiosRequestHeaders => ({

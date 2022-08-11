@@ -103,10 +103,6 @@ function SubmissionTableWithCursorManager() {
 
     useEffect(() => console.log("$$$ load submissions table"), []);
 
-    console.log(
-        "~~~ org (membershiops.state.active.parsedName) read from submissionsTable",
-        activeMembership?.parsedName
-    );
     /* Our API call! Updates when any of the given state variables update.
      * The logical swap of cursors and range value is to account for which end of the
      * range needs to update when paginating with a specific sort order.

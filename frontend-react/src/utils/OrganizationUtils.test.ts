@@ -1,10 +1,8 @@
 import {
     AccessTokenWithRSClaims,
     getOktaGroups,
-    getRSOrgs,
     parseOrgName,
     parseOrgs,
-    RSOrgType,
 } from "./OrganizationUtils";
 import { mockToken } from "./TestUtils";
 

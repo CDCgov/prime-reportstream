@@ -17,7 +17,6 @@ export default class AuthResource extends Resource {
     static useFetchInit = (init: RequestInit): RequestInit => {
         const accessToken = getStoredOktaToken();
         const organization = getStoredOrg();
-        console.log("~~~ org read from auth resource", organization);
 
         return {
             ...init,
