@@ -43,7 +43,7 @@ elements:
     csvFields: [{ name: sample_condition }]
     documentation: Description of the physical state of the specimen, as in HL7 field SPM-24.2
 
-  - name: specimen_type
+  - name: specimen_type_name
     csvFields: [{ name: sample_type }]
     documentation: Description of the precise nature of the entity that will be the source material for the observation, as in HL7 field SPM-4.2
 
