@@ -32,6 +32,7 @@ runs:
       run: |
         echo "" >> .env.production
         echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
+        yarn test:ci
         yarn build:production
       shell: bash
 
