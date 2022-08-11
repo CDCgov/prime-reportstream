@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 2,
+            "activePatchIndex": 4,
             "patches": [
                 {
                     "date": 1660174393754,
@@ -16,6 +16,14 @@
                 {
                     "date": 1660175254073,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -17,16 +17,5 @@\n         with:\r\n           report_format: \"sarif\"\r\n           fail: false\r\n \r\n-      - name: Get the output from the gitleaks step\r\n-        run: |\r\n-          echo \"exitcode: ${{ steps.gitleaks.outputs.exitcode }}\"\r\n-          echo \"result: ${{ steps.gitleaks.outputs.result }}\"\r\n-          echo \"output: ${{ steps.gitleaks.outputs.output }}\"\r\n-          echo \"command: ${{ steps.gitleaks.outputs.command }}\"\r\n-          echo \"report: ${{ steps.gitleaks.outputs.report }}\"\r\n-      - name: Upload SARIF report\r\n-        if: steps.gitleaks.outputs.exitcode == 1\r\n-        uses: github/codeql-action/upload-sarif@v2\r\n-        with:\r\n-          sarif_file: ${{ steps.gitleaks.outputs.report }}\n\\ No newline at end of file\n+      \n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1660175990293,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,11 +11,14 @@\n         with:\r\n           fetch-depth: \"0\"\r\n \r\n       - name: Run Gitleaks\r\n-        id: gitleaks\r\n-        uses: DariuszPorowski/github-action-gitleaks@v2\r\n-        with:\r\n-          report_format: \"sarif\"\r\n-          fail: false\r\n+        # id: gitleaks\r\n+        # uses: DariuszPorowski/github-action-gitleaks@v2\r\n+        # with:\r\n+        #   report_format: \"sarif\"\r\n+        #   fail: false\r\n \r\n+        uses: gitleaks/gitleaks-action@v2\r\n+        env:\r\n+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}\r\n       \n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1660176005304,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,7 @@\n name: gitleaks Public\r\n \r\n-on: [push,]\r\n+on: [push]\r\n \r\n jobs:\r\n   gitleaks:\r\n     runs-on: ubuntu-latest\r\n"
                 }
             ],
             "date": 1660174393754,
