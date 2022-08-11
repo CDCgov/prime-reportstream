@@ -21,17 +21,9 @@ class OktaAuthenticationTests {
     }
 
     @Test
-    fun `test authenticate`() {
-        // This should trigger the local auth
-        var claims = OktaAuthentication.authenticate(null, HttpMethod.GET, "foobar", null)
-        assertThat(claims).isNotNull()
-        assertThat(claims?.isPrimeAdmin).isEqualTo(true)
-        assertThat(claims?.scopes?.size).isEqualTo(2)
-        assertThat(claims?.scopes?.contains("ignore.*.user")).isEqualTo(true)
-        assertThat(claims?.scopes?.contains(Scope.primeAdminScope)).isEqualTo(true)
-
+    fun `test authenticate bad token`() {
         // Bad token
-        claims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar", null)
+        val claims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar")
         assertThat(claims).isNull()
     }
 
@@ -51,7 +43,7 @@ class OktaAuthenticationTests {
                 claimsMap
             )
 
-        val authenticatedClaims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar", null)
+        val authenticatedClaims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar")
         assertThat(authenticatedClaims).isNotNull()
         assertThat(authenticatedClaims?.userName).isEqualTo("test")
         assertThat(authenticatedClaims?.isPrimeAdmin).isEqualTo(false)

@@ -23,7 +23,6 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
@@ -398,8 +397,8 @@ class DeliveryFunctionTests : Logging {
         val mockDeliveryFacade = mockk<DeliveryFacade>()
         val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
 
-        mockkObject(AuthenticationStrategy.Companion)
-        every { AuthenticationStrategy.authenticate(any()) } returns
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
 
         // Invalid id:  not a UUID nor a Long
@@ -498,8 +497,8 @@ class DeliveryFunctionTests : Logging {
         val mockDeliveryFacade = mockk<DeliveryFacade>()
         val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
 
-        mockkObject(AuthenticationStrategy.Companion)
-        every { AuthenticationStrategy.authenticate(any()) } returns
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
 
         // Good return

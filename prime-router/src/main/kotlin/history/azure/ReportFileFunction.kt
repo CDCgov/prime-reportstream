@@ -6,7 +6,7 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.ReportHistory
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
@@ -80,7 +80,7 @@ abstract class ReportFileFunction(
     ): HttpResponseMessage {
         try {
             // Do authentication
-            val claims = AuthenticationStrategy.authenticate(request)
+            val claims = AuthenticatedClaims.authenticate(request)
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
             val userOrgName = this.getOrgName(organization)
@@ -153,7 +153,7 @@ abstract class ReportFileFunction(
         id: String,
     ): HttpResponseMessage? {
         // Do authentication
-        val claims = AuthenticationStrategy.authenticate(request)
+        val claims = AuthenticatedClaims.authenticate(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
         logger.debug("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")

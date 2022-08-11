@@ -12,7 +12,6 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.DO_OKTA_AUTH
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -107,7 +106,7 @@ class ValidateFunctionTests {
         val validateFunc = spyk(ValidateFunction(engine, actionHistory))
         val resp = HttpUtilities.okResponse(req, "fakeOkay")
         every { engine.db } returns accessSpy
-        mockkObject(AuthenticationStrategy.Companion)
+        mockkObject(AuthenticatedClaims.Companion)
         every { validateFunc.processRequest(any(), any()) } returns resp
         every { engine.settings.findSender(any()) } returns sender // This test only works with org = simple_report
         return Pair(validateFunc, req)
@@ -120,7 +119,7 @@ class ValidateFunctionTests {
         val (validateFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("scope" to "simple_report.default.report", "sub" to "c@rlos.com")
         val claims = AuthenticatedClaims(jwt, isOktaAuth = false)
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "content-length" to "4"
         )
@@ -135,7 +134,7 @@ class ValidateFunctionTests {
         val (reportFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("scope" to "simple_report.default.report", "sub" to "c@rlos.com")
         val claims = AuthenticatedClaims(jwt, isOktaAuth = false)
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "client" to "simple_report",
             "content-length" to "4"
@@ -151,7 +150,7 @@ class ValidateFunctionTests {
         val (reportFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("scope" to "bogus_org.default.report", "sub" to "c@rlos.com")
         val claims = AuthenticatedClaims(jwt, isOktaAuth = false)
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "client" to "simple_report",
             "content-length" to "4"
@@ -170,7 +169,7 @@ class ValidateFunctionTests {
         val (validateFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
         val claims = AuthenticatedClaims(jwt, isOktaAuth = true)
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         // This is the most common way our customers use the client string
         req.httpHeaders += mapOf(
             "client" to "simple_report",
@@ -188,7 +187,7 @@ class ValidateFunctionTests {
         val (validateFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
         val claims = AuthenticatedClaims(jwt, isOktaAuth = true)
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         // Now try it with a full client name
         req.httpHeaders += mapOf(
             "client" to "simple_report.default",
@@ -204,7 +203,7 @@ class ValidateFunctionTests {
         val (validateFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
         val claims = AuthenticatedClaims(jwt, isOktaAuth = true)
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         // Now try it with a full client name but not with "default"
         // The point of these tests is that the call to the auth code only contains the org prefix 'simple_report'
         req.httpHeaders += mapOf(

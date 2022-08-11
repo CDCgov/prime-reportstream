@@ -34,45 +34,21 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         val issuerBaseUrl: String = System.getenv(envVariableForOktaBaseUrl) ?: ""
 
         /**
-         * Perform authentication on a human user.
-         *
-         * @return the claims found in the jwt if the jwt token in [request] is validated.
-         * Return null if not authenticated.
-         * Always performs authentication using Okta, unless running locally.
-         */
-        fun authenticate(request: HttpRequestMessage<String?>): AuthenticatedClaims? {
-            val accessToken = AuthenticationStrategy.getAccessToken(request)
-            val client = request.headers["client"]
-            return authenticate(accessToken, request.httpMethod, request.uri.path, client)
-        }
-
-        /**
-         * Confirm this [accessToken] is a valid Okta token.
+         * Perform authentication on a human user.  Confirm this [accessToken] is a valid Okta token.
          * [httpMethod] and [path] are just for logging.
          * Optional [client] is the 'client' header as passed in API POSTs submissions. Only if running local,
          * use this as the sender in the claims.  Otherwise, ignore [client].   OK if null.
          */
         fun authenticate(
-            accessToken: String?,
+            accessToken: String,
             httpMethod: HttpMethod,
             path: String,
-            client: String? = null,
         ): AuthenticatedClaims? {
-            if (AuthenticationStrategy.isLocal(accessToken)) {
-                logger.info("Granted test auth request for $httpMethod:$path")
-                val sender = if (client == null)
-                    null
-                else
-                    WorkflowEngine().settings.findSender(client)
-                return AuthenticatedClaims.generateTestClaims(sender)
-            }
-
             // Confirm the token exists.
-            if (accessToken == null) {
+            if (accessToken.isNullOrEmpty()) {
                 logger.info("Missing or badly formatted Authorization Header: $httpMethod:$path}")
                 return null
             }
-
             try {
                 // Perform authentication.  Throws exception if authentication fails.
                 val jwt = decodeJwt(accessToken)
@@ -99,6 +75,8 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         }
 
         /**
+         * This is DEPRECATED.
+         *
          * @return true iff at least one of the user's [claims] exactly matches one of the required memberships.
          * The set of required memberships is calculated here based on the [requiredMinimumLevel],
          * the [requiredOrganizationName], and the [requireSenderClaim].
@@ -158,6 +136,9 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
     }
 
     /**
+     * This is DEPRECATED.  Please stop using this, as it only does Okta auth, and does not allow for
+     * server-to-server connections.
+     *
      * Check BOTH authentication and authorization for this [request], and if both succeed, execute [block].
      * When an [organizationName] is provided, this allows access at the User principal level for users with a
      * claim to that [organizationName].
@@ -173,8 +154,23 @@ class OktaAuthentication(private val minimumLevel: PrincipalLevel = PrincipalLev
         block: (AuthenticatedClaims) -> HttpResponseMessage
     ): HttpResponseMessage {
         try {
-            val claims = authenticate(request)
-                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+            val accessToken = AuthenticatedClaims.getAccessToken(request)
+            if (accessToken.isNullOrEmpty()) {
+                logger.error("Missing or bad format 'Authorization: Bearer <tok>' header. Not authenticated.")
+                return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+            }
+            val claims = if (AuthenticatedClaims.isLocal(accessToken)) {
+                logger.info("Granted test auth request for ${request.httpMethod}:${request.uri.path}")
+                val client = request.headers["client"]
+                val sender = if (client == null)
+                    null
+                else
+                    WorkflowEngine().settings.findSender(client)
+                AuthenticatedClaims.generateTestClaims(sender)
+            } else {
+                authenticate(accessToken, request.httpMethod, request.uri.path)
+                    ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+            }
             actionHistory?.trackUsername(claims.userName)
 
             if (!authorizeByMembership(claims, minimumLevel, organizationName, requireSenderClaim)) {

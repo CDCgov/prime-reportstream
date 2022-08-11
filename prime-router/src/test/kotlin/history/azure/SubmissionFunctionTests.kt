@@ -24,7 +24,6 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.SubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
@@ -360,8 +359,8 @@ class SubmissionFunctionTests : Logging {
         val mockSubmissionFacade = mockk<SubmissionsFacade>()
         val function = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, mockSubmissionFacade)
 
-        mockkObject(AuthenticationStrategy.Companion)
-        every { AuthenticationStrategy.authenticate(any()) } returns
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
 
         // Invalid id:  not a UUID nor a Long
