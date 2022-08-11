@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 42,
+            "activePatchIndex": 43,
             "patches": [
                 {
                     "date": 1660057706276,
@@ -176,6 +176,10 @@
                 {
                     "date": 1660232334360,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,10 +7,14 @@\n     runs-on: ubuntu-latest\r\n     steps:\r\n       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b\r\n         with:\r\n-          # Fetch the full history\r\n+          # Fetch the selected history\r\n           fetch-depth: 12\r\n           \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n-        run: .environment/gitleaks/run-gitleaks.sh >> output.log && cat output.log\r\n+        run: .environment/gitleaks/run-gitleaks.sh | tee output.log \r\n+        \r\n+      - name: Output the log file\r\n+        run:\r\n+          cat output.log\r\n       \n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1660232519824,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,9 +11,9 @@\n           # Fetch the selected history\r\n           fetch-depth: 12\r\n           \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n-        run: .environment/gitleaks/run-gitleaks.sh | tee output.log \r\n+        run: .environment/gitleaks/run-gitleaks.sh > tee output.log \r\n         \r\n       - name: Output the log file\r\n         run:\r\n           cat output.log\r\n"
                 }
             ],
             "date": 1660057706276,
