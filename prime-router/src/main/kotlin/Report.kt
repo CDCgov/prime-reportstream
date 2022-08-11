@@ -8,6 +8,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ElrResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
+import gov.cdc.prime.router.common.DateUtilities.toYears
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
@@ -25,8 +26,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.xml.bind.DatatypeConverter
-import kotlin.math.abs
-import kotlin.math.floor
 import kotlin.random.Random
 
 /**
@@ -867,6 +866,8 @@ class Report : Logging {
                     it.testPerformed = row.getStringOrNull("test_performed_name").trimToNull()
                     it.testOrdered = row.getStringOrNull("ordered_test_name").trimToNull()
                     it.testOrderedCode = row.getStringOrNull("ordered_test_code").trimToNull()
+                    // trap the processing mode code as well
+                    it.processingModeCode = row.getStringOrNull("processing_mode_code").trimToNull()
                 }
             }
         } catch (e: Exception) {
@@ -957,6 +958,8 @@ class Report : Logging {
                     it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
                     it.testPerformedLoincCode = row.getStringOrNull("test_performed_code").trimToNull()
                     it.organizationName = row.getStringOrNull("organization_name").trimToNull()
+                    // trap the processing mode code from submissions as well
+                    it.processingModeCode = row.getStringOrNull("processing_mode_code").trimToNull()
                 }
             }
         } catch (e: Exception) {
@@ -978,13 +981,6 @@ class Report : Logging {
      *  @return age - result of patient's age.
      */
     private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: OffsetDateTime?): String? {
-        /**
-         * Get the age in years from the [duration]
-         */
-        fun getAgeInYearsFromDuration(duration: Duration): Int {
-            return floor(abs(duration.toDays() / 365.0)).toInt()
-        }
-
         return if (
             (!patient_age.isNullOrBlank()) &&
             patient_age.all { Character.isDigit(it) } &&
@@ -1000,7 +996,7 @@ class Report : Logging {
                 if (patient_dob == null || specimenCollectionDate == null) return null
                 val d = DateUtilities.parseDate(patient_dob).toOffsetDateTime()
                 if (d.isBefore(specimenCollectionDate)) {
-                    getAgeInYearsFromDuration(Duration.between(d, specimenCollectionDate)).toString()
+                    Duration.between(d, specimenCollectionDate).toYears().toString()
                 } else {
                     null
                 }

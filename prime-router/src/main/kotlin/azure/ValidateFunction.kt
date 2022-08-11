@@ -108,26 +108,21 @@ class ValidateFunction(
                     sender.allowDuplicates
                 }
 
-                // Only process the report if we are not checking for connection or validation.
-                if (options != Options.CheckConnections && options != Options.ValidatePayload) {
-                    val receiver = ValidationReceiver(workflowEngine, actionHistory)
+                val receiver = ValidationReceiver(workflowEngine, actionHistory)
+                receiver.validateAndMoveToProcessing(
+                    sender,
+                    validatedRequest.content,
+                    validatedRequest.defaults,
+                    options,
+                    validatedRequest.routeTo,
+                    false,
+                    allowDuplicates,
+                    rawBody,
+                    payloadName
+                )
 
-                    // send report on its way, either via the COVID pipeline or the full ELR pipeline
-                    receiver.validateAndMoveToProcessing(
-                        sender,
-                        validatedRequest.content,
-                        validatedRequest.defaults,
-                        options,
-                        validatedRequest.routeTo,
-                        false,
-                        allowDuplicates,
-                        rawBody,
-                        payloadName
-                    )
-
-                    // return CREATED status, report submission was successful
-                    HttpStatus.CREATED
-                } else HttpStatus.OK
+                // return OK status, report validation was successful
+                HttpStatus.OK
             } catch (e: ActionError) {
                 actionHistory.trackLogs(e.details)
                 HttpStatus.BAD_REQUEST

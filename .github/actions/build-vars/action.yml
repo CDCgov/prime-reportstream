@@ -81,6 +81,7 @@ runs:
         ${{ steps.build_prod.outputs.version }}"
 
     - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
+      if: github.event_name != 'schedule'
       id: filter
       with:
         list-files: csv
@@ -102,6 +103,7 @@ runs:
             - '.github/workflows/deploy_terraform.yml'
 
     - name: Force backend change if prod
+      if: github.event_name != 'schedule'
       id: backend_change_result
       shell: bash
       run: |
@@ -112,6 +114,7 @@ runs:
         fi
 
     - name: Front frontend change if prod
+      if: github.event_name != 'schedule'
       id: frontend_change_result
       shell: bash
       run: |

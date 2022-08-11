@@ -547,42 +547,74 @@ pre {
                 var(--toastify-color-error) 30px
             );
         }
+
+        .success-result-hidden {
+            opacity: 30%;
+        }
+    }
+
+    /* this is added to slice cells when an error search is done and a cell doesn't match */
+    .is-hidden {
+        display: none;
+        cursor: none;
     }
 }
 
 .rs-admindash-modal {
-    .modal-info-title {
-        font-size: larger;
-        font-weight: bolder;
-        background-color: #2e2e2e;
-        color: white;
-        padding: 7px;
+    /* these are based on the width and height available */
+    max-width: 90vw;
+    height: 90vh;
+    overflow-y: auto;
+
+    .usa-modal__main {
+        width:100%;
+        max-width: 90vw;
+        padding: 0;
     }
 
-    .modal-info-row {
-        flex-wrap: nowrap;
-    }
+    .rs-admindash-modal-container {
+        .modal-info-title {
+            font-size: larger;
+            font-weight: bolder;
+            background-color: #2e2e2e;
+            color: white;
+            padding: 7px;
+        }
 
-    .modal-info-label {
-        width: 25em;
-        font-weight: bolder;
-        color: #2e2e2e;
-        text-align: right;
-        padding: 0.2em;
-    }
+        .modal-info-row {
+            flex-wrap: nowrap;
+        }
 
-    .modal-info-value {
-        width: 120em;
-        padding: 0.2em;
-    }
+        .modal-info-label {
+            width: 25em;
+            font-weight: bolder;
+            color: #2e2e2e;
+            text-align: right;
+            padding: 0.2em;
+        }
 
-    .success-all {
-        color: var(--toastify-color-success);
-    }
+        .modal-info-value {
+            width: 120em;
+            padding: 0.2em;
+        }
 
-    .failure-all {
-        color: var(--toastify-color-error);
+        .success-all {
+            color: var(--toastify-color-success);
+        }
+
+        .failure-all {
+            color: var(--toastify-color-error);
+        }
     }
+}
+
+.rs-admindash-warn-font {
+    color: var(--toastify-color-error);
+    font-weight: bold;
+}
+
+.rs-scrolling-modal {
+
 }
 
 /* for dashboards, unbounded width is a nice feature */
