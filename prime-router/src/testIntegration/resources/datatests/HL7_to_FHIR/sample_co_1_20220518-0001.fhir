@@ -10756,9 +10756,8 @@
         } ],
         "address" : {
           "use" : "home",
-          "line" : [ "4861 20TH AVE", "Apt 3" ],
+          "line" : [ "4861 20TH AVE" ],
           "city" : "THUNDER MOUNTAIN",
-          "district": "AMADOR",
           "state" : "NV",
           "postalCode" : "99999",
           "country" : "USA"
