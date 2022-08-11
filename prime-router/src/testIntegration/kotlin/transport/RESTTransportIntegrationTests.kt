@@ -33,11 +33,12 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
 
     private val mockClientAuthOk = HttpClient(MockEngine) {
         engine {
-            addHandler { _ ->
+            addHandler {
                 respond(
                     """{"access_token": "AYjcyMzY3ZDhiNmJkNTY", 
                         |"refresh_token": "RjY2NjM5NzA2OWJjuE7c", 
-                        |"token_type": "Bearer", "expires_in": 3600}""".trimMargin(),
+                        |"token_type": "Bearer", "expires_in": 3600}
+                    """.trimMargin(),
                     HttpStatusCode.OK,
                     responseHeaders
                 )
@@ -114,7 +115,12 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     }
 
     private var actionHistory = ActionHistory(TaskAction.send)
-    private val transportType = RESTTransportType("mock-api", "mock-tokenUrl")
+    private val transportType = RESTTransportType(
+        "mock-api",
+        "mock-tokenUrl",
+        null,
+        mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
+    )
     private val task = Task(
         reportId,
         TaskAction.send,
@@ -139,8 +145,8 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         return WorkflowEngine.Header(
             task, reportFile,
             null,
-            settings.findOrganization("pa-phd"),
-            settings.findReceiver("pa-phd.elr-chester-hl7"),
+            settings.findOrganization("ny-phd"),
+            settings.findReceiver("ny-phd.elr"),
             metadata.findSchema("covid-19"),
             content = content.toByteArray(),
             true
@@ -156,10 +162,10 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     fun `test connecting to mock service getToken happy path`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientAuthOk))
-        every { mockRestTransport.lookupCredentials(any()) }.returns(
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any()) } }.returns("")
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
     }
@@ -168,10 +174,10 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     fun `test connecting to mock service getToken unhappy path`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientAuthError))
-        every { mockRestTransport.lookupCredentials(any()) }.returns(
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any()) } }.returns("")
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNotNull()
     }
@@ -180,10 +186,10 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     fun `test connecting to mock service getToken unauthorized`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientUnauthorized))
-        every { mockRestTransport.lookupCredentials(any()) }.returns(
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any()) } }.returns("")
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }.returns("")
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
     }
@@ -192,11 +198,11 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     fun `test connecting to mock service postReport happy path`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientPostOk))
-        every { mockRestTransport.lookupCredentials(any()) }.returns(
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.getAuthToken(any(), any(), any(), any()) } }.returns(
-            TokenInfo("MockToken", 1000, "MockRefreshToken", null, "bearer", null)
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserApiKey(any(), any(), any(), any()) } }.returns(
+            TokenInfo("MockToken", 1000, "MockRefreshToken", null, "bearer")
         )
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
@@ -206,11 +212,11 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     fun `test connecting to mock service postReport unhappy path`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientPostError))
-        every { mockRestTransport.lookupCredentials(any()) }.returns(
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.getAuthToken(any(), any(), any(), any()) } }.returns(
-            TokenInfo("MockToken", 1000, "MockRefreshToken", null, "bearer", null)
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserApiKey(any(), any(), any(), any()) } }.returns(
+            TokenInfo("MockToken", 1000, "MockRefreshToken", null, "bearer")
         )
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNotNull()
@@ -220,11 +226,11 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     fun `test connecting to mock service unknown error`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientUnknownError))
-        every { mockRestTransport.lookupCredentials(any()) }.returns(
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.getAuthToken(any(), any(), any(), any()) } }.returns(
-            TokenInfo("MockToken", 1000, "MockRefreshToken", null, "bearer", null)
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserApiKey(any(), any(), any(), any()) } }.returns(
+            TokenInfo("MockToken", 1000, "MockRefreshToken", null, "bearer")
         )
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNotNull()
@@ -234,7 +240,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     fun `test creating transport`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport())
-        every { mockRestTransport.lookupCredentials(any()) }.returns(
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)

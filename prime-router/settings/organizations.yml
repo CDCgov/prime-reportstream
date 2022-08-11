@@ -3132,9 +3132,14 @@
         timeZone: EASTERN
       transport:
         type: REST
-        reportUrl:  https://api2.health.ny.gov/services/uphn/V1.0/ECLRSPRE
-        authTokenUrl: https://api2.health.ny.gov/services/uphn/V1.0/auth/token
-        tlsKeystore: cdcprime.key
+        authTokenUrl: http://rest-webservice:3001/token
+        reportUrl:  http://rest-webservice:3001/report
+        #authTokenUrl: https://api2.health.ny.gov/token
+        #reportUrl:  https://api2.health.ny.gov/services/uphn/openapi/V1.0/ECLRSPRE #for test data
+        #reportUrl:  https://api2.health.ny.gov/services/uphn/openapi/V1.0/ECLRSPOST #for PRODUCTION data
+        tlsKeystore: NY-PHD--ELR--JKS
+        headers:
+          UPHN-INFOMAP: '{"properties":"labClia=10DRPTSTRM,target=NYS,content=L,format=HL7"}'
 
 - name: mp-phd
   description: Northern Mariana Islands Public Health Department
@@ -3182,11 +3187,18 @@
         initialTime: 00:00
         timeZone: EASTERN
       transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        type: REST
+        authTokenUrl: http://rest-webservice:3001/idtoken
+        reportUrl:  http://rest-webservice:3001/report
+        #authTokenUrl: https://labupload-uat.health.ok.gov/api/auth/token #test URL
+        #reportUrl:  https://labupload-uat.health.ok.gov/api/document/hl7 #test URL
+        #authTokenUrl: https://labupload.health.ok.gov/api/auth/token #PRODUCTION URL
+        #reportUrl:  https://labupload.health.ok.gov/api/document/hl7 #PRODUCTION URL
+        tlsKeystore: null
+        headers:
+          RecordId: 'header.reportFile.reportId'
+          senderLabName: 'CDC PRIME - Atlanta, Georgia' #name-of-the-lab-the-sending-user-belongs-to
+          sourceLabName: 'CDC PRIME - Atlanta, Georgia' #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
 
 - name: or-phd
   description: Oregon Public Health Department

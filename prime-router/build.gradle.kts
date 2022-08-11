@@ -469,7 +469,7 @@ dockerCompose {
 //    projectName = "prime-router" // docker-composer has this setter broken as of 0.16.4
     setProjectName("prime-router") // this is a workaround for the broken setter for projectName
     useComposeFiles.addAll("docker-compose.yml")
-    startedServices.addAll("sftp", "ftps", "soap-webservice", "vault", "azurite")
+    startedServices.addAll("sftp", "ftps", "soap-webservice", "rest-webservice", "vault", "azurite")
     stopContainers.set(false)
     waitForTcpPorts.set(false)
 }

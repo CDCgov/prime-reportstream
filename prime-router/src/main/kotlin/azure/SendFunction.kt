@@ -11,6 +11,7 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.FTPSTransportType
 import gov.cdc.prime.router.GAENTransportType
 import gov.cdc.prime.router.NullTransportType
+import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
@@ -127,6 +128,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
             is FTPSTransportType -> workflowEngine.ftpsTransport
             is SoapTransportType -> workflowEngine.soapTransport
             is GAENTransportType -> workflowEngine.gaenTransport
+            is RESTTransportType -> workflowEngine.restTransport
             is NullTransportType -> NullTransport()
             else -> null
         }

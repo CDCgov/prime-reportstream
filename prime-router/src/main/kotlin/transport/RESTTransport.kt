@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.transport
 
+import com.google.common.base.Preconditions
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
@@ -9,10 +10,12 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.credentials.Credential
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
+import gov.cdc.prime.router.credentials.UserPassCredential
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
@@ -21,26 +24,37 @@ import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.accept
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
-import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMessageBuilder
 import io.ktor.http.Parameters
-import io.ktor.http.content.TextContent
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.schmizz.sshj.common.Base64
+import java.io.InputStream
 import java.security.KeyStore
+import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManagerFactory
 
+/**
+ * A REST transport that will get an authentication token from the authTokenUrl
+ * and POST HL7 to the reportUrl
+ */
 class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     /**
      * Send the content on the specific transport. Return retry information, if needed. Null, if not.
@@ -60,30 +74,59 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         actionHistory: ActionHistory,
     ): RetryItems? {
         val restTransportInfo = transportType as RESTTransportType
-        val fileName = header.reportFile.externalName
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
-        val credential = lookupCredentials(receiver)
+        val reportContent: ByteArray = header.content ?: error("No content for report ${header.reportFile.reportId}")
+        // get the file name, or create one from the report ID, NY requires a file name in the POST
+        val fileName = header.reportFile.externalName ?: "${header.reportFile.reportId}.hl7"
+        // get the username/password to authenticate with OAuth
+        val credential = lookupDefaultCredential(receiver)
+        // get the TLS/SSL cert in a JKS if needed, NY uses a specific one
         val jksCredential = restTransportInfo.tlsKeystore?.let { lookupJksCredentials(it) }
+
         return try {
             // run our call to the endpoint in a blocking fashion
             runBlocking {
                 launch {
-                    val restClient = httpClient ?: createDefaultHttpClient(jksCredential)
-                    // get the OAuth token, used to authenticate
-                    val tokenInfo = getAuthToken(
-                        restTransportInfo.authTokenUrl,
-                        credential,
-                        context,
-                        restClient
-                    )
-                    bearerTokenStorage.add(BearerTokens(tokenInfo.access_token, tokenInfo.refresh_token!!))
+                    val tokenClient = httpClient ?: createDefaultHttpClient(jksCredential, null)
+                    // get the credential and use it to request an OAuth token
+                    // Usually credential is a UserApiKey, with an apiKey field (NY)
+                    // if not, try as UserPass with pass field (OK)
+                    val tokenInfo: TokenInfo = when (credential) {
+                        is UserApiKeyCredential -> getAuthTokenWithUserApiKey(
+                            restTransportInfo.authTokenUrl,
+                            credential,
+                            context,
+                            tokenClient
+                        )
+                        is UserPassCredential -> getAuthTokenWithUserPass(
+                            restTransportInfo.authTokenUrl,
+                            credential,
+                            context,
+                            tokenClient
+                        )
+                        else -> error("UserApiKey or UserPass credential required for ${receiver.fullName}")
+                    }
+
+                    // if successful, add the token returned to the token storage
+                    val bearerTokens = BearerTokens(tokenInfo.access_token, tokenInfo.refresh_token ?: "")
                     context.logger.info("Token successfully added!")
+                    val httpHeaders = restTransportInfo.headers.mapValues {
+                        if (it.value == "header.reportFile.reportId") {
+                            "${header.reportFile.reportId}"
+                        } else {
+                            it.value
+                        }
+                    }
+
                     // post the report
+                    val reportClient = httpClient ?: createDefaultHttpClient(jksCredential, bearerTokens)
                     val responseBody = postReport(
-                        header.content.toString(),
+                        reportContent,
+                        fileName,
                         restTransportInfo.reportUrl,
+                        httpHeaders,
                         context,
-                        restClient
+                        reportClient
                     )
                     // update the action history
                     val msg = "Success: REST transport of $fileName to $restTransportInfo:\n$responseBody"
@@ -154,17 +197,19 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     }
 
     /**
-     * Get a user ApiKey credential from the credential service
+     * Get a credential from the credential service
      * @param receiver the fullName of the receiver is the label of the credential
      */
-    fun lookupCredentials(receiver: Receiver): UserApiKeyCredential {
+    fun lookupDefaultCredential(receiver: Receiver): Credential {
+        Preconditions.checkNotNull(receiver.transport)
+        Preconditions.checkArgument(receiver.transport is RESTTransportType)
         val receiverFullName = receiver.fullName
         val credentialLabel = CredentialHelper.formCredentialLabel(fromReceiverName = receiverFullName)
         return CredentialHelper.getCredentialService().fetchCredential(
             credentialLabel,
             "RESTTransport",
             CredentialRequestReason.REST_UPLOAD
-        ) as? UserApiKeyCredential?
+        )
             ?: error("Unable to find OAuth credentials for $receiverFullName using $credentialLabel")
     }
 
@@ -172,7 +217,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * Get a JKS from the credential service
      * @param [tlsKeystore] is the label of the credential
      */
-    fun lookupJksCredentials(tlsKeystore: String): UserJksCredential {
+    private fun lookupJksCredentials(tlsKeystore: String): UserJksCredential {
         val credentialLabel = CredentialHelper.formCredentialLabel(tlsKeystore)
         return CredentialHelper.getCredentialService().fetchCredential(
             credentialLabel, "RESTTransport", CredentialRequestReason.REST_UPLOAD
@@ -181,15 +226,15 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     }
 
     /**
-     * Get the OAuth token by submitting the credentials
-     * This is a suspend function, meaning it can get called as an async method, though we call it
-     * a blocking way.
+     * Get the OAuth token by submitting UserApiKey credentials
+     * as OAuth 2.0 Client Credentials Grant Type, used by NY
      *
      * @param restUrl The URL to post to get the OAuth token
-     * @param credential The API key credential with clientID as user and clientSecret as apiKey
+     * @param credential The API key credential with user for clientID and apiKey for clientSecret
      * @param context Really just here to get logging injected
+     * @param httpClient the HTTP client to make the call
      */
-    suspend fun getAuthToken(
+    suspend fun getAuthTokenWithUserApiKey(
         restUrl: String,
         credential: UserApiKeyCredential,
         context: ExecutionContext,
@@ -205,75 +250,120 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 }
 
             ) {
-                expectSuccess = true
+                expectSuccess = true // throw an exception if not successful
                 accept(ContentType.Application.Json)
             }.body()
-
-            val showMeThatToken = tokenInfo.toString()
-            context.logger.info(showMeThatToken)
+            context.logger.info("Got Token with UserApiKey")
             return tokenInfo
         }
     }
 
     /**
-     * Post the report as to the REST service. This is based on SoapTransport connectToSoapService
+     * Get the OAuth token by submitting UserPass credentials
+     * as id-token, used by OK
+     *
+     * @param restUrl The URL to post to get the OAuth token
+     * @param credential The UserPass credential with user for email and pass for password
+     * @param context Really just here to get logging injected
+     * @param httpClient the HTTP client to make the call
+     */
+    suspend fun getAuthTokenWithUserPass(
+        restUrl: String,
+        credential: UserPassCredential,
+        context: ExecutionContext,
+        httpClient: HttpClient
+    ): TokenInfo {
+        httpClient.use { client ->
+            val idTokenInfo: IdToken = client.submitForm(
+                restUrl,
+                formParameters = Parameters.build {
+                    append("email", credential.user)
+                    append("password", credential.pass)
+                }
+
+            ) {
+                expectSuccess = true // throw an exception if not successful
+                accept(ContentType.Application.Json)
+            }.body()
+            context.logger.info("Got Token with UserPass")
+            return TokenInfo(idTokenInfo.idToken, idTokenInfo.expiresIn, idTokenInfo.refreshToken)
+        }
+    }
+
+    /**
+     * Post the report as HL7 to the REST service. This is based on SoapTransport connectToSoapService
      * This is a suspend function, meaning it can get called as an async method, though we call it
      * a blocking way.
      *
-     * @param message The report we want to send as text
+     * @param message The report we want to send as a ByteArray
      * @param restUrl The URL to post the report to
      * @param context Really just here to get logging injected
      */
     suspend fun postReport(
-        message: String,
+        message: ByteArray,
+        fileName: String,
         restUrl: String,
+        headers: Map<String, String>,
         context: ExecutionContext,
         httpClient: HttpClient
     ): String {
+        context.logger.info(fileName)
+        val boundary = "WebAppBoundary"
         httpClient.use { client ->
             val theResponse: String = client.post(restUrl) {
                 context.logger.info("posting report to rest API")
-                expectSuccess = true
-                header(
-                    // we want to pass a specific header for NY, expect to refactor this as other receivers are added
-                    """UPHN-INFOMAP""", """{"properties":"labClia=10DRPTSTRM,target=NYS,content=L,format=HL7"}"""
+                expectSuccess = true // throw an exception if not successful
+                postHeaders(
+                    headers
                 )
-                // we want to pass text in the body of our request. You need to do it this
-                // way because the TextContent object sets other values like the charset, etc.
-                // Ktor will balk if you try to set it some other way
                 setBody(
-                    TextContent(
-                        message, ContentType.Text.Plain,
+                    MultiPartFormDataContent(
+                        formData {
+                            append(
+                                "payload", message,
+                                Headers.build {
+                                    append(HttpHeaders.ContentType, "text/plain")
+                                    append(HttpHeaders.ContentDisposition, "filename=\"${fileName}\"")
+                                }
+                            )
+                        },
+                        boundary
                     )
                 )
                 accept(ContentType.Application.Json)
             }.bodyAsText()
-            return theResponse.toString()
+            return theResponse
         }
     }
 
     companion object {
         /** A default value for the timeouts to connect and send messages */
         private const val TIMEOUT = 50_000
-        /** storage for the OAuth tokens */
-        val bearerTokenStorage = mutableListOf<BearerTokens>()
 
-        /** Our default Http Client, with an optional  */
-        private fun createDefaultHttpClient(jks: UserJksCredential?): HttpClient {
+        /** Our default Http Client, with an optional SSL context, and optional auth token */
+        private fun createDefaultHttpClient(jks: UserJksCredential?, bearerTokens: BearerTokens?): HttpClient {
             return HttpClient(Apache) {
                 // installs logging into the call to post to the server
                 install(Logging) {
                     logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
                     level = LogLevel.INFO
                 }
-                install(Auth) {
-                    bearer {
-                        loadTokens {
-                            bearerTokenStorage.last()
+                // if we have a token, install it
+                bearerTokens?.let {
+                    install(Auth) {
+                        bearer {
+                            loadTokens {
+                                bearerTokens
+                            }
                         }
                     }
                 }
+                // install contentNegotiation to handle json response
+                install(ContentNegotiation) {
+                    json()
+                }
                 // configures the Apache client with our specified timeouts
+                // if we have a JKS, create an SSL context with it
                 engine {
                     jks?.let { sslContext = getSslContext(jks) }
                     followRedirects = true
@@ -291,29 +381,30 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
          * @param jksCredential containing the cert to use
          */
         private fun getSslContext(jksCredential: UserJksCredential): SSLContext? {
+            // Open the keystore in the UserJksCredential, it's a PKCS12 type
+            val jksDecoded = Base64.decode(jksCredential.jks)
+            val inStream: InputStream = jksDecoded.inputStream()
+            val jksPasscode = jksCredential.jksPasscode.toCharArray()
+            val keyStore: KeyStore = KeyStore.getInstance("PKCS12")
+            keyStore.load(inStream, jksPasscode)
+            // create keyManager with the keystore, use default SunX509 algorithm
+            val keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm()) // "SunX509")
+            keyManagerFactory.init(keyStore, jksPasscode)
+            // create the sslContext, type TLS, with the keyManager
+            // note the ktor sample code uses a TrustManger instead, but that fails with the NY cert file
             val sslContext = SSLContext.getInstance("TLS")
-            sslContext.init(null, getTrustManagerFactory(jksCredential)?.trustManagers, null)
+            sslContext.init(keyManagerFactory.keyManagers, null, null)
             return sslContext
         }
 
         /***
-         * Create a trust manager, so we can load the provided cert
-         * @param jksCredential containing the cert to use
+         * Builds header unit from map
+         * @param [header] is a map of all values provided in receiver setting
+         * @return Unit with all headers appended
          */
-        private fun getTrustManagerFactory(jksCredential: UserJksCredential): TrustManagerFactory? {
-            val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
-            trustManagerFactory.init(getKeyStore(jksCredential))
-            return trustManagerFactory
-        }
-
-        /***
-         * Open a key store and load the provided cert
-         * @param jksCredential containing the cert to use
-         */
-        private fun getKeyStore(jksCredential: UserJksCredential): KeyStore {
-            val keyStore: KeyStore = KeyStore.getInstance(KeyStore.getDefaultType())
-            keyStore.load(jksCredential.jks.byteInputStream(), jksCredential.jksPasscode.toCharArray())
-            return keyStore
-        }
+        private fun HttpMessageBuilder.postHeaders(header: Map<String, String>): Unit =
+            header.forEach { entry ->
+                headers.append(entry.key, entry.value)
+            }
     }
 }

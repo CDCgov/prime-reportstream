@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.google.common.collect.Tables
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
@@ -29,6 +30,7 @@ import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
 import gov.cdc.prime.router.transport.FTPSTransport
 import gov.cdc.prime.router.transport.GAENTransport
+import gov.cdc.prime.router.transport.RESTTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
@@ -59,7 +61,8 @@ class WorkflowEngine(
     val as2Transport: AS2Transport = AS2Transport(),
     val ftpsTransport: FTPSTransport = FTPSTransport(),
     val soapTransport: SoapTransport = SoapTransport(),
-    val gaenTransport: GAENTransport = GAENTransport()
+    val gaenTransport: GAENTransport = GAENTransport(),
+    val restTransport: RESTTransport = RESTTransport()
 ) : BaseEngine(queue) {
 
     /**

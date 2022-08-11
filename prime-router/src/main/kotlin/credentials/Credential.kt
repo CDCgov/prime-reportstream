@@ -12,7 +12,8 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 /**
  * A simple user & password credential. Can be used for SFTP transports.
  */
-data class UserPassCredential(val user: String, val pass: String) : Credential(), SftpCredential, SoapCredential
+data class UserPassCredential(val user: String, val pass: String) :
+    Credential(), SftpCredential, SoapCredential, RestCredential
 
 /**
  * A PPK credential. Can be used for SFTP transports.
@@ -76,7 +77,7 @@ data class UserApiKeyCredential(
      * [apiKey] is the api key
      */
     val apiKey: String
-) : Credential()
+) : Credential(), RestCredential
 
 /**
  * An OAuth Key credential
@@ -190,3 +191,6 @@ interface SftpCredential
 
 /** Wraps any credentials that can be used by a SOAP connection */
 interface SoapCredential
+
+/** Wraps any credentials that can be used by an REST connection */
+interface RestCredential

@@ -8,6 +8,13 @@ data class TokenInfo(
     val expires_in: Int,
     val refresh_token: String? = null,
     val scope: String? = null,
-    val token_type: String,
-    val id_token: String? = null,
+    val token_type: String? = null
+)
+
+@Serializable
+data class IdToken(
+    val email: String,
+    val idToken: String,
+    val expiresIn: Int,
+    val refreshToken: String
 )
