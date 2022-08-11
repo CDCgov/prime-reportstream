@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 43,
+            "activePatchIndex": 44,
             "patches": [
                 {
                     "date": 1660057706276,
@@ -180,6 +180,10 @@
                 {
                     "date": 1660232519824,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,9 +11,9 @@\n           # Fetch the selected history\r\n           fetch-depth: 12\r\n           \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n-        run: .environment/gitleaks/run-gitleaks.sh | tee output.log \r\n+        run: .environment/gitleaks/run-gitleaks.sh > tee output.log \r\n         \r\n       - name: Output the log file\r\n         run:\r\n           cat output.log\r\n"
+                },
+                {
+                    "date": 1660232561279,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,9 +11,9 @@\n           # Fetch the selected history\r\n           fetch-depth: 12\r\n           \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n-        run: .environment/gitleaks/run-gitleaks.sh > tee output.log \r\n+        run: .environment/gitleaks/run-gitleaks.sh > output.log \r\n         \r\n       - name: Output the log file\r\n         run:\r\n           cat output.log\r\n"
                 }
             ],
             "date": 1660057706276,
