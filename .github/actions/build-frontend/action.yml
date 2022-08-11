@@ -63,7 +63,7 @@ runs:
     - name: Tar frontend files
       shell: bash
       working-directory: frontend-react
-      run: tar -czvf static-website-react.tar.gz build
+      run: tar -czf static-website-react.tar.gz build
 
     - name: Upload frontend artifact
       uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535
