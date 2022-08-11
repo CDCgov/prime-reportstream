@@ -127,14 +127,17 @@ class FhirToHl7ConverterTests {
         assertThat(focusResources).isEmpty()
 
         element = ConfigSchemaElement("name", resource = "1")
-        assertThat { converter.getFocusResources(element, bundle, customContext) }.isFailure()
-            .hasClass(SchemaException::class.java)
+        focusResources = converter.getFocusResources(element, bundle, customContext)
+        assertThat(focusResources).isNotEmpty()
+        assertThat(focusResources[0].isPrimitive).isTrue()
+        assertThat(focusResources[0].primitiveValue()).isEqualTo("1")
 
         element = ConfigSchemaElement(
             "name", resource = "Bundle.entry.resource.ofType(MessageHeader).destination[0].name"
         )
-        assertThat { converter.getFocusResources(element, bundle, customContext) }.isFailure()
-            .hasClass(SchemaException::class.java)
+        focusResources = converter.getFocusResources(element, bundle, customContext)
+        assertThat(focusResources).isNotEmpty()
+        assertThat(focusResources[0].isEmpty).isFalse()
 
         // Let's test how the FHIR library handles the focus resource
         element = ConfigSchemaElement(
