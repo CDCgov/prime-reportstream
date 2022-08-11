@@ -32,7 +32,9 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_react_change == 'true' }}
     runs-on: ubuntu-latest
-
+    env: 
+      GITHUB_TOKEN: ${ github.token }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     defaults:
       run:
         working-directory: frontend-react
@@ -48,5 +50,3 @@ jobs:
           appinsights-staging-key: ${{ secrets.APPINSIGHTS_STAGING_KEY }}
           appinsights-prod-key: ${{ secrets.APPINSIGHTS_PROD_KEY }}
           version: ${{ needs.pre_job.outputs.version }}
-          GITHUB_TOKEN: ${ github.token }}
-          SONAR_TOKEN: ${{ SONAR_TOKEN }}
