@@ -11,6 +11,7 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.ContactPoint.ContactPointUse
 import org.hl7.fhir.r4.model.Enumeration
+import org.hl7.fhir.r4.model.HumanName.NameUse
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TypeDetails
@@ -77,12 +78,17 @@ object ConstantSubstitutor {
     }
 }
 
-enum class CustomFhirFunctionNames {
+/**
+ * Custom FHIR Function names used to map from the string used in the FHIR path
+ * to the function name in the CustomFHIRFunctions class
+ */
+enum class CustomFHIRFunctionNames {
     GetAddressUse,
     GetPhoneNumberCountryCode,
     GetPhoneNumberAreaCode,
     GetPhoneNumberLocalNumber,
-    GetTelecomUseCode
+    GetTelecomUseCode,
+    GetNameUseCode
 }
 
 /**
@@ -93,6 +99,7 @@ object CustomFHIRFunctions {
 
     /**
      * Converts a FHIR AddressUse enum the [focus] to the correct HL7 v2.5.1 - 0190 - Address type
+     * @return a mutable list containing the appropriate HL7 Address type string
      */
     fun getAddressUse(focus: MutableList<Base>): MutableList<Base> {
         return when (AddressUse.fromCode(focus[0].toString())) {
@@ -107,6 +114,7 @@ object CustomFHIRFunctions {
     /**
      * Converts a FHIR ContactPointUse enum the [focus] to the correct
      * HL7 v2.5.1 - 0201 - Telecommunication use code
+     * @return a mutable list containing the appropriate HL7 telecommunication use string
      */
     fun getTelecomUseCode(focus: MutableList<Base>): MutableList<Base> {
         return when (ContactPointUse.fromCode((focus[0] as Enumeration<*>).code)) {
@@ -125,6 +133,7 @@ object CustomFHIRFunctions {
     /**
      * Gets the phone number country code from the full FHIR phone number stored in
      * the [focus] element.
+     * @return a mutable list containing the country code
      */
     fun getPhoneNumberCountryCode(focus: MutableList<Base>): MutableList<Base> {
         val matchResult = regex.find(focus[0].toString())
@@ -137,6 +146,7 @@ object CustomFHIRFunctions {
     /**
      * Gets the phone number area code from the full FHIR phone number stored in
      * the [focus] element.
+     * @return a mutable list containing the phone number area code
      */
     fun getPhoneNumberAreaCode(focus: MutableList<Base>): MutableList<Base> {
         val matchResult = regex.find(focus[0].toString())
@@ -149,11 +159,27 @@ object CustomFHIRFunctions {
     /**
      * Gets the local phone number from the full FHIR phone number stored in
      * the [focus] element.
+     * @return a mutable list containing the local number
      */
     fun getPhoneNumberLocalNumber(focus: MutableList<Base>): MutableList<Base> {
         val matchResult = regex.find(focus[0].toString())
         val localNumber = "${matchResult?.groups?.get(5)?.value}${matchResult?.groups?.get(6)?.value}"
         return mutableListOf(IntegerType(localNumber))
+    }
+
+    /**
+     * Gets the FHIR name use code stored in the [focus] element and converts to HL7 v2.5 - 0200 - Name type.
+     * @return a mutable list containing the single character HL7 name type
+     */
+    fun getNameUseCode(focus: MutableList<Base>): MutableList<Base> {
+        return when (NameUse.fromCode((focus[0] as Enumeration<*>).code)) {
+            NameUse.OFFICIAL -> mutableListOf(StringType("L"))
+            NameUse.USUAL -> mutableListOf(StringType("D"))
+            NameUse.MAIDEN -> mutableListOf(StringType("M"))
+            NameUse.NICKNAME -> mutableListOf(StringType("N"))
+            NameUse.ANONYMOUS -> mutableListOf(StringType("S"))
+            else -> mutableListOf()
+        }
     }
 }
 
@@ -217,21 +243,24 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
 
     override fun resolveFunction(functionName: String?): FunctionDetails {
         check(!functionName.isNullOrBlank())
-        return when (CustomFhirFunctionNames.valueOf(functionName.replaceFirstChar(Char::titlecase))) {
-            CustomFhirFunctionNames.GetAddressUse -> {
+        return when (CustomFHIRFunctionNames.valueOf(functionName.replaceFirstChar(Char::titlecase))) {
+            CustomFHIRFunctionNames.GetAddressUse -> {
                 FunctionDetails("convert FHIR address type to HL7", 0, 0)
             }
-            CustomFhirFunctionNames.GetPhoneNumberCountryCode -> {
+            CustomFHIRFunctionNames.GetPhoneNumberCountryCode -> {
                 FunctionDetails("extract country code from FHIR phone number", 0, 0)
             }
-            CustomFhirFunctionNames.GetPhoneNumberAreaCode -> {
+            CustomFHIRFunctionNames.GetPhoneNumberAreaCode -> {
                 FunctionDetails("extract country code from FHIR phone number", 0, 0)
             }
-            CustomFhirFunctionNames.GetPhoneNumberLocalNumber -> {
+            CustomFHIRFunctionNames.GetPhoneNumberLocalNumber -> {
                 FunctionDetails("extract country code from FHIR phone number", 0, 0)
             }
-            CustomFhirFunctionNames.GetTelecomUseCode -> {
+            CustomFHIRFunctionNames.GetTelecomUseCode -> {
                 FunctionDetails("convert FHIR contact point use to HL7 telecom use code", 0, 0)
+            }
+            CustomFHIRFunctionNames.GetNameUseCode -> {
+                FunctionDetails("convert FHIR name use code and coverts it to HL7 name type code", 0, 0)
             }
         }
     }
@@ -253,21 +282,24 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
         check(focus != null)
         check(!functionName.isNullOrBlank())
         return (
-            when (CustomFhirFunctionNames.valueOf(functionName.replaceFirstChar(Char::titlecase))) {
-                CustomFhirFunctionNames.GetAddressUse -> {
+            when (CustomFHIRFunctionNames.valueOf(functionName.replaceFirstChar(Char::titlecase))) {
+                CustomFHIRFunctionNames.GetAddressUse -> {
                     CustomFHIRFunctions.getAddressUse(focus)
                 }
-                CustomFhirFunctionNames.GetPhoneNumberCountryCode -> {
+                CustomFHIRFunctionNames.GetPhoneNumberCountryCode -> {
                     CustomFHIRFunctions.getPhoneNumberCountryCode(focus)
                 }
-                CustomFhirFunctionNames.GetPhoneNumberAreaCode -> {
+                CustomFHIRFunctionNames.GetPhoneNumberAreaCode -> {
                     CustomFHIRFunctions.getPhoneNumberAreaCode(focus)
                 }
-                CustomFhirFunctionNames.GetPhoneNumberLocalNumber -> {
+                CustomFHIRFunctionNames.GetPhoneNumberLocalNumber -> {
                     CustomFHIRFunctions.getPhoneNumberLocalNumber(focus)
                 }
-                CustomFhirFunctionNames.GetTelecomUseCode -> {
+                CustomFHIRFunctionNames.GetTelecomUseCode -> {
                     CustomFHIRFunctions.getTelecomUseCode(focus)
+                }
+                CustomFHIRFunctionNames.GetNameUseCode -> {
+                    CustomFHIRFunctions.getNameUseCode(focus)
                 }
             }
             )

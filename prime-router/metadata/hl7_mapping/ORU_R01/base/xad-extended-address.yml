@@ -6,27 +6,23 @@ elements:
     hl7Spec: [ '%{hl7AddressField}-1' ]
 
   - name: other-designation
-    condition: '%resource.line.count() > 1'
+    condition: '%resource.line[1].exists()'
     value: [ '%resource.line[1]' ]
     hl7Spec: [ '%{hl7AddressField}-2' ]
 
   - name: city
-    condition: '%resource.city.exists()'
     value: [ '%resource.city' ]
     hl7Spec: [ '%{hl7AddressField}-3' ]
 
   - name: state-or-province
-    condition: '%resource.state.exists()'
     value: [ '%resource.state' ]
     hl7Spec: [ '%{hl7AddressField}-4' ]
 
   - name: zip-or-postal-code
-    condition: '%resource.postalCode.exists()'
     value: [ '%resource.postalCode' ]
     hl7Spec: [ '%{hl7AddressField}-5' ]
 
   - name: country
-    condition: '%resource.country.exists()'
     value: [ '%resource.country' ]
     hl7Spec: [ '%{hl7AddressField}-6' ]
 
@@ -36,6 +32,5 @@ elements:
     hl7Spec: [ '%{hl7AddressField}-7' ]
 
   - name: county
-    condition: '%resource.district.exists()'
     value: [ '%resource.district' ]
     hl7Spec: [ '%{hl7AddressField}-9' ]

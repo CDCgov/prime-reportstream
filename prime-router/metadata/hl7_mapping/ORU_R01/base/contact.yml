@@ -1,5 +1,9 @@
 name: ORU-R01-contact
 elements:
+  - name: id
+    value: [ 1 ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-1' ]
+
   - name: human-name
     resource: '%resource.name'
     condition: '%resource.exists()'
@@ -8,36 +12,29 @@ elements:
     schema: human-name
 
   - name: contact-relationship-id
-    condition: '%resource.relationship.coding.count() >= 2'
-    value: [ '%resource.relationship.coding[1].code' ]
+    value: [ '%resource.relationship.where(coding.system = "HL70063").coding.code' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-1' ]
 
   - name: contact-relationship-text
-    resource: '%resource.relationship'
-    condition: '%resource.text.exists()'
-    value: [ '%resource.text' ]
+    value: [ '%resource.relationship.where(coding.system = "HL70063").text' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-2' ]
 
   - name: contact-relationship-system
-    condition: '%resource.relationship.coding.count() >= 2'
-    value: [ '%resource.relationship.coding[1].system' ]
+    value: [ '%resource.relationship.where(coding.system = "HL70063").coding.system' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-3' ]
 
   - name: contact-relationship-alternate-id
     resource: '%resource.relationship.extension(%`rsext-alternate-identifier`).value'
-    condition: '%resource.coding.code.exists()'
     value: [ '%resource.coding.code' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-4' ]
 
   - name: contact-relationship-alternate-text
     resource: '%resource.relationship.extension(%`rsext-alternate-identifier`).value'
-    condition: '%resource.coding.display.exists()'
     value: [ '%resource.coding.display' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-5' ]
 
   - name: contact-relationship-alternate-system
     resource: '%resource.relationship.extension(%`rsext-alternate-identifier`).value'
-    condition: '%resource.coding.system.exists()'
     value: [ '%resource.coding.system' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/NK1-3-6' ]
 
