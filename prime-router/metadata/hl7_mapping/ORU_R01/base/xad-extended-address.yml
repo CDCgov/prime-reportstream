@@ -32,10 +32,10 @@ elements:
 
   - name: use
     condition: '%resource.use.exists()'
-    value: [ '%resource.use.value.RSAddressUse()' ]
+    value: [ '%resource.use.value.getAddressUse()' ]
     hl7Spec: [ '%{hl7AddressField}-7' ]
 
-  - name: use
+  - name: county
     condition: '%resource.district.exists()'
     value: [ '%resource.district' ]
     hl7Spec: [ '%{hl7AddressField}-9' ]

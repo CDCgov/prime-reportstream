@@ -10747,7 +10747,7 @@
           "use" : "official",
           "text" : "GENARO SURYAN",
           "family" : "SURYAN",
-          "given" : [ "GENARO", "YOO", "LOO", "YOLO" ]
+          "given" : [ "GENARO" ]
         },
         "telecom" : [ {
           "system" : "phone",
