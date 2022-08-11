@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 6,
+            "activePatchIndex": 7,
             "patches": [
                 {
                     "date": 1660174393754,
@@ -32,6 +32,10 @@
                 {
                     "date": 1660227234165,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,7 @@\n name: gitleaks Public\r\n \r\n-on: [push,]\r\n+on: [push]\r\n \r\n jobs:\r\n   gitleaks:\r\n     runs-on: ubuntu-latest\r\n"
+                },
+                {
+                    "date": 1660228638574,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,9 +8,9 @@\n     steps:\r\n       - name: Checkout\r\n         uses: actions/checkout@v3\r\n         with:\r\n-          fetch-depth: \"10\"\r\n+          fetch-depth: 0\r\n \r\n       - name: Run Gitleaks\r\n         id: gitleaks\r\n         uses: DariuszPorowski/github-action-gitleaks@v2\r\n"
                 }
             ],
             "date": 1660174393754,

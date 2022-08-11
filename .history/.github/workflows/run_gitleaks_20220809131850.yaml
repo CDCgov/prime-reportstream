@@ -1,9 +1,9 @@
 name: Run Gitleaks on the PRIME ReportStream code-base
 
-on: [push]
-  # schedule:
-  #   # at GitHub midnight on the default branch
-  #   - cron: "0 0 * * *"
+on:
+  schedule:
+    # at GitHub midnight on the default branch
+    - cron: "0 0 * * *"
 
 jobs:
   gitleaks:
