@@ -1097,8 +1097,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                             record.reportIndex = td.reportIndex
                             record.sendingApplicationId = td.sendingApplicationId?.take(METADATA_MAX_LENGTH)
                             record.sendingApplicationName = td.sendingApplicationName?.take(METADATA_MAX_LENGTH)
+                            // ordering provider info
                             record.orderingProviderName =
                                 td.orderingProviderName?.take(METADATA_MAX_LENGTH)
+                            record.orderingProviderCity = td.orderingProviderCity?.take(METADATA_MAX_LENGTH)
                             record.orderingProviderCounty =
                                 td.orderingProviderCounty?.take(METADATA_MAX_LENGTH)
                             record.orderingProviderId =
@@ -1106,6 +1108,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                             record.orderingProviderPostalCode = td.orderingProviderPostalCode
                             record.orderingProviderState =
                                 td.orderingProviderState?.take(METADATA_MAX_LENGTH)
+                            // ordering facility info
                             record.orderingFacilityCity =
                                 td.orderingFacilityCity?.take(METADATA_MAX_LENGTH)
                             record.orderingFacilityCounty =
@@ -1116,17 +1119,24 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                             record.orderingFacilityPostalCode = td.orderingFacilityPostalCode
                             record.orderingFacilityState =
                                 td.orderingFacilityState?.take(METADATA_MAX_LENGTH)
-                            record.orderingFacilityCity = td.orderingFacilityCity?.take(METADATA_MAX_LENGTH)
+                            // organization name
                             record.organizationName =
                                 td.organizationName?.take(METADATA_MAX_LENGTH)
-                            record.testResult = td.testResult?.take(METADATA_MAX_LENGTH)
-                            record.testResultCode = td.testResultCode
+                            // test data
                             record.equipmentModel = td.equipmentModel?.take(METADATA_MAX_LENGTH)
+                            // specimen info
                             record.specimenCollectionDateTime = td.specimenCollectionDateTime
                             record.specimenReceivedDateTime = td.specimenReceivedDateTime
                             record.specimenCollectionMethod = td.specimenCollectionMethod
+                            record.specimenCollectionMethodCode = td.specimenCollectionMethodCode
                             record.specimenCollectionSite = td.specimenCollectionSite
+                            record.specimenCollectionSiteCode = td.specimenCollectionSiteCode
                             record.specimenSourceSite = td.specimenSourceSite
+                            record.specimenSourceSiteCode = td.specimenSourceSiteCode
+                            record.specimenType = td.specimenType
+                            record.specimenTypeCode = td.specimenTypeCode
+                            record.specimenTypeNormalized = td.specimenTypeNormalized
+                            // testing facility info
                             record.testingFacilityCity = td.testingFacilityCity?.take(METADATA_MAX_LENGTH)
                             record.testingFacilityId = td.testingFacilityId
                             record.testingFacilityCounty =
@@ -1135,6 +1145,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                             record.testingFacilityPostalCode = td.testingFacilityPostalCode
                             record.testingFacilityState =
                                 td.testingFacilityState?.take(METADATA_MAX_LENGTH)
+                            // patient info
                             record.patientAge = td.patientAge
                             record.patientCounty = td.patientCounty?.take(METADATA_MAX_LENGTH)
                             record.patientCountry = td.patientCountry?.take(METADATA_MAX_LENGTH)
@@ -1145,6 +1156,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                             record.patientPostalCode = td.patientPostalCode
                             record.patientRace = td.patientRace
                             record.patientRaceCode = td.patientRaceCode
+                            record.patientSpecies = td.patientSpecies
+                            record.patientSpeciesCode = td.patientSpeciesCode
                             record.patientState = td.patientState?.take(METADATA_MAX_LENGTH)
                             record.patientTribalCitizenship = td.patientTribalCitizenship?.take(METADATA_MAX_LENGTH)
                             record.patientTribalCitizenshipCode =
@@ -1152,16 +1165,25 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
                             record.patientPreferredLanguage = td.patientPreferredLanguage?.take(METADATA_MAX_LENGTH)
                             record.patientNationality = td.patientNationality?.take(METADATA_MAX_LENGTH)
                             record.reasonForStudy = td.reasonForStudy?.take(METADATA_MAX_LENGTH)
+                            // more test info
                             record.reasonForStudyCode = td.reasonForStudyCode?.take(METADATA_MAX_LENGTH)
                             record.siteOfCare = td.siteOfCare?.take(METADATA_MAX_LENGTH)
                             record.senderId = td.senderId?.take(METADATA_MAX_LENGTH)
                             record.testKitNameId = td.testKitNameId?.take(METADATA_MAX_LENGTH)
+                            // test performed
                             record.testPerformedCode = td.testPerformedCode?.take(METADATA_MAX_LENGTH)
                             record.testPerformed = td.testPerformed?.take(METADATA_MAX_LENGTH)
+                            record.testPerformedNormalized = td.testPerformedNormalized?.take(METADATA_MAX_LENGTH)
+                            record.testPerformedLongName = td.testPerformedLongName?.take(METADATA_MAX_LENGTH)
+                            // test ordered
                             record.testOrdered = td.testOrdered?.take(METADATA_MAX_LENGTH)
                             record.testOrderedCode = td.testOrderedCode?.take(METADATA_MAX_LENGTH)
+                            record.testOrderedNormalized = td.testOrderedNormalized?.take(METADATA_MAX_LENGTH)
+                            record.testOrderedLongName = td.testOrderedLongName?.take(METADATA_MAX_LENGTH)
+                            // test result
                             record.testResult = td.testResult?.take(METADATA_MAX_LENGTH)
                             record.testResultCode = td.testResultCode?.take(METADATA_MAX_LENGTH)
+                            record.testResultNormalized = td.testResultNormalized?.take(METADATA_MAX_LENGTH)
                             record.processingModeCode = td.processingModeCode?.take(METADATA_MAX_LENGTH)
                         }
                     }
