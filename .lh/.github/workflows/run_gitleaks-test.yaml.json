@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 40,
+            "activePatchIndex": 41,
             "patches": [
                 {
                     "date": 1660057706276,
@@ -168,6 +168,10 @@
                 {
                     "date": 1660231088757,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,7 +11,6 @@\n           # Fetch the full history\r\n           fetch-depth: 0\r\n           \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n-        run: .environment/gitleaks/run-gitleaks.sh \r\n-\r\n+        run: .environment/gitleaks/run-gitleaks.sh >> output.log && cat output.log\r\n       \n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1660231301230,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,9 +8,9 @@\n     steps:\r\n       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b\r\n         with:\r\n           # Fetch the full history\r\n-          fetch-depth: 0\r\n+          fetch-depth: 12\r\n           \r\n       - name: \"Run Gitleaks on a selected part of our history\"\r\n         run: .environment/gitleaks/run-gitleaks.sh >> output.log && cat output.log\r\n       \n\\ No newline at end of file\n"
                 }
             ],
             "date": 1660057706276,

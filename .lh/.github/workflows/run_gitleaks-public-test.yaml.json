@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 8,
+            "activePatchIndex": 9,
             "patches": [
                 {
                     "date": 1660174393754,
@@ -40,6 +40,10 @@
                 {
                     "date": 1660231092145,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -24,8 +24,9 @@\n       #     echo \"result: ${{ steps.gitleaks.outputs.result }}\"\r\n       #     echo \"output: ${{ steps.gitleaks.outputs.output }}\"\r\n       #     echo \"command: ${{ steps.gitleaks.outputs.command }}\"\r\n       #     echo \"report: ${{ steps.gitleaks.outputs.report }}\"\r\n+      \r\n       # - name: Upload SARIF report\r\n       #   if: steps.gitleaks.outputs.exitcode == 1\r\n       #   uses: github/codeql-action/upload-sarif@v2\r\n       #   with:\r\n"
+                },
+                {
+                    "date": 1660231328484,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,7 @@\n name: gitleaks Public\r\n \r\n-on: [push]\r\n+on: [pull_request]\r\n \r\n jobs:\r\n   gitleaks:\r\n     runs-on: ubuntu-latest\r\n@@ -24,9 +24,9 @@\n       #     echo \"result: ${{ steps.gitleaks.outputs.result }}\"\r\n       #     echo \"output: ${{ steps.gitleaks.outputs.output }}\"\r\n       #     echo \"command: ${{ steps.gitleaks.outputs.command }}\"\r\n       #     echo \"report: ${{ steps.gitleaks.outputs.report }}\"\r\n-      \r\n+\r\n       # - name: Upload SARIF report\r\n       #   if: steps.gitleaks.outputs.exitcode == 1\r\n       #   uses: github/codeql-action/upload-sarif@v2\r\n       #   with:\r\n"
                 }
             ],
             "date": 1660174393754,
