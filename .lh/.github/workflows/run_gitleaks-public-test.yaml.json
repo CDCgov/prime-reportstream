@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 7,
+            "activePatchIndex": 8,
             "patches": [
                 {
                     "date": 1660174393754,
@@ -36,6 +36,10 @@
                 {
                     "date": 1660228638574,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,9 +8,9 @@\n     steps:\r\n       - name: Checkout\r\n         uses: actions/checkout@v3\r\n         with:\r\n-          fetch-depth: \"10\"\r\n+          fetch-depth: 0\r\n \r\n       - name: Run Gitleaks\r\n         id: gitleaks\r\n         uses: DariuszPorowski/github-action-gitleaks@v2\r\n"
+                },
+                {
+                    "date": 1660231092145,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -24,8 +24,9 @@\n       #     echo \"result: ${{ steps.gitleaks.outputs.result }}\"\r\n       #     echo \"output: ${{ steps.gitleaks.outputs.output }}\"\r\n       #     echo \"command: ${{ steps.gitleaks.outputs.command }}\"\r\n       #     echo \"report: ${{ steps.gitleaks.outputs.report }}\"\r\n+      \r\n       # - name: Upload SARIF report\r\n       #   if: steps.gitleaks.outputs.exitcode == 1\r\n       #   uses: github/codeql-action/upload-sarif@v2\r\n       #   with:\r\n"
                 }
             ],
             "date": 1660174393754,
