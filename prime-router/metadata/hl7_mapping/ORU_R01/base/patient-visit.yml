@@ -7,7 +7,8 @@ elements:
     hl7Spec: [ '%{hl7PV1Field}-1' ]
 
   - name: patient-class
-    value: [ '%resource.class.code.substring(0, 1)' ]
+    condition: '%resource.class.code = "IMP"'
+    value: [ '''I''' ]
     hl7Spec: [ '%{hl7PV1Field}-2' ]
 
   - name: patient-assigned-location-point-of-care
