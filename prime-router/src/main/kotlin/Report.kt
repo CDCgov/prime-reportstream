@@ -979,7 +979,7 @@ class Report : Logging {
                     it.patientAge = getAge(
                         row.getStringOrNull("patient_age").trimToNull(),
                         row.getStringOrNull("patient_dob").trimToNull(),
-                        it.specimenCollectionDateTime.toOffsetDateTime()
+                        it.specimenCollectionDateTime?.toOffsetDateTime()
                     )
                     it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.reportId = this.id
