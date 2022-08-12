@@ -234,6 +234,10 @@ class ValidateFunctionTests {
         every { validateFunc.processRequest(any(), any()) } returns resp
         every { engine.settings.findSender("Test Sender") } returns sender
 
+        val testClaims = AuthenticatedClaims.generateTestClaims(null)
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns testClaims
+
         req.httpHeaders += mapOf(
             "client" to "Test Sender",
             "content-length" to "4"
@@ -291,6 +295,10 @@ class ValidateFunctionTests {
 
         every { validateFunc.processRequest(any(), any()) } returns resp
         every { engine.settings.findSender("Test Sender") } returns null
+
+        val testClaims = AuthenticatedClaims.generateTestClaims(null)
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns testClaims
 
         req.httpHeaders += mapOf(
             "client" to "Test Sender",
