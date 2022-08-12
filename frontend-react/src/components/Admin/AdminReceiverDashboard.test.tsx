@@ -308,8 +308,6 @@ describe("AdminReceiverDashboard tests", () => {
     });
 
     test("ModalInfoRender empty", async () => {
-        const data = _exportForTesting.sortStatusData(mockData); // sorts
-        const subData = data[0];
         render(
             // eslint-disable-next-line react/jsx-pascal-case
             <_exportForTesting.ModalInfoRender subData={[]} />
