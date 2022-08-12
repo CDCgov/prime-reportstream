@@ -30,7 +30,7 @@ import kotlin.collections.mutableMapOf
 
 plugins {
     kotlin("jvm") version "1.7.0"
-    id("org.flywaydb.flyway") version "8.5.13"
+    id("org.flywaydb.flyway") version "9.1.3"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
@@ -670,7 +670,7 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.4.0")
+    jooqGenerator("org.postgresql:postgresql:42.4.1")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
@@ -731,7 +731,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.9")
     implementation("commons-codec:commons-codec:1.15")
     implementation("commons-io:commons-io:2.11.0")
-    implementation("org.postgresql:postgresql:42.3.3")
+    implementation("org.postgresql:postgresql:42.4.1")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:8.5.8")
     implementation("org.commonmark:commonmark:0.19.0")
