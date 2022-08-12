@@ -88,7 +88,6 @@ services:
       - ../.environment/soap_service:/castlemock/castlemock
     networks:
       - prime-router_build
-
   # a REST endpoint to test OAuth and report posting
   rest-webservice:
     image: mockoon/cli
@@ -124,6 +123,7 @@ services:
     restart: always
     networks:
       - prime-router_build
+
 
   # Secrets management
   vault:

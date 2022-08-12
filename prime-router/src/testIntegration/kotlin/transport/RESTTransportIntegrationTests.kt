@@ -137,6 +137,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         null,
         null,
         null,
+        null,
         null
     )
 
