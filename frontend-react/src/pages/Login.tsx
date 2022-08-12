@@ -2,28 +2,18 @@ import React from "react";
 import { Link, Redirect } from "react-router-dom";
 import { useOktaAuth } from "@okta/okta-react";
 import { SiteAlert } from "@trussworks/react-uswds";
-import { AccessToken, Tokens } from "@okta/okta-auth-js";
+import { Tokens } from "@okta/okta-auth-js";
 
 import OktaSignInWidget from "../components/OktaSignInWidget";
 import { oktaSignInConfig } from "../oktaConfig";
 import { useSessionContext } from "../contexts/SessionContext";
-import {
-    MembershipActionType,
-    membershipsFromToken,
-} from "../hooks/UseOktaMemberships";
+import { MembershipActionType } from "../hooks/UseOktaMemberships";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
     const { memberships } = useSessionContext();
 
-    // TODO: memoize these fns
     const onSuccess = (tokens: Tokens | undefined) => {
-        const accessToken = tokens?.accessToken || ({} as AccessToken);
-        const parsedMemberships = membershipsFromToken(accessToken);
-        memberships.dispatch({
-            type: MembershipActionType.SET_MEMBERSHIPS,
-            payload: parsedMemberships,
-        });
         oktaAuth.handleLoginRedirect(tokens);
     };
 

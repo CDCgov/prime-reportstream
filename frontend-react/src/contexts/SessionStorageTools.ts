@@ -73,7 +73,6 @@ export function getSessionMembershipState(): MembershipState {
 }
 
 export function storeSessionMembershipState(membershipState: string) {
-    console.log("### store state", membershipState);
     sessionStorage.setItem(
         GLOBAL_STORAGE_KEYS.MEMBERSHIP_STATE,
         membershipState

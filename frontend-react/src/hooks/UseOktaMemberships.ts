@@ -20,7 +20,7 @@ export enum MemberType {
 export enum MembershipActionType {
     ADMIN_OVERRIDE = "override",
     RESET = "reset",
-    SET_MEMBERSHIPS = "setMemberships",
+    SET_MEMBERSHIPS_FROM_TOKEN = "setMemberships",
 }
 
 export interface MembershipSettings {
@@ -46,7 +46,7 @@ export interface MembershipController {
 export interface MembershipAction {
     type: MembershipActionType;
     // Only need to pass name of an org to swap to
-    payload?: string | MembershipState | Partial<MembershipSettings>;
+    payload?: string | AccessToken | Partial<MembershipSettings>;
 }
 
 export const getTypeOfGroup = (org: string) => {
@@ -103,10 +103,15 @@ export const makeMembershipMapFromToken = (
 };
 
 const defaultState: MembershipState = {
+    // note that active will be set to {} rather than undefined in most real world cases on initialization
+    // see `calculateMembershipsWithOverride` for logic
     active: undefined,
     memberships: undefined,
 };
-export const membershipsFromToken = (token: AccessToken): MembershipState => {
+
+export const membershipsFromToken = (
+    token: AccessToken | undefined
+): MembershipState => {
     // One big undefined check to see if we have what we need for the next line
     if (!token?.claims) {
         return defaultState;
@@ -127,14 +132,14 @@ export const membershipsFromToken = (token: AccessToken): MembershipState => {
 };
 
 // allows for overriding active membership with override previously set in session storage
-const calculateNewMemberships = (
-    updatedMembershipState: MembershipState
+export const calculateMembershipsWithOverride = (
+    membershipState: MembershipState
 ): MembershipState => {
     const override = getOrganizationOverride();
     return {
-        ...updatedMembershipState,
+        ...membershipState,
         active: {
-            ...updatedMembershipState.active,
+            ...membershipState.active,
             ...override,
         },
     };
@@ -148,8 +153,13 @@ const calculateNewState = (
 ) => {
     const { type, payload } = action;
     switch (type) {
-        case MembershipActionType.SET_MEMBERSHIPS:
-            return calculateNewMemberships(payload as MembershipState);
+        case MembershipActionType.SET_MEMBERSHIPS_FROM_TOKEN:
+            const parsedMemberships = membershipsFromToken(
+                payload as AccessToken
+            );
+            return calculateMembershipsWithOverride(
+                parsedMemberships as MembershipState
+            );
         case MembershipActionType.ADMIN_OVERRIDE:
             const newState = {
                 ...state,
@@ -158,7 +168,7 @@ const calculateNewState = (
                     ...(payload as MembershipSettings),
                 },
             };
-            storeOrganizationOverride(JSON.stringify(newState));
+            storeOrganizationOverride(JSON.stringify(payload));
             return newState;
         case MembershipActionType.RESET:
             return defaultState;
@@ -168,8 +178,11 @@ const calculateNewState = (
 };
 
 // try to read from existing stored state
-const getInitialState = () => {
-    return { ...defaultState, ...getSessionMembershipState() };
+export const getInitialState = () => {
+    const storedState = getSessionMembershipState();
+    const storedStateWithOverride =
+        calculateMembershipsWithOverride(storedState);
+    return { ...defaultState, ...storedStateWithOverride };
 };
 
 export const membershipReducer = (
@@ -185,6 +198,7 @@ export const membershipReducer = (
     storeSessionMembershipState(JSON.stringify(newState));
 
     // to keep any requests using Api.ts up to date with auth headers
+    // TODO: remove when we remove Api.ts based implementations
     updateApiSessions();
     return newState;
 };
@@ -192,23 +206,24 @@ export const membershipReducer = (
 export const useOktaMemberships = (
     authState: AuthState | null
 ): MembershipController => {
-    const initialState = useMemo(getInitialState, []);
+    const initialState = useMemo(() => getInitialState(), []);
     const [state, dispatch] = useReducer(membershipReducer, initialState);
 
     const token = authState?.accessToken;
-
     const organizations = authState?.accessToken?.claims?.organization;
 
     // any time a token is updated in a way that changes orgs, we want to update membership state
-    // this would potentially happen on a new login (which would be handled by the login component behavior)
+    // this would potentially happen on a new login
     // but could also happen in a token refresh scenario if a users organizations claim is updated while they are logged in
+    // NOTE: we are letting this do the work of setting memberships on log in. The Login component
+    // will not explicitly set memberships.
     useEffect(() => {
         if (!token || !organizations) {
             return;
         }
         dispatch({
-            type: MembershipActionType.SET_MEMBERSHIPS,
-            payload: membershipsFromToken(token),
+            type: MembershipActionType.SET_MEMBERSHIPS_FROM_TOKEN,
+            payload: token,
         });
         // here we are only concerned about changes to a users orgs / memberships
     }, [organizations, !!token]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -220,7 +235,7 @@ export const useOktaMemberships = (
             storeOrganizationOverride("");
             dispatch({ type: MembershipActionType.RESET });
         }
-    }, [!!authState, authState?.isAuthenticated]);
+    }, [!!authState, authState?.isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return { state, dispatch };
 };

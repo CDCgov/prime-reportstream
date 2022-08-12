@@ -3,8 +3,6 @@ import { useContext } from "react";
 
 import { MemberType } from "../hooks/UseOktaMemberships";
 
-// import { renderWithSession } from "../utils/CustomRenderUtils";
-
 import { SessionContext } from "./SessionContext";
 
 const TestComponent = () => {
