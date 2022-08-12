@@ -40,7 +40,7 @@ export function getStoredOktaToken(): string | undefined {
     }
     try {
         const tokenJson = JSON.parse(tokenJsonString);
-        return tokenJson.accessToken.accessToken;
+        return tokenJson?.accessToken?.accessToken;
     } catch (e) {
         console.error("Error retrieving access token", e);
         return "";
