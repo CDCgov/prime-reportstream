@@ -114,3 +114,7 @@ gitleaks.log
 # Cypress
 **/cypress/screenshots/
 **/cypress/videos/
+
+# History
+.history/**
+.lh/**
