@@ -97,9 +97,11 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
 
 /** @deprecated Replace with new numbered pagination version */
 function SubmissionTableWithCursorManager() {
-    const { memberships } = useSessionContext();
+    const { activeMembership } = useSessionContext();
     const filterManager = useFilterManager(filterManagerDefaults);
     const cursorManager = useCursorManager(filterManager.rangeSettings.to);
+
+    useEffect(() => console.log("$$$ load submissions table"), []);
 
     /* Our API call! Updates when any of the given state variables update.
      * The logical swap of cursors and range value is to account for which end of the
@@ -111,7 +113,7 @@ function SubmissionTableWithCursorManager() {
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
         {
-            organization: memberships.state.active?.parsedName,
+            organization: activeMembership?.parsedName,
             cursor: cursorOrRange(
                 filterManager.sortSettings.order,
                 RangeField.TO,
@@ -154,7 +156,7 @@ function SubmissionTableWithCursorManager() {
 }
 
 function SubmissionTableWithNumberedPagination() {
-    const { memberships } = useSessionContext();
+    const { activeMembership } = useSessionContext();
 
     const filterManager = useFilterManager(filterManagerDefaults);
     const pageSize = filterManager.pageSettings.size;
@@ -173,7 +175,7 @@ function SubmissionTableWithNumberedPagination() {
             const cursor = sortOrder === "DESC" ? currentCursor : rangeTo;
             const endCursor = sortOrder === "DESC" ? rangeFrom : currentCursor;
             return controllerFetch(SubmissionsResource.list(), {
-                organization: memberships.state.active?.parsedName,
+                organization: activeMembership?.parsedName,
                 cursor,
                 endCursor,
                 pageSize: numResults,
@@ -182,7 +184,7 @@ function SubmissionTableWithNumberedPagination() {
             }) as unknown as Promise<SubmissionsResource[]>;
         },
         [
-            memberships.state.active?.parsedName,
+            activeMembership?.parsedName,
             sortOrder,
             controllerFetch,
             rangeFrom,
