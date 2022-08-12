@@ -67,4 +67,20 @@ jobs:
           shell: bash
           on_retry_command: >-
             az container restart --name pdh${{ needs.pre_job.outputs.env_name }}-dns 
-            --resource-group prime-data-hub-${{ needs.pre_job.outputs.env_name }}
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
+      - name: Restart legacy SFTP if wrong ip
+        if: ${{ needs.pre_job.outputs.env_name }} != 'prod'
+        uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+        with:
+          timeout_seconds: 60
+          max_attempts: 3
+          retry_wait_seconds: 180
+          command: |
+            ip=$(az container show --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver \
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }} -o tsv --query 'ipAddress.ip')
+            last_octet=${ip: -2}
+            if [[ $last_octet -ne 20 ]]; then exit 1; fi
+          shell: bash
+          on_retry_command: >-
+            az container restart --name pdh${{ needs.pre_job.outputs.env_name }}-sftpserver 
+            -g prime-data-hub-${{ needs.pre_job.outputs.env_name }}
