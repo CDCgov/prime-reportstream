@@ -1,6 +1,6 @@
 name: ORU-R01-patient-visit
 constants:
-  hl7PV1Field: '/PATIENT_RESULT/PATIENT/VISIT/PV1'
+  hl7PV1Field: /PATIENT_RESULT/PATIENT/VISIT/PV1
 elements:
   - name: set-id
     value: [ '''1''' ]
@@ -64,10 +64,12 @@ elements:
       hl7Field: 'PV1-17'
     schema: xcn-contact
     resourceIndex: orderIndex
-#
-#  - name: patient-type
-#    hl7Spec: [ PV1-18 ]
-#
+
+  - name: patient-type
+    condition: '%resource.class.code = "IMP"'
+    value: [ '''IN''' ]
+    hl7Spec: [ '%{hl7PV1Field}-18' ]
+
   - name: patient-financial-class
     value: [ '%resource.extension(%`rsext-financial-class`).value' ]
     hl7Spec: [ '%{hl7PV1Field}-20' ]
@@ -86,5 +88,4 @@ elements:
 
   - name: patient-admit-datetime
     value: [ '%resource.period.start' ]
-#    @todo take out timezone bit?
     hl7Spec: [ '%{hl7PV1Field}-44' ]
