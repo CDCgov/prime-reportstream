@@ -7,6 +7,8 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
+import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.metadata.LivdTableColumns
 import it.skrape.core.htmlDocument
@@ -96,8 +98,7 @@ class LivdTableDownload : CliktCommand(
 
         // Download the file from CDC website.
         val downloadedFile = downloadFile(defaultOutputDir)
-        // Extract the data from the Excel and output to the specified output CSV format file.
-        val tempRawLivdOutFile = extractLivdTable(sheetName, downloadedFile)
+        val tempRawLivdOutFile = removeBlankRowFromCsv(extractLivdTable(sheetName, downloadedFile))
         // Merge the supplemental LIVD table with the raw.
         val tempMergedLivdOutFile = mergeLivdSupplementalTable(tempRawLivdOutFile)
         tempRawLivdOutFile.delete()
@@ -201,7 +202,6 @@ class LivdTableDownload : CliktCommand(
         // Get the LOINC Mapping sheet
         val sheet: Sheet = workbook.getSheet(sheetName)
             ?: error("Sheet \"$sheetName\" doesn't exist in the $inputfile file.")
-        workbook.close()
         val rowStart = sheet.firstRowNum // Get starting row number
         val rowEnd = sheet.lastRowNum // Get ending row number
 
@@ -364,6 +364,25 @@ class LivdTableDownload : CliktCommand(
         )
         rawLivdTable.write().csv(outputFile)
         return outputFile
+    }
+
+    /**
+     * removeBlankRowFromCsv moves/cleans blank row(s) from the given cvs file.  And, it returns
+     * the cleaned file without blank.
+     */
+    private fun removeBlankRowFromCsv(downloadFile: File): File {
+        val rows: List<List<String>> = csvReader().readAll(downloadFile)
+        val nonEmptyRows: MutableList<List<String>>? = mutableListOf()
+        rows.forEach {
+            for (tmp in it) {
+                if (tmp.isNotEmpty()) {
+                    nonEmptyRows!!.add(it)
+                    break
+                }
+            }
+        }
+        csvWriter().writeAll(nonEmptyRows!!.toList(), downloadFile)
+        return downloadFile
     }
 
     /**
