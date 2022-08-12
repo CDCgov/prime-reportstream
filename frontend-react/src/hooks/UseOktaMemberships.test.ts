@@ -1,3 +1,4 @@
+import { AuthState } from "@okta/okta-auth-js";
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { mockToken } from "../utils/TestUtils";
@@ -9,38 +10,50 @@ import {
     useOktaMemberships,
 } from "./UseOktaMemberships";
 
+const fakeAuthStateForOrgs = (orgs: string[]): Partial<AuthState> => ({
+    isAuthenticated: true,
+    accessToken: mockToken({
+        claims: {
+            sub: "",
+            organization: orgs,
+        },
+    }),
+});
+
 describe("useOktaMemberships", () => {
     test("renders with default values", () => {
-        const { result } = renderHook(() => useOktaMemberships(undefined));
+        const { result } = renderHook(() => useOktaMemberships(null));
         expect(result.current.state.memberships).toBeUndefined();
         expect(result.current.state.active).toBeUndefined();
     });
 
     test("accounts for non-standard groups", () => {
-        const fakeToken = {
-            claims: {
-                //@ts-ignore
-                organization: ["NotYourStandardGroup"],
-                sub: "", // necessary to pass type check
-            },
-        };
-        const token = mockToken(fakeToken);
-        const { result } = renderHook(() => useOktaMemberships(token));
+        // const fakeToken = {
+        //     claims: {
+        //         //@ts-ignore
+        //         organization: ["NotYourStandardGroup"],
+        //         sub: "", // necessary to pass type check
+        //     },
+        // };
+        const fakeAuthState = fakeAuthStateForOrgs(["NotYourStandardGroup"]);
+        const { result } = renderHook(() => useOktaMemberships(fakeAuthState));
         expect(result.current.state.active?.memberType).toEqual("non-standard");
     });
 
     test("can be set with AccessToken", () => {
-        const fakeToken = {
-            claims: {
-                //@ts-ignore
-                organization: ["DHPrimeAdmins", "DHSender_ignore", "DHmd_phd"],
-                sub: "", // necessary to pass type check
-            },
-        };
-
-        const { result } = renderHook(() =>
-            useOktaMemberships(mockToken(fakeToken))
-        );
+        // const fakeToken = {
+        //     claims: {
+        //         //@ts-ignore
+        //         organization: ["DHPrimeAdmins", "DHSender_ignore", "DHmd_phd"],
+        //         sub: "", // necessary to pass type check
+        //     },
+        // };
+        const fakeAuthState = fakeAuthStateForOrgs([
+            "DHPrimeAdmins",
+            "DHSender_ignore",
+            "DHmd_phd",
+        ]);
+        const { result } = renderHook(() => useOktaMemberships(fakeAuthState));
         expect(result.current.state.active).toEqual({
             parsedName: "PrimeAdmins",
             memberType: MemberType.PRIME_ADMIN,
@@ -76,16 +89,15 @@ describe("useOktaMemberships", () => {
     });
 
     test("can override as admin", () => {
-        const fakeToken = {
-            claims: {
-                //@ts-ignore
-                organization: ["DHPrimeAdmins"],
-                sub: "",
-            },
-        };
-        const { result } = renderHook(() =>
-            useOktaMemberships(mockToken(fakeToken))
-        );
+        // const fakeToken = {
+        //     claims: {
+        //         //@ts-ignore
+        //         organization: ["DHPrimeAdmins"],
+        //         sub: "",
+        //     },
+        // };
+        const fakeAuthState = fakeAuthStateForOrgs(["DHPrimeAdmins"]);
+        const { result } = renderHook(() => useOktaMemberships(fakeAuthState));
         expect(result.current.state.active).toEqual({
             parsedName: "PrimeAdmins",
             memberType: MemberType.PRIME_ADMIN,

@@ -194,6 +194,7 @@ export const useOktaMemberships = (
     // need to make sure this doesn't run on an infinite loop in a real world situation
     // may need to drill down on the dependency array if it does, or refactor this hook
     // to deal solely with claims rather than tokens.
+    // useDeepCompareEffect(() => {
     useEffect(() => {
         if (token) {
             dispatch({
@@ -207,7 +208,8 @@ export const useOktaMemberships = (
             storeOrganizationOverride("");
             dispatch({ type: MembershipActionType.RESET });
         }
-    }, [token?.claims]); // eslint-disable-line react-hooks/exhaustive-deps
+        // gotta make sure this doesn't change behavior, though my understanding is that claims wouldn't change without an underlying change to the token string
+    }, [token?.accessToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return { state, dispatch };
 };
