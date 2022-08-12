@@ -56,7 +56,7 @@ export function getStoredOrg(): string | undefined {
         return override.parsedName;
     }
     const sessionJson = getSessionMembershipState();
-    return sessionJson?.activeMembership?.parsedName || "";
+    return sessionJson?.active?.parsedName || "";
 }
 
 export function getOrganizationOverride(): MembershipSettings {
@@ -73,6 +73,7 @@ export function getSessionMembershipState(): MembershipState {
 }
 
 export function storeSessionMembershipState(membershipState: string) {
+    console.log("### store state", membershipState);
     sessionStorage.setItem(
         GLOBAL_STORAGE_KEYS.MEMBERSHIP_STATE,
         membershipState

@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useMemo } from "react";
 import { AccessToken, AuthState } from "@okta/okta-auth-js";
 
 import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
@@ -158,7 +158,7 @@ const calculateNewState = (
                     ...(payload as MembershipSettings),
                 },
             };
-            storeOrganizationOverride(JSON.stringify(payload));
+            storeOrganizationOverride(JSON.stringify(newState));
             return newState;
         case MembershipActionType.RESET:
             return defaultState;
@@ -177,8 +177,13 @@ export const membershipReducer = (
     action: MembershipAction
 ) => {
     const newState = calculateNewState(state, action);
+
     // with this, session storage will always mirror app state
+    // KNOWN ISSUE: this will not effectively store membership data for later retrieval, as this data is treated as Map
+    // We are not using membership data (only active membership) anywhere in the app that I can find, so not an immediate issue
+    // TODO: refactor membership as an array, don't bother trying to store it, or build a serializer to deal with the Map
     storeSessionMembershipState(JSON.stringify(newState));
+
     // to keep any requests using Api.ts up to date with auth headers
     updateApiSessions();
     return newState;
@@ -187,29 +192,35 @@ export const membershipReducer = (
 export const useOktaMemberships = (
     authState: AuthState | null
 ): MembershipController => {
-    const [state, dispatch] = useReducer(membershipReducer, getInitialState());
+    const initialState = useMemo(getInitialState, []);
+    const [state, dispatch] = useReducer(membershipReducer, initialState);
 
     const token = authState?.accessToken;
 
-    // need to make sure this doesn't run on an infinite loop in a real world situation
-    // may need to drill down on the dependency array if it does, or refactor this hook
-    // to deal solely with claims rather than tokens.
-    // useDeepCompareEffect(() => {
+    const organizations = authState?.accessToken?.claims?.organization;
+
+    // any time a token is updated in a way that changes orgs, we want to update membership state
+    // this would potentially happen on a new login (which would be handled by the login component behavior)
+    // but could also happen in a token refresh scenario if a users organizations claim is updated while they are logged in
     useEffect(() => {
-        if (token) {
-            dispatch({
-                type: MembershipActionType.SET_MEMBERSHIPS,
-                payload: membershipsFromToken(token),
-            });
+        if (!token || !organizations) {
+            return;
         }
-        // this signifies a log out
+        dispatch({
+            type: MembershipActionType.SET_MEMBERSHIPS,
+            payload: membershipsFromToken(token),
+        });
+        // here we are only concerned about changes to a users orgs / memberships
+    }, [organizations, !!token]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // any time a token change signifies a logout, we should clear our state and storage
+    useEffect(() => {
         if (authState && !authState.isAuthenticated) {
             // clear override as well. this will error on json parse and result in {} being fed back on a read
             storeOrganizationOverride("");
             dispatch({ type: MembershipActionType.RESET });
         }
-        // gotta make sure this doesn't change behavior, though my understanding is that claims wouldn't change without an underlying change to the token string
-    }, [token?.accessToken]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [!!authState, authState?.isAuthenticated]);
 
     return { state, dispatch };
 };

@@ -16,6 +16,7 @@ export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
     const { memberships } = useSessionContext();
 
+    // TODO: memoize these fns
     const onSuccess = (tokens: Tokens | undefined) => {
         const accessToken = tokens?.accessToken || ({} as AccessToken);
         const parsedMemberships = membershipsFromToken(accessToken);
