@@ -75,33 +75,6 @@ describe("useOktaMemberships", () => {
         );
     });
 
-    test("can swap active membership", () => {
-        const fakeToken = {
-            claims: {
-                //@ts-ignore
-                organization: ["DHPrimeAdmins", "DHSender_ignore", "DHmd_phd"],
-                sub: "",
-            },
-        };
-        const { result } = renderHook(() =>
-            useOktaMemberships(mockToken(fakeToken))
-        );
-        expect(result.current.state.active).toEqual({
-            parsedName: "PrimeAdmins",
-            memberType: MemberType.PRIME_ADMIN,
-        });
-        act(() =>
-            result.current.dispatch({
-                type: MembershipActionType.SWITCH,
-                payload: "DHmd_phd",
-            })
-        );
-        expect(result.current.state.active).toEqual({
-            parsedName: "md-phd",
-            memberType: MemberType.RECEIVER,
-        });
-    });
-
     test("can override as admin", () => {
         const fakeToken = {
             claims: {
@@ -140,29 +113,5 @@ describe("membershipsFromToken extra coverage", () => {
             active: undefined,
             memberships: undefined,
         });
-    });
-});
-
-describe("membershipReducer extra coverage", () => {
-    test("can handle bad request", () => {
-        const fakeToken = {
-            claims: {
-                //@ts-ignore
-                organization: ["DHPrimeAdmins"],
-                sub: "",
-            },
-        };
-        const { result } = renderHook(() =>
-            useOktaMemberships(mockToken(fakeToken))
-        );
-
-        // bad switch
-        act(() =>
-            result.current.dispatch({
-                type: MembershipActionType.SWITCH,
-                payload: "org-does-not-exist",
-            })
-        );
-        expect(result.current.state.active?.parsedName).toEqual("PrimeAdmins");
     });
 });

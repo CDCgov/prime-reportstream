@@ -1,7 +1,14 @@
 import React, { useEffect, useReducer } from "react";
-import { AccessToken } from "@okta/okta-auth-js";
+import { AccessToken, AuthState } from "@okta/okta-auth-js";
 
 import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
+import {
+    storeSessionMembershipState,
+    getSessionMembershipState,
+    storeOrganizationOverride,
+    getOrganizationOverride,
+} from "../contexts/SessionStorageTools";
+import { updateApiSessions } from "../network/Apis";
 
 export enum MemberType {
     SENDER = "sender",
@@ -11,9 +18,9 @@ export enum MemberType {
 }
 
 export enum MembershipActionType {
-    SWITCH = "switch",
-    UPDATE = "update",
     ADMIN_OVERRIDE = "override",
+    RESET = "reset",
+    SET_MEMBERSHIPS = "setMemberships",
 }
 
 export interface MembershipSettings {
@@ -39,7 +46,7 @@ export interface MembershipController {
 export interface MembershipAction {
     type: MembershipActionType;
     // Only need to pass name of an org to swap to
-    payload: string | AccessToken | Partial<MembershipSettings>;
+    payload?: string | MembershipState | Partial<MembershipSettings>;
 }
 
 export const getTypeOfGroup = (org: string) => {
@@ -119,37 +126,70 @@ export const membershipsFromToken = (token: AccessToken): MembershipState => {
     };
 };
 
-export const membershipReducer = (
+// allows for overriding active membership with override previously set in session storage
+const calculateNewMemberships = (
+    updatedMembershipState: MembershipState
+): MembershipState => {
+    const override = getOrganizationOverride();
+    return {
+        ...updatedMembershipState,
+        active: {
+            ...updatedMembershipState.active,
+            ...override,
+        },
+    };
+};
+
+// determines the new state and returns it
+// this is most of the actual reducer logic
+const calculateNewState = (
     state: MembershipState,
     action: MembershipAction
 ) => {
     const { type, payload } = action;
     switch (type) {
-        case MembershipActionType.SWITCH:
-            return {
-                ...state,
-                active:
-                    state.memberships?.get(payload as string) || state.active,
-            };
-        case MembershipActionType.UPDATE:
-            return membershipsFromToken(payload as AccessToken);
+        case MembershipActionType.SET_MEMBERSHIPS:
+            return calculateNewMemberships(payload as MembershipState);
         case MembershipActionType.ADMIN_OVERRIDE:
-            return {
+            const newState = {
                 ...state,
                 active: {
                     ...state.active,
                     ...(payload as MembershipSettings),
                 },
             };
+            storeOrganizationOverride(JSON.stringify(payload));
+            return newState;
+        case MembershipActionType.RESET:
+            return defaultState;
         default:
             return state;
     }
 };
 
+// try to read from existing stored state
+const getInitialState = () => {
+    return { ...defaultState, ...getSessionMembershipState() };
+};
+
+export const membershipReducer = (
+    state: MembershipState,
+    action: MembershipAction
+) => {
+    const newState = calculateNewState(state, action);
+    // with this, session storage will always mirror app state
+    storeSessionMembershipState(JSON.stringify(newState));
+    // to keep any requests using Api.ts up to date with auth headers
+    updateApiSessions();
+    return newState;
+};
+
 export const useOktaMemberships = (
-    token: AccessToken | undefined
+    authState: AuthState | null
 ): MembershipController => {
-    const [state, dispatch] = useReducer(membershipReducer, defaultState);
+    const [state, dispatch] = useReducer(membershipReducer, getInitialState());
+
+    const token = authState?.accessToken;
 
     // need to make sure this doesn't run on an infinite loop in a real world situation
     // may need to drill down on the dependency array if it does, or refactor this hook
@@ -157,9 +197,15 @@ export const useOktaMemberships = (
     useEffect(() => {
         if (token) {
             dispatch({
-                type: MembershipActionType.UPDATE,
-                payload: token,
+                type: MembershipActionType.SET_MEMBERSHIPS,
+                payload: membershipsFromToken(token),
             });
+        }
+        // this signifies a log out
+        if (authState && !authState.isAuthenticated) {
+            // clear override as well. this will error on json parse and result in {} being fed back on a read
+            storeOrganizationOverride("");
+            dispatch({ type: MembershipActionType.RESET });
         }
     }, [token?.claims]); // eslint-disable-line react-hooks/exhaustive-deps
 

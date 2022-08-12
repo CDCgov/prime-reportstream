@@ -1,10 +1,7 @@
 import {
     AccessTokenWithRSClaims,
     getOktaGroups,
-    getRSOrgs,
     parseOrgName,
-    parseOrgs,
-    RSOrgType,
 } from "./OrganizationUtils";
 import { mockToken } from "./TestUtils";
 
@@ -50,24 +47,6 @@ test("getOktaGroups", () => {
         "DHSender_ignore.ignore-waters",
     ]);
     expect(noOrg).toEqual([]);
-});
-
-test("getRSOrgs", () => {
-    const all = getRSOrgs(goodAccessToken);
-    const senders = getRSOrgs(goodAccessToken, RSOrgType.SENDER);
-    const receivers = getRSOrgs(goodAccessToken, RSOrgType.RECEIVER);
-    const admins = getRSOrgs(goodAccessToken, RSOrgType.ADMIN);
-
-    expect(all).toEqual([
-        "PrimeAdmins",
-        "ignoreAdmins", // Currently not a real use case!
-        "ignore",
-        "xx-phd",
-        "ignore.ignore-waters",
-    ]);
-    expect(senders).toEqual(["ignore", "ignore.ignore-waters"]);
-    expect(receivers).toEqual(["xx-phd"]);
-    expect(admins).toEqual(["PrimeAdmins", "ignoreAdmins"]);
 });
 
 test("parseOrgs", () => {

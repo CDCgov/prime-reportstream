@@ -5,35 +5,31 @@ import { SiteAlert } from "@trussworks/react-uswds";
 import { AccessToken, Tokens } from "@okta/okta-auth-js";
 
 import OktaSignInWidget from "../components/OktaSignInWidget";
-import { getOktaGroups, parseOrgs } from "../utils/OrganizationUtils";
-import { setStoredOktaToken } from "../contexts/SessionStorageTools";
 import { oktaSignInConfig } from "../oktaConfig";
 import { useSessionContext } from "../contexts/SessionContext";
-import { MembershipActionType } from "../hooks/UseOktaMemberships";
+import {
+    MembershipActionType,
+    membershipsFromToken,
+} from "../hooks/UseOktaMemberships";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
-    const { store, memberships } = useSessionContext();
+    const { memberships } = useSessionContext();
 
     const onSuccess = (tokens: Tokens | undefined) => {
-        const parsedOrgs = parseOrgs(getOktaGroups(tokens?.accessToken));
-        const newOrg = parsedOrgs[0]?.org || "";
-        const newSender = parsedOrgs[0]?.senderName || undefined;
-        store.updateSessionStorage({
-            // Sets admins to `ignore` org
-            org: newOrg === "PrimeAdmins" ? "ignore" : newOrg,
-            senderName: newSender,
-        });
+        const accessToken = tokens?.accessToken || ({} as AccessToken);
+        const parsedMemberships = membershipsFromToken(accessToken);
         memberships.dispatch({
-            type: MembershipActionType.UPDATE,
-            payload: tokens?.accessToken || ({} as AccessToken),
+            type: MembershipActionType.SET_MEMBERSHIPS,
+            payload: parsedMemberships,
         });
-        setStoredOktaToken(tokens?.accessToken?.accessToken || "");
         oktaAuth.handleLoginRedirect(tokens);
     };
 
     const onError = (err: any) => {
-        setStoredOktaToken(""); // clear on error.
+        memberships.dispatch({
+            type: MembershipActionType.RESET,
+        });
         console.log("error logging in", err);
     };
 
