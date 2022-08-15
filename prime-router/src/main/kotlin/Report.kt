@@ -8,6 +8,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ElrResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
+import gov.cdc.prime.router.common.DateUtilities.toYears
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
@@ -25,8 +26,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.xml.bind.DatatypeConverter
-import kotlin.math.abs
-import kotlin.math.floor
 import kotlin.random.Random
 
 /**
@@ -61,7 +60,19 @@ enum class Options {
     ValidatePayload,
     CheckConnections,
     SkipSend,
-    SendImmediately;
+    SendImmediately,
+    @OptionDeprecated
+    SkipInvalidItems;
+
+    class InvalidOptionException(message: String) : Exception(message)
+
+    /**
+     * Checks to see if the enum constant has an @OptionDeprecated annotation.
+     * If the annotation is present, the constant is no longer in use.
+     */
+
+    val isDeprecated = this.declaringClass.getField(this.name)
+        .getAnnotation(OptionDeprecated::class.java) != null
 
     companion object {
         /**
@@ -72,12 +83,14 @@ enum class Options {
             return try {
                 valueOf(input)
             } catch (ex: IllegalArgumentException) {
-                None
+                val msg = "$input is not a valid Option. Valid options: ${Options.values().joinToString()}"
+                throw InvalidOptionException(msg)
             }
         }
     }
 }
 
+annotation class OptionDeprecated()
 /**
  * ReportStreamFilterResult records useful information about rows filtered by one filter call.  One filter
  * might filter many rows. ReportStreamFilterResult entries are only created when filter logging is on.  This is to
@@ -806,12 +819,19 @@ class Report : Logging {
                     it.patientTribalCitizenshipCode = row.getStringOrNull("patient_tribal_citizenship_code")
                     it.patientPreferredLanguage = row.getStringOrNull("patient_preferred_language")
                     it.patientNationality = row.getStringOrNull("patient_nationality")
+                    it.patientSpecies = row.getStringOrNull("patient_species")
+                    it.patientSpeciesCode = row.getStringOrNull("patient_species_code")
 
                     it.reasonForStudy = row.getStringOrNull("reason_for_study_text")
                     it.reasonForStudyCode = row.getStringOrNull("reason_for_study_id")
 
-                    it.testResultCode = row.getStringOrNull("test_result_text").trimToNull()
-                    it.testResult = row.getStringOrNull("test_result_id").trimToNull()
+                    it.testResultCode = row.getStringOrNull("test_result_id").trimToNull()
+                    it.testResult = row.getStringOrNull("test_result_text").trimToNull()
+                    it.testResultNormalized = if (it.testResultCode != null) {
+                        metadata.findValueSet("monkeypox/test_result")?.toDisplayFromCode(it.testResultCode)
+                    } else {
+                        null
+                    }
                     it.equipmentModel = row.getStringOrNull("equipment_model_name").trimToNull()
                     it.specimenCollectionDateTime = row.getStringOrNull("specimen_collection_date_time").let { dt ->
                         if (!dt.isNullOrEmpty()) {
@@ -842,17 +862,48 @@ class Report : Logging {
                             null
                         }
                     }
-                    it.specimenCollectionMethod = row.getStringOrNull("specimen_collection_method")
-                    it.specimenCollectionSite = row.getStringOrNull("specimen_collection_site")
-                    it.specimenType = row.getStringOrNull("specimen_type")
+                    it.specimenCollectionMethod = row.getStringOrNull("specimen_collection_method_text")
+                    it.specimenCollectionMethodCode = row.getStringOrNull("specimen_collection_method_code")
+                    it.specimenCollectionSite = row.getStringOrNull("specimen_collection_site_text")
+                    it.specimenCollectionSiteCode = row.getStringOrNull("specimen_collection_site_code")
+                    it.specimenType = row.getStringOrNull("specimen_type_name")
+                    it.specimenTypeCode = row.getStringOrNull("specimen_type_code")
+                    it.specimenTypeNormalized = if (it.specimenTypeCode != null) {
+                        metadata.findValueSet("monkeypox/specimen_type")?.toDisplayFromCode(it.specimenTypeCode)
+                    } else {
+                        null
+                    }
                     it.specimenSourceSite = row.getStringOrNull("specimen_source_site_text")
+                    it.specimenSourceSiteCode = row.getStringOrNull("specimen_source_site_code")
 
                     it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
                     it.testPerformedCode = row.getStringOrNull("test_performed_code").trimToNull()
                     it.testPerformed = row.getStringOrNull("test_performed_name").trimToNull()
+                    it.testPerformedNormalized = if (it.testPerformedCode != null) {
+                        metadata.findValueSet("monkeypox/test_code")?.toDisplayFromCode(it.testPerformedCode)
+                    } else {
+                        null
+                    }
+                    it.testPerformedLongName = if (it.testPerformedCode != null) {
+                        metadata.findValueSet("monkeypox/test_long_name")?.toDisplayFromCode(it.testPerformedCode)
+                    } else {
+                        null
+                    }
                     it.testOrdered = row.getStringOrNull("ordered_test_name").trimToNull()
                     it.testOrderedCode = row.getStringOrNull("ordered_test_code").trimToNull()
+                    it.testOrderedNormalized = if (it.testOrderedCode != null) {
+                        metadata.findValueSet("monkeypox/test_code")?.toDisplayFromCode(it.testOrderedCode)
+                    } else {
+                        null
+                    }
+                    it.testOrderedLongName = if (it.testOrderedCode != null) {
+                        metadata.findValueSet("monkeypox/test_long_name")?.toDisplayFromCode(it.testOrderedCode)
+                    } else {
+                        null
+                    }
+                    // trap the processing mode code as well
+                    it.processingModeCode = row.getStringOrNull("processing_mode_code").trimToNull()
                 }
             }
         } catch (e: Exception) {
@@ -928,7 +979,7 @@ class Report : Logging {
                     it.patientAge = getAge(
                         row.getStringOrNull("patient_age").trimToNull(),
                         row.getStringOrNull("patient_dob").trimToNull(),
-                        it.specimenCollectionDateTime.toOffsetDateTime()
+                        it.specimenCollectionDateTime?.toOffsetDateTime()
                     )
                     it.siteOfCare = row.getStringOrNull("site_of_care").trimToNull()
                     it.reportId = this.id
@@ -943,6 +994,8 @@ class Report : Logging {
                     it.testKitNameId = row.getStringOrNull("test_kit_name_id").trimToNull()
                     it.testPerformedLoincCode = row.getStringOrNull("test_performed_code").trimToNull()
                     it.organizationName = row.getStringOrNull("organization_name").trimToNull()
+                    // trap the processing mode code from submissions as well
+                    it.processingModeCode = row.getStringOrNull("processing_mode_code").trimToNull()
                 }
             }
         } catch (e: Exception) {
@@ -964,13 +1017,6 @@ class Report : Logging {
      *  @return age - result of patient's age.
      */
     private fun getAge(patient_age: String?, patient_dob: String?, specimenCollectionDate: OffsetDateTime?): String? {
-        /**
-         * Get the age in years from the [duration]
-         */
-        fun getAgeInYearsFromDuration(duration: Duration): Int {
-            return floor(abs(duration.toDays() / 365.0)).toInt()
-        }
-
         return if (
             (!patient_age.isNullOrBlank()) &&
             patient_age.all { Character.isDigit(it) } &&
@@ -986,7 +1032,7 @@ class Report : Logging {
                 if (patient_dob == null || specimenCollectionDate == null) return null
                 val d = DateUtilities.parseDate(patient_dob).toOffsetDateTime()
                 if (d.isBefore(specimenCollectionDate)) {
-                    getAgeInYearsFromDuration(Duration.between(d, specimenCollectionDate)).toString()
+                    Duration.between(d, specimenCollectionDate).toYears().toString()
                 } else {
                     null
                 }
@@ -1417,7 +1463,7 @@ class Report : Logging {
          * Tries to get a value in the underlying row for the column name, and if it doesn't exist, returns null
          */
         private fun Row.getStringOrNull(columnName: String): String? {
-            return this.getStringOrDefault(columnName, null)
+            return this.getStringOrDefault(columnName, null).trimToNull()
         }
     }
 }

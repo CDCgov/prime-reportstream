@@ -7,7 +7,6 @@ import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEmpty
-import assertk.assertions.isNotInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isSuccess
@@ -21,7 +20,6 @@ import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.Observation
-import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.TimeType
 import java.util.Date
@@ -68,11 +66,8 @@ class FhirPathUtilsTests {
         bundle.id = "abc123"
         val servRequest = ServiceRequest()
         servRequest.id = "def456"
-        val reference = Reference()
-        reference.resource = servRequest
         val diagReport = DiagnosticReport()
         diagReport.id = "ghi789"
-        diagReport.basedOn = listOf(reference)
         val entry1 = Bundle.BundleEntryComponent()
         entry1.resource = diagReport
         val entry2 = Bundle.BundleEntryComponent()
@@ -80,26 +75,15 @@ class FhirPathUtilsTests {
         bundle.addEntry(entry1)
         bundle.addEntry(entry2)
 
-        // First a non reference
         var path = "Bundle.entry.resource.ofType(DiagnosticReport)[0]"
-        var result = FhirPathUtils.evaluate(null, bundle, bundle, path)
+        val result = FhirPathUtils.evaluate(null, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat(result.size).isEqualTo(1)
         assertThat(result[0]).isInstanceOf(DiagnosticReport::class.java)
         assertThat((result[0] as DiagnosticReport).id).isEqualTo(diagReport.id)
 
-        // Now a reference
-        path = "Bundle.entry.resource.ofType(DiagnosticReport)[0].basedOn"
-        assertThat(path).isNotNull()
-        result = FhirPathUtils.evaluate(null, bundle, bundle, path)
-        assertThat(result).isNotEmpty()
-        assertThat(result.size).isEqualTo(1)
-        assertThat(result[0]).isNotInstanceOf(Reference::class.java)
-        assertThat(result[0]).isInstanceOf(ServiceRequest::class.java)
-        assertThat((result[0] as ServiceRequest).id).isEqualTo(servRequest.id)
-
         // Bad extension names throw an out of bound exception (a bug in the library)
-        path = "Bundle.extension('blah')"
+        path = "Bundle.extension('blah').value"
         assertThat { FhirPathUtils.evaluate(null, bundle, bundle, path) }.isSuccess()
         assertThat(FhirPathUtils.evaluate(null, bundle, bundle, path)).isEmpty()
     }

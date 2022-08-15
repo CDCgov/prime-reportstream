@@ -128,3 +128,12 @@ export const toHumanReadable = (machineString: string): string => {
     );
     return fixCaps.trim();
 };
+
+// ... capitalizes the first letter in a string
+export const capitalizeFirst = (uncapped: string): string => {
+    if (!uncapped || !uncapped.length) {
+        return uncapped;
+    }
+    const newFirst = uncapped[0].toUpperCase();
+    return `${newFirst}${uncapped.substring(1)}`;
+};
