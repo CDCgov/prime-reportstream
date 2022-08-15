@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.path
@@ -101,6 +100,6 @@ class ConvertFileCommands(
             }
         }.render()
         // output it
-        TermUi.echo(table)
+        echo(table)
     }
 }
