@@ -583,11 +583,12 @@ class LookupMapper : Mapper {
 }
 
 /**
- * The lookupSenderAutomationValuesetsMapper is used to lookup values from the
- *      "sender_automation_value_set_row" table/csv
+ * The lookupSenderAutomationValuesetsMapper is used to lookup values from
+ *      any particular valueset table/csv
  * The args for the mapper are:
- *      args[0] --> valueSetName = the name of the sender automation value set
- *      args[1] --> (optional) version = the version of the valueSet value
+ *      args[0] --> elementName = the name of the element as defined on the schema (i.e. patient_gender)
+ *      args[1] --> valueSetName = the name of the value set itself (i.e. gender)
+ *      args[2] --> (optional) version = the version of the valueSet value
  * The mapper uses the above arguments to retrieve a row from the table
  */
 class LookupSenderAutomationValuesets : Mapper {
@@ -634,10 +635,10 @@ class LookupSenderAutomationValuesets : Mapper {
         }
 
         val tableFilter = lookupTable.FilterBuilder()
-        val valueSetName = args[0]
+        val valueSetName = args[1] // args[0] is the incoming element name (see kdoc above)
         var version = ""
-        if (args.size > 1) {
-            version = args[1]
+        if (args.size > 2) {
+            version = args[2]
         }
 
         tableFilter
