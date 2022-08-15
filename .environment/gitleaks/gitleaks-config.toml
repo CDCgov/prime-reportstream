@@ -192,7 +192,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'val redoxKey = \"apiKey\"',                                                    # Environment variable name, not value
             'val secretEnvName = \"REDOX_SECRET\"',                                         # Environment variable name, not value
             'var keymap = require\(',
-            'var tokenSigningSecret = "UVD4QOJ3H295ZiwTUVBC1ZIKRPpG5LEyZDZ"',
+            'var awsSecret = "AKIAIMNOJVGFDXXXE4OA"',
             #'var tokenSigningSecret = "UVD4QOJ3H295Zi9Ayl3ySuoXNKiE8WYuOsaXOZfug3dwTUVBC1ZIKRPpG5LEyZDZ"',         # Invalidated
             'xox[baprs]-([0-9a-zA-Z]{10,48})',
             'KeyVaults=\(',                                                                 # List of vaults
