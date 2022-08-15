@@ -156,7 +156,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'password\" : \"text\"',
             'passwordVariable = \"POSTGRES_PASSWORD\"',
             'Password=\"\"',
-            'Password=AKIAIMNOJVGFDXXXE4OA'                                                                # Empty anyway
+            'Password="AKIAIMNOJVGFDXXXE4OA"',                                                                # Empty anyway
             'Password=\"\"',                                                                # Empty anyway
             'PASSWORD_VARIABLE = \"POSTGRES_PASSWORD\"',
             'PrincipalLevel\.USER',
