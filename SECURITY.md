@@ -5,7 +5,7 @@ This document outlines our security policy for the code base and product and how
 This repository was created for use by the Centers for Disease Control and Prevention (CDC) which is part of the U.S Department of Health and Human Services (HHS).  Vulnerability discloseure is governed by the HHS [Vulnerability Disclosure Policy](https://www.hhs.gov/vulnerability-disclosure-policy/index.html)
 
 ## Reporting a Vulnerability
-
+Password=testgitleaks
 If you think you have found a vulnerability or security-related issue, _please report them to us directly_.
 
 **Do not create GitHub issues for security issues.** Please report any security related issues you find to [us](mailto:reportstream@cdc.gov?subject=Vulnerability) or ask us to reach out to you directly.
