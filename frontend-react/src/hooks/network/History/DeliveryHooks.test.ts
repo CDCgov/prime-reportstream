@@ -2,7 +2,6 @@ import { act, renderHook } from "@testing-library/react-hooks";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MembershipController, MemberType } from "../../UseOktaMemberships";
-import { SessionController } from "../../UseSessionStorage";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 
 import { useReportsDetail, useReportsList } from "./DeliveryHooks";
@@ -25,7 +24,6 @@ describe("ReportsHooks", () => {
                     },
                 },
             } as MembershipController,
-            store: {} as SessionController, // TS yells about removing this because of types
         });
         const { result, waitForNextUpdate } = renderHook(() =>
             useReportsList("testOrg", "testService")
@@ -51,7 +49,6 @@ describe("ReportsHooks", () => {
                     },
                 },
             } as MembershipController,
-            store: {} as SessionController, // TS yells about removing this because of types
         });
         const { result, waitForNextUpdate } = renderHook(() =>
             useReportsDetail("123")
