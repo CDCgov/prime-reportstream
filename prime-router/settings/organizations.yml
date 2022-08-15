@@ -297,6 +297,17 @@
       schemaName: hl7/hl7-ingest-covid-19-training
       format: HL7
 
+- name: reopenlab
+  description: Reopenlab
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: reopenlab
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
 - name: geneus-diagnostics
   description: Geneus Diagnostics Las Vagas
   jurisdiction: FEDERAL
@@ -2102,7 +2113,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,limsabc-nova,geneus-diagnostics,clxhealth)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
