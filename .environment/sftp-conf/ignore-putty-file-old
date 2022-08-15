@@ -1,7 +1,7 @@
 PuTTY-User-Key-File-2: ssh-rsa
 Encryption: aes256-cbc
 Comment: rsa-key-20211229
-apassword: AKIAIMNOJVGFDXXXE4OA
+password: AKIAIMNOJVGFDXXXE4OA
 Public-Lines: 12
 AAAAB3NzaC1yc2EAAAADAQABAAACAQCNgkqLaH09F+5FBrX0a9JD/xkWJBJMp9iY
 uiZ83rEcyWWD9aeEGAWnMT3LJoy4kwa6+HndO1wJSCAInWQphY8crATYfn+9c0eD
