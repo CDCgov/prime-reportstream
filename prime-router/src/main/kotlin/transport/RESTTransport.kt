@@ -108,7 +108,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     }
 
                     // if successful, add the token returned to the token storage
-                    val bearerTokens = BearerTokens(tokenInfo.access_token, tokenInfo.refresh_token ?: "")
+                    val bearerTokens = BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
                     context.logger.info("Token successfully added!")
                     val httpHeaders = restTransportInfo.headers.mapValues {
                         if (it.value == "header.reportFile.reportId") {
