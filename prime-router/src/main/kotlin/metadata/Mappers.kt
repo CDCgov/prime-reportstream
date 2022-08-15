@@ -635,7 +635,7 @@ class LookupSenderAutomationValuesets : Mapper {
         }
 
         val tableFilter = lookupTable.FilterBuilder()
-        val valueSetName = args[1]
+        val valueSetName = args[1] // args[0] is the incoming element name (see kdoc above)
         var version = ""
         if (args.size > 2) {
             version = args[2]
