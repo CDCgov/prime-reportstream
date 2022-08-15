@@ -2,15 +2,15 @@ system_1:
      condition: $emailValue NULL
      type: STRING
      valueOf: "phone"
-     vars: 
-          emailValue: XTN.4
- 
+     vars:
+         emailValue: XTN.4
+
 system_2:
      condition: $emailValue NOT_NULL
      type: STRING
      valueOf: "email"
-     vars: 
-          emailValue: XTN.4
+     vars:
+         emailValue: XTN.4
 
 # value is phone number or email address depending on a value in email address (XTN.4)
 value_1:

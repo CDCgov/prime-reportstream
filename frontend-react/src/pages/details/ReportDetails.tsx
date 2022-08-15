@@ -1,17 +1,19 @@
 import moment from "moment";
 
 import ReportResource from "../../resources/ReportResource";
+import { RSReportInterface } from "../../network/api/History/Reports";
 
 interface Props {
     /* REQUIRED
     Passing in a report allows this component to extract key properties (type, sent,
     total, and expires) and display them on the Details page. */
-    report: ReportResource | undefined;
+    report: ReportResource | RSReportInterface | undefined;
 }
 
 function ReportDetails(props: Props) {
     const { report } = props;
 
+    if (!report) return <></>;
     return (
         <section className="grid-container margin-top-0 margin-bottom-5">
             <hr />

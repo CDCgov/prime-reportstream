@@ -40,18 +40,33 @@ open class SubmissionHistory(
     reportId: String? = null,
     @JsonProperty("topic")
     schemaTopic: String? = null,
-    reportItemCount: Int? = null,
-    @JsonProperty("sender")
+    @JsonProperty("reportItemCount")
+    itemCount: Int? = null,
+    @JsonIgnore
     val sendingOrg: String? = "",
     val httpStatus: Int? = null,
+    @JsonIgnore
+    val sendingOrgClient: String? = "",
 ) : ReportHistory(
     actionId,
     createdAt,
     externalName,
     reportId,
     schemaTopic,
-    reportItemCount,
-)
+    itemCount,
+) {
+    /**
+     * The sender of the input report.
+     */
+    var sender: String? = ""
+    init {
+        sender = when {
+            sendingOrg.isNullOrBlank() -> ""
+            sendingOrgClient.isNullOrBlank() -> sendingOrg
+            else -> ClientSource(sendingOrg, sendingOrgClient).name
+        }
+    }
+}
 
 /**
  * This class provides a detailed view for data in the `report_file` table and data from other related sources.
@@ -78,7 +93,9 @@ class DetailedSubmissionHistory(
     @JsonProperty("timestamp")
     createdAt: OffsetDateTime,
     httpStatus: Int? = null,
+    @JsonIgnore
     val reports: MutableList<DetailedReport>? = mutableListOf(),
+    @JsonIgnore
     var logs: List<DetailedActionLog> = emptyList(),
 ) : SubmissionHistory(
     actionId,
@@ -124,13 +141,9 @@ class DetailedSubmissionHistory(
     var destinations = mutableListOf<Destination>()
 
     /**
-     * The sender of the input report.
-     */
-    var sender: String? = null
-
-    /**
      * The step in the delivery process for a submission
      * Supported values:
+     *     VALID - successfully validated, but not sent
      *     ERROR - error on initial submission
      *     RECEIVED - passed the received step in the pipeline and awaits processing/routing
      *     NOT_DELIVERING - processed but has no intended receivers
@@ -144,6 +157,7 @@ class DetailedSubmissionHistory(
      *     partiallyDelivered state until someone fixes it.
      */
     enum class Status(private val printableName: String) {
+        VALID("Valid"),
         ERROR("Error"),
         RECEIVED("Received"),
         NOT_DELIVERING("Not Delivering"),
@@ -193,13 +207,16 @@ class DetailedSubmissionHistory(
                 val filteredReportItems = filterLogs.map {
                     ReportStreamFilterResultForResponse(it.detail as ReportStreamFilterResult)
                 }
+                // If there is no transport defined, there will not be a next action so sending at
+                // should be null.
+                val nextActionTime = if (report.receiverHasTransport) report.nextActionAt else null
                 destinations.add(
                     Destination(
                         report.receivingOrg,
                         report.receivingOrgSvc!!,
                         filteredReportRows,
                         filteredReportItems,
-                        report.nextActionAt,
+                        nextActionTime,
                         report.itemCount,
                         report.itemCountBeforeQualFilter,
                     )
@@ -407,14 +424,14 @@ class DetailedSubmissionHistory(
         realDestinations.forEach {
             var sentItemCount = 0
 
-            it.sentReports.forEach {
-                sentItemCount += it.itemCount
+            it.sentReports.forEach { sentReport ->
+                sentItemCount += sentReport.itemCount
             }
 
             var downloadedItemCount = 0
 
-            it.downloadedReports.forEach {
-                downloadedItemCount += it.itemCount
+            it.downloadedReports.forEach { downloadedReport ->
+                downloadedItemCount += downloadedReport.itemCount
             }
 
             if (sentItemCount >= it.itemCount || downloadedItemCount >= it.itemCount) {

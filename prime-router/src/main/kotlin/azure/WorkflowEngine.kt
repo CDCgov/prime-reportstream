@@ -3,7 +3,6 @@ package gov.cdc.prime.router.azure
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
-import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
@@ -15,6 +14,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -27,7 +27,6 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
-import gov.cdc.prime.router.transport.FTPSTransport
 import gov.cdc.prime.router.transport.GAENTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
@@ -57,7 +56,6 @@ class WorkflowEngine(
     val translator: Translator = Translator(metadata, settings),
     val sftpTransport: SftpTransport = SftpTransport(),
     val as2Transport: AS2Transport = AS2Transport(),
-    val ftpsTransport: FTPSTransport = FTPSTransport(),
     val soapTransport: SoapTransport = SoapTransport(),
     val gaenTransport: GAENTransport = GAENTransport()
 ) : BaseEngine(queue) {
@@ -774,6 +772,7 @@ class WorkflowEngine(
             return when (currentEventAction) {
                 Event.EventAction.RECEIVE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.PROCESS -> Tables.TASK.PROCESSED_AT
+                Event.EventAction.ROUTE -> Tables.TASK.ROUTED_AT
                 Event.EventAction.TRANSLATE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.REBATCH -> Tables.TASK.TRANSLATED_AT // overwrites prior date
                 Event.EventAction.BATCH -> Tables.TASK.BATCHED_AT
@@ -805,10 +804,10 @@ class WorkflowEngine(
      * @param defaults Default values that can be passed in as part of the request
      * @return Returns a generated report object, or null
      */
-    fun parseCovidReport(
-        sender: CovidSender,
+    fun parseTopicReport(
+        sender: TopicSender,
         content: String,
-        defaults: Map<String, String>,
+        defaults: Map<String, String>
     ): ReadResult {
         return when (sender.format) {
             Sender.Format.CSV -> {
@@ -818,7 +817,7 @@ class WorkflowEngine(
                         input = ByteArrayInputStream(content.toByteArray()),
                         sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
                         defaultValues = defaults,
-                        sender = sender,
+                        sender = sender
                     )
                 } catch (e: Exception) {
                     throw ActionError(
@@ -828,7 +827,7 @@ class WorkflowEngine(
                                     "team at reportstream@cdc.gov."
                             )
                         ),
-                        e.message,
+                        e.message
                     )
                 }
             }
@@ -838,7 +837,7 @@ class WorkflowEngine(
                         schemaName = sender.schemaName,
                         input = ByteArrayInputStream(content.toByteArray()),
                         ClientSource(organization = sender.organizationName, client = sender.name),
-                        sender = sender,
+                        sender = sender
                     )
                 } catch (e: Exception) {
                     throw ActionError(
@@ -848,7 +847,7 @@ class WorkflowEngine(
                                     "team at reportstream@cdc.gov."
                             )
                         ),
-                        e.message,
+                        e.message
                     )
                 }
             }

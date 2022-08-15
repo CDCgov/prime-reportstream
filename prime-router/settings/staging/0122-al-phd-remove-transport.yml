@@ -1,0 +1,153 @@
+# ./prime multiple-settings set --env staging --input ./settings/staging/0122-al-phd-remove-transport.yml
+---
+- name: "al-phd"
+  description: "Alabama Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "AL"
+  countyName: null
+  filters: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "al-phd"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "covid-19"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "ALNBS"
+        receivingApplicationOID: "2.16.840.1.114222.4.5.1"
+        receivingFacilityName: "ALDOH"
+        receivingFacilityOID: "2.16.840.1.114222.4.1.3636"
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB:
+          MSH-6:
+            - '*': "ALDOH^2.16.840.1.114222.4.1.3636^ISO"
+          MSH-5:
+            - '*': "ALNBS^2.16.840.1.114222.4.5.1^ISO"
+          MSH-3:
+            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, AL, patient_state, AL)"
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      externalName: "PROD-Feed"
+      timeZone: null
+      dateTimeFormat: "OFFSET"
+    - name: "elr-test"
+      organizationName: "al-phd"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "covid-19"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "ALNBS"
+        receivingApplicationOID: "2.16.840.1.114222.4.5.1"
+        receivingFacilityName: "ALDOH"
+        receivingFacilityOID: "2.16.840.1.114222.4.1.3636"
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB:
+          MSH-6:
+            - '*': "ALDOH^2.16.840.1.114222.4.1.3636^ISO"
+          MSH-5:
+            - '*': "ALNBS^2.16.840.1.114222.4.5.1^ISO"
+          MSH-3:
+            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, AL, patient_state, AL)"
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter:
+        - "matches(processing_mode_code,T,D)"
+      reverseTheQualityFilter: false
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      externalName: "Test-Feed"
+      timeZone: null
+      dateTimeFormat: "OFFSET"

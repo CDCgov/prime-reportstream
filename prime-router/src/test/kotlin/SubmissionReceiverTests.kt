@@ -2,13 +2,15 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isFailure
+import assertk.assertions.isInstanceOf
+import assertk.assertions.isSuccess
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.fhirengine.azure.elrProcessQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.serializers.ReadResult
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -354,7 +356,7 @@ class SubmissionReceiverTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val receiver = CovidReceiver(
+        val receiver = TopicReceiver(
             engine,
             actionHistory
         )
@@ -397,7 +399,7 @@ class SubmissionReceiverTests {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val receiver = CovidReceiver(
+        val receiver = TopicReceiver(
             engine,
             actionHistory
         )
@@ -452,7 +454,7 @@ class SubmissionReceiverTests {
         )
 
         val receiver = spyk(
-            CovidReceiver(
+            TopicReceiver(
                 engine,
                 actionHistory
             )
@@ -470,7 +472,7 @@ class SubmissionReceiverTests {
         val readResult = ReadResult(report, actionLogs)
         val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
 
-        every { engine.parseCovidReport(any(), any(), any()) } returns readResult
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { receiver.processAsync(any(), any(), any(), any()) } returns Unit
 
@@ -490,7 +492,7 @@ class SubmissionReceiverTests {
 
         // assert
         verify(exactly = 1) {
-            engine.parseCovidReport(any(), any(), any())
+            engine.parseTopicReport(any(), any(), any())
             engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             receiver.processAsync(any(), any(), any(), any())
@@ -515,7 +517,7 @@ class SubmissionReceiverTests {
         )
 
         val receiver = spyk(
-            CovidReceiver(
+            TopicReceiver(
                 engine,
                 actionHistory
             )
@@ -534,7 +536,7 @@ class SubmissionReceiverTests {
         val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
-        every { engine.parseCovidReport(any(), any(), any()) } returns readResult
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
@@ -555,7 +557,7 @@ class SubmissionReceiverTests {
 
         // assert
         verify(exactly = 1) {
-            engine.parseCovidReport(any(), any(), any())
+            engine.parseTopicReport(any(), any(), any())
             engine.recordReceivedReport(any(), any(), any(), any(), any())
             engine.routeReport(any(), any(), any(), any(), any())
             SubmissionReceiver.doDuplicateDetection(any(), any(), any())
@@ -603,12 +605,12 @@ class SubmissionReceiverTests {
         val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
-        every { engine.parseCovidReport(any(), any(), any()) } returns readResult
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(elrProcessQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(elrConvertQueueName, any()) } returns Unit
 
         // act
         receiver.validateAndMoveToProcessing(
@@ -630,7 +632,7 @@ class SubmissionReceiverTests {
             SubmissionReceiver.doDuplicateDetection(any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
-            queueMock.sendMessage(elrProcessQueueName, any())
+            queueMock.sendMessage(elrConvertQueueName, any())
         }
     }
 
@@ -671,11 +673,11 @@ class SubmissionReceiverTests {
         val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
-        every { engine.parseCovidReport(any(), any(), any()) } returns readResult
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(elrProcessQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(elrConvertQueueName, any()) } returns Unit
 
         // act
         var exceptionThrown = false
@@ -699,14 +701,11 @@ class SubmissionReceiverTests {
         // assert
         assertTrue(exceptionThrown)
 
-        verify(exactly = 1) {
-            engine.recordReceivedReport(any(), any(), any(), any(), any())
-        }
-
         verify(exactly = 0) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
-            queueMock.sendMessage(elrProcessQueueName, any())
+            queueMock.sendMessage(elrConvertQueueName, any())
         }
     }
 
@@ -747,11 +746,11 @@ class SubmissionReceiverTests {
         val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
         val routeResult = emptyList<ActionLog>()
 
-        every { engine.parseCovidReport(any(), any(), any()) } returns readResult
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(elrProcessQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(elrConvertQueueName, any()) } returns Unit
 
         // act / assert
         assertThat {
@@ -769,14 +768,225 @@ class SubmissionReceiverTests {
             )
         }.isFailure()
 
-        verify(exactly = 1) {
-            engine.recordReceivedReport(any(), any(), any(), any(), any())
-        }
-
         verify(exactly = 0) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
-            queueMock.sendMessage(elrProcessQueueName, any())
+            queueMock.sendMessage(elrConvertQueueName, any())
         }
+    }
+
+    @Test
+    fun `test validation receiver validateAndMoveToProcessing, error on parsing`() {
+        // setup
+        mockkObject(SubmissionReceiver.Companion)
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.none))
+
+        val report = Report(
+            one,
+            mapOf<String, List<String>>(Pair("test", listOf("1,2"))),
+            source = ClientSource("ignore", "ignore"),
+            metadata = metadata
+        )
+
+        val receiver = spyk(
+            ValidationReceiver(
+                engine,
+                actionHistory
+            )
+        )
+
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+        val actionLogs = ActionLogger()
+        val itemLogger = actionLogs.getItemLogger(1)
+        itemLogger.error(InvalidHL7Message("Invalid HL7 file"))
+        val readResult = ReadResult(report, actionLogs)
+
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
+
+        // act / assert
+        assertThat {
+            receiver.validateAndMoveToProcessing(
+                sender,
+                hl7_record_bad_type,
+                emptyMap(),
+                Options.None,
+                emptyList(),
+                false,
+                true,
+                ByteArray(0),
+                "test.csv",
+                metadata = metadata
+            )
+        }.isFailure()
+
+        verify(exactly = 0) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
+            actionHistory.trackLogs(emptyList())
+            engine.insertProcessTask(any(), any(), any(), any())
+            queueMock.sendMessage(elrConvertQueueName, any())
+        }
+    }
+
+    @Test
+    fun `test validation receiver validateAndMoveToProcessing, warning on parsing`() {
+        // setup
+        mockkObject(SubmissionReceiver.Companion)
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.none))
+
+        val report = Report(
+            one,
+            mapOf<String, List<String>>(Pair("test", listOf("1,2"))),
+            source = ClientSource("ignore", "ignore"),
+            metadata = metadata
+        )
+
+        val receiver = spyk(
+            ValidationReceiver(
+                engine,
+                actionHistory
+            )
+        )
+
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+        val actionLogs = ActionLogger()
+        val itemLogger = actionLogs.getItemLogger(1)
+        itemLogger.warn(InvalidHL7Message("Invalid HL7 file"))
+        val readResult = ReadResult(report, actionLogs)
+
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
+
+        // act / assert
+        assertThat {
+            receiver.validateAndMoveToProcessing(
+                sender,
+                hl7_record_bad_type,
+                emptyMap(),
+                Options.None,
+                emptyList(),
+                false,
+                true,
+                ByteArray(0),
+                "test.csv",
+                metadata = metadata
+            )
+        }.isSuccess()
+
+        verify(exactly = 0) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
+            engine.insertProcessTask(any(), any(), any(), any())
+            queueMock.sendMessage(elrConvertQueueName, any())
+        }
+    }
+
+    @Test
+    fun `test validation receiver validateAndMoveToProcessing, happy path`() {
+        // setup
+        mockkObject(SubmissionReceiver.Companion)
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.none))
+
+        val report = Report(
+            one,
+            mapOf<String, List<String>>(Pair("test", listOf("1,2"))),
+            source = ClientSource("ignore", "ignore"),
+            metadata = metadata
+        )
+
+        val receiver = spyk(
+            ValidationReceiver(
+                engine,
+                actionHistory
+            )
+        )
+
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+        val actionLogs = ActionLogger()
+        val readResult = ReadResult(report, actionLogs)
+
+        every { engine.parseTopicReport(any(), any(), any()) } returns readResult
+
+        // act / assert
+        assertThat {
+            receiver.validateAndMoveToProcessing(
+                sender,
+                hl7_record_bad_type,
+                emptyMap(),
+                Options.None,
+                emptyList(),
+                false,
+                true,
+                ByteArray(0),
+                "test.csv",
+                metadata = metadata
+            )
+        }.isSuccess()
+
+        verify(exactly = 0) {
+            engine.recordReceivedReport(any(), any(), any(), any(), any())
+            engine.insertProcessTask(any(), any(), any(), any())
+            queueMock.sendMessage(elrConvertQueueName, any())
+        }
+    }
+
+    @Test
+    fun `test getSubmissionReceiver`() {
+        val one = Schema(name = "one", topic = "test", elements = listOf(Element("a"), Element("b")))
+        val metadata = Metadata(schema = one)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+
+        val result = SubmissionReceiver.getSubmissionReceiver(sender, engine, actionHistory)
+        assertThat(result).isInstanceOf(TopicReceiver::class.java)
+
+        val fullELRSender = FullELRSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            allowDuplicates = true
+        )
+        val fullELRResult = SubmissionReceiver.getSubmissionReceiver(fullELRSender, engine, actionHistory)
+        assertThat(fullELRResult).isInstanceOf(ELRReceiver::class.java)
     }
 }

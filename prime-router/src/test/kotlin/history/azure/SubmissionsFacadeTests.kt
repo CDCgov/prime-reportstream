@@ -64,7 +64,8 @@ class SubmissionsFacadeTests {
         )
         every {
             mockSubmissionAccess.fetchAction(
-                any(), any(), DetailedSubmissionHistory::class.java
+                any(),
+                DetailedSubmissionHistory::class.java
             )
         } returns goodReturn
         every {
@@ -72,7 +73,7 @@ class SubmissionsFacadeTests {
                 550, DetailedSubmissionHistory::class.java
             )
         } returns emptyList()
-        assertThat(facade.findDetailedSubmissionHistory("org", 550)).isEqualTo(goodReturn)
+        assertThat(facade.findDetailedSubmissionHistory(550)).isEqualTo(goodReturn)
     }
 
     @Test

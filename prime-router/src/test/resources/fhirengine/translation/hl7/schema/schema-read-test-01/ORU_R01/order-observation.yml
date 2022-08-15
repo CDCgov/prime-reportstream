@@ -1,0 +1,24 @@
+name: ORU-R01-order-observation
+constants:
+  hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})
+elements:
+  - name: order-set-ID-orc
+    resource: '%resource.basedOn'
+    condition: '%resource.exists()'
+    value:
+      - '%orderIndex  + 1'
+    hl7Spec:
+      - '%{hl7Order}/ORC-1'
+
+  - name: order-set-ID-obr
+    value:
+      - '%orderIndex  + 1'
+    hl7Spec:
+      - '%{hl7Order}/OBR-1'
+
+  - name: observations
+    resource: '%resource.result'
+    condition: '%resource.count() > 0'
+    required: true
+    schema: observation
+    resourceIndex: observationIndex

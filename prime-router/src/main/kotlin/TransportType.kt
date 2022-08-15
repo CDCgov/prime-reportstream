@@ -4,11 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
-enum class FtpsProtocol {
-    SSL,
-    TLS
-}
-
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
@@ -20,7 +15,6 @@ enum class FtpsProtocol {
     JsonSubTypes.Type(BlobStoreTransportType::class, name = "BLOBSTORE"),
     JsonSubTypes.Type(NullTransportType::class, name = "NULL"),
     JsonSubTypes.Type(AS2TransportType::class, name = "AS2"),
-    JsonSubTypes.Type(FTPSTransportType::class, name = "FTPS"),
     JsonSubTypes.Type(SoapTransportType::class, name = "SOAP"),
     JsonSubTypes.Type(GAENTransportType::class, name = "GAEN")
 )
@@ -59,33 +53,6 @@ data class AS2TransportType
     val contentDescription: String = "SARS-CoV-2 Electronic Lab Results"
 ) :
     TransportType("AS2")
-
-/**
- * FTPSTransportType
- */
-data class FTPSTransportType
-@JsonCreator constructor(
-    val host: String,
-    val port: Int,
-    val username: String,
-    val password: String,
-    val protocol: FtpsProtocol = FtpsProtocol.SSL,
-    val binaryTransfer: Boolean = true,
-    /**
-     * @param acceptAllCerts  pass true to ignore all cert checks, helpful for testing
-     */
-    val acceptAllCerts: Boolean = false
-) : TransportType("FTPS") {
-    /**
-     * toString()
-     *
-     * Print out the parameters of the FTPSTransportType but obfuscate the password
-     *
-     * @return String
-     */
-    override fun toString(): String =
-        "host=$host, port=$port, username=$username, protocol=$protocol, binaryTransfer=$binaryTransfer"
-}
 
 /**
  * The GAEN UUID Format instructs how the UUID field of the GAEN payload is built

@@ -81,3 +81,7 @@ variable "is_temp_env" {
   default     = false
   description = "Is a temporary environment. true or false"
 }
+variable "function_runtime_version" {
+  type        = string
+  description = "function app runtime version"
+}

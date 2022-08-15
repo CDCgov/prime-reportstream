@@ -2772,6 +2772,22 @@ The patient's state
 
 ---
 
+**Name**: patient_state_zip_lookup
+
+**ReportStream Internal Name**: patient_state_zip_lookup
+
+**Type**: TABLE
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+**Table**: zip-code-data
+
+**Table Column**: state_abbr
+
+---
+
 **Name**: patient_street
 
 **ReportStream Internal Name**: patient_street
