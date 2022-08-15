@@ -155,7 +155,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'MockResponse\(',                                                               # Explicitly listed as Mock
             'password\" : \"text\"',
             'passwordVariable = \"POSTGRES_PASSWORD\"',
-            'Password=\"\"',                                                                # Empty anyway
+            'Password=\"\"',
+            'Password=AKIAIMNOJVGFDXXXE4OA'                                                                # Empty anyway
             'Password=\"\"',                                                                # Empty anyway
             'PASSWORD_VARIABLE = \"POSTGRES_PASSWORD\"',
             'PrincipalLevel\.USER',
