@@ -8,7 +8,6 @@ function logout(oktaAuth: OktaAuth): void {
             console.trace(e);
         }
     }
-    // maybe let's clear the app state here too?
     sessionStorage.clear();
 }
 
