@@ -1,6 +1,10 @@
 name: Run Gitleaks on the PRIME ReportStream code-base
 
-on: [push]
+on: 
+  push: 
+    branches:
+      - feature/6339-investigate-gitleaks-failure
+
   #  schedule:
   #    # at GitHub midnight on the default branch
   #    - cron: "0 0 * * *"
