@@ -32,6 +32,7 @@ runs:
       run: |
         echo "" >> .env.production
         echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
+        yarn test:ci
         yarn build:production
       shell: bash
 
@@ -46,10 +47,24 @@ runs:
         yarn build:staging
       shell: bash
 
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@de2e56b42aa84d0b1c5b622644ac17e505c9a049
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ inputs.SONAR_TOKEN }}
+      with:
+        args: >
+          -Dsonar.cpd.exclusions=frontend-react/**/*.test.*
+          -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
+          -Dsonar.coverage.exclusions=frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*
+          -Dsonar.sources=frontend-react/src
+          -Dsonar.projectKey=CDCgov_prime-data-hub
+          -Dsonar.organization=cdcgov
+
     - name: Tar frontend files
       shell: bash
       working-directory: frontend-react
-      run: tar -czvf static-website-react.tar.gz build
+      run: tar -czf static-website-react.tar.gz build
 
     - name: Upload frontend artifact
       uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535
