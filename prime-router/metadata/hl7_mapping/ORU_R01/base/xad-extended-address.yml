@@ -1,0 +1,36 @@
+name: ORU-R01-xad-extended-address
+elements:
+  - name: street-address
+    condition: '%resource.line.count() > 0'
+    value: [ '%resource.line[0]' ]
+    hl7Spec: [ '%{hl7AddressField}-1' ]
+
+  - name: other-designation
+    condition: '%resource.line[1].exists()'
+    value: [ '%resource.line[1]' ]
+    hl7Spec: [ '%{hl7AddressField}-2' ]
+
+  - name: city
+    value: [ '%resource.city' ]
+    hl7Spec: [ '%{hl7AddressField}-3' ]
+
+  - name: state-or-province
+    value: [ '%resource.state' ]
+    hl7Spec: [ '%{hl7AddressField}-4' ]
+
+  - name: zip-or-postal-code
+    value: [ '%resource.postalCode' ]
+    hl7Spec: [ '%{hl7AddressField}-5' ]
+
+  - name: country
+    value: [ '%resource.country' ]
+    hl7Spec: [ '%{hl7AddressField}-6' ]
+
+  - name: use
+    condition: '%resource.use.exists()'
+    value: [ '%resource.use.value.getAddressUse()' ]
+    hl7Spec: [ '%{hl7AddressField}-7' ]
+
+  - name: county
+    value: [ '%resource.district' ]
+    hl7Spec: [ '%{hl7AddressField}-9' ]
