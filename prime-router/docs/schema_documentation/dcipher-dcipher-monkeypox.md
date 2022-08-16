@@ -607,7 +607,7 @@ Additional information specifically about the specimen to be sent in the message
 
 **Name**: sample_type
 
-**ReportStream Internal Name**: specimen_type
+**ReportStream Internal Name**: specimen_type_name
 
 **Type**: TEXT
 
@@ -1596,7 +1596,7 @@ The city of the provider
 
 **ReportStream Internal Name**: ordering_provider_county
 
-**Type**: TABLE
+**Type**: TEXT
 
 **PII**: No
 
@@ -1932,7 +1932,8 @@ The zip code of the provider
 
 **Documentation**:
 
-The SimpleReport concept of organization. It refers to organization for the ordering & performing facility
+The SimpleReport concept of organization. It refers to organization for the 
+ordering & performing facility
 
 
 ---
@@ -4543,70 +4544,49 @@ This is a CUSTOM internal field. DO NOT use this for an AOE residence_type.
 
 ---
 
-**Name**: specimen_collection_method
+**Name**: specimen_collection_method_code
 
-**ReportStream Internal Name**: specimen_collection_method
+**ReportStream Internal Name**: specimen_collection_method_code
 
-**Type**: CODE
+**Type**: TEXT
 
 **PII**: No
 
-**Format**: use value found in the Code column
-
 **Cardinality**: [0..1]
-
-**Value Sets**
-
-Code | Display | System
----- | ------- | ------
-ANP|Plates, Anaerobic|HL7
-BAP|Plates, Blood Agar|HL7
-BCAE|Blood Culture, Aerobic Bottle|HL7
-BCAN|Blood Culture, Anaerobic Bottle|HL7
-BCPD|Blood Culture, Pediatric Bottle|HL7
-BIO|Biopsy|HL7
-CAP|Capillary Specimen|HL7
-CATH|Catheterized|HL7
-CVP|Line, CVP|HL7
-EPLA|Environmental, Plate|HL7
-ESWA|Environmental, Swab|HL7
-FNA|Aspiration, Fine Needle|HL7
-KOFFP|Plate, Cough|HL7
-LNA|Line, Arterial|HL7
-LNV|Line, Venous|HL7
-MARTL|Martin-Lewis Agar|HL7
-ML11|Mod. Martin-Lewis Agar|HL7
-MLP|Plate, Martin-Lewis|HL7
-NYP|Plate, New York City|HL7
-PACE|Pace, Gen-Probe|HL7
-PIN|Pinworm Prep|HL7
-PNA|Aterial puncture|HL7
-PRIME|Pump Prime|HL7
-PUMP|Pump Specimen|HL7
-QC5|Quality Control For Micro|HL7
-SCLP|Scalp, Fetal Vein|HL7
-SCRAPS|Scrapings|HL7
-SHA|Shaving|HL7
-SWA|Swab|HL7
-SWD|Swab, Dacron tipped|HL7
-TMAN|Transport Media, Anaerobic|HL7
-TMCH|Transport Media, Chalamydia|HL7
-TMM4|Transport Media, M4|HL7
-TMMY|Transport Media, Mycoplasma|HL7
-TMOT|Transport Media|HL7
-TMP|Plate, Thayer-Martin|HL7
-TMPV|Transport Media, PVA|HL7
-TMSC|Transport Media, Stool Culture|HL7
-TMUP|Transport Media, Ureaplasma|HL7
-TMVI|Transport Media, Viral|HL7
-VENIP|Venipuncture|HL7
-WOOD|Swab, Wooden Shaft|HL7
 
 ---
 
-**Name**: specimen_collection_site
+**Name**: specimen_collection_method_text
 
-**ReportStream Internal Name**: specimen_collection_site
+**ReportStream Internal Name**: specimen_collection_method_text
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+---
+
+**Name**: specimen_collection_site_code
+
+**ReportStream Internal Name**: specimen_collection_site_code
+
+**Type**: TEXT
+
+**PII**: No
+
+**Cardinality**: [0..1]
+
+
+**Reference URL**:
+[https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10](https://hl7-definition.caristix.com/v2/HL7v2.5.1/Fields/SPM.10) 
+
+---
+
+**Name**: specimen_collection_site_text
+
+**ReportStream Internal Name**: specimen_collection_site_text
 
 **Type**: TEXT
 
@@ -4921,6 +4901,10 @@ The text for the specimen source site
 **PII**: No
 
 **Cardinality**: [0..1]
+
+**Documentation**:
+
+The specimen source, such as Blood or Serum
 
 ---
 
