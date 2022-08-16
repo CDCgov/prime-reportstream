@@ -11,7 +11,7 @@ export enum GLOBAL_STORAGE_KEYS {
     GLOBAL_BASE = "global-context-",
     GLOBAL_ORG = "global-context-org",
     SENDER_NAME = "global-sender-name",
-    OKTA_ACCESS_TOKEN = "okta-token-storage", // set by okta
+    OKTA_ACCESS_TOKEN = "okta-token-storage", // set by okta, should probably read from localStorage instead
     MEMBERSHIP_STATE = "global-membership-state",
     ORGANIZATION_OVERRIDE = "global-organization-override",
 }
@@ -19,13 +19,14 @@ export enum GLOBAL_STORAGE_KEYS {
 const fetchJsonFromSession = (storageKey: string) => {
     const storedString = sessionStorage.getItem(storageKey);
     if (!storedString) {
-        return {};
+        return;
     }
     try {
         const sessionJson = JSON.parse(storedString);
         return sessionJson;
     } catch {
-        return {};
+        console.info("Error reading json from session at key - ", storageKey);
+        return;
     }
 };
 
@@ -59,7 +60,7 @@ export function getStoredOrg(): string | undefined {
     return sessionJson?.active?.parsedName || "";
 }
 
-export function getOrganizationOverride(): MembershipSettings {
+export function getOrganizationOverride(): MembershipSettings | undefined {
     return fetchJsonFromSession(GLOBAL_STORAGE_KEYS.ORGANIZATION_OVERRIDE);
 }
 
@@ -68,7 +69,7 @@ export function storeOrganizationOverride(override: string) {
 }
 
 // not sure this is actually necessary. Okta should handle refresh of non-admin related state
-export function getSessionMembershipState(): MembershipState {
+export function getSessionMembershipState(): MembershipState | undefined {
     return fetchJsonFromSession(GLOBAL_STORAGE_KEYS.MEMBERSHIP_STATE);
 }
 

@@ -136,12 +136,10 @@ export const calculateMembershipsWithOverride = (
     membershipState: MembershipState
 ): MembershipState => {
     const override = getOrganizationOverride();
+    const active = override || membershipState?.active;
     return {
         ...membershipState,
-        active: {
-            ...membershipState.active,
-            ...override,
-        },
+        active,
     };
 };
 
@@ -180,8 +178,9 @@ const calculateNewState = (
 // try to read from existing stored state
 export const getInitialState = () => {
     const storedState = getSessionMembershipState();
-    const storedStateWithOverride =
-        calculateMembershipsWithOverride(storedState);
+    const storedStateWithOverride = calculateMembershipsWithOverride(
+        storedState || {}
+    );
     return { ...defaultState, ...storedStateWithOverride };
 };
 
