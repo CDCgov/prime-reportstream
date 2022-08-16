@@ -31,7 +31,7 @@ type Sender = {
 
 export const useSenderResource = () => {
     /* Access the session. */
-    const { memberships, activeMembership, oktaToken } = useSessionContext();
+    const { activeMembership, oktaToken } = useSessionContext();
     /* Create a stable config reference with useMemo(). */
     const config = useMemo(
         () => {
