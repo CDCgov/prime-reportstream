@@ -117,7 +117,6 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
         val savsValueOutput = StringBuilder()
         // header rows
         savsOutput.appendLine("name,system,referenceURL,reference,created_by,created_at")
-        savsValueOutput.appendLine("name,code,display,version")
 
         // detail rows
         val valueSets = readYaml(inputFile)
@@ -128,6 +127,7 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
                     "${valueSet.referenceUrl}," +
                     "${scrub(valueSet.reference)}, ,"
             )
+            savsValueOutput.appendLine("name,code,display,version")
             valueSet.values.forEach { value ->
                 savsValueOutput.appendLine(
                     "${scrub(valueSet.name)}," +
@@ -136,17 +136,19 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
                         (value.version ?: scrub(valueSet.version))
                 )
             }
+            // write to valueset CSV file.
+            val savsValueOutputFile = File("./metadata/tables/local/${scrub(valueSet.name)}.csv")
+            val savsValueOutputStream = FileOutputStream(savsValueOutputFile)
+            savsValueOutputStream.write(savsValueOutput.toString().toByteArray())
+            savsValueOutputStream.close()
+            savsValueOutput.clear()
         }
 
-        // write to CSV files.
+        // write to sender_automation_value_set CSV file.
         val savsOutputFile = File("./metadata/tables/local/sender_automation_value_set.csv")
         val savsOutputStream = FileOutputStream(savsOutputFile)
-        val savsValueOutputFile = File("./metadata/tables/local/sender_automation_value_set_row.csv")
-        val savsValueOutputStream = FileOutputStream(savsValueOutputFile)
         savsOutputStream.write(savsOutput.toString().toByteArray())
         savsOutputStream.close()
-        savsValueOutputStream.write(savsValueOutput.toString().toByteArray())
-        savsValueOutputStream.close()
 
         TermUi.echo("Conversion complete.")
     }
