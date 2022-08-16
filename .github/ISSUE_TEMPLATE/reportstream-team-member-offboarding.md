@@ -24,25 +24,30 @@ This is required since it takes time for CDC to deactivate their account.
 
 ## General Access:
 - [ ] Deactivate Okta accounts (Search for name, agency email, and contractor email)
-  - [ ] staging
+  - [ ] staging (oktapreview)
   - [ ] prod
 - [ ] Slack access to channels
 - [ ] Metabase
   - [ ] staging
   - [ ] prod
-- [ ] Office 365 (CDC as a result of ActiveDirectory)
 - [ ] Keybase
   - [ ] VPN creditials in `/prime_dev_ops/vpn` (revoke?)
-  - [ ] Access to keybase itself
+  - [ ] Remove from keybase team
 - [ ] Mural
 - [ ] Lucid Chart
 - [ ] SendGrid access
 - [ ] Any additional CDC-specific off-boarding (did they get a PIV?)
 
+## CDC
+- [ ] Office 365 (CDC as a result of ActiveDirectory)
+- [ ] Remove from github org
+- [ ] Return hardware
+- [ ] Offboard from VPN
+
 ## Engineering specific:
 - [ ] Change GitHub access level
-- [ ] Zenhub
 - [ ] Azure (CDC as a result of ActiveDirectory)
+- [ ] Zenhub
 - [ ] PagerDuty
 - [ ] Splunk
 - [ ] Akamai
