@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ListSendFailures
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.TestInstance
 import java.net.URI
 import java.time.OffsetDateTime
 import java.util.UUID
+import kotlin.reflect.full.declaredMemberProperties
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -83,7 +85,7 @@ class AdminApiFunctionsTests {
         val mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
         val function = AdminApiFunctions(db, mockOktaAuthenticator)
-        function.run(mockRequest)
+        function.getSendFailures(mockRequest)
         verify(exactly = 1) {
             mockResponseBuilder.body(
                 withArg {
@@ -98,5 +100,23 @@ class AdminApiFunctionsTests {
                 }
             )
         }
+    }
+
+    @Test
+    fun `Verify ReceiverConnectionCheckResultJoined synced with ReceiverConnectionCheckResult`() {
+        val fieldsDB =
+            Tables.RECEIVER_CONNECTION_CHECK_RESULTS::class.declaredMemberProperties.map { it.name }
+        val fieldsDbJsonb = JacksonMapperUtilities.defaultMapper.writeValueAsString(fieldsDB)
+        // if this test fails then RECEIVER_CONNECTION_CHECK_RESULTS may have changed and
+        // ReceiverConnectionCheckResultJoined could need to be updated to stay in sync.
+        // To fix this test:
+        //   1) update ReceiverConnectionCheckResultJoined
+        //   2) update compare string here with the latest (set breakpoint in this test)
+        val verifyData = "[ \"RECEIVER_CONNECTION_CHECK_RESULT_ID\", \"ORGANIZATION_ID\", " +
+            "\"RECEIVER_ID\", \"CONNECTION_CHECK_RESULT\", \"CONNECTION_CHECK_SUCCESSFUL\", " +
+            "\"CONNECTION_CHECK_STARTED_AT\", \"CONNECTION_CHECK_COMPLETED_AT\", " +
+            "\"_receiverConnectionCheckResultsOrganizationIdFkey\", " +
+            "\"_receiverConnectionCheckResultsReceiverIdFkey\" ]"
+        assertEquals(fieldsDbJsonb, verifyData)
     }
 }

@@ -11,7 +11,7 @@ export interface ValueSetRow {
     name: string;
     code: string;
     display: string;
-    version: number;
+    version: string;
 }
 
 export interface LookupTable {
@@ -42,6 +42,20 @@ class LookupTableApi extends Api {
         return this.configure<T>({
             method: "GET",
             url: `${this.basePath}/${tableName}/${version}/content`,
+        });
+    };
+
+    saveTableData = <T>(tableName: string) => {
+        return this.configure<T>({
+            method: "POST",
+            url: `${this.basePath}/${tableName}`,
+        });
+    };
+
+    activateTableData = <T>(version: number, tableName: string) => {
+        return this.configure<T>({
+            method: "PUT",
+            url: `${this.basePath}/${tableName}/${version}/activate`,
         });
     };
 }

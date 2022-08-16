@@ -2,6 +2,7 @@ package gov.cdc.prime.router.tokens
 
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
@@ -96,6 +97,32 @@ class AuthenticationStrategy : Logging {
                     AuthenticatedClaims(tokClaims, _organizationNameClaim = orgName)
                 }
             }
+        }
+
+        /**
+         * This validates claims from the /validate and /waters endpoints
+         */
+        fun validateClaim(
+            claims: AuthenticatedClaims,
+            sender: Sender,
+            request: HttpRequestMessage<String?>
+        ): Boolean {
+            // Do authorization based on org name in claim matching org name in client header
+
+            if ((claims.organizationNameClaim == sender.organizationName) || claims.isPrimeAdmin) {
+                logger.info(
+                    "Authorized request by org ${claims.organizationNameClaim}" +
+                        " to submit data via client id ${sender.organizationName}.  Beginning to ingest report"
+                )
+                return true
+            }
+
+            logger.warn(
+                "Invalid Authorization for user ${claims.userName}:" +
+                    " ${request.httpMethod}:${request.uri.path}." +
+                    " ERR: Claim org is ${claims.organizationNameClaim} but client id is ${sender.organizationName}"
+            )
+            return false
         }
     }
 }

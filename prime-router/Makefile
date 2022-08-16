@@ -20,24 +20,21 @@ build: src/**/* docker-build
 .vault/env/.env.local: .vault/env
 	touch .vault/env/.env.local
 
-build/ftps: build
-	mkdir build/ftps
-
 .PHONY: docker
 docker: ## Bring up docker containers needed for running the prime router
 docker: $(OS_NAME).docker
 
 .PHONY: arm64.docker
-arm64.docker: build .vault/env/.env.local build/ftps
+arm64.docker: build .vault/env/.env.local
 	docker-compose -f docker-compose.yml up -d vault; \
   	while [ ! -s .vault/env/.env.local ]; do sleep 1; done; \
-	docker-compose -f docker-compose.build.yml -f docker-compose.yml up -d azurite sftp ftps
+	docker-compose -f docker-compose.build.yml -f docker-compose.yml up -d azurite sftp
 
 .PHONY: x86_64.docker
-x86_64.docker: build .vault/env/.env.local build/ftps
+x86_64.docker: build .vault/env/.env.local
 	docker-compose -f docker-compose.yml up -d vault; \
   	while [ ! -s .vault/env/.env.local ]; do sleep 1; done; \
-	docker-compose -f docker-compose.build.yml -f docker-compose.yml up -d prime_dev azurite sftp ftps settings
+	docker-compose -f docker-compose.build.yml -f docker-compose.yml up -d prime_dev azurite sftp settings
 
 .PHONY: run
 run: ## Run the prime router application
@@ -52,7 +49,7 @@ setPermissions: ## Set permissions needed for smoke tests to run successfully
 setPermissions: 
 	export $$(xargs < .vault/env/.env.local); \
 	./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass; \
-	docker-compose exec sftp chmod 777 /home/foo/upload; 
+	docker-compose exec sftp chmod 777 /home/foo/upload;
 
 .PHONY: reloadState
 reloadState: ## Load the tables and settings into a running prime router

@@ -59,17 +59,17 @@ test("JsonSortReplacer to sort complex json data correctly", () => {
             credentialName: "DEFAULT-SFTP",
             type: "SFTP",
         },
-        meta: {
-            version: 0,
-            createdBy: "local@test.com",
-            createdAt: "2022-02-22T17:40:41.219439Z",
-        },
+        version: 0,
+        createdBy: "local@test.com",
+        createdAt: "2022-02-22T17:40:41.219439Z",
         externalName: null,
     };
 
     const result = JSON.stringify(COMPLEX_JSON, jsonSortReplacer, 2);
 
-    expect(result).toBe(`{
+    expect(result).toEqual(`{
+  "createdAt": "2022-02-22T17:40:41.219439Z",
+  "createdBy": "local@test.com",
   "customerStatus": "active",
   "deidentify": true,
   "description": "",
@@ -78,11 +78,6 @@ test("JsonSortReplacer to sort complex json data correctly", () => {
     "hasAtLeastOneOf(waters_submitter, sender_id)",
     "orEquals(patient_state, GH, ordering_facility_state, GH)"
   ],
-  "meta": {
-    "createdAt": "2022-02-22T17:40:41.219439Z",
-    "createdBy": "local@test.com",
-    "version": 0
-  },
   "name": "giang",
   "organizationName": "waters",
   "processingModeFilter": [],
@@ -117,6 +112,7 @@ test("JsonSortReplacer to sort complex json data correctly", () => {
     "host": "sftp",
     "port": "22",
     "type": "SFTP"
-  }
+  },
+  "version": 0
 }`);
 });

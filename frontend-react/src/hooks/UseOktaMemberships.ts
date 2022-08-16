@@ -21,6 +21,8 @@ export interface MembershipSettings {
     parsedName: string;
     // The type of membership
     memberType: MemberType;
+    // Optional sender name
+    senderName?: string;
 }
 
 export interface MembershipState {
@@ -57,12 +59,26 @@ export const getTypeOfGroup = (org: string) => {
     }
 };
 
+export const extractSenderName = (org: string) =>
+    org.split(".")?.[1] || undefined;
+
+/** This method constructs membership settings
+ * @remarks This will put you as a default sender if you are not in a specific sender group */
 export const getSettingsFromOrganization = (
     org: string
 ): MembershipSettings => {
+    const parsedName = parseOrgName(org);
+    const memberType = getTypeOfGroup(org);
+    let senderName = extractSenderName(org);
+
+    if (memberType === MemberType.SENDER && !senderName) {
+        senderName = "default";
+    }
+
     return {
-        parsedName: parseOrgName(org),
-        memberType: getTypeOfGroup(org),
+        parsedName,
+        memberType,
+        senderName,
     };
 };
 

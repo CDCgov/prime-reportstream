@@ -1,15 +1,17 @@
-import { NetworkErrorBoundary, useResource } from "rest-hooks";
+import { NetworkErrorBoundary } from "rest-hooks";
 import { Suspense } from "react";
 
-import ReportResource from "../../resources/ReportResource";
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
+import { useReportsDetail } from "../../hooks/network/History/ReportsHooks";
 
 import Summary from "./Summary";
 import ReportDetails from "./ReportDetails";
 import FacilitiesTable from "./FacilitiesTable";
 
+/** Converts URL queries to a map-like object
+ * @remarks Maybe this should make a real Map, not a map-like object? */
 function useQuery(): { readonly [key: string]: string } {
     const query = window.location.search.slice(1);
     const queryMap = {};
@@ -23,10 +25,11 @@ function useQuery(): { readonly [key: string]: string } {
     return queryMap;
 }
 
+/** @todo Refactor as part of {@link https://github.com/CDCgov/prime-reportstream/issues/4790 #4790} */
 const DetailsContent = () => {
     const queryMap = useQuery();
     const reportId = queryMap?.["reportId"] || "";
-    const report = useResource(ReportResource.detail(), { reportId: reportId });
+    const { data: report } = useReportsDetail(reportId);
 
     return (
         <>
@@ -44,14 +47,7 @@ const DetailsContent = () => {
     );
 };
 
-/* INFO
-   This has to exist because the Suspense catch was messing with our ability to offer
-   the undefined route option in React Router. The Suspense must be one level above the
-   component loading data (i.e. DetailsContent), but could not exist in App because of
-   the bug it caused with providing the empty Route to redirect to the 404 page.
-
-   >>> Kevin Haube, Sept 30, 2021
-*/
+/** @todo Refactor as part of {@link https://github.com/CDCgov/prime-reportstream/issues/4790 #4790} */
 export const Details = () => {
     return (
         <Suspense fallback={<Spinner size="fullpage" />}>

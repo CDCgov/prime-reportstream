@@ -12,11 +12,11 @@ import { NavLink, useHistory } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
-import { getStoredOrg, setStoredOrg } from "../../contexts/SessionStorageTools";
 import { useSessionContext } from "../../contexts/SessionContext";
 import {
     MembershipActionType,
     MemberType,
+    MembershipSettings,
 } from "../../hooks/UseOktaMemberships";
 
 export function OrgsTable() {
@@ -25,17 +25,27 @@ export function OrgsTable() {
         {}
     ).sort((a, b) => a.name.localeCompare(b.name));
     const [filter, setFilter] = useState("");
-    const currentOrg = getStoredOrg();
     const history = useHistory();
     const { memberships } = useSessionContext();
+    const currentOrg = memberships?.state?.active?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
-        setStoredOrg(orgName);
+        const {
+            state: { active: { senderName, memberType } = {} },
+        } = memberships;
+
+        let payload: Partial<MembershipSettings> = {
+            parsedName: orgName,
+        };
+        if (
+            memberType === MemberType.SENDER ||
+            memberType === MemberType.PRIME_ADMIN
+        ) {
+            payload.senderName = senderName || "default";
+        }
         memberships.dispatch({
             type: MembershipActionType.ADMIN_OVERRIDE,
-            payload: {
-                parsedName: orgName,
-            },
+            payload,
         });
     };
 
@@ -55,7 +65,6 @@ export function OrgsTable() {
     };
 
     const saveListToCSVFile = () => {
-        // generate a lines that has "value","value","value"... each line is a
         const csvbody = orgs
             .filter((eachOrg) => eachOrg.filterMatch(filter))
             .map((eachOrg) =>
@@ -67,13 +76,16 @@ export function OrgsTable() {
                         eachOrg.jurisdiction,
                         eachOrg.stateCode,
                         eachOrg.countyName,
-                        new Date(eachOrg.meta.createdAt).toDateString(),
                     ].join(`","`),
                     `"`,
                 ].join("")
             )
             .join(`\n`); // join result of .map() lines
-        const csvheader = `Name,Description,Jurisdiction,State,County,Created\n`;
+        // Note that this csv previously included a `Created` column with a createdAt
+        // date taken from organization metadata. Currently this metadata is not being returned
+        // in the API call for organizations, so we have removed the created column. It
+        // should be added back whenever this API handler is adjusted to send back metadata - DWS
+        const csvheader = `Name,Description,Jurisdiction,State,County\n`;
         const filecontent = [
             "data:text/csv;charset=utf-8,", // this makes it a csv file
             csvheader,
@@ -126,8 +138,8 @@ export function OrgsTable() {
                             }
                             id="user-type-select"
                         >
-                            {Object.values(MemberType).map((type) => (
-                                <option>{type}</option>
+                            {Object.values(MemberType).map((type, index) => (
+                                <option key={index}>{type}</option>
                             ))}
                         </Dropdown>
                     </div>

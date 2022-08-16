@@ -633,7 +633,7 @@ class QualityFilter : CoolTest() {
         history: DetailedSubmissionHistory
     ): Boolean {
         try {
-            val reportId = history.id
+            val reportId = history.reportId
             echo("Id of submitted report: $reportId")
             val destinations = history.destinations
             for (destination in destinations) {
@@ -666,7 +666,7 @@ class QualityFilter : CoolTest() {
         try {
             echo(json)
             val tree = jacksonObjectMapper().readTree(json)
-            val reportId = ReportId.fromString(tree["id"].textValue())
+            val reportId = ReportId.fromString(tree["reportId"].textValue())
             echo("Id of submitted report: $reportId")
             val destinations = tree["destinations"] as ArrayNode
             for (i in 0 until destinations.size()) {

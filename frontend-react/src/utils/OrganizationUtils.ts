@@ -1,4 +1,4 @@
-import { AccessToken, UserClaims } from "@okta/okta-auth-js";
+import { AccessToken, CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
 
 import { SessionStore } from "../hooks/UseSessionStorage";
 
@@ -12,13 +12,17 @@ enum RSOrgType {
 
 /* New claims not present in UserClaims need tobe added via
  * this interface so UserClaims can implement the fields. */
-interface RSExtraClaims {
+interface RSExtraClaims extends CustomUserClaims {
     organization: string[];
 }
 type RSUserClaims = UserClaims<RSExtraClaims>;
 export const toRSClaims = (claims: UserClaims): RSUserClaims => {
     return claims as RSUserClaims;
 };
+
+export interface AccessTokenWithRSClaims extends AccessToken {
+    claims: RSUserClaims;
+}
 
 /* Parses the array of organizations (strings) from an AccessToken */
 const getOktaGroups = (accessToken: AccessToken | undefined): string[] => {
@@ -106,5 +110,3 @@ function parseOrgs(orgs: Array<string>): Array<Partial<SessionStore>> {
 }
 
 export { RSOrgType, getOktaGroups, parseOrgName, getRSOrgs, parseOrgs };
-
-export type { RSUserClaims };

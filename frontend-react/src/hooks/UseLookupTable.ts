@@ -8,57 +8,43 @@ import {
     ValueSet,
     ValueSetRow,
 } from "../network/api/LookupTableApi";
-import { showError } from "../components/AlertNotifications";
 
 export interface TableAttributes {
     version: number;
-    createdAt: string;
-    createdBy: string;
+    createdAt?: string;
+    createdBy?: string;
 }
 
 export async function getLatestVersion(
     tableName: LookupTables
-): Promise<TableAttributes | null> {
-    let response;
-    try {
-        response = await axios(lookupTableApi.getTableList()).then(
-            (response) => response.data
-        );
+): Promise<TableAttributes> {
+    const response = await axios(lookupTableApi.getTableList()).then(
+        (response) => response.data
+    );
 
-        let filteredBody: LookupTable[] = response.filter(
-            (tv: LookupTable) => tv.tableName === tableName && tv.isActive
-        );
-        if (filteredBody.length === 0) {
-            filteredBody = response.filter(
-                (tv: LookupTable) => tv.tableName === tableName
-            );
-        }
-        const table: LookupTable = filteredBody.sort(
-            (a: LookupTable, b: LookupTable) =>
-                b["tableVersion"] - a["tableVersion"]
-        )[0];
+    let filteredBody: LookupTable[] = response.filter(
+        (tv: LookupTable) => tv.tableName === tableName && tv.isActive
+    );
 
-        if (!table) {
-            showError(`ERROR! Table '${tableName}' was not found!`);
-            return null;
-        }
+    const table: LookupTable = filteredBody.sort(
+        (a: LookupTable, b: LookupTable) =>
+            b["tableVersion"] - a["tableVersion"]
+    )[0];
 
-        const { tableVersion, createdAt, createdBy } = table;
-        if (tableVersion === undefined) {
-            showError(`ERROR! No version of table '${tableName}' was found!`);
-            return null;
-        }
-
-        return {
-            version: tableVersion,
-            createdAt,
-            createdBy,
-        };
-    } catch (e: any) {
-        console.trace(e);
-        showError(e.toString());
-        return null;
+    if (!table) {
+        throw new Error(`Table '${tableName}' was not found!`);
     }
+
+    const { tableVersion, createdAt, createdBy } = table;
+    if (tableVersion === undefined) {
+        throw new Error(`No version of table '${tableName}' was found!`);
+    }
+
+    return {
+        version: tableVersion,
+        createdAt,
+        createdBy,
+    };
 }
 
 export async function getLatestData<T>(
@@ -67,25 +53,21 @@ export async function getLatestData<T>(
 ): Promise<T | T[]> {
     const endpointHeader = lookupTableApi.getTableData<T>(version, tableName);
 
-    try {
-        return await axios
-            .get<T>(endpointHeader.url, endpointHeader)
-            .then((response) => response.data);
-    } catch (e: any) {
-        console.trace(e);
-        showError(e.toString());
-        return [];
-    }
+    return await axios
+        .get<T>(endpointHeader.url, endpointHeader)
+        .then((response) => response.data);
 }
 
 const getDataAndVersion = async <T>(
-    tableName: LookupTables
+    tableName: LookupTables,
+    suppliedVersion?: number
 ): Promise<{
     data: any[];
-    versionData: TableAttributes | null;
+    versionData: TableAttributes;
 }> => {
-    const versionData = await getLatestVersion(tableName);
-    if (versionData === null) return { data: [], versionData: null }; // no version found (or other error occurred)
+    const versionData = suppliedVersion
+        ? { version: suppliedVersion }
+        : await getLatestVersion(tableName);
 
     const data: T | any[] = await getLatestData<T[]>(
         versionData.version,
@@ -95,13 +77,13 @@ const getDataAndVersion = async <T>(
 };
 
 export const getSenderAutomationData = async <T>(
-    tableName: LookupTables
+    tableName: LookupTables,
+    suppliedVersion?: number
 ): Promise<any[]> => {
-    const { data, versionData } = await getDataAndVersion<T>(tableName);
-
-    if (!versionData) {
-        return [];
-    }
+    const { data, versionData } = await getDataAndVersion<T>(
+        tableName,
+        suppliedVersion
+    );
 
     return data.map(
         (set: {
@@ -121,55 +103,62 @@ export const getSenderAutomationData = async <T>(
 
 export const getSenderAutomationDataRows = async <T>(
     tableName: LookupTables,
-    dataSetName: string | null = null
+    suppliedVersion?: number
 ): Promise<any[]> => {
-    const { data } = await getDataAndVersion<T>(tableName);
+    const { data } = await getDataAndVersion<T>(tableName, suppliedVersion);
 
-    return data
-        .filter((f) => f.name === dataSetName)
-        .map(
-            (set: {
-                display: string;
-                code: string;
-                version: string;
-                system: string;
-            }) => ({
-                display: set.display,
-                code: set.code,
-                version: set.version,
-                system: set.system,
-            })
-        );
+    return data.map(
+        (set: {
+            name: string;
+            display: string;
+            code: string;
+            version: string;
+        }) => ({
+            name: set.name,
+            display: set.display,
+            code: set.code,
+            version: set.version,
+        })
+    );
 };
 
 const useLookupTable = <T>(
     tableName: LookupTables,
-    dataSetName: string | null = null
-): T[] => {
+    dataSetName: string | null = null,
+    version?: number
+): { valueSetArray: T[]; error: any } => {
     const [valueSetArray, setValueSetArray] = useState<T[]>([]);
+    const [error, setError] = useState();
 
     useEffect(() => {
         let promiseResult: Promise<any[]>;
+        // since dataSetName is no longer needed for filtering here,
+        // let's think of another way to switch, so that we don't have to provide that argument
         if (dataSetName !== null) {
-            promiseResult = getSenderAutomationDataRows<T>(
-                tableName,
-                dataSetName
-            );
+            promiseResult = getSenderAutomationDataRows<T>(tableName, version);
         } else {
-            promiseResult = getSenderAutomationData<T>(tableName);
+            promiseResult = getSenderAutomationData<T>(tableName, version);
         }
-        promiseResult.then((results) => {
-            setValueSetArray(results);
-        });
-    }, [dataSetName, tableName]);
+        promiseResult
+            .then((results) => {
+                setValueSetArray(results);
+            })
+            .catch((e) => {
+                setError(e);
+            });
+    }, [dataSetName, tableName, version]);
 
-    return valueSetArray;
+    return { valueSetArray, error };
 };
 
 export const useValueSetsTable = () =>
     useLookupTable<ValueSet>(LookupTables.VALUE_SET);
 
-export const useValueSetsRowTable = (dataSetName: string) =>
-    useLookupTable<ValueSetRow>(LookupTables.VALUE_SET_ROW, dataSetName);
+export const useValueSetsRowTable = (dataSetName: string, version?: number) =>
+    useLookupTable<ValueSetRow>(
+        LookupTables.VALUE_SET_ROW,
+        dataSetName,
+        version
+    );
 
 export default useLookupTable;

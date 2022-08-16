@@ -28,7 +28,7 @@ function load_config() {
   # Use the prime CLI to load configuration in the background
   # The fatjar is two levels up in the libs folder
   top_dir=$function_folder/../..
-  fatjar=$top_dir/libs/prime-router-0.1-SNAPSHOT-all.jar
+  fatjar=$top_dir/libs/prime-router-0.2-SNAPSHOT-all.jar
   echo "Loading lookup tables..."
   java -jar $fatjar lookuptables loadall -d $function_folder/metadata/tables/local -r 60 --check-last-modified
   # Note the settings require the full metadata catalog to be in place, so run last

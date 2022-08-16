@@ -3,7 +3,7 @@ import { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
 import { registerApi } from "../Apis";
 
 /* Type alias for CRUD ops that I wish to allow */
-export type HTTPMethod = "POST" | "GET" | "PATCH" | "DELETE";
+export type HTTPMethod = "POST" | "GET" | "PATCH" | "DELETE" | "PUT";
 
 export const API_ROOT = `${process.env.REACT_APP_BACKEND_URL}/api`;
 

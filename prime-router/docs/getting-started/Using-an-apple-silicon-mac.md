@@ -60,7 +60,6 @@ ReportStream depends on set of services to be up before running the main Azure s
 * Azurite - a simulator of Azure storage
 * Vault - a secret store
 * SFTP - an SFTP server
-* FTPS - an FTPS server
 * soap-webservice - SOAP web service emulator
 
 ```bash
@@ -167,7 +166,7 @@ For profiling use the JMX port 9090.
 
 ### Start and stop dependent services
 
-Instead of using a `docker-compose up sftp azurite ftps vault` to bring up dependent services, you can use a script.
+Instead of using a `docker-compose up sftp azurite vault` to bring up dependent services, you can use a script.
 ```bash
 ./devenv-infrastructure.sh up
 ```
@@ -222,11 +221,6 @@ JAVA_HOME=$(/usr/libexec/java_home)
 ## Things That Might Go Wrong
 
 You may run into problems. Here are few of the common ones.
-
-### FTPS container
-
-If you get an error running `docker-compose up sftp azurite ftps vault` like *bind source path does not exist: .../build/ftps*.
-This is likely because a `clean` command has removed the build `build/ftps` directory. You can add the directory by hand using `mkdir build/ftps` and the `docker-compose` will run.
 
 ### Azurite
 

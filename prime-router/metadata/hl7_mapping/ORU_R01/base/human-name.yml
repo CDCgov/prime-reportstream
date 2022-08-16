@@ -1,0 +1,20 @@
+name: ORU-R01-human-name
+elements:
+  - name: family-name
+    value: [ '%resource.family' ]
+    hl7Spec: [ '%{hl7NameField}-1' ]
+
+  - name: given-name
+    condition: '%resource.given.exists()'
+    value: [ '%resource.given[0]' ]
+    hl7Spec: [ '%{hl7NameField}-2' ]
+
+  - name: second-name
+    condition: '%resource.given.count() >= 2'
+    value: [ '%resource.given.tail().toString().replace('','', '' '')' ]
+    hl7Spec: [ '%{hl7NameField}-3' ]
+
+  - name: use
+    condition: '%resource.use.exists()'
+    value: [ '%resource.use.getNameUseCode()' ]
+    hl7Spec: [ '%{hl7NameField}-7' ]

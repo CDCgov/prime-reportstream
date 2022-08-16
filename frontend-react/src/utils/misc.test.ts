@@ -7,6 +7,7 @@ import {
     splitOn,
     VersionWarningType,
     toHumanReadable,
+    capitalizeFirst,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
 
@@ -42,16 +43,14 @@ const objResource: OrgSettingsBaseResource = {
     name: "test setting",
     url: "http://localhost",
     pk: () => "10101",
-    meta: {
-        version: 5,
-        createdBy: "test@example.com",
-        createdAt: "1/1/2000 00:00",
-    },
+    version: 5,
+    createdBy: "test@example.com",
+    createdAt: "1/1/2000 00:00",
 };
 
 test("getVersionWarning test", async () => {
     const fullWarning = getVersionWarning(VersionWarningType.FULL, objResource);
-    expect(fullWarning).toContain(objResource.meta?.createdBy);
+    expect(fullWarning).toContain(objResource.createdBy);
 
     const popupWarning = getVersionWarning(VersionWarningType.POPUP);
     expect(popupWarning).toContain("WARNING!");
@@ -81,5 +80,17 @@ describe("toHumanReadable", () => {
 
     test("fixes up a camel case string", () => {
         expect(toHumanReadable("hiTherePeople")).toEqual("Hi There People");
+    });
+});
+
+describe("capitalizeFirst", () => {
+    test("returns something falsey if there isn't anything to capitalize", () => {
+        expect(capitalizeFirst("")).toEqual("");
+    });
+    test("returns original string with first letter capitalized", () => {
+        expect(capitalizeFirst("all")).toEqual("All");
+        expect(capitalizeFirst("vdpoiENUpajfPWEOIWA")).toEqual(
+            "VdpoiENUpajfPWEOIWA"
+        );
     });
 });

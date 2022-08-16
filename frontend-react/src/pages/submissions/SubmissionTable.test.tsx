@@ -9,6 +9,12 @@ import {
     _exportForTesting,
     FeatureFlagName,
 } from "../../pages/misc/FeatureFlags";
+import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
+import {
+    MembershipController,
+    MemberType,
+} from "../../hooks/UseOktaMemberships";
+import { SessionController } from "../../hooks/UseSessionStorage";
 
 import SubmissionTable from "./SubmissionTable";
 
@@ -29,11 +35,24 @@ const renderWithResolver = (ui: ReactElement, fixtures: Fixture[]) =>
 
 describe("SubmissionTable", () => {
     test("renders a table with the returned resources", async () => {
+        mockSessionContext.mockReturnValue({
+            memberships: {
+                state: {
+                    active: {
+                        memberType: MemberType.SENDER,
+                        parsedName: "testOrg",
+                        senderName: "testSender",
+                    },
+                },
+            } as MembershipController,
+            store: {} as SessionController, // TS yells about removing this because of types
+        });
         const fixtures: Fixture[] = [
             {
                 endpoint: SubmissionsResource.list(),
                 args: [
                     {
+                        organization: "testOrg",
                         cursor: "3000-01-01T00:00:00.000Z",
                         endCursor: "2000-01-01T00:00:00.000Z",
                         pageSize: 11,
@@ -48,7 +67,6 @@ describe("SubmissionTable", () => {
                 ] as SubmissionsResource[],
             },
         ];
-
         renderWithResolver(<SubmissionTable />, fixtures);
 
         const filter = await screen.findByTestId("filter-container");
@@ -71,11 +89,24 @@ describe("SubmissionTable", () => {
         });
 
         test("renders a placeholder", async () => {
+            mockSessionContext.mockReturnValue({
+                memberships: {
+                    state: {
+                        active: {
+                            memberType: MemberType.SENDER,
+                            parsedName: "testOrg",
+                            senderName: "testSender",
+                        },
+                    },
+                } as MembershipController,
+                store: {} as SessionController, // TS yells about removing this because of types
+            });
             const fixtures: Fixture[] = [
                 {
                     endpoint: SubmissionsResource.list(),
                     args: [
                         {
+                            organization: "testOrg",
                             cursor: "3000-01-01T00:00:00.000Z",
                             endCursor: "2000-01-01T00:00:00.000Z",
                             pageSize: 61,
@@ -90,7 +121,6 @@ describe("SubmissionTable", () => {
                     ] as SubmissionsResource[],
                 },
             ];
-
             renderWithResolver(<SubmissionTable />, fixtures);
 
             const pagination = await screen.findByLabelText(

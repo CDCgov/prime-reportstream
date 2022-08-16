@@ -96,7 +96,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                             <td>{eachOrgSetting.topic || ""}</td>
                             <td>{eachOrgSetting.customerStatus || ""}</td>
                             <td>
-                                <DisplayMeta metaObj={eachOrgSetting.meta} />
+                                <DisplayMeta metaObj={eachOrgSetting} />
                             </td>
                             <td colSpan={2}>
                                 <ButtonGroup type="segmented">

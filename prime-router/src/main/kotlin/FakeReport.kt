@@ -12,9 +12,9 @@ import gov.cdc.prime.router.metadata.Mappers
 import gov.cdc.prime.router.metadata.UseMapper
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.ZoneId
+import java.util.Date
 import java.util.Locale
 import java.util.Random
-import java.util.concurrent.TimeUnit
 
 /*
     The FakeDataService class was created to separate the logic
@@ -87,8 +87,8 @@ class FakeDataService : Logging {
         // provided formatting string
         fun createFakeDate(element: Element): String {
             val date = when {
-                element.nameContains("DOB") -> faker.date().birthday(0, 100)
-                else -> faker.date().past(10, TimeUnit.DAYS)
+                element.nameContains("DOB") -> faker.date().birthday(1, 100)
+                else -> context.fakeDate
             }
             // Faker returns an older style Java date, which we need to convert to an
             // instance, and then also set to UTC, so we can then format it for our purposes.
@@ -106,8 +106,7 @@ class FakeDataService : Logging {
             // Faker returns an older style Java date, which we need to convert to an
             // instance, and then also set to UTC, so we can then format it for our purposes.
             // The Java date object is super hard to work with and brittle.
-            val date = faker.date().past(10, TimeUnit.DAYS)
-                .toInstant().atZone(ZoneId.of("UTC"))
+            val date = context.fakeDate.toInstant().atZone(ZoneId.of("UTC"))
             return DateUtilities.getDateAsFormattedString(date, DateUtilities.datetimePattern)
         }
 
@@ -277,6 +276,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         val findLookupTable = localMetadata::findLookupTable
         val faker = if (locale == null) Faker() else Faker(locale)
         val patientName: Name = faker.name()
+        val fakeDate: Date = Date(Date().time - 3600000 * 5 * 24) // Set to past 5 days (3600000 miliseconds/day)
         val schoolName: String = faker.university().name()
         val equipmentModel = randomChoice(
             // Use only equipment that have equipment UID and equipment UID type to pass quality gate for HL7 messages
