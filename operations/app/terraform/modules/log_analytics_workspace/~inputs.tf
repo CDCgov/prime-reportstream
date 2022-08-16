@@ -97,9 +97,11 @@ variable "action_group_businesshours_id" {
 variable "data_factory_id" {
   type        = string
   description = "Data factory resource id"
+  default     = ""
 }
 
 variable "sftp_instance_01_id" {
   type        = string
   description = "SFTP instance 01 resource id"
+  default     = ""
 }

@@ -50,11 +50,21 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = var.terraform_object_id
 
-  secret_permissions = [
-    "Get",
-  ]
   key_permissions = [
+    "Create",
     "Get",
+    "List",
+    "Delete",
+    "Purge"
+  ]
+
+  secret_permissions = [
+    "Set",
+    "List",
+    "Get",
+    "Delete",
+    "Purge",
+    "Recover"
   ]
 }
 
@@ -100,8 +110,21 @@ resource "azurerm_key_vault_access_policy" "terraform_app_config_access_policy" 
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = var.terraform_object_id
 
-  secret_permissions = [
+  key_permissions = [
+    "Create",
     "Get",
+    "List",
+    "Delete",
+    "Purge"
+  ]
+
+  secret_permissions = [
+    "Set",
+    "List",
+    "Get",
+    "Delete",
+    "Purge",
+    "Recover"
   ]
 }
 
