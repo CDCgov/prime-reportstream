@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext } from "react";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
-import { AccessToken, OktaAuth } from "@okta/okta-auth-js";
+import { AccessToken } from "@okta/okta-auth-js";
 
 import {
     MembershipSettings,

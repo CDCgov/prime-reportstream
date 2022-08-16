@@ -54,7 +54,7 @@ export const useSenderResource = () => {
 
         /* Note: we DO want to update config ONLY when these values update. If the linter
          * yells about a value you don't want to add, add an eslint-ignore comment. */
-        [oktaToken?.accessToken, memberships]
+        [oktaToken?.accessToken, activeMembership]
     );
 
     /* Pass the stable config into the consumer and cast the response with types. */

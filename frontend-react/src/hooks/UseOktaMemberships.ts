@@ -7,7 +7,7 @@ import {
     getSessionMembershipState,
     storeOrganizationOverride,
     getOrganizationOverride,
-} from "../contexts/SessionStorageTools";
+} from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
 
 export enum MemberType {
