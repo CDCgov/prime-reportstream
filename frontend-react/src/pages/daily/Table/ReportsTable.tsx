@@ -99,7 +99,7 @@ function ReportsTable() {
             }
         },
         // Ignoring getReportsList as dep
-        [activeService, deliveries, activeMembership?.parsedName] //eslint-disable-line
+        [activeService, deliveries, activeMembership?.parsedName] //eslint-disable-line react-hooks/exhaustive-deps
     );
 
     useEffect(() => {
