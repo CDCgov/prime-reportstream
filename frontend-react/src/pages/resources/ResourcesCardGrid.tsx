@@ -1,10 +1,4 @@
-import { Helmet } from "react-helmet";
-import { Route, Switch } from "react-router-dom";
-
-import {
-    ElementDirectory,
-    GeneratedRouter,
-} from "../../components/Content/MarkdownDirectory";
+import { ElementDirectory } from "../../components/Content/MarkdownDirectory";
 import ReferralGuide from "../../content/resources/referral-guide.md";
 import { MarkdownContent } from "../../components/Content/MarkdownContent";
 import {
@@ -12,7 +6,11 @@ import {
     ContentDirectoryTools,
     SlugParams,
 } from "../../components/Content/PageGenerationTools";
-import { IACardList } from "../../components/IACard";
+import {
+    IACardGridProps,
+    IACardGridTemplate,
+} from "../../components/Content/Templates/IACardGridTemplate";
+import { IARoot, IARootProps } from "../../components/Content/Templates/IARoot";
 
 import ProgrammersGuide from "./programmers-guide/ProgrammersGuide";
 import { AccountRegistrationGuideIa } from "./AccountRegistrationGuide";
@@ -52,7 +50,6 @@ const DirectoryTools = new ContentDirectoryTools()
     .setSlugs(slugs);
 
 /* An array of directories to be rendered */
-
 const directories = [
     new ElementDirectory()
         .setTitle("Account registration guide")
@@ -178,44 +175,21 @@ const directories = [
         ),
 ];
 
-/** Main render source for Resources IA page -- provides router
- * @todo: Extract as general purpose component since it's reused across IA */
-export const Resources = () => {
-    const path = "/resources";
-    return (
-        <>
-            <Helmet>
-                <title>Resources | {process.env.REACT_APP_TITLE}</title>
-            </Helmet>
-
-            <Switch>
-                <Route exact path={path} component={ResourcesIndex} />
-                <GeneratedRouter directories={directories} />
-            </Switch>
-        </>
-    );
+const PAGE_NAME = "Resources";
+const pageProps: IACardGridProps = {
+    title: PAGE_NAME,
+    subtitle: "Explore guides, tools, and resources to optimize ReportStream",
+    directoriesToRender: directories,
 };
+/** This is our main page content */
+export const ResourcesCardGrid = () => <IACardGridTemplate {...pageProps} />;
 
-/** @todo: Extract as general purpose component since it's reused across IA*/
-export const ResourcesIndex = () => {
-    return (
-        <>
-            <div className="rs-hero__index">
-                <div className="grid-container">
-                    <h1>Resources</h1>
-                    <h2>
-                        Explore guides, tools, and resources to optimize
-                        ReportStream{" "}
-                    </h2>
-                </div>
-            </div>
-            <div className="grid-container usa-prose margin-top-6">
-                <div className="grid-row grid-gap">
-                    <section>
-                        <IACardList dirs={directories} />
-                    </section>
-                </div>
-            </div>
-        </>
-    );
+const rootProps: IARootProps = {
+    path: "/resources",
+    pageName: PAGE_NAME,
+    indexComponent: ResourcesCardGrid,
+    directoriesToRoute: directories,
 };
+/** Use this component in the main App Router! It will handle rendering everything
+ * and set the Helmet values */
+export const Resources = () => <IARoot {...rootProps} />;

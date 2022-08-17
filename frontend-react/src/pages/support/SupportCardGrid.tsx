@@ -1,17 +1,17 @@
-import { Helmet } from "react-helmet";
-import { Route, Switch } from "react-router-dom";
-
 import {
     ContentDirectory,
     ElementDirectory,
-    GeneratedRouter,
 } from "../../components/Content/MarkdownDirectory";
-import { IACardList } from "../../components/IACard";
 import {
     contentContainer,
     ContentDirectoryTools,
     SlugParams,
 } from "../../components/Content/PageGenerationTools";
+import {
+    IACardGridProps,
+    IACardGridTemplate,
+} from "../../components/Content/Templates/IACardGridTemplate";
+import { IARoot, IARootProps } from "../../components/Content/Templates/IARoot";
 
 import { Contact } from "./Contact";
 import { Faq } from "./Faq";
@@ -53,39 +53,21 @@ const directories: ContentDirectory[] = [
         ),
 ];
 
-export const Support = () => {
-    const path = "/support";
-    return (
-        <>
-            <Helmet>
-                <title>Support | {process.env.REACT_APP_TITLE}</title>
-            </Helmet>
-
-            <Switch>
-                {/* Handles anyone going to /getting-started without extension */}
-                <Route exact path={path} component={SupportIndex} />
-                <GeneratedRouter directories={directories} />
-            </Switch>
-        </>
-    );
+const PAGE_NAME = "Support";
+const pageProps: IACardGridProps = {
+    title: PAGE_NAME,
+    subtitle: "Have questions? Here are a few ways we can help",
+    directoriesToRender: directories,
 };
+/** This is our main page content */
+export const SupportCardGrid = () => <IACardGridTemplate {...pageProps} />;
 
-export const SupportIndex = () => {
-    return (
-        <>
-            <div className="rs-hero__index">
-                <div className="grid-container">
-                    <h1>Support</h1>
-                    <h2>Have questions? Here are a few ways we can help</h2>
-                </div>
-            </div>
-            <div className="grid-container usa-prose margin-top-6">
-                <div className="grid-row grid-gap">
-                    <section>
-                        <IACardList dirs={directories} />
-                    </section>
-                </div>
-            </div>
-        </>
-    );
+const rootProps: IARootProps = {
+    path: "/support",
+    pageName: PAGE_NAME,
+    indexComponent: SupportCardGrid,
+    directoriesToRoute: directories,
 };
+/** Use this component in the main App Router! It will handle rendering everything
+ * and set the Helmet values */
+export const Support = () => <IARoot {...rootProps} />;
