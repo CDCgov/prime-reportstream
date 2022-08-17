@@ -231,10 +231,7 @@ export const DataDownloadGuideIa = () => {
                 </a>
 
                 <p className="margin-top-8">
-                    <a
-                        href="src/pages/resources/legacy-page-content/DataDownloadGuide#anchor-top"
-                        className="usa-link"
-                    >
+                    <a href="#anchor-top" className="usa-link">
                         Back to top
                     </a>
                 </p>
