@@ -13,6 +13,12 @@ inputs:
   version:
     description: "Version tag"
     required: true
+  GITHUB_TOKEN:
+    description: Github provided token
+    required: true
+  SONAR_TOKEN:
+    descirption: Token to communicate with Sonarcloud
+    require: true
 
 runs:
   using: "composite"
