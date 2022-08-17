@@ -179,7 +179,7 @@ describe("useOktaMemberships", () => {
                 useOktaMemberships(fakeAuthState)
             );
 
-            expect(result.current.state.active).toEqual({
+            expect(result.current.state.activeMembership).toEqual({
                 parsedName: "PrimeAdmins",
                 memberType: MemberType.PRIME_ADMIN,
             });
@@ -189,7 +189,7 @@ describe("useOktaMemberships", () => {
                     payload: newActive,
                 })
             );
-            expect(result.current.state.active).toEqual(newActive);
+            expect(result.current.state.activeMembership).toEqual(newActive);
 
             expect(mockStoreOrganizationOverride).toHaveBeenCalledWith(
                 JSON.stringify(newActive)
@@ -197,10 +197,6 @@ describe("useOktaMemberships", () => {
         });
 
         test("can partially override membership as admin", () => {
-            // const newActive = {
-            //     parsedName: "PrimeAdmins",
-            //     memberType: MemberType.SENDER,
-            // };
             const fakeAuthState = fakeAuthStateForOrgs(["DHPrimeAdmins"]);
             const { result } = renderHook(() =>
                 useOktaMemberships(fakeAuthState)

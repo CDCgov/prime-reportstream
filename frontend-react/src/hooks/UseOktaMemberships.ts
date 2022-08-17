@@ -165,7 +165,7 @@ const calculateNewState = (
             };
             const newState = {
                 ...state,
-                active: newActive,
+                activeMembership: newActive,
             };
             storeOrganizationOverride(JSON.stringify(newActive));
             return newState;
