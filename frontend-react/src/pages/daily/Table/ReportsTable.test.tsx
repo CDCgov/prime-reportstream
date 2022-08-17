@@ -32,36 +32,72 @@ describe("ReportsTable", () => {
                 },
             } as MembershipController,
         });
-        // Mock the response from the Receivers hook
-        mockReceiverHook.mockReturnValue({
-            data: receiversGenerator(3),
-            loading: false,
-            error: "",
-            trigger: () => {},
-        });
-        // Mock the response from the Deliveries hook
-        mockDeliveryListHook.mockReturnValue({
-            data: deliveriesGenerator(101),
-            loading: false,
-            error: "",
-            trigger: () => {},
-        });
-        // Render the component
-        renderWithRouter(<ReportsTable />);
     });
+    describe("with services and deliveries data", () => {
+        beforeEach(() => {
+            // Mock the response from the Receivers hook
+            mockReceiverHook.mockReturnValue({
+                data: receiversGenerator(3),
+                loading: false,
+                error: "",
+                trigger: () => {},
+            });
+            // Mock the response from the Deliveries hook
+            mockDeliveryListHook.mockReturnValue({
+                data: deliveriesGenerator(101),
+                loading: false,
+                error: "",
+                trigger: () => {},
+            });
+            // Render the component
+            renderWithRouter(<ReportsTable />);
+        });
+        test("renders with no error", async () => {
+            // Column headers render
+            expect(await screen.findByText("Report ID")).toBeInTheDocument();
+            expect(await screen.findByText("Date Sent")).toBeInTheDocument();
+            expect(await screen.findByText("Expires")).toBeInTheDocument();
+            expect(await screen.findByText("Total Tests")).toBeInTheDocument();
+            expect(await screen.findByText("File")).toBeInTheDocument();
+        });
 
-    test("renders with no error", async () => {
-        // Column headers render
-        expect(await screen.findByText("Report ID")).toBeInTheDocument();
-        expect(await screen.findByText("Date Sent")).toBeInTheDocument();
-        expect(await screen.findByText("Expires")).toBeInTheDocument();
-        expect(await screen.findByText("Total Tests")).toBeInTheDocument();
-        expect(await screen.findByText("File")).toBeInTheDocument();
+        test("renders 100 results per page + 1 header row", () => {
+            const rows = screen.getAllByRole("row");
+            expect(rows).toHaveLength(100 + 1);
+        });
     });
-
-    test("renders 100 results per page + 1 header row", () => {
-        const rows = screen.getAllByRole("row");
-        expect(rows).toHaveLength(100 + 1);
+    describe("with no data", () => {
+        beforeEach(() => {
+            // Mock the response from the Receivers hook
+            mockReceiverHook.mockReturnValue({
+                data: receiversGenerator(0),
+                loading: false,
+                error: "",
+                trigger: () => {},
+            });
+            // Mock the response from the Deliveries hook
+            mockDeliveryListHook.mockReturnValue({
+                data: deliveriesGenerator(0),
+                loading: false,
+                error: "",
+                trigger: () => {},
+            });
+            // Render the component
+            renderWithRouter(<ReportsTable />);
+        });
+        test("renders with no error", async () => {
+            // Column headers render
+            expect(await screen.findByText("Report ID")).toBeInTheDocument();
+            expect(await screen.findByText("Date Sent")).toBeInTheDocument();
+            expect(await screen.findByText("Expires")).toBeInTheDocument();
+            expect(await screen.findByText("Total Tests")).toBeInTheDocument();
+            expect(await screen.findByText("File")).toBeInTheDocument();
+        });
+        test("renders 0 results (but 1 header row)", () => {
+            const rows = screen.getAllByRole("row");
+            expect(rows.length).toBeLessThan(2);
+            expect(rows.length).toBeGreaterThan(0);
+        });
     });
 });
 
