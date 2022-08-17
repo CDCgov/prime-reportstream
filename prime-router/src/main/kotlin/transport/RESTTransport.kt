@@ -10,9 +10,9 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.credentials.Credential
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
+import gov.cdc.prime.router.credentials.RestCredential
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
@@ -79,7 +79,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         // get the file name, or create one from the report ID, NY requires a file name in the POST
         val fileName = header.reportFile.externalName ?: "${header.reportFile.reportId}.hl7"
         // get the username/password to authenticate with OAuth
-        val credential = lookupDefaultCredential(receiver)
+        val credential: RestCredential = lookupDefaultCredential(receiver)
         // get the TLS/SSL cert in a JKS if needed, NY uses a specific one
         val jksCredential = restTransportInfo.tlsKeystore?.let { lookupJksCredentials(it) }
 
@@ -200,7 +200,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * Get a credential from the credential service
      * @param receiver the fullName of the receiver is the label of the credential
      */
-    fun lookupDefaultCredential(receiver: Receiver): Credential {
+    fun lookupDefaultCredential(receiver: Receiver): RestCredential {
         Preconditions.checkNotNull(receiver.transport)
         Preconditions.checkArgument(receiver.transport is RESTTransportType)
         val receiverFullName = receiver.fullName
@@ -209,7 +209,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             credentialLabel,
             "RESTTransport",
             CredentialRequestReason.REST_UPLOAD
-        )
+        ) as? RestCredential?
             ?: error("Unable to find OAuth credentials for $receiverFullName using $credentialLabel")
     }
 

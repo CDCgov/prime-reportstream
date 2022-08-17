@@ -119,5 +119,5 @@ data class RESTTransportType
     /** [headers] The map of headers to be sent in the message */
     val headers: Map<String, String>
 ) : TransportType("REST") {
-    override fun toString(): String = "apiUrl=$reportUrl" // , tokenUrl=$accessTokenUrl, tlsCert=$tlsCertName"
+    override fun toString(): String = "apiUrl=$reportUrl"
 }

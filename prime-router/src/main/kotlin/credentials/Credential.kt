@@ -80,24 +80,6 @@ data class UserApiKeyCredential(
 ) : Credential(), RestCredential
 
 /**
- * An OAuth Key credential
- */
-data class UserOAuthCredential(
-    /**
-     * [access_token] is the token.
-     */
-    val access_token: String,
-    /**
-     * [expires_in] is the expiration time in minutes
-     */
-    val expires_in: Int,
-    /**
-     * [token_type] is the type of token
-     */
-    val token_type: String
-) : Credential()
-
-/**
  * The credential base class for all other credentials to inherit from
  */
 @JsonTypeInfo(
@@ -111,7 +93,6 @@ data class UserOAuthCredential(
     JsonSubTypes.Type(value = UserPpkCredential::class, name = "UserPpk"),
     JsonSubTypes.Type(value = UserJksCredential::class, name = "UserJks"),
     JsonSubTypes.Type(value = UserApiKeyCredential::class, name = "UserApiKey"),
-    JsonSubTypes.Type(value = UserOAuthCredential::class, name = "UserOauth")
 )
 sealed class Credential {
     /** Converts the [Credential] class to JSON */
