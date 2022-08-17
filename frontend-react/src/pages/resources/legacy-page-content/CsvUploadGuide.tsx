@@ -42,10 +42,7 @@ export const CsvUploadGuideIa = () => {
                         partnered
                     </a>{" "}
                     with ReportStream and{" "}
-                    <a
-                        href="/support/legacy-page-content/Contact"
-                        className="usa-link"
-                    >
+                    <a href="/support/contact" className="usa-link">
                         contact us
                     </a>{" "}
                     to learn more.
@@ -56,18 +53,12 @@ export const CsvUploadGuideIa = () => {
             </p>
             <ul>
                 <li>
-                    <a
-                        href="src/pages/resources/legacy-page-content/CsvUploadGuide#preparing-a-csv"
-                        className="usa-link"
-                    >
+                    <a href="#preparing-a-csv" className="usa-link">
                         How to prepare a CSV file for ReportStream
                     </a>
                 </li>
                 <li>
-                    <a
-                        href="src/pages/resources/legacy-page-content/CsvUploadGuide#upload-a-csv"
-                        className="usa-link"
-                    >
+                    <a href="#upload-a-csv" className="usa-link">
                         How to upload a CSV file to ReportStream
                     </a>
                 </li>
@@ -171,7 +162,7 @@ export const CsvUploadGuideIa = () => {
                         <ul className="margin-top-2">
                             <li>
                                 Go to{" "}
-                                <a href="/Users/kevinhaube/Projects/prime-reportstream/frontend-react/src/pages/Login">
+                                <a href="/login">
                                     https://reportstream.cdc.gov/login
                                 </a>
                             </li>

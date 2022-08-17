@@ -43,7 +43,7 @@ export const DataDownloadGuideIa = () => {
                 <p>
                     Please use a modern desktop web browser (ex:{" "}
                     <a
-                        href="src/pages/resources/legacy-page-content/DataDownloadGuide"
+                        href="https://www.google.com/chrome/"
                         target="_blank"
                         rel="noreferrer"
                         className="usa-link"
@@ -52,7 +52,7 @@ export const DataDownloadGuideIa = () => {
                     </a>
                     ,{" "}
                     <a
-                        href="src/pages/resources/legacy-page-content/DataDownloadGuide"
+                        href="https://www.mozilla.org/en-US/firefox/new/"
                         target="_blank"
                         rel="noreferrer"
                         className="usa-link"
@@ -61,7 +61,7 @@ export const DataDownloadGuideIa = () => {
                     </a>
                     ,{" "}
                     <a
-                        href="src/pages/resources/legacy-page-content/DataDownloadGuide"
+                        href="https://www.apple.com/safari/"
                         target="_blank"
                         rel="noreferrer"
                         className="usa-link"
@@ -93,10 +93,7 @@ export const DataDownloadGuideIa = () => {
                 </h4>
                 <p>
                     ReportStream is utilizing a{" "}
-                    <a
-                        href="src/pages/resources/legacy-page-content/DataDownloadGuide"
-                        className="usa-link"
-                    >
+                    <a href="https://www.hhs.gov/" className="usa-link">
                         Health and Human Services
                     </a>
                     -owned <a href="https://okta.com">Okta</a> account for
@@ -173,10 +170,7 @@ export const DataDownloadGuideIa = () => {
                 <p>
                     ReportStream will manually manage user accounts for your
                     team. To add or remove team members,{" "}
-                    <a
-                        href="/support/legacy-page-content/Contact"
-                        className="usa-link"
-                    >
+                    <a href="/support/contact" className="usa-link">
                         contact us
                     </a>
                     .
@@ -230,7 +224,7 @@ export const DataDownloadGuideIa = () => {
                     us for help.
                 </p>
                 <a
-                    href="/support/legacy-page-content/Contact"
+                    href="/support/contact"
                     className="usa-button usa-button--outline"
                 >
                     Contact us

@@ -21,10 +21,7 @@ export const WhereWereLive = () => {
             </h2>
             <h2>
                 Don't see your state or territory?{" "}
-                <a
-                    href="/support/legacy-page-content/Contact"
-                    className="margin-left-1 usa-link"
-                >
+                <a href="/support/contact" className="margin-left-1 usa-link">
                     Get in touch
                 </a>
                 .

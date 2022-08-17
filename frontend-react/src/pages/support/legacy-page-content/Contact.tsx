@@ -77,10 +77,7 @@ export const Contact = () => {
                 <h3 className="margin-top-4">Need something else?</h3>
                 <p>
                     For quick answers to common questions, read our{" "}
-                    <a
-                        className="usa-link"
-                        href="/support/legacy-page-content/Faq"
-                    >
+                    <a className="usa-link" href="/support/faq">
                         frequently asked questions
                     </a>
                     .

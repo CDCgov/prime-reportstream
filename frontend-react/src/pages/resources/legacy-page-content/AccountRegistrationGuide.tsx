@@ -212,10 +212,7 @@ export const AccountRegistrationGuideIa = () => {
                             "Setup" below it. These authentication options are
                             meant to secure your account. Below, you can review
                             instructions for setting up{" "}
-                            <a
-                                href="src/pages/resources/legacy-page-content/AccountRegistrationGuide#anchor-mfa"
-                                className="usa-link"
-                            >
+                            <a href="#anchor-mfa" className="usa-link">
                                 SMS authentication and Google Authenticator/Okta
                                 Verify
                             </a>
@@ -263,10 +260,7 @@ export const AccountRegistrationGuideIa = () => {
                         <ul>
                             <li>
                                 Go to{" "}
-                                <a
-                                    href="/Users/kevinhaube/Projects/prime-reportstream/frontend-react/src/pages/Login"
-                                    className="usa-link"
-                                >
+                                <a href="/login" className="usa-link">
                                     https://reportstream.cdc.gov/login
                                 </a>{" "}
                             </li>

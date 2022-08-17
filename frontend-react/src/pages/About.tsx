@@ -26,7 +26,7 @@ export const About = () => {
                         Learn more about ReportStream{" "}
                     </a>
                     <a
-                        href="/support/legacy-page-content/Contact"
+                        href="/support/contact"
                         className="usa-button usa-button--outline"
                     >
                         Contact us

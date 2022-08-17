@@ -46,24 +46,18 @@ export const GettingStartedPhd = () => {
             </p>
             <ul>
                 <li>
-                    <a
-                        href="src/pages/resources/legacy-page-content/GettingStartedPhd#data-download"
-                        className="usa-link"
-                    >
+                    <a href="#data-download" className="usa-link">
                         Data download
                     </a>
                 </li>
                 <li>
-                    <a
-                        href="src/pages/resources/legacy-page-content/GettingStartedPhd#elr-connection"
-                        className="usa-link"
-                    >
+                    <a href="#elr-connection" className="usa-link">
                         ELR connection
                     </a>
                 </li>
                 <li>
                     <a
-                        href="src/pages/resources/legacy-page-content/GettingStartedPhd#connecting-to-testing-facilities"
+                        href="#connecting-to-testing-facilities"
                         className="usa-link"
                     >
                         Connecting to testing facilities
@@ -85,7 +79,7 @@ export const GettingStartedPhd = () => {
                         </h4>
                         <p className="margin-top-05">
                             <a
-                                href="/support/legacy-page-content/Contact"
+                                href="/support/contact"
                                 className="margin-right-1 usa-link"
                             >
                                 Send us an email
@@ -212,7 +206,7 @@ export const GettingStartedPhd = () => {
                 </p>
                 <p>
                     <a
-                        href="/support/legacy-page-content/Contact"
+                        href="/support/contact"
                         className="usa-button usa-button--outline"
                     >
                         Get in touch

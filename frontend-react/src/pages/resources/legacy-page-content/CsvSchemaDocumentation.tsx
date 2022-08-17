@@ -148,10 +148,7 @@ export const CsvSchemaDocumentation = () => {
                             partnered
                         </a>{" "}
                         with ReportStream and{" "}
-                        <a
-                            href="/support/legacy-page-content/Contact"
-                            className="usa-link"
-                        >
+                        <a href="/support/contact" className="usa-link">
                             contact us
                         </a>{" "}
                         to learn more.
@@ -163,10 +160,7 @@ export const CsvSchemaDocumentation = () => {
                 </p>
                 <ul>
                     <li>
-                        <a
-                            href="src/pages/resources/legacy-page-content/CsvSchemaDocumentation#formatting-guidelines"
-                            className="usa-link"
-                        >
+                        <a href="#formatting-guidelines" className="usa-link">
                             General formatting guidelines
                         </a>
                     </li>
@@ -288,10 +282,7 @@ export const CsvSchemaDocumentation = () => {
                             );
                         })}
                         <p className="margin-top-8">
-                            <a
-                                href="src/pages/resources/legacy-page-content/CsvSchemaDocumentation#anchor-top"
-                                className="usa-link"
-                            >
+                            <a href="#anchor-top" className="usa-link">
                                 Return to top
                             </a>
                         </p>

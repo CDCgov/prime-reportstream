@@ -40,7 +40,7 @@ export const Faq = () => {
             <p>
                 Our application works best on a modern desktop browser (ex:{" "}
                 <a
-                    href="src/pages/support/legacy-page-content/Faq"
+                    href="https://www.google.com/chrome/"
                     target="_blank"
                     rel="noreferrer"
                     className="usa-link"
@@ -49,7 +49,7 @@ export const Faq = () => {
                 </a>
                 ,{" "}
                 <a
-                    href="src/pages/support/legacy-page-content/Faq"
+                    href="https://www.mozilla.org/en-US/firefox/new/"
                     target="_blank"
                     rel="noreferrer"
                     className="usa-link"
@@ -58,7 +58,7 @@ export const Faq = () => {
                 </a>
                 ,{" "}
                 <a
-                    href="src/pages/support/legacy-page-content/Faq"
+                    href="https://www.apple.com/safari/"
                     target="_blank"
                     rel="noreferrer"
                     className="usa-link"
@@ -88,7 +88,7 @@ export const Faq = () => {
                     className="usa-link"
                     target="_blank"
                     rel="noreferrer"
-                    href="src/pages/support/legacy-page-content/Faq"
+                    href="https://www.simplereport.gov/"
                 >
                     SimpleReport
                 </a>
