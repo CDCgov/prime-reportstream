@@ -130,8 +130,6 @@ class CheckFunction : Logging {
             schedule = "%REMOTE_CONNECTION_CHECK_SCHEDULE%"
         ) timerInfo: String,
     ) {
-        // internal val environment get() = Environment.get(env)
-
         // Each setting is checked against this logic to see if it should run. l
         fun checkShouldRun(receiverSetting: Receiver): Boolean {
             if (receiverSetting.customerStatus != CustomerStatus.ACTIVE)
