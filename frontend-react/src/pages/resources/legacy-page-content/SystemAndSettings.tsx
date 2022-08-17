@@ -19,30 +19,42 @@ export const SystemAndSettingsIa = () => {
             <p className="text-bold">On this page:</p>
             <ul>
                 <li>
-                    <a href="#data-security-and-storage" className="usa-link">
+                    <a
+                        href="src/pages/resources/legacy-page-content/SystemAndSettings#data-security-and-storage"
+                        className="usa-link"
+                    >
                         Data security and storage
                     </a>
                 </li>
                 <li>
                     <a
-                        href="#data-configuration-and-formatting"
+                        href="src/pages/resources/legacy-page-content/SystemAndSettings#data-configuration-and-formatting"
                         className="usa-link"
                     >
                         Data configuration and formatting
                     </a>
                 </li>
                 <li>
-                    <a href="#data-transport-and-sending" className="usa-link">
+                    <a
+                        href="src/pages/resources/legacy-page-content/SystemAndSettings#data-transport-and-sending"
+                        className="usa-link"
+                    >
                         Data transport and sending
                     </a>
                 </li>
                 <li>
-                    <a href="#file-testing-and-launch" className="usa-link">
+                    <a
+                        href="src/pages/resources/legacy-page-content/SystemAndSettings#file-testing-and-launch"
+                        className="usa-link"
+                    >
                         File testing and launch
                     </a>
                 </li>
                 <li>
-                    <a href="#data-access" className="usa-link">
+                    <a
+                        href="src/pages/resources/legacy-page-content/SystemAndSettings#data-access"
+                        className="usa-link"
+                    >
                         Data access
                     </a>
                 </li>

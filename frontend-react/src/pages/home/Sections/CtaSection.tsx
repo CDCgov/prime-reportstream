@@ -17,7 +17,7 @@ export default function CtaSection({ section }: { section: SectionProp }) {
             </p>
             <a
                 data-testid="email-link"
-                href="/support/contact"
+                href="/support/legacy-page-content/Contact"
                 className="usa-button"
             >
                 Get in touch

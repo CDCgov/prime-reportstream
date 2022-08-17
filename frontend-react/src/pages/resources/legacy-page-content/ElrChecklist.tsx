@@ -3,7 +3,7 @@
 import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
 export const ELRChecklistIa = () => {
     return (
@@ -35,7 +35,7 @@ export const ELRChecklistIa = () => {
                 ELR onboarding form
             </a>
             <a
-                href="/support/contact"
+                href="/support/legacy-page-content/Contact"
                 className="usa-button usa-button--outline"
             >
                 Contact us
@@ -46,13 +46,16 @@ export const ELRChecklistIa = () => {
             </p>
             <ul>
                 <li>
-                    <a href="#elr-contact-information" className="usa-link">
+                    <a
+                        href="src/pages/resources/legacy-page-content/ElrChecklist#elr-contact-information"
+                        className="usa-link"
+                    >
                         ELR contact information
                     </a>
                 </li>
                 <li>
                     <a
-                        href="#alternate-contact-information"
+                        href="src/pages/resources/legacy-page-content/ElrChecklist#alternate-contact-information"
                         className="usa-link"
                     >
                         Program or admin staff contact information
@@ -60,7 +63,7 @@ export const ELRChecklistIa = () => {
                 </li>
                 <li>
                     <a
-                        href="#data-requirements-and-preferences"
+                        href="src/pages/resources/legacy-page-content/ElrChecklist#data-requirements-and-preferences"
                         className="usa-link"
                     >
                         Data requirements and preferences
@@ -68,25 +71,34 @@ export const ELRChecklistIa = () => {
                 </li>
                 <li>
                     <a
-                        href="#testing-facility-registration"
+                        href="src/pages/resources/legacy-page-content/ElrChecklist#testing-facility-registration"
                         className="usa-link"
                     >
                         Testing facility registration
                     </a>
                 </li>
                 <li>
-                    <a href="#hl7-data-fields" className="usa-link">
+                    <a
+                        href="src/pages/resources/legacy-page-content/ElrChecklist#hl7-data-fields"
+                        className="usa-link"
+                    >
                         HL7 data fields (Not applicable if using an alternate
                         data format)
                     </a>
                 </li>
                 <li>
-                    <a href="#sftp-details" className="usa-link">
+                    <a
+                        href="src/pages/resources/legacy-page-content/ElrChecklist#sftp-details"
+                        className="usa-link"
+                    >
                         SFTP details
                     </a>
                 </li>
                 <li>
-                    <a href="#document-uploads" className="usa-link">
+                    <a
+                        href="src/pages/resources/legacy-page-content/ElrChecklist#document-uploads"
+                        className="usa-link"
+                    >
                         Document uploads
                     </a>
                 </li>
@@ -143,10 +155,12 @@ export const ELRChecklistIa = () => {
 
                 <p>
                     ReportStream sends data as an{" "}
-                    <a href="https://hl7.org/">HL7</a> file via Secure File
-                    Transfer Protocol (SFTP). We capture Health and Human
-                    Services (HHS) required fields, including “Ask on Order
-                    Entry” questions.{" "}
+                    <a href="src/pages/resources/legacy-page-content/ElrChecklist">
+                        HL7
+                    </a>{" "}
+                    file via Secure File Transfer Protocol (SFTP). We capture
+                    Health and Human Services (HHS) required fields, including
+                    “Ask on Order Entry” questions.{" "}
                 </p>
 
                 <p>
@@ -174,7 +188,7 @@ export const ELRChecklistIa = () => {
                     <li>
                         <span className="text-bold">Batching:</span> Do you want
                         HL7 message batching{" "}
-                        <a href="https://www.lyniate.com/knowledge-hub/hl7-batch-file-protocol/">
+                        <a href="src/pages/resources/legacy-page-content/ElrChecklist">
                             using FHS and BHS segments
                         </a>
                         ?{" "}
@@ -262,12 +276,16 @@ export const ELRChecklistIa = () => {
                     <li>Receiving application name </li>
                     <li>
                         Receiving application{" "}
-                        <a href="https://www.hl7.org/oid/">OID</a>
+                        <a href="src/pages/resources/legacy-page-content/ElrChecklist">
+                            OID
+                        </a>
                     </li>
                     <li>Receiving facility name </li>
                     <li>
                         Receiving facility{" "}
-                        <a href="https://www.hl7.org/oid/">OID</a>
+                        <a href="src/pages/resources/legacy-page-content/ElrChecklist">
+                            OID
+                        </a>
                     </li>
                 </ul>
             </section>
@@ -305,7 +323,7 @@ export const ELRChecklistIa = () => {
 
                 <p>
                     Once you have all the information you need, submit our{" "}
-                    <a href="https://prime.powerappsportals.us/siw/">
+                    <a href="src/pages/resources/legacy-page-content/ElrChecklist">
                         ReportStream ELR onboarding form
                     </a>
                     . We'll get back to you within a week.
@@ -318,7 +336,7 @@ export const ELRChecklistIa = () => {
 
                 <p>
                     <a
-                        href="/support/contact"
+                        href="/support/legacy-page-content/Contact"
                         className="usa-button usa-button--outline"
                     >
                         Get in touch

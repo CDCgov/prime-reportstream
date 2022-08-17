@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
 export const Contact = () => {
     return (
@@ -77,7 +77,10 @@ export const Contact = () => {
                 <h3 className="margin-top-4">Need something else?</h3>
                 <p>
                     For quick answers to common questions, read our{" "}
-                    <a className="usa-link" href="/support/faq">
+                    <a
+                        className="usa-link"
+                        href="/support/legacy-page-content/Faq"
+                    >
                         frequently asked questions
                     </a>
                     .

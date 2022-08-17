@@ -1,8 +1,8 @@
 import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
-import schema from "../../content/getting_started_csv_upload.json";
+import site from "../../../content/site.json";
+import schema from "../../../content/getting_started_csv_upload.json";
 
 export type CsvSchemaItem = {
     name: string;
@@ -148,7 +148,10 @@ export const CsvSchemaDocumentation = () => {
                             partnered
                         </a>{" "}
                         with ReportStream and{" "}
-                        <a href="/support/contact" className="usa-link">
+                        <a
+                            href="/support/legacy-page-content/Contact"
+                            className="usa-link"
+                        >
                             contact us
                         </a>{" "}
                         to learn more.
@@ -160,7 +163,10 @@ export const CsvSchemaDocumentation = () => {
                 </p>
                 <ul>
                     <li>
-                        <a href="#formatting-guidelines" className="usa-link">
+                        <a
+                            href="src/pages/resources/legacy-page-content/CsvSchemaDocumentation#formatting-guidelines"
+                            className="usa-link"
+                        >
                             General formatting guidelines
                         </a>
                     </li>
@@ -282,7 +288,10 @@ export const CsvSchemaDocumentation = () => {
                             );
                         })}
                         <p className="margin-top-8">
-                            <a href="#anchor-top" className="usa-link">
+                            <a
+                                href="src/pages/resources/legacy-page-content/CsvSchemaDocumentation#anchor-top"
+                                className="usa-link"
+                            >
                                 Return to top
                             </a>
                         </p>

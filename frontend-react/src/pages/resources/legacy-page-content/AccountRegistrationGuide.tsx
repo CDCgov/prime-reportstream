@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const AccountRegistrationGuideIa = () => {
@@ -212,7 +212,10 @@ export const AccountRegistrationGuideIa = () => {
                             "Setup" below it. These authentication options are
                             meant to secure your account. Below, you can review
                             instructions for setting up{" "}
-                            <a href="#anchor-mfa" className="usa-link">
+                            <a
+                                href="src/pages/resources/legacy-page-content/AccountRegistrationGuide#anchor-mfa"
+                                className="usa-link"
+                            >
                                 SMS authentication and Google Authenticator/Okta
                                 Verify
                             </a>
@@ -260,7 +263,10 @@ export const AccountRegistrationGuideIa = () => {
                         <ul>
                             <li>
                                 Go to{" "}
-                                <a href="/login" className="usa-link">
+                                <a
+                                    href="/Users/kevinhaube/Projects/prime-reportstream/frontend-react/src/pages/Login"
+                                    className="usa-link"
+                                >
                                     https://reportstream.cdc.gov/login
                                 </a>{" "}
                             </li>

@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const CsvUploadGuideIa = () => {
@@ -42,7 +42,10 @@ export const CsvUploadGuideIa = () => {
                         partnered
                     </a>{" "}
                     with ReportStream and{" "}
-                    <a href="/support/contact" className="usa-link">
+                    <a
+                        href="/support/legacy-page-content/Contact"
+                        className="usa-link"
+                    >
                         contact us
                     </a>{" "}
                     to learn more.
@@ -53,12 +56,18 @@ export const CsvUploadGuideIa = () => {
             </p>
             <ul>
                 <li>
-                    <a href="#preparing-a-csv" className="usa-link">
+                    <a
+                        href="src/pages/resources/legacy-page-content/CsvUploadGuide#preparing-a-csv"
+                        className="usa-link"
+                    >
                         How to prepare a CSV file for ReportStream
                     </a>
                 </li>
                 <li>
-                    <a href="#upload-a-csv" className="usa-link">
+                    <a
+                        href="src/pages/resources/legacy-page-content/CsvUploadGuide#upload-a-csv"
+                        className="usa-link"
+                    >
                         How to upload a CSV file to ReportStream
                     </a>
                 </li>
@@ -162,7 +171,7 @@ export const CsvUploadGuideIa = () => {
                         <ul className="margin-top-2">
                             <li>
                                 Go to{" "}
-                                <a href="/login">
+                                <a href="/Users/kevinhaube/Projects/prime-reportstream/frontend-react/src/pages/Login">
                                     https://reportstream.cdc.gov/login
                                 </a>
                             </li>

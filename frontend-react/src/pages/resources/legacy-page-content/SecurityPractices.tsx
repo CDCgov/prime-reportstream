@@ -155,7 +155,10 @@ export const SecurityPracticesIa = () => {
                 </p>
 
                 <p className="margin-top-8">
-                    <a href="#anchor-top" className="usa-link">
+                    <a
+                        href="src/pages/resources/legacy-page-content/SecurityPractices#anchor-top"
+                        className="usa-link"
+                    >
                         Back to top
                     </a>
                 </p>
