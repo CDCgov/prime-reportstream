@@ -7,7 +7,6 @@ import {
     MembershipController,
     MemberType,
 } from "../../../hooks/UseOktaMemberships";
-import { SessionController } from "../../../hooks/UseSessionStorage";
 import { mockDeliveryListHook } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { mockReceiverHook } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { orgServer } from "../../../__mocks__/OrganizationMockServer";
@@ -32,7 +31,6 @@ describe("ReportsTable", () => {
                     },
                 },
             } as MembershipController,
-            store: {} as SessionController, // TS yells about removing this because of types
         });
         // Mock the response from the Receivers hook
         mockReceiverHook.mockReturnValue({
@@ -86,7 +84,6 @@ describe("useReceiverFeed", () => {
                     },
                 },
             } as MembershipController,
-            store: {} as SessionController, // TS yells about removing this because of types
         });
         mockReceiverHook.mockReturnValue({
             data: receiversGenerator(2),

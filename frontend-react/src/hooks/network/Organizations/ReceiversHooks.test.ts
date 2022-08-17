@@ -4,7 +4,6 @@ import { setupServer } from "msw/node";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MembershipController, MemberType } from "../../UseOktaMemberships";
-import { SessionController } from "../../UseSessionStorage";
 import { receiversGenerator } from "../../../network/api/Organizations/Receivers";
 
 import { useReceiversList } from "./ReceiversHooks";
@@ -22,7 +21,6 @@ const fakeSession = {
             },
         },
     } as MembershipController,
-    store: {} as SessionController, // TS yells about removing this because of types
 };
 const handlers = [
     rest.get(
