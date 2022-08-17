@@ -87,23 +87,41 @@ Once your az cli has been authenticated, you can proceed with the terraform comm
 
 # Demo Environments
 
-## Quickstart
+## 🚀Auto Create & Destroy
 
-1. Navigate to `demo` Terraform directory using one of the following methods:
-   * `terraform -chdir=operations/app/terraform/vars/demo`
-   * `operations/app/terraform/vars/demo terraform`
+### Create
 
-2. Specify `-var-file` and `-backend-config` from the desired demo directory (demo1, demo2, or demo3)
-   * `-var-file=demo1/env.tfvars.json`
-   * `-backend-config=demo1/env.tfbackend`
+Push (or merge) code into any of the following branches:
+  * `demo1`
+  * `demo2`
+  * `demo3`
 
-3. Target the `init` Terraform module to `apply` base resources (vnets, key vaults, etc.)
-   * `-target=module.init`
+### Destroy
 
-4. After base resources are created, run `apply` without a target
+  * Run [Destroy Demo Environment](../../.github/workflows/destroy_demo_environment.yml) workflow
+   * Cli example (feature branch)
+      ```bash
+      gh workflow run "Destroy Demo Environment" --ref my-branch -f env_name=demo1
+      gh run list --workflow="Destroy Demo Environment"
+      ```
 
+> 🚧 Below is for debugging only 🚧
 
-## Example Create
+## 🔧Manual Create & Destroy
+
+### Summary
+> 1. Navigate to `demo` Terraform directory using one of the following methods:
+>    * `terraform -chdir=operations/app/terraform/vars/demo`
+>    * `operations/app/terraform/vars/demo terraform`
+> 
+> 2. Specify `-var-file` and `-backend-config` from the desired demo directory (demo1, demo2, or demo3)
+>    * `-var-file=demo1/env.tfvars.json`
+>    * `-backend-config=demo1/env.tfbackend`
+> 
+> 3. Target the `init` Terraform module to `apply` base resources (vnets, key vaults, etc.)
+>    * `-target=module.init`
+> 
+> 4. After base resources are created, run `apply` without a target
 
 ### Specify environment & Terraform path
 ```bash
@@ -123,7 +141,7 @@ terraform -chdir=$path apply \
 -target=module.init \
 -var-file=$env/env.tfvars.json \
 -auto-approve; \
-sleep 30; \
+sleep 60; \
 done
 
 echo "init complete"
@@ -141,7 +159,7 @@ for i in {1..3}; do \
 terraform -chdir=$path apply \
 -var-file=$env/env.tfvars.json \
 -auto-approve; \
-sleep 60; \
+sleep 120; \
 done
 
 echo "apply complete"
@@ -154,7 +172,7 @@ echo "apply complete"
  2. Copy `remote` & `verify-x509-name` to `.github/vpn/<env>.ovpn`
  3. Update key vaults in `operations/dnsmasq/config/<env>/hosts.local` with random id in name.
 
-## Example Destroy
+## Example Manual Destroy
 
 ### Specify environment & Terraform path
 ```bash
@@ -176,7 +194,7 @@ terraform -chdir=$path destroy \
 -target=module.sftp_container \
 -target=module.storage \
 -refresh=false \
--auto-approve; 2>&1 \
+-auto-approve; 2>&1 || true; \
 sleep 60; \
 done
 
@@ -185,3 +203,5 @@ done
 ## Tips
  1. If errors occur during destroy and you need to manually delete and remove from state:
     * `terraform -chdir=operations/app/terraform/vars/demo state rm module.init`
+ 2. Push branch directly to demo environment without a PR:
+    *  `git push origin mybranch:demo1 -f`
