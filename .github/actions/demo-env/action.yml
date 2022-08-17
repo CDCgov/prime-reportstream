@@ -36,7 +36,7 @@ runs:
         retry_wait_seconds: 180
         command: |
           for i in {1..3}; do \
-          terraform destroy \
+          terraform -chdir=operations/app/terraform/vars/demo destroy \
           -var-file=${{ inputs.env-name }}/env.tfvars.json \
           -target=module.app_service_plan \
           -target=module.application_insights \
@@ -60,22 +60,26 @@ runs:
 
     - name: Terraform - apply
       if: inputs.destroy == 'false'
-      working-directory: operations/app/terraform/vars/demo
-      run: |
-        for i in {1..3}; do \
-        terraform apply \
-        -target=module.init \
-        -var-file=${{ inputs.env-name }}/env.tfvars.json \
-        -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
-        -auto-approve; \
-        sleep 60; \
-        done
+      uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
+      with:
+        timeout_seconds: 600
+        max_attempts: 3
+        retry_wait_seconds: 180
+        command: |
+          for i in {1..3}; do \
+          terraform -chdir=operations/app/terraform/vars/demo apply \
+          -target=module.init \
+          -var-file=${{ inputs.env-name }}/env.tfvars.json \
+          -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
+          -auto-approve; \
+          sleep 60; \
+          done
 
-        for i in {1..3}; do \
-        terraform apply \
-        -var-file=${{ inputs.env-name }}/env.tfvars.json \
-        -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
-        -auto-approve; \
-        sleep 120; \
-        done
-      shell: bash
+          for i in {1..3}; do \
+          terraform -chdir=operations/app/terraform/vars/demo apply \
+          -var-file=${{ inputs.env-name }}/env.tfvars.json \
+          -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
+          -auto-approve; \
+          sleep 120; \
+          done
+        shell: bash
