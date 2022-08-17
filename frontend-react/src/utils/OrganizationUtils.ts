@@ -1,7 +1,5 @@
 import { AccessToken, CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
 
-import { SessionStore } from "../hooks/UseSessionStorage";
-
 import { isAdmin, isReceiver, isSender, PERMISSIONS } from "./PermissionsUtils";
 
 enum RSOrgType {
@@ -90,7 +88,7 @@ const getRSOrgs = (
     return filterGroups().map((group) => parseOrgName(group));
 };
 
-function parseOrgs(orgs: Array<string>): Array<Partial<SessionStore>> {
+function parseOrgs(orgs: Array<string>): any[] {
     return orgs.map((org) => {
         // Org names are case sensitive. This condition will fail if the okta
         // group name is not cased properly: DHSender_xyz, DHxy_phd, DHPrimeAdmin
