@@ -88,7 +88,7 @@ describe("useOktaMemberships", () => {
         test("returns default initial values", () => {
             const { result } = renderHook(() => useOktaMemberships(null));
             expect(result.current.state.memberships).toBeUndefined();
-            expect(result.current.state.activeMembership).toEqual({});
+            expect(result.current.state.activeMembership).toBeUndefined();
         });
 
         test("initializes with stored state where available", async () => {
@@ -151,7 +151,7 @@ describe("useOktaMemberships", () => {
             ]);
             const { result } = renderHook(() => useOktaMemberships(null));
 
-            expect(result.current.state.activeMembership).toEqual({});
+            expect(result.current.state.activeMembership).toBeUndefined();
             expect(result.current.state.memberships).toEqual(undefined);
 
             // simulate login
@@ -264,7 +264,7 @@ describe("useOktaMemberships", () => {
 
             const { result, rerender } = renderWithAuthUpdates(null);
 
-            expect(result.current.state.activeMembership).toEqual({});
+            expect(result.current.state.activeMembership).toBeUndefined();
             expect(result.current.state.memberships).toEqual(undefined);
 
             rerender(fakeAuthState);

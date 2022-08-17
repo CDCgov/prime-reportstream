@@ -6,7 +6,7 @@ import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 
 import { useReportsDetail, useReportsList } from "./DeliveryHooks";
 
-describe("ReportsHooks", () => {
+describe("DeliveryHooks", () => {
     beforeAll(() => deliveryServer.listen());
     afterEach(() => deliveryServer.resetHandlers());
     afterAll(() => deliveryServer.close());
