@@ -4,18 +4,18 @@ import React from "react";
 
 import { ContentDirectory, GeneratedRouter } from "../MarkdownDirectory";
 
-export interface IARootProps {
+export interface IAMetaAndRouterProps {
     path: string; // include preceding slash
     pageName: string;
     indexComponent: React.ComponentType<any>; // type required by Route.component prop
     directoriesToRoute: ContentDirectory[];
 }
-export const IARoot = ({
+export const IAMetaAndRouter = ({
     path,
     pageName,
     indexComponent,
     directoriesToRoute,
-}: IARootProps) => {
+}: IAMetaAndRouterProps) => {
     return (
         <>
             <Helmet>

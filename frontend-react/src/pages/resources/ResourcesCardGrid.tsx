@@ -10,7 +10,10 @@ import {
     IACardGridProps,
     IACardGridTemplate,
 } from "../../components/Content/Templates/IACardGridTemplate";
-import { IARoot, IARootProps } from "../../components/Content/Templates/IARoot";
+import {
+    IAMetaAndRouter,
+    IAMetaAndRouterProps,
+} from "../../components/Content/Templates/IAMetaAndRouter";
 
 import ProgrammersGuide from "./programmers-guide/ProgrammersGuide";
 import { AccountRegistrationGuideIa } from "./AccountRegistrationGuide";
@@ -184,7 +187,7 @@ const pageProps: IACardGridProps = {
 /** This is our main page content */
 export const ResourcesCardGrid = () => <IACardGridTemplate {...pageProps} />;
 
-const rootProps: IARootProps = {
+const rootProps: IAMetaAndRouterProps = {
     path: "/resources",
     pageName: PAGE_NAME,
     indexComponent: ResourcesCardGrid,
@@ -192,4 +195,4 @@ const rootProps: IARootProps = {
 };
 /** Use this component in the main App Router! It will handle rendering everything
  * and set the Helmet values */
-export const Resources = () => <IARoot {...rootProps} />;
+export const Resources = () => <IAMetaAndRouter {...rootProps} />;
