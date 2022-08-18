@@ -1,0 +1,58 @@
+name: ORU-R01-cx-extended-composite-id
+constants:
+  fieldPath: /PATIENT_RESULT/PATIENT/(%{hl7CXField})(%{idIndex})
+elements:
+  - name: id-number
+    required: true
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{fieldPath}-1' ]
+
+#  - name: check-digit
+#    value: [ '''8''' ]
+#    hl7Spec: [ '%{fieldPath}-2' ]
+#
+#  - name: check-digit-scheme
+#    value: [ '' ]
+#    hl7Spec: [ '%{fieldPath}-3' ]
+
+  - name: assigning-authority
+    constants:
+      hl7HDField: '%{fieldPath}-4'
+    schema: hd-hierarchic-designator-authority
+
+  - name: id-type-code
+    value: [ '%resource.type.coding.code' ]
+    hl7Spec: [ '%{fieldPath}-5' ]
+
+  - name: assigning-facility
+    constants:
+      hl7HDField: '%{fieldPath}-6'
+      checkFacility: '1'
+    schema: hd-hierarchic-designator-facility
+
+#    ^COCAA                                                   cx(1).6.1
+#    &                                                    cx(1).6.2
+#    &ISO                                                 cx(1).6.3
+#  - name: identifier-type-code
+#    value: [ '' ]
+#    hl7Spec: [ '%{fieldPath}-5' ]
+#
+#  - name: assigning-facility
+#    value: [ '' ]
+#    hl7Spec: [ '%{fieldPath}-6' ]
+#
+#  - name: effective-date
+#    value: [ '' ]
+#    hl7Spec: [ '%{fieldPath}-7' ]
+#
+#  - name: expiration-date
+#    value: [ '' ]
+#    hl7Spec: [ '%{fieldPath}-8' ]
+#
+#  - name: assigning-jurisdiction
+#    value: [ '' ]
+#    hl7Spec: [ '%{fieldPath}-9' ]
+#
+#  - name: assigning-agency-or-department
+#    value: [ '' ]
+#    hl7Spec: [ '%{fieldPath}-10' ]
