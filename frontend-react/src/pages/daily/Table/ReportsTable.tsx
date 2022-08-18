@@ -102,11 +102,7 @@ function ReportsTable() {
             }
         },
         // Ignoring getReportsList as dep
-        [ //eslint-disable-line
-            activeService,
-            deliveries,
-            memberships.state.active?.parsedName,
-        ]
+        [activeService, deliveries, memberships.state.active?.parsedName] //eslint-disable-line
     );
 
     useEffect(() => {
@@ -186,7 +182,9 @@ function ReportsTable() {
                     <p>
                         Default service:{" "}
                         <strong>
-                            {services?.[0].name.toUpperCase() || ""}
+                            {(services?.length &&
+                                services[0].name.toUpperCase()) ||
+                                ""}
                         </strong>
                     </p>
                 )}
