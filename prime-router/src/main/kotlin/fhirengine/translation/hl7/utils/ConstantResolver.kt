@@ -17,6 +17,7 @@ import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TypeDetails
 import org.hl7.fhir.r4.model.ValueSet
+import org.hl7.fhir.r4.model.codesystems.AdministrativeGender
 import org.hl7.fhir.r4.model.codesystems.V3ActCode
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import org.hl7.fhir.r4.utils.FHIRPathEngine.IEvaluationContext.FunctionDetails
@@ -93,6 +94,7 @@ enum class CustomFHIRFunctionNames {
     GetTelecomUseCode,
     GetNameUseCode,
     GetV3ActCode,
+    GetAdministrativeGenderCode,
 }
 
 /**
@@ -200,6 +202,21 @@ object CustomFHIRFunctions {
             else -> mutableListOf()
         }
     }
+
+    /**
+     * Gets the FHIR gender stored in the [focus] element
+     * and converts to HL7 v2.5.1 - 0001 - Administrative Sex
+     * @return a mutable list containing the HL7single character version of the code
+     */
+    fun getAdministrativeGenderCode(focus: MutableList<Base>): MutableList<Base> {
+        return when (AdministrativeGender.fromCode((focus[0] as Enumeration<*>).code)) {
+            AdministrativeGender.UNKNOWN -> mutableListOf(StringType("U"))
+            AdministrativeGender.FEMALE -> mutableListOf(StringType("F"))
+            AdministrativeGender.MALE -> mutableListOf(StringType("M"))
+            AdministrativeGender.OTHER -> mutableListOf(StringType("O"))
+            else -> mutableListOf()
+        }
+    }
 }
 
 /**
@@ -284,6 +301,9 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
             CustomFHIRFunctionNames.GetV3ActCode -> {
                 FunctionDetails("convert FHIR class code and coverts it to HL7 v3 act code", 0, 0)
             }
+            CustomFHIRFunctionNames.GetAdministrativeGenderCode -> {
+                FunctionDetails("convert FHIR class code and coverts it to HL7 gender", 0, 0)
+            }
         }
     }
 
@@ -325,6 +345,9 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
                 }
                 CustomFHIRFunctionNames.GetV3ActCode -> {
                     CustomFHIRFunctions.getV3ActCode(focus)
+                }
+                CustomFHIRFunctionNames.GetAdministrativeGenderCode -> {
+                    CustomFHIRFunctions.getAdministrativeGenderCode(focus)
                 }
             }
             )
