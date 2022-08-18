@@ -15,7 +15,7 @@ import Table, {
     TableConfig,
     TableRow,
 } from "../../../components/Table/Table";
-import { useValueSetsRowTable } from "../../../hooks/UseLookupTable";
+import { useValueSetsTable } from "../../../hooks/UseValueSets";
 import { toHumanReadable } from "../../../utils/misc";
 import {
     LookupTable,
@@ -195,8 +195,8 @@ export const ValueSetsDetailTable = ({
     );
     const [valueSetsVersion, setValueSetVersion] = useState<number>();
 
-    const { valueSetArray, error } = useValueSetsRowTable(
-        valueSetName,
+    const { valueSetArray, error } = useValueSetsTable(
+        LookupTables.VALUE_SET_ROW,
         valueSetsVersion
     );
 
@@ -211,7 +211,7 @@ export const ValueSetsDetailTable = ({
     }, [error, setAlert]);
 
     useEffect(() => {
-        setValueSetRows(valueSetArray);
+        setValueSetRows(valueSetArray as ValueSetRow[]);
     }, [valueSetArray]);
 
     const { allRows, rowsForDisplay } = useMemo(() => {
