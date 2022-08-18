@@ -1,0 +1,168 @@
+name,code,display,version
+state,AA,Armed Americas,2.67
+state,AA,Armed Americas (except Canada),2.67
+state,AA,AA,2.67
+state,AB,ALBERTA,2.67
+state,AB,AB,2.67
+state,AE,"Armed Forces Europe, the Middle East, and Canada",2.67
+state,AE,AE,2.67
+state,AL,ALABAMA,2.67
+state,AL,AL,2.67
+state,AK,ALASKA,2.67
+state,AK,AK,2.67
+state,AP,Armed Forces Pacific,2.67
+state,AP,AP,2.67
+state,AS,AMERICAN SAMOA,2.67
+state,AS,AS,2.67
+state,AZ,ARIZONA,2.67
+state,AZ,AZ,2.67
+state,AR,ARKANSAS,2.67
+state,AR,AR,2.67
+state,BC,BRITISH COLUMBIA,2.67
+state,BC,BC,2.67
+state,CA,CALIFORNIA,2.67
+state,CA,CA,2.67
+state,CO,COLORADO,2.67
+state,CO,CO,2.67
+state,CT,CONNECTICUT,2.67
+state,CT,CT,2.67
+state,DE,DELAWARE,2.67
+state,DE,DE,2.67
+state,FL,FLORIDA,2.67
+state,FL,FL,2.67
+state,FM,FEDERAED STATES OF MICRONESIA,2.67
+state,FM,FM,2.67
+state,GA,GEORGIA,2.67
+state,GA,GA,2.67
+state,GU,GUAM,2.67
+state,GU,GU,2.67
+state,HI,HAWAII,2.67
+state,HI,HI,2.67
+state,ID,IDAHO,2.67
+state,ID,ID,2.67
+state,IL,ILLINOIS,2.67
+state,IL,ILLINIOS,2.67
+state,IL,IL,2.67
+state,IN,INDIANA,2.67
+state,IN,INDANIA,2.67
+state,IN,IN,2.67
+state,IA,IOWA,2.67
+state,IA,IA,2.67
+state,KS,KANSAS,2.67
+state,KS,KS,2.67
+state,KY,KENTUCKY,2.67
+state,KY,KY,2.67
+state,LA,LOUISIANA,2.67
+state,LA,LA,2.67
+state,MB,MANITOBA,2.67
+state,MB,MB,2.67
+state,ME,MAINE,2.67
+state,ME,ME,2.67
+state,MD,MARYLAND,2.67
+state,MD,MD,2.67
+state,MA,MASSACHUSETTS,2.67
+state,MA,MA,2.67
+state,MH,MARSHALL ISLANDS,2.67
+state,MH,MH,2.67
+state,MI,MICHIGAN,2.67
+state,MI,MI,2.67
+state,MN,MINNESOTA,2.67
+state,MN,MN,2.67
+state,MP,NORTHERN MARIANA ISLANDS,2.67
+state,MP,NORTH MARIANA ISLANDS,2.67
+state,MP,N MARIANA ISLANDS,2.67
+state,MP,N. MARIANA ISLANDS,2.67
+state,MP,MP,2.67
+state,MS,MISSISSIPPI,2.67
+state,MS,MS,2.67
+state,MO,MISSOURI,2.67
+state,MO,MO,2.67
+state,MT,MONTANA,2.67
+state,MT,MT,2.67
+state,NC,NORTH CAROLINA,2.67
+state,NC,N. CAROLINA,2.67
+state,NC,N CAROLINA,2.67
+state,NC,NC,2.67
+state,NE,NEBRASKA,2.67
+state,NE,NE,2.67
+state,NF,NEWFOUNDLAND,2.67
+state,NF,TERRE NEUVE,2.67
+state,NF,NF,2.67
+state,NV,NEVADA,2.67
+state,NV,NV,2.67
+state,NH,NEW HAMPSHIRE,2.67
+state,NH,NH,2.67
+state,NJ,NEW JERSEY,2.67
+state,NJ,NJ,2.67
+state,NM,NEW MEXICO,2.67
+state,NM,NM,2.67
+state,ND,NORTH DAKOTA,2.67
+state,ND,N. DAKOTA,2.67
+state,ND,N DAKOTA,2.67
+state,ND,ND,2.67
+state,NT,NORTHWEST TERRITORIES,2.67
+state,NT,TERRITOIRES DU NORD-QUEST,2.67
+state,NT,NT,2.67
+state,NS,NOVA SCOTIA,2.67
+state,NS,NOUVELLE ECOSSE,2.67
+state,NS,NS,2.67
+state,NU,NUNAVUT,2.67
+state,NU,NU,2.67
+state,NY,NEW YORK,2.67
+state,NY,NY,2.67
+state,OH,OHIO,2.67
+state,OH,OH,2.67
+state,OK,OKLAHOMA,2.67
+state,OK,OK,2.67
+state,ON,ONTARIO,2.67
+state,ON,ON,2.67
+state,OR,OREGON,2.67
+state,OR,OR,2.67
+state,PA,PENNSYLVANIA,2.67
+state,PA,PA,2.67
+state,PE,PRINCE EDWARD ISLAND,2.67
+state,PE,LLE DU PRINCE EDWARD,2.67
+state,PE,PE,2.67
+state,PR,PUERTO RICO,2.67
+state,PR,PR,2.67
+state,PW,PALAU,2.67
+state,PW,PW,2.67
+state,RI,RHODE ISLAND,2.67
+state,RI,RI,2.67
+state,QC,QUEBEC,2.67
+state,QC,QC,2.67
+state,SC,SOUTH CAROLINA,2.67
+state,SC,S. CAROLINA,2.67
+state,SC,S CAROLINA,2.67
+state,SC,SC,2.67
+state,SD,SOUTH DAKOTA,2.67
+state,SD,S. DAKOTA,2.67
+state,SD,S DAKOTA,2.67
+state,SD,SD,2.67
+state,SK,SASKATCHEWAN,2.67
+state,SK,SK,2.67
+state,TN,TENNESSEE,2.67
+state,TN,TN,2.67
+state,TX,TEXAS,2.67
+state,TX,TX,2.67
+state,UT,UTAH,2.67
+state,UT,UT,2.67
+state,VT,VERMONT,2.67
+state,VT,VT,2.67
+state,VI,VIRGIN ISLANDS,2.67
+state,VI,VI,2.67
+state,VA,VIRGINIA,2.67
+state,VA,VA,2.67
+state,WA,WASHINGTON,2.67
+state,WA,WA,2.67
+state,WV,WEST VIRGINIA,2.67
+state,WV,W VIRGINIA,2.67
+state,WV,W. VIRGINIA,2.67
+state,WV,WV,2.67
+state,WI,WISCONSIN,2.67
+state,WI,WI,2.67
+state,WY,WYOMING,2.67
+state,WY,WY,2.67
+state,YT,YUKON TERRITORY,2.67
+state,YT,TERRITOIRES DU YUKON,2.67
+state,YT,YT,2.67
