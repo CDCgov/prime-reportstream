@@ -23,7 +23,11 @@ export const Product = () => {
             <Switch>
                 {/* Workaround to allow links to /product to work -- means I can't use
                  IAMetaAndRouter to do this. Sad face. */}
-                <Redirect from={"/product"} to={"/product/overview"} />
+                <Redirect
+                    from={"/product"}
+                    to={"/product/overview"}
+                    exact={true}
+                />
             </Switch>
             <div>
                 <StaticPagesFromDirectories directories={productDirectories} />
