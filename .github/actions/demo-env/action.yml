@@ -50,6 +50,13 @@ runs:
           -auto-approve; 2>&1; \
           sleep 60; \
           done
+
+          resources="$(az resource list --resource-group prime-data-hub-${{ inputs.env-name }} --query "[?contains(type, 'AlertRules') \
+          || contains(type, 'server') || contains(type, 'nsights') || contains(name, 'sftp') \
+          || contains(name, 'functionapp')].id" | jq -r '.[] | @base64')"
+          for id in $resources; do \
+            echo \"$id\" | jq '@base64d' | xargs az resource delete --resource-group prime-data-hub-${{ inputs.env-name }} --verbose --ids | sleep 1; \
+          done
         shell: bash
 
     - name: Terraform - validate
