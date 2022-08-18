@@ -15,10 +15,10 @@ inputs:
     required: true
   GITHUB_TOKEN:
     description: Github provided token
-    required: true
+    required: false
   SONAR_TOKEN:
-    descirption: Token to communicate with Sonarcloud
-    require: true
+    description: Token to communicate with Sonarcloud
+    required: false
 
 runs:
   using: "composite"
@@ -54,6 +54,7 @@ runs:
       shell: bash
 
     - name: SonarCloud Scan
+      if: inputs.GITHUB_TOKEN && inputs.SONAR_TOKEN
       uses: sonarsource/sonarcloud-github-action@de2e56b42aa84d0b1c5b622644ac17e505c9a049
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
