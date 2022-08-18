@@ -1,14 +1,12 @@
 name: ORU-R01-software
 elements:
   - name: software-vendor-name
-    # software-vendor-org is a reference
-    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
-    value: [ '%resource.name' ]
+    value: [ '%resource.source.extension(%`rsext-source-software-vendor-org`).value.resolve().name' ]
     hl7Spec: [ SFT-1-1 ]
 
   - name: software-vendor-name-type
     # software-vendor-org is a reference
-    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
+    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value.resolve()'
     condition: '%resource.name.exists()'
     value:
       - '%resource.extension(%`rsext-organization-name-type`).value.coding.code'
@@ -17,33 +15,33 @@ elements:
 
   - name: software-vendor-assigning-authority-namespace
     # software-vendor-org is a reference
-    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
+    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value.resolve()'
     value: [ '%resource.extension(%`rsext-assigning-authority-namespace-id`).value' ]
     hl7Spec: [ SFT-1-6-1 ]
 
   - name: software-vendor-assigning-authority-uid
     # software-vendor-org is a reference
-    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
+    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value.resolve()'
     condition: '%resource.extension(%`rsext-assigning-authority-universal-id`).value is Oid'
     value: [ '%resource.extension(%`rsext-assigning-authority-universal-id`).value.toString().replace(''urn:oid:'','''')' ]
     hl7Spec: [ SFT-1-6-2 ]
 
   - name: software-vendor-assigning-authority-system
     # software-vendor-org is a reference
-    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
+    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value.resolve()'
     condition: '%resource.extension(%`rsext-assigning-authority-universal-id`).value is Oid'
     value: [ '''ISO''' ]
     hl7Spec: [ SFT-1-6-3 ]
 
   - name: software-vendor-identifier-code
     # software-vendor-org is a reference
-    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
+    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value.resolve()'
     value: [ '%resource.type.coding.code' ]
     hl7Spec: [ SFT-1-7 ]
 
   - name: software-vendor-identifier
     # software-vendor-org is a reference
-    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value'
+    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value.resolve()'
     value: [ '%resource.identifier[0].value' ]
     hl7Spec: [ SFT-1-10 ]
 

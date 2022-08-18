@@ -371,9 +371,10 @@ class ValidationReceiver : SubmissionReceiver {
             )
         }
 
-        // if there are any errors or warnings, kick this out.
-        if (!actionLogs.isEmpty()) {
+        if (actionLogs.hasErrors()) {
             throw actionLogs.exception
         }
+
+        actionHistory.trackLogs(actionLogs.logs)
     }
 }

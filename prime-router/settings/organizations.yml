@@ -297,6 +297,17 @@
       schemaName: hl7/hl7-ingest-covid-19-training
       format: HL7
 
+- name: reopenlab
+  description: Reopenlab
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: reopenlab
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
 - name: geneus-diagnostics
   description: Geneus Diagnostics Las Vagas
   jurisdiction: FEDERAL
@@ -2102,7 +2113,7 @@
       organizationName: "hhsprotect"
       topic: "covid-19"
       customerStatus: active
-      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,limsabc-nova,geneus-diagnostics,clxhealth)" ]
+      jurisdictionalFilter: [ "matches(sender_id,.*SafeHealth.*,.*CueHlth.*,.*ImageMover.*,InBios,Strac,AnavasiDx,careevolution,reddyfmc,primary,abbott,lifepoint,hca,prescryptive,pmg,ihealthlabs,mns,detect,hcintegrations,signetic,neurolab,reopenlab,limsabc-nova,geneus-diagnostics,clxhealth)" ]
       qualityFilter: [ "allowAll()" ]
       translation:
         type: "CUSTOM"
@@ -3144,8 +3155,6 @@
           MSH-3: [ "*": "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO" ]
           MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
           MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
-          ORC-2: [ "*": "^RX MART PHARMACY^RX MART PHARMACY^CLIA"]
-          OBR-2: [ "*": "^RX MART PHARMACY^RX MART PHARMACY^CLIA"]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

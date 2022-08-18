@@ -1,42 +1,46 @@
-import { screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { useContext } from "react";
 
-import { orgServer } from "../__mocks__/OrganizationMockServer";
-import { renderWithSession } from "../utils/CustomRenderUtils";
+import { MemberType } from "../hooks/UseOktaMemberships";
 
-import { setStoredOrg, setStoredSenderName } from "./SessionStorageTools";
 import { SessionContext } from "./SessionContext";
 
 const TestComponent = () => {
-    const { memberships, store } = useContext(SessionContext);
-
+    const { memberships, oktaToken } = useContext(SessionContext);
     return (
         <>
-            <div>{store.values.org}</div>
-            <div>{store.values.senderName}</div>
             <div>{memberships.state.active?.parsedName || ""}</div>
             <div>{memberships.state.active?.memberType || ""}</div>
+            <div>{oktaToken?.accessToken || ""}</div>
         </>
     );
 };
 
-beforeAll(() => {
-    orgServer.listen();
-    setStoredOrg("testOrg");
-    setStoredSenderName("testSender");
-});
-afterEach(() => orgServer.resetHandlers());
-afterAll(() => orgServer.close());
-
-beforeEach(() => {
-    renderWithSession(<TestComponent />);
-});
-
-describe("SessionStorageContext", () => {
-    test("default values", async () => {
+describe("SessionContext", () => {
+    test("renders data as passed in value prop", async () => {
+        render(
+            <SessionContext.Provider
+                value={{
+                    oktaToken: { accessToken: "testToken" },
+                    memberships: {
+                        state: {
+                            active: {
+                                parsedName: "testOrg",
+                                memberType: MemberType.SENDER,
+                            },
+                        },
+                        dispatch: () => {},
+                    },
+                }}
+            >
+                <TestComponent />
+            </SessionContext.Provider>
+        );
         const orgDiv = await screen.findByText("testOrg");
-        const senderDiv = await screen.findByText("testSender");
+        const senderDiv = await screen.findByText(MemberType.SENDER);
+        const tokenDiv = await screen.findByText("testToken");
         expect(orgDiv).toBeInTheDocument();
         expect(senderDiv).toBeInTheDocument();
+        expect(tokenDiv).toBeInTheDocument();
     });
 });

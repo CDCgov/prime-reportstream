@@ -42,7 +42,7 @@ const useRequestConfig = <D>(
 ): RequestHookResponse<D> => {
     /* Boolean indicating if method needs to be triggered or not. */
     const onlyCallOnTrigger = useCallback((givenConfig: RSRequestConfig) => {
-        return needsTrigger(givenConfig.method);
+        return needsTrigger(givenConfig.method) || givenConfig?.requireTrigger;
     }, []);
     /* Trigger to allow users to trigger a call (i.e. a POST, PUT, PATCH, or DELETE */
     const [triggerCall, setTriggerCall] = useState(0);
