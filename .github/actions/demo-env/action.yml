@@ -31,7 +31,7 @@ runs:
       if: inputs.destroy == 'true'
       uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
       with:
-        timeout_seconds: 600
+        timeout_minutes: 30
         max_attempts: 3
         retry_wait_seconds: 180
         command: |
@@ -69,7 +69,7 @@ runs:
       if: inputs.destroy == 'false'
       uses: nick-fields/retry@b4fa57557dda8c2f30bcb2d19372cc3237190f7f
       with:
-        timeout_seconds: 600
+        timeout_minutes: 45
         max_attempts: 3
         retry_wait_seconds: 180
         command: |
