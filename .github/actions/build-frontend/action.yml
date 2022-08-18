@@ -13,6 +13,14 @@ inputs:
   version:
     description: "Version tag"
     required: true
+  GITHUB_TOKEN:
+    description: Github provided token
+    required: false
+    default: ''
+  SONAR_TOKEN:
+    description: Token to communicate with Sonarcloud
+    required: false
+    default: ''
 
 runs:
   using: "composite"
@@ -48,6 +56,7 @@ runs:
       shell: bash
 
     - name: SonarCloud Scan
+      if: inputs.GITHUB_TOKEN != '' && inputs.SONAR_TOKEN != ''
       uses: sonarsource/sonarcloud-github-action@de2e56b42aa84d0b1c5b622644ac17e505c9a049
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}

@@ -4,22 +4,22 @@ describe("ContentDirectoryTools", () => {
     test("Default", () => {
         /* Testing default instantiation */
         const tools = new ContentDirectoryTools();
-        expect(tools.name).toEqual("");
+        expect(tools.title).toEqual("");
         expect(tools.slugs).toEqual(new Map());
         expect(tools.root).toEqual("");
 
         /* Testing full instantiation */
         const fullTools = tools
-            .setName("Name")
+            .setTitle("Name")
             .setRoot("root")
             .setSlugs([{ key: "Key", slug: "slug" }]);
-        expect(fullTools.name).toEqual("Name");
+        expect(fullTools.title).toEqual("Name");
         expect(fullTools.slugs.get("Key")).toEqual("slug");
         expect(fullTools.root).toEqual("root");
     });
     test("Update name", () => {
-        const tools = new ContentDirectoryTools().setName("Name");
-        expect(tools.name).toEqual("Name");
+        const tools = new ContentDirectoryTools().setTitle("Name");
+        expect(tools.title).toEqual("Name");
     });
     test("Update slugs", () => {
         const tools = new ContentDirectoryTools().setSlugs([
