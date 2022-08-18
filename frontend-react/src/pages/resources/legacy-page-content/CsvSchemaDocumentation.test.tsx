@@ -1,6 +1,6 @@
 import { screen, within } from "@testing-library/react";
 
-import { render } from "../../utils/CustomRenderUtils";
+import { render } from "../../../utils/CustomRenderUtils";
 
 import {
     CsvSchemaDocumentationItem,
