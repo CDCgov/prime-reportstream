@@ -7,6 +7,7 @@ import {
     IAMetaAndRouterProps,
 } from "../../components/Content/Templates/IAMetaAndRouter";
 import {
+    resourcesContentMap,
     resourcesDirectories,
     ResourcesDirectoryTools,
 } from "../../content/resources";
@@ -14,7 +15,7 @@ import {
 const pageProps: IACardGridProps = {
     title: ResourcesDirectoryTools.title,
     subtitle: ResourcesDirectoryTools.subtitle,
-    directoriesToRender: resourcesDirectories,
+    directoriesToRender: resourcesContentMap,
 };
 /** This is our main page content */
 export const ResourcesCardGrid = () => <IACardGridTemplate {...pageProps} />;
