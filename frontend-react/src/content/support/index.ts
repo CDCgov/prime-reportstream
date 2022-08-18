@@ -53,3 +53,14 @@ export const supportDirectories: ContentDirectory[] = [
             )
         ),
 ];
+
+/* HOW TO CREATE SECTIONS
+ *
+ * 1. Use the `enum` class to make an array of cards for each section.
+ *
+ * 2. Create a section from the array using makeSectionFromTitles() and passing in
+ *    your titles, followed by the array of all directories.
+ *
+ * 3. Use a ContentMap and set your sections using .set(), passing in the section name
+ *    as a string, and the section you made in step 2 as your second parameter.
+ * */

@@ -17,7 +17,6 @@ import {
     SecurityPracticesIa,
 } from "../../pages/resources/index-legacy";
 import { ReferralGuideMd } from "../../pages/resources/markdown-adapters";
-import { ContentMap } from "../../components/Content/Templates/IACardGridTemplate";
 
 enum ResourcesDirectories {
     ACCOUNT_REGISTRATION = "Account registration guide",
@@ -236,19 +235,34 @@ export const resourcesDirectories = [
         ),
 ];
 
-const sampleSectionOne: ResourcesDirectories[] = [
-    ResourcesDirectories.DOWNLOAD_GUIDE,
-    ResourcesDirectories.UPLOAD_GUIDE,
-    ResourcesDirectories.REFERRAL_GUIDE,
-];
+/* HOW TO CREATE SECTIONS
+ *
+ * 1. Use the `enum` class to make an array of cards for each section.
+ *
+ * 2. Create a section from the array using makeSectionFromTitles() and passing in
+ *    your titles, followed by the array of all directories.
+ *
+ * 3. Use a ContentMap and set your sections using .set(), passing in the section name
+ *    as a string, and the section you made in step 2 as your second parameter.
+ * */
 
-const sectionOneDirectories = resourcesDirectories.filter((dir) =>
-    sampleSectionOne.includes(dir.title as ResourcesDirectories)
-);
-const theRest = resourcesDirectories.filter(
-    (dir) => !sampleSectionOne.includes(dir.title as ResourcesDirectories)
-);
+/* The below code is commented out as a means of providing an example usage to the
+ * Content/Design team. The instructions for this have been shared over to support/index.ts
+ * but the sample has not. Please remove this and any unused commented code before merge in
+ * content updates */
 
-export const resourcesContentMap: ContentMap = new Map()
-    .set("Guides", sectionOneDirectories)
-    .set("The Rest", theRest);
+// const sectionOneTitles = [
+//     ResourcesDirectories.DOWNLOAD_GUIDE,
+//     ResourcesDirectories.UPLOAD_GUIDE,
+//     ResourcesDirectories.REFERRAL_GUIDE,
+// ];
+//
+// const sectionOneDirectories = makeSectionFromTitles(
+//     sectionOneTitles,
+//     resourcesDirectories
+// );
+//
+// export const resourcesContentMap: ContentMap = new Map().set(
+//     "Guides",
+//     sectionOneDirectories
+// );
