@@ -8,33 +8,32 @@ on:
   push:
     branches:
       - master
-      - jmp/fix/fe-build-missing-tokens
 
 jobs:
-  # pre_job:
-  #   name: Pre Job
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     has_react_change: ${{ steps.skip_check.outputs.frontend_react }}
-  #     env_name: ${{ steps.build_vars.outputs.env_name }}
-  #     version: ${{ steps.build_vars.outputs.version }}
-  #   steps:
-  #     - name: "Check out changes"
-  #       uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-  #     - name: Build vars
-  #       id: build_vars
-  #       uses: ./.github/actions/build-vars
-  #     - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
-  #       id: skip_check
-  #       with:
-  #         list-files: csv
-  #         filters: |
-  #           frontend_react:
-  #             - 'frontend-react/**'
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_react_change: ${{ steps.skip_check.outputs.frontend_react }}
+      env_name: ${{ steps.build_vars.outputs.env_name }}
+      version: ${{ steps.build_vars.outputs.version }}
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+      - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
+        id: skip_check
+        with:
+          list-files: csv
+          filters: |
+            frontend_react:
+              - 'frontend-react/**'
 
   build_frontend_react:
     name: Build Frontend React
-    #needs: pre_job
+    needs: pre_job
     #if: ${{ needs.pre_job.outputs.has_react_change == 'true' }}
     runs-on: ubuntu-latest
 
