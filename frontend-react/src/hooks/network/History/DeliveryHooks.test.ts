@@ -1,16 +1,15 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react-hooks";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MembershipController, MemberType } from "../../UseOktaMemberships";
-import { SessionController } from "../../UseSessionStorage";
-import { historyServer } from "../../../__mocks__/HistoryMockServer";
+import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 
-import { useReportsDetail, useReportsList } from "./ReportsHooks";
+import { useReportsDetail, useReportsList } from "./DeliveryHooks";
 
 describe("ReportsHooks", () => {
-    beforeAll(() => historyServer.listen());
-    afterEach(() => historyServer.resetHandlers());
-    afterAll(() => historyServer.close());
+    beforeAll(() => deliveryServer.listen());
+    afterEach(() => deliveryServer.resetHandlers());
+    afterAll(() => deliveryServer.close());
     test("useReportsList", async () => {
         mockSessionContext.mockReturnValue({
             oktaToken: {
@@ -25,11 +24,12 @@ describe("ReportsHooks", () => {
                     },
                 },
             } as MembershipController,
-            store: {} as SessionController, // TS yells about removing this because of types
         });
         const { result, waitForNextUpdate } = renderHook(() =>
-            useReportsList()
+            useReportsList("testOrg", "testService")
         );
+        expect(result.current.loading).toBeFalsy();
+        act(() => result.current.trigger());
         expect(result.current.loading).toBeTruthy();
         await waitForNextUpdate();
         expect(result.current.loading).toBeFalsy();
@@ -49,7 +49,6 @@ describe("ReportsHooks", () => {
                     },
                 },
             } as MembershipController,
-            store: {} as SessionController, // TS yells about removing this because of types
         });
         const { result, waitForNextUpdate } = renderHook(() =>
             useReportsDetail("123")
