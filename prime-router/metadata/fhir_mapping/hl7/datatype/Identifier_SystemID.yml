@@ -105,3 +105,24 @@ extension_4:
   constants:
     KEY_NAME_SUFFIX: String
     urlValue: assigning-facility-namespace-id
+
+# Assigning authority namespace
+extension_5:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, PID.3.4.1
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: assigning-authority-namespace-id
+
+extension_6:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, XCN.9.1
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: assigning-authority-namespace-id

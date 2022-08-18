@@ -1,6 +1,6 @@
 name: ORU-R01-xcn-contact
 constants:
-  fieldPath: /PATIENT_RESULT/PATIENT/VISIT/(%{hl7Field})(%{orderIndex})
+  fieldPath: /PATIENT_RESULT/PATIENT/VISIT/(%{hl7XCNField})(%{orderIndex})
 elements:
   - name: id-number
     value: [ '%resource.identifier.value' ]
@@ -22,20 +22,11 @@ elements:
     value: [ '%resource.name.suffix' ]
     hl7Spec: [ '%{fieldPath}-7' ]
 
-  - name: assigning-auth-namespace-id
-    value: [ '%resource.identifier.system.replace(''urn:id:'', '''').replace(''_'', '' '')' ]
-    hl7Spec: [ '%{fieldPath}-9-1' ]
-
-  - name: assigning-auth-universal-id
-    resource: '%resource.identifier.extension(%`rsext-assigning-authority-universal-id`).value'
-    value: [ '%resource.replace(''urn:oid:'', '''')' ]
-    hl7Spec: [ '%{fieldPath}-9-2' ]
-
-  - name: assigning-auth-universal-id-type
-    resource: '%resource.identifier.extension(%`rsext-assigning-authority-universal-id`).value'
-    condition: '%resource.startsWith("urn:oid")'
-    value: [ '''ISO''' ]
-    hl7Spec: [ '%{fieldPath}-9-3' ]
+  - name: assigning-authority
+    resource: '%resource.identifier'
+    constants:
+      hl7HDField: '%{fieldPath}-9'
+    schema: hd-hierarchic-designator-authority
 
   - name: type
     value: [ '%resource.identifier.type.coding.code' ]
