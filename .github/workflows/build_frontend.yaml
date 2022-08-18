@@ -34,7 +34,7 @@ jobs:
   build_frontend_react:
     name: Build Frontend React
     needs: pre_job
-    #if: ${{ needs.pre_job.outputs.has_react_change == 'true' }}
+    if: ${{ needs.pre_job.outputs.has_react_change == 'true' }}
     runs-on: ubuntu-latest
 
     defaults:
