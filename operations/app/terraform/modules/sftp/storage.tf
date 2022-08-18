@@ -8,7 +8,7 @@ resource "azurerm_storage_account" "sftp" {
   min_tls_version          = "TLS1_2"
 
   network_rules {
-    default_action = "Allow"
+    default_action = "Deny"
     bypass         = ["AzureServices"]
 
     ip_rules = var.terraform_caller_ip_address
