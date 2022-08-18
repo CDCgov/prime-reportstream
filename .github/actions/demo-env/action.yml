@@ -57,6 +57,11 @@ runs:
           az monitor diagnostic-settings delete --name 'pdh${{ inputs.env-name }}-service_plan-diag' \
           --resource 'pdh${{ inputs.env-name }}-serviceplan' --resource-group prime-data-hub-${{ inputs.env-name }} --resource-type 'microsoft.web/serverfarms' --verbose
 
+          terraform -chdir=$path destroy -var-file=$env/env.tfvars.json \
+          -target=module.log_analytics_workspace.data.azurerm_monitor_diagnostic_categories.diagnostics[\"postgres_server\"]
+          terraform -chdir=$path destroy -var-file=$env/env.tfvars.json \
+          -target=module.log_analytics_workspace.data.azurerm_monitor_diagnostic_categories.diagnostics[\"service_plan\"]
+
           resources="$(az resource list --resource-group prime-data-hub-${{ inputs.env-name }} --query "[?contains(type, 'AlertRules') \
           || contains(type, 'server') || contains(type, 'nsights') || contains(name, 'sftp') \
           || contains(name, 'functionapp')].id" | jq -r '.[] | @base64')"
