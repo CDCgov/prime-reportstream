@@ -16,9 +16,7 @@ import {
     SystemAndSettingsIa,
     SecurityPracticesIa,
 } from "../../pages/resources/index-legacy";
-import { MarkdownContent } from "../../components/Content/MarkdownContent";
-
-import ReferralGuide from "./referral-guide.md";
+import { ReferralGuideMd } from "../../pages/resources/markdown-adapters";
 
 /** Data that drives breadcrumb creation and slug appending
  * @todo: Refactor to make easier for content/design to create */
@@ -59,7 +57,7 @@ export const resourcesDirectories = [
         )
         .addElement(
             contentContainer(
-                <AccountRegistrationGuideIa />,
+                AccountRegistrationGuideIa,
                 ResourcesDirectoryTools.makeCrumb("Account registration guide")
             )
         ),
@@ -71,7 +69,7 @@ export const resourcesDirectories = [
         )
         .addElement(
             contentContainer(
-                <GettingStartedPhd />,
+                GettingStartedPhd,
                 ResourcesDirectoryTools.makeCrumb(
                     "Getting started: public health departments"
                 )
@@ -85,7 +83,7 @@ export const resourcesDirectories = [
         )
         .addElement(
             contentContainer(
-                <ELRChecklistIa />,
+                ELRChecklistIa,
                 ResourcesDirectoryTools.makeCrumb("ELR onboarding checklist")
             )
         ),
@@ -97,7 +95,7 @@ export const resourcesDirectories = [
         )
         .addElement(
             contentContainer(
-                <ProgrammersGuide />,
+                ProgrammersGuide,
                 ResourcesDirectoryTools.makeCrumb("API Programmer's guide")
             )
         ),
@@ -109,7 +107,7 @@ export const resourcesDirectories = [
         )
         .addElement(
             contentContainer(
-                <CsvSchemaDocumentation />,
+                CsvSchemaDocumentation,
                 ResourcesDirectoryTools.makeCrumb("CSV schema documentation")
             )
         ),
@@ -121,7 +119,7 @@ export const resourcesDirectories = [
         )
         .addElement(
             contentContainer(
-                <CsvUploadGuideIa />,
+                CsvUploadGuideIa,
                 ResourcesDirectoryTools.makeCrumb("CSV upload guide")
             )
         ),
@@ -133,7 +131,7 @@ export const resourcesDirectories = [
         )
         .addElement(
             contentContainer(
-                <DataDownloadGuideIa />,
+                DataDownloadGuideIa,
                 ResourcesDirectoryTools.makeCrumb("CSV download guide")
             )
         ),
@@ -145,7 +143,7 @@ export const resourcesDirectories = [
         )
         .addElement(
             contentContainer(
-                <MarkdownContent markdownUrl={ReferralGuide} />,
+                ReferralGuideMd,
                 ResourcesDirectoryTools.makeCrumb("ReportStream referral guide")
             )
         ),
@@ -157,7 +155,7 @@ export const resourcesDirectories = [
         )
         .addElement(
             contentContainer(
-                <SystemAndSettingsIa />,
+                SystemAndSettingsIa,
                 ResourcesDirectoryTools.makeCrumb("System and settings")
             )
         ),
@@ -169,7 +167,7 @@ export const resourcesDirectories = [
         )
         .addElement(
             contentContainer(
-                <SecurityPracticesIa />,
+                SecurityPracticesIa,
                 ResourcesDirectoryTools.makeCrumb("Security practices")
             )
         ),

@@ -2,13 +2,14 @@
 
 import { CrumbConfig, WithCrumbs } from "../Crumbs";
 
+type ElementFunction = () => JSX.Element;
 export const contentContainer = (
-    content: JSX.Element,
+    content: JSX.Element | ElementFunction,
     crumbs: CrumbConfig[]
 ) => {
     const wrappedElement = (
         <div className="grid-container rs-documentation usa-prose">
-            {content}
+            {content instanceof Function ? content() : content}
         </div>
     );
     return renderWithCrumbs(wrappedElement, crumbs);

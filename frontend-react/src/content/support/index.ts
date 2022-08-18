@@ -32,7 +32,7 @@ export const supportDirectories: ContentDirectory[] = [
         )
         .addElement(
             contentContainer(
-                <Contact />,
+                Contact,
                 SupportDirectoryTools.makeCrumb("Contact")
             )
         ),
@@ -44,7 +44,7 @@ export const supportDirectories: ContentDirectory[] = [
         )
         .addElement(
             contentContainer(
-                <Faq />,
+                Faq,
                 SupportDirectoryTools.makeCrumb("Frequently asked questions")
             )
         ),
