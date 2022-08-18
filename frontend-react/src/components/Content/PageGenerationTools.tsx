@@ -3,12 +3,12 @@
 import { CrumbConfig, WithCrumbs } from "../Crumbs";
 
 export const contentContainer = (
-    content: JSX.Element,
+    content: () => JSX.Element,
     crumbs: CrumbConfig[]
 ) => {
     const wrappedElement = (
         <div className="grid-container rs-documentation usa-prose">
-            {content}
+            {content()}
         </div>
     );
     return renderWithCrumbs(wrappedElement, crumbs);
@@ -37,11 +37,16 @@ export interface SlugParams {
     slug: string;
 }
 export class ContentDirectoryTools {
-    name: string = "";
+    title: string = "";
+    subtitle: string = "";
     slugs: Map<string, string> = new Map();
     root: string = "";
-    setName(name: string) {
-        this.name = name;
+    setTitle(name: string) {
+        this.title = name;
+        return this;
+    }
+    setSubtitle(subtitle: string) {
+        this.subtitle = subtitle;
         return this;
     }
     setRoot(root: string) {
@@ -56,6 +61,6 @@ export class ContentDirectoryTools {
         return `${this.root}/${this.slugs.get(slugMapKey)}`;
     }
     makeCrumb(nextPage: string) {
-        return crumbsFromHere(this.name, this.root, nextPage);
+        return crumbsFromHere(this.title, this.root, nextPage);
     }
 }
