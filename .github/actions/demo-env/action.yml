@@ -51,6 +51,12 @@ runs:
           sleep 60; \
           done
 
+          az monitor diagnostic-settings delete --name 'pdh${{ inputs.env-name }}-postgres_server-diag' \
+          --resource 'pdh${{ inputs.env-name }}-pgsql' --resource-group prime-data-hub-${{ inputs.env-name }} --resource-type 'microsoft.dbforpostgresql/servers' --verbose
+
+          az monitor diagnostic-settings delete --name 'pdh${{ inputs.env-name }}-service_plan-diag' \
+          --resource 'pdh${{ inputs.env-name }}-serviceplan' --resource-group prime-data-hub-${{ inputs.env-name }} --resource-type 'microsoft.web/serverfarms' --verbose
+
           resources="$(az resource list --resource-group prime-data-hub-${{ inputs.env-name }} --query "[?contains(type, 'AlertRules') \
           || contains(type, 'server') || contains(type, 'nsights') || contains(name, 'sftp') \
           || contains(name, 'functionapp')].id" | jq -r '.[] | @base64')"
