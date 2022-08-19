@@ -1,8 +1,8 @@
 import { Helmet } from "react-helmet";
 
 // NOTE: update live.json and open usa_w_territories.svg with TEXT EDITOR and uncomment state styles
-import live from "../../content/live.json";
-import usamapsvg from "../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
+import live from "../../../content/live.json";
+import usamapsvg from "../../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
 
 export const WhereWereLive = () => {
     return (
