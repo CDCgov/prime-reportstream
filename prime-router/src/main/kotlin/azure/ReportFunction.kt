@@ -143,7 +143,7 @@ class ReportFunction(
                         ActionLog(
                             InvalidParamMessage(
                                 "Url Options Parameter, $optionsText has been deprecated. " +
-                                    "Valid options: ${Options.values().joinToString()}"
+                                    "Valid options: ${Options.activeValues.joinToString()}"
                             ),
                             type = ActionLogLevel.warning
                         )
