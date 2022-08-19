@@ -32,3 +32,73 @@ elements:
   - name: patient-sex
     value: [ '%resource.gender.GetAdministrativeGenderCode()' ]
     hl7Spec: [ '%{hl7PIDField}-8' ]
+
+#race
+  - name: patient-race-identifier
+    value: [ '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding.code' ]
+    hl7Spec: [ '%{hl7PIDField}-10-1' ]
+
+  - name: patient-race-text
+    value: [ '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.text' ]
+    hl7Spec: [ '%{hl7PIDField}-10-2' ]
+
+# this value just confirms that this segment part is HL7-Race
+  - name: patient-race-coding-system
+    value: [ '''HL70005''' ]
+    hl7Spec: [ '%{hl7PIDField}-10-3' ]
+
+  - name: patient-race-alternate-identifier
+    resource: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.code' ]
+    hl7Spec: [ '%{hl7PIDField}-10-4' ]
+
+  - name: patient-race-alternate-text
+    resource: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.display' ]
+    hl7Spec: [ '%{hl7PIDField}-10-5' ]
+
+  - name: patient-race-alternate-system
+    resource: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.system' ]
+    hl7Spec: [ '%{hl7PIDField}-10-6' ]
+
+#  PID.11.1 - Street Address	184	SAD	O	-	Street
+#  PID.11.2 - Other Designation	120	ST	O	-
+#  PID.11.3 - City	50	ST	O	-	City
+#  PID.11.4 - State Or Province	50	ST	O	-	State
+#  PID.11.5 - Zip Or Postal Code	12	ST	O	-	ZipCode
+#  PID.11.6 - Country	3	ID	O	-	0399
+#  PID.11.7 - Address Type	3	ID	O	-	0190
+#  PID.11.8 - Other Geographic Designation	50	ST	O	-
+#  PID.11.9 - County/Parish Code	20	IS	O	-	0289
+#  PID.11.10 - Census Tract	20	IS	O	-	0288
+#  PID.11.11 - Address Representation Code	1	ID	O	-	0465
+#  PID.11.12 - Address Validity Range	53	DR	B	-
+#  PID.11.13 - Effective Date	26	TS	O	-
+#  PID.11.14 - Expiration Date	26	TS	O	-
+#
+#
+#
+#  N/A	HL7 Mapping		13	PID-13	Phone Number - Home
+#          PID.13.1 - Telephone Number	199	ST	B	-	PhoneNumber
+#          PID.13.2 - Telecommunication Use Code	3	ID	O	-	0201
+#          PID.13.3 - Telecommunication Equipment Type	8	ID	O	-	0202
+#          PID.13.4 - Email Address	199	ST	O	-
+#          PID.13.5 - Country Code	3	NM	O	-
+#          PID.13.6 - Area/City Code	5	NM	O	-
+#          PID.13.7 - Local Number	9	NM	O	-
+#          PID.13.8 - Extension	5	NM	O	-
+#          PID.13.9 - Any Text	199	ST	O	-
+#          PID.13.10 - Extension Prefix	4	ST	O	-
+#          PID.13.11 - Speed Dial Code	6	ST	O	-
+#          PID.13.12 - Unformatted Telephone Number	199	ST	C	-
+#
+#
+#    N/A	HL7 Mapping		14	PID-14	Phone Number - Business
+#    N/A	HL7 Mapping		16	PID-16	Marital Status
+#    N/A	HL7 Mapping		17	PID-17	Religion
+#    N/A	HL7 Mapping		22	PID-22	Ethnic Group
+#    N/A	HL7 Mapping		30	PID-30	Patient Death Indicator
+#    N/A	HL7 Mapping		33	PID-33	Last Update Date/Time
+#    N/A	HL7 Mapping		34	PID-34	Last Update Facility
+#    N/A	HL7 Mapping		35	PID-35	Taxonomic Classification Code
