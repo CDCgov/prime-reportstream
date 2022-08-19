@@ -143,7 +143,7 @@ describe("useOktaMemberships", () => {
     });
 
     describe("on dispatch", () => {
-        test("can be set with AccessToken", () => {
+        test("can set membership from AccessToken", () => {
             const fakeAuthState = fakeAuthStateForOrgs([
                 "DHPrimeAdmins",
                 "DHSender_ignore",
@@ -169,7 +169,38 @@ describe("useOktaMemberships", () => {
             expect(result.current.state.memberships).toEqual(fakeMemberships);
         });
 
-        test("can be overriden as admin", () => {
+        test("can override active membership as admin", () => {
+            const newActive = {
+                parsedName: "sender-org",
+                memberType: MemberType.SENDER,
+            };
+            const fakeAuthState = fakeAuthStateForOrgs(["DHPrimeAdmins"]);
+            const { result } = renderHook(() =>
+                useOktaMemberships(fakeAuthState)
+            );
+
+            expect(result.current.state.active).toEqual({
+                parsedName: "PrimeAdmins",
+                memberType: MemberType.PRIME_ADMIN,
+            });
+            act(() =>
+                result.current.dispatch({
+                    type: MembershipActionType.ADMIN_OVERRIDE,
+                    payload: newActive,
+                })
+            );
+            expect(result.current.state.active).toEqual(newActive);
+
+            expect(mockStoreOrganizationOverride).toHaveBeenCalledWith(
+                JSON.stringify(newActive)
+            );
+        });
+
+        test("can partially override membership as admin", () => {
+            // const newActive = {
+            //     parsedName: "PrimeAdmins",
+            //     memberType: MemberType.SENDER,
+            // };
             const fakeAuthState = fakeAuthStateForOrgs(["DHPrimeAdmins"]);
             const { result } = renderHook(() =>
                 useOktaMemberships(fakeAuthState)
@@ -183,15 +214,21 @@ describe("useOktaMemberships", () => {
                 result.current.dispatch({
                     type: MembershipActionType.ADMIN_OVERRIDE,
                     payload: {
-                        parsedName: "sender-org",
                         memberType: MemberType.SENDER,
                     },
                 })
             );
             expect(result.current.state.active).toEqual({
-                parsedName: "sender-org",
+                parsedName: "PrimeAdmins",
                 memberType: MemberType.SENDER,
             });
+
+            expect(mockStoreOrganizationOverride).toHaveBeenCalledWith(
+                JSON.stringify({
+                    parsedName: "PrimeAdmins",
+                    memberType: MemberType.SENDER,
+                })
+            );
         });
 
         test("can be reset", () => {

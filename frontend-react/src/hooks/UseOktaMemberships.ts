@@ -159,14 +159,15 @@ const calculateNewState = (
                 parsedMemberships as MembershipState
             );
         case MembershipActionType.ADMIN_OVERRIDE:
+            const newActive = {
+                ...state.active,
+                ...(payload as MembershipSettings),
+            };
             const newState = {
                 ...state,
-                active: {
-                    ...state.active,
-                    ...(payload as MembershipSettings),
-                },
+                active: newActive,
             };
-            storeOrganizationOverride(JSON.stringify(payload));
+            storeOrganizationOverride(JSON.stringify(newActive));
             return newState;
         case MembershipActionType.RESET:
             return defaultState;

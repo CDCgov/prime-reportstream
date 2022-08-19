@@ -1,8 +1,8 @@
 import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
-import schema from "../../content/getting_started_csv_upload.json";
+import site from "../../../content/site.json";
+import schema from "../../../content/getting_started_csv_upload.json";
 
 export type CsvSchemaItem = {
     name: string;
