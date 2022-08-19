@@ -26,7 +26,7 @@ locals {
   security = {
     rsa_key_2048                  = null
     rsa_key_4096                  = null
-    https_cert_names              = []
+    https_cert_names              = ["${local.init.environment}-prime-cdc-gov", "${local.init.environment}-reportstream-cdc-gov"]
     delete_pii_storage_after_days = 30
   }
   database = {
