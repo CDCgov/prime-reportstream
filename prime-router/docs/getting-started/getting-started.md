@@ -21,6 +21,7 @@ This document will walk you through the setup instructions to get a functioning 
     * [Getting around SSL errors](#getting-around-ssl-errors)
 - [Function development with docker-compose](#function-development-with-docker-compose)
     * [Running ReportStream locally](#running-reportstream-locally)
+- [How to use the CLI](#how-to-use-the-cli)
 - [Credentials and secrets vault](#credentials-and-secrets-vault)
     * [Initializing the vault](#initializing-the-vault)
     * [Re-initializing the vault](#re-initializing-the-vault)
