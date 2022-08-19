@@ -2,6 +2,8 @@
 
 import { CrumbConfig, WithCrumbs } from "../Crumbs";
 
+import { ContentDirectory } from "./MarkdownDirectory";
+
 export const contentContainer = (
     content: () => JSX.Element,
     crumbs: CrumbConfig[]
@@ -64,3 +66,8 @@ export class ContentDirectoryTools {
         return crumbsFromHere(this.title, this.root, nextPage);
     }
 }
+
+export const makeSectionFromTitles = (
+    titles: string[],
+    directories: ContentDirectory[]
+) => directories.filter((dir) => titles.includes(dir.title));
