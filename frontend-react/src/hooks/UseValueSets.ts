@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import {
     LookupTable,
@@ -15,21 +15,26 @@ export interface TableAttributes {
     createdBy?: string;
 }
 
+/*
+
+  Fetch functions
+
+*/
+
+/*
+TO DISCUSS: we could set the pattern to be something like this or
+we could reference query keys within the function https://stackoverflow.com/a/68111112/5500298
+
+Have not tested, but I feel like to get the full value of react-query's refetching behavior we may want to go with the last option.
+When react-query refetches it will just re-run the function we passed to it, this would not take into account changes in variable dependencies
+unless we bake those into function itself?
+
+Note that I ran into type errors when trying to use higher order functions to avoid the inlining
+*/
+
 // generate a fetch function for version and table name
 // will return either a value set or value set row depeding on
 // value set table name
-
-/*
-  TO DISCUSS: we could set the pattern to be something like this or
-  we could reference query keys within the function https://stackoverflow.com/a/68111112/5500298
-  
-  Have not tested, but I feel like to get the full value of react-query's refetching behavior we may want to go with the last option.
-  When react-query refetches it will just re-run the function we passed to it, this would not take into account changes in variable dependencies
-  unless we bake those into function itself?
-
-  Note that I ran into type errors when trying to use higher order functions to avoid the inlining
-*/
-
 // we may not need the generic here, react-query probably handles that. But it couldn't hurt?
 const getLatestData = <T>(tableName: LookupTables, version: number) => {
     const endpointHeader = lookupTableApi.getTableData<T>(version, tableName);
@@ -43,6 +48,12 @@ const getLatestData = <T>(tableName: LookupTables, version: number) => {
 const getLookupTables = () =>
     axios(lookupTableApi.getTableList()).then(({ data }) => data);
 
+/*
+
+  Helper function to find the table we want within the response for ALL tables
+  Hopefully this will go away with the API refactor
+
+*/
 const findTableByName = (
     tables: LookupTable[],
     tableName: LookupTables
@@ -70,6 +81,14 @@ const findTableByName = (
         createdBy,
     };
 };
+
+/*
+
+  useQuery function
+
+  hook used to grab data from a lookup table
+
+*/
 
 // hook used to get value sets and value set rows (defined by passsed dataTableName)
 export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
@@ -125,5 +144,50 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
         // I don't think the previous map fns were doing anything helpful
         // but this will supply timestamps
         valueSetArray: valueSetData.map((el) => ({ ...el, ...versionData })),
+    };
+};
+
+/* 
+
+  Mutation Hooks
+
+  */
+export const useValueSetUpdate = () => {
+    const endpointHeaderUpdate = lookupTableApi.saveTableData(
+        LookupTables.VALUE_SET_ROW
+    );
+    // generic signature is defined here https://github.com/TanStack/query/blob/4690b585722d2b71d9b87a81cb139062d3e05c9c/packages/react-query/src/useMutation.ts#L66
+    // <type of data returned, type of error returned, type of variables passed to mutate fn, type of context (?)>
+    const mutation = useMutation<LookupTable, Error, ValueSetRow[]>((data) =>
+        axios
+            .post(endpointHeaderUpdate.url, data, endpointHeaderUpdate)
+            .then(({ data }) => data)
+    );
+    return {
+        saveData: mutation.mutateAsync,
+        isSaving: mutation.isLoading,
+        saveError: mutation.error,
+    };
+};
+
+export const useValueSetActivation = () => {
+    const mutation = useMutation<LookupTable, Error, number>((tableVersion) => {
+        const endpointHeaderActivate = lookupTableApi.activateTableData(
+            tableVersion,
+            LookupTables.VALUE_SET_ROW
+        );
+
+        return axios
+            .put(
+                endpointHeaderActivate.url,
+                LookupTables.VALUE_SET_ROW,
+                endpointHeaderActivate
+            )
+            .then(({ data }) => data);
+    });
+    return {
+        activateTable: mutation.mutateAsync,
+        isActivating: mutation.isLoading,
+        activationError: mutation.error,
     };
 };
