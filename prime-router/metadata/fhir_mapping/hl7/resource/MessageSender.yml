@@ -16,9 +16,9 @@ identifier:
   generateList: true
   expressionType: resource
   vars:
-    idStr: String, MSH.3.2
-    id: $oidUrlPrefix + MSH.3.2
-    systemStr: String, MSH.3.3
+    idStr: String, MSH.4.2
+    id: $oidUrlPrefix + MSH.4.2
+    systemStr: String, MSH.4.3
   constants:
     oidUrlPrefix: "urn:oid:"
 
