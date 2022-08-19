@@ -14,7 +14,6 @@ import {
     MembershipController,
     MemberType,
 } from "../../hooks/UseOktaMemberships";
-import { SessionController } from "../../hooks/UseSessionStorage";
 
 import SubmissionTable from "./SubmissionTable";
 
@@ -45,7 +44,6 @@ describe("SubmissionTable", () => {
                     },
                 },
             } as MembershipController,
-            store: {} as SessionController, // TS yells about removing this because of types
         });
         const fixtures: Fixture[] = [
             {
@@ -99,7 +97,6 @@ describe("SubmissionTable", () => {
                         },
                     },
                 } as MembershipController,
-                store: {} as SessionController, // TS yells about removing this because of types
             });
             const fixtures: Fixture[] = [
                 {

@@ -1,0 +1,26 @@
+name: ORU-R01-telecom
+elements:
+  - name: use-code
+    condition: '%resource.use.exists()'
+    value: [ '%resource.use.getTelecomUseCode()' ]
+    hl7Spec: [ '%{hl7TelecomField}-2' ]
+
+  - name: system
+    condition: '%resource.system.exists() and %resource.system = "phone"'
+    value: [ '''PH''' ]
+    hl7Spec: [ '%{hl7TelecomField}-3' ]
+
+  - name: country-code
+    condition: '%resource.value.exists()'
+    value: [ '%resource.value.getPhoneNumberCountryCode()' ]
+    hl7Spec: [ '%{hl7TelecomField}-5' ]
+
+  - name: area-code
+    condition: '%resource.value.exists()'
+    value: [ '%resource.value.getPhoneNumberAreaCode()' ]
+    hl7Spec: [ '%{hl7TelecomField}-6' ]
+
+  - name: local-number
+    condition: '%resource.value.exists()'
+    value: [ '%resource.value.getPhoneNumberLocalNumber()' ]
+    hl7Spec: [ '%{hl7TelecomField}-7' ]
