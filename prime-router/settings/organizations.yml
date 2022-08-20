@@ -609,7 +609,7 @@
       topic: covid-19
       customerStatus: active
       jurisdictionalFilter:
-        - matches(ordering_facility_state,AZ)
+        - "orEquals(patient_state, AZ, ordering_facility_state, AZ)"
       translation:
         type: CUSTOM
         schemaName: az/az-covid-19
@@ -630,7 +630,7 @@
       topic: covid-19
       customerStatus: active
       jurisdictionalFilter:
-        - matches(ordering_facility_state,AZ)
+        - "orEquals(patient_state, AZ, ordering_facility_state, AZ)"
       reverseTheQualityFilter: true
       translation:
         type: CUSTOM
