@@ -125,7 +125,7 @@ class Scope {
          *
          * @return the (possibly empty) intersection of the two sets.  Empty Set == not authorized for anything.
          */
-        fun authorizedScopes(userScopes: Set<String>, requiredScopes: Set<String>): Set<String> {
+        internal fun authorizedScopes(userScopes: Set<String>, requiredScopes: Set<String>): Set<String> {
             return userScopes.filter { it.isNotBlank() }.intersect(requiredScopes.filter { it.isNotBlank() }.toSet())
         }
 
@@ -133,7 +133,7 @@ class Scope {
          * @return true if there is at least one match between the set of scopes the user claims ([userScopeList])
          * and the set of scopes acceptable to access a resource ([requiredScopeList])
          */
-        fun authorized(userScopeList: Set<String>, requiredScopeList: Set<String>): Boolean {
+        internal fun authorized(userScopeList: Set<String>, requiredScopeList: Set<String>): Boolean {
             val intersection = authorizedScopes(userScopeList, requiredScopeList)
             return if (intersection.isEmpty()) {
                 logger.warn(

@@ -9,6 +9,7 @@ import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 
 const val DO_OKTA_AUTH = "okta"
+const val subjectClaim = "sub"
 val authenticationFailure = HttpUtilities.errorJson("Authentication Failed")
 val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
 
@@ -81,7 +82,7 @@ class AuthenticatedClaims : Logging {
     }
 
     /**
-     * Determine if these claims authorize access to the /validate and /waters endpoints for
+     * Determine if these claims authorize access to submission related resources in the
      * org [requiredOrganization] and optional sender [requiredSender] string.  The [request] is only used for logging.
      *
      * @return true if the request to submit data on behalf of the [requiredOrganization] is
