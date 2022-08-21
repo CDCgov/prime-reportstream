@@ -21,7 +21,7 @@ import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
@@ -94,18 +94,15 @@ class ReportFunction(
 
         actionHistory.trackActionParams(request)
         try {
-            val claims = AuthenticationStrategy.authenticate(request)
+            val claims = AuthenticatedClaims.authenticate(request)
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
             val sender = workflowEngine.settings.findSender(senderName)
                 ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown client")
 
-            if (!AuthenticationStrategy.validateClaim(
-                    claims,
-                    sender,
-                    request
-                )
-            ) return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            if (!claims.authorizedForSubmission(sender, request)) {
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
 
             return processRequest(request, sender)
         } catch (ex: Exception) {
