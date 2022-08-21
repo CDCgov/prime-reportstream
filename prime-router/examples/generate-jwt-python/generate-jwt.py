@@ -18,7 +18,7 @@ from cryptography.hazmat.primitives import serialization
 #
 # REPLACE THESE WITH YOUR CLIENT-ID AND KEYPAIR FILE
 #
-my_client_id = "mayo-clinic"
+my_client_id = "health-o-matic-labs"
 my_rsa_keypair_file = "./my-rsa-keypair.pem"
 
 #
