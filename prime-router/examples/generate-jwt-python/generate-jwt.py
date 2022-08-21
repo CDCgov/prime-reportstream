@@ -57,6 +57,8 @@ payload_data = {
     "jti": str(uuid.uuid4())
 }
 
+print(f'The payload is {payload_data}\n')
+
 token = jwt.encode(
     payload=payload_data,
     key=key,
@@ -95,7 +97,7 @@ STEP 4: Submit data to ReportStream using the bearer token
 
 EXAMPLE: Here is an example submitting an HL7 2.5.1 payload:
 
-curl -H "authorization:bearer ACCESS-TOKEN-STRING-HERE" -H "client:{my_client_id}"  -H "content-type:application/hl7-v2" --data-binary "@./my-nonPII-data.hl7" "https://staging.prime.cdc.gov/api/waters"
+curl -X POST -H "authorization:bearer ACCESS-TOKEN-STRING-HERE" -H "client:{my_client_id}"  -H "content-type:application/hl7-v2" --data-binary "@./my-nonPII-data.hl7" "https://staging.prime.cdc.gov/api/waters"
 
 
 
