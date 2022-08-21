@@ -1,4 +1,4 @@
-import { Circles } from "react-loader-spinner";
+import { Oval } from "react-loader-spinner";
 
 interface SpinnerProps {
     size?: "default" | "fullpage" | "insidebutton";
@@ -14,7 +14,15 @@ function Spinner({ size = "default", display = true }: SpinnerProps) {
     }[size];
     return (
         <div hidden={!display} className={sizeClassName}>
-            <Circles ariaLabel="loading-indicator" />
+            <Oval
+                height={60}
+                width={60}
+                color="#2378c3"
+                secondaryColor="#aacdec"
+                strokeWidth={8}
+                strokeWidthSecondary={8}
+                ariaLabel="loading-indicator"
+            />
         </div>
     );
 }
