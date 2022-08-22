@@ -1,36 +1,79 @@
 name: ORU-R01-xad-extended-address
+constants:
+  # if orderIndex is provided, we use the "-ordered" elements to support multiple entries
+  fieldPath: (%{hl7AddressField})(%{orderIndex})
 elements:
   - name: street-address
     condition: '%resource.line.count() > 0'
     value: [ '%resource.line[0]' ]
     hl7Spec: [ '%{hl7AddressField}-1' ]
 
+  - name: street-address-ordered
+    condition: '%{orderIndex} NOT_NULL && %resource.line.count() > 0'
+    value: [ '%resource.line[0]' ]
+    hl7Spec: [ '%{fieldPath}-1' ]
+
   - name: other-designation
     condition: '%resource.line[1].exists()'
     value: [ '%resource.line[1]' ]
     hl7Spec: [ '%{hl7AddressField}-2' ]
 
+  - name: other-designation-ordered
+    condition: '%{orderIndex} NOT_NULL && %resource.line[1].exists()'
+    value: [ '%resource.line[1]' ]
+    hl7Spec: [ '%{fieldPath}-2' ]
+
   - name: city
     value: [ '%resource.city' ]
     hl7Spec: [ '%{hl7AddressField}-3' ]
+
+  - name: city-ordered
+    condition: '%{orderIndex} NOT_NULL'
+    value: [ '%resource.city' ]
+    hl7Spec: [ '%{fieldPath}-3' ]
 
   - name: state-or-province
     value: [ '%resource.state' ]
     hl7Spec: [ '%{hl7AddressField}-4' ]
 
+  - name: state-or-province-ordered
+    condition: '%{orderIndex} NOT_NULL'
+    value: [ '%{orderIndex} NOT_NULL && %resource.state' ]
+    hl7Spec: [ '%{fieldPath}-4' ]
+
   - name: zip-or-postal-code
     value: [ '%resource.postalCode' ]
     hl7Spec: [ '%{hl7AddressField}-5' ]
 
+  - name: zip-or-postal-code-ordered
+    condition: '%{orderIndex} NOT_NULL'
+    value: [ '%resource.postalCode' ]
+    hl7Spec: [ '%{fieldPath}-5' ]
+
   - name: country
     value: [ '%resource.country' ]
     hl7Spec: [ '%{hl7AddressField}-6' ]
+
+  - name: country-ordered
+    condition: '%{orderIndex} NOT_NULL'
+    value: [ '%resource.country' ]
+    hl7Spec: [ '%{fieldPath}-6' ]
 
   - name: use
     condition: '%resource.use.exists()'
     value: [ '%resource.use.value.getAddressUse()' ]
     hl7Spec: [ '%{hl7AddressField}-7' ]
 
+  - name: use-ordered
+    condition: '%{orderIndex} NOT_NULL && %resource.use.exists()'
+    value: [ '%resource.use.value.getAddressUse()' ]
+    hl7Spec: [ '%{fieldPath}-7' ]
+
   - name: county
     value: [ '%resource.district' ]
     hl7Spec: [ '%{hl7AddressField}-9' ]
+
+  - name: county-ordered
+    condition: '%{orderIndex} NOT_NULL'
+    value: [ '%resource.district' ]
+    hl7Spec: [ '%{fieldPath}-9' ]
