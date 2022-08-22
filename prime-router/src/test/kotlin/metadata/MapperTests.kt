@@ -18,7 +18,6 @@ import kotlin.test.assertFails
 import kotlin.test.fail
 
 class MapperTests {
-
     @Test
     fun `test MiddleInitialMapper`() {
         val mapper = MiddleInitialMapper()
@@ -48,8 +47,8 @@ class MapperTests {
         val indexElement = metadata.findSchema("test")?.findElement("a") ?: fail("")
         val lookupElement = metadata.findSchema("test")?.findElement("c") ?: fail("")
         val mapper = LookupMapper()
-        val args = listOf("a")
-        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a"))
+        val args = listOf("a", "Column:a")
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "Column:a"))
         assertThat(mapper.apply(lookupElement, args, listOf(ElementAndValue(indexElement, "3"))).value)
             .isEqualTo("y")
     }
@@ -76,9 +75,9 @@ class MapperTests {
         val indexElement = metadata.findSchema("test")?.findElement("a") ?: fail("")
         val index2Element = metadata.findSchema("test")?.findElement("b") ?: fail("")
         val mapper = LookupMapper()
-        val args = listOf("a", "b")
+        val args = listOf("a", "Column:a", "b", "Column:b")
         val elementAndValues = listOf(ElementAndValue(indexElement, "3"), ElementAndValue(index2Element, "4"))
-        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "b"))
+        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("a", "Column:a", "b", "Column:b"))
         assertThat(mapper.apply(lookupElement, args, elementAndValues).value).isEqualTo("y")
     }
 
@@ -686,6 +685,61 @@ class MapperTests {
     }
 
     @Test
+    fun `test zip code to state mapper`() {
+        val mapper = ZipCodeToStateMapper()
+        val csv = """
+            zipcode,state_abbr
+            32303,FL
+            42223,TN
+            42223,KY
+            12345-1234,LA
+        """.trimIndent()
+        val table = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
+        val schema = Schema(
+            "test", topic = "covid-19",
+            elements = listOf(
+                Element("a", type = Element.Type.TABLE, table = "test", tableColumn = "state_abbr"),
+            )
+        )
+        val metadata = Metadata(schema = schema, table = table, tableName = "test")
+        val lookupElement = metadata.findSchema("test")?.findElement("a") ?: fail("Schema element missing")
+
+        // Test when value has a hyphen and extension
+        val valuesWithHyphen = listOf(
+            ElementAndValue(Element("patient_zip_code"), "32303-4509")
+        )
+
+        val expectedWithHyphen = "FL"
+        val actualWithHyphen = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithHyphen)
+        assertThat(actualWithHyphen.value).isEqualTo(expectedWithHyphen)
+
+        // Test when multiple values are returned from lookup
+        val valuesWithTwoStates = listOf(
+            ElementAndValue(Element("patient_zip_code"), "42223")
+        )
+
+        val expectedWithTwoStates = null
+        val actualWithTwoStates = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithTwoStates)
+        assertThat(actualWithTwoStates.value).isEqualTo(expectedWithTwoStates)
+
+        // Test when zip code does not exist in table
+        val valuesWithFakeZip = listOf(
+            ElementAndValue(Element("patient_zip_code"), "fakeZip")
+        )
+        val expectedWithFakeZip = null
+        val actualWithFakeZip = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithFakeZip)
+        assertThat(actualWithFakeZip.value).isEqualTo(expectedWithFakeZip)
+
+        // Test when zip code is blank
+        val valuesWithBlankZip = listOf(
+            ElementAndValue(Element("patient_zip_code"), "")
+        )
+        val expectedWithBlankZip = null
+        val actualWithBlankZip = mapper.apply(lookupElement, listOf("patient_zip_code"), valuesWithBlankZip)
+        assertThat(actualWithBlankZip.value).isEqualTo(expectedWithBlankZip)
+    }
+
+    @Test
     fun `test HashMapper`() {
         val mapper = HashMapper()
         val elementA = Element("a")
@@ -819,52 +873,32 @@ class MapperTests {
     }
 
     @Test
-    fun `test LookupSenderValuesetsMapper`() {
-        val table = LookupTable.read("./src/test/resources/metadata/tables/sender_valuesets.csv")
-        val schema = Schema(
-            "test", topic = "covid-19",
+    fun `test LookupSenderAutomationValuesetsMapper`() {
+        val genderTable = LookupTable
+            .read("./src/test/resources/metadata/tables/gender.csv")
+        val testResultTable = LookupTable
+            .read("./src/test/resources/metadata/tables/test_result.csv")
+        val genderSchema = Schema(
+            "test-gender",
+            topic = "covid-19",
             elements = listOf(
                 Element(
-                    "pregnant", type = Element.Type.TABLE, table = "sender_valuesets", tableColumn = "result",
+                    "patient_gender",
+                    type = Element.Type.TABLE,
+                    table = "gender",
+                    tableColumn = "code",
                     mapperOverridesValue = true
                 )
             )
         )
-        val metadata = Metadata(schema = schema, table = table, tableName = "sender_valuesets")
-        val indexElement = Element("sender_id")
-        val lookupElement = metadata.findSchema("test")?.findElement("pregnant") ?: fail("")
-        val mapper = LookupSenderValuesetsMapper()
-        val args = listOf("sender_id", "pregnant")
-        val elementAndValues = listOf(ElementAndValue(indexElement, "all"), ElementAndValue(lookupElement, "y"))
-        assertThat(mapper.valueNames(lookupElement, args)).isEqualTo(listOf("sender_id", "pregnant"))
-        assertThat(mapper.apply(lookupElement, args, elementAndValues).value).isEqualTo("77386006")
-
-        val elementAndValuesUNK = listOf(
-            ElementAndValue(indexElement, "all"),
-            ElementAndValue(lookupElement, "yas queen")
-        )
-        assertThat(mapper.apply(lookupElement, args, elementAndValuesUNK).value).isNull()
-    }
-
-    @Test
-    fun `test LookupSenderAutomationValuesetsMapper`() {
-        val table = LookupTable
-            .read("./src/test/resources/metadata/tables/sender_automation_value_set_row.csv")
-        val schema = Schema(
+        val testResultSchema = Schema(
             "test",
             topic = "covid-19",
             elements = listOf(
                 Element(
-                    "gender",
+                    "test_result_element",
                     type = Element.Type.TABLE,
-                    table = "sender_automation_value_set_row",
-                    tableColumn = "code",
-                    mapperOverridesValue = true
-                ),
-                Element(
-                    "test_result",
-                    type = Element.Type.TABLE,
-                    table = "sender_automation_value_set_row",
+                    table = "test_result",
                     tableColumn = "code",
                     mapperOverridesValue = true
                 ),
@@ -877,35 +911,41 @@ class MapperTests {
                 Element(
                     "no_column",
                     type = Element.Type.TABLE,
-                    table = "sender_automation_value_set_row",
+                    table = "test_result",
                     mapperOverridesValue = true
                 ),
                 Element(
                     "wrong_column",
                     type = Element.Type.TABLE,
-                    table = "sender_automation_value_set_row",
+                    table = "test_result",
                     tableColumn = "wrong",
                     mapperOverridesValue = true
                 )
             )
         )
-        val metadata = Metadata(
-            schema = schema,
-            table = table,
-            tableName = "sender_automation_value_set_row"
+        val genderMetadata = Metadata(
+            schema = genderSchema,
+            table = genderTable,
+            tableName = "gender"
+        )
+        val testResultMetadata = Metadata(
+            schema = testResultSchema,
+            table = testResultTable,
+            tableName = "test_result"
         )
 
         // it should look up an element without a version specified
-        val lookupElementGender = metadata.findSchema("test")?.findElement("gender") ?: fail("")
+        val lookupElementGender = genderMetadata.findSchema("test-gender")?.findElement("patient_gender") ?: fail("")
         val mapper = LookupSenderAutomationValuesets()
-        val argsGender = listOf("gender")
+        val argsGender = listOf("patient_gender", "gender")
         val elementAndValuesGender = listOf(ElementAndValue(lookupElementGender, "Female"))
-        assertThat(mapper.valueNames(lookupElementGender, argsGender)).isEqualTo(listOf("gender"))
+        assertThat(mapper.valueNames(lookupElementGender, argsGender)).isEqualTo(listOf("patient_gender", "gender"))
         assertThat(mapper.apply(lookupElementGender, argsGender, elementAndValuesGender).value).isEqualTo("F")
 
         // it should look up an element without a version specified but other rows of the same valueset have a version
-        val lookupElementTestResult = metadata.findSchema("test")?.findElement("test_result") ?: fail("")
-        val argsTestResult = listOf("test_result")
+        val lookupElementTestResult =
+            testResultMetadata.findSchema("test")?.findElement("test_result_element") ?: fail("")
+        val argsTestResult = listOf("test_result_element", "test_result")
         val elementAndValuesTestResult = listOf(
             ElementAndValue(
                 lookupElementTestResult,
@@ -915,6 +955,7 @@ class MapperTests {
         assertThat(mapper.valueNames(lookupElementTestResult, argsTestResult))
             .isEqualTo(
                 listOf(
+                    "test_result_element",
                     "test_result"
                 )
             )
@@ -929,8 +970,9 @@ class MapperTests {
             .isEqualTo("125154007")
 
         // it should look up an element with a version specified
-        val lookupElementTestResultVersion = metadata.findSchema("test")?.findElement("test_result") ?: fail("")
-        val argsTestResultVersion = listOf("test_result", "20200309")
+        val lookupElementTestResultVersion =
+            testResultMetadata.findSchema("test")?.findElement("test_result_element") ?: fail("")
+        val argsTestResultVersion = listOf("test_result_element", "test_result", "20200309")
         val elementAndValuesTestResultVersion = listOf(
             ElementAndValue(
                 lookupElementTestResultVersion,
@@ -938,7 +980,7 @@ class MapperTests {
             )
         )
         assertThat(mapper.valueNames(lookupElementTestResultVersion, argsTestResultVersion))
-            .isEqualTo(listOf("test_result", "20200309"))
+            .isEqualTo(listOf("test_result_element", "test_result", "20200309"))
 
         assertThat(
             mapper
@@ -952,8 +994,8 @@ class MapperTests {
 
         // it should return null and an error in the ElementResult if there is a mismatch of version and display
         val lookupElementTestResultMisVersionDisplay =
-            metadata.findSchema("test")?.findElement("test_result") ?: fail("")
-        val argsTestResultVersionMisVersionDisplay = listOf("test_result", "20200309")
+            testResultMetadata.findSchema("test")?.findElement("test_result_element") ?: fail("")
+        val argsTestResultVersionMisVersionDisplay = listOf("test_result_element", "test_result", "20200309")
         val elementAndValuesTestResultMisVersionDisplay = listOf(
             ElementAndValue(
                 lookupElementTestResultMisVersionDisplay,
@@ -961,7 +1003,7 @@ class MapperTests {
             )
         )
         assertThat(mapper.valueNames(lookupElementTestResultMisVersionDisplay, argsTestResultVersionMisVersionDisplay))
-            .isEqualTo(listOf("test_result", "20200309"))
+            .isEqualTo(listOf("test_result_element", "test_result", "20200309"))
 
         val elementResultMisVersionDisplay = mapper
             .apply(
@@ -981,8 +1023,8 @@ class MapperTests {
 
         // it should return null and an error in the ElementResult if there is a mismatch of display
         val lookupElementTestResultMisDisplay =
-            metadata.findSchema("test")?.findElement("test_result") ?: fail("")
-        val argsTestResultVersionMisDisplay = listOf("test_result")
+            testResultMetadata.findSchema("test")?.findElement("test_result_element") ?: fail("")
+        val argsTestResultVersionMisDisplay = listOf("test_result_element", "test_result")
         val elementAndValuesTestResultMisDisplay = listOf(
             ElementAndValue(
                 lookupElementTestResultMisDisplay,
@@ -990,7 +1032,7 @@ class MapperTests {
             )
         )
         assertThat(mapper.valueNames(lookupElementTestResultMisDisplay, argsTestResultVersionMisDisplay))
-            .isEqualTo(listOf("test_result"))
+            .isEqualTo(listOf("test_result_element", "test_result"))
 
         val elementResultMisDisplay = mapper
             .apply(
@@ -1009,8 +1051,8 @@ class MapperTests {
 
         // it should return null and an error in the ElementResult if there is no table name in Element
         val lookupElementTestResultWrongTable =
-            metadata.findSchema("test")?.findElement("no_table") ?: fail("")
-        val argsTestResultVersionWrongTable = listOf("no_table", "20200309")
+            testResultMetadata.findSchema("test")?.findElement("no_table") ?: fail("")
+        val argsTestResultVersionWrongTable = listOf("test_result_element", "no_table", "20200309")
         val elementAndValuesTestResultWrongTable = listOf(
             ElementAndValue(
                 lookupElementTestResultWrongTable,
@@ -1018,7 +1060,7 @@ class MapperTests {
             )
         )
         assertThat(mapper.valueNames(lookupElementTestResultWrongTable, argsTestResultVersionWrongTable))
-            .isEqualTo(listOf("no_table", "20200309"))
+            .isEqualTo(listOf("test_result_element", "no_table", "20200309"))
 
         val elementResultWrongTable = mapper
             .apply(
@@ -1037,8 +1079,8 @@ class MapperTests {
 
         // it should return null and an error in the ElementResult if there is no column name in Element
         val lookupElementTestResultNoColumn =
-            metadata.findSchema("test")?.findElement("no_column") ?: fail("")
-        val argsTestResultVersionNoColumn = listOf("no_column", "20200309")
+            testResultMetadata.findSchema("test")?.findElement("no_column") ?: fail("")
+        val argsTestResultVersionNoColumn = listOf("test_result_element", "no_column", "20200309")
         val elementAndValuesTestResultNoColumn = listOf(
             ElementAndValue(
                 lookupElementTestResultNoColumn,
@@ -1046,7 +1088,7 @@ class MapperTests {
             )
         )
         assertThat(mapper.valueNames(lookupElementTestResultNoColumn, argsTestResultVersionNoColumn))
-            .isEqualTo(listOf("no_column", "20200309"))
+            .isEqualTo(listOf("test_result_element", "no_column", "20200309"))
 
         val elementResultNoColumn = mapper
             .apply(
@@ -1065,8 +1107,8 @@ class MapperTests {
 
         // it should return null and an error in the ElementResult if there is a wrong column name in Element
         val lookupElementTestResultWrongColumn =
-            metadata.findSchema("test")?.findElement("wrong_column") ?: fail("")
-        val argsTestResultVersionWrongColumn = listOf("wrong_column", "20200309")
+            testResultMetadata.findSchema("test")?.findElement("wrong_column") ?: fail("")
+        val argsTestResultVersionWrongColumn = listOf("test_result_element", "wrong_column", "20200309")
         val elementAndValuesTestResultWrongColumn = listOf(
             ElementAndValue(
                 lookupElementTestResultWrongColumn,
@@ -1074,7 +1116,7 @@ class MapperTests {
             )
         )
         assertThat(mapper.valueNames(lookupElementTestResultWrongColumn, argsTestResultVersionWrongColumn))
-            .isEqualTo(listOf("wrong_column", "20200309"))
+            .isEqualTo(listOf("test_result_element", "wrong_column", "20200309"))
 
         val elementResultWrongColumn = mapper
             .apply(
@@ -1118,6 +1160,78 @@ class MapperTests {
         }
         listOf(ElementAndValue(countryElement, ""), ElementAndValue(patientPostalCodeElement, "H0H0H0")).also {
             assertThat(mapper.apply(countryElement, args, it).value).isEqualTo("CAN")
+        }
+    }
+
+    @Test
+    fun `test patient age mapper`() {
+        // arrange
+        val args = listOf("patient_age", "patient_dob", "specimen_collection_date_time")
+        val patientAgeElement = Element("patient_age")
+        val patientDobElement = Element("patient_dob")
+        val specimenCollectionDateElement = Element("specimen_collection_date_time")
+        // build our test cases
+        val testCases = mapOf(
+            // test case 1 - age pass through
+            listOf(
+                ElementAndValue(patientAgeElement, "18"),
+                ElementAndValue(patientDobElement, ""),
+                ElementAndValue(specimenCollectionDateElement, "")
+            ) to "18",
+            // test case 2 - age pass through but with values. we're ignoring the values and using the
+            // age passed in instead because that's the more meaningful value
+            listOf(
+                ElementAndValue(patientAgeElement, "18"),
+                ElementAndValue(patientDobElement, "6/1/1900"),
+                ElementAndValue(specimenCollectionDateElement, "6/2/2018")
+            ) to "18",
+            // test case 3 - age is missing. calculate based on the dob and specimen collection date time
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "6/1/2000"),
+                ElementAndValue(specimenCollectionDateElement, "6/2/2018")
+            ) to "18",
+            // test case 4 - age is missing. calculate based on the dob and specimen collection date time
+            // but the DOB is AFTER the specimen collection date, so we should return null
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "6/1/2018"),
+                ElementAndValue(specimenCollectionDateElement, "6/2/2017")
+            ) to null,
+            // test case 5 - everything is null or empty, return the same
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, ""),
+                ElementAndValue(specimenCollectionDateElement, "")
+            ) to null,
+            // test case 6 - DOB is one minute before specimen collection. age is zero
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "2022-04-01T16:00:00Z"),
+                ElementAndValue(specimenCollectionDateElement, "2022-04-01T16:01:00Z")
+            ) to "0",
+            // test case 7 - DOB is assumed to be 00:00:00 UTC so it should return zero
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "2022-04-01"),
+                ElementAndValue(specimenCollectionDateElement, "2022-04-01T16:01:00Z")
+            ) to "0",
+            // test case 8 - we aren't worried about future date checking. this is very permissive
+            // if someone passes us a specimen collection date in the future we will still calculate
+            // this is also verifying that our naïve math around dividing number of days by 365
+            // and calculating the floor won't return a bad result
+            listOf(
+                ElementAndValue(patientAgeElement, ""),
+                ElementAndValue(patientDobElement, "2000-05-13"),
+                ElementAndValue(specimenCollectionDateElement, "2100-05-13")
+            ) to "100",
+        )
+        // run all our test cases
+        PatientAgeMapper().run {
+            testCases.forEach {
+                val elementsAndValues = it.key
+                assertThat(this.apply(patientAgeElement, args, elementsAndValues).value).isEqualTo(it.value)
+            }
         }
     }
 }

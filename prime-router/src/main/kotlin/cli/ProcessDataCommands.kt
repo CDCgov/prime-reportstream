@@ -9,7 +9,6 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.ActionLog
-import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomConfiguration
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DefaultValues
@@ -23,6 +22,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
+import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -385,7 +385,7 @@ class ProcessData(
             is InputClientInfo.InputClient -> {
                 val clientName = (inputClientInfo as InputClientInfo.InputClient).clientName
                 val sender = fileSettings.findSender(clientName) ?: error("Sender $clientName was not found")
-                if (sender is CovidSender) {
+                if (sender is TopicSender) {
                     Pair(
                         sender.let {
                             metadata.findSchema(it.schemaName) ?: error("Schema ${it.schemaName} was not found")
@@ -394,7 +394,8 @@ class ProcessData(
                     )
                 } else {
                     Pair(
-                        null, sender
+                        null,
+                        sender
                     )
                 }
             }
@@ -404,7 +405,7 @@ class ProcessData(
                 metadata.findSchema(schName) ?: error("Schema $inputSchema was not found")
                 // Get a random sender name that uses the provided schema, or null if no sender is found.
                 val sender = fileSettings.senders.filter {
-                    it is CovidSender && it.schemaName == schName
+                    it is TopicSender && it.schemaName == schName
                 }.randomOrNull()
                 Pair(metadata.findSchema(schName), sender)
             }

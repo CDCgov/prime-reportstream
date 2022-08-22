@@ -75,6 +75,12 @@ main {
   color: #005ea2;
 }
 
+// Breadcrumb
+
+.usa-breadcrumb {
+  margin-top: units(2);
+}
+
 // TYPOGRAPHY
 
 .usa-prose {
@@ -215,5 +221,9 @@ main {
   }
   h2 {
     @include u-line-height('sans', 3);
+  }
+  .usa-breadcrumb {
+    margin-top: 0;
+    padding-top: 0;
   }
 }

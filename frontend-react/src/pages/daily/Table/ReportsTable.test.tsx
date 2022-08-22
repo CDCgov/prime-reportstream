@@ -1,72 +1,143 @@
-import { fireEvent, screen } from "@testing-library/react";
-import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
+import { screen } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react-hooks";
 
-import ReportResource from "../../../resources/ReportResource";
 import { renderWithRouter } from "../../../utils/CustomRenderUtils";
-import * as SessionStorageTools from "../../../contexts/SessionStorageTools";
-import { historyServer } from "../../../__mocks__/HistoryMockServer";
+import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
+import {
+    MembershipController,
+    MemberType,
+} from "../../../hooks/UseOktaMemberships";
+import { mockDeliveryListHook } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { mockReceiverHook } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
+import { orgServer } from "../../../__mocks__/OrganizationMockServer";
+import { deliveriesGenerator } from "../../../network/api/History/Reports";
+import { receiversGenerator } from "../../../network/api/Organizations/Receivers";
 
-import ReportsTable from "./ReportsTable";
-import * as ReportUtilsModule from "./ReportsUtils";
-
-const mockMs = (additional?: number) =>
-    additional ? 1652458218417 + additional : 1652458218417;
-const mockAPIData: ReportResource[] = [
-    new ReportResource("1", mockMs(), mockMs(100000), 99, "CSV"),
-];
-const mockFetchReport = jest
-    .spyOn(ReportUtilsModule, "getReportAndDownload")
-    .mockImplementation(() => {
-        return mockAPIData[0];
-    });
-// @ts-ignore so we can mock this partially
-const mockAuth = jest.fn<() => Partial<IOktaContext>>().mockReturnValue({
-    authState: {
-        accessToken: {
-            accessToken: "",
-        },
-    },
-});
-jest.mock("@okta/okta-react", () => ({
-    useOktaAuth: () => mockAuth(),
-}));
-const mockStoredOrg = jest.spyOn(SessionStorageTools, "getStoredOrg");
-jest.mock("rest-hooks", () => ({
-    useResource: () => {
-        return mockAPIData;
-    },
-}));
+import ReportsTable, { useReceiverFeeds } from "./ReportsTable";
 
 describe("ReportsTable", () => {
-    beforeAll(() => historyServer.listen());
-    afterEach(() => historyServer.resetHandlers());
-    afterAll(() => historyServer.close());
-    beforeEach(() => renderWithRouter(<ReportsTable />));
-    test("renders with no error", () => {
-        // Hooks run
-        expect(mockAuth).toHaveBeenCalled();
-        expect(mockStoredOrg).toHaveBeenCalled();
-
-        // Column headers render
-        expect(screen.getByText("Report ID")).toBeInTheDocument();
-        expect(screen.getByText("Date Sent")).toBeInTheDocument();
-        expect(screen.getByText("Expires")).toBeInTheDocument();
-        expect(screen.getByText("Total Tests")).toBeInTheDocument();
-        expect(screen.getByText("File")).toBeInTheDocument();
-
-        // Content loads
-        expect(screen.getAllByRole("row")).toHaveLength(2);
+    beforeEach(() => {
+        // Mock our SessionProvider's data
+        mockSessionContext.mockReturnValue({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
+            memberships: {
+                state: {
+                    active: {
+                        memberType: MemberType.RECEIVER,
+                        parsedName: "testOrg",
+                        senderName: undefined,
+                    },
+                },
+            } as MembershipController,
+        });
     });
+    describe("with services and deliveries data", () => {
+        beforeEach(() => {
+            // Mock the response from the Receivers hook
+            mockReceiverHook.mockReturnValue({
+                data: receiversGenerator(3),
+                loading: false,
+                error: "",
+                trigger: () => {},
+            });
+            // Mock the response from the Deliveries hook
+            mockDeliveryListHook.mockReturnValue({
+                data: deliveriesGenerator(101),
+                loading: false,
+                error: "",
+                trigger: () => {},
+            });
+            // Render the component
+            renderWithRouter(<ReportsTable />);
+        });
+        test("renders with no error", async () => {
+            // Column headers render
+            expect(await screen.findByText("Report ID")).toBeInTheDocument();
+            expect(await screen.findByText("Date Sent")).toBeInTheDocument();
+            expect(await screen.findByText("Expires")).toBeInTheDocument();
+            expect(await screen.findByText("Total Tests")).toBeInTheDocument();
+            expect(await screen.findByText("File")).toBeInTheDocument();
+        });
 
-    test("dates are transformed on render", () => {
-        const mockSent = new Date(mockMs()).toLocaleString();
-        const mockExpires = new Date(mockMs()).toLocaleString();
-        expect(screen.getByText(mockSent)).toBeInTheDocument();
-        expect(screen.getByText(mockExpires)).toBeInTheDocument();
+        test("renders 100 results per page + 1 header row", () => {
+            const rows = screen.getAllByRole("row");
+            expect(rows).toHaveLength(100 + 1);
+        });
     });
+    describe("with no data", () => {
+        beforeEach(() => {
+            // Mock the response from the Receivers hook
+            mockReceiverHook.mockReturnValue({
+                data: receiversGenerator(0),
+                loading: false,
+                error: "",
+                trigger: () => {},
+            });
+            // Mock the response from the Deliveries hook
+            mockDeliveryListHook.mockReturnValue({
+                data: deliveriesGenerator(0),
+                loading: false,
+                error: "",
+                trigger: () => {},
+            });
+            // Render the component
+            renderWithRouter(<ReportsTable />);
+        });
+        test("renders with no error", async () => {
+            // Column headers render
+            expect(await screen.findByText("Report ID")).toBeInTheDocument();
+            expect(await screen.findByText("Date Sent")).toBeInTheDocument();
+            expect(await screen.findByText("Expires")).toBeInTheDocument();
+            expect(await screen.findByText("Total Tests")).toBeInTheDocument();
+            expect(await screen.findByText("File")).toBeInTheDocument();
+        });
+        test("renders 0 results (but 1 header row)", () => {
+            const rows = screen.getAllByRole("row");
+            expect(rows.length).toBeLessThan(2);
+            expect(rows.length).toBeGreaterThan(0);
+        });
+    });
+});
 
-    test("file button downloads file", () => {
-        fireEvent.click(screen.getByText("CSV"));
-        expect(mockFetchReport).toHaveBeenCalled();
+describe("useReceiverFeed", () => {
+    beforeAll(() => orgServer.listen());
+    afterEach(() => orgServer.resetHandlers());
+    afterAll(() => orgServer.close());
+    beforeEach(() => {
+        // Mock our SessionProvider's data
+        mockSessionContext.mockReturnValue({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
+            memberships: {
+                state: {
+                    active: {
+                        memberType: MemberType.RECEIVER,
+                        parsedName: "testOrg",
+                        senderName: undefined,
+                    },
+                },
+            } as MembershipController,
+        });
+        mockReceiverHook.mockReturnValue({
+            data: receiversGenerator(2),
+            error: "",
+            loading: false,
+            trigger: () => {},
+        });
+    });
+    test("setActive sets an active receiver", async () => {
+        const { result } = renderHook(() => useReceiverFeeds());
+        expect(result.current.activeService).toEqual({
+            name: "elr-0",
+            organizationName: "testOrg",
+        });
+        act(() => result.current.setActiveService(result.current.services[1]));
+        expect(result.current.activeService).toEqual({
+            name: "elr-1",
+            organizationName: "testOrg",
+        });
     });
 });

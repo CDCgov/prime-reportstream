@@ -1,0 +1,9 @@
+name: ORU-R01-Base
+hl7Type: ORU_R01
+hl7Version 2.5.1
+elements:
+  - name message-headers
+condition: >
+Bundle.entry.resource.ofType(MessageHeader) and
+Bundle.entry.resource.ofType(Provenance) and
+Bundle.entry.resource.ofType(Provenance).activity.coding.code = 'R01'

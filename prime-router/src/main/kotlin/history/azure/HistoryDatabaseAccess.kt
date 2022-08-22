@@ -1,14 +1,10 @@
 package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
 import gov.cdc.prime.router.common.BaseEngine
-import gov.cdc.prime.router.history.DetailedActionLog
-import gov.cdc.prime.router.history.DetailedReport
 import org.jooq.Condition
-import org.jooq.SelectFieldOrAsterisk
 import org.jooq.SortField
 import org.jooq.impl.DSL
 import java.time.OffsetDateTime
@@ -46,31 +42,6 @@ abstract class HistoryDatabaseAccess(
     ): Condition
 
     /**
-     * Add logs and reports related to the history being fetched.
-     *
-     * @return a jooq select statement adding additional DB columns.
-     */
-    fun detailedSelect(): List<SelectFieldOrAsterisk> {
-        return listOf(
-            ACTION.asterisk(),
-            DSL.multiset(
-                DSL.select()
-                    .from(Tables.ACTION_LOG)
-                    .where(Tables.ACTION_LOG.ACTION_ID.eq(ACTION.ACTION_ID))
-            ).`as`("logs").convertFrom { r ->
-                r?.into(DetailedActionLog::class.java)
-            },
-            DSL.multiset(
-                DSL.select()
-                    .from(REPORT_FILE)
-                    .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
-            ).`as`("reports").convertFrom { r ->
-                r?.into(DetailedReport::class.java)
-            },
-        )
-    }
-
-    /**
      * Get multiple results based on a particular organization.
      *
      * @param organization is the Organization Name returned from the Okta JWT Claim.
@@ -104,7 +75,7 @@ abstract class HistoryDatabaseAccess(
             val query = DSL.using(txn)
                 // Note the report file and action tables have columns with the same name, so we must specify what we need.
                 .select(
-                    ACTION.ACTION_ID, ACTION.CREATED_AT, ACTION.SENDING_ORG,
+                    ACTION.ACTION_ID, ACTION.CREATED_AT, ACTION.SENDING_ORG, ACTION.SENDING_ORG_CLIENT,
                     REPORT_FILE.RECEIVING_ORG, REPORT_FILE.RECEIVING_ORG_SVC,
                     ACTION.HTTP_STATUS, ACTION.EXTERNAL_NAME, REPORT_FILE.REPORT_ID, REPORT_FILE.SCHEMA_TOPIC,
                     REPORT_FILE.ITEM_COUNT, REPORT_FILE.BODY_URL, REPORT_FILE.SCHEMA_NAME, REPORT_FILE.BODY_FORMAT
@@ -178,42 +149,25 @@ abstract class HistoryDatabaseAccess(
             filter = filter.and(ACTION.CREATED_AT.lt(until))
         }
 
-        val failedFilter: Condition = when (showFailed) {
-            true -> {
-                ACTION.HTTP_STATUS.between(200, 600)
-            }
-            false -> {
-                ACTION.HTTP_STATUS.between(200, 299)
-            }
+        return if (showFailed) {
+            filter
+        } else {
+            val failedFilter = ACTION.HTTP_STATUS.between(200, 299) // don't show failed = need to filter by status
+            filter.and(failedFilter)
         }
-
-        return filter.and(failedFilter)
     }
 
     /**
      * Fetch a single (usually detailed) action of a specific type.
      *
-     * @param organization is the Organization Name returned from the Okta JWT Claim.
      * @param actionId the action id attached to this submission.
      * @param klass the class that the found data will be converted to.
      * @return the submission matching the given query parameters, or null.
      */
-    fun <T> fetchAction(
-        organization: String,
+    abstract fun <T> fetchAction(
         actionId: Long,
         klass: Class<T>
-    ): T? {
-        return db.transactReturning { txn ->
-            DSL.using(txn)
-                .select(detailedSelect())
-                .from(ACTION)
-                .where(
-                    organizationFilter(organization)
-                        .and(ACTION.ACTION_ID.eq(actionId))
-                )
-                .fetchOne()?.into(klass)
-        }
-    }
+    ): T?
 
     /**
      * Fetch the details of an action's relations (descendants).
