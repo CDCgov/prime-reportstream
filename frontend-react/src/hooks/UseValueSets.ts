@@ -32,7 +32,6 @@ unless we bake those into function itself?
 Note that I ran into type errors when trying to use higher order functions to avoid the inlining
 */
 
-// generate a fetch function for version and table name
 // will return either a value set or value set row depeding on
 // value set table name
 // we may not need the generic here, react-query probably handles that. But it couldn't hurt?
