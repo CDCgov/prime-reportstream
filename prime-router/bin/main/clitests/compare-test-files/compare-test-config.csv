@@ -1,0 +1,3 @@
+Input File,Sender,Expected File,Organization name,Receiver name,Expected count
+test-0001-input-covid-19.hl7,ignore.ignore-hl7,test-0001-az-covid-19-hl7.hl7,ignore,HL7_BATCH,5
+test-0001-input-covid-19.hl7,ignore.ignore-hl7,test-0001-pima-az-covid-19.csv,ignore,CSV,5

@@ -1,0 +1,8 @@
+MSH|^~\&|HL7LAB_IN^Orchard|FLH|SCM|FLH|20210317115320||ORU^R01|04903212|T|2.3|||AL|NE||||||
+PID|1|186905^^^SEN|2000005^^^MRN|19-330-136^^^EMPI|X7TEST^DONOTUSE^LAB||19630202|F|Greouper11^DONOTUSE LAB||1234S unny Lane^^SAINT AUGUSTINE^FL^32086^US||(904)9995555|(904)5551212||||2001408726^^^Visit Number|UNKNOWN|||||||||||N|||||10000017|
+PV1|1|O|^^^1 NORTH&1NORTH|E|||Z9PHYSICIAN^zModel^Physician^^^^MD|||CVT||||||||CLI|2001408726^^^Visit Number|||||||||||||||||||||||||20210306104300|20210306104300|||||21076-OID-8644|||
+PD1||||Z9PHYSICIAN^zModel^Physician^^^^MD|||||||||
+ORC|RE||2107662558^LAB|1|CM||1^^^20210317115059^^R||20210317115120|parrj^Parr^Jacob^^^^MT||Z9PHYSICIAN^zModel^Physician^^^^MD|^^^1 NORTH&1NORTH|||||||1||^^^FL|4270|
+OBR|1|^SCM|2107662558^LAB|SARSCOV2^SARS-CoV-2 RNA^LAB_IN^94500-6^^LOINC|R||20210317115059|||aabergd^Aaberg^Diane^^^^RN||||20210317115000|Swab|Z9PHYSICIAN^zModel^Physician^^^^MD||||||20210317115300||Standard|F||^^^^^R||^21076-OID-8644|||||parrj|||||||||||||||||||||INSURANCE|Standard|2107662558|||
+OBX|1|ST|SARS2^SARS-CoV-2^LAB_IN^94500-6^SARS-CoV-2^LN||NEGATIVE||NEGATIVE|N|||F|||20210317115059|FLHL|parrj||||||||||
+NTE|1||Negative results do not preclude SARS-CoV-2 infection and should not be used as the sole basis for treatment or other patient management decisions. Negative results must be combined with clinical observations, patient history, and epidemiological information.\.br\\.br\This test has been authorized by FDA under an Emergency Use Authorization (EUA) for use by authorized laboratories.\.br\\.br\Results obtained using a real-time RT-PCR test on the Cepheid GeneXpert.|||
