@@ -1,0 +1,55 @@
+name,code,display,version
+test_result,260385009,Negative,
+test_result,260385009,Neg,
+test_result,260385009,Negative *** High ***,
+test_result,260385009,Negative *** Low ***,
+test_result,260385009,260385009,
+test_result,260415000,Not detected,
+test_result,260415000,NDET,
+test_result,260415000,260415000,
+test_result,260373001,Detected,
+test_result,260373001,DET,
+test_result,260373001,260373001,
+test_result,10828004,Positive,
+test_result,10828004,Pos,
+test_result,10828004,Positive (Abnormal),
+test_result,10828004,Positive (Alpha Abnormal),
+test_result,10828004,Positive *** High ***,
+test_result,10828004,Positive  *** High ***,
+test_result,10828004,Positive  *** Low ***,
+test_result,10828004,Positive ,
+test_result,10828004,10828004,
+test_result,720735008,Presumptive positive,
+test_result,720735008,720735008,
+test_result,419984006,Inconclusive,
+test_result,419984006,Inconclusive Result,
+test_result,419984006,419984006,
+test_result,42425007,Equivocal,
+test_result,42425007,42425007,
+test_result,895231008,Not detected in pooled specimen,
+test_result,895231008,895231008,
+test_result,462371000124108,Detected in pooled specimen,
+test_result,462371000124108,462371000124108,
+test_result,455371000124106,Invalid result,
+test_result,455371000124106,Invalid,
+test_result,455371000124106,455371000124106,
+test_result,125154007,Specimen unsatisfactory for evaluation,
+test_result,125154007,125154007,
+test_result,840539006,Disease caused by sever acute respiratory syndrome coronavirus 2 (disorder),20200309
+test_result,840539006,840539006,20200309
+test_result,840544004,Suspected disease caused by severe acute respiratory coronavirus 2 (situation),20200309
+test_result,840544004,840544004,20200309
+test_result,840546002,Exposure to severe acute respiratory syndrome coronavirus 2 (event),20200309
+test_result,840546002,840546002,20200309
+test_result,840533007,Severe acute respiratory syndrome coronavirus 2 (organism),20200309
+test_result,840533007,840533007,20200309
+test_result,840536004,Antigen of severe acute respiratory syndrome coronavirus 2 (substance),20200309
+test_result,840536004,840536004,20200309
+test_result,840535000,Antibody to severe acute respiratory syndrome coronavirus 2 (substance),20200309
+test_result,840535000,840535000,20200309
+test_result,840534001,Severe acute respiratory syndrome coronavirus 2 vaccination (procedure),20200309
+test_result,840534001,840534001,20200309
+test_result,373121007,Test not done,
+test_result,373121007,373121007,
+test_result,82334004,Indeterminate,
+test_result,82334004,82334004,

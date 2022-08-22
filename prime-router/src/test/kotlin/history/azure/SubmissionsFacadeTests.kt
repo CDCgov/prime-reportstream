@@ -6,7 +6,9 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
+import com.google.common.net.HttpHeaders
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
@@ -96,21 +98,23 @@ class SubmissionsFacadeTests {
             "organization" to listOf("DHSender_myOrg"),
             "sub" to "bob@bob.com"
         )
-        var claims = AuthenticatedClaims(userClaims)
-        assertThat(facade.checkSenderAccessAuthorization(action, claims)).isTrue()
+        var claims = AuthenticatedClaims(userClaims, isOktaAuth = true)
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        assertThat(facade.checkSenderAccessAuthorization(claims, action.sendingOrg, mockRequest)).isTrue()
 
         // Sysadmin happy path:   Sysadmin user ok to be in a different org.
         val adminClaims: Map<String, Any> = mapOf(
             "organization" to listOf("DHfoobar", "DHPrimeAdmins"),
             "sub" to "bob@bob.com"
         )
-        claims = AuthenticatedClaims(adminClaims)
-        assertThat(facade.checkSenderAccessAuthorization(action, claims)).isTrue()
+        claims = AuthenticatedClaims(adminClaims, isOktaAuth = true)
+        assertThat(facade.checkSenderAccessAuthorization(claims, action.sendingOrg, mockRequest)).isTrue()
 
         // Error: Regular user and Orgs don't match
-        claims = AuthenticatedClaims(userClaims)
+        claims = AuthenticatedClaims(userClaims, isOktaAuth = true)
         action = resetAction()
         action.sendingOrg = "UnhappyOrg" // mismatch sendingOrg
-        assertThat(facade.checkSenderAccessAuthorization(action, claims)).isFalse()
+        assertThat(facade.checkSenderAccessAuthorization(claims, action.sendingOrg, mockRequest)).isFalse()
     }
 }

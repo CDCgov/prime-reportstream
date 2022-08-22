@@ -52,7 +52,9 @@ class ProcessFhirCommands : CliktCommand(
 
     override fun run() {
         // Read the contents of the file
-        val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
+        // Note 8/18/2022: adding in a manual character delimeter replacement to make the primeCLI work with our HCA
+        //  sample files. We may want to change this in the future, but for convenience this `replace` is here
+        val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8).replace("^~\\&#", "^~\\&")
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
         val actionLogger = ActionLogger()
         // Check on the extension of the file for supported operations
@@ -60,6 +62,9 @@ class ProcessFhirCommands : CliktCommand(
             "HL7" -> {
                 val messages = HL7Reader(actionLogger).getMessages(contents)
                 if (messages.size > 1) throw CliktError("Only one HL7 message is supported.")
+                // if a hl7 parsing failure happens, throw error and show the message
+                if (messages.size == 1 && messages.first().toString().lowercase().contains("failed"))
+                    throw CliktError("HL7 parser failure. ${messages.first()}")
                 val fhirBundle = HL7toFhirTranslator.getInstance().translate(messages[0])
                 outputResult(fhirBundle, actionLogger)
             }

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.history.azure
 
+import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -37,30 +38,22 @@ abstract class ReportFileFacade(
     }
 
     /**
-     * Check whether these [claims] allow access to this [action]
-     * @return true if [claims] authorizes access to this 'receive' [action].  Return
-     * false if the actionId is not a proper submission or if the claim does not give access.
+     * Check whether these [claims] allow access to this [requiredOrganizationName].
+     * @return true if [claims] authorizes access to this [requiredOrganizationName].  Return
+     * false if the [requiredOrganizationName] is empty or if the claim does not give access.
      */
     fun checkSenderAccessAuthorization(
-        action: Action,
         claims: AuthenticatedClaims,
+        requiredOrganizationName: String,
+        request: HttpRequestMessage<String?>,
     ): Boolean {
-        return when {
-            // Admins always get access
-            claims.isPrimeAdmin -> true
-            // User has an organization claim that matches the action's sendingOrg
-            // No reason to also require that the org have (isSenderOrgClaim == true) because
-            // if they belong to the org that sent it, that's sufficient to say they have the right to see it.
-            (action.sendingOrg == claims.organizationNameClaim) &&
-                (!claims.organizationNameClaim.isNullOrBlank()) -> true
-            else -> {
-                logger.error(
-                    "User from org '${claims.organizationNameClaim}'" +
-                        " denied access to action_id ${action.actionId}" +
-                        " submitted by ${action.sendingOrg}"
-                )
-                false
-            }
+        if (requiredOrganizationName.isEmpty()) {
+            logger.warn(
+                "Unauthorized.  Action had no organization name. " +
+                    " For user ${claims.userName}: ${request.httpMethod}:${request.uri.path}."
+            )
+            return false
         }
+        return claims.authorizedForSubmission(requiredOrganizationName, null, request)
     }
 }
