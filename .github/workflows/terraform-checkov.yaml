@@ -10,7 +10,7 @@ on:
     branches:
       - feature/5520-Add-quality-checks-to-terraform-pipeline
   paths: 
-       - '/operations/app/terraform'
+      - '/operations/app/terraform'
 jobs:
   checkov-job:
     runs-on: ubuntu-latest
