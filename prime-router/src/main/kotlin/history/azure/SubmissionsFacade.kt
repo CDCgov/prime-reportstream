@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.history.azure
 
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
@@ -111,10 +113,14 @@ class SubmissionsFacade(
      * @return Report details
      */
     fun findDetailedSubmissionHistory(
-        submissionId: Long,
+        action: Action
     ): DetailedSubmissionHistory? {
+        // This assumes that ReportFileFunction.authSingleBlocks has already run, and has checked that the
+        // sendingOrg is good.  If that assumption is incorrect, die here.
+        assert(action.sendingOrg != null && action.actionName == TaskAction.receive)
         val submission = dbSubmissionAccess.fetchAction(
-            submissionId,
+            action.actionId,
+            action.sendingOrg,
             DetailedSubmissionHistory::class.java
         )
 

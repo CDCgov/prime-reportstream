@@ -264,6 +264,7 @@ class SubmissionFunctionTests : Logging {
             mockDatabaseAccess.fetchAction<SubmissionHistory>(
                 any(),
                 any(),
+                any(),
             )
         } returns testData.first()
 

@@ -282,6 +282,7 @@ class DeliveryFunctionTests : Logging {
             mockDatabaseAccess.fetchAction<DeliveryHistory>(
                 any(),
                 any(),
+                any(),
             )
         } returns testData.first()
 

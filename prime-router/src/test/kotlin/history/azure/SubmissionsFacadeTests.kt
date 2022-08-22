@@ -67,6 +67,7 @@ class SubmissionsFacadeTests {
         every {
             mockSubmissionAccess.fetchAction(
                 any(),
+                any(),
                 DetailedSubmissionHistory::class.java
             )
         } returns goodReturn
@@ -75,7 +76,21 @@ class SubmissionsFacadeTests {
                 550, DetailedSubmissionHistory::class.java
             )
         } returns emptyList()
-        assertThat(facade.findDetailedSubmissionHistory(550)).isEqualTo(goodReturn)
+        // Happy path
+        val action1 = Action()
+        action1.actionId = 550
+        action1.sendingOrg = "myOrg"
+        action1.actionName = TaskAction.receive
+        assertThat(facade.findDetailedSubmissionHistory(action1)).isEqualTo(goodReturn)
+        // Failures
+        val action2 = Action()
+        action2.actionId = 550
+        action2.sendingOrg = "myOrg" // good
+        action2.actionName = TaskAction.process // bad. Submission queries only work on receive actions.
+        assertThat { facade.findDetailedSubmissionHistory(action2) }.isFailure() // not a receive action
+        action2.actionName = TaskAction.receive // good
+        action2.sendingOrg = null // bad
+        assertThat { facade.findDetailedSubmissionHistory(action2) }.isFailure() // missing sendingOrg
     }
 
     @Test

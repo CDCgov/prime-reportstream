@@ -76,6 +76,7 @@ class DeliveryFacade(
     ): DeliveryHistory? {
         return dbDeliveryAccess.fetchAction(
             deliveryId,
+            orgName = null,
             DeliveryHistory::class.java
         )
     }
