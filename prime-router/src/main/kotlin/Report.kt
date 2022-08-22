@@ -7,6 +7,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ElrResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.DateUtilities.toLocalDate
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.DateUtilities.toYears
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
@@ -1169,8 +1170,8 @@ class Report : Logging {
                     when (it) {
                         // if the value is not null, parse it to a date value, otherwise, use current
                         // date time value to compare DOB against
-                        null -> DateUtilities.nowAtZone(DateUtilities.utcZone).toLocalDate()
-                        else -> DateUtilities.parseDate(it).toLocalDate()
+                        null -> DateUtilities.nowAtZone(DateUtilities.utcZone).toOffsetDateTime(DateUtilities.utcZone)
+                        else -> DateUtilities.parseDate(it).toOffsetDateTime(DateUtilities.utcZone)
                     }
                 }
             // get the patient age
