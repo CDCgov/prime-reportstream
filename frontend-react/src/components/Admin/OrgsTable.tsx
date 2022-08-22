@@ -26,13 +26,11 @@ export function OrgsTable() {
     ).sort((a, b) => a.name.localeCompare(b.name));
     const [filter, setFilter] = useState("");
     const history = useHistory();
-    const { memberships } = useSessionContext();
-    const currentOrg = memberships?.state?.active?.parsedName;
+    const { activeMembership, dispatch } = useSessionContext();
+    const currentOrg = activeMembership?.parsedName;
 
     const handleSelectOrgClick = (orgName: string) => {
-        const {
-            state: { active: { senderName, memberType } = {} },
-        } = memberships;
+        const { senderName, memberType } = activeMembership || {};
 
         let payload: Partial<MembershipSettings> = {
             parsedName: orgName,
@@ -43,14 +41,14 @@ export function OrgsTable() {
         ) {
             payload.senderName = senderName || "default";
         }
-        memberships.dispatch({
+        dispatch({
             type: MembershipActionType.ADMIN_OVERRIDE,
             payload,
         });
     };
 
     const handleSetUserType = (type: MemberType) => {
-        memberships.dispatch({
+        dispatch({
             type: MembershipActionType.ADMIN_OVERRIDE,
             payload: {
                 memberType: type,
@@ -131,7 +129,7 @@ export function OrgsTable() {
                         </Label>
                         <Dropdown
                             name="user-type-select"
-                            defaultValue={memberships.state.active?.memberType}
+                            defaultValue={activeMembership?.memberType}
                             className="rs-input"
                             onChange={(e) =>
                                 handleSetUserType(e.target.value as MemberType)

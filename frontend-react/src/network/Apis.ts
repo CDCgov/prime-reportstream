@@ -1,9 +1,6 @@
 import { AxiosRequestHeaders } from "axios";
 
-import {
-    getStoredOktaToken,
-    getStoredOrg,
-} from "../contexts/SessionStorageTools";
+import { getStoredOktaToken, getStoredOrg } from "../utils/SessionStorageTools";
 
 // this is duplicative with the Api class, but in order to split the functionality in this file
 // out to enable testing, we need a definition of Api that can function outside of the class declaration

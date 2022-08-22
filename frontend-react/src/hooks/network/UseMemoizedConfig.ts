@@ -51,10 +51,8 @@ export const useMemoizedConfig = ({
     parameters,
     advancedConfig,
 }: ConfigParams<any>) => {
-    const { memberships, oktaToken } = useSessionContext();
-    const adminSafeOrgName = useAdminSafeOrgName(
-        memberships.state.active?.parsedName
-    );
+    const { activeMembership, oktaToken } = useSessionContext();
+    const adminSafeOrgName = useAdminSafeOrgName(activeMembership?.parsedName);
     return useMemo(
         () =>
             createRequestConfig(
