@@ -171,7 +171,7 @@ export const ValueSetsDetailTable = ({
 }) => {
     const [valueSetsVersion, setValueSetVersion] = useState<number>();
 
-    const { valueSetArray, error } = useValueSetsTable(
+    const { valueSetArray, error } = useValueSetsTable<ValueSetRow>(
         LookupTables.VALUE_SET_ROW,
         valueSetsVersion
     );
