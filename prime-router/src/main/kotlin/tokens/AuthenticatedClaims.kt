@@ -1,135 +1,228 @@
 package gov.cdc.prime.router.tokens
 
+import com.google.common.net.HttpHeaders
+import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.Sender
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jwts
+import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.common.Environment
+import org.apache.logging.log4j.kotlin.Logging
+
+const val DO_OKTA_AUTH = "okta"
+const val subjectClaim = "sub"
+val authenticationFailure = HttpUtilities.errorJson("Authentication Failed")
+val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
 
 /**
  * This represents a set of claims coming from Okta that have been authenticated (but may or may not
- * have been authorized). For convenience, certain claims have been pulled out into more readable/usable forms,
- * using helper methods in the class, called during object construction.
+ * have been authorized). For convenience, certain claims have been pulled out of the [jwtClaims]
+ * into more readable/usable forms, using helper methods in the class, called during object construction.
+ *
+ * The companion object has a number of helper methods that hide the Okta vs Server2Server differences.
  */
-class AuthenticatedClaims {
+class AuthenticatedClaims : Logging {
     /**
      * Raw claims map, typically as sent in a JWT
      */
     val jwtClaims: Map<String, Any>
 
-    // For Okta, these below are all derived from the raw jwtClaims.
+    // All of these below are _derived_ from the raw jwtClaims.
 
     /** Name of user as extracted from the subject claim.  Usually an email address */
     val userName: String
+
     /** Does this user have the prime administrator claim? */
     val isPrimeAdmin: Boolean
-    /** Name of the organization found in these claims */
-    val organizationNameClaim: String?
-    /** Is this a Sender claim, of the form DHSender_orgname  ? */
-    val isSenderOrgClaim: Boolean
+
+    /** Set of scopes associated with these claims.   Scopes are the "common language" between
+     * Okta and server2server auth.   Okta "DH" claims are mapped to scopes,
+     * or are created directly from server2server claims.
+     */
+    val scopes: Set<String>
 
     /**
-     * This constructor assumes certain claims that are found in Okta. Only use this for Okta claims.
+     * [_jwtClaims]  The raw list of claims
+     * [isOktaAuth] true if the claims came from Okta (eg, groups like "DHmd-phd").  false if the claims came from
+     * server2server auth (eg, scopes like md-phd.default.report)
+     *
+     * Each value passed must have been already authenticated.  This is for claims, *not* for required authorizations.
      */
-    constructor(_jwtClaims: Map<String, Any>) {
+    constructor(_jwtClaims: Map<String, Any>, isOktaAuth: Boolean) {
         this.jwtClaims = _jwtClaims
-        this.userName = _jwtClaims[oktaSubjectClaim]?.toString() ?: error("No username in claims")
-        @Suppress("UNCHECKED_CAST")
-        val memberships = jwtClaims[oktaMembershipClaim] as? Collection<String> ?: error("No memberships in claims")
-        val orgNamePair = extractOrganizationNameFromOktaMembership(memberships)
-        this.isPrimeAdmin = isPrimeAdmin(memberships)
-        this.organizationNameClaim = orgNamePair?.first // might be null
-        this.isSenderOrgClaim = orgNamePair?.second ?: false
-    }
-
-    /**
-
-     * Use this for claims not coming from a human being (that is, not using Okta).
-     * For example, use this for claims for server-to-server auth.
-     * Each value passed must have been authenticated.  These are *not* for requested or required authorizations.
-     *
-     * [_jwtClaims]  The raw list of claims.
-     * [_organizationNameClaim] The organization Name of this server. (Not the full name, eg oh-doh, not oh-doh.elr)
-     * [_isPrimeAdmin] true if this server claims to act as a PrimeAdmin
-     * [_isSenderOrgClaim] true if this claims set is from a Sender organization.  Certain queries (eg, give me
-     * a list of submissions) only make sense if the Organization has at least one Sender in it.
-     *
-     * The latter args are optional.   If not provided, this constructor will attempt to extract the values in the jwt
-     * claims, following our Okta claim forms (eg, "DH...", etc).   Otherwise it will default to least privilege.
-     */
-    constructor(
-        _jwtClaims: Map<String, Any>,
-        _organizationNameClaim: String? = null,
-        _isPrimeAdmin: Boolean? = null,
-        _isSenderOrgClaim: Boolean? = null,
-    ) {
-        this.jwtClaims = _jwtClaims
-        this.userName = _jwtClaims[oktaSubjectClaim]?.toString() ?: error("No username in claims")
-        @Suppress("UNCHECKED_CAST")
-        val memberships = jwtClaims[oktaMembershipClaim] as? Collection<String> ?: emptyList()
-        val orgNamePair = extractOrganizationNameFromOktaMembership(memberships)
-        this.isPrimeAdmin = _isPrimeAdmin ?: isPrimeAdmin(memberships)
-        this.organizationNameClaim = _organizationNameClaim ?: orgNamePair?.first // might be null
-        this.isSenderOrgClaim = _isSenderOrgClaim ?: orgNamePair?.second ?: false
-    }
-
-    /**
-     * Derive useful info from jwtClaims on [memberships].
-     * @return the *first* well-formed ReportStream organizationName found in [memberships].
-     * (So this won't work if user has many organization claims.)
-     *
-     * At the same time, this determines if it's a Sender or Receiver claim.
-     * Returns Pair(organizationName, true) if this organizationName claim is a Sender claim.
-     * Returns Pair(organizationName, false) if this organizationName claim is a Receiver claim.
-     * Returns null if no well-formed organizationName is found in [memberships]
-     * Ignores the PrimeAdmins claim.
-     */
-    private fun extractOrganizationNameFromOktaMembership(memberships: Collection<String>): Pair<String?, Boolean>? {
-        if (memberships.isEmpty()) return null
-        // examples:   DHSender_ignore, DHPrimeAdmins, DHSender_all-in-one-health-ca, DHaz_phd, DHignore
-        // should return, resp.:  (ignore, true), <nothing>, (all-in-one-health-ca, true, (az_phd, false, (ignore, true)
-        memberships.forEach {
-            if (it == oktaSystemAdminGroup) return@forEach // skip
-            if (it.startsWith(oktaSenderGroupPrefix)) return Pair(it.removePrefix(oktaSenderGroupPrefix), true)
-            if (it.startsWith(oktaGroupPrefix)) return Pair(it.removePrefix(oktaGroupPrefix), false)
+        this.userName = _jwtClaims[subjectClaim]?.toString() ?: error("No username in claims")
+        if (isOktaAuth) {
+            @Suppress("UNCHECKED_CAST")
+            val memberships = jwtClaims[oktaMembershipClaim] as? Collection<String> ?: error("No memberships in claims")
+            this.scopes = Scope.mapOktaGroupsToScopes(memberships)
+        } else {
+            // todo this assumes a single scope.  Need to add support for multiple scopes.
+            val claimsScope = _jwtClaims["scope"] as String
+            if (claimsScope.isEmpty())
+                error("For $userName, server2server token had no scope defined. Not authenticated")
+            if (!Scope.isValidScope(claimsScope))
+                error("For $userName, server2server scope $claimsScope: invalid format")
+            this.scopes = setOf(claimsScope)
         }
-        return null
+        this.isPrimeAdmin = scopes.contains(Scope.primeAdminScope)
+        // todo : have the TokenAuthentication.authenticate return type AuthenticatedClaims.
     }
 
     /**
-     * Derive whether this user is an Admin based on claims [memberships].
-     * @return true if a well-formed Administrator claim is in [memberships].  False otherwise.
+     * Determine if these claims authorize access to the /validate and /waters endpoints for
+     * org [requiredSender] obj.  The [request] is only used for logging.
+     *
+     * @return true if the request to submit data on behalf of [requiredSender]
+     * is authorized based on the [claims], false otherwise.
      */
-    private fun isPrimeAdmin(memberships: Collection<String>): Boolean {
-        memberships.forEach {
-            if (it == oktaSystemAdminGroup) return true
-        }
-        return false
+    fun authorizedForSubmission(
+        requiredSender: Sender,
+        request: HttpRequestMessage<String?>
+    ): Boolean {
+        return authorizedForSubmission(requiredSender.organizationName, requiredSender.name, request)
     }
 
-    companion object {
+    /**
+     * Determine if these claims authorize access to submission related resources in the
+     * org [requiredOrganization] and optional sender [requiredSender] string.  The [request] is only used for logging.
+     *
+     * @return true if the request to submit data on behalf of the [requiredOrganization] is
+     * authorized based on the [claims], false otherwise.
+     */
+    fun authorizedForSubmission(
+        requiredOrganization: String,
+        requiredSender: String? = null,
+        request: HttpRequestMessage<String?>
+    ): Boolean {
+        if (requiredOrganization.isBlank()) {
+            logger.warn(
+                "Unauthorized.  Missing required Org" +
+                    " for user ${this.userName}: ${request.httpMethod}:${request.uri.path}."
+            )
+            return false
+        }
+        // User must have one of these scopes to be authorized
+        val requiredScopes = mutableSetOf(
+            Scope.primeAdminScope,
+            "$requiredOrganization.*.user", // eg, md-phd.*.user
+            "$requiredOrganization.*.admin", // eg, md-phd.*.admin
+            "$requiredOrganization.*.report", // eg, md-phd.default.report
+        )
+        if (requiredSender != null) {
+            requiredScopes += "$requiredOrganization.$requiredSender.user" // eg, md-phd.default.user
+            requiredScopes += "$requiredOrganization.$requiredSender.admin" // eg, md-phd.default.admin
+            requiredScopes += "$requiredOrganization.$requiredSender.report" // eg, md-phd.default.report
+        }
+        return if (authorized(requiredScopes)) {
+            logger.info(
+                "Authorized request by user with claims ${this.scopes}" +
+                    " for submission-related resources. client= $requiredOrganization."
+            )
+            true
+        } else {
+            logger.warn(
+                "Invalid Authorization for user ${this.userName}: ${request.httpMethod}:${request.uri.path}." +
+                    " ERR: Claims from user are ${this.scopes} but required scopes are $requiredScopes"
+            )
+            false
+        }
+    }
+
+    /**
+     * @return true if these claims authorize access to the [requiredScopes].  False if unauthorized.
+     */
+    fun authorized(requiredScopes: Set<String>): Boolean {
+        return Scope.authorized(this.scopes, requiredScopes)
+    }
+
+    companion object : Logging {
         /**
-         * Create fake Okta Auth claims, for testing
+         * Helper method for authentication.
+         * Check whether we are running locally.
+         * Even if local, if the [accessToken] is there, then do real Okta auth.
+         * @return true if we should do 'local' auth, false if we should do Okta auth.
+         */
+        fun isLocal(accessToken: String?): Boolean {
+            return when {
+                (!Environment.isLocal()) -> false
+                (accessToken != null && accessToken.split(".").size == 3) -> {
+                    // For testing auth.  Running local, but test using the real production parser.
+                    // The above test is purposefully simple so that we can test all kinds of error conditions
+                    // further downstream.
+                    logger.info("Running locally, but will do authentication")
+                    false
+                }
+                else -> true
+            }
+        }
+
+        /**
+         * Utility function to extract and @return the bearer access token from the [request] Authorization header,
+         * if there is one. Otherwise return null.  Fully case insensitive.
+         */
+        fun getAccessToken(request: HttpRequestMessage<String?>): String? {
+            // RFC6750 defines the access token
+            val caseInsensitiveHeaders = request.headers.mapKeys { it.key.lowercase() }
+            val authorization = caseInsensitiveHeaders[HttpHeaders.AUTHORIZATION.lowercase()] ?: return null
+            val tok = authorization.replace("Bearer ", "", ignoreCase = true)
+            return tok.ifBlank { null }
+        }
+
+        /**
+         * Authenticate a caller (which could be a human or machine).
+         * This does not perform authorization!
+         *
+         * This is a wrapper around two mechanisms for authentication.  Depending on the [request], this will do either
+         * 1) OktaAuthentication to confirm the token is a valid okta token, or,
+         * 2) two-legged (aka 'Token') authentication to confirm the token is a valid two-legged token.
+         *
+         * @return a valid AuthenticatedClaims obj if authenticated.   Otherwise null if authentication failed.
+         */
+        fun authenticate(request: HttpRequestMessage<String?>): AuthenticatedClaims? {
+            val accessToken = getAccessToken(request)
+            if (isLocal(accessToken)) {
+                logger.info("Granted test auth request for ${request.httpMethod}:${request.uri.path}")
+                val client = request.headers["client"]
+                val sender = if (client == null)
+                    null
+                else
+                    WorkflowEngine().settings.findSender(client)
+                return AuthenticatedClaims.generateTestClaims(sender)
+            }
+
+            if (accessToken.isNullOrEmpty()) {
+                logger.error("Missing or bad format 'Authorization: Bearer <tok>' header. Not authenticated.")
+                return null
+            }
+
+            val isOktaAuth = (request.headers["authentication-type"] == DO_OKTA_AUTH)
+            val authenticatedClaims = if (isOktaAuth) {
+                // Humans using Okta will send "authentication-type": "okta" in the request header
+                OktaAuthentication.authenticate(accessToken, request.httpMethod, request.uri.path) ?: return null
+            } else {
+                // In all other cases, do server2server (also called 'two-legged' or 'FHIR') auth.
+                // Authenticate the token.
+                Server2ServerAuthentication().authenticate(accessToken) ?: return null
+            }
+            logger.info(
+                "Authenticated request by ${authenticatedClaims.userName}: " +
+                    "(${request.httpMethod}:${request.uri.path})" +
+                    " using ${if (isOktaAuth) "Okta" else "Server2Server"} auth."
+            )
+            return authenticatedClaims
+        }
+
+        /**
+         * Create fake AuthenticatedClaims, for testing
          * @return fake claims, for testing.
          * Uses the organizationName in the [sender] if one is passed in, otherwise uses the `ignore` org.
          */
         fun generateTestClaims(sender: Sender? = null): AuthenticatedClaims {
             val tmpOrg = sender?.organizationName ?: "ignore"
             val jwtClaims: Map<String, Any> = mapOf(
-                "organization" to listOf("$oktaSenderGroupPrefix$tmpOrg", oktaSystemAdminGroup),
+                oktaMembershipClaim to listOf("$oktaSenderGroupPrefix$tmpOrg", oktaSystemAdminGroup),
                 "sub" to "local@test.com",
             )
-            return AuthenticatedClaims(jwtClaims)
-        }
-
-        /**
-         * Create fake twolegged TokenAuthentication claims, for testing.
-         * Extract the orgname from the [scope] which must be well-formed per rules in [Scope]
-         * @return fake claims, for testing.
-         */
-        fun generateTestJwtClaims(): Claims {
-            val jwtClaims = Jwts.claims().setSubject("local@test.com")
-            jwtClaims["organization"] = listOf(oktaSystemAdminGroup)
-            jwtClaims["scope"] = Scope.primeAdminScope
-            return jwtClaims
+            return AuthenticatedClaims(jwtClaims, isOktaAuth = true)
         }
     }
 }

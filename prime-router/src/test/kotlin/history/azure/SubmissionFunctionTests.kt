@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
@@ -23,7 +24,6 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.SubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
@@ -49,6 +49,7 @@ class SubmissionFunctionTests : Logging {
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     private val organizationName = "test-lab"
+    private val organizationClient = "default"
     private val oktaClaimsOrganizationName = "DHSender_$organizationName"
     private val otherOrganizationName = "test-lab-2"
 
@@ -91,8 +92,9 @@ class SubmissionFunctionTests : Logging {
             externalName = "test-name.csv",
             reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
             schemaTopic = "covid-19",
-            reportItemCount = 3,
+            itemCount = 3,
             sendingOrg = organizationName,
+            sendingOrgClient = organizationClient,
             httpStatus = 201,
         ),
         SubmissionHistory(
@@ -101,8 +103,9 @@ class SubmissionFunctionTests : Logging {
             externalName = "test-name.csv",
             reportId = null,
             schemaTopic = null,
-            reportItemCount = null,
+            itemCount = null,
             sendingOrg = organizationName,
+            sendingOrgClient = organizationClient,
             httpStatus = 400,
         )
     )
@@ -134,7 +137,7 @@ class SubmissionFunctionTests : Logging {
                         ExpectedSubmissionList(
                             submissionId = 8,
                             timestamp = OffsetDateTime.parse("2021-11-30T16:36:54.919Z"),
-                            sender = organizationName,
+                            sender = ClientSource(organizationName, organizationClient).name,
                             httpStatus = 201,
                             externalName = "test-name.csv",
                             id = ReportId.fromString("a2cf1c46-7689-4819-98de-520b5007e45f"),
@@ -144,7 +147,7 @@ class SubmissionFunctionTests : Logging {
                         ExpectedSubmissionList(
                             submissionId = 7,
                             timestamp = OffsetDateTime.parse("2021-11-30T16:36:48.307Z"),
-                            sender = organizationName,
+                            sender = ClientSource(organizationName, organizationClient).name,
                             httpStatus = 400,
                             externalName = "test-name.csv",
                             id = null,
@@ -356,8 +359,8 @@ class SubmissionFunctionTests : Logging {
         val mockSubmissionFacade = mockk<SubmissionsFacade>()
         val function = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, mockSubmissionFacade)
 
-        mockkObject(AuthenticationStrategy.Companion)
-        every { AuthenticationStrategy.authenticate(any()) } returns
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
 
         // Invalid id:  not a UUID nor a Long
@@ -387,7 +390,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
-        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
@@ -409,7 +412,7 @@ class SubmissionFunctionTests : Logging {
         // Good actionId, but Not authorized
         action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchAction(any()) } returns action
-        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns false // unauthorized
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
@@ -417,7 +420,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockSubmissionFacade.fetchAction(any()) } returns action
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
-        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         responseBody = mapper.readValue(response.body.toString())

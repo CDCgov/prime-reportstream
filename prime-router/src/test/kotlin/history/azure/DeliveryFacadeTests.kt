@@ -30,7 +30,7 @@ class DeliveryFacadeTests {
             "covid-19",
             1,
             "ca-dph",
-            "elr-secondary",
+            null,
             "",
             "covid-19",
             "HL7_BATCH"
@@ -69,7 +69,7 @@ class DeliveryFacadeTests {
 
         val deliveries = facade.findDeliveries(
             "ca-dph",
-            "elr",
+            null,
             HistoryDatabaseAccess.SortDir.ASC,
             HistoryDatabaseAccess.SortColumn.CREATED_AT,
             null,
@@ -141,7 +141,7 @@ class DeliveryFacadeTests {
         assertThat {
             facade.findDeliveries(
                 "ca-dph",
-                "elr",
+                null,
                 HistoryDatabaseAccess.SortDir.ASC,
                 HistoryDatabaseAccess.SortColumn.CREATED_AT,
                 null,

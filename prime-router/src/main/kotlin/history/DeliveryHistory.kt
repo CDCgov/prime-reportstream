@@ -27,7 +27,7 @@ import java.time.OffsetDateTime
 @JsonPropertyOrder(
     value = [
         "deliveryId", "sent", "expires", "receivingOrg", "receivingOrgSvc", "httpStatus",
-        "reportId", "topic", "reportItemCount", "fileName", "fileType",
+        "reportId", "topic", "reportItemCount", "fileName", "fileType"
     ]
 )
 class DeliveryHistory(
@@ -41,20 +41,20 @@ class DeliveryHistory(
     @JsonProperty("reportItemCount")
     reportItemCount: Int? = null,
     val receivingOrg: String,
-    val receivingOrgSvc: String,
+    val receivingOrgSvc: String?,
     @JsonIgnore
     val bodyUrl: String? = null,
     @JsonIgnore
     val schemaName: String,
     @JsonProperty("fileType")
-    val bodyFormat: String,
+    val bodyFormat: String
 ) : ReportHistory(
     actionId,
     createdAt,
     externalName,
     reportId,
     topic,
-    reportItemCount,
+    reportItemCount
 ) {
     @JsonIgnore
     private val DAYS_TO_SHOW = 30L
@@ -96,7 +96,7 @@ data class DeliveryFacility(
     val testingLabState: String?,
     val testingLabClia: String?,
     val positive: Long?,
-    val countRecords: Long?,
+    val countRecords: Long?
 ) {
     /**
      * This is a combination of the city and state values

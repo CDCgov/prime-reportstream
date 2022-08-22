@@ -52,6 +52,45 @@ class DatabaseDeliveryAccess(
     }
 
     /**
+     * Fetch a single (usually detailed) action of a specific type.
+     *
+     * @param actionId the action id attached to this submission.
+     * @param klass the class that the found data will be converted to.
+     * @return the submission matching the given query parameters, or null.
+     */
+    override fun <T> fetchAction(
+        actionId: Long,
+        klass: Class<T>
+    ): T? {
+        return db.transactReturning { txn ->
+            DSL.using(txn)
+                .select(
+                    ACTION.ACTION_ID,
+                    ACTION.CREATED_AT,
+                    ACTION.SENDING_ORG,
+                    REPORT_FILE.RECEIVING_ORG,
+                    REPORT_FILE.RECEIVING_ORG_SVC,
+                    ACTION.HTTP_STATUS,
+                    ACTION.EXTERNAL_NAME,
+                    REPORT_FILE.REPORT_ID,
+                    REPORT_FILE.SCHEMA_TOPIC,
+                    REPORT_FILE.ITEM_COUNT,
+                    REPORT_FILE.BODY_URL,
+                    REPORT_FILE.SCHEMA_NAME,
+                    REPORT_FILE.BODY_FORMAT,
+                )
+                .from(
+                    ACTION.join(REPORT_FILE).on(
+                        REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID)
+                    )
+                )
+                .where(
+                    ACTION.ACTION_ID.eq(actionId)
+                ).fetchOne()?.into(klass)
+        }
+    }
+
+    /**
      * Fetch the details of an action's relations (descendants).
      * This is done through a recursive query on the report_lineage table.
      *

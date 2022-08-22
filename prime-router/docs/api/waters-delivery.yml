@@ -94,7 +94,7 @@ paths:
         - OAuth2: [ user ]
         - Server2Server: []
       parameters:
-        - name: reportId
+        - name: id
           in: path
           description: ActionID or ReportId of report whose facilities we want to see
           required: true

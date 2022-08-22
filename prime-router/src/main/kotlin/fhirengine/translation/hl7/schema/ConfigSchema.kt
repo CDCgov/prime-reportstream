@@ -1,9 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
-import org.hl7.fhir.r4.model.ExpressionNode
 import java.util.SortedMap
 
 /**
@@ -105,14 +103,11 @@ data class ConfigSchema(
  * An element within a Schema.
  * @property name the name of the element
  * @property condition a FHIR path condition to evaluate. If false then the element is ignored.
- * @property conditionExpression the validated FHIR path representation of the [condition] string
  * @property required true if the element must have a value
  * @property schema the name of a child schema
  * @property schemaRef the reference to the loaded child schema
  * @property resource a FHIR path that points to a FHIR resource
- * @property resourceExpression the validated FHIR path representation of the [resource] string
  * @property value a list of FHIR paths each pointing to a FHIR primitive value
- * @property valueExpressions the validated FHIR paths of the [value] list
  * @property hl7Spec a list of hl7Specs that denote the field to place a value into
  * @property resourceIndex the variable name to store a FHIR collection's index number
  * @property constants element level constants
@@ -121,14 +116,11 @@ data class ConfigSchema(
 data class ConfigSchemaElement(
     var name: String? = null,
     var condition: String? = null,
-    var conditionExpression: ExpressionNode? = null,
     var required: Boolean? = false,
     var schema: String? = null,
     var schemaRef: ConfigSchema? = null,
     var resource: String? = null,
-    var resourceExpression: ExpressionNode? = null,
     var value: List<String> = emptyList(),
-    var valueExpressions: List<ExpressionNode> = emptyList(),
     var hl7Spec: List<String> = emptyList(),
     var resourceIndex: String? = null,
     var constants: SortedMap<String, String> = sortedMapOf()
@@ -145,22 +137,6 @@ data class ConfigSchemaElement(
          */
         fun addError(msg: String) {
             validationErrors.add("[$name]: $msg")
-        }
-
-        /**
-         * Validate and get a FHIR [path].
-         * @return the validated FHIR path.
-         */
-        fun getFhirPath(path: String?): ExpressionNode? {
-            return if (path == null) null
-            else {
-                try {
-                    FhirPathUtils.parsePath(path)
-                } catch (e: Exception) {
-                    addError("Error parsing FHIR Path")
-                    null
-                }
-            }
         }
 
         if (name.isNullOrBlank()) {
@@ -192,13 +168,6 @@ data class ConfigSchemaElement(
         constants.filterValues { it.isNullOrBlank() }.forEach { (key, _) ->
             addError("Constant '$key' does not have a value")
         }
-
-        // Validate the FHIR paths.
-        conditionExpression = getFhirPath(condition)
-        valueExpressions = value.mapNotNull { path ->
-            getFhirPath(path)
-        }
-        resourceExpression = getFhirPath(resource)
 
         schemaRef?.let {
             validationErrors.addAll(it.validate(true))

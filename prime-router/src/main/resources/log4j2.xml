@@ -37,7 +37,7 @@
         <Logger name="ca.uhn.fhir.parser.LenientErrorHandler" level="error"/>
         <Logger name="ca.uhn.fhir" level="error"/>
         <Logger name="org.apache.commons.beanutils.FluentPropertyBeanIntrospector" level="error"/>
-        <Logger name="gov.cdc.prime.router.fhirengine.translation.hl7" level="debug"/>
+        <Logger name="gov.cdc.prime.router.fhirengine.translation.hl7" level="trace"/>
 
         <!-- Example to turn on debugging in your favorite package
         <Logger name="gov.cdc.prime.router.azure.DatabaseAccess" level="debug" additivity="false">
