@@ -2,7 +2,6 @@ package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
-import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -217,14 +216,14 @@ class SenderFilesCommand : CliktCommand(
      * Echo verbose information to the console respecting the --silent and --verbose flag
      */
     private fun echo(message: String) {
-        if (!silent) TermUi.echo(message)
+        if (!silent) echo(message)
     }
 
     /**
      * Echo verbose information to the console respecting the --silent and --verbose flag
      */
     private fun verbose(message: String) {
-        if (verbose) TermUi.echo(message)
+        if (verbose) echo(message)
     }
 
     /**
