@@ -23,7 +23,7 @@ import {
 import {
     getStoredOktaToken,
     getStoredOrg,
-} from "../../contexts/SessionStorageTools";
+} from "../../utils/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     ConfirmSaveSettingModal,

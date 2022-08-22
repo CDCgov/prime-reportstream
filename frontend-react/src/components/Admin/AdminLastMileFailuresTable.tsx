@@ -18,7 +18,7 @@ import {
 import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import { formatDate } from "../../utils/misc";
 import { showAlertNotification, showError } from "../AlertNotifications";
-import { getStoredOktaToken } from "../../contexts/SessionStorageTools";
+import { getStoredOktaToken } from "../../utils/SessionStorageTools";
 
 export function AdminLastMileFailuresTable() {
     const defaultDaysToShow = "15"; // numeric input but treat as string for easier passing around
