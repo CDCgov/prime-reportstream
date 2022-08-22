@@ -34,7 +34,7 @@ status:
     valueOf: 'GeneralUtils.getEncounterStatus(vars1,vars2,vars3)'
     required: true
     expressionType: JEXL
-    vars: 
+    vars:
       vars1: String, PV1.45
       vars2: String, PV1.44
       vars3: String, PV2.16
@@ -51,42 +51,52 @@ type:
    specs: PV1.4
 
 serviceType:
+   condition: $valueIn NOT_NULL
    valueOf: datatype/CodeableConcept
    expressionType: resource
    specs: PV1.10
+   vars:
+     valueIn: PV1.10
 
 priority:
    valueOf: datatype/CodeableConcept
+   condition: v$alueIn NOT_NULL
    expressionType: resource
    specs: PV2.25
+   vars:
+     valueIn: PV2.25
 
 episodeOfCare:
    type: STRING
    valueOf: PV1.54 | PV1.53
    expressionType: HL7Spec
 
-period: 
+period:
     valueOf: datatype/Period
     expressionType: resource
-    vars: 
+    vars:
        start: PV1.44 | EVN.6 | EVN.2
        end: PV1.45
 
 length:
     valueOf: datatype/Duration
     expressionType: resource
-    vars: 
+    vars:
       pv2time: STRING, PV2.11
       pv1length: PV1, GeneralUtils.pv1DurationLength(pv1length,ZONEID)
 
 reasonCode_1:
     valueOf: datatype/CodeableConcept
+    condition: $valueIn NOT_NULL
     generateList: true
     expressionType: resource
     specs: EVN.4
+    vars:
+      valueIn: EVN.4
 
 reasonCode_2:
   valueOf: datatype/CodeableConcept
+  condition: $code NOT_NULL
   generateList: true
   expressionType: resource
   specs: PV2.3
@@ -95,7 +105,7 @@ reasonCode_2:
 
 reasonReference_1:
    valueOf: datatype/Reference
-   condition: $Condition NOT_NULL 
+   condition: $Condition NOT_NULL
    evaluateLater: true
    generateList: true
    expressionType: resource
@@ -139,6 +149,7 @@ diagnosis:
          refconditionId: $BASE_VALUE, GeneralUtils.extractAttribute(refconditionId,"$.identifier[?(@.system==\"urn:id:extID\")].value","String")
      use:
         valueOf: datatype/CodeableConcept
+        condition: $coding NOT_NULL
         expressionType: resource
         specs: DG1.6
         vars:
@@ -277,7 +288,7 @@ serviceProvider:
   vars:
     orgName: String, PV2.23.1 | PV1.3.4.1
     orgIdValue: String, PV2.23.8 | PV1.3.4.1  # used for Id and Identifier
-  constants:   
+  constants:
     orgIdSystem: 'extID'  # 'urn:id:' added by SystemCX processing
 
 location:

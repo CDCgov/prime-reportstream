@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 
@@ -31,8 +32,19 @@ class SubmissionFunction(
      * @param organization Name of organization and service
      * @return Name for the organization
      */
-    override fun userOrgName(organization: String): String? {
+    override fun getOrgName(organization: String): String? {
         return workflowEngine.settings.findSender(organization)?.organizationName
+    }
+
+    /**
+     * Verify that the action being checked has the correct data/parameters
+     * for the type of report being viewed.
+     *
+     * @param action DB Action that we are reviewing
+     * @return true if action is valid, else false
+     */
+    override fun actionIsValid(action: Action): Boolean {
+        return action.sendingOrg != null && action.actionName == TaskAction.receive
     }
 
     /**
@@ -69,7 +81,7 @@ class SubmissionFunction(
         queryParams: MutableMap<String, String>,
         action: Action
     ): DetailedSubmissionHistory? {
-        return submissionsFacade.findDetailedSubmissionHistory(action.sendingOrg, action.actionId)
+        return submissionsFacade.findDetailedSubmissionHistory(action.actionId)
     }
 
     /**

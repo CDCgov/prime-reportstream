@@ -23,6 +23,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         PROCESS_WARNING, // when an attempt at a process action fails, but will be retried
         PROCESS_ERROR, // when an attempt at a process action fails permanently
         RECEIVE,
+        ROUTE, // calculate routing for a submission
         TRANSLATE,
         BATCH,
         SEND,
@@ -40,6 +41,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 PROCESS_WARNING -> TaskAction.process_warning
                 PROCESS_ERROR -> TaskAction.process_error
                 RECEIVE -> TaskAction.receive
+                ROUTE -> TaskAction.route
                 TRANSLATE -> TaskAction.translate
                 BATCH -> TaskAction.batch
                 SEND -> TaskAction.send

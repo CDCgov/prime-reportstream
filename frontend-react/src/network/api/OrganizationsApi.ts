@@ -1,23 +1,27 @@
-import { API, Endpoint } from "./NewApi";
+/** @remarks For later use with runtime type checking API data */
+import { API } from "./NewApi";
 
-export class OrganizationResource {
-    readonly name: string = "name";
-    readonly description: string = "description";
-    readonly jurisdiction: string = "jurisdiction";
-    readonly stateCode: string = "state";
-    readonly countyName: string = "county";
+export enum Endpoints {
+    DETAIL = "detail",
+    SENDER = "sender",
 }
+/** A class representing an Organization object from the API */
+export class RSOrganization {}
 
-export const OrganizationsAPI: API = {
-    resource: OrganizationResource,
-    baseUrl: "/api/settings/organizations",
-    endpoints: new Map<string, Endpoint>([
-        [
-            "detail",
-            {
-                url: "/:org",
-                methods: ["GET"],
-            },
-        ],
-    ]),
-};
+export interface ReceiversUrlVars {
+    org: string;
+    sender?: string;
+}
+/**
+ * Contains the API information to get RSReceivers from the API
+ * 1. Resource: {@link RSOrganization}
+ * 2. Endpoints:
+ *      <ul>
+ *          <li>"detail" -> Fetches details for a single org </li>
+ *      </ul>
+ */
+const OrganizationApi = new API(RSOrganization, "/api/settings/organizations")
+    .addEndpoint(Endpoints.DETAIL, "/:org", ["GET"])
+    .addEndpoint(Endpoints.SENDER, "/:org/senders/:sender", ["GET"]);
+
+export default OrganizationApi;

@@ -106,7 +106,7 @@ resource "azurerm_function_app" "function_app" {
   storage_account_access_key = var.primary_access_key
   https_only                 = true
   os_type                    = "linux"
-  version                    = "~3"
+  version                    = var.function_runtime_version
   enable_builtin_logging     = false
 
   site_config {

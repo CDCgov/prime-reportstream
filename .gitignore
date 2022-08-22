@@ -46,7 +46,6 @@ Test*.json
 
 # Mac files
 .DS_Store
-.DS_Store
 
 # Emacs files
 *~
@@ -107,6 +106,7 @@ gitleaks.log
 
 # CastleMock event files
 .environment/soap_service/soap/event/v1/**
+.environment/soap_service/soap/response/v2/**
 
 # Archived functions
 *function*.zip

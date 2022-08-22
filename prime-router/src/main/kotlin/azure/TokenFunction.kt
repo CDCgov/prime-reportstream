@@ -15,7 +15,7 @@ import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.FindReportStreamSecretInVault
 import gov.cdc.prime.router.tokens.FindSenderKeyInSettings
 import gov.cdc.prime.router.tokens.Scope
-import gov.cdc.prime.router.tokens.TokenAuthentication
+import gov.cdc.prime.router.tokens.Server2ServerAuthentication
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
@@ -51,10 +51,14 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
         val actionHistory = ActionHistory(TaskAction.token_auth)
         actionHistory.trackActionParams(request)
         val senderKeyFinder = FindSenderKeyInSettings(scope, metadata)
-        val tokenAuthentication = TokenAuthentication()
+        val server2ServerAuthentication = Server2ServerAuthentication()
         val jti = DatabaseJtiCache(workflowEngine.db)
-        val response = if (tokenAuthentication.checkSenderToken(clientAssertion, senderKeyFinder, jti, actionHistory)) {
-            val token = tokenAuthentication.createAccessToken(scope, FindReportStreamSecretInVault(), actionHistory)
+        val response = if (
+            server2ServerAuthentication.checkSenderToken(clientAssertion, senderKeyFinder, jti, actionHistory)
+        ) {
+            val token = server2ServerAuthentication.createAccessToken(
+                scope, FindReportStreamSecretInVault(), actionHistory
+            )
 
             // Per https://hl7.org/fhir/uv/bulkdata/authorization/index.html#issuing-access-tokens
             HttpUtilities.httpResponse(

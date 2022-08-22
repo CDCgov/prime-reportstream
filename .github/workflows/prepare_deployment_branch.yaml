@@ -42,7 +42,7 @@ jobs:
           pr_source: "${{ env.BRANCH_NAME }}"
           pr_target: "production"
           pr_labels: devops,chore,deployment
-          pr_assignees: jimduff-usds,MauriceReeves-usds,RickHawesUSDS,carlosfelix2,CDCgov/prime-reportstream-devops
+          pr_assignees: jimduff-usds,MauriceReeves-usds,CDCgov/prime-reportstream-devops
           pr_body: |
             ## Deployment of ${{ env.DEPLOYMENT_DATE }}
             This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}.

@@ -1,6 +1,4 @@
-import { AccessToken, UserClaims } from "@okta/okta-auth-js";
-
-import { SessionStore } from "../hooks/UseSessionStorage";
+import { AccessToken, CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
 
 import { isAdmin, isReceiver, isSender, PERMISSIONS } from "./PermissionsUtils";
 
@@ -12,13 +10,17 @@ enum RSOrgType {
 
 /* New claims not present in UserClaims need tobe added via
  * this interface so UserClaims can implement the fields. */
-interface RSExtraClaims {
+interface RSExtraClaims extends CustomUserClaims {
     organization: string[];
 }
 type RSUserClaims = UserClaims<RSExtraClaims>;
 export const toRSClaims = (claims: UserClaims): RSUserClaims => {
     return claims as RSUserClaims;
 };
+
+export interface AccessTokenWithRSClaims extends AccessToken {
+    claims: RSUserClaims;
+}
 
 /* Parses the array of organizations (strings) from an AccessToken */
 const getOktaGroups = (accessToken: AccessToken | undefined): string[] => {
@@ -86,7 +88,7 @@ const getRSOrgs = (
     return filterGroups().map((group) => parseOrgName(group));
 };
 
-function parseOrgs(orgs: Array<string>): Array<Partial<SessionStore>> {
+function parseOrgs(orgs: Array<string>): any[] {
     return orgs.map((org) => {
         // Org names are case sensitive. This condition will fail if the okta
         // group name is not cased properly: DHSender_xyz, DHxy_phd, DHPrimeAdmin
@@ -106,5 +108,3 @@ function parseOrgs(orgs: Array<string>): Array<Partial<SessionStore>> {
 }
 
 export { RSOrgType, getOktaGroups, parseOrgName, getRSOrgs, parseOrgs };
-
-export type { RSUserClaims };

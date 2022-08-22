@@ -2,19 +2,31 @@ import { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
 
 import { Newable, SimpleError, StringIndexed } from "../../utils/UsefulTypes";
 
+/* Using the utility type `Omit<T, ...>` we can limit what methods we allow if needed.
+ * Example: AvailableMethods = Omit<Method, "DELETE">[] */
 export type AvailableMethods = Method[];
-export interface Endpoint {
+export class Endpoint {
     url: string;
     methods: AvailableMethods;
+    constructor(url: string, methods: AvailableMethods) {
+        this.url = url;
+        this.methods = methods;
+    }
 }
 /* Name your endpoints! */
 export type EndpointMap = Map<string, Endpoint>;
-
-/* Declaration of an API */
-export interface API {
+export class API {
     resource: Newable<any>; // Resource class
     baseUrl: string;
-    endpoints: EndpointMap;
+    endpoints: EndpointMap = new Map();
+    constructor(resource: Newable<any>, baseUrl: string) {
+        this.resource = resource;
+        this.baseUrl = baseUrl;
+    }
+    addEndpoint(name: string, url: string, methods: AvailableMethods): this {
+        this.endpoints.set(name, new Endpoint(url, methods));
+        return this;
+    }
 }
 
 /* Make some headers required */
@@ -23,18 +35,24 @@ export interface RSRequestHeaders extends AxiosRequestHeaders {
     authorization: string;
     organization: string;
 }
+/* Prevents overriding RSRequestConfig values */
+export interface AdvancedConfig<D>
+    extends Omit<AxiosRequestConfig<D>, "url" | "method" | "headers"> {
+    requireTrigger?: boolean;
+}
 /* Make some fields required or overwrite types */
-export interface RSRequestConfig extends AxiosRequestConfig {
+export interface RSRequestConfig<D = any> extends AdvancedConfig<D> {
     url: string;
     method: Method;
     headers: RSRequestHeaders;
 }
-/* Prevents overriding RSRequestConfig values */
-export type AdvancedConfig<D> = Omit<
-    AxiosRequestConfig<D>,
-    "url" | "method" | "headers"
->;
-
+/* Basic state for API calls */
+export interface BasicAPIResponse<T> {
+    data: T;
+    error: string;
+    loading: boolean;
+    trigger: () => void;
+}
 /* Safe endpoint extraction */
 const extractEndpoint = (api: API, key: string): Endpoint => {
     const endpoint: Endpoint | undefined = api.endpoints.get(key);
