@@ -23,7 +23,6 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
@@ -398,8 +397,8 @@ class DeliveryFunctionTests : Logging {
         val mockDeliveryFacade = mockk<DeliveryFacade>()
         val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
 
-        mockkObject(AuthenticationStrategy.Companion)
-        every { AuthenticationStrategy.authenticate(any()) } returns
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
 
         // Invalid id:  not a UUID nor a Long
@@ -438,7 +437,7 @@ class DeliveryFunctionTests : Logging {
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
-        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns true
         response = function.getDeliveryDetails(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: ExpectedDelivery = mapper.readValue(response.body.toString())
@@ -460,7 +459,7 @@ class DeliveryFunctionTests : Logging {
         // Good actionId, but Not authorized
         action.actionName = TaskAction.send
         every { mockDeliveryFacade.fetchAction(any()) } returns action
-        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns false // not authorized
         response = function.getDeliveryDetails(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
@@ -468,7 +467,7 @@ class DeliveryFunctionTests : Logging {
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockDeliveryFacade.fetchAction(any()) } returns action
         every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
-        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns true
         response = function.getDeliveryDetails(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         responseBody = mapper.readValue(response.body.toString())
@@ -498,8 +497,8 @@ class DeliveryFunctionTests : Logging {
         val mockDeliveryFacade = mockk<DeliveryFacade>()
         val function = setupDeliveryFunctionForTesting(oktaSystemAdminGroup, mockDeliveryFacade)
 
-        mockkObject(AuthenticationStrategy.Companion)
-        every { AuthenticationStrategy.authenticate(any()) } returns
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
 
         // Good return
@@ -530,7 +529,7 @@ class DeliveryFunctionTests : Logging {
         action.actionName = TaskAction.send
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns true
 
         mockRequest.parameters["sortCol"] = "facility"
         mockRequest.parameters["sortDir"] = "DESC"
@@ -583,7 +582,7 @@ class DeliveryFunctionTests : Logging {
         // Good actionId, but Not authorized
         action.actionName = TaskAction.send
         every { mockDeliveryFacade.fetchAction(any()) } returns action
-        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
+        every { mockDeliveryFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns false // not authorized
         response = function.getDeliveryFacilities(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 

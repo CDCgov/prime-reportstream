@@ -21,7 +21,7 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
@@ -54,20 +54,16 @@ class ValidateFunction(
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
         }
         return try {
-            val claims = AuthenticationStrategy.authenticate(request)
+            val claims = AuthenticatedClaims.authenticate(request)
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
             // Sender should eventually be obtained directly from who is authenticated
             val sender = workflowEngine.settings.findSender(senderName)
                 ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
 
-            if (!AuthenticationStrategy.validateClaim(
-                    claims,
-                    sender,
-                    request
-                )
-            ) return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
-
+            if (!claims.authorizedForSubmission(sender, request)) {
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
             actionHistory.trackActionParams(request)
 
             processRequest(request, sender)

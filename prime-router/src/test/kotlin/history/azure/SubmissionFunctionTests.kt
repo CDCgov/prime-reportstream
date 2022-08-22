@@ -24,7 +24,6 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.SubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
@@ -360,8 +359,8 @@ class SubmissionFunctionTests : Logging {
         val mockSubmissionFacade = mockk<SubmissionsFacade>()
         val function = setupSubmissionFunctionForTesting(oktaSystemAdminGroup, mockSubmissionFacade)
 
-        mockkObject(AuthenticationStrategy.Companion)
-        every { AuthenticationStrategy.authenticate(any()) } returns
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
 
         // Invalid id:  not a UUID nor a Long
@@ -391,7 +390,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
-        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
@@ -413,7 +412,7 @@ class SubmissionFunctionTests : Logging {
         // Good actionId, but Not authorized
         action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchAction(any()) } returns action
-        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns false // not authorized
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns false // unauthorized
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
@@ -421,7 +420,7 @@ class SubmissionFunctionTests : Logging {
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockSubmissionFacade.fetchAction(any()) } returns action
         every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
-        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any()) } returns true
+        every { mockSubmissionFacade.checkSenderAccessAuthorization(any(), any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         responseBody = mapper.readValue(response.body.toString())

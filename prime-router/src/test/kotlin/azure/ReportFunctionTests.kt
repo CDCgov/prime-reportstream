@@ -17,7 +17,6 @@ import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.TopicReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.DO_OKTA_AUTH
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -112,7 +111,7 @@ class ReportFunctionTests {
         val reportFunc = spyk(ReportFunction(engine, actionHistory))
         val resp = HttpUtilities.okResponse(req, "fakeOkay")
         every { engine.db } returns accessSpy
-        mockkObject(AuthenticationStrategy.Companion)
+        mockkObject(AuthenticatedClaims.Companion)
         every { reportFunc.processRequest(any(), any()) } returns resp
         every { engine.settings.findSender(any()) } returns sender // This test only works with org = simple_report
         return Pair(reportFunc, req)
@@ -172,9 +171,9 @@ class ReportFunctionTests {
     @Test
     fun `test submitToWaters with missing client`() {
         val (reportFunc, req) = setupForDotNotationTests()
-        val jwt = mapOf("foo" to "bar", "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, "simple_report")
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        val jwt = mapOf("scope" to "simple_report.default.report", "sub" to "c@rlos.com")
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = false)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "content-length" to "4"
         )
@@ -187,9 +186,9 @@ class ReportFunctionTests {
     @Test
     fun `test submitToWaters with server2server auth - basic happy path`() {
         val (reportFunc, req) = setupForDotNotationTests()
-        val jwt = mapOf("foo" to "bar", "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, "simple_report")
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        val jwt = mapOf("scope" to "simple_report.default.report", "sub" to "c@rlos.com")
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = false)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "client" to "simple_report",
             "content-length" to "4"
@@ -203,9 +202,9 @@ class ReportFunctionTests {
     @Test
     fun `test submitToWaters with server2server auth - claim does not match`() {
         val (reportFunc, req) = setupForDotNotationTests()
-        val jwt = mapOf("foo" to "bar", "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, "bogus_org")
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        val jwt = mapOf("scope" to "bogus_org.default.report", "sub" to "c@rlos.com")
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = false)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "client" to "simple_report",
             "content-length" to "4"
@@ -223,8 +222,8 @@ class ReportFunctionTests {
     fun `test submitToWaters with okta dot-notation client header - basic happy path`() {
         val (reportFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt)
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = true)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         // This is the most common way our customers use the client string
         req.httpHeaders += mapOf(
             "client" to "simple_report",
@@ -241,8 +240,8 @@ class ReportFunctionTests {
     fun `test submitToWaters with okta dot-notation client header - full dotted name`() {
         val (reportFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt)
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = true)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         // Now try it with a full client name
         req.httpHeaders += mapOf(
             "client" to "simple_report.default",
@@ -257,8 +256,8 @@ class ReportFunctionTests {
     fun `test submitToWaters with okta dot-notation client header - dotted but not default`() {
         val (reportFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt)
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = true)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         // Now try it with a full client name but not with "default"
         // The point of these tests is that the call to the auth code only contains the org prefix 'simple_report'
         req.httpHeaders += mapOf(

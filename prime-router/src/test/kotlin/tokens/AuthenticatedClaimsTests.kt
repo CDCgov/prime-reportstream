@@ -10,59 +10,112 @@ import assertk.assertions.isTrue
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.MockHttpRequestMessage
+import gov.cdc.prime.router.common.Environment
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockkConstructor
+import io.mockk.mockkObject
+import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class AuthenticatedClaimsTests {
+    @BeforeEach
+    fun reset() {
+        clearAllMocks()
+    }
 
     @Test
     fun `test constructor`() {
+        // First test Okta auth
         // failure cases
         var jwt: Map<String, Any> = mapOf() // empty
-        assertThat { AuthenticatedClaims(jwt) }.isFailure()
+        assertThat { AuthenticatedClaims(jwt, isOktaAuth = true) }.isFailure()
         jwt = mapOf("foo" to "bar") // bad
-        assertThat { AuthenticatedClaims(jwt) }.isFailure()
+        assertThat { AuthenticatedClaims(jwt, isOktaAuth = true) }.isFailure()
         jwt = mapOf("organization" to "xyz", "sub" to "c@rlos.com") // bad 'organization'
-        assertThat { AuthenticatedClaims(jwt) }.isFailure()
+        assertThat { AuthenticatedClaims(jwt, isOktaAuth = true) }.isFailure()
         jwt = mapOf("organization" to listOf("DHSender_xyz")) // missing sub
-        assertThat { AuthenticatedClaims(jwt) }.isFailure()
+        assertThat { AuthenticatedClaims(jwt, isOktaAuth = true) }.isFailure()
         jwt = mapOf("sub" to "c@rlos.com") // missing organization
-        assertThat { AuthenticatedClaims(jwt) }.isFailure()
+        assertThat { AuthenticatedClaims(jwt, isOktaAuth = true) }.isFailure()
 
         // success cases
         jwt = mapOf("organization" to listOf("DHxyz"), "sub" to "c@rlos.com")
-        var claims = AuthenticatedClaims(jwt)
+        var claims = AuthenticatedClaims(jwt, isOktaAuth = true)
         assertThat(claims.userName).isEqualTo("c@rlos.com")
         assertThat(claims.isPrimeAdmin).isFalse()
-        assertThat(claims.isSenderOrgClaim).isFalse()
-        assertThat(claims.organizationNameClaim).isEqualTo("xyz")
+        assertThat(claims.scopes.size).isEqualTo(1)
+        assertThat(claims.scopes.contains("xyz.*.user")).isTrue()
 
         jwt = mapOf("organization" to listOf("DHSender_xyz"), "sub" to "c@rlos.com")
-        claims = AuthenticatedClaims(jwt)
+        claims = AuthenticatedClaims(jwt, isOktaAuth = true)
         assertThat(claims.userName).isEqualTo("c@rlos.com")
         assertThat(claims.isPrimeAdmin).isFalse()
-        assertThat(claims.isSenderOrgClaim).isTrue()
-        assertThat(claims.organizationNameClaim).isEqualTo("xyz")
+        assertThat(claims.scopes.size).isEqualTo(1)
+        assertThat(claims.scopes.contains("xyz.*.user")).isTrue()
 
         jwt = mapOf("organization" to listOf("DHPrimeAdmins"), "sub" to "c@rlos.com")
-        claims = AuthenticatedClaims(jwt)
+        claims = AuthenticatedClaims(jwt, isOktaAuth = true)
         assertThat(claims.userName).isEqualTo("c@rlos.com")
         assertThat(claims.isPrimeAdmin).isTrue()
-        assertThat(claims.isSenderOrgClaim).isFalse()
-        assertThat(claims.organizationNameClaim).isNull()
+        assertThat(claims.scopes.size).isEqualTo(1)
+        assertThat(claims.scopes.contains(Scope.primeAdminScope)).isTrue()
 
         jwt = mapOf("organization" to listOf("DHPrimeAdmins", "DHxyz"), "sub" to "c@rlos.com")
-        claims = AuthenticatedClaims(jwt)
-        assertThat(claims.userName).isEqualTo("c@rlos.com")
+        claims = AuthenticatedClaims(jwt, isOktaAuth = true)
         assertThat(claims.isPrimeAdmin).isTrue()
-        assertThat(claims.isSenderOrgClaim).isFalse()
-        assertThat(claims.organizationNameClaim).isEqualTo("xyz")
+        assertThat(claims.scopes.size).isEqualTo(2)
+        assertThat(claims.scopes.contains("xyz.*.user")).isTrue()
+        assertThat(claims.scopes.contains(Scope.primeAdminScope)).isTrue()
 
         jwt = mapOf("organization" to listOf("DHSender_abc", "DHPrimeAdmins", "DHxyz"), "sub" to "c@rlos.com")
-        claims = AuthenticatedClaims(jwt)
+        claims = AuthenticatedClaims(jwt, isOktaAuth = true)
+        assertThat(claims.isPrimeAdmin).isTrue()
+        assertThat(claims.scopes.size).isEqualTo(3)
+        assertThat(claims.scopes.contains("xyz.*.user")).isTrue()
+        assertThat(claims.scopes.contains(Scope.primeAdminScope)).isTrue()
+        assertThat(claims.scopes.contains("abc.*.user")).isTrue()
+
+        jwt = mapOf("organization" to listOf("DHSender_abcAdmins", "DHxyzAdmins"), "sub" to "c@rlos.com")
+        claims = AuthenticatedClaims(jwt, isOktaAuth = true)
+        assertThat(claims.isPrimeAdmin).isFalse()
+        assertThat(claims.scopes.size).isEqualTo(2)
+        assertThat(claims.scopes.contains("xyz.*.admin")).isTrue()
+        assertThat(claims.scopes.contains("abc.*.admin")).isTrue()
+
+        // server2server auth with badly formed scope.
+        jwt = mapOf("scope" to "a.b.c", "sub" to "c@rlos.com")
+        assertThat { AuthenticatedClaims(jwt, isOktaAuth = false) }.isFailure()
+
+        // Now test server2server auth with properly formed slcoe
+        jwt = mapOf("scope" to "*.*.primeadmin", "sub" to "c@rlos.com")
+        claims = AuthenticatedClaims(jwt, isOktaAuth = false)
         assertThat(claims.userName).isEqualTo("c@rlos.com")
         assertThat(claims.isPrimeAdmin).isTrue()
-        assertThat(claims.isSenderOrgClaim).isTrue()
-        assertThat(claims.organizationNameClaim).isEqualTo("abc") // "xyz" is ignored
+        assertThat(claims.scopes.size).isEqualTo(1)
+        assertThat(claims.scopes.contains("*.*.primeadmin")).isTrue()
+
+        // Another test of server2server auth with properly formed scope
+        jwt = mapOf("scope" to "a.*.report", "sub" to "c@rlos.com")
+        claims = AuthenticatedClaims(jwt, isOktaAuth = false)
+        assertThat(claims.userName).isEqualTo("c@rlos.com")
+        assertThat(claims.isPrimeAdmin).isFalse()
+        assertThat(claims.scopes.size).isEqualTo(1)
+        assertThat(claims.scopes.contains("a.*.report")).isTrue()
+
+        // server2server Failure cases
+        jwt = mapOf() // empty
+        assertThat { AuthenticatedClaims(jwt, isOktaAuth = false) }.isFailure()
+        jwt = mapOf("sub" to "c@rlos.com") // missing scope
+        assertThat { AuthenticatedClaims(jwt, isOktaAuth = false) }.isFailure()
+        jwt = mapOf("organization" to "xyz", "sub" to "c@rlos.com") // missing scope
+        assertThat { AuthenticatedClaims(jwt, isOktaAuth = false) }.isFailure()
+        jwt = mapOf("scope" to "blarg", "sub" to "c@rlos.com") // malformed scope
+        assertThat { AuthenticatedClaims(jwt, isOktaAuth = false) }.isFailure()
+        jwt = mapOf("foo" to "bar") // general badness
+        assertThat { AuthenticatedClaims(jwt, isOktaAuth = false) }.isFailure()
     }
 
     @Test
@@ -70,8 +123,9 @@ class AuthenticatedClaimsTests {
         var claims = AuthenticatedClaims.generateTestClaims()
         assertThat(claims.userName).isNotNull()
         assertThat(claims.isPrimeAdmin).isTrue()
-        assertThat(claims.isSenderOrgClaim).isTrue()
-        assertThat(claims.organizationNameClaim).isEqualTo("ignore")
+        assertThat(claims.scopes.size).isEqualTo(2)
+        assertThat(claims.scopes.contains("ignore.*.user")).isTrue()
+        assertThat(claims.scopes.contains(Scope.primeAdminScope)).isTrue()
 
         val sender = CovidSender(
             "mySenderName",
@@ -83,16 +137,300 @@ class AuthenticatedClaimsTests {
         )
         claims = AuthenticatedClaims.generateTestClaims(sender)
         assertThat(claims.isPrimeAdmin).isTrue()
-        assertThat(claims.isSenderOrgClaim).isTrue()
-        assertThat(claims.organizationNameClaim).isEqualTo("myOrgName")
+        assertThat(claims.scopes.size).isEqualTo(2)
+        assertThat(claims.scopes.contains("myOrgName.*.user")).isTrue()
+        assertThat(claims.scopes.contains(Scope.primeAdminScope)).isTrue()
     }
 
     @Test
-    fun `test generateTestJwtClaims`() {
-        var jwtClaims = AuthenticatedClaims.generateTestJwtClaims()
-        assertThat(jwtClaims["scope"]).isEqualTo(Scope.primeAdminScope)
-        assertThat(jwtClaims.subject).isEqualTo("local@test.com")
-        var claims = AuthenticatedClaims(jwtClaims)
-        assertThat(claims.isPrimeAdmin).isTrue()
+    fun `test authorizedForSubmission with Sender obj`() {
+        val req = MockHttpRequestMessage("test")
+        val rawClaims1: Map<String, Any> = mapOf("scope" to "oh-doh.quux.report", "sub" to "b@b.com")
+        val claims1 = AuthenticatedClaims(rawClaims1, isOktaAuth = false)
+        val matchingOrgA = CovidSender("quux", "oh-doh", Sender.Format.HL7, schemaName = "one")
+        assertThat(claims1.authorizedForSubmission(matchingOrgA, req)).isTrue()
+        // Org matches, but not sender. Attempt to send to oh-doh.foo.report when my scope is oh-doh.quux.report: Fails.
+        val matchingOrgB = CovidSender("foo", "oh-doh", Sender.Format.HL7, schemaName = "one")
+        assertThat(claims1.authorizedForSubmission(matchingOrgB, req)).isFalse()
+        val mismatchingSender = CovidSender("foo", "WRONG", Sender.Format.HL7, schemaName = "one")
+        assertThat(claims1.authorizedForSubmission(mismatchingSender, req)).isFalse()
+        val emptySender = CovidSender("", "", Sender.Format.HL7, schemaName = "one")
+        assertThat(claims1.authorizedForSubmission(emptySender, req)).isFalse()
+
+        val rawClaims2: Map<String, Any> = mapOf("scope" to Scope.primeAdminScope, "sub" to "b@b.com")
+        val claims2 = AuthenticatedClaims(rawClaims2, isOktaAuth = false)
+        assertThat(claims2.authorizedForSubmission(matchingOrgA, req)).isTrue()
+        assertThat(claims2.authorizedForSubmission(matchingOrgB, req)).isTrue()
+        assertThat(claims2.authorizedForSubmission(mismatchingSender, req)).isTrue()
+        assertThat(claims2.authorizedForSubmission(emptySender, req)).isFalse()
+
+        val rawClaims3: Map<String, Any> = mapOf("scope" to "oh-doh.*.admin", "sub" to "b@b.com")
+        val claims3 = AuthenticatedClaims(rawClaims3, isOktaAuth = false)
+        assertThat(claims3.authorizedForSubmission(matchingOrgA, req)).isTrue()
+        assertThat(claims3.authorizedForSubmission(matchingOrgB, req)).isTrue()
+        assertThat(claims3.authorizedForSubmission(mismatchingSender, req)).isFalse()
+        assertThat(claims3.authorizedForSubmission(emptySender, req)).isFalse()
+
+        val rawClaims4: Map<String, Any> = mapOf("scope" to "oh-doh.*.report", "sub" to "b@b.com")
+        val claims4 = AuthenticatedClaims(rawClaims4, isOktaAuth = false)
+        assertThat(claims4.authorizedForSubmission(matchingOrgA, req)).isTrue()
+        assertThat(claims4.authorizedForSubmission(matchingOrgB, req)).isTrue()
+        assertThat(claims4.authorizedForSubmission(mismatchingSender, req)).isFalse()
+        assertThat(claims4.authorizedForSubmission(emptySender, req)).isFalse()
+
+        val rawClaims5: Map<String, Any> = mapOf("sub" to "b@b.com") // missing scope
+        assertThat { AuthenticatedClaims(rawClaims5, isOktaAuth = false) }.isFailure()
+
+        val rawClaims6: Map<String, Any> = mapOf("scope" to "", "sub" to "b@b.com") // empty scope
+        assertThat { AuthenticatedClaims(rawClaims6, isOktaAuth = false) }.isFailure()
+    }
+
+    @Test
+    fun `test authorizedForSubmission, passing sender and org strings`() {
+        val req = MockHttpRequestMessage("test")
+        // Very narrowest possible claim:  I'm only allowed this org, this specific sender 'quux' only:
+        val rawClaims1: Map<String, Any> = mapOf("scope" to "oh-doh.quux.report", "sub" to "b@b.com")
+        val claims1 = AuthenticatedClaims(rawClaims1, isOktaAuth = false)
+        assertThat(claims1.authorizedForSubmission("oh-doh", "quux", req)).isTrue()
+        // All the rest of these fail because of the narrowness of the claim:
+        assertThat(claims1.authorizedForSubmission("oh-doh", "foo", req)).isFalse()
+        assertThat(claims1.authorizedForSubmission("oh-doh", "*", req)).isFalse()
+        assertThat(claims1.authorizedForSubmission("oh-doh", null, req)).isFalse()
+        assertThat(claims1.authorizedForSubmission("WRONG", "foo", req)).isFalse()
+        assertThat(claims1.authorizedForSubmission("", "", req)).isFalse()
+        assertThat(claims1.authorizedForSubmission(" ", "", req)).isFalse()
+
+        // broadest possible claim:
+        val rawClaims2: Map<String, Any> = mapOf("scope" to Scope.primeAdminScope, "sub" to "b@b.com")
+        val claims2 = AuthenticatedClaims(rawClaims2, isOktaAuth = false)
+        assertThat(claims2.authorizedForSubmission("oh-doh", "quux", req)).isTrue()
+        assertThat(claims2.authorizedForSubmission("oh-doh", "foo", req)).isTrue()
+        assertThat(claims2.authorizedForSubmission("oh-doh", "*", req)).isTrue()
+        assertThat(claims2.authorizedForSubmission("oh-doh", null, req)).isTrue()
+        assertThat(claims2.authorizedForSubmission("WRONG", "foo", req)).isTrue()
+        assertThat(claims2.authorizedForSubmission("", "", req)).isFalse()
+        assertThat(claims2.authorizedForSubmission(" ", "", req)).isFalse()
+
+        val rawClaims3: Map<String, Any> = mapOf("scope" to "oh-doh.*.admin", "sub" to "b@b.com")
+        val claims3 = AuthenticatedClaims(rawClaims3, isOktaAuth = false)
+        assertThat(claims3.authorizedForSubmission("oh-doh", "quux", req)).isTrue()
+        assertThat(claims3.authorizedForSubmission("oh-doh", "foo", req)).isTrue()
+        assertThat(claims3.authorizedForSubmission("oh-doh", "*", req)).isTrue()
+        assertThat(claims3.authorizedForSubmission("oh-doh", null, req)).isTrue()
+        assertThat(claims3.authorizedForSubmission("WRONG", "foo", req)).isFalse()
+        assertThat(claims3.authorizedForSubmission("", "", req)).isFalse()
+        assertThat(claims3.authorizedForSubmission(" ", "", req)).isFalse()
+    }
+
+    @Test
+    fun `test isLocal`() {
+        mockkObject(Environment) {
+            every { Environment.isLocal() } returns false
+            assertThat(AuthenticatedClaims.isLocal(null)).isFalse()
+            assertThat(AuthenticatedClaims.isLocal("")).isFalse()
+            assertThat(AuthenticatedClaims.isLocal("abc")).isFalse()
+            assertThat(AuthenticatedClaims.isLocal("a.b.c")).isFalse()
+
+            every { Environment.isLocal() } returns true
+            assertThat(AuthenticatedClaims.isLocal(null)).isTrue()
+            assertThat(AuthenticatedClaims.isLocal("")).isTrue()
+            assertThat(AuthenticatedClaims.isLocal("abc")).isTrue()
+            assertThat(AuthenticatedClaims.isLocal("a.b.c")).isFalse()
+        }
+    }
+
+    @Test
+    fun `test authenticate local auth path`() {
+        // This should trigger the local auth
+        val req = MockHttpRequestMessage()
+        var claims = AuthenticatedClaims.authenticate(req)
+        assertThat(claims).isNotNull()
+        assertThat(claims?.isPrimeAdmin).isEqualTo(true)
+        assertThat(claims?.scopes?.size).isEqualTo(2)
+        assertThat(claims?.scopes?.contains("ignore.*.user")).isEqualTo(true)
+        assertThat(claims?.scopes?.contains(Scope.primeAdminScope)).isEqualTo(true)
+    }
+
+    @Test
+    fun `test authenticate okta happy path`() {
+        val req = MockHttpRequestMessage("test")
+        req.httpHeaders += mapOf(
+            "authentication-type" to "okta",
+            "authorization" to "Bearer a.b.c", // Force our way past the Bearer token check
+        )
+        // Force our way past the isLocal() test.
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.isLocal(any()) } returns false
+
+        // Okta style token. There's a logger call that uses 'sub'
+        val jwt = mapOf(oktaMembershipClaim to listOf("DHblarg"), "sub" to "c@rlos.com")
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = true)
+        mockkObject(OktaAuthentication)
+        every { OktaAuthentication.authenticate(any(), any(), any()) } returns claims
+        assertThat(AuthenticatedClaims.authenticate(req)).isEqualTo(claims)
+    }
+
+    @Test
+    fun `test authenticate okta fails`() {
+        val req = MockHttpRequestMessage("test")
+        req.httpHeaders += mapOf(
+            "authentication-type" to "okta",
+            "authorization" to "Bearer a.b.c", // Force our way past the Bearer token check
+        )
+        // Force our way past the isLocal() test.
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.isLocal(any()) } returns false
+
+        mockkObject(OktaAuthentication)
+        // Okta auth fails, so it returns null
+        every { OktaAuthentication.authenticate(any(), any(), any()) } returns null
+        assertThat(AuthenticatedClaims.authenticate(req)).isNull()
+        verify(exactly = 1) { OktaAuthentication.authenticate(any(), any(), any()) }
+    }
+
+    @Test
+    fun `test authenticate bad bearer token fails`() {
+        val req = MockHttpRequestMessage("test")
+        req.httpHeaders += mapOf(
+            "authentication-type" to "okta",
+//            "authorization" to "Bearer x", // Bad jwt.
+        )
+        // Force our way past the isLocal() test.
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.isLocal(any()) } returns false
+
+        mockkObject(OktaAuthentication)
+        assertThat(AuthenticatedClaims.authenticate(req)).isNull()
+        // The null failure is caused by the bad bearer token, not by okta failure
+        verify(exactly = 0) { OktaAuthentication.authenticate(any(), any(), any()) }
+    }
+
+    @Test
+    fun `test authenticate server2server happy path`() {
+        val req = MockHttpRequestMessage("test")
+        req.httpHeaders += mapOf(
+            "authorization" to "Bearer a.b.c",
+        )
+
+        val jwt = mapOf("scope" to "foo.bar.report", "sub" to "c@rlos.com")
+        val claimsIn = AuthenticatedClaims(jwt, isOktaAuth = false)
+        mockkConstructor(Server2ServerAuthentication::class)
+        every { anyConstructed<Server2ServerAuthentication>().authenticate(any(), any()) } returns claimsIn
+        // Force past the isLocal test.
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.isLocal(any()) } returns false
+        val claims1 = AuthenticatedClaims.authenticate(req)
+        assertThat(claims1?.scopes?.size).isEqualTo(1)
+        assertThat(claims1?.scopes?.contains("foo.bar.report")).isEqualTo(true)
+        assertThat(claims1?.isPrimeAdmin).isEqualTo(false)
+
+        // Incorrect authentication-type header.  Still means ==> use token auth; not treated as an error
+        req.httpHeaders += mapOf("authentication-type" to "bogus")
+        val claims2 = AuthenticatedClaims.authenticate(req)
+        assertThat(claims2?.scopes?.size).isEqualTo(1)
+        assertThat(claims2?.scopes?.contains("foo.bar.report")).isEqualTo(true)
+        assertThat(claims2?.isPrimeAdmin).isEqualTo(false)
+    }
+
+    @Test
+    fun `test authenticate server2server auth fails`() {
+        val req = MockHttpRequestMessage("test")
+        req.httpHeaders += mapOf(
+            "authorization" to "Bearer a.b.c",
+        )
+        mockkConstructor(Server2ServerAuthentication::class)
+        // Force past the isLocal test.
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.isLocal(any()) } returns false
+        // The token was not authorized by checkAccessToken, so it returns null
+        every { anyConstructed<Server2ServerAuthentication>().authenticate(any(), any()) } returns null
+        assertThat(AuthenticatedClaims.authenticate(req)).isNull()
+    }
+
+    @Test
+    fun `test getAccessToken`() {
+        val req = MockHttpRequestMessage("test")
+        req.httpHeaders["Authorization"] = "Bearer tok1"
+        var tok = AuthenticatedClaims.getAccessToken(req)
+        assertThat(tok).isEqualTo("tok1")
+
+        req.httpHeaders.clear()
+        req.httpHeaders["authorization"] = "Bearer tok2"
+        tok = AuthenticatedClaims.getAccessToken(req)
+        assertThat(tok).isEqualTo("tok2")
+
+        req.httpHeaders.clear()
+        req.httpHeaders["AUTHORIZATION"] = "Bearer tok3"
+        tok = AuthenticatedClaims.getAccessToken(req)
+        assertThat(tok).isEqualTo("tok3")
+
+        req.httpHeaders.clear()
+        req.httpHeaders["authorization"] = "tok4"
+        tok = AuthenticatedClaims.getAccessToken(req)
+        assertThat(tok).isEqualTo("tok4")
+
+        req.httpHeaders.clear()
+        req.httpHeaders["foobar"] = "Bearer tok5"
+        tok = AuthenticatedClaims.getAccessToken(req)
+        assertThat(tok).isNull()
+
+        req.httpHeaders.clear()
+        tok = AuthenticatedClaims.getAccessToken(req)
+        assertThat(tok).isNull()
+
+        req.httpHeaders.clear()
+        req.httpHeaders["foobar"] = "Bearer tok5"
+        tok = AuthenticatedClaims.getAccessToken(req)
+        assertThat(tok).isNull()
+
+        req.httpHeaders.clear()
+        req.httpHeaders["foobar"] = "bearer tok5"
+        tok = AuthenticatedClaims.getAccessToken(req)
+        assertThat(tok).isNull()
+
+        req.httpHeaders.clear()
+        req.httpHeaders["foobar"] = "BEARER tok5"
+        tok = AuthenticatedClaims.getAccessToken(req)
+        assertThat(tok).isNull()
+    }
+    @Test
+    fun `test authorizeForSubmission with claims run through authenticate`() {
+        val req = MockHttpRequestMessage("test")
+        req.httpHeaders += mapOf(
+            "authorization" to "Bearer a.b.c",
+        )
+        mockkConstructor(Server2ServerAuthentication::class)
+        // Force our way past the isLocal() test.
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.isLocal(any()) } returns false
+
+        val jwt = mapOf("scope" to "xxx.*.report", "sub" to "c@rlos.com")
+        val claimsIn = AuthenticatedClaims(jwt, isOktaAuth = false)
+
+        mockkConstructor(Server2ServerAuthentication::class)
+        every { anyConstructed<Server2ServerAuthentication>().authenticate(any(), any()) } returns claimsIn
+        val claimsOut = AuthenticatedClaims.authenticate(req)
+        assertThat(claimsOut).isNotNull()
+        assertThat(claimsOut?.scopes?.contains("xxx.*.report")).isEqualTo(true)
+        val mismatchedOrg = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+        val matchingOrg = CovidSender(
+            "Test Sender",
+            "xxx",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = true
+        )
+        if (claimsOut != null) {
+            assertThat(claimsOut.authorizedForSubmission(mismatchedOrg, req)).isFalse()
+            assertThat(claimsOut.authorizedForSubmission(matchingOrg, req)).isTrue()
+        }
     }
 }
