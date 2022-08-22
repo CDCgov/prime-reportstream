@@ -1,5 +1,7 @@
-import { screen, render } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+
+import { renderWithQueryProvider } from "../../../utils/CustomRenderUtils";
 
 import ValueSetsDetail, { ValueSetsDetailTable } from "./ValueSetsDetail";
 
@@ -17,17 +19,20 @@ const fakeRows = [
 const mockEmptyArray: unknown[] = [];
 const mockError = new Error();
 
-// for some reason, can't get this working with a proper mock
-// defining mocks with mock implementations, the implementations are never run
-// shrug - DWS
-jest.mock("../../../hooks/UseLookupTable", () => {
+let mockSaveData = jest.fn();
+let mockActivateTable = jest.fn();
+let mockUseValueSetsTable = jest.fn();
+
+jest.mock("../../../hooks/UseValueSets", () => {
     return {
-        useValueSetsRowTable: (valueSetName: string) => {
-            if (valueSetName === "error") {
-                return { valueSetArray: mockEmptyArray, error: mockError };
-            }
-            return { valueSetArray: fakeRows };
-        },
+        useValueSetsTable: (valueSetName: string, suppliedVersion?: number) =>
+            mockUseValueSetsTable(valueSetName, suppliedVersion),
+        useValueSetUpdate: () => ({
+            saveData: mockSaveData,
+        }),
+        useValueSetActivation: () => ({
+            activateTable: mockActivateTable,
+        }),
     };
 });
 
@@ -36,8 +41,15 @@ jest.mock("react-router-dom", () => ({
 }));
 
 describe("ValueSetsDetail tests", () => {
+    beforeEach(() => {
+        mockUseValueSetsTable = jest.fn(() => ({
+            valueSetArray: fakeRows,
+            error: null,
+        }));
+    });
     test("Renders with no errors", () => {
-        render(<ValueSetsDetail />);
+        // only render with query provider
+        renderWithQueryProvider(<ValueSetsDetail />);
         const headers = screen.getAllByRole("columnheader");
         const title = screen.getByText("ReportStream Core Values");
         const datasetActionButton = screen.getByText("Add item");
@@ -50,7 +62,7 @@ describe("ValueSetsDetail tests", () => {
     });
 
     test("Rows are editable", () => {
-        render(<ValueSetsDetail />);
+        renderWithQueryProvider(<ValueSetsDetail />);
         const editButtons = screen.getAllByText("Edit");
         const rows = screen.getAllByRole("row");
 
@@ -67,9 +79,13 @@ describe("ValueSetsDetail tests", () => {
 });
 
 describe("ValueSetsDetailTable", () => {
-    test("Handles crud related errors", () => {
+    test("Handles fetch related errors", () => {
+        mockUseValueSetsTable = jest.fn(() => ({
+            valueSetArray: mockEmptyArray,
+            error: mockError,
+        }));
         const mockSetAlert = jest.fn();
-        render(
+        renderWithQueryProvider(
             <ValueSetsDetailTable
                 valueSetName={"error"}
                 setAlert={mockSetAlert}

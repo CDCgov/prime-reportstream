@@ -44,6 +44,11 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
         editable: true,
     },
 ];
+
+interface SenderAutomationDataRow extends ValueSetRow {
+    id?: number;
+}
+
 /* 
 
   all of this is to support a legend on the page that has been removed from MVP
@@ -94,6 +99,8 @@ const valueSetDetailColumnConfig: ColumnConfig[] = [
 
 */
 
+// splices the new row in the list of all rows,
+// since we can't save one row at a time
 const prepareRowsForSave = (
     row: TableRow | null,
     allRows: SenderAutomationDataRow[],
@@ -126,10 +133,6 @@ const prepareRowsForSave = (
     );
     return strippedArray;
 };
-
-interface SenderAutomationDataRow extends ValueSetRow {
-    id?: number;
-}
 
 const prepareRowsForDisplay = (
     valueSetArray: ValueSetRow[],
