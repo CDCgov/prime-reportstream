@@ -130,7 +130,7 @@ class CheckFunction : Logging {
             schedule = "%REMOTE_CONNECTION_CHECK_SCHEDULE%"
         ) timerInfo: String,
     ) {
-        // Each setting is checked against this logic to see if it should run. l
+        // Each setting is checked against this logic to see if it should run.
         fun checkShouldRun(receiverSetting: Receiver): Boolean {
             if (receiverSetting.customerStatus != CustomerStatus.ACTIVE)
                 return false
