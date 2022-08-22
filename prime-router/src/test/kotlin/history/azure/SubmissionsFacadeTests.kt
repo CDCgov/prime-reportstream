@@ -116,7 +116,7 @@ class SubmissionsFacadeTests {
         var claims = AuthenticatedClaims(userClaims, isOktaAuth = true)
         val mockRequest = MockHttpRequestMessage()
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
-        assertThat(facade.checkSenderAccessAuthorization(claims, action.sendingOrg, mockRequest)).isTrue()
+        assertThat(facade.checkAccessAuthorization(claims, action.sendingOrg, null, mockRequest)).isTrue()
 
         // Sysadmin happy path:   Sysadmin user ok to be in a different org.
         val adminClaims: Map<String, Any> = mapOf(
@@ -124,12 +124,12 @@ class SubmissionsFacadeTests {
             "sub" to "bob@bob.com"
         )
         claims = AuthenticatedClaims(adminClaims, isOktaAuth = true)
-        assertThat(facade.checkSenderAccessAuthorization(claims, action.sendingOrg, mockRequest)).isTrue()
+        assertThat(facade.checkAccessAuthorization(claims, action.sendingOrg, null, mockRequest)).isTrue()
 
         // Error: Regular user and Orgs don't match
         claims = AuthenticatedClaims(userClaims, isOktaAuth = true)
         action = resetAction()
         action.sendingOrg = "UnhappyOrg" // mismatch sendingOrg
-        assertThat(facade.checkSenderAccessAuthorization(claims, action.sendingOrg, mockRequest)).isFalse()
+        assertThat(facade.checkAccessAuthorization(claims, action.sendingOrg, null, mockRequest)).isFalse()
     }
 }

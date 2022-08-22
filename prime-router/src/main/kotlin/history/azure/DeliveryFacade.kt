@@ -1,10 +1,12 @@
 package gov.cdc.prime.router.history.azure
 
+import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import java.time.OffsetDateTime
 
 /**
@@ -99,6 +101,22 @@ class DeliveryFacade(
             sortDir,
             sortColumn,
         )
+    }
+
+    /**
+     * Check whether these [claims] allow access to this [orgName].
+     * @return true if [claims] authorizes access to this [orgName].  Return
+     * false if the [orgName] is empty or if the claim does not give access.
+     */
+    override fun checkAccessAuthorization(
+        claims: AuthenticatedClaims,
+        orgName: String?,
+        senderOrReceiver: String?,
+        request: HttpRequestMessage<String?>,
+    ): Boolean {
+        // todo This only works for primeadmin right now.   Need to query the report_file table to find
+        //  who the receiving_org is for this id.
+        return claims.authorizedForSendOrReceive(null, null, request)
     }
 
     companion object {
