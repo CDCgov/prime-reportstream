@@ -1,6 +1,6 @@
 import { AccessToken, CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
 
-import { isAdmin, isReceiver, isSender, PERMISSIONS } from "./PermissionsUtils";
+import { PERMISSIONS } from "./PermissionsUtils";
 
 enum RSOrgType {
     SENDER = "sender",
@@ -58,53 +58,4 @@ const parseOrgName = (group: string | undefined): string => {
     }
 };
 
-/* Delivers the array of organization names, or the first, parsed from Okta
- * groups. */
-const getRSOrgs = (
-    token: AccessToken | undefined,
-    onlyType?: RSOrgType
-): string[] | string => {
-    if (!token || !token.claims) return [];
-    /* Have to convert to RSUserClaims type to get Organization claim */
-    const oktaGroups = getOktaGroups(token);
-
-    /* Consolidate all the filtering logic */
-    const filterGroups = (): string[] => {
-        switch (onlyType) {
-            /* Return those WITH sender */
-            case RSOrgType.SENDER:
-                return oktaGroups.filter((group) => isSender(group));
-            /* Return those WITHOUT sender */
-            case RSOrgType.RECEIVER:
-                return oktaGroups.filter((group) => isReceiver(group));
-            /* Return ONLY admin groups */
-            case RSOrgType.ADMIN:
-                return oktaGroups.filter((group) => isAdmin(group));
-            /* Return all groups */
-            default:
-                return oktaGroups;
-        }
-    };
-    return filterGroups().map((group) => parseOrgName(group));
-};
-
-function parseOrgs(orgs: Array<string>): any[] {
-    return orgs.map((org) => {
-        // Org names are case sensitive. This condition will fail if the okta
-        // group name is not cased properly: DHSender_xyz, DHxy_phd, DHPrimeAdmin
-        if (org.includes(PERMISSIONS.SENDER)) {
-            const sender = org.split(".");
-            return {
-                org: parseOrgName(sender[0]),
-                senderName: sender[1] || "default",
-            };
-        } else {
-            return {
-                org: parseOrgName(org),
-                senderName: undefined,
-            };
-        }
-    });
-}
-
-export { RSOrgType, getOktaGroups, parseOrgName, getRSOrgs, parseOrgs };
+export { RSOrgType, getOktaGroups, parseOrgName };

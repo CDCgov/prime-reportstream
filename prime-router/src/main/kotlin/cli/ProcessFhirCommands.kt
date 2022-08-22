@@ -6,7 +6,6 @@ import ca.uhn.hl7v2.model.Message
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.ProgramResult
-import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
@@ -103,15 +102,15 @@ class ProcessFhirCommands : CliktCommand(
         // Write the output to the screen or a file.
         if (outputFile != null) {
             outputFile!!.writeText(prettyText, Charsets.UTF_8)
-            TermUi.echo("Wrote output to ${outputFile!!.absolutePath}")
+            echo("Wrote output to ${outputFile!!.absolutePath}")
         } else {
-            TermUi.echo("-- FHIR OUTPUT ------------------------------------------")
-            TermUi.echo(prettyText)
-            TermUi.echo("-- END FHIR OUTPUT --------------------------------------")
+            echo("-- FHIR OUTPUT ------------------------------------------")
+            echo(prettyText)
+            echo("-- END FHIR OUTPUT --------------------------------------")
         }
 
-        actionLogger.errors.forEach { TermUi.echo("ERROR: ${it.detail.message}") }
-        actionLogger.warnings.forEach { TermUi.echo("ERROR: ${it.detail.message}") }
+        actionLogger.errors.forEach { echo("ERROR: ${it.detail.message}") }
+        actionLogger.warnings.forEach { echo("ERROR: ${it.detail.message}") }
     }
 
     /**
@@ -121,11 +120,11 @@ class ProcessFhirCommands : CliktCommand(
         val text = message.encode()
         if (outputFile != null) {
             outputFile!!.writeText(text, Charsets.UTF_8)
-            TermUi.echo("Wrote output to ${outputFile!!.absolutePath}")
+            echo("Wrote output to ${outputFile!!.absolutePath}")
         } else {
-            TermUi.echo("-- HL7 OUTPUT ------------------------------------------")
-            text.split("\r").forEach { TermUi.echo(it) }
-            TermUi.echo("-- END HL7 OUTPUT --------------------------------------")
+            echo("-- HL7 OUTPUT ------------------------------------------")
+            text.split("\r").forEach { echo(it) }
+            echo("-- END HL7 OUTPUT --------------------------------------")
         }
     }
 }

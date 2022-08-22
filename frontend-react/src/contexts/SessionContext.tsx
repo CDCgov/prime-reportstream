@@ -3,13 +3,16 @@ import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import { AccessToken } from "@okta/okta-auth-js";
 
 import {
+    MembershipSettings,
     useOktaMemberships,
-    MembershipController,
+    MembershipAction,
 } from "../hooks/UseOktaMemberships";
 
 export interface ISessionContext {
-    memberships: MembershipController;
+    memberships?: Map<string, MembershipSettings>;
+    activeMembership?: MembershipSettings;
     oktaToken?: Partial<AccessToken>;
+    dispatch: React.Dispatch<MembershipAction>;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
@@ -20,7 +23,9 @@ interface ISessionProviderProps {
 
 export const SessionContext = createContext<ISessionContext>({
     oktaToken: {} as Partial<AccessToken>,
-    memberships: {} as MembershipController,
+    memberships: new Map(),
+    activeMembership: {} as MembershipSettings,
+    dispatch: () => {},
 });
 
 // accepts `oktaHook` as a parameter in order to allow mocking of this provider's okta based
@@ -32,12 +37,17 @@ const SessionProvider = ({
 }: React.PropsWithChildren<ISessionProviderProps>) => {
     const { authState } = oktaHook();
 
-    const membershipController = useOktaMemberships(authState);
+    const {
+        state: { memberships, activeMembership },
+        dispatch,
+    } = useOktaMemberships(authState);
     return (
         <SessionContext.Provider
             value={{
                 oktaToken: authState?.accessToken,
-                memberships: membershipController,
+                memberships,
+                activeMembership,
+                dispatch,
             }}
         >
             {children}
