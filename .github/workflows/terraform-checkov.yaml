@@ -9,8 +9,11 @@ on:
   push:
     branches:
       - feature/5520-Add-quality-checks-to-terraform-pipeline
-  paths: 
+    paths: 
       - '/operations/app/terraform'
+
+
+
 jobs:
   checkov-job:
     runs-on: ubuntu-latest
