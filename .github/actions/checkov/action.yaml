@@ -1,4 +1,3 @@
-# action.yml
 name: 'Checkov GitHub Action'
 author: 'Chris Mavrakis'
 description: 'Run Checkov against Terraform/CloudFormation infrastructure code, as a pre-packaged GitHub Action.'
