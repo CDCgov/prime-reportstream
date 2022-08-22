@@ -85,11 +85,10 @@ const findTableByName = (
 
   useQuery function
 
-  hook used to grab data from a lookup table
+  hook used to get value sets and value set rows (defined by passsed dataTableName)
 
 */
 
-// hook used to get value sets and value set rows (defined by passsed dataTableName)
 export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
     dataTableName: LookupTables,
     suppliedVersion?: number
@@ -97,8 +96,11 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
     valueSetArray: Array<T>;
     error: any;
 } => {
-    // get all lookup tables
     let versionData: Partial<TableAttributes> | null;
+    let error;
+    let valueSetArray;
+
+    // get all lookup tables
     const { error: tableError, data: tableData } = useQuery<LookupTable[]>(
         ["lookupTables"],
         () => getLookupTables(),
@@ -113,11 +115,21 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
     } else if (!tableData) {
         versionData = null;
     } else {
-        versionData = findTableByName(tableData, dataTableName);
+        try {
+            versionData = findTableByName(tableData, dataTableName);
+        } catch (e) {
+            error = e;
+            versionData = null;
+        }
     }
 
     // unclear how to resolve the issue of defining a function to account for the absence of
     // version when the `enabled` param should take care of not running if that's not present...
+    // get value for lookup table version
+
+    // not entirely accurate typing. What is sent back by the api is actually ApiValueSet[] rather than ValueSet[]
+    // does not seem entirely worth it to add the complexity needed to account for that on the frontend, better
+    // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
     const { error: valueSetError, data: valueSetData } = useQuery<Array<T>>(
         ["lookupTable", versionData?.version, dataTableName],
         () =>
@@ -127,23 +139,15 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
         { enabled: !!versionData?.version }
     );
 
-    if (tableError || valueSetError) {
-        // my logic here is that the value set request should not go out if there is an error
-        // in the version call, so an error in the version call should preempt an error in the
-        // data call
-        return { error: tableError || valueSetError, valueSetArray: [] };
-    }
+    // my logic here is that the value set request should not go out if there is an error
+    // in the version call, so an error in the version call should preempt an error in the
+    // data call
+    error = error || tableError || valueSetError || null;
+    valueSetArray = valueSetData
+        ? valueSetData.map((el) => ({ ...el, ...versionData }))
+        : [];
 
-    if (!valueSetData) {
-        return { error: null, valueSetArray: [] };
-    }
-
-    return {
-        error: null,
-        // I don't think the previous map fns were doing anything helpful
-        // but this will supply timestamps
-        valueSetArray: valueSetData.map((el) => ({ ...el, ...versionData })),
-    };
+    return { error, valueSetArray };
 };
 
 /* 

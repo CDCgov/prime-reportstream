@@ -52,7 +52,7 @@ const SessionWrapper =
         );
     };
 
-const QueryWrapper = ({ children }: PropsWithChildren<{}>) => (
+export const QueryWrapper = ({ children }: PropsWithChildren<{}>) => (
     <QueryClientProvider client={new QueryClient()}>
         {children}
     </QueryClientProvider>
