@@ -6,11 +6,11 @@ import { MemberType } from "../hooks/UseOktaMemberships";
 import { SessionContext } from "./SessionContext";
 
 const TestComponent = () => {
-    const { memberships, oktaToken } = useContext(SessionContext);
+    const { activeMembership, oktaToken } = useContext(SessionContext);
     return (
         <>
-            <div>{memberships.state.active?.parsedName || ""}</div>
-            <div>{memberships.state.active?.memberType || ""}</div>
+            <div>{activeMembership?.parsedName || ""}</div>
+            <div>{activeMembership?.memberType || ""}</div>
             <div>{oktaToken?.accessToken || ""}</div>
         </>
     );
@@ -22,15 +22,11 @@ describe("SessionContext", () => {
             <SessionContext.Provider
                 value={{
                     oktaToken: { accessToken: "testToken" },
-                    memberships: {
-                        state: {
-                            active: {
-                                parsedName: "testOrg",
-                                memberType: MemberType.SENDER,
-                            },
-                        },
-                        dispatch: () => {},
+                    activeMembership: {
+                        parsedName: "testOrg",
+                        memberType: MemberType.SENDER,
                     },
+                    dispatch: () => {},
                 }}
             >
                 <TestComponent />

@@ -3,7 +3,7 @@ import { rest } from "msw";
 import { setupServer } from "msw/node";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
-import { MembershipController, MemberType } from "../../UseOktaMemberships";
+import { MemberType } from "../../UseOktaMemberships";
 import { receiversGenerator } from "../../../network/api/Organizations/Receivers";
 
 import { useReceiversList } from "./ReceiversHooks";
@@ -12,15 +12,12 @@ const fakeSession = {
     oktaToken: {
         accessToken: "TOKEN",
     },
-    memberships: {
-        state: {
-            active: {
-                memberType: MemberType.RECEIVER,
-                parsedName: "testOrg",
-                senderName: undefined,
-            },
-        },
-    } as MembershipController,
+    activeMembership: {
+        memberType: MemberType.RECEIVER,
+        parsedName: "testOrg",
+        senderName: undefined,
+    },
+    dispatch: () => {},
 };
 const handlers = [
     rest.get(
