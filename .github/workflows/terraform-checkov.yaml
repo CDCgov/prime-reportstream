@@ -26,6 +26,7 @@ jobs:
         uses: bridgecrewio/checkov-action@master
         with:
           directory: operations/app/terraform
+          skip_check: CKV_AZURE*
           # quiet: true # optional: display only failed checks
           # soft_fail: false # optional: do not return an error code if there are failed checks
           # framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
@@ -34,7 +35,7 @@ jobs:
           # log_level: DEBUG # optional: set log level. Default WARNING
           #file: example/tfplan.json # optional: provide the path for resource to be scanned. This will override the directory if both are provided.
           #check: CKV_AWS_1 # optional: run only a specific check_id. can be comma separated list
-          #skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
+          #skip_check: CKV_AZURE # optional: skip a specific check_id. can be comma separated list
           #config_file: path/this_file
           #baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           #container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues

@@ -40,8 +40,8 @@ jobs:
         run: terraform -chdir=operations/app/terraform/vars/staging fmt -check -recursive ../../
   
   Run_Checkov_On_Terraform_Code:
-    name: Validate Terraform YAML
-    needs: pre_job
+    name: Run Checkov On Terraform Code
+    needs: Validate Terraform YAML
     runs-on: ubuntu-latest
     steps:
       - name: Run Checkov action
