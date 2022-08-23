@@ -1761,12 +1761,13 @@
   dependencies:
     "@babel/runtime" "^7.7.2"
 
-"@rest-hooks/test@^7.3.1":
-  version "7.3.1"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/test/-/test-7.3.1.tgz#e4e6d5e98bdcd8a482f9dc2d324075dae07929ef"
-  integrity sha512-ND3+sPhQw9sfssPBzF5GHw8g2UlsSJ5umLX7K/J8mG+WBgyREAQ0FeUPlPQEHShaEdcwtilZmfmCpNxZzVVinw==
+"@rest-hooks/test@^7.3.5":
+  version "7.3.5"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/test/-/test-7.3.5.tgz#f883dc2f7d788a7c79f4a066022583776ecd25b7"
+  integrity sha512-xRLgmMrXSJTaNbani29qJYfJrx0p970tpgPMCNfDvei0vn56NKI8REJE9oGzDKlRrbcLvWeFVfmVCkBd8+FimQ==
   dependencies:
-    "@testing-library/react-hooks" "~7.0.0"
+    "@babel/runtime" "^7.13.0"
+    "@testing-library/react-hooks" "~8.0.0"
 
 "@rest-hooks/use-enhanced-reducer@^1.1.1":
   version "1.1.1"
@@ -1989,7 +1990,7 @@
     lodash "^4.17.15"
     redent "^3.0.0"
 
-"@testing-library/react-hooks@^7.0.2", "@testing-library/react-hooks@~7.0.0":
+"@testing-library/react-hooks@^7.0.2":
   version "7.0.2"
   resolved "https://registry.yarnpkg.com/@testing-library/react-hooks/-/react-hooks-7.0.2.tgz#3388d07f562d91e7f2431a4a21b5186062ecfee0"
   integrity sha512-dYxpz8u9m4q1TuzfcUApqi8iFfR6R0FaMbr2hjZJy1uC8z+bO/K4v8Gs9eogGKYQop7QsrBTFkv/BCF7MzD2Cg==
@@ -1998,6 +1999,14 @@
     "@types/react" ">=16.9.0"
     "@types/react-dom" ">=16.9.0"
     "@types/react-test-renderer" ">=16.9.0"
+    react-error-boundary "^3.1.0"
+
+"@testing-library/react-hooks@~8.0.0":
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/@testing-library/react-hooks/-/react-hooks-8.0.1.tgz#0924bbd5b55e0c0c0502d1754657ada66947ca12"
+  integrity sha512-Aqhl2IVmLt8IovEVarNDFuJDVWVvhnr9/GCU6UUnrYXwgDFF9h2L2o2P9KBni1AST5sT6riAyoukFLyjQUgD/g==
+  dependencies:
+    "@babel/runtime" "^7.12.5"
     react-error-boundary "^3.1.0"
 
 "@testing-library/react@^12.1.2":
