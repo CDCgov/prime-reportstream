@@ -3,6 +3,7 @@ name: Run Checkov On Terraform Code
 on:
   pull_request:
     branches:
+      - feature/5520-Add-quality-checks-to-terraform-pipeline
       - production
       - master
       - test
