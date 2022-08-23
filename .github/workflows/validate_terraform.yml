@@ -39,19 +39,16 @@ jobs:
       - name: Verify Terraform Formatting
         run: terraform -chdir=operations/app/terraform/vars/staging fmt -check -recursive ../../
   
-  Run_Checkov_On_Terraform_Code:
+  checkov-job:
     name: Run Checkov On Terraform Code
     needs: Validate Terraform YAML
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@master
+
       - name: Run Checkov action
         uses: bridgecrewio/checkov-action@master
         with:
           directory: operations/app/terraform
-          quiet: true 
-          soft_fail: true 
-          framework: terraform 
-          output_format: sarif 
-          download_external_modules: true 
-          log_level: DEBUG
-      
+          skip_check: CKV*

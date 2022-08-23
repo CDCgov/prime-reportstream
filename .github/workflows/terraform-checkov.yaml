@@ -1,24 +1,45 @@
-name: Run Checkov On Terraform Code
+name: Terraform Validation
 
 on:
-  pull_request:
-    branches:
-      - feature/5520-Add-quality-checks-to-terraform-pipeline
-      - production
-      - master
-      - test
   push:
     branches:
       - feature/5520-Add-quality-checks-to-terraform-pipeline
-    paths:
-      - '**.tf'
-
 
 
 jobs:
-  checkov-job:
+  pre_job:
+    name: Pre Job
     runs-on: ubuntu-latest
-    name: checkov-action
+    outputs:
+      has_operations_change: ${{ steps.build_vars.outputs.has_terraform_change }}
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
+  validate_terraform_yaml:
+    name: Validate Terraform YAML
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
+    environment: staging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@17d4c9b8043b238f6f35641cdd8433da1e6f3867
+        with:
+          terraform_version: 1.2.0
+          terraform_wrapper: false
+      - name: Verify Terraform Formatting
+        run: terraform -chdir=operations/app/terraform/vars/staging fmt -check -recursive ../../
+  
+  checkov-job:
+    name: Run Checkov On Terraform Code
+    needs: Validate Terraform YAML
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@master
@@ -28,15 +49,3 @@ jobs:
         with:
           directory: operations/app/terraform
           skip_check: CKV*
-          # quiet: true # optional: display only failed checks
-          # soft_fail: false # optional: do not return an error code if there are failed checks
-          # framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
-          # output_format: sarif # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
-          # download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
-          # log_level: DEBUG # optional: set log level. Default WARNING
-          #file: example/tfplan.json # optional: provide the path for resource to be scanned. This will override the directory if both are provided.
-          #check: CKV_AWS_1 # optional: run only a specific check_id. can be comma separated list
-          #skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
-          #config_file: path/this_file
-          #baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
-          #container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
