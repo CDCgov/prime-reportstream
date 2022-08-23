@@ -26,7 +26,7 @@ jobs:
         uses: bridgecrewio/checkov-action@master
         with:
           directory: operations/app/terraform
-          skip_check: CKV_AZURE, CKV2_AZURE
+          skip_check: [CKV_AZURE, CKV2_AZURE]
           # quiet: true # optional: display only failed checks
           # soft_fail: false # optional: do not return an error code if there are failed checks
           # framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
