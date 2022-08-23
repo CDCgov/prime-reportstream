@@ -43,6 +43,12 @@
 # source message profile ID
 - id: "source-message-profile-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id"
+# receiving-application-identifier
+- id: "receiving-application-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/receiving-application-identifier"
+# receiving-facility-identifier
+- id: "receiving-facility-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/receiving-facility-identifier"
 # software binary identifier
 - id: "source-software-binary-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-binary-id"
