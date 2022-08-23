@@ -1,9 +1,6 @@
 import { Resource } from "@rest-hooks/rest";
 
-import {
-    getStoredOktaToken,
-    getStoredOrg,
-} from "../contexts/SessionStorageTools";
+import { getStoredOktaToken, getStoredOrg } from "../utils/SessionStorageTools";
 
 export default class AuthResource extends Resource {
     // Turn schema-mismatch errors (that break the app) into just console warnings.

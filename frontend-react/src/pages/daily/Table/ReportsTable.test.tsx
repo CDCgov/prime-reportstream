@@ -3,10 +3,7 @@ import { act, renderHook } from "@testing-library/react-hooks";
 
 import { renderWithRouter } from "../../../utils/CustomRenderUtils";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
-import {
-    MembershipController,
-    MemberType,
-} from "../../../hooks/UseOktaMemberships";
+import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { mockDeliveryListHook } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { mockReceiverHook } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { orgServer } from "../../../__mocks__/OrganizationMockServer";
@@ -22,15 +19,12 @@ describe("ReportsTable", () => {
             oktaToken: {
                 accessToken: "TOKEN",
             },
-            memberships: {
-                state: {
-                    active: {
-                        memberType: MemberType.RECEIVER,
-                        parsedName: "testOrg",
-                        senderName: undefined,
-                    },
-                },
-            } as MembershipController,
+            activeMembership: {
+                memberType: MemberType.RECEIVER,
+                parsedName: "testOrg",
+                senderName: undefined,
+            },
+            dispatch: () => {},
         });
     });
     describe("with services and deliveries data", () => {
@@ -111,15 +105,12 @@ describe("useReceiverFeed", () => {
             oktaToken: {
                 accessToken: "TOKEN",
             },
-            memberships: {
-                state: {
-                    active: {
-                        memberType: MemberType.RECEIVER,
-                        parsedName: "testOrg",
-                        senderName: undefined,
-                    },
-                },
-            } as MembershipController,
+            activeMembership: {
+                memberType: MemberType.RECEIVER,
+                parsedName: "testOrg",
+                senderName: undefined,
+            },
+            dispatch: () => {},
         });
         mockReceiverHook.mockReturnValue({
             data: receiversGenerator(2),

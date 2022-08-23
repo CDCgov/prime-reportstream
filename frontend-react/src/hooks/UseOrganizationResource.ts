@@ -8,7 +8,7 @@ import useRequestConfig from "./network/UseRequestConfig";
 
 export const useOrganizationResource = () => {
     /* Access the session. */
-    const { memberships, oktaToken } = useSessionContext();
+    const { activeMembership, oktaToken } = useSessionContext();
     /* Create a stable config reference with useMemo(). */
     const config = useMemo(
         () =>
@@ -17,14 +17,14 @@ export const useOrganizationResource = () => {
                 "detail",
                 "GET",
                 oktaToken?.accessToken,
-                memberships.state.active?.parsedName,
+                activeMembership?.parsedName,
                 {
-                    org: memberships.state.active?.parsedName || "",
+                    org: activeMembership?.parsedName || "",
                 }
             ),
         /* Note: we DO want to update config ONLY when these values update. If the linter
          * yells about a value you don't want to add, add an eslint-ignore comment. */
-        [oktaToken?.accessToken, memberships.state.active]
+        [oktaToken?.accessToken, activeMembership]
     );
     /* Pass the stable config into the consumer and cast the response with types. */
     const {

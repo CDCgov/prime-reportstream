@@ -6,7 +6,6 @@ import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Terser
-import com.github.ajalt.clikt.output.TermUi
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Receiver
@@ -147,7 +146,7 @@ class DataCompareTest : CoolTest() {
                     }
 
                     // Check the response from the endpoint
-                    TermUi.echo(json)
+                    echo(json)
                     passed = passed and examinePostResponse(json, !options.asyncProcessMode)
 
                     // Compare the data
@@ -261,10 +260,10 @@ class DataCompareTest : CoolTest() {
                 val expectedOutputStream = this::class.java.getResourceAsStream(expectedOutputPath)
                 val schema = metadata.findSchema(output.receiver!!.schemaName)
                 if (outputFile.canRead() && expectedOutputStream != null && schema != null) {
-                    TermUi.echo("----------------------------------------------------------")
-                    TermUi.echo("Comparing expected data from $expectedOutputPath")
-                    TermUi.echo("with actual data from $sftpDir/$outputFilename")
-                    TermUi.echo("using schema ${schema.name}...")
+                    echo("----------------------------------------------------------")
+                    echo("Comparing expected data from $expectedOutputPath")
+                    echo("with actual data from $sftpDir/$outputFilename")
+                    echo("using schema ${schema.name}...")
                     val result = CompareData().compare(
                         expectedOutputStream, outputFile.inputStream(),
                         output.receiver!!.format, schema
@@ -275,8 +274,8 @@ class DataCompareTest : CoolTest() {
                         bad("***$name Test FAILED***: Data comparison FAILED")
                     }
                     if (result.errors.size > 0) bad(result.errors.joinToString("\n", "ERROR: "))
-                    if (result.warnings.size > 0) TermUi.echo(result.warnings.joinToString("\n", "WARNING: "))
-                    TermUi.echo("")
+                    if (result.warnings.size > 0) echo(result.warnings.joinToString("\n", "WARNING: "))
+                    echo("")
                     passed = passed and result.passed
                 }
             } else {

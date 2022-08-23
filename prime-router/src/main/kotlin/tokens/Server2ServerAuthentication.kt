@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.tokens
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.microsoft.azure.functions.HttpRequestMessage
 import com.nimbusds.jose.Algorithm
 import com.nimbusds.jose.jwk.KeyType
 import gov.cdc.prime.router.Metadata
@@ -23,13 +22,8 @@ import java.util.UUID
  * Implementation of two-legged auth, using a sender's public key pre-authorized
  * by a trusted party at the sender.  Per this guide:
  *    https://hl7.org/fhir/uv/bulkdata/authorization/index.html
- *
- * Note: This is currently not implemented as a child of AuthenticationVerifier
- * since this auth uses a 'scope', not a PrincipalLevel
- *
- *
  */
-class TokenAuthentication : Logging {
+class Server2ServerAuthentication : Logging {
     private val MAX_CLOCK_SKEW_SECONDS: Long = 60
     private val EXPIRATION_SECONDS = 300
 
@@ -109,32 +103,12 @@ class TokenAuthentication : Logging {
     }
 
     /**
-     * This does both authentication and authorization.  That is, it confirms that the token is properly unexpired
-     * and signed by that secret, and that it contains the [requiredScope].
-     *
-     * [lookup] is a callback to get the ReportStream secret used to sign the [accessToken].  Using a callback
-     * makes this easy to test - can pass in a static test secret.
-     * This does not need to be a public/private key.
-     *
-     * @return the authenticated JWT Claims set if authentication and authorization were both successful.  Otherwise
-     * returns null.
-     */
-    fun checkAccessToken(accessToken: String?, requiredScope: String, lookup: ReportStreamSecretFinder): Claims? {
-        val claims = authenticate(accessToken, lookup) ?: return null
-        return if (authorized(claims, requiredScope))
-            claims
-        else
-            null
-    }
-
-    /**
-     * This confirms that [request]'s token is proper and authentic. This does not do authorization,
+     * This confirms that [accessToken]'s token is proper and authentic. This does not do authorization,
      * that is, it does not confirm that the claims authorize access to any particular scope.
      *
-     * @return the authenticated JWT Claims set if authentication was both successful.  Otherwise returns null.
+     * @return the ReportStream AuthenticatedClaims obj if authentication was successful.  Otherwise returns null.
      */
-    fun authenticate(request: HttpRequestMessage<String?>): Claims? {
-        val accessToken = AuthenticationStrategy.getAccessToken(request)
+    fun authenticate(accessToken: String): AuthenticatedClaims? {
         return authenticate(accessToken, FindReportStreamSecretInVault())
     }
 
@@ -148,15 +122,11 @@ class TokenAuthentication : Logging {
      *
      * @return the authenticated JWT Claims set if authentication was both successful.  Otherwise returns null.
      */
-    fun authenticate(accessToken: String?, lookup: ReportStreamSecretFinder): Claims? {
+    fun authenticate(accessToken: String, lookup: ReportStreamSecretFinder): AuthenticatedClaims? {
         try {
-            if (AuthenticationStrategy.isLocal(accessToken)) {
-                return AuthenticatedClaims.generateTestJwtClaims()
-            } else {
-                if (accessToken.isNullOrEmpty()) {
-                    logger.error("Missing or bad format 'Authorization: Bearer <tok>' header. Not authenticated.")
-                    return null
-                }
+            if (accessToken.isNullOrEmpty()) {
+                logger.error("Missing or bad format 'Authorization: Bearer <tok>' header. Not authenticated.")
+                return null
             }
             val secret = lookup.getReportStreamTokenSigningSecret()
             // Check the signature.  Throws JwtException on problems.
@@ -180,38 +150,14 @@ class TokenAuthentication : Logging {
                 return null
             }
             logger.info("AccessToken $subject : authenticated.")
-            return jws.body
+            // convert the JWS Claims obj to our ReportStream AuthenticatedClaims obj
+            return AuthenticatedClaims(jws.body, isOktaAuth = false)
         } catch (ex: JwtException) {
             logger.error("AccessToken not authenticated: $ex")
             return null
         } catch (exc: RuntimeException) {
             logger.error("AccessToken not authenticated due to internal error: $exc")
             return null
-        }
-    }
-
-    /**
-     * Given a set of [claims],
-     * @return true if they authorize access to [requiredScope], return false otherwise.
-     */
-    fun authorized(claims: Claims, requiredScope: String): Boolean {
-        val scope = claims["scope"] as? String
-        if (scope == null) {
-            logger.error(
-                "Missing scope claim in AccessToken ${claims.subject} requesting $requiredScope.  Unauthorized."
-            )
-            return false
-        }
-        return when {
-            scope == Scope.primeAdminScope -> true
-            Scope.scopeListContainsScope(scope, requiredScope) -> true
-            else -> {
-                logger.error(
-                    "In AccessToken ${claims.subject}," +
-                        " signed key has scope $scope, but requests $requiredScope. Unauthorized."
-                )
-                false
-            }
         }
     }
 
