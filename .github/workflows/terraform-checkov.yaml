@@ -9,8 +9,8 @@ on:
   push:
     branches:
       - feature/5520-Add-quality-checks-to-terraform-pipeline
-    paths: 
-      - 'operations/app/terraform'
+    paths:
+      - '**.tf'
 
 
 
