@@ -41,7 +41,7 @@ jobs:
   
   checkov-job:
     name: Run Checkov On Terraform Code
-    needs: Validate Terraform YAML
+    needs: validate_terraform_yaml
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
