@@ -1,6 +1,5 @@
 import { FC, PropsWithChildren, ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
-// import { BrowserRouter } from "react-router-dom";
 import { BrowserRouter } from "react-router-dom";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import { OktaAuth } from "@okta/okta-auth-js";
@@ -101,6 +100,7 @@ export const renderWithCustomWrapper = (
     });
 };
 
+// render wrapped with BrowserRouter, SessionProvider, and QueryClientProvider
 export const renderWithFullAppContext = (
     ui: ReactElement,
     oktaHook?: OktaHook,
@@ -112,6 +112,7 @@ export const renderWithFullAppContext = (
     });
 };
 
+// for testing components that need access to react-query
 export const renderWithQueryProvider = (
     ui: ReactElement,
     options?: Omit<RenderOptions, "wrapper">

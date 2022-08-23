@@ -29,8 +29,6 @@ const lookupTables: LookupTable[] = [1, 2, 3].map((i) => ({
 
 const lookupTableData: ApiValueSet[] = [1, 2, 3].map((_i) => ({
     name: "sender_automation_value_set",
-    // created_by: `test${i}@example.com`,
-    // created_at: "now",
     created_by: "",
     created_at: "",
     system: "LOCAL",
