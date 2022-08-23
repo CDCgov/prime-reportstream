@@ -3,10 +3,25 @@ import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import { OktaAuth } from "@okta/okta-auth-js";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import SessionProvider, { OktaHook } from "../contexts/SessionContext";
 
 import { mockToken } from "./TestUtils";
+
+/* Use this to generate fake useOktaAuth() hooks to pass into renderWithSession
+ * This serves as our way of mocking different token, auth, and claims values */
+export const makeOktaHook = (_init?: Partial<IOktaContext>): OktaHook => {
+    return () => ({
+        authState: {
+            accessToken: mockToken(),
+            ..._init?.authState,
+        },
+        oktaAuth: {
+            ..._init?.oktaAuth,
+        } as OktaAuth,
+    });
+};
 
 /*
     To create a custom renderer, you must create a functional
@@ -24,20 +39,6 @@ const RouterWrapper: FC = ({ children }) => {
     return <BrowserRouter>{children}</BrowserRouter>;
 };
 
-/* Use this to generate fake useOktaAuth() hooks to pass into renderWithSession
- * This serves as our way of mocking different token, auth, and claims values */
-export const makeOktaHook = (_init?: Partial<IOktaContext>): OktaHook => {
-    return () => ({
-        authState: {
-            accessToken: mockToken(),
-            ..._init?.authState,
-        },
-        oktaAuth: {
-            ..._init?.oktaAuth,
-        } as OktaAuth,
-    });
-};
-
 const SessionWrapper =
     (mockOkta: OktaHook) =>
     ({ children }: PropsWithChildren<{}>) => {
@@ -45,6 +46,25 @@ const SessionWrapper =
             <RouterWrapper>
                 <SessionProvider oktaHook={mockOkta}>
                     {children}
+                </SessionProvider>
+            </RouterWrapper>
+        );
+    };
+
+export const QueryWrapper =
+    (client: QueryClient = new QueryClient()) =>
+    ({ children }: PropsWithChildren<{}>) =>
+        <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+
+const AppWrapper =
+    (mockOkta: OktaHook) =>
+    ({ children }: PropsWithChildren<{}>) => {
+        return (
+            <RouterWrapper>
+                <SessionProvider oktaHook={mockOkta}>
+                    <QueryClientProvider client={new QueryClient()}>
+                        {children}
+                    </QueryClientProvider>
                 </SessionProvider>
             </RouterWrapper>
         );
@@ -76,6 +96,18 @@ export const renderWithCustomWrapper = (
         container: document.body.appendChild(
             document.createElement(wrapperType)
         ),
+    });
+};
+
+// render wrapped with BrowserRouter, SessionProvider, and QueryClientProvider
+export const renderWithFullAppContext = (
+    ui: ReactElement,
+    oktaHook?: OktaHook,
+    options?: Omit<RenderOptions, "wrapper">
+) => {
+    return render(ui, {
+        wrapper: AppWrapper(oktaHook || makeOktaHook()),
+        ...options,
     });
 };
 
