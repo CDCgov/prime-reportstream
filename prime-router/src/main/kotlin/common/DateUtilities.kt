@@ -286,6 +286,15 @@ object DateUtilities {
     }
 
     /**
+     * Returns now at the zone provided, or UTC if null
+     * @param timeZone - The time zone to get the current date time of
+     */
+    fun nowAtZone(timeZone: ZoneId?): ZonedDateTime {
+        val tz = timeZone ?: utcZone
+        return ZonedDateTime.now(tz)
+    }
+
+    /**
      * Outputs the correctly formatted timestamp for our needs. This is primarily used by the HL7 serializer,
      * but could be generalized out further to allow for the CSV serializer and others to use it too
      */
@@ -295,11 +304,10 @@ object DateUtilities {
         convertPositiveDateTimeOffsetToNegative: Boolean? = false,
         useHighPrecisionHeaderDateTimeFormat: Boolean? = false
     ): String {
-        val tz = timeZone ?: ZoneId.of("UTC")
-        val timestamp = ZonedDateTime.now(tz)
+        val tz = timeZone ?: utcZone
         // now format the date to what the receiver wants
         return formatDateForReceiver(
-            timestamp,
+            nowAtZone(tz),
             tz,
             dateTimeFormat ?: DateTimeFormat.OFFSET,
             convertPositiveDateTimeOffsetToNegative ?: false,

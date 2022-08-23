@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.cli
 
-import com.github.ajalt.clikt.output.TermUi.echo
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSource
@@ -61,6 +60,7 @@ class FileUtilities {
             settings: SettingsProvider,
             outputDir: String?,
             outputFileName: String?,
+            echo: (message: Any?) -> Unit
         ) {
             if (outputDir == null && outputFileName == null) return
 
@@ -130,7 +130,7 @@ class FileUtilities {
             val file = File(path)
 
             // since the files are small, trying to read the whole file
-            var content = file.readText(Charsets.UTF_8)
+            val content = file.readText(Charsets.UTF_8)
             val folderDir = File("./build/tmp")
             val fileW = File(folderDir, "otc-temp.csv")
             fileW.parentFile.mkdirs()

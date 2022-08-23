@@ -110,15 +110,15 @@ const FileHandler = ({
         }
     }, [localError]);
 
-    const { memberships, oktaToken } = useSessionContext();
+    const { activeMembership, oktaToken } = useSessionContext();
     const { organization, loading: organizationLoading } =
         useOrganizationResource();
     // need to fetch sender from API to grab cvs vs hl7 format info
     const { sender, loading: senderLoading } = useSenderResource();
 
     const accessToken = oktaToken?.accessToken;
-    const parsedName = memberships.state.active?.parsedName;
-    const senderName = memberships.state.active?.senderName;
+    const parsedName = activeMembership?.parsedName;
+    const senderName = activeMembership?.senderName;
     const client = `${parsedName}.${senderName}`;
 
     const handleFileChange = async (

@@ -34,24 +34,24 @@ interface ReceiverFeeds {
 /** Fetches a list of receivers for your active organization, and provides a controller to switch
  * between them */
 export const useReceiverFeeds = (): ReceiverFeeds => {
-    const { memberships } = useSessionContext();
+    const { activeMembership } = useSessionContext();
     const {
         data: receivers,
         loading,
         trigger: getReceiversList,
-    } = useReceiversList(memberships.state.active?.parsedName);
+    } = useReceiversList(activeMembership?.parsedName);
     const [active, setActive] = useState<RSReceiver | undefined>();
     useEffect(() => {
-        // IF memberships.state.active?.parsedName is not undefined
+        // IF activeMembership?.parsedName is not undefined
         if (
-            memberships.state.active?.parsedName !== undefined &&
+            activeMembership?.parsedName !== undefined &&
             receivers === undefined
         ) {
             // Trigger useReceiversList()
             getReceiversList();
         }
         // Ignoring getReceiverList() as dep
-    }, [memberships.state.active?.parsedName, receivers]); //eslint-disable-line
+    }, [activeMembership?.parsedName, receivers]); //eslint-disable-line
 
     useEffect(() => {
         if (receivers?.length) {
@@ -73,7 +73,7 @@ export const useReceiverFeeds = (): ReceiverFeeds => {
     component.
 */
 function ReportsTable() {
-    const { memberships, oktaToken } = useSessionContext();
+    const { oktaToken, activeMembership } = useSessionContext();
     const { loadingServices, services, activeService, setActiveService } =
         useReceiverFeeds();
     // TODO: Doesn't update parameters because of the config memo dependency array
@@ -82,10 +82,7 @@ function ReportsTable() {
         loading,
         error,
         trigger: getReportsList,
-    } = useReportsList(
-        memberships.state.active?.parsedName,
-        activeService?.name
-    );
+    } = useReportsList(activeMembership?.parsedName, activeService?.name);
     const filterManager = useFilterManager(filterManagerDefaults);
 
     useEffect(
@@ -94,7 +91,7 @@ function ReportsTable() {
             // AND we don't have any deliveries yet (i.e. first fetch *has not* triggered)
             if (
                 deliveries === undefined &&
-                memberships.state.active?.parsedName !== undefined &&
+                activeMembership?.parsedName !== undefined &&
                 activeService?.name !== undefined
             ) {
                 // Trigger useReportsList()
@@ -102,7 +99,7 @@ function ReportsTable() {
             }
         },
         // Ignoring getReportsList as dep
-        [activeService, deliveries, memberships.state.active?.parsedName] //eslint-disable-line
+        [activeService, deliveries, activeMembership?.parsedName] //eslint-disable-line react-hooks/exhaustive-deps
     );
 
     useEffect(() => {
@@ -115,7 +112,7 @@ function ReportsTable() {
         getReportAndDownload(
             id,
             oktaToken?.accessToken || "",
-            memberships.state.active?.parsedName || ""
+            activeMembership?.parsedName || ""
         );
     };
 

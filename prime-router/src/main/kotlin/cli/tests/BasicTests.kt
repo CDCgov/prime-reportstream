@@ -3,7 +3,6 @@ package gov.cdc.prime.router.cli.tests
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.ajalt.clikt.output.TermUi.echo
 import com.google.common.base.CharMatcher
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.Options
@@ -1048,7 +1047,7 @@ class InternationalContent : CoolTest() {
         } catch (e: NullPointerException) {
             return bad("***intcontent Test FAILED***: Unable to properly parse response json")
         } catch (e: DataAccessException) {
-            echo(e)
+            echoFn(e, true, true, "\n")
             return bad("***intcontent Test FAILED***: There was an error fetching data from the database.")
         }
     }
@@ -1058,7 +1057,6 @@ class InternationalContent : CoolTest() {
  * Creates fake data as if from a sender and tries to send it to every state and territory
  */
 class SantaClaus : CoolTest() {
-
     override val name = "santaclaus"
     override val description = "Creates fake data as if from a sender and tries to send it to every state and territory"
     override val status = TestStatus.DRAFT

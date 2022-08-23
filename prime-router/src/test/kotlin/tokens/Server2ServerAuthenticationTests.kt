@@ -66,7 +66,7 @@ val differentRsaPublicKeyStr = """
     }
 """.trimIndent()
 
-class TokenAuthenticationTests {
+class Server2ServerAuthenticationTests {
 
     private val sender = CovidSender(
         "foo",
@@ -77,7 +77,7 @@ class TokenAuthenticationTests {
         keys = null
     )
 
-    private val tokenAuthentication = TokenAuthentication()
+    private val server2ServerAuthentication = Server2ServerAuthentication()
     private val jtiCache = MemoryJtiCache()
 
     // return the hardcoded public key used with this test.  This is the Sender's public key.
@@ -146,31 +146,36 @@ class TokenAuthenticationTests {
         assertEquals(3, senderToken.split(".").size)
 
         // Check that the public key correctly validates.
-        assertTrue(TokenAuthentication().checkSenderToken(senderToken, UseTestKey(exampleRsaPublicKeyStr), jtiCache))
+        assertTrue(
+            Server2ServerAuthentication().checkSenderToken(senderToken, UseTestKey(exampleRsaPublicKeyStr), jtiCache)
+        )
     }
 
     @Test
-    fun `test createAccessToken and checkAccessToken happy path`() {
+    fun `test createAccessToken, authenticate, authorize happy path`() {
         val rslookup = GetTestSecret() // callback to look up the Reportstream secret, using to sign token.
-        val token = tokenAuthentication.createAccessToken("foobar", rslookup)
+        val token = server2ServerAuthentication.createAccessToken("*.*.primeadmin", rslookup)
         assertTrue(token.accessToken.isNotEmpty())
         // must expire later than now, but in less than 10 minutes
         val now: Int = (System.currentTimeMillis() / 1000).toInt()
         assertTrue(token.expiresAtSeconds >= now)
         assertTrue(token.expiresAtSeconds < now + 600)
-        assertEquals("foobar", token.scope)
+        assertEquals("*.*.primeadmin", token.scope)
         assertEquals("bearer", token.tokenType)
-        assertTrue(token.sub.startsWith("foobar_"))
+        assertTrue(token.sub.startsWith("*.*.primeadmin_"))
 
-        mockkObject(AuthenticationStrategy.Companion)
-        every { AuthenticationStrategy.isLocal(any()) } returns false
+        mockkObject(AuthenticatedClaims.Companion)
+        every { AuthenticatedClaims.isLocal(any()) } returns false
         // Now read the token back in, and confirm its valid.
-        val claims = tokenAuthentication.checkAccessToken(token.accessToken, "foobar", rslookup)
+        val claims = server2ServerAuthentication.authenticate(token.accessToken, rslookup)
         // if claims is non-null then the sender's accessToken is valid.
         assertNotNull(claims)
-        assertEquals(token.expiresAtSeconds, claims["exp"])
-        assertEquals("foobar", claims["scope"])
-        assertEquals(token.sub, claims["sub"])
+        if (! claims.authorized(setOf("*.*.primeadmin")))
+            error("Authorization failed")
+        // if claims is non-null then the sender's accessToken is valid.
+        assertEquals(token.expiresAtSeconds, claims.jwtClaims["exp"])
+        assertTrue(claims.scopes.contains("*.*.primeadmin"))
+        assertEquals(token.sub, claims.userName)
     }
 
     /*
@@ -204,19 +209,22 @@ class TokenAuthenticationTests {
         // Step 2: ReportStream gets the token and checks it.
         val rslookup = GetTestSecret() // callback to look up the Reportstream secret, using to sign RS token.
         val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // callback to lookup the sender's public key.
-        val accessToken = if (TokenAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache)) {
+        val accessToken = if (Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache)) {
             // Step 3:  Report stream creates a new accessToken
-            tokenAuthentication.createAccessToken("myScope", rslookup)
+            server2ServerAuthentication.createAccessToken("org.sender.admin", rslookup)
         } else error("Unauthorized connection")
 
         // Step 4: Now pretend the sender has used the accessToken to make a request to reportstream...
 
         // Step 5: ... and ReportStream checks it:
-        val claims = tokenAuthentication.checkAccessToken(accessToken.accessToken, "myScope", rslookup)
+        val claims = server2ServerAuthentication.authenticate(accessToken.accessToken, rslookup)
         // if claims is non-null then the sender's accessToken is valid.
         assertNotNull(claims)
-        assertEquals(accessToken.expiresAtSeconds, claims["exp"])
-        assertEquals("myScope", claims["scope"])
+
+        if (! claims.authorized(setOf("org.sender.admin")))
+            error("Authorization failed")
+        assertEquals(accessToken.expiresAtSeconds, claims.jwtClaims["exp"])
+        assertEquals("org.sender.admin", claims.jwtClaims["scope"])
     }
 
     @Test
@@ -226,7 +234,7 @@ class TokenAuthenticationTests {
 
         val senderLookup = UseTestKey(differentRsaPublicKeyStr) // Its the wrong trousers!
         // false means we failed to validate the sender's jwt.
-        assertFalse(TokenAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertFalse(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
     }
 
     @Test
@@ -244,7 +252,7 @@ class TokenAuthenticationTests {
         """.trimIndent()
         val senderLookup = UseTestKey(junkPublicKeyStr) // Its the wrong trousers!
         // false means we failed to validate the sender's jwt.
-        assertFalse(TokenAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertFalse(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
     }
 
     @Test
@@ -260,7 +268,7 @@ class TokenAuthenticationTests {
 
         val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // Its the wrong trousers!
         // false means we failed to validate the sender's jwt.
-        assertFalse(TokenAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertFalse(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
     }
 
     @Test
@@ -275,9 +283,9 @@ class TokenAuthenticationTests {
 
         val senderLookup = UseTestKey(exampleRsaPublicKeyStr) // Its the wrong trousers!
         // It should work the first time.
-        assertTrue(TokenAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertTrue(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
         // Then fail the second time
-        assertFalse(TokenAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
+        assertFalse(Server2ServerAuthentication().checkSenderToken(senderToken, senderLookup, jtiCache))
     }
 
     @Test
@@ -304,48 +312,38 @@ class TokenAuthenticationTests {
     @Test
     fun `test isExpiredToken`() {
         val exp1 = Date(System.currentTimeMillis() - 1)
-        assertTrue(TokenAuthentication.isExpiredToken(exp1))
+        assertTrue(Server2ServerAuthentication.isExpiredToken(exp1))
 
         val exp2 = Date(System.currentTimeMillis() + 1000)
-        assertFalse(TokenAuthentication.isExpiredToken(exp2))
+        assertFalse(Server2ServerAuthentication.isExpiredToken(exp2))
     }
 
     @Test
     fun `test checkAccessToken happy path`() {
         val rslookup = GetTestSecret() // callback to look up the Reportstream secret, using to sign RS token.
-        val accessToken = tokenAuthentication.createAccessToken("myScope", rslookup)
-        val claims = tokenAuthentication.checkAccessToken(accessToken.accessToken, "myScope", rslookup)
-        // if claims is non-null then the sender's accessToken is valid.
+        val accessToken = server2ServerAuthentication.createAccessToken("a.b.report", rslookup)
+        val claims = server2ServerAuthentication.authenticate(accessToken.accessToken, rslookup)
         assertNotNull(claims)
-        assertEquals(accessToken.expiresAtSeconds, claims["exp"])
-        assertEquals("myScope", claims["scope"])
+        if (! claims.authorized(setOf("a.b.report")))
+            error("Claims not authorized")
+        assertEquals(accessToken.expiresAtSeconds, claims.jwtClaims["exp"])
+        assertTrue(claims.scopes.contains("a.b.report"))
     }
 
     @Test
     fun `test empty scope to createAccessToken`() {
         val rslookup = GetTestSecret()
-        assertFails { tokenAuthentication.createAccessToken("", rslookup) }
-        assertFails { tokenAuthentication.createAccessToken(" ", rslookup) }
+        assertFails { server2ServerAuthentication.createAccessToken("", rslookup) }
+        assertFails { server2ServerAuthentication.createAccessToken(" ", rslookup) }
     }
 
     @Test
     fun `test checkAccessToken wrong reportstream secret`() {
         val rslookup1 = GetTestSecret()
-        val accessToken = tokenAuthentication.createAccessToken("MyScope", rslookup1)
+        val accessToken = server2ServerAuthentication.createAccessToken("MyScope", rslookup1)
         val rslookup2 = GetTestSecret() // new/different secret
-        val claims = tokenAuthentication.checkAccessToken(accessToken.accessToken, "MyScope", rslookup2)
+        val claims = server2ServerAuthentication.authenticate(accessToken.accessToken, rslookup2)
         // if claims is non-null then the sender's accessToken is valid.
         assertNull(claims)
-    }
-
-    @Test
-    fun `test scopeListContainsScope`() {
-        assertTrue(Scope.scopeListContainsScope("a", "a"))
-        assertTrue(Scope.scopeListContainsScope("a:b c:d e:f", "a:b"))
-        assertFalse(Scope.scopeListContainsScope("a:b c:d e:f", "a:b "))
-        assertFalse(Scope.scopeListContainsScope("", ""))
-        assertFalse(Scope.scopeListContainsScope("xx", "x"))
-        assertFalse(Scope.scopeListContainsScope("x   x", ""))
-        assertFalse(Scope.scopeListContainsScope("x   x", " "))
     }
 }

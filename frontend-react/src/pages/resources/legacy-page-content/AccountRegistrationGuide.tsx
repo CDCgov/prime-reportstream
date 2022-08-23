@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet";
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const AccountRegistrationGuideIa = () => {

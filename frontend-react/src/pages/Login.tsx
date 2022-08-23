@@ -11,14 +11,14 @@ import { MembershipActionType } from "../hooks/UseOktaMemberships";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
-    const { memberships } = useSessionContext();
+    const { dispatch } = useSessionContext();
 
     const onSuccess = (tokens: Tokens | undefined) => {
         oktaAuth.handleLoginRedirect(tokens);
     };
 
     const onError = (err: any) => {
-        memberships.dispatch({
+        dispatch({
             type: MembershipActionType.RESET,
         });
         console.log("error logging in", err);

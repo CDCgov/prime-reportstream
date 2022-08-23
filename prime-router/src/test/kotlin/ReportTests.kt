@@ -7,6 +7,8 @@ import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import java.io.ByteArrayInputStream
@@ -188,15 +190,15 @@ class ReportTests {
     }
 
     @Test
-    fun `test deidentify`() {
-        var one = Schema(
+    fun `test patientZipentify`() {
+        val one = Schema(
             name = "one",
             topic = "test",
             elements = listOf(Element("a", pii = true), Element("b"), Element("patient_zip_code"))
         )
 
         // Mock restricted_zip_code data
-        val patient_zip = """
+        val patientZip = """
             patient_zip
             036
             059
@@ -209,10 +211,10 @@ class ReportTests {
             821
         """.trimIndent()
 
-        val restrictedZipTable = LookupTable.read(inputStream = ByteArrayInputStream(patient_zip.toByteArray()))
+        val restrictedZipTable = LookupTable.read(inputStream = ByteArrayInputStream(patientZip.toByteArray()))
         metadata.loadLookupTable("restricted_zip_code", restrictedZipTable)
 
-        var oneReport = Report(
+        val oneReport = Report(
             schema = one,
             values = listOf(
                 listOf("a1", "b1", "55555"),
@@ -274,8 +276,90 @@ class ReportTests {
     }
 
     @Test
-    fun `test patient age validation`() {
+    fun `test patient age deidentification`() {
+        val patientAgeSchema = Schema(
+            name = "patientAgeSchema",
+            topic = "test",
+            elements = listOf(
+                Element("patient_age", pii = true),
+                Element("patient_dob", pii = true),
+                Element("specimen_collection_date_time", pii = false)
+            )
+        )
+        Report(
+            schema = patientAgeSchema,
+            values = listOf(
+                // empty values
+                listOf("", "", ""),
+                // just specimen collection date
+                listOf("", "", "2022-06-22 22:58:00"),
+                // collection date and dob
+                listOf("", "2021-06-21", "2022-06-22 22:58:00"),
+                // just DOB
+                listOf(
+                    "",
+                    DateUtilities
+                        .nowAtZone(DateUtilities.utcZone)
+                        .minusYears(2)
+                        .asFormattedString("yyyy-MM-dd", false),
+                    ""
+                ),
+                listOf(
+                    "",
+                    DateUtilities
+                        .nowAtZone(DateUtilities.utcZone)
+                        .minusYears(90)
+                        .asFormattedString("yyyy-MM-dd", false),
+                    ""
+                ),
+                listOf("10", "", ""),
+                listOf("89", "", "")
+            ),
+            source = TestSource,
+            metadata = metadata
+        ).deidentify("<NULL>").run {
+            assertThat(this.getString(0, "patient_age")).isEqualTo("<NULL>")
+            assertThat(this.getString(1, "patient_age")).isEqualTo("<NULL>")
+            assertThat(this.getString(2, "patient_age")).isEqualTo("1")
+            assertThat(this.getString(3, "patient_age")).isEqualTo("2")
+            assertThat(this.getString(4, "patient_age")).isEqualTo("0")
+            assertThat(this.getString(5, "patient_age")).isEqualTo("10")
+            assertThat(this.getString(6, "patient_age")).isEqualTo("0")
+        }
+    }
 
+    @Test
+    fun `test patient dob deidentification`() {
+        val patientAgeSchema = Schema(
+            name = "patientAgeSchema",
+            topic = "test",
+            elements = listOf(
+                Element("patient_age", pii = true),
+                Element("patient_dob", pii = true),
+                Element("specimen_collection_date_time", pii = false)
+            )
+        )
+        Report(
+            schema = patientAgeSchema,
+            values = listOf(
+                // empty values
+                listOf("", "", ""),
+                // should be deidentified
+                listOf("", "1923-08-03", "2022-06-22 22:58:00"),
+                // collection date and dob
+                listOf("", "2000-12-01", "2022-06-22 22:58:00"),
+            ),
+            source = TestSource,
+            metadata = metadata
+        ).deidentify("<NULL>").run {
+            assertThat(this.getString(0, "patient_dob")).isEqualTo("<NULL>")
+            assertThat(this.getString(1, "patient_dob")).isEqualTo("0000")
+            assertThat(this.getString(2, "patient_dob")).isEqualTo("2000")
+        }
+    }
+
+    @Test
+    fun `test patient age validation`() {
         /**
          * Create table's header
          */
@@ -315,14 +399,14 @@ class ReportTests {
 
         val covidResultMetadata = oneReport.getDeidentifiedResultMetaData()
         assertThat(covidResultMetadata).isNotNull()
-        assertThat(covidResultMetadata.get(0).patientAge).isEqualTo("100")
-        assertThat(covidResultMetadata.get(1).patientAge).isNull()
-        assertThat(covidResultMetadata.get(2).patientAge).isEqualTo("2")
-        assertThat(covidResultMetadata.get(3).patientAge).isEqualTo("20")
-        assertThat(covidResultMetadata.get(4).patientAge).isEqualTo("2")
-        assertThat(covidResultMetadata.get(5).patientAge).isEqualTo("10")
-        assertThat(covidResultMetadata.get(6).patientAge).isEqualTo("40")
-        assertThat(covidResultMetadata.get(7).patientAge).isNull()
+        assertThat(covidResultMetadata[0].patientAge).isEqualTo("100")
+        assertThat(covidResultMetadata[1].patientAge).isNull()
+        assertThat(covidResultMetadata[2].patientAge).isEqualTo("2")
+        assertThat(covidResultMetadata[3].patientAge).isEqualTo("20")
+        assertThat(covidResultMetadata[4].patientAge).isEqualTo("2")
+        assertThat(covidResultMetadata[5].patientAge).isEqualTo("10")
+        assertThat(covidResultMetadata[6].patientAge).isEqualTo("40")
+        assertThat(covidResultMetadata[7].patientAge).isNull()
 
         /**
          * Test table without patient_age
@@ -358,7 +442,6 @@ class ReportTests {
 
     @Test
     fun `test covid metadata output`() {
-
         /**
          * Create table's header
          */
