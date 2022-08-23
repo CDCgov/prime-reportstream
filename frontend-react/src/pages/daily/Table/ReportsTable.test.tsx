@@ -7,7 +7,7 @@ import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { mockDeliveryListHook } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { mockReceiverHook } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { orgServer } from "../../../__mocks__/OrganizationMockServer";
-import { deliveriesGenerator } from "../../../network/api/History/Reports";
+import { deliveriesTestGenerator } from "../../../network/api/History/Reports";
 import { receiversGenerator } from "../../../network/api/Organizations/Receivers";
 
 import ReportsTable, { useReceiverFeeds } from "./ReportsTable";
@@ -38,7 +38,7 @@ describe("ReportsTable", () => {
             });
             // Mock the response from the Deliveries hook
             mockDeliveryListHook.mockReturnValue({
-                data: deliveriesGenerator(101),
+                data: deliveriesTestGenerator(101),
                 loading: false,
                 error: "",
                 trigger: () => {},
@@ -71,7 +71,7 @@ describe("ReportsTable", () => {
             });
             // Mock the response from the Deliveries hook
             mockDeliveryListHook.mockReturnValue({
-                data: deliveriesGenerator(0),
+                data: deliveriesTestGenerator(0),
                 loading: false,
                 error: "",
                 trigger: () => {},

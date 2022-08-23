@@ -57,7 +57,7 @@ export class RSDelivery implements RSDeliveryInterface {
 /** TEST UTILITY - generates `RSDelivery[]`, each with a unique `reportId` (starting from "0")
  *
  * @param count {number} How many unique reports you want. */
-export const deliveriesGenerator = (count: number) => {
+export const deliveriesTestGenerator = (count: number) => {
     const deliveries: RSDelivery[] = [];
     for (let i = 0; i < count; i++) {
         deliveries.push(new RSDelivery({ reportId: `${i}` }));
@@ -69,13 +69,13 @@ export const deliveriesGenerator = (count: number) => {
  * 1. Resource: {@link RSDelivery}
  * 2. Endpoints:
  *      <ul>
- *          <li>"list" -> A list of deliveries for an organization and service (i.e. md-phd.elr-secondary)</li>
+ *          <li>"list" -> A list of deliveries for an organization (i.e. md-phd)</li>
  *          <li>"detail" -> A single delivery item with more detail, including file content for download</li>
  *      </ul>
  */
-export const DeliveryApi = new API(RSDelivery, "/api/waters")
-    .addEndpoint("list", "/org/:orgAndService/deliveries", ["GET"])
-    .addEndpoint("detail", "/report/:id/delivery", ["GET"]);
+export const DeliveryApi = new API(RSDelivery, "/api")
+    .addEndpoint("list", "/history/report", ["GET"])
+    .addEndpoint("detail", "/waters/report/:id/history", ["GET"]);
 
 export interface DeliveryListParams {
     orgAndService: string;
