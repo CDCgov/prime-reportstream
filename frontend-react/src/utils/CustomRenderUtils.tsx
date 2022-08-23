@@ -111,6 +111,16 @@ export const renderWithFullAppContext = (
     });
 };
 
+// for testing components that need access to react-query
+export const renderWithQueryProvider = (
+    ui: ReactElement,
+    options?: Omit<RenderOptions, "wrapper">
+) =>
+    render(ui, {
+        wrapper: QueryWrapper(),
+        ...options,
+    });
+
 export * from "@testing-library/react";
 export { renderWithRouter };
 export { renderWithSession };
