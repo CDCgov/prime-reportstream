@@ -114,9 +114,9 @@ class DeliveryFacade(
         senderOrReceiver: String?,
         request: HttpRequestMessage<String?>,
     ): Boolean {
-        // todo This only works for primeadmin right now.   Need to query the report_file table to find
-        //  who the receiving_org is for this id.
-        return claims.authorizedForSendOrReceive(null, null, request)
+        // todo If orgname is not known, this only works for primeadmin right now.
+        //  Need to query the report_file table to find who the receiving_org is for this id.
+        return claims.authorizedForSendOrReceive(orgName, null, request)
     }
 
     companion object {

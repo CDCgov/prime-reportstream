@@ -42,7 +42,6 @@ import org.junit.jupiter.api.TestInstance
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.util.UUID
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -365,7 +364,6 @@ class DeliveryFunctionTests : Logging {
     }
 
     @Test
-    @Ignore
     fun `test access user can view their organization's delivery history`() {
         val deliveryFunction = setupDeliveryFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
