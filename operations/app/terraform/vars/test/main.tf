@@ -86,8 +86,8 @@ module "database" {
   postgres_pass            = data.azurerm_key_vault_secret.postgres_pass.value
   db_sku_name              = local.database.db_sku_name
   db_version               = local.database.db_version
-  db_storage_mb            = locals.database.db_storage_mb
-  db_auto_grow             = locals.database.db_auto_grow
+  db_storage_mb            = local.database.db_storage_mb
+  db_auto_grow             = local.database.db_auto_grow
   db_prevent_destroy       = local.database.db_prevent_destroy
   db_threat_detection      = local.database.db_threat_detection
   subnets                  = module.network.subnets
