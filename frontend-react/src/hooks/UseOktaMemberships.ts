@@ -7,7 +7,7 @@ import {
     getSessionMembershipState,
     storeOrganizationOverride,
     getOrganizationOverride,
-} from "../contexts/SessionStorageTools";
+} from "../utils/SessionStorageTools";
 import { updateApiSessions } from "../network/Apis";
 
 export enum MemberType {
@@ -33,7 +33,7 @@ export interface MembershipSettings {
 }
 
 export interface MembershipState {
-    active?: MembershipSettings;
+    activeMembership?: MembershipSettings;
     // Key is the OKTA group name, settings has parsedName
     memberships?: Map<string, MembershipSettings>;
 }
@@ -105,7 +105,7 @@ export const makeMembershipMapFromToken = (
 const defaultState: MembershipState = {
     // note that active will be set to {} rather than undefined in most real world cases on initialization
     // see `calculateMembershipsWithOverride` for logic
-    active: undefined,
+    activeMembership: undefined,
     memberships: undefined,
 };
 
@@ -126,7 +126,7 @@ export const membershipsFromToken = (
     const [first] = claimData.keys();
     const active = claimData.get(first);
     return {
-        active: active,
+        activeMembership: active,
         memberships: claimData,
     };
 };
@@ -136,10 +136,10 @@ export const calculateMembershipsWithOverride = (
     membershipState: MembershipState
 ): MembershipState => {
     const override = getOrganizationOverride();
-    const active = override || membershipState?.active;
+    const activeMembership = override || membershipState?.activeMembership;
     return {
         ...membershipState,
-        active,
+        activeMembership,
     };
 };
 
@@ -160,12 +160,12 @@ const calculateNewState = (
             );
         case MembershipActionType.ADMIN_OVERRIDE:
             const newActive = {
-                ...state.active,
+                ...state.activeMembership,
                 ...(payload as MembershipSettings),
             };
             const newState = {
                 ...state,
-                active: newActive,
+                activeMembership: newActive,
             };
             storeOrganizationOverride(JSON.stringify(newActive));
             return newState;

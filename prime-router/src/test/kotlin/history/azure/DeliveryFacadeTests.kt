@@ -189,6 +189,7 @@ class DeliveryFacadeTests {
         every {
             mockDeliveryAccess.fetchAction(
                 any(),
+                any(),
                 DeliveryHistory::class.java
             )
         } returns delivery
