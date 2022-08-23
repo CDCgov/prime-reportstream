@@ -25,7 +25,7 @@ jobs:
       - name: Run Checkov action
         uses: bridgecrewio/checkov-action@master
         with:
-          directory: /operations/app/terraform
+          directory: operations/app/terraform
           #file: example/tfplan.json # optional: provide the path for resource to be scanned. This will override the directory if both are provided.
           #check: CKV_AWS_1 # optional: run only a specific check_id. can be comma separated list
           #skip_check: CKV_AWS_2 # optional: skip a specific check_id. can be comma separated list
