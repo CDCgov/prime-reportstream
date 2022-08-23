@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -91,7 +90,7 @@ class LivdTableDownload : CliktCommand(
     ).file(true).default(File(defaultSupplFile))
 
     override fun run() {
-        TermUi.echo("Downloading the LIVD table ...")
+        echo("Downloading the LIVD table ...")
         FileUtils.forceMkdir(File(defaultOutputDir))
 
         // Download the file from CDC website.
@@ -106,7 +105,7 @@ class LivdTableDownload : CliktCommand(
         if (!updateTheLivdLookupTable(tempMergedLivdOutFile))
             error("There was an error storing the LIVD lookup table.")
         else
-            TermUi.echo("The lookup table was updated successfully.")
+            echo("The lookup table was updated successfully.")
     }
 
     /**
@@ -319,11 +318,11 @@ class LivdTableDownload : CliktCommand(
                     else selector!!.and(newSelector)
                 }
             }
-            if (!silent) TermUi.echo("Here is the list of changes added from $livdSupplementalPathname")
+            if (!silent) echo("Here is the list of changes added from $livdSupplementalPathname")
             when {
                 selector == null -> {
-                    TermUi.echo("Found row #${supplRow.rowNumber} with no device information.")
-                    TermUi.echo(supplRow)
+                    echo("Found row #${supplRow.rowNumber} with no device information.")
+                    echo(supplRow)
                     badRows++
                 }
                 selector!!.isEmpty -> {
@@ -331,7 +330,7 @@ class LivdTableDownload : CliktCommand(
                     val newRow = rawLivdTable.appendRow()
                     commonColList.forEach { newRow.setString(it, supplRow.getString(it)) }
                     missingColList.forEach { newRow.setString(it, supplRow.getString(it)) }
-                    if (!silent) TermUi.echo("ADDING RECORD from row #${supplRow.rowNumber} : $newRow")
+                    if (!silent) echo("ADDING RECORD from row #${supplRow.rowNumber} : $newRow")
                     addedRows++
                 }
 
@@ -342,7 +341,7 @@ class LivdTableDownload : CliktCommand(
                 }
 
                 else -> {
-                    if (!silent) TermUi.echo("Found NON-UNIQUE record in row #${supplRow.rowNumber} : $supplRow")
+                    if (!silent) echo("Found NON-UNIQUE record in row #${supplRow.rowNumber} : $supplRow")
                     nonUniqueRows++
                 }
             }
@@ -350,8 +349,8 @@ class LivdTableDownload : CliktCommand(
 
         // Print out the results of the merge.
         if (!silent) {
-            TermUi.echo("Modified $modRows LIVD records with supplemental LIVD information.")
-            TermUi.echo("Added $addedRows LIVD records from supplemental LIVD information.")
+            echo("Modified $modRows LIVD records with supplemental LIVD information.")
+            echo("Added $addedRows LIVD records from supplemental LIVD information.")
         }
         if (badRows > 0)
             error("Found $badRows row(s) in $livdSupplementalPathname that do not have device information")
@@ -372,11 +371,10 @@ class LivdTableDownload : CliktCommand(
      * table.  Note, it always creates the new version regardless since it uses -f option.
      */
     private fun updateTheLivdLookupTable(livdLookupTable: File): Boolean {
-
         // The environment the command needs to run on.
         val environment = Environment.get(env)
 
-        TermUi.echo("Creating $livdSARSCov2FilenamePrefix table ...")
+        echo("Creating $livdSARSCov2FilenamePrefix table ...")
         val args: MutableList<String> = mutableListOf(
             "-e", environment.toString().lowercase(), "-n", livdSARSCov2FilenamePrefix,
             "-i", livdLookupTable.absolutePath

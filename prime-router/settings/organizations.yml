@@ -293,6 +293,17 @@
     - name: default
       organizationName: neurolab
       topic: covid-19
+      customerStatus: active
+      schemaName: hl7/hl7-ingest-covid-19-prod
+      format: HL7
+
+- name: reopenlab
+  description: Reopenlab
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: reopenlab
+      topic: covid-19
       customerStatus: testing
       schemaName: hl7/hl7-ingest-covid-19-training
       format: HL7
@@ -609,7 +620,7 @@
       topic: covid-19
       customerStatus: active
       jurisdictionalFilter:
-        - matches(ordering_facility_state,AZ)
+        - "orEquals(patient_state, AZ, ordering_facility_state, AZ)"
       translation:
         type: CUSTOM
         schemaName: az/az-covid-19
@@ -630,7 +641,7 @@
       topic: covid-19
       customerStatus: active
       jurisdictionalFilter:
-        - matches(ordering_facility_state,AZ)
+        - "orEquals(patient_state, AZ, ordering_facility_state, AZ)"
       reverseTheQualityFilter: true
       translation:
         type: CUSTOM
