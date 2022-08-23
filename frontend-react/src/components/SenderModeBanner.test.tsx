@@ -3,7 +3,7 @@ import { screen } from "@testing-library/react";
 import { orgServer } from "../__mocks__/OrganizationMockServer";
 import { makeOktaHook, renderWithSession } from "../utils/CustomRenderUtils";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
-import { MembershipController, MemberType } from "../hooks/UseOktaMemberships";
+import { MemberType } from "../hooks/UseOktaMemberships";
 
 import SenderModeBanner from "./SenderModeBanner";
 
@@ -16,15 +16,12 @@ describe("SenderModeBanner", () => {
 
     test("renders when sender is testing", async () => {
         mockSessionContext.mockReturnValue({
-            memberships: {
-                state: {
-                    active: {
-                        memberType: MemberType.SENDER,
-                        parsedName: "testOrg",
-                        senderName: "testSender",
-                    },
-                },
-            } as MembershipController,
+            activeMembership: {
+                memberType: MemberType.SENDER,
+                parsedName: "testOrg",
+                senderName: "testSender",
+            },
+            dispatch: () => {},
         });
         renderWithSession(
             <SenderModeBanner />,

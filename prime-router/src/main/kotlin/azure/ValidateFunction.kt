@@ -61,7 +61,7 @@ class ValidateFunction(
             val sender = workflowEngine.settings.findSender(senderName)
                 ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
 
-            if (!claims.authorizedForSubmission(sender, request)) {
+            if (!claims.authorizedForSendOrReceive(sender, request)) {
                 return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
             actionHistory.trackActionParams(request)
