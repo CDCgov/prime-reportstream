@@ -9,7 +9,6 @@ import { useSessionContext } from "../../../contexts/SessionContext";
 import { useReceiversList } from "../../../hooks/network/Organizations/ReceiversHooks";
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 import ReportResource from "../../../resources/ReportResource";
-import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { getUniqueReceiverSvc } from "../../../utils/ReportUtils";
 
 import { getReportAndDownload } from "./ReportsUtils";
@@ -97,16 +96,6 @@ function ReportsTable() {
             activeMembership?.parsedName || ""
         );
     };
-
-    /* TODO: Extend FilterManagerDefaults to include pageSize defaults */
-    useEffect(() => {
-        fm.updatePage({
-            type: PageSettingsActionType.SET_SIZE,
-            payload: {
-                size: 100,
-            },
-        });
-    }, []); // eslint-disable-line
 
     const resultsTableConfig: TableConfig = {
         columns: [
