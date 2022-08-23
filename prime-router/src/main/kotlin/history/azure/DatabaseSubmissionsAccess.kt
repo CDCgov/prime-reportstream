@@ -46,19 +46,24 @@ class DatabaseSubmissionsAccess(
      * Fetch a single (usually detailed) action of a specific type.
      *
      * @param actionId the action id attached to this submission.
+     * @param orgName Optional name of the organization.   Needed on submission queries.  The 'retrieve'
+     * action has multiple reports associated with it.   We need to make sure we get originally submitted report.
      * @param klass the class that the found data will be converted to.
      * @return the submission matching the given query parameters, or null.
      */
     override fun <T> fetchAction(
         actionId: Long,
+        orgName: String?,
         klass: Class<T>
     ): T? {
+        if (orgName == null) error("Submission query must be constrained by a sender's organization name")
         return db.transactReturning { txn ->
             DSL.using(txn)
                 .select(detailedSelect())
                 .from(ACTION)
                 .where(
                     ACTION.ACTION_ID.eq(actionId)
+                        .and(ACTION.SENDING_ORG.eq(orgName))
                 )
                 .fetchOne()?.into(klass)
         }

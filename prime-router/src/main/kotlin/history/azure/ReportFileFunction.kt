@@ -87,7 +87,7 @@ abstract class ReportFileFunction(
                 ?: return HttpUtilities.notFoundResponse(request, "$organization: unknown ReportStream user")
 
             // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.
-            if (!reportFileFacade.checkSenderAccessAuthorization(claims, userOrgName, request)) {
+            if (!reportFileFacade.checkAccessAuthorization(claims, userOrgName, null, request)) {
                 logger.warn(
                     "Invalid Authorization for user ${claims.userName}:" +
                         " ${request.httpMethod}:${request.uri.path}." +
@@ -158,11 +158,12 @@ abstract class ReportFileFunction(
 
         logger.debug("Authenticated request by ${claims.userName}: ${request.httpMethod}:${request.uri.path}")
 
-        val action = this.actionFromId(id)
+        val action: Action = this.actionFromId(id)
 
         return if (!this.actionIsValid(action))
             HttpUtilities.notFoundResponse(request, "$id is not a valid report")
-        else if (!reportFileFacade.checkSenderAccessAuthorization(claims, action.sendingOrg, request)) {
+        // todo bug:  we need to find the report_file id's receiving_org, and send it here.
+        else if (!reportFileFacade.checkAccessAuthorization(claims, action.sendingOrg, null, request)) {
             logger.warn(
                 "Invalid Authorization for user ${claims.userName}:" +
                     " ${request.httpMethod}:${request.uri.path}"

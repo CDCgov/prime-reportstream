@@ -55,11 +55,13 @@ class DatabaseDeliveryAccess(
      * Fetch a single (usually detailed) action of a specific type.
      *
      * @param actionId the action id attached to this submission.
+     * @param orgName currently this is ignored.  Its only needed for submissions.
      * @param klass the class that the found data will be converted to.
      * @return the submission matching the given query parameters, or null.
      */
     override fun <T> fetchAction(
         actionId: Long,
+        orgName: String?,
         klass: Class<T>
     ): T? {
         return db.transactReturning { txn ->

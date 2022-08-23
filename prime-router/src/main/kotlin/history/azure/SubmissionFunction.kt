@@ -81,7 +81,7 @@ class SubmissionFunction(
         queryParams: MutableMap<String, String>,
         action: Action
     ): DetailedSubmissionHistory? {
-        return submissionsFacade.findDetailedSubmissionHistory(action.actionId)
+        return submissionsFacade.findDetailedSubmissionHistory(action)
     }
 
     /**
