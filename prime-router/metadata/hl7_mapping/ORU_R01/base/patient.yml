@@ -6,11 +6,6 @@ elements:
     value: [ '''1''' ]
     hl7Spec: [ '%{hl7PIDField}-1' ]
 
-#  - name: patient-id
-#    condition: '%resource is Patient and %resource.identifier.exists()'
-#    value: [ '%resource.identifier.value' ]
-#    hl7Spec: [ '%{hl7PIDField}-2' ]
-
   - name: patient-identifier-list
     resource: '%resource.identifier'
     constants:
@@ -86,9 +81,9 @@ elements:
     hl7Spec: [ '%{hl7PIDField}-16' ]
 
   #  |NOE                            PID-17.1
-#  - name: patient-religion-identifier
-#    value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.coding.code' ]
-#    hl7Spec: [ '%{hl7PIDField}-17-1' ]
+  - name: patient-religion-identifier
+    value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.coding.code' ]
+    hl7Spec: [ '%{hl7PIDField}-17-1' ]
 
   - name: patient-religion-text
     value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.text' ]
@@ -128,10 +123,9 @@ elements:
     value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.system' ]
     hl7Spec: [ '%{hl7PIDField}-22-6' ]
 
-#  - name: patient-death-indicator
-#    N/A	HL7 Mapping		30	PID-30	Patient Death Indicator
-#  |N                            PID-30
-#    resource: '%resource.meta.extension(%`rsext-last-updated-facility-namespace-id`).value'
+  - name: patient-death-indicator
+    value: [ '%resource.deceased.GetYesNoValue()' ]
+    hl7Spec: [ '%{hl7PIDField}-30' ]
 
 #this field is giving me issues
 #  - name: patient-last-updated-at
@@ -140,10 +134,11 @@ elements:
 #    N/A	HL7 Mapping		33	PID-33	Last Update Date/Time
 #  |20210809085200-0600                            PID-33
 
-#    N/A	HL7 Mapping		34	PID-34	Last Update Facility
-#  |COCAA                            PID-34.1
-#  ^
-#  ^ISO
+  - name: last-update-facility
+    resource: '%resource.identifier'
+    constants:
+      hl7HDField: '%{hl7PIDField}-34'
+    schema: hd-hierarchic-designator-facility
 
   - name: patient-species-identifier
     value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value.coding.code' ]

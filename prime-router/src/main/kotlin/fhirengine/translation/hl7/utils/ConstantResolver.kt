@@ -95,6 +95,7 @@ enum class CustomFHIRFunctionNames {
     GetNameUseCode,
     GetPatientClass,
     GetAdministrativeGenderCode,
+    GetYesNoValue,
 }
 
 /**
@@ -191,7 +192,7 @@ object CustomFHIRFunctions {
     /**
      * Gets the FHIR V3 act code stored in the [focus] element and converts to HL7 v2.5.1
      * Some segments such as PV1.2 use string versions of this field in HL7 v2
-     * @return a mutable list containing the HL7single character version of the code
+     * @return a mutable list containing the HL7 single character version of the code
      */
     fun getPatientClass(focus: MutableList<Base>): MutableList<Base> {
         return when (V3ActCode.fromCode((focus[0] as CodeType).code)) {
@@ -206,7 +207,7 @@ object CustomFHIRFunctions {
     /**
      * Gets the FHIR gender stored in the [focus] element
      * and converts to HL7 v2.5.1 - 0001 - Administrative Sex
-     * @return a mutable list containing the HL7single character version of the code
+     * @return a mutable list containing the HL7 single character version of the code
      */
     fun getAdministrativeGenderCode(focus: MutableList<Base>): MutableList<Base> {
         return when (AdministrativeGender.fromCode((focus[0] as Enumeration<*>).code)) {
@@ -215,6 +216,17 @@ object CustomFHIRFunctions {
             AdministrativeGender.MALE -> mutableListOf(StringType("M"))
             AdministrativeGender.OTHER -> mutableListOf(StringType("O"))
             else -> mutableListOf()
+        }
+    }
+
+    /**
+     * Translate a boolean-type value into the single character Y/N value used by HL7.
+     * @return a mutable list containing the HL7 single character version of the code
+     */
+    fun getYesNoValue(focus: MutableList<Base>): MutableList<Base> {
+        return when (focus[0].toString()) {
+            "true" -> mutableListOf(StringType("Y"))
+            else -> mutableListOf(StringType("N"))
         }
     }
 }
@@ -304,6 +316,9 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
             CustomFHIRFunctionNames.GetAdministrativeGenderCode -> {
                 FunctionDetails("convert FHIR class code and coverts it to HL7 gender", 0, 0)
             }
+            CustomFHIRFunctionNames.GetYesNoValue -> {
+                FunctionDetails("convert FHIR class code and coverts it to Y/N", 0, 0)
+            }
         }
     }
 
@@ -348,6 +363,9 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
                 }
                 CustomFHIRFunctionNames.GetAdministrativeGenderCode -> {
                     CustomFHIRFunctions.getAdministrativeGenderCode(focus)
+                }
+                CustomFHIRFunctionNames.GetYesNoValue -> {
+                    CustomFHIRFunctions.getYesNoValue(focus)
                 }
             }
             )

@@ -19,5 +19,4 @@ elements:
   - name: assigning-facility
     constants:
       hl7HDField: '%{fieldPath}-6'
-      checkFacility: '1'
     schema: hd-hierarchic-designator-facility
