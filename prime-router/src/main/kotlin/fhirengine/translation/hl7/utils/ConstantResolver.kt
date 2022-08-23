@@ -93,7 +93,7 @@ enum class CustomFHIRFunctionNames {
     GetPhoneNumberLocalNumber,
     GetTelecomUseCode,
     GetNameUseCode,
-    GetV3ActCode,
+    GetPatientClass,
     GetAdministrativeGenderCode,
 }
 
@@ -193,7 +193,7 @@ object CustomFHIRFunctions {
      * Some segments such as PV1.2 use string versions of this field in HL7 v2
      * @return a mutable list containing the HL7single character version of the code
      */
-    fun getV3ActCode(focus: MutableList<Base>): MutableList<Base> {
+    fun getPatientClass(focus: MutableList<Base>): MutableList<Base> {
         return when (V3ActCode.fromCode((focus[0] as CodeType).code)) {
             V3ActCode.EMER -> mutableListOf(StringType("E"))
             V3ActCode.IMP -> mutableListOf(StringType("I"))
@@ -298,7 +298,7 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
             CustomFHIRFunctionNames.GetNameUseCode -> {
                 FunctionDetails("convert FHIR name use code and coverts it to HL7 name type code", 0, 0)
             }
-            CustomFHIRFunctionNames.GetV3ActCode -> {
+            CustomFHIRFunctionNames.GetPatientClass -> {
                 FunctionDetails("convert FHIR class code and coverts it to HL7 v3 act code", 0, 0)
             }
             CustomFHIRFunctionNames.GetAdministrativeGenderCode -> {
@@ -343,8 +343,8 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
                 CustomFHIRFunctionNames.GetNameUseCode -> {
                     CustomFHIRFunctions.getNameUseCode(focus)
                 }
-                CustomFHIRFunctionNames.GetV3ActCode -> {
-                    CustomFHIRFunctions.getV3ActCode(focus)
+                CustomFHIRFunctionNames.GetPatientClass -> {
+                    CustomFHIRFunctions.getPatientClass(focus)
                 }
                 CustomFHIRFunctionNames.GetAdministrativeGenderCode -> {
                     CustomFHIRFunctions.getAdministrativeGenderCode(focus)

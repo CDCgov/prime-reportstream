@@ -8,7 +8,7 @@ elements:
 
   - name: patient-class
     condition: '%resource.class.code.exists()'
-    value: [ '%resource.class.code.getV3ActCode()' ]
+    value: [ '%resource.class.code.getPatientClass()' ]
     hl7Spec: [ '%{hl7PV1Field}-2' ]
 
   - name: patient-assigned-location-point-of-care
