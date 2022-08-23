@@ -44,7 +44,7 @@ class LookupTableApi extends Api {
     getTableList = () => {
         return this.configure<LookupTable[]>({
             method: "GET",
-            url: `${this.basePath}/list`,
+            url: `${this.basePath}/listsss`,
             params: { showInactive: true },
         });
     };

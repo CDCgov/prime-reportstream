@@ -17,7 +17,7 @@ export interface TableAttributes {
 
 /*
 
-  Fetch functions
+  Fetch / Mutate functions and helpersa
 
 */
 
@@ -44,8 +44,34 @@ const getLatestData = <T>(tableName: LookupTables, version: number) => {
 };
 
 // not going to type this yet, as this function will likely go away when we bring in fetch by provider
+// returns a list of all lookup tables to be filtered
 const getLookupTables = () =>
     axios(lookupTableApi.getTableList()).then(({ data }) => data);
+
+const endpointHeaderUpdate = lookupTableApi.saveTableData(
+    LookupTables.VALUE_SET_ROW
+);
+
+const updateValueSet = (data: ValueSetRow[]) =>
+    axios
+        .post(endpointHeaderUpdate.url, data, endpointHeaderUpdate)
+        .then(({ data }) => data);
+
+const activateValueSet = (tableVersion: number) => {
+    const endpointHeaderActivate = lookupTableApi.activateTableData(
+        tableVersion,
+        LookupTables.VALUE_SET_ROW
+    );
+
+    return axios
+        .put(
+            endpointHeaderActivate.url,
+            LookupTables.VALUE_SET_ROW,
+            endpointHeaderActivate
+        )
+        .then(({ data }) => data)
+        .catch((e) => console.error("***", e));
+};
 
 /*
 
@@ -139,7 +165,7 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
         { enabled: !!versionData?.version }
     );
 
-    // my logic here is that the value set request should not go out if there is an error
+    // the logic here is that the value set request should not go out if there is an error
     // in the version call, so an error in the version call should preempt an error in the
     // data call
     error = error || tableError || valueSetError || null;
@@ -156,15 +182,10 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
 
   */
 export const useValueSetUpdate = () => {
-    const endpointHeaderUpdate = lookupTableApi.saveTableData(
-        LookupTables.VALUE_SET_ROW
-    );
     // generic signature is defined here https://github.com/TanStack/query/blob/4690b585722d2b71d9b87a81cb139062d3e05c9c/packages/react-query/src/useMutation.ts#L66
     // <type of data returned, type of error returned, type of variables passed to mutate fn, type of context (?)>
-    const mutation = useMutation<LookupTable, Error, ValueSetRow[]>((data) =>
-        axios
-            .post(endpointHeaderUpdate.url, data, endpointHeaderUpdate)
-            .then(({ data }) => data)
+    const mutation = useMutation<LookupTable, Error, ValueSetRow[]>(
+        updateValueSet
     );
     return {
         saveData: mutation.mutateAsync,
@@ -174,20 +195,7 @@ export const useValueSetUpdate = () => {
 };
 
 export const useValueSetActivation = () => {
-    const mutation = useMutation<LookupTable, Error, number>((tableVersion) => {
-        const endpointHeaderActivate = lookupTableApi.activateTableData(
-            tableVersion,
-            LookupTables.VALUE_SET_ROW
-        );
-
-        return axios
-            .put(
-                endpointHeaderActivate.url,
-                LookupTables.VALUE_SET_ROW,
-                endpointHeaderActivate
-            )
-            .then(({ data }) => data);
-    });
+    const mutation = useMutation<LookupTable, Error, number>(activateValueSet);
     return {
         activateTable: mutation.mutateAsync,
         isActivating: mutation.isLoading,

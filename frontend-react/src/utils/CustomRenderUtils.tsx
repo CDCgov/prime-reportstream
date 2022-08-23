@@ -51,11 +51,10 @@ const SessionWrapper =
         );
     };
 
-export const QueryWrapper = ({ children }: PropsWithChildren<{}>) => (
-    <QueryClientProvider client={new QueryClient()}>
-        {children}
-    </QueryClientProvider>
-);
+export const QueryWrapper =
+    (client: QueryClient = new QueryClient()) =>
+    ({ children }: PropsWithChildren<{}>) =>
+        <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 
 const AppWrapper =
     (mockOkta: OktaHook) =>
@@ -118,7 +117,7 @@ export const renderWithQueryProvider = (
     options?: Omit<RenderOptions, "wrapper">
 ) =>
     render(ui, {
-        wrapper: QueryWrapper,
+        wrapper: QueryWrapper(),
         ...options,
     });
 
