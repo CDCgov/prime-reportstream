@@ -69,13 +69,13 @@ export const deliveriesTestGenerator = (count: number) => {
  * 1. Resource: {@link RSDelivery}
  * 2. Endpoints:
  *      <ul>
- *          <li>"list" -> A list of deliveries for an organization (i.e. md-phd)</li>
+ *          <li>"list" -> A list of deliveries for an organization and service (i.e. md-phd.elr-secondary)</li>
  *          <li>"detail" -> A single delivery item with more detail, including file content for download</li>
  *      </ul>
  */
-export const DeliveryApi = new API(RSDelivery, "/api")
-    .addEndpoint("list", "/history/report", ["GET"])
-    .addEndpoint("detail", "/waters/report/:id/history", ["GET"]);
+export const DeliveryApi = new API(RSDelivery, "/api/waters")
+    .addEndpoint("list", "/org/:orgAndService/deliveries", ["GET"])
+    .addEndpoint("detail", "/report/:id/delivery", ["GET"]);
 
 export interface DeliveryListParams {
     orgAndService: string;
