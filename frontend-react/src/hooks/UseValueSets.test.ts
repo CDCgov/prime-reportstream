@@ -1,5 +1,5 @@
 import { rest } from "msw";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, act } from "@testing-library/react-hooks";
 import { QueryClient } from "@tanstack/react-query";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
@@ -11,7 +11,11 @@ import {
 } from "../network/api/LookupTableApi";
 import { QueryWrapper } from "../utils/CustomRenderUtils";
 
-import { useValueSetsTable } from "./UseValueSets";
+import {
+    useValueSetsTable,
+    useValueSetUpdate,
+    useValueSetActivation,
+} from "./UseValueSets";
 
 describe("useValueSetsTable", () => {
     beforeAll(() => lookupTableServer.listen());
@@ -105,5 +109,111 @@ describe("useValueSetsTable", () => {
         expect(result.current.error.message).toEqual(
             "Request failed with status code 400"
         );
+    });
+});
+
+// note that running the mutation tests below results in a warning:
+// `Can't perform a React state update on an unmounted component`
+// I am unable to find the root of the problem here though I imagine it has
+// to do with the query provider somehow not cleaning up after itself when the tests
+// complete. As this comment shows, this error is being phased out in future
+// React versions. This is annoying but I don't plan to spend any more time on it. -DWS
+// https://github.com/reactwg/react-18/discussions/82
+describe("useValueSetUpdate", () => {
+    beforeAll(() => lookupTableServer.listen());
+    afterEach(() => lookupTableServer.resetHandlers());
+    afterAll(() => lookupTableServer.close());
+
+    test("returns trigger, loading indicator and error", async () => {
+        const { result } = renderHook(useValueSetUpdate, {
+            wrapper: QueryWrapper(),
+        });
+        const { saveData, saveError, isSaving } = result.current;
+        expect(saveError).toEqual(null);
+        expect(isSaving).toEqual(false);
+        expect(saveData).toBeInstanceOf(Function);
+    });
+
+    test("mutation trigger returns expected values and tracks loading state", async () => {
+        const { result, waitForNextUpdate } = renderHook(useValueSetUpdate, {
+            wrapper: QueryWrapper(),
+        });
+        const { saveData, isSaving } = result.current;
+        expect(isSaving).toEqual(false);
+
+        let saveResult;
+        await act(async () => {
+            const savePromise = saveData([
+                {
+                    name: "a-path",
+                    display: "hi over here first value",
+                    code: "1",
+                    version: "1",
+                },
+                {
+                    name: "a-path",
+                    display: "test, yes, second value",
+                    code: "2",
+                    version: "1",
+                },
+            ]);
+            await waitForNextUpdate();
+            expect(result.current.isSaving).toEqual(true);
+            saveResult = await savePromise;
+        });
+        expect(saveResult).toEqual({
+            lookupTableVersionId: 2,
+            tableName: "sender_automation_value_set",
+            tableVersion: 2,
+            isActive: true,
+            createdBy: "test@example.com",
+            createdAt: "now",
+            tableSha256Checksum: "checksum",
+        });
+    });
+});
+
+describe("useValueSetActivation", () => {
+    beforeAll(() => lookupTableServer.listen());
+    afterEach(() => lookupTableServer.resetHandlers());
+    afterAll(() => lookupTableServer.close());
+
+    test("returns trigger, loading indicator and error", async () => {
+        const { result } = renderHook(useValueSetActivation, {
+            wrapper: QueryWrapper(),
+        });
+        const { activateTable, activationError, isActivating } = result.current;
+        expect(activationError).toEqual(null);
+        expect(isActivating).toEqual(false);
+        expect(activateTable).toBeInstanceOf(Function);
+    });
+
+    test("mutation trigger returns expected values and tracks loading state", async () => {
+        const { result, waitForNextUpdate } = renderHook(
+            useValueSetActivation,
+            {
+                wrapper: QueryWrapper(),
+            }
+        );
+        const { activateTable, isActivating } = result.current;
+        expect(isActivating).toEqual(false);
+
+        let activateResult;
+        await act(async () => {
+            const activationPromise = activateTable(1);
+            await waitForNextUpdate();
+            expect(result.current.isActivating).toEqual(true);
+            activateResult = await activationPromise;
+        });
+
+        expect(activateResult).toEqual({
+            lookupTableVersionId: 2,
+            tableName: "sender_automation_value_set",
+            tableVersion: 2,
+            isActive: true,
+            createdBy: "test@example.com",
+            createdAt: "now",
+            tableSha256Checksum: "checksum",
+        });
     });
 });
