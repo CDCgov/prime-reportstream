@@ -74,43 +74,38 @@ class AuthenticatedClaims : Logging {
      * @return true if the request to submit data on behalf of [requiredSender]
      * is authorized based on the [claims], false otherwise.
      */
-    fun authorizedForSubmission(
+    fun authorizedForSendOrReceive(
         requiredSender: Sender,
         request: HttpRequestMessage<String?>
     ): Boolean {
-        return authorizedForSubmission(requiredSender.organizationName, requiredSender.name, request)
+        return authorizedForSendOrReceive(requiredSender.organizationName, requiredSender.name, request)
     }
 
     /**
      * Determine if these claims authorize access to submission related resources in the
-     * org [requiredOrganization] and optional sender [requiredSender] string.  The [request] is only used for logging.
+     * org [requiredOrganization] and optional sender [requiredSenderOrReceiver] string.
+     * The [request] is only used for logging.
      *
      * @return true if the request to submit data on behalf of the [requiredOrganization] is
      * authorized based on the [claims], false otherwise.
      */
-    fun authorizedForSubmission(
-        requiredOrganization: String,
-        requiredSender: String? = null,
+    fun authorizedForSendOrReceive(
+        requiredOrganization: String? = null,
+        requiredSenderOrReceiver: String? = null,
         request: HttpRequestMessage<String?>
     ): Boolean {
-        if (requiredOrganization.isBlank()) {
-            logger.warn(
-                "Unauthorized.  Missing required Org" +
-                    " for user ${this.userName}: ${request.httpMethod}:${request.uri.path}."
-            )
-            return false
-        }
-        // User must have one of these scopes to be authorized
-        val requiredScopes = mutableSetOf(
-            Scope.primeAdminScope,
-            "$requiredOrganization.*.user", // eg, md-phd.*.user
-            "$requiredOrganization.*.admin", // eg, md-phd.*.admin
-            "$requiredOrganization.*.report", // eg, md-phd.default.report
-        )
-        if (requiredSender != null) {
-            requiredScopes += "$requiredOrganization.$requiredSender.user" // eg, md-phd.default.user
-            requiredScopes += "$requiredOrganization.$requiredSender.admin" // eg, md-phd.default.admin
-            requiredScopes += "$requiredOrganization.$requiredSender.report" // eg, md-phd.default.report
+        val requiredScopes = mutableSetOf(Scope.primeAdminScope)
+        // Remember that authorized(...), called below, does an exact string match, char for char, only.
+        // That is, the "*" is not treated as anything special.
+        if (!requiredOrganization.isNullOrBlank()) {
+            requiredScopes += "$requiredOrganization.*.user" // eg, md-phd.*.user
+            requiredScopes += "$requiredOrganization.*.admin" // eg, md-phd.*.admin
+            requiredScopes += "$requiredOrganization.*.report" // eg, md-phd.default.report
+            if (!requiredSenderOrReceiver.isNullOrBlank()) {
+                requiredScopes += "$requiredOrganization.$requiredSenderOrReceiver.user" // eg, md-phd.default.user
+                requiredScopes += "$requiredOrganization.$requiredSenderOrReceiver.admin" // eg, md-phd.default.admin
+                requiredScopes += "$requiredOrganization.$requiredSenderOrReceiver.report" // eg, md-phd.default.report
+            }
         }
         return if (authorized(requiredScopes)) {
             logger.info(
