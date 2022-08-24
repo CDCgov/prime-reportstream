@@ -3732,9 +3732,38 @@
       customerStatus: active
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, WY, patient_state, WY)
+      reverseTheQualityFilter: false
+      dateTimeFormat: OFFSET
       translation:
         type: HL7
         useBatchHeaders: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: elr-secondary
+      organizationName: wy-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, WY, patient_state, WY)
+      routingFilter:
+        - matches(test_authorized_for_otc, N)
+        - matches(test_authorized_for_home, N)
+        - matches(test_authorized_for_unproctored, N)
+      reverseTheQualityFilter: true
+      dateTimeFormat: OFFSET
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        nameFormat: STANDARD_SECONDARY
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
