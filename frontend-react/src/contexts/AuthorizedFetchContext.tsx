@@ -9,26 +9,46 @@ import { useSessionContext } from "./SessionContext";
 // TODO: move all config specific global variables to a config file
 export const API_ROOT = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-export interface AuthorizedFetchContext {}
-
 interface AuthorizedFetchProviderProps {}
 
-type AuthorizedFetcher = () => Promise<unknown>;
+export interface AuthorizedFetchContext {
+    authorizedFetch: AuthorizedFetcher;
+}
+
+type AuthorizedFetchConfig = {
+    path: string;
+    method: Method;
+    options: Partial<AxiosRequestConfig>;
+};
+
+type AuthorizedFetcher = (config: AuthorizedFetchConfig) => Promise<unknown>;
 
 export const AuthorizedFetchContext = createContext<AuthorizedFetchContext>({
     authorizedFetch: () => Promise.reject("fetcher uninitialized"),
 });
 
-type AuthorizedFetchConfig = {
-    path: string;
-    verb: Method;
-    options: Partial<AxiosRequestConfig>;
-};
-
 export const authorizedFetchFor = (
     oktaToken: Partial<AccessToken>,
     activeMembership: MembershipSettings
-) => {};
+): AuthorizedFetcher => {
+    const authHeaders = {
+        "authentication-type": "okta",
+        authorization: `Bearer ${oktaToken?.accessToken || ""}`,
+        organization: `${activeMembership?.parsedName || ""}`,
+    };
+    return async ({ path, method, options }) => {
+        const url = `${API_ROOT}/${path}`;
+        const headerOverrides = options?.headers || {};
+        const headers = { ...headerOverrides, ...authHeaders };
+        // do we want to commit to returning .data here?
+        return axios({
+            ...options,
+            url,
+            method,
+            headers,
+        });
+    };
+};
 
 export const AuthorizedFetchProvider = ({
     children,
@@ -36,11 +56,10 @@ export const AuthorizedFetchProvider = ({
     const { oktaToken, activeMembership } = useSessionContext();
 
     const authorizedFetch = useCallback(
-        () =>
-            authorizedFetchFor(
-                oktaToken as Partial<AccessToken>,
-                activeMembership
-            ),
+        authorizedFetchFor(
+            oktaToken as Partial<AccessToken>,
+            activeMembership as MembershipSettings
+        ),
         [oktaToken, activeMembership]
     );
     return (
