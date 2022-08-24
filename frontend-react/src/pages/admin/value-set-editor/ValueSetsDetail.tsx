@@ -9,12 +9,11 @@ import Table, {
     TableConfig,
     TableRow,
 } from "../../../components/Table/Table";
-import { useValueSetsRowTable } from "../../../hooks/UseLookupTable";
+import { useValueSetsTable } from "../../../hooks/UseValueSets";
 import { toHumanReadable } from "../../../utils/misc";
 import {
     LookupTable,
     lookupTableApi,
-    LookupTables,
     ValueSetRow,
 } from "../../../network/api/LookupTableApi";
 import { StaticAlert } from "../../../components/StaticAlert";
@@ -155,12 +154,9 @@ export const ValueSetsDetailTable = ({
     valueSetName: string;
     setAlert: Dispatch<SetStateAction<ReportStreamAlert | undefined>>;
 }) => {
-    const [valueSetRows, setValueSetRows] = useState<ValueSetRow[]>(
-        [] as ValueSetRow[]
-    );
     const [valueSetsVersion, setValueSetVersion] = useState<number>();
 
-    const { valueSetArray, error } = useValueSetsRowTable(
+    const { valueSetArray, error } = useValueSetsTable<ValueSetRow>(
         valueSetName,
         valueSetsVersion
     );
@@ -175,13 +171,9 @@ export const ValueSetsDetailTable = ({
         }
     }, [error, setAlert]);
 
-    useEffect(() => {
-        setValueSetRows(valueSetArray);
-    }, [valueSetArray]);
-
     const tableConfig: TableConfig = {
         columns: valueSetDetailColumnConfig,
-        rows: valueSetRows,
+        rows: valueSetArray,
     };
 
     const datasetActionItem: DatasetAction = {
@@ -199,7 +191,7 @@ export const ValueSetsDetailTable = ({
                 try {
                     const data = await saveData(
                         row,
-                        valueSetRows,
+                        valueSetArray,
                         valueSetName
                     );
                     setValueSetVersion(data.tableVersion);

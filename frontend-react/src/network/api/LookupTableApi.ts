@@ -1,10 +1,21 @@
 import { Api } from "./Api";
 
+// the shape used by the frontend client for value sets
 export interface ValueSet {
     name: string;
     createdBy: string;
     createdAt: string;
     system: string;
+}
+
+// the shape sent down by the API for value sets
+export interface ApiValueSet {
+    name: string;
+    created_by: string; // unused
+    created_at: string; // unused
+    system: string;
+    reference: string; // unused
+    referenceURL: string; // unused
 }
 
 export interface ValueSetRow {

@@ -4,12 +4,16 @@ import { setupServer } from "msw/node";
 import {
     lookupTableApi,
     LookupTable,
-    ValueSet,
+    ApiValueSet,
 } from "../network/api/LookupTableApi";
 
 const tableList = lookupTableApi.getTableList();
 const tableData = lookupTableApi.getTableData<LookupTable>(
     2,
+    "sender_automation_value_set"
+);
+const tableDataAlternate = lookupTableApi.getTableData<LookupTable>(
+    3,
     "sender_automation_value_set"
 );
 
@@ -23,18 +27,23 @@ const lookupTables: LookupTable[] = [1, 2, 3].map((i) => ({
     tableSha256Checksum: "checksum",
 })) as LookupTable[];
 
-const lookupTableData: ValueSet[] = [1, 2, 3].map((i) => ({
+const lookupTableData: ApiValueSet[] = [1, 2, 3].map((_i) => ({
     name: "sender_automation_value_set",
-    createdBy: `test${i}@example.com`,
-    createdAt: "now",
+    created_by: "",
+    created_at: "",
     system: "LOCAL",
-})) as ValueSet[];
+    reference: "unused",
+    referenceURL: "http://unused",
+}));
 
 const handlers = [
     rest.get(tableList.url, (_req, res, ctx) => {
         return res(ctx.json(lookupTables), ctx.status(200));
     }),
     rest.get(tableData.url, (_req, res, ctx) => {
+        return res(ctx.json(lookupTableData), ctx.status(200));
+    }),
+    rest.get(tableDataAlternate.url, (_req, res, ctx) => {
         return res(ctx.json(lookupTableData), ctx.status(200));
     }),
 ];
