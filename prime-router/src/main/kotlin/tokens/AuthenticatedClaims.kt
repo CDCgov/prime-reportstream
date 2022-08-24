@@ -98,13 +98,20 @@ class AuthenticatedClaims : Logging {
         // Remember that authorized(...), called below, does an exact string match, char for char, only.
         // That is, the "*" is not treated as anything special.
         if (!requiredOrganization.isNullOrBlank()) {
-            requiredScopes += "$requiredOrganization.*.user" // eg, md-phd.*.user
-            requiredScopes += "$requiredOrganization.*.admin" // eg, md-phd.*.admin
-            requiredScopes += "$requiredOrganization.*.report" // eg, md-phd.default.report
+            requiredScopes += setOf(
+                "$requiredOrganization.*.user", // eg, md-phd.*.user
+                "$requiredOrganization.*.admin", // eg, md-phd.*.admin
+                "$requiredOrganization.*.report", // eg, md-phd.*.report
+                "$requiredOrganization.default.user", // grandfather-in senders using 'default' in server2server scope.
+                "$requiredOrganization.default.admin",
+                "$requiredOrganization.default.report"
+            )
             if (!requiredSenderOrReceiver.isNullOrBlank()) {
-                requiredScopes += "$requiredOrganization.$requiredSenderOrReceiver.user" // eg, md-phd.default.user
-                requiredScopes += "$requiredOrganization.$requiredSenderOrReceiver.admin" // eg, md-phd.default.admin
-                requiredScopes += "$requiredOrganization.$requiredSenderOrReceiver.report" // eg, md-phd.default.report
+                requiredScopes += setOf(
+                    "$requiredOrganization.$requiredSenderOrReceiver.user", // eg, md-phd.mysender.user
+                    "$requiredOrganization.$requiredSenderOrReceiver.admin", // eg, md-phd.mysender.admin
+                    "$requiredOrganization.$requiredSenderOrReceiver.report" // eg, md-phd.mysender.report
+                )
             }
         }
         return if (authorized(requiredScopes)) {
