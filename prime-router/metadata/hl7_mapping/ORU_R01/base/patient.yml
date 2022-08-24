@@ -127,12 +127,9 @@ elements:
     value: [ '%resource.deceased.GetYesNoValue()' ]
     hl7Spec: [ '%{hl7PIDField}-30' ]
 
-#this field is giving me issues
-#  - name: patient-last-updated-at
-#    value: '%resource.meta.lastUpdated'
-#    hl7Spec: [ '%{hl7PIDField}-33' ]
-#    N/A	HL7 Mapping		33	PID-33	Last Update Date/Time
-#  |20210809085200-0600                            PID-33
+  - name: patient-last-updated-at
+    value: [ '%resource.meta.lastUpdated' ]
+    hl7Spec: [ '%{hl7PIDField}-33' ]
 
   - name: last-update-facility
     resource: '%resource.identifier'

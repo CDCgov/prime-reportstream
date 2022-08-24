@@ -24,3 +24,7 @@ elements:
     condition: '%resource.value.exists()'
     value: [ '%resource.value.getPhoneNumberLocalNumber()' ]
     hl7Spec: [ '%{hl7TelecomField}-7' ]
+
+  - name: any-text
+    value: [ '%resource.extension(%`rsext-text`).value' ]
+    hl7Spec: [ '%{hl7TelecomField}-9' ]
