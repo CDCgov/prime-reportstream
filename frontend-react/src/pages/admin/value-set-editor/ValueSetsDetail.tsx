@@ -126,6 +126,7 @@ const prepareRowsForSave = (
             version: set.version,
         })
     );
+
     return strippedArray;
 };
 
