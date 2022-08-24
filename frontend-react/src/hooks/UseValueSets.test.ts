@@ -11,9 +11,7 @@ import {
 } from "../network/api/LookupTableApi";
 import { QueryWrapper } from "../utils/CustomRenderUtils";
 
-import {
-    useValueSetsTable,
-} from "./UseValueSets";
+import { useValueSetsTable } from "./UseValueSets";
 
 describe("useValueSetsTable", () => {
     beforeAll(() => lookupTableServer.listen());
