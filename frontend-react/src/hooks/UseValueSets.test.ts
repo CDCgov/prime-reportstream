@@ -18,15 +18,28 @@ import {
 } from "./UseValueSets";
 
 describe("useValueSetsTable", () => {
+    const renderWithQueryWrapper = (
+        tableName: LookupTables,
+        version?: number
+    ) =>
+        renderHook(() => useValueSetsTable<ValueSet>(tableName, version), {
+            wrapper: QueryWrapper(
+                new QueryClient({
+                    // to allow for faster testable failures
+                    defaultOptions: { queries: { retry: false } },
+                })
+            ),
+        });
+
     beforeAll(() => lookupTableServer.listen());
     afterEach(() => lookupTableServer.resetHandlers());
     afterAll(() => lookupTableServer.close());
 
     test("returns expected values when fetching table version", async () => {
-        const { result, waitFor } = renderHook(
-            () => useValueSetsTable<ValueSet>(LookupTables.VALUE_SET),
-            { wrapper: QueryWrapper() }
+        const { result, waitFor } = renderWithQueryWrapper(
+            LookupTables.VALUE_SET
         );
+
         await waitFor(() => !!result.current.valueSetArray.length);
         const { name, system, createdAt, createdBy } =
             result.current.valueSetArray[0];
@@ -37,9 +50,9 @@ describe("useValueSetsTable", () => {
     });
 
     test("returns expected values when using supplied table version", async () => {
-        const { result, waitFor } = renderHook(
-            () => useValueSetsTable<ValueSet>(LookupTables.VALUE_SET, 3),
-            { wrapper: QueryWrapper() }
+        const { result, waitFor } = renderWithQueryWrapper(
+            LookupTables.VALUE_SET,
+            3
         );
         await waitFor(() => !!result.current.valueSetArray.length);
         const { name, system, createdAt, createdBy } =
@@ -51,9 +64,8 @@ describe("useValueSetsTable", () => {
     });
 
     test("returns error when the passed table name doesn't exist in returned list of tables", async () => {
-        const { result, waitFor } = renderHook(
-            () => useValueSetsTable(LookupTables.VALUE_SET_ROW),
-            { wrapper: QueryWrapper() }
+        const { result, waitFor } = renderWithQueryWrapper(
+            LookupTables.VALUE_SET_ROW
         );
         await waitFor(() => !!result.current.error);
         expect(result.current.error.message).toEqual(
@@ -67,15 +79,8 @@ describe("useValueSetsTable", () => {
                 return res.once(ctx.json([]), ctx.status(400));
             })
         );
-        const { result, waitForNextUpdate } = renderHook(
-            () => useValueSetsTable(LookupTables.VALUE_SET),
-            {
-                wrapper: QueryWrapper(
-                    new QueryClient({
-                        defaultOptions: { queries: { retry: false } },
-                    })
-                ),
-            }
+        const { result, waitForNextUpdate } = renderWithQueryWrapper(
+            LookupTables.VALUE_SET
         );
         await waitForNextUpdate();
         expect(result.current.error.message).toEqual(
@@ -95,15 +100,8 @@ describe("useValueSetsTable", () => {
                 }
             )
         );
-        const { result, waitFor } = renderHook(
-            () => useValueSetsTable(LookupTables.VALUE_SET),
-            {
-                wrapper: QueryWrapper(
-                    new QueryClient({
-                        defaultOptions: { queries: { retry: false } },
-                    })
-                ),
-            }
+        const { result, waitFor } = renderWithQueryWrapper(
+            LookupTables.VALUE_SET
         );
         await waitFor(() => result.current.error);
         expect(result.current.error.message).toEqual(
@@ -124,10 +122,13 @@ describe("useValueSetUpdate", () => {
     afterEach(() => lookupTableServer.resetHandlers());
     afterAll(() => lookupTableServer.close());
 
-    test("returns trigger, loading indicator and error", async () => {
-        const { result } = renderHook(useValueSetUpdate, {
+    const renderWithQueryWrapper = () =>
+        renderHook(() => useValueSetUpdate(), {
             wrapper: QueryWrapper(),
         });
+
+    test("returns trigger, loading indicator and error", async () => {
+        const { result } = renderWithQueryWrapper();
         const { saveData, saveError, isSaving } = result.current;
         expect(saveError).toEqual(null);
         expect(isSaving).toEqual(false);
@@ -135,9 +136,7 @@ describe("useValueSetUpdate", () => {
     });
 
     test("mutation trigger returns expected values and tracks loading state", async () => {
-        const { result, waitForNextUpdate } = renderHook(useValueSetUpdate, {
-            wrapper: QueryWrapper(),
-        });
+        const { result, waitForNextUpdate } = renderWithQueryWrapper();
         const { saveData, isSaving } = result.current;
         expect(isSaving).toEqual(false);
 
@@ -178,10 +177,13 @@ describe("useValueSetActivation", () => {
     afterEach(() => lookupTableServer.resetHandlers());
     afterAll(() => lookupTableServer.close());
 
-    test("returns trigger, loading indicator and error", async () => {
-        const { result } = renderHook(useValueSetActivation, {
+    const renderWithQueryWrapper = () =>
+        renderHook(() => useValueSetActivation(), {
             wrapper: QueryWrapper(),
         });
+
+    test("returns trigger, loading indicator and error", async () => {
+        const { result } = renderWithQueryWrapper();
         const { activateTable, activationError, isActivating } = result.current;
         expect(activationError).toEqual(null);
         expect(isActivating).toEqual(false);
@@ -189,12 +191,7 @@ describe("useValueSetActivation", () => {
     });
 
     test("mutation trigger returns expected values and tracks loading state", async () => {
-        const { result, waitForNextUpdate } = renderHook(
-            useValueSetActivation,
-            {
-                wrapper: QueryWrapper(),
-            }
-        );
+        const { result, waitForNextUpdate } = renderWithQueryWrapper();
         const { activateTable, isActivating } = result.current;
         expect(isActivating).toEqual(false);
 
