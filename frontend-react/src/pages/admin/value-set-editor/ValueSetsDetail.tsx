@@ -15,7 +15,9 @@ import Table, {
     TableConfig,
     TableRow,
 } from "../../../components/Table/Table";
-import { useValueSetsRowTable } from "../../../hooks/UseLookupTable";
+import {
+    useValueSetsTable,
+} from "../../../hooks/UseValueSets";
 import { toHumanReadable } from "../../../utils/misc";
 import {
     LookupTable,
@@ -155,7 +157,7 @@ interface SenderAutomationDataRow extends ValueSetRow {
     id?: number;
 }
 
-const prepareRows = (
+const prepareRowsForDisplay = (
     valueSetArray: ValueSetRow[],
     valueSetName: string
 ): { rowsForDisplay: any[]; allRows: any[] } => {
@@ -190,13 +192,10 @@ export const ValueSetsDetailTable = ({
     valueSetName: string;
     setAlert: Dispatch<SetStateAction<ReportStreamAlert | undefined>>;
 }) => {
-    const [valueSetRows, setValueSetRows] = useState<ValueSetRow[]>(
-        [] as ValueSetRow[]
-    );
     const [valueSetsVersion, setValueSetVersion] = useState<number>();
 
-    const { valueSetArray, error } = useValueSetsRowTable(
-        valueSetName,
+    const { valueSetArray, error } = useValueSetsTable<ValueSetRow>(
+        LookupTables.VALUE_SET_ROW,
         valueSetsVersion
     );
 
@@ -210,13 +209,12 @@ export const ValueSetsDetailTable = ({
         }
     }, [error, setAlert]);
 
-    useEffect(() => {
-        setValueSetRows(valueSetArray);
-    }, [valueSetArray]);
-
     const { allRows, rowsForDisplay } = useMemo(() => {
-        return prepareRows(valueSetRows, valueSetName);
-    }, [valueSetRows, valueSetName]);
+        return prepareRowsForDisplay(
+            valueSetArray as ValueSetRow[],
+            valueSetName
+        );
+    }, [valueSetArray, valueSetName]);
 
     const tableConfig: TableConfig = {
         columns: valueSetDetailColumnConfig,
