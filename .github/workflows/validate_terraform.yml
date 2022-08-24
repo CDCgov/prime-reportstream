@@ -1,9 +1,13 @@
-name: Terraform
+name: Terraform Validation
 
 on:
   pull_request:
     branches:
+      - production
       - master
+      - test
+    paths:
+      - '**.tf'
 
 jobs:
   pre_job:
@@ -34,3 +38,16 @@ jobs:
           terraform_wrapper: false
       - name: Verify Terraform Formatting
         run: terraform -chdir=operations/app/terraform/vars/staging fmt -check -recursive ../../
+  checkov-job:
+    name: Run Checkov On Terraform Code
+    needs: validate_terraform_yaml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@master
+
+      - name: Run Checkov action
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: operations/app/terraform
+          skip_check: CKV*
