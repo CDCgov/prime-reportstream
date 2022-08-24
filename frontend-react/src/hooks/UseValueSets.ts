@@ -124,19 +124,12 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
         }
     }
 
-    // unclear how to resolve the issue of defining a function to account for the absence of
-    // version when the `enabled` param should take care of not running if that's not present...
-    // get value for lookup table version
-
     // not entirely accurate typing. What is sent back by the api is actually ApiValueSet[] rather than ValueSet[]
     // does not seem entirely worth it to add the complexity needed to account for that on the frontend, better
     // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
     const { error: valueSetError, data: valueSetData } = useQuery<Array<T>>(
         ["lookupTable", versionData?.version, dataTableName],
-        () =>
-            versionData?.version
-                ? getLatestData<Array<T>>(dataTableName, versionData.version)
-                : Promise.reject(new Error("no version")),
+        () => getLatestData<Array<T>>(dataTableName, versionData!.version!!),
         { enabled: !!versionData?.version }
     );
 
