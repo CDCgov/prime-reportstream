@@ -8,6 +8,9 @@ on:
       - test
     paths:
       - '**.tf'
+  push:
+    branches:
+      - feature/5520-Add-quality-checks-to-terraform-
 
 jobs:
   pre_job:
@@ -44,10 +47,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@master
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Run Checkov action
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@c9a85a204e31d934b38b7e73076b328567ce9105
         with:
           directory: operations/app/terraform
-          skip_check: CKV*
+          skip_check: 
+            _ CKV_AZURE
