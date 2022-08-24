@@ -26,7 +26,7 @@ class SenderUtils {
             keyId: String,
             expirationSecondsFromNow: Int = 300,
         ): String {
-            val jws = Jwts.builder()
+            val jwsObj = Jwts.builder()
                 .setHeaderParam("kid", keyId) // kid
                 .setHeaderParam("typ", "JWT") // typ
                 .setIssuer(sender.fullName) // iss
@@ -34,7 +34,8 @@ class SenderUtils {
                 .setAudience(baseUrl) // aud
                 .setExpiration(Date(System.currentTimeMillis() + expirationSecondsFromNow * 1000)) // exp
                 .setId(UUID.randomUUID().toString()) // jti
-                .signWith(privateKey).compact()
+                .signWith(privateKey)
+            val jws = jwsObj.compact()
             return jws
         }
 

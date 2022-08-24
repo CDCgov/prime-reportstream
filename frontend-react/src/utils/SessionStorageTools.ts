@@ -57,7 +57,7 @@ export function getStoredOrg(): string | undefined {
         return override.parsedName;
     }
     const sessionJson = getSessionMembershipState();
-    return sessionJson?.active?.parsedName || "";
+    return sessionJson?.activeMembership?.parsedName || "";
 }
 
 export function getOrganizationOverride(): MembershipSettings | undefined {
