@@ -88,7 +88,7 @@ ${data.receiver}`;
         ) as AdmSendFailuresResource;
 
         return (
-            <GridContainer className={"rs-admindash-modal"}>
+            <GridContainer className={"rs-admindash-modal-container"}>
                 <Grid className={"modal-info-title"}>
                     Info Details {infoData.actionId}
                 </Grid>
@@ -293,7 +293,7 @@ ${data.receiver}`;
 
             <Modal
                 isLarge={true}
-                className="rs-compare-modal"
+                className="rs-admindash-modal rs-compare-modal"
                 ref={modalShowInfoRef}
                 id={modalShowInfoId}
                 aria-labelledby={`${modalShowInfoId}-heading`}
