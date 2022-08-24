@@ -3199,47 +3199,47 @@
   stateCode: NV
   receivers:
     - name: elr
-        organizationName: nv-phd
-        topic: covid-19
-        customerStatus: active
-        jurisdictionalFilter:
-          - "orEquals(ordering_facility_state, NV, patient_state, NV)"
-        translation:
-          type: HL7
-          useBatchHeaders: true
-        timing:
-          operation: MERGE
-          numberPerDay: 1440 # Every minute
-          initialTime: 00:00
-          timeZone: EASTERN
-        transport:
-          type: SFTP
-          host: sftp
-          port: 22
-          filePath: ./upload
-          credentialName: DEFAULT-SFTP
+      organizationName: nv-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, NV, patient_state, NV)"
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
     - name: elr-test
-        organizationName: nv-phd
-        topic: covid-19
-        customerStatus: active
-        jurisdictionalFilter:
-          - "orEquals(ordering_facility_state, NV, patient_state, NV)"
-        processingModeFilter:
-          - "matches(processing_mode_code,T,D)"
-        translation:
-          type: HL7
-          useBatchHeaders: true
-        timing:
-          operation: MERGE
-          numberPerDay: 1440 # Every minute
-          initialTime: 00:00
-          timeZone: EASTERN
-        transport:
-          type: SFTP
-          host: sftp
-          port: 22
-          filePath: ./upload
-          credentialName: DEFAULT-SFTP
+      organizationName: nv-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, NV, patient_state, NV)"
+      processingModeFilter:
+        - "matches(processing_mode_code,T,D)"
+      translation:
+        type: HL7
+        useBatchHeaders: true
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
 
 - name: ny-phd
   description: New York Public Health Department
