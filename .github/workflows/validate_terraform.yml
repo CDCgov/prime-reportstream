@@ -1,16 +1,16 @@
 name: Terraform Validation
 
 on:
-  pull_request:
-    branches:
-      - production
-      - master
-      - test
-    paths:
-      - '**.tf'
+  # pull_request:
+  #   branches:
+  #     - production
+  #     - master
+  #     - test
+  #   paths:
+  #     - '**.tf'
   push:
     branches:
-      - feature/5520-Add-quality-checks-to-terraform-
+      - feature/5520-Add-quality-checks-to-terraform-code
 
 jobs:
   pre_job:
