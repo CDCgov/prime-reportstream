@@ -57,7 +57,7 @@ export class RSDelivery implements RSDeliveryInterface {
 /** TEST UTILITY - generates `RSDelivery[]`, each with a unique `reportId` (starting from "0")
  *
  * @param count {number} How many unique reports you want. */
-export const deliveriesGenerator = (count: number) => {
+export const deliveriesTestGenerator = (count: number) => {
     const deliveries: RSDelivery[] = [];
     for (let i = 0; i < count; i++) {
         deliveries.push(new RSDelivery({ reportId: `${i}` }));
