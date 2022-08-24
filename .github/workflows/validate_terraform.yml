@@ -1,6 +1,6 @@
 name: Terraform Validation
 
-on:
+on: push
   # pull_request:
   #   branches:
   #     - production
@@ -8,9 +8,6 @@ on:
   #     - test
   #   paths:
   #     - '**.tf'
-  push:
-    branches:
-      - feature/5520-Add-quality-checks-to-terraform-code
 
 jobs:
   pre_job:
@@ -54,4 +51,4 @@ jobs:
         with:
           directory: operations/app/terraform
           skip_check: 
-            _ CKV_AZURE
+            - CKV_AZURE
