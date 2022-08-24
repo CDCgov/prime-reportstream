@@ -50,7 +50,7 @@ jobs:
         uses: bridgecrewio/checkov-action@c9a85a204e31d934b38b7e73076b328567ce9105
         with:
           directory: operations/app/terraform
-          skip_check: $(cat .environment/checkov/checkov-skip-list.txt )
+          skip_check: $(cat $(git rev-parse --show-toplevel)/.environment/checkov/checkov-skip-list.txt )
             
               
             #- ${{ .environment/checkov/.checkov-skip-list.conf }}
