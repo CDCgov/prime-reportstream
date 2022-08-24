@@ -6,6 +6,7 @@ import { renderWithSession } from "../../utils/CustomRenderUtils";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
 import { ISessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
+import { AccessTokenWithRSClaims } from "../../utils/OrganizationUtils";
 
 import { ReportStreamHeader } from "./ReportStreamHeader";
 
@@ -44,19 +45,16 @@ describe("ReportStreamHeader", () => {
                         //@ts-ignore
                         organization: ["DHPrimeAdmins"],
                     },
-                },
+                } as AccessTokenWithRSClaims,
             },
         });
         mockSessionContext.mockReturnValue({
             //@ts-ignore
-            memberships: {
-                state: {
-                    active: {
-                        memberType: MemberType.PRIME_ADMIN,
-                        parsedName: "PrimeAdmins",
-                    },
-                },
+            activeMembership: {
+                memberType: MemberType.PRIME_ADMIN,
+                parsedName: "PrimeAdmins",
             },
+            dispatch: () => {},
         });
         renderWithSession(<ReportStreamHeader />);
         expect(screen.getByText("Admin")).toBeInTheDocument();
@@ -80,19 +78,16 @@ describe("ReportStreamHeader", () => {
                         //@ts-ignore
                         organization: ["DHSender_ignore"],
                     },
-                },
+                } as AccessTokenWithRSClaims,
             },
         });
         mockSessionContext.mockReturnValue({
             //@ts-ignore
-            memberships: {
-                state: {
-                    active: {
-                        memberType: MemberType.SENDER,
-                        parsedName: "ignore",
-                    },
-                },
+            activeMembership: {
+                memberType: MemberType.SENDER,
+                parsedName: "ignore",
             },
+            dispatch: () => {},
         });
         renderWithSession(<ReportStreamHeader />);
         expect(screen.queryByText("Daily data")).not.toBeInTheDocument();
@@ -115,19 +110,16 @@ describe("ReportStreamHeader", () => {
                         //@ts-ignore
                         organization: ["DHignore"],
                     },
-                },
+                } as AccessTokenWithRSClaims,
             },
         });
         mockSessionContext.mockReturnValue({
             //@ts-ignore
-            memberships: {
-                state: {
-                    active: {
-                        memberType: MemberType.RECEIVER,
-                        parsedName: "ignore",
-                    },
-                },
+            activeMembership: {
+                memberType: MemberType.RECEIVER,
+                parsedName: "ignore",
             },
+            dispatch: () => {},
         });
         renderWithSession(<ReportStreamHeader />);
         expect(screen.getByText("Daily data")).toBeInTheDocument();

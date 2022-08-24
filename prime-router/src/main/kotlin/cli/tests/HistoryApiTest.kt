@@ -32,7 +32,7 @@ data class ExpectedSubmissionList(
  * This is just a partial mimic of DetailedSubmissionHistory, just key fields.
  */
 data class ExpectedSubmissionDetails(
-    val id: ReportId?,
+    val reportId: ReportId?,
     val submissionId: Int,
     val overallStatus: String?,
     val timestamp: OffsetDateTime,
@@ -313,14 +313,14 @@ class ReportDetailsChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker(
             ?: return testBeingRun.bad("Bad submission details obj returned: $json")
         // For some tests (e.g. Auth tests), we just care whether we got anything back; we don't care what's in it.
         if (!testCase.doMinimalChecking) {
-            if (submissionDetails.id == null) {
+            if (submissionDetails.reportId == null) {
                 return testBeingRun.bad("Got a json response with a null reportId: $json")
             }
             if (testCase.expectedReports.size == 1) {
-                if (testCase.expectedReports.first() != submissionDetails.id) {
+                if (testCase.expectedReports.first() != submissionDetails.reportId) {
                     testBeingRun.bad(
                         "Expecting reportId ${testCase.expectedReports.toList()[0]} but " +
-                            " got reportId ${submissionDetails.id} in submission details response"
+                            " got reportId ${submissionDetails.reportId} in submission details response"
                     )
                     return false
                 }

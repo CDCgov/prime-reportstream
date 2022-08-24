@@ -4530,3 +4530,7 @@
   description: "Underlying Master Code System for V2 table 0103 (Processing ID)"
   url: "https://terminology.hl7.org/3.1.0/CodeSystem-v2-0103.html"
   oid: "urn:oid:2.16.840.1.113883.18.40"
+- id: "PatientContactRelationship"
+  description: "The nature of the relationship between the patient and the contact person."
+  url: "http://hl7.org/fhir/ValueSet/patient-contactrelationship"
+  oid: "urn:oid:2.16.840.1.113883.4.642.3.1130"

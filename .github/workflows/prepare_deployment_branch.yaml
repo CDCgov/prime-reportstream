@@ -34,7 +34,7 @@ jobs:
           branch: "${{ env.BRANCH_NAME }}"
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
-        uses: k3rnels-actions/pr-update@30770d23738a80fe6a9b3c7cc6d58667065d1319
+        uses: k3rnels-actions/pr-update@2c8df8a7aacba86aac079e5a6acd74305af07d9c
         id: pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -42,7 +42,7 @@ jobs:
           pr_source: "${{ env.BRANCH_NAME }}"
           pr_target: "production"
           pr_labels: devops,chore,deployment
-          pr_assignees: jimduff-usds,MauriceReeves-usds,RickHawesUSDS,carlosfelix2,CDCgov/prime-reportstream-devops
+          pr_assignees: jimduff-usds,MauriceReeves-usds,CDCgov/prime-reportstream-devops
           pr_body: |
             ## Deployment of ${{ env.DEPLOYMENT_DATE }}
             This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}.

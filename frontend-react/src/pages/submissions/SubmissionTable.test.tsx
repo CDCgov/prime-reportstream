@@ -9,6 +9,8 @@ import {
     _exportForTesting,
     FeatureFlagName,
 } from "../../pages/misc/FeatureFlags";
+import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
+import { MemberType } from "../../hooks/UseOktaMemberships";
 
 import SubmissionTable from "./SubmissionTable";
 
@@ -29,11 +31,20 @@ const renderWithResolver = (ui: ReactElement, fixtures: Fixture[]) =>
 
 describe("SubmissionTable", () => {
     test("renders a table with the returned resources", async () => {
+        mockSessionContext.mockReturnValue({
+            activeMembership: {
+                memberType: MemberType.SENDER,
+                parsedName: "testOrg",
+                senderName: "testSender",
+            },
+            dispatch: () => {},
+        });
         const fixtures: Fixture[] = [
             {
                 endpoint: SubmissionsResource.list(),
                 args: [
                     {
+                        organization: "testOrg",
                         cursor: "3000-01-01T00:00:00.000Z",
                         endCursor: "2000-01-01T00:00:00.000Z",
                         pageSize: 11,
@@ -48,7 +59,6 @@ describe("SubmissionTable", () => {
                 ] as SubmissionsResource[],
             },
         ];
-
         renderWithResolver(<SubmissionTable />, fixtures);
 
         const filter = await screen.findByTestId("filter-container");
@@ -71,11 +81,20 @@ describe("SubmissionTable", () => {
         });
 
         test("renders a placeholder", async () => {
+            mockSessionContext.mockReturnValue({
+                activeMembership: {
+                    memberType: MemberType.SENDER,
+                    parsedName: "testOrg",
+                    senderName: "testSender",
+                },
+                dispatch: () => {},
+            });
             const fixtures: Fixture[] = [
                 {
                     endpoint: SubmissionsResource.list(),
                     args: [
                         {
+                            organization: "testOrg",
                             cursor: "3000-01-01T00:00:00.000Z",
                             endCursor: "2000-01-01T00:00:00.000Z",
                             pageSize: 61,
@@ -90,7 +109,6 @@ describe("SubmissionTable", () => {
                     ] as SubmissionsResource[],
                 },
             ];
-
             renderWithResolver(<SubmissionTable />, fixtures);
 
             const pagination = await screen.findByLabelText(

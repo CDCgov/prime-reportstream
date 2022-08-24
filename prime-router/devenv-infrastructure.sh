@@ -20,7 +20,7 @@ BUILD_SERVICES=()
 if [ "$(uname -m)" = "arm64" ] && [[ $(uname -av) == *"Darwin"* ]]; then
   echo The ReportStream service does not work on Apple Silicon. Will run other services. See Apple Silicon note for details.
   PROFILE=apple_silicon
-  SERVICES=(sftp azurite ftps vault) # Only these services are compatible
+  SERVICES=(sftp azurite vault) # Only these services are compatible
   BUILD_SERVICES=(postgresql)
 fi
 

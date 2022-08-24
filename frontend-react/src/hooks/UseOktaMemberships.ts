@@ -1,7 +1,14 @@
-import React, { useEffect, useReducer } from "react";
-import { AccessToken } from "@okta/okta-auth-js";
+import React, { useEffect, useReducer, useMemo } from "react";
+import { AccessToken, AuthState } from "@okta/okta-auth-js";
 
 import { getOktaGroups, parseOrgName } from "../utils/OrganizationUtils";
+import {
+    storeSessionMembershipState,
+    getSessionMembershipState,
+    storeOrganizationOverride,
+    getOrganizationOverride,
+} from "../utils/SessionStorageTools";
+import { updateApiSessions } from "../network/Apis";
 
 export enum MemberType {
     SENDER = "sender",
@@ -11,9 +18,9 @@ export enum MemberType {
 }
 
 export enum MembershipActionType {
-    SWITCH = "switch",
-    UPDATE = "update",
     ADMIN_OVERRIDE = "override",
+    RESET = "reset",
+    SET_MEMBERSHIPS_FROM_TOKEN = "setMemberships",
 }
 
 export interface MembershipSettings {
@@ -21,10 +28,12 @@ export interface MembershipSettings {
     parsedName: string;
     // The type of membership
     memberType: MemberType;
+    // Optional sender name
+    senderName?: string;
 }
 
 export interface MembershipState {
-    active?: MembershipSettings;
+    activeMembership?: MembershipSettings;
     // Key is the OKTA group name, settings has parsedName
     memberships?: Map<string, MembershipSettings>;
 }
@@ -37,7 +46,7 @@ export interface MembershipController {
 export interface MembershipAction {
     type: MembershipActionType;
     // Only need to pass name of an org to swap to
-    payload: string | AccessToken | Partial<MembershipSettings>;
+    payload?: string | AccessToken | Partial<MembershipSettings>;
 }
 
 export const getTypeOfGroup = (org: string) => {
@@ -57,12 +66,26 @@ export const getTypeOfGroup = (org: string) => {
     }
 };
 
+export const extractSenderName = (org: string) =>
+    org.split(".")?.[1] || undefined;
+
+/** This method constructs membership settings
+ * @remarks This will put you as a default sender if you are not in a specific sender group */
 export const getSettingsFromOrganization = (
     org: string
 ): MembershipSettings => {
+    const parsedName = parseOrgName(org);
+    const memberType = getTypeOfGroup(org);
+    let senderName = extractSenderName(org);
+
+    if (memberType === MemberType.SENDER && !senderName) {
+        senderName = "default";
+    }
+
     return {
-        parsedName: parseOrgName(org),
-        memberType: getTypeOfGroup(org),
+        parsedName,
+        memberType,
+        senderName,
     };
 };
 
@@ -80,10 +103,15 @@ export const makeMembershipMapFromToken = (
 };
 
 const defaultState: MembershipState = {
-    active: undefined,
+    // note that active will be set to {} rather than undefined in most real world cases on initialization
+    // see `calculateMembershipsWithOverride` for logic
+    activeMembership: undefined,
     memberships: undefined,
 };
-export const membershipsFromToken = (token: AccessToken): MembershipState => {
+
+export const membershipsFromToken = (
+    token: AccessToken | undefined
+): MembershipState => {
     // One big undefined check to see if we have what we need for the next line
     if (!token?.claims) {
         return defaultState;
@@ -98,54 +126,116 @@ export const membershipsFromToken = (token: AccessToken): MembershipState => {
     const [first] = claimData.keys();
     const active = claimData.get(first);
     return {
-        active: active,
+        activeMembership: active,
         memberships: claimData,
     };
+};
+
+// allows for overriding active membership with override previously set in session storage
+export const calculateMembershipsWithOverride = (
+    membershipState: MembershipState
+): MembershipState => {
+    const override = getOrganizationOverride();
+    const activeMembership = override || membershipState?.activeMembership;
+    return {
+        ...membershipState,
+        activeMembership,
+    };
+};
+
+// determines the new state and returns it
+// this is most of the actual reducer logic
+const calculateNewState = (
+    state: MembershipState,
+    action: MembershipAction
+) => {
+    const { type, payload } = action;
+    switch (type) {
+        case MembershipActionType.SET_MEMBERSHIPS_FROM_TOKEN:
+            const parsedMemberships = membershipsFromToken(
+                payload as AccessToken
+            );
+            return calculateMembershipsWithOverride(
+                parsedMemberships as MembershipState
+            );
+        case MembershipActionType.ADMIN_OVERRIDE:
+            const newActive = {
+                ...state.activeMembership,
+                ...(payload as MembershipSettings),
+            };
+            const newState = {
+                ...state,
+                activeMembership: newActive,
+            };
+            storeOrganizationOverride(JSON.stringify(newActive));
+            return newState;
+        case MembershipActionType.RESET:
+            return defaultState;
+        default:
+            return state;
+    }
+};
+
+// try to read from existing stored state
+export const getInitialState = () => {
+    const storedState = getSessionMembershipState();
+    const storedStateWithOverride = calculateMembershipsWithOverride(
+        storedState || {}
+    );
+    return { ...defaultState, ...storedStateWithOverride };
 };
 
 export const membershipReducer = (
     state: MembershipState,
     action: MembershipAction
 ) => {
-    const { type, payload } = action;
-    switch (type) {
-        case MembershipActionType.SWITCH:
-            return {
-                ...state,
-                active:
-                    state.memberships?.get(payload as string) || state.active,
-            };
-        case MembershipActionType.UPDATE:
-            return membershipsFromToken(payload as AccessToken);
-        case MembershipActionType.ADMIN_OVERRIDE:
-            return {
-                ...state,
-                active: {
-                    ...state.active,
-                    ...(payload as MembershipSettings),
-                },
-            };
-        default:
-            return state;
-    }
+    const newState = calculateNewState(state, action);
+
+    // with this, session storage will always mirror app state
+    // KNOWN ISSUE: this will not effectively store membership data for later retrieval, as this data is treated as Map
+    // We are not using membership data (only active membership) anywhere in the app that I can find, so not an immediate issue
+    // TODO: refactor membership as an array, don't bother trying to store it, or build a serializer to deal with the Map
+    storeSessionMembershipState(JSON.stringify(newState));
+
+    // to keep any requests using Api.ts up to date with auth headers
+    // TODO: remove when we remove Api.ts based implementations
+    updateApiSessions();
+    return newState;
 };
 
 export const useOktaMemberships = (
-    token: AccessToken | undefined
+    authState: AuthState | null
 ): MembershipController => {
-    const [state, dispatch] = useReducer(membershipReducer, defaultState);
+    const initialState = useMemo(() => getInitialState(), []);
+    const [state, dispatch] = useReducer(membershipReducer, initialState);
 
-    // need to make sure this doesn't run on an infinite loop in a real world situation
-    // may need to drill down on the dependency array if it does, or refactor this hook
-    // to deal solely with claims rather than tokens.
+    const token = authState?.accessToken;
+    const organizations = authState?.accessToken?.claims?.organization;
+
+    // any time a token is updated in a way that changes orgs, we want to update membership state
+    // this would potentially happen on a new login
+    // but could also happen in a token refresh scenario if a users organizations claim is updated while they are logged in
+    // NOTE: we are letting this do the work of setting memberships on log in. The Login component
+    // will not explicitly set memberships.
     useEffect(() => {
-        if (token) {
-            dispatch({
-                type: MembershipActionType.UPDATE,
-                payload: token,
-            });
+        if (!token || !organizations) {
+            return;
         }
-    }, [token?.claims]); // eslint-disable-line react-hooks/exhaustive-deps
+        dispatch({
+            type: MembershipActionType.SET_MEMBERSHIPS_FROM_TOKEN,
+            payload: token,
+        });
+        // here we are only concerned about changes to a users orgs / memberships
+    }, [organizations, !!token]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // any time a token change signifies a logout, we should clear our state and storage
+    useEffect(() => {
+        if (authState && !authState.isAuthenticated) {
+            // clear override as well. this will error on json parse and result in {} being fed back on a read
+            storeOrganizationOverride("");
+            dispatch({ type: MembershipActionType.RESET });
+        }
+    }, [!!authState, authState?.isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return { state, dispatch };
 };

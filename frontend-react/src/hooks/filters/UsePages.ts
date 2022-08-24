@@ -54,10 +54,11 @@ const pageNumReducer = (
     }
 };
 
-const usePages = (): PageFilter => {
+const usePages = (defaults?: Partial<PageSettings>): PageFilter => {
     const [settings, dispatchSettings] = useReducer(pageNumReducer, {
-        size: 10,
-        currentPage: 1,
+        size: defaults?.size || 10,
+        /* TODO: this can be removed if new pagination tracks page number */
+        currentPage: defaults?.currentPage || 1,
     });
 
     return {

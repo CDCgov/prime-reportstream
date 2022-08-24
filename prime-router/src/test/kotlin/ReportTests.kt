@@ -2,9 +2,11 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.metadata.LookupTable
@@ -12,6 +14,7 @@ import gov.cdc.prime.router.unittest.UnitTestUtils
 import java.io.ByteArrayInputStream
 import kotlin.test.Ignore
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 import kotlin.test.fail
 
 class ReportTests {
@@ -322,6 +325,36 @@ class ReportTests {
             assertThat(this.getString(4, "patient_age")).isEqualTo("0")
             assertThat(this.getString(5, "patient_age")).isEqualTo("10")
             assertThat(this.getString(6, "patient_age")).isEqualTo("0")
+        }
+    }
+
+    @Test
+    fun `test patient dob deidentification`() {
+        val patientAgeSchema = Schema(
+            name = "patientAgeSchema",
+            topic = "test",
+            elements = listOf(
+                Element("patient_age", pii = true),
+                Element("patient_dob", pii = true),
+                Element("specimen_collection_date_time", pii = false)
+            )
+        )
+        Report(
+            schema = patientAgeSchema,
+            values = listOf(
+                // empty values
+                listOf("", "", ""),
+                // should be deidentified
+                listOf("", "1923-08-03", "2022-06-22 22:58:00"),
+                // collection date and dob
+                listOf("", "2000-12-01", "2022-06-22 22:58:00"),
+            ),
+            source = TestSource,
+            metadata = metadata
+        ).deidentify("<NULL>").run {
+            assertThat(this.getString(0, "patient_dob")).isEqualTo("<NULL>")
+            assertThat(this.getString(1, "patient_dob")).isEqualTo("0000")
+            assertThat(this.getString(2, "patient_dob")).isEqualTo("2000")
         }
     }
 
@@ -797,5 +830,31 @@ class ReportTests {
         assertThat(testTime).isEqualTo("20220101")
         assertThat(specimenId).isEqualTo("")
         assertThat(observation).isEqualTo("null")
+    }
+}
+
+class OptionTests {
+    @Test
+    fun `test valueOfOrNone`() {
+        val option = Options.valueOfOrNone("SkipSend")
+        assertThat(option).equals(Options.SkipSend)
+
+        val deprecatedOption = Options.valueOfOrNone("SkipInvalidItems")
+        assertThat(deprecatedOption).equals(Options.SkipInvalidItems)
+
+        val noneOption = Options.valueOfOrNone("None")
+        assertThat(noneOption).equals(Options.None)
+
+        val invalidOption = "INVALID OPTION"
+        assertFailsWith<Options.InvalidOptionException>() { Options.valueOfOrNone(invalidOption) }
+    }
+
+    @Test
+    fun `test isDeprecated`() {
+        val deprecatedOption = Options.valueOfOrNone("SkipInvalidItems")
+        assertThat(deprecatedOption.isDeprecated).isTrue()
+
+        val option = Options.valueOfOrNone("SkipSend")
+        assertThat(option.isDeprecated).isFalse()
     }
 }

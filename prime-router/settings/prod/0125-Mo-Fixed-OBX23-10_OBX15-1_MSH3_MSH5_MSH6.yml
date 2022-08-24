@@ -1,0 +1,85 @@
+# ./prime multiple-settings set --env prod --input ./settings/prod/0125-Mo-Fixed-OBX23-10_OBX15-1_MSH3_MSH5_MSH6.yml
+---
+- name: "mo-phd"
+  description: "Missouri Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "MO"
+  countyName: null
+  filters: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "mo-phd"
+      topic: "covid-19"
+      customerStatus: "inactive"
+      translation: !<HL7>
+        schemaName: "covid-19"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "MOELR"
+        receivingApplicationOID: "2.16.840.1.114222.4.3.3.36"
+        receivingFacilityName: "MODHSS"
+        receivingFacilityOID: "2.16.840.1.114222.4.3.2.2.1.163"
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB:
+          MSH-3: [ "*": "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO" ]
+          MSH-5: [ "*": "CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO" ]
+          MSH-6: [ "*": "CDPH_CID^2.16.840.1.114222.4.1.214104^ISO" ]
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        reportingFacilityIdType: null
+        suppressQstForAoe: true
+        suppressHl7Fields: "MSH-19-3, PID-15-3, ORC-14-1, OBR-17-1"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "MSH-3-1, PID-3-3, PID-3-6, ORC-2-2, ORC-7-10-5, OBR-2-2,\
+          \ OBR-3-2, SPM-2-1-2, SPM-2-2-2, ORC-21-1, OBX-23-1, OBX-15.1, OBX-23.10"
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, MO, patient_state, MO)"
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:20"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: "moftp.mo.gov"
+        port: "22"
+        filePath: "/Distribution/DHSS/Epitrax_ELR_hl7/"
+        credentialName: null
+        type: "SFTP"
+      externalName: null
+      timeZone: "CENTRAL"
+      dateTimeFormat: "LOCAL"

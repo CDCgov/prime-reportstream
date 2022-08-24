@@ -15,7 +15,7 @@ describe("useLookupTable and related helper functions", () => {
     afterAll(() => lookupTableServer.close());
 
     describe("getLatestVersion", () => {
-        test("getLatestVersion returns expected version and timestampts", async () => {
+        test("getLatestVersion returns expected version and timestamps", async () => {
             const result = await getLatestVersion(LookupTables.VALUE_SET);
             expect(result).toBeTruthy();
             if (!result) return; // I don't like this, as the case is handled in the test above but shrug emoji - DWS
@@ -23,6 +23,17 @@ describe("useLookupTable and related helper functions", () => {
             expect(version).toEqual(2);
             expect(createdAt).toEqual("now");
             expect(createdBy).toEqual("test@example.com");
+        });
+
+        test("getLatestVersion throws when table doesn't exist", async () => {
+            try {
+                await getLatestVersion(LookupTables.VALUE_SET_ROW);
+                expect(true).toBe(false);
+            } catch (e: any) {
+                expect(e.message).toEqual(
+                    `Table 'sender_automation_value_set_row' was not found!`
+                );
+            }
         });
     });
 
@@ -46,6 +57,6 @@ describe("useLookupTable and related helper functions", () => {
             useLookupTable<ValueSet>(LookupTables.VALUE_SET)
         );
         await waitForNextUpdate();
-        expect(result.current.length).toEqual(3);
+        expect(result.current.valueSetArray.length).toEqual(3);
     });
 });

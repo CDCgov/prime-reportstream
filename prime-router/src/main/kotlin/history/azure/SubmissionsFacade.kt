@@ -1,10 +1,14 @@
 package gov.cdc.prime.router.history.azure
 
+import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.SubmissionHistory
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import java.time.OffsetDateTime
 
 /**
@@ -12,7 +16,7 @@ import java.time.OffsetDateTime
  * Contains all business logic regarding submissions and JSON serialization.
  */
 class SubmissionsFacade(
-    private val dbSubmissionAccess: ReportFileAccess = DatabaseSubmissionsAccess(),
+    private val dbSubmissionAccess: HistoryDatabaseAccess = DatabaseSubmissionsAccess(),
     dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton
 ) : ReportFileFacade(
     dbAccess,
@@ -24,7 +28,7 @@ class SubmissionsFacade(
      * Serializes a list of Actions into a String.
      *
      * @param organization from JWT Claim.
-     * @param sendingOrgClient is a specifier for the sending organization's client.
+     * @param sendingOrgService is a specifier for the sending organization's client.
      * @param sortDir sort the table by date in ASC or DESC order.
      * @param sortColumn sort the table by a specific column; defaults to sorting by created_at.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -37,9 +41,9 @@ class SubmissionsFacade(
      */
     fun findSubmissionsAsJson(
         organization: String,
-        sendingOrgClient: String?,
-        sortDir: ReportFileAccess.SortDir,
-        sortColumn: ReportFileAccess.SortColumn,
+        sendingOrgService: String?,
+        sortDir: HistoryDatabaseAccess.SortDir,
+        sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
@@ -48,7 +52,7 @@ class SubmissionsFacade(
     ): String {
         val result = findSubmissions(
             organization,
-            sendingOrgClient,
+            sendingOrgService,
             sortDir,
             sortColumn,
             cursor,
@@ -64,7 +68,7 @@ class SubmissionsFacade(
      * Find submissions based on various parameters.
      *
      * @param organization from JWT Claim.
-     * @param sendingOrgClient is a specifier for the sending organization's client.
+     * @param sendingOrgService is a specifier for the sending organization's client.
      * @param sortDir sort the table by date in ASC or DESC order; defaults to DESC.
      * @param sortColumn sort the table by a specific column; defaults to sorting by CREATED_AT.
      * @param cursor is the OffsetDateTime of the last result in the previous list.
@@ -77,9 +81,9 @@ class SubmissionsFacade(
      */
     private fun findSubmissions(
         organization: String,
-        sendingOrgClient: String?,
-        sortDir: ReportFileAccess.SortDir,
-        sortColumn: ReportFileAccess.SortColumn,
+        sendingOrgService: String?,
+        sortDir: HistoryDatabaseAccess.SortDir,
+        sortColumn: HistoryDatabaseAccess.SortColumn,
         cursor: OffsetDateTime?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
@@ -92,7 +96,7 @@ class SubmissionsFacade(
 
         return dbSubmissionAccess.fetchActions(
             organization,
-            sendingOrgClient,
+            sendingOrgService,
             sortDir,
             sortColumn,
             cursor,
@@ -107,17 +111,18 @@ class SubmissionsFacade(
     /**
      * Get expanded details for a single report
      *
-     * @param organizationName Name of the organization receiving this report.
      * @param submissionId id for the submission being used
      * @return Report details
      */
     fun findDetailedSubmissionHistory(
-        organizationName: String,
-        submissionId: Long,
+        action: Action
     ): DetailedSubmissionHistory? {
+        // This assumes that ReportFileFunction.authSingleBlocks has already run, and has checked that the
+        // sendingOrg is good.  If that assumption is incorrect, die here.
+        assert(action.sendingOrg != null && action.actionName == TaskAction.receive)
         val submission = dbSubmissionAccess.fetchAction(
-            organizationName,
-            submissionId,
+            action.actionId,
+            action.sendingOrg,
             DetailedSubmissionHistory::class.java
         )
 
@@ -132,6 +137,27 @@ class SubmissionsFacade(
         submission?.enrichWithSummary()
 
         return submission
+    }
+
+    /**
+     * Check whether these [claims] allow access to this [orgName].
+     * @return true if [claims] authorizes access to this [orgName].  Return
+     * false if the [orgName] is empty or if the claim does not give access.
+     */
+    override fun checkAccessAuthorization(
+        claims: AuthenticatedClaims,
+        orgName: String?,
+        senderOrReceiver: String?,
+        request: HttpRequestMessage<String?>,
+    ): Boolean {
+        if (orgName.isNullOrEmpty()) {
+            logger.warn(
+                "Unauthorized.  Action had no sending-organization name. " +
+                    " For user ${claims.userName}: ${request.httpMethod}:${request.uri.path}."
+            )
+            return false
+        }
+        return claims.authorizedForSendOrReceive(orgName, senderOrReceiver, request)
     }
 
     companion object {

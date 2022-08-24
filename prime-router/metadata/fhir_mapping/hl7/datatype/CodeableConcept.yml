@@ -42,18 +42,28 @@ coding_4:
 coding_5:
    valueOf: $coding
    generateList: true
-   condition: $coding NOT_NULL
+   condition: $coding NOT_NULL && nameOfSystem NOT_EQUALS SCT
    specs: CWE
    vars:
-      coding: CODING_SYSTEM_V2, CWE      
+      coding: CODING_SYSTEM_V2, CWE
+      nameOfSystem: CWE.3
 
 coding_6:
+  valueOf: datatype/Coding
+  expressionType: resource
+  generateList: true
+  condition: $code NOT_NULL
+  vars:
+    code: String, CWE.1
+    system: CWE.3
+
+coding_7:
    valueOf: $coding
    condition: $coding NOT_NULL
    generateList: true
 
-# Allows alternate coding to be added from hardcoded values
-coding_7:
+# Allows alternate coding to be added from variables
+coding_8:
     generateList: true
     valueOf: datatype/Coding  # uses values from vars
     expressionType: resource

@@ -1,20 +1,35 @@
 import { screen, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import ValueSetsDetail from "./ValueSetsDetail";
+import ValueSetsDetail, { ValueSetsDetailTable } from "./ValueSetsDetail";
 
 const fakeRows = [
     {
+        name: "a-path",
         display: "hi",
     },
     {
+        name: "a-path",
         display: "test",
     },
 ];
 
-jest.mock("../../../hooks/UseLookupTable", () => ({
-    useValueSetsRowTable: () => fakeRows, // for some reason, can't get this working with a proper mock
-}));
+const mockEmptyArray: unknown[] = [];
+const mockError = new Error();
+
+// for some reason, can't get this working with a proper mock
+// defining mocks with mock implementations, the implementations are never run
+// shrug - DWS
+jest.mock("../../../hooks/UseLookupTable", () => {
+    return {
+        useValueSetsRowTable: (valueSetName: string) => {
+            if (valueSetName === "error") {
+                return { valueSetArray: mockEmptyArray, error: mockError };
+            }
+            return { valueSetArray: fakeRows };
+        },
+    };
+});
 
 jest.mock("react-router-dom", () => ({
     useParams: () => ({ valueSetName: "a-path" }),
@@ -28,7 +43,7 @@ describe("ValueSetsDetail tests", () => {
         const datasetActionButton = screen.getByText("Add item");
         const rows = screen.getAllByRole("row");
 
-        expect(headers.length).toEqual(5);
+        expect(headers.length).toEqual(4);
         expect(title).toBeInTheDocument();
         expect(datasetActionButton).toBeInTheDocument();
         expect(rows.length).toBe(3); // +1 for header
@@ -47,6 +62,23 @@ describe("ValueSetsDetail tests", () => {
 
         // assert input element is rendered in edit mode
         const input = screen.getAllByRole("textbox");
-        expect(input.length).toEqual(4);
+        expect(input.length).toEqual(3);
+    });
+});
+
+describe("ValueSetsDetailTable", () => {
+    test("Handles crud related errors", () => {
+        const mockSetAlert = jest.fn();
+        render(
+            <ValueSetsDetailTable
+                valueSetName={"error"}
+                setAlert={mockSetAlert}
+            />
+        );
+        expect(mockSetAlert).toHaveBeenCalled();
+        expect(mockSetAlert).toHaveBeenCalledWith({
+            type: "error",
+            message: "Error",
+        });
     });
 });

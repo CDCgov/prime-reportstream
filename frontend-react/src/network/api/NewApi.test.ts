@@ -1,40 +1,23 @@
-import {
-    API,
-    ApiBaseUrls,
-    buildEndpointUrl,
-    createAxiosConfig,
-} from "./NewApi";
+import { buildEndpointUrl, createRequestConfig } from "./NewApi";
+import { MyApi } from "./mocks/MockApi";
 
-const mockConsoleWarn = jest.spyOn(global.console, "warn");
-const mockConsoleError = jest.spyOn(global.console, "error");
-const MyApi: API = {
-    baseUrl: ApiBaseUrls.HISTORY,
-    endpoints: new Map(),
-};
-
-MyApi.endpoints.set("list", {
-    url: "/test",
-    methods: ["GET"],
-});
-MyApi.endpoints.set("detail", {
-    url: "/test/:id",
-    methods: ["GET", "PUT"],
-});
+jest.spyOn(global.console, "warn");
+jest.spyOn(global.console, "error");
 
 describe("Api interfaces", () => {
     test("buildEndpointUrl: happy path", () => {
         /* URL without parameters */
         const listURL = buildEndpointUrl(MyApi, "list");
-        expect(listURL).toEqual("https://test.prime.cdc.gov/api/history/test");
+        expect(listURL).toEqual("https://test.prime.cdc.gov/api/test/test");
 
         /* URL with parameters */
         const detailUrlWithId = buildEndpointUrl<{ id: number }>(
             MyApi,
-            "detail",
+            "itemById",
             { id: 123 }
         );
         expect(detailUrlWithId).toEqual(
-            "https://test.prime.cdc.gov/api/history/test/123"
+            "https://test.prime.cdc.gov/api/test/test/123"
         );
     });
 
@@ -42,28 +25,31 @@ describe("Api interfaces", () => {
         /* URL with bad params */
         const detailUrlWithoutId = buildEndpointUrl<{ idSpelledWrong: number }>(
             MyApi,
-            "detail",
+            "itemById",
             { idSpelledWrong: 123 }
         );
         expect(detailUrlWithoutId).toEqual(
-            "https://test.prime.cdc.gov/api/history/test/:id"
+            "https://test.prime.cdc.gov/api/test/test/:id"
         );
     });
 
     test("buildEndpointUrl: invalid endpoint key", () => {
         /* Endpoint does not exist */
-        buildEndpointUrl<{ id: number }>(MyApi, "detailSpelledWrong", {
-            id: 123,
-        });
-        expect(mockConsoleError).toHaveBeenCalledWith(
-            "You must provide a valid endpoint key: detailSpelledWrong not found"
-        );
+        try {
+            buildEndpointUrl<{ id: number }>(MyApi, "itemByIdSpelledWrong", {
+                id: 123,
+            });
+        } catch (e: any) {
+            expect(e.message).toEqual(
+                "You must provide a valid endpoint key: itemByIdSpelledWrong not found"
+            );
+        }
     });
 
     test("createAxiosConfig: basic config", () => {
-        const baseConfig = createAxiosConfig(MyApi, "list", "GET");
+        const baseConfig = createRequestConfig(MyApi, "list", "GET");
         expect(baseConfig).toEqual({
-            url: "https://test.prime.cdc.gov/api/history/test",
+            url: "https://test.prime.cdc.gov/api/test/test",
             method: "GET",
             headers: {
                 "authentication-type": "okta",
@@ -74,16 +60,16 @@ describe("Api interfaces", () => {
     });
 
     test("createAxiosConfig: with auth and params", () => {
-        const configWithAuth = createAxiosConfig<{ id: number }>(
+        const configWithAuth = createRequestConfig<{ id: number }>(
             MyApi,
-            "detail",
+            "itemById",
             "GET",
             "TOKEN",
             "ORGANIZATION",
             { id: 123 }
         );
         expect(configWithAuth).toEqual({
-            url: "https://test.prime.cdc.gov/api/history/test/123",
+            url: "https://test.prime.cdc.gov/api/test/test/123",
             method: "GET",
             headers: {
                 "authentication-type": "okta",
@@ -94,15 +80,18 @@ describe("Api interfaces", () => {
     });
 
     test("createAxiosConfig: url didn't parse", () => {
-        mockConsoleWarn.mockReturnValue();
-
-        createAxiosConfig(MyApi, "detail", "GET", "TOKEN", "ORGANIZATION");
-
-        expect(mockConsoleWarn).toHaveBeenCalledWith(
-            "Looks like your url didn't parse!"
-        );
-        expect(mockConsoleError).toHaveBeenCalledWith(
-            "Parameters are required for detail: /test/:id"
-        );
+        try {
+            createRequestConfig(
+                MyApi,
+                "itemById",
+                "GET",
+                "TOKEN",
+                "ORGANIZATION"
+            );
+        } catch (e: any) {
+            expect(e.message).toEqual(
+                "Parameters are required for itemById: /test/:id"
+            );
+        }
     });
 });

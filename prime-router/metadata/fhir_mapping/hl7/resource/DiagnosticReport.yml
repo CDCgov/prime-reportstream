@@ -66,6 +66,7 @@ status:
 
 category:
   valueOf: datatype/CodeableConcept
+  condition: $code NOT_NULL
   generateList: true
   expressionType: resource
   specs: OBR.24

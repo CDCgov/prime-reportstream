@@ -9,7 +9,7 @@ import { showAlertNotification, showError } from "../AlertNotifications";
 import {
     getStoredOktaToken,
     getStoredOrg,
-} from "../../contexts/SessionStorageTools";
+} from "../../utils/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
@@ -85,10 +85,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                 JSON.stringify(orgSenderSettings, jsonSortReplacer, 2)
             );
 
-            if (
-                latestResponse?.meta?.version !==
-                orgSenderSettings?.meta?.version
-            ) {
+            if (latestResponse?.version !== orgSenderSettings?.version) {
                 showError(getVersionWarning(VersionWarningType.POPUP));
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse)
@@ -122,10 +119,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
         try {
             setLoading(true);
             const latestResponse = await getLatestSenderResponse();
-            if (
-                latestResponse.meta?.version !==
-                orgSenderSettings?.meta?.version
-            ) {
+            if (latestResponse.version !== orgSenderSettings?.version) {
                 // refresh left-side panel in compare modal to make it obvious what has changed
                 setOrgSenderSettingsOldJson(
                     JSON.stringify(latestResponse, jsonSortReplacer, 2)

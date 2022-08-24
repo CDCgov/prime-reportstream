@@ -64,10 +64,6 @@ name_v1:
   type: STRING
   condition: $idValue NULL
   valueOf: CWE.2 | CE.2 | XON.1 | $orgName
-  # NOTE FHIR does not require Organization.name, but we do
-  # for an unkown reason. This is documented in Issue #422
-  # When this is fixed, remove payor_2: orgName: String, IN2.25.1
-  required: true
   expressionType: HL7Spec
   vars:
     idValue: CWE.1 | CE.1 | XON.10 | XON.3
@@ -103,6 +99,8 @@ contact:
     display: $orgContactPurposeDisplay
     text: $orgContactPurposeText
     contactPointXTN: $orgContactPointXTN
+    contactPointAddressXAD: $orgContactPointAddressXAD
+    contactName: $orgContactName
 
 type_1:
   valueOf: datatype/CodeableConcept_var

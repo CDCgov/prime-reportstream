@@ -17,37 +17,64 @@ import {
     CheckFeatureFlag,
     FeatureFlagName,
 } from "../../pages/misc/FeatureFlags";
-import { BuiltForYouDropdown } from "../../pages/built-for-you/BuiltForYouIndex";
 
 import { SignInOrUser } from "./SignInOrUser";
-import {
-    AdminDropdown,
-    GettingStartedDropdown,
-    HowItWorksDropdown,
-} from "./DropdownNav";
+import { AdminDropdown, DropdownNav, NonStaticOption } from "./DropdownNav";
 
 const isOktaPreview =
     `${process.env.REACT_APP_OKTA_URL}`.match(/oktapreview.com/) !== null;
 const environment = `${process.env.REACT_APP_CLIENT_ENV}`;
 
+const ProductIA = () => (
+    <NavLink
+        to="/product"
+        key="product"
+        data-attribute="hidden"
+        hidden={true}
+        className="usa-nav__link"
+    >
+        <span>Product</span>
+    </NavLink>
+);
+
+const ResourcesIA = () => (
+    <NavLink
+        to="/resources"
+        key="resources"
+        data-attribute="hidden"
+        hidden={true}
+        className="usa-nav__link"
+    >
+        <span>Resources</span>
+    </NavLink>
+);
+
+const SupportIA = () => (
+    <NavLink
+        to="/support"
+        key="support"
+        data-attribute="hidden"
+        hidden={true}
+        className="usa-nav__link"
+    >
+        <span>Support</span>
+    </NavLink>
+);
+
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
-    const { memberships } = useSessionContext();
+    const { activeMembership } = useSessionContext();
     const [expanded, setExpanded] = useState(false);
-    let itemsMenu = [<GettingStartedDropdown />, <HowItWorksDropdown />];
+    let itemsMenu = [<ProductIA />, <ResourcesIA />, <SupportIA />];
 
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
 
-    if (CheckFeatureFlag(FeatureFlagName.BUILT_FOR_YOU)) {
-        itemsMenu.push(<BuiltForYouDropdown />);
-    }
-
     if (authState && authState.isAuthenticated && authState.accessToken) {
         /* RECEIVERS ONLY */
         if (
-            memberships.state.active?.memberType === MemberType.RECEIVER ||
-            memberships.state.active?.memberType === MemberType.PRIME_ADMIN
+            activeMembership?.memberType === MemberType.RECEIVER ||
+            activeMembership?.memberType === MemberType.PRIME_ADMIN
         ) {
             itemsMenu.push(
                 <NavLink
@@ -64,8 +91,8 @@ export const ReportStreamHeader = () => {
 
         /* SENDERS ONLY */
         if (
-            memberships.state.active?.memberType === MemberType.SENDER ||
-            memberships.state.active?.memberType === MemberType.PRIME_ADMIN
+            activeMembership?.memberType === MemberType.SENDER ||
+            activeMembership?.memberType === MemberType.PRIME_ADMIN
         ) {
             itemsMenu.push(
                 <NavLink
@@ -89,8 +116,45 @@ export const ReportStreamHeader = () => {
             );
         }
 
-        /* ADMIN ONLY */
-        if (memberships.state.active?.memberType === MemberType.PRIME_ADMIN) {
+        /* ADMIN ONLY 
+        
+          Build a drop down for file handler links
+        */
+        if (activeMembership?.memberType === MemberType.PRIME_ADMIN) {
+            // Validate NavLink
+            const features = [
+                {
+                    access: CheckFeatureFlag(
+                        FeatureFlagName.VALIDATION_SERVICE
+                    ),
+                    slug: "validate",
+                    title: "Validate",
+                },
+                {
+                    access: CheckFeatureFlag(FeatureFlagName.USER_UPLOAD),
+                    slug: "user-upload",
+                    title: "User Upload",
+                },
+            ];
+            if (features.some(({ access }) => access)) {
+                const fileHandlerDirectories = features.reduce(
+                    (acc, { access, title, slug }) => {
+                        if (access) {
+                            acc.push({ title, slug });
+                        }
+                        return acc;
+                    },
+                    [] as NonStaticOption[]
+                );
+                itemsMenu.push(
+                    <DropdownNav
+                        label="Upload & Validate"
+                        root="/file-handler"
+                        directories={fileHandlerDirectories}
+                    />
+                );
+            }
+
             itemsMenu.push(<AdminDropdown />);
         }
     }
@@ -138,7 +202,7 @@ export const ReportStreamHeader = () => {
                                 className="usa-button usa-button--outline usa-button--small padding-1"
                             >
                                 <span className="usa-breadcrumb padding-left-2 text-semibold text-no-wrap">
-                                    {memberships.state.active?.parsedName || ""}
+                                    {activeMembership?.parsedName || ""}
                                     <RightLeftArrows
                                         aria-hidden="true"
                                         role="img"

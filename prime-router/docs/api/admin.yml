@@ -1,4 +1,4 @@
-openapi: 3.0.2
+openapi: "3.0.3"
 info:
   title: Prime ReportStream
   description: A router of public health data from multiple senders and receivers
@@ -8,12 +8,11 @@ info:
     email: reportstream@cdc.gov
   version: 0.2.0-oas3
 paths:
-
   # The amin end-point handles the misc queries and commands PRIME admins
   #
   /adm/getsendfailures:
     get:
-      description: Returns list of recent failed report-forwarding sends.
+      description: Returns list of recent failed report-forwarding sends. Used to resend failures. Prime admin only.
       security:
         - OAuth2: [ system_admin ]
       parameters:
@@ -42,6 +41,37 @@ paths:
                   $ref: '#/components/schemas/ListSendFailures'
 
 # Building
+  /adm/listreceiversconnstatus:
+    get:
+      description: Get recent report-forward sends across all orgs. Prime admin only.
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - name: start_date
+          in: query
+          description: Date/time for the start range of matches
+          schema:
+            type: string
+            format: date-time
+          required: true
+          example: start_date=2022-07-04T00:46:58.708Z
+        - name: end_date
+          in: query
+          description: Optional date/time for the end range of matches
+          schema:
+            type: string
+            format: date-time
+          required: false
+          example: end_date=2022-07-04T00:46:58.708Z
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReceiversConnStatusResponse'
 components:
   schemas:
     ListSendFailures:
@@ -60,6 +90,7 @@ components:
           example: "d05d17f7-acaa-4f0e-bda1-135dbd81d477"
         receiver:
           description: Org destination name of the receiver that failed
+          type: string
           example: "ignore.HL7"
         fileName:
           description: Filename for the data that's prepared for forwarding but failing
@@ -86,6 +117,49 @@ components:
           description: The parsed receiver. It should be the same as receiver field above
           type: string
           example: "ignore.HL7_BATCH_OFFSET_TIME_UTC"
+
+    ReceiversConnStatusResponse:
+      type: object
+      description: An organization connected to data hub
+      properties:
+        receiverConnectionCheckResultId:
+          description: Internal primary key. Useful for react to use as a unique key
+          type: integer
+          example: 1639
+        organizationId:
+          description: Organization ID - primary key in Settings
+          type: integer
+          example: 37
+        receiverId:
+          description: Receiver ID - primary key in Settings
+          type: integer
+          example: 202
+        connectionCheckResult:
+          description: Protocol level or java exception result May be multiline
+          type: string
+          example: "**** az-phd.elr-secondary:  no transport defined."
+        connectionCheckSuccessful:
+          description: If the connection and transmission was successful or not
+          type: boolean
+          example: true
+        connectionCheckStartedAt:
+          description: Timestamp of when the check started
+          type: string
+          format: date-time
+          example: "2022-07-01T18:52:06.918Z"
+        connectionCheckCompletedAt:
+          description: Timestamp of when the check ended
+          type: string
+          format: date-time
+          example: "2022-07-01T18:52:06.919Z"
+        organizationName:
+          description: Name string associated with the organizationId field pulled from Settings
+          type: string
+          example: "az-phd"
+        receiverName:
+          description: Name string associated with the receiverId field pulled from Settings
+          type: string
+          example: "elr-secondary"
   securitySchemes:
     OAuth2:
       $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'

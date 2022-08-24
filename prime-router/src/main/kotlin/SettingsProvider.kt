@@ -1,6 +1,9 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import gov.cdc.prime.router.CustomerStatus.ACTIVE
+import gov.cdc.prime.router.CustomerStatus.INACTIVE
+import gov.cdc.prime.router.CustomerStatus.TESTING
 
 /**
  * Used by the engine to find orgs, senders and receivers
@@ -29,8 +32,10 @@ interface SettingsProvider {
 enum class CustomerStatus {
     @JsonProperty("inactive")
     INACTIVE,
+
     @JsonProperty("testing")
     TESTING,
+
     @JsonProperty("active")
     ACTIVE
 }
@@ -42,6 +47,10 @@ enum class CustomerStatus {
 enum class Topic(val json_val: String) {
     @JsonProperty("full-elr")
     FULL_ELR("full-elr"),
+
     @JsonProperty("covid-19")
-    COVID_19("covid-19")
+    COVID_19("covid-19"),
+
+    @JsonProperty("monkeypox")
+    MONKEYPOX("monkeypox")
 }

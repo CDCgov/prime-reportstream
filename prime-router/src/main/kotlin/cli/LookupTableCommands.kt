@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
-import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -485,21 +484,21 @@ class LookupTableGetCommand : GenericLookupTableCommand(
         if (tableList.isNotEmpty()) {
             // Output to a file if requested, otherwise output to the screen.
             if (outputFile == null) {
-                TermUi.echo("")
-                TermUi.echo("Table name: $tableName")
-                TermUi.echo("Version: $version")
+                echo("")
+                echo("Table name: $tableName")
+                echo("Version: $version")
                 val colNames = tableList[0].keys.toList()
-                TermUi.echo(LookupTableCommands.rowsToPrintableTable(tableList, colNames))
-                TermUi.echo("")
+                echo(LookupTableCommands.rowsToPrintableTable(tableList, colNames))
+                echo("")
             } else {
                 saveTable(outputFile!!, tableList)
-                TermUi.echo(
+                echo(
                     "Saved ${tableList.size} rows of table $tableName version $version " +
                         "to ${outputFile!!.absolutePath} "
                 )
             }
         } else {
-            TermUi.echo("Table $tableName version $version has no rows.")
+            echo("Table $tableName version $version has no rows.")
         }
     }
 
@@ -584,7 +583,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         // Note: csvReader returns size of data-row(s) and NOT include the header-row.
         // (i.e. If the file contains of header row, it returns size = 0)
         if (inputData.isEmpty()) {
-            TermUi.echo("ERROR: Input file ${inputFile.absolutePath} has no data.")
+            echo("ERROR: Input file ${inputFile.absolutePath} has no data.")
             return
         }
 
@@ -592,10 +591,10 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         val isLargeTable = inputData.size > SMALL_TABLE_MAX_ROWS || inputData[0].keys.size > SMALL_TABLE_MAX_COLS
         // Display the table when not silent, plus display it only if it is a small table unless told otherwise.
         if (!silent && (showTable || !isLargeTable)) {
-            TermUi.echo("Here is the table data to be created:")
+            echo("Here is the table data to be created:")
             val colNames = inputData[0].keys.toList()
-            TermUi.echo(LookupTableCommands.rowsToPrintableTable(inputData, colNames))
-            TermUi.echo("")
+            echo(LookupTableCommands.rowsToPrintableTable(inputData, colNames))
+            echo("")
         }
 
         // If there is an existing active version then present a diff.
@@ -609,14 +608,14 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             val activeTable = try { tableUtil.fetchTableContent(tableName, activeVersion) } catch (e: Exception) {
                 throw PrintMessage("Error fetching active table content for table $tableName: ${e.message}", true)
             }
-            TermUi.echo("Generating a diff view of the changes.  For large tables this can take a while...")
+            echo("Generating a diff view of the changes.  For large tables this can take a while...")
             val diffOutput = LookupTableCommands.generateDiff(activeTable, inputData, false)
             if (diffOutput.isNotEmpty()) {
-                TermUi.echo("Here is the diff compared to the active version $activeVersion:")
-                diffOutput.forEach { TermUi.echo(it) }
-                TermUi.echo("")
+                echo("Here is the diff compared to the active version $activeVersion:")
+                diffOutput.forEach { echo(it) }
+                echo("")
             } else {
-                TermUi.echo(
+                echo(
                     "Error: The table you are trying to create is identical to the active version " +
                         "$activeVersion."
                 )
@@ -626,7 +625,7 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
 
         // Now we are ready.  Ask if we should proceed.
         if ((
-            !silent && TermUi.confirm("Continue to create a new version of $tableName with ${inputData.size} rows?")
+            !silent && confirm("Continue to create a new version of $tableName with ${inputData.size} rows?")
                 == true
             ) || silent
         ) {
@@ -636,13 +635,13 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
                 throw PrintMessage("\tError creating new table version for $tableName: ${e.message}", true)
             } catch (e: LookupTableEndpointUtilities.Companion.TableConflictException) {
                 val dupVersion = e.message?.substringAfterLast("version")
-                TermUi.echo(
+                echo(
                     "Skipping creation of duplicate table $tableName since it is duplicated with version$dupVersion."
                 )
                 return
             }
 
-            TermUi.echo(
+            echo(
                 "\t${inputData.size} rows created for lookup table $tableName version " +
                     "${newTableInfo.tableVersion}."
             )
@@ -655,14 +654,14 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
                         true
                     )
                 }
-                TermUi.echo("\tTable version ${newTableInfo.tableVersion} is now active.")
+                echo("\tTable version ${newTableInfo.tableVersion} is now active.")
             } else
-                TermUi.echo(
+                echo(
                     "\tTable version ${newTableInfo.tableVersion} " +
                         "left inactive, so don't forget to activate it."
                 )
         } else
-            TermUi.echo("\tAborted the creation of the lookup table.")
+            echo("\tAborted the creation of the lookup table.")
     }
 }
 
@@ -684,21 +683,21 @@ class LookupTableListCommand : GenericLookupTableCommand(
             throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
         }
         if (showInactive)
-            TermUi.echo("Listing all lookup tables including inactive.")
+            echo("Listing all lookup tables including inactive.")
         else
-            TermUi.echo("Listing only active lookup tables.")
+            echo("Listing only active lookup tables.")
 
         if (data.isNotEmpty()) {
-            TermUi.echo(
+            echo(
                 LookupTableCommands
                     .infoToPrintableTable(data)
             )
-            TermUi.echo("")
+            echo("")
         } else {
             if (data.isEmpty() && !showInactive)
-                TermUi.echo("No lookup tables were found.")
+                echo("No lookup tables were found.")
             else
-                TermUi.echo("No active lookup tables were found.")
+                echo("No active lookup tables were found.")
         }
     }
 }
@@ -760,16 +759,16 @@ class LookupTableDiffCommand : GenericLookupTableCommand(
         }
 
         // Generate the diff.
-        TermUi.echo("Comparing lookup table $tableName versions $version1 and $version2:")
-        TermUi.echo(LookupTableCommands.infoToPrintableTable(listOf(version1Info, version2Info)))
-        TermUi.echo("")
+        echo("Comparing lookup table $tableName versions $version1 and $version2:")
+        echo(LookupTableCommands.infoToPrintableTable(listOf(version1Info, version2Info)))
+        echo("")
 
         val output = LookupTableCommands.generateDiff(version1Table, version2Table, fullDiff)
 
         if (output.isNotEmpty()) {
-            output.forEach { TermUi.echo(it) }
+            output.forEach { echo(it) }
         } else
-            TermUi.echo("Lookup table $tableName version $version1 and $version2 are identical.")
+            echo("Lookup table $tableName version $version1 and $version2 are identical.")
     }
 }
 
@@ -814,23 +813,23 @@ class LookupTableActivateCommand : GenericLookupTableCommand(
                 )
 
             currentlyActiveTable == null ->
-                TermUi.echo("Lookup table $tableName is not currently active")
+                echo("Lookup table $tableName is not currently active")
 
             else ->
-                TermUi.echo(
+                echo(
                     "Current Lookup table $tableName's active version number is " +
                         "${currentlyActiveTable.tableVersion}"
                 )
         }
 
-        if (TermUi.confirm("Set $version as active?") == true) {
+        if (confirm("Set $version as active?") == true) {
             val activatedStatus = tableUtil.activateTable(tableName, version)
             if (activatedStatus.isActive)
-                TermUi.echo("Version $version for lookup table $tableName was set active.")
+                echo("Version $version for lookup table $tableName was set active.")
             else
                 error("Unknown error when setting lookup table $tableName Version $version to active.")
         } else
-            TermUi.echo("Aborted the activation of the lookup table.")
+            echo("Aborted the activation of the lookup table.")
     }
 }
 
@@ -888,7 +887,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
         if (environment != Environment.LOCAL) error("This command is only allowed in the local environment.")
 
         // First wait for the API to come online
-        TermUi.echo("Waiting for the API at ${environment.url} to be available...")
+        echo("Waiting for the API at ${environment.url} to be available...")
         CommandUtilities.waitForApi(environment, connRetries)
 
         // Get the list of current tables to only update or create new ones.
@@ -905,7 +904,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
             error("Directory ${dir.absolutePath} does not exist")
         }
 
-        TermUi.echo("Loading ${files.size} tables from ${dir.absolutePath}...")
+        echo("Loading ${files.size} tables from ${dir.absolutePath}...")
         files.forEach {
             val tableName = it.nameWithoutExtension
 
@@ -916,12 +915,12 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
                 val fileUpdatedTime = Instant.ofEpochMilli(it.lastModified())
                 if (!fileUpdatedTime.isAfter(tableUpdateTimes[tableName]!!.toInstant())) {
                     needToLoad = false
-                    TermUi.echo("Skipping $tableName since it has not been updated.")
+                    echo("Skipping $tableName since it has not been updated.")
                 }
             }
 
             if (needToLoad) {
-                TermUi.echo("Creating table $tableName...")
+                echo("Creating table $tableName...")
                 val args: MutableList<String> = mutableListOf(
                     "-e", environment.toString().lowercase(), "-n", tableName,
                     "-i", it.absolutePath, "-s", "-a"
@@ -930,6 +929,6 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
                 tableCreator.main(args)
             }
         }
-        TermUi.echo("Done.")
+        echo("Done.")
     }
 }

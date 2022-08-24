@@ -1,63 +1,124 @@
-import { useResource } from "rest-hooks";
-import { SetStateAction, useEffect, useMemo, useState } from "react";
-import { useOktaAuth } from "@okta/okta-react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
-import { getUniqueReceiverSvc } from "../../../utils/ReportUtils";
-import ReportResource from "../../../resources/ReportResource";
 import Table, { TableConfig } from "../../../components/Table/Table";
-import { getStoredOrg } from "../../../contexts/SessionStorageTools";
-import useFilterManager from "../../../hooks/filters/UseFilterManager";
-import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
+import useFilterManager, {
+    FilterManagerDefaults,
+} from "../../../hooks/filters/UseFilterManager";
+import Spinner from "../../../components/Spinner";
+import { useReportsList } from "../../../hooks/network/History/DeliveryHooks";
+import { useSessionContext } from "../../../contexts/SessionContext";
+import { showError } from "../../../components/AlertNotifications";
+import { useReceiversList } from "../../../hooks/network/Organizations/ReceiversHooks";
+import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 
-import TableButtonGroup from "./TableButtonGroup";
+import ServicesDropdown from "./ServicesDropdown";
 import { getReportAndDownload } from "./ReportsUtils";
 
-/* 
+/** @todo: page size default set to 10 once paginated */
+const filterManagerDefaults: FilterManagerDefaults = {
+    sortDefaults: {
+        column: "sent",
+        locally: true,
+    },
+    pageDefaults: {
+        size: 100,
+    },
+};
+
+interface ReceiverFeeds {
+    loadingServices: boolean;
+    services: RSReceiver[];
+    activeService: RSReceiver | undefined;
+    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+}
+/** Fetches a list of receivers for your active organization, and provides a controller to switch
+ * between them */
+export const useReceiverFeeds = (): ReceiverFeeds => {
+    const { activeMembership } = useSessionContext();
+    const {
+        data: receivers,
+        loading,
+        trigger: getReceiversList,
+    } = useReceiversList(activeMembership?.parsedName);
+    const [active, setActive] = useState<RSReceiver | undefined>();
+    useEffect(() => {
+        // IF activeMembership?.parsedName is not undefined
+        if (
+            activeMembership?.parsedName !== undefined &&
+            receivers === undefined
+        ) {
+            // Trigger useReceiversList()
+            getReceiversList();
+        }
+        // Ignoring getReceiverList() as dep
+    }, [activeMembership?.parsedName, receivers]); //eslint-disable-line
+
+    useEffect(() => {
+        if (receivers?.length) {
+            setActive(receivers[0]);
+        }
+    }, [receivers]);
+
+    return {
+        loadingServices: loading,
+        services: receivers,
+        activeService: active,
+        setActiveService: setActive,
+    };
+};
+
+/*
     This is the main exported component from this file. It provides container styling,
     table headers, and applies the <TableData> component to the table that is created in this
     component.
 */
-function ReportsTable({ sortBy }: { sortBy?: string }) {
-    const auth = useOktaAuth();
-    const organization = getStoredOrg();
-    const reports: ReportResource[] = useResource(ReportResource.list(), {
-        sortBy,
-    });
-    const fm = useFilterManager({
-        sortDefaults: {
-            column: "sent",
-            locally: true,
+function ReportsTable() {
+    const { oktaToken, activeMembership } = useSessionContext();
+    const { loadingServices, services, activeService, setActiveService } =
+        useReceiverFeeds();
+    // TODO: Doesn't update parameters because of the config memo dependency array
+    const {
+        data: deliveries,
+        loading,
+        error,
+        trigger: getReportsList,
+    } = useReportsList(activeMembership?.parsedName, activeService?.name);
+    const filterManager = useFilterManager(filterManagerDefaults);
+
+    useEffect(
+        () => {
+            // IF parsedName and activeService.name are FOR SURE valid values
+            // AND we don't have any deliveries yet (i.e. first fetch *has not* triggered)
+            if (
+                deliveries === undefined &&
+                activeMembership?.parsedName !== undefined &&
+                activeService?.name !== undefined
+            ) {
+                // Trigger useReportsList()
+                getReportsList();
+            }
         },
-    });
-    const receiverSVCs: string[] = Array.from(getUniqueReceiverSvc(reports));
-    const [chosen, setChosen] = useState(receiverSVCs[0]);
-    const filteredReports = useMemo(
-        () => reports.filter((report) => report.receivingOrgSvc === chosen),
-        [chosen, reports]
+        // Ignoring getReportsList as dep
+        [activeService, deliveries, activeMembership?.parsedName] //eslint-disable-line react-hooks/exhaustive-deps
     );
 
-    /* This syncs the chosen state from <TableButtonGroup> with the chosen state here */
-    const handleCallback = (chosen: SetStateAction<string>) => {
-        setChosen(chosen);
-    };
+    useEffect(() => {
+        if (error !== "") {
+            showError(error);
+        }
+    }, [error]);
 
     const handleFetchAndDownload = (id: string) => {
         getReportAndDownload(
             id,
-            auth?.authState?.accessToken?.accessToken || "",
-            organization || ""
+            oktaToken?.accessToken || "",
+            activeMembership?.parsedName || ""
         );
     };
 
-    /* TODO: Extend FilterManagerDefaults to include pageSize defaults */
-    useEffect(() => {
-        fm.updatePage({
-            type: PageSettingsActionType.SET_SIZE,
-            payload: {
-                size: 100,
-            },
-        });
-    }, []); // eslint-disable-line
+    const handleSetActive = (name: string) => {
+        setActiveService(services.find((item) => item.name === name));
+    };
 
     const resultsTableConfig: TableConfig = {
         columns: [
@@ -100,27 +161,41 @@ function ReportsTable({ sortBy }: { sortBy?: string }) {
                 },
             },
         ],
-        rows: filteredReports,
+        rows: deliveries || [],
     };
+
+    if (loading || loadingServices) return <Spinner />;
 
     return (
         <>
-            <div className="grid-col-12">
-                {receiverSVCs.length > 1 ? (
-                    <TableButtonGroup
-                        senders={receiverSVCs}
-                        chosenCallback={handleCallback}
+            <div className="grid-container grid-col-12">
+                {services && services?.length > 1 ? (
+                    <ServicesDropdown
+                        services={services}
+                        active={activeService?.name || ""}
+                        chosenCallback={handleSetActive}
                     />
-                ) : null}
+                ) : (
+                    <p>
+                        Default service:{" "}
+                        <strong>
+                            {(services?.length &&
+                                services[0].name.toUpperCase()) ||
+                                ""}
+                        </strong>
+                    </p>
+                )}
             </div>
             <div className="grid-col-12">
-                <Table config={resultsTableConfig} filterManager={fm} />
+                <Table
+                    config={resultsTableConfig}
+                    filterManager={filterManager}
+                />
             </div>
-            <div className="grid-col-12">
-                {reports.filter((report) => report.receivingOrgSvc === chosen)
-                    .length === 0 ? (
-                    <p>No results</p>
-                ) : null}
+            <div className="grid-container margin-bottom-10">
+                <div className="grid-col-12">
+                    {deliveries?.length === 0 ? <p>No results</p> : null}
+                </div>
             </div>
         </>
     );
