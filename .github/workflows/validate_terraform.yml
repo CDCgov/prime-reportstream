@@ -51,8 +51,5 @@ jobs:
         with:
           directory: operations/app/terraform
           skip-check: 
-            - CKV_AZURE_139
-            - CKV_AZURE_137
-            - CKV_AZURE_103
-            - CKV_AZURE_104
+            - ${{ .environment/checkov/checkov-skip-list.txt }}
           
