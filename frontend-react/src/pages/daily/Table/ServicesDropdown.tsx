@@ -1,9 +1,11 @@
+import { useCallback } from "react";
+
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
 
 interface Props {
     /* REQUIRED
     A list of senders gathered by calling getListOfSenders() */
-    services: RSReceiver[];
+    services: RSReceiver[] | string[];
 
     /* REQUIRED
     The chosen service */
@@ -22,6 +24,10 @@ interface Props {
     list
 */
 function ServicesDropdown(props: Props) {
+    const name = useCallback((service: string | RSReceiver) => {
+        if (service instanceof RSReceiver) return service.name;
+        return service;
+    }, []);
     return (
         <select
             className="usa-select"
@@ -31,8 +37,8 @@ function ServicesDropdown(props: Props) {
             onChange={(event) => props.chosenCallback(event.target.value)}
         >
             {props.services.map((service, idx) => (
-                <option key={`${service}.${idx}`} value={service.name}>
-                    {service.name}
+                <option key={`${service}.${idx}`} value={name(service)}>
+                    {name(service)}
                 </option>
             ))}
         </select>
