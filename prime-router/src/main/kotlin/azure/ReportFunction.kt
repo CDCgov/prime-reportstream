@@ -100,7 +100,7 @@ class ReportFunction(
             val sender = workflowEngine.settings.findSender(senderName)
                 ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown client")
 
-            if (!claims.authorizedForSubmission(sender, request)) {
+            if (!claims.authorizedForSendOrReceive(sender, request)) {
                 return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
 
@@ -203,9 +203,8 @@ class ReportFunction(
         workflowEngine.recordAction(actionHistory)
 
         check(actionHistory.action.actionId > 0)
-        val submission = SubmissionsFacade.instance.findDetailedSubmissionHistory(
-            actionHistory.action.actionId
-        )
+        val submission = SubmissionsFacade.instance.findDetailedSubmissionHistory(actionHistory.action)
+
         val response = request.createResponseBuilder(httpStatus)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .body(

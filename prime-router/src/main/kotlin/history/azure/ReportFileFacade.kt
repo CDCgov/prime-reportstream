@@ -38,22 +38,14 @@ abstract class ReportFileFacade(
     }
 
     /**
-     * Check whether these [claims] allow access to this [requiredOrganizationName].
-     * @return true if [claims] authorizes access to this [requiredOrganizationName].  Return
-     * false if the [requiredOrganizationName] is empty or if the claim does not give access.
+     * Check whether these [claims] allow access to this [orgName].
+     * @return true if [claims] authorizes access to this [orgName].  Return
+     * false if the [orgName] is empty or if the claim does not give access.
      */
-    fun checkSenderAccessAuthorization(
+    abstract fun checkAccessAuthorization(
         claims: AuthenticatedClaims,
-        requiredOrganizationName: String,
+        orgName: String? = null,
+        senderOrReceiver: String? = null,
         request: HttpRequestMessage<String?>,
-    ): Boolean {
-        if (requiredOrganizationName.isEmpty()) {
-            logger.warn(
-                "Unauthorized.  Action had no organization name. " +
-                    " For user ${claims.userName}: ${request.httpMethod}:${request.uri.path}."
-            )
-            return false
-        }
-        return claims.authorizedForSubmission(requiredOrganizationName, null, request)
-    }
+    ): Boolean
 }

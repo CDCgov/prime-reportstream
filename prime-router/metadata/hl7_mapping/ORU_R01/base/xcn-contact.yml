@@ -1,0 +1,42 @@
+name: ORU-R01-xcn-contact
+constants:
+  fieldPath: /PATIENT_RESULT/PATIENT/VISIT/(%{hl7Field})(%{orderIndex})
+elements:
+  - name: id-number
+    value: [ '%resource.identifier.value' ]
+    hl7Spec: [ '%{fieldPath}-1' ]
+
+  - name: family-name
+    value: [ '%resource.name.family' ]
+    hl7Spec: [ '%{fieldPath}-2' ]
+
+  - name: given-name
+    value: [ '%resource.name.given[0]' ]
+    hl7Spec: [ '%{fieldPath}-3' ]
+
+  - name: other-given-names
+    value: [ '%resource.name.given.tail()' ]
+    hl7Spec: [ '%{fieldPath}-4' ]
+
+  - name: degree
+    value: [ '%resource.name.suffix' ]
+    hl7Spec: [ '%{fieldPath}-7' ]
+
+  - name: assigning-auth-namespace-id
+    value: [ '%resource.identifier.system.replace(''urn:id:'', '''').replace(''_'', '' '')' ]
+    hl7Spec: [ '%{fieldPath}-9-1' ]
+
+  - name: assigning-auth-universal-id
+    resource: '%resource.identifier.extension(%`rsext-assigning-authority-universal-id`).value'
+    value: [ '%resource.replace(''urn:oid:'', '''')' ]
+    hl7Spec: [ '%{fieldPath}-9-2' ]
+
+  - name: assigning-auth-universal-id-type
+    resource: '%resource.identifier.extension(%`rsext-assigning-authority-universal-id`).value'
+    condition: '%resource.startsWith("urn:oid")'
+    value: [ '''ISO''' ]
+    hl7Spec: [ '%{fieldPath}-9-3' ]
+
+  - name: type
+    value: [ '%resource.identifier.type.coding.code' ]
+    hl7Spec: [ '%{fieldPath}-13' ]

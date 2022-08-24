@@ -9,6 +9,7 @@ import org.hl7.fhir.exceptions.PathEngineException
 import org.hl7.fhir.r4.model.Address.AddressUse
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.CodeType
 import org.hl7.fhir.r4.model.ContactPoint.ContactPointUse
 import org.hl7.fhir.r4.model.Enumeration
 import org.hl7.fhir.r4.model.HumanName.NameUse
@@ -16,6 +17,7 @@ import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TypeDetails
 import org.hl7.fhir.r4.model.ValueSet
+import org.hl7.fhir.r4.model.codesystems.V3ActCode
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import org.hl7.fhir.r4.utils.FHIRPathEngine.IEvaluationContext.FunctionDetails
 
@@ -71,8 +73,9 @@ object ConstantSubstitutor {
         override fun lookup(key: String?): String {
             require(!key.isNullOrBlank())
             if (context == null) throw HL7ConversionException("No context available to resolve constant '$key'")
-            else if (!context.constants.contains(key))
+            else if (!context.constants.contains(key)) {
                 throw HL7ConversionException("'$key' was not found in the provided context")
+            }
             return context.constants[key] ?: ""
         }
     }
@@ -88,7 +91,8 @@ enum class CustomFHIRFunctionNames {
     GetPhoneNumberAreaCode,
     GetPhoneNumberLocalNumber,
     GetTelecomUseCode,
-    GetNameUseCode
+    GetNameUseCode,
+    GetPatientClass,
 }
 
 /**
@@ -181,6 +185,21 @@ object CustomFHIRFunctions {
             else -> mutableListOf()
         }
     }
+
+    /**
+     * Gets the FHIR V3 act code stored in the [focus] element and converts to HL7 v2.5.1
+     * Some segments such as PV1.2 use string versions of this field in HL7 v2
+     * @return a mutable list containing the HL7single character version of the code
+     */
+    fun getPatientClass(focus: MutableList<Base>): MutableList<Base> {
+        return when (V3ActCode.fromCode((focus[0] as CodeType).code)) {
+            V3ActCode.EMER -> mutableListOf(StringType("E"))
+            V3ActCode.IMP -> mutableListOf(StringType("I"))
+            V3ActCode.PRENC -> mutableListOf(StringType("P"))
+            V3ActCode.AMB -> mutableListOf(StringType("O"))
+            else -> mutableListOf()
+        }
+    }
 }
 
 /**
@@ -224,9 +243,9 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
             // Just a straight constant replacement
             appContext.constants.contains(name) -> {
                 // Return the type depending on the contents of the variable
-                if (NumberUtils.isDigits(appContext.constants[name]))
+                if (NumberUtils.isDigits(appContext.constants[name])) {
                     IntegerType(NumberUtils.createInteger(appContext.constants[name]))
-                else StringType(appContext.constants[name])
+                } else StringType(appContext.constants[name])
             }
             // Must return null as the resolver is called by the FhirPathEngine to test for non-constants too
             else -> null
@@ -261,6 +280,9 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
             }
             CustomFHIRFunctionNames.GetNameUseCode -> {
                 FunctionDetails("convert FHIR name use code and coverts it to HL7 name type code", 0, 0)
+            }
+            CustomFHIRFunctionNames.GetPatientClass -> {
+                FunctionDetails("convert FHIR class code and coverts it to HL7 v3 act code", 0, 0)
             }
         }
     }
@@ -300,6 +322,9 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
                 }
                 CustomFHIRFunctionNames.GetNameUseCode -> {
                     CustomFHIRFunctions.getNameUseCode(focus)
+                }
+                CustomFHIRFunctionNames.GetPatientClass -> {
+                    CustomFHIRFunctions.getPatientClass(focus)
                 }
             }
             )

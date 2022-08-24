@@ -1,7 +1,4 @@
-import {
-    getStoredOktaToken,
-    getStoredOrg,
-} from "../contexts/SessionStorageTools";
+import { getStoredOktaToken, getStoredOrg } from "../utils/SessionStorageTools";
 
 import AuthResource from "./AuthResource";
 

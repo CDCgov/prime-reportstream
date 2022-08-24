@@ -25,7 +25,7 @@ const SenderAPI = new API(RSSender, "/api/settings/organizations")
 
 const useSenderResource = () => {
     /* Access the session. */
-    const { memberships, oktaToken } = useSessionContext();
+    const { activeMembership, oktaToken } = useSessionContext();
     /* Create a stable config reference with useMemo(). */
     const config = useMemo(
         () =>
@@ -34,15 +34,15 @@ const useSenderResource = () => {
                 "detail",
                 "GET",
                 oktaToken?.accessToken,
-                memberships.state.active?.parsedName,
+                activeMembership?.parsedName,
                 {
-                    org: memberships.state.active?.parsedName || "",
-                    sender: memberships.state.active?.senderName || "default",
+                    org: activeMembership?.parsedName || "",
+                    sender: activeMembership?.senderName || "default",
                 }
             ),
         /* Note: we DO want to update config ONLY when these values update. If the linter
          * yells about a value you don't want to add, add an eslint-ignore comment. */
-        [oktaToken?.accessToken, memberships.state.active]
+        [oktaToken?.accessToken, activeMembership]
     );
     /* Pass the stable config into the consumer and cast the response with types. */
     const {
@@ -90,9 +90,9 @@ const BannerContent = () => {
 };
 
 const SenderModeBanner = (): ReactElement | null => {
-    const { memberships } = useSessionContext();
+    const { activeMembership } = useSessionContext();
 
-    if (memberships.state.active?.memberType === MemberType.SENDER) {
+    if (activeMembership?.memberType === MemberType.SENDER) {
         return <BannerContent />;
     }
     return null;
