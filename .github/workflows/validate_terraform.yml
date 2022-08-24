@@ -50,5 +50,5 @@ jobs:
         uses: bridgecrewio/checkov-action@c9a85a204e31d934b38b7e73076b328567ce9105
         with:
           directory: operations/app/terraform
-          skip_check: CKV_AZURE_139,CKV_AZURE_137,CKV_AZURE_103
+          skip_check: CKV_AZURE_139,CKV_AZURE_137,CKV_AZURE_103,CKV_AZURE_104,CKV_AZURE_102,CKV_AZURE_130,CKV_AZURE_121,CKV_AZURE_159,CKV_AZURE_67,CKV_AZURE_56
             
