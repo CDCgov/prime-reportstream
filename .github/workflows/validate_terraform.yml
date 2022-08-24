@@ -50,8 +50,7 @@ jobs:
         uses: bridgecrewio/checkov-action@c9a85a204e31d934b38b7e73076b328567ce9105
         with:
           directory: operations/app/terraform
-          skip_check: |
-             CKV_AZURE_139 
+          skip_check: echo $(.environment/checkov/checkov-skip-list.txt)
              
             
           
