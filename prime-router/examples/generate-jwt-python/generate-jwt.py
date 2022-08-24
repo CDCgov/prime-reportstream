@@ -2,7 +2,8 @@
 #
 # Follow the setup steps in
 #       https://auth0.com/blog/how-to-handle-jwt-in-python/
-# prior to running this.
+# prior to running this.  Once you have followed those steps, then each subsequent time you need to run it, just do:
+#       source .env/bin/activate
 #
 # How to run this:  python3 ./generate-jwt.py
 #
@@ -18,7 +19,7 @@ from cryptography.hazmat.primitives import serialization
 #
 # REPLACE THESE WITH YOUR CLIENT-ID AND KEYPAIR FILE
 #
-my_client_id = "health-o-matic-labs"
+my_client_id = "healthy-labs"
 my_rsa_keypair_file = "./my-rsa-keypair.pem"
 
 #
@@ -78,6 +79,9 @@ STEP 2:  At the Time of Submission to ReportStream, generate a signed JWT using 
 # Examples of Steps 3 and 4
 # 
 
+# This scope allows CRUD on all reports in ReportStream for this one organization.
+scope = f"{my_client_id}.*.report"
+
 print(
 f'''
 STEP 3:  Send that signed JWT to ReportStream, to get a temporary bearer token
@@ -85,12 +89,13 @@ STEP 3:  Send that signed JWT to ReportStream, to get a temporary bearer token
 EXAMPLE: Here is an example curl call to request a submission token valid for the next 5 minutes, using this JWT.
 This assumes you have already given your public key to ReportStream.
 
-curl -X POST -H "content-length:0" "https://staging.prime.cdc.gov/api/token?scope={my_client_id}.default.report&grant_type=client_credentials&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={token}"
+curl -X POST -H "content-length:0" "https://staging.prime.cdc.gov/api/token?scope={scope}&grant_type=client_credentials&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={token}"
 
 If its working, you'll get back a response like this:
 
-{{"sub":"{my_client_id}.default.report_90ffad77-9b47-448f-ab51-9b40c856d878","access_token":"ACCESS-TOKEN-STRING-HERE","token_type":"bearer","expires_in":300,"expires_at_seconds":1660744830,"scope":"{my_client_id}.default.report"}}
+{{"sub":"{my_client_id}.default.report_90ffad77-9b47-448f-ab51-9b40c856d878","access_token":"ACCESS-TOKEN-STRING-HERE","token_type":"bearer","expires_in":300,"expires_at_seconds":1660744830,"scope":"{scope}"}}
 
+(Note that the scope requested is {scope})
 
 
 STEP 4: Submit data to ReportStream using the bearer token
