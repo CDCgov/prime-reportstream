@@ -101,4 +101,55 @@ describe("ValueSetsDetailTable", () => {
             message: "Error",
         });
     });
+
+    test("on row save, calls saveData and activateTable triggers with correct args", async () => {
+        mockUseValueSetsTable = jest.fn(() => ({
+            valueSetArray: fakeRows,
+            error: null,
+        }));
+        mockSaveData = jest.fn(() => {
+            // to avoid unnecessary console error
+            return Promise.resolve({ tableVersion: 2 });
+        });
+
+        mockActivateTable = jest.fn(() => {
+            // to avoid unnecessary console error
+            return Promise.resolve({ tableVersion: 2 });
+        });
+        const mockSetAlert = jest.fn();
+        const fakeRowsCopy = [...fakeRows];
+
+        renderWithQueryProvider(
+            <ValueSetsDetailTable
+                valueSetName={"a-path"}
+                setAlert={mockSetAlert}
+            />
+        );
+        const editButtons = screen.getAllByText("Edit");
+        const editButton = editButtons[0];
+        expect(editButton).toBeInTheDocument();
+        userEvent.click(editButton);
+
+        const inputs = screen.getAllByRole("textbox") as HTMLInputElement[];
+        const firstInput = inputs[0];
+        const initialValue = firstInput.value;
+        userEvent.click(firstInput);
+        userEvent.keyboard("~~fakeInputValue~~");
+
+        const saveButton = screen.getByText("Save");
+        expect(saveButton).toBeInTheDocument();
+        // eslint-disable-next-line testing-library/no-unnecessary-act
+        await act(async () => {
+            userEvent.click(saveButton);
+        });
+        fakeRowsCopy.shift();
+
+        expect(mockSaveData).toHaveBeenCalled();
+        expect(mockSaveData).toHaveBeenCalledWith([
+            { ...fakeRows[0], display: `${initialValue}~~fakeInputValue~~` },
+            ...fakeRowsCopy,
+        ]);
+        expect(mockActivateTable).toHaveBeenCalled();
+        expect(mockActivateTable).toHaveBeenCalledWith(2);
+    });
 });

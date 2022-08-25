@@ -5,6 +5,7 @@ import {
     lookupTableApi,
     LookupTable,
     ApiValueSet,
+    LookupTables,
 } from "../network/api/LookupTableApi";
 
 const tableList = lookupTableApi.getTableList();
@@ -15,6 +16,14 @@ const tableData = lookupTableApi.getTableData<LookupTable>(
 const tableDataAlternate = lookupTableApi.getTableData<LookupTable>(
     3,
     "sender_automation_value_set"
+);
+const updateTableData = lookupTableApi.saveTableData(
+    LookupTables.VALUE_SET_ROW
+);
+
+const activateTableData = lookupTableApi.activateTableData(
+    1,
+    LookupTables.VALUE_SET_ROW
 );
 
 const lookupTables: LookupTable[] = [1, 2, 3].map((i) => ({
@@ -45,6 +54,12 @@ const handlers = [
     }),
     rest.get(tableDataAlternate.url, (_req, res, ctx) => {
         return res(ctx.json(lookupTableData), ctx.status(200));
+    }),
+    rest.post(updateTableData.url, (_req, res, ctx) => {
+        return res(ctx.json(lookupTables[1]), ctx.status(200));
+    }),
+    rest.put(activateTableData.url, (_req, res, ctx) => {
+        return res(ctx.json(lookupTables[1]), ctx.status(200));
     }),
 ];
 
