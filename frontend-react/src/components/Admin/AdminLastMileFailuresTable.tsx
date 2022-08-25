@@ -18,7 +18,7 @@ import {
 import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import { formatDate } from "../../utils/misc";
 import { showAlertNotification, showError } from "../AlertNotifications";
-import { getStoredOktaToken } from "../../contexts/SessionStorageTools";
+import { getStoredOktaToken } from "../../utils/SessionStorageTools";
 
 export function AdminLastMileFailuresTable() {
     const defaultDaysToShow = "15"; // numeric input but treat as string for easier passing around
@@ -88,7 +88,7 @@ ${data.receiver}`;
         ) as AdmSendFailuresResource;
 
         return (
-            <GridContainer className={"rs-admindash-modal"}>
+            <GridContainer className={"rs-admindash-modal-container"}>
                 <Grid className={"modal-info-title"}>
                     Info Details {infoData.actionId}
                 </Grid>
@@ -293,7 +293,7 @@ ${data.receiver}`;
 
             <Modal
                 isLarge={true}
-                className="rs-compare-modal"
+                className="rs-admindash-modal rs-compare-modal"
                 ref={modalShowInfoRef}
                 id={modalShowInfoId}
                 aria-labelledby={`${modalShowInfoId}-heading`}

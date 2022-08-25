@@ -9,7 +9,7 @@ import { showAlertNotification, showError } from "../AlertNotifications";
 import {
     getStoredOktaToken,
     getStoredOrg,
-} from "../../contexts/SessionStorageTools";
+} from "../../utils/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
