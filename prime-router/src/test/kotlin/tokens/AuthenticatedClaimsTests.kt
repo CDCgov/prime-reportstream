@@ -220,6 +220,31 @@ class AuthenticatedClaimsTests {
         assertThat(claims3.authorizedForSendOrReceive("WRONG", "foo", req)).isFalse()
         assertThat(claims3.authorizedForSendOrReceive("", "", req)).isFalse()
         assertThat(claims3.authorizedForSendOrReceive(" ", "", req)).isFalse()
+
+        // A typical server2server sender scope:
+        val rawClaims4: Map<String, Any> = mapOf("scope" to "sender-org.*.report", "sub" to "b@b.com")
+        val claims4 = AuthenticatedClaims(rawClaims4, isOktaAuth = false)
+        assertThat(claims4.authorizedForSendOrReceive("sender-org", "quux", req)).isTrue()
+        // All the rest of these fail because of the narrowness of the claim:
+        assertThat(claims4.authorizedForSendOrReceive("sender-org", "foo", req)).isTrue()
+        assertThat(claims4.authorizedForSendOrReceive("sender-org", "*", req)).isTrue()
+        assertThat(claims4.authorizedForSendOrReceive("sender-org", null, req)).isTrue()
+        assertThat(claims4.authorizedForSendOrReceive("WRONG", null, req)).isFalse()
+        assertThat(claims4.authorizedForSendOrReceive("", "", req)).isFalse()
+        assertThat(claims4.authorizedForSendOrReceive(" ", "", req)).isFalse()
+
+        // Server2server senders should be given a scope of the form sender-org.*.report, but
+        // we are grandfathering-in the older sender-org.default.report form, as identical to sender-org.*.report
+        val rawClaims5: Map<String, Any> = mapOf("scope" to "sender-org.default.report", "sub" to "b@b.com")
+        val claims5 = AuthenticatedClaims(rawClaims5, isOktaAuth = false)
+        assertThat(claims5.authorizedForSendOrReceive("sender-org", "quux", req)).isTrue()
+        // All the rest of these fail because of the narrowness of the claim:
+        assertThat(claims5.authorizedForSendOrReceive("sender-org", "default", req)).isTrue()
+        assertThat(claims5.authorizedForSendOrReceive("sender-org", "*", req)).isTrue()
+        assertThat(claims5.authorizedForSendOrReceive("sender-org", null, req)).isTrue()
+        assertThat(claims5.authorizedForSendOrReceive("WRONG", null, req)).isFalse()
+        assertThat(claims5.authorizedForSendOrReceive("", "", req)).isFalse()
+        assertThat(claims5.authorizedForSendOrReceive(" ", "", req)).isFalse()
     }
 
     @Test
