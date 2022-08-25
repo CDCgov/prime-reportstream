@@ -16,7 +16,7 @@ export interface TableAttributes {
 }
 
 export async function getLatestVersion(
-    tableName: LookupTables
+    tableName: string
 ): Promise<TableAttributes> {
     const response = await axios(lookupTableApi.getTableList()).then(
         (response) => response.data
@@ -59,7 +59,7 @@ export async function getLatestData<T>(
 }
 
 const getDataAndVersion = async <T>(
-    tableName: LookupTables,
+    tableName: string,
     suppliedVersion?: number
 ): Promise<{
     data: any[];
@@ -102,7 +102,7 @@ export const getSenderAutomationData = async <T>(
 };
 
 export const getSenderAutomationDataRows = async <T>(
-    tableName: string | LookupTables,
+    tableName: string,
     suppliedVersion?: number
 ): Promise<any[]> => {
     const { data } = await getDataAndVersion<T>(tableName, suppliedVersion);
