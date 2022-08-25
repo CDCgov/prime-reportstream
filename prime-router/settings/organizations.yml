@@ -308,6 +308,17 @@
       schemaName: hl7/hl7-ingest-covid-19-training
       format: HL7
 
+- name: reopenlab
+  description: Reopenlab
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: reopenlab
+      topic: covid-19
+      customerStatus: testing
+      schemaName: hl7/hl7-ingest-covid-19-training
+      format: HL7
+
 - name: geneus-diagnostics
   description: Geneus Diagnostics Las Vagas
   jurisdiction: FEDERAL
@@ -3262,38 +3273,15 @@
         initialTime: 00:00
         timeZone: EASTERN
       transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
-    - name: elr-monkeypox
-      organizationName: ny-phd
-      topic: monkeypox
-      customerStatus: testing
-      routingFilter:
-        - "AllowAll()"
-      processingModeFilter:
-        - "AllowAll()"
-      qualityFilter:
-        - "AllowAll()"
-      jurisdictionalFilter:
-        - orEquals(ordering_facility_state, NY, patient_state, NY)
-      translation:
-        type: HL7
-        useBatchHeaders: true
-        schemaName: monkeypox
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-        timeZone: EASTERN
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        type: REST
+        authTokenUrl: http://rest-webservice:3001/token
+        reportUrl:  http://rest-webservice:3001/report
+        #authTokenUrl: https://api2.health.ny.gov/token
+        #reportUrl:  https://api2.health.ny.gov/services/uphn/openapi/V1.0/ECLRSPRE #for test data
+        #reportUrl:  https://api2.health.ny.gov/services/uphn/openapi/V1.0/ECLRSPOST #for PRODUCTION data
+        tlsKeystore: NY-PHD--ELR--JKS
+        headers:
+          UPHN-INFOMAP: '{"properties":"labClia=10DRPTSTRM,target=NYS,content=L,format=HL7"}'
 
 - name: mp-phd
   description: Northern Mariana Islands Public Health Department
@@ -3324,33 +3312,35 @@
 - name: ok-phd
   description: Oklahoma Public Health Department
   jurisdiction: STATE
-  filters:
-    - topic: "covid-19"
-      jurisdictionalFilter:
-      - orEquals(ordering_facility_state, OK, patient_state, OK)
   stateCode: OK
   receivers:
     - name: elr
       organizationName: ok-phd
       topic: covid-19
       customerStatus: inactive
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, OK, patient_state, OK)
       translation:
         type: HL7
         useBatchHeaders: true
-        replaceValueAwithB:
-          MSH-4-1: [ "*": "CDC PRIME REPORTSTREAM"]
-          MSH-4-2: [ "*": "10DRPTSTRM"]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
         timeZone: EASTERN
       transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        type: REST
+        authTokenUrl: http://rest-webservice:3001/idtoken
+        reportUrl:  http://rest-webservice:3001/report
+        #authTokenUrl: https://labupload-uat.health.ok.gov/api/auth/token #test URL
+        #reportUrl:  https://labupload-uat.health.ok.gov/api/document/hl7 #test URL
+        #authTokenUrl: https://labupload.health.ok.gov/api/auth/token #PRODUCTION URL
+        #reportUrl:  https://labupload.health.ok.gov/api/document/hl7 #PRODUCTION URL
+        tlsKeystore: null
+        headers:
+          RecordId: 'header.reportFile.reportId'
+          senderLabName: 'CDC PRIME - Atlanta, Georgia' #name-of-the-lab-the-sending-user-belongs-to
+          sourceLabName: 'CDC PRIME - Atlanta, Georgia' #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
 
 - name: or-phd
   description: Oregon Public Health Department

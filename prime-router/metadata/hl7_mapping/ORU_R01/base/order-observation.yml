@@ -1,0 +1,16 @@
+name: ORU-R01-order-observation
+constants:
+  hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})
+elements:
+  - name: request-set-ID
+    value: [ '%orderIndex + 1' ]
+    hl7Spec: [ '%{hl7Order}/OBR-1' ]
+
+  - name: timing-segment
+    resource: '%resource.basedOn.resolve()'
+    # Only create the segment if we have data for it
+    condition: >
+      %resource.extension(%`rsext-start-of-service`).exists() or
+      %resource.extension(%`rsext-end-of-service`).exists() or
+      %resource.extension(%`rsext-service-priority`).exists()
+    schema: timing-quantity
