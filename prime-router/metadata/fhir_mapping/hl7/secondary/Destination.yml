@@ -1,0 +1,38 @@
+name:
+  type: STRING
+  valueOf: MSH.5
+  expressionType: HL7Spec
+
+endpoint:
+  type: URL
+  required: true
+  valueOf: MSH.25 | MSH.6
+  expressionType: HL7Spec
+
+extension_1:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
+  vars:
+    idStr: String, MSH.5.2
+    value: $oidUrlPrefix + MSH.5.2
+    systemStr: String, MSH.5.3
+  constants:
+    oidUrlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: Oid
+    urlValue: receiving-application-identifier
+
+extension_2:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
+  vars:
+    idStr: String, MSH.6.2
+    value: $oidUrlPrefix + MSH.6.2
+    systemStr: String, MSH.6.3
+  constants:
+    oidUrlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: Oid
+    urlValue: receiving-facility-identifier

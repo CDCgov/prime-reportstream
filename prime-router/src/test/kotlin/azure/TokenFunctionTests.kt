@@ -11,7 +11,7 @@ import gov.cdc.prime.router.tokens.AccessToken
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.Scope
-import gov.cdc.prime.router.tokens.TokenAuthentication
+import gov.cdc.prime.router.tokens.Server2ServerAuthentication
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -281,8 +281,10 @@ class TokenFunctionTests {
     @Test
     fun `Test success`() {
 
-        mockkConstructor(TokenAuthentication::class)
-        every { anyConstructed<TokenAuthentication>().createAccessToken(any(), any(), any()) } returns AccessToken(
+        mockkConstructor(Server2ServerAuthentication::class)
+        every {
+            anyConstructed<Server2ServerAuthentication>().createAccessToken(any(), any(), any())
+        } returns AccessToken(
             "test",
             "test",
             "test",

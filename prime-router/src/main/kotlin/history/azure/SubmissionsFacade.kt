@@ -1,10 +1,14 @@
 package gov.cdc.prime.router.history.azure
 
+import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.SubmissionHistory
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import java.time.OffsetDateTime
 
 /**
@@ -111,10 +115,14 @@ class SubmissionsFacade(
      * @return Report details
      */
     fun findDetailedSubmissionHistory(
-        submissionId: Long,
+        action: Action
     ): DetailedSubmissionHistory? {
+        // This assumes that ReportFileFunction.authSingleBlocks has already run, and has checked that the
+        // sendingOrg is good.  If that assumption is incorrect, die here.
+        assert(action.sendingOrg != null && action.actionName == TaskAction.receive)
         val submission = dbSubmissionAccess.fetchAction(
-            submissionId,
+            action.actionId,
+            action.sendingOrg,
             DetailedSubmissionHistory::class.java
         )
 
@@ -129,6 +137,27 @@ class SubmissionsFacade(
         submission?.enrichWithSummary()
 
         return submission
+    }
+
+    /**
+     * Check whether these [claims] allow access to this [orgName].
+     * @return true if [claims] authorizes access to this [orgName].  Return
+     * false if the [orgName] is empty or if the claim does not give access.
+     */
+    override fun checkAccessAuthorization(
+        claims: AuthenticatedClaims,
+        orgName: String?,
+        senderOrReceiver: String?,
+        request: HttpRequestMessage<String?>,
+    ): Boolean {
+        if (orgName.isNullOrEmpty()) {
+            logger.warn(
+                "Unauthorized.  Action had no sending-organization name. " +
+                    " For user ${claims.userName}: ${request.httpMethod}:${request.uri.path}."
+            )
+            return false
+        }
+        return claims.authorizedForSendOrReceive(orgName, senderOrReceiver, request)
     }
 
     companion object {

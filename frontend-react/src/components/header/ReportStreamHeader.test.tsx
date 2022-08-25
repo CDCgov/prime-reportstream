@@ -50,14 +50,11 @@ describe("ReportStreamHeader", () => {
         });
         mockSessionContext.mockReturnValue({
             //@ts-ignore
-            memberships: {
-                state: {
-                    active: {
-                        memberType: MemberType.PRIME_ADMIN,
-                        parsedName: "PrimeAdmins",
-                    },
-                },
+            activeMembership: {
+                memberType: MemberType.PRIME_ADMIN,
+                parsedName: "PrimeAdmins",
             },
+            dispatch: () => {},
         });
         renderWithSession(<ReportStreamHeader />);
         expect(screen.getByText("Admin")).toBeInTheDocument();
@@ -86,14 +83,11 @@ describe("ReportStreamHeader", () => {
         });
         mockSessionContext.mockReturnValue({
             //@ts-ignore
-            memberships: {
-                state: {
-                    active: {
-                        memberType: MemberType.SENDER,
-                        parsedName: "ignore",
-                    },
-                },
+            activeMembership: {
+                memberType: MemberType.SENDER,
+                parsedName: "ignore",
             },
+            dispatch: () => {},
         });
         renderWithSession(<ReportStreamHeader />);
         expect(screen.queryByText("Daily data")).not.toBeInTheDocument();
@@ -121,14 +115,11 @@ describe("ReportStreamHeader", () => {
         });
         mockSessionContext.mockReturnValue({
             //@ts-ignore
-            memberships: {
-                state: {
-                    active: {
-                        memberType: MemberType.RECEIVER,
-                        parsedName: "ignore",
-                    },
-                },
+            activeMembership: {
+                memberType: MemberType.RECEIVER,
+                parsedName: "ignore",
             },
+            dispatch: () => {},
         });
         renderWithSession(<ReportStreamHeader />);
         expect(screen.getByText("Daily data")).toBeInTheDocument();

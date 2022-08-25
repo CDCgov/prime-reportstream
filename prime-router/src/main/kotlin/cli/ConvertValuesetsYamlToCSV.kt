@@ -8,7 +8,6 @@ import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
@@ -111,7 +110,7 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
      * The actual work of converting sender-automation.valuesets to 2 CSV files
      */
     override fun run() {
-        TermUi.echo("Converting sender-automation.valuesets to CSV...")
+        echo("Converting sender-automation.valuesets to CSV...")
 
         val savsOutput = StringBuilder()
         val savsValueOutput = StringBuilder()
@@ -150,6 +149,6 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
         savsOutputStream.write(savsOutput.toString().toByteArray())
         savsOutputStream.close()
 
-        TermUi.echo("Conversion complete.")
+        echo("Conversion complete.")
     }
 }

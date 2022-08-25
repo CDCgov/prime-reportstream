@@ -33,8 +33,8 @@ import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.secrets.SecretHelper
 import gov.cdc.prime.router.tokens.oktaMembershipClaim
-import gov.cdc.prime.router.tokens.oktaSubjectClaim
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
+import gov.cdc.prime.router.tokens.subjectClaim
 import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
@@ -269,7 +269,7 @@ class EmailScheduleEngine {
                 @Suppress("UNCHECKED_CAST")
                 user =
                     if ((jwt.claims[oktaMembershipClaim] as List<String>).contains(oktaSystemAdminGroup))
-                        jwt.claims[oktaSubjectClaim].toString()
+                        jwt.claims[subjectClaim].toString()
                     else null
             } catch (ex: Throwable) {
                 logger.log(Level.WARNING, "Error in verification of token", ex)
