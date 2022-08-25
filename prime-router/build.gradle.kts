@@ -706,7 +706,7 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.3") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2")
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
