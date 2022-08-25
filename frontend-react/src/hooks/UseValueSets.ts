@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 import {
     LookupTable,
@@ -47,6 +47,31 @@ const getLatestData = <T>(tableName: string, version: number) => {
 // returns a list of all lookup tables to be filtered
 const getLookupTables = () =>
     axios(lookupTableApi.getTableList()).then(({ data }) => data);
+
+const endpointHeaderUpdate = lookupTableApi.saveTableData(
+    LookupTables.VALUE_SET_ROW
+);
+
+const updateValueSet = (data: ValueSetRow[]) =>
+    axios
+        .post(endpointHeaderUpdate.url, data, endpointHeaderUpdate)
+        .then(({ data }) => data);
+
+const activateValueSet = (tableVersion: number) => {
+    const endpointHeaderActivate = lookupTableApi.activateTableData(
+        tableVersion,
+        LookupTables.VALUE_SET_ROW
+    );
+
+    return axios
+        .put(
+            endpointHeaderActivate.url,
+            LookupTables.VALUE_SET_ROW,
+            endpointHeaderActivate
+        )
+        .then(({ data }) => data)
+        .catch((e) => console.error("***", e));
+};
 
 /*
 
@@ -142,4 +167,31 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
         : [];
 
     return { error, valueSetArray };
+};
+
+/* 
+
+  Mutation Hooks
+
+  */
+export const useValueSetUpdate = () => {
+    // generic signature is defined here https://github.com/TanStack/query/blob/4690b585722d2b71d9b87a81cb139062d3e05c9c/packages/react-query/src/useMutation.ts#L66
+    // <type of data returned, type of error returned, type of variables passed to mutate fn, type of context (?)>
+    const mutation = useMutation<LookupTable, Error, ValueSetRow[]>(
+        updateValueSet
+    );
+    return {
+        saveData: mutation.mutateAsync,
+        isSaving: mutation.isLoading,
+        saveError: mutation.error,
+    };
+};
+
+export const useValueSetActivation = () => {
+    const mutation = useMutation<LookupTable, Error, number>(activateValueSet);
+    return {
+        activateTable: mutation.mutateAsync,
+        isActivating: mutation.isLoading,
+        activationError: mutation.error,
+    };
 };
