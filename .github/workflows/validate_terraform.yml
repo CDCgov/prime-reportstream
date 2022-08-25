@@ -1,61 +1,36 @@
-name: Terraform Validation
+name: Terraform
 
-on: push
-  #  pull_request:
-  #    branches:
-  #      - production
-  #      - master
-  #      - test
-  #    paths:
-  #      - '**.tf'
+on:
+  pull_request:
+    branches:
+      - master
 
 jobs:
-  # pre_job:
-  #   name: Pre Job
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     has_operations_change: ${{ steps.build_vars.outputs.has_terraform_change }}
-  #   steps:
-  #     - name: Check Out Changes
-  #       uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-  #     - name: Build vars
-  #       id: build_vars
-  #       uses: ./.github/actions/build-vars
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_operations_change: ${{ steps.build_vars.outputs.has_terraform_change }}
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
 
-  # validate_terraform_yaml:
-  #   name: Validate Terraform YAML
-  #   needs: pre_job
-  #   if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
-  #   environment: staging
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Check Out Changes
-  #       uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-  #     - name: Use specific version of Terraform
-  #       uses: hashicorp/setup-terraform@17d4c9b8043b238f6f35641cdd8433da1e6f3867
-  #       with:
-  #         terraform_version: 1.2.0
-  #         terraform_wrapper: false
-  #     - name: Verify Terraform Formatting
-  #       run: terraform -chdir=operations/app/terraform/vars/staging fmt -check -recursive ../../
-  checkov-job:
-    name: Run Checkov On Terraform Code
-    #needs: validate_terraform_yaml
+  validate_terraform_yaml:
+    name: Validate Terraform YAML
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
+    environment: staging
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Check Out Changes
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-
-      - name: Run Checkov action
-        uses: bridgecrewio/checkov-action@c9a85a204e31d934b38b7e73076b328567ce9105
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@17d4c9b8043b238f6f35641cdd8433da1e6f3867
         with:
-          directory: operations/app/terraform
-          skip_check: ${{ cat .environment/checkov/checkov-skip-list.conf }}
-             
-            
-          
-      #$(cat $(git rev-parse --show-toplevel)/.environment/checkov/checkov-skip-list.txt )
-            
-              
-            #- ${{ .environment/checkov/.checkov-skip-list.conf }}
-          
+          terraform_version: 1.2.0
+          terraform_wrapper: false
+      - name: Verify Terraform Formatting
+        run: terraform -chdir=operations/app/terraform/vars/staging fmt -check -recursive ../../
