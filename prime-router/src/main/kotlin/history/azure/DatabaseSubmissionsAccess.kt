@@ -105,11 +105,17 @@ class DatabaseSubmissionsAccess(
                 )
                     .from(REPORT_FILE)
                     .leftJoin(org)
-                    .on(REPORT_FILE.RECEIVING_ORG.eq(org.NAME))
+                    .on(
+                        REPORT_FILE.RECEIVING_ORG.eq(org.NAME)
+                            .and(org.IS_ACTIVE.eq(true))
+                            .and(org.IS_DELETED.eq(false))
+                    )
                     .leftJoin(receiver)
                     .on(
                         org.SETTING_ID.eq(receiver.ORGANIZATION_ID)
                             .and(REPORT_FILE.RECEIVING_ORG_SVC.eq(receiver.NAME))
+                            .and(receiver.IS_ACTIVE.eq(true))
+                            .and(receiver.IS_DELETED.eq(false))
                     )
                     .where(REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID))
             ).`as`("reports").convertFrom { r ->
