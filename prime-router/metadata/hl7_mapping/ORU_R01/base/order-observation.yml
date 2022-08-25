@@ -8,7 +8,7 @@ elements:
 
   - name: order-segment
     # Only create the segment if we have data for it
-    condition: 'Bundle.entry.resource.ofType(DiagnosticReport).basedOn.resolve().extension(%`rsext-order-control`).exists()'
+    condition: '%resource.basedOn.resolve().extension(%`rsext-order-control`).exists()'
     schema: order
 
   - name: timing-segment

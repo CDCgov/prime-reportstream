@@ -63,7 +63,36 @@ elements:
       hl7TelecomField: '%{hl7Order}-14'
     schema: xtn-telecom
 
-  - name: transaction-time
-    resource: '%resource.basedOn.resolve()'
-    value: [ '%resource.authoredOn' ]
-    hl7Spec: [ '%{hl7Order}-9' ]
+  - name: order-effective-date
+    value: [ '%resource.basedOn.resolve().occurrence' ]
+    hl7Spec: [ '%{hl7Order}-15' ]
+
+  - name: ordering-organization
+    resource: '%resource.basedOn.resolve().extension(%`rsext-entering-organization`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7Order}-17' ]
+
+  - name: ordering-facility-name
+    resource: '%resource.basedOn.resolve().requester.resolve().organization.resolve()'
+    schema: xon-organization
+    constants:
+      hl7OrgField: '%{hl7Order}-21'
+
+  - name: ordering-facility-address
+    resource: '%resource.basedOn.resolve().requester.resolve().organization.resolve().address'
+    schema: xad-extended-address
+    constants:
+      hl7AddressField: '%{hl7Order}-22'
+
+  - name: ordering-facility-phone
+    resource: '%resource.basedOn.resolve().requester.resolve().organization.resolve().contact[0].telecom'
+    schema: xtn-telecom
+    constants:
+      hl7TelecomField: '%{hl7Order}-23'
+
+  - name: ordering-facility-address
+    resource: '%resource.basedOn.resolve().requester.resolve().practitioner.resolve().address'
+    schema: xad-extended-address
+    constants:
+      hl7AddressField: '%{hl7Order}-24'
