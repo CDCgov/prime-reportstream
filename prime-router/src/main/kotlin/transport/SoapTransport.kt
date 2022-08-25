@@ -16,15 +16,17 @@ import gov.cdc.prime.router.credentials.SoapCredential
 import gov.cdc.prime.router.serializers.SoapEnvelope
 import gov.cdc.prime.router.serializers.SoapObjectService
 import io.ktor.client.HttpClient
-import io.ktor.client.call.receive
+import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
-import io.ktor.client.features.ClientRequestException
-import io.ktor.client.features.ServerResponseException
-import io.ktor.client.features.logging.LogLevel
-import io.ktor.client.features.logging.Logging
-import io.ktor.client.features.logging.SIMPLE
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.ServerResponseException
+import io.ktor.client.plugins.expectSuccess
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.header
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.request
 import io.ktor.http.ContentType
@@ -80,23 +82,28 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
     ): String {
         httpClient.use { client ->
             context.logger.info("Connecting to $soapEndpoint")
+
             // once we've created te client, we will use it to call post on the endpoint
             val response: HttpResponse = client.post(soapEndpoint) {
+                // tell ktor to throw an exception if not successful
+                expectSuccess = true
                 // adds the SOAPAction header
                 header("SOAPAction", soapAction)
                 // we want to pass text in the body of our request. You need to do it this
                 // way because the TextContent object sets other values like the charset, etc
                 // Ktor will balk if you try to set it some other way
-                body = TextContent(
-                    message,
-                    // force the encoding to be UTF-8. PA had issues understanding the message
-                    // unless it was explicitly set to UTF-8. Plus it's good to be explicit about
-                    // these things
-                    contentType = ContentType.Text.Xml.withCharset(Charsets.UTF_8)
+                setBody(
+                    TextContent(
+                        message,
+                        // force the encoding to be UTF-8. PA had issues understanding the message
+                        // unless it was explicitly set to UTF-8. Plus it's good to be explicit about
+                        // these things
+                        contentType = ContentType.Text.Xml.withCharset(Charsets.UTF_8)
+                    )
                 )
             }
             // get the response object
-            val body: String = response.receive()
+            val body: String = response.body()
             // return just the body of the message
             return prettyPrintXmlResponse(body)
         }
@@ -254,7 +261,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
             return HttpClient(Apache) {
                 // installs logging into the call to post to the server
                 install(Logging) {
-                    logger = io.ktor.client.features.logging.Logger.Companion.SIMPLE
+                    logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
                     level = LogLevel.INFO
                 }
                 // configures the Apache client with our specified timeouts
