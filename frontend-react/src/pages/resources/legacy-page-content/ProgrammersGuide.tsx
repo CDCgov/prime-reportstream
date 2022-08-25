@@ -18,7 +18,8 @@ export const ProgrammersGuide = () => {
             <section>
                 <h3>Download the guide</h3>
                 <p>
-                    The ReportStream programmer's guide is available as a PDF.
+                    The ReportStream programmer's guide is available as a PDF
+                    (Updated: August 2022)
                 </p>
                 <p>
                     <a
