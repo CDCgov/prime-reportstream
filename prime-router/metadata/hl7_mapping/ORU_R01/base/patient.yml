@@ -17,7 +17,7 @@ elements:
     resource: '%resource.name'
     condition: '%resource.exists()'
     constants:
-      hl7NameField: '/PATIENT_RESULT/PATIENT/PID-5'
+      hl7NameField: '%{hl7PIDField}-5'
     schema: human-name
 
   - name: patient-dob
