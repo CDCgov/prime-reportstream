@@ -226,7 +226,8 @@ object CustomFHIRFunctions {
     fun getYesNoValue(focus: MutableList<Base>): MutableList<Base> {
         return when (focus[0].toString()) {
             "true" -> mutableListOf(StringType("Y"))
-            else -> mutableListOf(StringType("N"))
+            "false" -> mutableListOf(StringType("N"))
+            else -> mutableListOf(StringType(""))
         }
     }
 }
