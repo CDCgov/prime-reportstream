@@ -8,11 +8,22 @@ import {
     ValueSet,
     ValueSetRow,
 } from "../network/api/LookupTableApi";
+import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
 
 export interface TableAttributes {
     version: number;
     createdAt?: string;
     createdBy?: string;
+}
+
+// odd that there isn't already a useable implementation of this somewhere
+// or is there?
+enum HTTPMethods {
+    GET = "GET",
+    POST = "POST",
+    PUT = "PUT",
+    DELETE = "DELETE",
+    PATCH = "PATCH",
 }
 
 /*
@@ -73,6 +84,15 @@ const activateValueSet = (tableVersion: number) => {
         .catch((e) => console.error("***", e));
 };
 
+const getTableListConfig = {
+    path: "/lookuptables/list",
+    method: HTTPMethods.GET,
+};
+const getTableDataConfig = {};
+const getTableRowDataConfig = {};
+const updateTableConfig = {};
+const activateTableConfig = {};
+
 /*
 
   Helper function to find the table we want within the response for ALL tables
@@ -126,10 +146,12 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
     let error;
     let valueSetArray;
 
+    const authorizedFetch = useAuthorizedFetch<LookupTable[]>();
+
     // get all lookup tables
     const { error: tableError, data: tableData } = useQuery<LookupTable[]>(
         ["lookupTables"],
-        () => getLookupTables(),
+        () => authorizedFetch(getTableListConfig),
         { enabled: !suppliedVersion } // only if version was not already passed in
     );
 
@@ -148,6 +170,11 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
             versionData = null;
         }
     }
+
+    // note that fetch function is an inlined anonymous function in order to allow for
+    // useQuery to pick up changes to variables that the function is dependent on
+    // if we pass in a predefined function, that exact function will be called on every render
+    // and no dynamic variables will be updated
 
     // not entirely accurate typing. What is sent back by the api is actually ApiValueSet[] rather than ValueSet[]
     // does not seem entirely worth it to add the complexity needed to account for that on the frontend, better
