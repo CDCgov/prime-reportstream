@@ -39,6 +39,7 @@ plugins {
     id("jacoco")
     id("org.jetbrains.dokka") version "1.7.0"
     id("com.avast.gradle.docker-compose") version "0.16.4"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.6.21"
 }
 
 group = "gov.cdc.prime"
@@ -100,7 +101,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "1.6.8"
+val ktorVersion = "2.0.3"
 val kotlinVersion = "1.7.0"
 jacoco.toolVersion = "0.8.7"
 
@@ -488,7 +489,7 @@ dockerCompose {
 //    projectName = "prime-router" // docker-composer has this setter broken as of 0.16.4
     setProjectName("prime-router") // this is a workaround for the broken setter for projectName
     useComposeFiles.addAll("docker-compose.yml")
-    startedServices.addAll("sftp", "soap-webservice", "vault", "azurite")
+    startedServices.addAll("sftp", "soap-webservice", "rest-webservice", "vault", "azurite")
     stopContainers.set(false)
     waitForTcpPorts.set(false)
 }
@@ -714,7 +715,7 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.0.3")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.49")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.54")
     implementation("org.thymeleaf:thymeleaf:3.0.15.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.1")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.3")
@@ -750,7 +751,12 @@ dependencies {
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    implementation("io.ktor:ktor-client-auth:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation("io.ktor:ktor-client-encoding:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.2.1")
     implementation("it.skrape:skrapeit-http-fetcher:1.2.1")
     implementation("org.apache.poi:poi:5.2.2")
