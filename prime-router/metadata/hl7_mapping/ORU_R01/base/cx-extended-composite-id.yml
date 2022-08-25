@@ -1,22 +1,22 @@
 name: ORU-R01-cx-extended-composite-id
 constants:
-  fieldPath: /PATIENT_RESULT/PATIENT/(%{hl7CXField})(%{idIndex})
+  hl7CXFieldPath: /PATIENT_RESULT/PATIENT/(%{hl7CXField})(%{idIndex})
 elements:
   - name: id-number
     required: true
     value: [ '%resource.value' ]
-    hl7Spec: [ '%{fieldPath}-1' ]
+    hl7Spec: [ '%{hl7CXFieldPath}-1' ]
 
   - name: assigning-authority
     constants:
-      hl7HDField: '%{fieldPath}-4'
+      hl7HDField: '%{hl7CXFieldPath}-4'
     schema: hd-hierarchic-designator-authority
 
   - name: id-type-code
     value: [ '%resource.type.coding.code' ]
-    hl7Spec: [ '%{fieldPath}-5' ]
+    hl7Spec: [ '%{hl7CXFieldPath}-5' ]
 
   - name: assigning-facility
     constants:
-      hl7HDField: '%{fieldPath}-6'
+      hl7HDField: '%{hl7CXFieldPath}-6'
     schema: hd-hierarchic-designator-facility
