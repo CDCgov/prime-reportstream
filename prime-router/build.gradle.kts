@@ -30,7 +30,7 @@ import kotlin.collections.mutableMapOf
 
 plugins {
     kotlin("jvm") version "1.7.0"
-    id("org.flywaydb.flyway") version "8.5.13"
+    id("org.flywaydb.flyway") version "9.2.0"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.8.2"
@@ -548,6 +548,7 @@ flyway {
     url = dbUrl
     user = dbUser
     password = dbPassword
+    cleanDisabled = false
 }
 
 // Database code generation configuration
@@ -690,7 +691,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.4.6") {
+    implementation("com.azure:azure-identity:1.5.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
