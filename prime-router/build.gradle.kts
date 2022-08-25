@@ -548,6 +548,7 @@ flyway {
     url = dbUrl
     user = dbUser
     password = dbPassword
+    cleanDisabled = false
 }
 
 // Database code generation configuration
