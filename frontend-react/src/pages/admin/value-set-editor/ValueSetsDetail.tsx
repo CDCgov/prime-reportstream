@@ -105,9 +105,8 @@ const saveData = async (
         throw new Error("A null row was encountered in saveData");
     }
 
-    const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow[]>(
-        LookupTables.VALUE_SET_ROW
-    );
+    const endpointHeaderUpdate =
+        lookupTableApi.saveTableData<ValueSetRow[]>(valueSetName);
 
     const index = allRows.findIndex((r) => r.id === row.id);
     allRows.splice(index, 1, {
