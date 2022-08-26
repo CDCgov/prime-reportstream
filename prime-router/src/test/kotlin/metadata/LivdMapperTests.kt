@@ -276,7 +276,7 @@ class LivdMapperTests {
         listOf("model2", "90001-1", "model2kit1", "model2uid2", ""),
         listOf("model2", "90001-2", "model2kit1", "model2uid3", ""),
 
-        // Rows: 7-8: Test devices 
+        // Rows: 7-8: Test devices
         listOf("model3", "90003-1", "model3kit1", "model3uid1", LIVDLookupMapper.testProcessingModeCode),
         listOf("model4", "90003-1", "model4kit1", "model4uid1", LIVDLookupMapper.testProcessingModeCode),
 
