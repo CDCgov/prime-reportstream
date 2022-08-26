@@ -1,14 +1,17 @@
-import axios from "axios";
+import { AxiosRequestConfig } from "axios";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import omit from "lodash.omit";
 
 import {
     LookupTable,
-    lookupTableApi,
     LookupTables,
     ValueSet,
     ValueSetRow,
 } from "../network/api/LookupTableApi";
-import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
+import {
+    EndpointConfig,
+    useAuthorizedFetch,
+} from "../contexts/AuthorizedFetchContext";
 
 export interface TableAttributes {
     version: number;
@@ -26,72 +29,69 @@ enum HTTPMethods {
     PATCH = "PATCH",
 }
 
-/*
-
-  Fetch / Mutate functions and helpersa
-
-*/
-
-/*
-TO DISCUSS: we could set the pattern to be something like this or
-we could reference query keys within the function https://stackoverflow.com/a/68111112/5500298
-
-Have not tested, but I feel like to get the full value of react-query's refetching behavior we may want to go with the last option.
-When react-query refetches it will just re-run the function we passed to it, this would not take into account changes in variable dependencies
-unless we bake those into function itself?
-
-Note that I ran into type errors when trying to use higher order functions to avoid the inlining
-*/
-
-// will return either a value set or value set row depeding on
-// value set table name
-// we may not need the generic here, react-query probably handles that. But it couldn't hurt?
-const getLatestData = <T>(tableName: string, version: number) => {
-    const endpointHeader = lookupTableApi.getTableData<T>(version, tableName);
-
-    return axios
-        .get<T>(endpointHeader.url, endpointHeader)
-        .then((response) => response.data);
-};
-
-// not going to type this yet, as this function will likely go away when we bring in fetch by provider
-// returns a list of all lookup tables to be filtered
-const getLookupTables = () =>
-    axios(lookupTableApi.getTableList()).then(({ data }) => data);
-
-const endpointHeaderUpdate = lookupTableApi.saveTableData(
-    LookupTables.VALUE_SET_ROW
-);
-
-const updateValueSet = (data: ValueSetRow[]) =>
-    axios
-        .post(endpointHeaderUpdate.url, data, endpointHeaderUpdate)
-        .then(({ data }) => data);
-
-const activateValueSet = (tableVersion: number) => {
-    const endpointHeaderActivate = lookupTableApi.activateTableData(
-        tableVersion,
-        LookupTables.VALUE_SET_ROW
-    );
-
-    return axios
-        .put(
-            endpointHeaderActivate.url,
-            LookupTables.VALUE_SET_ROW,
-            endpointHeaderActivate
-        )
-        .then(({ data }) => data)
-        .catch((e) => console.error("***", e));
-};
-
+// these can be stored on our resource once we build that out
+// notice the react-router style colon demarcated dynamic path segments
 const getTableListConfig = {
     path: "/lookuptables/list",
     method: HTTPMethods.GET,
 };
-const getTableDataConfig = {};
-const getTableRowDataConfig = {};
-const updateTableConfig = {};
-const activateTableConfig = {};
+const getTableDataConfig = {
+    path: "/lookuptables/:tableName/:version/content",
+    method: HTTPMethods.GET,
+};
+
+const updateTableConfig = {
+    path: "/lookuptables/:tableName",
+    method: HTTPMethods.POST,
+};
+const activateTableConfig = {
+    path: "/lookuptables/:tableName/:version/activate",
+    method: HTTPMethods.PUT,
+};
+
+interface Segments {
+    [segmentKey: string]: string;
+}
+
+interface AxiosOptionsWithSegments extends AxiosRequestConfig {
+    segments: Segments;
+}
+
+// takes a map of path segment keys (as defined by colons in config paths declarations, such as in react outer)
+// to segment values for a particular API call
+// in order to produce concrete path from a dynamic one
+// this stuff likely will live on even in a world with resources, one way or another
+const hydrateDynamicPathSegments = (path: string, segments?: Segments) => {
+    if (!segments) {
+        return path;
+    }
+    const pathWithSegments = Object.entries(segments).reduce(
+        (pathWithSegments, [segmentKey, segmentValue]) =>
+            pathWithSegments.replace(`:${segmentKey}`, segmentValue),
+        path
+    );
+    if (pathWithSegments.indexOf("/:") > -1) {
+        throw new Error(`missing dynamic path param: ${path}, ${segments}`);
+    }
+    return pathWithSegments;
+};
+
+// this could live on each resource, which would preclude the need to pass in the config, as that
+// would also be stored on the resource
+const toFetchParams = (
+    baseConfig: EndpointConfig,
+    requestParams: Partial<AxiosOptionsWithSegments>
+) => {
+    const pathWithSegments = hydrateDynamicPathSegments(
+        baseConfig.path,
+        requestParams.segments
+    );
+    return {
+        method: baseConfig.method,
+        path: pathWithSegments,
+        options: { ...omit(requestParams, "segments") }, // this is yucky
+    };
+};
 
 /*
 
@@ -146,12 +146,17 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
     let error;
     let valueSetArray;
 
-    const authorizedFetch = useAuthorizedFetch<LookupTable[]>();
+    // multiple calls to the hook for different types is awkward but
+    // will be less awkward once resources are introduced, as those will be passed in
+    // OR we could move to a world where this hook just returns the generator function, and
+    // we call the generator function within our component called hooks to type the functions?
+    const lookupTableFetch = useAuthorizedFetch<LookupTable[]>();
+    const dataFetch = useAuthorizedFetch<T[]>();
 
     // get all lookup tables
     const { error: tableError, data: tableData } = useQuery<LookupTable[]>(
         ["lookupTables"],
-        () => authorizedFetch(getTableListConfig),
+        () => lookupTableFetch(getTableListConfig),
         { enabled: !suppliedVersion } // only if version was not already passed in
     );
 
@@ -171,17 +176,24 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
         }
     }
 
-    // note that fetch function is an inlined anonymous function in order to allow for
-    // useQuery to pick up changes to variables that the function is dependent on
-    // if we pass in a predefined function, that exact function will be called on every render
-    // and no dynamic variables will be updated
-
     // not entirely accurate typing. What is sent back by the api is actually ApiValueSet[] rather than ValueSet[]
     // does not seem entirely worth it to add the complexity needed to account for that on the frontend, better
     // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
     const { error: valueSetError, data: valueSetData } = useQuery<Array<T>>(
         ["lookupTable", versionData?.version, dataTableName],
-        () => getLatestData<Array<T>>(dataTableName, versionData!.version!!),
+        // note that fetch function is an inlined anonymous function in order to allow for
+        // useQuery to pick up changes to variables that the function is dependent on
+        // if we pass in a predefined function, that exact function will be called on every render
+        // and no dynamic variables will be updated
+        () =>
+            dataFetch(
+                toFetchParams(getTableDataConfig, {
+                    segments: {
+                        tableName: dataTableName,
+                        version: `${versionData!!.version!}`, // number to string,
+                    },
+                })
+            ),
         { enabled: !!versionData?.version }
     );
 
@@ -202,6 +214,17 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
 
   */
 export const useValueSetUpdate = () => {
+    const valueSetFetch = useAuthorizedFetch<LookupTable>();
+
+    const updateValueSet = (data: ValueSetRow[]) => {
+        return valueSetFetch(
+            toFetchParams(updateTableConfig, {
+                segments: { tableName: LookupTables.VALUE_SET_ROW },
+                data,
+            })
+        );
+    };
+
     // generic signature is defined here https://github.com/TanStack/query/blob/4690b585722d2b71d9b87a81cb139062d3e05c9c/packages/react-query/src/useMutation.ts#L66
     // <type of data returned, type of error returned, type of variables passed to mutate fn, type of context (?)>
     const mutation = useMutation<LookupTable, Error, ValueSetRow[]>(
@@ -215,6 +238,18 @@ export const useValueSetUpdate = () => {
 };
 
 export const useValueSetActivation = () => {
+    const valueSetFetch = useAuthorizedFetch<LookupTable>();
+    const activateValueSet = (tableVersion: number) => {
+        return valueSetFetch(
+            toFetchParams(activateTableConfig, {
+                segments: {
+                    // would be nice to hardcode this better
+                    tableName: LookupTables.VALUE_SET_ROW,
+                    version: `${tableVersion}`,
+                },
+            })
+        );
+    };
     const mutation = useMutation<LookupTable, Error, number>(activateValueSet);
     return {
         activateTable: mutation.mutateAsync,
