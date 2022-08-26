@@ -28,6 +28,7 @@ import gov.cdc.prime.router.serializers.ReadResult
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
 import gov.cdc.prime.router.transport.GAENTransport
+import gov.cdc.prime.router.transport.RESTTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
@@ -57,7 +58,8 @@ class WorkflowEngine(
     val sftpTransport: SftpTransport = SftpTransport(),
     val as2Transport: AS2Transport = AS2Transport(),
     val soapTransport: SoapTransport = SoapTransport(),
-    val gaenTransport: GAENTransport = GAENTransport()
+    val gaenTransport: GAENTransport = GAENTransport(),
+    val restTransport: RESTTransport = RESTTransport()
 ) : BaseEngine(queue) {
 
     /**
