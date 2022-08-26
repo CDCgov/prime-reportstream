@@ -8,25 +8,13 @@ import {
     ValueSet,
     ValueSetRow,
 } from "../network/api/LookupTableApi";
-import {
-    EndpointConfig,
-    useAuthorizedFetch,
-} from "../contexts/AuthorizedFetchContext";
+import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
+import { EndpointConfig, HTTPMethods } from "./UseCreateFetch";
 
 export interface TableAttributes {
     version: number;
     createdAt?: string;
     createdBy?: string;
-}
-
-// odd that there isn't already a useable implementation of this somewhere
-// or is there?
-enum HTTPMethods {
-    GET = "GET",
-    POST = "POST",
-    PUT = "PUT",
-    DELETE = "DELETE",
-    PATCH = "PATCH",
 }
 
 // these can be stored on our resource once we build that out
