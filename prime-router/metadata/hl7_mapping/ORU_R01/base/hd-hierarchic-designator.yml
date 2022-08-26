@@ -1,0 +1,16 @@
+name: ORU-R01-hd-hierarchic-designator
+elements:
+  - name: designator-namespace-id
+    condition: '%resource.extension(%`namespaceExtName`).exists()'
+    value: [ '%resource.extension(%`namespaceExtName`).value' ]
+    hl7Spec: [ '%{hl7HDField}-1' ]
+
+  - name: designator-universal-id
+    condition: '%resource.extension(%`universalIdExtName`).value is Oid'
+    value: [ '%resource.extension(%`universalIdExtName`).value.toString().replace(''urn:oid:'','''')' ]
+    hl7Spec: [ '%{hl7HDField}-2' ]
+
+  - name: designator-universal-id-type
+    condition: '%resource.extension(%`universalIdExtName`).value is Oid'
+    value: [ '''ISO''' ]
+    hl7Spec: [ '%{hl7HDField}-3' ]

@@ -135,7 +135,10 @@ elements:
     resource: '%resource.identifier'
     constants:
       hl7HDField: '%{hl7PIDField}-34'
-    schema: hd-hierarchic-designator-facility
+      # cannot use %`rext due to mix of constant and fhirpath substitution syntax
+      namespaceExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id'
+      universalIdExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id'
+    schema: hd-hierarchic-designator
 
   - name: patient-species-identifier
     value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value.coding.code' ]

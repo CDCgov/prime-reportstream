@@ -10,7 +10,10 @@ elements:
   - name: assigning-authority
     constants:
       hl7HDField: '%{hl7CXFieldPath}-4'
-    schema: hd-hierarchic-designator-authority
+      # cannot use %`rext due to mix of constant and fhirpath substitution syntax
+      namespaceExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id'
+      universalIdExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id'
+    schema: hd-hierarchic-designator
 
   - name: id-type-code
     value: [ '%resource.type.coding.code' ]
@@ -19,4 +22,7 @@ elements:
   - name: assigning-facility
     constants:
       hl7HDField: '%{hl7CXFieldPath}-6'
-    schema: hd-hierarchic-designator-facility
+      # cannot use %`rext due to mix of constant and fhirpath substitution syntax
+      namespaceExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id'
+      universalIdExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id'
+    schema: hd-hierarchic-designator

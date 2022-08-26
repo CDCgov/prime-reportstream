@@ -18,7 +18,10 @@ elements:
     resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value.resolve()'
     constants:
       hl7HDField: 'SFT-1-6'
-    schema: hd-hierarchic-designator-authority
+      # cannot use %`rext due to mix of constant and fhirpath substitution syntax
+      namespaceExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id'
+      universalIdExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id'
+    schema: hd-hierarchic-designator
 
   - name: software-vendor-identifier-code
     # software-vendor-org is a reference
