@@ -6,6 +6,7 @@ import { OktaAuth } from "@okta/okta-auth-js";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import SessionProvider, { OktaHook } from "../contexts/SessionContext";
+import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 
 import { mockToken } from "./TestUtils";
 
@@ -54,7 +55,11 @@ const SessionWrapper =
 export const QueryWrapper =
     (client: QueryClient = new QueryClient()) =>
     ({ children }: PropsWithChildren<{}>) =>
-        <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+        (
+            <QueryClientProvider client={client}>
+                <AuthorizedFetchProvider>{children}</AuthorizedFetchProvider>
+            </QueryClientProvider>
+        );
 
 const AppWrapper =
     (mockOkta: OktaHook) =>
@@ -63,7 +68,9 @@ const AppWrapper =
             <RouterWrapper>
                 <SessionProvider oktaHook={mockOkta}>
                     <QueryClientProvider client={new QueryClient()}>
-                        {children}
+                        <AuthorizedFetchProvider>
+                            {children}
+                        </AuthorizedFetchProvider>
                     </QueryClientProvider>
                 </SessionProvider>
             </RouterWrapper>
