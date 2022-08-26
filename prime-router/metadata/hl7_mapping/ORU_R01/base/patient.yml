@@ -63,6 +63,7 @@ elements:
     constants:
       hl7AddressField: '%{hl7PIDField}-11'
     schema: xad-extended-address
+    resourceIndex: orderIndex
 
   - name: phone-number-home
     resource: '%resource.telecom.where(use = "home")'
