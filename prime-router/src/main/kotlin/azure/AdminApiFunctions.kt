@@ -104,6 +104,35 @@ class AdminApiFunctions(
         }
     }
 
+    /**
+     * Fetch the list of "resent". Spans orgs, so should ONLY be done
+     * with admin permissions this.getOktaAuthenticator() defaults to SYSTEM_ADMIN above
+     */
+    @FunctionName("getresend")
+    fun getSendRetries(
+        @HttpTrigger(
+            name = "getresend",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "adm/getresend" // this can NOT be "admin/" or it fails.
+        )
+        request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        logger.info("Entering adm/getresend api")
+        return getOktaAuthenticator(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
+            try {
+                val daysToShow = request.queryParameters[daysBackSpanParameter]
+                    ?.toIntOrDefault(30) ?: 30
+                val results = db.fetchResends(OffsetDateTime.now().minusDays(daysToShow.toLong()))
+                val jsonb = mapper.writeValueAsString(results)
+                HttpUtilities.okResponse(request, jsonb ?: "[]")
+            } catch (e: Exception) {
+                logger.error("Unable to fetch send failures", e)
+                HttpUtilities.internalErrorResponse(request)
+            }
+        }
+    }
+
     companion object {
         /**
          * Name of the query parameter to specify how many days back to show.

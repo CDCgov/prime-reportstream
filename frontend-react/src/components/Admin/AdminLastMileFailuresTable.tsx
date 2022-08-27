@@ -19,6 +19,66 @@ import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource
 import { formatDate } from "../../utils/misc";
 import { showAlertNotification, showError } from "../AlertNotifications";
 import { getStoredOktaToken } from "../../utils/SessionStorageTools";
+import AdmAction from "../../resources/AdmActionResource";
+
+// Improves readability
+const DRow = (props: React.PropsWithChildren<{ label: string }>) => {
+    return (
+        <Grid row className={"modal-info-row"}>
+            <Grid className={"modal-info-label"}>{props.label}:</Grid>
+            <Grid className={"modal-info-value"}>{props.children}</Grid>
+        </Grid>
+    );
+};
+
+const renderInfoModal = (props: { infoDataJson: string }) => {
+    if (!props?.infoDataJson?.length || props?.infoDataJson === "{}") {
+        return <></>; // happens before any item is clicked
+    }
+    const infoData = JSON.parse(props.infoDataJson) as AdmSendFailuresResource;
+
+    return (
+        <GridContainer className={"rs-admindash-modal-container"}>
+            <Grid className={"modal-info-title"}>
+                Info Details {infoData.actionId}
+            </Grid>
+            <DRow label={"Receiving Org"}>{infoData.receiver}</DRow>
+            <DRow label={"Failed at"}>{formatDate(infoData.failedAt)}</DRow>
+            <DRow label={"Action ID"}>{infoData.actionId}</DRow>
+            <DRow label={"Report ID"}>{infoData.reportId}</DRow>
+            <DRow label={"File URI"}>
+                {infoData.bodyUrl}
+                <br />
+                {infoData.reportFileReceiver}
+            </DRow>
+            <DRow label={"Result message"}>{infoData.actionResult}</DRow>
+        </GridContainer>
+    );
+};
+
+// const _renderActionsModal = (props: { infoDataJson: string }) => {
+//     if (!props?.infoDataJson?.length || props?.infoDataJson === "{}") {
+//         return <></>; // happens before any item is clicked
+//     }
+//     const infoDataArray = JSON.parse(props.infoDataJson) as AdmAction[];
+//
+//     return (
+//         <GridContainer className={"rs-admindash-modal-container"}>
+//             {infoDataArray.map((infoData) => (
+//                 <>
+//                     <Grid className={"modal-info-title"}>
+//                         Resend Details {infoData.actionId}
+//                     </Grid>
+//                     <DRow label={"Resent at"}>
+//                         {formatDate(infoData.createdAt)}
+//                     </DRow>
+//                     <DRow label={"Resent by"}>{infoData.username}</DRow>
+//                     <DRow label={"Result"}>{infoData.actionResult}</DRow>
+//                 </>
+//             ))}
+//         </GridContainer>
+//     );
+// };
 
 export function AdminLastMileFailuresTable() {
     const defaultDaysToShow = "15"; // numeric input but treat as string for easier passing around
@@ -27,6 +87,9 @@ export function AdminLastMileFailuresTable() {
         AdmSendFailuresResource.list(),
         { days_to_show: daysToShow }
     );
+    const lastMileResends: AdmAction[] = useResource(AdmAction.list(), {
+        days_to_show: daysToShow,
+    });
 
     // this is the input box filter
     const [filter, setFilter] = useState("");
@@ -41,10 +104,17 @@ export function AdminLastMileFailuresTable() {
         modalShowInfoRef?.current?.toggleModal(undefined, true);
     };
 
+    const handleShowResendsClick = (jsonRowData: string) => {
+        setCurrentJsonDataForModal(jsonRowData);
+        modalShowInfoRef?.current?.toggleModal(undefined, true);
+    };
+
     const modalResendRef = useRef<ModalRef>(null); // used to show/hide modal
     // this sets the content of the modal
-    const [htmlContentForGithubIssue, settHtmlContentForGithubIssue] =
+    const [htmlContentForGithubIssue, setHtmlContentForGithubIssue] =
         useState("");
+
+    const [htmlContentResultText, setHtmlContentResultText] = useState("");
 
     // these track what the modal is showing so when the confirm button is pressed
     // the handler can easily get to them for the async network fetch
@@ -58,8 +128,7 @@ export function AdminLastMileFailuresTable() {
         const data = JSON.parse(jsonRowData) as AdmSendFailuresResource;
 
         // the content has line feeds, etc. so the formatted content isn't tabbed here in the code
-        const formatted = `
-Report ID:
+        const formatted = `Report ID:
 ${data.reportId}
 
 File Name:
@@ -67,9 +136,12 @@ ${data.fileName}
 
 Destination:
 ${data.receiver}`;
-        settHtmlContentForGithubIssue(formatted);
+
+        setHtmlContentForGithubIssue(formatted);
         setCurrentReportId(data.reportId);
         setCurrentReceiver(data.receiver);
+        // we clear this value and it's set by the server response
+        setHtmlContentResultText("");
 
         // we need to show confirmation dialog, then do action to trigger resent
         modalResendRef?.current?.toggleModal(undefined, true);
@@ -79,70 +151,11 @@ ${data.receiver}`;
         modalResendRef?.current?.toggleModal(undefined, false);
     };
 
-    const renderInfoModal = (props: { infoDataJson: string }) => {
-        if (!props?.infoDataJson?.length || props?.infoDataJson === "{}") {
-            return <></>; // happens before any item is clicked
-        }
-        const infoData = JSON.parse(
-            props.infoDataJson
-        ) as AdmSendFailuresResource;
-
-        return (
-            <GridContainer className={"rs-admindash-modal-container"}>
-                <Grid className={"modal-info-title"}>
-                    Info Details {infoData.actionId}
-                </Grid>
-                <Grid row className={"modal-info-row"}>
-                    <Grid className={"modal-info-label"}>Receiving Org:</Grid>
-                    <Grid className={"modal-info-value"}>
-                        {infoData.receiver}
-                    </Grid>
-                </Grid>
-
-                <Grid row className={"modal-info-row"}>
-                    <Grid className={"modal-info-label"}>Failed at:</Grid>
-                    <Grid className={"modal-info-value"}>
-                        {formatDate(infoData.failedAt)}
-                    </Grid>
-                </Grid>
-
-                <Grid row className={"modal-info-row"}>
-                    <Grid className={"modal-info-label "}>Action ID:</Grid>
-                    <Grid className={"modal-info-value"}>
-                        {infoData.actionId}
-                    </Grid>
-                </Grid>
-
-                <Grid row className={"modal-info-row"}>
-                    <Grid className={"modal-info-label"}>Report ID:</Grid>
-                    <Grid className={`modal-info-value`}>
-                        {infoData.reportId}
-                    </Grid>
-                </Grid>
-
-                <Grid row className={"modal-info-row"}>
-                    <Grid className={"modal-info-label"}>File URI:</Grid>
-                    <Grid className={"modal-info-value"}>
-                        {infoData.bodyUrl}
-                        <br />
-                        {infoData.reportFileReceiver}
-                    </Grid>
-                </Grid>
-
-                <Grid row className={"modal-info-row"}>
-                    <Grid className={"modal-info-label"}>Result message:</Grid>
-                    <Grid className={"modal-info-value"}>
-                        {infoData.actionResult}
-                    </Grid>
-                </Grid>
-            </GridContainer>
-        );
-    };
-
     // Trigger a resend by issuing an api call
     const startResend = async () => {
         try {
             setLoading(true);
+            setHtmlContentResultText(`Starting...`);
             const url =
                 `${process.env.REACT_APP_BACKEND_URL}/api/adm/resend?` +
                 `reportId=${currentReportId}&receiver=${currentReceiver}`;
@@ -157,23 +170,30 @@ ${data.receiver}`;
             const body = await response.text();
 
             if (!response.ok) {
-                showError(`Triggering resend command failed. ${body}`);
+                const msg = `Triggering resend command failed.\n${body}`;
+                showError(msg);
+                setHtmlContentResultText(msg);
             } else {
                 // oddly, this api just returns a bunch of messages on success.
-                showAlertNotification("success", `Success: ${body}`);
+                const msg = `Success. \n ${body}`;
+                showAlertNotification("success", msg);
+                setHtmlContentResultText(msg);
             }
-
-            // if we reach here then it succeeded.
-            modalResendRef?.current?.toggleModal(undefined, false);
         } catch (e: any) {
             console.trace(e);
-            showError(`Triggering resend command failed. ${e.toString()}`);
+            const msg = `Triggering resend command failed. ${e.toString()}`;
+            showError(msg);
+            setHtmlContentResultText(msg);
         }
         setLoading(false);
     };
 
     const modalShowInfoId = "sendFailuresModalDetails";
     const modalResendId = "sendFailuresModalDetails";
+
+    const fiterResends = (reportId: string) => {
+        return lastMileResends.filter((each) => each.filterMatch(reportId));
+    };
 
     return (
         <section className="grid-container rs-container-unbounded">
@@ -231,6 +251,8 @@ ${data.receiver}`;
                             ⓘnfo
                             <br />
                             ↺Resend
+                            <br />
+                            ✅Resent
                         </th>
                     </tr>
                 </thead>
@@ -238,62 +260,85 @@ ${data.receiver}`;
                 <tbody id="tBodyLastMile" className="font-mono-2xs">
                     {lastMileData
                         .filter((eachRow) => eachRow.filterMatch(filter))
-                        .map((eachRow) => (
-                            <tr
-                                className={"hide-buttons-on-hover"}
-                                key={`lastmile_row_${eachRow.pk()}`}
-                            >
-                                <td>{formatDate(eachRow.failedAt)}</td>
-                                <td>{eachRow.reportId}</td>
-                                <td>{eachRow.receiver}</td>
-                                <td>
-                                    <ButtonGroup type="segmented">
-                                        <Button
-                                            key={`details_${eachRow.pk()}`}
-                                            onClick={() =>
-                                                handleShowDetailsClick(
-                                                    JSON.stringify(
-                                                        eachRow,
-                                                        null,
-                                                        4
+                        .map((eachRow) => {
+                            const resends = fiterResends(eachRow.reportId);
+                            return (
+                                <tr
+                                    className={"hide-buttons-on-hover"}
+                                    key={`lastmile_row_${eachRow.pk()}`}
+                                >
+                                    <td>{formatDate(eachRow.failedAt)}</td>
+                                    <td>{eachRow.reportId}</td>
+                                    <td>{eachRow.receiver}</td>
+                                    <td>
+                                        <ButtonGroup type="segmented">
+                                            <Button
+                                                key={`details_${eachRow.pk()}`}
+                                                onClick={() =>
+                                                    handleShowDetailsClick(
+                                                        JSON.stringify(
+                                                            eachRow,
+                                                            null,
+                                                            4
+                                                        )
                                                     )
-                                                )
-                                            }
-                                            type="button"
-                                            size="small"
-                                            className="padding-1 usa-button--outline"
-                                            title="Show Info"
-                                        >
-                                            {"ⓘ"}
-                                        </Button>
-                                        <Button
-                                            key={`retry_${eachRow.pk()}`}
-                                            onClick={() =>
-                                                handleRetrySendClick(
-                                                    JSON.stringify(
-                                                        eachRow,
-                                                        null,
-                                                        2
+                                                }
+                                                type="button"
+                                                size="small"
+                                                className="padding-1 usa-button--outline"
+                                                title="Show Info"
+                                            >
+                                                {"ⓘ"}
+                                            </Button>
+                                            {resends.length ? (
+                                                <Button
+                                                    key={`resentinfo_${eachRow.pk()}`}
+                                                    onClick={() =>
+                                                        handleShowResendsClick(
+                                                            JSON.stringify(
+                                                                [...resends],
+                                                                null,
+                                                                4
+                                                            )
+                                                        )
+                                                    }
+                                                    type="button"
+                                                    size="small"
+                                                    className="padding-1 usa-button--outline"
+                                                    title="Show Info"
+                                                >
+                                                    {"✅"}
+                                                </Button>
+                                            ) : null}
+                                            <Button
+                                                key={`retry_${eachRow.pk()}`}
+                                                onClick={() =>
+                                                    handleRetrySendClick(
+                                                        JSON.stringify(
+                                                            eachRow,
+                                                            null,
+                                                            2
+                                                        )
                                                     )
-                                                )
-                                            }
-                                            type="button"
-                                            size="small"
-                                            className="padding-1 usa-button--outline"
-                                            title="Resend"
-                                        >
-                                            {"↺"}
-                                        </Button>
-                                    </ButtonGroup>
-                                </td>
-                            </tr>
-                        ))}
+                                                }
+                                                type="button"
+                                                size="small"
+                                                className="padding-1 usa-button--outline"
+                                                title="Resend"
+                                            >
+                                                {"↺"}
+                                            </Button>
+                                        </ButtonGroup>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                 </tbody>
             </Table>
 
             <Modal
                 isLarge={true}
-                className="rs-admindash-modal rs-compare-modal"
+                className="rs-admindash-modal rs-compare-modal rs-resend-modal"
                 ref={modalShowInfoRef}
                 id={modalShowInfoId}
                 aria-labelledby={`${modalShowInfoId}-heading`}
@@ -303,7 +348,12 @@ ${data.receiver}`;
             </Modal>
 
             {/* Confirm before sending modal */}
-            <Modal isLarge={true} ref={modalResendRef} id={modalResendId}>
+            <Modal
+                isLarge={true}
+                ref={modalResendRef}
+                id={modalResendId}
+                className={"rs-resend-modal"}
+            >
                 <ModalHeading id={`${modalResendId}-heading`}>
                     Are you sure you want to continue?
                 </ModalHeading>
@@ -316,10 +366,18 @@ ${data.receiver}`;
                     server.)
                 </p>
                 <div
-                    className="rs-editable-compare-base rs-editable-compare-static"
+                    className="rs-editable-compare-base rs-editable-compare-static rs-resend-textarea"
                     contentEditable={false}
                     dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(htmlContentForGithubIssue),
+                    }}
+                />
+                <p>Result (Copy to save):</p>
+                <div
+                    className="rs-editable-compare-base rs-editable-compare-static rs-resend-textarea"
+                    contentEditable={false}
+                    dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(htmlContentResultText),
                     }}
                 />
                 <ModalFooter>
