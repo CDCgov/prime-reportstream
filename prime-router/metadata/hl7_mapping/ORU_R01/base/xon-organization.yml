@@ -1,0 +1,39 @@
+name: ORU-R01-xcn-contact
+elements:
+  - name: organization-name
+    value: [ '%resource.name' ]
+    hl7Spec: [ '%{hl7OrgField}-1' ]
+
+  - name: organization-type
+    resource: '%resource.extension(%`rsext-organization-name-type`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.coding[0].code' ]
+    hl7Spec: [ '%{hl7OrgField}-2' ]
+
+  - name: organization-type
+    resource: '%resource.extension(%`rsext-assigning-authority-namespace-id`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7OrgField}-6-1' ]
+
+  - name: organization-type
+    resource: '%resource.extension(%`rsext-assigning-authority-universal-id`)'
+    condition: '%resource.exists() and %resource.value is Oid'
+    value: [ '%resource.value.toString().replace(''urn:oid:'','''')' ]
+    hl7Spec: [ '%{hl7OrgField}-6-2' ]
+
+  - name: software-vendor-assigning-authority-system
+    resource: '%resource.extension(%`rsext-assigning-authority-universal-id`)'
+    condition: '%resource.exists() and %resource.value is Oid'
+    value: [ '''ISO''' ]
+    hl7Spec: [ '%{hl7OrgField}-6-3' ]
+
+  - name: organization-id-type
+    resource: '%resource.type.where(coding.system = ''http://terminology.hl7.org/CodeSystem/v2-0203'')'
+    condition: '%resource.exists()'
+    value: [ '%resource.coding[0].code' ]
+    hl7Spec: [ '%{hl7OrgField}-7' ]
+
+  - name: organization-id
+    value: [ '%resource.identifier[0].value' ]
+    hl7Spec: [ '%{hl7OrgField}-10' ]

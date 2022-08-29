@@ -14,7 +14,7 @@ jobs:
       has_tfcli_change: ${{ steps.skip_check.outputs.tfcli }}
       has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq }}
     steps:
-      - uses: dorny/paths-filter@1ec7035ff53cbd7a98744bd986f6ca1c7e17d1cb
+      - uses: dorny/paths-filter@b2feaf19c27470162a626bd6fa8438ae5b263721
         id: skip_check
         with:
           list-files: csv
