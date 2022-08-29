@@ -84,7 +84,7 @@ jobs:
           docker-compose -f docker-compose.yml up -d prime_dev sftp azurite
           
       - name: Give some time for the container to start
-        uses: juliangruber/sleep-action@1e243206ce103180af2f3ebbcab6437b52140789
+        uses: juliangruber/sleep-action@61b118a54bde77a381ddb5190a0d13ee2d056410
         with:
           time: 30s
       
