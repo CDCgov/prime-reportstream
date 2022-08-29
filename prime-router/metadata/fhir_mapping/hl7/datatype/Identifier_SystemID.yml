@@ -34,7 +34,7 @@ system_2:
     
 value: 
      type: STRING
-     valueOf: CX.1 | CWE.1 | EI.1 | $value
+     valueOf: CX.1 | CWE.1 | EI.1 | XCN.9.1 | $value
      expressionType: HL7Spec
      required: true
 
@@ -78,7 +78,7 @@ extension_2:
   constants:
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
-    urlValue: assigning-authority-universal-id
+    urlValue: assigning-facility-universal-id
 
 extension_3:
   generateList: true
@@ -112,17 +112,7 @@ extension_5:
   valueOf: extension/Extension
   expressionType: resource
   vars:
-    value: String, PID.3.4.1
-  constants:
-    KEY_NAME_SUFFIX: String
-    urlValue: assigning-authority-namespace-id
-
-extension_6:
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  vars:
-    value: String, XCN.9.1
+    value: String, CX.4.1
   constants:
     KEY_NAME_SUFFIX: String
     urlValue: assigning-authority-namespace-id
