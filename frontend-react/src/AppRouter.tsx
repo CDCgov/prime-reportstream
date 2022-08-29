@@ -40,9 +40,9 @@ export const AppRouter = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/login/callback" element={<LoginCallback />} />
             <Route path="/sign-tos" element={<TermsOfServiceForm />} />
-            <Route path="/resources" element={<Resources />} />
-            <Route path="/product" element={<Product />} />
-            <Route path="/support" element={<Support />} />
+            <Route path="/resources/*" element={<Resources />} />
+            <Route path="/product/*" element={<Product />} />
+            <Route path="/support/*" element={<Support />} />
             {/* User pages */}
             <Route path="/daily-data" element={<DailyWithAuth />} />
             <Route path="/report-details" element={<DetailsWithAuth />} />

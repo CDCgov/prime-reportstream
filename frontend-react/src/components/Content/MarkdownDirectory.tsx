@@ -1,5 +1,7 @@
 import * as module from "module";
 
+import DirectoryAsPage from "./DirectoryAsPage";
+
 type ContentElement = () => JSX.Element;
 
 /** A base type that holds directory information
@@ -58,3 +60,15 @@ export class MarkdownDirectory extends ContentDirectory {
         return this;
     }
 }
+
+export const getDirectoryElement = (dir: ContentDirectory) => {
+    if (dir instanceof MarkdownDirectory) {
+        return (
+            <DirectoryAsPage key={`${dir.slug}-dir-as-page`} directory={dir} />
+        );
+    } else if (dir instanceof ElementDirectory) {
+        return dir.element();
+    } else {
+        console.error("Given directory is not a valid content directory");
+    }
+};

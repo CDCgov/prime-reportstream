@@ -1,8 +1,7 @@
-import { Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
-import { ContentDirectory } from "./MarkdownDirectory";
+import { ContentDirectory, getDirectoryElement } from "./MarkdownDirectory";
 import GeneratedSideNav from "./GeneratedSideNav";
-import { GeneratedRouter } from "./GeneratedRouter";
 
 const StaticPagesFromDirectories = ({
     directories,
@@ -17,7 +16,13 @@ const StaticPagesFromDirectories = ({
                 </section>
                 <section className="tablet:grid-col-8 usa-prose rs-documentation">
                     <Routes>
-                        <GeneratedRouter directories={directories} />
+                        {directories.map((dir, idx) => (
+                            <Route
+                                key={idx}
+                                path={dir.slug}
+                                element={getDirectoryElement(dir)}
+                            />
+                        ))}
                     </Routes>
                 </section>
             </div>

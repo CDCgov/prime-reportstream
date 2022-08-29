@@ -2,8 +2,7 @@ import { Helmet } from "react-helmet";
 import { Route, Routes } from "react-router-dom";
 import React from "react";
 
-import { ContentDirectory } from "../MarkdownDirectory";
-import { GeneratedRouter } from "../GeneratedRouter";
+import { ContentDirectory, getDirectoryElement } from "../MarkdownDirectory";
 
 export interface IAMetaAndRouterProps {
     path: string; // include preceding slash
@@ -27,7 +26,13 @@ export const IAMetaAndRouter = ({
 
             <Routes>
                 <Route path={path} element={indexComponent} />
-                <GeneratedRouter directories={directoriesToRoute} />
+                {directoriesToRoute.map((dir, idx) => (
+                    <Route
+                        key={idx}
+                        path={dir.slug}
+                        element={getDirectoryElement(dir)}
+                    />
+                ))}
             </Routes>
         </>
     );
