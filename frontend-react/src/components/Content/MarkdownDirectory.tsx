@@ -1,6 +1,6 @@
 import * as module from "module";
 
-import DirectoryAsPage from "./DirectoryAsPage";
+import MarkdownPage from "./MarkdownPage";
 
 type ContentElement = () => JSX.Element;
 
@@ -63,9 +63,7 @@ export class MarkdownDirectory extends ContentDirectory {
 
 export const getDirectoryElement = (dir: ContentDirectory) => {
     if (dir instanceof MarkdownDirectory) {
-        return (
-            <DirectoryAsPage key={`${dir.slug}-dir-as-page`} directory={dir} />
-        );
+        return <MarkdownPage key={`${dir.slug}-dir-as-page`} directory={dir} />;
     } else if (dir instanceof ElementDirectory) {
         return dir.element();
     } else {

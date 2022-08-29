@@ -1,9 +1,9 @@
 import { Route, Routes } from "react-router-dom";
 
-import { ContentDirectory, getDirectoryElement } from "./MarkdownDirectory";
-import GeneratedSideNav from "./GeneratedSideNav";
+import { ContentDirectory, getDirectoryElement } from "../MarkdownDirectory";
+import GeneratedSideNav from "../GeneratedSideNav";
 
-const StaticPagesFromDirectories = ({
+const IASideNavTemplate = ({
     directories,
 }: {
     directories: ContentDirectory[];
@@ -30,4 +30,4 @@ const StaticPagesFromDirectories = ({
     );
 };
 
-export default StaticPagesFromDirectories;
+export default IASideNavTemplate;

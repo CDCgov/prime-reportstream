@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 import React, { useEffect } from "react";
 
-import StaticPagesFromDirectories from "../../components/Content/StaticPagesFromDirectories";
+import IASideNavTemplate from "../../components/Content/Templates/IASideNavTemplate";
 import {
     productDirectories,
     ProductDirectoryTools,
@@ -23,7 +23,7 @@ export const Product = () => {
                 </div>
             </div>
             <div>
-                <StaticPagesFromDirectories directories={productDirectories} />
+                <IASideNavTemplate directories={productDirectories} />
             </div>
         </>
     );

@@ -1,6 +1,6 @@
 import { MarkdownDirectory } from "../../components/Content/MarkdownDirectory";
 import markdownPagesGuide from "../../content/internal-user-guides/make-markdown-pages.md";
-import StaticPagesFromDirectories from "../../components/Content/StaticPagesFromDirectories";
+import IASideNavTemplate from "../../components/Content/Templates/IASideNavTemplate";
 import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 
@@ -12,9 +12,7 @@ export const InternalUserGuidesDirectory = [
 ];
 
 const InternalUserGuides = () => {
-    return (
-        <StaticPagesFromDirectories directories={InternalUserGuidesDirectory} />
-    );
+    return <IASideNavTemplate directories={InternalUserGuidesDirectory} />;
 };
 
 export default InternalUserGuides;
