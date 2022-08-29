@@ -2,7 +2,8 @@ import { Helmet } from "react-helmet";
 import { Route, Routes } from "react-router-dom";
 import React from "react";
 
-import { ContentDirectory, GeneratedRouter } from "../MarkdownDirectory";
+import { ContentDirectory } from "../MarkdownDirectory";
+import { GeneratedRouter } from "../GeneratedRouter";
 
 export interface IAMetaAndRouterProps {
     path: string; // include preceding slash

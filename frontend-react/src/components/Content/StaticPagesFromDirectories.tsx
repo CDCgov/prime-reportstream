@@ -1,7 +1,8 @@
 import { Routes } from "react-router-dom";
 
-import { ContentDirectory, GeneratedRouter } from "./MarkdownDirectory";
+import { ContentDirectory } from "./MarkdownDirectory";
 import GeneratedSideNav from "./GeneratedSideNav";
+import { GeneratedRouter } from "./GeneratedRouter";
 
 const StaticPagesFromDirectories = ({
     directories,
