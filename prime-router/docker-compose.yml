@@ -89,6 +89,18 @@ services:
     networks:
       - prime-router_build
 
+  # a REST endpoint to test OAuth and report posting
+  rest-webservice:
+    image: mockoon/cli
+    command:
+      - --data=/root/data.json
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../.environment/rest_service:/root
+    networks:
+      - prime-router_build
+
   # Secrets management
   vault:
     image: vault

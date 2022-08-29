@@ -909,7 +909,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
             val tableName = it.nameWithoutExtension
 
             var needToLoad = true
-            // If we have a table in the database then only update it if the last modified time of the file is 
+            // If we have a table in the database then only update it if the last modified time of the file is
             // greater than the created time in the database.
             if (checkLastModified && tableUpdateTimes.contains(tableName) && tableUpdateTimes[tableName] != null) {
                 val fileUpdatedTime = Instant.ofEpochMilli(it.lastModified())
