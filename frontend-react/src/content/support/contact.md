@@ -1,3 +1,0 @@
-# Contact
-
-Test foo

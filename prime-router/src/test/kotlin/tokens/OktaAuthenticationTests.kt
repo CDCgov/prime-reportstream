@@ -13,27 +13,17 @@ import io.mockk.mockkObject
 import org.junit.jupiter.api.BeforeEach
 import java.time.Instant
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class OktaAuthenticationTests {
-    private val verifier = OktaAuthentication(PrincipalLevel.USER)
-
     @BeforeEach
     fun reset() {
         clearAllMocks() // If using Companion object mocks, you need to be sure to clear between tests
     }
 
     @Test
-    fun `test authenticate`() {
-        // This should trigger the local auth
-        var claims = OktaAuthentication.authenticate(null, HttpMethod.GET, "foobar", null)
-        assertThat(claims).isNotNull()
-        assertThat(claims?.isPrimeAdmin).isEqualTo(true)
-        assertThat(claims?.isSenderOrgClaim).isEqualTo(true)
-        assertThat(claims?.organizationNameClaim).isEqualTo("ignore")
-
+    fun `test authenticate bad token`() {
         // Bad token
-        claims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar", null)
+        val claims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar")
         assertThat(claims).isNull()
     }
 
@@ -53,11 +43,12 @@ class OktaAuthenticationTests {
                 claimsMap
             )
 
-        val authenticatedClaims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar", null)
+        val authenticatedClaims = OktaAuthentication.authenticate("a.b.c", HttpMethod.GET, "foobar")
         assertThat(authenticatedClaims).isNotNull()
-        assertEquals("test", authenticatedClaims?.userName)
-        assertEquals(false, authenticatedClaims?.isPrimeAdmin)
-        assertEquals("ca-phd", authenticatedClaims?.organizationNameClaim)
+        assertThat(authenticatedClaims?.userName).isEqualTo("test")
+        assertThat(authenticatedClaims?.isPrimeAdmin).isEqualTo(false)
+        assertThat(authenticatedClaims?.scopes?.size).isEqualTo(1)
+        assertThat(authenticatedClaims?.scopes?.contains("ca-phd.*.user")).isEqualTo(true)
     }
 
     @Test
@@ -66,28 +57,32 @@ class OktaAuthenticationTests {
             "organization" to listOf("DHpima-az-phd"),
             "sub" to "bob@bob.com"
         )
-        val claims = AuthenticatedClaims(userMemberships)
+        val claims = AuthenticatedClaims(userMemberships, isOktaAuth = true)
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = "pima-az-phd")
+            OktaAuthentication.authorizeByMembership(
+                claims,
+                PrincipalLevel.USER,
+                requiredOrganizationName = "pima-az-phd"
+            )
         ).isTrue()
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = "az-phd")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = "az-phd")
         ).isFalse()
     }
 
     @Test
     fun `test requiredSenderClaim to authorizeByMembership`() {
         var userMemberships: Map<String, Any> = mapOf("organization" to listOf("DHfoo"), "sub" to "bob@bob.com")
-        var claims = AuthenticatedClaims(userMemberships)
+        var claims = AuthenticatedClaims(userMemberships, isOktaAuth = true)
 
-        assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.USER, "foo", true)).isFalse()
-        assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.USER, "foo", false)).isTrue()
+        assertThat(OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "foo", true)).isFalse()
+        assertThat(OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "foo", false)).isTrue()
 
         userMemberships = mapOf("organization" to listOf("DHSender_foo"), "sub" to "bob@bob.com")
-        claims = AuthenticatedClaims(userMemberships)
+        claims = AuthenticatedClaims(userMemberships, isOktaAuth = true)
 
-        assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.USER, "foo", true)).isTrue()
-        assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.USER, "foo", false)).isTrue()
+        assertThat(OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "foo", true)).isTrue()
+        assertThat(OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "foo", false)).isTrue()
     }
 
     @Test
@@ -96,21 +91,21 @@ class OktaAuthenticationTests {
             "organization" to listOf(""),
             "sub" to "bob@bob.com"
         )
-        val claims = AuthenticatedClaims(userMemberships)
+        val claims = AuthenticatedClaims(userMemberships, isOktaAuth = true)
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = "")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = "")
         ).isFalse()
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = null)
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = null)
         ).isFalse()
         assertThat(
-            verifier.authorizeByMembership(
+            OktaAuthentication.authorizeByMembership(
                 claims, PrincipalLevel.USER, requiredOrganizationName = "",
                 requireSenderClaim = true
             )
         ).isFalse()
         assertThat(
-            verifier.authorizeByMembership(
+            OktaAuthentication.authorizeByMembership(
                 claims, PrincipalLevel.USER, requiredOrganizationName = null,
                 requireSenderClaim = true
             )
@@ -123,18 +118,19 @@ class OktaAuthenticationTests {
             "organization" to listOf("DHpima-az-phd", "DHaz-phd"),
             "sub" to "bob@bob.com"
         )
-        val claims = AuthenticatedClaims(userMemberships)
+        val claims = AuthenticatedClaims(userMemberships, isOktaAuth = true)
         assertThat(
-            (verifier.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = "pima-az-phd"))
+            OktaAuthentication
+                .authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = "pima-az-phd")
         ).isTrue()
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = "az-phd")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = "az-phd")
         ).isTrue()
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = "pa-phd")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = "pa-phd")
         ).isFalse()
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = null)
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, requiredOrganizationName = null)
         ).isFalse()
     }
 
@@ -144,11 +140,11 @@ class OktaAuthenticationTests {
             "organization" to listOf("DHpima-az-phdAdmins", "DHfoo_ax"),
             "sub" to "bob@bob.com"
         )
-        val claims = AuthenticatedClaims(userMemberships)
+        val claims = AuthenticatedClaims(userMemberships, isOktaAuth = true)
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "pima-az-phd")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "pima-az-phd")
         ).isTrue()
-        assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.USER, "foo")).isFalse()
+        assertThat(OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "foo")).isFalse()
     }
 
     @Test
@@ -157,19 +153,19 @@ class OktaAuthenticationTests {
             "organization" to listOf("DHPrimeAdmins"),
             "sub" to "bob@bob.com"
         )
-        val claims = AuthenticatedClaims(userMemberships)
+        val claims = AuthenticatedClaims(userMemberships, isOktaAuth = true)
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "pima-az-phd")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "pima-az-phd")
         ).isTrue()
         // Any org will return true
-        assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.USER, "foo")).isTrue()
+        assertThat(OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "foo")).isTrue()
         // val multiMemberships = listOf("DHPrimeAdmins", "DHfox")
         val multiMemberships: Map<String, Any> = mapOf(
             "organization" to listOf("DHPrimeAdmins", "DHfox"),
             "sub" to "bob@bob.com"
         )
-        val claims2 = AuthenticatedClaims(multiMemberships)
-        assertThat(verifier.authorizeByMembership(claims2, PrincipalLevel.USER, "foo")).isTrue()
+        val claims2 = AuthenticatedClaims(multiMemberships, isOktaAuth = true)
+        assertThat(OktaAuthentication.authorizeByMembership(claims2, PrincipalLevel.USER, "foo")).isTrue()
     }
 
     @Test
@@ -179,21 +175,21 @@ class OktaAuthenticationTests {
             "organization" to listOf("DHPrimeAdmins"),
             "sub" to "bob@bob.com"
         )
-        val claims = AuthenticatedClaims(single)
+        val claims = AuthenticatedClaims(single, isOktaAuth = true)
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, "pima-az-phd")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, "pima-az-phd")
         ).isTrue()
-        assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, "foo"))
+        assertThat(OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, "foo"))
             .isTrue()
-        assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, null))
+        assertThat(OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, null))
             .isTrue()
         // val multi = listOf("DHPrimeAdmins", "DHfox")
         val multiMemberships: Map<String, Any> = mapOf(
             "organization" to listOf("DHPrimeAdmins", "DHfox"),
             "sub" to "bob@bob.com"
         )
-        val claims2 = AuthenticatedClaims(multiMemberships)
-        assertThat(verifier.authorizeByMembership(claims2, PrincipalLevel.ORGANIZATION_ADMIN, "foo"))
+        val claims2 = AuthenticatedClaims(multiMemberships, isOktaAuth = true)
+        assertThat(OktaAuthentication.authorizeByMembership(claims2, PrincipalLevel.ORGANIZATION_ADMIN, "foo"))
             .isTrue()
     }
 
@@ -204,21 +200,21 @@ class OktaAuthenticationTests {
             "organization" to listOf("DHaz_phd"),
             "sub" to "bob@bob.com"
         )
-        val claims = AuthenticatedClaims(single)
+        val claims = AuthenticatedClaims(single, isOktaAuth = true)
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, "az-phd")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, "az-phd")
         ).isFalse()
-        assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, "foo"))
+        assertThat(OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, "foo"))
             .isFalse()
-        assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, null))
+        assertThat(OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, null))
             .isFalse()
         // val multi = listOf("DHaz_phd", "DHfox")
         val multiMemberships: Map<String, Any> = mapOf(
             "organization" to listOf("DHaz_phd", "DHfox"),
             "sub" to "bob@bob.com"
         )
-        val claims2 = AuthenticatedClaims(multiMemberships)
-        assertThat(verifier.authorizeByMembership(claims2, PrincipalLevel.ORGANIZATION_ADMIN, "foo"))
+        val claims2 = AuthenticatedClaims(multiMemberships, isOktaAuth = true)
+        assertThat(OktaAuthentication.authorizeByMembership(claims2, PrincipalLevel.ORGANIZATION_ADMIN, "foo"))
             .isFalse()
     }
 
@@ -229,25 +225,25 @@ class OktaAuthenticationTests {
             "organization" to listOf("DHpima-az-phdAdmins"),
             "sub" to "bob@bob.com"
         )
-        val claims = AuthenticatedClaims(single)
+        val claims = AuthenticatedClaims(single, isOktaAuth = true)
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, "pima-az-phd")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, "pima-az-phd")
         ).isTrue()
-        assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, "foo"))
+        assertThat(OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, "foo"))
             .isFalse()
-        assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, null))
+        assertThat(OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.ORGANIZATION_ADMIN, null))
             .isFalse()
         val multi: Map<String, Any> = mapOf(
             "organization" to listOf("DHpima-az-phd", "DHpima-az-phdAdmins"),
             "sub" to "bob@bob.com"
         )
-        val claims2 = AuthenticatedClaims(multi)
+        val claims2 = AuthenticatedClaims(multi, isOktaAuth = true)
         assertThat(
-            verifier.authorizeByMembership(claims2, PrincipalLevel.ORGANIZATION_ADMIN, "pima-az-phd")
+            OktaAuthentication.authorizeByMembership(claims2, PrincipalLevel.ORGANIZATION_ADMIN, "pima-az-phd")
         ).isTrue()
-        assertThat(verifier.authorizeByMembership(claims2, PrincipalLevel.ORGANIZATION_ADMIN, "foo"))
+        assertThat(OktaAuthentication.authorizeByMembership(claims2, PrincipalLevel.ORGANIZATION_ADMIN, "foo"))
             .isFalse()
-        assertThat(verifier.authorizeByMembership(claims2, PrincipalLevel.ORGANIZATION_ADMIN, null))
+        assertThat(OktaAuthentication.authorizeByMembership(claims2, PrincipalLevel.ORGANIZATION_ADMIN, null))
             .isFalse()
     }
 
@@ -257,29 +253,29 @@ class OktaAuthenticationTests {
             "organization" to listOf("DHthe-good-old-boys"),
             "sub" to "bob@bob.com"
         )
-        var claims = AuthenticatedClaims(memberships)
+        var claims = AuthenticatedClaims(memberships, isOktaAuth = true)
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "the-good-old-boys")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "the-good-old-boys")
         ).isTrue()
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "the_good_old_boys")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "the_good_old_boys")
         ).isTrue()
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "the_good-old_boys")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "the_good-old_boys")
         ).isTrue()
         memberships = mapOf(
             "organization" to listOf("DHSender_bobs_country_bunker"),
             "sub" to "bob@bob.com"
         )
-        claims = AuthenticatedClaims(memberships)
+        claims = AuthenticatedClaims(memberships, isOktaAuth = true)
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "bobs_country_bunker")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "bobs_country_bunker")
         ).isTrue()
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "bobs-country-bunker")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "bobs-country-bunker")
         ).isTrue()
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.USER, "bobs_country-bunker")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.USER, "bobs_country-bunker")
         ).isTrue()
     }
 
@@ -290,19 +286,18 @@ class OktaAuthenticationTests {
             "organization" to listOf("DHPrimeAdmins"),
             "sub" to "bob@bob.com"
         )
-        val claims = AuthenticatedClaims(single)
+        val claims = AuthenticatedClaims(single, isOktaAuth = true)
         assertThat(
-            verifier.authorizeByMembership(claims, PrincipalLevel.SYSTEM_ADMIN, "foo")
+            OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.SYSTEM_ADMIN, "foo")
         ).isTrue()
-        assertThat(verifier.authorizeByMembership(claims, PrincipalLevel.SYSTEM_ADMIN, null)).isTrue()
-        // val multiMemberships = listOf("DHPrimeAdmins", "DHfox")
+        assertThat(OktaAuthentication.authorizeByMembership(claims, PrincipalLevel.SYSTEM_ADMIN, null)).isTrue()
         val multi: Map<String, Any> = mapOf(
             "organization" to listOf("DHPrimeAdmins", "DHfox"),
             "sub" to "bob@bob.com"
         )
-        val claims2 = AuthenticatedClaims(multi)
+        val claims2 = AuthenticatedClaims(multi, isOktaAuth = true)
         assertThat(
-            verifier.authorizeByMembership(claims2, PrincipalLevel.SYSTEM_ADMIN, "foo")
+            OktaAuthentication.authorizeByMembership(claims2, PrincipalLevel.SYSTEM_ADMIN, "foo")
         ).isTrue()
     }
 }
