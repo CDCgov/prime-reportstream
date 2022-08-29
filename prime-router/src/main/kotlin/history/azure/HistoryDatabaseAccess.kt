@@ -166,6 +166,7 @@ abstract class HistoryDatabaseAccess(
      */
     abstract fun <T> fetchAction(
         actionId: Long,
+        orgName: String? = null,
         klass: Class<T>
     ): T?
 

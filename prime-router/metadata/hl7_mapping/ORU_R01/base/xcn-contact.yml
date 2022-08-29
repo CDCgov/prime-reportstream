@@ -1,0 +1,58 @@
+name: ORU-R01-xcn-contact
+# Practitioner to XCN mapping
+elements:
+  - name: id-number
+    value: [ '%resource.identifier.value' ]
+    hl7Spec: [ '%{xcnFieldPath}(%{contactIndex})-1' ]
+
+  - name: family-name
+    value: [ '%resource.name.family' ]
+    hl7Spec: [ '%{xcnFieldPath}(%{contactIndex})-2' ]
+
+  - name: given-name
+    value: [ '%resource.name.given[0]' ]
+    hl7Spec: [ '%{xcnFieldPath}(%{contactIndex})-3' ]
+
+  - name: other-given-names
+    value: [ '%resource.name.given.tail()' ]
+    hl7Spec: [ '%{xcnFieldPath}(%{contactIndex})-4' ]
+
+  - name: suffix
+    value: [ '%resource.name.suffix' ]
+    hl7Spec: [ '%{xcnFieldPath}(%{contactIndex})-7' ]
+
+  - name: assigning-auth-namespace-id-npi
+    condition: '%resource.identifier.system = ''http://hl7.org/fhir/sid/us-npi'''
+    value: [ '''NPI''' ]
+    hl7Spec: [ '%{xcnFieldPath}(%{contactIndex})-9-1' ]
+
+  - name: assigning-auth-namespace-id
+    condition: '%resource.identifier.system.exists() and %resource.identifier.system != ''http://hl7.org/fhir/sid/us-npi'''
+    value: [ '%resource.identifier.system.replace(''urn:id:'', '''').replace(''_'', '' '')' ]
+    hl7Spec: [ '%{xcnFieldPath}(%{contactIndex})-9-1' ]
+
+  - name: assigning-auth-universal-id
+    resource: '%resource.identifier.extension(%`rsext-assigning-authority-universal-id`).value'
+    condition: '%resource.exists()'
+    value: [ '%resource.replace(''urn:oid:'', '''')' ]
+    hl7Spec: [ '%{xcnFieldPath}(%{contactIndex})-9-2' ]
+
+  - name: assigning-auth-universal-id-type
+    resource: '%resource.identifier.extension(%`rsext-assigning-authority-universal-id`).value'
+    condition: '%resource is Oid'
+    value: [ '''ISO''' ]
+    hl7Spec: [ '%{xcnFieldPath}(%{contactIndex})-9-3' ]
+
+  - name: name-type-code
+    condition: '%resource.name.use = ''official'''
+    value: [ '''L''']
+    hl7Spec: [ '%{xcnFieldPath}(%{contactIndex})-10' ]
+
+  - name: type
+    value: [ '%resource.identifier.type.coding.code' ]
+    hl7Spec: [ '%{xcnFieldPath}(%{contactIndex})-13' ]
+
+  - name: assigning-facility
+    condition: '%resource.extension(%`rsext-assigning-facility`).exists()'
+    value: [ '%resource.extension(%`rsext-assigning-facility`).value.resolve().name' ]
+    hl7Spec: [ '%{xcnFieldPath}(%{contactIndex})-14' ]

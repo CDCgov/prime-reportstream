@@ -32,13 +32,10 @@ describe("useSenderResource", () => {
             loading: true,
         });
         mockUseSessionContext.mockReturnValue({
-            memberships: {
-                state: {
-                    active: {
-                        senderName: "senderName",
-                    },
-                },
+            activeMembership: {
+                senderName: "senderName",
             },
+            dispatch: () => {},
         });
 
         const {
@@ -53,11 +50,8 @@ describe("useSenderResource", () => {
             data: fakeSender,
         });
         mockUseSessionContext.mockReturnValue({
-            memberships: {
-                state: {
-                    active: {},
-                },
-            },
+            activeMembership: {},
+            dispatch: () => {},
         });
 
         const {
@@ -72,13 +66,10 @@ describe("useSenderResource", () => {
             data: undefined,
         });
         mockUseSessionContext.mockReturnValue({
-            memberships: {
-                state: {
-                    active: {
-                        senderName: "a different name",
-                    },
-                },
+            activeMembership: {
+                senderName: "a different name",
             },
+            dispatch: () => {},
         });
 
         const {
@@ -93,13 +84,10 @@ describe("useSenderResource", () => {
             data: fakeSender,
         });
         mockUseSessionContext.mockReturnValue({
-            memberships: {
-                state: {
-                    active: {
-                        senderName: "senderName",
-                    },
-                },
+            activeMembership: {
+                senderName: "senderName",
             },
+            dispatch: () => {},
         });
 
         const {

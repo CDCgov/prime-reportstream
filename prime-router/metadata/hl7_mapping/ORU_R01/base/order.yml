@@ -1,0 +1,98 @@
+name: ORU-R01-order
+constants:
+  hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/ORC
+elements:
+  - name: order-control
+    resource: '%resource.basedOn.resolve()'
+    condition: '%resource.extension(%`rsext-order-control`).exists()'
+    value: [ '%resource.extension(%`rsext-order-control`).value.coding.code' ]
+    hl7Spec: [ '%{hl7Order}-1' ]
+
+  - name: placer-order-number
+    resource: >
+      %resource.basedOn.resolve().identifier.where(type.coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203')
+      .where(type.coding.code = 'PLAC')
+    condition: '%resource.count() > 0'
+    constants:
+      entityIdFieldPath: '%{hl7Order}-2'
+    resourceIndex: entityIdIndex
+    schema: entity-identifier
+
+  - name: filler-order-number
+    resource: >
+      %resource.basedOn.resolve().identifier.where(type.coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203')
+      .where(type.coding.code = 'FILL')
+    condition: '%resource.count() > 0'
+    constants:
+      entityIdFieldPath: '%{hl7Order}-3'
+    resourceIndex: entityIdIndex
+    schema: entity-identifier
+
+  - name: placer-group-number
+    resource: >
+      %resource.basedOn.resolve().identifier.where(type.coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203')
+      .where(type.coding.code = 'PGN')
+    condition: '%resource.count() > 0'
+    constants:
+      entityIdFieldPath: '%{hl7Order}-4'
+    resourceIndex: entityIdIndex
+    schema: entity-identifier
+
+  - name: response-flag
+    resource: '%resource.extension(%`rsext-response-flag`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.coding[0].code' ]
+    hl7Spec: [ '%{hl7Order}-6' ]
+
+  - name: transaction-time
+    resource: '%resource.basedOn.resolve()'
+    value: [ '%resource.authoredOn' ]
+    hl7Spec: [ '%{hl7Order}-9' ]
+
+  - name: ordering-provider
+    resource: '%resource.basedOn.resolve().requester.resolve().practitioner.resolve()'
+    constants:
+      xcnFieldPath: '%{hl7Order}-12'
+    schema: xcn-contact
+    resourceIndex: contactIndex
+
+  - name: callback-phone-number
+    resource: '%resource.basedOn.resolve().requester.resolve().practitioner.resolve().extension(%`rsext-callback-number`).value'
+    condition: '%resource.exists()'
+    constants:
+      hl7TelecomField: '%{hl7Order}-14'
+    schema: xtn-telecom
+
+  - name: order-effective-date
+    value: [ '%resource.basedOn.resolve().occurrence' ]
+    hl7Spec: [ '%{hl7Order}-15' ]
+
+  - name: ordering-organization
+    resource: '%resource.basedOn.resolve().extension(%`rsext-entering-organization`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7Order}-17' ]
+
+  - name: ordering-facility-name
+    resource: '%resource.basedOn.resolve().requester.resolve().organization.resolve()'
+    schema: xon-organization
+    constants:
+      hl7OrgField: '%{hl7Order}-21'
+
+  - name: ordering-facility-address
+    resource: '%resource.basedOn.resolve().requester.resolve().organization.resolve().address'
+    schema: xad-extended-address
+    constants:
+      hl7AddressField: '%{hl7Order}-22'
+
+  - name: ordering-facility-phone
+    resource: '%resource.basedOn.resolve().requester.resolve().organization.resolve().contact[0].telecom'
+    schema: xtn-telecom
+    constants:
+      hl7TelecomField: '%{hl7Order}-23'
+
+  - name: ordering-facility-address
+    resource: '%resource.basedOn.resolve().requester.resolve().practitioner.resolve().address'
+    schema: xad-extended-address
+    constants:
+      hl7AddressField: '%{hl7Order}-24'

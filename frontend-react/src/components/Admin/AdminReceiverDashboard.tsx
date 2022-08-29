@@ -16,6 +16,7 @@ import {
 } from "@trussworks/react-uswds";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 import moment from "moment";
+import { Link } from "react-router-dom";
 
 import {
     AdmConnStatusResource,
@@ -523,6 +524,8 @@ function renderAllReceiverRows(props: {
             ? visibleSliceCount === 0
             : false;
 
+        const linkOrgSettings = `/admin/orgsettings/org/${orgName}`;
+        const linkRecvSettings = `/admin/orgreceiversettings/org/${orgName}/receiver/${recvrName}/action/edit`;
         // cheat confession: using `data-` props allow us to stick properties
         // on components without type checking requiring it be a formal prop.
         perReceiverRowElements.push(
@@ -536,9 +539,9 @@ function renderAllReceiverRows(props: {
             >
                 <Grid className={`title-column ${titleClassName}`}>
                     <div className={"title-text"}>
-                        {orgName}
+                        <Link to={linkOrgSettings}>{orgName}</Link>
                         <br />
-                        {recvrName}
+                        <Link to={linkRecvSettings}>{recvrName}</Link>
                         <br />
                         {successRate}%
                     </div>

@@ -97,7 +97,7 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
 
 /** @deprecated Replace with new numbered pagination version */
 function SubmissionTableWithCursorManager() {
-    const { memberships } = useSessionContext();
+    const { activeMembership } = useSessionContext();
     const filterManager = useFilterManager(filterManagerDefaults);
     const cursorManager = useCursorManager(filterManager.rangeSettings.to);
 
@@ -111,7 +111,7 @@ function SubmissionTableWithCursorManager() {
     const submissions: SubmissionsResource[] = useResource(
         SubmissionsResource.list(),
         {
-            organization: memberships.state.active?.parsedName,
+            organization: activeMembership?.parsedName,
             cursor: cursorOrRange(
                 filterManager.sortSettings.order,
                 RangeField.TO,
@@ -154,7 +154,7 @@ function SubmissionTableWithCursorManager() {
 }
 
 function SubmissionTableWithNumberedPagination() {
-    const { memberships } = useSessionContext();
+    const { activeMembership } = useSessionContext();
 
     const filterManager = useFilterManager(filterManagerDefaults);
     const pageSize = filterManager.pageSettings.size;
@@ -173,7 +173,7 @@ function SubmissionTableWithNumberedPagination() {
             const cursor = sortOrder === "DESC" ? currentCursor : rangeTo;
             const endCursor = sortOrder === "DESC" ? rangeFrom : currentCursor;
             return controllerFetch(SubmissionsResource.list(), {
-                organization: memberships.state.active?.parsedName,
+                organization: activeMembership?.parsedName,
                 cursor,
                 endCursor,
                 pageSize: numResults,
@@ -182,7 +182,7 @@ function SubmissionTableWithNumberedPagination() {
             }) as unknown as Promise<SubmissionsResource[]>;
         },
         [
-            memberships.state.active?.parsedName,
+            activeMembership?.parsedName,
             sortOrder,
             controllerFetch,
             rangeFrom,
