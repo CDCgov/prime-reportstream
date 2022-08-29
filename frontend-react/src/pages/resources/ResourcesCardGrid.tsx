@@ -1,30 +1,24 @@
-import {
-    IACardGridProps,
-    IACardGridTemplate,
-} from "../../components/Content/Templates/IACardGridTemplate";
-import {
-    IAMetaAndRouter,
-    IAMetaAndRouterProps,
-} from "../../components/Content/Templates/IAMetaAndRouter";
+import { IACardGridProps } from "../../components/Content/Templates/IACardGridTemplate";
 import {
     resourcesDirectories,
     ResourcesDirectoryTools,
 } from "../../content/resources";
+import {
+    IATemplate,
+    IATemplateProps,
+    TemplateName,
+} from "../../components/Content/Templates/IATemplate";
 
-const pageProps: IACardGridProps = {
-    title: ResourcesDirectoryTools.title,
-    subtitle: ResourcesDirectoryTools.subtitle,
-    directoriesToRender: resourcesDirectories,
-};
-/** This is our main page content */
-export const ResourcesCardGrid = () => <IACardGridTemplate {...pageProps} />;
-
-const rootProps: IAMetaAndRouterProps = {
-    path: ResourcesDirectoryTools.root,
+const rootProps: IATemplateProps<IACardGridProps> = {
+    directories: resourcesDirectories,
     pageName: ResourcesDirectoryTools.title,
-    indexComponent: ResourcesCardGrid,
-    directoriesToRoute: resourcesDirectories,
+    templateKey: TemplateName.CARD_GRID,
+    templateProps: {
+        title: ResourcesDirectoryTools.title,
+        subtitle: ResourcesDirectoryTools.subtitle,
+        directoriesToRender: resourcesDirectories,
+    },
 };
 /** Use this component in the main App Router! It will handle rendering everything
  * and set the Helmet values */
-export const Resources = () => <IAMetaAndRouter {...rootProps} />;
+export const Resources = () => <IATemplate {...rootProps} {...rootProps} />;

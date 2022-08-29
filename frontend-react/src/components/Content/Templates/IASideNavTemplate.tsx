@@ -3,11 +3,11 @@ import { Route, Routes } from "react-router-dom";
 import { ContentDirectory, getDirectoryElement } from "../MarkdownDirectory";
 import GeneratedSideNav from "../GeneratedSideNav";
 
-const IASideNavTemplate = ({
-    directories,
-}: {
+export interface IASideNavProps {
     directories: ContentDirectory[];
-}) => {
+}
+
+const IASideNavTemplate = ({ directories }: IASideNavProps) => {
     return (
         <section className="grid-container tablet:margin-top-6 margin-bottom-5">
             <div className="grid-row grid-gap">

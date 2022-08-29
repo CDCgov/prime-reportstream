@@ -32,11 +32,11 @@ const testDirectories: ContentDirectory[] = [
     new ElementDirectory()
         .setTitle(TestDirPages.ONE) // Name it
         .setDescription("Item One") // Describe it
-        .setSlug(dirTools.prependRoot(TestDirPages.ONE)), // Page's path, use `ContentDirectoryTools.prependRoot()`
+        .setSlug(dirTools.getSlug(TestDirPages.ONE)), // Page's path, use `ContentDirectoryTools.prependRoot()`
     new ElementDirectory()
         .setTitle(TestDirPages.TWO)
         .setDescription("Item Two")
-        .setSlug(dirTools.prependRoot(TestDirPages.TWO)),
+        .setSlug(dirTools.getSlug(TestDirPages.TWO)),
 ];
 // Split your main array into sections
 const testContentMap: ContentMap = new Map()

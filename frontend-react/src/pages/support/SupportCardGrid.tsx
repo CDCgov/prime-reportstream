@@ -1,30 +1,24 @@
-import {
-    IACardGridProps,
-    IACardGridTemplate,
-} from "../../components/Content/Templates/IACardGridTemplate";
-import {
-    IAMetaAndRouter,
-    IAMetaAndRouterProps,
-} from "../../components/Content/Templates/IAMetaAndRouter";
+import { IACardGridProps } from "../../components/Content/Templates/IACardGridTemplate";
 import {
     supportDirectories,
     SupportDirectoryTools,
 } from "../../content/support";
+import {
+    IATemplate,
+    IATemplateProps,
+    TemplateName,
+} from "../../components/Content/Templates/IATemplate";
 
-const pageProps: IACardGridProps = {
-    title: SupportDirectoryTools.title,
-    subtitle: SupportDirectoryTools.subtitle,
-    directoriesToRender: supportDirectories,
-};
-/** This is our main page content */
-export const SupportCardGrid = () => <IACardGridTemplate {...pageProps} />;
-
-const rootProps: IAMetaAndRouterProps = {
-    path: SupportDirectoryTools.root,
+const templateProps: IATemplateProps<IACardGridProps> = {
+    directories: supportDirectories,
     pageName: SupportDirectoryTools.title,
-    indexComponent: SupportCardGrid,
-    directoriesToRoute: supportDirectories,
+    templateKey: TemplateName.CARD_GRID,
+    templateProps: {
+        title: SupportDirectoryTools.title,
+        subtitle: SupportDirectoryTools.subtitle,
+        directoriesToRender: supportDirectories,
+    },
 };
 /** Use this component in the main App Router! It will handle rendering everything
  * and set the Helmet values */
-export const Support = () => <IAMetaAndRouter {...rootProps} />;
+export const Support = () => <IATemplate {...templateProps} />;
