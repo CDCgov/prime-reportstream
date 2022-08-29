@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
     Alert,
     Button,
@@ -10,6 +10,8 @@ import {
 } from "@trussworks/react-uswds";
 
 import { showAlertNotification } from "../../components/AlertNotifications";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../components/AuthElement";
 
 export enum FeatureFlagName {
     NUMBERED_PAGINATION = "numbered-pagination",
@@ -155,5 +157,14 @@ export function FeatureFlagUIComponent() {
                 </GridContainer>
             </section>
         </>
+    );
+}
+
+export function FeatureFlagUIWithAuth() {
+    return (
+        <AuthElement
+            element={FeatureFlagUIComponent}
+            requiredUserType={MemberType.PRIME_ADMIN}
+        />
     );
 }

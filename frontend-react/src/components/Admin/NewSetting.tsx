@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { Button, GridContainer, Grid } from "@trussworks/react-uswds";
 import { NetworkErrorBoundary, useController } from "rest-hooks";
-import { RouteComponentProps, useHistory } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
@@ -9,18 +9,23 @@ import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsReso
 import { showAlertNotification, showError } from "../AlertNotifications";
 import Spinner from "../Spinner";
 import { getErrorDetailFromResponse } from "../../utils/misc";
+import { AuthElement } from "../AuthElement";
+import { MemberType } from "../../hooks/UseOktaMemberships";
 
 import { TextInputComponent, TextAreaComponent } from "./AdminFormEdit";
 
-type Props = {
-    orgname: string;
-    settingtype: "sender" | "receiver";
+type NewSettingProps = {
+    orgName: string;
+    settingType: "sender" | "receiver";
 };
 
-export function NewSetting({ match }: RouteComponentProps<Props>) {
-    const history = useHistory();
-    const orgname = match?.params?.orgname || "";
-    const settingtype = match?.params?.settingtype;
+export function NewSetting() {
+    const navigate = useNavigate();
+    const { orgName, settingType } = useParams<NewSettingProps>();
+    /* useParams now returns possible undefined. This will error up to a boundary
+     * if the url param is undefined */
+    if (orgName === undefined || settingType === undefined)
+        throw Error("Expected orgName & settingType from path");
 
     const FormComponent = () => {
         let orgSetting: object = [];
@@ -33,17 +38,20 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
                 const SETTINGTYPE = {
                     sender: {
                         updateFn: OrgSenderSettingsResource.update(),
-                        args: { orgname, sendername: orgSettingName },
+                        args: { orgName: orgName, sendername: orgSettingName },
                     },
                     receiver: {
                         updateFn: OrgReceiverSettingsResource.update(),
-                        args: { orgname, receivername: orgSettingName },
+                        args: {
+                            orgName: orgName,
+                            receivername: orgSettingName,
+                        },
                     },
                 };
 
                 await fetchController(
-                    SETTINGTYPE[settingtype].updateFn,
-                    SETTINGTYPE[settingtype].args,
+                    SETTINGTYPE[settingType].updateFn,
+                    SETTINGTYPE[settingType].args,
                     data
                 );
 
@@ -51,7 +59,7 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
                     "success",
                     `Item '${orgSettingName}' has been created`
                 );
-                history.goBack();
+                navigate(-1);
             } catch (e: any) {
                 let errorDetail = await getErrorDetailFromResponse(e);
                 console.trace(e, errorDetail);
@@ -67,11 +75,10 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
             <GridContainer>
                 <Grid row>
                     <Grid col="fill" className="text-bold">
-                        Org name:{" "}
-                        {match?.params?.orgname || "missing param 'orgname'"}
+                        Org name: {orgName || "missing param 'orgname'"}
                         <br />
                         Setting Type:{" "}
-                        {match?.params?.settingtype ||
+                        {settingType ||
                             "missing param 'settingtype' (should be 'sender' or 'receiver')"}
                         <br />
                         <br />
@@ -91,7 +98,7 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
                     defaultnullvalue="[]"
                 />
                 <Grid row>
-                    <Button type="button" onClick={() => history.goBack()}>
+                    <Button type="button" onClick={() => navigate(-1)}>
                         Cancel
                     </Button>
                     <Button
@@ -125,3 +132,10 @@ export function NewSetting({ match }: RouteComponentProps<Props>) {
         </NetworkErrorBoundary>
     );
 }
+
+export const NewSettingWithAuth = () => (
+    <AuthElement
+        element={NewSetting}
+        requiredUserType={MemberType.PRIME_ADMIN}
+    />
+);

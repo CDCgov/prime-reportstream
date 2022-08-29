@@ -9,32 +9,26 @@ import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import { Resources } from "./pages/resources/ResourcesCardGrid";
 import { Product } from "./pages/product/ProductIndex";
 import { Support } from "./pages/support/SupportCardGrid";
-import { AuthRoute } from "./components/AuthRoute";
-import Daily from "./pages/daily/Daily";
-import { Upload } from "./pages/Upload";
-import {
-    FeatureFlagName,
-    FeatureFlagUIComponent,
-} from "./pages/misc/FeatureFlags";
-import Validate from "./pages/Validate";
-import SubmissionDetails from "./pages/submissions/SubmissionDetails";
-import Submissions from "./pages/submissions/Submissions";
-import { AdminMain } from "./pages/admin/AdminMain";
-import { AdminOrgNew } from "./pages/admin/AdminOrgNew";
-import { AdminOrgEdit } from "./pages/admin/AdminOrgEdit";
-import { EditReceiverSettings } from "./components/Admin/EditReceiverSettings";
-import { EditSenderSettings } from "./components/Admin/EditSenderSettings";
-import { NewSetting } from "./components/Admin/NewSetting";
+import { UploadWithAuth } from "./pages/Upload";
+import { FeatureFlagUIWithAuth } from "./pages/misc/FeatureFlags";
+import { ValidateWithAuth } from "./pages/Validate";
+import { SubmissionDetailsWithAuth } from "./pages/submissions/SubmissionDetails";
+import { SubmissionsWithAuth } from "./pages/submissions/Submissions";
+import { AdminMainWithAuth } from "./pages/admin/AdminMain";
+import { AdminOrgNewWithAuth } from "./pages/admin/AdminOrgNew";
+import { AdminOrgEditWithAuth } from "./pages/admin/AdminOrgEdit";
+import { EditSenderSettingsWithAuth } from "./components/Admin/EditSenderSettings";
+import { NewSettingWithAuth } from "./components/Admin/NewSetting";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
-import { AdminLastMileFailures } from "./pages/admin/AdminLastMileFailures";
-import { AdminReceiverDashPage } from "./pages/admin/AdminReceiverDashPage";
-import { Details } from "./pages/details/Details";
-import ValueSetsDetail from "./pages/admin/value-set-editor/ValueSetsDetail";
-import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
-import UploadToPipeline from "./pages/UploadToPipeline";
+import { AdminLMFWithAuth } from "./pages/admin/AdminLastMileFailures";
+import { AdminReceiverDashWithAuth } from "./pages/admin/AdminReceiverDashPage";
+import { DetailsWithAuth } from "./pages/details/Details";
+import { ValueSetsDetailWithAuth } from "./pages/admin/value-set-editor/ValueSetsDetail";
+import { ValueSetsIndexWithAuth } from "./pages/admin/value-set-editor/ValueSetsIndex";
+import { UploadToPipelineWithAuth } from "./pages/UploadToPipeline";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import Home from "./pages/home/Home";
-import { MemberType } from "./hooks/UseOktaMemberships";
+import { DailyWithAuth } from "./pages/daily/Daily";
 
 export const AppRouter = () => {
     return (
@@ -50,104 +44,56 @@ export const AppRouter = () => {
             <Route path="/product" element={<Product />} />
             <Route path="/support" element={<Support />} />
             {/* User pages */}
-            <AuthRoute
-                path="/daily-data"
-                requiredUserType={MemberType.RECEIVER}
-                element={<Daily />}
-            />
-            <AuthRoute
-                path="/report-details"
-                requiredUserType={MemberType.RECEIVER}
-                element={<Details />}
-            />
-            <AuthRoute
-                path="/upload"
-                requiredUserType={MemberType.SENDER}
-                element={<Upload />}
-            />
-            <AuthRoute
+            <Route path="/daily-data" element={<DailyWithAuth />} />
+            <Route path="/report-details" element={<DetailsWithAuth />} />
+            <Route path="/upload" element={<UploadWithAuth />} />
+            <Route path="/submissions" element={<SubmissionsWithAuth />} />
+            <Route
                 path="/submissions/:actionId"
-                requiredUserType={MemberType.SENDER}
-                element={<SubmissionDetails />}
-            />
-            <AuthRoute
-                path="/submissions"
-                requiredUserType={MemberType.SENDER}
-                element={<Submissions />}
+                element={<SubmissionDetailsWithAuth />}
             />
             {/* Admin pages */}
-            <AuthRoute
-                path="/admin/settings"
-                requiredUserType={MemberType.PRIME_ADMIN}
-                element={<AdminMain />}
-            />
-            <AuthRoute
-                path="/admin/new/org"
-                requiredUserType={MemberType.PRIME_ADMIN}
-                element={<AdminOrgNew />}
-            />
-            <AuthRoute
+            <Route path="/admin/settings" element={<AdminMainWithAuth />} />
+            <Route path="/admin/new/org" element={<AdminOrgNewWithAuth />} />
+            <Route
                 path="/admin/orgsettings/org/:orgname"
-                requiredUserType={MemberType.PRIME_ADMIN}
-                element={<AdminOrgEdit />}
+                element={<AdminOrgEditWithAuth />}
             />
-            <AuthRoute
+            <Route
                 path="/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action"
-                requiredUserType={MemberType.PRIME_ADMIN}
-                element={<EditReceiverSettings />}
+                element={<EditSenderSettingsWithAuth />}
             />
-            <AuthRoute
+            <Route
                 path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"
-                requiredUserType={MemberType.PRIME_ADMIN}
-                element={<EditSenderSettings />}
+                element={<EditSenderSettingsWithAuth />}
             />
-            <AuthRoute
+            <Route
                 path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
-                requiredUserType={MemberType.PRIME_ADMIN}
-                element={<NewSetting />}
+                element={<NewSettingWithAuth />}
             />
-            <AuthRoute
-                path="/admin/guides"
-                requiredUserType={MemberType.PRIME_ADMIN}
-                element={<InternalUserGuides />}
-            />
-            <AuthRoute
-                path="/admin/lastmile"
-                requiredUserType={MemberType.PRIME_ADMIN}
-                element={<AdminLastMileFailures />}
-            />
-            <AuthRoute
+            <Route path="/admin/guides" element={<InternalUserGuides />} />
+            <Route path="/admin/lastmile" element={<AdminLMFWithAuth />} />
+            <Route
                 path="/admin/send-dash"
-                requiredUserType={MemberType.PRIME_ADMIN}
-                element={<AdminReceiverDashPage />}
+                element={<AdminReceiverDashWithAuth />}
             />
-            <AuthRoute
-                path="/admin/features"
-                requiredUserType={MemberType.PRIME_ADMIN}
-                element={<FeatureFlagUIComponent />}
-            />
-            <AuthRoute
+            <Route path="/admin/features" element={<FeatureFlagUIWithAuth />} />
+            <Route
                 path={"/admin/value-sets/:valueSetName"}
-                requiredUserType={MemberType.PRIME_ADMIN}
-                element={<ValueSetsDetail />}
+                element={<ValueSetsDetailWithAuth />}
             />
-            <AuthRoute
+            <Route
                 path={"/admin/value-sets"}
-                requiredUserType={MemberType.PRIME_ADMIN}
-                element={<ValueSetsIndex />}
+                element={<ValueSetsIndexWithAuth />}
             />
             {/* Feature-flagged pages */}
-            <AuthRoute
+            <Route
                 path={"/file-handler/user-upload"}
-                requiredUserType={MemberType.PRIME_ADMIN}
-                requiredFeatureFlag={FeatureFlagName.USER_UPLOAD}
-                element={<UploadToPipeline />}
+                element={<UploadToPipelineWithAuth />}
             />
-            <AuthRoute
+            <Route
                 path="/file-handler/validate"
-                requiredUserType={MemberType.PRIME_ADMIN}
-                requiredFeatureFlag={FeatureFlagName.VALIDATION_SERVICE}
-                element={<Validate />}
+                element={<ValidateWithAuth />}
             />
             {/* Handles any undefined route */}
             <Route element={<ErrorPage code={CODES.NOT_FOUND_404} />} />

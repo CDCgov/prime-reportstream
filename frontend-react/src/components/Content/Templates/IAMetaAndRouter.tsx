@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import { Route, Switch } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import React from "react";
 
 import { ContentDirectory, GeneratedRouter } from "../MarkdownDirectory";
@@ -24,10 +24,10 @@ export const IAMetaAndRouter = ({
                 </title>
             </Helmet>
 
-            <Switch>
-                <Route exact path={path} component={indexComponent} />
+            <Routes>
+                <Route path={path} element={indexComponent} />
                 <GeneratedRouter directories={directoriesToRoute} />
-            </Switch>
+            </Routes>
         </>
     );
 };

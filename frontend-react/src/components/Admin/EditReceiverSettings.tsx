@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useController, useResource } from "rest-hooks";
-import { RouteComponentProps, useHistory } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Title from "../../components/Title";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
@@ -23,6 +23,8 @@ import {
     SampleTranslationObj,
     SampleTransportObject,
 } from "../../utils/TemporarySettingsAPITypes";
+import { AuthElement } from "../AuthElement";
+import { MemberType } from "../../hooks/UseOktaMemberships";
 
 import {
     ConfirmSaveSettingModal,
@@ -48,7 +50,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
     action,
 }) => {
     const [loading, setLoading] = useState(false);
-    const history = useHistory();
+    const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
     const orgReceiverSettings: OrgReceiverSettingsResource = useResource(
@@ -157,7 +159,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             );
             setLoading(false);
             confirmModalRef?.current?.hideModal();
-            history.goBack();
+            navigate(-1);
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
@@ -312,7 +314,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     <Button
                         type="button"
                         onClick={async () =>
-                            (await resetReceiverList()) && history.goBack()
+                            (await resetReceiverList()) && navigate(-1)
                         }
                     >
                         Cancel
@@ -343,36 +345,47 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
     );
 };
 
-type Props = {
-    orgname: string;
-    receivername: string;
+type EditReceiverSettingsProps = {
+    orgName: string;
+    receiverName: string;
     action: "edit" | "clone";
 };
 
-export function EditReceiverSettings({ match }: RouteComponentProps<Props>) {
-    const orgname = match?.params?.orgname || "";
-    const receivername = match?.params?.receivername || "";
-    const action = match?.params?.action || "";
+export function EditReceiverSettings() {
+    const { orgName, receiverName, action } =
+        useParams<EditReceiverSettingsProps>();
+    /* useParams now returns possible undefined. This will error up to a boundary
+     * if the url param is undefined */
+    if (
+        orgName === undefined ||
+        receiverName === undefined ||
+        action === undefined
+    )
+        throw Error("Expected orgName & settingType from path");
 
     return (
         <AdminFormWrapper
             header={
                 <Title
-                    preTitle={`Org name: ${
-                        match?.params?.orgname || "missing param 'orgname'"
-                    }`}
-                    title={`Receiver name: ${
-                        match?.params?.receivername ||
-                        "missing param 'receivername'"
-                    }`}
+                    preTitle={`Org name: ${orgName}`}
+                    title={`Receiver name: ${receiverName}`}
                 />
             }
         >
             <EditReceiverSettingsForm
-                orgname={orgname}
-                receivername={receivername}
+                orgname={orgName}
+                receivername={receiverName}
                 action={action}
             />
         </AdminFormWrapper>
+    );
+}
+
+export function EditReceiverSettingsWithAuth() {
+    return (
+        <AuthElement
+            element={EditReceiverSettings}
+            requiredUserType={MemberType.PRIME_ADMIN}
+        />
     );
 }

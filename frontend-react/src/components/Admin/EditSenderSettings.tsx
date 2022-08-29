@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useController, useResource } from "rest-hooks";
-import { RouteComponentProps, useHistory } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Title from "../../components/Title";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
@@ -18,11 +18,13 @@ import {
 } from "../../utils/misc";
 import { ObjectTooltip } from "../tooltips/ObjectTooltip";
 import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
+import { AuthElement } from "../AuthElement";
+import { MemberType } from "../../hooks/UseOktaMemberships";
 
 import {
+    DropdownComponent,
     TextAreaComponent,
     TextInputComponent,
-    DropdownComponent,
 } from "./AdminFormEdit";
 import { AdminFormWrapper } from "./AdminFormWrapper";
 import {
@@ -40,7 +42,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     sendername,
     action,
 }) => {
-    const history = useHistory();
+    const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
     const orgSenderSettings: OrgSenderSettingsResource = useResource(
@@ -151,7 +153,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             );
             confirmModalRef?.current?.toggleModal(undefined, false);
             setLoading(false);
-            history.goBack();
+            navigate(-1);
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
@@ -221,7 +223,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                     <Button
                         type="button"
                         onClick={async () =>
-                            (await resetSenderList()) && history.goBack()
+                            (await resetSenderList()) && navigate(-1)
                         }
                     >
                         Cancel
@@ -250,36 +252,51 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     );
 };
 
-type Props = {
-    orgname: string;
-    sendername: string;
+export type EditSenderSettingsProps = {
+    orgName: string;
+    senderName: string;
     action: "edit" | "clone";
 };
 
-export function EditSenderSettings({ match }: RouteComponentProps<Props>) {
-    const orgname = match?.params?.orgname || "";
-    const sendername = match?.params?.sendername || "";
-    const action = match?.params?.action || "";
+export function EditSenderSettings() {
+    const { orgName, senderName, action } =
+        useParams<EditSenderSettingsProps>();
+    /* useParams now returns possible undefined. This will error up to a boundary
+     * if the url param is undefined */
+    if (
+        orgName === undefined ||
+        senderName === undefined ||
+        action === undefined
+    )
+        throw Error("Expected orgName & settingType from path");
 
     return (
         <AdminFormWrapper
             header={
                 <Title
                     preTitle={`Org name: ${
-                        match?.params?.orgname || "missing param 'orgname'"
+                        orgName || "missing param 'orgname'"
                     }`}
                     title={`Sender name: ${
-                        match?.params?.sendername ||
-                        "missing param 'sendername'"
+                        senderName || "missing param 'sendername'"
                     }`}
                 />
             }
         >
             <EditSenderSettingsForm
-                orgname={orgname}
-                sendername={sendername}
+                orgname={orgName}
+                sendername={senderName}
                 action={action}
             />
         </AdminFormWrapper>
+    );
+}
+
+export function EditSenderSettingsWithAuth() {
+    return (
+        <AuthElement
+            element={EditSenderSettings}
+            requiredUserType={MemberType.PRIME_ADMIN}
+        />
     );
 }

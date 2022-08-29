@@ -28,6 +28,8 @@ import {
     ReportStreamAlert,
     handleErrorWithAlert,
 } from "../../../utils/ErrorUtils";
+import { MemberType } from "../../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../../components/AuthElement";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -256,7 +258,10 @@ const ValueSetsDetail = () => {
     const { valueSetName } = useParams<{ valueSetName: string }>();
     // TODO: when to unset?
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
-
+    /* useParams now returns possible undefined. This will error up to a boundary
+     * if the url param is undefined */
+    if (valueSetName === undefined)
+        throw Error("Expected valueSetName from path, got: undefined");
     return (
         <>
             <Helmet>
@@ -282,3 +287,10 @@ const ValueSetsDetail = () => {
 };
 
 export default ValueSetsDetail;
+
+export const ValueSetsDetailWithAuth = () => (
+    <AuthElement
+        element={ValueSetsDetail}
+        requiredUserType={MemberType.PRIME_ADMIN}
+    />
+);

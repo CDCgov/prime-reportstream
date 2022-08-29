@@ -1,23 +1,21 @@
-import { Route, useNavigate } from "react-router-dom";
-import { useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import React, { useCallback, useMemo } from "react";
 
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { CheckFeatureFlag, FeatureFlagName } from "../pages/misc/FeatureFlags";
 
-interface AuthRouteProps {
-    path: string;
-    element: JSX.Element;
+interface AuthElementProps {
+    element: () => JSX.Element;
     requiredUserType?: MemberType | MemberType[];
     requiredFeatureFlag?: FeatureFlagName;
 }
 
-export const AuthRoute = ({
-    path,
+export const AuthElement = ({
     element,
     requiredUserType,
     requiredFeatureFlag,
-}: AuthRouteProps) => {
+}: AuthElementProps): React.ReactElement => {
     // Router's new navigation hook for redirecting
     const navigate = useNavigate();
     const { oktaToken, activeMembership } = useSessionContext();
@@ -40,5 +38,5 @@ export const AuthRoute = ({
     if (requiredFeatureFlag && !CheckFeatureFlag(requiredFeatureFlag))
         navigate("/"); // Does not have feature flag enabled
 
-    return <Route path={path} element={element} />; // Checks passed, render page
+    return element(); // Checks passed, render page
 };

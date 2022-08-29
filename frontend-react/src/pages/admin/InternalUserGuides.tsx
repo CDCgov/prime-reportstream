@@ -1,6 +1,8 @@
 import { MarkdownDirectory } from "../../components/Content/MarkdownDirectory";
 import markdownPagesGuide from "../../content/internal-user-guides/make-markdown-pages.md";
 import StaticPagesFromDirectories from "../../components/Content/StaticPagesFromDirectories";
+import { AuthElement } from "../../components/AuthElement";
+import { MemberType } from "../../hooks/UseOktaMemberships";
 
 export const InternalUserGuidesDirectory = [
     new MarkdownDirectory()
@@ -10,8 +12,14 @@ export const InternalUserGuidesDirectory = [
 ];
 
 const InternalUserGuides = () => {
-    return (
+    const element = () => (
         <StaticPagesFromDirectories directories={InternalUserGuidesDirectory} />
+    );
+    return (
+        <AuthElement
+            element={element}
+            requiredUserType={MemberType.PRIME_ADMIN}
+        />
     );
 };
 
