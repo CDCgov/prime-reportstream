@@ -12,11 +12,10 @@ import {
 const rootProps: IATemplateProps<IACardGridProps> = {
     directories: resourcesDirectories,
     pageName: ResourcesDirectoryTools.title,
+    subtitle: ResourcesDirectoryTools.subtitle,
     templateKey: TemplateName.CARD_GRID,
     templateProps: {
-        title: ResourcesDirectoryTools.title,
-        subtitle: ResourcesDirectoryTools.subtitle,
-        directoriesToRender: resourcesDirectories,
+        directories: resourcesDirectories,
     },
 };
 /** Use this component in the main App Router! It will handle rendering everything

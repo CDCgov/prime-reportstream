@@ -52,13 +52,13 @@ const testContentMap: ContentMap = new Map()
 const arrayPageProps: IACardGridProps = {
     title: dirTools.title,
     subtitle: dirTools.subtitle,
-    directoriesToRender: testDirectories, // <- ContentDirectory[]
+    directories: testDirectories, // <- ContentDirectory[]
 };
 // Props for a sectioned page
 const mapPageProps: IACardGridProps = {
     title: dirTools.title,
     subtitle: dirTools.subtitle,
-    directoriesToRender: testContentMap, // <- Map<string, ContentDirectory[]>
+    directories: testContentMap, // <- Map<string, ContentDirectory[]>
 };
 
 // Test components

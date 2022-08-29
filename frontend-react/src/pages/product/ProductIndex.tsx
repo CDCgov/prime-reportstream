@@ -1,30 +1,23 @@
-import { Helmet } from "react-helmet";
-import { useNavigate } from "react-router-dom";
-import React, { useEffect } from "react";
+import React from "react";
 
-import IASideNavTemplate from "../../components/Content/Templates/IASideNavTemplate";
+import { IASideNavProps } from "../../components/Content/Templates/IASideNavTemplate";
+import {
+    IATemplate,
+    IATemplateProps,
+    TemplateName,
+} from "../../components/Content/Templates/IATemplate";
 import {
     productDirectories,
     ProductDirectoryTools,
 } from "../../content/product";
 
-export const Product = () => {
-    const navigate = useNavigate();
-    useEffect(() => navigate("/product/overview"));
-    return (
-        <>
-            <Helmet>
-                <title>Product | {process.env.REACT_APP_TITLE}</title>
-            </Helmet>
-            <div className="rs-hero__index">
-                <div className="grid-container">
-                    <h1>{ProductDirectoryTools.title}</h1>
-                    <h2>{ProductDirectoryTools.subtitle}</h2>
-                </div>
-            </div>
-            <div>
-                <IASideNavTemplate directories={productDirectories} />
-            </div>
-        </>
-    );
+const rootProps: IATemplateProps<IASideNavProps> = {
+    directories: productDirectories,
+    pageName: ProductDirectoryTools.title,
+    subtitle: ProductDirectoryTools.subtitle,
+    templateKey: TemplateName.SIDE_NAV,
+    templateProps: {
+        directories: productDirectories,
+    },
 };
+export const Product = () => <IATemplate {...rootProps} />;
