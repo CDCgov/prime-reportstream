@@ -108,8 +108,7 @@ object CustomFHIRFunctions {
     fun getAddressUse(focus: MutableList<Base>): MutableList<Base> {
         return when (AddressUse.fromCode(focus[0].toString())) {
             AddressUse.HOME -> mutableListOf(StringType("H"))
-            AddressUse.WORK -> mutableListOf(StringType("O"))
-            AddressUse.OLD -> mutableListOf(StringType("BA"))
+            AddressUse.WORK -> mutableListOf(StringType("B"))
             AddressUse.TEMP -> mutableListOf(StringType("C"))
             else -> mutableListOf()
         }

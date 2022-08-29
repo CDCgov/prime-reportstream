@@ -92,7 +92,7 @@ class SimpleQuickTests {
         val fileList = mutableListOf<String>()
         val countyList = listOf("lilliput", "brobdingnag", "houyhnhnm")
 
-        // Generate all the fake data 
+        // Generate all the fake data
         countyList.forEach {
             fileList.add(generateStracData(it))
         }
