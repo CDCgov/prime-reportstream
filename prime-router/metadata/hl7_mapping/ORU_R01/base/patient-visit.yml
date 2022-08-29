@@ -33,23 +33,23 @@ elements:
   - name: patient-attending-doctor
     resource: '%resource.participant.where(type.coding.code = "ATND").where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType").individual.resolve()'
     constants:
-        hl7Field: 'PV1-7'
+      xcnFieldPath: '%{hl7PV1Field}-7'
     schema: xcn-contact
-    resourceIndex: orderIndex
+    resourceIndex: contactIndex
 
   - name: patient-referring-doctor
     resource: '%resource.participant.where(type.coding.code = "REF").where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType").individual.resolve()'
     constants:
-      hl7Field: 'PV1-8'
+      xcnFieldPath: '%{hl7PV1Field}-8'
     schema: xcn-contact
-    resourceIndex: orderIndex
+    resourceIndex: contactIndex
 
   - name: patient-consulting-doctor
     resource: '%resource.participant.where(type.coding.code = "CON").where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType").individual.resolve()'
     constants:
-      hl7Field: 'PV1-9'
+      xcnFieldPath: '%{hl7PV1Field}-9'
     schema: xcn-contact
-    resourceIndex: orderIndex
+    resourceIndex: contactIndex
 
   - name: patient-hospital-service
     value: [ '%resource.serviceType.coding.code' ]
@@ -62,9 +62,9 @@ elements:
   - name: patient-admitting-doctor
     resource: '%resource.participant.where(type.coding.code = "ADM").where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType").individual.resolve()'
     constants:
-      hl7Field: 'PV1-17'
+      xcnFieldPath: '%{hl7PV1Field}-17'
     schema: xcn-contact
-    resourceIndex: orderIndex
+    resourceIndex: contactIndex
 
   - name: patient-type
     condition: '%resource.class.code = "IMP"'
