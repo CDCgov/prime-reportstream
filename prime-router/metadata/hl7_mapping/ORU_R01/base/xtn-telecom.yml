@@ -1,4 +1,4 @@
-name: ORU-R01-telecom
+name: ORU-R01-xtn-telecom
 elements:
   - name: xtn-use-code
     condition: '%resource.use.exists()'

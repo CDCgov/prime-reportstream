@@ -69,13 +69,13 @@ elements:
     resource: '%resource.telecom.where(use = "home")'
     constants:
       hl7TelecomField: '%{hl7PIDField}-13'
-    schema: telecom
+    schema: xtn-telecom
 
   - name: phone-number-business
     resource: '%resource.telecom.where(use = "work")'
     constants:
       hl7TelecomField: '%{hl7PIDField}-14'
-    schema: telecom
+    schema: xtn-telecom
 
   - name: patient-marital-status
     value: [ '%resource.maritalStatus.where(coding.system = "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus").coding.code' ]
