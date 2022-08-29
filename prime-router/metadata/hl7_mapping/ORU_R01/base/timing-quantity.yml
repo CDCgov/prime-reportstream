@@ -1,6 +1,6 @@
 name: ORU-R01-order-observation-timing
 constants:
-  hl7TQ1: '%{hl7Order}/TIMING_QTY/TQ1'
+  hl7TQ1: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/TIMING_QTY/TQ1'
 elements:
   - name: tq1-set-id
     value: [ '1' ]
