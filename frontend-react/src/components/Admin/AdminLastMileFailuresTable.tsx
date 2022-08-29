@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { useResource } from "rest-hooks";
+import { useController, useResource } from "rest-hooks";
 import DOMPurify from "dompurify";
 import {
     Button,
@@ -9,17 +9,22 @@ import {
     Label,
     Modal,
     ModalFooter,
-    ModalHeading,
     ModalRef,
     Table,
     TextInput,
 } from "@trussworks/react-uswds";
+import { Link } from "react-router-dom";
 
 import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import { formatDate } from "../../utils/misc";
 import { showAlertNotification, showError } from "../AlertNotifications";
 import { getStoredOktaToken } from "../../utils/SessionStorageTools";
 import AdmAction from "../../resources/AdmActionResource";
+
+interface DataForDialog {
+    info: AdmSendFailuresResource;
+    resends: AdmAction[];
+}
 
 // Improves readability
 const DRow = (props: React.PropsWithChildren<{ label: string }>) => {
@@ -35,7 +40,9 @@ const renderInfoModal = (props: { infoDataJson: string }) => {
     if (!props?.infoDataJson?.length || props?.infoDataJson === "{}") {
         return <></>; // happens before any item is clicked
     }
-    const infoData = JSON.parse(props.infoDataJson) as AdmSendFailuresResource;
+    const data = JSON.parse(props.infoDataJson) as DataForDialog;
+    const infoData = data.info;
+    const retryDataArray = data.resends;
 
     return (
         <GridContainer className={"rs-admindash-modal-container"}>
@@ -51,34 +58,26 @@ const renderInfoModal = (props: { infoDataJson: string }) => {
                 <br />
                 {infoData.reportFileReceiver}
             </DRow>
-            <DRow label={"Result message"}>{infoData.actionResult}</DRow>
+            {/*There may be zero or multiple retries. We can't tell which attempt goes with with which retry*/}
+            {/*from existin data so show them all*/}
+            {retryDataArray.length ? (
+                <DRow label={"Result message(s)"}>{infoData.actionResult}</DRow>
+            ) : null}
+            {retryDataArray.map((retryData) => (
+                <>
+                    <Grid className={"modal-info-title"}>
+                        Resend Details {infoData.actionId}
+                    </Grid>
+                    <DRow label={"Resent at"}>
+                        {formatDate(retryData.createdAt)}
+                    </DRow>
+                    <DRow label={"Resent by"}>{retryData.username}</DRow>
+                    <DRow label={"Result"}>{retryData.actionResult}</DRow>
+                </>
+            ))}
         </GridContainer>
     );
 };
-
-// const _renderActionsModal = (props: { infoDataJson: string }) => {
-//     if (!props?.infoDataJson?.length || props?.infoDataJson === "{}") {
-//         return <></>; // happens before any item is clicked
-//     }
-//     const infoDataArray = JSON.parse(props.infoDataJson) as AdmAction[];
-//
-//     return (
-//         <GridContainer className={"rs-admindash-modal-container"}>
-//             {infoDataArray.map((infoData) => (
-//                 <>
-//                     <Grid className={"modal-info-title"}>
-//                         Resend Details {infoData.actionId}
-//                     </Grid>
-//                     <DRow label={"Resent at"}>
-//                         {formatDate(infoData.createdAt)}
-//                     </DRow>
-//                     <DRow label={"Resent by"}>{infoData.username}</DRow>
-//                     <DRow label={"Result"}>{infoData.actionResult}</DRow>
-//                 </>
-//             ))}
-//         </GridContainer>
-//     );
-// };
 
 export function AdminLastMileFailuresTable() {
     const defaultDaysToShow = "15"; // numeric input but treat as string for easier passing around
@@ -90,6 +89,7 @@ export function AdminLastMileFailuresTable() {
     const lastMileResends: AdmAction[] = useResource(AdmAction.list(), {
         days_to_show: daysToShow,
     });
+    const { invalidate: forceRefresh } = useController();
 
     // this is the input box filter
     const [filter, setFilter] = useState("");
@@ -100,11 +100,6 @@ export function AdminLastMileFailuresTable() {
         useState<string>("{}");
 
     const handleShowDetailsClick = (jsonRowData: string) => {
-        setCurrentJsonDataForModal(jsonRowData);
-        modalShowInfoRef?.current?.toggleModal(undefined, true);
-    };
-
-    const handleShowResendsClick = (jsonRowData: string) => {
         setCurrentJsonDataForModal(jsonRowData);
         modalShowInfoRef?.current?.toggleModal(undefined, true);
     };
@@ -122,7 +117,21 @@ export function AdminLastMileFailuresTable() {
     const [currentReceiver, setCurrentReceiver] = useState("");
     const [loading, setLoading] = useState(false);
 
-    // called from the list when rety button is clicked.
+    const refresh = async () => {
+        // Promise.all runs in parallel
+        await Promise.all([
+            forceRefresh(AdmSendFailuresResource.list(), {
+                days_to_show: daysToShow,
+            }),
+            forceRefresh(AdmAction.list(), {
+                days_to_show: daysToShow,
+            }),
+        ]);
+
+        return true;
+    };
+
+    // called from the list when retry button is clicked.
     // all the data is serialized to a json string as a cheap clone.
     const handleRetrySendClick = (jsonRowData: string) => {
         const data = JSON.parse(jsonRowData) as AdmSendFailuresResource;
@@ -140,7 +149,7 @@ ${data.receiver}`;
         setHtmlContentForGithubIssue(formatted);
         setCurrentReportId(data.reportId);
         setCurrentReceiver(data.receiver);
-        // we clear this value and it's set by the server response
+        // we clear this value and its set by the server response
         setHtmlContentResultText("");
 
         // we need to show confirmation dialog, then do action to trigger resent
@@ -201,7 +210,7 @@ ${data.receiver}`;
             <form autoComplete="off" className="grid-row">
                 <div className="flex-fill">
                     <Label
-                        className="font-sans-xs usa-label"
+                        className="font-sans-xs usa-label text-bold"
                         htmlFor="input_filter"
                     >
                         Filter:
@@ -219,10 +228,10 @@ ${data.receiver}`;
                 </div>
                 <div className="flex-auto">
                     <Label
-                        className="font-sans-xs usa-label"
+                        className="font-sans-xs usa-label text-bold"
                         htmlFor="days_to_show"
                     >
-                        Days to show: (refresh after focus
+                        Days to show:
                     </Label>
                     <TextInput
                         id="days_to_show"
@@ -231,9 +240,26 @@ ${data.receiver}`;
                         defaultValue={defaultDaysToShow}
                         autoComplete="off"
                         aria-autocomplete="none"
-                        autoFocus
                         onBlur={(evt) => setDaysToShow(evt.target.value)}
                     />
+                </div>
+                <div className="flex-auto padding-3">
+                    <Label
+                        className="font-sans-xs usa-label text-bold"
+                        htmlFor="days_to_show"
+                    >
+                        {" "}
+                    </Label>
+                    <Button
+                        className={"margin-05"}
+                        id="refresh"
+                        name="refresh"
+                        type={"button"}
+                        autoFocus
+                        onClick={(_evt) => refresh()}
+                    >
+                        Refresh
+                    </Button>
                 </div>
             </form>
             <Table
@@ -247,13 +273,7 @@ ${data.receiver}`;
                         <th scope="col">Failed At</th>
                         <th scope="col">ReportId</th>
                         <th scope="col">Receiver</th>
-                        <th scope="col">
-                            ⓘnfo
-                            <br />
-                            ↺Resend
-                            <br />
-                            ✅Resent
-                        </th>
+                        <th scope="col"></th>
                     </tr>
                 </thead>
 
@@ -261,74 +281,79 @@ ${data.receiver}`;
                     {lastMileData
                         .filter((eachRow) => eachRow.filterMatch(filter))
                         .map((eachRow) => {
+                            // would be nice if org and receiver name were separate
+                            const parts =
+                                eachRow.receiver.split(".") || eachRow.receiver;
+                            const org = parts[0] || "";
+                            const recvrName = parts.slice(1).join(".");
+                            const linkRecvSettings = `/admin/orgreceiversettings/org/${org}/receiver/${recvrName}/action/edit`;
                             const resends = fiterResends(eachRow.reportId);
+                            const dataForDialog: DataForDialog = {
+                                info: eachRow,
+                                resends: resends,
+                            };
                             return (
                                 <tr
                                     className={"hide-buttons-on-hover"}
                                     key={`lastmile_row_${eachRow.pk()}`}
                                 >
                                     <td>{formatDate(eachRow.failedAt)}</td>
-                                    <td>{eachRow.reportId}</td>
-                                    <td>{eachRow.receiver}</td>
                                     <td>
-                                        <ButtonGroup type="segmented">
-                                            <Button
-                                                key={`details_${eachRow.pk()}`}
-                                                onClick={() =>
-                                                    handleShowDetailsClick(
-                                                        JSON.stringify(
-                                                            eachRow,
-                                                            null,
-                                                            4
-                                                        )
+                                        <Button
+                                            type="button"
+                                            unstyled
+                                            className={"font-mono-sm"}
+                                            title={"Show Info"}
+                                            key={`details_${eachRow.pk()}`}
+                                            onClick={() =>
+                                                handleShowDetailsClick(
+                                                    JSON.stringify(
+                                                        dataForDialog,
+                                                        null,
+                                                        4
                                                     )
-                                                }
-                                                type="button"
-                                                size="small"
-                                                className="padding-1 usa-button--outline"
-                                                title="Show Info"
-                                            >
-                                                {"ⓘ"}
-                                            </Button>
-                                            {resends.length ? (
-                                                <Button
-                                                    key={`resentinfo_${eachRow.pk()}`}
-                                                    onClick={() =>
-                                                        handleShowResendsClick(
-                                                            JSON.stringify(
-                                                                [...resends],
-                                                                null,
-                                                                4
-                                                            )
-                                                        )
-                                                    }
-                                                    type="button"
-                                                    size="small"
-                                                    className="padding-1 usa-button--outline"
-                                                    title="Show Info"
-                                                >
-                                                    {"✅"}
-                                                </Button>
-                                            ) : null}
-                                            <Button
-                                                key={`retry_${eachRow.pk()}`}
-                                                onClick={() =>
-                                                    handleRetrySendClick(
-                                                        JSON.stringify(
-                                                            eachRow,
-                                                            null,
-                                                            2
-                                                        )
+                                                )
+                                            }
+                                        >
+                                            {eachRow.reportId}
+                                            {" ⧉"}
+                                        </Button>
+                                        <span
+                                            className={"rs-resendmarker"}
+                                            title={"Resends attempted."}
+                                        >
+                                            {resends.length ? " ⚠️ " : null}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <Link
+                                            title={"Jump to Settings"}
+                                            to={linkRecvSettings}
+                                            key={`recv_link_${eachRow.pk()}`}
+                                            className={"font-mono-sm"}
+                                        >
+                                            {eachRow.receiver}
+                                        </Link>
+                                    </td>
+                                    <td>
+                                        <Button
+                                            key={`retry_${eachRow.pk()}`}
+                                            onClick={() =>
+                                                handleRetrySendClick(
+                                                    JSON.stringify(
+                                                        eachRow,
+                                                        null,
+                                                        2
                                                     )
-                                                }
-                                                type="button"
-                                                size="small"
-                                                className="padding-1 usa-button--outline"
-                                                title="Resend"
-                                            >
-                                                {"↺"}
-                                            </Button>
-                                        </ButtonGroup>
+                                                )
+                                            }
+                                            type="button"
+                                            size="small"
+                                            className="padding-1 usa-button--outline"
+                                            title="Requeue items for resend"
+                                        >
+                                            Resend...
+                                        </Button>
                                     </td>
                                 </tr>
                             );
@@ -354,13 +379,9 @@ ${data.receiver}`;
                 id={modalResendId}
                 className={"rs-resend-modal"}
             >
-                <ModalHeading id={`${modalResendId}-heading`}>
-                    Are you sure you want to continue?
-                </ModalHeading>
-                <p className="usa-prose">
-                    You are about to trigger a retransmission.
-                </p>
-                <p className="usa-prose">
+                <p className={"border"}>
+                    <b>You are about to trigger a retransmission.</b>
+                    <br />
                     Copy the information below into a github issue to coordinate
                     fixing. (This is only until tracking is in place in the
                     server.)
