@@ -706,7 +706,7 @@ dependencies {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3")
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
@@ -762,8 +762,8 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:5.2.2")
     implementation("commons-io:commons-io: 2.11.0")
     implementation("com.anyascii:anyascii:0.3.1")
-// force jsoup since skrapeit-html-parser@1.2.1 has not updated
-    implementation("org.jsoup:jsoup:1.14.2")
+// force jsoup since skrapeit-html-parser@1.2.1+ has not updated
+    implementation("org.jsoup:jsoup:1.15.3")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.3")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
