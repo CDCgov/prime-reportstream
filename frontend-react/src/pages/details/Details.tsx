@@ -1,10 +1,10 @@
-import { NetworkErrorBoundary } from "rest-hooks";
+import { NetworkErrorBoundary, useResource } from "rest-hooks";
 import { Suspense } from "react";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
-import { useReportsDetail } from "../../hooks/network/History/DeliveryHooks";
+import ReportResource from "../../resources/ReportResource";
 
 import Summary from "./Summary";
 import ReportDetails from "./ReportDetails";
@@ -29,9 +29,7 @@ function useQuery(): { readonly [key: string]: string } {
 const DetailsContent = () => {
     const queryMap = useQuery();
     const reportId = queryMap?.["reportId"] || "";
-    const { data: report, loading } = useReportsDetail(reportId);
-
-    if (loading) return <Spinner size="fullpage" />;
+    const report = useResource(ReportResource.detail(), { reportId: reportId });
     return (
         <>
             <Summary report={report} />

@@ -148,6 +148,7 @@ class ReportFunctionTests {
         every { actionHistory.trackLogs(any<ActionLog>()) } returns Unit
         every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.actionName } returns TaskAction.receive
         every { actionHistory.action.sendingOrg } returns "Test Sender"
         mockkObject(SubmissionReceiver.Companion)
         var mockReceiver = spyk(TopicReceiver(engine, actionHistory))
@@ -421,6 +422,7 @@ class ReportFunctionTests {
         every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
+        every { actionHistory.action.actionName } returns TaskAction.receive
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo

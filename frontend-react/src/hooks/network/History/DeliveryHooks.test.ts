@@ -1,12 +1,12 @@
 import { act, renderHook } from "@testing-library/react-hooks";
 
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
-import { MembershipController, MemberType } from "../../UseOktaMemberships";
+import { MemberType } from "../../UseOktaMemberships";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 
 import { useReportsDetail, useReportsList } from "./DeliveryHooks";
 
-describe("ReportsHooks", () => {
+describe("DeliveryHooks", () => {
     beforeAll(() => deliveryServer.listen());
     afterEach(() => deliveryServer.resetHandlers());
     afterAll(() => deliveryServer.close());
@@ -15,15 +15,12 @@ describe("ReportsHooks", () => {
             oktaToken: {
                 accessToken: "TOKEN",
             },
-            memberships: {
-                state: {
-                    active: {
-                        memberType: MemberType.RECEIVER,
-                        parsedName: "testOrg",
-                        senderName: undefined,
-                    },
-                },
-            } as MembershipController,
+            activeMembership: {
+                memberType: MemberType.RECEIVER,
+                parsedName: "testOrg",
+                senderName: undefined,
+            },
+            dispatch: () => {},
         });
         const { result, waitForNextUpdate } = renderHook(() =>
             useReportsList("testOrg", "testService")
@@ -40,15 +37,12 @@ describe("ReportsHooks", () => {
             oktaToken: {
                 accessToken: "TOKEN",
             },
-            memberships: {
-                state: {
-                    active: {
-                        memberType: MemberType.RECEIVER,
-                        parsedName: "testOrg",
-                        senderName: undefined,
-                    },
-                },
-            } as MembershipController,
+            activeMembership: {
+                memberType: MemberType.RECEIVER,
+                parsedName: "testOrg",
+                senderName: undefined,
+            },
+            dispatch: () => {},
         });
         const { result, waitForNextUpdate } = renderHook(() =>
             useReportsDetail("123")

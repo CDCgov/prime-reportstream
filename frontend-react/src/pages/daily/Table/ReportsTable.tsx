@@ -1,18 +1,18 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { useResource } from "rest-hooks";
 
 import Table, { TableConfig } from "../../../components/Table/Table";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
-import Spinner from "../../../components/Spinner";
-import { useReportsList } from "../../../hooks/network/History/DeliveryHooks";
 import { useSessionContext } from "../../../contexts/SessionContext";
-import { showError } from "../../../components/AlertNotifications";
 import { useReceiversList } from "../../../hooks/network/Organizations/ReceiversHooks";
 import { RSReceiver } from "../../../network/api/Organizations/Receivers";
+import ReportResource from "../../../resources/ReportResource";
+import { getUniqueReceiverSvc } from "../../../utils/ReportUtils";
 
-import ServicesDropdown from "./ServicesDropdown";
 import { getReportAndDownload } from "./ReportsUtils";
+import ServicesDropdown from "./ServicesDropdown";
 
 /** @todo: page size default set to 10 once paginated */
 const filterManagerDefaults: FilterManagerDefaults = {
@@ -34,24 +34,24 @@ interface ReceiverFeeds {
 /** Fetches a list of receivers for your active organization, and provides a controller to switch
  * between them */
 export const useReceiverFeeds = (): ReceiverFeeds => {
-    const { memberships } = useSessionContext();
+    const { activeMembership } = useSessionContext();
     const {
         data: receivers,
         loading,
         trigger: getReceiversList,
-    } = useReceiversList(memberships.state.active?.parsedName);
+    } = useReceiversList(activeMembership?.parsedName);
     const [active, setActive] = useState<RSReceiver | undefined>();
     useEffect(() => {
-        // IF memberships.state.active?.parsedName is not undefined
+        // IF activeMembership?.parsedName is not undefined
         if (
-            memberships.state.active?.parsedName !== undefined &&
+            activeMembership?.parsedName !== undefined &&
             receivers === undefined
         ) {
             // Trigger useReceiversList()
             getReceiversList();
         }
         // Ignoring getReceiverList() as dep
-    }, [memberships.state.active?.parsedName, receivers]); //eslint-disable-line
+    }, [activeMembership?.parsedName, receivers]); //eslint-disable-line
 
     useEffect(() => {
         if (receivers?.length) {
@@ -73,54 +73,28 @@ export const useReceiverFeeds = (): ReceiverFeeds => {
     component.
 */
 function ReportsTable() {
-    const { memberships, oktaToken } = useSessionContext();
-    const { loadingServices, services, activeService, setActiveService } =
-        useReceiverFeeds();
-    // TODO: Doesn't update parameters because of the config memo dependency array
-    const {
-        data: deliveries,
-        loading,
-        error,
-        trigger: getReportsList,
-    } = useReportsList(
-        memberships.state.active?.parsedName,
-        activeService?.name
-    );
-    const filterManager = useFilterManager(filterManagerDefaults);
+    const { oktaToken, activeMembership } = useSessionContext();
+    const reports: ReportResource[] = useResource(ReportResource.list(), {});
+    const fm = useFilterManager(filterManagerDefaults);
 
-    useEffect(
-        () => {
-            // IF parsedName and activeService.name are FOR SURE valid values
-            // AND we don't have any deliveries yet (i.e. first fetch *has not* triggered)
-            if (
-                deliveries === undefined &&
-                memberships.state.active?.parsedName !== undefined &&
-                activeService?.name !== undefined
-            ) {
-                // Trigger useReportsList()
-                getReportsList();
-            }
-        },
-        // Ignoring getReportsList as dep
-        [activeService, deliveries, memberships.state.active?.parsedName] //eslint-disable-line
+    const receiverSVCs: string[] = Array.from(getUniqueReceiverSvc(reports));
+    const [chosen, setChosen] = useState(receiverSVCs[0]);
+    const filteredReports = useMemo(
+        () => reports.filter((report) => report.receivingOrgSvc === chosen),
+        [chosen, reports]
     );
 
-    useEffect(() => {
-        if (error !== "") {
-            showError(error);
-        }
-    }, [error]);
+    /* This syncs the chosen state from <TableButtonGroup> with the chosen state here */
+    const handleCallback = (chosen: SetStateAction<string>) => {
+        setChosen(chosen);
+    };
 
     const handleFetchAndDownload = (id: string) => {
         getReportAndDownload(
             id,
             oktaToken?.accessToken || "",
-            memberships.state.active?.parsedName || ""
+            activeMembership?.parsedName || ""
         );
-    };
-
-    const handleSetActive = (name: string) => {
-        setActiveService(services.find((item) => item.name === name));
     };
 
     const resultsTableConfig: TableConfig = {
@@ -164,40 +138,30 @@ function ReportsTable() {
                 },
             },
         ],
-        rows: deliveries || [],
+        rows: filteredReports,
     };
-
-    if (loading || loadingServices) return <Spinner />;
 
     return (
         <>
             <div className="grid-container grid-col-12">
-                {services && services?.length > 1 ? (
+                {receiverSVCs.length > 1 ? (
                     <ServicesDropdown
-                        services={services}
-                        active={activeService?.name || ""}
-                        chosenCallback={handleSetActive}
+                        active={chosen}
+                        services={receiverSVCs}
+                        chosenCallback={handleCallback}
                     />
-                ) : (
-                    <p>
-                        Default service:{" "}
-                        <strong>
-                            {(services?.length &&
-                                services[0].name.toUpperCase()) ||
-                                ""}
-                        </strong>
-                    </p>
-                )}
+                ) : null}
             </div>
             <div className="grid-col-12">
-                <Table
-                    config={resultsTableConfig}
-                    filterManager={filterManager}
-                />
+                <Table config={resultsTableConfig} filterManager={fm} />
             </div>
             <div className="grid-container margin-bottom-10">
                 <div className="grid-col-12">
-                    {deliveries?.length === 0 ? <p>No results</p> : null}
+                    {reports.filter(
+                        (report) => report.receivingOrgSvc === chosen
+                    ).length === 0 ? (
+                        <p>No results</p>
+                    ) : null}
                 </div>
             </div>
         </>
