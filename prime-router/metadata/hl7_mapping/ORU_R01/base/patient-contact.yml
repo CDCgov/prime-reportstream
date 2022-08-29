@@ -50,14 +50,14 @@ elements:
     condition: '%resource.exists()'
     constants:
       hl7TelecomField: '/PATIENT_RESULT/PATIENT/NK1-5'
-    schema: telecom
+    schema: xtn-telecom
 
   - name: contact-persons-phone-number
     resource: '%resource.organization.resolve().contact.telecom'
     condition: '%resource.exists()'
     constants:
       hl7TelecomField: '/PATIENT_RESULT/PATIENT/NK1-31'
-    schema: telecom
+    schema: xtn-telecom
 
   - name: contact-persons-address
     resource: '%resource.organization.resolve().contact.address'
