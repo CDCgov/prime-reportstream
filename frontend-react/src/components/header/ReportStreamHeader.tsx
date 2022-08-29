@@ -63,7 +63,7 @@ const SupportIA = () => (
 
 export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
-    const { memberships } = useSessionContext();
+    const { activeMembership } = useSessionContext();
     const [expanded, setExpanded] = useState(false);
     let itemsMenu = [<ProductIA />, <ResourcesIA />, <SupportIA />];
 
@@ -73,8 +73,8 @@ export const ReportStreamHeader = () => {
     if (authState && authState.isAuthenticated && authState.accessToken) {
         /* RECEIVERS ONLY */
         if (
-            memberships.state.active?.memberType === MemberType.RECEIVER ||
-            memberships.state.active?.memberType === MemberType.PRIME_ADMIN
+            activeMembership?.memberType === MemberType.RECEIVER ||
+            activeMembership?.memberType === MemberType.PRIME_ADMIN
         ) {
             itemsMenu.push(
                 <NavLink
@@ -91,8 +91,8 @@ export const ReportStreamHeader = () => {
 
         /* SENDERS ONLY */
         if (
-            memberships.state.active?.memberType === MemberType.SENDER ||
-            memberships.state.active?.memberType === MemberType.PRIME_ADMIN
+            activeMembership?.memberType === MemberType.SENDER ||
+            activeMembership?.memberType === MemberType.PRIME_ADMIN
         ) {
             itemsMenu.push(
                 <NavLink
@@ -120,7 +120,7 @@ export const ReportStreamHeader = () => {
         
           Build a drop down for file handler links
         */
-        if (memberships.state.active?.memberType === MemberType.PRIME_ADMIN) {
+        if (activeMembership?.memberType === MemberType.PRIME_ADMIN) {
             // Validate NavLink
             const features = [
                 {
@@ -202,7 +202,7 @@ export const ReportStreamHeader = () => {
                                 className="usa-button usa-button--outline usa-button--small padding-1"
                             >
                                 <span className="usa-breadcrumb padding-left-2 text-semibold text-no-wrap">
-                                    {memberships.state.active?.parsedName || ""}
+                                    {activeMembership?.parsedName || ""}
                                     <RightLeftArrows
                                         aria-hidden="true"
                                         role="img"
