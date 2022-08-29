@@ -1,10 +1,10 @@
-import { NetworkErrorBoundary } from "rest-hooks";
+import { NetworkErrorBoundary, useResource } from "rest-hooks";
 import { Suspense } from "react";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import Spinner from "../../components/Spinner";
 import { ErrorPage } from "../error/ErrorPage";
-import { useReportsDetail } from "../../hooks/network/History/ReportsHooks";
+import ReportResource from "../../resources/ReportResource";
 
 import Summary from "./Summary";
 import ReportDetails from "./ReportDetails";
@@ -29,8 +29,7 @@ function useQuery(): { readonly [key: string]: string } {
 const DetailsContent = () => {
     const queryMap = useQuery();
     const reportId = queryMap?.["reportId"] || "";
-    const { data: report } = useReportsDetail(reportId);
-
+    const report = useResource(ReportResource.detail(), { reportId: reportId });
     return (
         <>
             <Summary report={report} />
@@ -50,12 +49,12 @@ const DetailsContent = () => {
 /** @todo Refactor as part of {@link https://github.com/CDCgov/prime-reportstream/issues/4790 #4790} */
 export const Details = () => {
     return (
-        <Suspense fallback={<Spinner size="fullpage" />}>
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="page" />}
-            >
+        <NetworkErrorBoundary
+            fallbackComponent={() => <ErrorPage type="page" />}
+        >
+            <Suspense fallback={<Spinner size="fullpage" />}>
                 <DetailsContent />
-            </NetworkErrorBoundary>
-        </Suspense>
+            </Suspense>
+        </NetworkErrorBoundary>
     );
 };

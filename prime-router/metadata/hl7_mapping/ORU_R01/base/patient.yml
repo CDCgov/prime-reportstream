@@ -5,3 +5,8 @@ elements:
     required: true
     value: [ '%resource.name.family' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-5-1' ]
+
+  - name: patient-contact
+    resource: '%resource.contact[0]'
+    condition: '%resource.exists()'
+    schema: contact

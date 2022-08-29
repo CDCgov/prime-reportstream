@@ -6,7 +6,9 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
+import com.google.common.net.HttpHeaders
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
@@ -65,6 +67,7 @@ class SubmissionsFacadeTests {
         every {
             mockSubmissionAccess.fetchAction(
                 any(),
+                any(),
                 DetailedSubmissionHistory::class.java
             )
         } returns goodReturn
@@ -73,7 +76,21 @@ class SubmissionsFacadeTests {
                 550, DetailedSubmissionHistory::class.java
             )
         } returns emptyList()
-        assertThat(facade.findDetailedSubmissionHistory(550)).isEqualTo(goodReturn)
+        // Happy path
+        val action1 = Action()
+        action1.actionId = 550
+        action1.sendingOrg = "myOrg"
+        action1.actionName = TaskAction.receive
+        assertThat(facade.findDetailedSubmissionHistory(action1)).isEqualTo(goodReturn)
+        // Failures
+        val action2 = Action()
+        action2.actionId = 550
+        action2.sendingOrg = "myOrg" // good
+        action2.actionName = TaskAction.process // bad. Submission queries only work on receive actions.
+        assertThat { facade.findDetailedSubmissionHistory(action2) }.isFailure() // not a receive action
+        action2.actionName = TaskAction.receive // good
+        action2.sendingOrg = null // bad
+        assertThat { facade.findDetailedSubmissionHistory(action2) }.isFailure() // missing sendingOrg
     }
 
     @Test
@@ -96,21 +113,23 @@ class SubmissionsFacadeTests {
             "organization" to listOf("DHSender_myOrg"),
             "sub" to "bob@bob.com"
         )
-        var claims = AuthenticatedClaims(userClaims)
-        assertThat(facade.checkSenderAccessAuthorization(action, claims)).isTrue()
+        var claims = AuthenticatedClaims(userClaims, isOktaAuth = true)
+        val mockRequest = MockHttpRequestMessage()
+        mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
+        assertThat(facade.checkAccessAuthorization(claims, action.sendingOrg, null, mockRequest)).isTrue()
 
         // Sysadmin happy path:   Sysadmin user ok to be in a different org.
         val adminClaims: Map<String, Any> = mapOf(
             "organization" to listOf("DHfoobar", "DHPrimeAdmins"),
             "sub" to "bob@bob.com"
         )
-        claims = AuthenticatedClaims(adminClaims)
-        assertThat(facade.checkSenderAccessAuthorization(action, claims)).isTrue()
+        claims = AuthenticatedClaims(adminClaims, isOktaAuth = true)
+        assertThat(facade.checkAccessAuthorization(claims, action.sendingOrg, null, mockRequest)).isTrue()
 
         // Error: Regular user and Orgs don't match
-        claims = AuthenticatedClaims(userClaims)
+        claims = AuthenticatedClaims(userClaims, isOktaAuth = true)
         action = resetAction()
         action.sendingOrg = "UnhappyOrg" // mismatch sendingOrg
-        assertThat(facade.checkSenderAccessAuthorization(action, claims)).isFalse()
+        assertThat(facade.checkAccessAuthorization(claims, action.sendingOrg, null, mockRequest)).isFalse()
     }
 }

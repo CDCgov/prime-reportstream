@@ -21,7 +21,7 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
@@ -54,20 +54,16 @@ class ValidateFunction(
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
         }
         return try {
-            val claims = AuthenticationStrategy.authenticate(request)
+            val claims = AuthenticatedClaims.authenticate(request)
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
             // Sender should eventually be obtained directly from who is authenticated
             val sender = workflowEngine.settings.findSender(senderName)
                 ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
 
-            if (!AuthenticationStrategy.validateClaim(
-                    claims,
-                    sender,
-                    request
-                )
-            ) return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
-
+            if (!claims.authorizedForSendOrReceive(sender, request)) {
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
             actionHistory.trackActionParams(request)
 
             processRequest(request, sender)
@@ -108,26 +104,21 @@ class ValidateFunction(
                     sender.allowDuplicates
                 }
 
-                // Only process the report if we are not checking for connection or validation.
-                if (options != Options.CheckConnections && options != Options.ValidatePayload) {
-                    val receiver = ValidationReceiver(workflowEngine, actionHistory)
+                val receiver = ValidationReceiver(workflowEngine, actionHistory)
+                receiver.validateAndMoveToProcessing(
+                    sender,
+                    validatedRequest.content,
+                    validatedRequest.defaults,
+                    options,
+                    validatedRequest.routeTo,
+                    false,
+                    allowDuplicates,
+                    rawBody,
+                    payloadName
+                )
 
-                    // send report on its way, either via the COVID pipeline or the full ELR pipeline
-                    receiver.validateAndMoveToProcessing(
-                        sender,
-                        validatedRequest.content,
-                        validatedRequest.defaults,
-                        options,
-                        validatedRequest.routeTo,
-                        false,
-                        allowDuplicates,
-                        rawBody,
-                        payloadName
-                    )
-
-                    // return CREATED status, report submission was successful
-                    HttpStatus.CREATED
-                } else HttpStatus.OK
+                // return OK status, report validation was successful
+                HttpStatus.OK
             } catch (e: ActionError) {
                 actionHistory.trackLogs(e.details)
                 HttpStatus.BAD_REQUEST

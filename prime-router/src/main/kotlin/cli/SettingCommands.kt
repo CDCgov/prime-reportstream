@@ -11,7 +11,6 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.core.subcommands
-import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -446,7 +445,14 @@ abstract class SettingCommand(
      * Echo information to the console respecting the --silent flag
      */
     fun echo(message: String) {
-        if (!silent) TermUi.echo(message)
+        // clickt moved the echo command into the CliktCommand class, which means this needs to call
+        // into the parent class, but Kotlin doesn't allow calls to super with default parameters
+        if (!silent) super.echo(
+            message,
+            trailingNewline = true,
+            err = false,
+            currentContext.console.lineSeparator
+        )
     }
 
     /**
@@ -454,7 +460,7 @@ abstract class SettingCommand(
      */
     fun verbose(message: String) {
         try {
-            if (verbose) TermUi.echo(message)
+            if (verbose) echo(message)
         } catch (e: IllegalStateException) {
             // ignore this error that can occur if directly calling SettingsCommands (e.g. put) rather than from cmdline
         }
@@ -479,7 +485,17 @@ abstract class SettingCommand(
      * Confirm to continue or abort, if not in --silent mode. Display the [abortMessage] if exiting.
      */
     fun confirm(message: String = "Perform the above changes", abortMessage: String = "No change applied") {
-        if (!silent && TermUi.confirm(message) == false) {
+        // Clikt moved the TermUI library internal, and exposed methods on CliktCommand instead, so we
+        // can call super to get the same functionality, BUT calls to super in Kotlin don't allow you
+        // to use default parameter values, so we have to explicitly define them here
+        if (!silent && super.confirm(
+                message,
+                default = false,
+                abort = false,
+                promptSuffix = ": ",
+                showDefault = true
+            ) == false
+        ) {
             abort(abortMessage)
         }
     }

@@ -2,7 +2,6 @@ package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -218,7 +217,7 @@ Examples:
             coolTestList.filter { it.status == TestStatus.SMOKE }
         }
         if (tests.isNotEmpty()) {
-            TermUi.echo(
+            echo(
                 CoolTest.uglyMsgFormat("Running the following tests, POSTing to ${environment.url}:")
             )
             printTestList(tests)
@@ -276,13 +275,13 @@ Examples:
         }
 
         if (failures.isNotEmpty()) {
-            TermUi.echo(
+            echo(
                 CoolTest
                     .badMsgFormat("*** Tests FAILED:  ${failures.map { it.name }.joinToString(",")} ***")
             )
             exitProcess(SystemExitCodes.FAILURE.exitCode)
         } else {
-            TermUi.echo(
+            echo(
                 CoolTest.goodMsgFormat("All tests passed")
             )
         }
@@ -347,6 +346,34 @@ abstract class CoolTest {
     var outputToConsole = false
 
     /**
+     * Clikt has hidden the TermUI namespace which we were depending on. This function property
+     * allows us to wire it into TermUI if we want, but for now, the logic exactly mirrors what's in
+     * the TermUI echo function.
+     */
+    var echoFn: (
+        message: Any?,
+        trailingNewline: Boolean,
+        err: Boolean,
+        lineSeparator: String
+    ) -> Unit = fun(
+        /** [message] is what you want to write to the command line. it will have `toString` called on it */
+        message: Any?,
+        /** Flag for appending a trailing newline to the what you're writing to the output stream */
+        trailingNewline: Boolean,
+        /** Flag for whether or not to write to stderr instead of stdout */
+        err: Boolean,
+        /** The line separator, typically \n, though could be \r\n if you're on Windows */
+        lineSeparator: String
+    ) {
+        // munge the text
+        val text = message?.toString()?.replace(Regex("\r?\n"), lineSeparator) ?: "null"
+        // get the stream per error or out
+        val stream = if (err) System.err else System.out
+        // write it out
+        stream.print(if (trailingNewline) text + lineSeparator else text)
+    }
+
+    /**
      * Stores a list of output messages instead of printing the messages to the console.
      */
     val outputMsgs = mutableListOf<String>()
@@ -363,7 +390,7 @@ abstract class CoolTest {
      */
     private fun storeMsg(msg: String) {
         if (outputToConsole)
-            TermUi.echo(msg)
+            echoFn(msg, true, false, "\n")
         else
             outputMsgs.add(msg)
     }
@@ -372,7 +399,7 @@ abstract class CoolTest {
      * Output all messages to the console.
      */
     fun outputAllMsgs() {
-        outputMsgs.forEach { TermUi.echo(it) }
+        outputMsgs.forEach { echoFn(it, true, false, "\n") }
     }
 
     /**

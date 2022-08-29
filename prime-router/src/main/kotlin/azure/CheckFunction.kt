@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.TimerTrigger
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
@@ -129,10 +130,22 @@ class CheckFunction : Logging {
             schedule = "%REMOTE_CONNECTION_CHECK_SCHEDULE%"
         ) timerInfo: String,
     ) {
+        // Each setting is checked against this logic to see if it should run.
+        fun checkShouldRun(receiverSetting: Receiver): Boolean {
+            if (receiverSetting.customerStatus != CustomerStatus.ACTIVE)
+                return false
+            // note: right now ONLY SFTP is supported, but we should expand!
+            return when (receiverSetting.transport) {
+                is SFTPTransportType -> true
+                else -> false
+            }
+        }
+
         logger.info("Staring scheduled check of remote receiver connections. Schedule is set to $timerInfo")
         val settings = BaseEngine.settingsProviderSingleton
         val db = BaseEngine.databaseAccessSingleton
         settings.receivers.forEach {
+            if (!checkShouldRun(it)) return@forEach // skip
             logger.info("Checking connection for ${it.organizationName}-${it.name}")
             // create the response body
             val responseBody: MutableList<String> = mutableListOf()

@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { useParams } from "react-router-dom";
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
 
-import { getStoredOrg } from "../../contexts/SessionStorageTools";
+import { getStoredOrg } from "../../utils/SessionStorageTools";
 import Spinner from "../../components/Spinner";
 import Title from "../../components/Title";
 import ActionDetailsResource, {

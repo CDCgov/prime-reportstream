@@ -10,11 +10,7 @@ import {
     FeatureFlagName,
 } from "../../pages/misc/FeatureFlags";
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
-import {
-    MembershipController,
-    MemberType,
-} from "../../hooks/UseOktaMemberships";
-import { SessionController } from "../../hooks/UseSessionStorage";
+import { MemberType } from "../../hooks/UseOktaMemberships";
 
 import SubmissionTable from "./SubmissionTable";
 
@@ -36,16 +32,12 @@ const renderWithResolver = (ui: ReactElement, fixtures: Fixture[]) =>
 describe("SubmissionTable", () => {
     test("renders a table with the returned resources", async () => {
         mockSessionContext.mockReturnValue({
-            memberships: {
-                state: {
-                    active: {
-                        memberType: MemberType.SENDER,
-                        parsedName: "testOrg",
-                        senderName: "testSender",
-                    },
-                },
-            } as MembershipController,
-            store: {} as SessionController, // TS yells about removing this because of types
+            activeMembership: {
+                memberType: MemberType.SENDER,
+                parsedName: "testOrg",
+                senderName: "testSender",
+            },
+            dispatch: () => {},
         });
         const fixtures: Fixture[] = [
             {
@@ -90,16 +82,12 @@ describe("SubmissionTable", () => {
 
         test("renders a placeholder", async () => {
             mockSessionContext.mockReturnValue({
-                memberships: {
-                    state: {
-                        active: {
-                            memberType: MemberType.SENDER,
-                            parsedName: "testOrg",
-                            senderName: "testSender",
-                        },
-                    },
-                } as MembershipController,
-                store: {} as SessionController, // TS yells about removing this because of types
+                activeMembership: {
+                    memberType: MemberType.SENDER,
+                    parsedName: "testOrg",
+                    senderName: "testSender",
+                },
+                dispatch: () => {},
             });
             const fixtures: Fixture[] = [
                 {

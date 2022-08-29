@@ -6,7 +6,6 @@ import ca.uhn.hl7v2.model.Message
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.ProgramResult
-import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
@@ -22,7 +21,6 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Reference
-import org.hl7.fhir.r4.model.Resource
 import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 
 /**
@@ -53,7 +51,9 @@ class ProcessFhirCommands : CliktCommand(
 
     override fun run() {
         // Read the contents of the file
-        val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
+        // Note 8/18/2022: adding in a manual character delimeter replacement to make the primeCLI work with our HCA
+        //  sample files. We may want to change this in the future, but for convenience this `replace` is here
+        val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8).replace("^~\\&#", "^~\\&")
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
         val actionLogger = ActionLogger()
         // Check on the extension of the file for supported operations
@@ -61,6 +61,9 @@ class ProcessFhirCommands : CliktCommand(
             "HL7" -> {
                 val messages = HL7Reader(actionLogger).getMessages(contents)
                 if (messages.size > 1) throw CliktError("Only one HL7 message is supported.")
+                // if a hl7 parsing failure happens, throw error and show the message
+                if (messages.size == 1 && messages.first().toString().lowercase().contains("failed"))
+                    throw CliktError("HL7 parser failure. ${messages.first()}")
                 val fhirBundle = HL7toFhirTranslator.getInstance().translate(messages[0])
                 outputResult(fhirBundle, actionLogger)
             }
@@ -99,15 +102,15 @@ class ProcessFhirCommands : CliktCommand(
         // Write the output to the screen or a file.
         if (outputFile != null) {
             outputFile!!.writeText(prettyText, Charsets.UTF_8)
-            TermUi.echo("Wrote output to ${outputFile!!.absolutePath}")
+            echo("Wrote output to ${outputFile!!.absolutePath}")
         } else {
-            TermUi.echo("-- FHIR OUTPUT ------------------------------------------")
-            TermUi.echo(prettyText)
-            TermUi.echo("-- END FHIR OUTPUT --------------------------------------")
+            echo("-- FHIR OUTPUT ------------------------------------------")
+            echo(prettyText)
+            echo("-- END FHIR OUTPUT --------------------------------------")
         }
 
-        actionLogger.errors.forEach { TermUi.echo("ERROR: ${it.detail.message}") }
-        actionLogger.warnings.forEach { TermUi.echo("ERROR: ${it.detail.message}") }
+        actionLogger.errors.forEach { echo("ERROR: ${it.detail.message}") }
+        actionLogger.warnings.forEach { echo("ERROR: ${it.detail.message}") }
     }
 
     /**
@@ -117,11 +120,11 @@ class ProcessFhirCommands : CliktCommand(
         val text = message.encode()
         if (outputFile != null) {
             outputFile!!.writeText(text, Charsets.UTF_8)
-            TermUi.echo("Wrote output to ${outputFile!!.absolutePath}")
+            echo("Wrote output to ${outputFile!!.absolutePath}")
         } else {
-            TermUi.echo("-- HL7 OUTPUT ------------------------------------------")
-            text.split("\r").forEach { TermUi.echo(it) }
-            TermUi.echo("-- END HL7 OUTPUT --------------------------------------")
+            echo("-- HL7 OUTPUT ------------------------------------------")
+            text.split("\r").forEach { echo(it) }
+            echo("-- END HL7 OUTPUT --------------------------------------")
         }
     }
 }
@@ -236,21 +239,14 @@ class FhirPathCommand : CliktCommand(
             val resourceList = FhirPathUtils.pathEngine.evaluate(
                 fhirPathContext, focusResource!!, bundle, bundle, pathExpression
             )
-            when {
-                resourceList.size != 1 ->
-                    echo("Resource path must evaluate to 1 resource, but got ${resourceList.size}")
-
-                resourceList[0].isResource -> {
-                    setFocusPath(path)
-                    focusResource = resourceList[0] as Resource
-                }
-
-                else ->
-                    echo(
-                        "Resource path must evaluate to a Resource, but was " +
-                            resourceList[0].fhirType()
-                    )
-            }
+            if (resourceList.size == 1) {
+                setFocusPath(path)
+                focusResource = resourceList[0] as Base
+            } else
+                echo(
+                    "Resource path must evaluate to 1 resource, but got a collection of " +
+                        "${resourceList.size} resources"
+                )
         }
     }
 
