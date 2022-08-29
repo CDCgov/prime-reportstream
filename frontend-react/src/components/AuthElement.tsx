@@ -10,7 +10,7 @@ interface AuthElementProps {
     requiredUserType?: MemberType | MemberType[];
     requiredFeatureFlag?: FeatureFlagName;
 }
-
+/** Wrap elements with required feature flag and/or user type checks */
 export const AuthElement = ({
     element,
     requiredUserType,

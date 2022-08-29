@@ -19,7 +19,7 @@ import { AdminOrgNewWithAuth } from "./pages/admin/AdminOrgNew";
 import { AdminOrgEditWithAuth } from "./pages/admin/AdminOrgEdit";
 import { EditSenderSettingsWithAuth } from "./components/Admin/EditSenderSettings";
 import { NewSettingWithAuth } from "./components/Admin/NewSetting";
-import InternalUserGuides from "./pages/admin/InternalUserGuides";
+import { InternalUserGuidesWithAuth } from "./pages/admin/InternalUserGuides";
 import { AdminLMFWithAuth } from "./pages/admin/AdminLastMileFailures";
 import { AdminReceiverDashWithAuth } from "./pages/admin/AdminReceiverDashPage";
 import { DetailsWithAuth } from "./pages/details/Details";
@@ -71,7 +71,10 @@ export const AppRouter = () => {
                 path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
                 element={<NewSettingWithAuth />}
             />
-            <Route path="/admin/guides" element={<InternalUserGuides />} />
+            <Route
+                path="/admin/guides"
+                element={<InternalUserGuidesWithAuth />}
+            />
             <Route path="/admin/lastmile" element={<AdminLMFWithAuth />} />
             <Route
                 path="/admin/send-dash"

@@ -12,15 +12,16 @@ export const InternalUserGuidesDirectory = [
 ];
 
 const InternalUserGuides = () => {
-    const element = () => (
-        <StaticPagesFromDirectories directories={InternalUserGuidesDirectory} />
-    );
     return (
-        <AuthElement
-            element={element}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
+        <StaticPagesFromDirectories directories={InternalUserGuidesDirectory} />
     );
 };
 
 export default InternalUserGuides;
+
+export const InternalUserGuidesWithAuth = () => (
+    <AuthElement
+        element={InternalUserGuides}
+        requiredUserType={MemberType.PRIME_ADMIN}
+    />
+);
