@@ -30,7 +30,7 @@ object DocumentationFactory : Logging {
         val hl7Fields = element.hl7OutputFields?.plus(element.hl7Field)
 
         // our top-level element data points
-        sb.appendLine("") // start with a blank line at the top 
+        sb.appendLine("") // start with a blank line at the top
         appendLabelAndData(sb, "Name", displayName)
         appendLabelAndData(sb, "ReportStream Internal Name", element.name)
         appendLabelAndData(sb, "Type", element.type?.name)
