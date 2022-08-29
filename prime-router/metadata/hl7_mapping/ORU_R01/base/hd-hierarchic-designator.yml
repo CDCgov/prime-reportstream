@@ -1,13 +1,18 @@
 name: ORU-R01-hd-hierarchic-designator
 elements:
-  - name: designator-namespace-id-npi
-    condition: '%resource.extension(%`namespaceExtName`).exists() && %resource.system'
-    value: [ '''NPI''' ]
+  - name: designator-namespace-id-system
+    condition: '%resource.system.exists()'
+    value: [ '%resource.system.replace(''urn:id:'', '''').replace(''_'', '' '')' ]
     hl7Spec: [ '%{hl7HDField}-1' ]
 
   - name: designator-namespace-id
-    condition: '%resource.extension(%`namespaceExtName`).exists() && %resource.system != ''http://hl7.org/fhir/sid/us-npi'''
-    value: [ '%resource.system.replace(''urn:id:'', '''').replace(''_'', '' '')' ]
+    condition: '%resource.extension(%`namespaceExtName`).exists()'
+    value: [ '%resource.extension(%`namespaceExtName`).value' ]
+    hl7Spec: [ '%{hl7HDField}-1' ]
+
+  - name: designator-namespace-id-npi
+    condition: '%resource.system.exists() && %resource.system == ''http://hl7.org/fhir/sid/us-npi'''
+    value: [ '''NPI''' ]
     hl7Spec: [ '%{hl7HDField}-1' ]
 
   - name: designator-universal-id

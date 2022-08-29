@@ -107,12 +107,12 @@ extension_4:
     urlValue: assigning-facility-namespace-id
 
 # Assigning authority namespace
-extension_5:
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  vars:
-    value: String, CX.4.1
-  constants:
-    KEY_NAME_SUFFIX: String
-    urlValue: assigning-authority-namespace-id
+#extension_5:
+#  generateList: true
+#  valueOf: extension/Extension
+#  expressionType: resource
+#  vars:
+#    value: String, CX.4.1
+#  constants:
+#    KEY_NAME_SUFFIX: String
+#    urlValue: assigning-authority-namespace-id

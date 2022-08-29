@@ -1,44 +1,39 @@
 name: ORU-R01-xad-extended-address
 constants:
   # if orderIndex is provided, we use the "-ordered" elements to support multiple entries
-  hl7XADField: (%{hl7AddressField})(%{orderIndex})
+  hl7XADField: '%{hl7AddressField}(%{orderIndex})'
 elements:
   - name: xad-street-address
-    condition: '%{orderIndex} NOT_NULL && %resource.line.count() > 0'
+    condition: '%resource.line.count() > 0'
     value: [ '%resource.line[0]' ]
     hl7Spec: [ '%{hl7XADField}-1' ]
 
   - name: xad-other-designation
-    condition: '%{orderIndex} NOT_NULL && %resource.line[1].exists()'
+    condition: '%resource.line[1].exists()'
     value: [ '%resource.line[1]' ]
     hl7Spec: [ '%{hl7XADField}-2' ]
 
   - name: xad-city
-    condition: '%{orderIndex} NOT_NULL'
     value: [ '%resource.city' ]
     hl7Spec: [ '%{hl7XADField}-3' ]
 
   - name: xad-state-or-province
-    condition: '%{orderIndex} NOT_NULL'
-    value: [ '%{orderIndex} NOT_NULL && %resource.state' ]
+    value: [ '%resource.state' ]
     hl7Spec: [ '%{hl7XADField}-4' ]
 
   - name: xad-zip-or-postal-code
-    condition: '%{orderIndex} NOT_NULL'
     value: [ '%resource.postalCode' ]
     hl7Spec: [ '%{hl7XADField}-5' ]
 
   - name: xad-country
-    condition: '%{orderIndex} NOT_NULL'
     value: [ '%resource.country' ]
     hl7Spec: [ '%{hl7XADField}-6' ]
 
   - name: xad-use
-    condition: '%{orderIndex} NOT_NULL && %resource.use.exists()'
+    condition: '%resource.use.exists()'
     value: [ '%resource.use.value.getAddressUse()' ]
     hl7Spec: [ '%{hl7XADField}-7' ]
 
   - name: xad-county
-    condition: '%{orderIndex} NOT_NULL'
     value: [ '%resource.district' ]
     hl7Spec: [ '%{hl7XADField}-9' ]

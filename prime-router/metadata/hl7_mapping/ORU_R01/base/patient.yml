@@ -28,7 +28,7 @@ elements:
     value: [ '%resource.gender.GetAdministrativeGenderCode()' ]
     hl7Spec: [ '%{hl7PIDField}-8' ]
 
-#race
+  #race
   - name: patient-race-identifier
     value: [ '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding.code' ]
     hl7Spec: [ '%{hl7PIDField}-10-1' ]
@@ -95,7 +95,7 @@ elements:
     value: [ '''HL70006''' ]
     hl7Spec: [ '%{hl7PIDField}-17-3' ]
 
-# ethnic group
+  # ethnic group
   - name: patient-ethnic-identifier
     value: [ '%resource.extension("http://terminology.hl7.org/ValueSet/v2-0189").value.coding.code' ]
     hl7Spec: [ '%{hl7PIDField}-22-1' ]

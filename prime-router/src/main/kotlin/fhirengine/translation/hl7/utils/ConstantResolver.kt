@@ -223,7 +223,7 @@ object CustomFHIRFunctions {
      * @return a mutable list containing the HL7 single character version of the code
      */
     fun getYesNoValue(focus: MutableList<Base>): MutableList<Base> {
-        return when (focus[0].toString()) {
+        return when (focus[0].primitiveValue()) {
             "true" -> mutableListOf(StringType("Y"))
             "false" -> mutableListOf(StringType("N"))
             else -> mutableListOf(StringType(""))
