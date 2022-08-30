@@ -38,14 +38,17 @@ export const IATemplate = ({
     }, []); // eslint-disable-line
     return (
         <>
-            <IAMetaAndRouter directories={directories} pageName={pageName} />
             <div className="rs-hero__index">
                 <div className="grid-container">
                     <h1>{pageName}</h1>
                     <h2>{subtitle}</h2>
                 </div>
             </div>
-            {template(templateKey)}
+            <IAMetaAndRouter
+                directories={directories}
+                pageName={pageName}
+                indexElement={template(templateKey)}
+            />
         </>
     );
 };

@@ -1,16 +1,20 @@
 import { Helmet } from "react-helmet";
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import { ContentDirectory, getDirectoryElement } from "../MarkdownDirectory";
 
 export interface IAMetaAndRouterProps {
     pageName: string;
     directories: ContentDirectory[];
+    indexElement?: JSX.Element;
+    redirectToIndex?: string;
 }
 export const IAMetaAndRouter = ({
-    directories,
     pageName,
+    directories,
+    indexElement,
+    redirectToIndex,
 }: IAMetaAndRouterProps) => {
     return (
         <>
@@ -19,8 +23,9 @@ export const IAMetaAndRouter = ({
                     {pageName} | {process.env.REACT_APP_TITLE}
                 </title>
             </Helmet>
-
             <Routes>
+                {redirectToIndex && <Navigate to={redirectToIndex} />}
+                {indexElement && <Route path={"/"} element={indexElement} />}
                 {directories.map((dir, idx) => (
                     <Route
                         key={idx}
