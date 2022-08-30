@@ -4,6 +4,13 @@
 pushd "$(dirname "${0}")" 1>/dev/null 2>&1
 
 REPO_ROOT="$(pwd)/.."
+dir=${REPO_ROOT}/.git/hooks/pre-commit
+
+if [[ ! -e $dir ]]; then
+    mkdir -p $dir
+elif [[ ! -d $dir ]]; then
+    echo "$dir already exists" 1>&2
+fi
 
 # mapping of "source file" to "destination location"; since we cannot reliably use associative
 # arrays (declare -A) we're just keeping 2 regular arrays that we match up by index
@@ -44,6 +51,7 @@ function install_hooks() {
         ${CAPTURE?} cp "$(pwd)/${GITHOOKS_SRC[${i}]}" "${GITHOOKS_DST[${i}]}" |
             sed "s/^/        /g"
     done
+    echo "> Git hooks installed successfully"
 }
 
 # ./githooks.sh remove
@@ -56,6 +64,7 @@ function remove_hooks() {
         ${CAPTURE?} rm -f "${GITHOOKS_DST[${i}]}" |
             sed "s/^/        /g"
     done
+    echo "> Git hooks removed successfully"
 }
 
 # ./githooks.sh
