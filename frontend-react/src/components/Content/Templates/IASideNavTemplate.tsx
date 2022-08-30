@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import { ContentDirectory, getDirectoryElement } from "../MarkdownDirectory";
 import GeneratedSideNav from "../GeneratedSideNav";
@@ -16,6 +16,12 @@ const IASideNavTemplate = ({ directories }: IASideNavProps) => {
                 </section>
                 <section className="tablet:grid-col-8 usa-prose rs-documentation">
                     <Routes>
+                        <Route
+                            path={"/"}
+                            element={
+                                <Navigate to={"/product/overview"} replace />
+                            }
+                        />
                         {directories.map((dir, idx) => (
                             <Route
                                 key={idx}

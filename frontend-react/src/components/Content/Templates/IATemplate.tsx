@@ -4,7 +4,7 @@ import { ContentDirectory } from "../MarkdownDirectory";
 
 import { IACardGridTemplate } from "./IACardGridTemplate";
 import IASideNavTemplate from "./IASideNavTemplate";
-import { IAMetaAndRouter } from "./IAMetaAndRouter";
+import { IAMeta, IARouter } from "./IAMeta";
 
 /** Template names! Add the universal template key here whenever
  * you make a new template. */
@@ -18,7 +18,11 @@ export interface IATemplateProps<P> {
     subtitle: string;
     templateKey: TemplateName;
     templateProps: P;
-    directories: ContentDirectory[];
+    /* For use in cases where the template doesn't have routing built in
+     * (for example, in `IASideNavTemplate`) */
+    includeRouter?: boolean;
+    /* Directories accompanying your index. */
+    directories?: ContentDirectory[];
 }
 /** Takes in props to hydrate and render the right template */
 export const IATemplate = ({
@@ -26,6 +30,7 @@ export const IATemplate = ({
     subtitle,
     templateKey,
     templateProps,
+    includeRouter,
     directories,
 }: IATemplateProps<any>) => {
     const template = useCallback((key: TemplateName) => {
@@ -38,17 +43,26 @@ export const IATemplate = ({
     }, []); // eslint-disable-line
     return (
         <>
+            <IAMeta pageName={pageName} />
             <div className="rs-hero__index">
                 <div className="grid-container">
                     <h1>{pageName}</h1>
                     <h2>{subtitle}</h2>
                 </div>
             </div>
-            <IAMetaAndRouter
-                directories={directories}
-                pageName={pageName}
-                indexElement={template(templateKey)}
-            />
+            {/* In cases where your template index doesn't include a router,
+             we provide the IARouter component, and use your template as the
+             index of this section */}
+            {includeRouter && directories ? (
+                <IARouter
+                    indexElement={template(templateKey)}
+                    directories={directories}
+                />
+            ) : (
+                /* When your template has its own routing, we just render the
+                 * template */
+                template(templateKey)
+            )}
         </>
     );
 };

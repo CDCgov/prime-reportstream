@@ -12,7 +12,6 @@ import {
 } from "../../content/product";
 
 const rootProps: IATemplateProps<IASideNavProps> = {
-    directories: productDirectories,
     pageName: ProductDirectoryTools.title,
     subtitle: ProductDirectoryTools.subtitle,
     templateKey: TemplateName.SIDE_NAV,

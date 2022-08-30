@@ -10,13 +10,14 @@ import {
 } from "../../components/Content/Templates/IATemplate";
 
 const rootProps: IATemplateProps<IACardGridProps> = {
-    directories: resourcesDirectories,
     pageName: ResourcesDirectoryTools.title,
     subtitle: ResourcesDirectoryTools.subtitle,
     templateKey: TemplateName.CARD_GRID,
     templateProps: {
         directories: resourcesDirectories,
     },
+    includeRouter: true,
+    directories: resourcesDirectories,
 };
 /** Use this component in the main App Router! It will handle rendering everything
  * and set the Helmet values */
