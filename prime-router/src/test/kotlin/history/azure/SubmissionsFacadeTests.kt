@@ -13,6 +13,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.AuthenticationType
 import io.mockk.every
 import io.mockk.mockk
 import java.time.OffsetDateTime
@@ -113,7 +114,7 @@ class SubmissionsFacadeTests {
             "organization" to listOf("DHSender_myOrg"),
             "sub" to "bob@bob.com"
         )
-        var claims = AuthenticatedClaims(userClaims, isOktaAuth = true)
+        var claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
         val mockRequest = MockHttpRequestMessage()
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
         assertThat(facade.checkAccessAuthorization(claims, action.sendingOrg, null, mockRequest)).isTrue()
@@ -123,11 +124,11 @@ class SubmissionsFacadeTests {
             "organization" to listOf("DHfoobar", "DHPrimeAdmins"),
             "sub" to "bob@bob.com"
         )
-        claims = AuthenticatedClaims(adminClaims, isOktaAuth = true)
+        claims = AuthenticatedClaims(adminClaims, AuthenticationType.Okta)
         assertThat(facade.checkAccessAuthorization(claims, action.sendingOrg, null, mockRequest)).isTrue()
 
         // Error: Regular user and Orgs don't match
-        claims = AuthenticatedClaims(userClaims, isOktaAuth = true)
+        claims = AuthenticatedClaims(userClaims, AuthenticationType.Okta)
         action = resetAction()
         action.sendingOrg = "UnhappyOrg" // mismatch sendingOrg
         assertThat(facade.checkAccessAuthorization(claims, action.sendingOrg, null, mockRequest)).isFalse()
