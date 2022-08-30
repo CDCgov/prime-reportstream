@@ -34,7 +34,7 @@ system_2:
     
 value: 
      type: STRING
-     valueOf: CX.1 | CWE.1 | EI.1 | XCN.9.1 | $value
+     valueOf: CX.1 | CWE.1 | EI.1 | $value
      expressionType: HL7Spec
      required: true
 
