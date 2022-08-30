@@ -3212,35 +3212,48 @@
     - name: elr
       organizationName: nv-phd
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       jurisdictionalFilter:
-        - orEquals(ordering_facility_state, NV, patient_state, NV)
+        - "orEquals(ordering_facility_state, NV, patient_state, NV)"
       translation:
         type: HL7
         useBatchHeaders: true
-        suppressHl7Fields: PID-5-7, ORC-12-1, ORC-16-1, OBR-16-1
+        receivingApplicationName: "NVDOH"
+        receivingFacilityName: "NVODH"
         replaceValueAwithB:
-          ORC-12-2: ["":"Unknown"]
-          ORC-12-3: ["":"Unknown"]
-        valueSetOverrides:
-          hl70189:
-            name: hl70189
-            system: HL7
-            version: 2.9
-            reference: HL7 guidance for ethnicity, modified for NV standards
-            values:
-              - code: 2135-2
-                replaces: H
-                display: Hispanic or Latino
-                system: CDCREC
-              - code: 2186-5
-                replaces: N
-                display: Non Hispanic or Latino
-                system: CDCREC
-              - code: UNK
-                replaces: U
-                display: Unknown
-                system: NULLFL
+          MSH-4-1:
+            - '*': "CDC PRIME"
+          MSH-4-2:
+            - '*': "11D2030855"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: elr-test
+      organizationName: nv-phd
+      topic: covid-19
+      customerStatus: active
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, NV, patient_state, NV)"
+      processingModeFilter:
+        - "matches(processing_mode_code,T,D)"
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: "NVDOH"
+        receivingFacilityName: "NVODH"
+        replaceValueAwithB:
+          MSH-4-1:
+            - '*': "CDC PRIME"
+          MSH-4-2:
+            - '*': "11D2030855"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

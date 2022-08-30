@@ -462,7 +462,7 @@ elements:
 
   - name: patient_age
     type: NUMBER
-    pii: false
+    pii: true
     cardinality: ZERO_OR_ONE
     natFlatFileField: Patient_age
     hhsGuidanceField:

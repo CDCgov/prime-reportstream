@@ -340,28 +340,28 @@ class CompareFhirDataTests {
     fun `test compare function`() {
         val jsonBundle = """
  {
-	"resourceType": "Bundle",
-	"id": "d809eafd-97f4-4ff2-bd0d-6a99ea809974",
-	"meta": {
-		"lastUpdated": "2022-05-19T09:48:24.981-04:00",
-		"security": [
-			{
-				"code": "SECURITY",
-				"display": "SECURITY"
-			}
-		]
-	},
-	"identifier": {
-		"value": "MT_COCAA_ORU_AAPHELR.1.6214638"
-	},
-	"type": "message",
-	"timestamp": "2028-08-08T11:28:05.000-04:00",
+  "resourceType": "Bundle",
+  "id": "d809eafd-97f4-4ff2-bd0d-6a99ea809974",
+  "meta": {
+    "lastUpdated": "2022-05-19T09:48:24.981-04:00",
+    "security": [
+      {
+        "code": "SECURITY",
+        "display": "SECURITY"
+      }
+    ]
+  },
+  "identifier": {
+    "value": "MT_COCAA_ORU_AAPHELR.1.6214638"
+  },
+  "type": "message",
+  "timestamp": "2028-08-08T11:28:05.000-04:00",
     "entry": [
-		{
-			"fullUrl": "MessageHeader/88a50cd6-72bf-34a1-9025-708e7c29cc32",
-			"resource": {
-				"resourceType": "MessageHeader",
-				"id": "88a50cd6-72bf-34a1-9025-708e7c29cc32"
+    {
+      "fullUrl": "MessageHeader/88a50cd6-72bf-34a1-9025-708e7c29cc32",
+      "resource": {
+        "resourceType": "MessageHeader",
+        "id": "88a50cd6-72bf-34a1-9025-708e7c29cc32"
             }
         }
     ]
