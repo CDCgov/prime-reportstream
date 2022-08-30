@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs: |
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
-      prime_router_change ${{ steps.path_filter.outputs.prime_router_change }}
+      prime_router_change: ${{ steps.path_filter.outputs.prime_router_change }}
     steps:
       - name: "Check out changes"
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
