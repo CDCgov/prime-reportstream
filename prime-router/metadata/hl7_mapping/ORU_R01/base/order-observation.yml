@@ -6,6 +6,11 @@ elements:
     value: [ '%orderIndex + 1' ]
     hl7Spec: [ '%{hl7Order}/OBR-1' ]
 
+  - name: order-segment
+    # Only create the segment if we have data for it
+    condition: '%resource.basedOn.resolve().extension(%`rsext-order-control`).exists()'
+    schema: order
+
   - name: timing-segment
     resource: '%resource.basedOn.resolve()'
     # Only create the segment if we have data for it

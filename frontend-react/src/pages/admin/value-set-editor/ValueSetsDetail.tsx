@@ -1,10 +1,4 @@
-import React, {
-    useState,
-    useMemo,
-    useEffect,
-    Dispatch,
-    SetStateAction,
-} from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -105,9 +99,8 @@ const saveData = async (
         throw new Error("A null row was encountered in saveData");
     }
 
-    const endpointHeaderUpdate = lookupTableApi.saveTableData<ValueSetRow[]>(
-        LookupTables.VALUE_SET_ROW
-    );
+    const endpointHeaderUpdate =
+        lookupTableApi.saveTableData<ValueSetRow[]>(valueSetName);
 
     const index = allRows.findIndex((r) => r.id === row.id);
     allRows.splice(index, 1, {
@@ -155,34 +148,6 @@ interface SenderAutomationDataRow extends ValueSetRow {
     id?: number;
 }
 
-const prepareRows = (
-    valueSetArray: ValueSetRow[],
-    valueSetName: string
-): { rowsForDisplay: any[]; allRows: any[] } => {
-    return valueSetArray.reduce(
-        (acc, row, index) => {
-            let mapped: SenderAutomationDataRow = {
-                name: row.name,
-                display: row.display,
-                code: row.code,
-                version: row.version,
-            };
-            if (row.name === valueSetName) {
-                mapped.id = index;
-                acc.rowsForDisplay.push(mapped);
-                acc.allRows.push(mapped);
-                return acc;
-            }
-            acc.allRows.push(mapped);
-            return acc;
-        },
-        { rowsForDisplay: [], allRows: [] } as {
-            rowsForDisplay: any[];
-            allRows: any[];
-        }
-    );
-};
-
 export const ValueSetsDetailTable = ({
     valueSetName,
     setAlert,
@@ -214,13 +179,9 @@ export const ValueSetsDetailTable = ({
         setValueSetRows(valueSetArray);
     }, [valueSetArray]);
 
-    const { allRows, rowsForDisplay } = useMemo(() => {
-        return prepareRows(valueSetRows, valueSetName);
-    }, [valueSetRows, valueSetName]);
-
     const tableConfig: TableConfig = {
         columns: valueSetDetailColumnConfig,
-        rows: rowsForDisplay,
+        rows: valueSetRows,
     };
 
     const datasetActionItem: DatasetAction = {
@@ -236,7 +197,11 @@ export const ValueSetsDetailTable = ({
             enableEditableRows
             editableCallback={async (row) => {
                 try {
-                    const data = await saveData(row, allRows, valueSetName);
+                    const data = await saveData(
+                        row,
+                        valueSetRows,
+                        valueSetName
+                    );
                     setValueSetVersion(data.tableVersion);
                 } catch (e: any) {
                     handleErrorWithAlert({
