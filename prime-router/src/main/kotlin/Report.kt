@@ -55,9 +55,6 @@ const val REPORT_MAX_ERRORS = 100
 const val ROUTE_TO_SEPARATOR = ","
 const val DEFAULT_SEPARATOR = ":"
 
-/** The age at which the HIPAA rules apply for deidentification */
-private const val HIPAA_SAFE_HARBOR_AGE = 89
-
 // options are used to process and route the report
 enum class Options {
     None,
@@ -1182,7 +1179,7 @@ class Report : Logging {
                 specimenCollectionDateTime
             )?.toIntOrNull().let {
                 // if the patient age is greater than or equal to 89 years old, set it to zero
-                if (it != null && it >= HIPAA_SAFE_HARBOR_AGE) {
+                if (it != null && it >= SAFE_HARBOR_AGE_CUTOFF) {
                     0
                 } else {
                     it
@@ -1268,6 +1265,7 @@ class Report : Logging {
         private const val specimen_collection_date_column_name = "specimen_collection_date_time"
         private const val SAFE_HARBOR_CUTOFF_YEAR = 1933
         private const val SAFE_HARBOR_DOB_YEAR_REPLACEMENT = "0000"
+        private const val SAFE_HARBOR_AGE_CUTOFF = 89
 
         fun merge(inputs: List<Report>): Report {
             if (inputs.isEmpty())
