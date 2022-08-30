@@ -16,7 +16,7 @@ export interface TableAttributes {
 }
 
 export async function getLatestVersion(
-    tableName: LookupTables
+    tableName: string
 ): Promise<TableAttributes> {
     const response = await axios(lookupTableApi.getTableList()).then(
         (response) => response.data
@@ -59,7 +59,7 @@ export async function getLatestData<T>(
 }
 
 const getDataAndVersion = async <T>(
-    tableName: LookupTables,
+    tableName: string,
     suppliedVersion?: number
 ): Promise<{
     data: any[];
@@ -102,7 +102,7 @@ export const getSenderAutomationData = async <T>(
 };
 
 export const getSenderAutomationDataRows = async <T>(
-    tableName: LookupTables,
+    tableName: string,
     suppliedVersion?: number
 ): Promise<any[]> => {
     const { data } = await getDataAndVersion<T>(tableName, suppliedVersion);
@@ -123,21 +123,21 @@ export const getSenderAutomationDataRows = async <T>(
 };
 
 const useLookupTable = <T>(
-    tableName: LookupTables,
-    dataSetName: string | null = null,
+    dataSetName: string | LookupTables = LookupTables.VALUE_SET,
     version?: number
 ): { valueSetArray: T[]; error: any } => {
     const [valueSetArray, setValueSetArray] = useState<T[]>([]);
-    const [error, setError] = useState();
+    const [error, setError] = useState<any>();
 
     useEffect(() => {
         let promiseResult: Promise<any[]>;
-        // since dataSetName is no longer needed for filtering here,
-        // let's think of another way to switch, so that we don't have to provide that argument
-        if (dataSetName !== null) {
-            promiseResult = getSenderAutomationDataRows<T>(tableName, version);
+        if (dataSetName !== LookupTables.VALUE_SET) {
+            promiseResult = getSenderAutomationDataRows<T>(
+                dataSetName,
+                version
+            );
         } else {
-            promiseResult = getSenderAutomationData<T>(tableName, version);
+            promiseResult = getSenderAutomationData<T>(dataSetName, version);
         }
         promiseResult
             .then((results) => {
@@ -146,19 +146,14 @@ const useLookupTable = <T>(
             .catch((e) => {
                 setError(e);
             });
-    }, [dataSetName, tableName, version]);
+    }, [dataSetName, version]);
 
     return { valueSetArray, error };
 };
 
-export const useValueSetsTable = () =>
-    useLookupTable<ValueSet>(LookupTables.VALUE_SET);
+export const useValueSetsTable = () => useLookupTable<ValueSet>();
 
 export const useValueSetsRowTable = (dataSetName: string, version?: number) =>
-    useLookupTable<ValueSetRow>(
-        LookupTables.VALUE_SET_ROW,
-        dataSetName,
-        version
-    );
+    useLookupTable<ValueSetRow>(dataSetName, version);
 
 export default useLookupTable;
