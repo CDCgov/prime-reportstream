@@ -17,14 +17,6 @@ const tableDataAlternate = lookupTableApi.getTableData<LookupTable>(
     3,
     "sender_automation_value_set"
 );
-const updateTableData = lookupTableApi.saveTableData(
-    LookupTables.VALUE_SET_ROW
-);
-
-const activateTableData = lookupTableApi.activateTableData(
-    1,
-    LookupTables.VALUE_SET_ROW
-);
 
 const updateTableData = lookupTableApi.saveTableData(
     LookupTables.VALUE_SET_ROW
