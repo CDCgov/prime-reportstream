@@ -142,20 +142,23 @@ describe("useValueSetUpdate", () => {
 
         let saveResult;
         await act(async () => {
-            const savePromise = saveData([
-                {
-                    name: "a-path",
-                    display: "hi over here first value",
-                    code: "1",
-                    version: "1",
-                },
-                {
-                    name: "a-path",
-                    display: "test, yes, second value",
-                    code: "2",
-                    version: "1",
-                },
-            ]);
+            const savePromise = saveData({
+                data: [
+                    {
+                        name: "a-path",
+                        display: "hi over here first value",
+                        code: "1",
+                        version: "1",
+                    },
+                    {
+                        name: "a-path",
+                        display: "test, yes, second value",
+                        code: "2",
+                        version: "1",
+                    },
+                ],
+                tableName: "any",
+            });
             await waitForNextUpdate();
             expect(result.current.isSaving).toEqual(true);
             saveResult = await savePromise;
@@ -197,7 +200,10 @@ describe("useValueSetActivation", () => {
 
         let activateResult;
         await act(async () => {
-            const activationPromise = activateTable(1);
+            const activationPromise = activateTable({
+                tableVersion: 1,
+                tableName: "any",
+            });
             await waitForNextUpdate();
             expect(result.current.isActivating).toEqual(true);
             activateResult = await activationPromise;

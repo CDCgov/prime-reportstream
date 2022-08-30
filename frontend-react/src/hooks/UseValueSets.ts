@@ -4,7 +4,6 @@ import omit from "lodash.omit";
 
 import {
     LookupTable,
-    LookupTables,
     ValueSet,
     ValueSetRow,
 } from "../network/api/LookupTableApi";
@@ -202,13 +201,24 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
   Mutation Hooks
 
   */
+
+interface UpdateValueSetOptions {
+    data: ValueSetRow[];
+    tableName: string;
+}
+
+interface ActivateValueSetOptions {
+    tableVersion: number;
+    tableName: string;
+}
+
 export const useValueSetUpdate = () => {
     const valueSetFetch = useAuthorizedFetch<LookupTable>();
 
-    const updateValueSet = (data: ValueSetRow[]) => {
+    const updateValueSet = ({ data, tableName }: UpdateValueSetOptions) => {
         return valueSetFetch(
             toFetchParams(updateTableConfig, {
-                segments: { tableName: LookupTables.VALUE_SET_ROW },
+                segments: { tableName: tableName },
                 data,
             })
         );
@@ -216,7 +226,7 @@ export const useValueSetUpdate = () => {
 
     // generic signature is defined here https://github.com/TanStack/query/blob/4690b585722d2b71d9b87a81cb139062d3e05c9c/packages/react-query/src/useMutation.ts#L66
     // <type of data returned, type of error returned, type of variables passed to mutate fn, type of context (?)>
-    const mutation = useMutation<LookupTable, Error, ValueSetRow[]>(
+    const mutation = useMutation<LookupTable, Error, UpdateValueSetOptions>(
         updateValueSet
     );
     return {
@@ -228,18 +238,22 @@ export const useValueSetUpdate = () => {
 
 export const useValueSetActivation = () => {
     const valueSetFetch = useAuthorizedFetch<LookupTable>();
-    const activateValueSet = (tableVersion: number) => {
+    const activateValueSet = ({
+        tableVersion,
+        tableName,
+    }: ActivateValueSetOptions) => {
         return valueSetFetch(
             toFetchParams(activateTableConfig, {
                 segments: {
-                    // would be nice to hardcode this better
-                    tableName: LookupTables.VALUE_SET_ROW,
+                    tableName,
                     version: `${tableVersion}`,
                 },
             })
         );
     };
-    const mutation = useMutation<LookupTable, Error, number>(activateValueSet);
+    const mutation = useMutation<LookupTable, Error, ActivateValueSetOptions>(
+        activateValueSet
+    );
     return {
         activateTable: mutation.mutateAsync,
         isActivating: mutation.isLoading,

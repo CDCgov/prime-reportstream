@@ -5,9 +5,9 @@ import {
     lookupTableApi,
     LookupTable,
     ApiValueSet,
-    LookupTables,
 } from "../network/api/LookupTableApi";
 
+// TODO: refactor this to use resource based configs????
 const tableList = lookupTableApi.getTableList();
 const tableData = lookupTableApi.getTableData<LookupTable>(
     2,
@@ -18,14 +18,9 @@ const tableDataAlternate = lookupTableApi.getTableData<LookupTable>(
     "sender_automation_value_set"
 );
 
-const updateTableData = lookupTableApi.saveTableData(
-    LookupTables.VALUE_SET_ROW
-);
+const updateTableData = lookupTableApi.saveTableData("any");
 
-const activateTableData = lookupTableApi.activateTableData(
-    1,
-    LookupTables.VALUE_SET_ROW
-);
+const activateTableData = lookupTableApi.activateTableData(1, "any");
 
 const lookupTables: LookupTable[] = [1, 2, 3].map((i) => ({
     lookupTableVersionId: i,
