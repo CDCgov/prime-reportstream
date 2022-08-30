@@ -261,6 +261,16 @@ ul.rb li .timestamp {
     padding-bottom: 0.5em;
 }
 
+// Forms
+
+iframe.form-support__smartsheet {
+  border: 1px solid black;
+  
+  #bodySimple {
+    font-size: 1rem;
+  }
+}
+
 /* tweak toaster notifications - other variables can be found by search node_modules for `--toastify-toast-width`  */
 :root {
     --toastify-toast-width: 600px;

@@ -8,15 +8,17 @@ import {
     ContentDirectory,
     ElementDirectory,
 } from "../../components/Content/MarkdownDirectory";
-import { Contact, Faq } from "../../pages/support/index-legacy";
+import { Contact, ServiceRequest, Faq } from "../../pages/support/index-legacy";
 
 enum SupportTitles {
     CONTACT = "Contact",
+    SERVICEREQUEST = "Service request",
     FAQ = "Frequently asked questions",
 }
 const slugs: SlugParams[] = [
     { key: SupportTitles.CONTACT, slug: "contact" },
     { key: SupportTitles.FAQ, slug: "faq" },
+    { key: SupportTitles.SERVICEREQUEST, slug: "service-request" },
 ];
 
 /* Tools to help generate Directories */
@@ -38,6 +40,18 @@ export const supportDirectories: ContentDirectory[] = [
             contentContainer(
                 Contact,
                 SupportDirectoryTools.makeCrumb(SupportTitles.CONTACT)
+            )
+        ),
+    new ElementDirectory()
+        .setTitle(SupportTitles.SERVICEREQUEST)
+        .setSlug(
+            SupportDirectoryTools.prependRoot(SupportTitles.SERVICEREQUEST)
+        )
+        .setDescription("Submit a support ticket something something foo foo")
+        .addElement(
+            contentContainer(
+                ServiceRequest,
+                SupportDirectoryTools.makeCrumb(SupportTitles.SERVICEREQUEST)
             )
         ),
     new ElementDirectory()
