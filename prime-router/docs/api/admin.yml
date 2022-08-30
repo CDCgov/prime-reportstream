@@ -195,11 +195,11 @@ components:
           description: Not currently used, always zero
           type: integer
           example: 0
-        sender_org:
+        sendingOrg:
           description: not currently used
           type: string
           example: "null"
-        sender_org_client:
+        sendingOrgClient:
           description: not currently used
           type: string
           example: "null"

@@ -2,7 +2,7 @@ import AuthResource from "./AuthResource";
 
 export default class AdmAction extends AuthResource {
     /* the unique id  */
-    readonly actionId: string = ""; // BigInt
+    readonly actionId: number = 0; // BigInt
     readonly actionName: string = "";
     readonly createdAt: string = "";
     readonly httpStatus: number = -1;
@@ -10,9 +10,9 @@ export default class AdmAction extends AuthResource {
     readonly actionResult: string = "";
     readonly actionResponse: string = "";
     readonly contentLength: number = 0;
-    readonly sender_ip: string = "";
-    readonly sender_org: string = "";
-    readonly sender_org_client: string = "";
+    readonly senderIp: string = "";
+    readonly sendingOrg: string = "";
+    readonly sendingOrgClient: string = "";
     readonly externalName: string = "";
     readonly username: string = "";
 
