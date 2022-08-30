@@ -41,7 +41,7 @@ interface AuthorizedFetchParams extends EndpointConfig {
 // takes in auth data and returns
 //  a generic function that returns
 //    a function that can be used to make an API call
-export function createTypeWrapperForAuthorizedFetch(
+function createTypeWrapperForAuthorizedFetch(
     oktaToken: Partial<AccessToken>,
     activeMembership: MembershipSettings
 ) {
@@ -57,7 +57,7 @@ export function createTypeWrapperForAuthorizedFetch(
     }: AuthorizedFetchParams): Promise<T> {
         const url = `${API_ROOT}${path}`;
         const headerOverrides = options?.headers || {};
-        const headers = { ...headerOverrides, ...authHeaders };
+        const headers = { ...authHeaders, ...headerOverrides };
         return axios({
             ...options,
             url,
@@ -67,13 +67,19 @@ export function createTypeWrapperForAuthorizedFetch(
     };
 }
 
+// this is extrapolated into a separate object (and referenced from this object within the hook)
+// in order to allow mocking of the wrapper fn in tests
+export const auxExports = {
+    createTypeWrapperForAuthorizedFetch,
+};
+
 export const useCreateFetch = (
     oktaToken: Partial<AccessToken>,
     activeMembership: MembershipSettings
 ): AuthorizedFetchTypeWrapper => {
     const generator = useCallback(
         () =>
-            createTypeWrapperForAuthorizedFetch(
+            auxExports.createTypeWrapperForAuthorizedFetch(
                 oktaToken as Partial<AccessToken>,
                 activeMembership as MembershipSettings
             ),
