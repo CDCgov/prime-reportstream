@@ -15,7 +15,6 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs: 
-      has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
       prime_router_change: ${{ steps.filter.outputs.prime_router_change }}
     steps:
       - name: "Check out changes"
@@ -29,15 +28,13 @@ jobs:
         with:
           filters: |
             prime_router_change:
-              - 'prime-router/**'
+              - '/prime-router/**'
 
   build_router:
     name: Build Router
     runs-on: ubuntu-latest
     needs: pre_job
-    if: | 
-      ${{ needs.pre_job.outputs.has_router_change == 'true'}}
-      ${{ needs.pre_job.steps.filter.outputs.prime_router_change == 'true' }}
+    if: ${{ needs.pre_job.steps.filter.outputs.prime_router_change == 'true' }}
     defaults:
       run:
         working-directory: prime-router
