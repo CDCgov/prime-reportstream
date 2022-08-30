@@ -11,6 +11,7 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.CodeType
 import org.hl7.fhir.r4.model.ContactPoint.ContactPointUse
+import org.hl7.fhir.r4.model.DiagnosticReport.DiagnosticReportStatus
 import org.hl7.fhir.r4.model.Enumeration
 import org.hl7.fhir.r4.model.HumanName.NameUse
 import org.hl7.fhir.r4.model.IntegerType
@@ -93,6 +94,26 @@ enum class CustomFHIRFunctionNames {
     GetTelecomUseCode,
     GetNameUseCode,
     GetPatientClass,
+    GetObservationResultsStatus,
+    GetCodingSystemMapping,
+}
+
+/**
+ * Enum representing the CodingSystemMapping.
+ * FHIR, urls [fhirURL] and their corresponding HL7 Ids [hl7ID]
+ */
+enum class CodingSystemMapper(val fhirURL: String, val hl7ID: String) {
+    ICD10("http://hl7.org/fhir/sid/icd-10-cm", "I10"),
+    LOINC("http://loinc.org", "LN");
+    companion object {
+        /**
+         * Get a coding system mapper by its [fhirURL]
+         * @return an enum instance representing the appropriate mapping
+         */
+        fun getByFhirUrl(fhirURL: String): CodingSystemMapper? = CodingSystemMapper.values().find {
+            it.fhirURL == fhirURL
+        }
+    }
 }
 
 /**
@@ -171,7 +192,7 @@ object CustomFHIRFunctions {
     }
 
     /**
-     * Gets the FHIR name use code stored in the [focus] element and converts to HL7 v2.5 - 0200 - Name type.
+     * Gets the FHIR name use code stored in the [focus] element and converts to HL7 v2.5.1 - 0200 - Name type.
      * @return a mutable list containing the single character HL7 name type
      */
     fun getNameUseCode(focus: MutableList<Base>): MutableList<Base> {
@@ -198,6 +219,35 @@ object CustomFHIRFunctions {
             V3ActCode.AMB -> mutableListOf(StringType("O"))
             else -> mutableListOf()
         }
+    }
+
+    /**
+     * Gets the FHIR DiagnosticResultStatus stored in the [focus] element and converts
+     * to an HL7 v2.5.1 - 0123 - Result Status.
+     * @return a mutable list containing the single character HL7 result status
+     */
+    fun getObservationResultsStatus(focus: MutableList<Base>): MutableList<Base> {
+        return when (DiagnosticReportStatus.fromCode((focus[0] as Enumeration<*>).code)) {
+            // Partial could be either A or R I've chosen A, but we should probably figure out better answer
+            DiagnosticReportStatus.PARTIAL -> mutableListOf(StringType("A"))
+            DiagnosticReportStatus.CORRECTED -> mutableListOf(StringType("C"))
+            DiagnosticReportStatus.FINAL -> mutableListOf(StringType("F"))
+            DiagnosticReportStatus.PRELIMINARY -> mutableListOf(StringType("P"))
+            DiagnosticReportStatus.CANCELLED -> mutableListOf(StringType("X"))
+            // Unknown could be multiple values. I've chosen I to represent incomplete
+            // But "O" or "S" are possible.
+            DiagnosticReportStatus.UNKNOWN -> mutableListOf(StringType("I"))
+            else -> mutableListOf()
+        }
+    }
+
+    /**
+     * Gets the FHIR System URL stored in the [focus] element and maps it to the appropriate
+     * HL7 v2.5.1 - 0396 - Coding system.
+     * @return a mutable list containing the single character HL7 result status
+     */
+    fun getCodingSystemMapping(focus: MutableList<Base>): MutableList<Base> {
+        return mutableListOf(StringType(CodingSystemMapper.getByFhirUrl(focus[0].primitiveValue())?.hl7ID))
     }
 }
 
@@ -283,6 +333,12 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
             CustomFHIRFunctionNames.GetPatientClass -> {
                 FunctionDetails("convert FHIR class code and coverts it to HL7 v3 act code", 0, 0)
             }
+            CustomFHIRFunctionNames.GetObservationResultsStatus -> {
+                FunctionDetails("convert FHIR DiagnosticReportStatus to HL7 0123 - Result Status", 0, 0)
+            }
+            CustomFHIRFunctionNames.GetCodingSystemMapping -> {
+                FunctionDetails("convert FHIR coding system url to HL7 ID", 0, 0)
+            }
         }
     }
 
@@ -324,6 +380,12 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
                 }
                 CustomFHIRFunctionNames.GetPatientClass -> {
                     CustomFHIRFunctions.getPatientClass(focus)
+                }
+                CustomFHIRFunctionNames.GetObservationResultsStatus -> {
+                    CustomFHIRFunctions.getObservationResultsStatus(focus)
+                }
+                CustomFHIRFunctionNames.GetCodingSystemMapping -> {
+                    CustomFHIRFunctions.getCodingSystemMapping(focus)
                 }
             }
             )
