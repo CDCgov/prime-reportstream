@@ -1130,7 +1130,7 @@ The zip code of the provider
 
 **Type**: NUMBER
 
-**PII**: No
+**PII**: Yes
 
 **LOINC Code**: 30525-0
 
