@@ -28,7 +28,7 @@ jobs:
         with:
           filters: |
             prime_router_change:
-              - '/prime-router/**'
+              - 'prime-router/**'
 
   build_router:
     name: Build Router
