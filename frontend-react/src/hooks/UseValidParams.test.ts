@@ -9,8 +9,8 @@ describe("useValidParams", () => {
         mockUseParams.mockImplementation(() => ({
             two: "test",
         }));
-        const runner = () => renderHook(() => useValidParams(["one", "two"]));
-        expect(runner).toThrowError(
+        const { result } = renderHook(() => useValidParams(["one", "two"]));
+        expect(result.error?.message).toEqual(
             "Expected param at key {one} was undefined"
         );
     });
