@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - name: path_filter
         id: filter
-        uses: $(git rev-parse --show-toplevel)/.github/actions/path-filters
+        uses: ./.github/actions/path-filters@feature/165-Add-filter-to-build-router-action
         with:
           filters: |
             prime_router_change:
