@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+#
 # This script runs the Azure function of the project with a debug port open to allow debugger to attach.
 # It is meant to used on developer machines, but not in production.
 #
