@@ -1,13 +1,14 @@
 name: Build Hub
 
 on:
-  # pull_request:
-  #   branches:
-  #     - master
-  #
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "prime-router/**"
   push:
     branches:
-      - feature/165-Add-filter-to-build-router-action
+      - master
     paths:
       - "prime-router/**"
 
@@ -20,7 +21,7 @@ jobs:
   pre_job:
     name: Pre Job
     runs-on: ubuntu-latest
-    outputs: 
+    outputs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
@@ -33,8 +34,7 @@ jobs:
     name: Build Router
     runs-on: ubuntu-latest
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true'}}
-
+    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     defaults:
       run:
         working-directory: prime-router
