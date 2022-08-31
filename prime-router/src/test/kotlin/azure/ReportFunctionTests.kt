@@ -111,7 +111,7 @@ class ReportFunctionTests {
         "05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure" +
         " (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
 
-    val hl7_5_separator = "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester" +
+    val hl7_5_separator = "MSH|^~\\&#|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester" +
         " House^05D2222542^" +
         "ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|" +
         "20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|" +
