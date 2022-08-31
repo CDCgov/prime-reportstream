@@ -1,4 +1,4 @@
-name: ORU-R01-observation-request
+name: ORU-R01-coded-element
 elements:
   - name: identifier
     value: [ '%resource.coding.code' ]
