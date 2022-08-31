@@ -36,7 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: pre_job
     if: needs.pre_job.outputs.has_router_change == 'true' || needs.pre_job.outputs.prime_router_change == 'true' 
-    run: pwd
+    run: 
+      pwd
 
     steps:
       - name: "Check out changes"
