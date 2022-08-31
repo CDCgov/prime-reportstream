@@ -27,8 +27,8 @@ jest.mock("rest-hooks", () => ({
 
 // TODO: Auto mock module?
 jest.mock("react-router-dom", () => ({
-    useHistory: () => {
-        return { goBack: jest.fn() };
+    useNavigate: () => {
+        return jest.fn();
     },
     useParams: () => {
         return {

@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 
-import { render } from "../../utils/CustomRenderUtils";
+import { renderWithRouter } from "../../utils/CustomRenderUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import OrganizationResource from "../../resources/OrganizationResource";
@@ -29,9 +29,7 @@ const mockPush = jest.fn();
 jest.mock("react-router-dom", () => ({
     ...(jest.requireActual("react-router-dom") as any),
     __esModule: true,
-    useHistory: () => ({
-        push: mockPush,
-    }),
+    useNavigate: () => jest.fn(),
 }));
 
 const testNewOrgJson = JSON.stringify({
@@ -50,7 +48,7 @@ describe("AdminOrgNew", () => {
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        render(<AdminOrgNew />);
+        renderWithRouter(<AdminOrgNew />);
     });
 
     test("should go to the new created organization's page", () => {
