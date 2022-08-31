@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useController, useResource } from "rest-hooks";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import Title from "../../components/Title";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
@@ -20,6 +20,7 @@ import { ObjectTooltip } from "../tooltips/ObjectTooltip";
 import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
 import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
+import { useValidParams } from "../../hooks/UseValidParams";
 
 import {
     DropdownComponent,
@@ -253,39 +254,31 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
 };
 
 export type EditSenderSettingsProps = {
-    orgName: string;
-    senderName: string;
+    orgname: string;
+    sendername: string;
     action: "edit" | "clone";
 };
 
 export function EditSenderSettings() {
-    const { orgName, senderName, action } =
-        useParams<EditSenderSettingsProps>();
-    /* useParams now returns possible undefined. This will error up to a boundary
-     * if the url param is undefined */
-    if (
-        orgName === undefined ||
-        senderName === undefined ||
-        action === undefined
-    )
-        throw Error("Expected orgName & settingType from path");
+    const { orgname, sendername, action } =
+        useValidParams<EditSenderSettingsProps>([
+            "orgname",
+            "sendername",
+            "action",
+        ]);
 
     return (
         <AdminFormWrapper
             header={
                 <Title
-                    preTitle={`Org name: ${
-                        orgName || "missing param 'orgname'"
-                    }`}
-                    title={`Sender name: ${
-                        senderName || "missing param 'sendername'"
-                    }`}
+                    preTitle={`Org name: ${orgname}`}
+                    title={`Sender name: ${sendername}`}
                 />
             }
         >
             <EditSenderSettingsForm
-                orgname={orgName}
-                sendername={senderName}
+                orgname={orgname}
+                sendername={sendername}
                 action={action}
             />
         </AdminFormWrapper>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { Helmet } from "react-helmet";
-import { useParams } from "react-router-dom";
 import axios from "axios";
 
 import Table, {
@@ -24,6 +23,7 @@ import {
 } from "../../../utils/ErrorUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../../components/AuthElement";
+import { useValidParams } from "../../../hooks/UseValidParams";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -220,13 +220,11 @@ export const ValueSetsDetailTable = ({
 };
 
 const ValueSetsDetail = () => {
-    const { valueSetName } = useParams<{ valueSetName: string }>();
+    const { valueSetName } = useValidParams<{ valueSetName: string }>([
+        "valueSetName",
+    ]);
     // TODO: when to unset?
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
-    /* useParams now returns possible undefined. This will error up to a boundary
-     * if the url param is undefined */
-    if (valueSetName === undefined)
-        throw Error("Expected valueSetName from path, got: undefined");
     return (
         <>
             <Helmet>

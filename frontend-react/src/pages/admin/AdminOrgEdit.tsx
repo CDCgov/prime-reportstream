@@ -1,4 +1,4 @@
-import React, { Suspense, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 import { useParams } from "react-router-dom";
@@ -41,19 +41,20 @@ import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 
 type AdminOrgEditProps = {
-    orgName: string;
+    orgname: string;
 };
 
 export function AdminOrgEdit() {
-    const { orgName } = useParams<AdminOrgEditProps>();
-    /* useParams now returns possible undefined. This will error up to a boundary
-     * if the url param is undefined */
-    if (orgName === undefined)
-        throw Error("Expected orgName from path, got: undefined");
+    const { orgname } = useParams<AdminOrgEditProps>();
+    useEffect(() => {
+        if (orgname === undefined) {
+            throw Error("Url param {orgname} is undefined");
+        }
+    }, [orgname]);
 
     const orgSettings: OrgSettingsResource = useResource(
         OrgSettingsResource.detail(),
-        { orgname: orgName }
+        { orgname: orgname }
     );
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
@@ -67,7 +68,7 @@ export function AdminOrgEdit() {
         const organization = getStoredOrg();
 
         const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgName}`,
+            `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}`,
             {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -105,7 +106,7 @@ export function AdminOrgEdit() {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
             console.trace(e, errorDetail);
-            showError(`Reloading org '${orgName}' failed with: ${errorDetail}`);
+            showError(`Reloading org '${orgname}' failed with: ${errorDetail}`);
             return false;
         }
     };
@@ -130,20 +131,20 @@ export function AdminOrgEdit() {
             showAlertNotification("success", `Saving...`);
             await fetchController(
                 OrgSettingsResource.update(),
-                { orgName },
+                { orgname },
                 data
             );
             showAlertNotification(
                 "success",
-                `Item '${orgName}' has been updated`
+                `Item '${orgname}' has been updated`
             );
             confirmModalRef?.current?.hideModal();
-            showAlertNotification("success", `Saved '${orgName}' setting.`);
+            showAlertNotification("success", `Saved '${orgname}' setting.`);
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
             console.trace(e, errorDetail);
-            showError(`Updating org '${orgName}' failed with: ${errorDetail}`);
+            showError(`Updating org '${orgname}' failed with: ${errorDetail}`);
             return false;
         }
 
@@ -159,7 +160,7 @@ export function AdminOrgEdit() {
             </Helmet>
             <section className="grid-container margin-top-3 margin-bottom-5">
                 <Title
-                    title={`Org name: ${orgName || "missing param 'orgname'"}`}
+                    title={`Org name: ${orgname || "missing param 'orgname'"}`}
                 />
             </section>
             <NetworkErrorBoundary
@@ -230,7 +231,7 @@ export function AdminOrgEdit() {
                                 </Button>
                             </Grid>
                             <ConfirmSaveSettingModal
-                                uniquid={orgName}
+                                uniquid={orgname || ""}
                                 onConfirm={saveOrgData}
                                 ref={confirmModalRef}
                                 oldjson={orgSettingsOldJson}
@@ -239,8 +240,8 @@ export function AdminOrgEdit() {
                         </GridContainer>
                         <br />
                     </section>
-                    <OrgSenderTable orgname={orgName} />
-                    <OrgReceiverTable orgname={orgName} />
+                    <OrgSenderTable orgname={orgname || ""} />
+                    <OrgReceiverTable orgname={orgname || ""} />
                 </Suspense>
             </NetworkErrorBoundary>
             <HipaaNotice />
