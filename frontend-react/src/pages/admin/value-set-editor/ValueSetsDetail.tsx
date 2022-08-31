@@ -200,10 +200,14 @@ export const ValueSetsDetailTable = ({
                         valueSetsWithIds,
                         valueSetName
                     );
-                    const saveResponse = await saveData(dataToSave);
-                    const activateResponse = await activateTable(
-                        saveResponse.tableVersion
-                    );
+                    const saveResponse = await saveData({
+                        data: dataToSave,
+                        tableName: valueSetName,
+                    });
+                    const activateResponse = await activateTable({
+                        tableVersion: saveResponse.tableVersion,
+                        tableName: valueSetName,
+                    });
                     setValueSetVersion(activateResponse.tableVersion);
                 } catch (e: any) {
                     handleErrorWithAlert({

@@ -4,6 +4,7 @@ import { OktaAuth } from "@okta/okta-auth-js";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import SessionProvider, { OktaHook } from "../contexts/SessionContext";
+import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 
 interface AppWrapperProps {
     oktaAuth: OktaAuth;
@@ -29,7 +30,9 @@ export const AppWrapper = ({
         >
             <SessionProvider oktaHook={oktaHook}>
                 <QueryClientProvider client={queryClient}>
-                    {children}
+                    <AuthorizedFetchProvider>
+                        {children}
+                    </AuthorizedFetchProvider>
                 </QueryClientProvider>
             </SessionProvider>
         </Security>
