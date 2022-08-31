@@ -24,26 +24,19 @@ jobs:
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
-        
+
       - name: path_filter
         id: filter
         uses: ./.github/actions/path-filter
         with:
-          filters: |
-            prime_router_change:
-              - 'prime-router/**'
+          filters: '.github/filters.yml'
 
   build_router:
     name: Build Router
     runs-on: ubuntu-latest
     needs: pre_job
-    if: | 
-      ${{ needs.pre_job.outputs.has_router_change == 'true' }}
-      ${{ needs.pre_job.outputs.prime_router_change == 'true' }}
-      
-    defaults:
-      run:
-        working-directory: prime-router
+    if: needs.pre_job.outputs.has_router_change == 'true' || needs.pre_job.outputs.prime_router_change == 'true' 
+    run: pwd
 
     steps:
       - name: "Check out changes"
