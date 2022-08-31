@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { AxiosRequestConfig } from "axios";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import omit from "lodash.omit";
@@ -8,6 +9,7 @@ import {
     ValueSetRow,
 } from "../network/api/LookupTableApi";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
+import { StringIndexed } from "../utils/UsefulTypes";
 
 import { EndpointConfig, HTTPMethods } from "./UseCreateFetch";
 
@@ -37,19 +39,18 @@ const activateTableConfig = {
     method: HTTPMethods.PUT,
 };
 
-interface Segments {
-    [segmentKey: string]: string;
-}
-
 interface AxiosOptionsWithSegments extends AxiosRequestConfig {
-    segments: Segments;
+    segments: StringIndexed<string>;
 }
 
 // takes a map of path segment keys (as defined by colons in config paths declarations, such as in react outer)
 // to segment values for a particular API call
 // in order to produce concrete path from a dynamic one
 // this stuff likely will live on even in a world with resources, one way or another
-const hydrateDynamicPathSegments = (path: string, segments?: Segments) => {
+const hydrateDynamicPathSegments = (
+    path: string,
+    segments?: StringIndexed<string>
+) => {
     if (!segments) {
         return path;
     }
@@ -164,15 +165,7 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
         }
     }
 
-    // not entirely accurate typing. What is sent back by the api is actually ApiValueSet[] rather than ValueSet[]
-    // does not seem entirely worth it to add the complexity needed to account for that on the frontend, better
-    // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
-    const { error: valueSetError, data: valueSetData } = useQuery<Array<T>>(
-        ["lookupTable", versionData?.version, dataTableName],
-        // note that fetch function is an inlined anonymous function in order to allow for
-        // useQuery to pick up changes to variables that the function is dependent on
-        // if we pass in a predefined function, that exact function will be called on every render
-        // and no dynamic variables will be updated
+    const memoizedDataFetch = useCallback(
         () =>
             dataFetch(
                 toFetchParams(getTableDataConfig, {
@@ -182,6 +175,28 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
                     },
                 })
             ),
+        [dataFetch, versionData, dataTableName]
+    );
+
+    // not entirely accurate typing. What is sent back by the api is actually ApiValueSet[] rather than ValueSet[]
+    // does not seem entirely worth it to add the complexity needed to account for that on the frontend, better
+    // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
+    const { error: valueSetError, data: valueSetData } = useQuery<Array<T>>(
+        ["lookupTable", versionData?.version, dataTableName],
+        // note that fetch function is an inlined anonymous function in order to allow for
+        // useQuery to pick up changes to variables that the function is dependent on
+        // if we pass in a predefined function, that exact function will be called on every render
+        // and no dynamic variables will be updated
+        memoizedDataFetch,
+        // () =>
+        //     dataFetch(
+        //         toFetchParams(getTableDataConfig, {
+        //             segments: {
+        //                 tableName: dataTableName,
+        //                 version: `${versionData!!.version!}`, // number to string,
+        //             },
+        //         })
+        //     ),
         { enabled: !!versionData?.version }
     );
 
