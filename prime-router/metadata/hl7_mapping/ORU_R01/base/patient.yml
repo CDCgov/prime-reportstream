@@ -9,4 +9,4 @@ elements:
   - name: patient-contact
     resource: '%resource.contact[0]'
     condition: '%resource.exists()'
-    schema: contact
+    schema: patient-contact
