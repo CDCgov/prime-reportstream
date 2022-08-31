@@ -24,10 +24,10 @@ jobs:
         id: build_vars
         uses: ./.github/actions/build-vars
       - name: "Check out changes"
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@feature/165-Add-filter-to-build-router-action
       - name: path_filter
         id: filter
-        uses: ./.github/actions/path-filters@feature/165-Add-filter-to-build-router-action
+        uses: ./.github/actions/path-filters
         with:
           filters: |
             prime_router_change:
