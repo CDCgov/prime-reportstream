@@ -145,11 +145,20 @@ describe("ValueSetsDetailTable", () => {
         fakeRowsCopy.shift();
 
         expect(mockSaveData).toHaveBeenCalled();
-        expect(mockSaveData).toHaveBeenCalledWith([
-            { ...fakeRows[0], display: `${initialValue}~~fakeInputValue~~` },
-            ...fakeRowsCopy,
-        ]);
+        expect(mockSaveData).toHaveBeenCalledWith({
+            data: [
+                {
+                    ...fakeRows[0],
+                    display: `${initialValue}~~fakeInputValue~~`,
+                },
+                ...fakeRowsCopy,
+            ],
+            tableName: "a-path",
+        });
         expect(mockActivateTable).toHaveBeenCalled();
-        expect(mockActivateTable).toHaveBeenCalledWith(2);
+        expect(mockActivateTable).toHaveBeenCalledWith({
+            tableVersion: 2,
+            tableName: "a-path",
+        });
     });
 });
