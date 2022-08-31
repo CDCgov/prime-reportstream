@@ -20,7 +20,9 @@ describe("useValidParams", () => {
             two: "two",
             three: "three",
         }));
-        const { result } = renderHook(() => useValidParams(["one", "two"]));
+        const { result } = renderHook(() =>
+            useValidParams(["one", "two", "three"])
+        );
         expect(result.current).toEqual({
             one: "one",
             two: "two",
