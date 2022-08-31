@@ -14,7 +14,6 @@ import { toHumanReadable } from "../../../utils/misc";
 import {
     LookupTable,
     lookupTableApi,
-    LookupTables,
     ValueSetRow,
 } from "../../../network/api/LookupTableApi";
 import { StaticAlert } from "../../../components/StaticAlert";
@@ -133,12 +132,12 @@ const saveData = async (
 
     const endpointHeaderActivate = lookupTableApi.activateTableData(
         updateResult.data.tableVersion,
-        LookupTables.VALUE_SET_ROW
+        valueSetName
     );
 
     const activateResult = await axios.put(
         endpointHeaderActivate.url,
-        LookupTables.VALUE_SET_ROW,
+        valueSetName,
         endpointHeaderActivate
     );
     return activateResult.data;
