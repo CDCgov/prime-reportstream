@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0132-RI-Onboarding.yml
+# ./prime multiple-settings set --env staging --input ./settings/staging/0133-RI-Onboarding.yml
 ---
 - name: "ri-doh"
   description: "Rhode Island Public Health Department"
