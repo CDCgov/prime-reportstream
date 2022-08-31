@@ -282,8 +282,8 @@
     - name: default
       organizationName: limsabc-nova
       topic: covid-19
-      customerStatus: testing
-      schemaName: hl7/hl7-ingest-covid-19-training
+      customerStatus: active
+      schemaName: hl7/hl7-ingest-covid-19-prod
       format: HL7
 
 - name: neurolab
