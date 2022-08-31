@@ -1,4 +1,4 @@
-name: Build Hub
+name: Test GHA on prime folder change
 
 on:
   push:
@@ -15,6 +15,7 @@ jobs:
     name: Pre Job
     runs-on: ubuntu-latest
     outputs: 
+      has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
       prime_router_change: ${{ steps.filter.outputs.prime_router_change }}
     steps:
       - name: "Check out changes"
@@ -34,7 +35,10 @@ jobs:
     name: Build Router
     runs-on: ubuntu-latest
     needs: pre_job
-    if:  ${{ needs.pre_job.outputs.prime_router_change == 'true' }}
+    if: | 
+      ${{ needs.pre_job.outputs.has_router_change == 'true' }}
+      ${{ needs.pre_job.outputs.prime_router_change == 'true' }}
+      
     defaults:
       run:
         working-directory: prime-router
