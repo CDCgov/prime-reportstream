@@ -165,6 +165,7 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
         }
     }
 
+    // create the function to use for fetching table data from the API
     const memoizedDataFetch = useCallback(
         () =>
             dataFetch(
@@ -183,20 +184,7 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
     // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
     const { error: valueSetError, data: valueSetData } = useQuery<Array<T>>(
         ["lookupTable", versionData?.version, dataTableName],
-        // note that fetch function is an inlined anonymous function in order to allow for
-        // useQuery to pick up changes to variables that the function is dependent on
-        // if we pass in a predefined function, that exact function will be called on every render
-        // and no dynamic variables will be updated
         memoizedDataFetch,
-        // () =>
-        //     dataFetch(
-        //         toFetchParams(getTableDataConfig, {
-        //             segments: {
-        //                 tableName: dataTableName,
-        //                 version: `${versionData!!.version!}`, // number to string,
-        //             },
-        //         })
-        //     ),
         { enabled: !!versionData?.version }
     );
 
