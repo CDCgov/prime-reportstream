@@ -1,10 +1,9 @@
-name: Router
+name: Build Hub
 
 on:
   pull_request:
     branches:
       - master
-      - production
   push:
     branches:
       - master
