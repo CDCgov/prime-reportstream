@@ -280,7 +280,6 @@ class AuthenticatedClaimsTests {
     fun `test authenticate okta happy path`() {
         val req = MockHttpRequestMessage("test")
         req.httpHeaders += mapOf(
-            "authentication-type" to "okta",
             "authorization" to "Bearer a.b.c", // Force our way past the Bearer token check
         )
         // Force our way past the isLocal() test.
@@ -299,7 +298,6 @@ class AuthenticatedClaimsTests {
     fun `test authenticate okta fails`() {
         val req = MockHttpRequestMessage("test")
         req.httpHeaders += mapOf(
-            "authentication-type" to "okta",
             "authorization" to "Bearer a.b.c", // Force our way past the Bearer token check
         )
         // Force our way past the isLocal() test.
@@ -316,10 +314,6 @@ class AuthenticatedClaimsTests {
     @Test
     fun `test authenticate bad bearer token fails`() {
         val req = MockHttpRequestMessage("test")
-        req.httpHeaders += mapOf(
-            "authentication-type" to "okta",
-//            "authorization" to "Bearer x", // Bad jwt.
-        )
         // Force our way past the isLocal() test.
         mockkObject(AuthenticatedClaims.Companion)
         every { AuthenticatedClaims.isLocal(any()) } returns false

@@ -169,7 +169,7 @@ class OktaAuthTests : CoolTest() {
             HistoryApiTestCase(
                 "Local okta auth: get list-of-submissions to $orgName1",
                 "${environment.url}/api/waters/org/$orgName1/submissions",
-                mapOf("authentication-type" to "okta"),
+                emptyMap(),
                 listOf("pagesize" to 1),
                 bearer = "",
                 HttpStatus.OK,
@@ -180,7 +180,7 @@ class OktaAuthTests : CoolTest() {
             HistoryApiTestCase(
                 "Local okta auth: Get report-details-history for one report",
                 "${environment.url}/api/waters/report/$reportId1/history",
-                mapOf("authentication-type" to "okta"),
+                emptyMap(),
                 emptyList(),
                 bearer = "x",
                 HttpStatus.OK,
@@ -247,7 +247,7 @@ class OktaAuthTests : CoolTest() {
             HistoryApiTestCase(
                 "Badtoken okta: get list-of-submissions to $orgName1",
                 "${environment.url}/api/waters/org/$orgName1/submissions",
-                mapOf("authentication-type" to "okta"),
+                emptyMap(),
                 listOf("pagesize" to 1),
                 bearer = badToken,
                 HttpStatus.UNAUTHORIZED,
@@ -258,7 +258,7 @@ class OktaAuthTests : CoolTest() {
             HistoryApiTestCase(
                 "Badtoken okta: Get report-details-history for one report",
                 "${environment.url}/api/waters/report/$reportId1/history",
-                mapOf("authentication-type" to "okta"),
+                emptyMap(),
                 emptyList(),
                 bearer = badToken,
                 HttpStatus.UNAUTHORIZED,
@@ -293,7 +293,7 @@ class OktaAuthTests : CoolTest() {
             HistoryApiTestCase(
                 "Okta: get list-of-submissions to $orgName1",
                 "${environment.url}/api/waters/org/$orgName1/submissions",
-                mapOf("authentication-type" to "okta"),
+                emptyMap(),
                 listOf("pagesize" to 1),
                 oktaToken,
                 HttpStatus.OK,
@@ -304,7 +304,7 @@ class OktaAuthTests : CoolTest() {
             HistoryApiTestCase(
                 "Okta: Get list-of-submissions to $orgName1.default",
                 "${environment.url}/api/waters/org/$orgName1.default/submissions",
-                mapOf("authentication-type" to "okta"),
+                emptyMap(),
                 listOf("pagesize" to 1),
                 oktaToken,
                 HttpStatus.OK,
@@ -315,7 +315,7 @@ class OktaAuthTests : CoolTest() {
             HistoryApiTestCase(
                 "Okta: Get list-of-submissions to $orgName2",
                 "${environment.url}/api/waters/org/$orgName2/submissions",
-                mapOf("authentication-type" to "okta"),
+                emptyMap(),
                 listOf("pagesize" to 1),
                 oktaToken,
                 HttpStatus.OK,
@@ -326,7 +326,7 @@ class OktaAuthTests : CoolTest() {
             HistoryApiTestCase(
                 "Okta: Get list-of-submissions to $orgName2.default",
                 "${environment.url}/api/waters/org/$orgName2.default/submissions",
-                mapOf("authentication-type" to "okta"),
+                emptyMap(),
                 listOf("pagesize" to 1),
                 oktaToken,
                 HttpStatus.OK,
@@ -366,7 +366,7 @@ class OktaAuthTests : CoolTest() {
             HistoryApiTestCase(
                 "Get report-details-history for an $orgName1 report using an Okta PrimeAdmin token: Happy path",
                 "${environment.url}/api/waters/report/$reportId1/history",
-                mapOf("authentication-type" to "okta"),
+                emptyMap(),
                 emptyList(),
                 oktaToken,
                 HttpStatus.OK,
@@ -377,7 +377,7 @@ class OktaAuthTests : CoolTest() {
             HistoryApiTestCase(
                 "Get report-details-history for an $orgName2 report using an Okta PrimeAdmin token: Happy path",
                 "${environment.url}/api/waters/report/$reportId2/history",
-                mapOf("authentication-type" to "okta"),
+                emptyMap(),
                 emptyList(),
                 oktaToken,
                 HttpStatus.OK,
@@ -388,7 +388,7 @@ class OktaAuthTests : CoolTest() {
             HistoryApiTestCase(
                 "Get report-details-history for a nonexistent report using an Okta PrimeAdmin token: should fail",
                 "${environment.url}/api/waters/report/87a02e0c-5b77-4595-a039-e143fbaadda2/history",
-                mapOf("authentication-type" to "okta"),
+                emptyMap(),
                 emptyList(),
                 oktaToken,
                 HttpStatus.NOT_FOUND,
@@ -399,7 +399,7 @@ class OktaAuthTests : CoolTest() {
             HistoryApiTestCase(
                 "Get report-details-history for a bogus report using an Okta PrimeAdmin token: should fail",
                 "${environment.url}/api/waters/report/BOGOSITY/history",
-                mapOf("authentication-type" to "okta"),
+                emptyMap(),
                 emptyList(),
                 oktaToken,
                 HttpStatus.NOT_FOUND,

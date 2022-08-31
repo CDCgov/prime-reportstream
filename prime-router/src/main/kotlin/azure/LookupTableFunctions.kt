@@ -105,6 +105,42 @@ class LookupTableFunctions(
     }
 
     /**
+     * Fetch the data for a specific table version.
+     */
+    @FunctionName("getActiveLookupTableData")
+    fun getActiveLookupTableData(
+        @HttpTrigger(
+            name = "getActiveLookupTableData",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "lookuptables/{tableName}/content"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("tableName") tableName: String,
+    ): HttpResponseMessage {
+        // Do authentication
+        val claims = AuthenticatedClaims.authenticate(request)
+            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        // No authorization check!   Anyone authenticated in ReportStream is allowed to access this function.
+        logger.info("User ${claims.userName} is authorized for endpoint ${request.uri}")
+
+        return try {
+            val tableVersion = lookupTableAccess.fetchActiveVersion(tableName)
+            if (tableVersion == null) {
+                HttpUtilities.notFoundResponse(
+                    request,
+                    "Unable to find any active version of lookup table named '$tableName'."
+                )
+            } else {
+                val rows = lookupTableAccess.fetchTable(tableName, tableVersion)
+                HttpUtilities.okResponse(request, convertTableDataToJsonString(rows))
+            }
+        } catch (e: Exception) {
+            logger.error("Unable to fetch an active version of lookup table named `$tableName`.", e)
+            HttpUtilities.internalErrorResponse(request)
+        }
+    }
+
+    /**
      * Fetch the version information for a specific table version.
      */
     @FunctionName("getLookupTableInfo")

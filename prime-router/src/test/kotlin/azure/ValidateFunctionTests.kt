@@ -13,7 +13,6 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
-import gov.cdc.prime.router.tokens.DO_OKTA_AUTH
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -174,7 +173,6 @@ class ValidateFunctionTests {
         // This is the most common way our customers use the client string
         req.httpHeaders += mapOf(
             "client" to "simple_report",
-            "authentication-type" to "okta",
             "content-length" to "4"
         )
         // Invoke the waters function run
@@ -192,7 +190,6 @@ class ValidateFunctionTests {
         // Now try it with a full client name
         req.httpHeaders += mapOf(
             "client" to "simple_report.default",
-            "authentication-type" to DO_OKTA_AUTH,
             "content-length" to "4"
         )
         validateFunc.run(req)
@@ -209,7 +206,6 @@ class ValidateFunctionTests {
         // The point of these tests is that the call to the auth code only contains the org prefix 'simple_report'
         req.httpHeaders += mapOf(
             "client" to "simple_report.foobar",
-            "authentication-type" to DO_OKTA_AUTH,
             "content-length" to "4"
         )
         validateFunc.run(req)
