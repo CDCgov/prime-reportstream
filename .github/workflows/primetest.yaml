@@ -24,8 +24,8 @@ jobs:
         id: build_vars
         uses: ./.github/actions/build-vars
       - name: path_filter
-        uses: dorny/paths-filter@v2
         id: filter
+        uses: ./.github/actions/path-filters
         with:
           filters: |
             prime_router_change:

@@ -27,7 +27,7 @@ jobs:
         id: build_vars
         uses: ./.github/actions/build-vars
       - name: path_filter
-        uses: dorny/paths-filter@v2
+        uses: ./.github/actions/
         id: filter
         with:
           filters: |
