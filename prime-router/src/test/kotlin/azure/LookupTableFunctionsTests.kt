@@ -168,6 +168,53 @@ class LookupTableFunctionsTests {
     }
 
     @Test
+    fun `get active lookup table data by name test`() {
+        val tableName = "dummyTable"
+        every { mockRequest.httpMethod } returns HttpMethod.GET
+
+        // Table does not exist
+        var mockResponseBuilder = createResponseBuilder()
+        val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
+        every { lookupTableAccess.fetchActiveVersion(eq(tableName)) } returns null
+        every { mockRequest.createResponseBuilder(HttpStatus.NOT_FOUND) } returns mockResponseBuilder
+        val function = LookupTableFunctions(lookupTableAccess)
+        function.getActiveLookupTableData(mockRequest, tableName)
+        verifyError(mockResponseBuilder)
+
+        // Get a table
+        val tableData = listOf(
+            LookupTableRow(),
+            LookupTableRow()
+        )
+        tableData[0].data = JSONB.jsonb("""{"a": "11", "b": "21"}""")
+        tableData[1].data = JSONB.jsonb("""{"a": "12", "b": "22"}""")
+        mockResponseBuilder = createResponseBuilder()
+        every { lookupTableAccess.fetchActiveVersion(eq(tableName)) } returns 1
+        every { lookupTableAccess.fetchTable(eq(tableName), eq(1)) } returns tableData
+        every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
+        function.getActiveLookupTableData(mockRequest, tableName)
+        verify(exactly = 1) {
+            mockResponseBuilder.body(
+                withArg {
+                    // Check that we have JSON data in the response body
+                    assertTrue(it is String)
+                    val rows = mapper.readValue<List<Map<String, String>>>(it)
+                    assertTrue(rows.size == 2)
+                    assertTrue(rows[0].containsKey("a"))
+                    assertTrue(rows[0].containsKey("b"))
+                }
+            )
+        }
+
+        // Database error
+        mockResponseBuilder = createResponseBuilder()
+        every { lookupTableAccess.fetchActiveVersion(any()) }.throws(DataAccessException("error"))
+        every { mockRequest.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR) } returns mockResponseBuilder
+        function.getActiveLookupTableData(mockRequest, tableName)
+        verifyError(mockResponseBuilder)
+    }
+
+    @Test
     fun `get lookup table info by name and version test`() {
         val tableName = "dummyTable"
         val tableVersionNum = 1

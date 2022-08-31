@@ -8,7 +8,6 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.Environment
 import org.apache.logging.log4j.kotlin.Logging
 
-const val DO_OKTA_AUTH = "okta"
 const val subjectClaim = "sub"
 val authenticationFailure = HttpUtilities.errorJson("Authentication Failed")
 val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
