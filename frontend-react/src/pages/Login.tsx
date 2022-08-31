@@ -15,7 +15,12 @@ export const Login = () => {
 
     const navigate = useNavigate();
     useEffect(() => {
-        if (authState && authState.isAuthenticated) navigate("/");
+        if (authState && authState.isAuthenticated) {
+            // TODO (router-refactor): Dynamically navigate users
+            // Admins -> Admin Org List
+            // Receivers -> Daily Data List
+            navigate("/");
+        }
     }, [authState, navigate]);
 
     const onSuccess = (tokens: Tokens | undefined) => {
