@@ -20,7 +20,7 @@ jobs:
   pre_job:
     name: Pre Job
     runs-on: ubuntu-latest
-    outputs: |
+    outputs: 
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
@@ -28,13 +28,6 @@ jobs:
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
-      - name: path_filter
-        uses: ./.github/actions/
-        id: filter
-        with:
-          filters: |
-            prime_router_change:
-              - 'prime-router/**'
 
   build_router:
     name: Build Router
