@@ -1,6 +1,6 @@
 name: ORU-R01-xcn-contact
 constants:
-  hl7XCNFieldPath: /PATIENT_RESULT/PATIENT/VISIT/(%{hl7XCNField})(%{orderIndex})
+  hl7XCNFieldPath: '%{hl7XCNField}(%{contactIndex})'
 # Practitioner to XCN mapping
 elements:
   - name: xcn-id-number
@@ -24,8 +24,8 @@ elements:
     hl7Spec: [ '%{hl7XCNFieldPath}-7' ]
 
   - name: xcn-assigning-authority
-    condition: '%resource.extension(%`rsext-authority-facility`).exists()'
-    resource: '%resource.identifier'
+    resource: '%resource.identifier[0]'
+    condition: '%resource.exists()'
     constants:
       hl7HDField: '%{hl7XCNFieldPath}-9'
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax
@@ -34,17 +34,17 @@ elements:
     schema: hd-hierarchic-designator
 
   - name: xcn-name-type-code
-    condition: '%resource.name.use = ''official'''
+    condition: '%resource.name.use.exists() and %resource.name.use = ''official'''
     value: [ '''L''']
-    hl7Spec: [ '%{xcnFieldPath}(%{contactIndex})-10' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}(%{contactIndex})-10' ]
 
   - name: xcn-type
     value: [ '%resource.identifier.type.coding.code' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-13' ]
 
   - name: xcn-assigning-facility
-    condition: '%resource.extension(%`rsext-assigning-facility`).exists()'
-    resource: '%resource.identifier'
+    resource: '%resource.extension(%`rsext-assigning-facility`).value.resolve()'
+    condition: '%resource.exists()'
     constants:
       hl7HDField: '%{hl7XCNFieldPath}-14'
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax

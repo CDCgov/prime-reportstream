@@ -1,7 +1,7 @@
 name: ORU-R01-xad-extended-address
 constants:
   # if orderIndex is provided, we use the "-ordered" elements to support multiple entries
-  hl7XADField: '%{hl7AddressField}(%{orderIndex})'
+  hl7XADField: '%{hl7AddressField}'
 elements:
   - name: xad-street-address
     condition: '%resource.line.count() > 0'
