@@ -13,7 +13,7 @@ on:
       - "prime-router/**"
 
 jobs:
-  Build Router:
+  Build_Router:
     name: Build Router
     runs-on: ubuntu-latest
     steps:
