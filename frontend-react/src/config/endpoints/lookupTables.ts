@@ -1,4 +1,4 @@
-import { HTTPMethods, RSEndpoint } from ".";
+import { HTTPMethods, RSApiEndpoints, RSEndpoint } from ".";
 
 // the shape used by the frontend client for value sets
 export interface ValueSet {
@@ -40,14 +40,23 @@ export enum LookupTables {
     VALUE_SET_ROW = "sender_automation_value_set_row",
 }
 
-// notice the react-router style colon demarcated dynamic path segments
-export const lookupTablesEndpoints = {
+/*
+Lookup Table Endpoints
+
+* getTableList -> returns metadata for all lookuptables
+* getTableData -> given a table name and version, returns all data rows in the lookup table of that name, for that version
+* updateTable -> with a payload of ALL table rows, updates a table with new data, creating a new version of the table
+* activateTable -> given a table name and version, activates the specified version of the lookup table of that name
+*/
+
+export const lookupTablesEndpoints: RSApiEndpoints = {
     getTableList: new RSEndpoint({
         path: "/lookuptables/list",
         method: HTTPMethods.GET,
         queryKey: "lookupTables",
     }),
     getTableData: new RSEndpoint({
+        // notice the react-router style colon demarcated dynamic path segments
         path: "/lookuptables/:tableName/:version/content",
         method: HTTPMethods.GET,
         queryKey: "lookupTable",

@@ -27,9 +27,14 @@ export interface AxiosOptionsWithSegments extends AxiosRequestConfig {
     segments: StringIndexed<string>;
 }
 
+export type RSApiEndpoints = {
+    [endpointName: string]: RSEndpoint;
+};
+
 export class RSEndpoint {
     path: string;
     method: Method;
+    // optionally used for identifying this endpoint's usage in useQuery hooks
     queryKey?: string;
 
     constructor(params: EndpointConfig) {
@@ -46,6 +51,10 @@ export class RSEndpoint {
         return this.path.indexOf("/:") > -1;
     }
 
+    // replaces dynamic paths (`/:` prefixed segments) in an endpoint path
+    // with supplied dynamic segment values.
+    // ex. an endpoint with the path `/:hello` called with { hello: 'world' }
+    // would return `/world`
     toDynamicUrl(segments?: StringIndexed<string>) {
         if (!segments && this.hasDynamicSegments) {
             throw new Error(
@@ -74,7 +83,7 @@ export class RSEndpoint {
     ): Partial<AxiosRequestConfig> {
         const dynamicUrl = this.toDynamicUrl(requestOptions.segments);
         return {
-            ...omit(requestOptions, "segments"), // this is yucky
+            ...omit(requestOptions, "segments"), // this is yucky but necessary for now
             method: this.method,
             url: dynamicUrl,
         };
