@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
@@ -16,6 +16,30 @@ jest.mock("react-router", () => ({
 const TestElement = () => <h1>Test Passed</h1>;
 
 describe("AuthElement unit tests", () => {
+    test("Renders component when all checks pass", () => {
+        mockSessionContext.mockReturnValueOnce({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
+            activeMembership: {
+                memberType: MemberType.PRIME_ADMIN,
+                parsedName: "PrimeAdmins",
+            },
+            dispatch: () => {},
+        });
+        mockCheckFeatureFlag.mockImplementation((arg: string) => {
+            return arg === FeatureFlagName.FOR_TEST;
+        });
+        render(
+            <AuthElement
+                element={TestElement}
+                requiredFeatureFlag={FeatureFlagName.FOR_TEST}
+                requiredUserType={MemberType.PRIME_ADMIN}
+            />
+        );
+        expect(screen.getByText("Test Passed")).toBeInTheDocument();
+        expect(mockUseNavigate).not.toHaveBeenCalled();
+    });
     test("Redirects when user not logged in", () => {
         mockSessionContext.mockReturnValueOnce({
             oktaToken: undefined,
