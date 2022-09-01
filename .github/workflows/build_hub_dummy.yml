@@ -1,22 +1,22 @@
 name: Build Hub
 
-on:
-  pull_request:
-    branches:
-      - master
-    paths-ignore:
-      - "prime-router/**"
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - "prime-router/**"
+on: push
+  # pull_request:
+  #   branches:
+  #     - master
+  #   paths-ignore:
+  #     - "prime-router/**"
+  # push:
+  #   branches:
+  #     - master
+  #   paths-ignore:
+  #     - "prime-router/**"
 
 jobs:
-  dummy_job:
-    name: Dummy job
+  Build Router:
+    name: Build Router
     runs-on: ubuntu-latest
     steps:
       - name: Dummy Build
-        run: echo "This is the build_hub dummy workflow "
+        run: 'echo "No build required"'
   

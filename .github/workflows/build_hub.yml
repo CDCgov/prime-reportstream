@@ -1,11 +1,11 @@
 name: Build Hub
 
 on:
-  pull_request:
-    branches:
-      - master
-    paths:
-      - "prime-router/**"
+  # pull_request:
+  #   branches:
+  #     - master
+  #   paths:
+  #     - "prime-router/**"
   push:
     branches:
       - master
