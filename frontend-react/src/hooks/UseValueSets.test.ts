@@ -6,9 +6,9 @@ import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import {
     LookupTables,
     ValueSet,
-    lookupTableApi,
     LookupTable,
-} from "../network/api/LookupTableApi";
+    lookupTablesEndpointConfig,
+} from "../config/endpoints/lookupTables";
 import { QueryWrapper } from "../utils/CustomRenderUtils";
 
 import {
@@ -75,9 +75,12 @@ describe("useValueSetsTable", () => {
 
     test("returns error when table list call errors", async () => {
         lookupTableServer.use(
-            rest.get(lookupTableApi.getTableList().url, (_req, res, ctx) => {
-                return res.once(ctx.json([]), ctx.status(400));
-            })
+            rest.get(
+                lookupTablesEndpointConfig.getTableList.path, // START HERE - maybe there is something to the idea of using resources as a way to provide functionality around things like creating urls. maybe we only go too far when we talk about it determining or effecting return values. maybe the main class here is `EndpointConfig`?
+                (_req, res, ctx) => {
+                    return res.once(ctx.json([]), ctx.status(400));
+                }
+            )
         );
         const { result, waitForNextUpdate } = renderWithQueryWrapper(
             LookupTables.VALUE_SET

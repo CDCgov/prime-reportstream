@@ -14,7 +14,7 @@ import {
     useValueSetUpdate,
 } from "../../../hooks/UseValueSets";
 import { toHumanReadable } from "../../../utils/misc";
-import { ValueSetRow } from "../../../network/api/LookupTableApi";
+import { ValueSetRow } from "../../../config/endpoints/lookupTables";
 import { StaticAlert } from "../../../components/StaticAlert";
 import {
     ReportStreamAlert,

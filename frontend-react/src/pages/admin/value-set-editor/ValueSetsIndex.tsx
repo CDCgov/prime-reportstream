@@ -12,7 +12,7 @@ import {
     handleErrorWithAlert,
     ReportStreamAlert,
 } from "../../../utils/ErrorUtils";
-import { LookupTables, ValueSet } from "../../../network/api/LookupTableApi";
+import { LookupTables, ValueSet } from "../../../config/endpoints/lookupTables";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
