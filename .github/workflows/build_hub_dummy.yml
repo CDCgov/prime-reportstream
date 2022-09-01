@@ -17,6 +17,6 @@ jobs:
     name: Build Router
     runs-on: ubuntu-latest
     steps:
-      - name: Dummy Build
+      - name: Build Router
         run: 'echo "No build required"'
   
