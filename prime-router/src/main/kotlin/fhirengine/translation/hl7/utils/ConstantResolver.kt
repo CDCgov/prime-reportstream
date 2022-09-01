@@ -255,9 +255,7 @@ object CustomFHIRFunctions {
             DiagnosticReportStatus.FINAL -> mutableListOf(StringType("F"))
             DiagnosticReportStatus.PRELIMINARY -> mutableListOf(StringType("P"))
             DiagnosticReportStatus.CANCELLED -> mutableListOf(StringType("X"))
-            // Unknown could be multiple values. I've chosen I to represent incomplete
-            // But "O" or "S" are possible.
-            DiagnosticReportStatus.UNKNOWN -> mutableListOf(StringType("I"))
+            // Unknown could be multiple values. Will map to empty using the else clause
             else -> mutableListOf()
         }
     }
@@ -273,8 +271,8 @@ object CustomFHIRFunctions {
             else -> mutableListOf(StringType(""))
         }
     }
-            /**
-                * Gets the FHIR System URL stored in the [focus] element and maps it to the appropriate
+    /**
+     * Gets the FHIR System URL stored in the [focus] element and maps it to the appropriate
      * HL7 v2.5.1 - 0396 - Coding system.
      * @return a mutable list containing the single character HL7 result status
      */

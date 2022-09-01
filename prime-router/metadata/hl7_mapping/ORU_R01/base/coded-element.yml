@@ -18,7 +18,7 @@ elements:
 
   - name: system
     resource: '%resource.coding.system'
-    condition: '%resource is URI and not(%resource.value.startsWith("http"))'
+    condition: '%resource is URI and %resource.value.startsWith("http").not()'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{ceFieldPath}-3' ]
 
