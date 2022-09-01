@@ -1,7 +1,7 @@
 import React, { Suspense, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
-import { RouteComponentProps } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
@@ -37,18 +37,23 @@ import {
 } from "../../utils/misc";
 import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
 import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
+import { AuthElement } from "../../components/AuthElement";
+import { MemberType } from "../../hooks/UseOktaMemberships";
 
 type AdminOrgEditProps = {
-    orgname: string;
+    orgName: string;
 };
 
-export function AdminOrgEdit({
-    match,
-}: RouteComponentProps<AdminOrgEditProps>) {
-    const orgname = match?.params?.orgname || "";
+export function AdminOrgEdit() {
+    const { orgName } = useParams<AdminOrgEditProps>();
+    /* useParams now returns possible undefined. This will error up to a boundary
+     * if the url param is undefined */
+    if (orgName === undefined)
+        throw Error("Expected orgName from path, got: undefined");
+
     const orgSettings: OrgSettingsResource = useResource(
         OrgSettingsResource.detail(),
-        { orgname: orgname }
+        { orgname: orgName }
     );
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
@@ -62,7 +67,7 @@ export function AdminOrgEdit({
         const organization = getStoredOrg();
 
         const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgname}`,
+            `${process.env.REACT_APP_BACKEND_URL}/api/settings/organizations/${orgName}`,
             {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -100,7 +105,7 @@ export function AdminOrgEdit({
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
             console.trace(e, errorDetail);
-            showError(`Reloading org '${orgname}' failed with: ${errorDetail}`);
+            showError(`Reloading org '${orgName}' failed with: ${errorDetail}`);
             return false;
         }
     };
@@ -125,20 +130,20 @@ export function AdminOrgEdit({
             showAlertNotification("success", `Saving...`);
             await fetchController(
                 OrgSettingsResource.update(),
-                { orgname },
+                { orgName },
                 data
             );
             showAlertNotification(
                 "success",
-                `Item '${orgname}' has been updated`
+                `Item '${orgName}' has been updated`
             );
             confirmModalRef?.current?.hideModal();
-            showAlertNotification("success", `Saved '${orgname}' setting.`);
+            showAlertNotification("success", `Saved '${orgName}' setting.`);
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
             console.trace(e, errorDetail);
-            showError(`Updating org '${orgname}' failed with: ${errorDetail}`);
+            showError(`Updating org '${orgName}' failed with: ${errorDetail}`);
             return false;
         }
 
@@ -154,9 +159,7 @@ export function AdminOrgEdit({
             </Helmet>
             <section className="grid-container margin-top-3 margin-bottom-5">
                 <Title
-                    title={`Org name: ${
-                        match?.params?.orgname || "missing param 'orgname'"
-                    }`}
+                    title={`Org name: ${orgName || "missing param 'orgname'"}`}
                 />
             </section>
             <NetworkErrorBoundary
@@ -227,7 +230,7 @@ export function AdminOrgEdit({
                                 </Button>
                             </Grid>
                             <ConfirmSaveSettingModal
-                                uniquid={orgname}
+                                uniquid={orgName}
                                 onConfirm={saveOrgData}
                                 ref={confirmModalRef}
                                 oldjson={orgSettingsOldJson}
@@ -236,11 +239,20 @@ export function AdminOrgEdit({
                         </GridContainer>
                         <br />
                     </section>
-                    <OrgSenderTable orgname={orgname} />
-                    <OrgReceiverTable orgname={orgname} />
+                    <OrgSenderTable orgname={orgName} />
+                    <OrgReceiverTable orgname={orgName} />
                 </Suspense>
             </NetworkErrorBoundary>
             <HipaaNotice />
         </NetworkErrorBoundary>
+    );
+}
+
+export function AdminOrgEditWithAuth() {
+    return (
+        <AuthElement
+            element={AdminOrgEdit}
+            requiredUserType={MemberType.PRIME_ADMIN}
+        />
     );
 }

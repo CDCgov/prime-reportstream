@@ -1,4 +1,3 @@
-import { match } from "react-router-dom";
 import { screen } from "@testing-library/react";
 
 import testMd from "../../content/markdown-test.md";
@@ -16,7 +15,7 @@ const testDirectories = [
 
 jest.mock("react-router-dom", () => ({
     ...jest.requireActual("react-router-dom"),
-    useRouteMatch: () => ({ path: "/test" } as match<{ path: string }>),
+    useRouteMatch: () => ({ path: "/test" }),
 }));
 
 describe("StaticPageFromDirectories", () => {

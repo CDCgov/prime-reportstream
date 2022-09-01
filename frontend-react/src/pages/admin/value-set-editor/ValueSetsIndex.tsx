@@ -12,6 +12,8 @@ import {
     handleErrorWithAlert,
     ReportStreamAlert,
 } from "../../../utils/ErrorUtils";
+import { MemberType } from "../../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../../components/AuthElement";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
@@ -101,3 +103,10 @@ const ValueSetsIndex = () => {
 };
 
 export default ValueSetsIndex;
+
+export const ValueSetsIndexWithAuth = () => (
+    <AuthElement
+        element={ValueSetsIndex}
+        requiredUserType={MemberType.PRIME_ADMIN}
+    />
+);

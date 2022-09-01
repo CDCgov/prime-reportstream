@@ -1,4 +1,4 @@
-import { Switch } from "react-router-dom";
+import { Routes } from "react-router-dom";
 
 import { ContentDirectory, GeneratedRouter } from "./MarkdownDirectory";
 import GeneratedSideNav from "./GeneratedSideNav";
@@ -15,9 +15,9 @@ const StaticPagesFromDirectories = ({
                     <GeneratedSideNav directories={directories} />
                 </section>
                 <section className="tablet:grid-col-8 usa-prose rs-documentation">
-                    <Switch>
+                    <Routes>
                         <GeneratedRouter directories={directories} />
-                    </Switch>
+                    </Routes>
                 </section>
             </div>
         </section>

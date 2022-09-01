@@ -69,12 +69,12 @@ export const GeneratedRoute = ({ dir }: { dir: ContentDirectory }) => {
             <Route
                 key={`${dir.slug}-route`}
                 path={`${dir.slug}`}
-                render={() => (
+                element={
                     <DirectoryAsPage
                         key={`${dir.slug}-dir-as-page`}
                         directory={dir}
                     />
-                )}
+                }
             />
         );
     } else {
@@ -83,7 +83,7 @@ export const GeneratedRoute = ({ dir }: { dir: ContentDirectory }) => {
             <Route
                 key={`${castDir.slug}-route`}
                 path={`${castDir.slug}`}
-                render={castDir.element}
+                element={castDir.element}
             />
         );
     }

@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet";
-import { Redirect, Switch } from "react-router-dom";
-import React from "react";
+import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
 
 import StaticPagesFromDirectories from "../../components/Content/StaticPagesFromDirectories";
 import {
@@ -9,6 +9,8 @@ import {
 } from "../../content/product";
 
 export const Product = () => {
+    const navigate = useNavigate();
+    useEffect(() => navigate("/product/overview"));
     return (
         <>
             <Helmet>
@@ -20,15 +22,6 @@ export const Product = () => {
                     <h2>{ProductDirectoryTools.subtitle}</h2>
                 </div>
             </div>
-            <Switch>
-                {/* Workaround to allow links to /product to work -- means I can't use
-                 IAMetaAndRouter to do this. Sad face. */}
-                <Redirect
-                    from={"/product"}
-                    to={"/product/overview"}
-                    exact={true}
-                />
-            </Switch>
             <div>
                 <StaticPagesFromDirectories directories={productDirectories} />
             </div>

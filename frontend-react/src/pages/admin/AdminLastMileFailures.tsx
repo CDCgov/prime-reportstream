@@ -1,11 +1,13 @@
 import { NetworkErrorBoundary } from "rest-hooks";
 import { Helmet } from "react-helmet";
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 
 import { ErrorPage } from "../error/ErrorPage";
 import Spinner from "../../components/Spinner";
 import HipaaNotice from "../../components/HipaaNotice";
 import { AdminLastMileFailuresTable } from "../../components/Admin/AdminLastMileFailuresTable";
+import { MemberType } from "../../hooks/UseOktaMemberships";
+import { AuthElement } from "../../components/AuthElement";
 
 export function AdminLastMileFailures() {
     return (
@@ -30,5 +32,14 @@ export function AdminLastMileFailures() {
             </NetworkErrorBoundary>
             <HipaaNotice />
         </NetworkErrorBoundary>
+    );
+}
+
+export function AdminLMFWithAuth() {
+    return (
+        <AuthElement
+            element={AdminLastMileFailures}
+            requiredUserType={MemberType.PRIME_ADMIN}
+        />
     );
 }

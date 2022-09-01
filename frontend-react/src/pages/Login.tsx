@@ -1,5 +1,5 @@
-import React from "react";
-import { Link, Redirect } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useOktaAuth } from "@okta/okta-react";
 import { SiteAlert } from "@trussworks/react-uswds";
 import { Tokens } from "@okta/okta-auth-js";
@@ -12,6 +12,11 @@ import { MembershipActionType } from "../hooks/UseOktaMemberships";
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
     const { dispatch } = useSessionContext();
+
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (authState && authState.isAuthenticated) navigate("/");
+    }, [authState, navigate]);
 
     const onSuccess = (tokens: Tokens | undefined) => {
         oktaAuth.handleLoginRedirect(tokens);
@@ -39,9 +44,7 @@ export const Login = () => {
         );
     };
 
-    return authState && authState.isAuthenticated ? (
-        <Redirect to={{ pathname: "/" }} />
-    ) : (
+    return (
         <>
             <MonitoringAlert />
             <OktaSignInWidget
