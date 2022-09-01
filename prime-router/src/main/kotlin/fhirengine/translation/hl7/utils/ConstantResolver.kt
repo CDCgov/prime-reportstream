@@ -17,6 +17,7 @@ import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TypeDetails
 import org.hl7.fhir.r4.model.ValueSet
+import org.hl7.fhir.r4.model.codesystems.AdministrativeGender
 import org.hl7.fhir.r4.model.codesystems.V3ActCode
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import org.hl7.fhir.r4.utils.FHIRPathEngine.IEvaluationContext.FunctionDetails
@@ -33,7 +34,10 @@ data class CustomContext(val bundle: Bundle, val constants: MutableMap<String, S
         fun addConstants(constants: Map<String, String>, previousContext: CustomContext): CustomContext {
             return if (constants.isEmpty()) previousContext
             else {
-                val newContext = previousContext.copy()
+                val newContext = CustomContext(
+                    previousContext.bundle,
+                    previousContext.constants.toMap().toMutableMap() // This makes a copy of the map
+                )
                 constants.forEach { newContext.constants[it.key] = it.value }
                 newContext
             }
@@ -93,6 +97,8 @@ enum class CustomFHIRFunctionNames {
     GetTelecomUseCode,
     GetNameUseCode,
     GetPatientClass,
+    GetAdministrativeGenderCode,
+    GetYesNoValue,
 }
 
 /**
@@ -188,7 +194,7 @@ object CustomFHIRFunctions {
     /**
      * Gets the FHIR V3 act code stored in the [focus] element and converts to HL7 v2.5.1
      * Some segments such as PV1.2 use string versions of this field in HL7 v2
-     * @return a mutable list containing the HL7single character version of the code
+     * @return a mutable list containing the HL7 single character version of the code
      */
     fun getPatientClass(focus: MutableList<Base>): MutableList<Base> {
         return when (V3ActCode.fromCode((focus[0] as CodeType).code)) {
@@ -197,6 +203,33 @@ object CustomFHIRFunctions {
             V3ActCode.PRENC -> mutableListOf(StringType("P"))
             V3ActCode.AMB -> mutableListOf(StringType("O"))
             else -> mutableListOf()
+        }
+    }
+
+    /**
+     * Gets the FHIR gender stored in the [focus] element
+     * and converts to HL7 v2.5.1 - 0001 - Administrative Sex
+     * @return a mutable list containing the HL7 single character version of the code
+     */
+    fun getAdministrativeGenderCode(focus: MutableList<Base>): MutableList<Base> {
+        return when (AdministrativeGender.fromCode((focus[0] as Enumeration<*>).code)) {
+            AdministrativeGender.UNKNOWN -> mutableListOf(StringType("U"))
+            AdministrativeGender.FEMALE -> mutableListOf(StringType("F"))
+            AdministrativeGender.MALE -> mutableListOf(StringType("M"))
+            AdministrativeGender.OTHER -> mutableListOf(StringType("O"))
+            else -> mutableListOf()
+        }
+    }
+
+    /**
+     * Translate a boolean-type value into the single character Y/N value used by HL7.
+     * @return a mutable list containing the HL7 single character version of the code
+     */
+    fun getYesNoValue(focus: MutableList<Base>): MutableList<Base> {
+        return when (focus[0].primitiveValue()) {
+            "true" -> mutableListOf(StringType("Y"))
+            "false" -> mutableListOf(StringType("N"))
+            else -> mutableListOf(StringType(""))
         }
     }
 }
@@ -283,6 +316,12 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
             CustomFHIRFunctionNames.GetPatientClass -> {
                 FunctionDetails("convert FHIR class code and coverts it to HL7 v3 act code", 0, 0)
             }
+            CustomFHIRFunctionNames.GetAdministrativeGenderCode -> {
+                FunctionDetails("convert FHIR class code and coverts it to HL7 gender", 0, 0)
+            }
+            CustomFHIRFunctionNames.GetYesNoValue -> {
+                FunctionDetails("convert FHIR class code and coverts it to Y/N", 0, 0)
+            }
         }
     }
 
@@ -324,6 +363,12 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
                 }
                 CustomFHIRFunctionNames.GetPatientClass -> {
                     CustomFHIRFunctions.getPatientClass(focus)
+                }
+                CustomFHIRFunctionNames.GetAdministrativeGenderCode -> {
+                    CustomFHIRFunctions.getAdministrativeGenderCode(focus)
+                }
+                CustomFHIRFunctionNames.GetYesNoValue -> {
+                    CustomFHIRFunctions.getYesNoValue(focus)
                 }
             }
             )
