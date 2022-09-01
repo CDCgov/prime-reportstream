@@ -1,4 +1,4 @@
-name: Build Hub Dummy
+name: Build Hub
 
 on:
   pull_request:
