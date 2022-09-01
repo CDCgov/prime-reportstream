@@ -65,9 +65,9 @@ export class RSEndpoint {
     ): Partial<AxiosRequestConfig> {
         const dynamicUrl = this.toDynamicUrl(requestOptions.segments);
         return {
+            ...omit(requestOptions, "segments"), // this is yucky
             method: this.method,
             url: dynamicUrl,
-            ...omit(requestOptions, "segments"), // this is yucky
         };
     }
 }

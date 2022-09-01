@@ -6,8 +6,7 @@ import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import {
     LookupTables,
     ValueSet,
-    LookupTable,
-    lookupTablesEndpointConfig,
+    lookupTablesEndpoints,
 } from "../config/endpoints/lookupTables";
 import { QueryWrapper } from "../utils/CustomRenderUtils";
 
@@ -22,7 +21,7 @@ describe("useValueSetsTable", () => {
         tableName: LookupTables,
         version?: number
     ) =>
-        renderHook(() => useValueSetsTable<ValueSet>(tableName, version), {
+        renderHook(() => useValueSetsTable<ValueSet[]>(tableName, version), {
             wrapper: QueryWrapper(
                 new QueryClient({
                     // to allow for faster testable failures
@@ -76,7 +75,7 @@ describe("useValueSetsTable", () => {
     test("returns error when table list call errors", async () => {
         lookupTableServer.use(
             rest.get(
-                lookupTablesEndpointConfig.getTableList.path, // START HERE - maybe there is something to the idea of using resources as a way to provide functionality around things like creating urls. maybe we only go too far when we talk about it determining or effecting return values. maybe the main class here is `EndpointConfig`?
+                lookupTablesEndpoints.getTableList.url,
                 (_req, res, ctx) => {
                     return res.once(ctx.json([]), ctx.status(400));
                 }
@@ -94,10 +93,10 @@ describe("useValueSetsTable", () => {
     test("returns error when table data call errors", async () => {
         lookupTableServer.use(
             rest.get(
-                lookupTableApi.getTableData<LookupTable>(
-                    2,
-                    "sender_automation_value_set"
-                ).url,
+                lookupTablesEndpoints.getTableData.toDynamicUrl({
+                    version: "2",
+                    tableName: "sender_automation_value_set",
+                }),
                 (_req, res, ctx) => {
                     return res.once(ctx.json([]), ctx.status(400));
                 }

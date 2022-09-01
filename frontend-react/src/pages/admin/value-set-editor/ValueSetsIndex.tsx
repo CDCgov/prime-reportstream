@@ -55,7 +55,7 @@ const valueSetColumnConfig: ColumnConfig[] = [
 
 const ValueSetsTable = () => {
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
-    const { valueSetArray, error } = useValueSetsTable<ValueSet>(
+    const { valueSetArray, error } = useValueSetsTable<ValueSet[]>(
         LookupTables.VALUE_SET
     );
 

@@ -154,7 +154,7 @@ export const ValueSetsDetailTable = ({
 }) => {
     const [valueSetsVersion, setValueSetVersion] = useState<number>();
 
-    const { valueSetArray, error } = useValueSetsTable<ValueSetRow>(
+    const { valueSetArray, error } = useValueSetsTable<ValueSetRow[]>(
         valueSetName,
         valueSetsVersion
     );

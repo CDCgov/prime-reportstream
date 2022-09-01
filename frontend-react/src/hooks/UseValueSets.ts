@@ -60,23 +60,22 @@ const findTableByName = (
 
 */
 
-export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
+export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     dataTableName: string,
     suppliedVersion?: number
 ): {
-    valueSetArray: Array<T>;
+    valueSetArray: T;
     error: any;
 } => {
     let versionData: Partial<TableAttributes> | null;
     let error;
-    let valueSetArray;
 
     // multiple calls to the hook for different types is awkward but
     // will be less awkward once resources are introduced, as those will be passed in
     // OR we could move to a world where this hook just returns the generator function, and
     // we call the generator function within our component called hooks to type the functions?
     const lookupTableFetch = useAuthorizedFetch<LookupTable[]>();
-    const dataFetch = useAuthorizedFetch<T[]>();
+    const dataFetch = useAuthorizedFetch<T>();
 
     // get all lookup tables
     const { error: tableError, data: tableData } = useQuery<LookupTable[]>(
@@ -116,7 +115,7 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
     // not entirely accurate typing. What is sent back by the api is actually ApiValueSet[] rather than ValueSet[]
     // does not seem entirely worth it to add the complexity needed to account for that on the frontend, better
     // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
-    const { error: valueSetError, data: valueSetData } = useQuery<Array<T>>(
+    const { error: valueSetError, data: valueSetData } = useQuery<T>(
         [getTableData.queryKey, versionData?.version, dataTableName],
         memoizedDataFetch,
         { enabled: !!versionData?.version }
@@ -126,11 +125,11 @@ export const useValueSetsTable = <T extends ValueSet | ValueSetRow>(
     // in the version call, so an error in the version call should preempt an error in the
     // data call
     error = error || tableError || valueSetError || null;
-    valueSetArray = valueSetData
+    const valueSetArray = valueSetData
         ? valueSetData.map((el) => ({ ...el, ...versionData }))
         : [];
 
-    return { error, valueSetArray };
+    return { error, valueSetArray: valueSetArray as T };
 };
 
 /* 

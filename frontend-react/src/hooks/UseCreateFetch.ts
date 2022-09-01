@@ -36,19 +36,10 @@ function createTypeWrapperForAuthorizedFetch(
     ): Promise<T> {
         const headerOverrides = options?.headers || {};
         const headers = { ...authHeaders, ...headerOverrides };
-        // console.log(
-        //     "!!! headers",
-        //     headers,
-        //     headerOverrides,
-        //     options,
-        //     authHeaders
-        // );
         const axiosConfig = EndpointConfig.toAxiosConfig({
             ...options,
             headers,
         });
-
-        console.log("!!! axios config", axiosConfig);
         return axios(axiosConfig).then(({ data }) => data);
     };
 }

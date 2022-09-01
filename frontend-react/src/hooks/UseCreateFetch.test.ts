@@ -1,6 +1,7 @@
 import { renderHook } from "@testing-library/react-hooks";
 import * as axios from "axios";
 
+import { RSEndpoint } from "../config/endpoints";
 import { mockToken } from "../utils/TestUtils";
 
 import * as UseCreateFetch from "./UseCreateFetch";
@@ -17,6 +18,11 @@ const fakeMembership = {
     parsedName: "any",
     memberType: MemberType.SENDER,
 };
+
+const fakeEndpoint = new RSEndpoint({
+    path: "/anything",
+    method: "GET",
+});
 
 describe("useCreateFetch", () => {
     // This spy based mock DOES NOT WORK unless reinstantiated for each test as shown here
@@ -64,10 +70,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
             fakeOktaToken,
             fakeMembership
         );
-        const authorizedFetchResult = authorizedFetch({
-            path: "/anything",
-            method: "GET",
-        });
+        const authorizedFetchResult = authorizedFetch(fakeEndpoint);
         expect(authorizedFetchResult).toBeInstanceOf(Promise);
     });
 
@@ -75,13 +78,9 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
         await createTypeWrapperForAuthorizedFetch(
             mockToken({ accessToken: "this token" }),
             fakeMembership
-        )({
-            path: "/anything",
-            method: "GET",
-            options: {
-                data: "some data",
-                timeout: 1,
-            },
+        )(fakeEndpoint, {
+            data: "some data",
+            timeout: 1,
         });
         expect(axios).toHaveBeenCalledTimes(1);
         expect(axios).toHaveBeenCalledWith({
@@ -101,16 +100,12 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
         await createTypeWrapperForAuthorizedFetch(
             mockToken({ accessToken: "this token" }),
             fakeMembership
-        )({
-            path: "/anything",
-            method: "GET",
-            options: {
-                data: "some data",
-                timeout: 1,
-                headers: {
-                    "authentication-type": "overridden",
-                    "x-fake-header": "me",
-                },
+        )(fakeEndpoint, {
+            data: "some data",
+            timeout: 1,
+            headers: {
+                "authentication-type": "overridden",
+                "x-fake-header": "me",
             },
         });
         expect(axios).toHaveBeenCalledTimes(1);
@@ -132,15 +127,11 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
         await createTypeWrapperForAuthorizedFetch(
             mockToken({ accessToken: "this token" }),
             fakeMembership
-        )({
-            path: "/anything",
-            method: "GET",
-            options: {
-                url: "do not use me",
-                method: "POST",
-                data: "some data",
-                timeout: 1,
-            },
+        )(fakeEndpoint, {
+            url: "do not use me",
+            method: "POST",
+            data: "some data",
+            timeout: 1,
         });
         expect(axios).toHaveBeenCalledTimes(1);
         expect(axios).toHaveBeenCalledWith({
@@ -160,13 +151,9 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
         const dataResult = await createTypeWrapperForAuthorizedFetch(
             mockToken({ accessToken: "this token" }),
             fakeMembership
-        )({
-            path: "/anything",
-            method: "GET",
-            options: {
-                data: "some data",
-                timeout: 1,
-            },
+        )(fakeEndpoint, {
+            data: "some data",
+            timeout: 1,
         });
         expect(dataResult).toEqual("any data");
     });
