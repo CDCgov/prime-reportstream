@@ -1,4 +1,10 @@
-import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
+import React, {
+    useState,
+    useEffect,
+    Dispatch,
+    SetStateAction,
+    useMemo,
+} from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 
@@ -130,6 +136,15 @@ const prepareRowsForSave = (
     return strippedArray;
 };
 
+const addIdsToRows = (valueSetArray: ValueSetRow[]): ValueSetRow[] => {
+    return valueSetArray.map((row, index) => {
+        return {
+            ...row,
+            id: index,
+        };
+    });
+};
+
 export const ValueSetsDetailTable = ({
     valueSetName,
     setAlert,
@@ -157,10 +172,18 @@ export const ValueSetsDetailTable = ({
         }
     }, [error, setAlert]);
 
-    const tableConfig: TableConfig = {
-        columns: valueSetDetailColumnConfig,
-        rows: valueSetArray,
-    };
+    const valueSetsWithIds = useMemo(
+        () => addIdsToRows(valueSetArray),
+        [valueSetArray]
+    );
+
+    const tableConfig: TableConfig = useMemo(
+        () => ({
+            columns: valueSetDetailColumnConfig,
+            rows: valueSetsWithIds,
+        }),
+        [valueSetsWithIds]
+    );
 
     const datasetActionItem: DatasetAction = {
         label: "Add item",
@@ -177,7 +200,7 @@ export const ValueSetsDetailTable = ({
                 try {
                     const dataToSave = prepareRowsForSave(
                         row,
-                        valueSetArray,
+                        valueSetsWithIds,
                         valueSetName
                     );
                     const saveResponse = await saveData({

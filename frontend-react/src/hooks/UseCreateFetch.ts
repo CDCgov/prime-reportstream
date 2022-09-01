@@ -2,8 +2,9 @@ import { useCallback } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 import axios from "axios";
 
-import { MembershipSettings } from "./UseOktaMemberships";
 import { RSEndpoint, AxiosOptionsWithSegments } from "../config/endpoints";
+
+import { MembershipSettings } from "./UseOktaMemberships";
 
 export type AuthorizedFetcher<T> = (
     EndpointConfig: RSEndpoint,
