@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
@@ -33,10 +33,19 @@ export const AuthElement = ({
             : requiredUserType === memberType;
     }, [requiredUserType, memberType]);
     // All the checks before returning the route
-    if (!oktaToken?.accessToken || !activeMembership) navigate("/login"); // Not logged in, needs to log in.
-    if (requiredUserType && !authorizeMemberType()) navigate("/"); // Not authorized as current member type
-    if (requiredFeatureFlag && !CheckFeatureFlag(requiredFeatureFlag))
-        navigate("/"); // Does not have feature flag enabled
+    useEffect(() => {
+        if (!oktaToken?.accessToken || !activeMembership) navigate("/login"); // Not logged in, needs to log in.
+        if (requiredUserType && !authorizeMemberType()) navigate("/"); // Not authorized as current member type
+        if (requiredFeatureFlag && !CheckFeatureFlag(requiredFeatureFlag))
+            navigate("/"); // Does not have feature flag enabled
+    }, [
+        activeMembership,
+        authorizeMemberType,
+        navigate,
+        oktaToken?.accessToken,
+        requiredFeatureFlag,
+        requiredUserType,
+    ]);
 
     return element(); // Checks passed, render page
 };
