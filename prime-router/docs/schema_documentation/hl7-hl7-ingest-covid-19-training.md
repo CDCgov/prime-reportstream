@@ -1234,7 +1234,7 @@ The SimpleReport concept of organization. It refers to organization for the orde
 
 **Type**: NUMBER
 
-**PII**: No
+**PII**: Yes
 
 **LOINC Code**: 30525-0
 
