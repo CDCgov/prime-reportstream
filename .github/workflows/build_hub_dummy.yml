@@ -1,14 +1,15 @@
-name: Build Hub
+name: Build Hub Dummy
+description: "This workflow runs ignoring any change under prime-router folder"
 
-on:
-  pull_request:
-    branches:
-      - master
-    paths-ignore:
-      - "prime-router/**"
+on: 
+  # pull_request:
+  #   branches:
+  #     - master
+  #   paths-ignore:
+  #     - "prime-router/**"
   push:
     branches:
-      - master
+      - feature/165-Add-filter-to-build-router-action
     paths-ignore:
       - "prime-router/**"
 
