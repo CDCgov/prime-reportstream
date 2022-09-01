@@ -1,12 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import React, { useCallback, useEffect, useMemo } from "react";
-import { Simulate } from "react-dom/test-utils";
 
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { CheckFeatureFlag, FeatureFlagName } from "../pages/misc/FeatureFlags";
-
-import input = Simulate.input;
 
 interface AuthElementProps {
     element: () => JSX.Element;
