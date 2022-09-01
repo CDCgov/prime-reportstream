@@ -23,10 +23,10 @@ export const IARouter = ({ directories, indexElement }: IARouterProps) => {
     );
 };
 
-export interface IAMetaAndRouterProps {
+export interface IAMetaProps {
     pageName: string;
 }
-export const IAMeta = ({ pageName }: IAMetaAndRouterProps) => {
+export const IAMeta = ({ pageName }: IAMetaProps) => {
     return (
         <>
             <Helmet>
