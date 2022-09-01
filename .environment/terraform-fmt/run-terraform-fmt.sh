@@ -67,6 +67,7 @@ function terraform_fmt_check() {
 }
 
 function terraform_fmt_fix() {
+    checkExec
     warning "Formatting all Terraform files."
     terraform fmt -recursive "${REPO_ROOT?}/operations/app/terraform" >"${REPO_ROOT?}/${LOGFILE?}" 2>&1
     return $?
