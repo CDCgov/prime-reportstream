@@ -1,4 +1,4 @@
-# Testing Network Calls
+# Testing & Network Calls
 
 ## A brief history
 
@@ -94,9 +94,57 @@ Our network calls are handled with a custom React hook. This adds a layer of con
 
 ### Testing custom fetch hooks
 
+If you're testing a hook, you'll need to render the hook without rendering a component. For this, `testing-library/react-hooks` exists! You can see their `renderHook` function in action below:
+
+```typescript
+test("positive response", async () => {
+    const { result, waitForNextUpdate } = renderHook(() =>
+        useNetwork<Report>(HistoryApi.detail("test"))
+    );
+    await waitForNextUpdate();
+    expect(result.current.loading).toBeFalsy();
+    expect(result.current.status).toBe(200);
+    expect(result.current.message).toBe("");
+    expect(result.current.data).toBeDefined();
+});
+```
+
+This async-await setup is necessary for asserting the proper state since the info is not returned at call time, but rather after the promise is resolved.
+
+See our tests for the useValueSets hook for more examples (link tbd).
+
 ### Testing components that use custom fetch hooks
 
-Components _do_ need to render when unit testing, and for that, we can rely on our usual `render` method from the `testing-library/react` library. However, because we need both success and failure tests, we're going to need to create two separate mock services in our mock service module. Let's revisit that:
+Components _do_ need to render when unit testing, and for that, we can rely on our usual `render` method from the `testing-library/react` library. Since our components will be using custom hooks to communicate with the network / API, and any custom hooks that we have built will be testing using msw using the strategies we've talked about above, components are free to mock out the hooks used to make the requests and focus on testing presentation, and any business logic that may live within the components.
+
+```typescript
+let mockUseValueSetsTable = jest.fn();
+
+jest.mock("../../../hooks/UseValueSets", () => {
+    return {
+        useValueSetsTable: () => mockUseValueSetsTable(),
+    };
+});
+
+describe("ValueSetsIndex", () => {
+    test("Renders with no errors", () => {
+        mockUseValueSetsTable = jest.fn(() => ({
+            valueSetArray: [] as ValueSet[],
+            error: null,
+        }));
+        renderWithFullAppContext(<ValueSetsIndex />);
+        const headers = screen.getAllByRole("columnheader");
+        const title = screen.getByText("ReportStream Value Sets");
+        const rows = screen.getAllByRole("row");
+
+        expect(headers.length).toEqual(4);
+        expect(title).toBeInTheDocument();
+        expect(rows.length).toBe(1); // +1 for header
+    });
+
+```
+
+There are quite a few ways to do this sort of mocking (jest.mock, jest.spyOn, or using mock files), and ReportStream's tests are currently not very opinionated on which way is best. More guidance on that to come!
 
 ### The Jest setup
 
@@ -126,3 +174,7 @@ describe("Failure Tests", () => {
     test(...)
 })
 ```
+
+In general, `describe` blocks can be used for tests that are testing the same basic piece of code. Usually this means setting up `describe` blocks for each function you are testing, but could also group tests by functionality, such as tests for success conditions vs. failure conditions, or tests of a function when in a particular set of states.
+
+Within `describe` blocks, `test` blocks are used to hold specific test cases. In some situations multiple test cases are handled within a single `test` block, but for ease of tracking failures it is best to separate cases when possible.
