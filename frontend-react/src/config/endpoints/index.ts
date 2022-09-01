@@ -42,7 +42,16 @@ export class RSEndpoint {
         return `${API_ROOT}${this.path}`;
     }
 
+    get hasDynamicSegments(): boolean {
+        return this.path.indexOf("/:") > -1;
+    }
+
     toDynamicUrl(segments?: StringIndexed<string>) {
+        if (!segments && this.hasDynamicSegments) {
+            throw new Error(
+                `Attempted to use dynamic url without providing segment values: ${this.path}`
+            );
+        }
         if (!segments) {
             return this.url;
         }
