@@ -1,14 +1,14 @@
 name: Build Hub
 
 on:
-  # pull_request:
-  #   branches:
-  #     - master
-  #   paths-ignore:
-  #     - "prime-router/**"
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - "prime-router/**"
   push:
     branches:
-      - feature/165-Add-filter-to-build-router-action
+      - master
     paths-ignore:
       - "prime-router/**"
 
