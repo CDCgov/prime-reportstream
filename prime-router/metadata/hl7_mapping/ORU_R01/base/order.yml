@@ -52,7 +52,7 @@ elements:
   - name: ordering-provider
     resource: '%resource.basedOn.resolve().requester.resolve().practitioner.resolve()'
     constants:
-      xcnFieldPath: '%{hl7Order}-12'
+      hl7XCNField: '%{hl7Order}-12'
     schema: xcn-contact
     resourceIndex: contactIndex
 

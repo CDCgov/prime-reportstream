@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 
-terraform version &>/dev/null
+function checkExec() {
+    terraform version &>/dev/null
 
-if [ $? -eq 0 ]; 
-  then
-   echo "Great! $(Terraform version | head -1) is istalled"
-   echo -e "\033[32mNow runing Terraform format Check...\033[m" 
-  else
-   echo -e "\033[31mError: Terraform executable is missing.\033[m"
-   echo -e "Please follow https://www.terraform.io/downloads.html for the installation steps"
-   exit 1
-fi
+    if [ $? -eq 0 ]; 
+    then
+       echo "Great! $(Terraform version | head -1) is istalled"
+       echo -e "\033[32mNow runing Terraform format Check...\033[m" 
+    else
+       echo -e "\033[31mError: Terraform executable is missing.\033[m"
+       echo -e "Please follow https://www.terraform.io/downloads.html for the installation steps"
+       exit 1
+    fi
+}
 
 function usage() {
     echo "usage: ${0} [OPTION]"
@@ -53,6 +55,7 @@ function terraform_fmt_check() {
     MODIFIED_TF_FILES_COUNT=$(git status --porcelain | grep "\.tf$" | wc -l)
     RC=0
     if [ ${MODIFIED_TF_FILES_COUNT?} != 0 ]; then
+        checkExec
         terraform fmt -check -recursive "${REPO_ROOT?}/operations/app/terraform" >"${REPO_ROOT?}/${LOGFILE?}" 2>&1
         RC=$?
     else
@@ -64,6 +67,7 @@ function terraform_fmt_check() {
 }
 
 function terraform_fmt_fix() {
+    checkExec
     warning "Formatting all Terraform files."
     terraform fmt -recursive "${REPO_ROOT?}/operations/app/terraform" >"${REPO_ROOT?}/${LOGFILE?}" 2>&1
     return $?

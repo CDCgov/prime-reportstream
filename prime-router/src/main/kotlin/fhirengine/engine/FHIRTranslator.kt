@@ -15,7 +15,6 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchema
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 
 /**
@@ -55,15 +54,16 @@ class FHIRTranslator(
             actionHistory.trackExistingInputReport(message.reportId)
 
             // todo: iterate over each receiver, translating on a per-receiver basis - for phase 1, hard coded to CO
-            val receivers = listOf("ignore")
+            val receivers = listOf("ignore.FULL_ELR")
 
-            receivers.forEach {
+            receivers.forEach { receiver ->
                 // todo: get schema for receiver - for Phase 1 this is solely going to convert to HL7 and not do any
                 //  receiver-specific transforms
-
-                // todo: do translation, get hl7 message
-                val schema = ConfigSchema("FHIR_HL7", hl7Type = "ORU_R01", hl7Version = "2.5.1")
-                val hl7Message = FhirToHl7Converter(bundle, schema).convert()
+                val converter = FhirToHl7Converter(
+                    bundle, "ORU_R01-base",
+                    "metadata/hl7_mapping/ORU_R01"
+                )
+                val hl7Message = converter.convert()
 
                 // create report object
                 val sources = emptyList<Source>()
@@ -107,7 +107,7 @@ class FHIRTranslator(
                     Report.Format.HL7,
                     bodyBytes,
                     report.name,
-                    it,
+                    receiver,
                     batchEvent.eventAction
                 )
 

@@ -14,7 +14,6 @@ import { toHumanReadable } from "../../../utils/misc";
 import {
     LookupTable,
     lookupTableApi,
-    LookupTables,
     ValueSetRow,
 } from "../../../network/api/LookupTableApi";
 import { StaticAlert } from "../../../components/StaticAlert";
@@ -133,15 +132,24 @@ const saveData = async (
 
     const endpointHeaderActivate = lookupTableApi.activateTableData(
         updateResult.data.tableVersion,
-        LookupTables.VALUE_SET_ROW
+        valueSetName
     );
 
     const activateResult = await axios.put(
         endpointHeaderActivate.url,
-        LookupTables.VALUE_SET_ROW,
+        valueSetName,
         endpointHeaderActivate
     );
     return activateResult.data;
+};
+
+const addIdsToRows = (valueSetArray: ValueSetRow[]): ValueSetRow[] => {
+    return valueSetArray.map((row, index) => {
+        return {
+            ...row,
+            id: index,
+        };
+    });
 };
 
 interface SenderAutomationDataRow extends ValueSetRow {
@@ -176,7 +184,7 @@ export const ValueSetsDetailTable = ({
     }, [error, setAlert]);
 
     useEffect(() => {
-        setValueSetRows(valueSetArray);
+        setValueSetRows(addIdsToRows(valueSetArray));
     }, [valueSetArray]);
 
     const tableConfig: TableConfig = {

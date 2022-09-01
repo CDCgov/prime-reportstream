@@ -1,12 +1,177 @@
 name: ORU-R01-patient
+constants:
+  hl7PIDField: /PATIENT_RESULT/PATIENT/PID
 elements:
-  - name: patient-last-name
-    condition: '%resource is Patient and %resource.name.family.exists()'
-    required: true
-    value: [ '%resource.name.family' ]
-    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-5-1' ]
+  - name: set-id
+    value: [ '''1''' ]
+    hl7Spec: [ '%{hl7PIDField}-1' ]
 
-  - name: patient-contact
-    resource: '%resource.contact[0]'
+  - name: patient-identifier-list
+    resource: '%resource.identifier'
+    constants:
+      hl7CXField: 'PID-3'
+    schema: cx-extended-composite-id
+    resourceIndex: idIndex
+
+  - name: patient-name
+    resource: '%resource.name'
     condition: '%resource.exists()'
-    schema: patient-contact
+    constants:
+      hl7NameField: '%{hl7PIDField}-5'
+    schema: human-name
+
+  - name: patient-dob
+    value: [ '%resource.birthDate' ]
+    hl7Spec: [ '%{hl7PIDField}-7' ]
+
+  - name: patient-sex
+    value: [ '%resource.gender.GetAdministrativeGenderCode()' ]
+    hl7Spec: [ '%{hl7PIDField}-8' ]
+
+  #race
+  - name: patient-race-identifier
+    value: [ '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding.code' ]
+    hl7Spec: [ '%{hl7PIDField}-10-1' ]
+
+  - name: patient-race-text
+    value: [ '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.text' ]
+    hl7Spec: [ '%{hl7PIDField}-10-2' ]
+
+  # this value just confirms that this segment part is HL7-Race
+  - name: patient-race-coding-system
+    value: [ '''HL70005''' ]
+    hl7Spec: [ '%{hl7PIDField}-10-3' ]
+
+  - name: patient-race-alternate-identifier
+    resource: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.code' ]
+    hl7Spec: [ '%{hl7PIDField}-10-4' ]
+
+  - name: patient-race-alternate-text
+    resource: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.display' ]
+    hl7Spec: [ '%{hl7PIDField}-10-5' ]
+
+  - name: patient-race-alternate-system
+    resource: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.system' ]
+    hl7Spec: [ '%{hl7PIDField}-10-6' ]
+
+  - name: patient-address
+    resource: '%resource.address'
+    condition: '%resource.exists()'
+    constants:
+      hl7AddressField: '%{hl7PIDField}-11'
+    schema: xad-extended-address
+    resourceIndex: orderIndex
+
+  - name: phone-number-home
+    resource: '%resource.telecom.where(use = "home")'
+    constants:
+      hl7TelecomField: '%{hl7PIDField}-13'
+    schema: xtn-telecom
+
+  - name: phone-number-business
+    resource: '%resource.telecom.where(use = "work")'
+    constants:
+      hl7TelecomField: '%{hl7PIDField}-14'
+    schema: xtn-telecom
+
+  - name: patient-marital-status
+    value: [ '%resource.maritalStatus.where(coding.system = "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus").coding.code' ]
+    hl7Spec: [ '%{hl7PIDField}-16' ]
+
+  - name: patient-religion-identifier
+    condition: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.coding.code.exists()'
+    value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.coding.code' ]
+    hl7Spec: [ '%{hl7PIDField}-17-1' ]
+
+  - name: patient-religion-identifier-no-code-non-religious
+    condition: >
+      %resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.coding.code.exists().not() and
+      %resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.text = "Nonreligious"
+    value: [ '''NOE''' ]
+    hl7Spec: [ '%{hl7PIDField}-17-1' ]
+
+  - name: patient-religion-text
+    value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-religion").value.text' ]
+    hl7Spec: [ '%{hl7PIDField}-17-2' ]
+
+  # this value just confirms that this segment part is HL7-Religion
+  - name: patient-religion-text
+    value: [ '''HL70006''' ]
+    hl7Spec: [ '%{hl7PIDField}-17-3' ]
+
+  # ethnic group
+  - name: patient-ethnic-identifier
+    value: [ '%resource.extension("http://terminology.hl7.org/ValueSet/v2-0189").value.coding.code' ]
+    hl7Spec: [ '%{hl7PIDField}-22-1' ]
+
+  - name: patient-ethnic-text
+    value: [ '%resource.extension("http://terminology.hl7.org/ValueSet/v2-0189").value.text' ]
+    hl7Spec: [ '%{hl7PIDField}-22-2' ]
+
+  # this value just confirms that this segment part is HL7-Ethnic Group
+  - name: patient-ethnic-coding-system
+    value: [ '''HL70189''' ]
+    hl7Spec: [ '%{hl7PIDField}-22-3' ]
+
+  - name: patient-ethnic-alternate-identifier
+    resource: '%resource.extension("http://terminology.hl7.org/ValueSet/v2-0189").value'
+    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.code' ]
+    hl7Spec: [ '%{hl7PIDField}-22-4' ]
+
+  - name: patient-ethnic-alternate-text
+    resource: '%resource.extension("http://terminology.hl7.org/ValueSet/v2-0189").value'
+    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.display' ]
+    hl7Spec: [ '%{hl7PIDField}-22-5' ]
+
+  - name: patient-ethnic-alternate-system
+    resource: '%resource.extension("http://terminology.hl7.org/ValueSet/v2-0189").value'
+    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.system' ]
+    hl7Spec: [ '%{hl7PIDField}-22-6' ]
+
+  - name: patient-death-indicator
+    value: [ '%resource.deceased.GetYesNoValue()' ]
+    hl7Spec: [ '%{hl7PIDField}-30' ]
+
+  - name: patient-last-updated-at
+    value: [ '%resource.meta.lastUpdated' ]
+    hl7Spec: [ '%{hl7PIDField}-33' ]
+
+  - name: last-update-facility
+    resource: '%resource.identifier'
+    constants:
+      hl7HDField: '%{hl7PIDField}-34'
+      # cannot use %`rext due to mix of constant and fhirpath substitution syntax
+      namespaceExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id'
+      universalIdExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id'
+    schema: hd-hierarchic-designator
+
+  - name: patient-species-identifier
+    value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value.coding.code' ]
+    hl7Spec: [ '%{hl7PIDField}-35-1' ]
+
+  - name: patient-species-text
+    value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value.text' ]
+    hl7Spec: [ '%{hl7PIDField}-35-2' ]
+
+  # need to check why the value we get here is SCT instead of HL70446
+  - name: patient-species-coding-system
+    value: [ '''SCT''' ]
+    hl7Spec: [ '%{hl7PIDField}-35-3' ]
+
+  - name: patient-species-alternate-identifier
+    resource: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value'
+    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.code' ]
+    hl7Spec: [ '%{hl7PIDField}-35-4' ]
+
+  - name: patient-species-alternate-text
+    resource: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value'
+    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.display' ]
+    hl7Spec: [ '%{hl7PIDField}-35-5' ]
+
+  - name: patient-species-alternate-system
+    resource: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value'
+    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.system' ]
+    hl7Spec: [ '%{hl7PIDField}-35-6' ]
