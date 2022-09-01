@@ -143,6 +143,15 @@ const saveData = async (
     return activateResult.data;
 };
 
+const addIdsToRows = (valueSetArray: ValueSetRow[]): ValueSetRow[] => {
+    return valueSetArray.map((row, index) => {
+        return {
+            ...row,
+            id: index,
+        };
+    });
+};
+
 interface SenderAutomationDataRow extends ValueSetRow {
     id?: number;
 }
@@ -175,7 +184,7 @@ export const ValueSetsDetailTable = ({
     }, [error, setAlert]);
 
     useEffect(() => {
-        setValueSetRows(valueSetArray);
+        setValueSetRows(addIdsToRows(valueSetArray));
     }, [valueSetArray]);
 
     const tableConfig: TableConfig = {
