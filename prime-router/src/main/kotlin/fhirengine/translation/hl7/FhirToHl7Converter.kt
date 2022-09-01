@@ -200,6 +200,7 @@ class FhirToHl7Converter(
             val resolvedHl7Spec = ConstantSubstitutor.replace(rawHl7Spec, context)
             try {
                 terser!!.set(resolvedHl7Spec, value)
+                logger.debug("Set HL7 $resolvedHl7Spec = $value")
             } catch (e: HL7Exception) {
                 val msg = "Could not set HL7 value for spec $resolvedHl7Spec for element ${element.name}"
                 if (strict) {
