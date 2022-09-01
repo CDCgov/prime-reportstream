@@ -115,7 +115,6 @@ class LivdTableDownload : CliktCommand(
             echo("The lookup table was updated successfully.")
     }
 
-
     /**
      *  The downloadFile downloads the latest LOINC test data, so it can be ingested automatically.
      *  It looks for the LIVD-SAR-CoV-2-yyyy-MM-dd.xlsx file from the URL below:
@@ -273,7 +272,7 @@ class LivdTableDownload : CliktCommand(
             fileOutputStream.close()
 
             return removeBlankRowFromCsv(outputfile)
-        } catch ( e: Exception ) {
+        } catch (e: Exception) {
             error("Extract Livd Table failed: $e.")
         }
     }
