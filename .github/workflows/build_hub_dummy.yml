@@ -1,5 +1,5 @@
 name: Build Hub Dummy
-description: "This is the dummy build"
+
 on:
   # pull_request:
   #   branches:
@@ -18,12 +18,13 @@ env:
   DB_PASSWORD: changeIT!
 
 jobs:
-  # dummy_job:
-  #   name: Dummy job
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Dummy build
-  #       run: echo "this is the dummy build"
+  dummy_job:
+    name: Dummy job
+    runs-on: ubuntu-latest
+    description: "This is the dummy build"
+    steps:
+      - name: Dummy build
+        run: echo "this is the dummy build"
   pre_job:
     name: Pre Job
     runs-on: ubuntu-latest
