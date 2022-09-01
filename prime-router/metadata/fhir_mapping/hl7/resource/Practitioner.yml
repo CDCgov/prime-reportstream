@@ -5,8 +5,8 @@ id:
   expressionType: JEXL
 
 # The FHIR practitioner resource doesn't have any required fields.
-# However we do not want empty practitioner resources.
-# Thefore wherever Practitioner is referenced make sure to verify the value is NOT_NULL.
+# However, we do not want empty practitioner resources.
+# Therefore, wherever Practitioner is referenced make sure to verify the value is NOT_NULL.
 identifier_1:
     valueOf: datatype/Identifier_SystemID 
     generateList: true

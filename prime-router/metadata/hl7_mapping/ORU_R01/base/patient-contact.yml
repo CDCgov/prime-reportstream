@@ -44,6 +44,7 @@ elements:
     constants:
       hl7AddressField: '/PATIENT_RESULT/PATIENT/NK1-4'
     schema: xad-extended-address
+    resourceIndex: orderIndex
 
   - name: phone-number
     resource: '%resource.telecom'
@@ -65,3 +66,4 @@ elements:
     constants:
       hl7AddressField: '/PATIENT_RESULT/PATIENT/NK1-32'
     schema: xad-extended-address
+    resourceIndex: orderIndex

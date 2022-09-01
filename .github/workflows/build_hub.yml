@@ -1,10 +1,9 @@
-name: Router
+name: Build Hub
 
 on:
   pull_request:
     branches:
       - master
-      - production
   push:
     branches:
       - master
@@ -50,7 +49,7 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
-      - uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+      - uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
 
       - name: Spin up build containers
         run: docker-compose -f docker-compose.postgres.yml up -d
@@ -200,7 +199,7 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
-      - uses: gradle/wrapper-validation-action@859c33240bd026ce8d5f711f5adcc65c2f8eafc1
+      - uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
 
       - name: Spin up build containers
         run: docker-compose -f docker-compose.postgres.yml up -d
