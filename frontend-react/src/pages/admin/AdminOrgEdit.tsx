@@ -1,7 +1,6 @@
-import React, { Suspense, useEffect, useRef, useState } from "react";
+import React, { Suspense, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
-import { useParams } from "react-router-dom";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
@@ -39,18 +38,14 @@ import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
 import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
 import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
+import { useValidParams } from "../../hooks/UseValidParams";
 
 type AdminOrgEditProps = {
     orgname: string;
 };
 
 export function AdminOrgEdit() {
-    const { orgname } = useParams<AdminOrgEditProps>();
-    useEffect(() => {
-        if (orgname === undefined) {
-            throw Error("Url param {orgname} is undefined");
-        }
-    }, [orgname]);
+    const { orgname } = useValidParams<AdminOrgEditProps>(["orgname"]);
 
     const orgSettings: OrgSettingsResource = useResource(
         OrgSettingsResource.detail(),
@@ -159,9 +154,7 @@ export function AdminOrgEdit() {
                 <title>Admin | Org Edit | {process.env.REACT_APP_TITLE}</title>
             </Helmet>
             <section className="grid-container margin-top-3 margin-bottom-5">
-                <Title
-                    title={`Org name: ${orgname || "missing param 'orgname'"}`}
-                />
+                <Title title={`Org name: ${orgname}`} />
             </section>
             <NetworkErrorBoundary
                 fallbackComponent={() => <ErrorPage type="message" />}
@@ -231,7 +224,7 @@ export function AdminOrgEdit() {
                                 </Button>
                             </Grid>
                             <ConfirmSaveSettingModal
-                                uniquid={orgname || ""}
+                                uniquid={orgname}
                                 onConfirm={saveOrgData}
                                 ref={confirmModalRef}
                                 oldjson={orgSettingsOldJson}
@@ -240,8 +233,8 @@ export function AdminOrgEdit() {
                         </GridContainer>
                         <br />
                     </section>
-                    <OrgSenderTable orgname={orgname || ""} />
-                    <OrgReceiverTable orgname={orgname || ""} />
+                    <OrgSenderTable orgname={orgname} />
+                    <OrgReceiverTable orgname={orgname} />
                 </Suspense>
             </NetworkErrorBoundary>
             <HipaaNotice />

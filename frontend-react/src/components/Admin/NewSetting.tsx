@@ -75,11 +75,9 @@ export function NewSetting() {
             <GridContainer>
                 <Grid row>
                     <Grid col="fill" className="text-bold">
-                        Org name: {orgname || "missing param 'orgname'"}
+                        Org name: {orgname}
                         <br />
-                        Setting Type:{" "}
-                        {settingtype ||
-                            "missing param 'settingtype' (should be 'sender' or 'receiver')"}
+                        Setting Type: {settingtype}
                         <br />
                         <br />
                     </Grid>
