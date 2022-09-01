@@ -25,8 +25,20 @@ elements:
     required: true
     schema: base/patient
 
+  - name: patient-contact
+    resource: 'Bundle.entry.resource.ofType(Patient).contact'
+    condition: '%resource.exists()'
+    schema: base/patient-contact
+
   - name: patient-visit
     resource: 'Bundle.entry.resource.ofType(Encounter)'
     condition: '%resource.count() = 1'
     required: true
     schema: base/patient-visit
+
+  - name: order-observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.count() > 0'
+    required: true
+    schema: base/order-observation
+    resourceIndex: orderIndex
