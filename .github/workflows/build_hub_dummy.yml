@@ -1,14 +1,14 @@
 name: Build Hub Dummy
 
 on:
-  # pull_request:
-  #   branches:
-  #     - master
-  #   paths-ignore:
-  #     - "prime-router/**"
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - "prime-router/**"
   push:
     branches:
-      - feature/165-Add-filter-to-build-router-action
+      - master
     paths-ignore:
       - "prime-router/**"
 
@@ -21,10 +21,9 @@ jobs:
   dummy_job:
     name: Dummy job
     runs-on: ubuntu-latest
-    description: "This is the dummy build"
     steps:
-      - name: Dummy build
-        run: echo "this is the dummy build"
+      - name: Dummy Build
+        run: echo "This is the build_hub dummy workflow "
   pre_job:
     name: Pre Job
     runs-on: ubuntu-latest
