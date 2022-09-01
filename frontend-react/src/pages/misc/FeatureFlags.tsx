@@ -14,6 +14,7 @@ import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 
 export enum FeatureFlagName {
+    FOR_TEST = "for-tests-only",
     NUMBERED_PAGINATION = "numbered-pagination",
     VALUE_SETS_ADMIN = "value-sets",
     BUILT_FOR_YOU = "built-for-you",

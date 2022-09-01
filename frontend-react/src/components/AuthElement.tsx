@@ -34,10 +34,23 @@ export const AuthElement = ({
     }, [requiredUserType, memberType]);
     // All the checks before returning the route
     useEffect(() => {
-        if (!oktaToken?.accessToken || !activeMembership) navigate("/login"); // Not logged in, needs to log in.
-        if (requiredUserType && !authorizeMemberType()) navigate("/"); // Not authorized as current member type
-        if (requiredFeatureFlag && !CheckFeatureFlag(requiredFeatureFlag))
-            navigate("/"); // Does not have feature flag enabled
+        if (!oktaToken?.accessToken || !activeMembership) {
+            navigate("/login");
+            return;
+        } // Not logged in, needs to log in.
+        if (requiredUserType && !authorizeMemberType()) {
+            navigate("/");
+            return;
+        } // Not authorized as current member type
+        if (requiredFeatureFlag && !CheckFeatureFlag(requiredFeatureFlag)) {
+            if (activeMembership.memberType === MemberType.PRIME_ADMIN) {
+                navigate("/admin/features");
+                return;
+            } else {
+                navigate("/");
+                return;
+            }
+        } // Does not have feature flag enabled
     }, [
         activeMembership,
         authorizeMemberType,
