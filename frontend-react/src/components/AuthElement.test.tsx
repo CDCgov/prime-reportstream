@@ -120,4 +120,43 @@ describe("AuthElement unit tests", () => {
         );
         expect(mockUseNavigate).toHaveBeenCalledWith("/admin/features");
     });
+    test("Considers all given authorized user types (affirmative)", () => {
+        mockSessionContext.mockReturnValueOnce({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
+            activeMembership: {
+                memberType: MemberType.SENDER,
+                parsedName: "PrimeAdmins",
+            },
+            dispatch: () => {},
+        });
+        render(
+            <AuthElement
+                element={TestElement}
+                requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
+            />
+        );
+        expect(screen.getByText("Test Passed")).toBeInTheDocument();
+        expect(mockUseNavigate).not.toHaveBeenCalled();
+    });
+    test("Considers all given authorized user types (negative)", () => {
+        mockSessionContext.mockReturnValueOnce({
+            oktaToken: {
+                accessToken: "TOKEN",
+            },
+            activeMembership: {
+                memberType: MemberType.NON_STAND,
+                parsedName: "PrimeAdmins",
+            },
+            dispatch: () => {},
+        });
+        render(
+            <AuthElement
+                element={TestElement}
+                requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
+            />
+        );
+        expect(mockUseNavigate).toHaveBeenCalledWith("/");
+    });
 });
