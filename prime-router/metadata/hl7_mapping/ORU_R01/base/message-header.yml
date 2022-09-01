@@ -6,7 +6,7 @@ elements:
     hl7Spec: [ MSH-3-1 ]
 
   - name: sending-application-universal-id
-    condition: '%resource.extension(%`source-identifier-system`).value is Oid'
+    condition: '%resource.source.extension(%`rsext-source-identifier-system`).value is Oid'
     value: [ '%resource.source.extension(%`rsext-source-identifier-system`).value.toString().replace(''urn:oid:'','''')' ]
     hl7Spec: [ MSH-3-2 ]
 
@@ -19,8 +19,8 @@ elements:
     hl7Spec: [ MSH-4-1 ]
 
   - name: sending-facility-universal-id
-    condition: '%resource.sender.resolve().identifier.value is Oid'
-    value: [ '%resource.sender.resolve().identifier.value.toString().replace(''urn:oid:'','''')' ]
+    condition: '%resource.sender.resolve().identifier[0].value.startsWith(''urn:oid:'')'
+    value: [ '%resource.sender.resolve().identifier[0].value.toString().replace(''urn:oid:'','''')' ]
     hl7Spec: [ MSH-4-2 ]
 
   - name: sending-facility-universal-id-type
@@ -32,7 +32,7 @@ elements:
     hl7Spec: [ MSH-5-1 ]
 
   - name: receiving-application-universal-id
-    condition: '%resource.extension(%`rsext-receiving-application-identifier`).value is Oid'
+    condition: '%resource.destination.extension(%`rsext-receiving-application-identifier`).value is Oid'
     value: [ '%resource.destination.extension(%`rsext-receiving-application-identifier`).value.toString().replace(''urn:oid:'','''')' ]
     hl7Spec: [ MSH-5-2 ]
 
@@ -45,7 +45,7 @@ elements:
     hl7Spec: [ MSH-6-1 ]
 
   - name: receiving-facility-universal-id
-    condition: '%resource.extension(%`rsext-receiving-facility-identifier`).value is Oid'
+    condition: '%resource.destination.extension(%`rsext-receiving-facility-identifier`).value is Oid'
     value: [ '%resource.destination.extension(%`rsext-receiving-facility-identifier`).value.toString().replace(''urn:oid:'','''')' ]
     hl7Spec: [ MSH-6-2 ]
 

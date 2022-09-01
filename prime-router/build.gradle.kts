@@ -706,13 +706,12 @@ dependencies {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3")
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.18")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-base:5.7.1")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.0.3")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.1.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.12.54")
@@ -763,8 +762,8 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:5.2.2")
     implementation("commons-io:commons-io: 2.11.0")
     implementation("com.anyascii:anyascii:0.3.1")
-// force jsoup since skrapeit-html-parser@1.2.1 has not updated
-    implementation("org.jsoup:jsoup:1.14.2")
+// force jsoup since skrapeit-html-parser@1.2.1+ has not updated
+    implementation("org.jsoup:jsoup:1.15.3")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.3")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
