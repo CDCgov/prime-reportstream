@@ -19,6 +19,8 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkClass
+import io.mockk.spyk
+import io.mockk.verify
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
@@ -267,5 +269,96 @@ class ActionHistoryTests {
                 header, "filename1", uuid2, "bob"
             )
         }.isFailure()
+    }
+
+    @Test
+    fun `test setActionId`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val workflowEngine = mockkClass(WorkflowEngine::class)
+        every { workflowEngine.metadata }.returns(metadata)
+        val uuid1 = UUID.randomUUID()
+        val uuid2 = UUID.randomUUID()
+        val uuid3 = UUID.randomUUID()
+        val reportFile1 = ReportFile()
+        reportFile1.reportId = uuid1
+        reportFile1.receivingOrg = "myOrg"
+        reportFile1.receivingOrgSvc = "myRcvr"
+
+        val reportFile2 = ReportFile()
+        reportFile1.reportId = uuid2
+        reportFile1.receivingOrg = "myOrg"
+        reportFile1.receivingOrgSvc = "myRcvr"
+
+        val reportFile3 = ReportFile()
+        reportFile1.reportId = uuid3
+        reportFile1.receivingOrg = "myOrg"
+        reportFile1.receivingOrgSvc = "myRcvr"
+
+        val actionHistory = ActionHistory(TaskAction.process)
+        actionHistory.reportsReceived[uuid1] = reportFile1
+        actionHistory.reportsOut[uuid2] = reportFile2
+        actionHistory.filteredOutReports[uuid2] = reportFile3
+
+        actionHistory.setActionId(12345)
+
+        assertThat { actionHistory.action.actionId.equals(12345) }
+        assertThat { actionHistory.reportsReceived.values.all { it.actionId.equals(12345) } }
+        assertThat { actionHistory.reportsOut.values.all { it.actionId.equals(12345) } }
+        assertThat { actionHistory.filteredOutReports.values.all { it.actionId.equals(12345) } }
+    }
+
+    @Test
+    fun `test generateLineages - generateEmptyReport`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val workflowEngine = mockkClass(WorkflowEngine::class)
+        every { workflowEngine.metadata }.returns(metadata)
+        val uuid1 = UUID.randomUUID()
+        val uuid2 = UUID.randomUUID()
+        val reportFile1 = ReportFile()
+        reportFile1.reportId = uuid1
+        reportFile1.receivingOrg = "myOrg"
+        reportFile1.receivingOrgSvc = "myRcvr"
+
+        val reportFile2 = ReportFile()
+        reportFile1.reportId = uuid2
+        reportFile1.receivingOrg = "myOrg"
+        reportFile1.receivingOrgSvc = "myRcvr"
+
+        val actionHistory = ActionHistory(TaskAction.process, true)
+        actionHistory.reportsIn[uuid1] = reportFile1
+        actionHistory.reportsOut[uuid2] = reportFile2
+
+        actionHistory.generateLineages()
+
+        assertThat { actionHistory.reportLineages.size == 1 }
+    }
+
+    @Test
+    fun `test generateLineages - no generateEmptyReport`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val workflowEngine = mockkClass(WorkflowEngine::class)
+        every { workflowEngine.metadata }.returns(metadata)
+        val uuid1 = UUID.randomUUID()
+        val uuid2 = UUID.randomUUID()
+        val reportFile1 = ReportFile()
+        reportFile1.reportId = uuid1
+        reportFile1.receivingOrg = "myOrg"
+        reportFile1.receivingOrgSvc = "myRcvr"
+
+        val reportFile2 = ReportFile()
+        reportFile1.reportId = uuid2
+        reportFile1.receivingOrg = "myOrg"
+        reportFile1.receivingOrgSvc = "myRcvr"
+
+        val actionHistory = spyk(ActionHistory(TaskAction.process))
+        actionHistory.reportsReceived[uuid1] = reportFile1
+        actionHistory.reportsOut[uuid2] = reportFile2
+        actionHistory.setActionId(12345)
+
+        every { actionHistory.generateReportLineagesUsingItemLineage(any()) } returns Unit
+
+        actionHistory.generateLineages()
+
+        verify(exactly = 1) { actionHistory.generateReportLineagesUsingItemLineage(any()) }
     }
 }

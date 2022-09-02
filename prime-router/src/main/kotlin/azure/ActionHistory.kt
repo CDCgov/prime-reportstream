@@ -620,7 +620,7 @@ class ActionHistory(
      * Use the detailed item lineage to exactly/correctly generate the report parent/child relationships.
      *
      */
-    private fun generateReportLineagesUsingItemLineage(actionId: Long) {
+    internal fun generateReportLineagesUsingItemLineage(actionId: Long) {
         // Extract the distinct parent/child report pairs from the Item Lineage
         val parentChildReports = itemLineages.map { Pair(it.parentReportId, it.childReportId) }.toSet()
         parentChildReports.forEach {
