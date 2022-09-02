@@ -127,16 +127,22 @@ elements:
     hl7Spec: [ '%{fieldPath}-26-3' ]
 
   - name: placer-assigned-identifier
-    resource: '%resource.extension(%`rsext-placer-assigned-identifier`)'
+    resource: '%resource.extension(%`rsext-placer-assigned-identifier`).value'
     condition: '%resource.exists()'
-    value: [ '%resource.value.value' ]
-    hl7Spec: [ '%{fieldPath}-29-1' ]
+    constants:
+      entityIdFieldPath: '%{fieldPath}-29'
+      entityIdIndex: '0'
+    schema: entity-identifier
+    resourceIndex: entityIdIndex
 
   - name: filler-assigned-identifier
-    resource: '%resource.extension(%`rsext-filler-assigned-identifier`)'
+    resource: '%resource.extension(%`rsext-filler-assigned-identifier`).value'
     condition: '%resource.exists()'
-    value: [ '%resource.value.value' ]
-    hl7Spec: [ '%{fieldPath}-29-2' ]
+    constants:
+      entityIdFieldPath: '%{fieldPath}-29'
+      entityIdIndex: '1'
+    schema: entity-identifier
+    resourceIndex: entityIdIndex
 
   - name: reason-for-study
     resource: '%resource.basedOn.resolve().reasonCode'
