@@ -2290,6 +2290,25 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: FULL_ELR
+      externalName: Ignore FULL_ELR
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        type: CUSTOM
+        schemaName: none
+        format: HL7
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
     - name: HL7_BATCH_PPK
       externalName: Ignore HL7_BATCH PPK
       organizationName: ignore
@@ -3433,20 +3452,24 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 
-- name: ri-phd
+- name: ri-doh
   description: Rhode Island Public Health Department
   jurisdiction: STATE
   stateCode: RI
   receivers:
     - name: elr
-      organizationName: ri-phd
+      organizationName: ri-doh
       topic: covid-19
       customerStatus: inactive
       jurisdictionalFilter:
         - orEquals(ordering_facility_state, RI, patient_state, RI)
+      timeZone: EASTERN
+      dateTimeFormat: LOCAL
       translation:
         type: HL7
         useBatchHeaders: true
+        receivingApplicationName: RI_DOH
+        receivingFacilityName: RI_DOH
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
