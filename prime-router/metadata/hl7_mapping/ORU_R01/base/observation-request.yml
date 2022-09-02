@@ -10,7 +10,7 @@ elements:
     resource: '%resource.identifier.where(type.coding.code = "PLAC")'
     condition: '%resource.exists()'
     constants:
-      entityIdFieldPath: '%{fieldPath}-2'
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-2'
     schema: entity-identifier
     resourceIndex: entityIdIndex
 
@@ -18,7 +18,7 @@ elements:
     resource: '%resource.identifier.where(type.coding.code = "FILL")'
     condition: '%resource.exists()'
     constants:
-      entityIdFieldPath: '%{fieldPath}-3'
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-3'
     schema: entity-identifier
     resourceIndex: entityIdIndex
 
@@ -127,16 +127,20 @@ elements:
     hl7Spec: [ '%{fieldPath}-26-3' ]
 
   - name: placer-assigned-identifier
-    resource: '%resource.extension(%`rsext-placer-assigned-identifier`)'
+    resource: '%resource.extension(%`rsext-placer-assigned-identifier`).value'
     condition: '%resource.exists()'
-    value: [ '%resource.value.value' ]
-    hl7Spec: [ '%{fieldPath}-29-1' ]
+    constants:
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-29-1'
+    schema: entity-identifier
+    resourceIndex: entityIdIndex
 
   - name: filler-assigned-identifier
-    resource: '%resource.extension(%`rsext-filler-assigned-identifier`)'
+    resource: '%resource.extension(%`rsext-filler-assigned-identifier`).value'
     condition: '%resource.exists()'
-    value: [ '%resource.value.value' ]
-    hl7Spec: [ '%{fieldPath}-29-2' ]
+    constants:
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-29-2'
+    schema: entity-identifier
+    resourceIndex: entityIdIndex
 
   - name: reason-for-study
     resource: '%resource.basedOn.resolve().reasonCode'

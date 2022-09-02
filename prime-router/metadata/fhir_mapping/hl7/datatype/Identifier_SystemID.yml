@@ -116,3 +116,17 @@ extension_5:
   constants:
     KEY_NAME_SUFFIX: String
     urlValue: assigning-authority-namespace-id
+
+extension_6:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
+  vars:
+    idStr: String, EI.3
+    value: $oidUrlPrefix + EI.3
+    systemStr: String, EI.4
+  constants:
+    oidUrlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: Oid
+    urlValue: universal-id
