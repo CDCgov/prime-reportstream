@@ -11,6 +11,7 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.CodeType
 import org.hl7.fhir.r4.model.ContactPoint.ContactPointUse
+import org.hl7.fhir.r4.model.DiagnosticReport.DiagnosticReportStatus
 import org.hl7.fhir.r4.model.Enumeration
 import org.hl7.fhir.r4.model.HumanName.NameUse
 import org.hl7.fhir.r4.model.IntegerType
@@ -99,6 +100,26 @@ enum class CustomFHIRFunctionNames {
     GetPatientClass,
     GetAdministrativeGenderCode,
     GetYesNoValue,
+    GetObservationResultsStatus,
+    GetCodingSystemMapping,
+}
+
+/**
+ * Enum representing the CodingSystemMapping.
+ * FHIR, urls [fhirURL] and their corresponding HL7 Ids [hl7ID]
+ */
+enum class CodingSystemMapper(val fhirURL: String, val hl7ID: String) {
+    ICD10("http://hl7.org/fhir/sid/icd-10-cm", "I10"),
+    LOINC("http://loinc.org", "LN");
+    companion object {
+        /**
+         * Get a coding system mapper by its [fhirURL]
+         * @return an enum instance representing the appropriate mapping
+         */
+        fun getByFhirUrl(fhirURL: String): CodingSystemMapper? = CodingSystemMapper.values().find {
+            it.fhirURL == fhirURL
+        }
+    }
 }
 
 /**
@@ -177,7 +198,7 @@ object CustomFHIRFunctions {
     }
 
     /**
-     * Gets the FHIR name use code stored in the [focus] element and converts to HL7 v2.5 - 0200 - Name type.
+     * Gets the FHIR name use code stored in the [focus] element and converts to HL7 v2.5.1 - 0200 - Name type.
      * @return a mutable list containing the single character HL7 name type
      */
     fun getNameUseCode(focus: MutableList<Base>): MutableList<Base> {
@@ -222,6 +243,24 @@ object CustomFHIRFunctions {
     }
 
     /**
+     * Gets the FHIR DiagnosticResultStatus stored in the [focus] element and converts
+     * to an HL7 v2.5.1 - 0123 - Result Status.
+     * @return a mutable list containing the single character HL7 result status
+     */
+    fun getObservationResultsStatus(focus: MutableList<Base>): MutableList<Base> {
+        return when (DiagnosticReportStatus.fromCode((focus[0] as Enumeration<*>).code)) {
+            // Partial could be either A or R I've chosen A, but we should probably figure out better answer
+            DiagnosticReportStatus.PARTIAL -> mutableListOf(StringType("A"))
+            DiagnosticReportStatus.CORRECTED -> mutableListOf(StringType("C"))
+            DiagnosticReportStatus.FINAL -> mutableListOf(StringType("F"))
+            DiagnosticReportStatus.PRELIMINARY -> mutableListOf(StringType("P"))
+            DiagnosticReportStatus.CANCELLED -> mutableListOf(StringType("X"))
+            // Unknown could be multiple values. Will map to empty using the else clause
+            else -> mutableListOf()
+        }
+    }
+
+    /**
      * Translate a boolean-type value into the single character Y/N value used by HL7.
      * @return a mutable list containing the HL7 single character version of the code
      */
@@ -231,6 +270,14 @@ object CustomFHIRFunctions {
             "false" -> mutableListOf(StringType("N"))
             else -> mutableListOf(StringType(""))
         }
+    }
+    /**
+     * Gets the FHIR System URL stored in the [focus] element and maps it to the appropriate
+     * HL7 v2.5.1 - 0396 - Coding system.
+     * @return a mutable list containing the single character HL7 result status
+     */
+    fun getCodingSystemMapping(focus: MutableList<Base>): MutableList<Base> {
+        return mutableListOf(StringType(CodingSystemMapper.getByFhirUrl(focus[0].primitiveValue())?.hl7ID))
     }
 }
 
@@ -322,6 +369,12 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
             CustomFHIRFunctionNames.GetYesNoValue -> {
                 FunctionDetails("convert FHIR class code and coverts it to Y/N", 0, 0)
             }
+            CustomFHIRFunctionNames.GetObservationResultsStatus -> {
+                FunctionDetails("convert FHIR DiagnosticReportStatus to HL7 0123 - Result Status", 0, 0)
+            }
+            CustomFHIRFunctionNames.GetCodingSystemMapping -> {
+                FunctionDetails("convert FHIR coding system url to HL7 ID", 0, 0)
+            }
         }
     }
 
@@ -369,6 +422,12 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
                 }
                 CustomFHIRFunctionNames.GetYesNoValue -> {
                     CustomFHIRFunctions.getYesNoValue(focus)
+                }
+                CustomFHIRFunctionNames.GetObservationResultsStatus -> {
+                    CustomFHIRFunctions.getObservationResultsStatus(focus)
+                }
+                CustomFHIRFunctionNames.GetCodingSystemMapping -> {
+                    CustomFHIRFunctions.getCodingSystemMapping(focus)
                 }
             }
             )

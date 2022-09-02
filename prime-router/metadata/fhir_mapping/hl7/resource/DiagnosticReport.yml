@@ -59,6 +59,16 @@ identifier_4:
     code: "PGN"
     display: "Placer Group Number"
 
+identifier_5:
+  condition: $type NOT_NULL
+  valueOf: datatype/Identifier
+  generateList: true
+  expressionType: resource
+  vars:
+    type: OBR.26.1
+    value: OBR.26.1.1
+    system: OBR.26.1.2
+
 status:
   type: DIAGNOSTIC_REPORT_STATUS
   valueOf: OBR.25
@@ -201,3 +211,67 @@ extension_2:
         code: String, OBR.25
       constants:
         system_code: v2-0123
+
+extension_3:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: parent-observation-sub-id
+    valueString:
+      type: STRING
+      valueOf: OBR.26.2
+      expressionType: HL7Spec
+
+extension_4:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: parent-observation-value-descriptor
+    valueString:
+      type: STRING
+      valueOf: OBR.26.3
+      expressionType: HL7Spec
+
+extension_5:
+  condition: $parentPlacerEntityId NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    parentPlacerEntityId: OBR.29.1
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: placer-assigned-identifier
+    valueIdentifier:
+      valueOf: datatype/Identifier_SystemID
+      expressionType: resource
+      # Possible bug: We were unable to specify an HL7 spec deeper than subcomponent (e.g. OBR.29.1.1)
+      specs: OBR.29.1
+      constants:
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+        code: "PLAC"
+        display: "Placer Identifier"
+
+extension_6:
+  condition: $parentFillerEntityId NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    parentFillerEntityId: OBR.29.2
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: filler-assigned-identifier
+    valueIdentifier:
+      valueOf: datatype/Identifier_SystemID
+      expressionType: resource
+      # Possible bug: We were unable to specify an HL7 spec deeper than subcomponent (e.g. OBR.29.2.1)
+      specs: OBR.29.2
+      constants:
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+        code: "FILL"
+        display: "Filler Identifier"

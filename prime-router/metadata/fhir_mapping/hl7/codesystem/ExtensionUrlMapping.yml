@@ -12,7 +12,7 @@
   url: "http://hl7.org/fhir/StructureDefinition/patient-religion"
 # race
 - id: "race"
-  url: "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd" 
+  url: "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd"
 # process-client-id
 - id: "process-client-id"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/process-client-id"
@@ -27,7 +27,7 @@
   url: "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id"
 # source-event-trigger
 - id: "source-event-trigger"
-  url: "http://ibm.com/fhir/cdm/StructureDefinition/source-event-trigger" 
+  url: "http://ibm.com/fhir/cdm/StructureDefinition/source-event-trigger"
 # source-record-type
 - id: "source-record-type"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/source-record-type"
@@ -133,9 +133,16 @@
 # Clinical information
 - id: "clinical-information"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/clinical-information"
-# Placer field
-- id: "placer-field"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field"
+# Placer user fields
+- id: "placer-field-1"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-1"
+- id: "placer-field-2"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-2"
+# Filler user fields
+- id: "filler-field-1"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-field-1"
+- id: "filler-field-2"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-field-2"
 # Results reported or changes
 - id: "result-reported"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/result-reported"
@@ -172,3 +179,15 @@
 # Patient notes as Annotations
 - id: "patient-notes"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes"
+# Parent observation sub identifier
+- id: "parent-observation-sub-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/parent-observation-sub-id"
+# Parent observation value descriptor
+- id: "parent-observation-value-descriptor"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/parent-observation-value-descriptor"
+# Placer assigned identifier
+- id: "placer-assigned-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier"
+# Filler assigned identifier
+- id: "filler-assigned-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier"

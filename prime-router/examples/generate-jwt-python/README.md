@@ -2,6 +2,10 @@
 
 Authentication is done in three steps.   Details are found in the ReportStream-Programmers-Guide.docx, in https://github.com/CDCgov/prime-reportstream/tree/master/prime-router/docs, but here is a quick outline:
 
+#### Prerequisite
+- Python 3
+- PyJWT module (`python3 -m pip install PyJWT`)
+- cryptography moddule (`python3 -m pip install cryptography`)
 
 #### Step 1:  Prior to submission, send your public key to ReportStream
 
