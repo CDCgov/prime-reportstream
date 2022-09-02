@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # generate-jwt.py
 #
 # Follow the setup steps in
@@ -9,9 +10,9 @@
 #
 # Be sure to change my_client_id, below, to be your client-id string, as given to you by the ReportStream team.
 #
+import sys
 import jwt
 import datetime
-import time
 import math
 import uuid
 from cryptography.hazmat.primitives import serialization
@@ -43,7 +44,11 @@ Then send the public key file to the ReportStream team.
 # Step 2
 #
 
-private_key = open(my_rsa_keypair_file, 'r').read()
+try:
+    private_key = open(my_rsa_keypair_file, 'r').read()
+except FileNotFoundError:
+    sys.exit("File "+ my_rsa_keypair_file + " not found. Abort STEP 2.")
+
 key = serialization.load_pem_private_key(private_key.encode(), password=None)
 
 now = math.floor(datetime.datetime.timestamp(datetime.datetime.now()))

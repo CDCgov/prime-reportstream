@@ -13,25 +13,15 @@ elements:
       - '''L'''
     hl7Spec: [ SFT-1-2 ]
 
-  - name: software-vendor-assigning-authority-namespace
+  - name: software-vendor-assigning-authority
     # software-vendor-org is a reference
     resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value.resolve()'
-    value: [ '%resource.extension(%`rsext-assigning-authority-namespace-id`).value' ]
-    hl7Spec: [ SFT-1-6-1 ]
-
-  - name: software-vendor-assigning-authority-uid
-    # software-vendor-org is a reference
-    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value.resolve()'
-    condition: '%resource.extension(%`rsext-assigning-authority-universal-id`).value is Oid'
-    value: [ '%resource.extension(%`rsext-assigning-authority-universal-id`).value.toString().replace(''urn:oid:'','''')' ]
-    hl7Spec: [ SFT-1-6-2 ]
-
-  - name: software-vendor-assigning-authority-system
-    # software-vendor-org is a reference
-    resource: '%resource.source.extension(%`rsext-source-software-vendor-org`).value.resolve()'
-    condition: '%resource.extension(%`rsext-assigning-authority-universal-id`).value is Oid'
-    value: [ '''ISO''' ]
-    hl7Spec: [ SFT-1-6-3 ]
+    constants:
+      hl7HDField: 'SFT-1-6'
+      # cannot use %`rext due to mix of constant and fhirpath substitution syntax
+      namespaceExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id'
+      universalIdExtName: 'https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id'
+    schema: hd-hierarchic-designator
 
   - name: software-vendor-identifier-code
     # software-vendor-org is a reference
