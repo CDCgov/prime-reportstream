@@ -10,7 +10,7 @@ elements:
     resource: '%resource.identifier.where(type.coding.code = "PLAC")'
     condition: '%resource.exists()'
     constants:
-      entityIdFieldPath: '%{fieldPath}-2'
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-2'
     schema: entity-identifier
     resourceIndex: entityIdIndex
 
@@ -18,7 +18,7 @@ elements:
     resource: '%resource.identifier.where(type.coding.code = "FILL")'
     condition: '%resource.exists()'
     constants:
-      entityIdFieldPath: '%{fieldPath}-3'
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-3'
     schema: entity-identifier
     resourceIndex: entityIdIndex
 
@@ -130,8 +130,7 @@ elements:
     resource: '%resource.extension(%`rsext-placer-assigned-identifier`).value'
     condition: '%resource.exists()'
     constants:
-      entityIdFieldPath: '%{fieldPath}-29'
-      entityIdIndex: '0'
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-29-1'
     schema: entity-identifier
     resourceIndex: entityIdIndex
 
@@ -139,8 +138,7 @@ elements:
     resource: '%resource.extension(%`rsext-filler-assigned-identifier`).value'
     condition: '%resource.exists()'
     constants:
-      entityIdFieldPath: '%{fieldPath}-29'
-      entityIdIndex: '1'
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-29-2'
     schema: entity-identifier
     resourceIndex: entityIdIndex
 
