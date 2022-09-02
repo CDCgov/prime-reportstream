@@ -17,7 +17,6 @@ import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.TopicReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
 import gov.cdc.prime.router.tokens.DO_OKTA_AUTH
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -72,6 +71,87 @@ class ReportFunctionTests {
         "Reicherts,NormanB,19931,97D0667471,Any lab USA,DE,19931,122554006,esyuj9,vhd3cfvvt,DE,NO,bgq0b2e," +
         "840533007,NO,NO,h8jev96rc,YES,YES,YES,257628001,60001007"
 
+    val hl7_valid = "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^" +
+        "ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|" +
+        "20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|" +
+        "UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
+        "SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\n" +
+        "PID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||" +
+        "Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||" +
+        "(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\n" +
+        "ORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|" +
+        "1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^" +
+        "^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester " +
+        "House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San " +
+        "Jose^CA^95126\n" +
+        "OBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|" +
+        "1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 " +
+        "(COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||" +
+        "202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^" +
+        "CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\n" +
+        "OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid " +
+        "immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^" +
+        "HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^10811877011290^99ELR^^^" +
+        "^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&" +
+        "ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\n" +
+        "OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||" +
+        "||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^" +
+        "ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\n" +
+        "OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||" +
+        "||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^" +
+        "^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085||" +
+        "|||QST\n" +
+        "OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|" +
+        "||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO" +
+        "^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\n" +
+        "OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136|||" +
+        "|||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&" +
+        "2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\n" +
+        "SPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&" +
+        "05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure" +
+        " (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+
+    val hl7_5_separator = "MSH|^~\\&#|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester" +
+        " House^05D2222542^" +
+        "ISO|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|" +
+        "20210803131511.0147+0000||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|" +
+        "UNICODE UTF-8|||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO\n" +
+        "SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210726\n" +
+        "PID|1||09d12345-0987-1234-1234-111b1ee0879f^^^Winchester House&05D2222542&ISO^PI^&05D2222542&ISO||" +
+        "Bunny^Bugs^C^^^^L||19000101|M||2106-3^White^HL70005^^^^2.5.1|12345 Main St^^San Jose^CA^95125^USA^^^06085||" +
+        "(123)456-7890^PRN^PH^^1^123^4567890|||||||||N^Non Hispanic or Latino^HL70189^^^^2.9||||||||N\n" +
+        "ORC|RE|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|" +
+        "1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|||||||||1679892871^Doolittle^Doctor^^^^" +
+        "^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||(123)456-7890^WPN^PH^^1^123^4567890|20210802||||||Winchester " +
+        "House|6789 Main St^^San Jose^CA^95126^^^^06085|(123)456-7890^WPN^PH^^1^123^4567890|6789 Main St^^San " +
+        "Jose^CA^95126\n" +
+        "OBR|1|1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|" +
+        "1234d1d1-95fe-462c-8ac6-46728dba581c^Winchester House^05D2222542^ISO|94558-4^SARS-CoV-2 " +
+        "(COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.68|||" +
+        "202108020000-0500|202108020000-0500||||||||1679892871^Doolittle^Doctor^^^^^^" +
+        "CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|(123)456-7890^WPN^PH^^1^123^4567890|||||202108020000-0500|||F\n" +
+        "OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid " +
+        "immunoassay^LN^^^^2.68||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^" +
+        "HL70078^^^^2.7|||F|||202108020000-0500|05D2222542^ISO||10811877011290_DIT^10811877011290^99ELR^^^" +
+        "^2.68^^10811877011290_DIT||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&" +
+        "ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126^^^^06085\n" +
+        "OBX|2|CWE|95418-0^Whether patient is employed in a healthcare setting^LN^^^^2.69||N^No^HL70136||" +
+        "||||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^" +
+        "ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\n" +
+        "OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136||||" +
+        "||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^" +
+        "^ISO&2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085||" +
+        "|||QST\n" +
+        "OBX|4|CWE|95421-4^Resides in a congregate care setting^LN^^^^2.69||Y^Yes^HL70136||||||F|" +
+        "||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&2.16.840.1.113883.19.4.6&ISO" +
+        "^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\n" +
+        "OBX|5|CWE|95419-8^Has symptoms related to condition of interest^LN^^^^2.69||N^No^HL70136|||" +
+        "|||F|||202108020000-0500|05D2222542||||202108020000-0500||||Winchester House^^^^^ISO&" +
+        "2.16.840.1.113883.19.4.6&ISO^XX^^^05D2222542|6789 Main St^^San Jose^CA^95126-5285^^^^06085|||||QST\n" +
+        "SPM|1|1234d1d1-95fe-462c-8ac6-46728dba581c&&05D2222542&ISO^1234d1d1-95fe-462c-8ac6-46728dba581c&&" +
+        "05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure" +
+        " (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
+
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
         return spyk(
             WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
@@ -112,7 +192,7 @@ class ReportFunctionTests {
         val reportFunc = spyk(ReportFunction(engine, actionHistory))
         val resp = HttpUtilities.okResponse(req, "fakeOkay")
         every { engine.db } returns accessSpy
-        mockkObject(AuthenticationStrategy.Companion)
+        mockkObject(AuthenticatedClaims.Companion)
         every { reportFunc.processRequest(any(), any()) } returns resp
         every { engine.settings.findSender(any()) } returns sender // This test only works with org = simple_report
         return Pair(reportFunc, req)
@@ -149,6 +229,7 @@ class ReportFunctionTests {
         every { actionHistory.trackLogs(any<ActionLog>()) } returns Unit
         every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.actionName } returns TaskAction.receive
         every { actionHistory.action.sendingOrg } returns "Test Sender"
         mockkObject(SubmissionReceiver.Companion)
         var mockReceiver = spyk(TopicReceiver(engine, actionHistory))
@@ -172,9 +253,9 @@ class ReportFunctionTests {
     @Test
     fun `test submitToWaters with missing client`() {
         val (reportFunc, req) = setupForDotNotationTests()
-        val jwt = mapOf("foo" to "bar", "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, "simple_report")
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        val jwt = mapOf("scope" to "simple_report.default.report", "sub" to "c@rlos.com")
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = false)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "content-length" to "4"
         )
@@ -187,9 +268,9 @@ class ReportFunctionTests {
     @Test
     fun `test submitToWaters with server2server auth - basic happy path`() {
         val (reportFunc, req) = setupForDotNotationTests()
-        val jwt = mapOf("foo" to "bar", "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, "simple_report")
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        val jwt = mapOf("scope" to "simple_report.default.report", "sub" to "c@rlos.com")
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = false)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "client" to "simple_report",
             "content-length" to "4"
@@ -203,9 +284,9 @@ class ReportFunctionTests {
     @Test
     fun `test submitToWaters with server2server auth - claim does not match`() {
         val (reportFunc, req) = setupForDotNotationTests()
-        val jwt = mapOf("foo" to "bar", "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt, "bogus_org")
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        val jwt = mapOf("scope" to "bogus_org.default.report", "sub" to "c@rlos.com")
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = false)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         req.httpHeaders += mapOf(
             "client" to "simple_report",
             "content-length" to "4"
@@ -223,8 +304,8 @@ class ReportFunctionTests {
     fun `test submitToWaters with okta dot-notation client header - basic happy path`() {
         val (reportFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt)
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = true)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         // This is the most common way our customers use the client string
         req.httpHeaders += mapOf(
             "client" to "simple_report",
@@ -241,8 +322,8 @@ class ReportFunctionTests {
     fun `test submitToWaters with okta dot-notation client header - full dotted name`() {
         val (reportFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt)
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = true)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         // Now try it with a full client name
         req.httpHeaders += mapOf(
             "client" to "simple_report.default",
@@ -257,8 +338,8 @@ class ReportFunctionTests {
     fun `test submitToWaters with okta dot-notation client header - dotted but not default`() {
         val (reportFunc, req) = setupForDotNotationTests()
         val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "c@rlos.com")
-        val claims = AuthenticatedClaims(jwt)
-        every { AuthenticationStrategy.Companion.authenticate(any()) } returns claims
+        val claims = AuthenticatedClaims(jwt, isOktaAuth = true)
+        every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
         // Now try it with a full client name but not with "default"
         // The point of these tests is that the call to the auth code only contains the org prefix 'simple_report'
         req.httpHeaders += mapOf(
@@ -422,6 +503,7 @@ class ReportFunctionTests {
         every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
+        every { actionHistory.action.actionName } returns TaskAction.receive
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
         every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
@@ -436,6 +518,106 @@ class ReportFunctionTests {
         verify(exactly = 2) { engine.isDuplicateItem(any()) }
         verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
         assert(resp.status.equals(HttpStatus.BAD_REQUEST))
+    }
+
+    // test processFunction when basic hl7 message is passed
+    @Test
+    fun `test processFunction when basic hl7 message is passed`() {
+        // setup steps
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val reportFunc = spyk(ReportFunction(engine, actionHistory))
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = false
+        )
+        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+
+        val req = MockHttpRequestMessage(hl7_valid)
+
+        every { reportFunc.validateRequest(any()) } returns RequestFunction.ValidatedRequest(
+            hl7_valid,
+            sender = sender
+        )
+        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAll(any()) } returns Unit
+
+        every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
+        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "Test Sender"
+        every { actionHistory.action.actionName } returns TaskAction.receive
+        every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
+        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
+        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
+        every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+
+        every { accessSpy.isDuplicateItem(any(), any()) } returns false
+
+        // act
+        val resp = reportFunc.processRequest(req, sender)
+
+        // assert
+        verify(exactly = 1) { engine.isDuplicateItem(any()) }
+        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+        assert(resp.status.equals(HttpStatus.CREATED))
+    }
+
+    // test processFunction when basic hl7 message with 5 separators is passed
+    @Test
+    fun `test processFunction when basic hl7 message with 5 separators is passed`() {
+        // setup steps
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val reportFunc = spyk(ReportFunction(engine, actionHistory))
+        val sender = CovidSender(
+            "Test Sender",
+            "test",
+            Sender.Format.HL7,
+            schemaName =
+            "one",
+            allowDuplicates = false
+        )
+        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+
+        val req = MockHttpRequestMessage(hl7_5_separator)
+
+        every { reportFunc.validateRequest(any()) } returns RequestFunction.ValidatedRequest(
+            hl7_5_separator,
+            sender = sender
+        )
+        every { actionHistory.insertAction(any()) } returns 0
+        every { actionHistory.insertAll(any()) } returns Unit
+
+        every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
+        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
+        every { actionHistory.action.actionId } returns 1
+        every { actionHistory.action.sendingOrg } returns "Test Sender"
+        every { actionHistory.action.actionName } returns TaskAction.receive
+        every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
+        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
+        every { engine.blob.generateBodyAndUploadReport(any(), any(), any()) } returns blobInfo
+        every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
+
+        every { accessSpy.isDuplicateItem(any(), any()) } returns false
+
+        // act
+        val resp = reportFunc.processRequest(req, sender)
+
+        // assert
+        verify(exactly = 1) { engine.isDuplicateItem(any()) }
+        verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
+        assert(resp.status.equals(HttpStatus.CREATED))
     }
 
     @Test

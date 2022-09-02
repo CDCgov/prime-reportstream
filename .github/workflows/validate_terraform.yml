@@ -1,9 +1,13 @@
-name: Terraform
+name: Terraform Validation
 
-on:
-  pull_request:
-    branches:
-      - master
+on: 
+   pull_request:
+     branches:
+       - production
+       - master
+       - test
+     paths:
+       - '**.tf'
 
 jobs:
   pre_job:
@@ -34,3 +38,17 @@ jobs:
           terraform_wrapper: false
       - name: Verify Terraform Formatting
         run: terraform -chdir=operations/app/terraform/vars/staging fmt -check -recursive ../../
+  checkov-job:
+    name: Run Checkov On Terraform Code
+    needs: validate_terraform_yaml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+      - name: Run Checkov action
+        uses: bridgecrewio/checkov-action@18ed88279225a01a059f8bd339c66eb1900d12bb
+        with:
+          directory: operations/app/terraform
+          skip_check: CKV_AZURE_139,CKV_AZURE_137,CKV_AZURE_103,CKV_AZURE_104,CKV_AZURE_102,CKV_AZURE_130,CKV_AZURE_121,CKV_AZURE_159,CKV_AZURE_67,CKV_AZURE_56,CKV_AZURE_78,CKV_AZURE_17,CKV_AZURE_63,CKV_AZURE_18,CKV_AZURE_88,CKV_AZURE_65,CKV_AZURE_13,CKV_AZURE_66,CKV_AZURE_33,CKV_AZURE_80,CKV_AZURE_35,CKV_AZURE_36,CKV_AZURE_98,CKV_AZURE_1,CKV_AZURE_15,CKV2_AZURE_1,CKV2_AZURE_8,CKV2_AZURE_15,CKV2_AZURE_21,CKV2_AZURE_18,CKV_SECRET_6
+            

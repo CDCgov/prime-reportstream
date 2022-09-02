@@ -19,6 +19,7 @@ import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
+import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
 import java.time.OffsetDateTime
@@ -708,9 +709,9 @@ class Server2ServerAuthTests : CoolTest() {
         if (environment == Environment.PROD) error("Can't create simple_report test data in PROD")
         val org1 = "simple_report"
         var sender1 = createNewSenderForExistingOrg(mySenderName, org1)
-        // Right now in order to access submission history you must have the default scope
-        // This attaches the ignore.default.report scope claim to the ignore.temporary_sender_auth_test.report Sender.
-        val scope1 = "$org1.default.report"
+        // Test various functionality using the general <orgname>.*.user role.
+        val scope1 = "$org1.*.user"
+        // Scope <org>.<sender>.report only gives access to submit to that org only.  Doesn't work for history GETs.
         val uploadReportScope1 = "$org1.$mySenderName.report"
         // Submit this new scope and public key to the Settings store, associated with this Sender.
         sender1 = saveServer2ServerKey(sender1, end2EndExampleRSAPublicKeyStr, kid, scope1)
@@ -718,18 +719,23 @@ class Server2ServerAuthTests : CoolTest() {
 
         val org2 = "ignore"
         var sender2 = createNewSenderForExistingOrg(mySenderName, org2)
-        // Right now in order to access submission history you must have the default scope
-        // This attaches the ignore.default.report scope claim to the ignore.temporary_sender_auth_test.report Sender.
-        val scope2 = "$org2.BOGOSITY.report"
-        val uploadReportScope2 = "$org2.$mySenderName.report"
+        // Test various functionality using the general <orgname>.*.admin role.
+        val scope2 = "$org2.*.admin"
         // Submit this new scope and public key to the Settings store, associated with this Sender.
         sender2 = saveServer2ServerKey(sender2, end2EndExampleRSAPublicKeyStr, kid, scope2)
-        sender2 = saveServer2ServerKey(sender2, end2EndExampleRSAPublicKeyStr, kid, uploadReportScope2)
 
         try {
             val myFakeReportFile = OktaAuthTests.createFakeReport(sender1)
 
-            // Now request 5-minute tokens for the first org
+            // 1) Now request 5-minute token for the first org, USING THE UPLOAD-ONLY SCOPE
+            val (submitHttpStatus1, submitResponseToken1) =
+                getServer2ServerAccessTok(sender1, environment, end2EndExampleRSAPrivateKeyStr, kid, uploadReportScope1)
+            if (submitHttpStatus1 != 200) {
+                return bad("Should get a 200 response to getToken instead got $submitHttpStatus1")
+            }
+            val submitToken1 = jacksonObjectMapper().readTree(submitResponseToken1).get("access_token").textValue()
+
+            // 1a) Now request 5-minute token for the first org, USING THE GENERAL READ/WRITE Submission SCOPE
             val (httpStatus1, responseToken1) =
                 getServer2ServerAccessTok(sender1, environment, end2EndExampleRSAPrivateKeyStr, kid, scope1)
             if (httpStatus1 != 200) {
@@ -737,7 +743,7 @@ class Server2ServerAuthTests : CoolTest() {
             }
             val token1 = jacksonObjectMapper().readTree(responseToken1).get("access_token").textValue()
 
-            // And a 5-minute token from the second org2
+            // 2) And a 5-minute token from the second org2
             val (httpStatus2, responseToken2) =
                 getServer2ServerAccessTok(sender2, environment, end2EndExampleRSAPrivateKeyStr, kid, scope2)
             if (httpStatus2 != 200) {
@@ -745,27 +751,66 @@ class Server2ServerAuthTests : CoolTest() {
             }
             val token2 = jacksonObjectMapper().readTree(responseToken2).get("access_token").textValue()
 
-            // Now submit a report to org1 and get its reportId1
+            // Since we're getting tokens, test getting a primeadmin token, which we have no rights to get.
+            val (httpStatusBad1, _) =
+                getServer2ServerAccessTok(
+                    sender1, environment, end2EndExampleRSAPrivateKeyStr, kid, Scope.primeAdminScope
+                )
+            if (httpStatusBad1 == 401) {
+                good("Test upgrading my scope to primeadmin failed, as it should.")
+            } else {
+                bad("Should get a 401 response to getToken primeadmin scope. Instead got $httpStatusBad1")
+                passed = false
+            }
+
+            // Another token test.  sender1 does not have org admin scope.   This should fail also
+            val (httpStatusBad2, _) =
+                getServer2ServerAccessTok(
+                    sender1, environment, end2EndExampleRSAPrivateKeyStr, kid, "$org1.*.admin"
+                )
+            if (httpStatusBad1 == 401) {
+                good("Test upgrading my scope to org admin failed, as it should.")
+            } else {
+                bad("Should get a 401 response to getToken org admin scope. Instead got $httpStatusBad2")
+                passed = false
+            }
+
+            // Now submit a report to org1 and get its reportId1, testing the submit-only token, to make sure it works
             val (responseCode1, json1) = HttpUtilities.postReportFileToWatersApi(
-                environment, myFakeReportFile, sender1, token1
+                environment, myFakeReportFile, sender1, submitToken1
             )
             val reportId1 = if (responseCode1 == 201) {
                 getReportIdFromResponse(json1)
             } else {
-                bad("Should get a 201 response to valid token, but but instead got $responseCode1")
+                bad(
+                    "Org1: should get a 201 response to valid token, but but instead got $responseCode1"
+                )
                 passed = false
                 null
             }
             good("Test sending report $reportId1 to $org1 successful")
 
-            // And submit a report to org2 and get its reportId2
+            // Now ATTEMPT to submit a report to org1 using the org2 token.  Should fail.
+            val (responseCode1fail, _) = HttpUtilities.postReportFileToWatersApi(
+                environment, myFakeReportFile, sender1, token2 // wrong token!
+            )
+            if (responseCode1fail == 401) {
+                good("Test sending report to $org1 with WRONG TOKEN failed, as it should.")
+            } else {
+                bad(
+                    "Org1: should get a 401 response to wrong token, but but instead got $responseCode1fail"
+                )
+                passed = false
+            }
+
+            // And submit a report to org2 and get its reportId2, testing using the broader-permission'ed token.
             val (responseCode2, json2) = HttpUtilities.postReportFileToWatersApi(
                 environment, myFakeReportFile, sender2, token2
             )
             val reportId2 = if (responseCode2 == 201) {
                 getReportIdFromResponse(json2)
             } else {
-                bad("Should get a 201 response to valid token, but but instead got $responseCode2")
+                bad("Org2: Should get a 201 response to valid token, but but instead got $responseCode2")
                 passed = false
                 null
             }

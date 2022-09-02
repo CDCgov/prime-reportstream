@@ -21,7 +21,7 @@ import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
-import gov.cdc.prime.router.tokens.AuthenticationStrategy
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
@@ -94,18 +94,15 @@ class ReportFunction(
 
         actionHistory.trackActionParams(request)
         try {
-            val claims = AuthenticationStrategy.authenticate(request)
+            val claims = AuthenticatedClaims.authenticate(request)
                 ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
             val sender = workflowEngine.settings.findSender(senderName)
                 ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown client")
 
-            if (!AuthenticationStrategy.validateClaim(
-                    claims,
-                    sender,
-                    request
-                )
-            ) return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            if (!claims.authorizedForSendOrReceive(sender, request)) {
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
 
             return processRequest(request, sender)
         } catch (ex: Exception) {
@@ -143,7 +140,7 @@ class ReportFunction(
                         ActionLog(
                             InvalidParamMessage(
                                 "Url Options Parameter, $optionsText has been deprecated. " +
-                                    "Valid options: ${Options.values().joinToString()}"
+                                    "Valid options: ${Options.activeValues.joinToString()}"
                             ),
                             type = ActionLogLevel.warning
                         )
@@ -153,7 +150,9 @@ class ReportFunction(
                 // track the sending organization and client based on the header
                 actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
                 val validatedRequest = validateRequest(request)
-                val rawBody = validatedRequest.content.toByteArray()
+                // removes incoming '#' if included in separation characters
+                val content = validatedRequest.content.replace("|^~\\&#", "|^~\\&")
+                val rawBody = content.toByteArray()
 
                 // if the override parameter is populated, use that, otherwise use the sender value
                 val allowDuplicates = if
@@ -169,7 +168,7 @@ class ReportFunction(
                     // send report on its way, either via the COVID pipeline or the full ELR pipeline
                     receiver.validateAndMoveToProcessing(
                         sender,
-                        validatedRequest.content,
+                        content,
                         validatedRequest.defaults,
                         option,
                         validatedRequest.routeTo,
@@ -206,9 +205,8 @@ class ReportFunction(
         workflowEngine.recordAction(actionHistory)
 
         check(actionHistory.action.actionId > 0)
-        val submission = SubmissionsFacade.instance.findDetailedSubmissionHistory(
-            actionHistory.action.actionId
-        )
+        val submission = SubmissionsFacade.instance.findDetailedSubmissionHistory(actionHistory.action)
+
         val response = request.createResponseBuilder(httpStatus)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .body(
