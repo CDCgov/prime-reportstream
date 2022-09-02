@@ -19,12 +19,6 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkClass
-import io.mockk.spyk
-import org.jooq.DSLContext
-import org.jooq.tools.jdbc.MockConnection
-import org.jooq.tools.jdbc.MockDataProvider
-import org.jooq.tools.jdbc.MockResult
-import org.junit.jupiter.api.Disabled
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
@@ -273,31 +267,5 @@ class ActionHistoryTests {
                 header, "filename1", uuid2, "bob"
             )
         }.isFailure()
-    }
-
-    /**
-     * todo Figure out how to make this test work.
-     * What I'd really like to do is confirm that two sql inserts were generated,
-     * one to insert into ACTION and one to insert into REPORT_FILE.
-     */
-    @Test @Disabled
-    fun `test saveToDb with an externally received report`() {
-        val dataProvider = MockDataProvider { emptyArray<MockResult>() }
-        val connection = MockConnection(dataProvider) as DSLContext // ? why won't this work?
-        val mockDb = spyk(DatabaseAccess(connection))
-
-        val one = Schema(name = "schema1", topic = "topic1", elements = listOf())
-        val report1 = Report(
-            one,
-            listOf(),
-            sources = listOf(ClientSource("myOrg", "myClient")),
-            metadata = UnitTestUtils.simpleMetadata
-        )
-
-        val actionHistory1 = ActionHistory(TaskAction.receive)
-        val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
-        actionHistory1.trackExternalInputReport(report1, blobInfo1)
-
-        mockDb.transact { txn -> actionHistory1.saveToDb(txn) }
     }
 }

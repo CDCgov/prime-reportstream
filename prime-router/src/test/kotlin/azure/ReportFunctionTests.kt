@@ -143,8 +143,8 @@ class ReportFunctionTests {
             csvString_2Records,
             sender = sender
         )
-        every { actionHistory.insertAction(any()) } returns 0
-        every { actionHistory.insertAll(any()) } returns Unit
+        every { accessSpy.insertAction(any(), any()) } returns 0
+        every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
         every { actionHistory.trackLogs(any<ActionLog>()) } returns Unit
         every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
@@ -415,8 +415,8 @@ class ReportFunctionTests {
             csvString_2Records,
             sender = sender
         )
-        every { actionHistory.insertAction(any()) } returns 0
-        every { actionHistory.insertAll(any()) } returns Unit
+        every { accessSpy.insertAction(any(), any()) } returns 0
+        every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
 
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
         every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
