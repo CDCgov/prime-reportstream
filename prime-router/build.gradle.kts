@@ -686,7 +686,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.14.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.4.1") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.4.6") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }

@@ -14,7 +14,7 @@ elements:
       .where(type.coding.code = 'PLAC')
     condition: '%resource.count() > 0'
     constants:
-      entityIdFieldPath: '%{hl7Order}-2'
+      entityIdFieldPath: '%{hl7Order}(%{entityIdIndex})-2'
     resourceIndex: entityIdIndex
     schema: entity-identifier
 
@@ -24,7 +24,7 @@ elements:
       .where(type.coding.code = 'FILL')
     condition: '%resource.count() > 0'
     constants:
-      entityIdFieldPath: '%{hl7Order}-3'
+      entityIdFieldPath: '%{hl7Order}(%{entityIdIndex})-3'
     resourceIndex: entityIdIndex
     schema: entity-identifier
 
@@ -34,7 +34,7 @@ elements:
       .where(type.coding.code = 'PGN')
     condition: '%resource.count() > 0'
     constants:
-      entityIdFieldPath: '%{hl7Order}-4'
+      entityIdFieldPath: '%{hl7Order}(%{entityIdIndex})-4'
     resourceIndex: entityIdIndex
     schema: entity-identifier
 
