@@ -1,7 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { ContentDirectory, getDirectoryElement } from "../MarkdownDirectory";
-import GeneratedSideNav from "../GeneratedSideNav";
+
+import GeneratedSideNav from "./GeneratedSideNav";
 
 export interface IASideNavProps {
     directories: ContentDirectory[];

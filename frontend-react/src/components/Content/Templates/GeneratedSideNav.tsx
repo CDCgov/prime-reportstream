@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { SideNav } from "@trussworks/react-uswds";
 
-import { ContentDirectory } from "./MarkdownDirectory";
+import { ContentDirectory } from "../MarkdownDirectory";
 
 export const GeneratedSideNav = ({
     directories,

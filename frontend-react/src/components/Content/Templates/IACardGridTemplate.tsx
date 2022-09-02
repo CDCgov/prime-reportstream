@@ -1,5 +1,6 @@
-import { IACardList } from "../../IACard";
 import { ContentDirectory } from "../MarkdownDirectory";
+
+import { IACardList } from "./IACard";
 
 export type ContentMap = Map<string, ContentDirectory[]>; // Key should be section title
 export interface IACardGridProps {
