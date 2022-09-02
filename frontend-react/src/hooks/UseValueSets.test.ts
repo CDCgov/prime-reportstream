@@ -6,9 +6,8 @@ import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import {
     LookupTables,
     ValueSet,
-    lookupTableApi,
-    LookupTable,
-} from "../network/api/LookupTableApi";
+    lookupTablesEndpoints,
+} from "../config/endpoints/lookupTables";
 import { QueryWrapper } from "../utils/CustomRenderUtils";
 
 import {
@@ -22,7 +21,7 @@ describe("useValueSetsTable", () => {
         tableName: LookupTables,
         version?: number
     ) =>
-        renderHook(() => useValueSetsTable<ValueSet>(tableName, version), {
+        renderHook(() => useValueSetsTable<ValueSet[]>(tableName, version), {
             wrapper: QueryWrapper(
                 new QueryClient({
                     // to allow for faster testable failures
@@ -75,9 +74,12 @@ describe("useValueSetsTable", () => {
 
     test("returns error when table list call errors", async () => {
         lookupTableServer.use(
-            rest.get(lookupTableApi.getTableList().url, (_req, res, ctx) => {
-                return res.once(ctx.json([]), ctx.status(400));
-            })
+            rest.get(
+                lookupTablesEndpoints.getTableList.url,
+                (_req, res, ctx) => {
+                    return res.once(ctx.json([]), ctx.status(400));
+                }
+            )
         );
         const { result, waitForNextUpdate } = renderWithQueryWrapper(
             LookupTables.VALUE_SET
@@ -91,10 +93,10 @@ describe("useValueSetsTable", () => {
     test("returns error when table data call errors", async () => {
         lookupTableServer.use(
             rest.get(
-                lookupTableApi.getTableData<LookupTable>(
-                    2,
-                    "sender_automation_value_set"
-                ).url,
+                lookupTablesEndpoints.getTableData.toDynamicUrl({
+                    version: "2",
+                    tableName: "sender_automation_value_set",
+                }),
                 (_req, res, ctx) => {
                     return res.once(ctx.json([]), ctx.status(400));
                 }

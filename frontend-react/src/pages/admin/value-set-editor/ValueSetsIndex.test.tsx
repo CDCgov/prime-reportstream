@@ -1,7 +1,7 @@
 import { screen, within } from "@testing-library/react";
 
 import { renderWithFullAppContext } from "../../../utils/CustomRenderUtils";
-import { ValueSet } from "../../../network/api/LookupTableApi";
+import { ValueSet } from "../../../config/endpoints/lookupTables";
 
 import ValueSetsIndex from "./ValueSetsIndex";
 

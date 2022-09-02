@@ -20,7 +20,7 @@ import {
     useValueSetUpdate,
 } from "../../../hooks/UseValueSets";
 import { toHumanReadable } from "../../../utils/misc";
-import { ValueSetRow } from "../../../network/api/LookupTableApi";
+import { ValueSetRow } from "../../../config/endpoints/lookupTables";
 import { StaticAlert } from "../../../components/StaticAlert";
 import {
     ReportStreamAlert,
@@ -154,7 +154,7 @@ export const ValueSetsDetailTable = ({
 }) => {
     const [valueSetsVersion, setValueSetVersion] = useState<number>();
 
-    const { valueSetArray, error } = useValueSetsTable<ValueSetRow>(
+    const { valueSetArray, error } = useValueSetsTable<ValueSetRow[]>(
         valueSetName,
         valueSetsVersion
     );
@@ -177,10 +177,13 @@ export const ValueSetsDetailTable = ({
         [valueSetArray]
     );
 
-    const tableConfig: TableConfig = {
-        columns: valueSetDetailColumnConfig,
-        rows: valueSetsWithIds,
-    };
+    const tableConfig: TableConfig = useMemo(
+        () => ({
+            columns: valueSetDetailColumnConfig,
+            rows: valueSetsWithIds,
+        }),
+        [valueSetsWithIds]
+    );
 
     const datasetActionItem: DatasetAction = {
         label: "Add item",

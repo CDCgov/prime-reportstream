@@ -12,7 +12,7 @@ import {
     handleErrorWithAlert,
     ReportStreamAlert,
 } from "../../../utils/ErrorUtils";
-import { LookupTables, ValueSet } from "../../../network/api/LookupTableApi";
+import { LookupTables, ValueSet } from "../../../config/endpoints/lookupTables";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
@@ -55,7 +55,7 @@ const valueSetColumnConfig: ColumnConfig[] = [
 
 const ValueSetsTable = () => {
     const [alert, setAlert] = useState<ReportStreamAlert | undefined>();
-    const { valueSetArray, error } = useValueSetsTable<ValueSet>(
+    const { valueSetArray, error } = useValueSetsTable<ValueSet[]>(
         LookupTables.VALUE_SET
     );
 

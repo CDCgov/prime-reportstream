@@ -1,25 +1,14 @@
 import { useCallback } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
-import axios, { Method, AxiosRequestConfig } from "axios";
+import axios from "axios";
+
+import { RSEndpoint, AxiosOptionsWithSegments } from "../config/endpoints";
 
 import { MembershipSettings } from "./UseOktaMemberships";
 
-// this should be contained in a config file
-// TODO: move all config specific global variables to a config file
-export const API_ROOT = `${process.env.REACT_APP_BACKEND_URL}/api`;
-
-// odd that there isn't already a useable implementation of this somewhere
-// or is there? where should this live?
-export enum HTTPMethods {
-    GET = "GET",
-    POST = "POST",
-    PUT = "PUT",
-    DELETE = "DELETE",
-    PATCH = "PATCH",
-}
-
 export type AuthorizedFetcher<T> = (
-    params: AuthorizedFetchParams
+    EndpointConfig: RSEndpoint,
+    options?: Partial<AxiosOptionsWithSegments>
 ) => Promise<T>;
 
 // this wrapper is needed to allow typing of the fetch return value from the location
@@ -27,16 +16,6 @@ export type AuthorizedFetcher<T> = (
 // there wouldn't be a way to type it from the location calling the hook, as that would
 // require typing the `useContext` call in a way that useContext doesn't support
 export type AuthorizedFetchTypeWrapper = <T>() => AuthorizedFetcher<T>;
-
-export interface EndpointConfig {
-    path: string;
-    method: Method;
-}
-
-// maybe this could take the segments param and form the url here then hook side?
-interface AuthorizedFetchParams extends EndpointConfig {
-    options?: Partial<AxiosRequestConfig>;
-}
 
 // takes in auth data and returns
 //  a generic function that returns
@@ -50,20 +29,18 @@ function createTypeWrapperForAuthorizedFetch(
         authorization: `Bearer ${oktaToken?.accessToken || ""}`,
         organization: `${activeMembership?.parsedName || ""}`,
     };
-    return async function <T>({
-        path,
-        method,
-        options = {},
-    }: AuthorizedFetchParams): Promise<T> {
-        const url = `${API_ROOT}${path}`;
+
+    return async function <T>(
+        EndpointConfig: RSEndpoint,
+        options: Partial<AxiosOptionsWithSegments> = {}
+    ): Promise<T> {
         const headerOverrides = options?.headers || {};
         const headers = { ...authHeaders, ...headerOverrides };
-        return axios({
+        const axiosConfig = EndpointConfig.toAxiosConfig({
             ...options,
-            url,
-            method,
             headers,
-        }).then(({ data }) => data);
+        });
+        return axios(axiosConfig).then(({ data }) => data);
     };
 }
 

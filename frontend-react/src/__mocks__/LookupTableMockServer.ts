@@ -2,25 +2,27 @@ import { rest } from "msw";
 import { setupServer } from "msw/node";
 
 import {
-    lookupTableApi,
+    lookupTablesEndpoints,
     LookupTable,
     ApiValueSet,
-} from "../network/api/LookupTableApi";
+} from "../config/endpoints/lookupTables";
 
-// TODO: refactor this to use resource based configs????
-const tableList = lookupTableApi.getTableList();
-const tableData = lookupTableApi.getTableData<LookupTable>(
-    2,
-    "sender_automation_value_set"
-);
-const tableDataAlternate = lookupTableApi.getTableData<LookupTable>(
-    3,
-    "sender_automation_value_set"
-);
-
-const updateTableData = lookupTableApi.saveTableData("any");
-
-const activateTableData = lookupTableApi.activateTableData(1, "any");
+const tableListUrl = lookupTablesEndpoints.getTableList.toDynamicUrl();
+const tableDataUrl = lookupTablesEndpoints.getTableData.toDynamicUrl({
+    version: "2",
+    tableName: "sender_automation_value_set",
+});
+const tableDataAlternateUrl = lookupTablesEndpoints.getTableData.toDynamicUrl({
+    version: "3",
+    tableName: "sender_automation_value_set",
+});
+const updateTableDataUrl = lookupTablesEndpoints.updateTable.toDynamicUrl({
+    tableName: "any",
+});
+const activateTableDataUrl = lookupTablesEndpoints.activateTable.toDynamicUrl({
+    version: "1",
+    tableName: "any",
+});
 
 const lookupTables: LookupTable[] = [1, 2, 3].map((i) => ({
     lookupTableVersionId: i,
@@ -42,19 +44,19 @@ const lookupTableData: ApiValueSet[] = [1, 2, 3].map((_i) => ({
 }));
 
 const handlers = [
-    rest.get(tableList.url, (_req, res, ctx) => {
+    rest.get(tableListUrl, (_req, res, ctx) => {
         return res(ctx.json(lookupTables), ctx.status(200));
     }),
-    rest.get(tableData.url, (_req, res, ctx) => {
+    rest.get(tableDataUrl, (_req, res, ctx) => {
         return res(ctx.json(lookupTableData), ctx.status(200));
     }),
-    rest.get(tableDataAlternate.url, (_req, res, ctx) => {
+    rest.get(tableDataAlternateUrl, (_req, res, ctx) => {
         return res(ctx.json(lookupTableData), ctx.status(200));
     }),
-    rest.post(updateTableData.url, (_req, res, ctx) => {
+    rest.post(updateTableDataUrl, (_req, res, ctx) => {
         return res(ctx.json(lookupTables[1]), ctx.status(200));
     }),
-    rest.put(activateTableData.url, (_req, res, ctx) => {
+    rest.put(activateTableDataUrl, (_req, res, ctx) => {
         return res(ctx.json(lookupTables[1]), ctx.status(200));
     }),
 ];
