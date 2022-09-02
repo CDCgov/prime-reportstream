@@ -46,7 +46,7 @@ elements:
   - name: collector-identifier
     resource: '%resource.basedOn.resolve().extension(%`rsext-collector-identifier`).value.resolve()'
     constants:
-      xcnFieldPath: '%{fieldPath}-10'
+      hl7XCNField: '%{fieldPath}-10'
     schema: xcn-contact
     resourceIndex: contactIndex
 
@@ -59,7 +59,7 @@ elements:
   - name: ordering-provider
     resource: '%resource.basedOn.resolve().requester.resolve().practitioner.resolve()'
     constants:
-      xcnFieldPath: '%{fieldPath}-16'
+      hl7XCNField: '%{fieldPath}-16'
     schema: xcn-contact
     resourceIndex: contactIndex
 
