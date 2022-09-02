@@ -34,7 +34,10 @@ data class CustomContext(val bundle: Bundle, val constants: MutableMap<String, S
         fun addConstants(constants: Map<String, String>, previousContext: CustomContext): CustomContext {
             return if (constants.isEmpty()) previousContext
             else {
-                val newContext = previousContext.copy()
+                val newContext = CustomContext(
+                    previousContext.bundle,
+                    previousContext.constants.toMap().toMutableMap() // This makes a copy of the map
+                )
                 constants.forEach { newContext.constants[it.key] = it.value }
                 newContext
             }
@@ -111,8 +114,7 @@ object CustomFHIRFunctions {
     fun getAddressUse(focus: MutableList<Base>): MutableList<Base> {
         return when (AddressUse.fromCode(focus[0].toString())) {
             AddressUse.HOME -> mutableListOf(StringType("H"))
-            AddressUse.WORK -> mutableListOf(StringType("O"))
-            AddressUse.OLD -> mutableListOf(StringType("BA"))
+            AddressUse.WORK -> mutableListOf(StringType("B"))
             AddressUse.TEMP -> mutableListOf(StringType("C"))
             else -> mutableListOf()
         }
@@ -224,7 +226,7 @@ object CustomFHIRFunctions {
      * @return a mutable list containing the HL7 single character version of the code
      */
     fun getYesNoValue(focus: MutableList<Base>): MutableList<Base> {
-        return when (focus[0].toString()) {
+        return when (focus[0].primitiveValue()) {
             "true" -> mutableListOf(StringType("Y"))
             "false" -> mutableListOf(StringType("N"))
             else -> mutableListOf(StringType(""))

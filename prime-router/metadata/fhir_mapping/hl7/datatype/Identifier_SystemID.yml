@@ -78,7 +78,7 @@ extension_2:
   constants:
     oidUrlPrefix: "urn:oid:"
     KEY_NAME_SUFFIX: Oid
-    urlValue: assigning-authority-universal-id
+    urlValue: assigning-facility-universal-id
 
 extension_3:
   generateList: true
@@ -108,16 +108,6 @@ extension_4:
 
 # Assigning authority namespace
 extension_5:
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  vars:
-    value: String, PID.3.4.1
-  constants:
-    KEY_NAME_SUFFIX: String
-    urlValue: assigning-authority-namespace-id
-
-extension_6:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
