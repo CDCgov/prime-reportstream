@@ -20,8 +20,8 @@ from cryptography.hazmat.primitives import serialization
 #
 # REPLACE THESE WITH YOUR CLIENT-ID AND KEYPAIR FILE
 #
-my_client_id = "waters"
-my_rsa_keypair_file = "../../my-rsa-keypair.pem"
+my_client_id = "healthy-labs"
+my_rsa_keypair_file = "./my-rsa-keypair.pem"
 
 #
 # Step 1
