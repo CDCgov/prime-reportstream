@@ -13,6 +13,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.cli.DeleteSenderSetting
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.GetSenderSetting
+import gov.cdc.prime.router.cli.LookupTableEndpointUtilities
 import gov.cdc.prime.router.cli.OktaCommand
 import gov.cdc.prime.router.cli.PutSenderSetting
 import gov.cdc.prime.router.cli.SettingCommand
@@ -22,6 +23,7 @@ import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
+import java.io.IOException
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -113,10 +115,16 @@ class OktaAuthTests : CoolTest() {
         }
 
         // Setup is done!   Ready to run some Okta Auth tests.
-        passed = passed and oktaLocalAuthTests(environment, myFakeReportFile, sender1, org1, reportId1)
+        // (Confusing:   If running smokes from your laptop, pointed at, say, Staging,
+        // `Environment.isLocal()` will be true but `environment` will be Environment.STAGING.)
+        if (environment == Environment.LOCAL) {
+            //  This test fails on STAGING - there is no 'local' there.
+            passed = passed and oktaLocalAuthTests(environment, myFakeReportFile, sender1, org1, reportId1)
+        }
         passed = passed and oktaBadTokenAuthTests(environment, myFakeReportFile, sender1, org1, reportId1)
         passed = passed and oktaPrimeAdminSubmissionListAuthTests(environment, org1, org2)
         passed = passed and oktaPrimeAdminReportDetailsAuthTests(environment, org1, org2, reportId1, reportId2)
+        passed = passed and oktaLookupTableSmokeTests(environment)
         return passed
     }
 
@@ -414,6 +422,17 @@ class OktaAuthTests : CoolTest() {
         this.outputMsgs.addAll(historyApiTest.outputMsgs)
         if (!passed) {
             bad("One or more Okta PrimeAdmin tests failed. You might need to:  $advice")
+        }
+        return passed
+    }
+
+    private fun oktaLookupTableSmokeTests(environment: Environment): Boolean {
+        ugly("Starting LookupTable tests using Okta auth")
+        val (passed, failedMessages) = lookupTableReadAndWriteSmokeTests(environment)
+        if (passed) {
+            good("Test passed:   Reading and Writing LookupTables using Okta auth.")
+        } else {
+            failedMessages.forEach { bad(it) }
         }
         return passed
     }
@@ -820,9 +839,22 @@ class Server2ServerAuthTests : CoolTest() {
             passed = passed and server2ServerReportDetailsAuthTests(
                 environment, org1, org2, reportId1, reportId2, token1, token2
             )
+            passed = passed and server2ServerLookupTableSmokeTests(environment, token1)
+            passed = passed and server2ServerLookupTableSmokeTests(environment, token2)
         } finally {
             deleteSender(sender1)
             deleteSender(sender2)
+        }
+        return passed
+    }
+
+    fun server2ServerLookupTableSmokeTests(environment: Environment, token: String): Boolean {
+        ugly("Starting LookupTable tests using Server2Server auth")
+        val (passed, failedMessages) = lookupTableReadOnlySmokeTests(environment, token)
+        if (passed) {
+            good("Test passed:   Lookuptable functions tests using server2server auth.")
+        } else {
+            failedMessages.forEach { bad(it) }
         }
         return passed
     }
@@ -1054,4 +1086,114 @@ class Jti : CoolTest() {
         }
         return passed
     }
+}
+
+/**
+ * Test ability, as a non-PrimeAdmin, to read a lookup table. Also test that you cannot write a lookup table.
+ * If the tested tableName has not been previously loaded, this test will fail.
+ *
+ * Pass in a bearer [token] for a non-PrimeAdmin user, or if none is passed, this will attempt to use Okta.
+ * @return Pair(true if tests passed / false if failed, Failure messages are in the List<String>)
+ */
+fun lookupTableReadOnlySmokeTests(
+    environment: Environment,
+    accessToken: String? = null,
+): Pair<Boolean, List<String>> {
+    val failedMessages = mutableListOf<String>()
+    var passed = true
+    val lookupTableUtils = LookupTableEndpointUtilities(environment, accessToken)
+
+    val tableName = "sender_valuesets"
+
+    // Can we do a lookup?
+    val lookupList = lookupTableUtils.fetchList(false)
+    if (lookupList.isEmpty()) {
+        passed = false
+        failedMessages += "Got empty LookupTable List."
+    }
+
+    val myTable = try {
+        lookupList.first { it.tableName == tableName && it.isActive == true }
+    } catch (e: NoSuchElementException) {
+        failedMessages += "Cannot complete the lookup table tests - unable to find table $tableName"
+        return Pair(false, failedMessages)
+    }
+
+    // contents Test
+    val contents = lookupTableUtils.fetchTableContent(myTable.tableName, myTable.tableVersion)
+    if (contents.isEmpty()) {
+        passed = false
+        failedMessages += "Test FAILED:  expected some contents to be in table $tableName, but its empty."
+    }
+
+    // OK, now test we are NOT able to write
+
+    val tableName2 = "bogus-test-table2"
+    // Should not be able to create tables.
+    try {
+        val tableData = listOf(mapOf("a" to "11", "b" to "21"), mapOf("a" to "12", "b" to "22"))
+        lookupTableUtils.createTable(tableName2, tableData, forceTableToCreate = true)
+        failedMessages += "Test FAILED:  should NOT have been able to create a table."
+        passed = false // should never reach here.
+    } catch (_: IOException) { }
+
+    // Should not be able to activate Tables.
+    try {
+        lookupTableUtils.activateTable(tableName, 1)
+        failedMessages += "Test FAILED:  should NOT have been able to activate a table."
+        passed = false // should never reach here.
+    } catch (_: IOException) { }
+
+    return Pair(passed, failedMessages)
+}
+
+/**
+ * Test ability of a PrimeAdmin to both read and write Lookup Tables.
+ *
+ * Pass in a bearer [token] for a PrimeAdmin user, or if none is passed, this will attempt to use Okta.
+ * @return Pair(true if tests passed / false if failed, Failure messages are in the List<String>)
+ */
+fun lookupTableReadAndWriteSmokeTests(
+    environment: Environment,
+    accessToken: String? = null,
+): Pair<Boolean, List<String>> {
+    val failedMessages = mutableListOf<String>()
+    var passed = true
+    val lookupTableUtils = LookupTableEndpointUtilities(environment, accessToken)
+
+    val tableName = "bogus-test-table"
+
+    // createTable test
+    val tableData = listOf(mapOf("a" to "11", "b" to "21"), mapOf("a" to "12", "b" to "22"))
+    val createInfo = lookupTableUtils.createTable(tableName, tableData, forceTableToCreate = true)
+    if (createInfo.tableName != tableName || createInfo.tableVersion < 1) {
+        passed = false
+        failedMessages += "Test FAILED:  unable to create lookup table $tableName"
+    }
+
+    // activateTable test
+    val activationInfo = lookupTableUtils.activateTable(tableName, createInfo.tableVersion)
+    if (activationInfo.tableName != tableName || activationInfo.tableVersion != createInfo.tableVersion) {
+        passed = false
+        failedMessages += "Test FAILED:  unable to activate lookup table $tableName"
+    }
+
+    // contents Test
+    val contents = lookupTableUtils.fetchTableContent(tableName, createInfo.tableVersion)
+    if (contents.size != tableData.size) {
+        passed = false
+        failedMessages += "Test FAILED:  expected list of size ${tableData.size} but got ${contents.size}"
+    }
+
+    if (!contents[1].containsKey("b") || contents[1]["a"] != "12") {
+        passed = false
+        failedMessages += "Test FAILED:  retrieved list had wrong contents"
+    }
+
+    val lookupList = lookupTableUtils.fetchList(false)
+    if (lookupList.isEmpty()) {
+        passed = false
+        failedMessages += "Got empty LookupTable List."
+    }
+    return Pair(passed, failedMessages)
 }
