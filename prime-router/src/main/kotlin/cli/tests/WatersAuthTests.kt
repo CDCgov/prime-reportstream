@@ -81,10 +81,10 @@ class OktaAuthTests : CoolTest() {
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         var passed = true
         val org1 = historyTestOrgName
-        var sender1 = historyTestSender
+        val sender1 = historyTestSender
 
         val org2 = orgName
-        var sender2 = defaultIgnoreSender
+        val sender2 = defaultIgnoreSender
 
         val myFakeReportFile = createFakeReport(sender1)
         val oktaToken = getOktaAccessTokOrLocal(environment)
@@ -451,7 +451,7 @@ class Server2ServerAuthTests : CoolTest() {
     /**
      * Utility function to attach a new sender to an existing organization.
      */
-    fun createNewSenderForExistingOrg(senderName: String, orgName: String): Sender {
+    private fun createNewSenderForExistingOrg(senderName: String, orgName: String): Sender {
         val newSender = CovidSender(
             name = senderName,
             organizationName = orgName,
@@ -848,7 +848,7 @@ class Server2ServerAuthTests : CoolTest() {
         return passed
     }
 
-    fun server2ServerLookupTableSmokeTests(environment: Environment, token: String): Boolean {
+    private fun server2ServerLookupTableSmokeTests(environment: Environment, token: String): Boolean {
         ugly("Starting LookupTable tests using Server2Server auth")
         val (passed, failedMessages) = lookupTableReadOnlySmokeTests(environment, token)
         if (passed) {
@@ -1090,9 +1090,9 @@ class Jti : CoolTest() {
 
 /**
  * Test ability, as a non-PrimeAdmin, to read a lookup table. Also test that you cannot write a lookup table.
- * If the tested tableName has not been previously loaded, this test will fail.
+ * This test must be run as a regular user, not PrimeAdmin.
  *
- * Pass in a bearer [token] for a non-PrimeAdmin user, or if none is passed, this will attempt to use Okta.
+ * Pass in a bearer [accessToken] for a non-PrimeAdmin user, or if none is passed, this will attempt to use Okta.
  * @return Pair(true if tests passed / false if failed, Failure messages are in the List<String>)
  */
 fun lookupTableReadOnlySmokeTests(
@@ -1103,46 +1103,55 @@ fun lookupTableReadOnlySmokeTests(
     var passed = true
     val lookupTableUtils = LookupTableEndpointUtilities(environment, accessToken)
 
-    val tableName = "sender_valuesets"
-
     // Can we do a lookup?
-    val lookupList = lookupTableUtils.fetchList(false)
-    if (lookupList.isEmpty()) {
+    val lookupList = try {
+        lookupTableUtils.fetchList(false)
+    } catch (e: Exception) {
         passed = false
-        failedMessages += "Got empty LookupTable List."
+        failedMessages += "Got Exception ({e.message }) on call to fetchList."
+        null
     }
 
-    val myTable = try {
-        lookupList.first { it.tableName == tableName && it.isActive == true }
-    } catch (e: NoSuchElementException) {
-        failedMessages += "Cannot complete the lookup table tests - unable to find table $tableName"
-        return Pair(false, failedMessages)
+    // These next few tests can only be run if there's actually a table in the LookupTables
+    if (!lookupList.isNullOrEmpty()) {
+        val myTable = try {
+            // try to test using a relatively fast/small table, if its there:
+            val niceSmallTableName = "sender_valuesets"
+            lookupList.first { it.tableName == niceSmallTableName && it.isActive == true }
+        } catch (e: NoSuchElementException) {
+            // Sigh. That didn't work.  Just use any old table for this test.
+            lookupList.first()
+        }
+        // contents Test
+        val contents = lookupTableUtils.fetchTableContent(myTable.tableName, myTable.tableVersion)
+        if (contents.isEmpty()) {
+            passed = false
+            failedMessages += "Test FAILED:  expected some contents to be in table ${myTable.tableName}, but its empty."
+        }
+        // info Test
+        val info = lookupTableUtils.fetchTableInfo(myTable.tableName, myTable.tableVersion)
+        if (info.tableName != myTable.tableName || info.createdBy != myTable.createdBy) {
+            passed = false
+            failedMessages += "Test FAILED:  fetchTableInfo returns different object from ${myTable.tableName} in List."
+        }
+        // Should NOT be able to activate the Tables because we don't have write access.
+        try {
+            lookupTableUtils.activateTable(myTable.tableName, myTable.tableVersion)
+            passed = false // should never reach here.
+            failedMessages += "Test FAILED:  should NOT have been able to activate a table."
+        } catch (_: IOException) { // passed
+        }
     }
-
-    // contents Test
-    val contents = lookupTableUtils.fetchTableContent(myTable.tableName, myTable.tableVersion)
-    if (contents.isEmpty()) {
-        passed = false
-        failedMessages += "Test FAILED:  expected some contents to be in table $tableName, but its empty."
-    }
-
-    // OK, now test we are NOT able to write
 
     val tableName2 = "bogus-test-table2"
-    // Should not be able to create tables.
+    // Should NOT be able to create tables because we don't have write access
     try {
-        val tableData = listOf(mapOf("a" to "11", "b" to "21"), mapOf("a" to "12", "b" to "22"))
+        val tableData = listOf(mapOf("to be or not" to "be"), mapOf("Shall I compare thee " to "a summer's day?"))
         lookupTableUtils.createTable(tableName2, tableData, forceTableToCreate = true)
+        passed = false // should never reach here.
         failedMessages += "Test FAILED:  should NOT have been able to create a table."
-        passed = false // should never reach here.
-    } catch (_: IOException) { }
-
-    // Should not be able to activate Tables.
-    try {
-        lookupTableUtils.activateTable(tableName, 1)
-        failedMessages += "Test FAILED:  should NOT have been able to activate a table."
-        passed = false // should never reach here.
-    } catch (_: IOException) { }
+    } catch (_: IOException) { // passed
+    }
 
     return Pair(passed, failedMessages)
 }
@@ -1150,7 +1159,7 @@ fun lookupTableReadOnlySmokeTests(
 /**
  * Test ability of a PrimeAdmin to both read and write Lookup Tables.
  *
- * Pass in a bearer [token] for a PrimeAdmin user, or if none is passed, this will attempt to use Okta.
+ * Pass in a bearer [accessToken] for a PrimeAdmin user, or if none is passed, this will attempt to use Okta.
  * @return Pair(true if tests passed / false if failed, Failure messages are in the List<String>)
  */
 fun lookupTableReadAndWriteSmokeTests(
