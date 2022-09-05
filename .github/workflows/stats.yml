@@ -7,4 +7,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run pull request stats
-        uses: flowwer-dev/pull-request-stats@ac5c6eb7c6f48b0e12253dd6cd511a81fd088570
+        uses: flowwer-dev/pull-request-stats@362ff2f7124f4fcddd2dea898bd799c542d91e58
