@@ -58,7 +58,7 @@ class DeliveryFunction(
      * @return true if action is valid, else false
      */
     override fun actionIsValid(action: Action): Boolean {
-        return action.actionName == TaskAction.send
+        return action.actionName == TaskAction.batch
     }
 
     /**
