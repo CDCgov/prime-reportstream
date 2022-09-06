@@ -184,7 +184,7 @@ class ActionHistory(
     }
 
     /**
-     * Sets the actionId on the action and all internal reports after saving the action to the database
+     * Sets the [actionId] on the action and all internal reports after saving the action to the database
      */
     fun setActionId(actionId: Long) {
         action.actionId = actionId
@@ -273,6 +273,10 @@ class ActionHistory(
         )
     }
 
+    /**
+     * Calls trackActionParams with [request] as param, and then trackActionResult with the status of the
+     * [response] as param
+     */
     fun trackActionRequestResponse(request: HttpRequestMessage<String?>, response: HttpResponseMessage) {
         trackActionParams(request)
         trackActionResult(response.status)

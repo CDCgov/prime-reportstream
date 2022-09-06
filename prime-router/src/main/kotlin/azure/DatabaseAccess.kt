@@ -213,7 +213,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * Returns the action_id PK of the newly inserted ACTION.
+     * Returns the action_id PK of the newly inserted [action]. Uses [txn] as the context
      */
     internal fun insertAction(txn: Configuration, action: Action): Long {
         val actionRecord = DSL.using(txn).newRecord(ACTION, action)
@@ -994,7 +994,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * Save all tracked information into the database.
+     * Save all information that has been added into [actionHistory] to the database, using [txn] as the context
      */
     fun saveActionHistoryToDb(actionHistory: ActionHistory, txn: Configuration) {
         val actionId = this.insertAction(txn, actionHistory.action)
@@ -1034,7 +1034,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
     }
 
     /**
-     * Inserts both received and output report rows using [txn]
+     * Inserts all reports tracked within [actionHistory] using [txn]
      */
     private fun insertReports(actionHistory: ActionHistory, txn: Configuration) {
         actionHistory.reportsReceived.values.forEach {
@@ -1048,18 +1048,28 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         }
     }
 
-    fun insertReportLineage(lineage: ReportLineage, txn: Configuration) {
+    /**
+     * Inserts the provided [lineage] using [txn] as the data context
+     */
+    private fun insertReportLineage(lineage: ReportLineage, txn: Configuration) {
         DSL.using(txn).newRecord(REPORT_LINEAGE, lineage).store()
         logger.debug(
             "Report ${lineage.parentReportId} is a parent of child report ${lineage.childReportId}"
         )
     }
 
-    fun insertActionLog(actionLog: ActionLog, txn: Configuration) {
+    /**
+     * Inserts the provided [actionLog] using [txn] as the data context
+     */
+    private fun insertActionLog(actionLog: ActionLog, txn: Configuration) {
         val detailRecord = DSL.using(txn).newRecord(Tables.ACTION_LOG, actionLog)
         detailRecord.store()
     }
 
+    /**
+     * Inserts the provided [itemLineages] and logs the id and name from the provided [action]. [txn] is used as the
+     * data context.
+     */
     internal fun insertItemLineages(itemLineages: Set<ItemLineage>, txn: Configuration, action: Action) {
         DSL.using(txn)
             .batchInsert(
