@@ -231,13 +231,49 @@ extension_5:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: placer-field
+      value: placer-field-1
     valueString:
       type: STRING
       valueOf: OBR.18
       expressionType: HL7Spec
 
 extension_6:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: placer-field-2
+    valueString:
+      type: STRING
+      valueOf: OBR.19
+      expressionType: HL7Spec
+
+extension_7:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: filler-field-1
+    valueString:
+      type: STRING
+      valueOf: OBR.20
+      expressionType: HL7Spec
+
+extension_8:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: filler-field-2
+    valueString:
+      type: STRING
+      valueOf: OBR.21
+      expressionType: HL7Spec
+
+extension_9:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -253,7 +289,7 @@ extension_6:
       constants:
         system_code: "v2-0123"
 
-extension_7:
+extension_10:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -267,7 +303,7 @@ extension_7:
       vars:
         dateTimeIn: TQ1.7
 
-extension_8:
+extension_11:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -281,7 +317,7 @@ extension_8:
       vars:
         dateTimeIn: TQ1.8
 
-extension_9:
+extension_12:
   generateList: true
   expressionType: nested
   expressionsMap:
