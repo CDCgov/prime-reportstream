@@ -1,0 +1,54 @@
+name: ORU-R01-observation-result
+constants:
+  hl7OBXField: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION/OBX
+elements:
+  - name: result-set-ID
+    value: [ '%orderIndex + 1' ]
+    hl7Spec: [ '%{hl7OBXField}-1' ]
+
+#    OBX-2	Value Type
+  - name: result-value-type
+    hl7Spec: [ '%{hl7OBXField}-2' ]
+
+#    OBX-3	Observation Identifier
+  - name: observation-identifier
+    resource: '%resource.code.resolve()'
+    constants:
+      ceFieldPath: '%{hl7OBXField}-3'
+    schema: coded-element
+
+#    OBX-4	Observation Sub-ID
+  - name: observation-sub-id
+    hl7Spec: [ '%{hl7OBXField}-4' ]
+
+#    OBX-5	Observation Value
+  - name: observation-value
+    hl7Spec: [ '%{hl7OBXField}-5' ]
+
+#    OBX-11	Observation Result Status
+  - name: observation-result-status
+    hl7Spec: [ '%{hl7OBXField}-11' ]
+
+#    OBX-14	Date/Time of the Observation
+  - name: observation-date-time
+    hl7Spec: [ '%{hl7OBXField}-14' ]
+
+#    OBX-15	Producer's ID
+  - name: observation-producer-id
+    hl7Spec: [ '%{hl7OBXField}-15' ]
+
+#    OBX-19	Date/Time of the Analysis
+  - name: analysis-date-time
+    hl7Spec: [ '%{hl7OBXField}-19' ]
+
+#    OBX-23	Performing Organization Name
+  - name: performing-organization-name
+    hl7Spec: [ '%{hl7OBXField}-23' ]
+
+#    OBX-24	Performing Organization Address
+  - name: performing-organization-address
+    hl7Spec: [ '%{hl7OBXField}-24' ]
+
+#    OBX-25	Performing Organization Medical Director
+  - name: performing-organization-director
+    hl7Spec: [ '%{hl7OBXField}-25' ]
