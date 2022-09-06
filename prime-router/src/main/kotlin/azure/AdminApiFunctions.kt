@@ -95,7 +95,7 @@ class AdminApiFunctions(
                 HttpUtilities.okResponse(request, jsonb ?: "[]")
             } catch (e: Exception) {
                 logger.error(e)
-                // admin calling so it's ok to reveal more info in error
+                // admin calling so, it's ok to reveal more info in error
                 HttpUtilities.badRequestResponse(
                     request,
                     "Invalid/missing cgi parameter. Check date formats."
@@ -138,7 +138,14 @@ class AdminApiFunctions(
          * Name of the query parameter to specify how many days back to show.
          */
         const val daysBackSpanParameter = "days_to_show"
+
+        /**
+         * Days back is not very flexible. Moving calls to start and end dated.
+         */
         const val startDateParam = "start_date"
+        /**
+         * End date *may* be optional. If missing assumes current date.
+         */
         const val endDateParam = "end_date"
     }
 }
