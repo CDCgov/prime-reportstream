@@ -10,7 +10,8 @@ name:
   valueOf: MSH.4.1
   expressionType: HL7Spec
 
-identifier:
+# For OIDs
+identifier_1:
   valueOf: datatype/Identifier_Gen
   condition: $idStr NOT_NULL && $systemStr EQUALS ISO
   generateList: true
@@ -21,6 +22,19 @@ identifier:
     systemStr: String, MSH.4.3
   constants:
     oidUrlPrefix: "urn:oid:"
+
+# For all other ID types
+identifier_2:
+  valueOf: datatype/Identifier_Gen
+  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS ISO
+  generateList: true
+  expressionType: resource
+  vars:
+    idStr: String, MSH.4.2
+    id: $idUrlPrefix + MSH.4.2
+    systemStr: String, MSH.4.3
+  constants:
+    idUrlPrefix: "urn:id:"
 
 address:
   valueOf: datatype/Address
