@@ -6,9 +6,12 @@ import assertk.assertions.isFailure
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.ActionLog
+import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.InvalidHL7Message
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -285,19 +288,19 @@ class ActionHistoryTests {
         reportFile1.receivingOrgSvc = "myRcvr"
 
         val reportFile2 = ReportFile()
-        reportFile1.reportId = uuid2
-        reportFile1.receivingOrg = "myOrg"
-        reportFile1.receivingOrgSvc = "myRcvr"
+        reportFile2.reportId = uuid2
+        reportFile2.receivingOrg = "myOrg"
+        reportFile2.receivingOrgSvc = "myRcvr"
 
         val reportFile3 = ReportFile()
-        reportFile1.reportId = uuid3
-        reportFile1.receivingOrg = "myOrg"
-        reportFile1.receivingOrgSvc = "myRcvr"
+        reportFile3.reportId = uuid3
+        reportFile3.receivingOrg = "myOrg"
+        reportFile3.receivingOrgSvc = "myRcvr"
 
         val actionHistory = ActionHistory(TaskAction.process)
         actionHistory.reportsReceived[uuid1] = reportFile1
         actionHistory.reportsOut[uuid2] = reportFile2
-        actionHistory.filteredOutReports[uuid2] = reportFile3
+        actionHistory.filteredOutReports[uuid3] = reportFile3
 
         actionHistory.setActionId(12345)
 
@@ -320,9 +323,9 @@ class ActionHistoryTests {
         reportFile1.receivingOrgSvc = "myRcvr"
 
         val reportFile2 = ReportFile()
-        reportFile1.reportId = uuid2
-        reportFile1.receivingOrg = "myOrg"
-        reportFile1.receivingOrgSvc = "myRcvr"
+        reportFile2.reportId = uuid2
+        reportFile2.receivingOrg = "myOrg"
+        reportFile2.receivingOrgSvc = "myRcvr"
 
         val actionHistory = ActionHistory(TaskAction.process, true)
         actionHistory.reportsIn[uuid1] = reportFile1
@@ -346,9 +349,9 @@ class ActionHistoryTests {
         reportFile1.receivingOrgSvc = "myRcvr"
 
         val reportFile2 = ReportFile()
-        reportFile1.reportId = uuid2
-        reportFile1.receivingOrg = "myOrg"
-        reportFile1.receivingOrgSvc = "myRcvr"
+        reportFile2.reportId = uuid2
+        reportFile2.receivingOrg = "myOrg"
+        reportFile2.receivingOrgSvc = "myRcvr"
 
         val actionHistory = spyk(ActionHistory(TaskAction.process))
         actionHistory.reportsReceived[uuid1] = reportFile1
@@ -360,5 +363,31 @@ class ActionHistoryTests {
         actionHistory.generateLineages()
 
         verify(exactly = 1) { actionHistory.generateReportLineagesUsingItemLineage(any()) }
+    }
+
+    @Test
+    fun `test nullifyReportIds`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val workflowEngine = mockkClass(WorkflowEngine::class)
+        every { workflowEngine.metadata }.returns(metadata)
+        val uuid1 = UUID.randomUUID()
+
+        val actionLogDetail = InvalidHL7Message("Test Message")
+
+        val actionLog = ActionLog(
+            actionLogDetail,
+            null,
+            null,
+            reportId = uuid1,
+            action = null,
+            type = ActionLogLevel.filter,
+        )
+
+        val actionHistory = spyk(ActionHistory(TaskAction.process))
+        actionHistory.actionLogs.add(actionLog)
+
+        actionHistory.nullifyReportIdsForNonTrackedReports()
+
+        assertThat { actionHistory.actionLogs.all { it.reportId == null } }
     }
 }
