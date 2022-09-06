@@ -549,6 +549,7 @@ flyway {
     user = dbUser
     password = dbPassword
     cleanDisabled = false
+    outOfOrder = true
 }
 
 // Database code generation configuration
