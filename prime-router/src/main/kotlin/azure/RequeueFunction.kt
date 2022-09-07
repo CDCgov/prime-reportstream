@@ -8,6 +8,8 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.StringUtilities.trimToNull
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.PrincipalLevel
 import org.apache.logging.log4j.kotlin.Logging
@@ -32,7 +34,7 @@ class RequeueFunction : Logging {
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         logger.info("Entering requeue/send api")
-        return handleRequest(request)
+        return handleRequest(request, null)
     }
 
     @FunctionName("doResendFunction")
@@ -46,11 +48,11 @@ class RequeueFunction : Logging {
     ): HttpResponseMessage {
         logger.info("adm/resend api")
         return OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN).checkAccess(request) {
-            handleRequest(request)
+            handleRequest(request, it)
         }
     }
 
-    fun handleRequest(request: HttpRequestMessage<String?>): HttpResponseMessage {
+    fun handleRequest(request: HttpRequestMessage<String?>, claim: AuthenticatedClaims?): HttpResponseMessage {
         val workflowEngine = WorkflowEngine()
         val actionHistory = ActionHistory(TaskAction.resend)
         actionHistory.trackActionParams(request)
@@ -62,6 +64,9 @@ class RequeueFunction : Logging {
             HttpUtilities.bad(request, msgs.joinToString("\n") + "\n")
         }
         actionHistory.trackActionResult(response.status, response.body.toString())
+        if (claim !== null && claim.userName.trimToNull() !== null) {
+            actionHistory.trackUsername(claim.userName)
+        }
         workflowEngine.recordAction(actionHistory)
         return response
     }

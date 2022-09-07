@@ -270,10 +270,11 @@ export const CsvSchemaDocumentation = () => {
                                         {section.title}
                                     </h3>
 
-                                    {section.items?.map((item) => {
+                                    {section.items?.map((item, index) => {
                                         return (
                                             <CsvSchemaDocumentationItem
                                                 item={item}
+                                                key={`CsvSchemaDocumentationItem-${index}`}
                                                 className="margin-top-8 rs-documentation__values"
                                             />
                                         );
