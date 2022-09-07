@@ -43,16 +43,6 @@ const lookupTables: LookupTable[] = [
     },
 ];
 
-// const lookupTablesAlt: LookupTable[] = [1, 2, 3].map((i) => ({
-//     lookupTableVersionId: i,
-//     tableName: "sender_automation_value_set",
-//     tableVersion: i,
-//     isActive: i !== 3,
-//     createdBy: "again@example.com",
-//     createdAt: "later",
-//     tableSha256Checksum: "checksum",
-// })) as LookupTable[];
-
 const lookupTableData: ApiValueSet[] = [1, 2, 3].map((_i) => ({
     name: "sender_automation_value_set",
     created_by: "",
