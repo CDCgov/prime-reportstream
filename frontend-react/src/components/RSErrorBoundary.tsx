@@ -1,6 +1,7 @@
 import React, { ErrorInfo, ReactNode } from "react";
 
 import { isRSError, RSError } from "../utils/RSError";
+import { ErrorPage } from "../pages/error/ErrorPage";
 
 /** For consistency, when passing the code prop, please use these values
  * e.g. <ErrorPage code={RSError.NOT_FOUND} /> */
@@ -14,24 +15,6 @@ export enum ErrorName {
     // Any error that does not extend the RSError class
     NON_RS_ERROR = "non-rs-error",
 }
-
-const getErrorPage = (code?: ErrorName): JSX.Element => {
-    if (code === undefined) {
-        console.warn("No code given for getErrorPage()");
-    }
-    switch (code) {
-        case ErrorName.UNSUPPORTED_BROWSER:
-            return <></>;
-        case ErrorName.UNAUTHORIZED:
-            return <></>;
-        case ErrorName.NOT_FOUND:
-            return <></>;
-        case ErrorName.UNKNOWN:
-        case ErrorName.NON_RS_ERROR:
-        default:
-            return <></>;
-    }
-};
 
 interface ErrorBoundaryProps {
     children?: ReactNode;
@@ -78,7 +61,7 @@ export default class RSErrorBoundary extends React.Component<
      * component if no error is thrown */
     render() {
         if (this.state.hasError) {
-            return getErrorPage(this.state.code);
+            return <ErrorPage code={this.state.code} />;
         }
         return this.props.children;
     }

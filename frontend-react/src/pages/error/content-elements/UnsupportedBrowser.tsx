@@ -1,6 +1,6 @@
 import DOMPurify from "dompurify";
 
-import site from "../../content/site.json";
+import site from "../../../content/site.json";
 
 export const UnsupportedBrowser = () => {
     return (
@@ -12,15 +12,19 @@ export const UnsupportedBrowser = () => {
             </p>
             <ul>
                 <li>
-                    <a href="https://www.google.com/chrome/">Google Chrome</a>
+                    <a href="src/pages/error/content-elements/UnsupportedBrowser">
+                        Google Chrome
+                    </a>
                 </li>
                 <li>
-                    <a href="https://www.mozilla.org/en-US/firefox/new/">
+                    <a href="src/pages/error/content-elements/UnsupportedBrowser">
                         Mozilla Firefox
                     </a>
                 </li>
                 <li>
-                    <a href="https://www.apple.com/safari/">Apple Safari</a>
+                    <a href="src/pages/error/content-elements/UnsupportedBrowser">
+                        Apple Safari
+                    </a>
                 </li>
                 <li>
                     <a href="https://www.microsoft.com/en-us/edge">
