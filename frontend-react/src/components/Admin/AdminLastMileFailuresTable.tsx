@@ -32,8 +32,12 @@ interface DataForDialog {
 const DRow = (props: React.PropsWithChildren<{ label: string }>) => {
     return (
         <Grid row className={"modal-info-row"}>
-            <Grid className={"modal-info-label"}>{props.label}:</Grid>
-            <Grid className={"modal-info-value"}>{props.children}</Grid>
+            <Grid className={"modal-info-label text-no-wrap"}>
+                {props.label}:
+            </Grid>
+            <Grid className={"modal-info-value rs-wordbreak-force"}>
+                {props.children}
+            </Grid>
         </Grid>
     );
 };
@@ -49,26 +53,29 @@ const RenderInfoModal = (props: { infoDataJson: string }) => {
     return (
         <GridContainer className={"rs-admindash-modal-container"}>
             <Grid className={"modal-info-title"}>
-                Info Details {infoData.actionId}
+                Info Details: {infoData.actionId}
             </Grid>
             <DRow label={"Receiving Org"}>{infoData.receiver}</DRow>
             <DRow label={"Failed at"}>{formatDate(infoData.failedAt)}</DRow>
             <DRow label={"Action ID"}>{infoData.actionId}</DRow>
             <DRow label={"Report ID"}>{infoData.reportId}</DRow>
+            <DRow label={"Report File Receiver"}>
+                {infoData.reportFileReceiver}
+            </DRow>
             <DRow label={"File URI"}>
                 {infoData.bodyUrl}
                 <br />
                 {infoData.reportFileReceiver}
             </DRow>
-            {/*There may be zero or multiple retries. We can't tell which attempt goes with with which retry*/}
+            <DRow label={"Results"}>{infoData.actionResult}</DRow>
+            {/*There may be zero or multiple retries. We can't tell which attempt goes with which retry*/}
             {/*from existin data so show them all*/}
-            {retryDataArray.length ? (
-                <DRow label={"Result message(s)"}>{infoData.actionResult}</DRow>
-            ) : null}
             {retryDataArray.map((retryData) => (
                 <>
-                    <Grid className={"modal-info-title"}>
-                        Resend Details {retryData.actionId}
+                    <Grid
+                        className={"modal-info-title modal-info-title-resend"}
+                    >
+                        Resend Details: {retryData.actionId}
                     </Grid>
                     <DRow label={"Resent at"}>
                         {formatDate(retryData.createdAt)}
@@ -171,8 +178,12 @@ const DataLoadRenderTable = (props: {
             };
             return (
                 <tr key={`lastmile_row_${eachRow.pk()}`}>
-                    <td>{formatDate(eachRow.failedAt)}</td>
                     <td>
+                        <span className={"font-mono-2xs"}>
+                            {formatDate(eachRow.failedAt)}
+                        </span>
+                    </td>
+                    <td className={"font-mono-xs"}>
                         <Button
                             type="button"
                             unstyled
@@ -192,7 +203,7 @@ const DataLoadRenderTable = (props: {
                             className={"rs-resendmarker"}
                             title={"Resends attempted."}
                         >
-                            {resends.length ? " ⚠️ " : null}
+                            {resends.length ? "⚠️" : null}
                         </span>
                     </td>
                     <td>
@@ -240,7 +251,7 @@ const DataLoadRenderTable = (props: {
                     <th scope="col"></th>
                 </tr>
             </thead>
-            <tbody id="tBodyLastMile" className="font-mono-xs">
+            <tbody id="tBodyLastMile" className={"font-mono-xs"}>
                 {rows}
             </tbody>
         </Table>
@@ -368,7 +379,7 @@ ${data.receiver}`;
     };
 
     return (
-        <section className="grid-container">
+        <section className="grid-container rs-maxwidth-vw80">
             <h2>Last Mile failures</h2>
 
             <form autoComplete="off" className="grid-row margin-0">
