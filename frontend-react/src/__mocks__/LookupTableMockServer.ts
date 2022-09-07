@@ -40,7 +40,7 @@ const lookupTableData: ApiValueSet[] = [1, 2, 3].map((_i) => ({
     created_at: "",
     system: "LOCAL",
     reference: "unused",
-    referenceURL: "http://unused",
+    referenceURL: "https://unused",
 }));
 
 const handlers = [
