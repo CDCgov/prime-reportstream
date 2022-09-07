@@ -15,18 +15,21 @@ export enum ErrorName {
     NON_RS_ERROR = "non-rs-error",
 }
 
-const getErrorPage = (code: ErrorName) => {
+const getErrorPage = (code?: ErrorName): JSX.Element => {
+    if (code === undefined) {
+        console.warn("No code given for getErrorPage()");
+    }
     switch (code) {
         case ErrorName.UNSUPPORTED_BROWSER:
-            return;
+            return <></>;
         case ErrorName.UNAUTHORIZED:
-            return;
+            return <></>;
         case ErrorName.NOT_FOUND:
-            return;
+            return <></>;
         case ErrorName.UNKNOWN:
         case ErrorName.NON_RS_ERROR:
         default:
-            return;
+            return <></>;
     }
 };
 
@@ -76,7 +79,7 @@ export default class RSErrorBoundary extends React.Component<
     render() {
         if (this.state.hasError) {
             // You can render any custom fallback UI
-            return <h1>Something went wrong.</h1>;
+            return getErrorPage(this.state.code);
         }
         return this.props.children;
     }
