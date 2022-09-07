@@ -44,9 +44,9 @@ object ConfigSchemaReader : Logging {
     /**
      * Merge the parent and child schemas provided in the [schemaList].  Note that [schemaList] MUST be ordered
      * from the lowest child to parent.
-     * @return a merged schema.
+     * @return a merged schema
      */
-    internal fun mergeSchemas(schemaList: List<ConfigSchema>): ConfigSchema {
+    private fun mergeSchemas(schemaList: List<ConfigSchema>): ConfigSchema {
         val parentSchema = schemaList.last()
         for (i in (schemaList.size - 2) downTo 0) {
             parentSchema.merge(schemaList[i])

@@ -102,6 +102,7 @@ data class ConfigSchema(
 
     /**
      * Merge a [childSchema] into this one.
+     * @return the reference to the schema
      */
     fun merge(childSchema: ConfigSchema) = apply {
         childSchema.hl7Version?.let { this.hl7Version = childSchema.hl7Version }
@@ -222,6 +223,7 @@ data class ConfigSchemaElement(
 
     /**
      * Merge an [overwritingElement] into this element, overwriting only those properties that have values.
+     * @return the reference to the element
      */
     fun merge(overwritingElement: ConfigSchemaElement) = apply {
         overwritingElement.condition?.let { this.condition = overwritingElement.condition }
