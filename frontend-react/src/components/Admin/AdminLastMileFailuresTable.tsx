@@ -67,12 +67,9 @@ const RenderInfoModal = (props: { infoDataJson: string }) => {
                 <br />
                 {infoData.reportFileReceiver}
             </DRow>
-            <DRow label={"Result"}>{infoData.actionResult}</DRow>
+            <DRow label={"Results"}>{infoData.actionResult}</DRow>
             {/*There may be zero or multiple retries. We can't tell which attempt goes with which retry*/}
             {/*from existin data so show them all*/}
-            {retryDataArray.length ? (
-                <DRow label={"Result message(s)"}>{infoData.actionResult}</DRow>
-            ) : null}
             {retryDataArray.map((retryData) => (
                 <>
                     <Grid
