@@ -289,12 +289,12 @@ object CustomFHIRFunctions {
     /**
      * Regex to identify OIDs.  Source: https://www.hl7.org/fhir/datatypes.html#oid
      */
-    private val OidRegex = """^[0-2](.(0|[1-9]\d*))+$""".toRegex()
+    private val oidRegex = """^[0-2](.(0|[1-9]\d*))+$""".toRegex()
 
     /**
      * Regex to identify CLIAs.  CLIAs are just 10 alphanumeric characters.
      */
-    private val CliaRegex = """^[a-zA-Z\d]{10}$""".toRegex()
+    private val cliaRegex = """^[a-zA-Z\d]{10}$""".toRegex()
 
     /**
      * Get the ID for the value in [focus].
@@ -316,7 +316,7 @@ object CustomFHIRFunctions {
 
             // A plain string with an OID or CLIA.
             focus[0] is StringType &&
-                (focus[0].primitiveValue().matches(OidRegex) || focus[0].primitiveValue().matches(CliaRegex)) ->
+                (focus[0].primitiveValue().matches(oidRegex) || focus[0].primitiveValue().matches(cliaRegex)) ->
                 focus[0].primitiveValue()
 
             else -> null
@@ -338,13 +338,13 @@ object CustomFHIRFunctions {
             focus[0].primitiveValue().startsWith("urn:oid:") -> "ISO"
 
             focus[0] is StringType && focus[0].primitiveValue().startsWith("urn:id:") &&
-                focus[0].primitiveValue().replace("urn:id:", "").matches(CliaRegex) -> "CLIA"
+                focus[0].primitiveValue().replace("urn:id:", "").matches(cliaRegex) -> "CLIA"
 
             // A string with an OID is ISO
-            focus[0] is StringType && focus[0].primitiveValue().matches(OidRegex) -> "ISO"
+            focus[0] is StringType && focus[0].primitiveValue().matches(oidRegex) -> "ISO"
 
             // A string with a CLIA is CLIA
-            focus[0] is StringType && focus[0].primitiveValue().matches(CliaRegex) -> "CLIA"
+            focus[0] is StringType && focus[0].primitiveValue().matches(cliaRegex) -> "CLIA"
 
             else -> null
         }
