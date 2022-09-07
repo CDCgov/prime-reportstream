@@ -1,6 +1,6 @@
 import React, { ErrorInfo, ReactNode } from "react";
 
-import { isRSError, RSError } from "../utils/RSError";
+import { ErrorUI, isRSError, RSError } from "../utils/RSError";
 import { ErrorPage } from "../pages/error/ErrorPage";
 
 /** For consistency, when passing the code prop, please use these values
@@ -21,12 +21,13 @@ interface ErrorBoundaryProps {
 }
 interface ErrorBoundaryState {
     hasError: boolean;
-    code?: ErrorName; // Undefined until an error is thrown
+    // Undefined until an error is thrown
+    code?: ErrorName;
+    type?: ErrorUI;
 }
 /** Used to define default state values on render */
 const initState: ErrorBoundaryState = {
     hasError: false,
-    code: undefined,
 };
 /** Wrap components with this error boundary to catch errors thrown */
 export default class RSErrorBoundary extends React.Component<
@@ -50,6 +51,7 @@ export default class RSErrorBoundary extends React.Component<
         return {
             hasError: true,
             code: useLegacy ? ErrorName.NON_RS_ERROR : error.code,
+            type: useLegacy ? "page" : error.displayAs,
         };
     }
     /** Any developer logging needed (i.e. log the error in console, push to

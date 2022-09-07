@@ -13,6 +13,7 @@ import {
     ReportStreamAlert,
 } from "../../../utils/ErrorUtils";
 import { LookupTables, ValueSet } from "../../../config/endpoints/lookupTables";
+import RSErrorBoundary from "../../../components/RSErrorBoundary";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
@@ -97,7 +98,9 @@ const ValueSetsIndex = () => {
                 </title>
             </Helmet>
             <section className="grid-container">
-                <ValueSetsTable />
+                <RSErrorBoundary>
+                    <ValueSetsTable />
+                </RSErrorBoundary>
             </section>
         </>
     );

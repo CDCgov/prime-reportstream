@@ -1,14 +1,19 @@
 import { ErrorName } from "../components/RSErrorBoundary";
 
+export type ErrorUI = "message" | "page";
+
 /** All custom errors should extend this class */
 export class RSError extends Error {
     code: ErrorName;
+    displayAs?: ErrorUI = "page";
 
     /** @param message {string} Passed to `Error.constructor()`
-     * @param status {number?} Used to parse `RSError.code` value */
-    constructor(message: string, status?: number) {
+     * @param status {number?} Used to parse `RSError.code` value
+     * @param display {ErrorUI} Used to display as either a message or page */
+    constructor(message: string, status?: number, display?: ErrorUI) {
         super(message);
         this.code = this.parseStatus(status);
+        this.displayAs = display;
     }
     /** Feed it a status, and get back the proper enumerated name */
     parseStatus(status?: number) {
