@@ -3452,13 +3452,13 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 
-- name: ri-doh
+- name: ri-phd
   description: Rhode Island Public Health Department
   jurisdiction: STATE
   stateCode: RI
   receivers:
     - name: elr
-      organizationName: ri-doh
+      organizationName: ri-phd
       topic: covid-19
       customerStatus: inactive
       jurisdictionalFilter:
