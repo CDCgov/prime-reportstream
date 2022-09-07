@@ -88,6 +88,9 @@ const ValueSetsTableContent = () => {
         </>
     );
 };
+
+// Example of using `withNetworkCall` in an exportable variable.
+// You can also call `withNetworkCall` inline in jsx (requires use of brackets `{}`)!
 const ValueSetsTable = () => withNetworkCall(<ValueSetsTableContent />);
 
 const ValueSetsIndex = () => {
