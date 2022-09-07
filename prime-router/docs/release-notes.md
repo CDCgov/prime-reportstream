@@ -15,7 +15,7 @@ This release adds a new content download endpoint, and other improvements, to th
 #### What is the LookupTable API?
 
 In ReportStream, LookupTables are used to store standardized SNOMED and LOINC valuesets, providing 
-simple mappings betwee coded values and human readable names.
+simple mappings between coded values and human readable names.
 LookupTables are also used to store many other kinds of such simple mappings, for example, we use LookupTables to 
  expose Covid-19 "LIVD" data in a way that we can map between different columns in that spreadsheet.
 We also use LookupTables to store mappings between non-standard values and standard values, in cases where
