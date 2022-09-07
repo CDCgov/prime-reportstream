@@ -13,7 +13,7 @@ import {
     ReportStreamAlert,
 } from "../../../utils/ErrorUtils";
 import { LookupTables, ValueSet } from "../../../config/endpoints/lookupTables";
-import { withBoundary } from "../../../components/RSErrorBoundary";
+import { withNetworkCall } from "../../../components/RSErrorBoundary";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
     const makeItem = (label: string, value: string) => (
@@ -88,7 +88,7 @@ const ValueSetsTableContent = () => {
         </>
     );
 };
-const ValueSetsTable = () => withBoundary(<ValueSetsTableContent />);
+const ValueSetsTable = () => withNetworkCall(<ValueSetsTableContent />);
 
 const ValueSetsIndex = () => {
     return (

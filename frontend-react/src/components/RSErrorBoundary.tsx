@@ -1,7 +1,9 @@
-import React, { ErrorInfo, ReactNode } from "react";
+import React, { ErrorInfo, ReactNode, Suspense } from "react";
 
 import { ErrorUI, isRSError, RSError } from "../utils/RSError";
 import { ErrorPage } from "../pages/error/ErrorPage";
+
+import Spinner from "./Spinner";
 
 /** For consistency, when passing the code prop, please use these values
  * e.g. <ErrorPage code={RSError.NOT_FOUND} /> */
@@ -69,17 +71,19 @@ export default class RSErrorBoundary extends React.Component<
         return this.props.children;
     }
 }
-/** Use in exports and JSX calls to wrap an element in an error boundary
+/** Use in exports and JSX calls to wrap an element in an error boundary and suspense
  * @example
  * // As proxy
- * export const MyWrappedComponent = () = withBoundary(<MyComponent />)
+ * export const MyWrappedComponent = () = withNetworkCall(<MyComponent />)
  * // or in-line
  * return (
  *  <div>
- *      {withBoundary(<MyComponent />)}
+ *      {withNetworkCall(<MyComponent />)}
  *  </div>
  * )
  * */
-export const withBoundary = (component: JSX.Element) => (
-    <RSErrorBoundary>{component}</RSErrorBoundary>
+export const withNetworkCall = (component: JSX.Element) => (
+    <RSErrorBoundary>
+        <Suspense fallback={<Spinner />}>{component}</Suspense>
+    </RSErrorBoundary>
 );

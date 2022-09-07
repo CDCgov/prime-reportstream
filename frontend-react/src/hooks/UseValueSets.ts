@@ -81,7 +81,7 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     const { error: tableError, data: tableData } = useQuery<LookupTable[]>(
         [getTableList.queryKey],
         () => lookupTableFetch(getTableList),
-        { enabled: !suppliedVersion } // only if version was not already passed in
+        { enabled: !suppliedVersion, suspense: true } // only if version was not already passed in
     );
 
     // handle complexity around passed version vs. incomplete useQuery vs. success
@@ -118,7 +118,7 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     const { error: valueSetError, data: valueSetData } = useQuery<T>(
         [getTableData.queryKey, versionData?.version, dataTableName],
         memoizedDataFetch,
-        { enabled: !!versionData?.version }
+        { enabled: !!versionData?.version, suspense: true }
     );
 
     // the logic here is that the value set request should not go out if there is an error
