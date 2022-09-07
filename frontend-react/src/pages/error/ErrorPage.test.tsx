@@ -3,7 +3,9 @@ import { ReactElement } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import { render, screen } from "@testing-library/react";
 
-import { CODES, ErrorPage } from "./ErrorPage";
+import { ErrorName } from "../../components/RSErrorBoundary";
+
+import { ErrorPage } from "./ErrorPage";
 
 describe("testing ErrorPage", () => {
     // types of errors we can throw
@@ -44,7 +46,7 @@ describe("testing ErrorPage", () => {
 
     it("check UNSUPPORTED_BROWSER", () => {
         render(
-            <ErrorPage code={CODES.UNSUPPORTED_BROWSER}>
+            <ErrorPage code={ErrorName.UNSUPPORTED_BROWSER}>
                 <div>child component</div>
             </ErrorPage>
         );
@@ -56,7 +58,7 @@ describe("testing ErrorPage", () => {
 
     it("check NOT_FOUND_404", () => {
         render(
-            <ErrorPage code={CODES.NOT_FOUND_404}>
+            <ErrorPage code={ErrorName.NOT_FOUND}>
                 <div>child component</div>
             </ErrorPage>
         );

@@ -20,7 +20,7 @@ import { oktaAuthConfig } from "./oktaConfig";
 import { AuthorizedRoute } from "./components/AuthorizedRoute";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
 import { Upload } from "./pages/Upload";
-import { CODES, ErrorPage } from "./pages/error/ErrorPage";
+import { ErrorPage } from "./pages/error/ErrorPage";
 import { logout } from "./utils/UserUtils";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import Spinner from "./components/Spinner";
@@ -51,6 +51,7 @@ import { AdminReceiverDashPage } from "./pages/admin/AdminReceiverDashPage";
 import { Product } from "./pages/product/ProductIndex";
 import UploadToPipeline from "./pages/UploadToPipeline";
 import { AppWrapper } from "./components/AppWrapper";
+import { ErrorName } from "./components/RSErrorBoundary";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
@@ -102,7 +103,7 @@ const App = () => {
         debounce: 500,
     });
 
-    if (isIE) return <ErrorPage code={CODES.UNSUPPORTED_BROWSER} />;
+    if (isIE) return <ErrorPage code={ErrorName.UNSUPPORTED_BROWSER} />;
 
     return (
         <AppWrapper
@@ -246,7 +247,7 @@ const App = () => {
                             {/* Handles any undefined route */}
                             <Route
                                 render={() => (
-                                    <ErrorPage code={CODES.NOT_FOUND_404} />
+                                    <ErrorPage code={ErrorName.NOT_FOUND} />
                                 )}
                             />
                         </Switch>

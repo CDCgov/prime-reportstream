@@ -2,22 +2,14 @@ import { Alert } from "@trussworks/react-uswds";
 import React from "react";
 import Helmet from "react-helmet";
 
+import { ErrorName } from "../../components/RSErrorBoundary";
+
 import { NotFound } from "./NotFound";
 import { UnsupportedBrowser } from "./UnsupportedBrowser";
 
-/* INFO
-   For consistency, when passing the code prop, please use these values
-   e.g. <ErrorPage code={CODES.NOT_FOUND_404} />
- */
-export enum CODES {
-    UNSUPPORTED_BROWSER = "unsupported-browser",
-    NOT_FOUND_404 = "not-found",
-    UNKNOWN = "unknown-error",
-}
-
 interface ErrorPageProps {
-    code?: CODES;
-    error?: string;
+    code?: ErrorName;
+    // TODO: Remove, let page handle messaging
     errorInfo?: React.ErrorInfo;
     type?: "page" | "message";
 }
@@ -76,14 +68,14 @@ const GenericErrorPage = () => {
 
 export const ErrorPage = (props: React.PropsWithChildren<ErrorPageProps>) => {
     const CODES_MAP = {
-        [CODES.UNSUPPORTED_BROWSER]: <UnsupportedBrowser />,
-        [CODES.NOT_FOUND_404]: <NotFound />,
-        [CODES.UNKNOWN]: <GenericErrorPage />, // Only used for default to keep ts happy. expand?
+        [ErrorName.UNSUPPORTED_BROWSER]: <UnsupportedBrowser />,
+        [ErrorName.NOT_FOUND]: <NotFound />,
+        [ErrorName.UNKNOWN]: <GenericErrorPage />, // Only used for default to keep ts happy. expand?
     };
 
-    const code = props.code || CODES.UNKNOWN;
+    const code = props.code || ErrorName.UNKNOWN;
 
-    if (Object.keys(CODES_MAP).includes(code)) {
+    if (Object.keys(CODES_MAP).includes(code as string)) {
         return <ErrorPageWrapper>{CODES_MAP[code] || ""}</ErrorPageWrapper>;
     }
     if (props.type === "message") {
