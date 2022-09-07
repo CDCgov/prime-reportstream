@@ -1,22 +1,9 @@
 import React, { ErrorInfo, ReactNode, Suspense } from "react";
 
-import { ErrorUI, isRSError, RSError } from "../utils/RSError";
+import { ErrorName, ErrorUI, isRSError, RSError } from "../utils/RSError";
 import { ErrorPage } from "../pages/error/ErrorPage";
 
 import Spinner from "./Spinner";
-
-/** For consistency, when passing the code prop, please use these values
- * e.g. <ErrorPage code={RSError.NOT_FOUND} /> */
-export enum ErrorName {
-    // TODO: Update App.tsx to throw on bad browser, wrap with boundary in index.ts?
-    UNSUPPORTED_BROWSER = "unsupported-browser",
-    UNAUTHORIZED = "unauthorized",
-    NOT_FOUND = "not-found",
-    // Any error thrown that cannot be parsed by RSError.parseStatus()
-    UNKNOWN = "unknown-error",
-    // Any error that does not extend the RSError class
-    NON_RS_ERROR = "non-rs-error",
-}
 
 interface ErrorBoundaryProps {
     children?: ReactNode;

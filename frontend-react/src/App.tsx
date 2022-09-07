@@ -51,7 +51,7 @@ import { AdminReceiverDashPage } from "./pages/admin/AdminReceiverDashPage";
 import { Product } from "./pages/product/ProductIndex";
 import UploadToPipeline from "./pages/UploadToPipeline";
 import { AppWrapper } from "./components/AppWrapper";
-import { ErrorName } from "./components/RSErrorBoundary";
+import { ErrorName } from "./utils/RSError";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 

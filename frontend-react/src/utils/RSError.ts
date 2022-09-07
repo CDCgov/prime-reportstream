@@ -1,19 +1,38 @@
-import { ErrorName } from "../components/RSErrorBoundary";
-
 export type ErrorUI = "message" | "page";
+/** For consistency, when passing the code prop, please use these values
+ * e.g. <ErrorPage code={RSError.NOT_FOUND} /> */
+export enum ErrorName {
+    // TODO: Update App.tsx to throw on bad browser, wrap with boundary in index.ts?
+    UNSUPPORTED_BROWSER = "unsupported-browser",
+    UNAUTHORIZED = "unauthorized",
+    NOT_FOUND = "not-found",
+    // Any error thrown that cannot be parsed by RSError.parseStatus()
+    UNKNOWN = "unknown-error",
+    // Any error that does not extend the RSError class
+    NON_RS_ERROR = "non-rs-error",
+}
 
 /** All custom errors should extend this class */
-export class RSError extends Error {
+export abstract class RSError extends Error {
     code: ErrorName;
     displayAs: ErrorUI = "page";
 
     /** @param message {string} Passed to `Error.constructor()`
      * @param status {number?} Used to parse `RSError.code` value
      * @param display {ErrorUI} Used to display as either a message or page */
+    protected constructor(message: string, status?: number, display?: ErrorUI) {
+        super(message); // Sets message
+        this.code = this.parseStatus(status); // Sets code using child's parseStatus
+        if (display) this.displayAs = display; // Updates display from default if present
+    }
+    abstract parseStatus(status?: number): ErrorName;
+}
+/** Throw from any failing network calls, and pass in the status code to
+ * match it with the right RSErrorPage */
+export class RSNetworkError extends RSError {
     constructor(message: string, status?: number, display?: ErrorUI) {
-        super(message);
-        this.code = this.parseStatus(status);
-        if (display) this.displayAs = display;
+        super(message, status, display);
+        Object.setPrototypeOf(this, RSNetworkError.prototype);
     }
     /** Feed it a status, and get back the proper enumerated name */
     parseStatus(status?: number) {
@@ -26,14 +45,6 @@ export class RSError extends Error {
             default:
                 return ErrorName.UNKNOWN;
         }
-    }
-}
-/** Throw from any failing network calls, and pass in the status code to
- * match it with the right RSErrorPage */
-export class RSNetworkError extends RSError {
-    constructor(message: string, status?: number, display?: ErrorUI) {
-        super(message, status, display);
-        Object.setPrototypeOf(this, RSNetworkError.prototype);
     }
 }
 /** Easy boolean check to validate error is of RSError descent */

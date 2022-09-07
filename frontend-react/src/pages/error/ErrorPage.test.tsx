@@ -3,7 +3,7 @@ import { ReactElement } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
 import { render, screen } from "@testing-library/react";
 
-import { ErrorName } from "../../components/RSErrorBoundary";
+import { ErrorName } from "../../utils/RSError";
 
 import { ErrorPage } from "./ErrorPage";
 

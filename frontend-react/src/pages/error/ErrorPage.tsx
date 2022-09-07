@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 
-import { ErrorName } from "../../components/RSErrorBoundary";
+import { ErrorName } from "../../utils/RSError";
 
 import { GenericMessage, GenericPage } from "./content-elements/Generic";
 import { UnsupportedBrowser } from "./content-elements/UnsupportedBrowser";
