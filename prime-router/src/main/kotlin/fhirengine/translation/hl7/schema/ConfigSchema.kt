@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import java.util.SortedMap
 
@@ -102,10 +103,14 @@ data class ConfigSchema(
     /**
      * Merge a [childSchema] into this one.
      */
-    fun merge(childSchema: ConfigSchema) {
+    fun merge(childSchema: ConfigSchema) = apply {
+        childSchema.hl7Version?.let { this.hl7Version = childSchema.hl7Version }
+        childSchema.hl7Type?.let { this.hl7Type = childSchema.hl7Type }
         childSchema.elements.forEach { childElement ->
             // If we find the element in the schema then replace it, otherwise add it.
-            val elementInSchema = findElement(childElement)
+            if (childElement.name.isNullOrBlank())
+                throw SchemaException("Child schema ${childSchema.name} found with element with no name.")
+            val elementInSchema = findElement(childElement.name!!)
             if (elementInSchema != null) {
                 elementInSchema.merge(childElement)
             } else {
@@ -115,22 +120,22 @@ data class ConfigSchema(
     }
 
     /**
-     * Find an [element] in this schema. This function recursively traverses the entire schema tree to find the
+     * Find an [elementName] in this schema. This function recursively traverses the entire schema tree to find the
      * element.
      * @return the element found or null if not found
      */
-    internal fun findElement(element: ConfigSchemaElement): ConfigSchemaElement? {
+    internal fun findElement(elementName: String): ConfigSchemaElement? {
         // First try to find the element at this level in the schema.
-        var elementsInSchema = elements.filter { element.name == it.name }
+        var elementsInSchema = elements.filter { elementName == it.name }
 
         // If the element was not found in this schema level, then traverse any elements that reference a schema
         if (elementsInSchema.isEmpty()) {
-            // Stay with me here: first get all the elements that are schema refereces, then for each of those schemas
+            // Stay with me here: first get all the elements that are schema references, then for each of those schemas
             // then find the element in there.  Note that this is recursive.
-            // Why the distinc? A schema can make references to the same schema multiple times and you could get
+            // Why the distinct? A schema can make references to the same schema multiple times, so you could get
             // a list of elements that are identical, so we make sure to get only those that at different.
             elementsInSchema = elements.filter { it.schemaRef != null }.mapNotNull {
-                it.schemaRef?.findElement(element)
+                it.schemaRef?.findElement(elementName)
             }.distinct()
         }
         // Sanity check
@@ -156,7 +161,7 @@ data class ConfigSchema(
 data class ConfigSchemaElement(
     var name: String? = null,
     var condition: String? = null,
-    var required: Boolean? = false,
+    var required: Boolean? = null,
     var schema: String? = null,
     var schemaRef: ConfigSchema? = null,
     var resource: String? = null,
@@ -218,7 +223,7 @@ data class ConfigSchemaElement(
     /**
      * Merge an [overwritingElement] into this element, overwriting only those properties that have values.
      */
-    fun merge(overwritingElement: ConfigSchemaElement) {
+    fun merge(overwritingElement: ConfigSchemaElement) = apply {
         overwritingElement.condition?.let { this.condition = overwritingElement.condition }
         overwritingElement.required?.let { this.required = overwritingElement.required }
         overwritingElement.schema?.let { this.schema = overwritingElement.schema }
