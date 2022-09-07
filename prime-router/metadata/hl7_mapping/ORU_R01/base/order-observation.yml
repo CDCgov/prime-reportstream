@@ -23,3 +23,10 @@ elements:
       %resource.extension(%`rsext-end-of-service`).exists() or
       %resource.extension(%`rsext-service-priority`).exists()
     schema: timing-quantity
+
+  - name: observation-result
+#    resource: '%resource.identifier.where(type.coding.code = "PLAC")'
+    resource: '%resource'
+    # some condition is probably needed here
+    schema: observation-result
+    resourceIndex: observationIndex
