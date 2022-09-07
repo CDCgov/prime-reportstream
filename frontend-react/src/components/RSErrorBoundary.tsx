@@ -69,3 +69,17 @@ export default class RSErrorBoundary extends React.Component<
         return this.props.children;
     }
 }
+/** Use in exports and JSX calls to wrap an element in an error boundary
+ * @example
+ * // As proxy
+ * export const MyWrappedComponent = () = withBoundary(<MyComponent />)
+ * // or in-line
+ * return (
+ *  <div>
+ *      {withBoundary(<MyComponent />)}
+ *  </div>
+ * )
+ * */
+export const withBoundary = (component: JSX.Element) => (
+    <RSErrorBoundary>{component}</RSErrorBoundary>
+);
