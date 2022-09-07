@@ -61,7 +61,7 @@ export default class RSErrorBoundary extends React.Component<
         const useLegacy = !isRSError(error);
         if (useLegacy) {
             console.warn(
-                "Please work to migrate all non RSError throws to use an RSError-extending error class."
+                "Please work to migrate all non RSError throws to use an RSError-extending error type."
             );
         }
         return {
@@ -78,7 +78,6 @@ export default class RSErrorBoundary extends React.Component<
      * component if no error is thrown */
     render() {
         if (this.state.hasError) {
-            // You can render any custom fallback UI
             return getErrorPage(this.state.code);
         }
         return this.props.children;
