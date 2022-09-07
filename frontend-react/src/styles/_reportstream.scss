@@ -382,6 +382,26 @@ ul.rb li .timestamp {
     z-index: var(--rs-zindex-top+1);
 }
 
+.rs-resend-modal {
+    max-width: 80vw;
+    height: 90vh;
+    overflow-y: auto;
+
+    .usa-modal__main {
+        max-width: revert;
+    }
+
+    .rs-resend-textarea {
+        height: 14em;
+        overflow-y: scroll;
+    }
+}
+
+.rs-resendmarker {
+    font-size: large;
+    cursor: default;
+}
+
 // combined from parts from /node_modules/@fortawesome/fontawesome-svg-core/styles.css
 .rs-fa-right-left-icon {
     color: #005ea2;
@@ -611,10 +631,6 @@ pre {
 .rs-admindash-warn-font {
     color: var(--toastify-color-error);
     font-weight: bold;
-}
-
-.rs-scrolling-modal {
-
 }
 
 /* for dashboards, unbounded width is a nice feature */
