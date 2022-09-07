@@ -1,4 +1,5 @@
 import { RSEndpoint } from ".";
+
 const testEndpoint = new RSEndpoint({
     path: "/path",
     method: "GET",

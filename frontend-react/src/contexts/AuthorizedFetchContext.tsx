@@ -38,10 +38,7 @@ export const AuthorizedFetchProvider = ({
     );
 };
 
-// we can refactor this when we introduce resources,
-// but if this takes a resource that contains a list of configs
-// we can likely avoid taking the path and method args at request time, and just read from the resource somehow
-// and all that is passed in are things that would change at request time (path params, query params, custom headers, payload, etc.)
+// an extra level of indirection here to allow for generic typing of the returned fetch function
 export const useAuthorizedFetch = <T,>(): AuthorizedFetcher<T> => {
     const { authorizedFetchGenerator } = useContext(AuthorizedFetchContext);
     return authorizedFetchGenerator<T>();
