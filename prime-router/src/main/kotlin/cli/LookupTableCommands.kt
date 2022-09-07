@@ -54,7 +54,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
     /**
      * The Access Token.
      */
-    private val accessToken: String = useThisToken ?: OktaCommand.fetchAccessToken(environment.oktaApp)
+    private val accessToken = useThisToken ?: OktaCommand.fetchAccessToken(environment.oktaApp)
         ?: throw PrintMessage("Missing access token. Run ./prime login to fetch/refresh your access token.", true)
 
     /**

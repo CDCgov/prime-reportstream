@@ -426,6 +426,10 @@ class OktaAuthTests : CoolTest() {
         return passed
     }
 
+    /**
+     * Test basic functionality of the lookuptoable API, using okta auth, in [environment].
+     * This assumes you have a primeadmin auth, so you can read and write the lookup tables.
+     */
     private fun oktaLookupTableSmokeTests(environment: Environment): Boolean {
         ugly("Starting LookupTable tests using Okta auth")
         val (passed, failedMessages) = lookupTableReadAndWriteSmokeTests(environment)
@@ -848,6 +852,10 @@ class Server2ServerAuthTests : CoolTest() {
         return passed
     }
 
+    /**
+     * Test basic functionality of the lookuptoable API, using server2server auth, in [environment].
+     * This assumes you do not have primeadmin auth, so you can only read the lookup tables.
+     */
     private fun server2ServerLookupTableSmokeTests(environment: Environment, token: String): Boolean {
         ugly("Starting LookupTable tests using Server2Server auth")
         val (passed, failedMessages) = lookupTableReadOnlySmokeTests(environment, token)

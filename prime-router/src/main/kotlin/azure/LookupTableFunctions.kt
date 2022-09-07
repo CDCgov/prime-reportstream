@@ -197,10 +197,9 @@ class LookupTableFunctions(
         }
         logger.info("User ${claims.userName} is authorized for endpoint ${request.uri}")
 
-        val inputData: List<Map<String, String>>
         return try {
             val forceTableToLoad = request.queryParameters[forceQueryParameter].toBoolean()
-            inputData = mapper.readValue(request.body!!.toString())
+            val inputData: List<Map<String, String>> = mapper.readValue(request.body!!.toString())
             if (inputData.isEmpty())
                 HttpUtilities.badRequestResponse(
                     request,
