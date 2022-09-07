@@ -402,6 +402,7 @@ ul.rb li .timestamp {
     cursor: default;
 }
 
+
 // combined from parts from /node_modules/@fortawesome/fontawesome-svg-core/styles.css
 .rs-fa-right-left-icon {
     color: #005ea2;
@@ -423,6 +424,11 @@ ul.rb li .timestamp {
     max-width: 100%;
   }
 
+}
+
+.rs-wordbreak-force {
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .fixed-tooltip {
@@ -601,6 +607,10 @@ pre {
             padding: 7px;
         }
 
+        .modal-info-title-resend {
+            background-color: var(--toastify-color-success);
+        }
+
         .modal-info-row {
             flex-wrap: nowrap;
         }
@@ -636,4 +646,8 @@ pre {
 /* for dashboards, unbounded width is a nice feature */
 .rs-container-unbounded {
     max-width: fit-content !important;
+}
+
+.rs-maxwidth-vw80 {
+    max-width: 80vw;
 }
