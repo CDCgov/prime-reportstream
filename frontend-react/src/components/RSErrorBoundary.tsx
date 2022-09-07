@@ -43,6 +43,7 @@ export default class RSErrorBoundary extends React.Component<
         /* We throw a lot of errors, so refactoring seems out of scope, but the system built relies on
          * RSError functionality to render unique error pages */
         const useLegacy = !isRSError(error);
+        console.log(useLegacy);
         if (useLegacy) {
             console.warn(
                 "Please work to migrate all non RSError throws to use an RSError-extending error type."
@@ -63,7 +64,7 @@ export default class RSErrorBoundary extends React.Component<
      * component if no error is thrown */
     render() {
         if (this.state.hasError) {
-            return <ErrorPage code={this.state.code} />;
+            return <ErrorPage code={this.state.code} type={this.state.type} />;
         }
         return this.props.children;
     }

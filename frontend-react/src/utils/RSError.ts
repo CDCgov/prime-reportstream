@@ -5,7 +5,7 @@ export type ErrorUI = "message" | "page";
 /** All custom errors should extend this class */
 export class RSError extends Error {
     code: ErrorName;
-    displayAs?: ErrorUI = "page";
+    displayAs: ErrorUI = "page";
 
     /** @param message {string} Passed to `Error.constructor()`
      * @param status {number?} Used to parse `RSError.code` value
@@ -13,7 +13,7 @@ export class RSError extends Error {
     constructor(message: string, status?: number, display?: ErrorUI) {
         super(message);
         this.code = this.parseStatus(status);
-        this.displayAs = display;
+        if (display) this.displayAs = display;
     }
     /** Feed it a status, and get back the proper enumerated name */
     parseStatus(status?: number) {
@@ -31,10 +31,10 @@ export class RSError extends Error {
 /** Throw from any failing network calls, and pass in the status code to
  * match it with the right RSErrorPage */
 export class RSNetworkError extends RSError {
-    constructor(message: string, status?: number) {
-        super(message, status);
+    constructor(message: string, status?: number, display?: ErrorUI) {
+        super(message, status, display);
         Object.setPrototypeOf(this, RSNetworkError.prototype);
     }
 }
 /** Easy boolean check to validate error is of RSError descent */
-export const isRSError = (e: any) => e instanceof RSError;
+export const isRSError = (e: object) => e instanceof RSError;

@@ -32,7 +32,6 @@ const ErrorMessageWrapper = (
 /** Generates page content for error pages and messages */
 export const ErrorPage = ({
     code,
-    errorInfo,
     type,
 }: React.PropsWithChildren<ErrorPageProps>) => {
     /** Easy for ternary checks in the errorContent memo hook */
@@ -46,6 +45,7 @@ export const ErrorPage = ({
             case ErrorName.UNSUPPORTED_BROWSER:
                 // TODO: Needs message UI
                 return <UnsupportedBrowser />;
+            case ErrorName.UNKNOWN:
             default:
                 return asPage ? <GenericPage /> : <GenericMessage />;
         }
@@ -56,8 +56,4 @@ export const ErrorPage = ({
     ) : (
         <ErrorMessageWrapper>{errorContent}</ErrorMessageWrapper>
     );
-};
-
-ErrorPage.defaultProps = {
-    type: "message",
 };
