@@ -407,7 +407,7 @@ extension:
           expressionType: resource
           condition: $annotationText NOT_NULL
           vars:
-            annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '  \n')
+            annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
 
 communication:
   condition: $language NOT_NULL

@@ -21,17 +21,17 @@ elements:
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-2' ]
 
   - name: note-comment-type
-    value: [ '''C''' ]
+    value: [ '''HL70364''' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-3' ]
 
   - name: note-comment-type
-    value: [ '''Comment''' ]
+    value: [ '''C''' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-4' ]
 
   - name: note-comment-type
-    value: [ '''L''' ]
+    value: [ '''Comment''' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-5' ]
 
   - name: note-comment-type
-    value: [ '''2.5.1''' ]
+    value: [ '''L''' ]
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-6' ]
