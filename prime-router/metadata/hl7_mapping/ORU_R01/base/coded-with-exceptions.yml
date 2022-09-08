@@ -7,12 +7,10 @@ elements:
 
   - name: coding-system-version-id
     resource: '%resource.extension(%`rsext-alternate-identifier`).value.coding.version'
-    condition: '%resource.exists()'
     value: [ '%resource']
     hl7Spec: [ '%{cweFieldPath}-7' ]
 
   - name: coding-system-version-id
     resource: '%resource.extension(%`rsext-alternate-identifier`).value.coding.extension(%`rsext-alternate-version`)'
-    condition: '%resource.exists()'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{cweFieldPath}-8' ]
