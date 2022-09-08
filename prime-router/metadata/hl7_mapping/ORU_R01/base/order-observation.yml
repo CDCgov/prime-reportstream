@@ -26,7 +26,7 @@ elements:
 
   - name: observation-result
 #    resource: '%resource.identifier.where(type.coding.code = "PLAC")'
-    resource: '%resource'
+    resource: '%resource.result.resolve()'
     # some condition is probably needed here
     schema: observation-result
-    resourceIndex: observationIndex
+    resourceIndex: resultIndex

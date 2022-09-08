@@ -1,9 +1,12 @@
 name: ORU-R01-observation-result
 constants:
-  hl7OBXField: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION/OBX(%{observationIndex})
+#  hl7OBXField: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION/OBX(%{resultIndex})
+#  hl7OBXField: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION/OBX
+  hl7OBXField: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX
 elements:
   - name: result-set-ID
-    value: [ '%orderIndex + 1' ]
+#    value: [ '%orderIndex + 1' ]
+    value: [ '%resultIndex + 1' ]
     hl7Spec: [ '%{hl7OBXField}-1' ]
 
   - name: result-value-type-cwe
@@ -36,7 +39,7 @@ elements:
   - name: observation-identifier-coding-system-ln
     resource: '%resource.code.coding'
     condition: '%resource.system = "http://loinc.org" and %resource.version = "L"'
-    value: [ '%resource.coding.version' ]
+    value: [ '''LN''' ]
     hl7Spec: [ '%{hl7OBXField}-3-3' ]
 
   - name: observation-identifier-alternate-code
@@ -91,8 +94,18 @@ elements:
 
 
 #    OBX-11	Observation Result Status
-  - name: observation-result-status
-    value: [ '%resource.status' ]
+#  - name: observation-result-status
+#    value: [ '%resource.status' ]
+#    hl7Spec: [ '%{hl7OBXField}-11' ]
+
+  - name: observation-result-status-preliminary
+    condition: '%resource.status = "preliminary"'
+    value: [ '''P''' ]
+    hl7Spec: [ '%{hl7OBXField}-11' ]
+
+  - name: observation-result-status-corrected
+    condition: '%resource.status = "corrected"'
+    value: [ '''C''' ]
     hl7Spec: [ '%{hl7OBXField}-11' ]
 
   - name: observation-date-time
@@ -118,7 +131,7 @@ elements:
   - name: performing-organization-address
     resource: '%resource.performer.resolve().organization.resolve().address'
     constants:
-      hl7XCNField: '%{hl7OBXField}-24'
+      hl7AddressField: '%{hl7OBXField}-24'
     schema: xad-extended-address
     resourceIndex: contactIndex
 
