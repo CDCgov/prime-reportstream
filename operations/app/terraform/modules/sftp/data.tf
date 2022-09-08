@@ -6,10 +6,6 @@ data "external" "sftp_ssh_query" {
   query = {
     environment = "${var.environment}"
   }
-
-  depends_on = [
-    azurerm_storage_share.sftp_scripts
-  ]
 }
 
 data "azurerm_subnet" "container_subnet" {
