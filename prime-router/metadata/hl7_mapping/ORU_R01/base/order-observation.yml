@@ -2,10 +2,6 @@ name: ORU-R01-order-observation
 constants:
   hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})
 elements:
-  - name: request-set-ID
-    value: [ '%orderIndex + 1' ]
-    hl7Spec: [ '%{hl7Order}/OBR-1' ]
-
   - name: order-segment
     # Only create the segment if we have data for it
     condition: '%resource.basedOn.resolve().extension(%`rsext-order-control`).exists()'
@@ -14,6 +10,11 @@ elements:
   - name: observation-request
     # Condition from ORU_RO1 covers this schema as well
     schema: observation-request
+
+  - name: specimen
+    resource: '%resource.specimen.resolve()'
+    condition: '%resource.exists()'
+    schema: specimen
 
   - name: timing-segment
     resource: '%resource.basedOn.resolve()'
