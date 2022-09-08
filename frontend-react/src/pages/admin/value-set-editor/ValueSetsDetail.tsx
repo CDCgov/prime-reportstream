@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
+import { ReactNode } from "react-markdown/lib/react-markdown";
 
 import Table, {
     ColumnConfig,
@@ -30,7 +31,6 @@ import {
     ReportStreamAlert,
     handleErrorWithAlert,
 } from "../../../utils/ErrorUtils";
-import { ReactNode } from "react-markdown/lib/react-markdown";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {
@@ -78,7 +78,7 @@ const ValueSetsLegend = ({ meta }: { meta: LookupTable }) => (
         </div>
         <div>
             <b>Reference: </b>
-            <a>HL7 Guidance for {meta.tableName}</a>
+            <a href="https://unknown">HL7 Guidance for {meta.tableName}</a>
         </div>
     </>
 );
@@ -105,7 +105,7 @@ const ValueSetsDetailHeader = ({
                 find in the PHN VADS system (needs link).
             </p>
             <p>
-                <b>Last update:</b> {createdAt.toString()}
+                <b>Last update:</b> {createdAt}
             </p>
             <p>
                 <b>Updated by:</b> {createdBy}
