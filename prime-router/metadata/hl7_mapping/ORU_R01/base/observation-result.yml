@@ -1,38 +1,30 @@
 name: ORU-R01-observation-result
 constants:
-#  hl7OBXField: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION/OBX(%{resultIndex})
-#  hl7OBXField: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION/OBX
   hl7OBXField: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX
 elements:
   - name: result-set-ID
-#    value: [ '%orderIndex + 1' ]
     value: [ '%resultIndex + 1' ]
     hl7Spec: [ '%{hl7OBXField}-1' ]
+
+  - name: result-value-type-st
+    value: [ '''ST''' ]
+    hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-cwe
     condition: '%resource.value.exists()'
     value: [ '''CWE''' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
-#  - name: observation-identifier
-#    resource: '%resource.code'
-#    constants:
-#      ceFieldPath: '%{hl7OBXField}-3'
-#    schema: coded-element
-
   - name: observation-identifier-code
-    resource: '%resource.code'
-    value: [ '%resource.coding.code' ]
+    value: [ '%resource.code.coding.code' ]
     hl7Spec: [ '%{hl7OBXField}-3-1' ]
 
   - name: observation-identifier-text
-    resource: '%resource.code'
-    value: [ '%resource.text' ]
+    value: [ '%resource.code.text' ]
     hl7Spec: [ '%{hl7OBXField}-3-2' ]
 
   - name: observation-identifier-coding-system
-    resource: '%resource.code.coding'
-    value: [ '%resource.version' ]
+    value: [ '%resource.code.coding.version' ]
     hl7Spec: [ '%{hl7OBXField}-3-3' ]
 
   # override to handle LN translated to loinc L on HL7->FHIR conversion
@@ -43,31 +35,17 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-3-3' ]
 
   - name: observation-identifier-alternate-code
-    resource: '%resource.code.extension(%`rsext-alternate-identifier`).value'
-    value: [ '%resource.coding.code' ]
+    value: [ '%resource.code.extension(%`rsext-alternate-identifier`).value.coding.code' ]
     hl7Spec: [ '%{hl7OBXField}-3-4' ]
 
   - name: observation-identifier-alternate-text
-    resource: '%resource.code.extension(%`rsext-alternate-identifier`).value'
-    value: [ '%resource.coding.display' ]
+    value: [ '%resource.code.extension(%`rsext-alternate-identifier`).value.coding.display' ]
     hl7Spec: [ '%{hl7OBXField}-3-5' ]
 
   - name: observation-identifier-alternate-system
-    resource: '%resource.code.extension(%`rsext-alternate-identifier`).value'
-    value: [ '%resource.coding.system' ]
+    value: [ '%resource.code.extension(%`rsext-alternate-identifier`).value.coding.system' ]
     hl7Spec: [ '%{hl7OBXField}-3-6' ]
 
-
-  #    Map to Observation.partOf or Observation.hasMember or Observation.DerivedFrom
-  # according to the implementation guidance for the v2 message at hand,
-  # otherwise map to the extension-sub-id to enable the final destination
-  # to determine how to structure the observations.
-#  - name: observation-sub-id
-#    condition: '%resource.value.coding.exists()'
-#    value: [ '%resource.value.coding.code' ]
-#    hl7Spec: [ '%{hl7OBXField}-4' ]
-
-#    OBX-5	Observation Value
   - name: observation-value-cwe-identifier
     condition: '%resource.value.coding.exists()'
     value: [ '%resource.value.coding.code' ]
@@ -77,26 +55,6 @@ elements:
     condition: '%resource.value.exists()'
     value: [ '%resource.value.text' ]
     hl7Spec: [ '%{hl7OBXField}-5-2' ]
-
-#  |782959008^Vancomycin resistant Enterococcus raffinosus^SCT^ENTRAFVRE^ENTEROCOCCUS RAFFINOSIS, VRE^L^07/31/2012^5.67^ENTEROCOCCUS RAFFINOSIS, VRE
-
-#  CWE.1 - Identifier	20	ST	O	-
-#  CWE.2 - Text	199	ST	O	-
-#  CWE.3 - Name Of Coding System	20	ID	O	-	0396
-#  CWE.4 - Alternate Identifier	20	ST	O	-
-#  CWE.5 - Alternate Text	199	ST	O	-
-#  CWE.6 - Name Of Alternate Coding System	20	ID	O	-	0396
-#  CWE.7 - Coding System Version Id	10	ST	C	-
-#  CWE.8 - Alternate Coding System Version Id	10	ST	O	-
-#  CWE.9 - Original Text	199	ST	O	-
-
-
-
-
-#    OBX-11	Observation Result Status
-#  - name: observation-result-status
-#    value: [ '%resource.status' ]
-#    hl7Spec: [ '%{hl7OBXField}-11' ]
 
   - name: observation-result-status-preliminary
     condition: '%resource.status = "preliminary"'
@@ -109,24 +67,39 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-11' ]
 
   - name: observation-date-time
-    value: [ '%resource.effectiveDateTime' ]
+    value: [ '%resource.effective' ]
     hl7Spec: [ '%{hl7OBXField}-14' ]
 
   - name: observation-producer-id
     resource: '%resource.extension(%`rsext-producer-id`).value.resolve().identifier'
-    condition: '%resource.exists()'
-#  |MCOE^ROSE MEDICAL CENTER (MCOE)^LB
     constants:
       ceFieldPath: '%{hl7OBXField}-15'
     schema: coded-element
 
-#    OBX-19	Date/Time of the Analysis
-#  - name: analysis-date-time
-#    hl7Spec: [ '%{hl7OBXField}-19' ]
+  - name: observation-producer-id-identifier
+    resource: '%resource.extension(%`rsext-producer-id`).value.resolve()'
+    value: [ '%resource.identifier.value' ]
+    hl7Spec: [ '%{hl7OBXField}-15-1' ]
 
-#    OBX-23	Performing Organization Name
-#  - name: performing-organization-name
-#    hl7Spec: [ '%{hl7OBXField}-23' ]
+  - name: observation-producer-id-text
+    resource: '%resource.extension(%`rsext-producer-id`).value.resolve()'
+    value: [ '%resource.name' ]
+    hl7Spec: [ '%{hl7OBXField}-15-2' ]
+
+  - name: observation-producer-id-system
+    resource: '%resource.extension(%`rsext-producer-id`).value.resolve().identifier.extension(%`rsext-coding-system`).value'
+    value: [ '%resource.coding.code' ]
+    hl7Spec: [ '%{hl7OBXField}-15-3' ]
+
+  - name: analysis-date-time
+    value: [ '%resource.issued' ]
+    hl7Spec: [ '%{hl7OBXField}-19' ]
+
+  - name: performing-organization-name
+    resource: '%resource.performer.resolve().organization.resolve()'
+    schema: xon-organization
+    constants:
+      hl7OrgField: '%{hl7OBXField}-23'
 
   - name: performing-organization-address
     resource: '%resource.performer.resolve().organization.resolve().address'
