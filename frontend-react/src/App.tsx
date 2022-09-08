@@ -1,12 +1,7 @@
 import { GovBanner } from "@trussworks/react-uswds";
 import { Route, Switch, useHistory } from "react-router-dom";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
-import {
-    LoginCallback,
-    SecureRoute,
-    Security,
-    useOktaAuth,
-} from "@okta/okta-react";
+import { LoginCallback, SecureRoute, useOktaAuth } from "@okta/okta-react";
 import { isIE } from "react-device-detect";
 import { useIdleTimer } from "react-idle-timer";
 import React, { Suspense } from "react";
@@ -47,7 +42,6 @@ import { AdminOrgNew } from "./pages/admin/AdminOrgNew";
 import { DAPHeader } from "./components/header/DAPHeader";
 import ValueSetsIndex from "./pages/admin/value-set-editor/ValueSetsIndex";
 import ValueSetsDetail from "./pages/admin/value-set-editor/ValueSetsDetail";
-import SessionProvider from "./contexts/SessionContext";
 import { Resources } from "./pages/resources/ResourcesCardGrid";
 import { Support } from "./pages/support/SupportCardGrid";
 import InternalUserGuides from "./pages/admin/InternalUserGuides";
@@ -56,20 +50,17 @@ import Validate from "./pages/Validate";
 import { AdminReceiverDashPage } from "./pages/admin/AdminReceiverDashPage";
 import { Product } from "./pages/product/ProductIndex";
 import UploadToPipeline from "./pages/UploadToPipeline";
+import { AppWrapper } from "./components/AppWrapper";
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const App = () => {
-    // This is for sanity checking and can be removed
-    console.log(
-        `process.env.REACT_APP_CLIENT_ENV='${
-            process.env?.REACT_APP_CLIENT_ENV || "missing"
-        }'`
-    );
     const history = useHistory();
+
     const customAuthHandler = (): void => {
         history.push("/login");
     };
+
     const handleIdle = (): void => {
         logout(OKTA_AUTH);
     };
@@ -112,168 +103,161 @@ const App = () => {
     });
 
     if (isIE) return <ErrorPage code={CODES.UNSUPPORTED_BROWSER} />;
+
     return (
-        <Security
+        <AppWrapper
             oktaAuth={OKTA_AUTH}
             onAuthRequired={customAuthHandler}
             restoreOriginalUri={restoreOriginalUri}
+            oktaHook={useOktaAuth}
         >
-            <SessionProvider oktaHook={useOktaAuth}>
-                <Suspense fallback={<Spinner size={"fullpage"} />}>
-                    <NetworkErrorBoundary
-                        fallbackComponent={() => <ErrorPage type="page" />}
-                    >
-                        <DAPHeader
-                            env={process.env.REACT_APP_ENV?.toString()}
-                        />
-                        <GovBanner aria-label="Official government website" />
-                        <SenderModeBanner />
-                        <ReportStreamHeader />
-                        {/* Changed from main to div to fix weird padding issue at the top
+            <Suspense fallback={<Spinner size={"fullpage"} />}>
+                <NetworkErrorBoundary
+                    fallbackComponent={() => <ErrorPage type="page" />}
+                >
+                    <DAPHeader env={process.env.REACT_APP_ENV?.toString()} />
+                    <GovBanner aria-label="Official government website" />
+                    <SenderModeBanner />
+                    <ReportStreamHeader />
+                    {/* Changed from main to div to fix weird padding issue at the top
                             caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
-                        <main id="main-content">
-                            <Switch>
-                                <Route path="/" exact={true} component={Home} />
-                                <Route
-                                    path="/terms-of-service"
-                                    component={TermsOfService}
-                                />
-                                <Route path="/about" component={About} />
-                                <Route path="/login" render={() => <Login />} />
-                                <Route
-                                    path="/login/callback"
-                                    component={LoginCallback}
-                                />
-                                <Route
-                                    path="/sign-tos"
-                                    component={TermsOfServiceForm}
-                                />
-                                <Route
-                                    path="/resources"
-                                    component={Resources}
-                                />
-                                <Route path="/product" component={Product} />
-                                <Route path="/support" component={Support} />
+                    <main id="main-content">
+                        <Switch>
+                            <Route path="/" exact={true} component={Home} />
+                            <Route
+                                path="/terms-of-service"
+                                component={TermsOfService}
+                            />
+                            <Route path="/about" component={About} />
+                            <Route path="/login" render={() => <Login />} />
+                            <Route
+                                path="/login/callback"
+                                component={LoginCallback}
+                            />
+                            <Route
+                                path="/sign-tos"
+                                component={TermsOfServiceForm}
+                            />
+                            <Route path="/resources" component={Resources} />
+                            <Route path="/product" component={Product} />
+                            <Route path="/support" component={Support} />
+                            <AuthorizedRoute
+                                path="/daily-data"
+                                authorize={PERMISSIONS.RECEIVER}
+                                component={Daily}
+                            />
+                            <AuthorizedRoute
+                                path="/upload"
+                                authorize={PERMISSIONS.SENDER}
+                                component={Upload}
+                            />
+                            {CheckFeatureFlag(
+                                FeatureFlagName.VALIDATION_SERVICE
+                            ) && (
                                 <AuthorizedRoute
-                                    path="/daily-data"
-                                    authorize={PERMISSIONS.RECEIVER}
-                                    component={Daily}
+                                    path="/file-handler/validate"
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={Validate}
                                 />
+                            )}
+                            {/* TODO: AuthorizedRoute needs to take many potential auth groups.
+                             *  We should fix this when we refactor our permissions layer.
+                             */}
+                            <AuthorizedRoute
+                                path="/submissions/:actionId"
+                                authorize={PERMISSIONS.SENDER}
+                                component={SubmissionDetails}
+                            />
+                            <AuthorizedRoute
+                                path="/submissions"
+                                authorize={PERMISSIONS.SENDER}
+                                component={Submissions}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/settings"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={AdminMain}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/new/org"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={AdminOrgNew}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/orgsettings/org/:orgname"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={AdminOrgEdit}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={EditReceiverSettings}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={EditSenderSettings}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={NewSetting}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/guides"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={InternalUserGuides}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/lastmile"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={AdminLastMileFailures}
+                            />
+                            <AuthorizedRoute
+                                path="/admin/send-dash"
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={AdminReceiverDashPage}
+                            />
+                            <SecureRoute
+                                path="/report-details"
+                                component={Details}
+                            />
+                            <SecureRoute
+                                path="/admin/features"
+                                component={FeatureFlagUIComponent}
+                            />
+                            <AuthorizedRoute
+                                path={"/admin/value-sets/:valueSetName"}
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={ValueSetsDetail}
+                            />
+                            <AuthorizedRoute
+                                path={"/admin/value-sets"}
+                                authorize={PERMISSIONS.PRIME_ADMIN}
+                                component={ValueSetsIndex}
+                            />
+                            {CheckFeatureFlag(FeatureFlagName.USER_UPLOAD) && (
                                 <AuthorizedRoute
-                                    path="/upload"
-                                    authorize={PERMISSIONS.SENDER}
-                                    component={Upload}
+                                    path={"/file-handler/user-upload"}
+                                    authorize={PERMISSIONS.PRIME_ADMIN}
+                                    component={UploadToPipeline}
                                 />
-                                {CheckFeatureFlag(
-                                    FeatureFlagName.VALIDATION_SERVICE
-                                ) && (
-                                    <AuthorizedRoute
-                                        path="/file-handler/validate"
-                                        authorize={PERMISSIONS.PRIME_ADMIN}
-                                        component={Validate}
-                                    />
+                            )}
+                            {/* Handles any undefined route */}
+                            <Route
+                                render={() => (
+                                    <ErrorPage code={CODES.NOT_FOUND_404} />
                                 )}
-                                {/* TODO: AuthorizedRoute needs to take many potential auth groups.
-                                 *  We should fix this when we refactor our permissions layer.
-                                 */}
-                                <AuthorizedRoute
-                                    path="/submissions/:actionId"
-                                    authorize={PERMISSIONS.SENDER}
-                                    component={SubmissionDetails}
-                                />
-                                <AuthorizedRoute
-                                    path="/submissions"
-                                    authorize={PERMISSIONS.SENDER}
-                                    component={Submissions}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/settings"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={AdminMain}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/new/org"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={AdminOrgNew}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/orgsettings/org/:orgname"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={AdminOrgEdit}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={EditReceiverSettings}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={EditSenderSettings}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/orgnewsetting/org/:orgname/settingtype/:settingtype"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={NewSetting}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/guides"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={InternalUserGuides}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/lastmile"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={AdminLastMileFailures}
-                                />
-                                <AuthorizedRoute
-                                    path="/admin/send-dash"
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={AdminReceiverDashPage}
-                                />
-                                <SecureRoute
-                                    path="/report-details"
-                                    component={Details}
-                                />
-                                <SecureRoute
-                                    path="/admin/features"
-                                    component={FeatureFlagUIComponent}
-                                />
-                                <AuthorizedRoute
-                                    path={"/admin/value-sets/:valueSetName"}
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={ValueSetsDetail}
-                                />
-                                <AuthorizedRoute
-                                    path={"/admin/value-sets"}
-                                    authorize={PERMISSIONS.PRIME_ADMIN}
-                                    component={ValueSetsIndex}
-                                />
-                                {CheckFeatureFlag(
-                                    FeatureFlagName.USER_UPLOAD
-                                ) && (
-                                    <AuthorizedRoute
-                                        path={"/file-handler/user-upload"}
-                                        authorize={PERMISSIONS.PRIME_ADMIN}
-                                        component={UploadToPipeline}
-                                    />
-                                )}
-                                {/* Handles any undefined route */}
-                                <Route
-                                    render={() => (
-                                        <ErrorPage code={CODES.NOT_FOUND_404} />
-                                    )}
-                                />
-                            </Switch>
-                        </main>
-                        <ToastContainer limit={4} />
-                        <footer className="usa-identifier footer">
-                            <ReportStreamFooter />
-                        </footer>
-                    </NetworkErrorBoundary>
-                </Suspense>
-            </SessionProvider>
-        </Security>
+                            />
+                        </Switch>
+                    </main>
+                    <ToastContainer limit={4} />
+                    <footer className="usa-identifier footer">
+                        <ReportStreamFooter />
+                    </footer>
+                </NetworkErrorBoundary>
+            </Suspense>
+        </AppWrapper>
     );
 };
 
