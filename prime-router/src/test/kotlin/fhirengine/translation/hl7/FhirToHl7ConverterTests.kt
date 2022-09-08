@@ -33,7 +33,7 @@ class FhirToHl7ConverterTests {
         val mockSchema = mockk<ConfigSchema>() // Just a dummy schema to pass around
         var element = ConfigSchemaElement("name", required = true, hl7Spec = listOf("MSH-10"))
         var converter = FhirToHl7Converter(Bundle(), mockSchema, terser = mockTerser)
-        val customContext = CustomContext(Bundle())
+        val customContext = CustomContext(Bundle(), Bundle())
 
         // Required element
         assertThat { converter.setHl7Value(element, "", customContext) }.isFailure()
@@ -81,7 +81,7 @@ class FhirToHl7ConverterTests {
         val mockSchema = mockk<ConfigSchema>() // Just a dummy schema to pass around
         val bundle = Bundle()
         bundle.id = "abc123"
-        val customContext = CustomContext(bundle)
+        val customContext = CustomContext(bundle, bundle)
 
         val converter = FhirToHl7Converter(bundle, mockSchema, terser = mockTerser)
 
@@ -108,7 +108,7 @@ class FhirToHl7ConverterTests {
         resource.destination = listOf(MessageHeader.MessageDestinationComponent())
         resource.destination[0].name = "a destination"
         bundle.addEntry().resource = resource
-        val customContext = CustomContext(bundle)
+        val customContext = CustomContext(bundle, bundle)
 
         val converter = FhirToHl7Converter(bundle, mockSchema)
 
@@ -157,7 +157,7 @@ class FhirToHl7ConverterTests {
         val mockSchema = mockk<ConfigSchema>() // Just a dummy schema to pass around
         val bundle = Bundle()
         bundle.id = "abc123"
-        val customContext = CustomContext(bundle)
+        val customContext = CustomContext(bundle, bundle)
         val converter = FhirToHl7Converter(bundle, mockSchema)
 
         var element = ConfigSchemaElement("name", value = listOf("Bundle.id", "Bundle.timestamp"))
@@ -176,7 +176,7 @@ class FhirToHl7ConverterTests {
         val mockSchema = mockk<ConfigSchema>() // Just a dummy schema to pass around
         val bundle = Bundle()
         bundle.id = "abc123"
-        val customContext = CustomContext(bundle)
+        val customContext = CustomContext(bundle, bundle)
         val converter = FhirToHl7Converter(bundle, mockSchema, terser = mockTerser)
         val pathWithValue = "Bundle.id"
         val pathNoValue = "Bundle.timestamp"
@@ -263,7 +263,7 @@ class FhirToHl7ConverterTests {
             "name", resource = "Bundle.entry", resourceIndex = "myindexvar", schemaRef = childSchema
         )
         justRun { mockTerser.set(any(), any()) }
-        converter.processElement(element, bundle, CustomContext(bundle))
+        converter.processElement(element, bundle, CustomContext(bundle, bundle))
         verifySequence {
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION(0)/OBX-1", any())
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION(1)/OBX-1", any())
