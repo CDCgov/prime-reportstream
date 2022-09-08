@@ -150,7 +150,9 @@ class ReportFunction(
                 // track the sending organization and client based on the header
                 actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
                 val validatedRequest = validateRequest(request)
-                val rawBody = validatedRequest.content.toByteArray()
+                // removes incoming '#' if included in separation characters
+                val content = validatedRequest.content.replace("|^~\\&#", "|^~\\&")
+                val rawBody = content.toByteArray()
 
                 // if the override parameter is populated, use that, otherwise use the sender value
                 val allowDuplicates = if
@@ -166,7 +168,7 @@ class ReportFunction(
                     // send report on its way, either via the COVID pipeline or the full ELR pipeline
                     receiver.validateAndMoveToProcessing(
                         sender,
-                        validatedRequest.content,
+                        content,
                         validatedRequest.defaults,
                         option,
                         validatedRequest.routeTo,
