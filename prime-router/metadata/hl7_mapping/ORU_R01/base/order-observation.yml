@@ -15,6 +15,14 @@ elements:
     # Condition from ORU_RO1 covers this schema as well
     schema: observation-request
 
+  - name: order-note
+    resource: '%resource.basedOn.resolve().note.text.split(''\n'')'
+    condition: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].basedOn.resolve().note.exists()'
+    schema: note
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '%{hl7Order}'
+
   - name: timing-segment
     resource: '%resource.basedOn.resolve()'
     # Only create the segment if we have data for it

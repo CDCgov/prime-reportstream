@@ -102,6 +102,7 @@ enum class CustomFHIRFunctionNames {
     GetYesNoValue,
     GetObservationResultsStatus,
     GetCodingSystemMapping,
+    Split
 }
 
 /**
@@ -261,6 +262,25 @@ object CustomFHIRFunctions {
     }
 
     /**
+     * Splits the [focus] into multiple strings using the delimeter provided in [parameters]
+     */
+    fun split(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
+        return if (!parameters.isNullOrEmpty() &&
+            parameters.size == 1 &&
+            parameters.first().size == 1 &&
+            focus.size == 1 &&
+            focus.first() is StringType
+        ) {
+
+            val delimeter = (parameters.first().first()).primitiveValue()
+            val stringToSplit = focus.first().primitiveValue()
+
+            stringToSplit.split(delimeter).map { StringType(it.trim()) }.toMutableList()
+        } else
+            mutableListOf()
+    }
+
+    /**
      * Translate a boolean-type value into the single character Y/N value used by HL7.
      * @return a mutable list containing the HL7 single character version of the code
      */
@@ -375,6 +395,9 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
             CustomFHIRFunctionNames.GetCodingSystemMapping -> {
                 FunctionDetails("convert FHIR coding system url to HL7 ID", 0, 0)
             }
+            CustomFHIRFunctionNames.Split -> {
+                FunctionDetails("splits a string by provided delimeter", 1, 1)
+            }
         }
     }
 
@@ -428,6 +451,9 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext {
                 }
                 CustomFHIRFunctionNames.GetCodingSystemMapping -> {
                     CustomFHIRFunctions.getCodingSystemMapping(focus)
+                }
+                CustomFHIRFunctionNames.Split -> {
+                    CustomFHIRFunctions.split(focus, parameters)
                 }
             }
             )
