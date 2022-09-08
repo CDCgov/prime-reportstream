@@ -7,13 +7,8 @@ import {
     LookupTable,
     ValueSet,
     ValueSetRow,
+    LookupTables,
 } from "../config/endpoints/lookupTables";
-
-export interface TableAttributes {
-    version: number;
-    createdAt?: string;
-    createdBy?: string;
-}
 
 const { getTableData, getTableList, updateTable, activateTable } =
     lookupTablesEndpoints;
@@ -24,81 +19,42 @@ const { getTableData, getTableList, updateTable, activateTable } =
   Hopefully this will go away with the API refactor
 
 */
-const findTableByName = (
-    tables: LookupTable[],
+const findTableMetaByName = (
+    tables: LookupTable[] = [],
     tableName: string
-): TableAttributes => {
+): LookupTable => {
+    if (!tables.length) {
+        return {} as LookupTable;
+    }
     const filteredBody: LookupTable[] = tables.filter(
         (tv: LookupTable) => tv.tableName === tableName && tv.isActive
     );
 
     if (!filteredBody.length) {
-        throw new Error(`Table '${tableName}' was not found!`);
+        console.log("Unable to find metadata for lookup table: ", tableName);
+        return {} as LookupTable;
     }
-    const table: LookupTable = filteredBody.sort(
+    return filteredBody.sort(
         (a: LookupTable, b: LookupTable) =>
             b["tableVersion"] - a["tableVersion"]
     )[0];
-
-    const { tableVersion, createdAt, createdBy } = table;
-    if (tableVersion === undefined) {
-        throw new Error(`No version of table '${tableName}' was found!`);
-    }
-
-    return {
-        version: tableVersion,
-        createdAt,
-        createdBy,
-    };
 };
 
 /*
 
-  useQuery function
+  useValueSetsTable
 
-  hook used to get value sets and value set rows (defined by passsed dataTableName)
+  a useQuery based custom hook used to get value sets and value set rows (defined by passsed dataTableName)
 
 */
 
 export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
-    dataTableName: string,
-    suppliedVersion?: number
+    dataTableName: string
 ): {
     valueSetArray: T;
     error: any;
 } => {
-    let versionData: Partial<TableAttributes> | null;
-    let error;
-
-    // multiple calls to the hook for different types is awkward but
-    // will be less awkward once resources are introduced, as those will be passed in
-    // OR we could move to a world where this hook just returns the generator function, and
-    // we call the generator function within our component called hooks to type the functions?
-    const lookupTableFetch = useAuthorizedFetch<LookupTable[]>();
     const dataFetch = useAuthorizedFetch<T>();
-
-    // get all lookup tables
-    const { error: tableError, data: tableData } = useQuery<LookupTable[]>(
-        [getTableList.queryKey],
-        () => lookupTableFetch(getTableList),
-        { enabled: !suppliedVersion } // only if version was not already passed in
-    );
-
-    // handle complexity around passed version vs. incomplete useQuery vs. success
-    if (suppliedVersion) {
-        versionData = {
-            version: suppliedVersion,
-        };
-    } else if (!tableData) {
-        versionData = null;
-    } else {
-        try {
-            versionData = findTableByName(tableData, dataTableName);
-        } catch (e) {
-            error = e;
-            versionData = null;
-        }
-    }
 
     // create the function to use for fetching table data from the API
     const memoizedDataFetch = useCallback(
@@ -106,30 +62,47 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
             dataFetch(getTableData, {
                 segments: {
                     tableName: dataTableName,
-                    version: `${versionData!!.version!}`, // number to string,
                 },
             }),
-        [dataFetch, versionData, dataTableName]
+        [dataFetch, dataTableName]
     );
 
     // not entirely accurate typing. What is sent back by the api is actually ApiValueSet[] rather than ValueSet[]
     // does not seem entirely worth it to add the complexity needed to account for that on the frontend, better
     // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
-    const { error: valueSetError, data: valueSetData } = useQuery<T>(
-        [getTableData.queryKey, versionData?.version, dataTableName],
-        memoizedDataFetch,
-        { enabled: !!versionData?.version }
+    const { error, data: valueSetData } = useQuery<T>(
+        [getTableData.queryKey, dataTableName],
+        memoizedDataFetch
     );
 
-    // the logic here is that the value set request should not go out if there is an error
-    // in the version call, so an error in the version call should preempt an error in the
-    // data call
-    error = error || tableError || valueSetError || null;
-    const valueSetArray = valueSetData
-        ? valueSetData.map((el) => ({ ...el, ...versionData }))
-        : [];
+    return { error, valueSetArray: valueSetData as T };
+};
 
-    return { error, valueSetArray: valueSetArray as T };
+/*
+
+  useValueSetsMeta
+
+  a useQuery based custom hook used to get metadata for a given value set
+
+*/
+
+export const useValueSetsMeta = (
+    dataTableName: string = LookupTables.VALUE_SET
+): {
+    valueSetMeta: LookupTable;
+    error: any;
+} => {
+    const lookupTableFetch = useAuthorizedFetch<LookupTable[]>();
+
+    // get all lookup tables in order to get metadata
+    const { error, data: tableData } = useQuery<LookupTable[]>(
+        [getTableList.queryKey],
+        () => lookupTableFetch(getTableList)
+    );
+
+    const tableMeta = findTableMetaByName(tableData, dataTableName);
+
+    return { error, valueSetMeta: tableMeta };
 };
 
 /* 
