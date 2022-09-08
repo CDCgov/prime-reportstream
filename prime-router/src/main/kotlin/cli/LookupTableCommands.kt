@@ -42,18 +42,20 @@ import java.time.Instant
 
 /**
  * Utilities to submit and get data from the Lookup Tables API.
+ * If a [useThisToken] is not specified, then attempt to get a token from Otka.
+ * Otherwise, [useThisToken] is sent as the bearer token to the ReportStream server.
  */
-class LookupTableEndpointUtilities(val environment: Environment) {
+class LookupTableEndpointUtilities(val environment: Environment, val useThisToken: String? = null) {
     /**
      * Increase from the default read timeout in case of a super-duper long table.
      */
     private val requestTimeoutMillis = 130000
 
     /**
-     * The Okta Access Token.
+     * The Access Token.
      */
-    private val oktaAccessToken = OktaCommand.fetchAccessToken(environment.oktaApp)
-        ?: throw PrintMessage("Invalid access token. Run ./prime login to fetch/refresh your access token.", true)
+    private val accessToken = useThisToken ?: OktaCommand.fetchAccessToken(environment.oktaApp)
+        ?: throw PrintMessage("Missing access token. Run ./prime login to fetch/refresh your access token.", true)
 
     /**
      * Fetches the list of tables from the API.
@@ -65,7 +67,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         val (_, response, result) = Fuel
             .get(apiUrl.toString(), listOf(LookupTableFunctions.showInactiveParamName to listInactive.toString()))
             .authentication()
-            .bearer(oktaAccessToken)
+            .bearer(accessToken)
             .timeoutRead(requestTimeoutMillis)
             .responseJson()
         checkCommonErrorsFromResponse(result, response)
@@ -88,7 +90,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         val (_, response, result) = Fuel
             .put(apiUrl.toString())
             .authentication()
-            .bearer(oktaAccessToken)
+            .bearer(accessToken)
             .timeoutRead(requestTimeoutMillis)
             .responseJson()
         return getTableInfoFromResponse(result, response)
@@ -105,7 +107,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         val (_, response, result) = Fuel
             .get(apiUrl.toString())
             .authentication()
-            .bearer(oktaAccessToken)
+            .bearer(accessToken)
             .timeoutRead(requestTimeoutMillis)
             .responseJson()
         checkCommonErrorsFromResponse(result, response)
@@ -127,7 +129,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
         val (_, response, result) = Fuel
             .get(apiUrl.toString())
             .authentication()
-            .bearer(oktaAccessToken)
+            .bearer(accessToken)
             .timeoutRead(requestTimeoutMillis)
             .responseJson()
         return getTableInfoFromResponse(result, response)
@@ -149,7 +151,7 @@ class LookupTableEndpointUtilities(val environment: Environment) {
             .header(Headers.CONTENT_TYPE to HttpUtilities.jsonMediaType)
             .jsonBody(jsonPayload.toString())
             .authentication()
-            .bearer(oktaAccessToken)
+            .bearer(accessToken)
             .timeoutRead(requestTimeoutMillis)
             .responseJson()
         return getTableInfoFromResponse(result, response)
