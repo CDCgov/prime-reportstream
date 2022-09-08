@@ -12,7 +12,6 @@ import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableRow
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.OktaAuthentication
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -39,20 +38,12 @@ class LookupTableFunctionsTests {
      */
     private val mapper = JacksonMapperUtilities.defaultMapper
 
-    /**
-     * Okta authenticator
-     */
-    private val mockOktaAuthenticator = mockk<OktaAuthentication>()
-
     @BeforeAll
     fun initDependencies() {
         every { mockRequest.headers } returns mapOf(HttpHeaders.AUTHORIZATION.lowercase() to "Bearer dummy")
         every { mockRequest.uri } returns URI.create("http://localhost:7071/api/lookuptables")
         val mockAuthenticatedClaims = mockk<AuthenticatedClaims>()
         every { mockAuthenticatedClaims.userName } returns "dummy"
-        every { mockOktaAuthenticator.checkAccess(any(), any(), any(), any(), captureLambda()) } answers {
-            lambda<(AuthenticatedClaims) -> HttpResponseMessage>().captured.invoke(mockAuthenticatedClaims)
-        }
     }
 
     /**
@@ -89,7 +80,7 @@ class LookupTableFunctionsTests {
         every { mockRequest.queryParameters } returns emptyMap()
         var mockResponseBuilder = createResponseBuilder()
         every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
-        val function = LookupTableFunctions(lookupTableAccess, mockOktaAuthenticator)
+        val function = LookupTableFunctions(lookupTableAccess)
         function.getLookupTableList(mockRequest)
         verify(exactly = 1) {
             mockResponseBuilder.body(
@@ -139,7 +130,7 @@ class LookupTableFunctionsTests {
         val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
         every { lookupTableAccess.doesTableExist(eq(tableName), eq(tableVersionNum)) } returns false
         every { mockRequest.createResponseBuilder(HttpStatus.NOT_FOUND) } returns mockResponseBuilder
-        val function = LookupTableFunctions(lookupTableAccess, mockOktaAuthenticator)
+        val function = LookupTableFunctions(lookupTableAccess)
         function.getLookupTableData(mockRequest, tableName, tableVersionNum)
         verifyError(mockResponseBuilder)
 
@@ -177,6 +168,53 @@ class LookupTableFunctionsTests {
     }
 
     @Test
+    fun `get active lookup table data by name test`() {
+        val tableName = "dummyTable"
+        every { mockRequest.httpMethod } returns HttpMethod.GET
+
+        // Table does not exist
+        var mockResponseBuilder = createResponseBuilder()
+        val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
+        every { lookupTableAccess.fetchActiveVersion(eq(tableName)) } returns null
+        every { mockRequest.createResponseBuilder(HttpStatus.NOT_FOUND) } returns mockResponseBuilder
+        val function = LookupTableFunctions(lookupTableAccess)
+        function.getActiveLookupTableData(mockRequest, tableName)
+        verifyError(mockResponseBuilder)
+
+        // Get a table
+        val tableData = listOf(
+            LookupTableRow(),
+            LookupTableRow()
+        )
+        tableData[0].data = JSONB.jsonb("""{"a": "11", "b": "21"}""")
+        tableData[1].data = JSONB.jsonb("""{"a": "12", "b": "22"}""")
+        mockResponseBuilder = createResponseBuilder()
+        every { lookupTableAccess.fetchActiveVersion(eq(tableName)) } returns 1
+        every { lookupTableAccess.fetchTable(eq(tableName), eq(1)) } returns tableData
+        every { mockRequest.createResponseBuilder(HttpStatus.OK) } returns mockResponseBuilder
+        function.getActiveLookupTableData(mockRequest, tableName)
+        verify(exactly = 1) {
+            mockResponseBuilder.body(
+                withArg {
+                    // Check that we have JSON data in the response body
+                    assertTrue(it is String)
+                    val rows = mapper.readValue<List<Map<String, String>>>(it)
+                    assertTrue(rows.size == 2)
+                    assertTrue(rows[0].containsKey("a"))
+                    assertTrue(rows[0].containsKey("b"))
+                }
+            )
+        }
+
+        // Database error
+        mockResponseBuilder = createResponseBuilder()
+        every { lookupTableAccess.fetchActiveVersion(any()) }.throws(DataAccessException("error"))
+        every { mockRequest.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR) } returns mockResponseBuilder
+        function.getActiveLookupTableData(mockRequest, tableName)
+        verifyError(mockResponseBuilder)
+    }
+
+    @Test
     fun `get lookup table info by name and version test`() {
         val tableName = "dummyTable"
         val tableVersionNum = 1
@@ -187,7 +225,7 @@ class LookupTableFunctionsTests {
         val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
         every { lookupTableAccess.fetchVersionInfo(eq(tableName), eq(tableVersionNum)) } returns null
         every { mockRequest.createResponseBuilder(HttpStatus.NOT_FOUND) } returns mockResponseBuilder
-        val function = LookupTableFunctions(lookupTableAccess, mockOktaAuthenticator)
+        val function = LookupTableFunctions(lookupTableAccess)
         function.getLookupTableInfo(mockRequest, tableName, tableVersionNum)
         verifyError(mockResponseBuilder)
 
@@ -231,7 +269,7 @@ class LookupTableFunctionsTests {
         tableData[1].data = JSONB.jsonb("""{"a": "12", "b": "22"}""")
 
         val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
-        val data = LookupTableFunctions(lookupTableAccess, mockOktaAuthenticator)
+        val data = LookupTableFunctions(lookupTableAccess)
             .convertTableDataToJsonString(tableData)
         assertThat(data).isNotEmpty()
         val rows = mapper.readValue<List<Map<String, String>>>(data)
@@ -254,7 +292,7 @@ class LookupTableFunctionsTests {
         every { mockRequest.body } returns ""
         every { mockRequest.queryParameters } returns emptyMap()
         every { lookupTableAccess.fetchLatestVersion(tableName) } returns latestVersion
-        val function = LookupTableFunctions(lookupTableAccess, mockOktaAuthenticator)
+        val function = LookupTableFunctions(lookupTableAccess)
         function.createLookupTable(mockRequest, tableName)
         verifyError(mockResponseBuilder)
 
@@ -351,7 +389,7 @@ class LookupTableFunctionsTests {
         val lookupTableAccess = mockk<DatabaseLookupTableAccess>()
         every { lookupTableAccess.doesTableExist(eq(tableName), eq(tableVersionNum)) } returns false
         every { mockRequest.createResponseBuilder(HttpStatus.NOT_FOUND) } returns mockResponseBuilder
-        val function = LookupTableFunctions(lookupTableAccess, mockOktaAuthenticator)
+        val function = LookupTableFunctions(lookupTableAccess)
         function.activateLookupTable(mockRequest, tableName, tableVersionNum)
         verifyError(mockResponseBuilder)
 

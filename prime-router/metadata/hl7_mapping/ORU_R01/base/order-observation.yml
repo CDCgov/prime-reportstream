@@ -3,10 +3,6 @@ constants:
   hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})
   hl7ObservationNotes: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION
 elements:
-  - name: request-set-ID
-    value: [ '%orderIndex + 1' ]
-    hl7Spec: [ '%{hl7Order}/OBR-1' ]
-
   - name: order-segment
     # Only create the segment if we have data for it
     condition: '%resource.basedOn.resolve().extension(%`rsext-order-control`).exists()'
@@ -23,6 +19,11 @@ elements:
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '%{hl7Order}'
+
+  - name: specimen
+    resource: '%resource.specimen.resolve()'
+    condition: '%resource.exists()'
+    schema: specimen
 
   - name: timing-segment
     resource: '%resource.basedOn.resolve()'
