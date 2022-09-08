@@ -3,7 +3,7 @@ constants:
   fieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
 elements:
   - name: request-set-ID
-    value: [ '%orderIndex  + 1' ]
+    value: [ '%orderIndex.toInteger()  + 1' ]
     hl7Spec: [ '%{fieldPath}-1' ]
 
   - name: placer-order

@@ -65,7 +65,7 @@ class FhirToHl7Converter(
     internal fun processSchema(
         schema: ConfigSchema,
         focusResource: Base,
-        context: CustomContext = CustomContext(bundle)
+        context: CustomContext = CustomContext(bundle, bundle)
     ) {
         logger.debug("Processing schema: ${schema.name} with ${schema.elements.size} elements")
         // Add any schema level constants to the context
@@ -93,13 +93,17 @@ class FhirToHl7Converter(
         } else if (focusResources.isEmpty()) debugMsg += "resource: NONE"
 
         focusResources.forEachIndexed { index, singleFocusResource ->
+            // The element context must now get the focus resource
+            elementContext.focusResource = singleFocusResource
             if (canEvaluate(element, singleFocusResource, elementContext)) {
                 when {
                     // If this is a schema then process it.
                     element.schemaRef != null -> {
                         // Schema references can have new index references
                         val indexContext = if (element.resourceIndex.isNullOrBlank()) elementContext
-                        else CustomContext.addConstant(element.resourceIndex!!, index.toString(), elementContext)
+                        else CustomContext.addConstant(
+                            element.resourceIndex!!, index.toString(), elementContext
+                        )
                         processSchema(element.schemaRef!!, singleFocusResource, indexContext)
                     }
 
