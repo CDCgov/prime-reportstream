@@ -46,6 +46,15 @@ elements:
     value: [ '%resource.code.extension(%`rsext-alternate-identifier`).value.coding.system' ]
     hl7Spec: [ '%{hl7OBXField}-3-6' ]
 
+  - name: observation-value-sub-id
+    value: [ '%resource.extension(%`rsext-sub-id`).value' ]
+    hl7Spec: [ '%{hl7OBXField}-4' ]
+
+  - name: observation-value-st
+    condition: '%resource.value is string'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7OBXField}-5' ]
+
   - name: observation-value-cwe-identifier
     condition: '%resource.value.coding.exists()'
     value: [ '%resource.value.coding.code' ]

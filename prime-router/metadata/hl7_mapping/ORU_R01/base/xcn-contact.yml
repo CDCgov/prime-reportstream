@@ -42,8 +42,8 @@ elements:
     value: [ '''L''']
     hl7Spec: [ '%{hl7XCNFieldPath}(%{contactIndex})-10' ]
 
-  - name: xcn-type
-    value: [ '%resource.identifier.type.coding.code' ]
+  - name: xcn-identifier-type
+    value: [ '%resource.extension(%`rsext-identifier-type`).value.coding.code' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-13' ]
 
   - name: xcn-assigning-facility

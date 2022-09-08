@@ -314,3 +314,13 @@ extension_1:
       valueOf: resource/Organization
       expressionType: reference
       specs: OBX.15
+
+extension_2:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, OBX.4
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: sub-id
