@@ -275,7 +275,7 @@ object CustomFHIRFunctions {
             val delimeter = (parameters.first().first()).primitiveValue()
             val stringToSplit = focus.first().primitiveValue()
 
-            stringToSplit.split(delimeter).map { StringType(it.trim()) }.toMutableList()
+            stringToSplit.split(delimeter).map { StringType(it) }.toMutableList()
         } else
             mutableListOf()
     }
