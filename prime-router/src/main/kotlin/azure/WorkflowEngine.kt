@@ -401,14 +401,7 @@ class WorkflowEngine(
         routeTo: List<String>,
         actionHistory: ActionHistory,
     ): List<ActionLog> {
-        val (routedReports, warnings) = this.translator
-            .filterAndTranslateByReceiver(
-                report,
-                defaults,
-                routeTo,
-            )
-
-        val (emptyReports, preparedReports) = routedReports.partition { (report, _) -> report.isEmpty() }
+        val (warnings, emptyReports, preparedReports) = doTranslationAndRoutingAsAnAtomicUnit(report, defaults, routeTo)
 
         emptyReports.forEach { (filteredReport, receiver) ->
             if (!filteredReport.filteringResults.isEmpty()) {
@@ -428,6 +421,22 @@ class WorkflowEngine(
             }
         }
         return warnings
+    }
+
+    internal fun doTranslationAndRoutingAsAnAtomicUnit(
+        report: Report,
+        defaults: Map<String, String>,
+        routeTo: List<String>,
+    ): Triple<List<ActionLog>, List<Translator.RoutedReport>, List<Translator.RoutedReport>> {
+        val (routedReports, warnings) = this.translator
+            .filterAndTranslateByReceiver(
+                report,
+                defaults,
+                routeTo,
+            )
+
+        val (emptyReports, preparedReports) = routedReports.partition { (report, _) -> report.isEmpty() }
+        return Triple(warnings, emptyReports, preparedReports)
     }
 
     // 1. create <event, report> pair or pairs depending on input

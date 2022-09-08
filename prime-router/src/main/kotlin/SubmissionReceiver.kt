@@ -357,6 +357,16 @@ class ValidationReceiver : SubmissionReceiver {
         payloadName: String?,
         metadata: Metadata?
     ) {
+        TODO("Not yet implemented")
+    }
+
+    fun validateAndRouteOnly(
+        sender: Sender,
+        content: String,
+        defaults: Map<String, String>,
+        routeTo: List<String>,
+        allowDuplicates: Boolean,
+    ): List<Translator.RoutedReport> {
         // parse, check for parse errors
         // todo: if we want this to work for full elr validation, we will need to do some other changes since this
         //  uses the topic parser, not the full ELR parser
@@ -375,6 +385,11 @@ class ValidationReceiver : SubmissionReceiver {
             throw actionLogs.exception
         }
 
+        val (_, _, preparedReports) =
+            workflowEngine.doTranslationAndRoutingAsAnAtomicUnit(report, defaults, routeTo)
+
         actionHistory.trackLogs(actionLogs.logs)
+
+        return preparedReports
     }
 }
