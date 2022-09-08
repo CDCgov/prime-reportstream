@@ -112,14 +112,18 @@ enum class CustomFHIRFunctionNames {
  */
 enum class CodingSystemMapper(val fhirURL: String, val hl7ID: String) {
     ICD10("http://hl7.org/fhir/sid/icd-10-cm", "I10"),
-    LOINC("http://loinc.org", "LN");
+    LOINC("http://loinc.org", "LN"),
+    SNOMED_CLINICAL("http://snomed.info/sct", "SCT"),
+    NONE("", "");
     companion object {
         /**
          * Get a coding system mapper by its [fhirURL]
          * @return an enum instance representing the appropriate mapping
          */
-        fun getByFhirUrl(fhirURL: String): CodingSystemMapper? = CodingSystemMapper.values().find {
-            it.fhirURL == fhirURL
+        fun getByFhirUrl(fhirURL: String): CodingSystemMapper? {
+            return CodingSystemMapper.values().find {
+                it.fhirURL == fhirURL
+            } ?: NONE
         }
     }
 }
