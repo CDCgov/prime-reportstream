@@ -28,6 +28,7 @@ import { UploadToPipelineWithAuth } from "./pages/UploadToPipeline";
 import { CODES, ErrorPage } from "./pages/error/ErrorPage";
 import Home from "./pages/home/Home";
 import { DailyWithAuth } from "./pages/daily/Daily";
+import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSettings";
 
 export const AppRouter = () => {
     return (
@@ -60,7 +61,7 @@ export const AppRouter = () => {
             />
             <Route
                 path="/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action"
-                element={<EditSenderSettingsWithAuth />}
+                element={<EditReceiverSettingsWithAuth />}
             />
             <Route
                 path="/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action"

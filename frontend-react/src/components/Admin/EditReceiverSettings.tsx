@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Button, Grid, GridContainer } from "@trussworks/react-uswds";
 import { useController, useResource } from "rest-hooks";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import Title from "../../components/Title";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
@@ -25,6 +25,7 @@ import {
 } from "../../utils/TemporarySettingsAPITypes";
 import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
+import { useValidParams } from "../../hooks/UseValidParams";
 
 import {
     ConfirmSaveSettingModal,
@@ -345,36 +346,25 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
     );
 };
 
-type EditReceiverSettingsProps = {
-    orgName: string;
-    receiverName: string;
-    action: "edit" | "clone";
-};
-
 export function EditReceiverSettings() {
-    const { orgName, receiverName, action } =
-        useParams<EditReceiverSettingsProps>();
-    /* useParams now returns possible undefined. This will error up to a boundary
-     * if the url param is undefined */
-    if (
-        orgName === undefined ||
-        receiverName === undefined ||
-        action === undefined
-    )
-        throw Error("Expected orgName & settingType from path");
+    const { orgname, receivername, action } = useValidParams([
+        "orgname",
+        "receivername",
+        "action",
+    ]);
 
     return (
         <AdminFormWrapper
             header={
                 <Title
-                    preTitle={`Org name: ${orgName}`}
-                    title={`Receiver name: ${receiverName}`}
+                    preTitle={`Org name: ${orgname}`}
+                    title={`Receiver name: ${receivername}`}
                 />
             }
         >
             <EditReceiverSettingsForm
-                orgname={orgName}
-                receivername={receiverName}
+                orgname={orgname}
+                receivername={receivername}
                 action={action}
             />
         </AdminFormWrapper>
