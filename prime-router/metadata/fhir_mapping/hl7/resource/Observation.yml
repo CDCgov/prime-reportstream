@@ -204,7 +204,7 @@ note_2:
   condition: $annotationText NOT_NULL
   expressionType: resource
   vars:
-    annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '  \n')
+    annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
 
 bodySite:
   valueOf: datatype/CodeableConcept
