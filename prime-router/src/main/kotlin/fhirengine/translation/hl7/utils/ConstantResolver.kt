@@ -273,6 +273,7 @@ object CustomFHIRFunctions {
 
     /**
      * Splits the [focus] into multiple strings using the delimeter provided in [parameters]
+     * @returns list of strings
      */
     fun split(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
         return if (!parameters.isNullOrEmpty() &&
