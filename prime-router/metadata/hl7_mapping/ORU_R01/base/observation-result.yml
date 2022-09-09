@@ -11,7 +11,7 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-cwe
-    condition: '%resource.value.exists()'
+    condition: '%resource.value is CodeableConcept'
     value: [ '''CWE''' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
@@ -55,15 +55,22 @@ elements:
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
-  - name: observation-value-cwe-identifier
-    condition: '%resource.value.coding.exists()'
-    value: [ '%resource.value.coding.code' ]
-    hl7Spec: [ '%{hl7OBXField}-5-1' ]
+  - name: observation-value-cwe
+    resource: '%resource.value'
+    condition: '%resource is CodeableConcept'
+    constants:
+      cweFieldPath: '%{hl7OBXField}-5'
+    schema: coded-with-exceptions
 
-  - name: observation-value-cwe-identifier
-    condition: '%resource.value.exists()'
-    value: [ '%resource.value.text' ]
-    hl7Spec: [ '%{hl7OBXField}-5-2' ]
+#  - name: observation-value-cwe-identifier
+#    condition: '%resource.value.coding is CodeableConcept'
+#    value: [ '%resource.value.coding.code' ]
+#    hl7Spec: [ '%{hl7OBXField}-5-1' ]
+#
+#  - name: observation-value-cwe-text
+#    condition: '%resource.value is CodeableConcept'
+#    value: [ '%resource.value.text' ]
+#    hl7Spec: [ '%{hl7OBXField}-5-2' ]
 
   - name: observation-result-status-preliminary
     condition: '%resource.status = "preliminary"'
