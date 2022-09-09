@@ -15,6 +15,7 @@ import assertk.assertions.isTrue
 import org.hl7.fhir.exceptions.PathEngineException
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DateTimeType
+import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.OidType
 import org.hl7.fhir.r4.model.Organization
@@ -77,13 +78,15 @@ class ConstantResolverTests {
         val urlPrefix = "https://reportstream.cdc.gov/fhir/StructureDefinition/"
         val constants = sortedMapOf("const1" to "'value1'", "int1" to "'$integerValue'", "rsext" to "'$urlPrefix'")
         val context = CustomContext.addConstants(constants, CustomContext(Bundle(), Bundle()))
-        assertThat { FhirPathCustomResolver().resolveConstant(null, "const2", false) }
-            .isFailure().hasClass(PathEngineException::class.java)
-        assertThat { FhirPathCustomResolver().resolveConstant(null, "const1", false) }
-            .isFailure().hasClass(PathEngineException::class.java)
+        assertThat(FhirPathCustomResolver().resolveConstant(context, "const2", false)).isNull()
+        assertThat(FhirPathCustomResolver().resolveConstant(context, "const1", false)).isNotNull()
+        var result = FhirPathCustomResolver().resolveConstant(context, "int1", false)
+        assertThat(result).isNotNull()
+        assertThat(result is IntegerType).isTrue()
+        assertThat((result as IntegerType).value).isEqualTo(integerValue)
 
         // Now lets resolve a constant
-        var result = FhirPathCustomResolver().resolveConstant(context, "const1", false)
+        result = FhirPathCustomResolver().resolveConstant(context, "const1", false)
         assertThat(result).isNotNull()
         assertThat(result!!.isPrimitive).isTrue()
         assertThat(result).isInstanceOf(StringType::class.java)
