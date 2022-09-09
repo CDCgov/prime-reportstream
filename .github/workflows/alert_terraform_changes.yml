@@ -28,23 +28,12 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
-      - name: Use specific version of Terraform
-        uses: hashicorp/setup-terraform@17d4c9b8043b238f6f35641cdd8433da1e6f3867
-        with:
-          terraform_version: 1.2.0
-          terraform_wrapper: false
-      - name: Fetch prerequisite external data
-        run: |
-          terraform -chdir=operations/app/terraform/vars/${{ matrix.env }} init
-          terraform -chdir=operations/app/terraform/vars/${{ matrix.env }} apply -refresh-only \
-          -target=module.sftp.data.external.sftp_ssh_query
       - name: Collect Terraform stats
         uses: josiahsiegel/terraform-stats@56fee0a5fc6f2c118a8a4992603054c78a1379ad
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
           terraform-version: 1.2.0
-          add-args: "-target=container_registry"
       - name: Format outputs for slack
         if: steps.stats1.outputs.change-count > 0
         run: |
