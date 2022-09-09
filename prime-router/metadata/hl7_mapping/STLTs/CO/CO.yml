@@ -35,13 +35,13 @@ elements:
   # Source: HCA CO Requirements
   # Always replace ORC-21.8 with NULL
   - name: co-ordering-facility-assigning-facility
-    value: [ '' ]
+    value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-8' ]
 
   # Source: HCA CO Requirements
   # Always replace ORC-21.9 with NULL
   - name: co-ordering-facility-name-code
-    value: [ '' ]
+    value: [ '""' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-9' ]
 
   # Source: HCA CO Requirements

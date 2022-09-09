@@ -25,7 +25,7 @@ elements:
   - name: xon-software-vendor-assigning-authority-system
     resource: '%resource.extension(%`rsext-assigning-authority-universal-id`)'
     condition: '%resource.exists() and %resource.value is Oid'
-    value: [ '''ISO''' ]
+    value: [ '"ISO"' ]
     hl7Spec: [ '%{hl7OrgField}-6-3' ]
 
   - name: xon-organization-id-type

@@ -38,5 +38,5 @@ elements:
 
   - name: designator-universal-id-type
     condition: '%resource.extension(%`universalIdExtName`).value is Oid'
-    value: [ '''ISO''' ]
+    value: [ '"ISO"' ]
     hl7Spec: [ '%{hl7HDField}-3' ]

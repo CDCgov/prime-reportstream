@@ -17,5 +17,5 @@ elements:
 
   - name: entity-id-system
     condition: '%resource.extension(%`rsext-universal-id`).value is Oid'
-    value: [ '''ISO''' ]
+    value: [ '"ISO"' ]
     hl7Spec: [ '%{entityIdFieldPath}-4' ]

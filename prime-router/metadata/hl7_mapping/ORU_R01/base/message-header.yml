@@ -2,16 +2,16 @@ name: ORU-R01-message-header
 elements:
   - name: sending-application-namespace-id
     # Original value is in %resource.extension(%`rsext-assigning-authority-namespace-id`).value
-    value: [ '''CDC PRIME - Atlanta, Georgia (Dekalb)''' ]
+    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
     hl7Spec: [ MSH-3-1 ]
 
   - name: sending-application-universal-id
     # Original value is in %resource.source.extension(%`rsext-source-identifier-system`).value
-    value: [ '''2.16.840.1.114222.4.1.237821''' ]
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
     hl7Spec: [ MSH-3-2 ]
 
   - name: sending-application-universal-id-type
-    value: [ '''ISO''' ]
+    value: [ '"ISO"' ]
     hl7Spec: [ MSH-3-3 ]
 
   - name: sending-facility_namespace-id
@@ -24,7 +24,7 @@ elements:
     hl7Spec: [ MSH-4-2 ]
 
   - name: sending-facility-universal-id-type
-    value: [ '''ISO''' ]
+    value: [ '"ISO"' ]
     hl7Spec: [ MSH-4-3 ]
 
   - name: receiving-application-namespace-id
@@ -37,7 +37,7 @@ elements:
     hl7Spec: [ MSH-5-2 ]
 
   - name: receiving-application-universal-id-type
-    value: [ '''ISO''' ]
+    value: [ '"ISO"' ]
     hl7Spec: [ MSH-5-3]
 
   - name: receiving-facility-namespace-id
@@ -50,7 +50,7 @@ elements:
     hl7Spec: [ MSH-6-2 ]
 
   - name: receiving-facility-universal-id-type
-    value: [ '''ISO''' ]
+    value: [ '"ISO"' ]
     hl7Spec: [ MSH-6-3 ]
 
   - name: message-date-time
