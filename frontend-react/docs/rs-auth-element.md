@@ -19,10 +19,20 @@ Use the `element` prop to define the page you are requiring authorization for.
 import {AuthElement} from "./AuthElement";
 import {MemberType} from "./UseOktaMemberships";
 
-const Page = () => <div>I'm a page</div>
+const PageAsFunction = () => <div>I'm a page</div>
 export const PageWithAuth = () => (
     <AuthElement
         element={Page}
+        requiredUserType={MemberType.PRIME_ADMIN}
+    />
+)
+
+// OR
+
+const PageWithProps = () => <div>I'm a page</div>
+export const PageWithPropsAndAuth = () => (
+    <AuthElement
+        element={<PageAsComponent myProp={true} />}
         requiredUserType={MemberType.PRIME_ADMIN}
     />
 )

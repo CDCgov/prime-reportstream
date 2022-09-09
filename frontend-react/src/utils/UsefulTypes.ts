@@ -11,6 +11,8 @@ export interface StringIndexed<T = any> {
  *
  * example: Newable<MyClass> returns an instance of MyClass */
 export type Newable<T = {}> = new (...args: any[]) => T;
+/**/
+export type ComponentAsFunction = () => JSX.Element;
 /* Useful for when a function catches errors and could possibly
  * return something other than the desired object type
  *

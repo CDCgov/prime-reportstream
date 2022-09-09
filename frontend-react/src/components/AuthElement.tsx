@@ -4,9 +4,10 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { CheckFeatureFlag, FeatureFlagName } from "../pages/misc/FeatureFlags";
+import { ComponentAsFunction } from "../utils/UsefulTypes";
 
 interface AuthElementProps {
-    element: () => JSX.Element;
+    element: JSX.Element | ComponentAsFunction;
     requiredUserType?: MemberType | MemberType[];
     requiredFeatureFlag?: FeatureFlagName;
 }
@@ -60,5 +61,9 @@ export const AuthElement = ({
         requiredUserType,
     ]);
 
-    return element(); // Checks passed, render page
+    if (typeof element === "function") {
+        return element();
+    } else {
+        return element;
+    }
 };
