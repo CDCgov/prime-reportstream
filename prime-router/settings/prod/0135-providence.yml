@@ -1,4 +1,4 @@
-# ./prime multiple-settings set --env staging --input ./settings/staging/0135-providence.yml
+# ./prime multiple-settings set --env prod --input ./settings/prod/0135-providence.yml
 # NOTE: Updated from UI
 ---
 - name: providence
