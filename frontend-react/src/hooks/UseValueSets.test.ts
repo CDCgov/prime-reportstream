@@ -5,23 +5,21 @@ import { QueryClient } from "@tanstack/react-query";
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import {
     LookupTables,
-    ValueSet,
     lookupTablesEndpoints,
+    ValueSet,
 } from "../config/endpoints/lookupTables";
 import { QueryWrapper } from "../utils/CustomRenderUtils";
 
 import {
+    useValueSetsMeta,
     useValueSetsTable,
-    useValueSetUpdate,
     useValueSetActivation,
+    useValueSetUpdate,
 } from "./UseValueSets";
 
 describe("useValueSetsTable", () => {
-    const renderWithQueryWrapper = (
-        tableName: LookupTables,
-        version?: number
-    ) =>
-        renderHook(() => useValueSetsTable<ValueSet[]>(tableName, version), {
+    const renderWithQueryWrapper = (tableName: LookupTables) =>
+        renderHook(() => useValueSetsTable<ValueSet[]>(tableName), {
             wrapper: QueryWrapper(
                 new QueryClient({
                     // to allow for faster testable failures
@@ -34,60 +32,15 @@ describe("useValueSetsTable", () => {
     afterEach(() => lookupTableServer.resetHandlers());
     afterAll(() => lookupTableServer.close());
 
-    test("returns expected values when fetching table version", async () => {
+    test("returns expected data values when fetching table version", async () => {
         const { result, waitFor } = renderWithQueryWrapper(
             LookupTables.VALUE_SET
         );
 
         await waitFor(() => !!result.current.valueSetArray.length);
-        const { name, system, createdAt, createdBy } =
-            result.current.valueSetArray[0];
+        const { name, system } = result.current.valueSetArray[0];
         expect(name).toEqual("sender_automation_value_set");
-        expect(createdAt).toEqual("now");
-        expect(createdBy).toEqual("test@example.com");
         expect(system).toEqual("LOCAL");
-    });
-
-    test("returns expected values when using supplied table version", async () => {
-        const { result, waitFor } = renderWithQueryWrapper(
-            LookupTables.VALUE_SET,
-            3
-        );
-        await waitFor(() => !!result.current.valueSetArray.length);
-        const { name, system, createdAt, createdBy } =
-            result.current.valueSetArray[0];
-        expect(name).toEqual("sender_automation_value_set");
-        expect(createdAt).toEqual(undefined); // not expecting this data to be present in this case
-        expect(createdBy).toEqual(undefined); // not expecting this data to be present in this case
-        expect(system).toEqual("LOCAL");
-    });
-
-    test("returns error when the passed table name doesn't exist in returned list of tables", async () => {
-        const { result, waitFor } = renderWithQueryWrapper(
-            LookupTables.VALUE_SET_ROW
-        );
-        await waitFor(() => !!result.current.error);
-        expect(result.current.error.message).toEqual(
-            `Table 'sender_automation_value_set_row' was not found!`
-        );
-    });
-
-    test("returns error when table list call errors", async () => {
-        lookupTableServer.use(
-            rest.get(
-                lookupTablesEndpoints.getTableList.url,
-                (_req, res, ctx) => {
-                    return res.once(ctx.json([]), ctx.status(400));
-                }
-            )
-        );
-        const { result, waitForNextUpdate } = renderWithQueryWrapper(
-            LookupTables.VALUE_SET
-        );
-        await waitForNextUpdate();
-        expect(result.current.error.message).toEqual(
-            "Request failed with status code 400"
-        );
     });
 
     test("returns error when table data call errors", async () => {
@@ -106,6 +59,66 @@ describe("useValueSetsTable", () => {
             LookupTables.VALUE_SET
         );
         await waitFor(() => result.current.error);
+        expect(result.current.error.message).toEqual(
+            "Request failed with status code 400"
+        );
+    });
+});
+
+describe("useValueSetsMeta", () => {
+    const renderWithQueryWrapper = (tableName?: LookupTables) =>
+        renderHook(() => useValueSetsMeta(tableName), {
+            wrapper: QueryWrapper(
+                new QueryClient({
+                    // to allow for faster testable failures
+                    defaultOptions: { queries: { retry: false } },
+                })
+            ),
+        });
+
+    beforeAll(() => lookupTableServer.listen());
+    afterEach(() => lookupTableServer.resetHandlers());
+    afterAll(() => lookupTableServer.close());
+
+    test("returns expected meta values", async () => {
+        const { result, waitFor } = renderWithQueryWrapper();
+
+        await waitFor(() => !!result.current.valueSetMeta.createdAt);
+        const { createdAt, createdBy } = result.current.valueSetMeta;
+        expect(createdAt).toEqual("now");
+        expect(createdBy).toEqual("test@example.com");
+    });
+
+    test("returns expected meta values when passed an optional table name", async () => {
+        const { result, waitFor } = renderWithQueryWrapper(
+            LookupTables.VALUE_SET_ROW
+        );
+
+        await waitFor(() => !!result.current.valueSetMeta.createdAt);
+        const { createdAt, createdBy } = result.current.valueSetMeta;
+        expect(createdAt).toEqual("later");
+        expect(createdBy).toEqual("again@example.com");
+    });
+
+    test("returns empty metadata when the passed table name doesn't exist in returned list of tables", async () => {
+        const { result, waitFor } = renderWithQueryWrapper();
+        await waitFor(() => !!result.current.valueSetMeta);
+        expect(result.current.valueSetMeta).toEqual({});
+    });
+
+    test("returns error when table list call errors", async () => {
+        lookupTableServer.use(
+            rest.get(
+                lookupTablesEndpoints.getTableList.url,
+                (_req, res, ctx) => {
+                    return res.once(ctx.json([]), ctx.status(400));
+                }
+            )
+        );
+        const { result, waitForNextUpdate } = renderWithQueryWrapper(
+            LookupTables.VALUE_SET
+        );
+        await waitForNextUpdate();
         expect(result.current.error.message).toEqual(
             "Request failed with status code 400"
         );
@@ -167,11 +180,11 @@ describe("useValueSetUpdate", () => {
         });
         expect(saveResult).toEqual({
             lookupTableVersionId: 2,
-            tableName: "sender_automation_value_set",
+            tableName: "sender_automation_value_set_row",
             tableVersion: 2,
             isActive: true,
-            createdBy: "test@example.com",
-            createdAt: "now",
+            createdBy: "again@example.com",
+            createdAt: "later",
             tableSha256Checksum: "checksum",
         });
     });
@@ -213,11 +226,11 @@ describe("useValueSetActivation", () => {
 
         expect(activateResult).toEqual({
             lookupTableVersionId: 2,
-            tableName: "sender_automation_value_set",
+            tableName: "sender_automation_value_set_row",
             tableVersion: 2,
             isActive: true,
-            createdBy: "test@example.com",
-            createdAt: "now",
+            createdBy: "again@example.com",
+            createdAt: "later",
             tableSha256Checksum: "checksum",
         });
     });

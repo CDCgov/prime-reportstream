@@ -136,7 +136,7 @@ const prepareRowsForSave = (
     return strippedArray;
 };
 
-const addIdsToRows = (valueSetArray: ValueSetRow[]): ValueSetRow[] => {
+const addIdsToRows = (valueSetArray: ValueSetRow[] = []): ValueSetRow[] => {
     return valueSetArray.map((row, index) => {
         return {
             ...row,
@@ -152,25 +152,21 @@ export const ValueSetsDetailTable = ({
     valueSetName: string;
     setAlert: Dispatch<SetStateAction<ReportStreamAlert | undefined>>;
 }) => {
-    const [valueSetsVersion, setValueSetVersion] = useState<number>();
-
-    const { valueSetArray, error } = useValueSetsTable<ValueSetRow[]>(
-        valueSetName,
-        valueSetsVersion
-    );
+    const { valueSetArray, error: dataError } =
+        useValueSetsTable<ValueSetRow[]>(valueSetName);
 
     const { saveData } = useValueSetUpdate();
     const { activateTable } = useValueSetActivation();
 
     useEffect(() => {
-        if (error) {
+        if (dataError) {
             handleErrorWithAlert({
                 logMessage: "Error occurred fetching value set",
-                error,
+                error: dataError,
                 setAlert,
             });
         }
-    }, [error, setAlert]);
+    }, [dataError, setAlert]);
 
     const valueSetsWithIds = useMemo(
         () => addIdsToRows(valueSetArray),
@@ -193,7 +189,7 @@ export const ValueSetsDetailTable = ({
         <Table
             title="ReportStream Core Values"
             // assume we don't want to allow creating a row if initial fetch failed
-            datasetAction={error ? undefined : datasetActionItem}
+            datasetAction={dataError ? undefined : datasetActionItem}
             config={tableConfig}
             enableEditableRows
             editableCallback={async (row) => {
@@ -207,11 +203,10 @@ export const ValueSetsDetailTable = ({
                         data: dataToSave,
                         tableName: valueSetName,
                     });
-                    const activateResponse = await activateTable({
+                    await activateTable({
                         tableVersion: saveResponse.tableVersion,
                         tableName: valueSetName,
                     });
-                    setValueSetVersion(activateResponse.tableVersion);
                 } catch (e: any) {
                     handleErrorWithAlert({
                         logMessage: "Error occurred saving value set",
