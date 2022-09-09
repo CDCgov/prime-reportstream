@@ -3481,6 +3481,7 @@
         useBatchHeaders: true
         receivingApplicationName: RI_DOH
         receivingFacilityName: RI_DOH
+        suppressHl7Fields: ORC-12-1, OBR-16-1, PID-5-7
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
