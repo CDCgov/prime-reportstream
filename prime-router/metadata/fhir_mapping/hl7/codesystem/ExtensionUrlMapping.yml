@@ -191,6 +191,6 @@
 # Filler assigned identifier
 - id: "filler-assigned-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier"
-# Producer's ID
+# Sub ID
 - id: "sub-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id"
